@@ -15,6 +15,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf);
 
         virtual void initialize(const es_info& ) override final;
+        virtual void reset() override final;
 
         virtual unsigned getTriggerCellFromCell( const unsigned ) const override final;
         virtual unsigned getModuleFromCell( const unsigned ) const override final;
@@ -58,6 +59,19 @@ HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf):
 {
 }
 
+void
+HGCalTriggerGeometryHexImp2::
+reset()
+{
+    wafer_to_module_ee_.clear();
+    wafer_to_module_fh_.clear();
+    module_to_wafers_ee_.clear();
+    module_to_wafers_fh_.clear();
+    cells_to_trigger_cells_.clear();
+    trigger_cells_to_cells_.clear();
+    number_trigger_cells_in_wafers_.clear();
+    number_cells_in_wafers_.clear();
+}
 
 void
 HGCalTriggerGeometryHexImp2::

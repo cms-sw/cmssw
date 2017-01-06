@@ -100,8 +100,8 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
-process.hgcaltriggergeomtester = cms.EDAnalyzer(
-    "HGCalTriggerGeomTester",
+process.geometryProducer = cms.ESProducer(
+    'HGCalTriggerGeometryESProducer',
     TriggerGeometry = cms.PSet(
         TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2'),
         L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt"),
@@ -110,6 +110,10 @@ process.hgcaltriggergeomtester = cms.EDAnalyzer(
         fhSDName = cms.string('HGCalHESiliconSensitive'),
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),
         )
+)
+
+process.hgcaltriggergeomtester = cms.EDAnalyzer(
+    "HGCalTriggerGeomTester"
     )
 process.test_step = cms.Path(process.hgcaltriggergeomtester)
 
