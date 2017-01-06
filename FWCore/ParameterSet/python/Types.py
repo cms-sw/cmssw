@@ -1549,7 +1549,6 @@ if __name__ == "__main__":
                     double(3) < "I am a string"
                 with self.assertRaises(TypeError):
                     3 < string("I am a string")
-                assertLess(double(5), 4)
         def testinfinity(self):
             self.assertLess(1e99, double(float("inf")))
             self.assertLess(double(1e99), float("inf"))
