@@ -579,14 +579,6 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   std::vector<float> fitParsVec;
   if(tstrig >= ts4Min_ && tsTOTen > 0.) { //Two sigma from 0
     pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, gainArr, tsTOTen, fitParsVec,noiseArr);
-  }
-  else if((tstrig < ts4Min_||tsTOTen < 0.)&&(ts4Min_==0)){
-    fitParsVec.clear();
-    fitParsVec.push_back(0.);
-    fitParsVec.push_back(0.);
-    fitParsVec.push_back(0.);
-    fitParsVec.push_back(999.);
-    fitParsVec.push_back(false);
   } else {
     fitParsVec.clear();
     fitParsVec.push_back(0.); //charge
