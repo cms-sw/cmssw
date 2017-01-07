@@ -104,7 +104,7 @@ private:
     ModuleCallingContext const* imcc = mcc;
     while(imcc->type() == ParentContext::Type::kModule) {
       std::ostringstream iost;
-      iost << "Calling method for unscheduled module "
+      iost << "Calling method for module "
       << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "'";
       ex.addContext(iost.str());
@@ -112,7 +112,7 @@ private:
     }
     if(imcc->type() == ParentContext::Type::kInternal) {
       std::ostringstream iost;
-      iost << "Calling method for unscheduled module "
+      iost << "Calling method for module "
       << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "' (probably inside some kind of mixing module)";
       ex.addContext(iost.str());
@@ -120,7 +120,7 @@ private:
     }
     while(imcc->type() == ParentContext::Type::kModule) {
       std::ostringstream iost;
-      iost << "Calling method for unscheduled module "
+      iost << "Calling method for module "
       << imcc->moduleDescription()->moduleName() << "/'"
       << imcc->moduleDescription()->moduleLabel() << "'";
       ex.addContext(iost.str());
