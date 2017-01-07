@@ -650,9 +650,9 @@ namespace edm {
         assert(not cached_exception_);
         std::ostringstream iost;
         if(iEPtr) {
-          iost<<"Prefetching for unscheduled module ";
+          iost<<"Prefetching for module ";
         } else {
-          iost<<"Calling method for unscheduled module ";
+          iost<<"Calling method for module ";
         }
         iost<<description().moduleName() << "/'"
         << description().moduleLabel() << "'";
