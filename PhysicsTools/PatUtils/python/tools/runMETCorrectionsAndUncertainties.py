@@ -1495,6 +1495,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                              metSource = "metrawCalo"+postfix
                              )
             getattr(process,"patCaloMet").addGenMET = False
+            
 
             #smearing and type0 variations not yet supported in reprocessing
             #del getattr(process,"slimmedMETs"+postfix).t1SmearedVarsAndUncs
