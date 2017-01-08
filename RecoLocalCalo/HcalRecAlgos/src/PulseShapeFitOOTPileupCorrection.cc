@@ -226,11 +226,11 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
 
 void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
-  // FIXME: pedSig_ should be the pedestalWidth from database
   if(isHPD) {
+    // FIXME: noise_ pedSig_ should be the pedestalWidth from database for HPD as well
     timeSig_            = timeSigHPD_;
-    pedSig_             = pedSigHPD_; // unused in Phase1, take the average pedestal width from the DB
-    noise_              = noiseHPD_; // unused in Phase1, take the pedestal width from the DB
+    pedSig_             = pedSigHPD_;
+    noise_              = noiseHPD_;
   } else {
     timeSig_            = timeSigSiPM_;
     pedSig_             = pedSigSiPM_; // unused in Phase1, take the average pedestal width from the DB
@@ -541,6 +541,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     energyArr[ip] = energy; pedenArr[ip] = peden;
 
     // quantization noise from the ADC (QIE8 or QIE10/11)
+    // FIXME: in the future switch also the QIE8
     if(channelData.hasTimeInfo()) {
       noiseADCArr[ip] = (1./sqrt(12))*channelData.tsDFcPerADC(ip);
     } else {
@@ -553,7 +554,13 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
       noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
     }
 
-    noiseArr[ip]= sqrt(noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip));
+    // sum all in quadrature
+    if(channelData.hasTimeInfo()) {
+      noiseArr[ip]= sqrt(noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip));
+    } else {
+      // FIXME: in the future switch the HPDnoise from the DB
+      noiseArr[ip]= sqrt(noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noise_*noise_);
+    }
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
@@ -567,8 +574,9 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 				 channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)*channelData.tsGain(2)*channelData.tsGain(2) +
 				 channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)*channelData.tsGain(3)*channelData.tsGain(3));
 
+  // FIXME: in the future switch the HPDnoise from the DB
   // redefine the invertpedSig2
-  psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
+  if(channelData.hasTimeInfo()) psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
 
   if(channelData.hasTimeInfo()) { 
     ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; 
