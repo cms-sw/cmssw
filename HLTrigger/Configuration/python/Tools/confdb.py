@@ -193,6 +193,13 @@ from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 %%(process)s = customizeHLTforCMSSW(%%(process)s,"%s")
 """ % (self.config.type)
 
+    # Eras-based customisations
+    self.data += """
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(%(process)s)
+"""
+
   # customize the configuration according to the options
   def customize(self):
 

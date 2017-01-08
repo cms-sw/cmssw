@@ -13764,3 +13764,7 @@ process = customizeHLTforAll(process,"PRef",_customInfo)
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 process = customizeHLTforCMSSW(process,"PRef")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(process)
+

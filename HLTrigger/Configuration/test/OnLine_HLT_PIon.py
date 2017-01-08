@@ -19189,3 +19189,7 @@ process = customizeHLTforAll(process,"PIon",_customInfo)
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 process = customizeHLTforCMSSW(process,"PIon")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(process)
+

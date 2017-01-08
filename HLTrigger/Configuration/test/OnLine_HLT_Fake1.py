@@ -480,3 +480,7 @@ process = customizeHLTforAll(process,"Fake1",_customInfo)
 from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 process = customizeHLTforCMSSW(process,"Fake1")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(process)
+
