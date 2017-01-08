@@ -1,15 +1,14 @@
-#include "RecoEgamma/EgammaTools/plugins/EGExtraInfoModifierFromValueMaps.h"
+#include "RecoEgamma/EgammaTools/interface/EGExtraInfoModifierFromValueMaps.h"
 
-using EGExtraInfoModifierFromFloatValueMapsTest = EGExtraInfoModifierFromValueMaps<float>;
+using EGExtraInfoModifierFromFloatValueMaps = EGExtraInfoModifierFromValueMaps<float>;
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
-		  EGExtraInfoModifierFromFloatValueMapsTest,
-		  "EGExtraInfoModifierFromFloatValueMapsTest");
+		  EGExtraInfoModifierFromFloatValueMaps,
+		  "EGExtraInfoModifierFromFloatValueMaps");
 
-
-using EGExtraInfoModifierFromIntValueMapsTest = EGExtraInfoModifierFromValueMaps<int>;
+using EGExtraInfoModifierFromIntValueMaps = EGExtraInfoModifierFromValueMaps<int>;
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
-		  EGExtraInfoModifierFromIntValueMapsTest,
-		  "EGExtraInfoModifierFromIntValueMapsTest");
+		  EGExtraInfoModifierFromIntValueMaps,
+		  "EGExtraInfoModifierFromIntValueMaps");
 
 using EGExtraInfoModifierFromBoolValueMaps = EGExtraInfoModifierFromValueMaps<bool>;
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
@@ -30,8 +29,6 @@ using EGExtraInfoModifierFromUIntToIntValueMaps = EGExtraInfoModifierFromValueMa
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 		  EGExtraInfoModifierFromUIntToIntValueMaps,
 		  "EGExtraInfoModifierFromUIntToIntValueMaps");
-
-
 
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 using EGExtraInfoModifierFromVIDCutFlowResultValueMaps = EGExtraInfoModifierFromValueMaps<vid::CutFlowResult>;
