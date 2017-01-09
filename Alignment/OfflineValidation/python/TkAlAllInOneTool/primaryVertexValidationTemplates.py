@@ -371,25 +371,27 @@ It can be run as is, or adjusted to fit
 void TkAlPrimaryVertexValidationPlot()
 {
 
-  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,
-                      .oO[m_dzPhiMax]Oo.,
-                      .oO[m_dxyEtaMax]Oo.,
-                      .oO[m_dzEtaMax]Oo.,
-                      .oO[m_dxyPhiNormMax]Oo.,
-                      .oO[m_dzPhiNormMax]Oo.,
-                      .oO[m_dxyEtaNormMax]Oo.,
-                      .oO[m_dzEtaNormMax]Oo.,
-                      .oO[w_dxyPhiMax]Oo.,
-                      .oO[w_dzPhiMax]Oo.,
-                      .oO[w_dxyEtaMax]Oo.,
-                      .oO[w_dzEtaMax]Oo.,
-                      .oO[w_dxyPhiNormMax]Oo.,
-                      .oO[w_dzPhiNormMax]Oo.,
-                      .oO[w_dxyEtaNormMax]Oo.,
-                      .oO[w_dzEtaNormMax]Oo.
+  // initialize the plot y-axis ranges
+  thePlotLimits->init(.oO[m_dxyPhiMax]Oo.,         // mean of dxy vs Phi        
+                      .oO[m_dzPhiMax]Oo.,          // mean of dz  vs Phi        
+                      .oO[m_dxyEtaMax]Oo.,         // mean of dxy vs Eta        
+                      .oO[m_dzEtaMax]Oo.,          // mean of dz  vs Eta        
+                      .oO[m_dxyPhiNormMax]Oo.,     // mean of dxy vs Phi (norm) 
+                      .oO[m_dzPhiNormMax]Oo.,      // mean of dz  vs Phi (norm) 
+                      .oO[m_dxyEtaNormMax]Oo.,     // mean of dxy vs Eta (norm) 
+                      .oO[m_dzEtaNormMax]Oo.,      // mean of dz  vs Eta (norm) 
+                      .oO[w_dxyPhiMax]Oo.,         // width of dxy vs Phi       
+                      .oO[w_dzPhiMax]Oo.,          // width of dz  vs Phi       
+                      .oO[w_dxyEtaMax]Oo.,         // width of dxy vs Eta       
+                      .oO[w_dzEtaMax]Oo.,          // width of dz  vs Eta       
+                      .oO[w_dxyPhiNormMax]Oo.,     // width of dxy vs Phi (norm)
+                      .oO[w_dzPhiNormMax]Oo.,      // width of dz  vs Phi (norm)
+                      .oO[w_dxyEtaNormMax]Oo.,     // width of dxy vs Eta (norm)
+                      .oO[w_dzEtaNormMax]Oo.       // width of dz  vs Eta (norm)
 		      );
-  
-  FitPVResiduals(".oO[PrimaryVertexPlotInstantiation]Oo.",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
+
+ .oO[PrimaryVertexPlotInstantiation]Oo.
+  FitPVResiduals("",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
 }
 """
 
