@@ -488,11 +488,10 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
         trackPin.push_back(toFConverterV(right->innerMomentum()));
         trackPout.push_back(toFConverterV(left->outerMomentum()));
 	trackPout.push_back(toFConverterV(right->outerMomentum()));
-      }
-          
-      if (ll->second->trajRef().isNonnull() && rr->second->trajRef().isNonnull()) {
-        std::pair<uint8_t,Measurement1DFloat> leftWrongHits = hitChecker.nHitsBeforeVtx(*ll->second->trajRef().get(),theConversionVertex);
-        std::pair<uint8_t,Measurement1DFloat> rightWrongHits = hitChecker.nHitsBeforeVtx(*rr->second->trajRef().get(),theConversionVertex);
+//        std::cout << "P id " << iEvent.getProvenance(left.id()) << std::endl;
+        auto leftWrongHits = hitChecker.nHitsBeforeVtx(*left->extra(),theConversionVertex);
+//       	std::cout << "P	id " <<	iEvent.getProvenance(right.id()) << std::endl;
+        auto rightWrongHits = hitChecker.nHitsBeforeVtx(*right->extra(),theConversionVertex);
         nHitsBeforeVtx.push_back(leftWrongHits.first);
         nHitsBeforeVtx.push_back(rightWrongHits.first);
         dlClosestHitToVtx.push_back(leftWrongHits.second);
