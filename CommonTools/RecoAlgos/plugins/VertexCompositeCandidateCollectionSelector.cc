@@ -126,7 +126,7 @@ VertexCompositeCandidateCollectionSelector::produce(edm::Event& iEvent, const ed
 										 0. ) );
        GlobalPoint displacementFromBS2D = ( bs==nullptr ? dummyGP : GlobalPoint( v0.vx() - bs->x(v0.vz()),
 										 v0.vy() - bs->y(v0.vz()),
-										 0. );
+										 0. ) );
        float abslxy      = ( pv==nullptr ? dummy : displacementFromPV2D.perp() );
        float abslxyWRTbs = ( bs==nullptr ? dummy : displacementFromBS2D.perp() );
 
