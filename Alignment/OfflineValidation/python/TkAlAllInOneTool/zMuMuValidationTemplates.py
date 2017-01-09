@@ -252,18 +252,18 @@ fi
 
 ls -lh . 
 
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/CompareBiasZValidation.cc .
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/Legend.h .
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMassSlices.cc .
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitSlices.cc .
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitXslices.cc .
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitWithRooFit.cc .
-cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMass1D.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/CompareBiasZValidation.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/Legend.h .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitMassSlices.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitSlices.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitXslices.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitWithRooFit.cc .
+cp .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/FitMass1D.cc .
 
 root -q -b -l "CompareBiasZValidation.cc+(.oO[rebinphi]Oo., .oO[rebinetadiff]Oo., .oO[rebineta]Oo., .oO[rebinpt]Oo.)"
 
-cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
-cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
+cp  .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/tdrstyle.C .
+cp  .oO[MuonAnalysis/MomentumScaleCalibration]Oo./test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
 
 if [[ .oO[zmumureference]Oo. == *store* ]]; then xrdcp -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
 root -q -b -l MultiHistoOverlap_.oO[resonance]Oo..C
@@ -303,7 +303,7 @@ root -l -x -b -q TkAlMergeZmumuPlots.C++
 ######################################################################
 
 mergeZmumuPlotsTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlapAll_Z.C"
+#include "MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlapAll_Z.C"
 #include <sstream>
 #include <vector>
 
@@ -322,6 +322,9 @@ void TkAlMergeZmumuPlots()
     vector<string> filenames; vector<string> titles; vector<int> colors; vector<int> linestyles;
 
     .oO[mergeZmumuPlotsInstantiation]Oo.
+
+    TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+    TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
 
     MultiHistoOverlapAll_Z(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles), ".oO[datadir]Oo./ZMuMuPlots", .oO[switchONfit]Oo.);
 }

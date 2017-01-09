@@ -212,3 +212,4 @@ REGISTER_L1_WRITER(L1GtPsbSetupRcd, L1GtPsbSetup);
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 REGISTER_L1_WRITER(L1CaloGeometryRecord, L1CaloGeometry);
+

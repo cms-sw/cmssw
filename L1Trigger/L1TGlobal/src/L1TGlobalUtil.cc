@@ -10,6 +10,8 @@
 
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +30,11 @@
 l1t::L1TGlobalUtil::L1TGlobalUtil(){
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
+    m_l1GtPfAlgoCacheID = 0ULL;
     m_filledPrescales = false;
+    m_algorithmTriggersUnprescaled = true;
+    m_algorithmTriggersUnmasked = true;
+
     edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/prescale_L1TGlobal.csv");
     m_preScaleFileName = f1.fullPath();
     m_numberPhysTriggers = 512; //need to get this out of the EventSetup
@@ -102,14 +108,30 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
        resetPrescaleVectors();
        resetMaskVectors();
 
-       //Load the full prescale set for use
-       loadPrescalesAndMasks();
+       // Only get event record if not unprescaled and not unmasked
+       if( !( m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked ) ){
+	 unsigned long long l1GtPfAlgoCacheID = evSetup.get<L1TGlobalPrescalesVetosRcd>().cacheIdentifier();
 
-       // Set Prescale factors to initial (This is somewhat stupid...should fix up)
-       m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
-       m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
-       m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
-       
+	 if (m_l1GtPfAlgoCacheID != l1GtPfAlgoCacheID) {
+	             edm::ESHandle< L1TGlobalPrescalesVetos > l1GtPrescalesVetoes;
+	             evSetup.get< L1TGlobalPrescalesVetosRcd >().get( l1GtPrescalesVetoes );
+	             const L1TGlobalPrescalesVetos * es = l1GtPrescalesVetoes.product();
+	             m_l1GtPrescalesVetoes = PrescalesVetosHelper::readFromEventSetup(es);
+		     
+		     m_prescaleFactorsAlgoTrig = &(m_l1GtPrescalesVetoes->prescaleTable());
+		     m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetoes->triggerMaskVeto());
+		     
+		     m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
+         }
+       } else {
+	 //Load the full prescale set for use
+	 loadPrescalesAndMasks();
+ 
+	 // Set Prescale factors to initial
+	 m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
+	 m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+	 m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
+       }
 
        //Pick which set we are using
        if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {	  
@@ -122,7 +144,19 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
        }
        LogDebug("l1t|Global") << "Grabing prescale column "<< m_PreScaleColumn << endl;
        const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn-1];
-           
+       
+       // If masks or prescales enabled, get mask decision from prescale column
+       if( !( m_algorithmTriggersUnprescaled && m_algorithmTriggersUnmasked ) ){
+	 // For now, set masks according to prescale value of 0
+	 m_initialTriggerMaskAlgoTrig.clear();
+	 for( unsigned int iAlgo=0; iAlgo < prescaleSet.size(); iAlgo++ ){
+	   unsigned int value = prescaleSet[iAlgo];
+	   value = ( value==0 ) ? 0 : 1;
+	   m_initialTriggerMaskAlgoTrig.push_back(value);
+	 }
+	 m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+       }
+               
        for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
           // Get the algorithm name
@@ -200,7 +234,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
     std::vector<std::vector<int> > prescale_vec;
 
     std::vector<unsigned int> temp_triggerMask;
-    std::vector<unsigned int> temp_triggerVetoMask;
+    std::vector<int> temp_triggerVetoMask;
 
     if( inputPrescaleFile ){
       std::string prefix1("#");
@@ -275,7 +309,7 @@ void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 //	      cout << "Settting Mask for bit " << algoBit << " to " << triggerMask << endl;
 	    }
 	    if( maskVetoColumn>=0 ){
-	      unsigned int triggerVetoMask = vec[maskVetoColumn][iBit];
+	      int triggerVetoMask = vec[maskVetoColumn][iBit];
 	      temp_triggerVetoMask[algoBit] = triggerVetoMask;
 	    }
 	  }

@@ -17,6 +17,8 @@ def L1TBasicDemo(process):
     return process
 
 def L1THLTDemo(process):
+    #process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+    process.load('L1Trigger.L1TGlobal.hackConditions_cff')
     print "L1T INFO:  adding HLT demo module to the process."
     #
     # BEGIN HLT UNPACKER SEQUENCE FOR STAGE 2
@@ -42,9 +44,12 @@ def L1THLTDemo(process):
     
     process.hltGtStage2ObjectMap = cms.EDProducer(
         "L1TGlobalProducer",
-        GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
+        MuonInputTag = cms.InputTag("hltGmtStage2Digis","Muon"),
         ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
-        CaloInputTag = cms.InputTag("hltCaloStage2Digis"),
+        EtSumInputTag = cms.InputTag("hltCaloStage2Digis", "EtSum"),
+        EGammaInputTag = cms.InputTag("hltCaloStage2Digis", "EGamma"),
+        TauInputTag = cms.InputTag("hltCaloStage2Digis", "Tau"),
+        JetInputTag = cms.InputTag("hltCaloStage2Digis", "Jet"),
         AlgorithmTriggersUnprescaled = cms.bool(True),
         AlgorithmTriggersUnmasked = cms.bool(True),
         )
@@ -66,15 +71,15 @@ def L1THLTDemo(process):
     #
     process.hltL1TSeed = cms.EDFilter( 
         "HLTL1TSeed",
-        L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
-        SaveTags             = cms.bool( True ),
+        L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0er1p6_dEta_Max1p8 OR L1_DoubleMu0er1p6_dEta_Max1p8_OS " ),
+        saveTags             = cms.bool( True ),
         L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
         L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
-        L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
-        L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
-        L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
-        L1TauInputTag        = cms.InputTag("hltCaloStage2Digis"),
-        L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
+        L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis","Muon"),
+        L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis","EGamma"),
+        L1JetInputTag        = cms.InputTag("hltCaloStage2Digis","Jet"),
+        L1TauInputTag        = cms.InputTag("hltCaloStage2Digis","Tau"),
+        L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis","EtSum"),
         )
 
     # HLT Seed sequence

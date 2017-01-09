@@ -91,6 +91,7 @@ private:
   edm::EDGetTokenT<reco::PFTauDiscriminator>    DMFindingToken_;
   edm::EDGetTokenT<reco::PFTauDiscriminator>    DMFindingOldToken_;
   edm::EDGetTokenT<reco::PFTauDiscriminator>    TightIsoToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator>    TightRawIsoToken_;
   edm::EDGetTokenT<reco::PFTauDiscriminator>    LooseIsoToken_;
   edm::EDGetTokenT<reco::PFTauDiscriminator>    LooseAntiMuonToken_;
   edm::EDGetTokenT<reco::PFTauDiscriminator>    TightAntiMuonToken_;
@@ -127,6 +128,7 @@ L1TauRecoTreeProducer::L1TauRecoTreeProducer(const edm::ParameterSet& iConfig):
       DMFindingToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")));
       DMFindingOldToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingOldToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingOldDMs")));
       TightIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightIsoToken",edm::InputTag("hpsPFTauDiscriminationByTightIsolation")));
+      TightRawIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightRawIsoToken",edm::InputTag("hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits")));
       LooseIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseIsoToken",edm::InputTag("hpsPFTauDiscriminationByLooseIsolation")));
       LooseAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByLooseMuonRejection")));
       TightAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByTightMuonRejection")));
@@ -141,6 +143,7 @@ L1TauRecoTreeProducer::L1TauRecoTreeProducer(const edm::ParameterSet& iConfig):
       DMFindingToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs")));
       DMFindingOldToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("DMFindingOldToken",edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingOldDMs")));
       TightIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightIsoToken",edm::InputTag("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits")));
+      TightRawIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightRawIsoToken",edm::InputTag("hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits")));
       LooseIsoToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseIsoToken",edm::InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits")));
       LooseAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("LooseAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByLooseMuonRejection3")));
       TightAntiMuonToken_ = consumes<reco::PFTauDiscriminator>(iConfig.getUntrackedParameter("TightAntiMuonToken",edm::InputTag("hpsPFTauDiscriminationByTightMuonRejection3")));
@@ -201,6 +204,9 @@ void L1TauRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::Handle<reco::PFTauDiscriminator> TightIsoTaus;
   iEvent.getByToken(TightIsoToken_, TightIsoTaus);
 
+  edm::Handle<reco::PFTauDiscriminator> TightRawIsoTaus;
+  iEvent.getByToken(TightRawIsoToken_, TightRawIsoTaus);
+
   edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus;
   iEvent.getByToken(LooseIsoToken_, LooseIsoTaus);
 
@@ -223,7 +229,7 @@ void L1TauRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   if (recoTaus.isValid()) {
     //std::cout<<"passing here"<<std::endl;
-    tau->SetTau(iEvent, iSetup, recoTaus, DMFindingOldTaus, DMFindingTaus, TightIsoTaus, LooseIsoTaus, LooseAntiMuon, TightAntiMuon, VLooseAntiElectron, LooseAntiElectron, TightAntiElectron, maxTau_);
+    tau->SetTau(iEvent, iSetup, recoTaus, DMFindingOldTaus, DMFindingTaus, TightIsoTaus, TightRawIsoTaus, LooseIsoTaus, LooseAntiMuon, TightAntiMuon, VLooseAntiElectron, LooseAntiElectron, TightAntiElectron, maxTau_);
   }
   else {
     if (!caloJetsMissing_) {edm::LogWarning("MissingProduct") << "CaloJets not found.  Branch will not be filled" << std::endl;}

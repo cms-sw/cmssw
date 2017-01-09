@@ -8,11 +8,5 @@ L1TMuonBarrelParams::L1TMuonBarrelParams() :
   pnodes_[CONFIG].sparams_.clear();
   pnodes_[CONFIG].iparams_.resize(NUM_CONFIG_PARAMS);
   version_=Version;
-}
-
-void L1TMuonBarrelParams::print(std::ostream& out) const {
-
-  out << "L1 BMTF Parameters" << std::endl;
-
-  out << "Firmware version: " << fwVersion_ << std::endl;
+  fwVersion_=0;
 }

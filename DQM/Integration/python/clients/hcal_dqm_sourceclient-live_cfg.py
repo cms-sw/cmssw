@@ -45,6 +45,7 @@ referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
+process.source.minEventsPerLumi=100
 
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
@@ -94,6 +95,9 @@ process.hcalDigis.InputLabel = rawTag
 process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
+process.load('DQM.HcalTasks.NoCQTask')
+process.load('DQM.HcalTasks.QIE10Task')
+process.load('DQM.HcalTasks.QIE11Task')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
 #-------------------------------------
@@ -105,7 +109,7 @@ if useMap:
 		record = cms.string("HcalElectronicsMapRcd"),
         tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
         )
-	)
+    )
 
 #-------------------------------------
 #	For Debugginb
@@ -120,10 +124,18 @@ oldsubsystem = subsystem
 process.rawTask.tagFEDs = rawTagUntracked
 process.digiTask.runkeyVal = runType
 process.digiTask.runkeyName = runTypeName
+process.nocqTask.runkeyVal = runType
+process.nocqTask.runkeyName = runTypeName
 process.rawTask.runkeyVal = runType
 process.rawTask.runkeyName = runTypeName
 process.tpTask.runkeyVal = runType
 process.tpTask.runkeyName = runTypeName
+process.qie10Task.runkeyVal = runType
+process.qie10Task.runkeyName = runTypeName
+process.qie10Task.tagQIE10 = cms.untracked.InputTag("hcalDigis")
+process.qie11Task.runkeyVal = runType
+process.qie11Task.runkeyName = runTypeName
+process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
@@ -132,6 +144,10 @@ process.tasksPath = cms.Path(
 		process.rawTask
 		+process.digiTask
 		+process.tpTask
+
+		+process.nocqTask
+		+process.qie10Task
+		+process.qie11Task
 )
 
 process.harvestingPath = cms.Path(

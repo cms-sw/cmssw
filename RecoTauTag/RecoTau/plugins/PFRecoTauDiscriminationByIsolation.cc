@@ -39,6 +39,12 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     calculateWeights_ = pset.exists("ApplyDiscriminationByWeightedECALIsolation") ?
       pset.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation") : false;
 
+    // RIC: multiply neutral isolation by a flat factor.
+    //      Useful, for instance, to combine charged and neutral isolations
+    //      with different relative weights
+    weightGammas_ = pset.exists("WeightECALIsolation") ?
+      pset.getParameter<double>("WeightECALIsolation") : 1.0;
+
     // RIC: allow to relax the isolation completely beyond a given tau pt
     minPtForNoIso_ = pset.exists("minTauPtForNoIso") ?
       pset.getParameter<double>("minTauPtForNoIso") : -99.;
@@ -219,6 +225,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   bool includeTracks_;
   bool includeGammas_;
   bool calculateWeights_;
+  double weightGammas_;
   bool applyOccupancyCut_;
   uint32_t maximumOccupancy_;
   bool applySumPtCut_;
@@ -559,7 +566,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
       neutralPt = 0.;
     }
 
-    totalPt = chargedPt + neutralPt;
+    totalPt = chargedPt + weightGammas_ * neutralPt;
     LogTrace("discriminate") << "totalPt = " << totalPt << " (cut = " << maximumSumPt_ << ")" ;
 
     failsSumPtCut = (totalPt > maximumSumPt_);

@@ -1,4 +1,4 @@
-# AlCaReco for track based alignment using Jpsi->mumu events in heavy ion data
+# AlCaReco for track based alignment using Jpsi->mumu events in heavy ion (PbPb) data
 import FWCore.ParameterSet.Config as cms
 
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import *
@@ -17,4 +17,8 @@ ALCARECOTkAlJpsiMuMuHI = ALCARECOTkAlJpsiMuMu.clone(
 
 ALCARECOTkAlJpsiMuMuHI.GlobalSelector.muonSource = 'ALCARECOTkAlJpsiMuMuHIGoodMuons'
 
-seqALCARECOTkAlJpsiMuMuHI = cms.Sequence(ALCARECOTkAlJpsiMuMuHIHLT+ALCARECOTkAlJpsiMuMuHIDCSFilter+ALCARECOTkAlJpsiMuMuHIGoodMuons+ALCARECOTkAlJpsiMuMuHI)
+seqALCARECOTkAlJpsiMuMuHI = cms.Sequence(ALCARECOTkAlJpsiMuMuHIHLT
+                                         +ALCARECOTkAlJpsiMuMuHIDCSFilter
+                                         +ALCARECOTkAlJpsiMuMuHIGoodMuons
+                                         +ALCARECOTkAlJpsiMuMuHI
+                                         )

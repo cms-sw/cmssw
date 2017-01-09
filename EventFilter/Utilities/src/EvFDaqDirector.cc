@@ -252,6 +252,9 @@ namespace evf {
     pthread_mutex_init(&init_lock_,NULL);
 
     stopFilePath_ = run_dir_+"/CMSSW_STOP";
+    std::stringstream sstp;
+    sstp << stopFilePath_ << "_pid" << getpid();
+    stopFilePathPid_ = sstp.str();
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -487,8 +490,13 @@ namespace evf {
 
     struct stat buf;
     int stopFileLS = -1;
-    if (stat(stopFilePath_.c_str(),&buf)==0) {
-        stopFileLS = readLastLSEntry(stopFilePath_);
+    int stopFileCheck = stat(stopFilePath_.c_str(),&buf);
+    int stopFilePidCheck = stat(stopFilePathPid_.c_str(),&buf);
+    if (stopFileCheck==0 || stopFilePidCheck==0) {
+        if (stopFileCheck==0)
+          stopFileLS = readLastLSEntry(stopFilePath_);
+        else
+          stopFileLS = 1;//stop without drain if only pid is stopped
         if (!stop_ls_override_) {
           //if lumisection is higher than in stop file, should quit at next from current
           if (stopFileLS>=0 && (int)ls>=stopFileLS) stopFileLS = stop_ls_override_ = ls;

@@ -14,7 +14,7 @@ cd ${LOCALRT}/src/Utilities/StaticAnalyzers
 scram b -j $J
 cd ${LOCALRT}/
 export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker cms.FunctionDumper -enable-checker optional.ClassDumper -enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT -enable-checker optional.EDMPluginDumper -enable-checker optional.getParamDumper"
+export USER_LLVM_CHECKERS="-enable-checker cms.FunctionDumper -enable-checker optional.ClassDumper -enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT -enable-checker optional.EDMPluginDumper -enable-checker optional.getParamDumper"
 scram b -k -j $J checker SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test > $LOCALRT/tmp/class+function-dumper.log 2>&1
 find ${LOCALRT}/src/ -name classes\*.h.cc | xargs rm -fv
 cd ${LOCALRT}/tmp

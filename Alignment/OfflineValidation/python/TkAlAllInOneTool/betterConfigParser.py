@@ -112,7 +112,11 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                     msg = ("%s. This option is mandatory."
                            %(str(globalSectionError).replace(":", "", 1)))
                     raise AllInOneError(msg)
-        result = self.__updateDict( result, section )
+        try:
+            result = self.__updateDict( result, section )
+        except AllInOneError:   #section doesn't exist
+            if demandPars:      #then there's at least one mandatory parameter, which means the section needs to be there
+                raise           #otherwise all the parameters are optional, so it's ok
         return result
 
     def getAlignments( self ):
@@ -143,7 +147,6 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             "eosdir": "",
-            "email":"true"
             }
         self.checkInput("general", knownSimpleOptions = defaults.keys())
         general = self.getResultingSection( "general", defaultDict = defaults )
@@ -152,9 +155,11 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             self.add_section(internal_section)
         if not self.has_option(internal_section, "workdir"):
             self.set(internal_section, "workdir", "/tmp/$USER")
+
         general["workdir"] = self.get(internal_section, "workdir")
         for dir in "workdir", "datadir", "logdir", "eosdir":
             general[dir] = os.path.expandvars(general[dir])
+
         return general
     
     def checkInput(self, section, knownSimpleOptions=[], knownKeywords=[],
@@ -170,18 +175,28 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         - `knownKeywords`: List of allowed keywords in `section`.
         """
 
-        for option in self.options( section ):
-            if option in knownSimpleOptions:
-                continue
-            elif option.split()[0] in knownKeywords:
-                continue
-            elif option in ignoreOptions:
-                print ("Ignoring option '%s' in section '[%s]'."
-                       %(option, section))
-            else:
-                msg = ("Invalid or unknown parameter '%s' in section '%s'!"
-                       %(option, section))
-                raise AllInOneError(msg)
+        try:
+            for option in self.options( section ):
+                if option in knownSimpleOptions:
+                    continue
+                elif option.split()[0] in knownKeywords:
+                    continue
+                elif option in ignoreOptions:
+                    print ("Ignoring option '%s' in section '[%s]'."
+                           %(option, section))
+                else:
+                    msg = ("Invalid or unknown parameter '%s' in section '%s'!"
+                           %(option, section))
+                    raise AllInOneError(msg)
+        except ConfigParser.NoSectionError:
+            pass
+
+    def set(self, section, option, value=None):
+        try:
+            ConfigParser.ConfigParser.set(self, section, option, value)
+        except ConfigParser.NoSectionError:
+            self.add_section(section)
+            ConfigParser.ConfigParser.set(self, section, option, value)
 
     def items(self, section, raw=False, vars=None):
         if section == "validation":

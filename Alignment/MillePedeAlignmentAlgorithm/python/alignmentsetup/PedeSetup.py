@@ -3,16 +3,18 @@ import FWCore.ParameterSet.Config as cms
 
 def setup(process, binary_files, tree_files):
     """Pede-specific setup.
-    
+
     Arguments:
     - `process`: cms.Process object
     - `binary_files`: list of binary files to be read by pede
     - `tree_files`: list of ROOT files created in the mille step
     """
 
-    # enforce that alignment record is written to DB
+    # write alignments, APEs, and surface deformations to DB by default
     # --------------------------------------------------------------------------
     process.AlignmentProducer.saveToDB = True
+    process.AlignmentProducer.saveApeToDB = True
+    process.AlignmentProducer.saveDeformationsToDB = True
 
     # setup database output module
     # --------------------------------------------------------------------------
@@ -43,16 +45,16 @@ def setup(process, binary_files, tree_files):
                 record = cms.string("SiStripBackPlaneCorrectionRcd"),
                 tag = cms.string("SiStripBackPlaneCorrection"))
         )
-    )    
+    )
     process.PoolDBOutputService.connect = "sqlite_file:alignments_MP.db"
-    
-    
+
+
     # Reconfigure parts of the algorithm configuration
     # --------------------------------------------------------------------------
     process.AlignmentProducer.algoConfig.mergeBinaryFiles = binary_files
     process.AlignmentProducer.algoConfig.mergeTreeFiles   = tree_files
-    
-    
+
+
     # Set a new source and path.
     # --------------------------------------------------------------------------
     process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))

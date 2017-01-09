@@ -84,6 +84,30 @@ class CSCCorrelatedLCTDigi
   /// set quality code
   void setQuality(unsigned int q) {quality=q;}
 
+  /// set valid
+  void setValid(unsigned int v) {valid=v;}
+
+  /// set strip
+  void setStrip(unsigned int s) {strip=s;}
+
+  /// set pattern
+  void setPattern(unsigned int p) {pattern=p;}
+
+  /// set bend
+  void setBend(unsigned int b) {bend=b;}
+
+  /// set bx
+  void setBX(unsigned int b) {bx=b;}
+
+  /// set bx0
+  void setBX0(unsigned int b) {bx0=b;}
+
+  /// set syncErr
+  void setSyncErr(unsigned int s) {syncErr=s;}
+
+  /// set cscID
+  void setCSCID(unsigned int c) {cscID=c;}
+
  private:
   uint16_t trknmb;
   uint16_t valid;

@@ -19,10 +19,11 @@ namespace ecaldqm {
 
     void addDependencies(DependencySet&) override;
 
-    bool analyze(void const*, Collections) override;
-
     void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+
+    bool analyze(void const*, Collections) override;
 
     void runOnRealTPs(EcalTrigPrimDigiCollection const&);
     void runOnEmulTPs(EcalTrigPrimDigiCollection const&);

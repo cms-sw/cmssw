@@ -943,7 +943,9 @@ class AdditionalBoost( Analyzer ):
                 sj_uncal = Jet(j)        
                 # isHttSubjet is set to true
                 # it can be used for all jets that are uncalibrated and have no RAW factor
-                cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho, isHttSubjet=True)            
+                #AR:
+                sj_uncal.jecFactor = lambda x : 1.;
+                cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho) #AR: remove for now, isHttSubjet=True)            
                 
                 j.scaleEnergy(cal)
  
@@ -982,19 +984,24 @@ class AdditionalBoost( Analyzer ):
 
                 # Calibrate the subjets: W1
                 sj_w1_uncal = Jet(sj_w1)        
-                c = self.jetReCalibratorAK4.getCorrection(sj_w1_uncal, rho, isHttSubjet=True)            
+                sj_w1_uncal.jecFactor = lambda x : 1.;
+
+                c = self.jetReCalibratorAK4.getCorrection(sj_w1_uncal, rho) #AR: remove for now, , isHttSubjet=True)            
                 sj_w1_cal = PhysicsObject(sj_w1).__copy__() 
                 sj_w1_cal.scaleEnergy(c)
 
                 # Calibrate the subjets: W2
                 sj_w2_uncal = Jet(sj_w2)        
-                c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho, isHttSubjet=True)            
+                sj_w2_uncal.jecFactor = lambda x : 1.;
+
+                c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho) #AR: remove for now, , isHttSubjet=True)            
                 sj_w2_cal = PhysicsObject(sj_w2).__copy__() 
                 sj_w2_cal.scaleEnergy(c)
 
                 # Calibrate the subjets: NonW
                 sj_nonw_uncal = Jet(sj_nonw)        
-                c = self.jetReCalibratorAK4.getCorrection(sj_nonw_uncal, rho, isHttSubjet=True)            
+                sj_nonw_uncal.jecFactor = lambda x : 1.;
+                c = self.jetReCalibratorAK4.getCorrection(sj_nonw_uncal, rho) #AR: remove for now, , isHttSubjet=True)            
                 sj_nonw_cal = PhysicsObject(sj_nonw).__copy__() 
                 sj_nonw_cal.scaleEnergy(c)
 

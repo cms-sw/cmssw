@@ -12,5 +12,5 @@ HcalHBHEMuonAnalyzer = cms.EDAnalyzer("HcalHBHEMuonAnalyzer",
                                       ProcessName      = cms.untracked.string("AlCaHBHEMuon"),
                                       Verbosity        = cms.untracked.int32(0),
                                       MaxDepth         = cms.untracked.int32(4),
-                                      UseRaw           = cms.untracked.bool(false),
+                                      UseRaw           = cms.untracked.bool(False),
                                       )

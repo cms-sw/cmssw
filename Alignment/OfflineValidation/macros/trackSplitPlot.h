@@ -36,28 +36,24 @@ enum Statistic {Minimum, Maximum, Average, RMS};
 const Double_t pi = TMath::Pi();
 vector<Color_t> colors;
 vector<Style_t> styles;
-bool styleset = false;
+bool colorsset = false;
 Int_t minrun = -1;
 Int_t maxrun = -1;
-const Int_t xsize = 10;
+const Int_t xsize = 8;
 const Int_t ysize = 9;
 Int_t legendGrid = 100;
 Double_t margin = .1;
 Double_t increaseby = .1;
-Int_t binsScatterPlotx = 1000;
-Int_t binsScatterPloty = 1000;
-Int_t binsHistogram = 100;
-Int_t runNumberBins = 30;
-Int_t binsProfileResolution = 30;    //for everything but runNumber and nHits
-                                     //(nHits gets a bin for each integer between the minimum and the maximum)
 
-TString xvariables[xsize]      = {"",   "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt", "runNumber", "nHits"};
+TString xvariables[xsize]      = {"",   "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt"};
 TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt", ""};
 Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false,   false,     false};
 
 TList *stufftodelete = new TList();
 
 TString subdetector = "PIXEL";
+double outliercut = 0.99;    //use the middle 99% of tracks to find the mean and RMS
+                             //(a few tracks are fit badly and skew them otherwise)
 
 /***********************************
 Table Of Contents
@@ -67,7 +63,6 @@ Table Of Contents
 3. Axis Label
 4. Axis Limits
 5. Place Legend
-6. TDR Style
 ***********************************/
 
 #include "trackSplitPlot.h"
@@ -90,6 +85,7 @@ TCanvas *trackSplitPlot(TString file,TString var,
 void placeholder(TString saveas = "",Bool_t wide = false);
 void saveplot(TCanvas *c1,TString saveas);
 void deleteCanvas(TObject *canvas);
+void setupcolors();
 void runNumberZoomed(Int_t nFiles,TString *files,TString *names,TString yvar,
                      Bool_t relative = false,Bool_t resolution = false,Bool_t pull = false,
                      Int_t firstRun = -1,Int_t lastRun = -1,TString saveas = "");
@@ -189,7 +185,7 @@ Double_t findAverage(TString file,TString var,Char_t axis,Bool_t relative = fals
 Double_t findMin(TString file,TString var,Char_t axis,Bool_t relative = false,Bool_t pull = false);
 Double_t findMax(TString file,TString var,Char_t axis,Bool_t relative = false,Bool_t pull = false);
 Double_t findRMS(TString file,TString var,Char_t axis,Bool_t relative = false,Bool_t pull = false);
-void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max);
+void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max,Double_t &bins);
 
 //===============
 //5. Place Legend
@@ -197,13 +193,5 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
 
 Double_t placeLegend(TLegend *l, Double_t width, Double_t height, Double_t x1min, Double_t y1min, Double_t x2max, Double_t y2max);
 Bool_t fitsHere(TLegend *l,Double_t x1, Double_t y1, Double_t x2, Double_t y2);
-
-//============
-//6. TDR Style
-//============
-
-void setTDRStyle();
-void set_plot_style();
-void setupcolors();
 
 #endif

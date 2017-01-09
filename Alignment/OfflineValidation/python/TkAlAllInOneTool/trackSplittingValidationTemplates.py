@@ -155,7 +155,7 @@ root -x -b -q TkAlTrackSplitPlot.C++
 ######################################################################
 
 trackSplitPlotTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/trackSplitPlot.C"
+#include "Alignment/OfflineValidation/macros/trackSplitPlot.C"
 
 /****************************************
 This can be run directly in root, or you
@@ -166,7 +166,7 @@ It can be run as is, or adjusted to fit
 ****************************************/
 
 /********************************
-To make ALL plots (313 in total):
+To make ALL plots (247 in total):
   leave this file as is
 ********************************/
 
@@ -176,20 +176,20 @@ Uncomment the line marked (B), and fill in for xvar and yvar
 
 Examples:
 
-   xvar = "nHits", yvar = "ptrel" - makes plots of nHits vs Delta_pt/pt_org
-                                    (4 total - profile and resolution,
-                                     of Delta_pt/pt_org and its pull
-                                     distribution)
-   xvar = "all",   yvar = "pt"    - makes all plots involving Delta_pt
-                                    (not Delta_pt/pt_org)
-                                    (38 plots total:
-                                     histogram and pull distribution, and
-                                     their mean and width as a function
-                                     of the 9 x variables)
-   xvar = "",      yvar = "all"   - makes all histograms of all y variables
-                                    (including Delta_pt/pt_org)
-                                    (16 plots total - 8 y variables,
-                                     regular and pull histograms)
+   xvar = "dxy", yvar = "ptrel" - makes plots of dxy vs Delta_pT/pT
+                                  (4 total - profile and resolution,
+                                   of Delta_pT/pT and its pull
+                                   distribution)
+   xvar = "all",   yvar = "pt"  - makes all plots involving Delta_pT
+                                  (not Delta_pT/pT)
+                                  (30 plots total:
+                                   histogram and pull distribution, and
+                                   their mean and width as a function
+                                   of the 7 x variables)
+   xvar = "",      yvar = "all" - makes all histograms of all y variables
+                                  (including Delta_pT/pT)
+                                  (16 plots total - 8 y variables,
+                                   regular and pull histograms)
 **************************************************************************/
 
 /**************************************************************************************
@@ -210,7 +210,7 @@ void fillmatrix()
 The variables are defined in Alignment/OfflineValidation/macros/trackSplitPlot.h
  as follows:
 TString xvariables[xsize]      = {"", "pt", "eta", "phi", "dz",  "dxy", "theta",
-                                  "qoverpt", "runNumber", "nHits"};
+                                  "qoverpt"};
 
 TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta",
                                   "qoverpt", ""};
@@ -244,6 +244,10 @@ phases must be filled in for sagitta, elliptical, and skew if values is;
 
 void TkAlTrackSplitPlot()
 {
+    TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+    TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
+    TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
+    outliercut = .oO[outliercut]Oo.;
     //fillmatrix();                                                         //(C)
     subdetector = ".oO[subdetector]Oo.";
     makePlots(
@@ -255,4 +259,3 @@ void TkAlTrackSplitPlot()
              );
 }
 """
-

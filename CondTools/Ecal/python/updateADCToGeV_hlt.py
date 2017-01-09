@@ -1,16 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
+import CondTools.Ecal.conddb_init as conddb_init
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
-
-options = VarParsing.VarParsing()
-options.register( "password"
-                , "myToto"
-                , VarParsing.VarParsing.multiplicity.singleton
-                , VarParsing.VarParsing.varType.string
-                , "the password"
-                  )
-options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -30,20 +22,17 @@ process.source = cms.Source("EmptyIOVSource",
 process.load("CondCore.CondDB.CondDB_cfi")
 
 process.CondDB.DBParameters.authenticationPath = ''
-
-#process.CondDB.connect = 'sqlite_file:EcalADCToGeVConstant_V1_hlt.db'
-process.CondDB.connect = 'oracle://cms_orcon_prod/CMS_CONDITIONS'
-
+process.CondDB.connect = conddb_init.options.destinationDatabase
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB, 
-#    logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
-   logconnect = cms.untracked.string('sqlite_file:log.db'),   
         toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalADCToGeVConstantRcd'),
-        tag = cms.string('EcalADCToGeVConstant_V1_hlt')
+        tag = cms.string(conddb_init.options.destinationTag)
     ))
 )
+
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalADCToGeVAnalyzer",
     record = cms.string('EcalADCToGeVConstantRcd'),
@@ -57,10 +46,9 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalADCToGeVAnalyzer",
 #     FileHighField = cms.string('/afs/cern.ch/work/d/depasse/cmssw/CMSSW_8_0_1/src/CondTools/Ecal/python/ADCToGeV_hlt_current_BON.xml'),
      firstRun = cms.string('207149'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('cms_omds_lb'),
-#     OnlineDBSID = cms.string('cms_orcon_adg'),  test on lxplus
-     OnlineDBUser = cms.string('cms_ecal_r'),
-     OnlineDBPassword = cms.string( options.password ),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),

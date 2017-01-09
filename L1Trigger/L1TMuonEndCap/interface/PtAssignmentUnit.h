@@ -24,7 +24,7 @@ namespace L1TMuon {
   public:
     PtAssignmentUnit(const edm::ParameterSet&);
     virtual ~PtAssignmentUnit() {}
-
+    
     virtual void assignPt(const edm::EventSetup&, 
 			  InternalTrack&) const = 0;
   protected:

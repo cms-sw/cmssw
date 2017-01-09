@@ -443,64 +443,76 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
-  edm::Handle<reco::GenMETCollection> genMet;
-  // Make sure that you can get genMET
-  if( iEvent.getByToken(genMetToken, genMet) ){
-    int pt  = convertPtToHW( genMet->front().pt(), MaxEt_, PtStep_ );
-    int phi = convertPhiToHW( genMet->front().phi(), PhiStepCalo_ );
-
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-
-    // Missing Et
-    l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,pt, 0,phi, 0); 
-    etsumVec.push_back(etmiss);
-
-    // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
-    pt  = convertPtToHW( genMet->front().pt()*0.9, MaxEt_, PtStep_ );
-    phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., PhiStepCalo_ );
-
-    l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,pt, 0,phi, 0); 
-    etsumVec.push_back(htmiss);
-
-
-  }
-  else {
-    LogTrace("GtGenToInputProducer") << ">>> GenMet collection not found!" << std::endl;
-  }
-
-
 // Put the total Et into EtSums  (Make HTT slightly smaller to tell them apart....not supposed to be realistic) 
    int pt  = convertPtToHW( sumEt, 2047, PtStep_ );
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-   l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0); 
-   etsumVec.push_back(etTotal);
+   l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0);    
+
+// Scale down ETTem as an estimate
+   pt  = convertPtToHW( sumEt*0.6, 2047, PtStep_ );
+   l1t::EtSum etEmTotal(*p4, l1t::EtSum::EtSumType::kTotalEtEm,pt, 0, 0, 0); 
 
    pt  = convertPtToHW( sumEt*0.9, 2047, PtStep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
-   etsumVec.push_back(htTotal);
 
 // Add EtSums for testing the MinBias Trigger (use some random numbers)   
    int hfP0val  = gRandom->Poisson(4.);
    if(hfP0val>15) hfP0val = 15;
    l1t::EtSum hfP0(*p4, l1t::EtSum::EtSumType::kMinBiasHFP0,hfP0val, 0, 0, 0); 
-   etsumVec.push_back(hfP0);
 
    int hfM0val  = gRandom->Poisson(4.);
    if(hfM0val>15) hfM0val = 15;
    l1t::EtSum hfM0(*p4, l1t::EtSum::EtSumType::kMinBiasHFM0,hfM0val, 0, 0, 0); 
-   etsumVec.push_back(hfM0);   
 
    int hfP1val  = gRandom->Poisson(4.);
    if(hfP1val>15) hfP1val = 15;
    l1t::EtSum hfP1(*p4, l1t::EtSum::EtSumType::kMinBiasHFP1,hfP1val, 0, 0, 0); 
-   etsumVec.push_back(hfP1);
 
    int hfM1val  = gRandom->Poisson(4.);
    if(hfM1val>15) hfM1val = 15;
    l1t::EtSum hfM1(*p4, l1t::EtSum::EtSumType::kMinBiasHFM1,hfM1val, 0, 0, 0); 
-   etsumVec.push_back(hfM1);    
 
- 
+
+   int mpt = 0;
+   int mphi= 0;
+   int mptHf = 0;
+   int mphiHf= 0;   
+   int mhpt = 0;
+   int mhphi= 0;  
+   edm::Handle<reco::GenMETCollection> genMet;
+   // Make sure that you can get genMET
+   if( iEvent.getByToken(genMetToken, genMet) ){
+     mpt  = convertPtToHW( genMet->front().pt(), MaxEt_, PtStep_ );
+     mphi = convertPhiToHW( genMet->front().phi(), PhiStepCalo_ );
+
+     // Make Missing Et with HF slightly largeer and rotated (These are all fake inputs anyway...not supposed to be realistic)
+     mptHf  = convertPtToHW( genMet->front().pt()*1.1, MaxEt_, PtStep_ );
+     mphiHf = convertPhiToHW( genMet->front().phi()+ 3.14/7., PhiStepCalo_ );
+
+     // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
+     mhpt  = convertPtToHW( genMet->front().pt()*0.9, MaxEt_, PtStep_ );
+     mhphi = convertPhiToHW( genMet->front().phi()+ 3.14/5., PhiStepCalo_ );
+   }
+   else {
+     LogTrace("GtGenToInputProducer") << ">>> GenMet collection not found!" << std::endl;
+   }
+
+// Missing Et and missing htt
+   l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,mpt, 0,mphi, 0); 
+   l1t::EtSum etmissHF(*p4, l1t::EtSum::EtSumType::kMissingEtHF,mptHf, 0,mphiHf, 0);    
+   l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,mhpt, 0,mhphi, 0); 
+
+// Fill the EtSums in the Correct order
+   etsumVec.push_back(etTotal);
+   etsumVec.push_back(etEmTotal);
+   etsumVec.push_back(hfP0);
+   etsumVec.push_back(htTotal);
+   etsumVec.push_back(hfM0); 
+   etsumVec.push_back(etmiss);
+   etsumVec.push_back(hfP1);
+   etsumVec.push_back(htmiss);
+   etsumVec.push_back(hfM1);
+   etsumVec.push_back(etmissHF);
  
 // Fill in some external conditions for testing
    if((iEvent.id().event())%2 == 0 ) {

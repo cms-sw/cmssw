@@ -9,7 +9,8 @@ namespace evf{
       edm::EventAuxiliary makeEventAuxiliary(TCDSRecord *record,
 					     unsigned int runNumber,
                                              unsigned int lumiSection,
-					     std::string const &processGUID){
+					     std::string const &processGUID,
+                                             bool verifyLumiSection){
 	edm::EventID eventId(runNumber, // check that runnumber from record is consistent
 			     //record->getHeader().getData().header.lumiSection,//+1
                              lumiSection,
@@ -27,7 +28,7 @@ namespace evf{
 	uint64_t orbitnr = (((uint64_t)record->getHeader().getData().header.orbitHigh) << 16) + record->getHeader().getData().header.orbitLow;
         uint32_t recordLumiSection = record->getHeader().getData().header.lumiSection;
 
-        if (recordLumiSection != lumiSection) 
+        if (verifyLumiSection && recordLumiSection != lumiSection) 
           edm::LogWarning("AuxiliaryMakers") << "Lumisection mismatch, external : "<<lumiSection << ", record : " << recordLumiSection; 
         if ((orbitnr >> 18) + 1 != recordLumiSection)
           edm::LogWarning("AuxiliaryMakers") << "Lumisection and orbit number mismatch, LS : " << lumiSection << ", LS from orbit: " << ((orbitnr >> 18) + 1) << ", orbit:" << orbitnr;

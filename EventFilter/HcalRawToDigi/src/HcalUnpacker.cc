@@ -589,7 +589,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     //Check to make sure uMNio is not unpacked here
-    if(uhtr.getFormatVersion() != 1) continue;
+    if(uhtr.getFormatVersion() != 1) {
+      unpackUMNio(raw, slot, colls);
+    }  
 #ifdef DebugLog
     //debug printouts
     int nwords=uhtr.getRawLengthBytes()/2;
@@ -796,6 +798,7 @@ HcalUnpacker::Collections::Collections() {
   ttp=0;
   qie10=0;
   qie11=0;
+  umnio=0;
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {
@@ -857,18 +860,18 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   }
 }
 // Method to unpack uMNio data
-void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& umnio) {
+void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& colls) {
   const hcal::AMC13Header* amc13=(const hcal::AMC13Header*)(raw.data());
   int namc=amc13->NAMC();
   //Find AMC corresponding to uMNio slot
   for (int iamc=0; iamc<namc; iamc++) {
     if (amc13->AMCSlot(iamc) == slot) namc = iamc;
   }
-  if (namc==amc13->NAMC()) return;
-  
+  if (namc==amc13->NAMC()) {
+    return;
+  }
   const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
   size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
-
-  umnio = HcalUMNioDigi(data, nwords);
+  *(colls.umnio) = HcalUMNioDigi(data, nwords);
   
 }

@@ -132,7 +132,7 @@ dbOutputTemplate= """
 ######################################################################
 ######################################################################
 visualizationTrackerTemplate= """
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/visualizationTracker.C"
+#include "Alignment/OfflineValidation/scripts/visualizationTracker.C"
 void TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo.(){
             //------------------------------ONLY NEEDED INPUTS-------------------------------//
 //------Tree Read In--------

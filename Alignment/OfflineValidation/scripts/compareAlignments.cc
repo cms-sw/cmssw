@@ -5,6 +5,7 @@
 #include "TH1.h"
 #include "TTree.h"
 #include "TKey.h"
+#include "TMath.h"
 #include "Riostream.h"
 #include <vector>
 #include <sstream>
@@ -17,6 +18,8 @@
 #include "TStyle.h"
 #include "TEnv.h"
 
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
+
 
 TList *FileList;
 TList *LabelList;
@@ -25,75 +28,76 @@ std::vector< std::string > lowestlevels;
 std::vector< int > theColors;
 std::vector< int > theStyles;
 
-void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist );
+void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, bool bigtext );
 void nicePad(Int_t logx,Int_t logy);
 void SetMinMaxRange(TObjArray *hists);
 
 void ColourStatsBoxes(TObjArray *hists);
 
-void compareAlignments(TString namesandlabels="readFromFile") 
+void compareAlignments(TString namesandlabels="readFromFile", TString legendheader = "", TString lefttitle = "", TString righttitle = "", bool bigtext = false)
 {
   cout << "Comparing using: >"<<namesandlabels<<"<"<<endl;
 
+  TkAlStyle::legendheader = legendheader;
+  TkAlStyle::set(CUSTOM, NONE, lefttitle, righttitle);
   gStyle->SetOptStat(111110);
-  gStyle->SetTitleFillColor(10);
-  gStyle->SetTitleBorderSize(0);
+  gStyle->SetOptTitle(0);
 
   Target = TFile::Open( "result.root", "RECREATE" );
   FileList = new TList();
   LabelList = new TList();
-  
+
   int formatCounter = 1;
-  //TObjArray* stringarray = namesandlabels.Tokenize(",");  
+  //TObjArray* stringarray = namesandlabels.Tokenize(",");
   TObjArray *nameandlabelpairs = namesandlabels.Tokenize(",");
   for (Int_t i = 0; i < nameandlabelpairs->GetEntries(); ++i) {
     TObjArray *aFileLegPair = TString(nameandlabelpairs->At(i)->GetName()).Tokenize("=");
-    
+
     if(aFileLegPair->GetEntries() == 2) {
       TFile* currentFile = TFile::Open(aFileLegPair->At(0)->GetName());
       if( currentFile != NULL && !currentFile->IsZombie() ){
-	FileList->Add( currentFile  );  // 2
-	if(TString(aFileLegPair->At(1)->GetName()).Contains("|")){
-	  TObjArray* formatedLegendEntry = TString(aFileLegPair->At(1)->GetName()).Tokenize("|");
-	  LabelList->Add( formatedLegendEntry->At(0) );
-	  if(formatedLegendEntry->GetEntries() > 1){
-	    theColors.push_back(atoi(formatedLegendEntry->At(1)->GetName()));
-	    
-	    if(formatedLegendEntry->GetEntries() > 2)
-	      theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName()));
-	    else 
-	      theStyles.push_back( formatCounter );
-	  }else{
-	  std::cout <<"if you give a \"|\" in the legend name you will need to at least give a int for the color"<<std::endl;
-	  }
-	  formatCounter++;
-	}else{
-	  LabelList->Add( aFileLegPair->At(1) );
-	  theColors.push_back(formatCounter);
-	  theStyles.push_back(formatCounter);
-	  formatCounter++;
-	}
+        FileList->Add( currentFile  );  // 2
+        if(TString(aFileLegPair->At(1)->GetName()).Contains("|")){
+          TObjArray* formatedLegendEntry = TString(aFileLegPair->At(1)->GetName()).Tokenize("|");
+          LabelList->Add( formatedLegendEntry->At(0) );
+          if(formatedLegendEntry->GetEntries() > 1){
+            theColors.push_back(atoi(formatedLegendEntry->At(1)->GetName()));
+
+            if(formatedLegendEntry->GetEntries() > 2)
+              theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName()));
+            else
+              theStyles.push_back( formatCounter );
+          }else{
+          std::cout <<"if you give a \"|\" in the legend name you will need to at least give a int for the color"<<std::endl;
+          }
+          formatCounter++;
+        }else{
+          LabelList->Add( aFileLegPair->At(1) );
+          theColors.push_back(formatCounter);
+          theStyles.push_back(formatCounter);
+          formatCounter++;
+        }
       }else{
-	std::cout << "Could not open: "<<aFileLegPair->At(0)->GetName()<<std::endl;
+        std::cout << "Could not open: "<<aFileLegPair->At(0)->GetName()<<std::endl;
       }
     }
     else {
-      std::cout << "Please give file name and legend entry in the following form:\n" 
-		<< " filename1=legendentry1,filename2=legendentry2[|color[|style]]"<<std::endl;
+      std::cout << "Please give file name and legend entry in the following form:\n"
+                << " filename1=legendentry1,filename2=legendentry2[|color[|style]]"<<std::endl;
 
     }
-    
+
   }
 
   // ************************************************************
   // List of Files
-  //FileList->Add( TFile::Open("../test/AlignmentValidation_Elliptical.root") ); 
+  //FileList->Add( TFile::Open("../test/AlignmentValidation_Elliptical.root") );
   //FileList->Add( TFile::Open("../test/AlignmentValidation_10pb.root")  );  // 2
   //FileList->Add( TFile::Open("../test/AlignmentValidation_custom.root")  );  // 2
   // ************************************************************
 
-  // put here the lowest level up to which you want to combine the 
-  // histogramms
+  // put here the lowest level up to which you want to combine the
+  // histograms
   lowestlevels.push_back("TPBLadder");
   lowestlevels.push_back("TPEPanel");
   lowestlevels.push_back("TIBHalfShell");
@@ -101,14 +105,14 @@ void compareAlignments(TString namesandlabels="readFromFile")
   lowestlevels.push_back("TOBRod");
   lowestlevels.push_back("TECSide");
 //  lowestlevels.push_back("Det");
-  
-  
-  
-   MergeRootfile( Target, FileList, LabelList );
+
+
+
+   MergeRootfile( Target, FileList, LabelList, bigtext );
 
 }
 
-void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
+void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist, bool bigtext ) {
 
   if( sourcelist->GetSize() == 0){
     std::cout<< "Cowardly refuse to merge empty SourceList! " <<std::endl;
@@ -142,30 +146,52 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
 
     if ( obj->IsA()->InheritsFrom( TH1::Class() ) ) {
       // descendant of TH1 -> merge it
-      TCanvas c(obj->GetName(),obj->GetName(),500,500);
+      TCanvas c(obj->GetName(),obj->GetName());
       c.SetFillColor(10);
-      
+
       bool is2d = false;
       if(strstr(obj->ClassName() ,"TH2") != NULL )
-	is2d = true;
+        is2d = true;
       TH1 *h1 = static_cast<TH1*>(obj);
 
-      int q = 1; 
+      int q = 1;
       TObjArray *histarray = new TObjArray;
-      
+
       h1->SetLineStyle(theStyles.at(q-1));
       h1->SetLineWidth(2);
-   
+
+      h1->SetTitle("");
+
       h1->SetLineColor(theColors.at(q-1));
       h1->GetYaxis()->SetTitleOffset(1.5);
       if(strstr(h1->GetName(),"summary") != NULL )
-	h1->Draw("x0e1*H");
+        h1->Draw("x0e1*H");
       else if(is2d)
-	h1->Draw();
-      else 
-	h1->Draw();
+        h1->Draw();
+      else
+        h1->Draw();
 
-      TLegend leg(0.2,0.85,0.775,0.93);
+      double max = h1->GetMaximum();
+      double scale = 1;
+      if (max > 1000) {
+        int power = (int)(TMath::Log10(max / 100));
+        scale = 1/TMath::Power(10, power);
+        h1->GetYaxis()->SetTitle(((TString(h1->GetYaxis()->GetTitle()) + " [#times 10^{") += (int)power) + "}]");
+      }
+      h1->Scale(scale);
+
+      int nPlots = sourcelist->GetSize();
+      double legendY = 0.80;
+      if (nPlots > 3) { legendY -= 0.01 * (nPlots - 3); }
+      if (bigtext) { legendY -= 0.05; }
+      if (legendY < 0.6) {
+        std::cerr << "Warning: Huge legend!" << std::endl;
+        legendY = 0.6;
+      }
+      TLegend leg(0.17, legendY, 0.85, 0.88);
+      bool hasheader = (TkAlStyle::legendheader != "");
+      if (hasheader) leg.SetHeader(TkAlStyle::legendheader);
+      if (bigtext) leg.SetTextSize(TkAlStyle::textSize);
       leg.AddEntry(h1,first_label->String().Data(),"L");
       leg.SetBorderSize(0);
       leg.SetFillColor(10);
@@ -173,75 +199,78 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
       // correspondant histogram to the one pointed to by "h1"
       TFile *nextsource = (TFile*)sourcelist->After( first_source );
       TObjString *nextlabel = (TObjString*)labellist->After( labellist->First() );
-      
+
       histarray->Add(h1);
       while ( nextsource ) {
 
         // make sure we are at the correct directory level by cd'ing to path
-	
+
         nextsource->cd( path );
         TKey *key2 = (TKey*)gDirectory->GetListOfKeys()->FindObject(h1->GetName());
         if (key2) {
-	  ++q;
-	  TH1 *h2 = (TH1*)key2->ReadObj();	  
+          ++q;
+          TH1 *h2 = (TH1*)key2->ReadObj();
 
-	  if(!is2d){
-	    h2->SetLineStyle(theStyles.at(q-1));
-	    h2->SetLineWidth(2);
-	  }
+          if(!is2d){
+            h2->SetLineStyle(theStyles.at(q-1));
+            h2->SetLineWidth(2);
+          }
 
-	  h2->SetLineColor(theColors.at(q-1));
-	  std::stringstream newname;
-	  newname << h2->GetName() << q;
-	  
-	  h2->SetName(newname.str().c_str());
-	  if(strstr(newname.str().c_str(),"summary") != NULL )	    
-	    h2->DrawClone("x0*He1sames");
-	  else if(is2d) 
-	    h2->DrawClone("sames");
-	  else
-	    h2->DrawClone("sames");
-	  leg.AddEntry(c.FindObject(h2->GetName()),nextlabel->String().Data(),"L");
-	  histarray->Add(c.FindObject(h2->GetName()));
-	  delete h2;	  
+          h2->SetLineColor(theColors.at(q-1));
+          std::stringstream newname;
+          newname << h2->GetName() << q;
+          h2->Scale(scale);
+
+          h2->SetName(newname.str().c_str());
+          if(strstr(newname.str().c_str(),"summary") != NULL )
+            h2->DrawClone("x0*He1sames");
+          else if(is2d)
+            h2->DrawClone("sames");
+          else
+            h2->DrawClone("sames");
+          leg.AddEntry(c.FindObject(h2->GetName()),nextlabel->String().Data(),"L");
+          histarray->Add(c.FindObject(h2->GetName()));
+          delete h2;
         } else {
-	  std::cerr << "Histogram "<< key2->GetTitle() << " is not present in file " << nextsource->GetName() << std::endl;
-	}
-	
+          std::cerr << "Histogram "<< key2->GetTitle() << " is not present in file " << nextsource->GetName() << std::endl;
+        }
+
         nextsource = (TFile*)sourcelist->After( nextsource );
-	nextlabel = (TObjString*)labellist->After(nextlabel);
+        nextlabel = (TObjString*)labellist->After(nextlabel);
       }
       nicePad(0,0);
       leg.Draw();
+      TkAlStyle::drawStandardTitle();
       c.Update();
       if(strstr(h1->GetName(),"summary") == NULL )
-	SetMinMaxRange(histarray);
+        SetMinMaxRange(histarray);
       ColourStatsBoxes(histarray);
       target->cd();
+      c.Update();
       c.Write();
       histarray->Delete();
-      
 
-      
+
+
 
     } else if ( obj->IsA()->InheritsFrom( TDirectory::Class() ) ) {
       // it's a subdirectory
 
       std::string dirname = obj->GetName();
-      for( std::vector< std::string >::const_iterator lowlevelit = lowestlevels.begin(), 
-	     lowlevelitend = lowestlevels.end(); lowlevelit != lowlevelitend; ++lowlevelit) 
-	if(   dirname.find(*lowlevelit) != std::string::npos ) 
-	  return;
-	  
+      for( std::vector< std::string >::const_iterator lowlevelit = lowestlevels.begin(),
+             lowlevelitend = lowestlevels.end(); lowlevelit != lowlevelitend; ++lowlevelit)
+        if(   dirname.find(*lowlevelit) != std::string::npos )
+          return;
+
       // create a new subdir of same name and title in the target file
       target->cd();
       TDirectory *newdir = target->mkdir( obj->GetName(), obj->GetTitle() );
-      
+
       // newdir is now the starting point of another round of merging
       // newdir still knows its depth within the target file via
       // GetPath(), so we can still figure out where we are in the recursion
-      MergeRootfile( newdir, sourcelist, labellist );
-      
+      MergeRootfile( newdir, sourcelist, labellist, bigtext );
+
 
     } else {
 
@@ -263,12 +292,14 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
 
 void nicePad(Int_t logx,Int_t logy)
 {
+/*
     gPad->SetBottomMargin(0.10);
     gPad->SetRightMargin(0.1);
     gPad->SetLeftMargin(0.15);
     gPad->SetTopMargin(0.15);
     gPad->SetTickx(1);
     gPad->SetTicky(1);
+*/
     if(logy==1)
       {
         gPad->SetLogy();
@@ -288,10 +319,10 @@ void nicePad(Int_t logx,Int_t logy)
 }
 
 
-void ColourStatsBoxes(TObjArray *hists) 
+void ColourStatsBoxes(TObjArray *hists)
 {
 
-  Double_t fStatsX1 = 0.85, fStatsX2 = 1., fStatsY1 = 0.85, fStatsY2 = 1.;
+  Double_t fStatsX1 = 0.85, fStatsX2 = 1., fStatsY1 = 0.77, fStatsY2 = 0.92;
   // colours stats boxes like hists' line colors and moves the next to each other
   if (!hists) return;
   Double_t x1 = fStatsX1, x2 = fStatsX2, y1 = fStatsY1, y2 = fStatsY2;
@@ -311,13 +342,14 @@ void ColourStatsBoxes(TObjArray *hists)
       y2 = y1 - 0.005; // shift down 2
       y1 = y2 - (fStatsY2 - fStatsY1); // shift down 1
       if (y1 < 0.) {
-	y1 = fStatsY1; y2 = fStatsY2; // restart y-positions
-	x2 = x1 - 0.005; // shift left 2
-	x1 = x2 - (fStatsX2 - fStatsX1); // shift left 1
-	if (x1 < 0.) { // give up, start again:
-	  x1 = fStatsX1, x2 = fStatsX2, y1 = fStatsY1, y2 = fStatsY2;
-	}
+        y1 = fStatsY1; y2 = fStatsY2; // restart y-positions
+        x2 = x1 - 0.005; // shift left 2
+        x1 = x2 - (fStatsX2 - fStatsX1); // shift left 1
+        if (x1 < 0.) { // give up, start again:
+          x1 = fStatsX1, x2 = fStatsX2, y1 = fStatsY1, y2 = fStatsY2;
+        }
       }
+      stats->DrawClone();
       //} else if (gStyle->GetOptStat() != 0) { // failure in case changed in list via TExec....
       //this->Warning("ColourStatsBoxes", "No stats found for %s", hists->At(iH)->GetName());
     }
@@ -339,8 +371,8 @@ void SetMinMaxRange(TObjArray *hists)
    }
 
    TH1 *h_first = static_cast<TH1*>(hists->At(0));
-   h_first->SetMaximum(max+max*0.1);
-   if(min = 0.) {
+   h_first->SetMaximum(max*1.3);
+   if(min == 0.) {
      min = -1111;
      h_first->SetMinimum(min);
    } else {

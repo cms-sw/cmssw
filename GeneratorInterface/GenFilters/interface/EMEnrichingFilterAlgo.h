@@ -19,13 +19,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
 class EMEnrichingFilterAlgo {
  public:
-  EMEnrichingFilterAlgo(const edm::ParameterSet&);
+  EMEnrichingFilterAlgo(const edm::ParameterSet&, edm::ConsumesCollector &&);
   ~EMEnrichingFilterAlgo();
   
   bool filter(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -69,5 +70,6 @@ class EMEnrichingFilterAlgo {
   bool requireTrackMatch_;
   edm::InputTag genParSource_;
 
+  edm::EDGetTokenT<reco::GenParticleCollection> genParSourceToken_;
 };
 #endif

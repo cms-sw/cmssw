@@ -10,12 +10,12 @@
 
    pat::Tau implements the analysis-level tau class within the 'pat' namespace.
    It inherits from reco::BaseTau, copies all the information from the source
-   reco::CaloTau or reco::PFTau, and adds some PAT-specific variable.
+   reco::CaloTau or reco::PFTau, and adds some PAT-specific variables.
 
    Please post comments and questions to the Physics Tools hypernews:
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
-  \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
+  \author Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
 */
 
 
@@ -33,11 +33,13 @@
 #include "DataFormats/PatCandidates/interface/TauPFEssential.h"
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
+
 // Define typedefs for convenience
 namespace pat {
   class Tau;
   typedef std::vector<Tau>              TauCollection; 
   typedef edm::Ref<TauCollection>       TauRef; 
+  typedef edm::RefProd<TauCollection>	TauRefProd;
   typedef edm::RefVector<TauCollection> TauRefVector; 
 }
 
@@ -325,6 +327,33 @@ namespace pat {
       const reco::VertexRef& secondaryVertex() const { return pfEssential().sv_; }
       const pat::tau::TauPFEssential::Point& secondaryVertexPos() const { return pfEssential().svPos_; }
       const pat::tau::TauPFEssential::CovMatrix& secondaryVertexCov() const { return pfEssential().svCov_; }
+      float ip3d() const { return pfEssential().ip3d_; }
+      float ip3d_error() const { return pfEssential().ip3d_error_; }
+      float ip3d_Sig() const;
+
+      /// ---- Information for MVA isolation ----
+      /// Needed to recompute MVA isolation on MiniAOD
+      /// return sum of ecal energies from signal candidates
+      float ecalEnergy() const { return pfEssential().ecalEnergy_; }
+      /// return sum of hcal energies from signal candidates
+      float hcalEnergy() const { return pfEssential().hcalEnergy_; }
+      /// return normalized chi2 of leading track
+      float leadingTrackNormChi2() const { return pfEssential().leadingTrackNormChi2_; }
+
+      /// ---- Information for anti-electron training ----
+      /// Needed to recompute on MiniAOD
+      /// return ecal energy from LeadChargedHadrCand
+      float ecalEnergyLeadChargedHadrCand() const { return pfEssential().ecalEnergyLeadChargedHadrCand_; }
+      /// return hcal energy from LeadChargedHadrCand
+      float hcalEnergyLeadChargedHadrCand() const { return pfEssential().hcalEnergyLeadChargedHadrCand_; }
+      /// return etaAtEcalEntrance
+      float etaAtEcalEntrance() const { return pfEssential().etaAtEcalEntrance_; }
+      /// return etaAtEcalEntrance from LeadChargedCand
+      float etaAtEcalEntranceLeadChargedCand() const { return pfEssential().etaAtEcalEntranceLeadChargedCand_; }
+      /// return pt from  LeadChargedCand
+      float ptLeadChargedCand() const { return pfEssential().ptLeadChargedCand_; }
+      /// return emFraction_MVA
+      float emFraction_MVA() const { return pfEssential().emFraction_; }
 
       /// Methods copied from reco::Jet.
       /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)

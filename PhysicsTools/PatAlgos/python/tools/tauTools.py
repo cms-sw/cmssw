@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
+from PhysicsTools.PatAlgos.cleaningLayer1.tauCleaner_cfi import preselection
 
 # applyPostFix function adapted to unscheduled mode
 def applyPostfix(process, label, postfix):
@@ -36,9 +37,7 @@ def switchToCaloTau(process,
 
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
-        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-      'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5' \
-     + ' & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5 & (signalTracks.size() = 1 | signalTracks.size() = 3)'
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = preselection
 
 def _buildIDSourcePSet(tauType, idSources, postfix =""):
     """ Build a PSet defining the tau ID sources to embed into the pat::Tau """
@@ -78,10 +77,7 @@ def _switchToPFTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
 
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
-        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-          'tauID("leadingTrackFinding") > 0.5 & tauID("leadingPionPtCut") > 0.5 & tauID("byIsolationUsingLeadingPion") > 0.5' \
-         + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5' \
-         + ' & (signalPFChargedHadrCands.size() = 1 | signalPFChargedHadrCands.size() = 3)'
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = preselection
 
 # Name mapping for classic tau ID sources (present for fixed and shrinkingCones)
 classicTauIDSources = [
@@ -214,10 +210,7 @@ def switchToPFTauHPS(process,
 
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
-        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-        'pt > 18 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
-        + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronVLooseMVA6") > 0.5'
-
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = preselection
 
 # Select switcher by string
 def switchToPFTauByType(process,

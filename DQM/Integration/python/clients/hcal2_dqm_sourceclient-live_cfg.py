@@ -47,6 +47,7 @@ referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
+process.source.minEventsPerLumi=5
 
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
@@ -106,13 +107,6 @@ process.emulTPPrim.InputTagFEDRaw = rawTag
 process.emulTPSec.FG_threshold = cms.uint32(2)
 process.emulTPSec.InputTagFEDRaw = rawTag
 process.hbhereco = process.hbheprereco.clone()
-
-#	UPDATES REQUESTED BY STEPH
-process.hbheprereco.puCorrMethod = cms.int32(2) 
-process.hbheprereco.ts4chi2 = cms.double(9999.) 
-process.hbheprereco.timeMin = cms.double(-100.)
-process.hbheprereco.timeMax = cms.double(100.)
-process.hbheprereco.applyTimeConstraint = cms.bool(False) 
 
 #	set the tag for default unpacker
 process.hcalDigis.InputLabel = rawTag

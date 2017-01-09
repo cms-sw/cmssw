@@ -24,7 +24,7 @@ namespace L1TMuon {
   public:
     PtRefinementUnit(const edm::ParameterSet&);
     virtual ~PtRefinementUnit() {}
-
+    
     virtual void refinePt(const edm::EventSetup&, 
 			  InternalTrack&) const = 0;
   protected:

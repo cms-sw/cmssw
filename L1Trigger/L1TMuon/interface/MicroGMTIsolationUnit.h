@@ -51,6 +51,9 @@ namespace l1t {
       std::shared_ptr<MicroGMTRelativeIsolationCheckLUT> m_RelIsoCheckMem;
       std::shared_ptr<MicroGMTAbsoluteIsolationCheckLUT> m_AbsIsoCheckMem;
 
+      std::bitset<28> m_caloInputsToDisable;
+      std::bitset<28> m_maskedCaloInputs;
+
       std::vector<int> m_5by1TowerSums;
       std::map<int, int> m_towerEnergies;
       bool m_initialSums;

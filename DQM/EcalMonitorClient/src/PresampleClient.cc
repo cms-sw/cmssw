@@ -43,6 +43,7 @@ namespace ecaldqm
     MESet& meRMS(MEs_.at("RMS"));
     MESet& meRMSMap(MEs_.at("RMSMap"));
     MESet& meRMSMapAll(MEs_.at("RMSMapAll"));
+    MESet& meRMSMapAllByLumi(MEs_.at("RMSMapAllByLumi"));
 
     MESet const& sPedestal(sources_.at("Pedestal"));
     MESet const& sPedestalByLS(sources_.at("PedestalByLS"));
@@ -60,6 +61,7 @@ namespace ecaldqm
     for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       pItr = qItr;
+      pLSItr = qItr;
 
       DetId id(qItr->getId());
 
@@ -70,6 +72,7 @@ namespace ecaldqm
       if(isForward(id)) rmsThresh = toleranceRMSFwd_;
 
       double entries(pItr->getBinEntries());
+      double entriesLS(pLSItr->getBinEntries());
 
       if(entries < minChannelEntries_){
         qItr->setBinContent(doMask ? kMUnknown : kUnknown);
@@ -79,13 +82,16 @@ namespace ecaldqm
       }
 
       double mean(pItr->getBinContent());
+      double meanLS(pLSItr->getBinContent());
       double rms(pItr->getBinError() * std::sqrt(entries));
+      double rmsLS(pLSItr->getBinError() * std::sqrt(entriesLS));
 
       int dccid(dccId(id));
 
       meMean.fill(dccid, mean);
       meRMS.fill(dccid, rms);
       meRMSMap.setBinContent(id, rms);
+      meRMSMapAllByLumi.setBinContent(id, rmsLS);
 
       if(std::abs(mean - expectedMean_) > toleranceMean_ || rms > rmsThresh){
         qItr->setBinContent(doMask ? kMBad : kBad);
@@ -99,12 +105,7 @@ namespace ecaldqm
 
       // Fill Presample Trend plots:
       // Use PedestalByLS which only contains digis from "current" LS
-      pLSItr = qItr;
-      double entriesLS( pLSItr->getBinEntries() );
-      double meanLS( pLSItr->getBinContent() );
-      double rmsLS( pLSItr->getBinError() * std::sqrt(entries) );
       float  chStatus( sChStatus.getBinContent(id) );
-
       if ( entriesLS < minChannelEntries_ ) continue;
       if ( chStatus != EcalChannelStatusCode::kOk ) continue; // exclude problematic channels
 

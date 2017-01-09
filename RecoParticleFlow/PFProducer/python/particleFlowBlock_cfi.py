@@ -44,8 +44,8 @@ particleFlowBlock = cms.EDProducer(
                   cleanBadConvertedBrems = cms.bool(True),
                   useIterativeTracking = cms.bool(True),
                   maxDPtOPt      = cms.double(1.),                                 
-                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
-                                                           1.0,1.0,5.0),
+                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(10.0,10.0,10.0,
+                                                           10.0,10.0,5.0),
                   NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3,3)
                   ),        
         # secondary GSF tracks are also turned off

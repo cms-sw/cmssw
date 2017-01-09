@@ -10,7 +10,7 @@ class UCTCard;
 class UCTCrate {
 public:
 
-  UCTCrate(uint32_t crt);
+  UCTCrate(uint32_t crt, int fwv);
 
   virtual ~UCTCrate();
 
@@ -61,6 +61,7 @@ private:
   std::vector<UCTCard*> cards;
   uint32_t crateSummary;
 
+  const int fwVersion;
 };
 
 #endif

@@ -52,14 +52,14 @@ class L1TMicroGMTInputProducer : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void beginJob() override ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override ;
+      virtual void endJob() override ;
 
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual void beginRun(const edm::Run&, edm::EventSetup const&) override ;
+      virtual void endRun(const edm::Run&, edm::EventSetup const&) override ;
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+      virtual void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
 
       void openFile();
       void skipHeader();
@@ -323,25 +323,25 @@ L1TMicroGMTInputProducer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void
-L1TMicroGMTInputProducer::beginRun(edm::Run&, edm::EventSetup const&)
+L1TMicroGMTInputProducer::beginRun(const edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void
-L1TMicroGMTInputProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TMicroGMTInputProducer::endRun(const edm::Run&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void
-L1TMicroGMTInputProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TMicroGMTInputProducer::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void
-L1TMicroGMTInputProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TMicroGMTInputProducer::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 

@@ -71,6 +71,7 @@ else:
 
     # EMTF
     simEmtfDigis.CSCInput              = cms.InputTag("unpackCsctf")
+    simEmtfDigis.RPCInput              = cms.InputTag('unpackRPC')
 
     simCaloStage2Layer1Digis.ecalToken = cms.InputTag('unpackEcal:EcalTriggerPrimitives')
     simCaloStage2Layer1Digis.hcalToken = cms.InputTag('simHcalTriggerPrimitiveDigis')

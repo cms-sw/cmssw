@@ -135,7 +135,8 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
 
     int regionPhi = region->hwPhi();
     int regionEta = region->hwEta();
-    unsigned int deltaPhi = iphi - regionPhi;
+///    unsigned int deltaPhi = iphi - regionPhi;
+    int deltaPhi = iphi - regionPhi;
     if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
       deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
 

@@ -11,7 +11,9 @@
 #include <iostream>
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
 namespace l1t {
@@ -22,29 +24,41 @@ namespace l1t {
   EMTFHit() :
     
     // Using -999 instead of -99 b/c this seems most common in the emulator.  Unfortunate. - AWB 17.03.16
-    endcap(-999), station(-999), ring(-999), sector(-999), sector_index(-999), subsector(-999), chamber(-999), csc_ID(-999), 
-      neighbor(-999), mpc_link(-999), wire(-999), strip(-999), track_num(-999), quality(-999), pattern(-999), bend(-999), 
-      valid(-999), sync_err(-999), bc0(-999), bx(-999), stub_num(-999), is_CSC_hit(-999), is_RPC_hit(-999)
+    endcap(-999), station(-999), ring(-999), sector(-999), sector_index(-999), subsector(-999), 
+      chamber(-999), csc_ID(-999), roll(-999), rpc_layer(-999), neighbor(-999), mpc_link(-999), 
+      wire(-999), strip(-999), strip_hi(-999), strip_low(-999), track_num(-999), quality(-999), 
+      pattern(-999), bend(-999), valid(-999), sync_err(-999), bc0(-999), bx(-999), stub_num(-999), 
+      is_CSC_hit(-999), is_RPC_hit(-999)
       {};
     
     virtual ~EMTFHit() {};
 
     void ImportCSCDetId (const CSCDetId& _detId);
     CSCDetId CreateCSCDetId();
+    void ImportRPCDetId (const RPCDetId& _detId);
+    RPCDetId CreateRPCDetId();
     void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi();
+    void ImportRPCDigi (const RPCDigi& _digi);
+    RPCDigi CreateRPCDigi();
     void ImportME (const emtf::ME _ME );
 
     void PrintSimulatorHeader();
     void PrintForSimulator();
 
     void SetCSCDetId         (CSCDetId id)                 { csc_DetId         = id;        }
+    void SetRPCDetId         (RPCDetId id)                 { rpc_DetId         = id;        }
     void SetCSCLCTDigi       (CSCCorrelatedLCTDigi digi)   { csc_LCTDigi       = digi;      }
+    void SetRPCDigi          (RPCDigi digi)                { rpc_Digi          = digi;      }
     
     CSCDetId CSC_DetId                          () const { return csc_DetId;    }
+    RPCDetId RPC_DetId                          () const { return rpc_DetId;    }
     CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
+    RPCDigi RPC_Digi                            () const { return rpc_Digi;  }
     const CSCDetId * PtrCSC_DetId               () const { return &csc_DetId;   }
+    const RPCDetId * PtrRPC_DetId               () const { return &rpc_DetId;   }
     const CSCCorrelatedLCTDigi * PtrCSC_LCTDigi () const { return &csc_LCTDigi; }
+    const RPCDigi * PtrRPC_Digi                 () const { return &rpc_Digi; }
 
     void set_endcap         (int  bits) { endcap        = bits; }
     void set_station        (int  bits) { station       = bits; }
@@ -54,10 +68,14 @@ namespace l1t {
     void set_subsector      (int  bits) { subsector     = bits; }
     void set_chamber        (int  bits) { chamber       = bits; }
     void set_csc_ID         (int  bits) { csc_ID        = bits; }
+    void set_roll           (int  bits) { roll          = bits; }
+    void set_rpc_layer      (int  bits) { rpc_layer     = bits; }
     void set_neighbor       (int  bits) { neighbor      = bits; }
     void set_mpc_link       (int  bits) { mpc_link      = bits; }
     void set_wire           (int  bits) { wire          = bits; }
     void set_strip          (int  bits) { strip         = bits; }
+    void set_strip_hi       (int  bits) { strip_hi      = bits; }
+    void set_strip_low      (int  bits) { strip_low     = bits; }
     void set_track_num      (int  bits) { track_num     = bits; }
     void set_quality        (int  bits) { quality       = bits; }
     void set_pattern        (int  bits) { pattern       = bits; }
@@ -78,10 +96,14 @@ namespace l1t {
     int   Subsector      ()  const { return subsector;      }
     int   Chamber        ()  const { return chamber  ;      }
     int   CSC_ID         ()  const { return csc_ID   ;      }
+    int   Roll           ()  const { return roll     ;      }
+    int   RPC_layer      ()  const { return rpc_layer;      }
     int   Neighbor       ()  const { return neighbor ;      }
     int   MPC_link       ()  const { return mpc_link ;      }
     int   Wire           ()  const { return wire     ;      }
     int   Strip          ()  const { return strip    ;      }
+    int   Strip_hi       ()  const { return strip_hi ;      }
+    int   Strip_low      ()  const { return strip_low;      }
     int   Track_num      ()  const { return track_num;      }
     int   Quality        ()  const { return quality  ;      }
     int   Pattern        ()  const { return pattern  ;      }
@@ -98,7 +120,9 @@ namespace l1t {
   private:
     
     CSCDetId csc_DetId;
+    RPCDetId rpc_DetId;
     CSCCorrelatedLCTDigi csc_LCTDigi;
+    RPCDigi rpc_Digi;
     
     int   endcap;       // -1 or 1.  Filled in EMTFHit.cc from CSCDetId, modified
     int   station;      //  1 -  4.  Filled in EMTFHit.cc from CSCDetId
@@ -108,10 +132,14 @@ namespace l1t {
     int   subsector;    //  1 -  2.  Filled in EMTFHit.cc or emulator using calc_subsector above
     int   chamber;      //  1 - 36.  Filled in EMTFHit.cc from CSCDetId
     int   csc_ID;       //  1 -  9.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi or emulator from CSCData
+    int   roll;         //  Sub-division of ring for RPC hits
+    int   rpc_layer;    //  Forward-backward bit for RPC hits
     int   neighbor;     //  0 or 1.  Filled in EMTFBlockME.cc 
     int   mpc_link;     //  1 -  3.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
     int   wire;         //  1 -  ?.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
     int   strip;        //  1 -  ?.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
+    int   strip_hi;     //  Highest strip number in an RPC cluster
+    int   strip_low;    //  Lowest strip number in an RPC cluster
     int   track_num;    //  ? -  ?.  Filled in emulator from CSCData 
     int   quality;      //  0 - 15.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi
     int   pattern;      //  0 - 10.  Filled in EMTFHit.cc from CSCCorrelatedLCTDigi

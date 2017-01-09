@@ -5,7 +5,28 @@ skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
+###### HCAL DPG Skims #########
 
+from DPGAnalysis.Skims.SinglePhotonJetPlusHOFilter_cff import *
+SinglePhotonJetPlusHOFilterPath = cms.Path( SinglePhotonJetPlusHOFilterSequence )
+SKIMStreamSinglePhotonJetPlusHOFilter = cms.FilteredStream(
+    responsible = 'HCAL DPG',
+    name = 'SinglePhotonJetPlusHOFilter',
+    paths = ( SinglePhotonJetPlusHOFilterPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
+from DPGAnalysis.Skims.JetHTJetPlusHOFilter_cff import *
+JetHTJetPlusHOFilterPath = cms.Path( JetHTJetPlusHOFilterSequence )
+SKIMStreamJetHTJetPlusHOFilter = cms.FilteredStream(
+    responsible = 'HCAL DPG',
+    name = 'JetHTJetPlusHOFilter',
+    paths = ( JetHTJetPlusHOFilterPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
 
 #############
 from  DPGAnalysis.Skims.logErrorSkim_cff import *

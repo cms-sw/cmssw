@@ -80,7 +80,12 @@ if not args.fireMerge:
                 submission = 'bsub -J %s %s %s/%s/theScript.sh' % \
                       (theJobName, resources, theJobData, lib.JOBDIR[i])
                 print submission
-                result = subprocess.check_output(submission, stderr=subprocess.STDOUT, shell=True)
+                try:
+                    result = subprocess.check_output(submission,
+                                                     stderr=subprocess.STDOUT,
+                                                     shell=True)
+                except subprocess.CalledProcessError as e:
+                    result = "" # -> check for successful job submission will fail
                 print '      '+result,
                 result = result.strip()
 

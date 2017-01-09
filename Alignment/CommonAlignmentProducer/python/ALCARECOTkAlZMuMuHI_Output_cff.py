@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# AlCaReco for track based alignment using ZMuMu events
+# AlCaReco for track based alignment using Z->mumu events in heavy ion (PbPb) data
 OutALCARECOTkAlZMuMuHI_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlZMuMuHI')

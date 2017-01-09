@@ -86,7 +86,7 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   bool detailedAnalysis;
   bool overUnderIn;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 
   int trigQualBest[6][5][13];

@@ -141,66 +141,71 @@ L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticleToken_, genParticles);
 
-  for(size_t i = 0; i < genParticles->size(); ++ i) {
-    const reco::GenParticle & p = (*genParticles)[i];
-    int id = p.pdgId();
-    //int st = p.status();  
-    if (abs(id) == 13) {
-      unsigned int nMo=p.numberOfMothers();
-      //std::cout << "id " << id << "; st " << st 
-      //<< "; nMo " << nMo << std::endl;
-      for(unsigned int i=0;i<nMo;++i){
-	//int thisParentID = dynamic_cast<const reco::GenParticle*>(p.mother(i))->pdgId();
-	//std::cout << "   mother ID " << thisParentID << std::endl;
+  if (false) {
+    //  if (genParticles.isValid()) {
+
+    for(size_t i = 0; i < genParticles->size(); ++ i) {
+      const reco::GenParticle & p = (*genParticles)[i];
+      int id = p.pdgId();
+      //int st = p.status();  
+      if (abs(id) == 13) {
+	unsigned int nMo=p.numberOfMothers();
+	//std::cout << "id " << id << "; st " << st 
+	//<< "; nMo " << nMo << std::endl;
+	for(unsigned int i=0;i<nMo;++i){
+	  //int thisParentID = dynamic_cast<const reco::GenParticle*>(p.mother(i))->pdgId();
+	  //std::cout << "   mother ID " << thisParentID << std::endl;
+	}
       }
-    }
-    
-    //
-    // See if the parent was interesting
-    int parentID = -10000;
-    unsigned int nMo=p.numberOfMothers();
-    for(unsigned int i=0;i<nMo;++i){
-      int thisParentID = dynamic_cast
-	<const reco::GenParticle*>(p.mother(i))->pdgId();
+      
       //
-      // Is this a bottom hadron?
-      int hundredsIndex = abs(thisParentID)/100;
-      int thousandsIndex = abs(thisParentID)/1000;
-      if ( ((abs(thisParentID) >= 23) && 
-	    (abs(thisParentID) <= 25)) ||
-	   (abs(thisParentID) == 6) ||
-	   (hundredsIndex == 5) ||
-	   (hundredsIndex == 4) ||
-	   (thousandsIndex == 5) ||
-	   (thousandsIndex == 4) 
-	   )
-	parentID = thisParentID;
-    }
-    if ((parentID == -10000) && (nMo > 0)) 
-      parentID = dynamic_cast
-	<const reco::GenParticle*>(p.mother(0))->pdgId();
-    //
-    // If the parent of this particle is interesting, store all of the info
-    if ((parentID != p.pdgId()) &&
-	((parentID > -9999) 
-	 || (abs(id) == 11)
-	 || (abs(id) == 13)
-	 || (abs(id) == 23)
-	 || (abs(id) == 24)
-	 || (abs(id) == 25)
-	 || (abs(id) == 4)
-	 || (abs(id) == 5)
-	 || (abs(id) == 6))
-	)
-      {
-	l1GenData_->partId.push_back(p.pdgId());
-	l1GenData_->partStat.push_back(p.status());
-	l1GenData_->partPt.push_back(p.pt());
-	l1GenData_->partEta.push_back(p.eta());
-	l1GenData_->partPhi.push_back(p.phi());
-	l1GenData_->partE.push_back(p.energy());
-	l1GenData_->partParent.push_back(parentID);
+      // See if the parent was interesting
+      int parentID = -10000;
+      unsigned int nMo=p.numberOfMothers();
+      for(unsigned int i=0;i<nMo;++i){
+	int thisParentID = dynamic_cast
+	  <const reco::GenParticle*>(p.mother(i))->pdgId();
+	//
+	// Is this a bottom hadron?
+	int hundredsIndex = abs(thisParentID)/100;
+	int thousandsIndex = abs(thisParentID)/1000;
+	if ( ((abs(thisParentID) >= 23) && 
+	      (abs(thisParentID) <= 25)) ||
+	     (abs(thisParentID) == 6) ||
+	     (hundredsIndex == 5) ||
+	     (hundredsIndex == 4) ||
+	     (thousandsIndex == 5) ||
+	     (thousandsIndex == 4) 
+	     )
+	  parentID = thisParentID;
       }
+      if ((parentID == -10000) && (nMo > 0)) 
+	parentID = dynamic_cast
+	  <const reco::GenParticle*>(p.mother(0))->pdgId();
+      //
+      // If the parent of this particle is interesting, store all of the info
+      if ((parentID != p.pdgId()) &&
+	  ((parentID > -9999) 
+	   || (abs(id) == 11)
+	   || (abs(id) == 13)
+	   || (abs(id) == 23)
+	   || (abs(id) == 24)
+	   || (abs(id) == 25)
+	   || (abs(id) == 4)
+	   || (abs(id) == 5)
+	   || (abs(id) == 6))
+	  )
+	{
+	  l1GenData_->partId.push_back(p.pdgId());
+	  l1GenData_->partStat.push_back(p.status());
+	  l1GenData_->partPt.push_back(p.pt());
+	  l1GenData_->partEta.push_back(p.eta());
+	  l1GenData_->partPhi.push_back(p.phi());
+	  l1GenData_->partE.push_back(p.energy());
+	  l1GenData_->partParent.push_back(parentID);
+	}
+    }
+
   }
 
 
@@ -217,8 +222,8 @@ L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   for( ; puItr != puEnd; ++puItr) {
     int bx = puItr->getBunchCrossing();
     if (bx == 0) {
-      l1GenData_->nPUPoissonMean = puItr->getTrueNumInteractions();
-      l1GenData_->nVtx           = puItr->getPU_NumInteractions();
+      l1GenData_->nMeanPU = puItr->getTrueNumInteractions();
+      l1GenData_->nVtx    = puItr->getPU_NumInteractions();
       break;
     }
   }

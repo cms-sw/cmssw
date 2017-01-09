@@ -41,8 +41,8 @@
 
 namespace AlCaHBHEMuons {
   struct Counters {
-    Counters() : nAll_(0), nGood_(0) {}
-    mutable std::atomic<unsigned int> nAll_, nGood_;
+    Counters() : nAll_(0), nGood_(0), nFinal_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_, nFinal_;
   };
 }
 
@@ -52,7 +52,7 @@ public:
   ~AlCaHBHEMuonFilter();
   
   static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<AlCaHBHEMuons::Counters>(new AlCaHBHEMuons::Counters());
+    return std::make_unique<AlCaHBHEMuons::Counters>();
   }
   
   virtual bool filter(edm::Event&, edm::EventSetup const&) override;
@@ -69,7 +69,10 @@ private:
   HLTConfigProvider          hltConfig_;
   std::vector<std::string>   trigNames_, HLTNames_;
   std::string                processName_;
-  unsigned int               nRun_, nAll_, nGood_;
+  bool                       pfCut_;
+  double                     trackIsoCut_, caloIsoCut_, pfIsoCut_;
+  int                        preScale_;
+  unsigned int               nRun_, nAll_, nGood_, nFinal_;
   edm::InputTag              triggerResults_, labelMuon_;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes_;
@@ -88,20 +91,28 @@ private:
 // constructors and destructor
 //
 AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count) :
-  nRun_(0), nAll_(0), nGood_(0) {
+  nRun_(0), nAll_(0), nGood_(0), nFinal_(0) {
   //now do what ever initialization is needed
   trigNames_             = iConfig.getParameter<std::vector<std::string> >("Triggers");
   processName_           = iConfig.getParameter<std::string>("ProcessName");
   triggerResults_        = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
   labelMuon_             = iConfig.getParameter<edm::InputTag>("MuonLabel");
+  pfCut_                 = iConfig.getParameter<bool>("PFCut");
+  pfIsoCut_              = iConfig.getParameter<double>("PFIsolationCut");
+  trackIsoCut_           = iConfig.getParameter<double>("TrackIsolationCut");
+  caloIsoCut_            = iConfig.getParameter<double>("CaloIsolationCut");
+  preScale_              = iConfig.getParameter<int>("PreScale");
+  if (preScale_ < 1) preScale_ = 1;
   
   // define tokens for access
   tok_trigRes_  = consumes<edm::TriggerResults>(triggerResults_);
   tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
-  edm::LogInfo("HcalHBHEMuon") << "Parameters read from config file \n" 
-			       << "Process " << processName_;
+  edm::LogInfo("HBHEMuon") << "Parameters read from config file \n" 
+			   << "Process " << processName_ << "  Prescale "
+			   << preScale_ << "  Isolation Cuts " 
+			   << trackIsoCut_ << ":" << caloIsoCut_ << "\n";
   for (unsigned int k=0; k<trigNames_.size(); ++k)
-    edm::LogInfo("HcalHBHEMuon") << "Trigger[" << k << "] " << trigNames_[k];
+    edm::LogInfo("HBHEMuon") << "Trigger[" << k << "] " << trigNames_[k]<<"\n";
 } // AlCaHBHEMuonFilter::AlCaHBHEMuonFilter  constructor
 
 
@@ -116,11 +127,11 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   bool accept(false);
   ++nAll_;
 #ifdef DebugLog
-  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonFilter::Run " 
-			       << iEvent.id().run() << " Event " 
-			       << iEvent.id().event() << " Luminosity " 
-			       << iEvent.luminosityBlock() << " Bunch " 
-			       << iEvent.bunchCrossing();
+  edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Run " 
+			   << iEvent.id().run() << " Event " 
+			   << iEvent.id().event() << " Luminosity " 
+			   << iEvent.luminosityBlock() << " Bunch " 
+			   << iEvent.bunchCrossing() << std::endl;
 #endif
   //Step1: Find if the event passes one of the chosen triggers
   /////////////////////////////TriggerResults
@@ -139,9 +150,9 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 	    ok = true;
 	  }
 #ifdef DebugLog
-	  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonFilter::Trigger "
-				       << triggerNames_[iHLT] << " Flag " 
-				       << hlt << ":" << ok;
+	  edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Trigger "
+				   << triggerNames_[iHLT] << " Flag " 
+				   << hlt << ":" << ok << std::endl;
 #endif
 	}
       }
@@ -161,14 +172,22 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       edm::Handle<reco::MuonCollection> _Muon;
       iEvent.getByToken(tok_Muon_, _Muon);
 #ifdef DebugLog
-      edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " 
-				   << _Muon.isValid();
+      edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " 
+			       << _Muon.isValid() << std::endl;
 #endif
       if (_Muon.isValid()) { 
 	for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); 
 	     RecMuon!= _Muon->end(); ++RecMuon)  {
 #ifdef DebugLog
-	  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack " << RecMuon->outerTrack().isNonnull() << " globalTrack " << RecMuon->globalTrack().isNonnull();
+	  edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " 
+				   << RecMuon->track().isNonnull() 
+				   << " innerTrack " 
+				   << RecMuon->innerTrack().isNonnull() 
+				   << " outerTrack " 
+				   << RecMuon->outerTrack().isNonnull() 
+				   << " globalTrack " 
+				   << RecMuon->globalTrack().isNonnull()
+				   << std::endl;
 #endif
 	  if ((RecMuon->track().isNonnull()) &&
 	      (RecMuon->innerTrack().isNonnull()) &&
@@ -177,11 +196,16 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 	    const reco::Track* pTrack = (RecMuon->innerTrack()).get();
 	    spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef DebugLog
-	    edm::LogInfo("HcalHBHEMuon")<<"AlCaHBHEMuonFilter::Propagate: ECAL "
-					<< trackID.okECAL << " to HCAL " 
-					<< trackID.okHCAL;
+	    edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL "
+				     << trackID.okECAL << " to HCAL " 
+				     << trackID.okHCAL << std::endl;
 #endif
-	    if ((trackID.okECAL) && (trackID.okHCAL)) {
+	    double trackIso = RecMuon->isolationR03().sumPt;
+	    double caloIso  = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
+	    double isolR04  = ((RecMuon->pfIsolationR04().sumChargedHadronPt + std::max(0.,RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt - (0.5 *RecMuon->pfIsolationR04().sumPUPt))) / RecMuon->pt());
+	    bool   isoCut   = (pfCut_) ? (isolR04 < pfIsoCut_) :
+	      ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
+	    if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {
 	      accept = true;
 	      break;
 	    }
@@ -191,20 +215,29 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     }
   }
   // Step 4:  Return the acceptance flag
-  if (accept) ++nGood_;
+  if (accept) {
+    ++nGood_;
+    if (((nGood_-1)%preScale_) != 0) {
+      accept = false;
+    } else {
+      ++nFinal_;
+    }
+  }
   return accept;
 
 }  // AlCaHBHEMuonFilter::filter
 
 // ------------ method called once each job just after ending the event loop  ------------
 void AlCaHBHEMuonFilter::endStream() {
-  globalCache()->nAll_  += nAll_;
-  globalCache()->nGood_ += nGood_;
+  globalCache()->nAll_   += nAll_;
+  globalCache()->nGood_  += nGood_;
+  globalCache()->nFinal_ += nFinal_;
 }
 
 void AlCaHBHEMuonFilter::globalEndJob(const AlCaHBHEMuons::Counters* count) {
-  edm::LogInfo("HcalHBHEMuon") << "Selects " << count->nGood_ << " in " 
-			       << count->nAll_ << " events";
+  edm::LogInfo("HBHEMuon") << "Selects " << count->nFinal_ << " out of "
+			   << count->nGood_ << " good events out of " 
+			   << count->nAll_ << " total # of events\n";
 }
 
 
@@ -212,13 +245,13 @@ void AlCaHBHEMuonFilter::globalEndJob(const AlCaHBHEMuons::Counters* count) {
 void AlCaHBHEMuonFilter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   bool changed(false);
   bool flag = hltConfig_.init(iRun, iSetup, processName_, changed);
-  edm::LogInfo("HcalHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run() 
-			       << " hltconfig.init " << flag;
+  edm::LogInfo("HBHEMuon") << "Run[" << nRun_ << "] " << iRun.run() 
+			   << " hltconfig.init " << flag << std::endl;
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void AlCaHBHEMuonFilter::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  edm::LogInfo("HcalHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
+  edm::LogInfo("HBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run() << "\n";
   nRun_++;
 }
 

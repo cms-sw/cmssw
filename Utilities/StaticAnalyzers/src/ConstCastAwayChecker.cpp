@@ -37,7 +37,7 @@ void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 	clang::QualType ToTy = Ctx.getCanonicalType(CE->getType());
 
 	if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) ) {
-		if ( clang::ento::ExplodedNode *errorNode = C.generateSink()) {
+		if ( clang::ento::ExplodedNode *errorNode = C.generateErrorNode()) {
 			if (!BT)
 				BT.reset(new clang::ento::BugType(this,"const cast away","ThreadSafety"));
 			std::unique_ptr<clang::ento::BugReport> R = llvm::make_unique<clang::ento::BugReport>(*BT, 

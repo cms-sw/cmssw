@@ -16,7 +16,7 @@ AlCaRecoMatrix = {'AlCaLumiPixels' : 'LumiPixels',
                   'MuOniaParked'   : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
                   'SingleElectron' : 'EcalCalWElectron+EcalUncalWElectron+EcalCalZElectron+EcalUncalZElectron+EcalESAlign+HcalCalIterativePhiSym+HcalCalIsoTrkFilter',
                   'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO',
-                  'SingleMuon'     : 'TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym',
+                  'SingleMuon'     : 'TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter',
                   'SinglePhoton'   : 'HcalCalGammaJet',
                   'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+EcalTrg', 
                   'StreamExpress'  : 'SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAfterAbortGap+DtCalib+Hotline+LumiPixelsMinBias',
@@ -30,6 +30,29 @@ AlCaRecoMatrix = {'AlCaLumiPixels' : 'LumiPixels',
                   # 'TestEnablesTracker'  : 'TkAlLAS'
                   # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
                   }
+
+AlCaRecoMatrixRereco = {'AlCaLumiPixels' : 'LumiPixels',
+                        'Charmonium'     : 'TkAlJpsiMuMu',
+                        'Commissioning'  : 'TkAlMinBias+SiStripCalMinBias+HcalCalIsoTrk+HcalCalIsolatedBunchSelector',
+                        'Cosmics'        : 'TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics',
+                        'DoubleEG'       : 'EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter',
+                        'DoubleElectron' : 'EcalUncalZElectron+HcalCalIsoTrkFilter',
+                        'DoubleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu+MuAlZMuMu+TkAlZMuMu+TkAlJpsiMuMu+TkAlUpsilonMuMu+HcalCalIsoTrkFilter',
+                        'DoubleMuon'     : 'TkAlZMuMu+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+DtCalib',
+                        'DoubleMuParked' : 'MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu',
+                        'HLTPhysics'     : 'SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrkFilter',
+                        'JetHT'          : 'HcalCalDijets+HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter',
+                        'NoBPTX'         : 'TkAlCosmicsInCollisions',
+                        'MET'            : 'HcalCalNoise',
+                        'MinimumBias'    : 'SiStripCalMinBias+TkAlMinBias',
+                        'MuOnia'         : 'TkAlUpsilonMuMu',
+                        'SingleElectron' : 'EcalUncalWElectron+EcalUncalZElectron+EcalESAlign+HcalCalIterativePhiSym+HcalCalIsoTrkFilter',
+                        'SingleMu'       : 'MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+MuAlZMuMu+HcalCalHO',
+                        'SingleMuon'     : 'TkAlMuonIsolated+DtCalib+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalIterativePhiSym+HcalCalHO',
+                        'SinglePhoton'   : 'HcalCalGammaJet',
+                        'ZeroBias'       : 'SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias',
+                        'HcalNZS'        : 'HcalCalMinBias'
+                        }
 
 def buildList(pdList, matrix):
     """Takes a list of primary datasets (PDs) and the AlCaRecoMatrix (a dictinary) and returns a string with all the AlCaRecos for the selected PDs separated by the '+' character without duplicates."""

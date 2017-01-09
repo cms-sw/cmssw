@@ -36,8 +36,9 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
       edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // tokenidentifying product contains muons passing the previous level
-
+      bool   previousCandIsL2_;
       bool   fast_Accept_;      // flag to save time: stop processing after identification of the first valid pair
+      int    min_N_;            // minimum number of muons to fire the trigger
       double max_Eta_;          // Eta cut
       int    min_Nhits_;        // threshold on number of hits on muon
       double max_Dr_;           // impact parameter cut

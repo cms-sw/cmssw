@@ -6,7 +6,8 @@ OutALCARECOMuAlZMuMu_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlZMuMu')
     ),
     outputCommands = cms.untracked.vstring(
-        'keep *_ALCARECOMuAlZMuMu_*_*', 
+        'keep *_ALCARECOMuAlZMuMu_*_*', # selected muons
+        'keep *_ALCARECOMuAlZMuMuGeneralTracks_*_*', # selected general tracks
         'keep *_muonCSCDigis_*_*', 
         'keep *_muonDTDigis_*_*', 
         'keep *_muonRPCDigis_*_*', 
@@ -19,10 +20,12 @@ OutALCARECOMuAlZMuMu_noDrop = cms.PSet(
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
-        'keep DcsStatuss_scalersRawToDigi_*_*')
+        'keep *_offlineBeamSpot_*_*',
+        'keep *_offlinePrimaryVertices_*_*',
+        'keep DcsStatuss_scalersRawToDigi_*_*',
+    )
 )
 
 import copy
 OutALCARECOMuAlZMuMu = copy.deepcopy(OutALCARECOMuAlZMuMu_noDrop)
 OutALCARECOMuAlZMuMu.outputCommands.insert(0, "drop *")
-

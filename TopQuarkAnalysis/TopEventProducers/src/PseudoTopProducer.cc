@@ -54,7 +54,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   auto pseudoTopRefHandle = event.getRefBeforePut<reco::GenParticleCollection>();
 
   // Collect unstable B-hadrons
-  std::set<size_t> bHadronIdxs;
+  std::set<int> bHadronIdxs;
   for ( size_t i=0, n=genParticleHandle->size(); i<n; ++i )
   {
     const reco::Candidate& p = genParticleHandle->at(i);
@@ -62,7 +62,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     if ( status == 1 ) continue;
 
     // Collect B-hadrons, to be used in b tagging
-    if ( isBHadron(&p) ) bHadronIdxs.insert(i);
+    if ( isBHadron(&p) ) bHadronIdxs.insert(-i-1);
   }
 
   // Collect stable leptons and neutrinos
@@ -178,7 +178,7 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   //// Also don't forget to put B hadrons
   for ( auto index : bHadronIdxs )
   {
-    const reco::Candidate& p = genParticleHandle->at(index);
+    const reco::Candidate& p = genParticleHandle->at(abs(index+1));
     if ( std::isnan(p.pt()) or p.pt() <= 0 ) continue;
 
     const double scale = 1e-20/p.p();
@@ -204,8 +204,11 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     bool hasBHadron = false;
     for ( size_t j=0, m=fjConstituents.size(); j<m; ++j )
     { 
-      const size_t index = fjConstituents[j].user_index();
-      if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) hasBHadron = true;
+      const int index = fjConstituents[j].user_index();
+      if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) {
+        hasBHadron = true;
+        continue;
+      }
       reco::CandidatePtr cand = finalStateHandle->ptrAt(index);
       constituents.push_back(cand);
     }

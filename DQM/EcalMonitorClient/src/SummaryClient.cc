@@ -115,10 +115,6 @@ namespace ecaldqm
       // Initialize individual Quality Summaries
       // NOTE: These represent quality over *cumulative* statistics
       int integrity(sIntegrity ? sIntegrity->getBinContent(id) : kUnknown);
-      if(integrity == kMUnknown){
-        qItr->setBinContent(integrity);
-        if ( onlineMode_ ) continue;
-      }
       int presample(sPresample ? sPresample->getBinContent(id) : kUnknown);
       int hotcell(sHotCell ? sHotCell->getBinContent(id) : kUnknown);
       int timing(sTiming ? sTiming->getBinContent(id) : kUnknown);
@@ -136,6 +132,13 @@ namespace ecaldqm
         status = kBad;
       else if(integrity == kUnknown && presample == kUnknown && timing == kUnknown && rawdata == kUnknown && trigprim == kUnknown)
         status = kUnknown;
+      // Skip channels with no/low integrity statistics (based on digi occupancy)
+      // Normally, ensures Global Quality and Report Summaries are not filled when stats are still low / channel masked / ECAL not in run 
+      // However, problematic FEDs can sometimes drop hits so check that channel is not flagged as BAD elsewhere 
+      if( status != kBad && (integrity == kUnknown || integrity == kMUnknown)) {
+        qItr->setBinContent(integrity);
+        if ( onlineMode_ ) continue;
+      }
       qItr->setBinContent(status);
 
       // Keep running count of good/bad channels/towers
@@ -160,7 +163,7 @@ namespace ecaldqm
     } // qItr channel loop
 
     // search clusters of bad towers
-    if(onlineMode_){
+    /*if(onlineMode_){
 
       // EB
       for(int iz(-1); iz < 2; iz += 2){
@@ -220,7 +223,7 @@ namespace ecaldqm
         } // ix
       } // iz
 
-    } // cluster search
+    } // cluster search */
 
     // Fill Report Summaries
     double nBad(0.);

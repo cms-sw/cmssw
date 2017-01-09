@@ -40,7 +40,7 @@ class V0Monitor : public DQMEDAnalyzer
 {
 public:
   V0Monitor( const edm::ParameterSet& );
-  ~V0Monitor() = default;
+  ~V0Monitor();
 
 protected:
 
@@ -84,20 +84,26 @@ private:
   MonitorElement* v0_Lxy_vs_pt_;
   MonitorElement* v0_Lxy_vs_eta_;
 
+  MonitorElement* n_vs_BX_;
   MonitorElement* v0_N_vs_BX_;
   MonitorElement* v0_mass_vs_BX_;
   MonitorElement* v0_Lxy_vs_BX_;
   MonitorElement* v0_deltaMass_vs_BX_;
 
+  MonitorElement* n_vs_lumi_;
   MonitorElement* v0_N_vs_lumi_;
   MonitorElement* v0_mass_vs_lumi_;
   MonitorElement* v0_Lxy_vs_lumi_;
   MonitorElement* v0_deltaMass_vs_lumi_;
 
+  MonitorElement* n_vs_PU_;
   MonitorElement* v0_N_vs_PU_;
   MonitorElement* v0_mass_vs_PU_;
   MonitorElement* v0_Lxy_vs_PU_;
   MonitorElement* v0_deltaMass_vs_PU_;
+
+  MonitorElement* n_vs_LS_;
+  MonitorElement* v0_N_vs_LS_;
 
   MEbinning mass_binning_;
   MEbinning pt_binning_;
@@ -106,7 +112,7 @@ private:
   MEbinning chi2oNDF_binning_;
   MEbinning lumi_binning_;
   MEbinning pu_binning_;
-
+  MEbinning ls_binning_;
 };
 
 #endif // LUMIMONITOR_H

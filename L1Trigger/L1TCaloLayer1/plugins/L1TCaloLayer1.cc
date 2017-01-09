@@ -131,7 +131,11 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
 {
   produces<CaloTowerBxCollection>();
   produces<L1CaloRegionCollection>();
-  layer1 = new UCTLayer1;
+
+  // See UCTLayer1.hh for firmware version definitions
+  int fwVersion = iConfig.getParameter<int>("firmwareVersion");
+  layer1 = new UCTLayer1(fwVersion);
+
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();

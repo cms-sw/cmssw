@@ -556,6 +556,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  type = l1t::EtSum::EtSumType::kTotalEt;
 		  lutObj0 = "ETT"; 
 		  break;
+		case gtETTem:
+		  type = l1t::EtSum::EtSumType::kTotalEtEm;
+		  lutObj0 = "ETTem"; //should this be just ETT (share LUTs?) Can't be used for CorrCond anyway since now directional information
+		  break;		  
 		case gtHTM:
 		  type = l1t::EtSum::EtSumType::kMissingHt;
 		  lutObj0 = "HTM";
@@ -564,16 +568,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		  type = l1t::EtSum::EtSumType::kTotalHt;
 		  lutObj0 = "HTT";
 		  break;
-		case gtETM2:
-		  type = l1t::EtSum::EtSumType::kMissingEt2;//type = l1t::EtSum::EtSumType::kMissingEt2;
-		  lutObj0 = "ETM2";
+		case gtETMHF:
+		  type = l1t::EtSum::EtSumType::kMissingEtHF;
+		  lutObj0 = "ETMHF"; 
 		  break;
 		case gtMinBiasHFP0:
 		case gtMinBiasHFM0:
 		case gtMinBiasHFP1:
 		case gtMinBiasHFM1:
 		  type = l1t::EtSum::EtSumType::kMinBiasHFP0;
-		  lutObj0 = "MinBias";
+		  lutObj0 = "MinBias"; //??Fix?? Not a valid LUT type Can't be used for CorrCond anyway since now directional information
 		  break;
 		default:
 		  edm::LogError("L1TGlobal")
@@ -621,16 +625,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		      binEdges = m_gtScales->getHTMScales().etBins.at(etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
-		    } else if (cndObjTypeVec[0] == gtETM2) {
-		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
+		    } else if (cndObjTypeVec[0] == gtETMHF) {
+		      std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
 
-		      int ssize = m_gtScales->getETMScales().etBins.size();
+		      int ssize = m_gtScales->getETMHFScales().etBins.size();
 		      assert(ssize > 0);
 		      if (etIndex0 >= ssize){ etIndex0 = ssize-1; } 			   
 
-		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getETMHFScales().etBins.at(etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } 
 
@@ -837,6 +841,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     type = l1t::EtSum::EtSumType::kTotalEt;
 		     lutObj1 = "ETT";
 		     break;
+		   case gtETTem:
+		     type = l1t::EtSum::EtSumType::kTotalEtEm;
+		     lutObj1 = "ETTem";
+		     break;		     
 		   case gtHTM:
 		     type = l1t::EtSum::EtSumType::kMissingHt;
 		     lutObj1 = "HTM";
@@ -845,9 +853,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		     type = l1t::EtSum::EtSumType::kTotalHt;
 		     lutObj1 = "HTT";
 		     break;
-		   case gtETM2:
-		     type = l1t::EtSum::EtSumType::kMissingEt2;
-		     lutObj1 = "ETM2";
+		   case gtETMHF:
+		     type = l1t::EtSum::EtSumType::kMissingEtHF;
+		     lutObj1 = "ETMHF";
 		     break;
 		   case gtMinBiasHFP0:
 		   case gtMinBiasHFM0:
@@ -900,16 +908,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 			 binEdges = m_gtScales->getHTMScales().etBins.at(etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
-		       } else if(cndObjTypeVec[1] == gtETM2) {
-		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
+		       } else if(cndObjTypeVec[1] == gtETMHF) {
+		         std::pair<double, double> binEdges = m_gtScales->getETMHFScales().phiBins.at(phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
 
-			 int ssize = m_gtScales->getETMScales().etBins.size();
+			 int ssize = m_gtScales->getETMHFScales().etBins.size();
 			 assert(ssize > 0);
 			 if (etIndex1 >= ssize){ etIndex1 = ssize-1; } 			   
 
-			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getETMHFScales().etBins.at(etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       }
 

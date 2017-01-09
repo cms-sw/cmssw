@@ -58,6 +58,8 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalNoise_cff import *
 # HCAL isolated bunch
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchFilter_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsolatedBunchSelector_cff import *
+# HCAL calibration with muons in HB/HE
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHBHEMuonFilter_cff import *
 
 ###############################################################
 # Muon alignment
@@ -130,6 +132,7 @@ pathALCARECOHcalCalIsoTrkFilter = cms.Path(seqALCARECOHcalCalIsoTrkFilter)
 pathALCARECOHcalCalNoise = cms.Path(seqALCARECOHcalCalNoise)
 pathALCARECOHcalCalIsolatedBunchFilter = cms.Path(seqALCARECOHcalCalIsolatedBunchFilter)
 pathALCARECOHcalCalIsolatedBunchSelector = cms.Path(seqALCARECOHcalCalIsolatedBunchSelector)
+pathALCARECOHcalCalHBHEMuonFilter = cms.Path(seqALCARECOHcalCalHBHEMuonFilter)
 pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu*ALCARECOMuAlCalIsolatedMuDQM*ALCARECODTCalibrationDQM)
 pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu*ALCARECOMuAlZMuMuDQM)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps*ALCARECOMuAlOverlapsDQM)
@@ -328,6 +331,15 @@ ALCARECOStreamHcalCalIsolatedBunchSelector = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalIsolatedBunchSelector),
 	content = OutALCARECOHcalCalIsolatedBunchSelector.outputCommands,
 	selectEvents = OutALCARECOHcalCalIsolatedBunchSelector.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
+ALCARECOStreamHcalCalHBHEMuonFilter = cms.FilteredStream(
+	responsible = 'Sunanda Banerjee',
+	name = 'HcalCalHBHEMuonFilter',
+	paths  = (pathALCARECOHcalCalHBHEMuonFilter),
+	content = OutALCARECOHcalCalHBHEMuonFilter.outputCommands,
+	selectEvents = OutALCARECOHcalCalHBHEMuonFilter.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 

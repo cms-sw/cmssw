@@ -52,7 +52,7 @@ namespace pat {
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
       dxydxy_(0),
       dzdz_(0),dxydz_(0),dlambdadz_(0), dphidxy_(0),dptdpt_(0),detadeta_(0),
-      dphidphi_(0), packedHits_(0), normalizedChi2_(0) { }
+      dphidphi_(0), packedHits_(0), packedLayers_(0), normalizedChi2_(0) { }
 
     explicit PackedCandidate( const reco::Candidate & c,
                               const reco::VertexRefProd &pvRefProd,
@@ -62,7 +62,7 @@ namespace pat {
       p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), dphi_(0), 
       track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
       pvRefKey_(pvRefKey),dxydxy_(0),dzdz_(0),dxydz_(0), dlambdadz_(0),
-      dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0), packedHits_(0),
+      dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0), packedHits_(0), packedLayers_(0),
       normalizedChi2_(0) {
       packBoth();
     }
@@ -77,7 +77,7 @@ namespace pat {
       track_(nullptr), pdgId_(pdgId),
       qualityFlags_(0), pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
             dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),
-      detadeta_(0),dphidphi_(0),packedHits_(0),normalizedChi2_(0) {
+      detadeta_(0),dphidphi_(0),packedHits_(0),packedLayers_(0),normalizedChi2_(0) {
       packBoth();
     }
 
@@ -93,7 +93,7 @@ namespace pat {
       pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
       dxydxy_(0),dzdz_(0),dxydz_(0),
       dlambdadz_(0),dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0),
-      packedHits_(0),normalizedChi2_(0) {
+      packedHits_(0),packedLayers_(0),normalizedChi2_(0) {
       packBoth();
     }
 
@@ -120,7 +120,7 @@ namespace pat {
       pvRefProd_(iOther.pvRefProd_),pvRefKey_(iOther.pvRefKey_),
       dxydxy_(iOther.dxydxy_),dzdz_(iOther.dzdz_),dxydz_(iOther.dxydz_), dlambdadz_(iOther.dlambdadz_),
       dphidxy_(iOther.dphidxy_),dptdpt_(iOther.dptdpt_), detadeta_(iOther.detadeta_),
-      dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), normalizedChi2_(iOther.normalizedChi2_) {
+      dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_), normalizedChi2_(iOther.normalizedChi2_) {
       }
 
     PackedCandidate( PackedCandidate&& iOther) :
@@ -145,7 +145,7 @@ namespace pat {
       pvRefProd_(std::move(iOther.pvRefProd_)),pvRefKey_(iOther.pvRefKey_),
       dxydxy_(iOther.dxydxy_),dzdz_(iOther.dzdz_),dxydz_(iOther.dxydz_), dlambdadz_(iOther.dlambdadz_),
       dphidxy_(iOther.dphidxy_),dptdpt_(iOther.dptdpt_), detadeta_(iOther.detadeta_),
-      dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), normalizedChi2_(iOther.normalizedChi2_) {
+      dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_), normalizedChi2_(iOther.normalizedChi2_) {
       }
 
 
@@ -214,6 +214,7 @@ namespace pat {
       detadeta_=iOther.detadeta_;
       dphidphi_=iOther.dphidphi_; 
       packedHits_=iOther.packedHits_; 
+      packedLayers_=iOther.packedLayers_; 
       normalizedChi2_=iOther.normalizedChi2_;
       return *this;
     }
@@ -260,6 +261,7 @@ namespace pat {
       detadeta_=iOther.detadeta_;
       dphidphi_=iOther.dphidphi_; 
       packedHits_=iOther.packedHits_; 
+      packedLayers_=iOther.packedLayers_; 
       normalizedChi2_=iOther.normalizedChi2_;
       return *this;
     }
@@ -400,11 +402,19 @@ namespace pat {
       dphidphi_ = covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
-      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
+      // first we count the number of layers with hits
+      int numberOfPixelLayers_ = tk.hitPattern().pixelLayersWithMeasurement();
+      if (numberOfPixelLayers_ > trackPixelHitsMask) numberOfPixelLayers_ = trackPixelHitsMask;
+      int numberOfStripLayers_ = tk.hitPattern().stripLayersWithMeasurement();
+      if (numberOfStripLayers_ > trackStripHitsMask) numberOfStripLayers_ = trackStripHitsMask;
+      packedLayers_ = (numberOfPixelLayers_&trackPixelHitsMask) | (numberOfStripLayers_ << trackStripHitsShift);
+      // now we count number of additional hits, beyond the one-per-layer implied by packedLayers_
+      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits() - numberOfPixelLayers_;
       if (numberOfPixelHits_ > trackPixelHitsMask) numberOfPixelHits_ = trackPixelHitsMask;
-      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_;
+      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_ - numberOfPixelLayers_ - numberOfStripLayers_;
       if (numberOfStripHits_ > trackStripHitsMask) numberOfStripHits_ = trackStripHitsMask;
       packedHits_ = (numberOfPixelHits_&trackPixelHitsMask) | (numberOfStripHits_ << trackStripHitsShift);
+ 
       packBoth();
     }
 
@@ -412,8 +422,11 @@ namespace pat {
 	setTrackProperties(tk,tk.covariance());
     }	
  
-    int numberOfPixelHits() const { return packedHits_ & trackPixelHitsMask; }
-    int numberOfHits() const { return (packedHits_ >> trackStripHitsShift) + numberOfPixelHits(); }
+    int numberOfPixelHits() const { return (packedHits_ & trackPixelHitsMask) + pixelLayersWithMeasurement(); }
+    int numberOfHits() const { return (packedHits_ >> trackStripHitsShift) + stripLayersWithMeasurement() + numberOfPixelHits(); }
+    int pixelLayersWithMeasurement() const { return packedLayers_ & trackPixelHitsMask; }
+    int stripLayersWithMeasurement() const { return (packedLayers_ >> trackStripHitsShift); }
+    int trackerLayersWithMeasurement() const { return stripLayersWithMeasurement() + pixelLayersWithMeasurement(); }
 	
     /// vertex position
     virtual const Point & vertex() const { maybeUnpackBoth(); return *vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
@@ -467,7 +480,7 @@ namespace pat {
 
     /// return a pointer to the track if present. otherwise, return a null pointer
     virtual const reco::Track * bestTrack() const {
-      if (packedHits_!=0) {
+      if (packedHits_!=0 || packedLayers_ !=0) {
         if (!track_) unpackTrk();
         return track_.load();
       }
@@ -619,7 +632,7 @@ namespace pat {
 
     /// IP covariance	
     CMS_THREAD_GUARD(vertex_) mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
-    uint8_t packedHits_;
+    uint8_t packedHits_, packedLayers_; // packedLayers_ -> layers with valid hits; packedHits_ -> extra hits beyond the one-per-layer implied by packedLayers_
     /// track quality information
     uint8_t normalizedChi2_; 
 //    uint8_t numberOfPixelHits_;

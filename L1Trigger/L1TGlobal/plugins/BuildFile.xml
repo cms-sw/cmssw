@@ -11,6 +11,7 @@
 <use name="utm"/>
 <use name="L1TriggerConfig/L1GtConfigProducers"/>
 <use name="L1Trigger/L1TGlobal"/>
+<use name="L1Trigger/L1TCommon"/>
 <use name="L1Trigger/GlobalTrigger"/>
 <library file="*.cc" name="L1TriggerL1TGlobalPlugins">
   <flags EDM_PLUGIN="1"/>

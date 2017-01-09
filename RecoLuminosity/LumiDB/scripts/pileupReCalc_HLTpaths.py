@@ -113,9 +113,10 @@ if __name__ == '__main__':
                     if PUlumiInfo[0] > 0.:
                         scale=HLTlumiInfo[1]/PUlumiInfo[0] # rescale to HLT recorded Lumi
 
-                    if scale > 1.001:
-                        print 'Run %d, LS %d, HLT Scale (%f), HLTL (%f), PUL (%f) larger than one - please check!' % (run, LSnumber, scale, HLTlumiInfo[1],PUlumiInfo[0])
-                        scale=1.01  # HLT integrated values are wrong, punt                        
+                    if scale > 1.001: # happens by default for HF in Run2, therefore only print out if significant
+			if scale > 1.006:
+                        	print 'Run %d, LS %d, HLT Scale (%f), HLTL (%f), PUL (%f) larger than one - please check!' % (run, LSnumber, scale, HLTlumiInfo[1],PUlumiInfo[0])
+                    	scale=1.0  # HLT integrated values are wrong, punt                        
 
                     newIntLumi = scale*PUlumiInfo[0]
                     newRmsLumi = PUlumiInfo[1]

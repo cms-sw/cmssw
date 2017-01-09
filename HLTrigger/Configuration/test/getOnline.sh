@@ -1,5 +1,14 @@
 #! /bin/bash
 
+# load common HLT functions
+if [ -f "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
+  source "$CMSSW_BASE/src/HLTrigger/Configuration/common/utils.sh"
+elif [ -f "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh" ]; then
+  source "$CMSSW_RELEASE_BASE/src/HLTrigger/Configuration/common/utils.sh"
+else
+  exit 1
+fi
+
 HLT='/online/collisions/2012/8e33/v2.2/HLT'
 L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'
 #L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db'
@@ -21,11 +30,6 @@ hltGetConfiguration $HLT                                              --fastsim 
 hltGetConfiguration $HLT --process HLTGRun --globaltag auto:hltonline_GRun --full --offline --data --unprescale --l1 $L1T          > OnData_HLT_GRun.py
 hltGetConfiguration $HLT --process HLTGRun --globaltag auto:startup_GRun   --full --offline --mc   --unprescale --l1 $L1T          > OnLine_HLT_GRun.py 
 
-
-{
-  TABLE=$(echo $HLT | cut -d: -f2)
-  DB=$(echo $HLT | cut -d: -f1 -s)
-  true ${DB:=hltdev}
-
-  hltConfigFromDB --$DB --configName $TABLE | hltDumpStream 
-} > streams.txt
+# dump streams, datasets and paths
+read Vx DB TABLE <<< $(parse_HLT_menu "$HLT")
+hltConfigFromDB --$Vx --$DB --configName $TABLE | hltDumpStream > streams.txt

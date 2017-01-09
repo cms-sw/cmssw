@@ -47,7 +47,6 @@ class GetLumi
   static constexpr double CM2_TO_NANOBARN = 1.0/1.e-33;
   static const unsigned int lastBunchCrossing = 3564;
 
-
   GetLumi(const edm::ParameterSet&);
   GetLumi(const edm::InputTag&, double);
   GetLumi(const edm::ParameterSet&,edm::ConsumesCollector& iC);

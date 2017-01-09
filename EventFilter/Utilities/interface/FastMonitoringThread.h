@@ -19,9 +19,9 @@ namespace evf{
     enum Macrostate { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
 
-    enum InputState { inIgnore = 0, inInit, inWaitInput, inNewLumi, inRunEnd, inProcessingFile, inWaitChunk , inChunkReceived, 
+    enum InputState { inIgnore = 0, inInit, inWaitInput, inNewLumi, inNewLumiBusyEndingLS, inNewLumiIdleEndingLS, inRunEnd, inProcessingFile, inWaitChunk , inChunkReceived,
                       inChecksumEvent, inCachedEvent, inReadEvent, inReadCleanup, inNoRequest, inNoRequestWithIdleThreads,
-                      inNoRequestWithIdleAndEoLThreads, inNoRequestWithGlobalEoL, inNoRequestWithAllEoLThreads, inNoRequestWithEoLThreads,
+                      inNoRequestWithGlobalEoL, inNoRequestWithEoLThreads,
                       //supervisor thread and worker threads state
                       inSupFileLimit, inSupWaitFreeChunk, inSupWaitFreeChunkCopying, inSupWaitFreeThread, inSupWaitFreeThreadCopying, inSupBusy, inSupLockPolling,
                       inSupLockPollingCopying,inSupNoFile,inSupNewFile,inSupNewFileWaitThreadCopying,inSupNewFileWaitThread,

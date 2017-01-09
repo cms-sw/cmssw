@@ -158,7 +158,7 @@ workflows[136.727] = ['',['RunDoubleEGPrpt2016B','HLTDR2_2016','RECODR2_2016reHL
 workflows[136.728] = ['',['RunSingleMuPrpt2016B','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
 workflows[136.729] = ['',['RunSingleEl2016B','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
 workflows[136.730] = ['',['RunSingleMu2016B','HLTDR2_2016','RECODR2_2016reHLT_skimSingleMu','HARVESTDR2']]
-workflows[136.731] = ['',['RunSinglePh2016B','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
+workflows[136.731] = ['',['RunSinglePh2016B','HLTDR2_2016','RECODR2_2016reHLT_skimSinglePh','HARVESTDR2']]
 workflows[136.732] = ['',['RunZeroBias2016B','HLTDR2_2016','RECODR2_2016reHLT','HARVESTDR2']]
 workflows[136.733] = ['',['RunCosmics2016B','RECOCOSDRUN2','ALCACOSDRUN2','HARVESTDCRUN2']]
 workflows[136.734] = ['',['RunMuOnia2016B','HLTDR2_2016','RECODR2_2016reHLT_skimMuOnia','HARVESTDR2']]
@@ -326,3 +326,6 @@ workflows[145] = ['',['HydjetQ_MinBias_5020GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###
 workflows[280]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO','HARVEST']]
+
+### pPb Run2 ###
+workflows[281]= ['',['EPOS_PPb_8160GeV_MinimumBias','DIGIUP15_PPb','RECOUP15_PPb','HARVESTUP15_PPb']]

@@ -24,7 +24,7 @@ ALCARECOMuAlBeamHalo = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
     filter = cms.bool(True),
     src = cms.InputTag("cosmicMuons"), # get cosmicMuons from global-run reconstruction
     minStations = cms.uint32(0), # no "energy cut" yet
-    minHitsPerStation = cms.uint32(4)
+    minHitsPerStation = cms.uint32(1)
 )
 
 seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT + ALCARECOMuAlBeamHaloDCSFilter + ALCARECOMuAlBeamHalo)

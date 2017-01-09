@@ -37,6 +37,7 @@ class RPCDetId;
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const L1MuDTChambPhDigi &digi) const;
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const CSCDetId & csc, const CSCCorrelatedLCTDigi &digi) const;
     int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi) const;
+    int getProcessorPhi(unsigned int iProcessor, l1t::tftype part, const RPCDetId & rollId, const unsigned int &digi1, const unsigned int &digi2) const;
 
     ///Convert local eta coordinate to global digital microGMT scale.
     int getGlobalEta(unsigned int rawid, const L1MuDTChambPhDigi &aDigi,

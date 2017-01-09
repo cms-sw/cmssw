@@ -60,7 +60,7 @@ protected:
   bool match(const TrajectoryStateOnSurface &state,
 	     const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
     
-  TwoBodyDecayFitter* theFitter;
+  TwoBodyDecayFitter theFitter;
 
   double thePrimaryMass;
   double thePrimaryWidth;
@@ -78,8 +78,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::ParameterSet& config )
-  : TrajectoryFactoryBase( config ),
-    theFitter( new TwoBodyDecayFitter( config ) )
+  : TrajectoryFactoryBase(config, 2),
+    theFitter(config)
 {
   const edm::ParameterSet ppc = config.getParameter< edm::ParameterSet >( "ParticleProperties" );
   thePrimaryMass = ppc.getParameter< double >( "PrimaryMass" );
@@ -94,7 +94,6 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::Paramet
 
 TwoBodyDecayTrajectoryFactory::~TwoBodyDecayTrajectoryFactory()
 {
-  delete theFitter;
 }
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection
@@ -120,7 +119,7 @@ TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
     // estimate the decay parameters
     VirtualMeasurement vm( thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot );
-    TwoBodyDecay tbd = theFitter->estimate( transientTracks, vm );
+    TwoBodyDecay tbd = theFitter.estimate( transientTracks, vm );
 
     if ( !tbd.isValid() || ( tbd.chi2() > theChi2CutValue ) )
     {
@@ -168,7 +167,7 @@ TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       // the external tsos, but this is o.k., because the only information retrieved from them
       // is the magnetic field.
       VirtualMeasurement vm( thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot );
-      TwoBodyDecay tbd = theFitter->estimate( transientTracks, external, vm );
+      TwoBodyDecay tbd = theFitter.estimate(transientTracks, external, vm);
 
       if ( !tbd.isValid()  || ( tbd.chi2() > theChi2CutValue ) )
       {

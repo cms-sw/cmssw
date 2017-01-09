@@ -149,7 +149,9 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::tau::TauPFEssential" ClassVersion="11">
+  <class name="pat::tau::TauPFEssential" ClassVersion="13">
+    <version ClassVersion="13" checksum="1052833547" />
+    <version ClassVersion="12" checksum="3865233356" /> 
     <version ClassVersion="11" checksum="1193752112" />
     <version ClassVersion="10" checksum="1628501942" />
   </class>
@@ -279,7 +281,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="26">
+  <class name="pat::PackedCandidate" ClassVersion="27">
+    <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
     <version ClassVersion="25" checksum="3654469025"/>
     <version ClassVersion="24" checksum="663492232"/>

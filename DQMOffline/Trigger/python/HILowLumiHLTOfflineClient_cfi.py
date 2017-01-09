@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 HiJetClient = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/HI/HLT_AK4Calo*", "HLT/HI/HLT_AK4PF*", "HLT/HI/HLT_HISinglePhoton*", "HLT/HI/HLT_FullTrack*"),
+    subDirs        = cms.untracked.vstring("HLT/HI/HLT_AK4Calo*", "HLT/HI/HLT_AK4PF*", "HLT/HI/HLT_HISinglePhoton*", "HLT/HI/HLT_FullTrack*", "HLT/HI/HLT_PAFullTracks*", "HLT/HI/HLT_L1MinimumBiasHF*", "HLT/HI/HLT_ZeroBias*" ),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
     commands       = cms.vstring(),

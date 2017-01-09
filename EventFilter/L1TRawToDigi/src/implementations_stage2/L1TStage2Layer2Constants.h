@@ -10,6 +10,8 @@ namespace l1t {
 
       namespace mp {
 
+	extern unsigned int offsetBoardId;
+
 	extern unsigned int nInputFramePerBX;
 	extern unsigned int nOutputFramePerBX;
 

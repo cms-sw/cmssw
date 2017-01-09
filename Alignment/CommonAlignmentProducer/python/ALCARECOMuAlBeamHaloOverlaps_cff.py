@@ -24,15 +24,14 @@ ALCARECOMuAlBeamHaloOverlapsEnergyCut = cms.EDFilter("AlignmentCSCBeamHaloSelect
     filter = cms.bool(True),
     src = cms.InputTag("cosmicMuons"), # get cosmicMuons from global-run reconstruction
     minStations = cms.uint32(0), # no "energy cut" yet
-    minHitsPerStation = cms.uint32(4)
+    minHitsPerStation = cms.uint32(1)
 )
 
 ALCARECOMuAlBeamHaloOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     filter = cms.bool(True),
     src = cms.InputTag("ALCARECOMuAlBeamHaloOverlapsEnergyCut"),
-    minHitsPerChamber = cms.uint32(4),
+    minHitsPerChamber = cms.uint32(1),
     station = cms.int32(0) # all stations: I'll need to split it by station (8 subsamples) offline
 )
 
 seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT + ALCARECOMuAlBeamHaloOverlapsDCSFilter + ALCARECOMuAlBeamHaloOverlapsEnergyCut * ALCARECOMuAlBeamHaloOverlaps)
-

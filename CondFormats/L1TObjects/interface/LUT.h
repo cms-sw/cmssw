@@ -32,7 +32,7 @@ namespace l1t{
       SUCCESS=0,NO_ENTRIES=1,DUP_ENTRIES=2,MISS_ENTRIES=3,MAX_ADDRESS_OUTOFRANGE=4,NO_HEADER=5
     };
     
-    LUT():data_(){}
+    LUT():nrBitsAddress_(0),nrBitsData_(0),addressMask_(0),dataMask_(0),data_(){}
       
     explicit LUT(std::istream& stream) :
       data_()

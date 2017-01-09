@@ -68,7 +68,7 @@ L1uGTTreeProducer::L1uGTTreeProducer(edm::ParameterSet const & config) :
 
 L1uGTTreeProducer::~L1uGTTreeProducer()
 {
-  if (tree_) { delete tree_; tree_ = NULL; }
+  //if (tree_) { delete tree_; tree_ = NULL; }
   //if (results_) { delete results_; results_ = NULL; }  // It seems TTree owns this pointer...
 }
 
@@ -98,7 +98,11 @@ L1uGTTreeProducer::analyze(edm::Event const & event, edm::EventSetup const & set
   edm::Handle<GlobalAlgBlkBxCollection> ugt;
 
   event.getByToken(ugt_token_, ugt);
-  results_ = & ugt->at(0, 0);
+
+  if (ugt.isValid()) {
+    results_ = & ugt->at(0, 0);
+  }
+
   tree_->Fill();
 }
 

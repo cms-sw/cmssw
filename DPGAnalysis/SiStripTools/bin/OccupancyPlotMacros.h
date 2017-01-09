@@ -37,7 +37,7 @@ void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int offse
 void PlotTrackerXsect(TFile* ff, const char* module);
 TCanvas* drawMap(const char* cname, const TH1* hval, const TProfile* averadius, const TProfile* avez,const float mmin, const float mmax, 
 		 std::pair<float,float>(*size)(int), float(*scale)(float), const int color, const char* ptitle="");
-
+TH1D* TrendPlotSingleBin(TFile* ff, const char* module, const char* hname, const int bin);
 
 #endif // DPGAnalysis_SiStripTools_OccupancyPlotMacros_h
 

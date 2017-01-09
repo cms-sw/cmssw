@@ -33,7 +33,8 @@ def setup(process, input_files, collection,
 
     # Overwrite Track-Selector filter options from unified sequence to 'False'
     process.AlignmentTrackSelector.filter = False
-    if collection != "ALCARECOTkAlCosmicsCTF0T":
+    if collection not in ("ALCARECOTkAlCosmicsCTF0T",
+                          "ALCARECOTkAlCosmicsInCollisions"):
         # there is no HighPurity selector for cosmics
         process.HighPurityTrackSelector.filter = False
 

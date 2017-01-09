@@ -13,10 +13,26 @@ l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
   # trigger to match to, may use regexp wildcard as supported by ROOT's 
   # TString; up to now the first found match (per run) is used.
   isoTriggerNames = cms.vstring(
-        "HLT_IsoMu18_v*",
-        "HLT_IsoMu22_v*"
-        #"HLT_IsoMu24_eta2p1_v*",
-        #"HLT_IsoMu24_v*"
+        "HLT_IsoMu18_v1",
+        "HLT_IsoMu18_v2",
+        "HLT_IsoMu18_v3",
+
+        "HLT_IsoMu20_v1",
+        "HLT_IsoMu20_v2",
+        "HLT_IsoMu20_v3",
+        "HLT_IsoMu20_v4",
+
+        "HLT_IsoMu22_v1",
+        "HLT_IsoMu22_v2",
+        "HLT_IsoMu22_v3",
+
+        "HLT_IsoMu24_v1",
+        "HLT_IsoMu24_v2",
+
+        "HLT_IsoMu27_v1",
+        "HLT_IsoMu27_v2",
+        "HLT_IsoMu27_v3",
+        "HLT_IsoMu27_v4",
         ),
   triggerNames = cms.vstring(
         "HLT_Mu30_v*",

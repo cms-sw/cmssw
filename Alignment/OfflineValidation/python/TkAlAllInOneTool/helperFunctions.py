@@ -37,7 +37,7 @@ def replaceByMap(target, the_map):
                     if  ".oO[" in result and "]Oo." in line:
                         problematicLines += "%s\n"%line
                 msg = ("Oh Dear, there seems to be an endless loop in "
-                       "replaceByMap!!\n%s\nrepMap"%problematicLines)
+                       "replaceByMap!!\n%s\n%s"%(problematicLines, the_map))
                 raise AllInOneError(msg)
     return result
 

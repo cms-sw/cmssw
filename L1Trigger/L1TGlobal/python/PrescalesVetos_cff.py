@@ -12,9 +12,14 @@ L1TGlobalPrescalesVetosRcdSource = cms.ESSource("EmptyESSource",
 )
 
 L1TGlobalPrescalesVetos = cms.ESProducer("L1TGlobalPrescalesVetosESProducer",
+    TriggerMenuLuminosity = cms.string('startup'),
+    Verbosity = cms.int32(0),
+    AlgoBxMaskDefault = cms.int32(1),
+    PrescaleXMLFile = cms.string('UGT_BASE_RS_PRESCALES_v10.xml'),
+    AlgoBxMaskXMLFile = cms.string('UGT_BASE_RS_ALGOBX_MASK_V1.xml'),
+    FinOrMaskXMLFile = cms.string('UGT_BASE_RS_FINOR_MASK_v17.xml'),
+    VetoMaskXMLFile = cms.string('UGT_BASE_RS_VETO_MASK_v1.xml'),
 
-    # dummy version, no parameters yet...                                        
- 
 )
 
 

@@ -56,7 +56,7 @@ namespace l1t
 					
 					RegionalMuonCand muCand = RegionalMuonCand();
 					RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
-					muCand.setLink(blockId/2);	
+					muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 
 					LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
 					if ( muCand.hwQual() != 0 )

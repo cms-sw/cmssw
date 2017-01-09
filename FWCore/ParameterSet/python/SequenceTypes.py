@@ -156,9 +156,13 @@ class _SequenceCollection(_Sequenceable):
     def _appendToCollection(self,collection):
         collection.extend(self._collection)
     def dumpSequencePython(self):
-        returnValue = self._collection[0].dumpSequencePython()
-        for m in self._collection[1:]:
-            returnValue += '+'+m.dumpSequencePython()        
+        returnValue = ''
+        separator = ''
+        for item in self._collection:
+            itemDump = item.dumpSequencePython()
+            if itemDump:
+                returnValue += (separator + itemDump)
+                separator = '+'
         return returnValue
     def dumpSequenceConfig(self):
         returnValue = self._collection[0].dumpSequenceConfig()
@@ -236,7 +240,10 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             # dump it verbose
             if self._seq is None:
                 return ''
-            return '('+self._seq.dumpSequencePython()+')'
+            s = self._seq.dumpSequencePython()
+            if s:
+              return '('+s+')'
+            return ''
     def dumpSequenceConfig(self):
         """Returns a string which contains the old config language representation of just the internal sequence"""
         # only dump the label, if possible
