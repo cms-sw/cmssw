@@ -12,46 +12,38 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
 
   GlobalPoint vtxPos(vtx.x(),vtx.y(),vtx.z());
   
-  uint8_t nhits = 0;
-
-  float distance = 1e6;
-
   auto const & trajParams = track.trajParams();
-  // here till debug end
-  if (trajParams.size()!=track.recHitsSize()) 
-    std::cout << "traj param and hits diff size " << trajParams.size()
-         << ' ' << track.recHitsSize() <<std::endl;
-  assert(trajParams.size()==track.recHitsSize());
+
+
+  //iterate inside out, when distance to vertex starts increasing, we are at the closest hit
+  // the first (and last, btw) hit is always valid...
   auto hb = track.recHitsBegin();
+  auto recHit = *(hb);
+  assert(recHit->isValid());
   unsigned int closest=0;
-  for(unsigned int h=0;h<track.recHitsSize()-1;h++){
-    auto recHit = *(hb+h);
-    if(!recHit->isValid()) continue;
-
-    auto globalPosition = recHit->surface()->toGlobal(trajParams[h].position());         
-
-    ++nhits;
-    distance = (vtxPos - globalPosition).mag();
-    closest = h;
-    
+  auto globalPosition = recHit->surface()->toGlobal(trajParams[0].position());
+  auto distance = (vtxPos - globalPosition).mag();
+  int nhits = 1;
+  for(unsigned int h=1;h<track.recHitsSize();h++){
 
     //check if next valid hit is farther away from vertex than existing closest
     auto nextHit = *(hb+h);
-    
-    
-    if ( nextHit->isValid() ) {
-      auto globalPosition = nextHit->surface()->toGlobal(trajParams[h+1].position());
-      auto nextDistance = (vtxPos - globalPosition).mag();
-      if (nextDistance > distance) break;
-    }
-    
+    if (!nextHit->isValid() ) continue;
+    globalPosition = nextHit->surface()->toGlobal(trajParams[h].position());
+    auto nextDistance = (vtxPos - globalPosition).mag();
+    if (nextDistance > distance) break;
+     
+    distance=nextDistance;
+    ++nhits;
+    closest=h;
   }
+
 
   //compute signed decaylength significance for closest hit and check if it is before the vertex
   //if not then we need to subtract it from the count of hits before the vertex, since it has been implicitly included
-  auto recHit = *(hb+closest);
+  recHit = *(hb+closest);
   auto momDir = recHit->surface()->toGlobal(trajParams[closest].direction());
-  auto globalPosition = recHit->surface()->toGlobal(trajParams[closest].position()); 
+  globalPosition = recHit->surface()->toGlobal(trajParams[closest].position()); 
   float decayLengthHitToVtx = (vtxPos - globalPosition).dot(momDir);
 
   AlgebraicVector3 j;
@@ -67,7 +59,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
                                            //subtract it from wrong hits count
     --nhits;
   }
- 
+
   return std::pair<unsigned int,Measurement1DFloat>(nhits,decayLength);
 
 }
