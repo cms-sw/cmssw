@@ -122,11 +122,11 @@ VertexCompositeCandidateCollectionSelector::produce(edm::Event& iEvent, const ed
      auto const& v0s = *v0Handle.product();    
      for ( auto const& v0 : v0s ) {
        GlobalPoint displacementFromPV2D = ( pv==nullptr ? dummyGP : GlobalPoint( (pv->x() - v0.vx()), 
-									       (pv->y() - v0.vy()), 
-									       0. ) );
-       GlobalPoint displacementFromBS2D = ( bs==nullptr ? dummyGP : GlobalPoint( -1*((bs->x(v0.vz()) - v0.vx()) + (v0.vz() - bs->position().z()) * bs->dxdz()),
-									       -1*((bs->y(v0.vz()) - v0.vy()) + (v0.vz() - bs->position().z()) * bs->dydz()), 
-									       0. ) );
+										 (pv->y() - v0.vy()), 
+										 0. ) );
+       GlobalPoint displacementFromBS2D = ( bs==nullptr ? dummyGP : GlobalPoint( v0.vx() - bs->x(v0.vz()),
+										 v0.vy() - bs->y(v0.vz()),
+										 0. );
        float abslxy      = ( pv==nullptr ? dummy : displacementFromPV2D.perp() );
        float abslxyWRTbs = ( bs==nullptr ? dummy : displacementFromBS2D.perp() );
 
