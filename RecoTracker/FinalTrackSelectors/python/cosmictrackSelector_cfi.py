@@ -5,7 +5,7 @@ cosmictrackSelector = cms.EDProducer("CosmicTrackSelector",
                                      keepAllTracks = cms.bool(False), ## if set to true tracks failing this filter are kept in the output
                                      beamspot = cms.InputTag("offlineBeamSpot"),
                                      #untracked bool copyTrajectories = true // when doing retracking before
-                                     copyTrajectories = cms.untracked.bool(True),
+                                     copyTrajectories = cms.untracked.bool(False),
                                      copyExtras = cms.untracked.bool(True), ## set to false on AOD
                                      qualityBit = cms.string(''), # set to '' or comment out if you don't want to set the bit                                     
                                      # parameters for adapted optimal cuts on chi2

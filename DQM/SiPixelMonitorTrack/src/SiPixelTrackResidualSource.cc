@@ -946,23 +946,11 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	
  }//-----Tracks
   ////////////////////////////
-  //get trajectories
-  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  //iEvent.getByLabel(tracksrc_,trajCollectionHandle);
-  iEvent.getByToken ( tracksrcToken_, trajCollectionHandle );
-  auto const & trajColl = *(trajCollectionHandle.product());
-   
   //get tracks
   edm::Handle<std::vector<reco::Track> > trackCollectionHandle;
   //iEvent.getByLabel(tracksrc_,trackCollectionHandle);
   iEvent.getByToken( trackToken_, trackCollectionHandle );
   auto const & trackColl = *(trackCollectionHandle.product());
-  
-  //get the map
-  edm::Handle<TrajTrackAssociationCollection> match;
-  //iEvent.getByLabel(tracksrc_,match);
-  iEvent.getByToken( trackAssociationToken_, match);
-  auto const &  ttac = *(match.product());
   
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
@@ -976,17 +964,29 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   const edm::DetSetVector<PixelDigi> diginp = *(digiinput.product());
   
 
-  if(debug_){
-    std::cout << "Trajectories\t : " << trajColl.size() << std::endl;
-    std::cout << "recoTracks  \t : " << trackColl.size() << std::endl;
-    std::cout << "Map entries \t : " << ttac.size() << std::endl;
-  }
-  
   std::set<SiPixelCluster> clusterSet;
   TrajectoryStateCombiner tsoscomb;
   int tracks=0, pixeltracks=0, bpixtracks=0, fpixtracks=0; 
   int trackclusters=0, barreltrackclusters=0, endcaptrackclusters=0;
   int otherclusters=0, barrelotherclusters=0, endcapotherclusters=0;
+
+  //get trajectories
+  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
+  iEvent.getByToken ( tracksrcToken_, trajCollectionHandle );
+  if (trajCollectionHandle.isValid()) {
+
+  auto const & trajColl = *(trajCollectionHandle.product());
+  //get the map
+  edm::Handle<TrajTrackAssociationCollection> match;
+  iEvent.getByToken( trackAssociationToken_, match);
+  auto const &  ttac = *(match.product());
+
+ if(debug_){
+    std::cout << "Trajectories\t : " << trajColl.size() << std::endl;
+    std::cout << "recoTracks  \t : " << trackColl.size() << std::endl;
+    std::cout << "Map entries \t : " << ttac.size() << std::endl;
+  }
+
 
   //Loop over map entries
   for(TrajTrackAssociationCollection::const_iterator it =  ttac.begin();it !=  ttac.end(); ++it){
@@ -1225,6 +1225,8 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
     }
     
   }//end loop on map entries
+
+  } // end valid trajectory:
 
   //find clusters that are NOT on track
   //edmNew::DetSet<SiPixelCluster>::const_iterator  di;
