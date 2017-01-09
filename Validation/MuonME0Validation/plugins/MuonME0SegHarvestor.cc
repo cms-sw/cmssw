@@ -62,7 +62,7 @@ TProfile* MuonME0SegHarvestor::ComputeEff(TH1F* num, TH1F* denum, std::string na
       double temp = nDenum;
       nDenum = nNum;
       nNum = temp;
-      std::cout<<"Alert! specific bin's num is bigger than denum "<<i<<" "<<nNum<<" "<<nDenum<<std::endl;
+      edm::LogWarning("MuonME0DigisHarvestor")<<"Alert! specific bin's num is bigger than denum "<<i<<" "<<nNum<<" "<<nDenum;
     }
     const double effVal = nNum/nDenum;
     efficHist->SetBinContent(i, effVal);
@@ -93,9 +93,9 @@ void MuonME0SegHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::
   }
   else {
       
-    std::cout<<"Can not find histograms"<<std::endl;
-    if ( num == nullptr) std::cout<<"num not found"<<std::endl;
-    if ( den == nullptr) std::cout<<"den not found"<<std::endl;
+    edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms";
+    if ( num == nullptr) edm::LogWarning("MuonME0DigisHarvestor")<<"num not found";
+    if ( den == nullptr) edm::LogWarning("MuonME0DigisHarvestor")<<"den not found";
       
   }
   return;
@@ -125,7 +125,7 @@ MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig
       ProcessBooking( ibooker, ig, "me0segment_eff_vs_eta", num_vs_eta, den_vs_eta );
       
   }
-  else std::cout<<"Can not find histograms: "<<eta_label_num<<" or "<<eta_label_den<<std::endl;
+  else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<eta_label_num<<" or "<<eta_label_den;
  
   if( ig.get(pt_label_num.Data()) !=nullptr && ig.get(pt_label_den.Data()) !=nullptr ) {
         
@@ -137,7 +137,7 @@ MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig
       ProcessBooking( ibooker, ig, "me0segment_eff_vs_pt", num_vs_pt, den_vs_pt );
       
   }
-  else std::cout<<"Can not find histograms: "<<pt_label_num<<" or "<<pt_label_den<<std::endl;
+  else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<pt_label_num<<" or "<<pt_label_den;
 
   if( ig.get(phi_label_num.Data()) !=nullptr && ig.get(phi_label_den.Data()) !=nullptr ) {
         
@@ -149,7 +149,7 @@ MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig
       ProcessBooking( ibooker, ig, "me0segment_eff_vs_phi", num_vs_phi, den_vs_phi );
       
   }
-  else std::cout<<"Can not find histograms: "<<phi_label_num<<" or "<<phi_label_den<<std::endl;
+  else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<phi_label_num<<" or "<<phi_label_den;
 
     
 }

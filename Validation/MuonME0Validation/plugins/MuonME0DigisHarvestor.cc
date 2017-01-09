@@ -15,19 +15,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-///Data Format
-#include <DataFormats/GEMDigi/interface/ME0DigiPreReco.h>
-#include <DataFormats/GEMDigi/interface/ME0DigiPreRecoCollection.h>
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-
 ///Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -75,7 +62,7 @@ TProfile* MuonME0DigisHarvestor::ComputeEff(TH1F* num, TH1F* denum, std::string 
       double temp = nDenum;
       nDenum = nNum;
       nNum = temp;
-      std::cout<<"Alert! specific bin's num is bigger than denum "<<i<<" "<<nNum<<" "<<nDenum<<std::endl;
+      edm::LogWarning("MuonME0DigisHarvestor")<<"Alert! specific bin's num is bigger than denum "<<i<<" "<<nNum<<" "<<nDenum;
     }
     const double effVal = nNum/nDenum;
     efficHist->SetBinContent(i, effVal);
@@ -106,9 +93,9 @@ void MuonME0DigisHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore
   }
   else {
       
-    std::cout<<"Can not find histograms"<<std::endl;
-    if ( num == nullptr) std::cout<<"num not found"<<std::endl;
-    if ( den == nullptr) std::cout<<"den not found"<<std::endl;
+    edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms";
+    if ( num == nullptr) edm::LogWarning("MuonME0DigisHarvestor")<<"num not found";
+    if ( den == nullptr) edm::LogWarning("MuonME0DigisHarvestor")<<"den not found";
       
   }
   return;
@@ -156,9 +143,9 @@ void MuonME0DigisHarvestor::ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMSt
     }
     else {
         
-        std::cout<<"Can not find histograms"<<std::endl;
-        if ( hist1 == nullptr ) std::cout<<"num not found"<<std::endl;
-        if ( hist2 == nullptr ) std::cout<<"den not found"<<std::endl;
+        edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms";
+        if ( hist1 == nullptr ) edm::LogWarning("MuonME0DigisHarvestor")<<"num not found";
+        if ( hist2 == nullptr ) edm::LogWarning("MuonME0DigisHarvestor")<<"den not found";
         
     }
     return;
@@ -190,7 +177,7 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
       ProcessBooking( ibooker, ig, "me0_strip_dg_eta_tot", num_vs_eta_tot, den_vs_eta_tot );
       
   }
-  else std::cout<<"Can not find histograms: "<<eta_label_num_tot<<" or "<<eta_label_den_tot<<std::endl;
+  else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<eta_label_num_tot<<" or "<<eta_label_den_tot;
   
   for( int i = 0 ; i < 2 ; i++) {
       
@@ -207,7 +194,7 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
               den_vs_eta[i][j]->Sumw2();
             
           }
-          else std::cout<<"Can not find histograms: "<<eta_label_num<<" "<<eta_label_den<<std::endl;
+          else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<eta_label_num<<" "<<eta_label_den;
           std::string r_s = r_suffix[i];
           std::string l_s = l_suffix[j];
           std::string name = "me0_strip_dg_eta"+r_s+l_s;
