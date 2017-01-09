@@ -110,6 +110,7 @@ treeProducer= cfg.Analyzer(
           "V"    : NTupleObject("V", fourVectorType, help="z or w"),
           "softActivityJets"    : NTupleObject("softActivity", softActivityType, help="VBF soft activity variables"),
           "softActivityVHJets"    : NTupleObject("softActivityVH", softActivityType, help="VH soft activity variables"),
+          "softActivityEWKJets"    : NTupleObject("softActivityEWK", softActivityType, help="EWK soft activity variables"),
           "l1MET"       : NTupleObject("l1MET",   twoVectorType , help="Stage-2 L1 trigger MET", mcOnly=False),        
        #   "l1MET2"       : NTupleObject("l1MET2",   twoVectorType , help="Stage-2 L1 trigger MET", mcOnly=False),   #l1MET2 is defined in "l1t::EtSum" but it is empty
           "l1MHT"       : NTupleObject("l1MHT",   twoVectorType , help="Stage-2 L1 trigger MHT", mcOnly=False),        
@@ -141,6 +142,7 @@ treeProducer= cfg.Analyzer(
                 "inclusiveTaus"  : NTupleCollection("TauGood", tauTypeVHbb, 25, help="Taus after the preselection"),
                 "softActivityJets"    : NTupleCollection("softActivityJets", fourVectorType, 5, help="jets made for soft activity"),
                 "softActivityVHJets"    : NTupleCollection("softActivityVHJets", fourVectorType, 5, help="jets made for soft activity VH version"),
+                "softActivityEWKJets"    : NTupleCollection("softActivityEWKJets", fourVectorType, 5, help="jets made for soft activity EWK version"),
                 "goodVertices"    : NTupleCollection("primaryVertices", primaryVertexType, 4, help="first four PVs"), 
 
 		#dump of gen objects
@@ -411,6 +413,7 @@ VHbb = cfg.Analyzer(
 #    higgsJetsPreSelectionVBF = lambda x: (( x.puJetId() > 0 and x.jetID('POG_PFID_Loose')) or abs(x.eta())>3.0 ) and x.pt() >  20,
     passall=False,
     doSoftActivityVH=True,
+    doSoftActivityEWK=True,
     doVBF=True,
     regressions = [
         {"weight":"ttbar-spring16-500k-13d-300t.weights.xml", "name":"jet0Regression", "vtypes":[0,1,2,3,4,5,-1]},
