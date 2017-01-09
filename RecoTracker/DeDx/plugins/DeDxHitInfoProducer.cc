@@ -95,7 +95,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
            auto trackDirection = trajParams[h].direction();
            float cosine = trackDirection.z()/trackDirection.mag();
  
-           processHit(recHit, track.p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
+           processHit(recHit, track.p(), cosine, hitDeDxInfo, trajParams[h].position());
      }
 
      indices.push_back(resultdedxHitColl->size());
