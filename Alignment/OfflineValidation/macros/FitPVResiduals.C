@@ -42,7 +42,7 @@
 #include <TSystem.h>
 #include <TTimeStamp.h>
 #include <TStopwatch.h>
-//#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
+#include "Alignment/OfflineValidation/plugins/TkAlStyle.cc" 
 #include "CMS_lumi.C"
 
 /* 
@@ -335,7 +335,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     std::cout<<"FitPVResiduals::FitPVResiduals(): plot axis range will be automatically adjusted"<<std::endl;
   }
     
-  //TkAlStyle::set(INTERNAL);	// set publication status
+  TkAlStyle::set(INTERNAL);	// set publication status
 
   Int_t def_markers[9] = {kFullSquare,kFullCircle,kFullTriangleDown,kOpenSquare,kDot,kOpenCircle,kFullTriangleDown,kFullTriangleUp,kOpenTriangleDown};
   Int_t def_colors[9] = {kBlack,kRed,kBlue,kMagenta,kGreen,kCyan,kViolet,kOrange,kGreen+2};
@@ -1428,7 +1428,7 @@ void arrangeCanvas2D(TCanvas *canv,TH2F* meanmaps[100],TH2F* widthmaps[100],Int_
     pt2[i]->SetTextFont(52);
     pt2[i]->SetTextAlign(12);
     // TText *text2 = pt2->AddText("run: "+theDate);
-    TText *text2 = pt2[i]->AddText("INTERNAL");
+    TText *text2 = pt2[i]->AddText(toTString(INTERNAL));
     text2->SetTextSize(0.06*extraOverCmsTextSize); 
     
     pt3[i] = new TPaveText(0.55,0.955,0.95,0.98,"NDC");
