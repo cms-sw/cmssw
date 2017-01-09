@@ -9,6 +9,8 @@
 
 #include "TF1.h"
 
+class CentralityBins;
+
 class ParametrizedSubtractor : public PileUpSubtractor {
  public:
   ParametrizedSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);

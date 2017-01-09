@@ -7,6 +7,9 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TFile.h"
+
 #include <string>
 #include <iostream>
 using namespace std;
@@ -49,6 +52,9 @@ ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig,
 void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup){
    LogDebug("PileUpSubtractor")<<"The subtractor setting up geometry...\n";
 
+   // The function below that is commented out was deleted from
+   // DataFormats/HeavyIonEvent/src/Centrality.cc
+   // in June 2015. See comments associated with that commit.
    //   if(!cbins_) getCentralityBinsFromDB(iSetup);
 
    edm::Handle<reco::Centrality> cent;
