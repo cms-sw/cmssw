@@ -7,6 +7,8 @@ class Events(object):
     '''Event list from a tree in a root file.
     '''
     def __init__(self, filename, treename, options=None):
+        self.filename = filename
+        self.treename = treename
         self.file = TFile(filename)
         if self.file.IsZombie():
             raise ValueError('file {fnam} does not exist'.format(fnam=filename))
@@ -22,7 +24,11 @@ class Events(object):
 
     def to(self, iEv):
         '''navigate to event iEv.'''
-        self.tree.GetEntry(iEv)
+        nbytes = self.tree.GetEntry(iEv)
+        if nbytes < 0:
+            raise IOError("Could not read event {0} in tree {1}:{2}".format(
+                iEv, self.filename, self.treename
+            ))
         return self.tree
 
     def __iter__(self):
