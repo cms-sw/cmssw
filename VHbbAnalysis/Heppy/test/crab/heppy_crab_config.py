@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_D24_002'
-config.General.workArea = 'crab_projects_D24_002'
+config.General.requestName = 'VHBB_A25_001'
+config.General.workArea = 'crab_projects_A25_001'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -46,11 +46,11 @@ config.Data.inputDataset = '/ZH_HToBB_ZToLL_M125_13TeV_amcatnloFXFX_madspin_pyth
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
-config.Data.totalUnits = 1
+config.Data.totalUnits = 10
 config.Data.allowNonValidInputDataset = True # to run on datasets in PRODUCTION
-config.Data.outLFNDirBase = '/store/user/arizzi/VHBBHeppyD24/'
+config.Data.outLFNDirBase = '/store/user/arizzi/VHBBHeppyA25/'
 config.Data.publication = True
-config.Data.outputDatasetTag = 'VHBB_HEPPY_D24'
+config.Data.outputDatasetTag = 'VHBB_HEPPY_A25'
 
 config.section_("Site")
 config.Site.storageSite = "T2_IT_Pisa"
