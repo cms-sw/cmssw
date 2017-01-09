@@ -106,7 +106,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
 
     const GeomDet* gdet = ME0Geometry_->idToDet(id);
     if ( gdet == nullptr) {
-      std::cout<<"Getting DetId failed. Discard this gem strip hit. Maybe it comes from unmatched geometry."<<std::endl;
+      edm::LogWarning("ME0DigisValidation")<<"Getting DetId failed. Discard this gem strip hit. Maybe it comes from unmatched geometry.";
       continue;
     }
     const BoundPlane & surface = gdet->surface();
