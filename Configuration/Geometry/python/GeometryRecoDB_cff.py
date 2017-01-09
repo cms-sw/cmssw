@@ -24,4 +24,4 @@ from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometryDB_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff import *
-
+from Geometry.GEMGeometryBuilder.gemGeometryDB_cfi import *
