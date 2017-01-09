@@ -12,9 +12,9 @@ import sys,os
 # miniaod_version = "RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v*"
 # filename = 'datasets_MCRUN2_25ns_RunIIFall15MiniAODv2-PU25nsData2015v1_76X.txt'
 
-# - FullSim, Without trigger information at all
-miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
-filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_noHLT.txt'
+# # - FullSim, Without trigger information at all
+# miniaod_version = "RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2*"
+# filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_noHLT.txt'
 
 # # - FullSim, With trigger information
 # miniaod_version = "RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v*"
@@ -22,6 +22,9 @@ filename = 'datasets_MCRUN2_25ns_RunIISpring16MiniAODv2-PUSpring16_80X_noHLT.txt
 # # These above datasets replace
 # # /*/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v*/MINIAODSIM 
 
+# - FullSim, Without trigger information at all
+miniaod_version = "*RunIISummer16MiniAODv2*-PUMoriond17_80X*"
+filename = 'RunIISummer16MiniAODv2-PUMoriond17_80X.txt'
 
 # REMOVE DATASET NAMES CONTAINING:
 
@@ -59,7 +62,10 @@ remove = [
           'EWKZ2Jets','GluGluSpin0ToZG','DYJetsToEE_M-50_LTbinned','WGstarToL','WmWmJJ_','NMSSM_HToAATo4Mu_M',
           'RSGravTohhTohVVhbbToVVfullLep_narrow_M','SMS-T2bH_mSbottom','GluGluSpin0ToGG_W','GluGluToPhiToTTBar','rToZZ','ToZZ_',
           'Graviton2PBTo','X53ToTW_M','WZJToLLLNu','ToZZTo','ContinZZTo','barToWW','HTo4L','HPlusPlus','ATo2L2B','ATo2Nu2B',
-          'ToTauTau',
+          'ToTauTau','TTToHplusToWA','VBFDM_M','VectorDiJet','Vector_Mono','HToSSTo','X53TTo','Spin0_ggPh','Scalar_Mono',
+          'SMM_Mono','RPVresonantTo','SMS-T2','RSGravTo','Pseudo_Mono','Htautau','NonthDMMonoJet','MonoHaa','MonoHZZ','MonoHWW',
+          'Gluino','Branon','Axial_Mono','ZNuNuG','FPortDMMonoJet','G1Jet','HZZ4L','H1H','SMS-','TTGamma','ZPrimeTo',
+          'ZnunuGamma_Spin2',
           # '/ttHJetToNonbb_M120_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v2/MINIAODSIM',
           # '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9_ext1-v3/MINIAODSIM',
@@ -69,7 +75,8 @@ remove = [
 # FILELIST OF AVAILABLE DATASETS ON DAS AS VALID
 
 # das_valid = [line.rstrip('\n').rstrip('\r') for line in open('all_datasets_MCRUN2_25ns.txt')]
-das_valid = os.popen('python ./das_client.py --limit=0 --query="dataset=/*/'+miniaod_version+'/MINIAODSIM"').read().split('\n')
+# das_valid = os.popen('python ./das_client.py --limit=0 --query="dataset=/*/'+miniaod_version+'/MINIAODSIM"').read().split('\n')
+das_valid = os.popen('/cvmfs/cms.cern.ch/common/das_client --limit=0 --query="dataset=/*/'+miniaod_version+'/MINIAODSIM"').read().split('\n')
 das_valid = filter(None, das_valid)
 
 if len(das_valid)<1: 
