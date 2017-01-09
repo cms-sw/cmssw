@@ -132,9 +132,10 @@ class JetReCalibrator:
         corrector.setRho(rho)
         corr = corrector.getCorrection()
 
-        if not self.JetUncertainty: raise RuntimeError("Jet energy scale uncertainty shifts requested, but not available")
-        self.JetUncertainty.setJetEta(jet.eta())
-        self.JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
+        JetUncertainty = self.factorizedUncertainties[uncertainty]
+        if not JetUncertainty: raise RuntimeError("Jet energy scale uncertainty shifts requested, but not available")
+        JetUncertainty.setJetEta(jet.eta())
+        JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
 
         try:
             jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True)
