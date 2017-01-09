@@ -342,6 +342,9 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
     NTupleVariable("chargedEmEnergyFraction",  lambda x : x.chargedEmEnergyFraction(), help = "chargedEmEnergyFraction" ),
     NTupleVariable("chargedHadronEnergyFraction",  lambda x : x.chargedHadronEnergyFraction(), help = "chargedHadronEnergyFraction" ),
     NTupleVariable("chargedMultiplicity",  lambda x : x.chargedMultiplicity(), help = "chargedMultiplicity" ),
+    NTupleVariable("electronMultiplicity",  lambda x : x.electronMultiplicity(), help="electronMultiplicity"),
+    NTupleVariable("muonMultiplicity",  lambda x : x.muonMultiplicity(), help="muonMultiplicity"),	
+    	
 
 
     NTupleVariable("Flavour", lambda x : x.partonFlavour(), int,     mcOnly=True, help="parton flavor as ghost matching"),
@@ -349,10 +352,19 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
     NTupleVariable("ChadronFlavour", lambda x : x.jetFlavourInfo().getcHadrons().size(), int,     mcOnly=True, help="hadron flavour (ghost matching to C hadrons)"),	
 
     NTupleVariable("GenPt", lambda x : x.genJetFwdRef().pt() if (x.genJetFwdRef().isNonnull() and x.genJetFwdRef().isAvailable())  else -1., float, mcOnly=True, help="gen jet pt for JER computation"),
+    NTupleVariable("puppi_pt", lambda x : x.puppi_pt, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_eta", lambda x : x.puppi_eta, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_phi", lambda x : x.puppi_phi, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_mass", lambda x : x.puppi_mass, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_tau1", lambda x : x.puppi_tau1, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_tau2", lambda x : x.puppi_tau2, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_msoftdrop", lambda x : x.puppi_msoftdrop, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_msoftdrop_corrL2L3", lambda x : x.puppi_msoftdrop_corrL2L3, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
+    NTupleVariable("puppi_msoftdrop_raw", lambda x : x.puppi_msoftdrop_raw, help="puppi from ak8PFJetsPuppiValueMap as cross check"),
     
     # bb-tag input variables
     NTupleVariable("PFLepton_ptrel",   lambda x : x.PFLepton_ptrel, help="pt-rel of e/mu (for bb-tag)"),    
-    NTupleVariable("z_ratio",          lambda x : x.z_ratio, help="z-ratio (for bb-tag)"),    
+    #NTupleVariable("z_ratio",          lambda x : x.z_ratio, help="z-ratio (for bb-tag)"),    
     NTupleVariable("PFLepton_IP2D",    lambda x : x.PFLepton_IP2D, help="lepton IP2D (for bb-tag)"),    
     NTupleVariable("nSL", lambda x : x.nSL, help="number of soft leptons (for bb-tag)"),    
     #NTupleVariable("trackSipdSig_3", lambda x : x.trackSip3dSig_3 , help=" bb-tag input as in 76x"),
@@ -366,21 +378,25 @@ ak8FatjetType = NTupleObjectType("ak8fatjet",  baseObjectTypes = [ fourVectorTyp
     #NTupleVariable("trackSip2dSigAboveCharm_0", lambda x : x.trackSip2dSigAboveCharm_0, help=" bb-tag input as in 76x"),
     #NTupleVariable("trackSip2dSigAboveBottom_0", lambda x : x.trackSip2dSigAboveBottom_0, help=" bb-tag input as in 76x"),
     #NTupleVariable("trackSip2dSigAboveBottom_1", lambda x : x.trackSip2dSigAboveBottom_1, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau1_trackEtaRel_0", lambda x : x.tau2_trackEtaRel_0, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau1_trackEtaRel_1", lambda x : x.tau2_trackEtaRel_1, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau1_trackEtaRel_2", lambda x : x.tau2_trackEtaRel_2, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau0_trackEtaRel_0", lambda x : x.tau1_trackEtaRel_0, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau0_trackEtaRel_1", lambda x : x.tau1_trackEtaRel_1, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau0_trackEtaRel_2", lambda x : x.tau1_trackEtaRel_2, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_vertexMass_0", lambda x : x.tau1_vertexMass, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_vertexEnergyRatio_0", lambda x : x.tau1_vertexEnergyRatio, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_vertexDeltaR_0", lambda x : x.tau1_vertexDeltaR, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_flightDistance2dSig_0", lambda x : x.tau1_flightDistance2dSig, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_vertexMass_1", lambda x : x.tau2_vertexMass, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_vertexEnergyRatio_1", lambda x : x.tau2_vertexEnergyRatio, help=" bb-tag input as in 76x"),
-    NTupleVariable("tau_flightDistance2dSig_1", lambda x : x.tau2_flightDistance2dSig, help=" bb-tag input as in 76x"),
+    	
+    #NTupleVariable("tau1_trackEtaRel_0", lambda x : x.tau2_trackEtaRel_0, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau1_trackEtaRel_1", lambda x : x.tau2_trackEtaRel_1, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau1_trackEtaRel_2", lambda x : x.tau2_trackEtaRel_2, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau0_trackEtaRel_0", lambda x : x.tau1_trackEtaRel_0, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau0_trackEtaRel_1", lambda x : x.tau1_trackEtaRel_1, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau0_trackEtaRel_2", lambda x : x.tau1_trackEtaRel_2, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_vertexMass_0", lambda x : x.tau1_vertexMass, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_vertexEnergyRatio_0", lambda x : x.tau1_vertexEnergyRatio, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_vertexDeltaR_0", lambda x : x.tau1_vertexDeltaR, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_flightDistance2dSig_0", lambda x : x.tau1_flightDistance2dSig, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_vertexMass_1", lambda x : x.tau2_vertexMass, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_vertexEnergyRatio_1", lambda x : x.tau2_vertexEnergyRatio, help=" bb-tag input as in 76x"),
+    #NTupleVariable("tau_flightDistance2dSig_1", lambda x : x.tau2_flightDistance2dSig, help=" bb-tag input as in 76x"),
+    	
     #NTupleVariable("jetNTracks", lambda x : x.jetNTracks, help=" bb-tag input as in 76x"),
-    NTupleVariable("nSV", lambda x : x.nSV, help=" bb-tag input as in 76x"),
+    NTupleVariable("nVtx", lambda x : x.nVtx, help=" nSV from SVTagInfo"),
+    NTupleVariable("VtxMass_1", lambda x : x.VtxMass_1, help=" nSV from SVTagInfo"),	
+    NTupleVariable("VtxMass_2", lambda x : x.VtxMass_2, help=" nSV from SVTagInfo"),
 
 
     

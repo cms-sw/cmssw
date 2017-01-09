@@ -1116,20 +1116,54 @@ class AdditionalBoost( Analyzer ):
                 if jet.physObj == newtags.key(i).get():
                     jet.bbtag = newtags.value(i)
 
-                tmp_jet = Jet(jet)
-		corr = self.jetReCalibratorAK8L2L3.getCorrection(tmp_jet,rho)
-                jet.mprunedcorr= jet.userFloat("ak8PFJetsCHSPrunedMass")*corr	
-		jet.JEC_L2L3 = corr                
-                jet.JEC_L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
-		jet.JEC_L1L2L3 = self.jetReCalibratorAK8L1L2L3.getCorrection(tmp_jet,rho)
-                jet.JEC_L1L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
+            tmp_jet = Jet(jet)
+	    corr = self.jetReCalibratorAK8L2L3.getCorrection(tmp_jet,rho)
+            jet.mprunedcorr= jet.userFloat("ak8PFJetsCHSPrunedMass")*corr	
+	    jet.JEC_L2L3 = corr                
+            jet.JEC_L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
+	    jet.JEC_L1L2L3 = self.jetReCalibratorAK8L1L2L3.getCorrection(tmp_jet,rho)
+            jet.JEC_L1L2L3Unc = tmp_jet.jetEnergyCorrUncertainty
+
+            jet.puppi_pt             = jet.userFloat("ak8PFJetsPuppiValueMap:pt")
+            jet.puppi_mass       = jet.userFloat("ak8PFJetsPuppiValueMap:mass")
+            jet.puppi_eta           = jet.userFloat("ak8PFJetsPuppiValueMap:eta")
+            jet.puppi_phi           = jet.userFloat("ak8PFJetsPuppiValueMap:phi")
+            jet.puppi_tau1         = jet.userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1")
+
+            jet.puppi_tau2         = jet.userFloat("ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2")
+            #print jet.mprunedcorr, jet.userFloat("ak8PFJetsPuppiValueMap:mass")
+
+            puppi_softdrop= ROOT.TLorentzVector()
+            puppi_softdrop_raw= ROOT.TLorentzVector()
+            puppi_softdrop_subjet=ROOT.TLorentzVector()
+            puppi_softdrop_subjet_raw=ROOT.TLorentzVector()
+            sbSubjetsPuppi = jet.subjets("SoftDropPuppi")
+            for it in sbSubjetsPuppi  :
+                       puppi_softdrop_subjet.SetPtEtaPhiM(it.pt(),it.eta(),it.phi(),it.mass())
+                       puppi_softdrop_subjet_raw.SetPtEtaPhiM(it.correctedP4(0).pt(),it.correctedP4(0).eta(),it.correctedP4(0).phi(),it.correctedP4(0).mass())
+                       puppi_softdrop_raw+=puppi_softdrop_subjet_raw
+                       puppi_softdrop+=puppi_softdrop_subjet
+
+            jet.puppi_msoftdrop       = puppi_softdrop.M()
+            jet.puppi_msoftdrop_raw   = puppi_softdrop_raw.M()
+            jet.puppi_msoftdrop_corrL2L3       = puppi_softdrop.M()*corr
 
             # bb-tag Inputs
             muonTagInfos = self.handles['ak08muonTagInfos'].product()[ij]
             elecTagInfos = self.handles['ak08elecTagInfos'].product()[ij]
             ipTagInfo    = self.handles['ak08ipTagInfos'].product()[ij]
             svTagInfo    = self.handles['ak08svTagInfos'].product()[ij]
+	    jet.nVtx      = svTagInfo.nVertices()
+	    jet.VtxMass_1      = -99
+	    jet.VtxMass_2      = -99
+	    for vtx in range(svTagInfo.nVertices()):
+        	# get the vertex kinematics
+        	vertex = svTagInfo.secondaryVertex(vtx)
 
+	    	if vtx ==0 :
+			jet.VtxMass_1      = (vertex.p4()).mass()	
+	    	if vtx ==1 :
+	    		jet.VtxMass_2      = (vertex.p4()).mass()
             orig_jet = self.handles["ak08"].product()[ij]
 
             
