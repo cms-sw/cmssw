@@ -4,76 +4,55 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
 // Framework
 //
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-//
 
 
-std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const Trajectory &traj, const reco::Vertex &vtx, double sigmaTolerance) const {
+std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const reco::TrackExtra & track, const reco::Vertex &vtx, float sigmaTolerance) const {
 
-  const std::vector<TrajectoryMeasurement> &measurements = traj.measurements();
-
-  //protect for empty trajectory
-  if (measurements.size()==0) {
-    return std::pair<unsigned int,Measurement1DFloat>(0,Measurement1DFloat());
-  }
-
-  //check ordering of measurements in trajectory
-  bool inout = (traj.direction() == alongMomentum);
+  // track hits are always inout
 
   GlobalPoint vtxPos(vtx.x(),vtx.y(),vtx.z());
   
   uint8_t nhits = 0;
 
-  std::vector<TrajectoryMeasurement>::const_iterator closest = measurements.begin();
-  double distance = 1e6;
-  //iterate inside out, when distance to vertex starts increasing, we are at the closest hit
-  for (std::vector<TrajectoryMeasurement>::const_iterator fwdit = measurements.begin(), revit = measurements.end()-1;
-          fwdit != measurements.end(); ++fwdit,--revit) {
+  float distance = 1e6;
+
+  auto const & trajParams = track.trajParams();
+  // here till debug end
+  if (trajParams.size()!=track.recHitsSize()) 
+    std::cout << "traj param and hits diff size " << trajParams.size()
+         << ' ' << track.recHitsSize() <<std::endl;
+  assert(trajParams.size()==track.recHitsSize());
+  auto hb = track.recHitsBegin();
+  unsigned int closest=0;
+  for(unsigned int h=0;h<track.recHitsSize()-1;h++){
+    auto recHit = *(hb+h);
+    if(!recHit->isValid()) continue;
+
+    auto globalPosition = recHit->surface()->toGlobal(trajParams[h].position());         
+
+    ++nhits;
+    distance = (vtxPos - globalPosition).mag();
+    closest = h;
     
-    std::vector<TrajectoryMeasurement>::const_iterator it;
-    if (inout) {
-      it = fwdit;
-    }
-    else {
-      it = revit;
-    }
-
-    //increment hit counter, compute distance and set iterator if this hit is valid
-    if (it->recHit() && it->recHit()->isValid()) {
-      ++nhits;
-      distance = (vtxPos - it->updatedState().globalPosition()).mag();
-      closest = it;
-    }
-
-    if ( (measurements.end()-fwdit)==1) {
-      break; 
-    }
 
     //check if next valid hit is farther away from vertex than existing closest
-    std::vector<TrajectoryMeasurement>::const_iterator nextit;
-    if (inout) {
-      nextit = it+1;
-    }
-    else {
-      nextit = it-1;
-    }
+    auto nextHit = *(hb+h);
     
     
-    if ( nextit->recHit() && nextit->recHit()->isValid() ) {
-      double nextDistance = (vtxPos - nextit->updatedState().globalPosition()).mag();
-      if (nextDistance > distance) {
-        break;
-      }
+    if ( nextHit->isValid() ) {
+      auto globalPosition = nextHit->surface()->toGlobal(trajParams[h+1].position());
+      auto nextDistance = (vtxPos - globalPosition).mag();
+      if (nextDistance > distance) break;
     }
     
   }
 
   //compute signed decaylength significance for closest hit and check if it is before the vertex
   //if not then we need to subtract it from the count of hits before the vertex, since it has been implicitly included
-
-  GlobalVector momDir = closest->updatedState().globalMomentum().unit();
-  float decayLengthHitToVtx = (vtxPos - closest->updatedState().globalPosition()).dot(momDir);
+  auto recHit = *(hb+closest);
+  auto momDir = recHit->surface()->toGlobal(trajParams[closest].direction());
+  auto globalPosition = recHit->surface()->toGlobal(trajParams[closest].position()); 
+  float decayLengthHitToVtx = (vtxPos - globalPosition).dot(momDir);
 
   AlgebraicVector3 j;
   j[0] = momDir.x();
