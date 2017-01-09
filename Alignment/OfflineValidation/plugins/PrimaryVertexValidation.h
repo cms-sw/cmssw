@@ -221,7 +221,13 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   TH1F* a_dxyPhiResiduals[nMaxBins_];
   TH1F* a_dxyEtaResiduals[nMaxBins_];
-  
+
+  TH1F* a_dxPhiResiduals[nMaxBins_];
+  TH1F* a_dxEtaResiduals[nMaxBins_];
+
+  TH1F* a_dyPhiResiduals[nMaxBins_];
+  TH1F* a_dyEtaResiduals[nMaxBins_];
+
   TH1F* a_dzPhiResiduals[nMaxBins_];
   TH1F* a_dzEtaResiduals[nMaxBins_];
   

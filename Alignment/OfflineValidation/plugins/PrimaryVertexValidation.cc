@@ -590,8 +590,15 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      // from my Vertex
 	      double dxyFromMyVertex = theTrack.dxy(myVertex);
 	      double dzFromMyVertex  = theTrack.dz(myVertex);
-          
-	      double dz_err = hypot(theTrack.dzError(),theFittedVertex.positionError().czz());
+
+	      GlobalPoint vert(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
+
+	      //FreeTrajectoryState theTrackNearVertex = (*theTTrack).trajectoryStateClosestToPoint(vert).theState();
+	      //double dz_err = sqrt(theFittedVertex.positionError().czz() + theTrackNearVertex.cartesianError().position().czz());      
+	      //double dz_err = hypot(theTrack.dzError(),theFittedVertex.positionError().czz());
+	      
+	      double dz_err = sqrt(std::pow(theTrack.dzError(), 2) + theFittedVertex.positionError().czz());
+
 
 	      // PV2D 
 	      std::pair<bool,Measurement1D> s_ip2dpv = signedTransverseImpactParameter(*theTTrack,
@@ -619,13 +626,36 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      double ip3d_err  = ip3dpv.second.error(); 
 	      
 	      // with respect to any specified vertex, such as primary vertex
-	      GlobalPoint vert(theFittedVertex.position().x(),theFittedVertex.position().y(),theFittedVertex.position().z());
 	      TrajectoryStateClosestToPoint traj = (*theTTrack).trajectoryStateClosestToPoint(vert);
+
+	      GlobalPoint refPoint = traj.position();
+	      GlobalPoint cPToVtx  = traj.theState().position();
+
+	      float my_dx = refPoint.x() - myVertex.x();
+	      float my_dy = refPoint.y() - myVertex.y();
+
+	      float my_dx2 = cPToVtx.x() - myVertex.x();
+	      float my_dy2 = cPToVtx.y() - myVertex.y();
+
+	      float my_dxy = std::sqrt(my_dx*my_dx + my_dy*my_dy);
 
 	      double d0 = traj.perigeeParameters().transverseImpactParameter();
 	      //double d0_error = traj.perigeeError().transverseImpactParameterError();
 	      double z0 = traj.perigeeParameters().longitudinalImpactParameter();
 	      double z0_error = traj.perigeeError().longitudinalImpactParameterError();
+
+	      edm::LogInfo("PrimaryVertexValidation")<< "my_dx:"   << my_dx  
+						     << " my_dy:"  << my_dy  
+						     << " my_dxy:" << my_dxy
+						     << " my_dx2:" << my_dx2  
+						     << " my_dy2:" << my_dy2
+						     << " d0: "    << d0
+						     << " dxyFromVtx:" << dxyFromMyVertex << "\n"
+						     << " ============================== "<< "\n"
+						     << "diff1:"    << std::abs(d0) - std::abs(my_dxy) << "\n"
+						     << "diff2:"    << std::abs(d0) - std::abs(dxyFromMyVertex) << "\n"
+						     << "diff3:"    << (my_dx - my_dx2) << " " << (my_dy - my_dy2) << "\n" 
+						     << std::endl;	
 
 	      // define IPs
 	     
@@ -744,6 +774,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  if(tracketa >= etaF && tracketa < etaL ){
 
 		    a_dxyEtaResiduals[i]->Fill(dxyFromMyVertex*cmToum);
+		    a_dxEtaResiduals[i]->Fill(my_dx*cmToum);
+		    a_dyEtaResiduals[i]->Fill(my_dy*cmToum);
 		    a_dzEtaResiduals[i]->Fill(dzFromMyVertex*cmToum);   
 		    n_dxyEtaResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
 		    n_dzEtaResiduals[i]->Fill(dzFromMyVertex/dz_err);	    
@@ -760,6 +792,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  	  
 		  if(trackphi >= phiF && trackphi < phiL ){
 		    a_dxyPhiResiduals[i]->Fill(dxyFromMyVertex*cmToum);
+		    a_dxPhiResiduals[i]->Fill(my_dx*cmToum);
+		    a_dyPhiResiduals[i]->Fill(my_dy*cmToum);
 		    a_dzPhiResiduals[i]->Fill(dzFromMyVertex*cmToum); 
 		    n_dxyPhiResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
 		    n_dzPhiResiduals[i]->Fill(dzFromMyVertex/dz_err); 
@@ -1152,6 +1186,28 @@ void PrimaryVertexValidation::beginJob()
 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
 						     mybins_,-dxymax_eta,dxymax_eta);
 
+
+    // dx vs phi and eta
+     
+    a_dxPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dx_phi_plot%i",i),
+						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{x} [#mum];tracks",phiF,phiL),
+						    mybins_,-dxymax_phi,dxymax_phi);
+    
+    a_dxEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dx_eta_plot%i",i),
+						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{x} [#mum];tracks",etaF,etaL),
+						    mybins_,-dxymax_eta,dxymax_eta);
+
+
+    // dy vs phi and eta
+     
+    a_dyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dy_phi_plot%i",i),
+						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{y} [#mum];tracks",phiF,phiL),
+						    mybins_,-dxymax_phi,dxymax_phi);
+    
+    a_dyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dy_eta_plot%i",i),
+						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{y} [#mum];tracks",etaF,etaL),
+						    mybins_,-dxymax_eta,dxymax_eta);
+    
     // IP2D vs phi and eta
 
     a_IP2DPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_IP2D_phi_plot%i",i),
@@ -1202,7 +1258,13 @@ void PrimaryVertexValidation::beginJob()
     a_d3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_d3D_eta_plot%i",i),
 						  Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D} [#mum];tracks",etaF,etaL),
 						  mybins_,0.,d3Dmax_eta);
-    
+       
+    //  _  _                    _ _           _   ___        _    _           _    
+    // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
+    // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
+    // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+    //
+                                                                             
     // normalized dxy vs eta and phi
    				
     n_dxyPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
@@ -1263,6 +1325,11 @@ void PrimaryVertexValidation::beginJob()
 						   Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL),
 						   mybins_,0.,d3Dmax_eta/100.);
 
+    //  ___           _    _     ___  _  __  __   ___        _    _           _    
+    // |   \ ___ _  _| |__| |___|   \(_)/ _|/ _| | _ \___ __(_)__| |_  _ __ _| |___
+    // | |) / _ \ || | '_ \ / -_) |) | |  _|  _| |   / -_|_-< / _` | || / _` | (_-<
+    // |___/\___/\_,_|_.__/_\___|___/|_|_| |_|   |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+    
     for ( int j=0; j<nBins_; ++j ) {
  
       a_dxyResidualsMap[i][j] = AbsDoubleDiffRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
