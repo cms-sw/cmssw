@@ -18,7 +18,7 @@
 #include <iostream>
 using namespace std;
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
+#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
