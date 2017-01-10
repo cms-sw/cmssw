@@ -31,6 +31,22 @@ handle.close()
 
 #replace files with crab ones
 config.components[0].files=crabFiles
+
+#adjust global tag for DATA
+mm=re.match('.*(Run2016.).*',crabFiles[0])
+gtmap={}
+gtmap["Run2016B"]='Spring16_23Sep2016BCDV2_DATA'
+gtmap["Run2016C"]='Spring16_23Sep2016BCDV2_DATA'
+gtmap["Run2016D"]='Spring16_23Sep2016BCDV2_DATA'
+gtmap["Run2016E"]='Spring16_23Sep2016EV2_DATA'
+gtmap["Run2016F"]='Spring16_23Sep2016FV2_DATA'
+gtmap["Run2016G"]='Spring16_23Sep2016GV2_DATA'
+gtmap["Run2016H"]='Spring16_23Sep2016HV2_DATA'
+
+if mm :
+  config.JetAna.dataGT=gtmap[mm.group(1)]
+  print "Updated data GT: ",   config.JetAna.dataGT
+
 if hasattr(PSet.process.source, "lumisToProcess"):
     config.preprocessor.options["lumisToProcess"] = PSet.process.source.lumisToProcess
 
