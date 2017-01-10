@@ -13,6 +13,13 @@ HGCalTriggerBackendProcessor(const edm::ParameterSet& conf) {
   }
 }
 
+void HGCalTriggerBackendProcessor::setGeometry(const HGCalTriggerGeometryBase* const geom) {
+  for( const auto& algo : algorithms_ ) {
+    algo->setGeometry(geom);
+  }
+}
+
+
 void HGCalTriggerBackendProcessor::setProduces(edm::EDProducer& prod) const {
   for( const auto& algo : algorithms_ ) {
     algo->setProduces(prod);
@@ -20,10 +27,9 @@ void HGCalTriggerBackendProcessor::setProduces(edm::EDProducer& prod) const {
 }
 
 void HGCalTriggerBackendProcessor::
-run(const l1t::HGCFETriggerDigiCollection& coll,
-    const std::unique_ptr<HGCalTriggerGeometryBase>& geom) {
+run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) {
   for( auto& algo : algorithms_ ) {
-    algo->run(coll,geom);
+    algo->run(coll, es);
   }
 }
 
