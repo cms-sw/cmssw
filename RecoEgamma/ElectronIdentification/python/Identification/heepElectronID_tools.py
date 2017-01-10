@@ -511,9 +511,10 @@ def configureHEEPElectronID_V61(wpEB, wpEE):
         )
     return parameterSet
 
-def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD):
+def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD, task=None):
     process.load("RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi")
-    
+    if task:
+        task.add(process.heepIDVarValueMaps)
     seq.insert(insertIndex,process.heepIDVarValueMaps)
 
     if useMiniAOD==False:
@@ -534,3 +535,12 @@ def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD):
         seq.insert(insertIndex+1,process.offlineSlimmedPrimaryVertices)
         seq.insert(insertIndex+2,process.packedCandsForTkIso)
         seq.insert(insertIndex+3,process.lostTracksForTkIso)
+        if task:
+            task.add(
+                process.primaryVertexAssociation,
+                process.offlineSlimmedPrimaryVertices,
+                process.packedPFCandidates,
+                process.packedCandsForTkIso,
+                process.lostTracks,
+                process.lostTracksForTkIso
+            )
