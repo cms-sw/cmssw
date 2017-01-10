@@ -586,7 +586,7 @@ if __name__=="__main__":
     parser.add_argument('filename',
                         type=argparse.FileType('r'), # open file
                         help='log file to process')
-    parser.add_argument('-g, --graph',
+    parser.add_argument('-g', '--graph',
                         nargs='?',
                         metavar="'stall.pdf'",
                         const='stall.pdf',
@@ -594,8 +594,7 @@ if __name__=="__main__":
                         help='''Create pdf file of stream stall graph.  If -g is specified
                         by itself, the default file name is \'stall.pdf\'.  Otherwise, the
                         argument to the -g option is the filename.''')
-    parser.add_argument('-s,--stack',
-                        dest='stack',
+    parser.add_argument('-s', '--stack',
                         action='store_true',
                         help='''Create stack plot, combining all stream-specific info.
                         Can be used only when -g is specified.''')
@@ -628,7 +627,7 @@ if __name__=="__main__":
                     print "   '.{}'".format(filetype)
                 exit(1)
 
-    if pdfFile is None and shownStacks is not None:
+    if pdfFile is None and shownStacks:
         print "The -s (--stack) option can be used only when the -g (--graph) option is specified."
         exit(1)
 
