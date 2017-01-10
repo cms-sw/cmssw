@@ -46,7 +46,7 @@ DTDataIntegrityTask.processingMode = "Offline"
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
 dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
-	                 twinMuxStage2Digis +
+                         twinMuxStage2Digis +
                          DTDataIntegrityTask +
                          dtDCSByLumiMonitor + 
                          dtRunConditionVar + 
