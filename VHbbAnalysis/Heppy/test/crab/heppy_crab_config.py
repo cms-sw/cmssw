@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_A25_001'
-config.General.workArea = 'crab_projects_A25_001'
+config.General.requestName = 'VHBB_A25_002'
+config.General.workArea = 'crab_projects_A25_002'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -15,7 +15,7 @@ import os
 
 os.system("tar czf python.tar.gz --directory $CMSSW_BASE python `find $CMSSW_BASE/src -name python | perl -pe s#$CMSSW_BASE/## `")
 #onfig.JobType.sendPythonFolder = True
-config.JobType.maxMemoryMB = 2450
+config.JobType.maxMemoryMB = 3000
 config.JobType.inputFiles = ['heppy_config.py',
                              'heppy_crab_script.py',
                              'python.tar.gz',

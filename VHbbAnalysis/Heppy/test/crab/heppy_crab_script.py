@@ -34,7 +34,7 @@ config.components[0].files=crabFiles
 if hasattr(PSet.process.source, "lumisToProcess"):
     config.preprocessor.options["lumisToProcess"] = PSet.process.source.lumisToProcess
 
-
+os.system("ps aux |grep heppy")
 from PhysicsTools.HeppyCore.framework.looper import Looper
 looper = Looper( 'Output', config, nPrint = 1)
 looper.loop()
