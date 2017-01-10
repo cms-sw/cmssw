@@ -53,9 +53,9 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
 
       void fillAliToIdeal(std::map<Alignable*, Alignable*> &alitoideal, const align::Alignables& alignables, const align::Alignables& ideals) const;
 
-      Alignable *getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const;
-      Alignable *getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const;
-      Alignable *getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const;
+      Alignable *getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node, const AlignableObjectId&) const;
+      Alignable *getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node, const AlignableObjectId&) const;
+      Alignable *getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node, const AlignableObjectId&) const;
 
       double parseDouble(const XMLCh *str, const char *attribute) const;
       void set_one_position(Alignable *ali, const align::PositionType &pos, const align::RotationType &rot) const;

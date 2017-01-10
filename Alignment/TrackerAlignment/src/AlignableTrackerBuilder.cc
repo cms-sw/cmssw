@@ -27,27 +27,17 @@ AlignableTrackerBuilder
                           const TrackerTopology* trackerTopology) :
   trackerGeometry(trackerGeometry),
   trackerTopology(trackerTopology),
-  alignableMap(0),
-  trackerAlignmentLevelBuilder(trackerTopology)
+  alignableObjectId_(trackerGeometry, nullptr, nullptr),
+  alignableMap(nullptr),
+  trackerAlignmentLevelBuilder_(trackerTopology, trackerGeometry)
 {
   std::ostringstream ss;
 
-  if (trackerGeometry->isThere(GeomDetEnumerators::P2PXEC)) {
-    ss << "PhaseII geometry";
-    // use structure-type <-> name translation for PhaseII geometry
-    AlignableObjectId::isPhaseIIGeometry();
-
-  } else if (trackerGeometry->isThere(GeomDetEnumerators::P1PXEC)) {
-    ss << "PhaseI geometry";
-    // use structure-type <-> name translation for PhaseI geometry
-    AlignableObjectId::isPhaseIGeometry();
-
-  } else if (trackerGeometry->isThere(GeomDetEnumerators::PixelEndcap)) {
-    ss << "RunI geometry";
-    // use structure-type <-> name translation for RunI geometry
-    AlignableObjectId::isRunIGeometry();
-
-  } else {
+  switch (alignableObjectId_.geometry()) {
+  case AlignableObjectId::Geometry::RunI:    ss << "RunI geometry";    break;
+  case AlignableObjectId::Geometry::PhaseI:  ss << "PhaseI geometry";  break;
+  case AlignableObjectId::Geometry::PhaseII: ss << "PhaseII geometry"; break;
+  default:
     throw cms::Exception("LogicError")
       << "[AlignableTrackerBuilder] unknown version of TrackerGeometry";
   }
@@ -91,32 +81,32 @@ void AlignableTrackerBuilder
 {
   // PixelBarrel
   convertGeomDetsToAlignables(
-    trackerGeometry->detsPXB(), AlignableObjectId::idToString(align::TPBModule)
+    trackerGeometry->detsPXB(), alignableObjectId_.idToString(align::TPBModule)
   );
 
   // PixelEndcap
   convertGeomDetsToAlignables(
-    trackerGeometry->detsPXF(), AlignableObjectId::idToString(align::TPEModule)
+    trackerGeometry->detsPXF(), alignableObjectId_.idToString(align::TPEModule)
   );
 
   // TIB
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTIB(), AlignableObjectId::idToString(align::TIBModule)
+    trackerGeometry->detsTIB(), alignableObjectId_.idToString(align::TIBModule)
   );
 
   // TID
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTID(), AlignableObjectId::idToString(align::TIDModule)
+    trackerGeometry->detsTID(), alignableObjectId_.idToString(align::TIDModule)
   );
 
   // TOB
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTOB(), AlignableObjectId::idToString(align::TOBModule)
+    trackerGeometry->detsTOB(), alignableObjectId_.idToString(align::TOBModule)
   );
 
   // TEC
   convertGeomDetsToAlignables(
-    trackerGeometry->detsTEC(), AlignableObjectId::idToString(align::TECModule)
+    trackerGeometry->detsTEC(), alignableObjectId_.idToString(align::TECModule)
   );
 }
 
@@ -155,7 +145,7 @@ void AlignableTrackerBuilder
         << "[AlignableTrackerBuilder] GeomDet of unknown subdetector";
     }
 
-    trackerAlignmentLevelBuilder.addDetUnitInfo(geomDet->geographicalId());
+    trackerAlignmentLevelBuilder_.addDetUnitInfo(geomDet->geographicalId());
   }
 
   // JFI: For PXB and PXE we exclusively build AlignableDetUnit, hence
@@ -235,9 +225,12 @@ void AlignableTrackerBuilder
 {
   unsigned int numCompositeAlignables = 0;
 
-  TrackerAlignableIndexer trackerIndexer;
-  AlignableCompositeBuilder compositeBuilder(trackerTopology, trackerIndexer);
-  auto trackerLevels = trackerAlignmentLevelBuilder.build();
+  // tracker levels must be built before the indexer is created in order to pass
+  // a valid namespace to the indexer; an exception would be thrown if one tries
+  // to get the namespace w/o building the levels
+  auto trackerLevels = trackerAlignmentLevelBuilder_.build();
+  TrackerAlignableIndexer trackerIndexer{trackerAlignmentLevelBuilder_.trackerNameSpace()};
+  AlignableCompositeBuilder compositeBuilder{trackerTopology, trackerGeometry, trackerIndexer};
 
   for (auto& trackerSubLevels: trackerLevels) {
     // first add all levels of the current subdetector to the builder
@@ -260,9 +253,9 @@ void AlignableTrackerBuilder
 void AlignableTrackerBuilder
 ::buildPixelDetector(AlignableTracker* trackerAlignables)
 {
-  const std::string& pxbName   = AlignableObjectId::idToString(align::TPBBarrel);
-  const std::string& pxeName   = AlignableObjectId::idToString(align::TPEEndcap);
-  const std::string& pixelName = AlignableObjectId::idToString(align::Pixel);
+  const std::string& pxbName   = alignableObjectId_.idToString(align::TPBBarrel);
+  const std::string& pxeName   = alignableObjectId_.idToString(align::TPEEndcap);
+  const std::string& pixelName = alignableObjectId_.idToString(align::Pixel);
 
   auto& pxbAlignables   = alignableMap->find(pxbName);
   auto& pxeAlignables   = alignableMap->find(pxeName);
@@ -288,11 +281,11 @@ void AlignableTrackerBuilder
 void AlignableTrackerBuilder
 ::buildStripDetector(AlignableTracker* trackerAlignables)
 {
-  const std::string& tibName   = AlignableObjectId::idToString(align::TIBBarrel);
-  const std::string& tidName   = AlignableObjectId::idToString(align::TIDEndcap);
-  const std::string& tobName   = AlignableObjectId::idToString(align::TOBBarrel);
-  const std::string& tecName   = AlignableObjectId::idToString(align::TECEndcap);
-  const std::string& stripName = AlignableObjectId::idToString(align::Strip);
+  const std::string& tibName   = alignableObjectId_.idToString(align::TIBBarrel);
+  const std::string& tidName   = alignableObjectId_.idToString(align::TIDEndcap);
+  const std::string& tobName   = alignableObjectId_.idToString(align::TOBBarrel);
+  const std::string& tecName   = alignableObjectId_.idToString(align::TECEndcap);
+  const std::string& stripName = alignableObjectId_.idToString(align::Strip);
 
   auto& tibAlignables   = alignableMap->find(tibName);
   auto& tidAlignables   = alignableMap->find(tidName);
