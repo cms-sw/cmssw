@@ -625,6 +625,11 @@ class Subtract:
         ret = histoA.Clone(self._name)
         ret.SetTitle(self._title)
 
+        # Disable canExtend if it is set, otherwise setting the
+        # overflow bin will extend instead, possibly causing weird
+        # effects downstream
+        ret.SetCanExtend(False)
+
         for i in xrange(0, histoA.GetNbinsX()+2): # include under- and overflow too
             val = histoA.GetBinContent(i)-histoB.GetBinContent(i)
             ret.SetBinContent(i, val)
@@ -659,6 +664,11 @@ class Transform:
 
         ret = histo.Clone(self._name)
         ret.SetTitle(self._title)
+
+        # Disable canExtend if it is set, otherwise setting the
+        # overflow bin will extend instead, possibly causing weird
+        # effects downstream
+        ret.SetCanExtend(False)
 
         for i in xrange(0, histo.GetNbinsX()+2):
             ret.SetBinContent(i, self._func(histo.GetBinContent(i)))
