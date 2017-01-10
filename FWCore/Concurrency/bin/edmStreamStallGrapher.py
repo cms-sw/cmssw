@@ -532,10 +532,16 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
                 ax.broken_barh(theTimes, yspan, facecolors='blue', edgecolors='blue', linewidth=0)
                 allStackTimes['blue'].extend(theTS*(nthreads-1))
 
+    end = ax.get_ylim()[1]
+    ax.yaxis.set_ticks(xrange(int(end)+1))
+    for i in xrange(int(end)):
+        ax.axhline(y=0.5+i,ls=':',c='black')
+        #    for ymin in ax.yaxis.get_minorticklocs():
+        #        ax.axhline(y=ymin,ls='--')
     if shownStacks:
         print "> ... Generating stack"
         stack = Stack()
-        for color in shownStacks:
+        for color in ['green','blue','red','orange']:
             tmp = allStackTimes[color]
             tmp = reduceSortedPoints(adjacentDiff(tmp))
             stack.update(color, tmp)
@@ -588,9 +594,9 @@ if __name__=="__main__":
                         help='''Create pdf file of stream stall graph.  If -g is specified
                         by itself, the default file name is \'stall.pdf\'.  Otherwise, the
                         argument to the -g option is the filename.''')
-    parser.add_argument('-s, --stack',
-                        nargs='*',
+    parser.add_argument('-s,--stack',
                         dest='stack',
+                        action='store_true',
                         help='''Create stack plot, combining all stream-specific info.
                         Can be used only when -g is specified.''')
     args = parser.parse_args()
@@ -607,20 +613,24 @@ if __name__=="__main__":
         # Need to force display since problems with CMSSW matplotlib.
         matplotlib.use("PDF")
         import matplotlib.pyplot as plt
-        # Figure out how to check specified file
-        #        supported_filetypes = plt.figure().canvas.get_supported_filetypes()
-        #        print type(supported_filetypes), supported_filetypes
         if not re.match(r'^[\w\.]+$', pdfFile):
             print "Malformed file name '{}' supplied with the '-g' option.".format(pdfFile)
             print "Only characters 0-9, a-z, A-Z, '_', and '.' are allowed."
             exit(1)
 
+        if '.' in pdfFile:
+            extension = pdfFile.split('.')[-1]
+            supported_filetypes = plt.figure().canvas.get_supported_filetypes()
+            if not extension in supported_filetypes:
+                print "A graph cannot be saved to a filename with extension '{}'.".format(extension)
+                print "The allowed extensions are:"
+                for filetype in supported_filetypes:
+                    print "   '.{}'".format(filetype)
+                exit(1)
+
     if pdfFile is None and shownStacks is not None:
         print "The -s (--stack) option can be used only when the -g (--graph) option is specified."
         exit(1)
-
-    if shownStacks is not None and len(shownStacks) == 0:
-        shownStacks = ['green', 'red', 'blue', 'orange']
 
     sys.stderr.write(">reading file: '{}'\n".format(inputFile.name))
     processingSteps,numStreams,maxNameSize = readLogFile(inputFile)
