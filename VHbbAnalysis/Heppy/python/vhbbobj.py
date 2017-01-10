@@ -400,6 +400,22 @@ subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], v
     NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
 ],)
 
+
+##------------------------------------------  
+## Subjet
+##------------------------------------------  
+
+# Four Vector + b-Tag + JetID + corr
+
+subjetcorrType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], variables = [
+    NTupleVariable("btag",    lambda x : x.btag, help="CVS IVF V2 btag-score"),
+    NTupleVariable("jetID",    lambda x : x.jetID, help="Jet ID (loose) + pT/eta cuts"),
+    NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
+    NTupleVariable("corr",  lambda x : x.corr),
+],)
+
+
+
 ##------------------------------------------  
 ## PAT Subjet
 ##------------------------------------------  
@@ -407,7 +423,12 @@ subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], v
 # Four Vector + b-Tag from PAT
 
 patSubjetType = NTupleObjectType("patsubjet",  baseObjectTypes = [ fourVectorType ], variables = [
-    NTupleVariable("btag",  lambda x : x.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"), help="CVS IVF V2 btag-score")])
+    NTupleVariable("btag",  lambda x : x.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"), help="CVS IVF V2 btag-score"),
+    NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection"),
+    NTupleVariable("corr",  lambda x : x.corr, help="Correction factor"),
+    
+
+])
 
 
 ##------------------------------------------  
@@ -439,6 +460,7 @@ httType = NTupleObjectType("htt",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("sjW1masscal", lambda x : x.sjW1masscal, help = "Leading W Subjet mass (calibrated)"),
     NTupleVariable("sjW1mass", lambda x : x.sjW1mass, help = "Leading W Subjet mass"),
     NTupleVariable("sjW1btag", lambda x : x.sjW1btag, help = "Leading W Subjet btag"),
+    NTupleVariable("sjW1corr", lambda x : x.sjW1.corr),
     # Second W Subjet (pt)
     NTupleVariable("sjW2ptcal", lambda x : x.sjW2ptcal,help = "Second Subjet pT (calibrated)"),
     NTupleVariable("sjW2pt",   lambda x : x.sjW2pt,   help = "Second Subjet pT"),
@@ -447,6 +469,7 @@ httType = NTupleObjectType("htt",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("sjW2masscal", lambda x : x.sjW2masscal, help = "Second Subjet mass (calibrated)"),
     NTupleVariable("sjW2mass", lambda x : x.sjW2mass, help = "Second Subjet mass"),
     NTupleVariable("sjW2btag", lambda x : x.sjW2btag, help = "Second Subjet btag"),
+    NTupleVariable("sjW2corr", lambda x : x.sjW2.corr),
     # Non-W Subjet
     NTupleVariable("sjNonWptcal",lambda x : x.sjNonWptcal,help = "Non-W Subjet pT (calibrated)"),
     NTupleVariable("sjNonWpt",   lambda x : x.sjNonWpt,   help = "Non-W Subjet pT"),
@@ -455,6 +478,7 @@ httType = NTupleObjectType("htt",  baseObjectTypes = [ fourVectorType ], variabl
     NTupleVariable("sjNonWmasscal", lambda x : x.sjNonWmasscal, help = "Non-W Subjet mass (calibrated)"),
     NTupleVariable("sjNonWmass", lambda x : x.sjNonWmass, help = "Non-W Subjet mass"),
     NTupleVariable("sjNonWbtag", lambda x : x.sjNonWbtag, help = "Non-W Subjet btag"),
+    NTupleVariable("sjNonWcorr", lambda x : x.sjNonW.corr),
     ])
    
 

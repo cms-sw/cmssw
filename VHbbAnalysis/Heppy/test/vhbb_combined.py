@@ -113,7 +113,7 @@ if not boostana.skip_ca15:
 
 
     treeProducer.collections["ca15subjetfilteredsubjets"] = NTupleCollection("SubjetCA15subjetfiltered",
-                                                                             subjetType,
+                                                                             subjetcorrType,
                                                                              30,
                                                                              help="Subjets of CA, R=1.5, pT > 200 GeV, BDRS, filterjets")
 
@@ -154,7 +154,9 @@ preprocessor = CmsswPreprocessor("combined_cmssw.py", options = {"isMC":sample.i
 config.preprocessor=preprocessor
 if __name__ == '__main__':
     from PhysicsTools.HeppyCore.framework.looper import Looper 
+
     looper = Looper( 'Loop', config, nPrint = 0, nEvents = 2000)
+
     import time
     import cProfile
     p = cProfile.Profile(time.clock)
