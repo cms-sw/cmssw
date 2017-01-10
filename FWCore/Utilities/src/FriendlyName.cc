@@ -42,6 +42,8 @@ namespace edm {
     static boost::regex const reWrapper("edm::Wrapper<(.*)>");
     static boost::regex const reString("std::basic_string<char>");
     static boost::regex const reString2("std::string");
+    static boost::regex const reStringCXX11("std::__cxx11::basic_string<char>");
+    static boost::regex const reString2CXX11("std::__cxx11::basic_string<char,std::char_traits<char> >");
     static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
     static boost::regex const reULongLong("ULong64_t");
     static boost::regex const reLongLong("Long64_t");
@@ -77,6 +79,8 @@ namespace edm {
        name = regex_replace(name,reAIKR,"");
        name = regex_replace(name,reString,"String");
        name = regex_replace(name,reString2,"String");
+       name = regex_replace(name,reStringCXX11,"String");
+       name = regex_replace(name,reString2CXX11,"String");
        name = regex_replace(name,reSorted,"sSorted<$1>");
        name = regex_replace(name,reULongLong,"ull");
        name = regex_replace(name,reLongLong,"ll");
