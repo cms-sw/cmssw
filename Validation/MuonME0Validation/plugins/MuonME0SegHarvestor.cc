@@ -90,6 +90,8 @@ void MuonME0SegHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::
     profile->SetTitle( title.Data());
     ibooker.bookProfile( profile->GetName(),profile);
       
+    delete profile;
+      
   }
   else {
       
