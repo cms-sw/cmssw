@@ -1,6 +1,7 @@
 
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -76,6 +77,13 @@ namespace edm {
       throwValidationException(p, iException);
     }
     p.pset_->registerIt();
+    //Need to be certain top level untracked parameters are stored in
+    // the registry even if another PSet already exists in the
+    // registry from a previous process
+    //NOTE: a better implementation would be to change ParameterSet::registerIt
+    // but that would require rebuilding much more code so will be done at
+    // a later date.
+    edm::pset::Registry::instance()->insertMapped(*(p.pset_),true);
     
     ModuleDescription md = createModuleDescription(p);
     std::shared_ptr<maker::ModuleHolder> module;
