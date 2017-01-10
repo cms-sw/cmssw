@@ -84,9 +84,6 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
      reco::DeDxHitInfo hitDeDxInfo;
      auto const & trajParams = track.extra()->trajParams();
-     // here till debug finishes
-     if (trajParams.size()!=track.recHitsSize()) std::cout << "oops " << iEvent.getProvenance(trackCollectionHandle.id()) << std::endl;
-     assert(trajParams.size()==track.recHitsSize());
      auto hb = track.recHitsBegin();
         for(unsigned int h=0;h<track.recHitsSize();h++){
            auto recHit = *(hb+h);

@@ -317,7 +317,7 @@ void HITrackClusterRemover::process(const TrackingRecHit *hit, unsigned char chi
     assert ((subdet > 0) && (subdet <= NumberOfParamBlocks));
 
     // chi2 cut
-    if (chi2 > Traj2TrackHits::toChi2(pblocks_[subdet-1].maxChi2_)) return;
+    if (chi2 > Traj2TrackHits::toChi2x5(pblocks_[subdet-1].maxChi2_)) return;
 
     if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
         if (!doPixel_) return;
@@ -481,13 +481,13 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	  if ( !goodTk) continue;
 	  if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
 	}
-        auto const & chi2s = track.extra()->chi2s();
-        assert(chi2s.size()==track.recHitsSize());
+        auto const & chi2sX5 = track.extra()->chi2sX5();
+        assert(chi2sX5.size()==track.recHitsSize());
         auto hb = track.recHitsBegin();
         for(unsigned int h=0;h<track.recHitsSize();h++){
           auto hit = *(hb+h);
 	  if (!hit->isValid()) continue;
-	  process( hit, chi2s[h], tgh.product());
+	  process( hit, chi2sX5[h], tgh.product());
 	}
       }
     }
