@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_HEPPY_D24_002'
-config.General.workArea = 'crab_projects_D24_002'
+config.General.requestName = 'VHBB_HEPPY_A25_002'
+config.General.workArea = 'crab_projects_A25_002'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -14,7 +14,7 @@ import os
 os.system("tar czf python.tar.gz --directory $CMSSW_BASE python `find $CMSSW_BASE/src -name python | perl -pe s#$CMSSW_BASE/## `")
 
 #os.system("tar czf python.tar.gz --dereference --directory $CMSSW_BASE python")
-config.JobType.maxMemoryMB = 2450
+config.JobType.maxMemoryMB = 3000
 config.JobType.inputFiles = ['heppy_config.py',
                              'heppy_crab_script.py',
                              'python.tar.gz',
@@ -49,11 +49,11 @@ config.Data.inputDataset = '/ZH_HToBB_ZToLL_M125_13TeV_amcatnloFXFX_madspin_pyth
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'LumiBased'
 #config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 20
-config.Data.totalUnits = 1
-config.Data.outLFNDirBase = '/store/user/arizzi/VHBBHeppyD24/'
+config.Data.unitsPerJob = 5
+config.Data.totalUnits = 20
+config.Data.outLFNDirBase = '/store/user/arizzi/VHBBHeppyA25/'
 config.Data.publication = True
-config.Data.outputDatasetTag = 'VHBB_HEPPY_D24'
+config.Data.outputDatasetTag = 'VHBB_HEPPY_A25'
 #only for data
 #config.Data.lumiMask = 'json.txt'
 
