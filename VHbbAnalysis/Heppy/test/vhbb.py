@@ -312,7 +312,7 @@ JetAna.recalibrateJets=True
 JetAna.jecPath=os.environ['CMSSW_BASE']+"/src/VHbbAnalysis/Heppy/data/jec"
 #JetAna.mcGT="Fall15_25nsV2_MC"
 #JetAna.dataGT = "Fall15_25nsV2_DATA"
-JetAna.mcGT="Spring16_25nsV6_MC"
+JetAna.mcGT="Spring16_23Sep2016V2_MC"
 JetAna.dataGT="Spring16_25nsV6_DATA"
 JetAna.addJECShifts=True
 JetAna.addJERShifts=True
@@ -322,7 +322,18 @@ factorizedJetCorrections = [
     "AbsoluteMPFBias",
     "AbsoluteScale",
     "AbsoluteStat",
+    "CorrelationGroupFlavor",
+    "CorrelationGroupIntercalibration",
+    "CorrelationGroupMPFInSitu",
+    "CorrelationGroupUncorrelated",
+    "CorrelationGroupbJES",
+    "FlavorPhotonJet",
+    "FlavorPureBottom",
+    "FlavorPureCharm",
+    "FlavorPureGluon",
+    "FlavorPureQuark",
     "FlavorQCD",
+    "FlavorZJet",
     "Fragmentation",
     "PileUpDataMC",
     "PileUpEnvelope",
@@ -333,7 +344,6 @@ factorizedJetCorrections = [
     "PileUpPtHF",
     "PileUpPtRef",
     "RelativeFSR",
-    "RelativeStatFSR",
     "RelativeJEREC1",
     "RelativeJEREC2",
     "RelativeJERHF",
@@ -342,13 +352,25 @@ factorizedJetCorrections = [
     "RelativePtEC2",
     "RelativePtHF",
     "RelativeStatEC",
-    #"RelativeStatEC2", #Does not exist in Spring16
+    "RelativeStatFSR",
     "RelativeStatHF",
     "SinglePionECAL",
     "SinglePionHCAL",
-    "TimeEta",
-    "TimePt",
-    "Total"
+    "SubTotalAbsolute",
+    "SubTotalMC",
+    "SubTotalPileUp",
+    "SubTotalPt",
+    "SubTotalRelative",
+    "SubTotalScale",
+    "TimePtEta",
+    "TimeRunBCD",
+    "TimeRunE",
+    "TimeRunF",
+    "TimeRunGH",
+    "TotalNoFlavorNoTime",
+    "TotalNoFlavor",
+    "TotalNoTime",
+    "Total",
 ]
 JetAna.factorizedJetCorrections = factorizedJetCorrections
 
