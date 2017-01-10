@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms 
 from Configuration.StandardSequences.Eras import eras
 
+
+
 process = cms.Process('DIGI',eras.Phase2C2)
 
 # import of standard configurations
@@ -9,8 +11,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D3_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -29,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_8_1_0_pre16/RelValZEE_14/GEN-SIM-DIGI-RAW/PU25ns_81X_upgrade2023_realistic_v3_2023D3PU200-v1/10000/00181E47-73A9-E611-BF45-0CC47A4C8E86.root') )
+       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_0_0_pre2/RelValZEE_14/GEN-SIM-DIGI-RAW/PU25ns_90X_upgrade2023_realistic_v1_2023D4TimingPU200-v1/10000/E8545E07-EDC3-E611-852B-0025905A60F2.root') )
 
 process.options = cms.untracked.PSet(
 
@@ -107,4 +109,8 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
 
+# Add early deletion of temporary data products to reduce peak memory need
+from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+process = customiseEarlyDelete(process)
+# End adding early deletion
 
