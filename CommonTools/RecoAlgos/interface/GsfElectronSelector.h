@@ -68,7 +68,7 @@ namespace helper {
             ++nHitsToAdd;
 	  }
           tx.setHits( rHits, hidx, nHitsToAdd );
-          tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2s());
+          tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
           assert(tx.trajParams().size()==tx.recHitsSize());
           hidx += nHitsToAdd;
  	  trk.setGsfExtra( GsfTrackExtraRef( rGsfTrackExtras, tidx ) ); 

@@ -69,7 +69,7 @@ void TrackCollectionCloner::Producer::operator()(Tokens const & tokens, std::vec
     tx.setResiduals(trk.residuals());
     auto nh1=trk.recHitsSize();
     tx.setHits(rHits,selHits_->size(),nh1);
-    tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2s());
+    tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
     assert(tx.trajParams().size()==tx.recHitsSize());
     // TrackingRecHits
     for( auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {

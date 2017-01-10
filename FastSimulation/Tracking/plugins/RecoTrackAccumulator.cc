@@ -101,7 +101,7 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
       newHits_->push_back( (*hits)[extra.recHit(i).key()] );
     }
     newExtra.setHits( rNewHits, firstTrackIndex, newHits_->size() - firstTrackIndex);
-    newExtra.setTrajParams(extra.trajParams(),extra.chi2s());
+    newExtra.setTrajParams(extra.trajParams(),extra.chi2sX5());
     assert(newExtra.recHitsSize()==newExtra.trajParams().size());
   }
 }

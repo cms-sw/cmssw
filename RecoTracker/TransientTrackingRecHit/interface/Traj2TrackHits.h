@@ -24,7 +24,7 @@ public:
   using TrajParams = std::vector<LocalTrajectoryParameters>;
   using Chi2sFive = std::vector<unsigned char>;
 
-  static unsigned char toChi2(float chi2) { int tc = 5.f*chi2; return std::min(tc,255);}  
+  static unsigned char toChi2x5(float chi2) { float tc = std::round(5.f*chi2); return std::min(tc,255.f);}  
 
   // default for final reco::Track
   Traj2TrackHits(){}
@@ -64,7 +64,7 @@ private:
     for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) {
          hits.push_back((*itm).recHitR().cloneHit());
          trajParams.push_back((*itm).updatedState().localParameters());
-         chi2s.push_back(toChi2((*itm).estimate()));
+         chi2s.push_back(toChi2x5((*itm).estimate()));
     }
   }
 

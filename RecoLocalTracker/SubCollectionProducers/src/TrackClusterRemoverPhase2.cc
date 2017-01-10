@@ -85,7 +85,7 @@ namespace {
   }
   
   TrackClusterRemoverPhase2::TrackClusterRemoverPhase2(const edm::ParameterSet& iConfig) :
-    maxChi2_(Traj2TrackHits::toChi2(iConfig.getParameter<double>("maxChi2"))),
+    maxChi2_(Traj2TrackHits::toChi2x5(iConfig.getParameter<double>("maxChi2"))),
     minNumberOfLayersWithMeasBeforeFiltering_(iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering")),
     trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
 
@@ -183,13 +183,13 @@ namespace {
       bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
       if ( !goodTk) continue;
       if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
-      auto const & chi2s = track.extra()->chi2s();
-      assert(chi2s.size()==track.recHitsSize());
+      auto const & chi2sX5 = track.extra()->chi2sX5();
+      assert(chi2sX5.size()==track.recHitsSize());
       auto hb = track.recHitsBegin();
       for(unsigned int h=0;h<track.recHitsSize();h++){
         auto hit = *(hb+h);
 	if (!hit->isValid()) continue; 
-	if ( chi2s[h] > maxChi2_ ) continue; // skip outliers
+	if ( chi2sX5[h] > maxChi2_ ) continue; // skip outliers
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(*hit);
         auto const & cluster = thit.firstClusterRef();
         // FIXME when we will get also Phase2 pixel

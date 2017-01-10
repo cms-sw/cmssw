@@ -121,6 +121,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 						 innertsos.curvilinearError(), innerId,
     						 seedDir, theTraj->seedRef()));
 
+    // FIXME will remove this obsolete config-param in a future PR 
     assert(!useSplitting);
 
     reco::TrackExtra & tx = selTrackExtras->back();
