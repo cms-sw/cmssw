@@ -234,8 +234,7 @@ def miniAOD_customizeCommon(process):
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff']
-    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
-    task.add(process.egmGsfElectronIDsTask)
+    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.electronMVAValueMapProducer.src = \
@@ -243,7 +242,7 @@ def miniAOD_customizeCommon(process):
     process.electronRegressionValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False,task)
         
     #heepIDVarValueMaps only exists if HEEP V6.1 or HEEP 7.0 ID has already been loaded
     if hasattr(process,'heepIDVarValueMaps'):
@@ -257,8 +256,7 @@ def miniAOD_customizeCommon(process):
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_50ns_V1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff']
-    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD)
-    task.add(process.egmPhotonIDsTask)
+    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD, task)
     process.egmPhotonIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.src = \
@@ -270,7 +268,7 @@ def miniAOD_customizeCommon(process):
     process.photonMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False)
+        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
 
     #---------------------------------------------------------------------------
     #Adding  Boosted Subjets taus
