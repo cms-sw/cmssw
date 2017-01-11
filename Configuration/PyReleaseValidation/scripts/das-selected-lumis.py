@@ -34,6 +34,7 @@ def process_lumi(data):
     for sub_list in lumi_rang:
       if check_lumi_ranges(input_range,tuple(sub_list)):
         output_files_list.append(lumi_file)
+        break
   for out_file_name in output_files_list:
     print out_file_name
 
