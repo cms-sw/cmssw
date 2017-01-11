@@ -40,6 +40,10 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("std::vector<bar::Foo>","barFoos") );
   classToFriendly.insert( Values("std::shared_ptr<Foo>","FooSharedPtr"));
   classToFriendly.insert( Values("std::shared_ptr<bar::Foo>","barFooSharedPtr"));
+  classToFriendly.insert( Values("std::basic_string<char>","String"));
+  classToFriendly.insert( Values("std::string","String"));
+  classToFriendly.insert( Values("std::__cxx11::basic_string<char>","String"));
+  classToFriendly.insert( Values("std::__cxx11::basic_string<char,std::char_traits<char> >","String"));
   classToFriendly.insert( Values("std::vector<std::shared_ptr<bar::Foo>>","barFooSharedPtrs"));
   classToFriendly.insert( Values("std::unique_ptr<Foo>","FooUniquePtr"));
   classToFriendly.insert( Values("std::unique_ptr<bar::Foo>","barFooUniquePtr"));

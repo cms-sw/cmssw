@@ -4,7 +4,10 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/Common"/>
+<use name="CondFormats/GeometryObjects"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DQMServices/Core"/>
 <use name="Alignment/MillePedeAlignmentAlgorithm"/>
 <use name="classlib"/>
