@@ -79,13 +79,12 @@ if __name__ == "__main__":
     
   red_file = args.pop(0)
   web_dir = args.pop()
-  print 'WEB DIR 1 =',web_dir
+#  print 'WEB DIR 1 =',web_dir
   if not '/afs/cern.ch/cms/' in web_dir:
     print "local : ", web_dir
     web_url = web_dir
   else:
     web_url = web_dir.replace('/afs/cern.ch/cms/','http://cmsdoc.cern.ch/',1)
-#    web_url = web_dir.replace('/afs/cern.ch/cms/Physics/egamma/www/','http://cms-egamma.web.cern.ch/cms-egamma/',1)
   if len(args)>0 :
     blue_file = args.pop(0)
   else :
