@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.Isolation.muonPFIsolationDepositsPFBRECO_cff import *
+import CommonTools.ParticleFlow.Isolation.muonPFIsolationDepositsPFBRECO_cff as m
 
 #Now prepare the iso deposits
-muPFIsoDepositChargedPAT    = muPFIsoDepositChargedPFBRECO.clone()
-muPFIsoDepositChargedAllPAT = muPFIsoDepositChargedAllPFBRECO.clone()
-muPFIsoDepositNeutralPAT    = muPFIsoDepositNeutralPFBRECO.clone()
-muPFIsoDepositGammaPAT      = muPFIsoDepositGammaPFBRECO.clone()
-muPFIsoDepositPUPAT         = muPFIsoDepositPUPFBRECO.clone()
+muPFIsoDepositChargedPAT    = m.muPFIsoDepositChargedPFBRECO.clone()
+muPFIsoDepositChargedAllPAT = m.muPFIsoDepositChargedAllPFBRECO.clone()
+muPFIsoDepositNeutralPAT    = m.muPFIsoDepositNeutralPFBRECO.clone()
+muPFIsoDepositGammaPAT      = m.muPFIsoDepositGammaPFBRECO.clone()
+muPFIsoDepositPUPAT         = m.muPFIsoDepositPUPFBRECO.clone()
 
 muonPFIsolationDepositsPATSequence = cms.Sequence(
     muPFIsoDepositChargedPAT+

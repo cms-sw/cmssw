@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.Isolation.photonPFIsolationDepositsPFBRECO_cff import *
+import CommonTools.ParticleFlow.Isolation.photonPFIsolationDepositsPFBRECO_cff as m
 
 #Now prepare the iso deposits
-phPFIsoDepositChargedPAT    = phPFIsoDepositChargedPFBRECO.clone()
-phPFIsoDepositChargedAllPAT = phPFIsoDepositChargedAllPFBRECO.clone()
-phPFIsoDepositNeutralPAT    = phPFIsoDepositNeutralPFBRECO.clone()
-#phPFIsoDepositGammaPAT      = phPFIsoDepositGammaPFBRECO.clone()
-phPFIsoDepositPUPAT         = phPFIsoDepositPUPFBRECO.clone()
-phPFIsoDepositGammaPAT      = phPFIsoDepositGammaPFBRECO.clone()
+phPFIsoDepositChargedPAT    = m.phPFIsoDepositChargedPFBRECO.clone()
+phPFIsoDepositChargedAllPAT = m.phPFIsoDepositChargedAllPFBRECO.clone()
+phPFIsoDepositNeutralPAT    = m.phPFIsoDepositNeutralPFBRECO.clone()
+#phPFIsoDepositGammaPAT      = m.phPFIsoDepositGammaPFBRECO.clone()
+phPFIsoDepositPUPAT         = m.phPFIsoDepositPUPFBRECO.clone()
+phPFIsoDepositGammaPAT      = m.phPFIsoDepositGammaPFBRECO.clone()
 
 photonPFIsolationDepositsPATSequence = cms.Sequence(
     phPFIsoDepositChargedPAT+
