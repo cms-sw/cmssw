@@ -43,7 +43,7 @@ process.cleanPatElectrons.checkOverlaps.muons.requireNoOverlaps = True
 process.cleanPatJets.checkOverlaps.muons.requireNoOverlaps     = True
 process.cleanPatJets.checkOverlaps.electrons.requireNoOverlaps = True
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## configure mva trainer
 process.load("TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff")

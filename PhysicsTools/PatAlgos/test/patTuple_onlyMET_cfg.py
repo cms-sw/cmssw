@@ -5,7 +5,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## load met sequences up to patMETs
 process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
-patAlgosToolsTask.add(process.metProducerTask)
+patAlgosToolsTask.add(process.makePatMETsTask)
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_patMETs*_*_*']

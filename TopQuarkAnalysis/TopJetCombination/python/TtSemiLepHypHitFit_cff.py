@@ -13,10 +13,8 @@ hitFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProdu
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypHitFit_cfi import *
 
 ## make hypothesis
-makeHypothesis_hitFit = cms.Sequence(hitFitTtSemiLepEventHypothesis *
-                                     ttSemiLepHypHitFit)
-
-ttSemiLepHypHitFitTask = cms.Task(
+makeHypothesis_hitFitTask = cms.Task(
     hitFitTtSemiLepEventHypothesis,
     ttSemiLepHypHitFit
 )
+makeHypothesis_hitFit = cms.Sequence(makeHypothesis_hitFitTask)

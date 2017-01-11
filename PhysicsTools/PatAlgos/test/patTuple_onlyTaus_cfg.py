@@ -5,7 +5,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## load tau sequences up to selectedPatTaus
 process.load("PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff")
-patAlgosToolsTask.add(process.tauProducerTask)
+patAlgosToolsTask.add(process.makePatTausTask)
 process.load("PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi")
 patAlgosToolsTask.add(process.selectedPatTaus)
 

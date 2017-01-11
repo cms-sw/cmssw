@@ -43,11 +43,11 @@ process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## std sequence to produce the ttFullLepEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff")
-process.task.add(process.ttFullLepEvtBuilderTask)
+process.task.add(process.makeTtFullLepEventTask)
 process.ttFullLepEvent.verbosity = 1
 
 ## optional change of settings

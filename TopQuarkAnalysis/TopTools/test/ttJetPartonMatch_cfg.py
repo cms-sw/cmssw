@@ -43,7 +43,7 @@ process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## configure jet-parton matching
 process.load("TopQuarkAnalysis.TopTools.TtFullHadJetPartonMatch_cfi")

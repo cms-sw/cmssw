@@ -37,12 +37,3 @@ electronPFIsolationDepositsPFBRECOSequence = cms.Sequence(
     elPFIsoDepositNeutralPFBRECO+
     elPFIsoDepositPUPFBRECO
     )
-
-electronPFIsolationDepositsPFBRECOTask = cms.Task(
-    isoDeposits,
-    elPFIsoDepositChargedPFBRECO,
-    elPFIsoDepositChargedAllPFBRECO,
-    elPFIsoDepositNeutralPFBRECO,
-    elPFIsoDepositPUPFBRECO,
-    elPFIsoDepositGammaPFBRECO
-    )
