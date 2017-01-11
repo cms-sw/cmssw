@@ -19,16 +19,6 @@ selectedPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
     )
 )
 
-
-selectedPatCandidates = cms.Sequence(
-    selectedPatElectrons +
-    selectedPatMuons     +
-    selectedPatTaus      +
-    selectedPatPhotons   +
-    selectedPatJets      +
-    selectedPatCandidateSummary
-)
-
 selectedPatCandidatesTask = cms.Task(
     selectedPatElectrons,
     selectedPatMuons,
@@ -36,3 +26,4 @@ selectedPatCandidatesTask = cms.Task(
     selectedPatPhotons,
     selectedPatJets
 )
+selectedPatCandidates = cms.Sequence(selectedPatCandidateSummary, selectedPatCandidatesTask)

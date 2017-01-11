@@ -28,9 +28,3 @@ ak7JetExtender = cms.EDProducer("JetExtender",
 
 ak7JTA = cms.Sequence(ak7JetTracksAssociatorAtVertexPF*ak7JetTracksAssociatorAtVertex*ak7JetTracksAssociatorAtCaloFace*ak7JetExtender)
 
-ak7JTATask = cms.Task(
-    ak7JetTracksAssociatorAtVertexPF,
-    ak7JetTracksAssociatorAtVertex,
-    ak7JetTracksAssociatorAtCaloFace,
-    ak7JetExtender
-)

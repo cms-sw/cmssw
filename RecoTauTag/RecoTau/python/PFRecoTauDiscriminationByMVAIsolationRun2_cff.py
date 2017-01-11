@@ -117,17 +117,3 @@ mvaIsolation2SeqRun2 = cms.Sequence(
    + discriminationByIsolationMVArun2v1Tight
    + discriminationByIsolationMVArun2v1VTight
 )
-
-pfRecoTauDiscriminationByMVAIsolationRun2Task = cms.Task(
-    pfRecoTauDiscriminationByIsolation,
-    recoTauDiscriminantCutMultiplexer,
-    pfRecoTauDiscriminationByMVAIsolation2Task,
-    photonPtSumOutsideSignalCone,
-    footprintCorrection,
-    discriminationByIsolationMVArun2v1raw,
-    discriminationByIsolationMVArun2v1VLoose,
-    discriminationByIsolationMVArun2v1Loose,
-    discriminationByIsolationMVArun2v1Medium,
-    discriminationByIsolationMVArun2v1Tight,
-    discriminationByIsolationMVArun2v1VTight
-)

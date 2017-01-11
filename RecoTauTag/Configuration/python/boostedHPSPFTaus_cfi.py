@@ -13,7 +13,6 @@ def addBoostedTaus(process):
     patAlgosToolsTask.add(process.boostedTauSeeds)
 
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-    patAlgosToolsTask.add(process.recoPFTauTagTask)
     process.ptau = cms.Path( process.PFTau )
     process.PATTauSequence = cms.Sequence(process.PFTau+process.makePatTaus+process.selectedPatTaus)
     process.PATTauSequenceBoosted = cloneProcessingSnippet(process,process.PATTauSequence, "Boosted", addToTask = True)

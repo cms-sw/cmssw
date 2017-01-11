@@ -23,8 +23,3 @@ sisCone5JetExtender = cms.EDProducer("JetExtender",
 
 sisCone5JTA = cms.Sequence(sisCone5JetTracksAssociatorAtVertex*sisCone5JetTracksAssociatorAtCaloFace*sisCone5JetExtender)
 
-sisCone5JTATask = cms.Task(
-    sisCone5JetTracksAssociatorAtVertex,
-    sisCone5JetTracksAssociatorAtCaloFace,
-    sisCone5JetExtender
-)

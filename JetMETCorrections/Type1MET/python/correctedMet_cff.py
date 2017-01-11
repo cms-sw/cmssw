@@ -196,26 +196,4 @@ pfMetT1T2Txy = cms.EDProducer(
         cms.InputTag('corrPfMetType2'),
         cms.InputTag('corrPfMetXYMult')
     ),
-)
-
-correctedMetTask = cms.Task(
-    caloMetT1,
-    caloMetT1T2,
-    pfMetT0rt,
-    pfMetT0rtT1,
-    pfMetT0rtT1T2,
-    pfMetT0rtT2,
-    pfMetT0pc,
-    pfMetT0pcT1,
-    pfMetT1,
-    pfMetT1T2,
-    pfMetTxy,
-    pfMetT0rtTxy,
-    pfMetT0rtT1Txy,
-    pfMetT0rtT1T2Txy,
-    pfMetT0pcTxy,
-    pfMetT0pcT1Txy,
-    pfMetT0pcT1T2Txy,
-    pfMetT1Txy,
-    pfMetT1T2Txy
-)
+)   

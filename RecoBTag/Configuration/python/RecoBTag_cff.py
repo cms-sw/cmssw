@@ -82,12 +82,3 @@ pfBTagging = cms.Sequence(
 btagging = cms.Sequence(
     pfBTagging * pfCTagging
 )
-
-recoBTagTask = cms.Task(
-    softLeptonTask,
-    impactParameterTask,
-    secondaryVertexTask,
-    combinedMVATask,
-    cTaggingTask,
-    inclusiveVertexingTask
-)

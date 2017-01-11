@@ -9,7 +9,11 @@ inclusiveSecondaryVertices.secondaryVertices = cms.InputTag("trackVertexArbitrat
 inclusiveSecondaryVertices.maxFraction = 0.2
 inclusiveSecondaryVertices.minSignificance = 10.
 
-inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveSecondaryVertices)
+inclusiveVertexingTask = cms.Task(inclusiveVertexFinder,
+                                  vertexMerger,
+                                  trackVertexArbitrator,
+                                  inclusiveSecondaryVertices)
+inclusiveVertexing = cms.Sequence(inclusiveVertexingTask)
 
 from RecoVertex.AdaptiveVertexFinder.inclusiveCandidateVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.candidateVertexMerger_cfi import *
@@ -20,8 +24,11 @@ inclusiveCandidateSecondaryVertices.secondaryVertices = cms.InputTag("candidateV
 inclusiveCandidateSecondaryVertices.maxFraction = 0.2
 inclusiveCandidateSecondaryVertices.minSignificance = 10.
 
-inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexFinder*candidateVertexMerger*candidateVertexArbitrator*inclusiveCandidateSecondaryVertices)
-
+inclusiveCandidateVertexingTask = cms.Task(inclusiveCandidateVertexFinder,
+                                           candidateVertexMerger,
+                                           candidateVertexArbitrator,
+                                           inclusiveCandidateSecondaryVertices)
+inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexingTask)
 
 #relaxed IVF reconstruction cuts for candidate-based ctagging
 inclusiveCandidateVertexFinderCvsL = inclusiveCandidateVertexFinder.clone(
@@ -43,19 +50,8 @@ inclusiveCandidateSecondaryVerticesCvsL = candidateVertexMerger.clone(
    minSignificance = cms.double(10.)
 )
 
-inclusiveCandidateVertexingCvsL = cms.Sequence(inclusiveCandidateVertexFinderCvsL*candidateVertexMergerCvsL*candidateVertexArbitratorCvsL*inclusiveCandidateSecondaryVerticesCvsL)
-
-inclusiveVertexingTask = cms.Task(
-    inclusiveVertexFinder,
-    vertexMerger,
-    trackVertexArbitrator,
-    inclusiveSecondaryVertices,
-    inclusiveCandidateVertexFinder,
-    candidateVertexMerger,
-    candidateVertexArbitrator,
-    inclusiveCandidateSecondaryVertices,
-    inclusiveCandidateVertexFinderCvsL,
-    candidateVertexMergerCvsL,
-    candidateVertexArbitratorCvsL,
-    inclusiveCandidateSecondaryVerticesCvsL
-)
+inclusiveCandidateVertexingCvsLTask = cms.Task(inclusiveCandidateVertexFinderCvsL,
+                                               candidateVertexMergerCvsL,
+                                               candidateVertexArbitratorCvsL,
+                                               inclusiveCandidateSecondaryVerticesCvsL)
+inclusiveCandidateVertexingCvsL = cms.Sequence(inclusiveCandidateVertexingCvsLTask)

@@ -43,11 +43,11 @@ process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## std sequence to produce the ttFullHadEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttFullHadEvtBuilder_cff")
-process.task.add(process.ttFullHadEvtBuilderTask)
+process.task.add(process.makeTtFullHadEventTask)
 process.ttFullHadEvent.verbosity = 1
 
 ## choose which hypotheses to produce

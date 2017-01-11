@@ -60,7 +60,7 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     process.puppiForMET.photonName = cms.InputTag('slimmedPhotons')
     process.puppiForMET.runOnMiniAOD = cms.bool(True)
     setupPuppiPhotonMiniAOD(process)
-    task.add(process.egmPhotonIDsTask)
+    task.add(process.egmPhotonIDTask)
     #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original packed candidate collection
     process.puppiForMET.useRefs          = False
     #Line below points puppi MET to puppi no lepton which increases the response

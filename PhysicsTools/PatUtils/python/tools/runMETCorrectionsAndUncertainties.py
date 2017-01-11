@@ -443,7 +443,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if metType == "PF" and not hasattr(process, 'pat'+metType+'Met'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
-            task.add(process.patPFMETCorrectionsTask)
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
@@ -1119,7 +1118,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if not hasattr(process, "pfMVAMEt"):
             process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-            task.add(process.mvaPFMETTask)
 
         #retrieve collections
         electronCollection = self._parameters["electronCollection"].value
@@ -1315,7 +1313,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             
             #PAT METs
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
-            task.add(process.metProducerTask)
+            task.add(process.makePatMETsTask)
             configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = True)
                   
             #T1 pfMet for AOD to mAOD only
