@@ -137,7 +137,8 @@ void MuonME0DigisHarvestor::ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMSt
         TH1F* rate = ComputeBKG(hist1, hist2, nameHist);
         
         TString x_axis_title = TString(hist1->GetXaxis()->GetTitle());
-        TString title  = TString::Format("Neutron Background Rate;%s;Rate [Hz/cm^{2}]",x_axis_title.Data());
+        TString origTitle = TString(hist1->GetTitle());
+        TString title  = TString::Format((origTitle+";%s;Rate [Hz/cm^{2}]").Data(),x_axis_title.Data());
         
         rate->SetTitle( title.Data() );
         ibooker.book1D( rate->GetName(),rate );
