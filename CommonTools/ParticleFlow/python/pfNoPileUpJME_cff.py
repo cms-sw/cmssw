@@ -10,18 +10,10 @@ pfPileUpJME = _pfPileUp.clone(PFCandidates='particleFlowPtrs',
 pfNoPileUpJME = _pfNoPileUp.clone(topCollection = 'pfPileUpJME',
                                   bottomCollection = 'particleFlowPtrs' )
 
-
-
-pfNoPileUpJMESequence = cms.Sequence(
-    goodOfflinePrimaryVertices +
-    pfPileUpJME +
-    pfNoPileUpJME
-    )
-
 pfNoPileUpJMETask = cms.Task(
-    pfPileUp,
-    pfNoPileUp,
     goodOfflinePrimaryVertices,
     pfPileUpJME,
     pfNoPileUpJME
     )
+
+pfNoPileUpJMESequence = cms.Sequence(pfNoPileUpJMETask)

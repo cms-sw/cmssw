@@ -5,7 +5,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## load photon sequencesup to selectedPatPhotons
 process.load("PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff")
-patAlgosToolsTask.add(process.photonProducerTask)
+patAlgosToolsTask.add(process.makePatPhotonsTask)
 
 process.load("PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi")
 patAlgosToolsTask.add(process.selectedPatPhotons)

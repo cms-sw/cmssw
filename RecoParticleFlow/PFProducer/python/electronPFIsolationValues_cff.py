@@ -138,26 +138,3 @@ electronPFIsolationValuesSequence = (
     elPFIsoValueGamma04NoPFId+
     elPFIsoValueNeutral04NoPFId+
     elPFIsoValuePU04NoPFId)
-
-pfProducerElectronPFIsolationValuesTask = cms.Task(
-    elPFIsoValueCharged03PFId,
-    elPFIsoValueChargedAll03PFId,
-    elPFIsoValueGamma03PFId,
-    elPFIsoValueNeutral03PFId,
-    elPFIsoValuePU03PFId,
-    elPFIsoValueCharged04PFId,
-    elPFIsoValueChargedAll04PFId,
-    elPFIsoValueGamma04PFId,
-    elPFIsoValueNeutral04PFId,
-    elPFIsoValuePU04PFId,
-    elPFIsoValueCharged03NoPFId,
-    elPFIsoValueChargedAll03NoPFId,
-    elPFIsoValueGamma03NoPFId,
-    elPFIsoValueNeutral03NoPFId,
-    elPFIsoValuePU03NoPFId,
-    elPFIsoValueCharged04NoPFId,
-    elPFIsoValueChargedAll04NoPFId,
-    elPFIsoValueGamma04NoPFId,
-    elPFIsoValueNeutral04NoPFId,
-    elPFIsoValuePU04NoPFId
-    )

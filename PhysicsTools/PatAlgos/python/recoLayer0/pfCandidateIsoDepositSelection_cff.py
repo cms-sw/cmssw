@@ -1,20 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECOSequence
-from CommonTools.ParticleFlow.PFBRECO_cff import pfAllNeutralHadronsPFBRECO, pfAllChargedHadronsPFBRECO, pfAllPhotonsPFBRECO, pfAllChargedParticlesPFBRECO, pfPileUpAllChargedParticlesPFBRECO, pfAllNeutralHadronsAndPhotonsPFBRECO, pfSortByTypePFBRECOSequence
+from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECOSequence, pfNoPileUpIsoPFBRECOTask
+from CommonTools.ParticleFlow.PFBRECO_cff import pfAllNeutralHadronsPFBRECO, pfAllChargedHadronsPFBRECO, pfAllPhotonsPFBRECO, pfAllChargedParticlesPFBRECO, pfPileUpAllChargedParticlesPFBRECO, pfAllNeutralHadronsAndPhotonsPFBRECO, pfSortByTypePFBRECOSequence, pfSortByTypePFBRECOTask
 
-patPFCandidateIsoDepositSelection = cms.Sequence(
-       pfNoPileUpIsoPFBRECOSequence +
-       pfSortByTypePFBRECOSequence
+patPFCandidateIsoDepositSelectionTask = cms.Task(
+       pfNoPileUpIsoPFBRECOTask,
+       pfSortByTypePFBRECOTask
        )
-
-pfCandidateIsoDepositSelectionTask = cms.Task(
-       pfPileUpIsoPFBRECO,
-       pfNoPileUpIsoPFBRECO,
-       pfAllNeutralHadronsPFBRECO,
-       pfAllChargedHadronsPFBRECO,
-       pfAllPhotonsPFBRECO,
-       pfAllChargedParticlesPFBRECO,
-       pfPileUpAllChargedParticlesPFBRECO,
-       pfAllNeutralHadronsAndPhotonsPFBRECO
-       )
+patPFCandidateIsoDepositSelection = cms.Sequence(patPFCandidateIsoDepositSelectionTask)

@@ -12,6 +12,8 @@ patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
 patAlgosToolsTask.add(process.inclusiveVertexingTask)
+patAlgosToolsTask.add(process.inclusiveCandidateVertexingTask)
+patAlgosToolsTask.add(process.inclusiveCandidateVertexingCvsLTask)
 
 process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
 patAlgosToolsTask.add(process.slimmingTask)

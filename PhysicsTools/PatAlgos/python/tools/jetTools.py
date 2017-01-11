@@ -567,19 +567,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
         ivfbTagInfos = ['pfInclusiveSecondaryVertexFinderTagInfos', 'pfInclusiveSecondaryVertexFinderAK8TagInfos', 'pfInclusiveSecondaryVertexFinderCA15TagInfos']
         if any(i in acceptedTagInfos for i in ivfbTagInfos) and not runIVFforCTagOnly:
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
-                loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
-                task.add(getattr(process, btagPrefix+'inclusiveVertexFinder'))
-                task.add(getattr(process, btagPrefix+'vertexMerger'))
-                task.add(getattr(process, btagPrefix+'trackVertexArbitrator'))
-                task.add(getattr(process, btagPrefix+'inclusiveSecondaryVertices'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinder'))
-                task.add(getattr(process, btagPrefix+'candidateVertexMerger'))
-                task.add(getattr(process, btagPrefix+'candidateVertexArbitrator'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL'))
-                task.add(getattr(process, btagPrefix+'candidateVertexMergerCvsL'))
-                task.add(getattr(process, btagPrefix+'candidateVertexArbitratorCvsL'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL'))
+                loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix, task.label())
             if tightBTagNTkHits:
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinder' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinder')
@@ -600,19 +588,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                         process, task)
         if any(i in acceptedTagInfos for i in ivfcTagInfos):
             if not hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
-                loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix)
-                task.add(getattr(process, btagPrefix+'inclusiveVertexFinder'))
-                task.add(getattr(process, btagPrefix+'vertexMerger'))
-                task.add(getattr(process, btagPrefix+'trackVertexArbitrator'))
-                task.add(getattr(process, btagPrefix+'inclusiveSecondaryVertices'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinder'))
-                task.add(getattr(process, btagPrefix+'candidateVertexMerger'))
-                task.add(getattr(process, btagPrefix+'candidateVertexArbitrator'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVertices'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL'))
-                task.add(getattr(process, btagPrefix+'candidateVertexMergerCvsL'))
-                task.add(getattr(process, btagPrefix+'candidateVertexArbitratorCvsL'))
-                task.add(getattr(process, btagPrefix+'inclusiveCandidateSecondaryVerticesCvsL'))
+                loadWithPrefix(process, 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff', btagPrefix, task.label())
             if tightBTagNTkHits:
                 if hasattr( process, btagPrefix+'inclusiveCandidateVertexFinderCvsL' ):
                     _temp = getattr(process, btagPrefix+'inclusiveCandidateVertexFinderCvsL')
@@ -635,10 +611,14 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
                 task.add(process.inclusiveVertexingTask)
+                task.add(process.inclusiveCandidateVertexingTask)
+                task.add(process.inclusiveCandidateVertexingCvsLTask)
         if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
                 task.add(process.inclusiveVertexingTask)
+                task.add(process.inclusiveCandidateVertexingTask)
+                task.add(process.inclusiveCandidateVertexingCvsLTask)
     if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
         if not hasattr( process, 'inclusiveSecondaryVerticesFiltered' ):
             process.load( 'RecoBTag.SecondaryVertex.inclusiveSecondaryVerticesFiltered_cfi' )

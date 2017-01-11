@@ -75,7 +75,7 @@ if not useHFCandidates:
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff")
-patAlgosToolsTask.add(process.jetProducerTask)
+patAlgosToolsTask.add(process.makePatJetsTask)
 
 process.load("PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi")
 patAlgosToolsTask.add(process.selectedPatJets)

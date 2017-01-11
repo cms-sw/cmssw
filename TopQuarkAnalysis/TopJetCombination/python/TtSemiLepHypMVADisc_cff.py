@@ -12,10 +12,8 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVAComputer_cff import *
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypMVADisc_cfi import *
 
 ## make hypothesis
-makeHypothesis_mvaDisc = cms.Sequence(findTtSemiLepJetCombMVA *
-                                      ttSemiLepHypMVADisc)
-
-ttSemiLepHypMVADiscTask = cms.Task(
+makeHypothesis_mvaDiscTask = cms.Task(
     findTtSemiLepJetCombMVA,
     ttSemiLepHypMVADisc
 )
+makeHypothesis_mvaDisc = cms.Sequence(makeHypothesis_mvaDiscTask)

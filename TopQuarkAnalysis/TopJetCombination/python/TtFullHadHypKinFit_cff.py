@@ -13,10 +13,8 @@ kinFitTtFullHadEventHypothesis = TopQuarkAnalysis.TopKinFitter.TtFullHadKinFitPr
 from TopQuarkAnalysis.TopJetCombination.TtFullHadHypKinFit_cfi import *
 
 ## make hypothesis
-makeHypothesis_kinFit = cms.Sequence(kinFitTtFullHadEventHypothesis *
-                                     ttFullHadHypKinFit)
-
-ttFullHadHypKinFitTask = cms.Task(
+makeHypothesis_kinFitTask = cms.Task(
     kinFitTtFullHadEventHypothesis,
     ttFullHadHypKinFit
 )
+makeHypothesis_kinFit = cms.Sequence(makeHypothesis_kinFitTask)

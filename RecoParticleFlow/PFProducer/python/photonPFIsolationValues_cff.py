@@ -161,16 +161,3 @@ photonPFIsolationValuesSequence = (
     phPFIsoValueNeutral04PFId+
     phPFIsoValuePU04PFId
     )
-
-photonPFIsolationValuesTask = cms.Task(
-    phPFIsoValueCharged03PFId,
-    phPFIsoValueChargedAll03PFId,
-    phPFIsoValueGamma03PFId,
-    phPFIsoValueNeutral03PFId,
-    phPFIsoValuePU03PFId,
-    phPFIsoValueCharged04PFId,
-    phPFIsoValueChargedAll04PFId,
-    phPFIsoValueGamma04PFId,
-    phPFIsoValueNeutral04PFId,
-    phPFIsoValuePU04PFId
-    )

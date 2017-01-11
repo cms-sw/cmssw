@@ -52,10 +52,10 @@ process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.electron = False
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
-process.task.add(process.ttSemiLepEvtBuilderTask)
+process.task.add(process.makeTtSemiLepEventTask)
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 1
 
