@@ -14,6 +14,8 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 #include "RecoJets/JetProducers/interface/AnomalousTower.h"
 
@@ -119,6 +121,11 @@ protected:
   // has no default. 
   virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
+  // This will allow making the HTTTopJetTagInfoCollection
+  virtual void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
+					      const edm::EventSetup& iSetup,
+					      edm::OrphanHandle<reco::BasicJetCollection> & oh){};
+ 
   // Do the offset correction. 
   // Only runs if "doPUOffsetCorrection_" is true.  
   void offsetCorrectJets(std::vector<fastjet::PseudoJet> & orphanInput);
@@ -176,7 +183,6 @@ protected:
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   std::string           puSubtractorName_;
 
-
   std::vector<edm::Ptr<reco::Candidate> > inputs_;  // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point           vertex_;          // Primary vertex 
   ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
@@ -201,9 +207,9 @@ protected:
   unsigned int                    minSeed_;              // minimum seed to use, useful for MC generation
 
   int                   verbosity_;                 // flag to enable/disable debug output
+  bool                  fromHTTTopJetProducer_;   // for running the v2.0 HEPTopTagger
 
- private:
-
+private:
   std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access

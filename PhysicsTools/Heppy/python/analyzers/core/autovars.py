@@ -11,10 +11,10 @@ class NTupleVariable:
        - name, type, help, default: obvious 
        - function: a function that taken an object computes the value to fill (e.g. lambda event : len(event.goodVertices))
     """
-    def __init__(self, name, function, type=float, help="", default=-99, mcOnly=False, filler=None):
+    def __init__(self, name, function, the_type=float, help="", default=-99, mcOnly=False, filler=None):
         self.name = name
         self.function = function
-        self.type = type
+        self.the_type = the_type
         self.help = help
         self.default = default
         self.mcOnly  = mcOnly
@@ -24,7 +24,7 @@ class NTupleVariable:
         return ret
     def makeBranch(self,treeNumpy,isMC):
         if self.mcOnly and not isMC: return
-        treeNumpy.var(self.name, type=self.type, default=self.default, title=self.help, filler=self.filler)
+        treeNumpy.var(self.name, the_type=self.the_type, default=self.default, title=self.help, filler=self.filler)
     def fillBranch(self,treeNumpy,object,isMC):
         if self.mcOnly and not isMC: return
         treeNumpy.fill(self.name, self(object))
@@ -60,7 +60,7 @@ class NTupleObjectType:
                                   lambda object, subvar=subvar, so=so : subvar(so(object)), 
                                   # ^-- lambda object : subvar(so(object)) doesn't work due to scoping, see
                                   #     http://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture-in-python/2295372#2295372
-                                  type = subvar.type, help = subvar.help, default = subvar.default, mcOnly = subvar.mcOnly,
+                                  the_type = subvar.the_type, help = subvar.help, default = subvar.default, mcOnly = subvar.mcOnly,
                                   filler = subvar.filler))
                 self._subObjectVars[isMC] = subvars
             vars += self._subObjectVars[isMC]
@@ -132,26 +132,58 @@ class NTupleSubObject:
 
 class NTupleObject:
     """Type defining a set of branches associated to a single object (i.e. an instance of NTupleObjectType)"""
-    def __init__(self, name, objectType, help="", mcOnly=False):
+    def __init__(self, name, objectType, help="", mcOnly=False, nillable=False):
         self.name = name
         self.objectType = objectType
         self.mcOnly = mcOnly
         self.help = ""
+        self.nillable = nillable
     def makeBranches(self,treeNumpy,isMC):
         if not isMC and self.mcOnly: return
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
             h = v.help
             if self.help: h = "%s for %s" % ( h if h else v.name, self.help )
-            treeNumpy.var("%s_%s" % (self.name, v.name), type=v.type, default=v.default, title=h, filler=v.filler)
+            treeNumpy.var("%s_%s" % (self.name, v.name), the_type=v.the_type, default=v.default, title=h, filler=v.filler)
     def fillBranches(self,treeNumpy,object,isMC):
         if self.mcOnly and not isMC: return
+        if object is None:
+            if self.nillable: return
+            raise RuntimeError, "Error, object not found or None when filling branch %s" % self.name
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
             treeNumpy.fill("%s_%s" % (self.name, v.name), v(object))
     def __repr__(self):
         return "<NTupleObject[%s]>" % self.name
 
+    def get_py_wrapper_class(self, isMC):
+        s = "class %s:\n" % self.name
+        s += "    \"\"\"\n"
+        s += "    {0}\n".format(self.help)
+        s += "    \"\"\"\n"
+
+        s += "    @staticmethod\n"
+        s += "    def make_obj(tree):\n"
+        vs = []
+        helps = []
+        for v in self.objectType.allVars(isMC):
+            if len(v.name)>0:
+                s += "        _{1} = getattr(tree, \"{0}_{1}\", None)\n".format(self.name, v.name)
+                vs += [v.name]
+                helps += [v.help]
+            else:
+                s += "        _{0} = getattr(tree, \"{0}\", None);\n".format(self.name)
+                vs += [self.name]
+                helps += [self.help]
+        vecstring = ", ".join(["_{0}".format(v) for v in vs])
+
+        s += "        return {0}({1})\n".format(self.name, vecstring)
+
+        s += "    def __init__(self, {0}):\n".format(",".join(vs))
+        for v, h in zip(vs, helps):
+            s += "        self.{0} = {0} #{1}\n".format(v, h)
+        s += "        pass\n"
+        return s
 
 class NTupleCollection:
     """Type defining a set of branches associated to a list of objects (i.e. an instance of NTupleObjectType)"""
@@ -177,7 +209,7 @@ class NTupleCollection:
             for i in xrange(1,self.maxlen+1):
                 h = v.help
                 if self.help: h = "%s for %s [%d]" % ( h if h else v.name, self.help, i-1 )
-                treeNumpy.var("%s%d_%s" % (self.name, i, v.name), type=v.type, default=v.default, title=h, filler=v.filler)
+                treeNumpy.var("%s%d_%s" % (self.name, i, v.name), the_type=v.the_type, default=v.default, title=h, filler=v.filler)
     def makeBranchesVector(self,treeNumpy,isMC):
         if not isMC and self.objectType.mcOnly: return
         treeNumpy.var("n"+self.name, int)
@@ -186,7 +218,7 @@ class NTupleCollection:
             h = v.help
             if self.help: h = "%s for %s" % ( h if h else v.name, self.help )
             name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
-            treeNumpy.vector(name, "n"+self.name, self.maxlen, type=v.type, default=v.default, title=h, filler=v.filler)
+            treeNumpy.vector(name, "n"+self.name, self.maxlen, the_type=v.the_type, default=v.default, title=h, filler=v.filler)
     def fillBranchesScalar(self,treeNumpy,collection,isMC):
         if not isMC and self.objectType.mcOnly: return
         if self.filter != None: collection = [ o for o in collection if self.filter(o) ]
@@ -216,29 +248,30 @@ class NTupleCollection:
     def get_cpp_declaration(self, isMC):
         s = []
         for v in self.objectType.allVars(isMC):
-            s += ["{0} {1}__{2}[{3}];".format(v.type.__name__, self.name, v.name, self.maxlen)]
+            s += ["{0} {1}__{2}[{3}];".format(v.the_type.__name__, self.name, v.name, self.maxlen)]
         return "\n".join(s)
 
     def get_cpp_wrapper_class(self, isMC):
         s = "class %s {\n" % self.name
         s += "public:\n"
         for v in self.objectType.allVars(isMC):
-            s += "    {0} {1};\n".format(v.type.__name__, v.name)
+            s += "    {0} {1};\n".format(v.the_type.__name__, v.name)
         s += "};\n"
         return s
 
     def get_py_wrapper_class(self, isMC):
-        s = "class %s:\n" % self.name
-        s += "    def __init__(self, tree, n):\n"
-        for v in self.objectType.allVars(isMC):
-            if len(v.name)>0:
-                s += "        self.{0} = tree.{1}_{2}[n];\n".format(v.name, self.name, v.name)
-            else:
-                s += "        self.{0} = tree.{0}[n];\n".format(self.name)
-
-        s += "    @staticmethod\n"
-        s += "    def make_array(event):\n"
-        s += "        return [{0}(event.input, i) for i in range(event.input.n{0})]\n".format(self.name)
-        return s
-
-
+         s = "class %s:\n" % self.name
+         s += "    def __init__(self, tree, n):\n"
+         if len(self.objectType.allVars(isMC)):
+             for v in self.objectType.allVars(isMC):
+                 if len(v.name)>0:
+                     s += "        self.{0} = tree.{1}_{2}[n];\n".format(v.name, self.name, v.name)
+                 else:
+                     s += "        self.{0} = tree.{0}[n];\n".format(self.name)
+         s += "        pass\n"
+  
+         s += "    @staticmethod\n"
+         s += "    def make_array(input):\n"
+         s += "        return [{0}(input, i) for i in range(input.n{0})]\n".format(self.name)
+ 
+         return s

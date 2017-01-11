@@ -56,6 +56,8 @@ SubjetFilterJetProducer::SubjetFilterJetProducer(const edm::ParameterSet& iConfi
 	 iConfig.getUntrackedParameter<bool>("verbose",false))
 {
   produces<reco::BasicJetCollection>("fat");
+  produces<reco::BasicJetCollection>("subcomp");
+  produces<reco::BasicJetCollection>("filtercomp");
   makeProduces(moduleLabel_,"sub");
   makeProduces(moduleLabel_,"filter");
 }
@@ -135,6 +137,8 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
 						const edm::EventSetup& iSetup)
 {
   auto_ptr<reco::BasicJetCollection> fatJets( new reco::BasicJetCollection() );
+  auto_ptr<reco::BasicJetCollection> subCompJets( new reco::BasicJetCollection() );
+  auto_ptr<reco::BasicJetCollection> filterCompJets( new reco::BasicJetCollection() );
   auto_ptr<vector<T> >  subJets( new vector<T>() );
   auto_ptr<vector<T> >  filterJets( new vector<T>() );
 
@@ -176,20 +180,20 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
       vector<int>::const_iterator itIndexEnd(subJetConstituentIndices.end());
       vector<int>::const_iterator itIndex(itIndexBegin);
       for (;itIndex!=itIndexEnd;++itIndex)
-	if ((*itIndex) < static_cast<int>(inputs_.size())) 
-	  subJetConstituents.push_back(inputs_[*itIndex]);
+	      if ((*itIndex) < static_cast<int>(inputs_.size())) 
+	        subJetConstituents.push_back(inputs_[*itIndex]);
       
       T subJet;
       reco::writeSpecific(subJet,p4SubJet,point,subJetConstituents,iSetup);
       subJet.setJetArea(itSub->subjetArea());
       
       if (subJetIndex<2) {
-	subIndices[jetIndex].push_back(subJets->size());
-	subJets->push_back(subJet);
+	      subIndices[jetIndex].push_back(subJets->size());
+	      subJets->push_back(subJet);
       }
       else {
-	filterIndices[jetIndex].push_back(filterJets->size());
-	filterJets->push_back(subJet);
+	      filterIndices[jetIndex].push_back(filterJets->size());
+	      filterJets->push_back(subJet);
       }
     }
   }
@@ -202,17 +206,30 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
   vector<math::XYZTLorentzVector>::const_iterator itP4(itP4Begin);
   for (;itP4!=itP4End;++itP4) {
     int fatIndex = itP4-itP4Begin;
+    
+    math::XYZTLorentzVector p4FilterCompJet(0,0,0,0);
+    math::XYZTLorentzVector p4SubCompJet(0,0,0,0);
+    
     vector<int>& fatToSub    = subIndices[fatIndex];
     vector<int>& fatToFilter = filterIndices[fatIndex];
 
     vector<reco::CandidatePtr> i_fatJetConstituents;
-
+    vector<reco::CandidatePtr> i_subCompJetConstituents;
+    vector<reco::CandidatePtr> i_filterCompJetConstituents;
+    
+    double subCompArea = 0;
+    double filterCompArea = 0;
+    
     vector<int>::const_iterator itSubBegin(fatToSub.begin());
     vector<int>::const_iterator itSubEnd(fatToSub.end());
     vector<int>::const_iterator itSub(itSubBegin);
     for(;itSub!=itSubEnd;++itSub) {
       reco::CandidatePtr candPtr(subJetsAfterPut,(*itSub),false);
       i_fatJetConstituents.push_back(candPtr);
+      p4SubCompJet+=candPtr->p4();
+      subCompArea+=subJetsAfterPut->at(*itSub).jetArea();
+      i_subCompJetConstituents.push_back(candPtr);
+      
     }
 
     vector<int>::const_iterator itFilterBegin(fatToFilter.begin());
@@ -221,14 +238,25 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
     for(;itFilter!=itFilterEnd;++itFilter) {
       reco::CandidatePtr candPtr(filterJetsAfterPut,(*itFilter),false);
       i_fatJetConstituents.push_back(candPtr);
+      p4FilterCompJet+=candPtr->p4();
+      filterCompArea+=filterJetsAfterPut->at(*itFilter).jetArea();
+      i_filterCompJetConstituents.push_back(candPtr);
     }
 
     reco::Particle::Point point(0,0,0);
     fatJets->push_back(reco::BasicJet((*itP4),point,i_fatJetConstituents));
     fatJets->back().setJetArea(areaFatJets[fatIndex]);
+    
+    subCompJets->push_back(reco::BasicJet(p4SubCompJet,point,i_subCompJetConstituents));
+    subCompJets->back().setJetArea(subCompArea);
+    
+    filterCompJets->push_back(reco::BasicJet(p4FilterCompJet,point,i_filterCompJetConstituents));
+    filterCompJets->back().setJetArea(filterCompArea);
   }
   
   iEvent.put(fatJets,"fat");
+  iEvent.put(subCompJets,"subcomp");
+  iEvent.put(filterCompJets,"filtercomp");
 }
 
 
