@@ -59,6 +59,7 @@ class Event(object):
             if any([fnmatch.fnmatch(name, pattern) for pattern in self.__class__.print_patterns]):
                 stripped_attrs[name] = value
         for name, value in stripped_attrs.iteritems():
+          try:
             if hasattr(value, '__len__') and \
                hasattr(value.__len__, '__call__') and \
                len(value)>self.__class__.print_nstrip+1:
@@ -73,6 +74,7 @@ class Event(object):
                     stripped_attrs[name] = [ val for val in value[:self.__class__.print_nstrip] ]
                     stripped_attrs[name].append('...')
                     stripped_attrs[name].append(value[-1])
-
+          except:
+            print "Cannot __str__ ",name
         contents = pprint.pformat(stripped_attrs, indent=4)
         return '\n'.join([header, contents])
