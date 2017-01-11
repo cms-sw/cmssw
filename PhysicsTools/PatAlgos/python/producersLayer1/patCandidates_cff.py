@@ -20,23 +20,12 @@ patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
     )
 )
 
-## for scheduled mode
-patCandidates = cms.Sequence(
-    makePatElectrons +
-    makePatMuons     +
-    makePatTaus      +
-    makePatPhotons   +
-    makePatJets      +
-    makePatMETs      +
-    patCandidateSummary
-)
-
-## for unscheduled mode
 patCandidatesTask = cms.Task(
-    electronProducerTask,
-    muonProducerTask,
-    tauProducerTask,
-    photonProducerTask,
-    jetProducerTask,
-    metProducerTask
-    )
+    makePatElectronsTask,
+    makePatMuonsTask,
+    makePatTausTask,
+    makePatPhotonsTask,
+    makePatJetsTask,
+    makePatMETsTask
+)
+patCandidates = cms.Sequence(patCandidateSummary, patCandidatesTask)

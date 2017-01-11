@@ -8,7 +8,6 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
-patAlgosToolsTask.add(process.patPFMETCorrectionsTask)
 
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 switchJetCollection(process,

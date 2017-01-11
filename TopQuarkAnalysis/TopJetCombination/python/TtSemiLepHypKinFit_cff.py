@@ -13,10 +13,8 @@ kinFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitPr
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cfi import *
 
 ## make hypothesis
-makeHypothesis_kinFit = cms.Sequence(kinFitTtSemiLepEventHypothesis *
-                                     ttSemiLepHypKinFit)
-
-ttSemiLepHypKinFitTask = cms.Task(
+makeHypothesis_kinFitTask = cms.Task(
     kinFitTtSemiLepEventHypothesis,
     ttSemiLepHypKinFit
 )
+makeHypothesis_kinFit = cms.Sequence(makeHypothesis_kinFitTask)

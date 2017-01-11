@@ -43,7 +43,7 @@ process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## configure ttGenEventFilters
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")

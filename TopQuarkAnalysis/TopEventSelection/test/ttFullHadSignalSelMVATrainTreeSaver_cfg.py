@@ -40,7 +40,7 @@ process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## filter for full-hadronic
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")

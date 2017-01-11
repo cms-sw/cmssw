@@ -5,7 +5,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## load tau sequences up to selectedPatMuons
 process.load("PhysicsTools.PatAlgos.producersLayer1.muonProducer_cff")
-patAlgosToolsTask.add(process.muonProducerTask)
+patAlgosToolsTask.add(process.makePatMuonsTask)
 
 process.load("PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi")
 patAlgosToolsTask.add(process.selectedPatMuons)

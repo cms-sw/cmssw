@@ -8,7 +8,6 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 #process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
-#patAlgosToolsTask.add(process.patPFMETCorrectionsTask)
 
 # apply type I PFMEt corrections to pat::MET object
 # and estimate systematic uncertainties on MET

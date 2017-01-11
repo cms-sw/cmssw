@@ -37,7 +37,7 @@ process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
-process.task.add(process.tqafSequencesTask)
+process.task.add(process.tqafTtSemiLeptonicTask)
 
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",

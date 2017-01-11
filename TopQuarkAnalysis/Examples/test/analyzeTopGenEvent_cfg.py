@@ -28,7 +28,7 @@ process.task = cms.Task()
 
 ## load modules to produce the TtGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.ttGenEventTask)
+process.task.add(process.makeGenEvtTask)
 
 ## load analyzer
 process.load("TopQuarkAnalysis.Examples.TopGenEventAnalyzer_cfi")

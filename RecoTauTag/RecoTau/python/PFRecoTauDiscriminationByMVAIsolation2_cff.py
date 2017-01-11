@@ -98,17 +98,3 @@ mvaIsolation2Seq = cms.Sequence(
    + discriminationByIsolationMVA2Tight
    + discriminationByIsolationMVA2VTight
 )
-
-pfRecoTauDiscriminationByMVAIsolation2Task = cms.Task(
-    pfRecoTauDiscriminationByIsolation,
-    recoTauDiscriminantCutMultiplexer,
-    chargedIsoPtSum,
-    neutralIsoPtSum,
-    puCorrPtSum,
-    discriminationByIsolationMVA2raw,
-    discriminationByIsolationMVA2VLoose,
-    discriminationByIsolationMVA2Loose,
-    discriminationByIsolationMVA2Medium,
-    discriminationByIsolationMVA2Tight,
-    discriminationByIsolationMVA2VTight
-)
