@@ -1853,7 +1853,8 @@ DQMStore::getContents(const std::string &path, unsigned int tag) const
 /// return vector<string> of the form <dir pathname>:<obj1>,<obj2>,<obj3>;
 /// if showContents = false, change form to <dir pathname>:
 /// (useful for subscription requests; meant to imply "all contents")
-void
+/// return value is unused, needed to be compatible with IGetter interface
+std::vector<MonitorElement *>
 DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = true */) const
 {
   into.clear();
@@ -1907,6 +1908,7 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
       *istr += ':';
     }
   }
+  return std::vector<MonitorElement *>(); // unused
 }
 
 /// get MonitorElement <name> in directory <dir>
