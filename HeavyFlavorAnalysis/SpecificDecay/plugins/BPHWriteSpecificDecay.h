@@ -172,10 +172,8 @@ class BPHWriteSpecificDecay:
         const RefCountedKinematicParticle kinPart = ptr->currentParticle();
         const           KinematicState    kinStat = kinPart->currentState();
         cc.addUserFloat( "fitMass", kinStat.mass() );
-        if ( writeMomentum )
-        cc.addUserData ( "fitMomentum",
-                         kinStat.kinematicParameters().momentum() );
-
+        if ( writeMomentum ) cc.addUserData ( "fitMomentum",
+                             kinStat.kinematicParameters().momentum() );
       }
 
     }
