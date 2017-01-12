@@ -54,6 +54,9 @@ class CSCTriggerPrimitivesBuilder
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
   void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
 
+  /* temporary function to check if running on data */
+  void runOnData(bool runOnData) {runOnData_ = runOnData;}
+
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
    *  in each (sub)sector and put them into an output collection as well. */
@@ -87,6 +90,9 @@ class CSCTriggerPrimitivesBuilder
   static const int max_subsector;
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
+
+  /// temporary flag to run on data
+  bool runOnData_;
 
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;

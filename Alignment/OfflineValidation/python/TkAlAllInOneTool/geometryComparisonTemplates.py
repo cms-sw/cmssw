@@ -11,7 +11,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo', 
@@ -49,7 +49,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo', 
@@ -92,7 +92,7 @@ process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 
 process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
-process.TrackerGeometryCompare.moduleList = '.oO[moduleList]Oo.'
+process.TrackerGeometryCompare.moduleList = '.oO[moduleListBase]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[name]Oo..Comparison_common.oO[common]Oo..root"
 
 process.load("CommonTools.UtilAlgos.TFileService_cfi")  
@@ -133,12 +133,12 @@ dbOutputTemplate= """
 ######################################################################
 visualizationTrackerTemplate= """
 #include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/visualizationTracker.C"
-void TkAl3DVisualization_.oO[name]Oo.(){
+void TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo.(){
             //------------------------------ONLY NEEDED INPUTS-------------------------------//
 //------Tree Read In--------
     TString inputFileName = ".oO[outputFile]Oo.";
     //output file name
-    string outputFileName = ".oO[name]Oo..Visualization";
+    string outputFileName = ".oO[common]Oo._.oO[name]Oo..Visualization";
     //title
     string line1 = ".oO[alignmentTitle]Oo.";
     string line2 = "vs. .oO[referenceTitle]Oo.";

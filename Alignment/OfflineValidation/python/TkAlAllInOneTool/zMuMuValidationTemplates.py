@@ -260,7 +260,7 @@ cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooF
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitWithRooFit.cc .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMass1D.cc .
 
-root -q -b -l "CompareBiasZValidation.cc+()"
+root -q -b -l "CompareBiasZValidation.cc+(.oO[rebinphi]Oo., .oO[rebinetadiff]Oo., .oO[rebineta]Oo., .oO[rebinpt]Oo.)"
 
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
@@ -286,4 +286,43 @@ echo  -----------------------
 echo  Job ended at `date`
 echo  -----------------------    
 
+"""
+
+######################################################################
+######################################################################
+
+mergeZmumuPlotsExecution="""
+#merge Z->mumu histograms
+
+rfcp .oO[mergeZmumuPlotsScriptPath]Oo. .
+root -l -x -b -q TkAlMergeZmumuPlots.C++
+
+"""
+
+######################################################################
+######################################################################
+
+mergeZmumuPlotsTemplate="""
+#include ".oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlapAll_Z.C"
+#include <sstream>
+#include <vector>
+
+template <typename T> string separatebycommas(vector<T> v)
+{
+    if (v.size()==0) return "";
+    stringstream s;
+    s << v[0];
+    for (unsigned int i = 1; i < v.size(); i++)
+        s << "," << v[i];
+    return s.str();
+}
+
+void TkAlMergeZmumuPlots()
+{
+    vector<string> filenames; vector<string> titles; vector<int> colors; vector<int> linestyles;
+
+    .oO[mergeZmumuPlotsInstantiation]Oo.
+
+    MultiHistoOverlapAll_Z(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles), ".oO[datadir]Oo./ZMuMuPlots", .oO[switchONfit]Oo.);
+}
 """

@@ -9,6 +9,7 @@ namespace l1t {
     public: 
       MicroGMTRelativeIsolationCheckLUT() {};
       explicit MicroGMTRelativeIsolationCheckLUT(const std::string& fname);
+      explicit MicroGMTRelativeIsolationCheckLUT(l1t::LUT* lut);
       virtual ~MicroGMTRelativeIsolationCheckLUT() {};
 
       // returns the index corresponding to the calo tower sum 

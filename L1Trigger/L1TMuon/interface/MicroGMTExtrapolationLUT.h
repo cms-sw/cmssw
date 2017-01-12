@@ -11,6 +11,7 @@ namespace l1t {
     public:
       MicroGMTExtrapolationLUT() {};
       explicit MicroGMTExtrapolationLUT(const std::string& fname, const int type);
+      explicit MicroGMTExtrapolationLUT(l1t::LUT* lut, const int type);
       virtual ~MicroGMTExtrapolationLUT() {};
 
       // returns the index corresponding to the calo tower sum 

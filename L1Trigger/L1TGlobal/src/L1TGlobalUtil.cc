@@ -36,29 +36,45 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(){
 
 }
 
+l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+				  edm::ConsumesCollector&& iC) :
+  L1TGlobalUtil(pset, iC) { }
+
+l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
+				  edm::ConsumesCollector& iC) :
+  L1TGlobalUtil() {
+  m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC));
+}
+
+// destructor
+l1t::L1TGlobalUtil::~L1TGlobalUtil() {
+
+  // empty
+
+}
+
 void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn){
   edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + filename);
   m_preScaleFileName = f1.fullPath();
   m_PreScaleColumn = psColumn;
 }
 
-// destructor
-l1t::L1TGlobalUtil::~L1TGlobalUtil() { 
+void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  // typically, the L1T menu and prescale table (may change only between Runs)
+  retrieveL1Setup(evSetup);
+  // typically the prescale set index used and the event by event accept/reject info (changes between Events)
+  retrieveL1Event(iEvent,evSetup);
 }
 
 void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup,
                                     edm::EDGetToken gtAlgToken) {
-
-  // typically, the L1T menu (may change only between Runs)
-  retrieveL1Run(evSetup);
-  // typically the L1T prescales and index of specific prescale set used (may change only between LumiBlocks)
-  retrieveL1LumiBlock(evSetup);
-  // typically the event by event accept/reject info (changes between Events)
+  // typically, the L1T menu and prescale table (may change only between Runs)
+  retrieveL1Setup(evSetup);
+  // typically the prescale set index used and the event by event accept/reject info (changes between Events)
   retrieveL1Event(iEvent,evSetup,gtAlgToken);
-
 }
 
-void l1t::L1TGlobalUtil::retrieveL1Run(const edm::EventSetup& evSetup) {
+void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
 
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
@@ -78,9 +94,6 @@ void l1t::L1TGlobalUtil::retrieveL1Run(const edm::EventSetup& evSetup) {
 	
 	m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
-}
-
-void l1t::L1TGlobalUtil::retrieveL1LumiBlock(const edm::EventSetup& evSetup) {
 
     // Fill the mask and prescales (dummy for now)
     if(!m_filledPrescales) {
@@ -130,6 +143,10 @@ void l1t::L1TGlobalUtil::retrieveL1LumiBlock(const edm::EventSetup& evSetup) {
     }
 }
 
+void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+  retrieveL1Event(iEvent, evSetup, m_l1tGlobalUtilHelper->l1tAlgBlkToken());
+}
+
 void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup,
 					 edm::EDGetToken gtAlgToken) {
 
@@ -141,7 +158,8 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
      if(m_uGtAlgBlk.isValid()) {
        // get the GlabalAlgBlk (Stupid find better way) of BX=0
        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
-       if (algBlk != m_uGtAlgBlk->end(0)){     
+       if (algBlk != m_uGtAlgBlk->end(0)){
+	 m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
 	 // Grab the final OR from the AlgBlk,       
 	 m_finalOR = algBlk->getFinalOR();
        
@@ -157,9 +175,9 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	   (m_decisionsInitial[algBit]).first  = algName;
 	   (m_decisionsInitial[algBit]).second = decisionInitial;
 	   
-	   bool decisionPrescaled = algBlk->getAlgoDecisionInterm(algBit); 
-	   (m_decisionsPrescaled[algBit]).first  = algName;
-	   (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
+	   bool decisionInterm = algBlk->getAlgoDecisionInterm(algBit); 
+	   (m_decisionsInterm[algBit]).first  = algName;
+	   (m_decisionsInterm[algBit]).second = decisionInterm;
 
 	   bool decisionFinal     = algBlk->getAlgoDecisionFinal(algBit);
 	   (m_decisionsFinal[algBit]).first  = algName;
@@ -335,8 +353,8 @@ void l1t::L1TGlobalUtil::resetDecisionVectors() {
   // Reset all the vector contents with null information
   m_decisionsInitial.clear();
   m_decisionsInitial.resize(m_numberPhysTriggers);
-  m_decisionsPrescaled.clear();
-  m_decisionsPrescaled.resize(m_numberPhysTriggers);
+  m_decisionsInterm.clear();
+  m_decisionsInterm.resize(m_numberPhysTriggers);
   m_decisionsFinal.clear();
   m_decisionsFinal.resize(m_numberPhysTriggers);
   
@@ -346,8 +364,8 @@ void l1t::L1TGlobalUtil::resetDecisionVectors() {
     (m_decisionsInitial[algBit]).first = "NULL";
     (m_decisionsInitial[algBit]).second = false;
 
-    (m_decisionsPrescaled[algBit]).first = "NULL";
-    (m_decisionsPrescaled[algBit]).second = false;
+    (m_decisionsInterm[algBit]).first = "NULL";
+    (m_decisionsInterm[algBit]).second = false;
     
     (m_decisionsFinal[algBit]).first = "NULL";
     (m_decisionsFinal[algBit]).second = false;    
@@ -429,11 +447,11 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByBit(int& bit, bool& decision)
   
   return false;  //couldn't get the information requested. 
 }
-const bool l1t::L1TGlobalUtil::getPrescaledDecisionByBit(int& bit, bool& decision) const {
+const bool l1t::L1TGlobalUtil::getIntermDecisionByBit(int& bit, bool& decision) const {
 
   // Need some check that this is a valid bit
-  if((m_decisionsPrescaled[bit]).first != "NULL") {
-    decision = (m_decisionsPrescaled[bit]).second;
+  if((m_decisionsInterm[bit]).first != "NULL") {
+    decision = (m_decisionsInterm[bit]).second;
     return true;
   }
   
@@ -492,11 +510,11 @@ const bool l1t::L1TGlobalUtil::getInitialDecisionByName(const std::string& algNa
   return false;  //trigger name was not the menu. 
 }
 
-const bool l1t::L1TGlobalUtil::getPrescaledDecisionByName(const std::string& algName, bool& decision) const {
+const bool l1t::L1TGlobalUtil::getIntermDecisionByName(const std::string& algName, bool& decision) const {
 
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
-    decision = (m_decisionsPrescaled[bit]).second;
+    decision = (m_decisionsInterm[bit]).second;
     return true;
   }
   

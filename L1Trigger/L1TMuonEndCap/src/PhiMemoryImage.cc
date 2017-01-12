@@ -34,10 +34,12 @@ void PhiMemoryImage::SetBit( int station, int bitNumber ,bool bitValue ){
  //  std::cout<<"station = "<<station<<std::endl;
   
   PhiMemoryImage::value_type tmp = 1;//64 bit word
-  int size = sizeof (PhiMemoryImage::value_type) * 8;//64
+  int size = sizeof (PhiMemoryImage::value_type) * 8;//64  // <- should be hard coded total units?
 
   if (bitNumber > size * PhiMemoryImage::TOTAL_UNITS){
     // complain in some way .. to be implemented..
+	
+	std::cout<<"bit number is greater than total size. Don't do that!\n";
     return;
   }
 
@@ -48,9 +50,9 @@ void PhiMemoryImage::SetBit( int station, int bitNumber ,bool bitValue ){
   // std::cout<<"bitnumber = "<<bitNumber<<std::endl;
    // std::cout<<"station = "<<station<<std::endl;
  
-  int chunkNumber = station*2 + (bitNumber-1) / size;
+  int chunkNumber = station*PhiMemoryImage::UNITS + (bitNumber-1) / size;
   int bitOffset   = bitNumber % size;
-  if(bitNumber == 64){chunkNumber += 1;}
+  if(bitNumber == 64 || bitNumber == 128){chunkNumber += 1;}
   
   
   // std::cout<<"chunknumber = "<<chunkNumber<<std::endl;
@@ -75,8 +77,8 @@ void PhiMemoryImage::SetBit( int station, int bitNumber ,bool bitValue ){
 bool PhiMemoryImage::GetBit( int station, int bitNumber) const {
 
   PhiMemoryImage::value_type tmp = 1;
-  int size = sizeof (PhiMemoryImage::value_type) * 8;
-
+  int size = sizeof (PhiMemoryImage::value_type) * 8;// should be hardcoded total units?
+  
   if (bitNumber > (size * PhiMemoryImage::TOTAL_UNITS)){
     // complain in some way .. to be implemented..
     return false;
@@ -85,9 +87,9 @@ bool PhiMemoryImage::GetBit( int station, int bitNumber) const {
   bitNumber -= 1;
   station -=1;
 
-  int chunkNumber = station*2 + ((bitNumber-1) / size);
+  int chunkNumber = station*PhiMemoryImage::UNITS + ((bitNumber-1) / size);///changed this
   int bitOffset   = bitNumber % size;
-  if(bitNumber == 64){chunkNumber += 1;}
+  if(bitNumber == 64 || bitNumber == 128){chunkNumber += 1;}
 
   tmp <<= bitOffset;
 
@@ -110,35 +112,82 @@ void PhiMemoryImage::BitShift(int nBits){
 
   if (negShift) nBits = -nBits;
 
-  PhiMemoryImage::value_type transferBits;
-  int value_size = sizeof(transferBits)*8;
+  PhiMemoryImage::value_type transferBits, transferBits2;
+  int value_size = sizeof(transferBits)*8;//should be hardcoded total units?
+
+  //std::cout<<"value_size = "<<value_size<<"\n";
 
   for (int i = 0; i < PhiMemoryImage::STATIONS; i++){
 
     if (negShift){
 
       transferBits = (0x1 << nBits) - 1;
-      transferBits &= _buffer[2*i+1];
-
-      _buffer[2*i+1] >>= nBits;
-      _buffer[2*i]   >>= nBits;
+      transferBits &= _buffer[3*i+1];
+	  
+	  transferBits2 = (0x1 << nBits) - 1;
+      transferBits2 &= _buffer[3*i+2];
+	
+	  _buffer[3*i+2] >>= nBits;
+      _buffer[3*i+1] >>= nBits;
+      _buffer[3*i]   >>= nBits;
 
       transferBits <<= (value_size - nBits);
+	  transferBits2 <<= (value_size - nBits);
 
-      _buffer[2*i] |= transferBits;
+      _buffer[3*i] |= transferBits;
+	  _buffer[3*i+1] |= transferBits2;
 
     } else {
 
       transferBits = (0x1 << nBits) - 1;
       transferBits <<= (value_size - nBits);
+	  
+	  transferBits2 = (0x1 << nBits) - 1;
+      transferBits2 <<= (value_size - nBits);
+	  
+	 // if(!i){
+	  
+	  //	std::cout<<"tb = "<<transferBits<<"\n";
+		//std::cout<<"tb2 = "<<transferBits2<<"\n";
+	  
+	 
+	//  	std::cout<<"buf+0 = "<<_buffer[3*i]<<"\n";
+	 // 	std::cout<<"buf+1 = "<<_buffer[3*i+1]<<"\n";
+	 // 	std::cout<<"buf+2 = "<<_buffer[3*i+2]<<"\n";
+	 // }
 
-      transferBits &= _buffer[2*i];
+      transferBits &= _buffer[3*i];
       transferBits >>= (value_size - nBits);
-
-      _buffer[2*i] <<= nBits;
-      _buffer[2*i+1] <<= nBits;
+	  
+	  transferBits2 &= _buffer[3*i+1];
+      transferBits2 >>= (value_size - nBits);
+	  
+	  //if(!i){
+	 // 	std::cout<<"tb = "<<transferBits<<"\n";
+	 // 	std::cout<<"tb2 = "<<transferBits2<<"\n";
+	 // }
+      _buffer[3*i] <<= nBits;
+      _buffer[3*i+1] <<= nBits;
+	  _buffer[3*i+2] <<= nBits;
+	  
+	 // if(!i){
+	 // 	std::cout<<"buf+0 = "<<_buffer[3*i]<<"\n";
+	  //	std::cout<<"buf+1 = "<<_buffer[3*i+1]<<"\n";
+	 // 	std::cout<<"buf+2 = "<<_buffer[3*i+2]<<"\n";
+	 // }
       
-      _buffer[2*i+1] |= transferBits;
+      _buffer[3*i+1] |= transferBits;
+	  _buffer[3*i+2] |= transferBits2;
+	  
+	 // if(!i){
+	    
+	//	std::cout<<"tb = "<<transferBits<<"\n";
+	  //	std::cout<<"tb2 = "<<transferBits2<<"\n";
+	  //  
+	  //	std::cout<<"buf+0 = "<<_buffer[3*i]<<"\n";
+	  //	std::cout<<"buf+1 = "<<_buffer[3*i+1]<<"\n";
+	 // 	std::cout<<"buf+2 = "<<_buffer[3*i+2]<<"\n";
+	  //}
     }
   }
 
@@ -146,7 +195,7 @@ void PhiMemoryImage::BitShift(int nBits){
 
 void PhiMemoryImage::Print(){
 
-  int size = PhiMemoryImage::UNITS * sizeof(PhiMemoryImage::value_type)*8;
+  int size = PhiMemoryImage::UNITS * sizeof(PhiMemoryImage::value_type)*8;//should be hardcoded total units>?
 
   for (int i = 1; i <= PhiMemoryImage::STATIONS; i++){
 
@@ -154,7 +203,7 @@ void PhiMemoryImage::Print(){
 
     for (int j = size; j > 0; j--){
 
-      if ((j%(sizeof(PhiMemoryImage::value_type)*8)) == 0)
+      if ((j%(sizeof(PhiMemoryImage::value_type)*8)) == 0)//should be hardcoded total units>?  ->no
 	std::cout << std::endl;
     
       

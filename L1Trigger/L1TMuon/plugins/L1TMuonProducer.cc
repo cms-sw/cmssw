@@ -381,7 +381,7 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
   }
 
   size_t nMuonsBefore = muons.size();
-  int minWins = nMuonsBefore - nCancelled - nSurvivors;
+  int minWins = nMuonsBefore - nSurvivors;
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
@@ -538,7 +538,7 @@ L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup)
   m_maskedBmtfInputs  = microGMTParamsHelper->maskedBmtfInputs();
   m_maskedOmtfInputs  = microGMTParamsHelper->maskedOmtfInputs();
   m_maskedEmtfInputs  = microGMTParamsHelper->maskedEmtfInputs();
-  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParamsHelper->sortRankLUTPath(), microGMTParamsHelper->fwVersion(), microGMTParamsHelper->sortRankLUTPtFactor(), microGMTParamsHelper->sortRankLUTQualFactor());
+  m_rankPtQualityLUT = l1t::MicroGMTRankPtQualLUTFactory::create(microGMTParamsHelper->sortRankLUT(), microGMTParamsHelper->fwVersion());
   m_isolationUnit.initialise(microGMTParamsHelper.get());
   m_cancelOutUnit.initialise(microGMTParamsHelper.get());
 }

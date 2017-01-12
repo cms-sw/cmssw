@@ -7,7 +7,7 @@ namespace hcaldqm
 	DQTask::DQTask(edm::ParameterSet const& ps):
 		DQModule(ps),
 		_cEvsTotal(_name, "EventsTotal"),
-		_cEvsPerLS(_name, "EventssPerLS"),
+		_cEvsPerLS(_name, "EventsPerLS"),
 		_cRunKeyVal(_name, "RunKeyValue"),
 		_cRunKeyName(_name, "RunKeyName"),
 		_cProcessingTypeName(_name, "ProcessingType"),
@@ -33,7 +33,6 @@ namespace hcaldqm
 
 		_evsTotal++; _cEvsTotal.fill(_evsTotal);
 		_evsPerLS++; _cEvsPerLS.fill(_evsPerLS);
-		_currentLS = e.luminosityBlock();
 		this->_process(e, es);
 	}
 
@@ -41,11 +40,76 @@ namespace hcaldqm
 		edm::Run const& r,
 		edm::EventSetup const& es)
 	{
-		_cEvsTotal.book(ib);
-		_cEvsPerLS.book(ib);
-		_cRunKeyVal.book(ib);
-		_cRunKeyName.book(ib);
-		_cProcessingTypeName.book(ib);
+		//	initialize some containers to be used by all modules
+		_xQuality.initialize(hashfunctions::fDChannel);
+
+		//	get the run info FEDs - FEDs registered at cDAQ
+		//	and determine if there are any HCAL FEDs in.
+		//	push them as ElectronicsIds into the vector
+		edm::eventsetup::EventSetupRecordKey recordKey(
+			edm::eventsetup::EventSetupRecordKey::TypeTag::findType(
+			"RunInfoRcd"));
+		if (es.find(recordKey))
+		{
+			edm::ESHandle<RunInfo> ri;
+			es.get<RunInfoRcd>().get(ri); 
+			std::vector<int> vfeds= ri->m_fed_in;
+			for (std::vector<int>::const_iterator it=vfeds.begin();
+				it!=vfeds.end(); ++it)
+			{
+				if (*it>=constants::FED_VME_MIN && *it<=FED_VME_MAX)
+					_vcdaqEids.push_back(HcalElectronicsId(
+						constants::FIBERCH_MIN,
+						constants::FIBER_VME_MIN, SPIGOT_MIN,
+						(*it)-FED_VME_MIN).rawId());
+				else if	(*it>=constants::FED_uTCA_MIN && 
+					*it<=FEDNumbering::MAXHCALuTCAFEDID)
+					_vcdaqEids.push_back(HcalElectronicsId(
+						utilities::fed2crate(*it), SLOT_uTCA_MIN, 
+						FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+			}
+		}
+
+		//	get the Channel Quality Status for all the channels
+		edm::ESHandle<HcalChannelQuality> hcq;
+		es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
+		const HcalChannelQuality *cq = hcq.product();
+		std::vector<DetId> detids = cq->getAllChannels();
+		for (std::vector<DetId>::const_iterator it=detids.begin();
+			it!=detids.end(); ++it)
+		{
+			//	if unknown skip
+			if (HcalGenericDetId(*it).genericSubdet()==
+				HcalGenericDetId::HcalGenUnknown)
+				continue;
+
+			if (HcalGenericDetId(*it).isHcalDetId())
+			{
+				HcalDetId did(*it);
+				uint32_t mask = (cq->getValues(did))->getValue();
+				if (mask!=0)
+				{
+					_xQuality.push(did, mask);
+				}
+			}
+			
+			/*
+			 * TODO: use Channel Quality Information 
+			if (HcalGenericDetId(*it).isHcalTrigTowerDetId())
+			{
+				HcalTrigTowerDetId tid(*it);
+				uint32_t mask = (cq->getValues(tid))->getValue();
+				std::cout << tid << "  " << mask << std::endl;
+			}
+			*/
+		}
+
+		//	book some base guys
+		_cEvsTotal.book(ib, _subsystem);
+		_cEvsPerLS.book(ib, _subsystem);
+		_cRunKeyVal.book(ib, _subsystem);
+		_cRunKeyName.book(ib, _subsystem);
+		_cProcessingTypeName.book(ib, _subsystem);
 
 		//	fill what you can now
 		_cRunKeyVal.fill(_runkeyVal);
@@ -57,7 +121,7 @@ namespace hcaldqm
 		edm::EventSetup const& es)
 	{
 		this->_resetMonitors(fEvent);
-		this->_resetMonitors(fLS);
+		this->_resetMonitors(f1LS);
 		this->_resetMonitors(f10LS);
 		this->_resetMonitors(f50LS);
 		this->_resetMonitors(f100LS);
@@ -67,13 +131,16 @@ namespace hcaldqm
 		edm::LuminosityBlock const& lb,
 		edm::EventSetup const& es)
 	{
-		this->_resetMonitors(fLS);
+		_currentLS = lb.luminosityBlock();
+		this->_resetMonitors(f1LS);
+		
 		if (_procLSs%10==0)
 			this->_resetMonitors(f10LS);
 		if (_procLSs%50==0)
 			this->_resetMonitors(f50LS);
 		if (_procLSs%100==0)
 			this->_resetMonitors(f100LS);
+			
 	}
 
 	/* virtual */ void DQTask::endLuminosityBlock(
@@ -90,7 +157,7 @@ namespace hcaldqm
 		{
 			case fEvent:
 				break;
-			case fLS:
+			case f1LS:
 				_evsPerLS = 0;
 				break;
 			case f10LS:

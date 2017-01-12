@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h"
 #include "L1Trigger/L1TMuonEndCap/interface/BXAnalyzer.h"
 #include "L1Trigger/L1TMuonEndCap/interface/ZoneCreation.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PatternRecognition.h"
@@ -31,6 +30,9 @@
 #include "L1Trigger/L1TMuonEndCap/interface/ChargeAssignment.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h"
 
+// New EDM output for detailed track and hit information - AWB 01.04.16
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFTrackTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFHitTools.h"
 
 using namespace L1TMuon;
 
@@ -40,6 +42,11 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
   inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(p.getParameter<edm::InputTag>("CSCInput"));
   
   produces<l1t::RegionalMuonCandBxCollection >("EMTF");
+  produces< l1t::EMTFTrackCollection >("EMTF");
+  produces< l1t::EMTFHitCollection >("EMTF");  
+  produces< l1t::EMTFTrackExtraCollection >("EMTF");
+  produces< l1t::EMTFHitExtraCollection >("EMTF");  
+
 }
 
 
@@ -48,14 +55,15 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
   //bool verbose = false;
 
-
-  //std::cout<<"Start Upgraded Track Finder Producer::::: event = "<<ev.id().event()<<"\n\n";
-
   //fprintf (write,"12345\n"); //<-- part of printing text file to send verilog code, not needed if George's package is included
 
 
   //std::auto_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
   std::auto_ptr<l1t::RegionalMuonCandBxCollection > OutputCands (new l1t::RegionalMuonCandBxCollection);
+  std::auto_ptr<l1t::EMTFTrackCollection> OutTracks (new l1t::EMTFTrackCollection);
+  std::auto_ptr<l1t::EMTFHitCollection> OutHits (new l1t::EMTFHitCollection);
+  std::auto_ptr<l1t::EMTFTrackExtraCollection> OutputTracks (new l1t::EMTFTrackExtraCollection);
+  std::auto_ptr<l1t::EMTFHitExtraCollection> OutputHits (new l1t::EMTFHitExtraCollection);
 
   std::vector<BTrack> PTracks[NUM_SECTORS];
 
@@ -78,6 +86,18 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
       out.push_back(TriggerPrimitive((*chamber).first,*digi));
+      l1t::EMTFHitExtra thisHit;
+      thisHit.ImportCSCDetId( (*chamber).first );
+      thisHit.ImportCSCCorrelatedLCTDigi( *digi );
+      if (thisHit.Station() == 1 && thisHit.Ring() == 1 && thisHit.Strip() > 127) thisHit.set_ring(4);
+      thisHit.set_neighbor(0);
+      OutputHits->push_back( thisHit );
+      if ( ((thisHit.Ring() != 1 || thisHit.Station() == 1) && (thisHit.Chamber() % 6 == 2)) ||
+	   ((thisHit.Ring() == 1 && thisHit.Station()  > 1) && (thisHit.Chamber() % 3 == 1)) ) {
+	l1t::EMTFHitExtra neighborHit = thisHit;
+	neighborHit.set_neighbor(1);
+	OutputHits->push_back( neighborHit );
+      }
     }
   }
   
@@ -117,10 +137,66 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ///////////////// TP Conversion //////////////////////  Output is vector of Converted Hits
   //////////////////////////////////////////////////////
 
-
- 	std::vector<ConvertedHit> ConvHits = PrimConv(tester,SectIndex);
+  
+ 	std::vector<ConvertedHit> ConvHits = primConv_.convert(tester,SectIndex);
 	CHits[SectIndex] = ConvHits;
 
+	// Fill OutputHits with ConvertedHit information
+	for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
+	  // bool isMatched = false;
+
+	  for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+	    if ( ConvHits.at(iCHit).Station()   == OutputHits->at(iHit).Station() &&
+		 ( ConvHits.at(iCHit).Id()      == OutputHits->at(iHit).CSC_ID()  ||
+		   ConvHits.at(iCHit).Id()      == ( (OutputHits->at(iHit).Ring() != 4) // Account for either ME1/1a 
+						   ? OutputHits->at(iHit).CSC_ID()    // CSC ID numbering convention
+						   : OutputHits->at(iHit).CSC_ID() + 9 ) ) &&
+		 ConvHits.at(iCHit).Wire()       == OutputHits->at(iHit).Wire()    &&
+		 ConvHits.at(iCHit).Strip()      == OutputHits->at(iHit).Strip()   &&
+		 ConvHits.at(iCHit).BX() - 6     == OutputHits->at(iHit).BX()      &&
+		 ConvHits.at(iCHit).IsNeighbor() == OutputHits->at(iHit).Neighbor() ) {
+	      // isMatched = true;
+	      OutputHits->at(iHit).set_neighbor    ( ConvHits.at(iCHit).IsNeighbor());
+	      OutputHits->at(iHit).set_sector_index( ConvHits.at(iCHit).SectorIndex() );
+	      OutputHits->at(iHit).set_zone_hit    ( ConvHits.at(iCHit).Zhit()   );
+	      OutputHits->at(iHit).set_phi_hit     ( ConvHits.at(iCHit).Ph_hit() );
+	      OutputHits->at(iHit).set_phi_z_val   ( ConvHits.at(iCHit).Phzvl()  );
+	      OutputHits->at(iHit).set_phi_loc_int ( ConvHits.at(iCHit).Phi()    );
+	      OutputHits->at(iHit).set_theta_int   ( ConvHits.at(iCHit).Theta()  );
+
+	      OutputHits->at(iHit).SetZoneContribution ( ConvHits.at(iCHit).ZoneContribution() );
+	      OutputHits->at(iHit).set_phi_loc_deg  ( l1t::calc_phi_loc_deg( OutputHits->at(iHit).Phi_loc_int() ) );
+	      OutputHits->at(iHit).set_phi_loc_rad  ( l1t::calc_phi_loc_rad( OutputHits->at(iHit).Phi_loc_int() ) );
+	      OutputHits->at(iHit).set_phi_glob_deg ( l1t::calc_phi_glob_deg_hit( OutputHits->at(iHit).Phi_loc_deg(), OutputHits->at(iHit).Sector_index() ) );
+	      OutputHits->at(iHit).set_phi_glob_rad ( l1t::calc_phi_glob_rad_hit( OutputHits->at(iHit).Phi_loc_rad(), OutputHits->at(iHit).Sector_index() ) );
+	      OutputHits->at(iHit).set_theta_deg    ( l1t::calc_theta_deg_from_int( OutputHits->at(iHit).Theta_int() ) );
+	      OutputHits->at(iHit).set_theta_rad    ( l1t::calc_theta_rad_from_int( OutputHits->at(iHit).Theta_int() ) );
+	      OutputHits->at(iHit).set_eta( l1t::calc_eta_from_theta_rad( OutputHits->at(iHit).Theta_rad() ) * OutputHits->at(iHit).Endcap() );
+
+	      OutHits->push_back( OutputHits->at(iHit).CreateEMTFHit() );
+	    }
+	  } // End loop: for (uint iHit = 0; iHit < OutputHits->size(); iHit++)
+
+	  // if (isMatched == false) {
+	  //   std::cout << "***********************************************" << std::endl;
+	  //   std::cout << "Unmatched ConvHit in event " << ev.id().event() << ", SectIndex " << SectIndex << std::endl;
+	  //   std::cout << "ConvHit: station = " << ConvHits.at(iCHit).Station() << ", CSC ID = " << ConvHits.at(iCHit).Id()
+	  // 	      << ", sector index = " << ConvHits.at(iCHit).SectorIndex() << ", subsector = " << ConvHits.at(iCHit).Sub()
+	  // 	      << ", wire = " << ConvHits.at(iCHit).Wire() << ", strip = " << ConvHits.at(iCHit).Strip()
+	  // 	      << ", BX = " << ConvHits.at(iCHit).BX() << ", neighbor = " << ConvHits.at(iCHit).IsNeighbor() << std::endl;
+	    
+	  //   for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+	  //     std::cout << "EMTFHitExtra: station = " << OutputHits->at(iHit).Station() << ", CSC ID = " << OutputHits->at(iHit).CSC_ID()
+	  // 		<< ", sector index = " << OutputHits->at(iHit).Sector_index() << ", subsector = " << OutputHits->at(iHit).Subsector() 
+	  // 		<< ", wire = " << OutputHits->at(iHit).Wire() << ", strip = " << OutputHits->at(iHit).Strip()
+	  // 		<< ", BX = " << OutputHits->at(iHit).BX() << ", neighbor = " << OutputHits->at(iHit).Neighbor()
+	  // 		<< ", chamber = " << OutputHits->at(iHit).Chamber() << ", ring = " << OutputHits->at(iHit).Ring() 
+	  // 		<< ", endcap = " << OutputHits->at(iHit).Endcap() << ", sector = " << OutputHits->at(iHit).Sector() << std::endl;
+	  //   }
+	  // }
+
+	} // End loop: for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++)
+	
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////print values for input into Alex's emulator code/////////////////////////////////////////////////////
@@ -141,7 +217,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
  ////////////////////// BX Grouper ////////////////////  which are 3 BX's wide. Effectively looking 2 BX's into the future and
  //////////////////////////////////////////////////////  past from the central BX, this analyzes a total of 5 BX's.
  //////////////////////////////////////////////////////
-
 
  std::vector<std::vector<ConvertedHit>> GroupedHits = GroupBX(ConvHits);
 
@@ -171,7 +246,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ///////Finding 3 Best Pattern//
   ///////////////////////////////
 
-
   SortingOutput Sout = SortSect(Test);
 
 
@@ -179,7 +253,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ///////// Match ph patterns ////// Loops over each sorted pattern and then loops over all possible triggerprimitives which could have made the pattern
   ////// to segment inputs ///////// and matches the associated full precision triggerprimitives to the detected pattern.
   //////////////////////////////////
-
 
   MatchingOutput Mout = PhiMatching(Sout);
   MO[SectIndex] = Mout;
@@ -189,7 +262,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ////////    ph and th    //////// stations present.
   /////////////////////////////////
 
-
  std::vector<std::vector<DeltaOutput>> Dout = CalcDeltas(Mout);////
 
 
@@ -198,13 +270,12 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
   ////// Best 3 tracks/sector /////  Here ghost busting is done to delete tracks which are comprised of the same associated stubs.
   /////////////////////////////////
 
-
   std::vector<BTrack> Bout = BestTracks(Dout);
    PTracks[SectIndex] = Bout;
 
+   
+ } // End loop: for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++)
 
-
-  }
 
  ///////////////////////////////////////
  /// Collect Muons from all sectors ////
@@ -237,7 +308,6 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
   	if(AllTracks[fbest].phi){
 
-
 		InternalTrack tempTrack;
   		tempTrack.setType(2);
 		tempTrack.phi = AllTracks[fbest].phi;
@@ -246,20 +316,55 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		tempTrack.deltas = AllTracks[fbest].deltas;
 		std::vector<int> ps, ts;
 
+		l1t::EMTFTrackExtra thisTrack;
+		thisTrack.set_phi_loc_int ( AllTracks[fbest].phi           );
+		thisTrack.set_theta_int   ( AllTracks[fbest].theta         );
+		thisTrack.set_rank        ( AllTracks[fbest].winner.Rank() );
+		// thisTrack.set_deltas        ( AllTracks[fbest].deltas        );
+		int tempStraightness = 0;
+		int tempRank = thisTrack.Rank();
+		if (tempRank & 64)
+		  tempStraightness |= 4;
+		if (tempRank & 16)
+		  tempStraightness |= 2;
+		if (tempRank & 4)
+		  tempStraightness |= 1;
+		thisTrack.set_straightness ( tempStraightness );
+
 
 		int sector = -1;
 		bool ME13 = false;
-		int me1address = 0, me2address = 0, CombAddress = 0, mode = 0;
+		int me1address = 0, me2address = 0, CombAddress = 0, mode_uncorr = 0;
 		int ebx = 20, sebx = 20;
 		int phis[4] = {-99,-99,-99,-99};
 
 		for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
 
 			if(A->Phi() != -999){
+			  
+			        l1t::EMTFHitExtra thisHit;
+			        // thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
+
+				for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
+				  if ( A->TP().detId<CSCDetId>().station() == OutputHits->at(iHit).Station() and
+				       A->TP().getCSCData().cscID          == OutputHits->at(iHit).CSC_ID()  and
+				       A->Wire()                           == OutputHits->at(iHit).Wire()    and
+				       A->Strip()                          == OutputHits->at(iHit).Strip()   and
+				       A->TP().getCSCData().bx - 6         == OutputHits->at(iHit).BX() ) {
+				    thisHit = OutputHits->at(iHit);
+				    thisTrack.push_HitExtraIndex(iHit);
+				    thisTrack.push_HitExtra(thisHit); // Done before theta windows are applied ... how can we do it after? - AWB 29.04.16
+				    break;
+				  }
+				}
+				thisTrack.set_endcap       ( thisHit.Endcap() );
+				thisTrack.set_sector_index ( thisHit.Sector_index() );
+				thisTrack.set_sector       ( l1t::calc_sector_from_index( thisHit.Sector_index() ) );
+				thisTrack.set_sector_GMT   ( l1t::calc_sector_GMT( thisHit.Sector() ) );
 
 				int station = A->TP().detId<CSCDetId>().station();
 				int id = A->TP().getCSCData().cscID;
-				int trknm = A->TP().getCSCData().trknmb;//A->TP().getCSCData().bx
+				int trknm = A->TP().getCSCData().trknmb;
 				
 				phis[station-1] = A->Phi();
 				
@@ -275,15 +380,16 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 				tempTrack.addStub(A->TP());
 				ps.push_back(A->Phi());
 				ts.push_back(A->Theta());
-				sector = (A->TP().detId<CSCDetId>().endcap() -1)*6 + A->TP().detId<CSCDetId>().triggerSector() - 1;
+				
+				sector = A->SectorIndex();//(A->TP().detId<CSCDetId>().endcap() -1)*6 + A->TP().detId<CSCDetId>().triggerSector() - 1;
 				//std::cout<<"Q: "<<A->Quality()<<", keywire: "<<A->Wire()<<", strip: "<<A->Strip()<<std::endl;
 
 				switch(station){
-					case 1: mode |= 8;break;
-					case 2: mode |= 4;break;
-					case 3: mode |= 2;break;
-					case 4: mode |= 1;break;
-					default: mode |= 0;
+					case 1: mode_uncorr |= 8;break;
+					case 2: mode_uncorr |= 4;break;
+					case 3: mode_uncorr |= 2;break;
+					case 4: mode_uncorr |= 1;break;
+					default: mode_uncorr |= 0;
 				}
 
 
@@ -317,10 +423,28 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 			}
 
 		}
+		
+		int mode = 0;
+		if(tempTrack.rank & 32)
+			mode |= 8;
+		if(tempTrack.rank & 8)
+			mode |= 4;
+		if(tempTrack.rank & 2)
+			mode |= 2;
+		if(tempTrack.rank & 1)
+			mode |= 1;
+
 		tempTrack.phis = ps;
 		tempTrack.thetas = ts;
 
-		float xmlpt = CalculatePt(tempTrack,es);
+		// // Before Mulhearn cleanup, May 11
+		// unsigned long xmlpt_address = 0;
+		// float xmlpt = CalculatePt(tempTrack, es, mode, &xmlpt_address);
+		
+		// After Mulhearn cleanup, May 11
+		unsigned long xmlpt_address = ptAssignment_.calculateAddress(tempTrack, es, mode);
+		float xmlpt = ptAssignment_.calculatePt(xmlpt_address);
+
 		tempTrack.pt = xmlpt*1.4;
 		//FoundTracks->push_back(tempTrack);
 
@@ -329,15 +453,62 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		int charge = getCharge(phis[0],phis[1],phis[2],phis[3],mode);
 
 		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
-														         charge,mode,CombAddress,sector);
-        // NOTE: assuming that all candidates come from the central BX:
-        //int bx = 0;
-		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
-		float eta = (-1)*log(tan(theta_angle/2));
-		std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
-		
-		if(!ME13 && fabs(eta) > 1.1)
+								 charge,mode,CombAddress,sector);
+
+		float theta_angle = l1t::calc_theta_rad_from_int( AllTracks[fbest].theta ); 
+		float eta = l1t::calc_eta_from_theta_rad( theta_angle );
+
+		thisTrack.set_phi_loc_deg  ( l1t::calc_phi_loc_deg( thisTrack.Phi_loc_int() ) );
+		thisTrack.set_phi_loc_rad  ( l1t::calc_phi_loc_rad( thisTrack.Phi_loc_int() ) );
+		thisTrack.set_phi_glob_deg ( l1t::calc_phi_glob_deg( thisTrack.Phi_loc_deg(), thisTrack.Sector() ) );
+		thisTrack.set_phi_glob_rad ( l1t::calc_phi_glob_rad( thisTrack.Phi_loc_rad(), thisTrack.Sector() ) );
+		thisTrack.set_quality    ( outCand.hwQual());
+		thisTrack.set_mode       ( mode            ); 
+		thisTrack.set_first_bx   ( ebx - 6         ); 
+		thisTrack.set_second_bx  ( sebx - 6        ); 
+		thisTrack.set_bx         ( thisTrack.First_BX() );
+		thisTrack.set_phis       ( ps              );
+		thisTrack.set_thetas     ( ts              );
+		thisTrack.set_pt         ( xmlpt*1.4       );
+		thisTrack.set_pt_XML     ( xmlpt           );
+		thisTrack.set_pt_LUT_addr( xmlpt_address   );
+		thisTrack.set_charge     ( (charge == 1) ? -1 : 1 ); // uGMT uses opposite of physical charge (to match pdgID)
+		thisTrack.set_charge_GMT ( charge          );
+		thisTrack.set_theta_rad  ( theta_angle     );
+		thisTrack.set_theta_deg  ( theta_angle * 180/Geom::pi() );
+		thisTrack.set_eta        ( eta  * thisTrack.Endcap() );
+		thisTrack.set_pt_GMT     ( outCand.hwPt()  ); 
+		thisTrack.set_phi_GMT    ( outCand.hwPhi() );
+		thisTrack.set_eta_GMT    ( outCand.hwEta() );
+
+		thisTrack.ImportPtLUT    ( thisTrack.Mode(), thisTrack.Pt_LUT_addr() );
+
+		// thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
+		// thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
+
+ 		// // Optimal emulator configuration - AWB 29.03.16
+		// std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
+
+		// Actual setting in firmware - AWB 12.04.16
+		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+
+		if(!ME13 && fabs(eta) > 1.1) {
+		  // // Extra debugging output - AWB 29.03.16
+		  // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
+		  // 	    << ", phi = " << AllTracks[fbest].phi << ", eta = " << eta 
+		  // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
+		  // 	    << ", quality = " << mode << ", trackaddress = " << 1 
+		  // 	    << ", sector = " << sector << std::endl;
+		  // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+		  // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
+		  // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
+		  // 	    << ", processor = " << outCand.processor() 
+		  // 	    << ", trackFinderType = " << outCand.trackFinderType() << std::endl;
 			holder.push_back(outPair);
+			thisTrack.set_isGMT( 1 );
+		}
+		OutputTracks->push_back( thisTrack );
+		OutTracks->push_back( thisTrack.CreateEMTFTrack() );
 	}
   }
   
@@ -362,17 +533,17 @@ for(int sect=0;sect<12;sect++){
 
 //ev.put( FoundTracks, "DataITC");
 ev.put( OutputCands, "EMTF");
+ ev.put( OutputHits, "EMTF"); 
+ ev.put( OutputTracks, "EMTF");
   //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 
 }//analyzer
 
 void L1TMuonEndCapTrackProducer::beginJob()
 {
-
 }
 void L1TMuonEndCapTrackProducer::endJob()
 {
-
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1TMuonEndCapTrackProducer);

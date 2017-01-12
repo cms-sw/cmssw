@@ -268,10 +268,11 @@ private:
 
     // Flags for the OR of all algorithms at various stages. (Single bx)
     bool m_algInitialOr;
+    bool m_algIntermOr;
     bool m_algPrescaledOr;
     bool m_algFinalOr;
     bool m_algFinalOrVeto;
-    bool m_algFinalOrPreVeto;
+    
     
     // Counter for number of events seen by this board
     unsigned int m_boardEventCount;

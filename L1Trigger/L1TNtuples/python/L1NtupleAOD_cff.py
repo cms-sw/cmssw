@@ -5,6 +5,7 @@ from L1Trigger.L1TNtuples.l1JetRecoTree_cfi import *
 from L1Trigger.L1TNtuples.l1MetFilterRecoTree_cfi import *
 from L1Trigger.L1TNtuples.l1ElectronRecoTree_cfi import *
 from L1Trigger.L1TNtuples.l1TauRecoTree_cfi import *
+#from L1Trigger.L1TNtuples.l1TauRecoTree_2015_cfi import *
 from L1Trigger.L1TNtuples.l1MuonRecoTree_cfi import *
 
 L1NtupleAOD = cms.Sequence(

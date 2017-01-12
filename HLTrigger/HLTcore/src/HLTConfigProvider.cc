@@ -43,9 +43,8 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
    using namespace std;
    using namespace edm;
 
-   LogInfo("HLTConfigData") << "Called (R) with processName '"
-			    << processName
-			    << "' for " << iRun.id() << endl;
+   LogInfo("HLTConfigProvider")
+     << "Called (R) with processName '" << processName << "' for " << iRun.id() << endl;
 
    init(iRun.processHistory(),processName);
 
@@ -77,13 +76,12 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
 	 }	 
        }
      }
-     LogInfo("HLTConfigData") << "Auto-discovered processName: '"
-			      << processName_ << "'"
-			      << endl;
+     LogInfo("HLTConfigProvider")
+       << "Auto-discovered processName: '" << processName_ << "'" << endl;
    }
    if (processName_=="*") {
-     LogError("HLTConfigData") << "Auto-discovery of processName failed!"
-			       << endl;
+     LogError("HLTConfigProvider")
+       << "Auto-discovery of processName failed!" << endl;
      clear();
      return;
    }
@@ -94,9 +92,8 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
      if (hi->processName()==processName_) {n++;}
    }
    if (n>1) {
-     LogError("HLTConfigProvider") << " ProcessName '"<< processName_
-				   << " found " << n
-				   << " times in history!" << endl;
+     LogError("HLTConfigProvider")
+       << " ProcessName '"<< processName_ << " found " << n << " times in history!" << endl;
      clear();
      return;
    }
@@ -111,7 +108,8 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
        getDataFrom(processConfiguration.parameterSetID());
      }
    } else {
-     LogError("HLTConfigProvider") << "Falling back to ProcessName-only init using ProcessName '"<<processName_<<"' !";
+     LogError("HLTConfigProvider")
+       << "Falling back to ProcessName-only init using ProcessName '"<<processName_<<"' !";
      init(processName_);
      return;
    }
@@ -192,32 +190,27 @@ void HLTConfigProvider::init(const std::string& processName)
      }
    }
 
-   LogVerbatim("HLTConfigProvider") << "Unordered list of all process names found: "
-				    << pNames << "." << endl;
+   LogVerbatim("HLTConfigProvider")
+     << "Unordered list of all process names found: " << pNames << "." << endl;
 
-   LogVerbatim("HLTConfigProvider") << "HLT TableName of each selected process: "
-				    << hNames << "." << endl;
+   LogVerbatim("HLTConfigProvider")
+     << "HLT TableName of each selected process: " << hNames << "." << endl;
 
    if (nPSets==0) {
-     LogError("HLTConfigProvider") << " Process name '"
-				   << processName
-				   << "' not found in registry!" << endl;
+     LogError("HLTConfigProvider")
+       << " Process name '" << processName << "' not found in registry!" << endl;
      clear();
      return;
    }
    if (psetID==ParameterSetID()) {
-     LogError("HLTConfigProvider") << " Process name '"
-				   << processName
-				   << "' found but ParameterSetID invalid!"
-				   << endl;
+     LogError("HLTConfigProvider")
+       << " Process name '" << processName << "' found but ParameterSetID invalid!" << endl;
      clear();
      return;
    }
    if (nPSets>1) {
-     LogError("HLTConfigProvider") << " Process name '"
-				   << processName
-				   << " found " << nPSets
-				   << " times in registry!" << endl;
+     LogError("HLTConfigProvider")
+       << " Process name '" << processName << " found " << nPSets << " times in registry!" << endl;
      clear();
      return;
    }

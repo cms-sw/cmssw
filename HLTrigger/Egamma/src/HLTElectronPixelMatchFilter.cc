@@ -33,33 +33,29 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
-  candTag_                = iConfig.getParameter< edm::InputTag > ("candTag");
-  L1IsoPixelSeedsTag_     = iConfig.getParameter< edm::InputTag > ("L1IsoPixelSeedsTag");
-  L1NonIsoPixelSeedsTag_  = iConfig.getParameter< edm::InputTag > ("L1NonIsoPixelSeedsTag");
-  npixelmatchcut_         = iConfig.getParameter< double >        ("npixelmatchcut");
-  ncandcut_               = iConfig.getParameter< int >           ("ncandcut");
-  doIsolated_             = iConfig.getParameter< bool >          ("doIsolated");
-  L1IsoCollTag_           = iConfig.getParameter< edm::InputTag > ("L1IsoCand");
-  L1NonIsoCollTag_        = iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+  candTag_           = iConfig.getParameter< edm::InputTag > ("candTag");
+  l1PixelSeedsTag_   = iConfig.getParameter< edm::InputTag > ("l1PixelSeedsTag");
+  npixelmatchcut_    = iConfig.getParameter< double >        ("npixelmatchcut");
+  ncandcut_          = iConfig.getParameter< int >           ("ncandcut");
+  l1EGTag_           = iConfig.getParameter< edm::InputTag > ("l1EGCand");
   
-  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
-  L1IsoPixelSeedsToken_ = consumes<reco::ElectronSeedCollection>(L1IsoPixelSeedsTag_);
-  L1NonIsoPixelSeedsToken_= consumes<reco::ElectronSeedCollection>(L1NonIsoPixelSeedsTag_);
+  candToken_         = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
+  l1PixelSeedsToken_ = consumes<reco::ElectronSeedCollection> (l1PixelSeedsTag_);
   
-  sPhi1B_ = iConfig.getParameter< double >("s_a_phi1B") ;
-  sPhi1I_ = iConfig.getParameter< double >("s_a_phi1I") ;
-  sPhi1F_ = iConfig.getParameter< double >("s_a_phi1F") ;
-  sPhi2B_ = iConfig.getParameter< double >("s_a_phi2B") ;
-  sPhi2I_ = iConfig.getParameter< double >("s_a_phi2I") ;
-  sPhi2F_ = iConfig.getParameter< double >("s_a_phi2F") ;
-  sZ2B_    = iConfig.getParameter< double >("s_a_zB"   ) ;
-  sR2I_    = iConfig.getParameter< double >("s_a_rI"   ) ;
-  sR2F_    = iConfig.getParameter< double >("s_a_rF"   ) ;
-  s2BarrelThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10BarrelThres"))*10.,2);
-  s2InterThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10InterThres"))*10.,2);
-  s2ForwardThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10ForwardThres"))*10.,2);
+  sPhi1B_         = iConfig.getParameter< double >("s_a_phi1B") ;
+  sPhi1I_         = iConfig.getParameter< double >("s_a_phi1I") ;
+  sPhi1F_         = iConfig.getParameter< double >("s_a_phi1F") ;
+  sPhi2B_         = iConfig.getParameter< double >("s_a_phi2B") ;
+  sPhi2I_         = iConfig.getParameter< double >("s_a_phi2I") ;
+  sPhi2F_         = iConfig.getParameter< double >("s_a_phi2F") ;
+  sZ2B_           = iConfig.getParameter< double >("s_a_zB"   ) ;
+  sR2I_           = iConfig.getParameter< double >("s_a_rI"   ) ;
+  sR2F_           = iConfig.getParameter< double >("s_a_rF"   ) ;
+  s2BarrelThres_  = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10BarrelThres"))*10., 2);
+  s2InterThres_   = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10InterThres"))*10., 2);
+  s2ForwardThres_ = std::pow(std::atanh(iConfig.getParameter< double >("tanhSO10ForwardThres"))*10., 2);
   
-  isPixelVeto_ = iConfig.getParameter< bool >("pixelVeto" );
+  isPixelVeto_ = iConfig.getParameter< bool >("pixelVeto");
   useS_        = iConfig.getParameter< bool >("useS" );
 
 }
@@ -92,14 +88,11 @@ float HLTElectronPixelMatchFilter::calDZ2Sq(reco::ElectronSeedCollection::const_
 void HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candTag",edm::InputTag("hltEgammaHcalIsolFilter"));
-  desc.add<edm::InputTag>("L1IsoPixelSeedsTag",edm::InputTag("electronPixelSeeds"));
-  desc.add<edm::InputTag>("L1NonIsoPixelSeedsTag",edm::InputTag("electronPixelSeeds"));
-  desc.add<double>("npixelmatchcut",1.0);
-  desc.add<int>("ncandcut",1);
-  desc.add<bool>("doIsolated",true);
-  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+  desc.add<edm::InputTag>("candTag", edm::InputTag("hltEgammaHcalIsolFilter"));
+  desc.add<edm::InputTag>("l1PixelSeedsTag", edm::InputTag("electronPixelSeeds"));
+  desc.add<double>("npixelmatchcut", 1.0);
+  desc.add<int>("ncandcut", 1);
+  desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
   desc.add<double>("s_a_phi1B",    0.0069) ;
   desc.add<double>("s_a_phi1I",    0.0088) ;
   desc.add<double>("s_a_phi1F",    0.0076) ;
@@ -110,9 +103,9 @@ void HLTElectronPixelMatchFilter::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("s_a_rI"   ,    0.027) ;
   desc.add<double>("s_a_rF"   ,    0.040) ;
   desc.add<double>("s2_threshold", 0);
-  desc.add<double>("tanhSO10BarrelThres",0.35);
-  desc.add<double>("tanhSO10InterThres",1);
-  desc.add<double>("tanhSO10ForwardThres",1);
+  desc.add<double>("tanhSO10BarrelThres", 0.35);
+  desc.add<double>("tanhSO10InterThres", 1);
+  desc.add<double>("tanhSO10ForwardThres", 1);
   desc.add<bool>  ("useS"     , false);
   desc.add<bool>  ("pixelVeto", false);
 
@@ -123,8 +116,7 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
   // The filter object
   using namespace trigger;
   if (saveTags()) {
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(l1EGTag_);
   }
   
   // Ref to Candidate object to be recorded in filter object
@@ -138,13 +130,8 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
   if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
   
   //get hold of the pixel seed - supercluster association map
-  edm::Handle<reco::ElectronSeedCollection> L1IsoSeeds;
-  iEvent.getByToken(L1IsoPixelSeedsToken_,L1IsoSeeds);
-
-  edm::Handle<reco::ElectronSeedCollection> L1NonIsoSeeds;
-  if(!doIsolated_){
-    iEvent.getByToken(L1NonIsoPixelSeedsToken_,L1NonIsoSeeds);
-  }
+  edm::Handle<reco::ElectronSeedCollection> l1PixelSeeds;
+  iEvent.getByToken(l1PixelSeedsToken_, l1PixelSeeds);
   
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
@@ -153,8 +140,7 @@ bool HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::Event
     ref = recoecalcands[i];
     reco::SuperClusterRef recr2 = ref->superCluster();
     
-    int nmatch = getNrOfMatches(L1IsoSeeds,recr2);
-    if(!doIsolated_) nmatch+=getNrOfMatches(L1NonIsoSeeds,recr2);
+    int nmatch = getNrOfMatches(l1PixelSeeds, recr2);
 
     if (!isPixelVeto_) {
       if ( nmatch >= npixelmatchcut_) {

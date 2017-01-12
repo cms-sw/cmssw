@@ -21,32 +21,30 @@
 //
 HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-  ncandcut_    = iConfig.getParameter<int> ("ncandcut");
-  relaxed_     = iConfig.getParameter<bool> ("relaxed") ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+  inputTag_       = iConfig.getParameter< edm::InputTag > ("inputTag");
+  ncandcut_       = iConfig.getParameter<int> ("ncandcut");
+  l1EGTag_        = iConfig.getParameter< edm::InputTag > ("l1EGCand");
 
-  inputTrk   = iConfig.getParameter< edm::InputTag > ("inputTrack");
-  trkPtCut   = iConfig.getParameter<double> ("trackPtCut");
-  trkdRCut   = iConfig.getParameter<double> ("trackdRCut");
-  maxTrkCut  = iConfig.getParameter<int> ("maxTrackCut");
+  inputTrk        = iConfig.getParameter< edm::InputTag > ("inputTrack");
+  trkPtCut        = iConfig.getParameter<double> ("trackPtCut");
+  trkdRCut        = iConfig.getParameter<double> ("trackdRCut");
+  maxTrkCut       = iConfig.getParameter<int> ("maxTrackCut");
 
-  rechitsEB  = iConfig.getParameter< edm::InputTag > ("RecHitsEB");
-  rechitsEE  = iConfig.getParameter< edm::InputTag > ("RecHitsEE");
+  rechitsEB       = iConfig.getParameter< edm::InputTag > ("RecHitsEB");
+  rechitsEE       = iConfig.getParameter< edm::InputTag > ("RecHitsEE");
 
-  EBOnly       = iConfig.getParameter<bool> ("EBOnly") ;
-  sMin_min     = iConfig.getParameter<double> ("sMin_min");
-  sMin_max     = iConfig.getParameter<double> ("sMin_max");
-  sMaj_min     = iConfig.getParameter<double> ("sMaj_min");
-  sMaj_max     = iConfig.getParameter<double> ("sMaj_max");
-  seedTimeMin  = iConfig.getParameter<double> ("seedTimeMin");
-  seedTimeMax  = iConfig.getParameter<double> ("seedTimeMax");
+  EBOnly          = iConfig.getParameter<bool> ("EBOnly") ;
+  sMin_min        = iConfig.getParameter<double> ("sMin_min");
+  sMin_max        = iConfig.getParameter<double> ("sMin_max");
+  sMaj_min        = iConfig.getParameter<double> ("sMaj_min");
+  sMaj_max        = iConfig.getParameter<double> ("sMaj_max");
+  seedTimeMin     = iConfig.getParameter<double> ("seedTimeMin");
+  seedTimeMax     = iConfig.getParameter<double> ("seedTimeMax");
 
-  inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
+  inputToken_     = consumes<trigger::TriggerFilterObjectWithRefs> (inputTag_);
   rechitsEBToken_ = consumes<EcalRecHitCollection>(rechitsEB);
   rechitsEEToken_ = consumes<EcalRecHitCollection>(rechitsEE);
-  inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
+  inputTrkToken_  = consumes<reco::TrackCollection>(inputTrk);
 
 }
 
@@ -56,25 +54,23 @@ void
 HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
-   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltEGRegionalL1SingleEG22"));
-   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-   desc.add<edm::InputTag>("RecHitsEB",edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
-   desc.add<edm::InputTag>("RecHitsEE",edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
-   desc.add<edm::InputTag>("inputTrack",edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
-   desc.add<bool>("relaxed",false);
-   desc.add<int>("ncandcut",1);
-   desc.add<bool>("EBOnly",false);
-   desc.add<double>("sMin_min",0.1);
-   desc.add<double>("sMin_max",0.4);
-   desc.add<double>("sMaj_min",0.0);
-   desc.add<double>("sMaj_max",999.0);
+   desc.add<edm::InputTag>("inputTag", edm::InputTag("hltEGRegionalL1SingleEG22"));
+   desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
+   desc.add<edm::InputTag>("RecHitsEB", edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
+   desc.add<edm::InputTag>("RecHitsEE", edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
+   desc.add<edm::InputTag>("inputTrack", edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
+   desc.add<int>("ncandcut", 1);
+   desc.add<bool>("EBOnly", false);
+   desc.add<double>("sMin_min", 0.1);
+   desc.add<double>("sMin_max", 0.4);
+   desc.add<double>("sMaj_min", 0.0);
+   desc.add<double>("sMaj_max", 999.0);
    desc.add<double>("seedTimeMin", -25.0);
    desc.add<double>("seedTimeMax",  25.0);
    desc.add<int>("maxTrackCut", 0);
    desc.add<double>("trackPtCut", 3.0);
    desc.add<double>("trackdRCut", 0.5);
-   descriptions.add("hltDisplacedEgammaFilter",desc);
+   descriptions.add("hltDisplacedEgammaFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -86,8 +82,7 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 
   // The filter object
   if (saveTags()) {
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if (relaxed_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(l1EGTag_);
   }
 
   // Ref to Candidate object to be recorded in filter object

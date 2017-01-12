@@ -705,12 +705,16 @@ if 'GlobalTag' in %%(dict)s:
       else:
         # drop all output endpaths
         paths.append( "-*Output" )
+        paths.append( "-RatesMonitoring")
+        paths.append( "-DQMHistograms")
     elif self.config.output == 'minimal':
       # drop all output endpaths but HLTDQMResultsOutput
       if self.config.paths:
         paths.append( "HLTDQMResultsOutput" )
       else:
         paths.append( "-*Output" )
+        paths.append( "-RatesMonitoring")
+        paths.append( "-DQMHistograms")
         paths.append( "HLTDQMResultsOutput" )
     else:
       # keep / add back all output endpaths

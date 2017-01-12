@@ -32,9 +32,7 @@ class HLTDisplacedEgammaFilter : public HLTFilter {
       edm::InputTag inputTag_; // input tag identifying product contains egammas
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken_;
       int    ncandcut_;        // number of egammas required
-      bool   relaxed_;
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
       edm::InputTag rechitsEB ;
       edm::InputTag rechitsEE ;
       edm::EDGetTokenT<EcalRecHitCollection> rechitsEBToken_;

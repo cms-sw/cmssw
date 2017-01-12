@@ -23,36 +23,34 @@
 // constructors and destructor
 //
 HLTEgammaGenericQuadraticEtaFilter::HLTEgammaGenericQuadraticEtaFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig){
-  candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
-  nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
+  candTag_         = iConfig.getParameter< edm::InputTag > ("candTag");
+  varTag_          = iConfig.getParameter< edm::InputTag > ("varTag");
 
-  lessThan_ = iConfig.getParameter<bool> ("lessThan");			
-  useEt_ = iConfig.getParameter<bool> ("useEt");			
-  etaBoundaryEB12_ = iConfig.getParameter<double> ("etaBoundaryEB12");	
-  etaBoundaryEE12_ = iConfig.getParameter<double> ("etaBoundaryEE12");	
-  thrRegularEB1_ = iConfig.getParameter<double> ("thrRegularEB1");	
-  thrRegularEE1_ = iConfig.getParameter<double> ("thrRegularEE1");	
-  thrOverEEB1_ = iConfig.getParameter<double> ("thrOverEEB1");		
-  thrOverEEE1_ = iConfig.getParameter<double> ("thrOverEEE1");		
-  thrOverE2EB1_ = iConfig.getParameter<double> ("thrOverE2EB1");		
-  thrOverE2EE1_ = iConfig.getParameter<double> ("thrOverE2EE1");		
-  thrRegularEB2_ = iConfig.getParameter<double> ("thrRegularEB2");	
-  thrRegularEE2_ = iConfig.getParameter<double> ("thrRegularEE2");	
-  thrOverEEB2_ = iConfig.getParameter<double> ("thrOverEEB2");		
-  thrOverEEE2_ = iConfig.getParameter<double> ("thrOverEEE2");		
-  thrOverE2EB2_ = iConfig.getParameter<double> ("thrOverE2EB2");		
-  thrOverE2EE2_ = iConfig.getParameter<double> ("thrOverE2EE2");		
-  				     	
-  ncandcut_  = iConfig.getParameter<int> ("ncandcut");			
-  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		
+  lessThan_        = iConfig.getParameter<bool> ("lessThan");
+  useEt_           = iConfig.getParameter<bool> ("useEt");
+
+  etaBoundaryEB12_ = iConfig.getParameter<double> ("etaBoundaryEB12");
+  etaBoundaryEE12_ = iConfig.getParameter<double> ("etaBoundaryEE12");
+
+  thrRegularEB1_   = iConfig.getParameter<double> ("thrRegularEB1");
+  thrRegularEE1_   = iConfig.getParameter<double> ("thrRegularEE1");
+  thrOverEEB1_     = iConfig.getParameter<double> ("thrOverEEB1");
+  thrOverEEE1_     = iConfig.getParameter<double> ("thrOverEEE1");
+  thrOverE2EB1_    = iConfig.getParameter<double> ("thrOverE2EB1");
+  thrOverE2EE1_    = iConfig.getParameter<double> ("thrOverE2EE1");
+  thrRegularEB2_   = iConfig.getParameter<double> ("thrRegularEB2");
+  thrRegularEE2_   = iConfig.getParameter<double> ("thrRegularEE2");
+  thrOverEEB2_     = iConfig.getParameter<double> ("thrOverEEB2");
+  thrOverEEE2_     = iConfig.getParameter<double> ("thrOverEEE2");
+  thrOverE2EB2_    = iConfig.getParameter<double> ("thrOverE2EB2");
+  thrOverE2EE2_    = iConfig.getParameter<double> ("thrOverE2EE2");
+
+  ncandcut_        = iConfig.getParameter<int> ("ncandcut");
 			     				
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+  l1EGTag_         = iConfig.getParameter< edm::InputTag > ("l1EGCand");
 
-  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
-  isoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(isoTag_);
-  if(!doIsolated_) nonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(nonIsoTag_);
+  candToken_       = consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
+  varToken_        = consumes<reco::RecoEcalCandidateIsolationMap> (varTag_);
 
 //register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
@@ -62,30 +60,27 @@ void
 HLTEgammaGenericQuadraticEtaFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candTag",edm::InputTag("hltEGIsolFilter"));
-  desc.add<edm::InputTag>("isoTag",edm::InputTag("hltEGIsol"));
-  desc.add<edm::InputTag>("nonIsoTag",edm::InputTag("hltEGNonIsol"));
-  desc.add<bool>("lessThan",true);
-  desc.add<bool>("useEt",true);
-  desc.add<double>("etaBoundaryEB12",1.0);
-  desc.add<double>("etaBoundaryEE12",2.0);
-  desc.add<double>("thrRegularEB1",4.0);
-  desc.add<double>("thrRegularEE1",6.0);
-  desc.add<double>("thrOverEEB1",0.0020);
-  desc.add<double>("thrOverEEE1",0.0020);
-  desc.add<double>("thrOverE2EB1",0.0);
-  desc.add<double>("thrOverE2EE1",0.0);
-  desc.add<double>("thrRegularEB2",6.0);
-  desc.add<double>("thrRegularEE2",4.0);
-  desc.add<double>("thrOverEEB2",0.0020);
-  desc.add<double>("thrOverEEE2",0.0020);
-  desc.add<double>("thrOverE2EB2",0.0);
-  desc.add<double>("thrOverE2EE2",0.0);
-  desc.add<int>("ncandcut",1);
-  desc.add<bool>("doIsolated",false);
-  desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-  desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-  descriptions.add("hltEgammaGenericQuadraticEtaFilter",desc);
+  desc.add<edm::InputTag>("candTag", edm::InputTag("hltEGIsolFilter"));
+  desc.add<edm::InputTag>("varTag", edm::InputTag("hltEGIsol"));
+  desc.add<bool>("lessThan", true);
+  desc.add<bool>("useEt", true);
+  desc.add<double>("etaBoundaryEB12", 1.0);
+  desc.add<double>("etaBoundaryEE12", 2.0);
+  desc.add<double>("thrRegularEB1", 4.0);
+  desc.add<double>("thrRegularEE1", 6.0);
+  desc.add<double>("thrOverEEB1", 0.0020);
+  desc.add<double>("thrOverEEE1", 0.0020);
+  desc.add<double>("thrOverE2EB1", 0.0);
+  desc.add<double>("thrOverE2EE1", 0.0);
+  desc.add<double>("thrRegularEB2", 6.0);
+  desc.add<double>("thrRegularEE2", 4.0);
+  desc.add<double>("thrOverEEB2", 0.0020);
+  desc.add<double>("thrOverEEE2", 0.0020);
+  desc.add<double>("thrOverE2EB2", 0.0);
+  desc.add<double>("thrOverE2EE2", 0.0);
+  desc.add<int>("ncandcut", 1);
+  desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  descriptions.add("hltEgammaGenericQuadraticEtaFilter", desc);
 }
 
 HLTEgammaGenericQuadraticEtaFilter::~HLTEgammaGenericQuadraticEtaFilter(){}
@@ -97,10 +92,7 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 {
   using namespace trigger;
   if ( saveTags() ) {
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if ( not doIsolated_) {
-      filterproduct.addCollectionTag(L1NonIsoCollTag_);
-    }
+    filterproduct.addCollectionTag(l1EGTag_);
   }
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
@@ -119,11 +111,7 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
   //get hold of isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
-  iEvent.getByToken (isoToken_,depMap);
-
-  //get hold of non-isolated association map
-  edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
-  if(!doIsolated_) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
+  iEvent.getByToken (varToken_,depMap);
 
   // look at all photons, check cuts and add to filter object
   int n = 0;
@@ -132,7 +120,6 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
     ref = recoecalcands[i];
     reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
-    if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref );
 
     float vali = mapi->val;
     float energy = ref->superCluster()->energy();

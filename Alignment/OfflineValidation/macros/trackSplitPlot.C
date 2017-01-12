@@ -2026,6 +2026,7 @@ Double_t findRMS(TString file,TString var,Char_t axis,Bool_t relative,Bool_t pul
 
 void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max)
 {
+    bool pixel = subdetector.Contains("PIX");
     if (axis == 'x')
     {
         Bool_t nHits = (var[0] == 'n' && var[1] == 'H' && var[2] == 'i'
@@ -2042,13 +2043,23 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
         }
         else if (var == "dxy")
         {
-            min = -10;
-            max = 10;
+            min = -100;
+            max = 100;
+            if (pixel)
+            {
+                min = -10;
+                max = 10;
+            }
         }
         else if (var == "dz")
         {
-            min = -25;
-            max = 25;
+            min = -250;
+            max = 250;
+            if (pixel)
+            {
+                min = -25;
+                max = 25;
+            }
         }
         else if (var == "theta")
         {
@@ -2103,23 +2114,43 @@ void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relat
         }
         else if (var == "dxy")
         {
-            min = -125;
-            max = 125;
+            min = -1250;
+            max = 1250;
+            if (pixel)
+            {
+                min = -125;
+                max = 125;
+            }
         }
         else if (var == "dz")
         {
-            min = -200;
-            max = 200;
+            min = -2000;
+            max = 2000;
+            if (pixel)
+            {
+                min = -200;
+                max = 200;
+            }
         }
         else if (var == "theta")
         {
-            min = -.005;
-            max = .005;
+            min = -.01;
+            max = .01;
+            if (pixel)
+            {
+                min = -.005;
+                max = .005;
+            }
         }
         else if (var == "eta")
         {
-            min = -.003;
-            max = .003;
+            min = -.007;
+            max = .007;
+            if (pixel)
+            {
+                min = -.003;
+                max = .003;
+            }
         }
         else if (var == "phi")
         {

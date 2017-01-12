@@ -39,7 +39,7 @@ std::vector<std::vector<ConvertedHit>> GroupBX(std::vector<ConvertedHit> ConvHit
 
 PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
 
-	std::vector<int> tmp (128,0);
+	std::vector<int> tmp (192,0);//was 128
 	std::vector<std::vector<int>> rank (4,tmp), layer(4,tmp),straightness(4,tmp);
 	std::vector<ConvertedHit> Hits;
 	
@@ -48,7 +48,7 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
 		bool set = 0;
 		
 		for(int zone=0;zone<4;zone++){
-			for(int strip=0;strip<128;strip++){
+			for(int strip=0;strip<192;strip++){//was 128
 				
 				if(Pout[i].detected.rank[zone][strip] >= rank[zone][strip]){
 					

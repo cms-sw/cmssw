@@ -604,11 +604,11 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 #endif
 
       if (!i.isHeader()) {
-	++i;
+	    ++i;
 #ifdef DebugLog
-	std::cout << "its not a header" << std::endl;
+	    std::cout << "its not a header" << std::endl;
 #endif
-	continue;
+	    continue;
       }
       ///////////////////////////////////////////////HE UNPACKER//////////////////////////////////////////////////////////////////////////////////////
       if (i.flavor() == 1 || i.flavor() == 0) {
@@ -649,10 +649,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
               std::cout << "OH NO! detector id is null!" << std::endl;
 #endif
           }
-      }
-
+      } else if (i.flavor() == 2){
       //////////////////////////////////////////////////HF UNPACKER/////////////////////////////////////////////////////////////////////
-      if (i.flavor() == 2) {
+
 	int ifiber=((i.channelid()>>3)&0x1F);
 	int ichan=(i.channelid()&0x7);
 	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
@@ -856,5 +855,20 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       }
     }
   }
-}      
+}
+// Method to unpack uMNio data
+void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, HcalUMNioDigi& umnio) {
+  const hcal::AMC13Header* amc13=(const hcal::AMC13Header*)(raw.data());
+  int namc=amc13->NAMC();
+  //Find AMC corresponding to uMNio slot
+  for (int iamc=0; iamc<namc; iamc++) {
+    if (amc13->AMCSlot(iamc) == slot) namc = iamc;
+  }
+  if (namc==amc13->NAMC()) return;
+  
+  const uint16_t* data = (const uint16_t*)(amc13->AMCPayload(namc));
+  size_t nwords = amc13->AMCSize(namc) * ( sizeof(uint64_t) / sizeof(uint16_t) );
 
+  umnio = HcalUMNioDigi(data, nwords);
+  
+}

@@ -35,6 +35,7 @@ namespace L1Analysis
     isLooseElectron.clear();
     isMediumElectron.clear();
     isTightElectron.clear();
+    charge.clear();
     }
 
     unsigned nElectrons;
@@ -52,6 +53,7 @@ namespace L1Analysis
     std::vector<short> isLooseElectron;
     std::vector<short> isMediumElectron;
     std::vector<short> isTightElectron;
+    std::vector<int> charge;
 
   };
 }

@@ -39,6 +39,7 @@ class HLTPFJetIDProducer : public edm::stream::EDProducer<> {
     double NHF_;              ///< neutral hadron fraction
     double CEF_;              ///< charged EM fraction
     double NEF_;              ///< neutral EM fraction
+    double maxCF_;            ///< total charged energy fraction
     int NCH_;                 ///< number of charged constituents
     int NTOT_;                ///< number of constituents
     edm::InputTag inputTag_;  ///< input PFJet collection

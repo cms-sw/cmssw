@@ -1,4 +1,5 @@
 import os
+import ROOT
 from TkAlExceptions import AllInOneError
 
 ####################--- Helpers ---############################
@@ -97,3 +98,37 @@ def addIndex(filename, njobs, index = None):
         raise AllInOneError(fileName + " does not end with any of the extensions "
                                      + str(fileExtensions))
     return replacelast(filename, fileExtension, "_" + str(index) + fileExtension)
+
+def parsecolor(color):
+    try: #simplest case: it's an int
+        return int(color)
+    except ValueError:
+        pass
+
+    try:   #kRed, kBlue, ...
+        color = str(getattr(ROOT, color))
+        return int(color)
+    except (AttributeError, ValueError):
+        pass
+
+    if color.count("+") + color.count("-") == 1:  #kRed+5, kGreen-2
+        if "+" in color:                          #don't want to deal with nonassociativity of -
+            split = color.split("+")
+            color1 = parsecolor(split[0])
+            color2 = parsecolor(split[1])
+            return color1 + color2
+
+        if "-" in color:
+            split = color.split("-")
+            color1 = parsecolor(split[0])
+            color2 = parsecolor(split[1])
+            return color1 - color2
+
+    raise AllInOneError("color has to be an integer, a ROOT constant (kRed, kBlue, ...), or a two-term sum or difference (kGreen-5)!")
+
+def parsestyle(style):
+    try:
+        int(style)
+        return style
+    except ValueError:
+        raise AllInOneError("style has to be an integer!")

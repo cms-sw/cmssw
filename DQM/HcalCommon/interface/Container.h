@@ -23,24 +23,24 @@ namespace hcaldqm
 	{
 		public:
 			Container():
-				_folder("HcalInfo"), _name("SOME_MONITOR")
+				_folder("HcalInfo"), _qname("SomeQuantity")
 			{}
-			Container(std::string const& folder, std::string const &name):
-				_folder(folder), _name(name)
+			Container(std::string const& folder, std::string const& qname):
+				_folder(folder), _qname(qname)
 			{}
 			virtual ~Container() {}
 
 			virtual void initialize(std::string const &folder, 
-				std::string const &name, int debug=0)
+				std::string const& qname, int debug=0)
 			{
 				_folder = folder;
-				_name = name;
-				_logger.set(_name, debug);
+				_qname = qname;
+				_logger.set(_qname, debug);
 			}
 
 		protected:
 			std::string					_folder;
-			std::string					_name;
+			std::string					_qname;
 			Logger						_logger;
 
 	};

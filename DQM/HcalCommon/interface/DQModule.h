@@ -16,11 +16,18 @@
 
 namespace hcaldqm
 {
+	//	Module Types:
+	//	1) Tasks - process every event
+	//	2) Clients - get loaded into the Harvester and processed sequentially
+	//		used only for Online/Offline World Harvesting. Prefer standalone
+	//		Harvesters
+	//	3) Harvester - Client Manager - per lumi processing
 	enum ModuleType
 	{
 		fTask = 0,
-		fClient = 1,
-		nModuleType = 2
+		fHarvester = 1,
+		fClient = 2,
+		nModuleType = 3
 	};
 
 	enum ProcessingType
@@ -59,6 +66,7 @@ namespace hcaldqm
 			int						_evsTotal;
 			int						_evsPerLS;
 			int						_currentLS;
+			int						_maxLS;
 			Logger					_logger;
 	};
 }

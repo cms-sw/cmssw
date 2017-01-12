@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+print "\n!!!!! EventFilter/L1TRawToDigi/python/l1tRawtoDigiBMTF_cfi.py will be depricated soon.  Please migrate to using the unpacker EventFilter/L1TRawToDigi/python/bmtfDigis_cfi. !!!!!\n"
+
+
 BMTFStage2Digis = cms.EDProducer(
     "L1TRawToDigi",
     Setup = cms.string("stage2::BMTFSetup"),

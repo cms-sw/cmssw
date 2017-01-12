@@ -34,10 +34,7 @@ class HLTElectronEtFilter : public HLTFilter {
       double EtEB_;     // threshold for regular cut (x < thr) - ECAL barrel
       double EtEE_;     // threshold for regular cut (x < thr) - ECAL endcap
 
-      bool doIsolated_;
-
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
       int ncandcut_;
 };
 

@@ -39,6 +39,10 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
     calculateWeights_ = pset.exists("ApplyDiscriminationByWeightedECALIsolation") ?
       pset.getParameter<bool>("ApplyDiscriminationByWeightedECALIsolation") : false;
 
+    // RIC: allow to relax the isolation completely beyond a given tau pt
+    minPtForNoIso_ = pset.exists("minTauPtForNoIso") ?
+      pset.getParameter<double>("minTauPtForNoIso") : -99.;
+    
     applyOccupancyCut_ = pset.getParameter<bool>("applyOccupancyCut");
     maximumOccupancy_ = pset.getParameter<uint32_t>("maximumOccupancy");
 
@@ -223,6 +227,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   double maximumRelativeSumPt_;
   double offsetRelativeSumPt_;
   double customIsoCone_;
+  // RIC:
+  double minPtForNoIso_;
   
   bool applyPhotonPtSumOutsideSignalConeCut_;
   double maxAbsPhotonSumPt_outsideSignalCone_;
@@ -581,6 +587,12 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
     (applyRelativeSumPtCut_ && failsRelativeSumPtCut) ||
     (applyPhotonPtSumOutsideSignalConeCut_ && failsPhotonPtSumOutsideSignalConeCut);
 
+
+  if (pfTau->pt() > minPtForNoIso_ && minPtForNoIso_ > 0.){
+    return 1.;
+    LogDebug("discriminate") << "tau pt = " << pfTau->pt() <<  "\t  min cutoff pt = " << minPtForNoIso_ ;
+  }
+  
   // We did error checking in the constructor, so this is safe.
   if ( storeRawSumPt_ ) {
     return totalPt;

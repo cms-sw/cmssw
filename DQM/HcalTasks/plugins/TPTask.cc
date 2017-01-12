@@ -1,535 +1,990 @@
-
 #include "DQM/HcalTasks/interface/TPTask.h"
 
-using namespace hcaldqm;
 TPTask::TPTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
-	//	Et
-	_cEtData_SubDet.initialize(_name+"/Et/SubDet_Data", "Et",
-		mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fEt_256),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cEtEmul_SubDet.initialize(_name+"/Et/SubDet_Data", "Et",
-		mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fEt_256),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cEtCorr_TPSubDet.initialize(_name+"/EtCorrelation/TPSubDet", 
-		"EtCorrelation",
-		mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fEt_128),
-		new axis::ValueAxis(axis::fYaxis, axis::fEt_128));
-	_cEtCorrRatiovsLS_TPSubDet.initialize(_name+"/EtCorrRatio/vsLS_TPSubDet",
-		"EtCorrelationRatio", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fRatio));
-	_cEtCorrRatio_TPSubDet.initialize(_name+"/EtCorrRatio/TPSubDet",
-		"EtCorrelationRatio", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fRatio),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cEtCorrRatiovsiphi_TPSubDetPM.initialize(
-		_name+"/EtCorrRatio/vsiphi_TPSubDetPM",
-		"EtCorrelationRatio", mapper::fTPSubDetPM,
-		new axis::CoordinateAxis(axis::fXaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fXaxis, axis::fRatio));
-	_cEtMsm.initialize(_name+"/EtMisMatched", "EtMismatched",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPieta),
-		new axis::CoordinateAxis(axis::fYaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fZaxis, axis::fEntries));
-	_cNumEtMsmvsLS_TPSubDet.initialize(_name+"/EtMismatched/vsLS_TPSubDet",
-		"EtMismatched", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries100));
-	_cNumEtMsm_TPSubDet.initialize(_name+"/EtMismatched/TPSubDet",
-		"EtMismatched", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fEntries100),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cNumEtMsmvsiphi_TPSubDetPM.initialize(
-		_name+"/EtMismatched/vsiphi_TPSubDetPM",
-		"EtMismatched", mapper::fTPSubDetPM,
-		new axis::CoordinateAxis(axis::fXaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries));
-	_cSumdEtvsLS_TPSubDet.initialize(_name+"/SumdEt/vsLS_TPSubDet",
-		"SumdEt", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fSumdEt));
-	_cSumdEt_TPSubDet.initialize(_name+"/SumdEt/TPSubDet",
-		"SumdEt", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fSumdEt),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cEtData_SubDetPM_iphi.initialize(_name+"/Et/SubDetPM_iphi_Data", "Et",
-		mapper::fTPSubDetPM_iphi,
-		new axis::ValueAxis(axis::fXaxis, axis::fEt_256),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-	_cEtData_SubDet_ieta.initialize(_name+"/Et/SubDet_ieta_Data", "Et",
-		mapper::fTPSubDet_ieta,
-		new axis::ValueAxis(axis::fXaxis, axis::fEt_256),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries, true));
-
-	//	FG
-	_cFGCorr_SubDet.initialize(_name+"/FGCorrelation/SubDet", "FG",
-		mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fFG),
-		new axis::ValueAxis(axis::fYaxis, axis::fFG));
-	_cFGMsm.initialize(_name+"/FGMisMatched", "FGMismatched",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPieta),
-		new axis::CoordinateAxis(axis::fYaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fZaxis, axis::fEntries));
-
-	//	Occupancy
-	_cOccupancyData.initialize(_name+"/Occupancy/Data", "Occupancy",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPieta),
-		new axis::CoordinateAxis(axis::fYaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fZaxis, axis::fEntries));
-	_cOccupancyEmul.initialize(_name+"/Occupancy/Emul", "Occupancy",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPieta),
-		new axis::CoordinateAxis(axis::fYaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fZaxis, axis::fEntries));
-	_cOccupancyDatavsiphi_TPSubDetPM.initialize(
-		_name+"/Occupancy/vsiphi_TPSubDetPM_Data",
-		"Occupancy", mapper::fTPSubDetPM,
-		new axis::CoordinateAxis(axis::fXaxis, axis::fiphi));
-	_cOccupancyEmulvsiphi_TPSubDetPM.initialize(
-		_name+"/Occupancy/vsiphi_TPSubDetPM_Emul",
-		"Occupancy", mapper::fTPSubDetPM,
-		new axis::CoordinateAxis(axis::fXaxis, axis::fiphi));
-	_cOccupancyDatavsLS_TPSubDet.initialize(
-		_name+"/Occupancy/vsLS_TPSubDet_Data",
-		"Occupancy", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries));
-	_cOccupancyEmulvsLS_TPSubDet.initialize(
-		_name+"/Occupancy/vsLS_TPSubDet_Emul",
-		"Occupancy", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries));
-	_cMsData.initialize(_name+"/Missing/Data", "Missing",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPieta),
-		new axis::CoordinateAxis(axis::fYaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fZaxis, axis::fEntries));
-	_cMsDatavsiphi_TPSubDetPM.initialize(
-		_name+"/Missing/vsiphi_TPSubDetPM_Data",
-		"Missing", mapper::fTPSubDetPM,
-		new axis::CoordinateAxis(axis::fXaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fYaxis, axis::fEntries));
-	_cMsEmul.initialize(_name+"/Missing/Emul", "Missing",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPieta),
-		new axis::CoordinateAxis(axis::fYaxis, axis::fiphi),
-		new axis::ValueAxis(axis::fZaxis, axis::fEntries));
-
-	//	Digi Sizes
-	_cDigiSizeDatavsLS_TPSubDet.initialize(_name+"/DigiSize/vsLS_TPSubDet_Data",
-		"DigiSize", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fDigiSize));
-	_cDigiSizeEmulvsLS_TPSubDet.initialize(_name+"/DigiSize/vsLS_TPSubDet_Emul",
-		"DigiSize", mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::ValueAxis(axis::fYaxis, axis::fDigiSize));
-
-	//	Summary
-	_cSummary.initialize(_name+"/Summary", "Summary",
-		new axis::CoordinateAxis(axis::fXaxis, axis::fTPSubDet),
-		new axis::FlagAxis(axis::fYaxis, "Flag", int(nTPFlag)));
-	_cSummaryvsLS_TPSubDet.initialize(_name+"/Summary/vsLS_TPSubDet", "Summary",
-		mapper::fTPSubDet,
-		new axis::ValueAxis(axis::fXaxis, axis::fLS),
-		new axis::FlagAxis(axis::fYaxis, "Flag", int(nTPFlag)));
-
-	//	tags
 	_tagData = ps.getUntrackedParameter<edm::InputTag>("tagData",
 		edm::InputTag("hcalDigis"));
 	_tagEmul = ps.getUntrackedParameter<edm::InputTag>("tagEmul",
 		edm::InputTag("emulDigis"));
+
 	_tokData = consumes<HcalTrigPrimDigiCollection>(_tagData);
 	_tokEmul = consumes<HcalTrigPrimDigiCollection>(_tagEmul);
 
-	//	Special
 	_skip1x1 = ps.getUntrackedParameter<bool>("skip1x1", true);
+	_cutEt = ps.getUntrackedParameter<int>("cutEt", 3);
+	_thresh_EtMsmRate = ps.getUntrackedParameter<double>("thresh_EtMsmRate",
+		0.1);
+	_thresh_FGMsmRate = ps.getUntrackedParameter<double>("thresh_FGMsmRate",
+		0.1);
+	_thresh_DataMsn = ps.getUntrackedParameter<double>("thresh_DataMsn",
+		0.1);
+	_thresh_EmulMsn = ps.getUntrackedParameter<double>("thresh_EmulMsn");
 
-	//	flags
-	_fNames.push_back("Occ. iphi Uniform. D");
-	_fNames.push_back("Occ. iphi Uniform. E");
-	_fNames.push_back("Low Occupancy E");
-	_fNames.push_back("Corr. Ratio");
-	_fNames.push_back("Corr. Ratio iphi Uniform");
-	_fNames.push_back("Msm. Et iphi Uniform. ");
-	_fNames.push_back("Msm. Et Number");
-	_fNames.push_back("Missing iphi Uniform. D");
-	_cSummary.loadLabels(_fNames);
-	_cSummaryvsLS_TPSubDet.loadLabels(_fNames);
+	_vflags.resize(nTPFlag);
+	_vflags[fEtMsm]=flag::Flag("EtMsm");
+	_vflags[fFGMsm]=flag::Flag("FGMsm");
+	_vflags[fDataMsn]=flag::Flag("DataMsn");
+	_vflags[fEmulMsn]=flag::Flag("EmulMsn");
 }
 
-/* virtual */ void TPTask::bookHistograms(DQMStore::IBooker &ib,
+/* virtual */ void TPTask::bookHistograms(DQMStore::IBooker& ib,
 	edm::Run const& r, edm::EventSetup const& es)
 {
-	DQTask::bookHistograms(ib, r, es);
-	_cEtData_SubDet.book(ib);
-	_cEtEmul_SubDet.book(ib);
-	_cEtCorr_TPSubDet.book(ib);
-	_cEtCorrRatiovsLS_TPSubDet.book(ib);
-	_cEtCorrRatio_TPSubDet.book(ib);
-	_cEtCorrRatiovsiphi_TPSubDetPM.book(ib);
-	_cEtMsm.book(ib);
-	_cSumdEtvsLS_TPSubDet.book(ib);
-	_cSumdEt_TPSubDet.book(ib);
-	_cNumEtMsmvsLS_TPSubDet.book(ib);
-	_cNumEtMsm_TPSubDet.book(ib);
-	_cNumEtMsmvsiphi_TPSubDetPM.book(ib);
-	_cEtData_SubDetPM_iphi.book(ib);
-	_cEtData_SubDet_ieta.book(ib);
-	_cFGCorr_SubDet.book(ib);
-	_cFGMsm.book(ib);
-	_cOccupancyData.book(ib);
-	_cOccupancyEmul.book(ib);
-	_cOccupancyDatavsiphi_TPSubDetPM.book(ib);
-	_cOccupancyEmulvsiphi_TPSubDetPM.book(ib);
-	_cOccupancyDatavsLS_TPSubDet.book(ib);
-	_cOccupancyEmulvsLS_TPSubDet.book(ib);
-	_cMsData.book(ib);
-	_cMsEmul.book(ib);
-	_cMsDatavsiphi_TPSubDetPM.book(ib);
+	DQTask::bookHistograms(ib,r,es);
 
-	_cDigiSizeDatavsLS_TPSubDet.book(ib);
-	_cDigiSizeEmulvsLS_TPSubDet.book(ib);
+	//	GET WHAT YOU NEED
+	edm::ESHandle<HcalDbService> dbs;
+	es.get<HcalDbRecord>().get(dbs);
+	_emap = dbs->getHcalMapping();
+	std::vector<int> vFEDs = utilities::getFEDList(_emap);
+	std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
+	std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
+	std::vector<uint32_t> vVME;
+	std::vector<uint32_t> vuTCA;
+	std::vector<uint32_t> depth0;
+	vVME.push_back(HcalElectronicsId(FIBERCH_MIN, 
+		FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
+	vuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
+		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	_filter_VME.initialize(filter::fFilter, hashfunctions::fElectronics,
+		vVME);
+	_filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics,
+		vuTCA);
+	depth0.push_back(HcalTrigTowerDetId(1, 1, 0).rawId());
+	_filter_depth0.initialize(filter::fPreserver, hashfunctions::fTTdepth,
+		depth0);
 
-	_cSummary.book(ib);
-	_cSummaryvsLS_TPSubDet.book(ib);
-}
-
-/* virtual */ void TPTask::_process(edm::Event const& e,
-	edm::EventSetup const &es)
-{
-	edm::Handle<HcalTrigPrimDigiCollection> ctpd;
-	edm::Handle<HcalTrigPrimDigiCollection> ctpe;
-
-	if (!e.getByToken(_tokData, ctpd))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
-			+ _tagData.label() + " " + _tagData.instance());
-	if (!e.getByToken(_tokEmul, ctpe))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
-			+ _tagEmul.label() + " " + _tagEmul.instance());
-
-	//	tmp
-	bool useD1 = false;
-	//	tmp
-
-
-	//	iterate thru the Data Digis
-	double sumdEt[2] = {0, 0};
-	for (HcalTrigPrimDigiCollection::const_iterator hddigi=ctpd->begin();
-		hddigi!=ctpd->end(); ++hddigi)
+	//	push the rawIds of each fed into the vector
+	//	this vector is used at endlumi for online state generation
+	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
+		it!=vFEDsVME.end(); ++it)
 	{
-		//	tmpt
-		if (_skip1x1)
-			if (hddigi->id().depth()==10) // 10 is the depth for 1x1 TPs
-				continue;
-		//\tmp
+		_vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN,
+			SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
+	}
+	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
+		it!=vFEDsuTCA.end(); ++it)
+	{
+		_vhashFEDs.push_back(HcalElectronicsId(utilities::fed2crate(*it), 
+			SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+	}
 
-		//	get quantities
-		int soiEt_d = hddigi->SOI_compressedEt();
-		int soiFG_d = hddigi->SOI_fineGrain() ? 1 : 0;
-		HcalTrigTowerDetId tid = hddigi->id();
-		//	NOTE: skip1x1 should've done that - in the emap it's depth10
-		//	in data in 80X it's 0 for some reason!!!
-		//	skip using version number
-		if (tid.version()>0)
-			continue;
+	//	INITIALIZE FIRST
+	//	Et/FG
+	_cEtData_TTSubdet.initialize(_name, "EtData", hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fEt_128),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cEtEmul_TTSubdet.initialize(_name, "EtEmul", hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fEt_128),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cEtCorr_TTSubdet.initialize(_name, "EtCorr", hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fEtCorr_256),
+		new quantity::ValueQuantity(quantity::fEtCorr_256),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cFGCorr_TTSubdet.initialize(_name, "FGCorr", hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fFG),
+		new quantity::ValueQuantity(quantity::fFG),
+		new quantity::ValueQuantity(quantity::fN, true));
 
-		//	tmp
-		if (hddigi->id().depth()==1)
-			useD1 = true;
-		//\tmp
+	_cEtData_ElectronicsVME.initialize(_name, "EtData", 
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtData_ElectronicsuTCA.initialize(_name, "EtData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtEmul_ElectronicsVME.initialize(_name, "EtEmul", 
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtEmul_ElectronicsuTCA.initialize(_name, "EtEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtData_depthlike.initialize(_name, "EtData",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtEmul_depthlike.initialize(_name, "EtEmul",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtCutData_depthlike.initialize(_name, "EtCutData",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fEt_256));
+	_cEtCutEmul_depthlike.initialize(_name, "EtCutEmul",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fEt_256));
 
-		//	fill individual
-		_cEtData_SubDet.fill(tid, soiEt_d);
-		_cEtData_SubDetPM_iphi.fill(tid, soiEt_d);
-		_cEtData_SubDet_ieta.fill(tid, soiEt_d);
-		_cOccupancyData.fill(tid);
-		_cOccupancyDatavsiphi_TPSubDetPM.fill(tid);
-		_nTPs_Data[utilities::getTPSubDet(tid)]++;
-		_cDigiSizeDatavsLS_TPSubDet.fill(tid, _currentLS, hddigi->size());
+	//	Occupancies
+	_cOccupancyData_ElectronicsVME.initialize(_name, "OccupancyData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyEmul_ElectronicsVME.initialize(_name, "OccupancyEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyData_ElectronicsuTCA.initialize(_name, "OccupancyData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyEmul_ElectronicsuTCA.initialize(_name, "OccupancyEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN, true));
 
-		//	now, find the emulator digi and compare
-		HcalTrigPrimDigiCollection::const_iterator hedigi = 
-			ctpe->find(HcalTrigTowerDetId(tid.ieta(),
-				tid.iphi(), 0));
+	_cOccupancyCutData_ElectronicsVME.initialize(_name, "OccupancyCutData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyCutEmul_ElectronicsVME.initialize(_name, "OccupancyCutEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyCutData_ElectronicsuTCA.initialize(_name, "OccupancyCutData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyCutEmul_ElectronicsuTCA.initialize(_name, "OccupancyCutEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN, true));
+
+	_cOccupancyData_depthlike.initialize(_name, "OccupancyData",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyEmul_depthlike.initialize(_name, "OccupancyEmul",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyCutData_depthlike.initialize(_name, "OccupancyCutData",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN, true));
+	_cOccupancyCutEmul_depthlike.initialize(_name, "OccupancyCutEmul",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN, true));
+
+	//	Mismatches
+	_cEtMsm_ElectronicsVME.initialize(_name, "EtMsm",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN));
+	_cFGMsm_ElectronicsVME.initialize(_name, "FGMsm",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN));
+	_cEtMsm_ElectronicsuTCA.initialize(_name, "EtMsm",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN));
+	_cFGMsm_ElectronicsuTCA.initialize(_name, "FGMsm",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN));
+	_cEtMsm_depthlike.initialize(_name, "EtMsm",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN));
+	_cFGMsm_depthlike.initialize(_name, "FGMsm",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN));
+
+	//	Missing Data w.r.t. Emulator
+	_cMsnData_ElectronicsVME.initialize(_name, "MsnData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN));
+	_cMsnData_ElectronicsuTCA.initialize(_name, "MsnData",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN));
+	_cMsnEmul_ElectronicsVME.initialize(_name, "MsnEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fN));
+	_cMsnEmul_ElectronicsuTCA.initialize(_name, "MsnEmul",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fN));
+	_cMsnData_depthlike.initialize(_name, "MsnData",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN));
+	_cMsnEmul_depthlike.initialize(_name, "MsnEmul",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fN));
+	_cEtCorrRatio_ElectronicsVME.initialize(_name, "EtCorrRatio",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsVME),
+		new quantity::ElectronicsQuantity(quantity::fSpigot),
+		new quantity::ValueQuantity(quantity::fRatio_0to2));
+	_cEtCorrRatio_ElectronicsuTCA.initialize(_name, "EtCorrRatio",
+		hashfunctions::fElectronics,
+		new quantity::FEDQuantity(vFEDsuTCA),
+		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+		new quantity::ValueQuantity(quantity::fRatio_0to2));
+	_cEtCorrRatio_depthlike.initialize(_name, "EtCorrRatio",
+		new quantity::TrigTowerQuantity(quantity::fTTieta),
+		new quantity::TrigTowerQuantity(quantity::fTTiphi),
+		new quantity::ValueQuantity(quantity::fRatio_0to2));
+
+	_cOccupancyDatavsBX_TTSubdet.initialize(_name, "OccupancyDatavsBX",
+		hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fBX),
+		new quantity::ValueQuantity(quantity::fN));
+	_cOccupancyEmulvsBX_TTSubdet.initialize(_name, "OccupancyEmulvsBX",
+		hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fBX),
+		new quantity::ValueQuantity(quantity::fN));
+	_cOccupancyCutDatavsBX_TTSubdet.initialize(_name, "OccupancyCutDatavsBX",
+		hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fBX),
+		new quantity::ValueQuantity(quantity::fN));
+	_cOccupancyCutEmulvsBX_TTSubdet.initialize(_name, "OccupancyCutEmulvsBX",
+		hashfunctions::fTTSubdet,
+		new quantity::ValueQuantity(quantity::fBX),
+		new quantity::ValueQuantity(quantity::fN));
+
+	//	INITIALIZE HISTOGRAMS to be used in Online only!
+	if (_ptype==fOnline)
+	{
+		_cEtCorr2x3_TTSubdet.initialize(_name, "EtCorr2x3", 
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fEtCorr_256),
+			new quantity::ValueQuantity(quantity::fEtCorr_256),
+			new quantity::ValueQuantity(quantity::fN, true));
+		_cOccupancyData2x3_depthlike.initialize(_name, "OccupancyData2x3",
+			new quantity::TrigTowerQuantity(quantity::fTTieta2x3),
+			new quantity::TrigTowerQuantity(quantity::fTTiphi),
+			new quantity::ValueQuantity(quantity::fN, true));
+		_cOccupancyEmul2x3_depthlike.initialize(_name, "OccupancyEmul2x3",
+			new quantity::TrigTowerQuantity(quantity::fTTieta2x3),
+			new quantity::TrigTowerQuantity(quantity::fTTiphi),
+			new quantity::ValueQuantity(quantity::fN, true));
+		_cEtCutDatavsLS_TTSubdet.initialize(_name, "EtCutDatavsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fEtCorr_256));
+		_cEtCutEmulvsLS_TTSubdet.initialize(_name, "EtCutEmulvsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fEtCorr_256));
+		_cEtCutDatavsBX_TTSubdet.initialize(_name, "EtCutDatavsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fEtCorr_256));
+		_cEtCutEmulvsBX_TTSubdet.initialize(_name, "EtCutEmulvsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fEtCorr_256));
+		_cEtCorrRatiovsLS_TTSubdet.initialize(_name, "EtCorrRatiovsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fRatio_0to2));
+		_cEtCorrRatiovsBX_TTSubdet.initialize(_name, "EtCorrRatiovsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fRatio_0to2));
+		_cEtMsmRatiovsLS_TTSubdet.initialize(_name, "EtMsmRatiovsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fRatio));
+		_cEtMsmRatiovsBX_TTSubdet.initialize(_name, "EtMsmRatiovsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fRatio));
+		_cEtMsmvsLS_TTSubdet.initialize(_name, "EtMsmvsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cEtMsmvsBX_TTSubdet.initialize(_name, "EtMsmvsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnDatavsLS_TTSubdet.initialize(_name, "MsnDatavsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnCutDatavsLS_TTSubdet.initialize(_name, "MsnCutDatavsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnDatavsBX_TTSubdet.initialize(_name, "MsnDatavsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnCutDatavsBX_TTSubdet.initialize(_name, "MsnCutDatavsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnEmulvsLS_TTSubdet.initialize(_name, "MsnEmulvsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnCutEmulvsLS_TTSubdet.initialize(_name, "MsnCutEmulvsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnEmulvsBX_TTSubdet.initialize(_name, "MsnEmulvsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cMsnCutEmulvsBX_TTSubdet.initialize(_name, "MsnCutEmulvsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyDatavsLS_TTSubdet.initialize(_name, "OccupancyDatavsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyCutDatavsLS_TTSubdet.initialize(_name, 
+			"OccupancyCutDatavsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyDatavsBX_TTSubdet.initialize(_name, "OccupancyDatavsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyCutDatavsBX_TTSubdet.initialize(_name, 
+			"OccupancyCutDatavsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyEmulvsLS_TTSubdet.initialize(_name, "OccupancyEmulvsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyCutEmulvsLS_TTSubdet.initialize(_name, 
+			"OccupancyCutEmulvsLS",
+			hashfunctions::fTTSubdet,
+			new quantity::LumiSection(_maxLS),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyEmulvsBX_TTSubdet.initialize(_name, "OccupancyEmulvsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cOccupancyCutEmulvsBX_TTSubdet.initialize(_name, 
+			"OccupancyCutEmulvsBX",
+			hashfunctions::fTTSubdet,
+			new quantity::ValueQuantity(quantity::fBX),
+			new quantity::ValueQuantity(quantity::fN));
+		_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
+			hashfunctions::fFED,
+			new quantity::LumiSection(_maxLS),
+			new quantity::FlagQuantity(_vflags),
+			new quantity::ValueQuantity(quantity::fState));
+		_cSummaryvsLS.initialize(_name, "SummaryvsLS",
+			new quantity::LumiSection(_maxLS),
+			new quantity::FEDQuantity(vFEDs),
+			new quantity::ValueQuantity(quantity::fState));
+
+		_xEtMsm.initialize(hashfunctions::fFED);
+		_xFGMsm.initialize(hashfunctions::fFED);
+		_xNumCorr.initialize(hashfunctions::fFED);
+		_xDataMsn.initialize(hashfunctions::fFED);
+		_xDataTotal.initialize(hashfunctions::fFED);
+		_xEmulMsn.initialize(hashfunctions::fFED);
+		_xEmulTotal.initialize(hashfunctions::fFED);
+	}
+
+	//	BOOK HISTOGRAMS
+	_cEtData_TTSubdet.book(ib, _emap, _subsystem);
+	_cEtEmul_TTSubdet.book(ib, _emap, _subsystem);
+	_cEtCorr_TTSubdet.book(ib, _emap, _subsystem);
+	_cFGCorr_TTSubdet.book(ib, _emap, _subsystem);
+	_cEtData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEtData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cEtEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEtEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cEtData_depthlike.book(ib, _subsystem);
+	_cEtEmul_depthlike.book(ib, _subsystem);
+	_cEtCutData_depthlike.book(ib, _subsystem);
+	_cEtCutEmul_depthlike.book(ib, _subsystem);
+	_cOccupancyData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancyEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancyData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyCutData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancyCutEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cOccupancyCutData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyCutEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cOccupancyData_depthlike.book(ib, _subsystem);
+	_cOccupancyEmul_depthlike.book(ib, _subsystem);
+	_cOccupancyCutData_depthlike.book(ib, _subsystem);
+	_cOccupancyCutEmul_depthlike.book(ib, _subsystem);
+	_cEtMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEtMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cFGMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cFGMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cMsnData_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cMsnData_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cMsnEmul_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cMsnEmul_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cEtCorrRatio_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
+	_cEtCorrRatio_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
+	_cEtCorrRatio_depthlike.book(ib, _subsystem);
+	_cEtMsm_depthlike.book(ib, _subsystem);
+	_cFGMsm_depthlike.book(ib, _subsystem);
+	_cMsnData_depthlike.book(ib, _subsystem);
+	_cMsnEmul_depthlike.book(ib, _subsystem);
+
+	//	whatever has to go online only goes here
+	if (_ptype==fOnline)
+	{
+		_cEtCorr2x3_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyData2x3_depthlike.book(ib, _subsystem);
+		_cOccupancyEmul2x3_depthlike.book(ib, _subsystem);
+		_cEtCutDatavsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtCutEmulvsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtCutDatavsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtCutEmulvsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtCorrRatiovsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtCorrRatiovsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtMsmvsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtMsmvsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtMsmRatiovsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cEtMsmRatiovsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnDatavsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnCutDatavsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnDatavsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnCutDatavsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnEmulvsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnCutEmulvsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnEmulvsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cMsnCutEmulvsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyDatavsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyEmulvsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyCutDatavsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyCutEmulvsBX_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyDatavsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyEmulvsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyCutDatavsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cOccupancyCutEmulvsLS_TTSubdet.book(ib, _emap, _subsystem);
+		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
+		_cSummaryvsLS.book(ib, _subsystem);
+
+		_xEtMsm.book(_emap);
+		_xFGMsm.book(_emap);
+		_xNumCorr.book(_emap);
+		_xDataMsn.book(_emap);
+		_xDataTotal.book(_emap);
+		_xEmulMsn.book(_emap);
+		_xEmulTotal.book(_emap);
+	}
 	
-		if (hedigi!=ctpe->end())
-		{
-			int soiEt_e = hedigi->SOI_compressedEt();
-			int soiFG_e = hedigi->SOI_fineGrain() ? 1 : 0;
-			double rEt = double(std::min(soiEt_d, soiEt_e))/
-				double(std::max(soiEt_e, soiEt_d));
-			sumdEt[utilities::getTPSubDet(tid)]+=std::abs(soiEt_e-soiEt_d);
-
-			//	fill correlations
-			_cEtEmul_SubDet.fill(tid, soiEt_e);
-			_cEtCorr_TPSubDet.fill(tid, soiEt_e, soiEt_d);
-			_cFGCorr_SubDet.fill(tid, soiFG_e, soiFG_d);
-			_cOccupancyEmul.fill(tid);
-			_cEtCorrRatiovsLS_TPSubDet.fill(tid, _currentLS, rEt);
-			_cEtCorrRatio_TPSubDet.fill(tid, rEt);
-			_cOccupancyEmulvsiphi_TPSubDetPM.fill(tid);
-			_nTPs_Emul[utilities::getTPSubDet(tid)]++;
-			_cEtCorrRatiovsiphi_TPSubDetPM.fill(tid, rEt);
-			_cDigiSizeEmulvsLS_TPSubDet.fill(tid, _currentLS, hedigi->size());
-
-			//	fill those that mismatched
-			if (soiEt_d!=soiEt_e)
-			{
-				_cEtMsm.fill(tid);
-				_nMsmEt[utilities::getTPSubDet(tid)]++;
-				_cNumEtMsmvsiphi_TPSubDetPM.fill(tid);
-			}
-			if (soiFG_d!=soiEt_e)
-			{
-				_cFGMsm.fill(hddigi->id());
-				_nMsmFG[utilities::getTPSubDet(tid)]++;
-			}
-		}
-		else 
-		{
-			_cMsEmul.fill(hddigi->id());
-		}
-	}
-
-	//	iterate thru the Emulator Digis
-	for (HcalTrigPrimDigiCollection::const_iterator hedigi=ctpe->begin();
-		hedigi!=ctpe->end(); ++hedigi)
-	{
-		//	tmp
-		if (_skip1x1)
-			if (hedigi->id().depth()==10)	// 10 for 1x1
-				continue;
-		//	\tmp
-
-		//	now, find the emulator digi and compare
-		//	tmp
-		HcalTrigPrimDigiCollection::const_iterator hddigi = 
-			ctpd->find(HcalTrigTowerDetId(hedigi->id().ieta(),
-				hedigi->id().iphi(), useD1 ? 1: 0));
-		//	\tmp
-
-		//	we have to only check those that are missing
-		if (hddigi==ctpd->end())
-		{
-			_cMsData.fill(hedigi->id());
-			_cMsDatavsiphi_TPSubDetPM.fill(hedigi->id());
-			_cOccupancyEmulvsiphi_TPSubDetPM.fill(hedigi->id());
-			_nTPs_Emul[utilities::getTPSubDet(hedigi->id())]++;
-			_cDigiSizeEmulvsLS_TPSubDet.fill(hedigi->id(), _currentLS,
-				hedigi->size());
-		}
-	}
-
-	//	fill per event quantities
-	_cOccupancyDatavsLS_TPSubDet.fill(HcalTrigTowerDetId(5, 5), 
-		_currentLS, _nTPs_Data[0]);
-	_cOccupancyDatavsLS_TPSubDet.fill(HcalTrigTowerDetId(30, 5), 
-		_currentLS, _nTPs_Data[1]);
-	_cOccupancyEmulvsLS_TPSubDet.fill(HcalTrigTowerDetId(5, 5), 
-		_currentLS, _nTPs_Emul[0]);
-	_cOccupancyEmulvsLS_TPSubDet.fill(HcalTrigTowerDetId(30, 5), 
-		_currentLS, _nTPs_Emul[1]);
-	_cNumEtMsmvsLS_TPSubDet.fill(HcalTrigTowerDetId(5, 5), 
-		_currentLS, _nMsmEt[0]);
-	_cNumEtMsmvsLS_TPSubDet.fill(HcalTrigTowerDetId(30, 5), 
-		_currentLS, _nMsmEt[1]);
-	_cNumEtMsm_TPSubDet.fill(HcalTrigTowerDetId(5, 5), _nMsmEt[0]);
-	_cNumEtMsm_TPSubDet.fill(HcalTrigTowerDetId(30, 5), _nMsmEt[1]);
-	_cSumdEtvsLS_TPSubDet.fill(HcalTrigTowerDetId(5, 5), _currentLS,
-		sumdEt[0]);
-	_cSumdEtvsLS_TPSubDet.fill(HcalTrigTowerDetId(30, 5), _currentLS,
-		sumdEt[1]);
-	_cSumdEt_TPSubDet.fill(HcalTrigTowerDetId(5, 5),
-		sumdEt[0]);
-	_cSumdEt_TPSubDet.fill(HcalTrigTowerDetId(30, 5),
-		sumdEt[1]);
-}
-
-/* virtual */ void TPTask::endLuminosityBlock(edm::LuminosityBlock const& l,
-	edm::EventSetup const& es)
-{
-	//	statuses
-	double status[constants::TPSUBDET_NUM][nTPFlag];
-	for (unsigned int i=0; i<constants::TPSUBDET_NUM; i++)
-		for (int j=fOccUniphi_Data; j<nTPFlag; j++)
-			status[i][j] = constants::NOT_APPLICABLE;
-
-	/*
-	 *	Do the checks here
-	 *	-> iphi Uniformity of the Data HF Occupancy
-	 *	-> iphi Uniformity of the Emul HF Occupancy
-	 *	-> Low Occupancy for HF Emulator (Data is ZSs)
-	 *	-> Correlation Ratio vs LS check
-	 *	-> Correlation Ratio Uniformity 
-	 *	-> iphi Uniformity for the number of mismatches
-	 *	-> iphi Uniformity for Missing Data
-	 *	-> iphi Uniformity for Missing Emul
-	 */
-
-	//	Low Occp for HF Emul
-	MonitorElement *meocpHF = _cOccupancyEmulvsLS_TPSubDet.at(1);
-	double numChs = meocpHF->getBinContent(_currentLS);
-	if (constants::TPCHS_NUM[1] - numChs>=4)
-		status[1][fLowOcp_Emul] = constants::VERY_LOW;
-	else if (constants::TPCHS_NUM[1] - numChs>=1)
-		status[1][fLowOcp_Emul] = constants::LOW;
-	else if (constants::TPCHS_NUM[1]-numChs<0)
-		status[1][fLowOcp_Emul] = constants::LOW;
-	else if (constants::TPCHS_NUM[1]==numChs)
-		status[1][fLowOcp_Emul] = constants::GOOD;
-
-	//	iphi Occupancy Uniformity for Data/Emul HF
-	bool nonUni_d = false;
-	bool nonUni_e = false;
-	bool nonUniMsm = false;
-	bool nonUniMsn = false;
-	for (int i=1; i<=69; i+=8)
-	{
-		int i1= i;
-		int i2 = (i+4)%IPHI_NUM;
-
-		double occ1_m_d = _cOccupancyDatavsiphi_TPSubDetPM.getBinContent(2, i1);
-		double occ2_m_d = _cOccupancyDatavsiphi_TPSubDetPM.getBinContent(2, i2);
-		double ratio_m_d = std::min(occ1_m_d, occ2_m_d)/
-			std::max(occ1_m_d, occ2_m_d);
-		double occ1_p_d = _cOccupancyDatavsiphi_TPSubDetPM.getBinContent(3, i1);
-		double occ2_p_d = _cOccupancyDatavsiphi_TPSubDetPM.getBinContent(3, i2);
-		double ratio_p_d = std::min(occ1_p_d, occ2_p_d)/
-			std::max(occ1_p_d, occ2_p_d);
-		
-		double occ1_m_e = _cOccupancyEmulvsiphi_TPSubDetPM.getBinContent(2, i1);
-		double occ2_m_e = _cOccupancyEmulvsiphi_TPSubDetPM.getBinContent(2, i2);
-		double ratio_m_e = std::min(occ1_m_e, occ2_m_e)/
-			std::max(occ1_m_e, occ2_m_e);
-		double occ1_p_e = _cOccupancyEmulvsiphi_TPSubDetPM.getBinContent(3, i1);
-		double occ2_p_e = _cOccupancyEmulvsiphi_TPSubDetPM.getBinContent(3, i2);
-		double ratio_p_e = std::min(occ1_p_e, occ2_p_e)/
-			std::max(occ1_p_e, occ2_p_e);
-
-		double msm1_m = _cNumEtMsmvsiphi_TPSubDetPM.getBinContent(2, i1);
-		double msm2_m = _cNumEtMsmvsiphi_TPSubDetPM.getBinContent(2, i2);
-		double msmratio_m = std::min(msm1_m, msm2_m)/
-			std::max(msm1_m, msm2_m);
-		double msm1_p = _cNumEtMsmvsiphi_TPSubDetPM.getBinContent(3, i1);
-		double msm2_p = _cNumEtMsmvsiphi_TPSubDetPM.getBinContent(3, i2);
-		double msmratio_p = std::min(msm1_p, msm2_p)/
-			std::max(msm1_p, msm2_p);
-
-		double msn1_m = _cMsDatavsiphi_TPSubDetPM.getBinContent(2, i1);
-		double msn2_m = _cMsDatavsiphi_TPSubDetPM.getBinContent(2, i2);
-		double msnratio_m = std::min(msn1_m, msn2_m)/
-			std::max(msn1_m, msn2_m);
-		double msn1_p = _cMsDatavsiphi_TPSubDetPM.getBinContent(3, i1);
-		double msn2_p = _cMsDatavsiphi_TPSubDetPM.getBinContent(3, i2);
-		double msnratio_p = std::min(msn1_p, msn2_p)/
-			std::max(msn1_p, msn2_p);
-
-		if (ratio_m_d<0.8 || ratio_p_d<0.8)
-			nonUni_d = true;
-		else
-			status[1][fOccUniphi_Data] = constants::GOOD;
-		if (ratio_m_e<0.8 || ratio_p_e<0.8)
-			nonUni_e = true;
-		else 
-			status[1][fOccUniphi_Emul] = constants::GOOD;
-		if (msmratio_m<0.8 || msmratio_p<0.8)
-			nonUniMsm = true;
-		else 
-			status[1][fMsmEtUniphi] = constants::GOOD;
-		if (msnratio_m<0.8 || msnratio_p<0.8)
-			nonUniMsn = true;
-		else
-			status[1][fMsnUniphi_Data] = constants::GOOD;
-	}
-
-	//	set status if any of the flags was set
-	if (nonUni_d)
-		status[1][fOccUniphi_Data] = constants::VERY_LOW;
-	if (nonUni_e)
-		status[1][fOccUniphi_Emul] = constants::VERY_LOW;
-	if (nonUniMsm)
-		status[1][fMsmEtUniphi] = constants::LOW;
-	if (nonUniMsn)
-		status[1][fMsnUniphi_Data] = constants::LOW;
-		
-
-	//	Correlation Ratio
-	double ratio_HBHE  = _cEtCorrRatiovsLS_TPSubDet.at(0)
-		->getBinContent(_currentLS);
-	double ratio_HF  = _cEtCorrRatiovsLS_TPSubDet.at(1)
-		->getBinContent(_currentLS);
-	if (ratio_HBHE<0.7)
-		status[0][fCorrRatio] = constants::LOW;
-	else if (ratio_HBHE<0.8)
-		status[0][fCorrRatio] = constants::PROBLEMATIC;
-	else 
-		status[0][fCorrRatio] = constants::GOOD;
-	if (ratio_HF<0.8)
-		status[1][fCorrRatio] = constants::LOW;
-	else if (ratio_HF<0.9)
-		status[1][fCorrRatio] = constants::PROBLEMATIC;
-	else
-		status[1][fCorrRatio] = constants::GOOD;
-
-	//	Number of Mismatches
-	double ratio_nmsm_HBHE = _cNumEtMsmvsLS_TPSubDet.at(0)
-		->getBinContent(_currentLS)/constants::TPCHS_NUM[0];
-	double ratio_nmsm_HF = _cNumEtMsmvsLS_TPSubDet.at(1)
-		->getBinContent(_currentLS)/constants::TPCHS_NUM[1];
-	if (ratio_nmsm_HBHE>=0.2)
-		status[0][fMsmEtNum] = constants::VERY_LOW;
-	else if (ratio_nmsm_HBHE>=0.1)
-		status[0][fMsmEtNum] = constants::LOW;
-	else if (ratio_nmsm_HBHE>=0.05)
-		status[0][fMsmEtNum] = constants::PROBLEMATIC;
-	else 
-		status[0][fMsmEtNum] = constants::GOOD;
-	if (ratio_nmsm_HF>=0.1)
-		status[1][fMsmEtNum] = constants::LOW;
-	else if (ratio_nmsm_HF>=0.05)
-		status[1][fMsmEtNum] = constants::PROBLEMATIC;
-	else
-		status[1][fMsmEtNum] = constants::GOOD;
-
-	//	finally set all the statuses
-	for (unsigned int i=0; i<constants::TPSUBDET_NUM; i++)
-		for (int j=fOccUniphi_Data; j<nTPFlag; j++)
-		{
-			_cSummary.setBinContent(i, j, status[i][j]);
-			_cSummaryvsLS_TPSubDet.setBinContent(i, _currentLS, j,
-				status[i][j]);
-		}
-
-	DQTask::endLuminosityBlock(l, es);
+	//	initialize the hash map
+	_ehashmap.initialize(_emap, hcaldqm::electronicsmap::fT2EHashMap);
 }
 
 /* virtual */ void TPTask::_resetMonitors(UpdateFreq uf)
 {
-	switch (uf)
-	{
-		case fEvent:
-			for (unsigned int idet=0; idet<constants::TPSUBDET_NUM; idet++)
-			{
-				_nMsmEt[idet] = 0;
-				_nMsmFG[idet] = 0;
-				_nTPs_Data[idet] = 0;
-				_nTPs_Emul[idet] = 0;
-			}
-			break;
-		case hcaldqm::fLS:
-			break;
-		case hcaldqm::f10LS:
-			break;
-		default:
-			break;
-	}
-
 	DQTask::_resetMonitors(uf);
 }
 
-DEFINE_FWK_MODULE(TPTask);
+/* virtual */ void TPTask::_process(edm::Event const& e,
+	edm::EventSetup const&)
+{
+	edm::Handle<HcalTrigPrimDigiCollection> cdata;
+	edm::Handle<HcalTrigPrimDigiCollection> cemul;
+	if (!e.getByToken(_tokData, cdata))
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+			+ _tagData.label() + " " + _tagData.instance());
+	if (!e.getByToken(_tokEmul, cemul))
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+			+ _tagEmul.label() + " " + _tagEmul.instance());
 
+	//	extract some info per event
+	int bx = e.bunchCrossing();
+
+	//	some summaries... per event
+	int numHBHE(0), numHF(0), numCutHBHE(0), numCutHF(0);
+	int numCorrHBHE(0), numCorrHF(0);
+	int numMsmHBHE(0), numMsmHF(0);
+	int numMsnHBHE(0), numMsnHF(0), numMsnCutHBHE(0), numMsnCutHF(0);
+
+	/*
+	 * STEP1: 
+	 * Loop over the data digis and 
+	 * - do ... for all the data digis
+	 * - find the emulator digi
+	 * --- compare soi Et
+	 * --- compare soi FG
+	 * --- Do not fill anything for emulator Et!!!
+	 */
+	for (HcalTrigPrimDigiCollection::const_iterator it=cdata->begin();
+		it!=cdata->end(); ++it)
+	{
+		HcalTrigTowerDetId tid = it->id();
+
+		//
+		//	HF 2x3 TPs Treat theam separately and only for ONLINE!
+		//
+		if (tid.version()==0 && tid.ietaAbs()>=29)
+		{
+			//	do this only for online processing
+			if (_ptype==fOnline)
+			{
+				_cOccupancyData2x3_depthlike.fill(tid);
+				HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(tid);
+				if (jt!=cemul->end())
+					_cEtCorr2x3_TTSubdet.fill(tid, it->SOI_compressedEt(),
+						jt->SOI_compressedEt());
+			}
+
+			//	skip to the next tp digi
+			continue;
+		}
+
+		//	FROM THIS POINT, HBHE + 1x1 HF TPs
+		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(tid));
+		int soiEt_d = it->SOI_compressedEt();
+		int soiFG_d = it->SOI_fineGrain()?1:0;
+		tid.ietaAbs()>=29?numHF++:numHBHE++;
+
+		//	 fill w/o a cut
+		_cEtData_TTSubdet.fill(tid, soiEt_d);
+		_cEtData_depthlike.fill(tid, soiEt_d);
+		_cOccupancyData_depthlike.fill(tid);
+		if (eid.isVMEid())
+		{
+			_cOccupancyData_ElectronicsVME.fill(eid);
+			_cEtData_ElectronicsVME.fill(eid, soiEt_d);
+		}
+		else
+		{
+			_cOccupancyData_ElectronicsuTCA.fill(eid);
+			_cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
+		}
+		
+		//	FILL w/a CUT
+		if (soiEt_d>_cutEt)
+		{
+			tid.ietaAbs()>=29?numCutHF++:numCutHBHE++;
+			_cOccupancyCutData_depthlike.fill(tid);
+			_cEtCutData_depthlike.fill(tid, soiEt_d);
+
+			//	ONLINE ONLY!
+			if (_ptype==fOnline)
+			{
+				_cEtCutDatavsLS_TTSubdet.fill(tid, _currentLS, soiEt_d);
+				_cEtCutDatavsBX_TTSubdet.fill(tid, bx, soiEt_d);
+				_xDataTotal.get(eid)++;
+			}
+			//	^^^ONLINE ONLY!
+
+			if (eid.isVMEid())
+				_cOccupancyCutData_ElectronicsVME.fill(eid);
+			else
+				_cOccupancyCutData_ElectronicsuTCA.fill(eid);
+		}
+
+		//	FIND the EMULATOR DIGI
+		HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(tid);
+		if (jt!=cemul->end())
+		{
+			//	if PRESENT!
+			int soiEt_e = jt->SOI_compressedEt();
+			int soiFG_e = jt->SOI_fineGrain()?1:0;
+			//	if both are zeroes => set 1
+			double rEt = soiEt_d==0 && soiEt_e==0?1:
+				double(std::min(soiEt_d, soiEt_e))/
+				double(std::max(soiEt_e, soiEt_d));
+
+			//	ONLINE ONLY!
+			if (_ptype==fOnline)
+			{		
+				_xNumCorr.get(eid)++;
+				tid.ietaAbs()>=29?numCorrHF++:numCorrHBHE++;
+				_cEtCorrRatiovsLS_TTSubdet.fill(tid, _currentLS, rEt);
+				_cEtCorrRatiovsBX_TTSubdet.fill(tid, bx, rEt);
+			}
+			//	^^^ONLINE ONLY!
+
+			_cEtCorrRatio_depthlike.fill(tid, rEt);
+			_cEtCorr_TTSubdet.fill(tid, soiEt_d, soiEt_e);
+			_cFGCorr_TTSubdet.fill(tid, soiFG_d, soiFG_e);
+			//	FILL w/o a CUT
+			if (eid.isVMEid())
+			{
+				_cEtCorrRatio_ElectronicsVME.fill(eid, rEt);
+			}
+			else
+			{
+				_cEtCorrRatio_ElectronicsuTCA.fill(eid, rEt);
+			}
+
+			//	if SOI Et are not equal
+			//	fill mismatched
+			if (soiEt_d!=soiEt_e)
+			{
+				tid.ietaAbs()>=29?numMsmHF++:numMsmHBHE++;
+				_cEtMsm_depthlike.fill(tid);
+				if (eid.isVMEid())
+					_cEtMsm_ElectronicsVME.fill(eid);
+				else
+					_cEtMsm_ElectronicsuTCA.fill(eid);
+				if (_ptype==fOnline)
+					_xEtMsm.get(eid)++;
+			}
+			//	 if SOI FG are not equal
+			//	 fill mismatched
+			if (soiFG_d!=soiFG_e)
+			{
+				_cFGMsm_depthlike.fill(tid);
+				if (eid.isVMEid())
+					_cFGMsm_ElectronicsVME.fill(eid);
+				else
+					_cFGMsm_ElectronicsuTCA.fill(eid);
+				if (_ptype==fOnline)
+					_xFGMsm.get(eid)++;
+			}
+		}
+		else
+		{
+			//	IF MISSING
+			_cEtCorr_TTSubdet.fill(tid, soiEt_d, -2);
+			_cMsnEmul_depthlike.fill(tid);
+			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
+			if (eid.isVMEid())
+				_cMsnEmul_ElectronicsVME.fill(eid);
+			else
+				_cMsnEmul_ElectronicsuTCA.fill(eid);
+
+			if (soiEt_d>_cutEt)
+			{
+				tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
+				if (_ptype==fOnline)
+					_xEmulMsn.get(eid)++;
+			}
+		}
+	}
+	
+	//	ONLINE ONLY!
+	if (_ptype==fOnline)
+	{
+		_cOccupancyDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1), bx,
+			numHBHE);
+		_cOccupancyDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1), bx,
+			numHF);
+		_cOccupancyCutDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1), bx,
+			numCutHBHE);
+		_cOccupancyCutDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1), bx,
+			numCutHF);
+		_cOccupancyDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1), 
+			_currentLS, numHBHE);
+		_cOccupancyDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1), 
+			_currentLS,numHF);
+		_cOccupancyCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			_currentLS, numCutHBHE);
+		_cOccupancyCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1), 
+			_currentLS, numCutHF);
+
+		_cEtMsmvsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1), _currentLS,
+			numMsmHBHE);
+		_cEtMsmvsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1), _currentLS, 
+			numMsmHF);
+		_cEtMsmvsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1), bx,
+			numMsmHBHE);
+		_cEtMsmvsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1), bx, 
+			numMsmHF);
+		
+		_cEtMsmRatiovsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1), _currentLS,
+			double(numMsmHBHE)/double(numCorrHBHE));
+		_cEtMsmRatiovsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1), _currentLS, 
+			double(numMsmHF)/double(numCorrHF));
+		_cEtMsmRatiovsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1), bx,
+			double(numMsmHBHE)/double(numCorrHBHE));
+		_cEtMsmRatiovsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1), bx, 
+			double(numMsmHF)/double(numCorrHF));
+
+		_cMsnEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			_currentLS, numMsnHBHE);
+		_cMsnEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			_currentLS, numMsnHF);
+		_cMsnCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			_currentLS, numMsnCutHBHE);
+		_cMsnCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			_currentLS, numMsnCutHF);
+
+		_cMsnEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			bx, numMsnHBHE);
+		_cMsnEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			bx, numMsnHF);
+		_cMsnCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			bx, numMsnCutHBHE);
+		_cMsnCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			bx, numMsnCutHF);
+	}
+
+	numHBHE=0; numHF=0; numCutHBHE=0; numCutHF=0;
+	numMsnHBHE=0; numMsnHF=0; numCutHBHE=0; numCutHF=0;
+
+	/*
+	 *	STEP2:
+	 *	Loop over the emulator digis and 
+	 *	- do ... for all the emulator digis
+	 *	- find data digi and 
+	 *	--- if found skip
+	 *	--- if not found - fill the missing Data plot
+	 */
+	for (HcalTrigPrimDigiCollection::const_iterator it=cemul->begin();
+		it!=cemul->end(); ++it)
+	{
+		HcalTrigTowerDetId tid = it->id();
+
+		//	HF 2x3 TPs. Only do it for Online!!!
+		if (tid.version()==0 && tid.ietaAbs()>=29)
+		{
+			//	only do this for online processing
+			if (_ptype==fOnline)
+				_cOccupancyEmul2x3_depthlike.fill(tid);
+			continue;
+		}
+		HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(tid));
+		int soiEt = it->SOI_compressedEt();
+
+		//	FILL/INCREMENT w/o a CUT
+		tid.ietaAbs()>=29?numHF++:numHBHE++;
+		_cEtEmul_TTSubdet.fill(tid, soiEt);
+		_cEtEmul_depthlike.fill(tid, soiEt);
+		_cOccupancyEmul_depthlike.fill(tid);
+		if (eid.isVMEid())
+		{
+			_cOccupancyEmul_ElectronicsVME.fill(eid);
+			_cEtEmul_ElectronicsVME.fill(eid, soiEt);
+		}
+		else
+		{
+			_cOccupancyEmul_ElectronicsuTCA.fill(eid);
+			_cEtEmul_ElectronicsuTCA.fill(eid, soiEt);
+		}
+
+		//	FILL w/ a CUT
+		if (soiEt>_cutEt)
+		{
+			tid.ietaAbs()>=29?numCutHF++:numCutHBHE++;
+			_cOccupancyCutEmul_depthlike.fill(tid);
+			_cEtCutEmul_depthlike.fill(tid, soiEt);
+			if (eid.isVMEid())
+				_cOccupancyCutEmul_ElectronicsVME.fill(eid);
+			else 
+				_cOccupancyCutEmul_ElectronicsuTCA.fill(eid);
+
+			//	ONLINE ONLY!
+			if (_ptype==fOnline)
+			{
+				_cEtCutEmulvsLS_TTSubdet.fill(tid, _currentLS, soiEt);
+				_cEtCutEmulvsBX_TTSubdet.fill(tid, bx, soiEt);
+				_xEmulTotal.get(eid)++;
+			}
+			//	^^^ONLINE ONLY!
+		}
+
+		//	FIND a data digi
+		HcalTrigPrimDigiCollection::const_iterator jt=cdata->find(tid);
+		if (jt==cdata->end())
+		{
+			tid.ietaAbs()>=29?numMsnHF++:numMsnHBHE++;
+			_cEtCorr_TTSubdet.fill(tid, -2, soiEt);
+			if (eid.isVMEid())
+				_cMsnData_ElectronicsVME.fill(eid);
+			else
+				_cMsnData_ElectronicsuTCA.fill(eid);
+			if (soiEt>_cutEt)
+			{
+				tid.ietaAbs()>=29?numMsnCutHF++:numMsnCutHBHE++;
+				if (_ptype==fOnline)
+					_xDataMsn.get(eid)++;
+			}
+		}
+	}
+
+	//	ONLINE ONLY!
+	if (_ptype==fOnline)
+	{
+		_cOccupancyEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1), bx,
+			numHBHE);
+		_cOccupancyEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1), bx,
+			numHF);
+		_cOccupancyCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1), bx,
+			numCutHBHE);
+		_cOccupancyCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1), bx,
+			numCutHF);
+
+		_cOccupancyEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1), 
+			_currentLS, numHBHE);
+		_cOccupancyEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1), 
+			_currentLS,numHF);
+		_cOccupancyCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			_currentLS, numCutHBHE);
+		_cOccupancyCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1), 
+			_currentLS, numCutHF);
+
+		_cMsnDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			_currentLS, numMsnHBHE);
+		_cMsnDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			_currentLS, numMsnHF);
+		_cMsnCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			_currentLS, numMsnCutHBHE);
+		_cMsnCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			_currentLS, numMsnCutHF);
+
+		_cMsnDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			bx, numMsnHBHE);
+		_cMsnDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			bx, numMsnHF);
+		_cMsnCutDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(1,1),
+			bx, numMsnCutHBHE);
+		_cMsnCutDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(29,1),
+			bx, numMsnCutHF);
+	}
+	//	^^^ONLINE ONLY!
+}
+
+/* virtual */ void TPTask::beginLuminosityBlock(edm::LuminosityBlock const& lb,
+	edm::EventSetup const& es)
+{
+	DQTask::beginLuminosityBlock(lb, es);
+
+	/*
+	//	ONLINE ONLY!
+	if (_ptype!=fOnline)
+		return;
+	_cEtCutDatavsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cEtCutEmulvsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cEtCorrRatiovsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cEtMsmvsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cEtMsmRatiovsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cMsnDatavsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cMsnCutDatavsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cMsnEmulvsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cMsnCutEmulvsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cOccupancyDatavsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cOccupancyEmulvsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cOccupancyCutDatavsLS_TTSubdet.extendAxisRange(_currentLS);
+	_cOccupancyCutEmulvsLS_TTSubdet.extendAxisRange(_currentLS);
+//	_cSummaryvsLS_FED.extendAxisRange(_currentLS);
+//	_cSummaryvsLS.extendAxisRange(_currentLS);
+//	*/
+}
+
+/* virtual */ void TPTask::endLuminosityBlock(edm::LuminosityBlock const& lb,
+	edm::EventSetup const& es)
+{
+	if (_ptype!=fOnline)
+		return;
+
+	//
+	//	GENERATE STATUS ONLY FOR ONLINE!
+	//
+	for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+		it!=_vhashFEDs.end(); ++it)
+	{
+		flag::Flag fSum("TP");
+		HcalElectronicsId eid = HcalElectronicsId(*it);
+
+		std::vector<uint32_t>::const_iterator cit=std::find(
+			_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+		if (cit==_vcdaqEids.end())
+		{
+			//	not @cDAQ
+			for (uint32_t iflag=0; iflag<_vflags.size(); iflag++)
+				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
+					int(flag::fNCDAQ));
+			_cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
+			continue;
+		}
+
+		if (utilities::isFEDHBHE(eid) || utilities::isFEDHF(eid))
+		{
+			//	FED is @cDAQ
+			double etmsm = _xNumCorr.get(eid)>0?
+				double(_xEtMsm.get(eid))/double(_xNumCorr.get(eid)):0;
+			double fgmsm = _xNumCorr.get(eid)>0?
+				double(_xFGMsm.get(eid))/double(_xNumCorr.get(eid)):0;
+			/*	
+			 * UNUSED VARS
+			 * double dmsm = _xDataTotal.get(eid)>0?
+				double(_xDataMsn.get(eid))/double(_xDataTotal.get(eid)):0;
+			double emsm = _xEmulTotal.get(eid)>0?
+				double(_xEmulMsn.get(eid))/double(_xEmulTotal.get(eid)):0;
+				*/
+			if (etmsm>=_thresh_EtMsmRate)
+				_vflags[fEtMsm]._state = flag::fBAD;
+			else
+				_vflags[fEtMsm]._state = flag::fGOOD;
+			if (fgmsm>=_thresh_FGMsmRate)
+				_vflags[fFGMsm]._state = flag::fBAD;
+			else
+				_vflags[fFGMsm]._state = flag::fGOOD;
+			/*
+			 *	DISABLE THESE FLAGS FOR ONLINE FOR NOW!
+			if (dmsm>=_thresh_DataMsn)
+				_vflags[fDataMsn]._state = flag::fBAD;
+			else
+				_vflags[fDataMsn]._state = flag::fGOOD;
+			if (emsm>=_thresh_EmulMsn)
+				_vflags[fEmulMsn]._state = flag::fBAD;
+			else
+				_vflags[fEmulMsn]._state = flag::fGOOD;
+				*/
+		}
+
+		int iflag=0;
+		for (std::vector<flag::Flag>::iterator ft=_vflags.begin();
+			ft!=_vflags.end(); ++ft)
+		{
+			_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
+				ft->_state);
+			fSum+=(*ft);
+			iflag++;
+
+			//	this is the MUST!
+			//	reset after using this flag
+			ft->reset();
+		}
+		_cSummaryvsLS.setBinContent(eid, _currentLS, int(fSum._state));
+	}
+
+	//	reset...
+	_xEtMsm.reset(); _xFGMsm.reset(); _xNumCorr.reset();
+	_xDataMsn.reset(); _xDataTotal.reset(); _xEmulMsn.reset(); 
+	_xEmulTotal.reset();
+	
+	//	in the end always do the DQTask::endLumi
+	DQTask::endLuminosityBlock(lb, es);
+}
+
+DEFINE_FWK_MODULE(TPTask);
 
