@@ -82,7 +82,9 @@ namespace edm {
     /// to use only comparators provided with CMSSW release.
     template<typename CMP> 
     range get(ID id, CMP comparator) const {
+#ifndef __APPLE__
       using namespace __gnu_cxx;
+#endif
       std::pair<typename mapType::const_iterator,
 	typename mapType::const_iterator> r =
         std::equal_range(map_.begin(), map_.end(), id, comp<CMP>(comparator));
