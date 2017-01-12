@@ -122,6 +122,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
     <<"\n";
 
   edm::InputTag dataLabel = conf.getParameter<edm::InputTag>("InputLabel");
+  edm::InputTag recoveredDataLabel = conf.getParameter<edm::InputTag>("recoveredData");
   edm::InputTag fedsLabel = conf.getParameter<edm::InputTag>("FedLabel");
 
   // Producer products :
@@ -156,6 +157,8 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemGainErrors");
 
   dataToken_=consumes<FEDRawDataCollection>(dataLabel);
+  recoveredDataToken_ = consumes<FEDRawDataCollection>(recoveredDataLabel);
+  
   if (REGIONAL_){
       fedsToken_=consumes<EcalListOfFEDS>(fedsLabel);
   }
@@ -249,6 +252,7 @@ void EcalRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("feIdCheck",true);
   desc.addUntracked<bool>("silentMode",true);
   desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<edm::InputTag>("recoveredData", edm::InputTag("ecalRawDataRecovery", "fixedFeds"));
   {
     std::vector<int> temp1;
     unsigned int nvec = 54;
@@ -339,6 +343,8 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle<FEDRawDataCollection> rawdata;  
   e.getByToken(dataToken_,rawdata);
 
+  edm::Handle<FEDRawDataCollection> recoveredRawData;  
+  e.getByToken(recoveredDataToken_, recoveredRawData);
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 
@@ -445,10 +451,10 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       std::vector<int>::const_iterator fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), *i);
       if (fed_it == FEDS_to_unpack.end()) continue;
     }
-
   
-    // get fed raw data and SM id
-    const FEDRawData& fedData = rawdata->FEDData(*i);
+    // get fed raw data and SM id 
+    bool useRecoveredData = recoveredRawData.isValid() &&  recoveredRawData->FEDData(*i).size() > 0;
+    const FEDRawData& fedData = useRecoveredData ? recoveredRawData->FEDData(*i) : rawdata->FEDData(*i);
     const size_t length = fedData.size();
 
     LogDebug("EcalRawToDigi") << "raw data length: " << length ;
