@@ -74,9 +74,6 @@ private:
 	const edm::EDGetTokenT< edm::View<reco::BaseTagInfo> > ipInfoSrc_;
 	const edm::EDGetTokenT< edm::View<reco::BaseTagInfo> > muInfoSrc_;
 	const edm::EDGetTokenT< edm::View<reco::BaseTagInfo> > elInfoSrc_;
-	/*const edm::EDGetTokenT< std::vector<reco::CandIPTagInfo>  > ipInfoSrc_;
-	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > muInfoSrc_;
-	const edm::EDGetTokenT< std::vector<reco::CandSoftLeptonTagInfo> > elInfoSrc_;*/
 	std::string jpComputer_, jpbComputer_, softmuComputer_, softelComputer_;
 	double cMVAPtThreshold_;
 };
@@ -106,10 +103,6 @@ DeepCMVATagInfoProducer::DeepCMVATagInfoProducer(const edm::ParameterSet& iConfi
 {
 
 	produces<std::vector<reco::ShallowTagInfo> >();
-	
-	/*uses(0, "ipTagInfos");
-  	uses(1, "smTagInfos");
-	uses(2, "seTagInfos");*/
 	
 }
 
