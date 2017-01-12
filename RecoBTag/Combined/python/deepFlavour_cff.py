@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from RecoBTag.DeepFlavour.DeepNNTagInfoProducer_cfi import deepNNTagInfos
-from RecoBTag.DeepFlavour.DeepCMVATagInfoProducer_cfi import deepCMVATagInfos
-from RecoBTag.DeepFlavour.DeepFlavourJetTagsProducer_cfi import deepFlavourJetTags, deepFlavourCMVAJetTags
+from RecoBTag.Combined.DeepNNTagInfoProducer_cfi import deepNNTagInfos
+from RecoBTag.Combined.DeepCMVATagInfoProducer_cfi import deepCMVATagInfos
+from RecoBTag.Combined.DeepFlavourJetTagsProducer_cfi import deepFlavourJetTags, deepFlavourCMVAJetTags
 
 
 ##

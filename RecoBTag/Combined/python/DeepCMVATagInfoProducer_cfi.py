@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-#from RecoBTag.SecondaryVertex.combinedSecondaryVertexCommon_cff import combinedSecondaryVertexCommon
 
 deepCMVATagInfos = cms.EDProducer(
 	'DeepCMVATagInfoProducer',

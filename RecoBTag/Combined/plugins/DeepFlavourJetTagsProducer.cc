@@ -36,8 +36,9 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include "RecoBTag/LWTNN/interface/LightweightNeuralNetwork.h"
-#include "RecoBTag/LWTNN/interface/parse_json.h"
+//from lwtnn
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/parse_json.hh"
 
 #include <fstream>
 #include <map>
