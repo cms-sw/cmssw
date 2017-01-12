@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-import CommonTools.ParticleFlow.Isolation.electronPFIsolationValuesPFBRECO_cff as m
+import CommonTools.ParticleFlow.Isolation.electronPFIsolationValuesPFBRECO_cff as _m
 
-elPFIsoValueCharged03PFIdPAT = m.elPFIsoValueCharged03PFIdPFBRECO.clone()
+elPFIsoValueCharged03PFIdPAT = _m.elPFIsoValueCharged03PFIdPFBRECO.clone()
 elPFIsoValueCharged03PFIdPAT.deposits[0].src = 'elPFIsoDepositChargedPAT'
 
-elPFIsoValueChargedAll03PFIdPAT = m.elPFIsoValueChargedAll03PFIdPFBRECO.clone()
+elPFIsoValueChargedAll03PFIdPAT = _m.elPFIsoValueChargedAll03PFIdPFBRECO.clone()
 elPFIsoValueChargedAll03PFIdPAT.deposits[0].src = 'elPFIsoDepositChargedAllPAT'
 
-elPFIsoValueGamma03PFIdPAT = m.elPFIsoValueGamma03PFIdPFBRECO.clone()
+elPFIsoValueGamma03PFIdPAT = _m.elPFIsoValueGamma03PFIdPFBRECO.clone()
 elPFIsoValueGamma03PFIdPAT.deposits[0].src = 'elPFIsoDepositGammaPAT'
 
-elPFIsoValueNeutral03PFIdPAT = m.elPFIsoValueNeutral03PFIdPFBRECO.clone()
+elPFIsoValueNeutral03PFIdPAT = _m.elPFIsoValueNeutral03PFIdPFBRECO.clone()
 elPFIsoValueNeutral03PFIdPAT.deposits[0].src = 'elPFIsoDepositNeutralPAT'
 
-elPFIsoValuePU03PFIdPAT = m.elPFIsoValuePU03PFIdPFBRECO.clone()
+elPFIsoValuePU03PFIdPAT = _m.elPFIsoValuePU03PFIdPFBRECO.clone()
 elPFIsoValuePU03PFIdPAT.deposits[0].src = 'elPFIsoDepositPUPAT'
 
 elPFIsoValueCharged04PFIdPAT = elPFIsoValueCharged03PFIdPAT.clone()
