@@ -16,7 +16,9 @@
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include <functional>
+#ifndef __APPLE__
 #include <ext/functional>
+#endif
 #include <algorithm>
 
 #include "FWCore/Utilities/interface/EDMException.h"

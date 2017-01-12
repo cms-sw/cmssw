@@ -20,7 +20,12 @@
  */
 #include <map>
 #include <vector>
+#ifdef __APPLE__
+#include <functional>
+#else
 #include <ext/functional>
+#endif
+
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
