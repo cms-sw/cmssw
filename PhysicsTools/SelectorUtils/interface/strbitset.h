@@ -296,7 +296,7 @@ class strbitset {
 
   //! inequality operator to bool
   bool operator!=( bool b ) const {
-    return ! ( operator!=(b));
+    return ! ( operator==(b));
   }
 
   //! returns number of bits set
