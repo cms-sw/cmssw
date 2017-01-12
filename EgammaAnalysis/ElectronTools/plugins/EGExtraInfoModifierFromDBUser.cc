@@ -222,7 +222,7 @@ EGExtraInfoModifierFromDBUser::~EGExtraInfoModifierFromDBUser() {}
 
 void EGExtraInfoModifierFromDBUser::setEvent(const edm::Event& evt) {
 
-  std::cout << evt.id().event() << " " << evt.id().luminosityBlock() << " " << evt.id().run() << std::endl;
+  //  std::cout << evt.id().event() << " " << evt.id().luminosityBlock() << " " << evt.id().run() << std::endl;
 
   eles_by_oop.clear();
   phos_by_oop.clear();  
@@ -700,19 +700,19 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::Photon& pho) const {
     coridx = 3;
   
   //these are the actual BDT responses
-  double rawmean = e_forestH_mean_[coridx]->GetResponse(eval.data());
-  double rawsigma = e_forestH_sigma_[coridx]->GetResponse(eval.data());
+  double rawmean = ph_forestH_mean_[coridx]->GetResponse(eval.data());
+  double rawsigma = ph_forestH_sigma_[coridx]->GetResponse(eval.data());
   
   //apply transformation to limited output range (matching the training)
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
 
-  std::cout << "    ";
-  for (int i =0 ; i<32; i++) {
-    if (!iseb && i>28) continue;
-    std::cout << eval[i] << " ";
-  }
-  std::cout << mean << " " << sigma << std::endl;
+  //  std::cout << "    ";
+  //  for (int i =0 ; i<32; i++) {
+  //    if (!iseb && i>28) continue;
+  //    std::cout << eval[i] << " ";
+  //  }
+  //  std::cout << mean << " " << sigma << std::endl;
 
   // Correct the energy
   const double ecor = mean*(raw_energy + raw_es_energy);
