@@ -12,44 +12,55 @@
 /**
  *\brief Local (=single RP) track with essential information only.
  **/
-struct CTPPSLocalTrackLite
+class CTPPSLocalTrackLite
 {
   public:
-    CTPPSLocalTrackLite(uint32_t pid=0, float px=0., float pxu=-1., float py=0., float pyu=-1., float pt=0., float ptu=-1.)
+    CTPPSLocalTrackLite() : rpId(0), x(0.), x_unc(-1.), y(0.), y_unc(-1.), time(0.), time_unc(-1.)
+    {
+    }
+
+    CTPPSLocalTrackLite(uint32_t pid, float px, float pxu, float py, float pyu, float pt=0., float ptu=-1.)
       : rpId(pid), x(px), x_unc(pxu), y(py), y_unc(pyu), time(pt), time_unc(ptu)
     {
     }
 
+    /// returns the RP id
     uint32_t getRPId() const
     {
       return rpId;
     }
 
+    /// returns the horizontal track position
     float getX() const
     {
       return x;
     }
 
+    /// returns the horizontal track position uncertainty
     float getXUnc() const
     {
       return x_unc;
     }
 
+    /// returns the vertical track position
     float getY() const
     {
       return y;
     }
 
+    /// returns the vertical track position uncertainty
     float getYUnc() const
     {
       return y_unc;
     }
 
+    /// returns the track time
     float getTime() const
     {
       return time;
     }
 
+    /// returns the track time uncertainty
     float getTimeUnc() const
     {
       return time_unc;
