@@ -331,7 +331,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
       energyArr[ip] = energy; pedenArr[ip] = peden;
 
       noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]); // Add Greg's channel discretization
-      noiseArr[ip] = sqrt(noise_ * noise_ + noiseADCArr[ip] * noiseADCArr[ip]);
+      noiseArr[ip] = noise_ * noise_ + noiseADCArr[ip] * noiseADCArr[ip];
 
       tsTOT += charge - ped;
       tsTOTen += energy - peden;
@@ -365,7 +365,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
 
 constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","energy2", "ped"};
 
-int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArr)  const {
+int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * noiseArrSq)  const {
    double tsMAX=0;
    double tmpx[HcalConst::maxSamples], tmpy[HcalConst::maxSamples], tmperry[HcalConst::maxSamples],tmperry2[HcalConst::maxSamples],tmpslew[HcalConst::maxSamples];
    double tstrig = 0; // in fC
@@ -376,7 +376,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmpslew[i] = 0;
       if(applyTimeSlew_) tmpslew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       // add the noise components
-      tmperry2[i]=noiseArr[i]*noiseArr[i];
+      tmperry2[i]=noiseArrSq[i];
 
       //Propagate it through
       tmperry2[i]*=(gainArr[i]*gainArr[i]); //Convert from fC to GeV
@@ -556,10 +556,10 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     // sum all in quadrature
     if(channelData.hasTimeInfo()) {
-      noiseArr[ip]= sqrt(noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip));
+      noiseArr[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip);
     } else {
       // FIXME: in the future switch the HPDnoise from the DB
-      noiseArr[ip]= sqrt(noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noise_*noise_);
+      noiseArr[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noise_*noise_;
     }
 
     tsTOT += charge - ped;
