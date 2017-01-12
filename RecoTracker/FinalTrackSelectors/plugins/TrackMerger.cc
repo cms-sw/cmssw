@@ -46,7 +46,7 @@ void TrackMerger::init(const edm::EventSetup &iSetup)
     iSetup.get<TrackerTopologyRcd>().get(theTrkTopo);
 }
 
-TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &outer) const 
+TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &outer, DuplicateTrackType duplicateType) const 
 {
   DPRINT("TrackMerger") << std::abs(inner.eta()) << " merging " << inner.algo() << '/' << outer.algo() << ' ' << inner.eta() << '/' << outer.eta()<< std::endl;
 
@@ -62,51 +62,29 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     }
     DPRINT("TrackMerger") << "Outer track hits: " << std::endl;
 
+    if(duplicateType == DuplicateTrackType::Disjoint) {
 #if TRACK_SORT
-    DetId lastId(hits.back()->geographicalId());
-    int lastSubdet = lastId.subdetId(); 
-    unsigned int lastLayer = theTrkTopo->layer(lastId);
-    for (auto it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
-        const TrackingRecHit *hit = &**it;
-        DetId id(hit->geographicalId());
-        int thisSubdet = id.subdetId();
-        if (thisSubdet > lastSubdet || (thisSubdet == lastSubdet && theTrkTopo->layer(id) > lastLayer)) {
-            hits.push_back(hit);
-            PRINT << "  adding   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
-        } else {
-            PRINT << "  skipping subdet " << thisSubdet << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
-        }
-    }
+      DetId lastId(hits.back()->geographicalId());
+      int lastSubdet = lastId.subdetId(); 
+      unsigned int lastLayer = theTrkTopo->layer(lastId);
+      for (auto it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
+          const TrackingRecHit *hit = &**it;
+          DetId id(hit->geographicalId());
+          int thisSubdet = id.subdetId();
+          if (thisSubdet > lastSubdet || (thisSubdet == lastSubdet && theTrkTopo->layer(id) > lastLayer)) {
+              hits.push_back(hit);
+              PRINT << "  adding   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
+          } else {
+              PRINT << "  skipping subdet " << thisSubdet << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
+          }
+      }
 #else
-    size_t nHitsFirstTrack = hits.size();
-    for (auto it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
-        const TrackingRecHit *hit = &**it;
-        DetId id(hit->geographicalId());
-        int  lay = theTrkTopo->layer(id);
-        bool shared = false;
-        bool valid  = hit->isValid();
-        PRINT << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
-        size_t iHit = 0;
-        for ( auto hit2 :  hits) {
-            ++iHit; if (iHit >  nHitsFirstTrack) break;
-            DetId id2 = hit2->geographicalId();
-            if (id.subdetId() != id2.subdetId()) continue;
-            if (theTrkTopo->layer(id2) != lay) continue;
-            if (hit->sharesInput(hit2, TrackingRecHit::all)) { 
-                PRINT << "        discared as duplicate of other hit" << id() << std::endl;
-                shared = true; break; 
-            }
-            if (hit2->isValid() && !valid) { 
-                PRINT << "        replacing old invalid hit on detid " << id2() << std::endl;
-                hit2 = hit; shared = true; break; 
-            }
-            PRINT << "        discared as additional hit on layer that already contains hit with detid " << id() << std::endl;
-            shared = true; break;
-        }
-        if (shared) continue;
-        hits.push_back(hit);
-    }
+      addSecondTrackHits(hits, outer);
 #endif
+    }
+    else if(duplicateType == DuplicateTrackType::Overlapping) {
+      addSecondTrackHits(hits, outer);
+    }
     
     math::XYZVector p = (inner.innerMomentum() + outer.outerMomentum());
     GlobalVector v(p.x(), p.y(), p.z());
@@ -116,20 +94,21 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     unsigned int nhits = hits.size();
     ownHits.reserve(nhits);
 
+    if(duplicateType == DuplicateTrackType::Disjoint) {
 #if TRACK_SORT
-    if (!useInnermostState_) std::reverse(hits.begin(), hits.end());
-    for(auto hit : hits) ownHits.push_back(*hit);
+      if (!useInnermostState_) std::reverse(hits.begin(), hits.end());
+      for(auto hit : hits) ownHits.push_back(*hit);
 #elif DET_SORT
-    // OLD METHOD, sometimes fails
-    std::sort(hits.begin(), hits.end(), MomentumSort(v, &*theGeometry));
-    for(auto hit : hits) ownHits.push_back(*hit);
+      // OLD METHOD, sometimes fails
+      std::sort(hits.begin(), hits.end(), MomentumSort(v, &*theGeometry));
+      for(auto hit : hits) ownHits.push_back(*hit);
 #else
-    // NEW sort, more accurate
-    std::vector<TransientTrackingRecHit::RecHitPointer> ttrh(nhits);
-    for (unsigned int i = 0; i < nhits; ++i) ttrh[i] = theBuilder->build(hits[i]);
-    std::sort(ttrh.begin(), ttrh.end(), GlobalMomentumSort(v));
-    for(auto hit : ttrh) ownHits.push_back(*hit);
+      sortByHitPosition(v, hits, ownHits);
 #endif
+    }
+    else if(duplicateType == DuplicateTrackType::Overlapping) {
+      sortByHitPosition(v, hits, ownHits);
+    }
 
     PTrajectoryStateOnDet state;
     PropagationDirection pdir;
@@ -163,6 +142,48 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
      return ret;
 }
 
+void TrackMerger::addSecondTrackHits(std::vector<const TrackingRecHit *>& hits,
+                                     const reco::Track& outer) const {
+    size_t nHitsFirstTrack = hits.size();
+    for (auto it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
+        const TrackingRecHit *hit = &**it;
+        DetId id(hit->geographicalId());
+        const auto lay = theTrkTopo->layer(id);
+        bool shared = false;
+        bool valid  = hit->isValid();
+        PRINT << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
+        size_t iHit = 0;
+        for ( auto hit2 :  hits) {
+            ++iHit; if (iHit >  nHitsFirstTrack) break;
+            DetId id2 = hit2->geographicalId();
+            if (id.subdetId() != id2.subdetId()) continue;
+            if (theTrkTopo->layer(id2) != lay) continue;
+            if (hit->sharesInput(hit2, TrackingRecHit::all)) { 
+                PRINT << "        discared as duplicate of other hit" << id() << std::endl;
+                shared = true; break; 
+            }
+            if (hit2->isValid() && !valid) { 
+                PRINT << "        replacing old invalid hit on detid " << id2() << std::endl;
+                hit2 = hit; shared = true; break; 
+            }
+            PRINT << "        discared as additional hit on layer that already contains hit with detid " << id() << std::endl;
+            shared = true; break;
+        }
+        if (shared) continue;
+        hits.push_back(hit);
+    }
+}
+
+void TrackMerger::sortByHitPosition(const GlobalVector& v,
+                                    const std::vector<const TrackingRecHit *>& hits,
+                                    TrackCandidate::RecHitContainer& ownHits) const {
+  // NEW sort, more accurate
+  unsigned int nhits = hits.size();
+  std::vector<TransientTrackingRecHit::RecHitPointer> ttrh(nhits);
+  for (unsigned int i = 0; i < nhits; ++i) ttrh[i] = theBuilder->build(hits[i]);
+  std::sort(ttrh.begin(), ttrh.end(), GlobalMomentumSort(v));
+  for(auto hit : ttrh) ownHits.push_back(*hit);
+}
 
 bool TrackMerger::MomentumSort::operator()(const TrackingRecHit *hit1, const TrackingRecHit *hit2) const 
 {
