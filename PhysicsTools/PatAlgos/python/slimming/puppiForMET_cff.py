@@ -21,7 +21,7 @@ def makePuppies( process ):
     process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
     process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
     process.puppiForMET = process.puppiPhoton.clone()
-    #Line below replaces reference linking wiht delta R matching this is because the reference key in packed candidates differs to PF candidates (must be done when reading Reco)
+    #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original PF collection
     process.puppiForMET.useRefs          = False
     #Line below points puppi MET to puppi no lepton which increases the response
     process.puppiForMET.puppiCandName    = 'puppiMerged'
@@ -32,18 +32,24 @@ def makePuppiesFromMiniAOD( process, createScheduledSequence=False ):
     process.puppi.candName = cms.InputTag('packedPFCandidates')
     process.puppi.clonePackedCands = cms.bool(True)
     process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    process.puppi.useExistingWeights = cms.bool(True)
     process.pfNoLepPUPPI = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut =  cms.string("abs(pdgId) != 13 && abs(pdgId) != 11 && abs(pdgId) != 15"))
     process.pfLeptonsPUPPET   = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("abs(pdgId) == 13 || abs(pdgId) == 11 || abs(pdgId) == 15"))
     process.puppiNoLep = process.puppi.clone()
     process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
     process.puppiNoLep.useWeightsNoLep = cms.bool(True)
+    process.puppiNoLep.useExistingWeights = cms.bool(True)
     process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
     process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
     process.puppiForMET = process.puppiPhoton.clone()
+    process.puppiForMET.candName = cms.InputTag('packedPFCandidates')
+    process.puppiForMET.photonName = cms.InputTag('slimmedPhotons')
+    process.puppiForMET.runOnMiniAOD = cms.bool(True)
     setupPuppiPhotonMiniAOD(process)
-    #Line below doesn't work because of an issue with references in MiniAOD without setting useRefs=>False and using delta R
-    process.puppiForMET.puppiCandName    = 'puppiMerged'
+    #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original packed candidate collection
     process.puppiForMET.useRefs          = False
+    #Line below points puppi MET to puppi no lepton which increases the response
+    process.puppiForMET.puppiCandName    = 'puppiMerged'
 
     #making a sequence for people running the MET tool in scheduled mode
     if createScheduledSequence:
