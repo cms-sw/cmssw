@@ -132,52 +132,52 @@ goodZToMuMuOneTrackPathLoose=cms.Path(
 globalMuQualityCutsAnalysisAA= cms.EDAnalyzer(
     "GlbMuQualityCutsAnalysis",
     src = cms.InputTag("goodZToMuMu"), 
-    ptMin = cms.untracked.double("0.0"),
-    massMin = cms.untracked.double("0.0"),
-    massMax = cms.untracked.double("200.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("10.0"),
-    trkIso = cms.untracked.double("10000"),
-    chi2Cut = cms.untracked.double("10"),
+    ptMin = cms.untracked.double(0.0),
+    massMin = cms.untracked.double(0.0),
+    massMax = cms.untracked.double(200.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(10.0),
+    trkIso = cms.untracked.double(10000),
+    chi2Cut = cms.untracked.double(10),
     nHitCut = cms.untracked.int32(10)
  )
 
 globalMuQualityCutsAnalysisAB= cms.EDAnalyzer(
     "GlbMuQualityCutsAnalysis",
     src = cms.InputTag("goodZToMuMuAB"), 
-    ptMin = cms.untracked.double("0.0"),
-    massMin = cms.untracked.double("0.0"),
-    massMax = cms.untracked.double("200.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("10.0"),
-    trkIso = cms.untracked.double("10000"),
-    chi2Cut = cms.untracked.double("10"),
+    ptMin = cms.untracked.double(0.0),
+    massMin = cms.untracked.double(0.0),
+    massMax = cms.untracked.double(200.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(10.0),
+    trkIso = cms.untracked.double(10000),
+    chi2Cut = cms.untracked.double(10),
     nHitCut = cms.untracked.int32(10)
  )
 
 globalMuQualityCutsAnalysisAAtrk= cms.EDAnalyzer(
     "GlbMuQualityCutsAnalysis",
     src = cms.InputTag("goodZToMuMuOneTrackerMuon"), 
-    ptMin = cms.untracked.double("0.0"),
-    massMin = cms.untracked.double("0.0"),
-    massMax = cms.untracked.double("200.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("10.0"),
-    trkIso = cms.untracked.double("10000"),
-    chi2Cut = cms.untracked.double("10"),
+    ptMin = cms.untracked.double(0.0),
+    massMin = cms.untracked.double(0.0),
+    massMax = cms.untracked.double(200.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(10.0),
+    trkIso = cms.untracked.double(10000),
+    chi2Cut = cms.untracked.double(10),
     nHitCut = cms.untracked.int32(10)
  )
 
 globalMuQualityCutsAnalysisAAsta= cms.EDAnalyzer(
     "GlbMuQualityCutsAnalysis",
     src = cms.InputTag("goodZToMuMuOneStandAloneMuon"), 
-    ptMin = cms.untracked.double("0.0"),
-    massMin = cms.untracked.double("0.0"),
-    massMax = cms.untracked.double("200.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("10.0"),
-    trkIso = cms.untracked.double("10000"),
-    chi2Cut = cms.untracked.double("10"),
+    ptMin = cms.untracked.double(0.0),
+    massMin = cms.untracked.double(0.0),
+    massMax = cms.untracked.double(200.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(10.0),
+    trkIso = cms.untracked.double(10000),
+    chi2Cut = cms.untracked.double(10),
     nHitCut = cms.untracked.int32(10)
  )
 
