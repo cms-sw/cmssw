@@ -30,6 +30,8 @@
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
+#include <iostream>
+
 class CaloTopology;
 
 class CombinedRecHitCollectionProducer : public edm::stream::EDProducer<> {
@@ -85,6 +87,7 @@ produce (edm::Event& iEvent,
       auto secHit = secondaryRecHits->find(hit.detid());
       if(secHit!=secondaryRecHits->end()){ //found secondary hit
 	outColl->push_back(*secHit);
+	if(hit.checkFlags({EcalRecHit::kHasSwitchToGain1}))std::cout <<"old hit "<<hit.energy()<<" new  hit "<<secHit->energy()<<std::endl;
       }else{
  	outColl->push_back(hit);
 	missingDetIds->push_back(hit.detid());
@@ -96,5 +99,7 @@ produce (edm::Event& iEvent,
   iEvent.put(std::move(outColl),outputCollectionName_);
   iEvent.put(std::move(missingDetIds),outputDetIdCollName_);
 }
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CombinedRecHitCollectionProducer);
 
 #endif
