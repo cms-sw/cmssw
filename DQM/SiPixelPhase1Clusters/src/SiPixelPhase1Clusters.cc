@@ -46,12 +46,14 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
       int row = cluster.x()-0.5, col = cluster.y()-0.5;
       histo[READOUT_CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
-      histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
-      if (cluster.size() > 1){
-        histo[NCLUSTERS].fill(id, &iEvent);
-        histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
+      histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent, col, row);
+      histo[SIZEX  ].fill(double(cluster.sizeX()  ), id, &iEvent, col, row);
+      histo[SIZEY  ].fill(double(cluster.sizeY()  ), id, &iEvent, col, row);
+      histo[NCLUSTERS].fill(id, &iEvent, col, row);
+      histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
+      hasClusters=true;
+      if (cluster.size()>1){
         histo[READOUT_NCLUSTERS].fill(id, &iEvent);
-        hasClusters=true;
       }
 
       LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));

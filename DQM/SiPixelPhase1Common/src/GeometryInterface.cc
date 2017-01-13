@@ -275,6 +275,12 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
     }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
   );
 
+  addExtractor(intern("SignedBladePanel"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_blade_panel_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/2.0
+  );
+
   // more readout-related things.
   addExtractor(intern("ROC"),
     [coord, from_coord] (InterestingQuantities const& iq) {

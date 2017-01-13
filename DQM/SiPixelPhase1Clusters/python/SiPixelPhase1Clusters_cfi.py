@@ -8,7 +8,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   xlabel = "Charge (electrons)",
   
   specs = VPSet(
-    StandardSpecification2DProfile,
+    #StandardSpecification2DProfile,
     StandardSpecificationPixelmapProfile,
     StandardSpecificationTrend,
     StandardSpecifications1D,
@@ -22,12 +22,42 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = VPSet(
-    StandardSpecification2DProfile,
+    #StandardSpecification2DProfile,
+    StandardSpecificationPixelmapProfile,
     StandardSpecificationTrend,
     StandardSpecifications1D,
     StandardSpecificationTrend2D
   )
 )
+
+SiPixelPhase1ClustersSizeX = DefaultHistoDigiCluster.clone(
+  name = "sizeX",
+  title = "Cluster Size in X",
+  range_min = 0, range_max = 30, range_nbins = 30,
+  xlabel = "size[pixels]",
+  specs = VPSet(
+    #StandardSpecification2DProfile,
+    #StandardSpecificationPixelmapProfile,
+    #StandardSpecificationTrend,
+    StandardSpecifications1D,
+    #StandardSpecificationTrend2D
+  )
+)
+
+SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
+  name = "sizeY",
+  title = "Cluster Size in Y",
+  range_min = 0, range_max = 30, range_nbins = 30,
+  xlabel = "size[pixels]",
+  specs = VPSet(
+    #StandardSpecification2DProfile,
+    #StandardSpecificationPixelmapProfile,
+    #StandardSpecificationTrend,
+    StandardSpecifications1D,
+    #StandardSpecificationTrend2D
+  )
+)
+
 
 SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   name = "clusters",
@@ -36,6 +66,7 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
+    StandardSpecificationOccupancy,
     StandardSpecification2DProfile_Num,
     StandardSpecificationTrend_Num,
     StandardSpecifications1D_Num,
@@ -174,6 +205,8 @@ SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
   SiPixelPhase1ClustersSize,
+  SiPixelPhase1ClustersSizeX,
+  SiPixelPhase1ClustersSizeY,
   SiPixelPhase1ClustersNClusters,
   SiPixelPhase1ClustersNClustersInclusive,
   SiPixelPhase1ClustersEventrate,
