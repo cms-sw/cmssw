@@ -34,6 +34,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 
 
 #include <iostream>
@@ -65,7 +66,7 @@ private:
   
   const CaloTopology* topology_;  
   const CaloGeometry* geometry_;
-  
+  std::unique_ptr<ModifyObjectValueBase> gedRegression_;
 };
 
 
@@ -87,8 +88,23 @@ GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
   getToken(oldGsfElesToken_,pset,"oldEles");
   getToken(ebRecHitsToken_,pset,"ebRecHits");
   getToken(newCoresToOldCoresMapToken_,pset,"newCoresToOldCoresMap");
+
+  //ripped wholesale from GEDGsfElectronFinalizer
+  if( pset.existsAs<edm::ParameterSet>("regressionConfig") ) {
+    const edm::ParameterSet& iconf = pset.getParameterSet("regressionConfig");
+    const std::string& mname = iconf.getParameter<std::string>("modifierName");
+    ModifyObjectValueBase* plugin = 
+    ModifyObjectValueFactory::get()->create(mname,iconf);
+    gedRegression_.reset(plugin);
+    edm::ConsumesCollector sumes = consumesCollector();
+    gedRegression_->setConsumes(sumes);
+  } else {
+    gedRegression_.reset(nullptr);
+  }
+  
   produces<reco::GsfElectronCollection >();
 }
+
 namespace {
   
   reco::GsfElectronCoreRef getNewCore(const reco::GsfElectronRef& oldEle,
@@ -109,7 +125,12 @@ namespace {
 void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
 {
   auto outEles = std::make_unique<reco::GsfElectronCollection>();
-  
+ 
+  if( gedRegression_ ) {
+    gedRegression_->setEvent(iEvent);
+    gedRegression_->setEventContent(iSetup);
+  }
+ 
 
   auto elesHandle = getHandle(iEvent,oldGsfElesToken_);
   auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
@@ -122,10 +143,16 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
     reco::GsfElectronCoreRef newCoreRef = getNewCore(eleRef,newCoresHandle,newCoresToOldCoresMap);
     
     if(newCoreRef.isNonnull()){ //okay we have to remake the electron
-      std::cout <<"made a new electron "<<iEvent.id().run()<<" "<<iEvent.id().event()<<std::endl;
+
       reco::GsfElectron newEle(*eleRef,newCoreRef);
       reco::GsfElectron::ShowerShape full5x5 = calShowerShape(newEle.superCluster(),&ebRecHits);
       newEle.full5x5_setShowerShape(full5x5);   
+
+      if( gedRegression_ ) {
+	gedRegression_->modifyObject(newEle);
+      }
+
+      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<std::endl;
       
       outEles->push_back(newEle);
     }else{
