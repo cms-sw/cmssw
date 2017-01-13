@@ -947,7 +947,8 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
 
   // Digitize if the signal is greater than threshold
   for (auto const & s : theSignal) {
-    DigitizerUtility::Amplitude sig_data = s.second;  
+    //    DigitizerUtility::Amplitude sig_data = s.second;  
+    const DigitizerUtility::Amplitude& sig_data = s.second;
     float signalInElectrons  = sig_data.ampl();
     int adc;
     if (signalInElectrons >= theThresholdInE) { // check threshold
@@ -957,11 +958,9 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
       info.sig_tot     = adc;
       info.ot_bit      = ( signalInElectrons  > theHIPThresholdInE ? true : false);
       if (makeDigiSimLinks_ ) {
-        int j = 0;
-	for (auto l : sig_data.simInfoList()) {
-          j++;
+	for (auto const & l : sig_data.simInfoList()) {
 	  float  charge_frac = l.first/signalInElectrons;
-          if (l.first > -5.0)  info.simInfoList.push_back({charge_frac,l.second});
+          if (l.first > -5.0) info.simInfoList.push_back({charge_frac, l.second.get()});
 	}
       }
       digi_map.insert({s.first, info});
