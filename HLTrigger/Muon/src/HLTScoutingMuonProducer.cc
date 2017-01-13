@@ -32,16 +32,16 @@ HLTScoutingMuonProducer::HLTScoutingMuonProducer(const edm::ParameterSet& iConfi
                                                           "HcalPFClusterIsoMap"))),
     TrackIsoMap_(consumes<edm::ValueMap<double>>(iConfig.getParameter<edm::InputTag>(
                                                      "TrackIsoMap"))),
-    vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
+    //  vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))),
     displacedvertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("displacedvertexCollection"))),
     muonPtCut(iConfig.getParameter<double>("muonPtCut")),
     muonEtaCut(iConfig.getParameter<double>("muonEtaCut")),
-    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut")),
-    producePrimaryVtx(iConfig.getParameter<bool>("producePrimaryVtx"))
+    minVtxProbCut(iConfig.getParameter<double>("minVtxProbCut"))
+    //  producePrimaryVtx(iConfig.getParameter<bool>("producePrimaryVtx"))
 {
     //register products
     produces<ScoutingMuonCollection>();
-    if (producePrimaryVtx) produces<ScoutingVertexCollection>("primaryVtx");
+    //    if (producePrimaryVtx) produces<ScoutingVertexCollection>("primaryVtx");
     produces<ScoutingVertexCollection>("displacedVtx");
 }
 
@@ -55,7 +55,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     using namespace edm;
 
     std::unique_ptr<ScoutingMuonCollection> outMuons(new ScoutingMuonCollection());
-    std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+    //   std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
     std::unique_ptr<ScoutingVertexCollection> dispVertices(new ScoutingVertexCollection());
 
     // Get RecoChargedCandidate
@@ -87,6 +87,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
         return;
     }
 
+    /*
     if (producePrimaryVtx) {
       //get vertices
       Handle<reco::VertexCollection> vertexCollection;
@@ -98,6 +99,8 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 	}
       }
     }
+    */
+
     std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> ivtxMuPair;
     std::vector<std::pair<reco::RecoChargedCandidate,reco::RecoChargedCandidate> > vtxMuPair;
     
@@ -196,7 +199,7 @@ void HLTScoutingMuonProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     
     // Put output
     iEvent.put(std::move(outMuons));
-    if (producePrimaryVtx) iEvent.put(std::move(outVertices), "primaryVtx");
+    // if (producePrimaryVtx) iEvent.put(std::move(outVertices), "primaryVtx");
     iEvent.put(std::move(dispVertices), "displacedVtx");
 }
 
@@ -209,11 +212,11 @@ void HLTScoutingMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& d
     desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalPFClusterIsoForMuons"));
     desc.add<edm::InputTag>("TrackIsoMap", edm::InputTag(
                                 "hltMuonTkRelIsolationCut0p09Map:combinedRelativeIsoDeposits"));
-    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    //  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
     desc.add<edm::InputTag>("displacedvertexCollection", edm::InputTag("hltDisplacedmumuVtxProducerDoubleMu3NoVtx"));
     desc.add<double>("muonPtCut", 4.0);
     desc.add<double>("muonEtaCut", 2.4);
     desc.add<double>("minVtxProbCut", 0.001);
-    desc.add<bool>("producePrimaryVtx", false);
+    //    desc.add<bool>("producePrimaryVtx", false);
     descriptions.add("hltScoutingMuonProducer", desc);
 }
