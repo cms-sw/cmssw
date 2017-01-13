@@ -63,27 +63,28 @@ namespace {
   }
 }
 
-int nrCrysWithFlagsIn5x5(const DetId& id,const std::vector<int>& flags,const EcalRecHitCollection* recHits,const CaloTopology *topology)
-{
-  int nrFound=0;
-  CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
-  
-  for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
-    for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
-      cursor.home();
-      cursor.offsetBy( eastNr, northNr);
-      DetId id = *cursor;
-      auto recHitIt = recHits->find(id);
-      if(recHitIt!=recHits->end() && 
-	 recHitIt->checkFlags(flags)){
-	nrFound++;
+namespace {
+  int nrCrysWithFlagsIn5x5(const DetId& id,const std::vector<int>& flags,const EcalRecHitCollection* recHits,const CaloTopology *topology)
+  {
+    int nrFound=0;
+    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+    
+    for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
+      for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
+	cursor.home();
+	cursor.offsetBy( eastNr, northNr);
+	DetId id = *cursor;
+	auto recHitIt = recHits->find(id);
+	if(recHitIt!=recHits->end() && 
+	   recHitIt->checkFlags(flags)){
+	  nrFound++;
+	}
+	
       }
-		
     }
+    return nrFound;
   }
-  return nrFound;
 }
-
 
 
 
@@ -95,6 +96,7 @@ GsfElectronCoreGSCrysFixer::GsfElectronCoreGSCrysFixer( const edm::ParameterSet 
   getToken(oldSCToNewMapToken_,pset,"oldSCToNewMap");
   
   produces<reco::GsfElectronCoreCollection >();
+  produces<edm::ValueMap<reco::SuperClusterRef> >("parentCores");
 }
 
 
@@ -102,12 +104,16 @@ void GsfElectronCoreGSCrysFixer::produce( edm::Event & iEvent, const edm::EventS
 {
   auto outCores = std::make_unique<reco::GsfElectronCoreCollection>();
   
-  auto& eleCores = *getHandle(iEvent,orgCoresToken_);
+  auto eleCoresHandle = getHandle(iEvent,orgCoresToken_);
   auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
   auto& oldRefinedSCToNewMap = *getHandle(iEvent,oldRefinedSCToNewMapToken_);
   auto& oldSCToNewMap = *getHandle(iEvent,oldSCToNewMapToken_);
   
-  for( const auto& core : eleCores ) {
+  std::vector<reco::SuperClusterRef> parentCores;
+
+  for(size_t coreNr=0;coreNr<eleCoresHandle->size();coreNr++){
+    reco::GsfElectronCoreRef coreRef(eleCoresHandle,coreNr);
+    const reco::GsfElectronCore& core = *coreRef;
     int nrEBGSCrys=0;
     DetId seedId = core.superCluster()->seed()->seed();
     if(seedId.subdetId()==EcalBarrel){
@@ -122,14 +128,19 @@ void GsfElectronCoreGSCrysFixer::produce( edm::Event & iEvent, const edm::EventS
       //these references may be null, lets see what happens!
       newCore.setSuperCluster( oldRefinedSCToNewMap[core.superCluster()] );
       newCore.setParentSuperCluster( oldSCToNewMap[core.parentSuperCluster()] );
-      
-      outCores->push_back(core);
-    }else{
-      outCores->push_back(core);
+     
+      outCores->push_back(newCore);
+      parentCores.push_back(coreRef->superCluster());
     }
   }
   
-  iEvent.put(std::move(outCores));
+  auto outCoresHandle = iEvent.put(std::move(outCores));
+  
+  std::unique_ptr<edm::ValueMap<reco::SuperClusterRef> > parentCoresValMap(new edm::ValueMap<reco::SuperClusterRef>());
+  typename edm::ValueMap<reco::SuperClusterRef>::Filler filler(*parentCoresValMap);
+  filler.insert(outCoresHandle, parentCores.begin(), parentCores.end());
+  filler.fill();
+  iEvent.put(std::move(parentCoresValMap),"parentCores");
 }
 
 void GsfElectronCoreGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 
