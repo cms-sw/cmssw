@@ -11,6 +11,9 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include <unordered_set>
 
 class EGRefinedSCFixer : public edm::stream::EDProducer<> {
 public:
@@ -27,13 +30,28 @@ public:
   static std::vector<edm::Ptr<reco::CaloCluster> >
   getSubClustersMissing(const reco::SuperCluster& lhs,
 			const reco::SuperCluster& rhs);
-    
+
+
+  
+  static std::unordered_set<int> 
+  getListOfClusterSeedIdsForNewSC(const reco::SuperCluster& orgRefinedSC,
+				  const reco::SuperCluster& orgSC,
+				  const reco::SuperCluster& fixedSC);
+  
+  static std::vector<edm::Ptr<reco::CaloCluster> >
+  getClustersFromSeedIds(const std::unordered_set<int>& seedIds,const edm::Handle<edm::View<reco::CaloCluster> >& inClusters);
+
+  static reco::SuperCluster 
+  makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedSC,
+			   const reco::SuperCluster& orgSC,
+			   const reco::SuperCluster& fixedSC,
+			   const edm::Handle<edm::View<reco::CaloCluster> >& fixedClusters);
 
 private:
   edm::EDGetTokenT<reco::SuperClusterCollection> orgRefinedSCToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> orgSCToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> fixedSCToken_;
-  
+  edm::EDGetTokenT<edm::View<reco::CaloCluster> > fixedPFClustersToken_;
   
   
 
@@ -44,6 +62,8 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
   orgRefinedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgRefinedSC"));
   orgSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgSC"));
   fixedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("fixedSC"));
+  fixedPFClustersToken_ = consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
+  
 }
 
 namespace {
@@ -130,6 +150,8 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   auto orgRefinedSCs = getHandle(iEvent,orgRefinedSCToken_);
   auto orgSCs = getHandle(iEvent,orgSCToken_);
   auto fixedSCs = getHandle(iEvent,fixedSCToken_);
+  auto fixedPFClusters = getHandle(iEvent,fixedPFClustersToken_);
+  
   
   std::cout <<"new event "<<std::endl;
   for(auto& sc : *fixedSCs){
@@ -138,31 +160,22 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   for(auto& sc : *orgSCs){
     std::cout <<"  orgSC "<<SCPrinter(sc)<<std::endl;
   }
- 
-
-      
-  for(size_t scNr=0;scNr<orgRefinedSCs->size();scNr++){
-    auto& refinedSC = (*orgRefinedSCs)[scNr];
-    if(std::abs(refinedSC.eta())>1.5) continue;
+   
+  for(const auto& fixedSC : *fixedSCs){
     
-    reco::SuperClusterRef orgSC = matchSCBySeedCrys(refinedSC,orgSCs);
-    if(orgSC.isNonnull()){
-      reco::SuperClusterRef fixedSC = matchSCBySeedCrys(*orgSC,fixedSCs,2,2);
-      if(fixedSC.isNonnull()){
-	std::cout <<" for org sc "<<SCPrinter(*orgSC)<<" found "<<SCPrinter(*fixedSC)<<std::endl;
-	makeFixedRefinedSC(refinedSC,*orgSC,*fixedSC);
-      }else{
-	std::cout <<" for org sc "<<SCPrinter(*orgSC)<<" did not find fixedSC "<<std::endl;
-      }
+    reco::SuperClusterRef orgSC = matchSCBySeedCrys(fixedSC,orgSCs,2,2);
+    reco::SuperClusterRef orgRefinedSC = orgSC.isNonnull() ? matchSCBySeedCrys(*orgSC,orgRefinedSCs) : orgSC;
+    
+    //so we have a matched orginal and refined SC, we can remake the refined SC out of the new clusters
+    if(orgSC.isNonnull() && orgRefinedSC.isNonnull()){
+      reco::SuperCluster fixedRefinedSC = makeFixedRefinedBarrelSC(*orgRefinedSC,*orgSC,fixedSC,fixedPFClusters);
+      std::cout<<" org refined "<<*orgRefinedSC<<std::endl;
+      std::cout<<" fixed refined "<<fixedRefinedSC<<std::endl;
+      
     }else{
-      std::cout <<" for "<<SCPrinter(refinedSC);
-      std::cout <<" did not find org "<<std::endl;
+      std::cout <<"interesting, orgSC "<<orgSC.isNonnull()<<" refined "<<orgRefinedSC.isNonnull()<<std::endl;
     }
-
   }
-  
- 
-
 }
 
 
@@ -180,29 +193,99 @@ EGRefinedSCFixer::getSubClustersMissing(const reco::SuperCluster& lhs,
   return missingSubClusters;
 }
 
-reco::SuperCluster 
-EGRefinedSCFixer::makeFixedRefinedSC(const reco::SuperCluster& orgRefinedSC,
-				     const reco::SuperCluster& orgSC,
-				     const reco::SuperCluster& fixedSC)
+std::unordered_set<int> 
+EGRefinedSCFixer::getListOfClusterSeedIdsForNewSC(const reco::SuperCluster& orgRefinedSC,
+						  const reco::SuperCluster& orgSC,
+						  const reco::SuperCluster& fixedSC)
+  
 {
-  auto subClusRefinedAdded = getSubClustersMissing(orgRefinedSC,orgSC);
-  auto subClusRefinedRemoved = getSubClustersMissing(orgSC,orgRefinedSC);
-  if(!subClusRefinedAdded.empty() || !subClusRefinedRemoved.empty()){
-    std::cout <<"for clusters"<<std::endl;
-    std::cout <<"org: "<<SCPrinter(orgSC)<<std::endl;
-    std::cout <<"refined: "<<SCPrinter(orgRefinedSC)<<std::endl;
-    std::cout <<"  sub clusters removed by refined: "<<std::endl;
-    for(auto& clus : subClusRefinedRemoved) {
-      std::cout <<"    "<<*clus<<std::endl;
-    } 
-    std::cout <<"  sub clusters added by refined: "<<std::endl;
-    for(auto& clus : subClusRefinedAdded) {
-      std::cout <<"    "<<*clus<<std::endl;
+  auto clusAdded = getSubClustersMissing(orgRefinedSC,orgSC);
+  auto clusRemoved = getSubClustersMissing(orgSC,orgRefinedSC);
+  
+  std::unordered_set<int> detIdsOfClustersForNewSC;
+  for(auto& clus : fixedSC.clusters()){
+    auto compFunc=[&clus](auto& rhs){return rhs->seed().rawId()==clus->seed().rawId();};
+    if(std::find_if(clusRemoved.begin(),clusRemoved.end(),compFunc)==clusRemoved.end()){
+      detIdsOfClustersForNewSC.insert(clus->seed().rawId());
     }
-    std::cout <<std::endl;
   }
- 
-  return reco::SuperCluster();
+  for(auto clus : clusAdded) detIdsOfClustersForNewSC.insert(clus->seed().rawId());
+  
+  return detIdsOfClustersForNewSC;
+}
+
+std::vector<edm::Ptr<reco::CaloCluster> >
+EGRefinedSCFixer::getClustersFromSeedIds(const std::unordered_set<int>& seedIds,const edm::Handle<edm::View<reco::CaloCluster> >& inClusters)
+{
+  std::vector<edm::Ptr<reco::CaloCluster> > outClusters;
+  for(size_t clusNr=0;clusNr<inClusters->size();clusNr++){
+    edm::Ptr<reco::CaloCluster> clusPtr(inClusters,clusNr);
+    if(seedIds.count(clusPtr->seed().rawId())>0){
+      outClusters.push_back(clusPtr);
+    }
+  }
+  return outClusters;
+}
+
+//EB only which simplies things a lot
+//stolen from PFEGammaAlgo which stole it from PFECALSuperClusterAlgo
+//probably some sort of refactoring would be handy
+reco::SuperCluster 
+EGRefinedSCFixer::makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedSC,
+					   const reco::SuperCluster& orgSC,
+					   const reco::SuperCluster& fixedSC,
+					   const edm::Handle<edm::View<reco::CaloCluster> >& fixedClusters)
+{
+  
+  auto listOfSeedIds = getListOfClusterSeedIdsForNewSC(orgRefinedSC,orgSC,fixedSC);
+  std::vector<edm::Ptr<reco::CaloCluster> > clusters = getClustersFromSeedIds(listOfSeedIds,fixedClusters);
+  //std::vector<const reco::PFCluster*> clustersBarePtrs;
+
+  double posX(0),posY(0),posZ(0);
+  double scNrgy(0),scCorrNrgy(0);
+  for(auto & clus : clusters){
+    //    clustersBarePtrs.push_back(&*clus);
+    
+    const double clusNrgy = clus->energy();
+    double clusCorrNrgy = clus->correctedEnergy();
+    const math::XYZPoint& clusPos = clus->position();
+    posX += clusNrgy * clusPos.X();
+    posY += clusNrgy * clusPos.Y();
+    posZ += clusNrgy * clusPos.Z();
+        
+    scNrgy  += clusNrgy;
+    scCorrNrgy += clusCorrNrgy;    
+
+  }
+  posX /= scNrgy;
+  posY /= scNrgy;
+  posZ /= scNrgy;
+
+  //intentionally passing in scCorrNrgy its not supposed to be scNrgy
+  reco::SuperCluster newSC(scCorrNrgy,math::XYZPoint(posX,posY,posZ));
+
+  
+  newSC.setCorrectedEnergy(scCorrNrgy);
+  newSC.setSeed(fixedSC.seed()); //the seed is the same as the non-refined SC
+  newSC.setPreshowerEnergyPlane1(0.);
+  newSC.setPreshowerEnergyPlane2(0.);
+  newSC.setPreshowerEnergy(0.); 
+  for(const auto& clus : clusters ) {
+    newSC.addCluster(clus);
+    for(auto& hitAndFrac: clus->hitsAndFractions() ) {
+      newSC.addHitAndFraction(hitAndFrac.first,hitAndFrac.second);
+    }
+  }
+  
+  // calculate linearly weighted cluster widths
+  //PFClusterWidthAlgo pfwidth(clustersBarePtrs);
+  //newSC.setEtaWidth(pfwidth.pflowEtaWidth());
+  //newSC.setPhiWidth(pfwidth.pflowPhiWidth());
+  
+  // cache the value of the raw energy  
+  newSC.rawEnergy();
+  
+  return newSC;
     
 }
 DEFINE_FWK_MODULE(EGRefinedSCFixer);
