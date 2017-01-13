@@ -88,7 +88,7 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
   fixedPFClustersToken_ = consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
   produces<reco::SuperClusterCollection>(); 
 }
-
+ 
 namespace {
   template<typename T> edm::Handle<T> getHandle(const edm::Event& iEvent,const edm::EDGetTokenT<T>& token){
     edm::Handle<T> handle;
@@ -194,13 +194,13 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   auto fixedPFClusters = getHandle(iEvent,fixedPFClustersToken_);
   
   
-  std::cout <<"new event "<<std::endl;
-  for(auto& sc : *fixedSCs){
-    std::cout <<"  fixedSC "<<SCPrinter(sc)<<std::endl;
-  }
-  for(auto& sc : *orgSCs){
-    std::cout <<"  orgSC "<<SCPrinter(sc)<<std::endl;
-  }
+  // std::cout <<"new event "<<std::endl;
+  // for(auto& sc : *fixedSCs){
+  //   std::cout <<"  fixedSC "<<SCPrinter(sc)<<std::endl;
+  // }
+  // for(auto& sc : *orgSCs){
+  //   std::cout <<"  orgSC "<<SCPrinter(sc)<<std::endl;
+  // }
    
   auto fixedRefinedSCs = std::make_unique<reco::SuperClusterCollection>();
   
@@ -213,7 +213,7 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     //so we have a matched orginal and refined SC, we can remake the refined SC out of the new clusters
     if(orgSC.isNonnull() && orgRefinedSC.isNonnull()){
       reco::SuperCluster fixedRefinedSC = makeFixedRefinedBarrelSC(*orgRefinedSC,*orgSC,fixedSC,fixedPFClusters);
-      if(orgRefinedSC->clustersSize()!=orgSC->clustersSize()){
+      if(orgRefinedSC->clustersSize()!=orgSC->clustersSize() && false){
 	std::cout<<" org refined "<<SCDeepPrinter(*orgRefinedSC)<<std::endl;
 	std::cout<<" fixed refined "<<SCDeepPrinter(fixedRefinedSC)<<std::endl;
       }
@@ -221,9 +221,9 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     }else if(orgSC.isNull()){
       //didnt find the orginal supercluster, just pass this through as a refined sc
       fixedRefinedSCs->push_back(fixedSC);      
-    }else{
-      std::cout <<"for "<<SCPrinter(fixedSC)<<" did not find orgSC "<<orgSC.isNonnull()<<" refined "<<orgRefinedSC.isNonnull()<<std::endl;
-    }
+    }//else{
+      //      std::cout <<"for "<<SCPrinter(fixedSC)<<" did not find orgSC "<<orgSC.isNonnull()<<" refined "<<orgRefinedSC.isNonnull()<<std::endl;
+    //}
   }
   iEvent.put(std::move(fixedRefinedSCs));
 
