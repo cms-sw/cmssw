@@ -60,7 +60,7 @@ if SuperimoposePlotsInOnlineBlocks: #if someone wants to enble/disable the super
 
   
 # Configure Phase1 DQM for Phase0 data
-SiPixelPhase1Geometry.n_inner_ring_blades = 24 # no outer ring
+SiPixelPhase1Geometry.upgradePhase = 0
 
 # Turn on 'online' harvesting. This has to be set before other configs are 
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
