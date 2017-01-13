@@ -206,6 +206,171 @@ def parseDetId(detid):
         raise Exception("Got unknown subdet %d" % subdet)
     raise Exception("Supporting only phase1 DetIds at the moment")
 
+# Common detailed printout helpers
+class _RecHitPrinter(object):
+    def __init__(self, indent=0):
+        self._prefix = " "*indent
+        self._backup = []
+
+    def _indent(self, num):
+        if num > 0:
+            self._prefix += " "*num
+        elif num < 0:
+            self._prefix = self._prefix[:num]
+
+    def indent(self, num):
+        self._backup.append(self._prefix)
+        self._indent(num)
+
+    def setIndentFrom(self, printer, adjust=0):
+        self._backup.append(self._prefix)
+        self._prefix = printer._prefix
+        self._indent(adjust)
+
+    def restoreIndent(self):
+        self._prefix = self._backup.pop()
+
+    def _printHits(self, hits):
+        for hit in hits:
+            matched = ""
+            coord = ""
+            if hit.isValidHit():
+                if isinstance(hit, _SimHitAdaptor):
+                    matched = "matched to TP:SimHit " + ",".join(["%d:%d"%(sh.trackingParticle().index(), sh.index()) for sh in hit.simHits()])
+                coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
+            detId = parseDetId(hit.detId())
+            print self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched)
+
+class SeedPrinter(_RecHitPrinter):
+    def __init__(self, *args, **kwargs):
+        super(SeedPrinter, self).__init__(*args, **kwargs)
+
+    def __call__(self, seed):
+        track = seed.track()
+        madeTrack = "did not make a track"
+        if track.isValid():
+            madeTrack = "made track %d" % track.index()
+
+        print self._prefix+"Seed %d algo %s %s" % (seed.indexWithinAlgo(), Algo.toString(seed.algo()), madeTrack)
+        print self._prefix+" starting state: pT %f local pos x,y %f,%f mom x,y,z %f,%f,%f" % (seed.statePt(), seed.stateTrajX(), seed.stateTrajY(), seed.stateTrajPx(), seed.stateTrajPy(), seed.stateTrajPz())
+        print self._prefix+" hits"
+        self.indent(2)
+        self._printHits(seed.hits())
+        self.restoreIndent()
+
+class TrackPrinter(_RecHitPrinter):
+    def __init__(self, indent=0, hits=True, seedPrinter=SeedPrinter(), trackingParticles=True, trackingParticlePrinter=None):
+        super(TrackPrinter, self).__init__(indent)
+        self._hits = hits
+        self._seedPrinter = seedPrinter
+        self._trackingParticles = trackingParticles
+        self._trackingParticlePrinter = trackingParticlePrinter
+
+    def __call__(self, track):
+        print self._prefix+"Track %d pT %f eta %f phi %f dxy %f err %f dz %f err %f" % (track.index(), track.pt(), track.eta(), track.phi(), track.dxy(), track.dxyErr(), track.dz(), track.dzErr())
+        algo = track.algo()
+        oriAlgo = track.originalAlgo()
+        print self._prefix+" pixel hits %d strip hits %d" % (track.nPixel(), track.nStrip())
+        print self._prefix+" HP %s algo %s originalAlgo %s stopReason %s" % (str(track.isHP()), Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), StopReason.toString(track.stopReason()))
+
+        if self._hits:
+            print self._prefix+" hits"
+            self.indent(2)
+            self._printHits(track.hits())
+            self.restoreIndent()
+
+        if self._seedPrinter:
+            self._seedPrinter.setIndentFrom(self, adjust=1)
+            self._seedPrinter(track.seed())
+            self._seedPrinter.restoreIndent()
+
+        if self._trackingParticles:
+            if track.nMatchedTrackingParticles == 0:
+                print self._prefix+" not matched to any TP"
+            elif self._trackingParticlePrinter is None:
+                print self._prefix+" matched to TPs", ",".join([str(tpInfo.trackingParticle().index()) for tpInfo in track.matchedTrackingParticleInfos()])
+            else:
+                print self._prefix+" matched to TPs"
+                self._trackingParticlePrinter.indent(2)
+                for tpInfo in track.matchedTrackingParticleInfos():
+                    self._trackingParticlePrinter(tpInfo.trackingParticle())
+                self._trackingParticlePrinter.indent(-2)
+
+class TrackingParticlePrinter:
+    def __init__(self, indent=0, parentage=True, hits=True, tracks=True, trackPrinter=None, seedPrinter=SeedPrinter()):
+        self._prefix = " "*indent
+        self._parentage = parentage
+        self._hits = hits
+        self._tracks = tracks
+        self._trackPrinter = trackPrinter
+        self._seedPrinter = seedPrinter
+
+    def indent(self, num):
+        if num > 0:
+            self._prefix += " "*num
+        elif num < 0:
+            self._prefix = self._prefix[:num]
+
+    def _printTP(self, tp):
+        genIds = ""
+        if len(tp.genPdgIds()) > 0:
+            genIds = " genPdgIds "+",".join([str(pdgId) for pdgId in tp.genPdgIds()])
+        fromB = ""
+        if tp.isFromBHadron():
+            fromB = " from B hadron"
+        print self._prefix+"TP %d pdgId %d%s%s pT %f eta %f phi %f" % (tp.index(), tp.pdgId(), genIds, fromB, tp.pt(), tp.eta(), tp.phi())
+
+    def _parentageChain(self, tp):
+        prodVtx = tp.parentVertex()
+        if prodVtx.nSourceTrackingParticles() == 1:
+            self._printTP(next(prodVtx.sourceTrackingParticles()))
+        elif prodVtx.nSourceTrackingParticles() >= 2:
+            self.indent(1)
+            for tp in prodVtx.sourceTrackingParticles():
+                self._printTP(tp)
+                self.indent(1)
+                self._parentageChain(tp)
+                self.indent(-1)
+            self.indent(-1)
+
+    def __call__(self, tp):
+        self._printTP(tp)
+        if self._parentage:
+            if tp.parentVertex().nSourceTrackingParticles() > 0:
+                print self._prefix+" parentage chain"
+                self.indent(2)
+                self._parentageChain(tp)
+                self.indent(-2)
+
+        if self._hits:
+            print self._prefix+" sim hits"
+            for simhit in tp.simHits():
+                detId = parseDetId(simhit.detId())
+                print self._prefix+"  %d: pdgId %d process %d %s detId %d %s x,y,z %f,%f,%f" % (simhit.index(), simhit.particle(), simhit.process(), simhit.layerStr(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z())
+
+        if self._tracks:
+            if tp.nMatchedTracks() == 0:
+                print self._prefix+" not matched to any track"
+            elif self._trackPrinter is None:
+                print self._prefix+" matched to tracks", ",".join([str(trkInfo.track().index()) for trkInfo in tp.matchedTrackInfos()])
+            else:
+                print self._prefix+" matched to tracks"
+                self._trackPrinter.indent(2)
+                for trkInfo in tp.matchedTrackInfos():
+                    self._trackPrinter(trkInfo.track())
+                self._trackPrinter.restoreIndent()
+
+        if self._seedPrinter:
+            if tp.nMatchedSeeds() == 0:
+                print self._prefix+ " not matched to any seed"
+            else:
+                print self._prefix+" matched to seeds"
+                self._seedPrinter.setIndentFrom(self, adjust=2)
+                for seedInfo in tp.matchedSeedInfos():
+                    self._seedPrinter(seedInfo.seed())
+                self._seedPrinter.restoreIndent()
+
+
 # to be kept is synch with enum HitSimType in TrackingNtuple.py
 class HitSimType:
     Signal = 0
@@ -429,8 +594,19 @@ class _LayerStrAdaptor(object):
     def layerStr(self):
         """Returns a string describing the layer of the hit."""
         self._checkIsValid()
-        return "%s%d" % (SubDet.toString(getattr(self._tree, self._prefix+"_det")[self._index]),
-                         getattr(self._tree, self._prefix+"_lay")[self._index])
+        subdet = getattr(self._tree, self._prefix+"_det")[self._index]
+        side = ""
+        if subdet in [SubDet.FPix, SubDet.TID, SubDet.TEC]:
+            detid = parseDetId(getattr(self._tree, self._prefix+"_detId")[self._index])
+            if detid.side == 1:
+                side = "-"
+            elif detid.side == 2:
+                side = "+"
+            else:
+                side = "?"
+        return "%s%d%s" % (SubDet.toString(subdet),
+                           getattr(self._tree, self._prefix+"_lay")[self._index],
+                           side)
 
 class _TrackingParticleMatchAdaptor(object):
     """Adaptor class for objects matched to TrackingParticles."""
