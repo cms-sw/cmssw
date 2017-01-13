@@ -116,7 +116,7 @@ def getTime(line):
     time = line.split(" ")[1]
     time = time.split(":")
     time = int(time[0])*60*60+int(time[1])*60+float(time[2])
-    time = 1000*time # convert to milliseconds
+    time = int(1000*time) # convert to milliseconds
     return time
 
 #----------------------------------------------
@@ -359,6 +359,7 @@ class Stack:
             tmp += self.data[-1][1]
 
         tmp.sort(key=attrgetter('x'))
+        tmp = reduceSortedPoints(tmp)
         self.data.append((graphType, tmp))
 
 #---------------------------------------------
@@ -500,6 +501,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
 
     ax.set_xlabel("Time (sec)")
     ax.set_ylabel("Stream ID")
+    ax.set_ylim(-0.5,numStreams-0.5)
+    ax.yaxis.set_ticks(xrange(numStreams))
 
     height = 0.8/maxNumberOfConcurrentModulesOnAStream
     allStackTimes={'green': [], 'red': [], 'blue': [], 'orange': []}
@@ -532,12 +535,6 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
                 ax.broken_barh(theTimes, yspan, facecolors='blue', edgecolors='blue', linewidth=0)
                 allStackTimes['blue'].extend(theTS*(nthreads-1))
 
-    end = ax.get_ylim()[1]
-    ax.yaxis.set_ticks(xrange(int(end)+1))
-    for i in xrange(int(end)):
-        ax.axhline(y=0.5+i,ls=':',c='black')
-        #    for ymin in ax.yaxis.get_minorticklocs():
-        #        ax.axhline(y=ymin,ls='--')
     if shownStacks:
         print "> ... Generating stack"
         stack = Stack()
@@ -565,6 +562,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
         axStack.set_xlabel("Time (sec)");
         axStack.set_ylabel("# threads");
         axStack.set_xlim(ax.get_xlim())
+        axStack.tick_params(top='off')
 
     fig.text(0.1, 0.95, "modules running", color = "green", horizontalalignment = 'left')
     fig.text(0.5, 0.95, "stalled module running", color = "red", horizontalalignment = 'center')
