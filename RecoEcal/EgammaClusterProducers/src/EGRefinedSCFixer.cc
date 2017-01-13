@@ -61,20 +61,20 @@ public:
 				  const reco::SuperCluster& orgSC,
 				  const reco::SuperCluster& fixedSC);
   
-  static std::vector<edm::Ptr<reco::CaloCluster> >
-  getClustersFromSeedIds(const std::unordered_set<int>& seedIds,const edm::Handle<edm::View<reco::CaloCluster> >& inClusters);
+  static std::vector<edm::Ptr<reco::PFCluster> >
+  getClustersFromSeedIds(const std::unordered_set<int>& seedIds,const edm::Handle<edm::View<reco::PFCluster> >& inClusters);
 
   static reco::SuperCluster 
   makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedSC,
 			   const reco::SuperCluster& orgSC,
 			   const reco::SuperCluster& fixedSC,
-			   const edm::Handle<edm::View<reco::CaloCluster> >& fixedClusters);
+			   const edm::Handle<edm::View<reco::PFCluster> >& fixedClusters);
 
 private:
   edm::EDGetTokenT<reco::SuperClusterCollection> orgRefinedSCToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> orgSCToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> fixedSCToken_;
-  edm::EDGetTokenT<edm::View<reco::CaloCluster> > fixedPFClustersToken_;
+  edm::EDGetTokenT<edm::View<reco::PFCluster> > fixedPFClustersToken_;
   
   
 
@@ -85,7 +85,7 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
   orgRefinedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgRefinedSC"));
   orgSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgSC"));
   fixedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("fixedSC"));
-  fixedPFClustersToken_ = consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
+  fixedPFClustersToken_ = consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
   produces<reco::SuperClusterCollection>();
 }
 
@@ -265,12 +265,12 @@ EGRefinedSCFixer::getListOfClusterSeedIdsForNewSC(const reco::SuperCluster& orgR
   return detIdsOfClustersForNewSC;
 }
 
-std::vector<edm::Ptr<reco::CaloCluster> >
-EGRefinedSCFixer::getClustersFromSeedIds(const std::unordered_set<int>& seedIds,const edm::Handle<edm::View<reco::CaloCluster> >& inClusters)
+std::vector<edm::Ptr<reco::PFCluster> >
+EGRefinedSCFixer::getClustersFromSeedIds(const std::unordered_set<int>& seedIds,const edm::Handle<edm::View<reco::PFCluster> >& inClusters)
 {
-  std::vector<edm::Ptr<reco::CaloCluster> > outClusters;
+  std::vector<edm::Ptr<reco::PFCluster> > outClusters;
   for(size_t clusNr=0;clusNr<inClusters->size();clusNr++){
-    edm::Ptr<reco::CaloCluster> clusPtr(inClusters,clusNr);
+    edm::Ptr<reco::PFCluster> clusPtr(inClusters,clusNr);
     if(seedIds.count(clusPtr->seed().rawId())>0){
       outClusters.push_back(clusPtr);
     }
@@ -286,17 +286,17 @@ reco::SuperCluster
 EGRefinedSCFixer::makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedSC,
 					   const reco::SuperCluster& orgSC,
 					   const reco::SuperCluster& fixedSC,
-					   const edm::Handle<edm::View<reco::CaloCluster> >& fixedClusters)
+					   const edm::Handle<edm::View<reco::PFCluster> >& fixedClusters)
 {
   
   auto listOfSeedIds = getListOfClusterSeedIdsForNewSC(orgRefinedSC,orgSC,fixedSC);
-  std::vector<edm::Ptr<reco::CaloCluster> > clusters = getClustersFromSeedIds(listOfSeedIds,fixedClusters);
-  //std::vector<const reco::PFCluster*> clustersBarePtrs;
+  std::vector<edm::Ptr<reco::PFCluster> > clusters = getClustersFromSeedIds(listOfSeedIds,fixedClusters);
+  std::vector<const reco::PFCluster*> clustersBarePtrs;
 
   double posX(0),posY(0),posZ(0);
   double scNrgy(0),scCorrNrgy(0);
   for(auto & clus : clusters){
-    //    clustersBarePtrs.push_back(&*clus);
+    clustersBarePtrs.push_back(&*clus);
     
     const double clusNrgy = clus->energy();
     double clusCorrNrgy = clus->correctedEnergy();
@@ -330,9 +330,9 @@ EGRefinedSCFixer::makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedS
   }
   
   // calculate linearly weighted cluster widths
-  //PFClusterWidthAlgo pfwidth(clustersBarePtrs);
-  //newSC.setEtaWidth(pfwidth.pflowEtaWidth());
-  //newSC.setPhiWidth(pfwidth.pflowPhiWidth());
+  PFClusterWidthAlgo pfwidth(clustersBarePtrs);
+  newSC.setEtaWidth(pfwidth.pflowEtaWidth());
+  newSC.setPhiWidth(pfwidth.pflowPhiWidth());
   
   // cache the value of the raw energy  
   newSC.rawEnergy();
