@@ -85,7 +85,7 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.l1mw = cms.EDAnalyzer("L1MenuWriter_")
+process.l1mw = cms.EDAnalyzer("L1MenuWriter", isO2Opayload = cms.untracked.bool(True) )
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string(options.outputDBConnect)

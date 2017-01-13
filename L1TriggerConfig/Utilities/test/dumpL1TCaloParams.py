@@ -73,7 +73,7 @@ else :
 # Online produced for the payload 
 process.load("L1TriggerConfig.L1TConfigProducers.L1TCaloParamsOnline_cfi")
 process.L1TCaloParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
-process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( options.DBAuth )
+#process.l1caloparProtodb.DBParameters.authenticationPath = cms.untracked.string( options.DBAuth )
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    toGet = cms.VPSet(cms.PSet(
@@ -83,7 +83,7 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
    verbose = cms.untracked.bool(True)
 )
 
-process.l1cpw = cms.EDAnalyzer("L1TCaloParamsWriter_")
+process.l1cpw = cms.EDAnalyzer("L1TCaloStage2ParamsWriter", isO2Opayload = cms.untracked.bool(True))
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string(options.outputDBConnect)
