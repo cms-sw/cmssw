@@ -75,7 +75,7 @@ namespace {
 	cursor.offsetBy( eastNr, northNr);
 	DetId id = *cursor;
 	auto recHitIt = recHits->find(id);
-	if(recHitIt!=recHits->end() && 
+ 	if(recHitIt!=recHits->end() && 
 	   recHitIt->checkFlags(flags)){
 	  nrFound++;
 	}

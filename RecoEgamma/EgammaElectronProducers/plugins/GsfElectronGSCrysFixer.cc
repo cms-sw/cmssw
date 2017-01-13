@@ -77,28 +77,7 @@ namespace {
   }
 }
 
-namespace{
-  int nrCrysWithFlagsIn5x5(const DetId& id,const std::vector<int>& flags,const EcalRecHitCollection* recHits,const CaloTopology *topology)
-  {
-    int nrFound=0;
-    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
-    
-    for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
-      for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
-	cursor.home();
-	cursor.offsetBy( eastNr, northNr);
-	DetId id = *cursor;
-	auto recHitIt = recHits->find(id);
-	if(recHitIt!=recHits->end() && 
-	   recHitIt->checkFlags(flags)){
-	  nrFound++;
-	}
-	
-      }
-    }
-    return nrFound;
-  }
-}
+
 
 
 
@@ -142,17 +121,8 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
   
     reco::GsfElectronCoreRef newCoreRef = getNewCore(eleRef,newCoresHandle,newCoresToOldCoresMap);
     
- 
-    int nrEBGSCrys=0;
-    DetId seedId = eleRef->superCluster()->seed()->seed();
-    if(seedId.subdetId()==EcalBarrel){
-      nrEBGSCrys = nrCrysWithFlagsIn5x5(seedId,
-					{EcalRecHit::kHasSwitchToGain6,EcalRecHit::kHasSwitchToGain1}, 
-					&ebRecHits,topology_);
-    }
-    
-    if(nrEBGSCrys>0 && newCoreRef.isNonnull()){ //okay we have to remake the electron
-      
+    if(newCoreRef.isNonnull()){ //okay we have to remake the electron
+      std::cout <<"made a new electron "<<iEvent.id().run()<<" "<<iEvent.id().event()<<std::endl;
       reco::GsfElectron newEle(*eleRef,newCoreRef);
       reco::GsfElectron::ShowerShape full5x5 = calShowerShape(newEle.superCluster(),&ebRecHits);
       newEle.full5x5_setShowerShape(full5x5);   
