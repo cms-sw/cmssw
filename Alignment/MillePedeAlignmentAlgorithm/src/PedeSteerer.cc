@@ -17,7 +17,6 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include <boost/cstdint.hpp> 
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -55,7 +54,9 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
 			 AlignmentParameterStore *store, const PedeLabelerBase *labels,
                          const edm::ParameterSet &config, const std::string &defaultDir,
 			 bool noSteerFiles) :
-  myParameterStore(store), myLabels(labels), myConfig(config),
+  myParameterStore(store), myLabels(labels),
+  alignableObjectId_{AlignableObjectId::commonObjectIdProvider(aliTracker, aliMuon)},
+  myConfig(config),
   myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
   myNoSteerFiles(noSteerFiles),
   myIsSteerFileDebug(myConfig.getUntrackedParameter<bool>("steerFileDebug")),
@@ -452,7 +453,7 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
     if (!(*iA)->firstCompsWithParams(aliDaughts)) {
       edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
 				   << "Some but not all daughters of "
-				   << AlignableObjectId::idToString((*iA)->alignableObjectId())
+				   << alignableObjectId_.idToString((*iA)->alignableObjectId())
 				   << " with params!";
     }
     //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
@@ -515,11 +516,11 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       if (theConstrPrecision > 0)
         aConstr << paramLabel << "    " << std::setprecision(theConstrPrecision) << factors[iParam];
-      else
+     else
         aConstr << paramLabel << "    " << factors[iParam];
       if (myIsSteerFileDebug) { // debug
 	aConstr << "   ! for param " << compParNum << " of a " 
-		<< AlignableObjectId::idToString(aliSubComp->alignableObjectId()) << " at " 
+		<< alignableObjectId_.idToString(aliSubComp->alignableObjectId()) << " at "
 		<< aliSubComp->globalPosition() << ", r=" << aliSubComp->globalPosition().perp();
       }
       aConstr << "\n";
@@ -530,7 +531,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     if (nParPerConstr && nParPerConstr >= theMinHieraParPerConstr) { // Enough to make sense?
       if (myIsSteerFileDebug) { //debug
 	file << "\n* Nr. " << iConstr << " of a '"
-	     << AlignableObjectId::idToString(ali->alignableObjectId()) << "' (label "
+	     << alignableObjectId_.idToString(ali->alignableObjectId()) << "' (label "
 	     << myLabels->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
 	     << "), position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
@@ -577,7 +578,7 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
             throw cms::Exception("BadConfig")
               << "[PedeSteerer::presigmas]: Try to set pre-sigma " << presigma << ", but already "
               << "set " << presigmas[iParam] << " (for a " 
-              << AlignableObjectId::idToString(alis[iAli]->alignableObjectId()) << ").";
+              << alignableObjectId_.idToString(alis[iAli]->alignableObjectId()) << ").";
           }
           presigmas[iParam] = presigma;
         } // end if selected for presigma
@@ -626,7 +627,7 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
       (*filePtr) << myLabels->parameterLabel(aliLabel, iParam) << "   0.   " 
                  << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam));
       if (myIsSteerFileDebug) {
-	(*filePtr) << "  ! for a " << AlignableObjectId::idToString((*iAli)->alignableObjectId());
+	(*filePtr) << "  ! for a " << alignableObjectId_.idToString((*iAli)->alignableObjectId());
       }
       (*filePtr) << '\n';
 

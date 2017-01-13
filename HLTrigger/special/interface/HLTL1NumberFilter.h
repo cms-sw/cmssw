@@ -55,6 +55,8 @@ private:
   const int fedId_;
   /// if invert_=true, invert that event accept decision
   const bool invert_;
+  /// if useTCDS=true, use 64-bit Event Number from TCDS record (FED 1024) word 11
+  const bool useTCDS_;
 };
 
 #endif

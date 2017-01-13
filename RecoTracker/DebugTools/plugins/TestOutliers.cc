@@ -59,7 +59,7 @@ public:
 
 
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
 
@@ -894,7 +894,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-TestOutliers::beginRun(edm::Run & run, const edm::EventSetup& es)
+TestOutliers::beginRun(edm::Run const& run, const edm::EventSetup& es)
 {
   es.get<TrackerDigiGeometryRecord>().get(theG);
   const bool oldAddDir = TH1::AddDirectoryStatus();

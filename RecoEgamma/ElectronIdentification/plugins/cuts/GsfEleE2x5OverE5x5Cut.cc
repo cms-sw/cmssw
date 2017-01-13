@@ -39,7 +39,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
 
 double GsfEleE2x5OverE5x5Cut::value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);
-  // here return the ratio since it is a decent encoding of the value of 
-  // both variables
-  return ele->e2x5Max()/ele->e1x5();
+  //btw we broke somebodies nice model of assuming every cut is 1D....
+  //what this is returning is fairly meaningless...
+  return ele->e1x5() ? ele->e2x5Max()/ele->e1x5() : 0.;
 }

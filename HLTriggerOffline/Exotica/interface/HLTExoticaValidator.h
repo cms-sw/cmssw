@@ -27,7 +27,7 @@
 #include <cstring>
 
 
-class EVTColContainer;
+struct EVTColContainer;
 
 /// The HLTExoticaValidator module is the main module of the
 /// package. It books a vector of auxiliary classes

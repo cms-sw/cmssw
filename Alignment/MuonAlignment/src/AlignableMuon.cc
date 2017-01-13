@@ -29,7 +29,8 @@
 
 //--------------------------------------------------------------------------------------------------
 AlignableMuon::AlignableMuon( const DTGeometry* dtGeometry , const CSCGeometry* cscGeometry )
-  : AlignableComposite(0, align::AlignableMuon) // cannot yet set id, use 0
+  : AlignableComposite(0, align::AlignableMuon), // cannot yet set id, use 0
+    alignableObjectId_(nullptr, dtGeometry, cscGeometry)
 {
 
   // Build the muon barrel

@@ -374,7 +374,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
           throw cms::Exception("BadConfig")
             << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
             << "Momentum dependence configured for alignable of type "
-            << AlignableObjectId::idToString((*iAli)->alignableObjectId())
+            << objectIdProvider().idToString((*iAli)->alignableObjectId())
             << " at (" << (*iAli)->globalPosition().x() << ","<< (*iAli)->globalPosition().y() << "," << (*iAli)->globalPosition().z()<< "), "
             << "but that has no parameters. Please check that all run "
             << "momentum parameters are also selected for alignment.\n"; 

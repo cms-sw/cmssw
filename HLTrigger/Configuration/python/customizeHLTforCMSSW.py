@@ -1,18 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from HLTrigger.Configuration.common import *
 
-#
-# reusable functions
-def producers_by_type(process, *types):
-    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
-def filters_by_type(process, *types):
-    return (filter for filter in process._Process__filters.values() if filter._TypedParameterizable__type in types)
-def analyzers_by_type(process, *types):
-    return (analyzer for analyzer in process._Process__analyzers.values() if analyzer._TypedParameterizable__type in types)
-
-def esproducers_by_type(process, *types):
-    return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
-
-#
 # one action function per PR - put the PR number into the name of the function
 
 # example:
@@ -81,6 +69,17 @@ def customiseFor16569(process):
     for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
         if hasattr(process,mod):
             getattr(process,mod).ts4chi2 = cms.vdouble(15.,5000.)
+
+    return process
+
+def customiseFor17094(process):
+    for mod in ['hltHbhereco','hltHbherecoMethod2L1EGSeeded','hltHbherecoMethod2L1EGUnseeded','hltHfreco','hltHoreco']:
+        if hasattr(process,mod):
+            getattr(process,mod).timeSigmaSiPM = cms.double(2.5)
+            getattr(process,mod).pedSigmaSiPM = cms.double(0.00065)
+            getattr(process,mod).noiseSiPM = cms.double(1)
+            getattr(process,mod).ts4Max = cms.vdouble(100.,45000.)
+            getattr(process,mod).ts4chi2 = cms.vdouble(15.,15.)
 
     return process
 
@@ -166,10 +165,14 @@ def customiseFor16792(process):
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
+#   only for non-development frozen menus
+
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
     if cmsswVersion >= "CMSSW_8_1":
+      if menuType == "25ns15e33_v4":
+        print "# Applying 81X customization for ",menuType
         process = customiseFor14356(process)
         process = customiseFor13753(process)
         process = customiseFor14833(process)
@@ -181,7 +184,9 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         pass
 
     if cmsswVersion >= "CMSSW_9_0":
+        print "# Applying 90X customization for ",menuType
         process = customiseFor16792(process)
+        process = customiseFor17094(process)
         pass
 
 #   stage-2 changes only if needed
