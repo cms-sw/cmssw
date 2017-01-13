@@ -1,5 +1,5 @@
-#ifndef RecoEcal_EgammaClusterProducers_EGRefinedSCFixed_h
-#define RecoEcal_EgammaClusterProducers_EGRefinedSCFixed_h
+#ifndef RecoEcal_EgammaClusterProducers_EGRefinedSCFixer_h
+#define RecoEcal_EgammaClusterProducers_EGRefinedSCFixer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -86,7 +86,7 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
   orgSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgSC"));
   fixedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("fixedSC"));
   fixedPFClustersToken_ = consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
-  produces<reco::SuperClusterCollection>();
+  produces<reco::SuperClusterCollection>(); 
 }
 
 namespace {
@@ -340,6 +340,7 @@ EGRefinedSCFixer::makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedS
   return newSC;
     
 }
+
 DEFINE_FWK_MODULE(EGRefinedSCFixer);
 
 #endif
