@@ -50,9 +50,9 @@ public:
 			    edm::EventSetup const&) override;
   
 
+  template<bool noZS>
   reco::GsfElectron::ShowerShape 
-  calShowerShape(const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits);
-  
+  redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits);
 
   template<typename T>
   void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label){
@@ -101,7 +101,7 @@ GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
   } else {
     gedRegression_.reset(nullptr);
   }
-  
+
   produces<reco::GsfElectronCollection >();
 }
 
@@ -145,8 +145,10 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
     if(newCoreRef.isNonnull()){ //okay we have to remake the electron
 
       reco::GsfElectron newEle(*eleRef,newCoreRef);
-      reco::GsfElectron::ShowerShape full5x5 = calShowerShape(newEle.superCluster(),&ebRecHits);
-      newEle.full5x5_setShowerShape(full5x5);   
+      reco::GsfElectron::ShowerShape full5x5ShowerShape = redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebRecHits);
+      reco::GsfElectron::ShowerShape stupidShowerShape = redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebRecHits);
+      newEle.full5x5_setShowerShape(full5x5ShowerShape);   
+      newEle.setShowerShape(stupidShowerShape);   
 
       if( gedRegression_ ) {
 	gedRegression_->modifyObject(newEle);
@@ -173,23 +175,21 @@ void GsfElectronGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb
   topology_ = caloTopo.product();
 }
 
-
+template<bool noZS>
 reco::GsfElectron::ShowerShape 
-GsfElectronGSCrysFixer::calShowerShape(const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits)
+GsfElectronGSCrysFixer::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits)
 {
-  reco::GsfElectron::ShowerShape showerShape;
-  
   const reco::CaloCluster & seedClus = *(superClus->seed());
   
-  std::vector<float> covariances = noZS::EcalClusterTools::covariances(seedClus,recHits,topology_,geometry_);
-  std::vector<float> localCovariances = noZS::EcalClusterTools::localCovariances(seedClus,recHits,topology_);
+  std::vector<float> covariances = EcalClusterToolsT<noZS>::covariances(seedClus,recHits,topology_,geometry_);
+  std::vector<float> localCovariances = EcalClusterToolsT<noZS>::localCovariances(seedClus,recHits,topology_);
   showerShape.sigmaEtaEta = sqrt(covariances[0]);
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
   if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]);
-  showerShape.e1x5 = noZS::EcalClusterTools::e1x5(seedClus,recHits,topology_);
-  showerShape.e2x5Max = noZS::EcalClusterTools::e2x5Max(seedClus,recHits,topology_);
-  showerShape.e5x5 = noZS::EcalClusterTools::e5x5(seedClus,recHits,topology_);
-  showerShape.r9 = noZS::EcalClusterTools::e3x3(seedClus,recHits,topology_)/superClus->rawEnergy();
+  showerShape.e1x5 = EcalClusterToolsT<noZS>::e1x5(seedClus,recHits,topology_);
+  showerShape.e2x5Max = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology_);
+  showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology_);
+  showerShape.r9 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology_)/superClus->rawEnergy();
   return showerShape;
 }
 
