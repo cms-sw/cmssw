@@ -13,7 +13,8 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     StandardSpecificationTrend,
     StandardSpecificationTrend2D,
-    StandardSpecification2DProfile,
+    StandardSpecificationPixelmapProfile,# ROC level map
+    #StandardSpecification2DProfile, # module level map
     StandardSpecifications1D
   )
 )
@@ -97,8 +98,8 @@ SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
 )
 
 SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
-  name = "hitmap",
-  title = "Position of digis on module",
+  name = "digi_occupancy",
+  title = "Digi Occupancy",
   ylabel = "#digis",
   dimensions = 0,
   specs = VPSet(
@@ -112,7 +113,6 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row")
                    .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
-
     Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row/col")
                    .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row", "EXTEND_Y")
                    .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
