@@ -152,7 +152,7 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
 	gedRegression_->modifyObject(newEle);
       }
 
-      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<std::endl;
+      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<<std::endl;
       
       outEles->push_back(newEle);
     }else{
