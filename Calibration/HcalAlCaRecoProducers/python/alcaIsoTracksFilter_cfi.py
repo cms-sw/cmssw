@@ -26,5 +26,5 @@ AlcaIsoTracksFilter = cms.EDFilter("AlCaIsoTracksFilter",
                                    ConeRadiusMIP     = cms.double(14.0),
                                    MinimumTrackP     = cms.double(20.0),
                                    MaximumEcalEnergy = cms.double(2.0),
-                                   IsolationEnergy   = cms.double(2.0),
+                                   IsolationEnergy   = cms.double(10.0),
 )
