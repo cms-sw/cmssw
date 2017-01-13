@@ -91,7 +91,10 @@ l1t::MicroGMTIsolationUnit::extrapolateMuons(MicroGMTConfiguration::InterMuonLis
         sign = -1;
       }
       deltaPhi = (phiExtrapolationLUT->lookup(etaAbsRed, ptRed) << outputShift) * sign;
-      deltaEta = (m_etaExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << outputShift);
+      deltaEta = (m_etaExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed));
+      if (mu->hwEta() > 0) {
+        deltaEta *= -1;
+      }
     }
 
     mu->setExtrapolation(deltaEta, deltaPhi);
