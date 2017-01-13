@@ -59,7 +59,7 @@ dqmRunConfigDefaults = {
     'userarea': cms.PSet(
         type = cms.untracked.string("userarea"),
         collectorPort = cms.untracked.int32(9190),
-        collectorHost = cms.untracked.string('lxplus032'),
+        collectorHost = cms.untracked.string('lxplus064'),
     ),
 }
 
@@ -106,7 +106,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #-------------------------------------------------
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2017_realistic_v0', '')
 
 #-----------------------
 #  Reconstruction Modules
