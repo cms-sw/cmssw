@@ -69,7 +69,7 @@ except:
   readFiles = cms.untracked.vstring()
   secFiles = cms.untracked.vstring()
   # this outputs all results, which can be a lot...
-  read, sec = filesFromDASQuery("file dataset=%s" % dataset, option=" --limit 10000 ")
+  read, sec = filesFromDASQuery("file run=%d dataset=%s" % (options.runNumber, dataset), option=" --limit 10000 ")
   readFiles.extend(read)
   secFiles.extend(sec)
 
