@@ -133,19 +133,15 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
   auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
 
-  // We need to track some extra stuff here for the Shells later.
-  auto pxlayer  = extractors[intern("PXLayer")];
-
   // Now traverse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
     auto iq = InterestingQuantities{nullptr, id, 0, 0};
-    auto layer = pxlayer(iq);
 
     // prepare pretty names
     std::string name = "";
-    if (layer != UNDEFINED) { // Barrel
+    if (id.subdetId() == PixelSubdetector::PixelBarrel) { // Barrel
       PixelBarrelName mod(id, tt, isUpgrade);
       name = mod.name();
     } else { // assume Endcap
@@ -248,29 +244,42 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   // TODO: binning should be phase-dependent. Or maybe even per-plot configurable.
   addExtractor(intern("SignedModuleCoord"),
     [coord, from_coord] (InterestingQuantities const& iq) {
-      return from_coord(coord->signed_module_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      return from_coord(coord->signed_module_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/8.0
   );
   addExtractor(intern("SignedLadderCoord"),
     [coord, from_coord] (InterestingQuantities const& iq) {
-      return from_coord(coord->signed_ladder_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      return from_coord(coord->signed_ladder_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/2.0
   );
   addExtractor(intern("SignedDiskCoord"),
     [coord, from_coord] (InterestingQuantities const& iq) {
-      return from_coord(coord->signed_disk_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      return from_coord(coord->signed_disk_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/8.0
   );
   addExtractor(intern("SignedBladePanelCoord"),
-    [coord, from_coord] (InterestingQuantities const& iq) {
-      return from_coord(coord->signed_blade_panel_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
-    }, UNDEFINED, UNDEFINED, 1.0/4.0
+    [coord, from_coord, phase] (InterestingQuantities const& iq) {
+      if (phase == 0) {
+        return from_coord(coord->signed_blade_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else if (phase == 1) {
+        return from_coord(coord->signed_shifted_blade_panel_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else {
+        // TODO: phase2
+        return UNDEFINED;
+      }
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
   );
 
   // more readout-related things.
   addExtractor(intern("ROC"),
     [coord, from_coord] (InterestingQuantities const& iq) {
-      return from_coord(coord->roc(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      return from_coord(coord->roc(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
     }
   );
   addExtractor(intern("Sector"),
