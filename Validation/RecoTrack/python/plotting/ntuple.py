@@ -1010,6 +1010,21 @@ class TrackingParticle(_Object, _SimHitAdaptor):
         for ivtx in self._tree.sim_decayVtxIdx[self._index]:
             yield TrackingVertex(self._tree, ivtx)
 
+    def isLooper(self):
+        """Returns True if this TrackingParticle is a looper.
+
+        Note that the check involves looping over the SimHits, so it is not too cheap."""
+        self._checkIsValid()
+        prevr = 0
+        for ihit in self.simHitIdx():
+            hit = SimHit(self._tree, ihit)
+            r = hit.x()**2 + hit.y()**2
+            if r < prevr:
+                return True
+            prevr = r
+        return False
+
+
 class TrackingParticles(_Collection):
     """Class presenting a collection of TrackingParticles."""
     def __init__(self, tree):
