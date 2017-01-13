@@ -160,34 +160,38 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
       boost::directedS,
       node,
       boost::no_property
-  > graph;
+  > graph(pathsAndConsumes.allModules().size());
 
-  // map module id's to graph nodes
-  std::map<unsigned int, decltype(boost::add_vertex(graph))> nodes;
+  // create graph vertices for the source module
+  boost::add_vertex(graph);
+  graph[0] = { "source", 0, EDMModuleType::Source, false };
+
+  // create graph vertices associated to all modules in the process
+  for (edm::ModuleDescription const * module: pathsAndConsumes.allModules()) {
+    graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
+  }
 
   // paths and endpaths
   auto const & paths = pathsAndConsumes.paths();
   auto const & endps = pathsAndConsumes.endPaths();
 
-  // create graph vertices associated to all modules in the process
-  for (edm::ModuleDescription const * module: pathsAndConsumes.allModules()) {
-    auto v = boost::add_vertex(graph);
-    graph[v] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
-    nodes[module->id()] = v;
-  }
-
   // mark scheduled modules
   for (unsigned int i = 0; i < paths.size(); ++i)
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnPath(i))
-      graph[nodes[module->id()]].scheduled = true;
+      graph[module->id()].scheduled = true;
   for (unsigned int i = 0; i < endps.size(); ++i)
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnEndPath(i))
-      graph[nodes[module->id()]].scheduled = true;
+      graph[module->id()].scheduled = true;
 
   // add graph edges associated to module dependencies
   for (auto vertex: make_range(boost::vertices(graph)))
+  {
+    if (vertex == 0)
+      // the Source (id = 0) is not part of the consumes interface
+      continue;
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(graph[vertex].id))
-      boost::add_edge(vertex, nodes[module->id()], graph);
+      boost::add_edge(vertex, module->id(), graph);
+  }
 
   // draw the dependency graph
   std::ofstream out("dependency.gv");
@@ -201,7 +205,7 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
                "color=\"black\" " <<
                "fillcolor=\"" << (graph[node].scheduled ? "white" : "lightgrey") << "\"]"; },
       [&](auto & out, auto const & edge) { },
-      [&](auto & out) { 
+      [&](auto & out) {
         out << "label=\"process " << context.processName() << "\"\n" <<
                "labelloc=top\n"; }
   );
