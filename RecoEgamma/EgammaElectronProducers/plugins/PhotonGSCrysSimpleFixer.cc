@@ -75,7 +75,7 @@ namespace {
 
 PhotonGSCrysSimpleFixer::PhotonGSCrysSimpleFixer( const edm::ParameterSet & pset ):
   energyTypesToFix_(StringToEnumValue<reco::Photon::P4type>(pset.getParameter<std::vector<std::string> >("energyTypesToFix"))),
-  energyTypeForP4_(static_cast<reco::Photon::P4type>(StringToEnumValue<reco::Photon::P4type>(pset.getParameter<std::string>("energyTypesForP4"))))
+  energyTypeForP4_(static_cast<reco::Photon::P4type>(StringToEnumValue<reco::Photon::P4type>(pset.getParameter<std::string>("energyTypeForP4"))))
 { 
   std::cout <<"warning we have not yet fixed H/E variables with the new E"<<std::endl;
   getToken(oldPhosToken_,pset,"oldPhos");
