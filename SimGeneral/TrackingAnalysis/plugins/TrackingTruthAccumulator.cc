@@ -52,7 +52,8 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-
+//Turn on integrity checking
+//#define DO_DEBUG_TESTING
 
 
 //---------------------------------------------------------------------------------
@@ -114,11 +115,13 @@ namespace
 		const size_t decayTracksSize;
 		const size_t decayVerticesSize;
 
+#if defined(DO_DEBUG_TESTING)
 		/** @brief Testing check. Won't actually be called when the code becomes production.
 		 *
 		 * Checks that there are no dangling objects not associated in the decay chain.
 		 */
 		void integrityCheck();
+#endif
 		const SimTrack& getSimTrack( const ::DecayChainTrack* pDecayTrack ) const { return simTrackCollection_.at( pDecayTrack->simTrackIndex ); }
 		const SimVertex& getSimVertex( const ::DecayChainVertex* pDecayVertex ) const { return simVertexCollection_.at( pDecayVertex->simVertexIndex ); }
 	private:
@@ -453,9 +456,11 @@ template<class T> void TrackingTruthAccumulator::accumulateEvent( const T& event
 	fillSimHits( simHitPointers, event, setup );
 	TrackingParticleFactory objectFactory( decayChain, hGenParticles, hepMCproduct, hGenParticleIndices, simHitPointers, volumeRadius_, volumeZ_, vertexDistanceCut_, allowDifferentProcessTypeForDifferentDetectors_ );
 
+#if defined(DO_DEBUG_TESTING)
 	// While I'm testing, perform some checks.
 	// TODO - drop this call once I'm happy it works in all situations.
-	//decayChain.integrityCheck();
+	decayChain.integrityCheck();
+#endif
 
 	TrackingParticleSelector* pSelector=NULL;
 	if( selectorFlag_ ) pSelector=&selector_;
@@ -817,6 +822,7 @@ namespace // Unnamed namespace for things only used in this file
 
 	} // end of ::DecayChain constructor
 
+#if defined(DO_DEBUG_TESTING)
 	// Function documentation is with the declaration above. This function is only used for testing.
 	void ::DecayChain::integrityCheck()
 	{
@@ -909,6 +915,7 @@ namespace // Unnamed namespace for things only used in this file
 
 		std::cout << "TrackingTruthAccumulator.cc integrityCheck() completed successfully" << std::endl;
 	} // end of ::DecayChain::integrityCheck()
+#endif
 
 	void ::DecayChain::findBrem( const std::vector<SimTrack>& trackCollection, const std::vector<SimVertex>& vertexCollection )
 	{
