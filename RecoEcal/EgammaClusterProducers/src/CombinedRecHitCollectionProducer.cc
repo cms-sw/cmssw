@@ -87,7 +87,7 @@ produce (edm::Event& iEvent,
       auto secHit = secondaryRecHits->find(hit.detid());
       if(secHit!=secondaryRecHits->end()){ //found secondary hit
 	outColl->push_back(*secHit);
-	if(hit.checkFlags({EcalRecHit::kHasSwitchToGain1}))std::cout <<"old hit "<<hit.energy()<<" new  hit "<<secHit->energy()<<std::endl;
+	//	if(hit.checkFlags({EcalRecHit::kHasSwitchToGain1}))std::cout <<"old hit "<<hit.energy()<<" new  hit "<<secHit->energy()<<std::endl;
       }else{
  	outColl->push_back(hit);
 	missingDetIds->push_back(hit.detid());
