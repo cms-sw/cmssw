@@ -58,5 +58,43 @@ bool GainSwitchTools::hasEBGainSwitch(const EcalRecHitCollection* recHits)
   return false;
 }
   
+//needs to be multifit rec-hits currently as weights dont have gs flags set
+std::vector<DetId> GainSwitchTools::gainSwitchedIdsIn5x5(const DetId& id,const EcalRecHitCollection* recHits,const CaloTopology* topology)
+{
+  std::vector<DetId> gsDetIds;
+  CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+  
+  for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
+    for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
+      cursor.home();
+      cursor.offsetBy( eastNr, northNr);
+      DetId id = *cursor;
+      auto recHitIt = recHits->find(id);
+      if(recHitIt!=recHits->end() && 
+	 recHitIt->checkFlags(gainSwitchFlags())){
+	gsDetIds.push_back(id);
+      }
+    }
+  }
+  return gsDetIds;
+}
+
+//it should be a reasonable assumption that the GS hits should be in the supercluster with fraction ~1 for 
+//isolated electrons/photons
+float GainSwitchTools::newRawEnergyNoFracs(const reco::SuperCluster& superClus,const std::vector<DetId> gainSwitchedHitIds,const EcalRecHitCollection* oldRecHits,const EcalRecHitCollection* newRecHits)
+{
+  double oldEnergy=0.;
+  double newEnergy=0.;
+  for(auto& id : gainSwitchedHitIds){
+    auto oldRecHitIt = oldRecHits->find(id);
+    if(oldRecHitIt!=oldRecHits->end()) oldEnergy+=oldRecHitIt->energy();
+    auto newRecHitIt = newRecHits->find(id);
+    if(newRecHitIt!=newRecHits->end()) newEnergy+=newRecHitIt->energy();
+  }
+  
+  float newRawEnergy = superClus.rawEnergy() - oldEnergy + newEnergy;
+  
+  return newRawEnergy;
+}
 
 

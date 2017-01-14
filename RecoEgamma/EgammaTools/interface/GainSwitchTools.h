@@ -6,7 +6,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
@@ -32,6 +31,11 @@ public:
   static bool hasEBGainSwitch(const EcalRecHitCollection* recHits);
   
   static const std::vector<int> gainSwitchFlags(){return gainSwitchFlags_;}
+  static float newRawEnergyNoFracs(const reco::SuperCluster& superClus,const std::vector<DetId> gainSwitchedHitIds,const EcalRecHitCollection* oldRecHits,const EcalRecHitCollection* newRecHits);
+
+  //needs to be multifit rec-hits currently as weights dont have gs flags set
+  static std::vector<DetId> gainSwitchedIdsIn5x5(const DetId& id,const EcalRecHitCollection* recHits,const CaloTopology* topology);
+  
   
   template<bool noZS>
   static reco::GsfElectron::ShowerShape 
@@ -61,9 +65,7 @@ GainSwitchTools::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,
   showerShape.e1x5 = EcalClusterToolsT<noZS>::e1x5(seedClus,recHits,topology);
   showerShape.e2x5Max = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology);
   showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology);
-  showerShape.r9 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology)/superClus->rawEnergy();
-  showerShape.sigmaIetaIphi;
-  
+  showerShape.r9 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology)/superClus->rawEnergy();  
   const float see_by_spp = showerShape.sigmaIetaIeta*showerShape.sigmaIphiIphi;
   if(  see_by_spp > 0 ) {
     showerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
