@@ -30,7 +30,7 @@ int GainSwitchTools::nrCrysWithFlagsIn5x5(const DetId& id,const std::vector<int>
 
 bool GainSwitchTools::hasEBGainSwitch(const reco::SuperCluster& superClus,const EcalRecHitCollection* recHits)
 {
-  if(!recHits) return false;
+  if(!recHits || superClus.seed()->seed().subdetId()!=EcalBarrel) return false;
   for(const auto & clus : superClus.clusters()){
     for(const auto& hit : clus->hitsAndFractions()){
       auto recHitIt = recHits->find(hit.first);
@@ -45,7 +45,7 @@ bool GainSwitchTools::hasEBGainSwitch(const reco::SuperCluster& superClus,const 
 
 bool GainSwitchTools::hasEBGainSwitchIn5x5(const reco::SuperCluster& superClus,const EcalRecHitCollection* recHits,const CaloTopology *topology)
 {
-  if(recHits) return nrCrysWithFlagsIn5x5(superClus.seed()->seed(),gainSwitchFlags(),recHits,topology)!=0;
+  if(recHits || superClus.seed()->seed().subdetId()!=EcalBarrel) return nrCrysWithFlagsIn5x5(superClus.seed()->seed(),gainSwitchFlags(),recHits,topology)!=0;
   else return false;
 }
 
@@ -53,7 +53,7 @@ bool GainSwitchTools::hasEBGainSwitch(const EcalRecHitCollection* recHits)
 {
   if(!recHits) return false;
   for(auto hit : *recHits){
-    if(hit.checkFlags(gainSwitchFlags())) return true;
+    if(hit.id().subdetId()==EcalBarrel && hit.checkFlags(gainSwitchFlags())) return true;
   }
   return false;
 }
