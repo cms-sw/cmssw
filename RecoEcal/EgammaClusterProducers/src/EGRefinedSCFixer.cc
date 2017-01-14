@@ -13,6 +13,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+
+#include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
+
 #include <unordered_set>
 
 //work in progress (emergancy fix!)
@@ -87,7 +90,6 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
   fixedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("fixedSC"));
   fixedPFClustersToken_ = consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
 
-  std::cout <<"remember you havent checked the SC matching critiera"<<std::endl;
   produces<reco::SuperClusterCollection>(); 
 }
  
@@ -110,7 +112,7 @@ namespace{
     }
 
   };
-  std::ostream& operator<<(std::ostream& out,const SCPrinter& obj){return obj(out);}
+  // std::ostream& operator<<(std::ostream& out,const SCPrinter& obj){return obj(out);}
 
 }
 
@@ -131,62 +133,6 @@ namespace{
   std::ostream& operator<<(std::ostream& out,const SCDeepPrinter& obj){return obj(out);}
 
 }
-
-reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl )
-{
-  for(size_t scNr=0;scNr<scColl->size();scNr++){
-    reco::SuperClusterRef scRef(scColl,scNr);
-    if(scRef->seed()->seed().rawId() ==sc.seed()->seed().rawId()) return scRef;
-  }
-  return reco::SuperClusterRef(nullptr,0);
-}
-
-int calDIEta(int lhs,int rhs)
-{
-  int retVal = lhs - rhs;
-  if(lhs*rhs<0){ //crossing zero
-    if(retVal<0) retVal++;
-    else retVal--;
-  }
-  return retVal;
-}
-
-int calDIPhi(int lhs,int rhs)
-{
-  int retVal = lhs-rhs;
-  while(retVal>180) retVal-=360;
-  while(retVal<-180) retVal+=360;
-  return retVal;
-}
-
-reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl,int maxDEta,int maxDPhi)
-{
-  reco::SuperClusterRef bestRef(scColl.id());
-
-  int bestDIR2 = maxDEta*maxDEta+maxDPhi*maxDPhi+1; //+1 is to make it slightly bigger than max allowed
-  
-  if(sc.seed()->seed().subdetId()==EcalBarrel){
-    EBDetId scDetId(sc.seed()->seed());
-    
-    for(size_t scNr=0;scNr<scColl->size();scNr++){
-      reco::SuperClusterRef matchRef(scColl,scNr);
-      if(matchRef->seed()->seed().subdetId()==EcalBarrel){
-	EBDetId matchDetId(matchRef->seed()->seed());
-	int dIEta = calDIEta(scDetId.ieta(),matchDetId.ieta());
-	int dIPhi = calDIPhi(scDetId.iphi(),matchDetId.iphi());
-	int dIR2 = dIEta*dIEta+dIPhi*dIPhi;
-	if(dIR2<bestDIR2){
-	  bestDIR2=dIR2;
-	  bestRef = reco::SuperClusterRef(scColl,scNr);
-	}
-      }
-    }
-    
-    
-  }
-  return bestRef;
-}
-
 
 void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
@@ -209,8 +155,8 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   
   for(const auto& fixedSC : *fixedSCs){
     
-    reco::SuperClusterRef orgSC = matchSCBySeedCrys(fixedSC,orgSCs,2,2);
-    reco::SuperClusterRef orgRefinedSC = orgSC.isNonnull() ? matchSCBySeedCrys(*orgSC,orgRefinedSCs) : orgSC;
+    reco::SuperClusterRef orgSC = GainSwitchTools::matchSCBySeedCrys(fixedSC,orgSCs,2,2);
+    reco::SuperClusterRef orgRefinedSC = orgSC.isNonnull() ? GainSwitchTools::matchSCBySeedCrys(*orgSC,orgRefinedSCs) : orgSC;
     
     //so we have a matched orginal and refined SC, we can remake the refined SC out of the new clusters
     if(orgSC.isNonnull() && orgRefinedSC.isNonnull()){

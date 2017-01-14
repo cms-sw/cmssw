@@ -12,6 +12,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
 
 //this allows us to make the old superclusters to the new superclusters
 //via a valuemap
@@ -56,52 +57,6 @@ namespace {
   }
 }
 
-namespace {
-  int calDIEta(int lhs,int rhs)
-  {
-    int retVal = lhs - rhs;
-    if(lhs*rhs<0){ //crossing zero
-      if(retVal<0) retVal++;
-      else retVal--;
-    }
-    return retVal;
-  }
-
-  int calDIPhi(int lhs,int rhs)
-  {
-    int retVal = lhs-rhs;
-    while(retVal>180) retVal-=360;
-    while(retVal<-180) retVal+=360;
-    return retVal;
-  }
-  
-  reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl,int maxDEta,int maxDPhi)
-  {
-    reco::SuperClusterRef bestRef(scColl.id());
-    
-    int bestDIR2 = maxDEta*maxDEta+maxDPhi*maxDPhi+1; //+1 is to make it slightly bigger than max allowed
-    
-    if(sc.seed()->seed().subdetId()==EcalBarrel){
-      EBDetId scDetId(sc.seed()->seed());
-      
-      for(size_t scNr=0;scNr<scColl->size();scNr++){
-	reco::SuperClusterRef matchRef(scColl,scNr);
-	if(matchRef->seed()->seed().subdetId()==EcalBarrel){
-	  EBDetId matchDetId(matchRef->seed()->seed());
-	  int dIEta = calDIEta(scDetId.ieta(),matchDetId.ieta());
-	  int dIPhi = calDIPhi(scDetId.iphi(),matchDetId.iphi());
-	  int dIR2 = dIEta*dIEta+dIPhi*dIPhi;
-	  if(dIR2<bestDIR2){
-	    bestDIR2=dIR2;
-	    bestRef = reco::SuperClusterRef(scColl,scNr);
-	  }
-	}
-      }     
-    }
-    return bestRef;
-  }
-}
-
 void MapNewToOldSCs::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   auto newRefinedSCs = getHandle(iEvent,newRefinedSCToken_);
@@ -112,11 +67,11 @@ void MapNewToOldSCs::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   
   std::vector<reco::SuperClusterRef> matchedNewSCs;
   for(auto oldSC : *oldSCs){
-    matchedNewSCs.push_back(matchSCBySeedCrys(oldSC,newSCs,2,2));
+    matchedNewSCs.push_back(GainSwitchTools::matchSCBySeedCrys(oldSC,newSCs,2,2));
   }
   std::vector<reco::SuperClusterRef> matchedNewRefinedSCs;
   for(auto oldSC : *oldRefinedSCs){
-    matchedNewRefinedSCs.push_back(matchSCBySeedCrys(oldSC,newRefinedSCs,2,2));
+    matchedNewRefinedSCs.push_back(GainSwitchTools::matchSCBySeedCrys(oldSC,newRefinedSCs,2,2));
   }
   
   writeSCRefValueMap(iEvent,oldSCs,matchedNewSCs,"parentSCs");

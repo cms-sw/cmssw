@@ -37,15 +37,22 @@ public:
   static std::vector<DetId> gainSwitchedIdsIn5x5(const DetId& id,const EcalRecHitCollection* recHits,const CaloTopology* topology);
   
   
+  static reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl );
+  static reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl,int maxDEta,int maxDPhi);
+
   template<bool noZS>
   static reco::GsfElectron::ShowerShape 
   redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
   template<bool noZS>
   static reco::Photon::ShowerShape 
   redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
-  
+
+private:
+  static int calDIEta(int lhs,int rhs);
+  static int calDIPhi(int lhs,int rhs);
 private:
   static const std::vector<int> gainSwitchFlags_;
+ 
   
 };
 
