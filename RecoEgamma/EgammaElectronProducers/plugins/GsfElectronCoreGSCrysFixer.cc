@@ -96,10 +96,11 @@ void GsfElectronCoreGSCrysFixer::produce( edm::Event & iEvent, const edm::EventS
     //passing in the old refined supercluster
     if(GainSwitchTools::hasEBGainSwitchIn5x5(*core.superCluster(),&ebRecHits,topology_)){
       reco::GsfElectronCore newCore(core);
-      //these references may be null, lets see what happens!      
-      newCore.setSuperCluster( oldRefinedSCToNewMap[core.superCluster()] );
-      newCore.setParentSuperCluster( oldSCToNewMap[core.parentSuperCluster()] );
-
+      //these references may be null, lets see what happens!     
+      //turns out the orginal ele may have null references, odd
+      if(core.superCluster().isNonnull()) newCore.setSuperCluster( oldRefinedSCToNewMap[core.superCluster()] );
+      if(core.parentSuperCluster().isNonnull()) newCore.setParentSuperCluster( oldSCToNewMap[core.parentSuperCluster()] );
+        
       outCores->push_back(newCore);
       parentCores.push_back(coreRef->superCluster());
     }
