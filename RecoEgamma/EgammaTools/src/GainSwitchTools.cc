@@ -1,10 +1,10 @@
 #include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-
+#include "DataFormats/DetId/interface/DetId.h"
 const std::vector<int> GainSwitchTools::gainSwitchFlags_={EcalRecHit::kHasSwitchToGain6,EcalRecHit::kHasSwitchToGain1};
 
  //this should really live in EcalClusterTools
@@ -58,3 +58,5 @@ bool GainSwitchTools::hasEBGainSwitch(const EcalRecHitCollection* recHits)
   return false;
 }
   
+
+

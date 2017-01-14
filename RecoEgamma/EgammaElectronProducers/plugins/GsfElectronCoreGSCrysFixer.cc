@@ -28,6 +28,8 @@
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
+#include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
+
 #include <iostream>
 #include <string>
 
@@ -63,30 +65,6 @@ namespace {
   }
 }
 
-namespace {
-  int nrCrysWithFlagsIn5x5(const DetId& id,const std::vector<int>& flags,const EcalRecHitCollection* recHits,const CaloTopology *topology)
-  {
-    int nrFound=0;
-    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
-    
-    for ( int eastNr = -2; eastNr <= 2; ++eastNr ) { //east is eta in barrel
-      for ( int northNr = -2; northNr <= 2; ++northNr ) { //north is phi in barrel
-	cursor.home();
-	cursor.offsetBy( eastNr, northNr);
-	DetId id = *cursor;
-	auto recHitIt = recHits->find(id);
- 	if(recHitIt!=recHits->end() && 
-	   recHitIt->checkFlags(flags)){
-	  nrFound++;
-	}
-	
-      }
-    }
-    return nrFound;
-  }
-}
-
-
 
 GsfElectronCoreGSCrysFixer::GsfElectronCoreGSCrysFixer( const edm::ParameterSet & pset )
 {
@@ -114,21 +92,14 @@ void GsfElectronCoreGSCrysFixer::produce( edm::Event & iEvent, const edm::EventS
   for(size_t coreNr=0;coreNr<eleCoresHandle->size();coreNr++){
     reco::GsfElectronCoreRef coreRef(eleCoresHandle,coreNr);
     const reco::GsfElectronCore& core = *coreRef;
-    int nrEBGSCrys=0;
-    DetId seedId = core.superCluster()->seed()->seed();
-    if(seedId.subdetId()==EcalBarrel){
-      nrEBGSCrys = nrCrysWithFlagsIn5x5(seedId,
-					{EcalRecHit::kHasSwitchToGain6,EcalRecHit::kHasSwitchToGain1}, 
-					&ebRecHits,topology_);
-    }
-    
-    if(nrEBGSCrys>0){ //okay we have to remake the electron core
+   
+    //passing in the old refined supercluster
+    if(GainSwitchTools::hasEBGainSwitchIn5x5(*core.superCluster(),&ebRecHits,topology_)){
       reco::GsfElectronCore newCore(core);
-      
-      //these references may be null, lets see what happens!
+      //these references may be null, lets see what happens!      
       newCore.setSuperCluster( oldRefinedSCToNewMap[core.superCluster()] );
       newCore.setParentSuperCluster( oldSCToNewMap[core.parentSuperCluster()] );
-     
+
       outCores->push_back(newCore);
       parentCores.push_back(coreRef->superCluster());
     }

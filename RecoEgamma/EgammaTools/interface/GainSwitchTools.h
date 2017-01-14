@@ -1,8 +1,15 @@
 #ifndef RecoEgamma_EGammaTools_GainSwitchTools_h
 #define RecoEgamma_EGammaTools_GainSwitchTools_h
 
- 
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+
 #include <vector>
 
 class DetId;
@@ -10,6 +17,7 @@ namespace reco{
   class SuperCluster;
 }
 class CaloTopology;
+class CaloGeometry;
 
 class GainSwitchTools {
 
@@ -24,11 +32,88 @@ public:
   static bool hasEBGainSwitch(const EcalRecHitCollection* recHits);
   
   static const std::vector<int> gainSwitchFlags(){return gainSwitchFlags_;}
-
+  
+  template<bool noZS>
+  static reco::GsfElectron::ShowerShape 
+  redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
+  template<bool noZS>
+  static reco::Photon::ShowerShape 
+  redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
+  
 private:
   static const std::vector<int> gainSwitchFlags_;
   
 };
+
+
+
+template<bool noZS>
+reco::GsfElectron::ShowerShape 
+GainSwitchTools::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry)
+{
+  const reco::CaloCluster & seedClus = *(superClus->seed());
+  
+  std::vector<float> covariances = EcalClusterToolsT<noZS>::covariances(seedClus,recHits,topology,geometry);
+  std::vector<float> localCovariances = EcalClusterToolsT<noZS>::localCovariances(seedClus,recHits,topology);
+  showerShape.sigmaEtaEta = sqrt(covariances[0]);
+  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
+  showerShape.sigmaIphiIphi =!edm::isNotFinite(localCovariances[2]) ? sqrt(localCovariances[2]) : 0;
+  showerShape.e1x5 = EcalClusterToolsT<noZS>::e1x5(seedClus,recHits,topology);
+  showerShape.e2x5Max = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology);
+  showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology);
+  showerShape.r9 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology)/superClus->rawEnergy();
+  showerShape.sigmaIetaIphi;
+  
+  const float see_by_spp = showerShape.sigmaIetaIeta*showerShape.sigmaIphiIphi;
+  if(  see_by_spp > 0 ) {
+    showerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
+  } else if ( localCovariances[1] > 0 ) {
+    showerShape.sigmaIetaIphi = 1.f;
+  } else {
+    showerShape.sigmaIetaIphi = -1.f;
+  }
+  showerShape.eMax          = EcalClusterTools::eMax(seedClus,recHits);
+  showerShape.e2nd          = EcalClusterTools::e2nd(seedClus,recHits);
+  showerShape.eTop          = EcalClusterTools::eTop(seedClus,recHits,topology);
+  showerShape.eLeft         = EcalClusterTools::eLeft(seedClus,recHits,topology);
+  showerShape.eRight        = EcalClusterTools::eRight(seedClus,recHits,topology);
+  showerShape.eBottom       = EcalClusterTools::eBottom(seedClus,recHits,topology);
+  return showerShape;
+}
+  
+template<bool noZS>
+reco::Photon::ShowerShape 
+GainSwitchTools::redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry)
+{
+  const reco::CaloCluster & seedClus = *(superClus->seed());
+  
+  std::vector<float> covariances = EcalClusterToolsT<noZS>::covariances(seedClus,recHits,topology,geometry);
+  std::vector<float> localCovariances = EcalClusterToolsT<noZS>::localCovariances(seedClus,recHits,topology);
+  showerShape.sigmaEtaEta = sqrt(covariances[0]);
+  showerShape.e1x5 = EcalClusterToolsT<noZS>::e1x5(seedClus,recHits,topology); 
+  showerShape.e2x5 = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology);
+  showerShape.e3x3 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology);
+  showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology);
+  showerShape.maxEnergyXtal =  EcalClusterToolsT<noZS>::eMax(seedClus,recHits);
+  //showerShape.effSigmaRR fine as its preshower, this only does ECAL shapes
+  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
+  showerShape.sigmaIphiIphi =!edm::isNotFinite(localCovariances[2]) ? sqrt(localCovariances[2]) : 0;
+  showerShape.e2nd =  EcalClusterToolsT<noZS>::e2nd(seedClus,recHits);
+  showerShape.eTop =  EcalClusterToolsT<noZS>::eTop(seedClus,recHits,topology);
+  showerShape.eLeft =  EcalClusterToolsT<noZS>::eLeft(seedClus,recHits,topology);
+  showerShape.eRight =  EcalClusterToolsT<noZS>::eRight(seedClus,recHits,topology);
+  showerShape.eBottom =  EcalClusterToolsT<noZS>::eBottom(seedClus,recHits,topology);
+  showerShape.e1x3 = EcalClusterToolsT<noZS>::e1x3(seedClus,recHits,topology);
+  showerShape.e2x2 = EcalClusterToolsT<noZS>::e2x2(seedClus,recHits,topology);
+  showerShape.e2x5Max = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology);
+  showerShape.e2x5Left = EcalClusterToolsT<noZS>::e2x5Left(seedClus,recHits,topology);
+  showerShape.e2x5Right = EcalClusterToolsT<noZS>::e2x5Right(seedClus,recHits,topology);
+  showerShape.e2x5Top = EcalClusterToolsT<noZS>::e2x5Top(seedClus,recHits,topology);
+  showerShape.e2x5Bottom = EcalClusterToolsT<noZS>::e2x5Bottom(seedClus,recHits,topology);
+
+  return showerShape;
+}
+
 
 
 #endif

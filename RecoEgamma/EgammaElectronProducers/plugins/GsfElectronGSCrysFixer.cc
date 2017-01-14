@@ -32,10 +32,9 @@
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 #include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 
+#include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
 
 #include <iostream>
 #include <string>
@@ -49,10 +48,6 @@ public:
   void beginLuminosityBlock(edm::LuminosityBlock const&, 
 			    edm::EventSetup const&) override;
   
-
-  template<bool noZS>
-  reco::GsfElectron::ShowerShape 
-  redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits);
 
   template<typename T>
   void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label){
@@ -145,8 +140,8 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
     if(newCoreRef.isNonnull()){ //okay we have to remake the electron
 
       reco::GsfElectron newEle(*eleRef,newCoreRef);
-      reco::GsfElectron::ShowerShape full5x5ShowerShape = redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebRecHits);
-      reco::GsfElectron::ShowerShape stupidShowerShape = redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebRecHits);
+      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
+      reco::GsfElectron::ShowerShape stupidShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
       newEle.full5x5_setShowerShape(full5x5ShowerShape);   
       newEle.setShowerShape(stupidShowerShape);   
 
@@ -154,7 +149,7 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
 	gedRegression_->modifyObject(newEle);
       }
 
-      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<<std::endl;
+      //      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<<std::endl;
       
       outEles->push_back(newEle);
     }else{
@@ -173,24 +168,6 @@ void GsfElectronGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb
   es.get<CaloTopologyRecord>().get(caloTopo);
   geometry_ = caloGeom.product();
   topology_ = caloTopo.product();
-}
-
-template<bool noZS>
-reco::GsfElectron::ShowerShape 
-GsfElectronGSCrysFixer::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits)
-{
-  const reco::CaloCluster & seedClus = *(superClus->seed());
-  
-  std::vector<float> covariances = EcalClusterToolsT<noZS>::covariances(seedClus,recHits,topology_,geometry_);
-  std::vector<float> localCovariances = EcalClusterToolsT<noZS>::localCovariances(seedClus,recHits,topology_);
-  showerShape.sigmaEtaEta = sqrt(covariances[0]);
-  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);
-  if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]);
-  showerShape.e1x5 = EcalClusterToolsT<noZS>::e1x5(seedClus,recHits,topology_);
-  showerShape.e2x5Max = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology_);
-  showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology_);
-  showerShape.r9 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology_)/superClus->rawEnergy();
-  return showerShape;
 }
 
 
