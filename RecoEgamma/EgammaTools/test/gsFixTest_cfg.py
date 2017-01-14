@@ -25,6 +25,10 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 )
                                        
 )
+
+   
+
+
 process.load('RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi')
 process.ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("selectDigi","selectedEcalEBDigiCollection")
 process.ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("selectDigi","selectedEcalEEDigiCollection")
@@ -59,18 +63,18 @@ process.particleFlowSuperClusterECAL.regressionConfig.ecalRecHitsEE=cms.InputTag
 
 process.bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
 
-process.refinedBarrelSuperClusters = cms.EDProducer("EGRefinedSCFixer",
-                                fixedSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
-                                orgSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel",processName=cms.InputTag.skipCurrentProcess()),
-                                orgRefinedSC=cms.InputTag("particleFlowEGamma"),
-                                fixedPFClusters=cms.InputTag("particleFlowClusterECAL"),
+process.fixedRefinedBarrelSuperClusters = cms.EDProducer("EGRefinedSCFixer",
+                                                         fixedSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
+                                                         orgSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel",processName=cms.InputTag.skipCurrentProcess()),
+                                                         orgRefinedSC=cms.InputTag("particleFlowEGamma"),
+                                                         fixedPFClusters=cms.InputTag("particleFlowClusterECAL"),
                                 
-                                )
+                                                         )
 process.oldSuperClustersToNewMap = cms.EDProducer("MapNewToOldSCs",
                                                   oldSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel",processName=cms.InputTag.skipCurrentProcess()),
                                                   newSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
                                                   oldRefinedSC=cms.InputTag("particleFlowEGamma"),
-                                                  newRefinedSC=cms.InputTag("refinedBarrelSuperClusters")
+                                                  newRefinedSC=cms.InputTag("fixedRefinedBarrelSuperClusters")
 )
 
 process.newGsfElectronCores = cms.EDProducer("GsfElectronCoreGSCrysFixer",
@@ -81,59 +85,48 @@ process.newGsfElectronCores = cms.EDProducer("GsfElectronCoreGSCrysFixer",
                                              oldSCToNewMap=cms.InputTag("oldSuperClustersToNewMap","parentSCs"),
 )
 
+#this module properly fixes the electrons
+from RecoEgamma.EgammaTools.regressionModifier_cfi import regressionModifier
 process.newGsfElectrons = cms.EDProducer("GsfElectronGSCrysFixer",
                                          newCores=cms.InputTag("newGsfElectronCores"),
                                          oldEles=cms.InputTag("gedGsfElectrons"),
                                          ebRecHits=cms.InputTag("ecalMultiAndGSWeightsRecHitEB"),
                                          newCoresToOldCoresMap=cms.InputTag("newGsfElectronCores","parentCores"),
-                                         regressionConfig = cms.PSet(
-        applyExtraHighEnergyProtection = cms.bool(True),
-        autoDetectBunchSpacing = cms.bool(True),
-        bunchSpacingTag = cms.InputTag("bunchSpacingProducer"),
-        electron_config = cms.PSet(
-            combinationKey_25ns = cms.string('gedelectron_p4combination_25ns'),
-            combinationKey_50ns = cms.string('gedelectron_p4combination_50ns'),
-            regressionKey_25ns = cms.vstring('gedelectron_EBCorrection_25ns', 
-                'gedelectron_EECorrection_25ns'),
-            regressionKey_50ns = cms.vstring('gedelectron_EBCorrection_50ns', 
-                'gedelectron_EECorrection_50ns'),
-            uncertaintyKey_25ns = cms.vstring('gedelectron_EBUncertainty_25ns', 
-                'gedelectron_EEUncertainty_25ns'),
-            uncertaintyKey_50ns = cms.vstring('gedelectron_EBUncertainty_50ns', 
-                'gedelectron_EEUncertainty_50ns')
-        ),
-        manualBunchSpacing = cms.int32(50),
-        modifierName = cms.string('EGExtraInfoModifierFromDB'),
-        photon_config = cms.PSet(
-            regressionKey_25ns = cms.vstring('gedphoton_EBCorrection_25ns', 
-                'gedphoton_EECorrection_25ns'),
-            regressionKey_50ns = cms.vstring('gedphoton_EBCorrection_50ns', 
-                'gedphoton_EECorrection_50ns'),
-            uncertaintyKey_25ns = cms.vstring('gedphoton_EBUncertainty_25ns', 
-                'gedphoton_EEUncertainty_25ns'),
-            uncertaintyKey_50ns = cms.vstring('gedphoton_EBUncertainty_50ns', 
-                'gedphoton_EEUncertainty_50ns')
-        ),
-        rhoCollection = cms.InputTag("fixedGridRhoFastjetAllTmp"),
-        vertexCollection = cms.InputTag("offlinePrimaryVertices")
-    )
+                                         regressionConfig = regressionModifier.clone(rhoCollection=cms.InputTag("fixedGridRhoFastjetAllTmp")),
+
 )
                                          
-process.p = cms.Path(
-    process.bunchSpacingProducer*
-    process.ecalWeightUncalibRecHit*
-    process.ecalWeightsRecHits*
-    process.ecalMultiAndGSWeightsRecHitEB*
-    process.pfClusteringPS*
-    process.pfClusteringECAL*
-    process.particleFlowSuperClusteringSequence*
-    process.refinedBarrelSuperClusters*
-    process.oldSuperClustersToNewMap*
-    process.newGsfElectronCores*
-    process.newGsfElectrons
-   
-    
+
+#this does the simple fix (replace the crystals, assume fraction of 1)
+process.newGsfElectronsSimpleFix = cms.EDProducer("GsfEleGSCrysSimpleFixer",
+                                                  oldEles = cms.InputTag("gedGsfElectrons"),
+                                                  ebMultiRecHits = cms.InputTag("reducedEcalRecHitsEB"),
+                                                  ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightsRecHitEB"),
 )
+#this does the simple fix (replace the crystals, assume fraction of 1)
+process.newPhotonsSimpleFix = cms.EDProducer("PhotonGSCrysSimpleFixer",
+                                             oldPhos = cms.InputTag("gedPhotons"),
+                                             ebMultiRecHits = cms.InputTag("reducedEcalRecHitsEB"),
+                                             ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightsRecHitEB"),
+                                             energyTypesToFix = cms.vstring("ecal_standard","ecal_photons","regression1","regression2"),
+                                             energyTypeForP4 = cms.string("regression2")
+)
+ 
+process.gsFixSeq = cms.Sequence(process.bunchSpacingProducer*
+                                process.ecalWeightUncalibRecHit*
+                                process.ecalWeightsRecHits*
+                                process.ecalMultiAndGSWeightsRecHitEB*
+                                process.pfClusteringPS*
+                                process.pfClusteringECAL*
+                                process.particleFlowSuperClusteringSequence*
+                                process.fixedRefinedBarrelSuperClusters*
+                                process.oldSuperClustersToNewMap*
+                                process.newGsfElectronCores*
+                                process.newGsfElectrons*
+                                process.newGsfElectronsSimpleFix*
+                                process.newPhotonsSimpleFix)
+process.p = cms.Path(process.gsFixSeq)
+
 
 
 #dumps the products made for easier debugging, you wouldnt normally need to do this
