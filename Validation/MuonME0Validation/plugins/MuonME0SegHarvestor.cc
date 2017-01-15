@@ -9,8 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TTree.h"
-#include "TFile.h"
 #include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -36,7 +34,6 @@
 MuonME0SegHarvestor::MuonME0SegHarvestor(const edm::ParameterSet& ps)
 {
   dbe_path_ = std::string("MuonME0RecHitsV/ME0SegmentsTask/");
-  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 }
 
 
