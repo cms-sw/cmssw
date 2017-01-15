@@ -167,6 +167,7 @@ def customiseFor17170(process):
     from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
     from RecoTauTag.HLTProducers.tauRegionalPixelSeedTrackingRegions_cfi import tauRegionalPixelSeedTrackingRegions as _tauRegionalPixelSeedTrackingRegions
     from RecoTauTag.HLTProducers.seededTrackingRegionsFromBeamSpotFixedZLength_cfi import seededTrackingRegionsFromBeamSpotFixedZLength as _seededTrackingRegionsFromBeamSpotFixedZLength
+    from RecoHI.HiTracking.hiTrackingRegionFromClusterVtx_cfi import hiTrackingRegionFromClusterVtx as _hiTrackingRegionFromClusterVtx
 
     from RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi import trackerClusterCheck as _trackerClusterCheck
 
@@ -191,6 +192,7 @@ def customiseFor17170(process):
             "GlobalTrackingRegionWithVerticesProducer": _globalTrackingRegionWithVertices,
             "TauRegionalPixelSeedGenerator": _tauRegionalPixelSeedTrackingRegions,
             "CandidateSeededTrackingRegionsProducer": _seededTrackingRegionsFromBeamSpotFixedZLength,
+            "HITrackingRegionForPrimaryVtxProducer": _hiTrackingRegionFromClusterVtx,
         }.get(producer.RegionFactoryPSet.ComponentName.value(), None)
         if regionProducer is None: # got a region not migrated yet
             raise Exception("Encountered %s from module %s which is not yet migrated to the new seeding framework. Please migrate." % (producer.RegionFactoryPSet.ComponentName.value(), producer.label()))
@@ -202,7 +204,7 @@ def customiseFor17170(process):
             "TauRegionalPixelSeedGenerator": ["precise", "JetMaxEta", "JetMaxN", "JetMinPt", "beamSpot", "originZPos", "useFakeVertices", "useMultipleScattering", "deltaEta", "deltaPhi"],
             "GlobalRegionProducerFromBeamSpot": ["useFakeVertices"],
             "GlobalTrackingRegionWithVerticesProducer": ["originHalfLength"],
-            "CandidateSeededTrackingRegionsProducer": ["useFakeVertices", "useMultipleScattering", "originZPos", "vertexSrc", "zErrorVertex"],
+            "CandidateSeededTrackingRegionsProducer": ["useFakeVertices", "useMultipleScattering", "originZPos", "vertexSrc", "zErrorVertex", "fixedError", "nSigmaZ", "sigmaZVertex", "useFixedError", "useFoundVertices"],
         }.get(producer.RegionFactoryPSet.ComponentName.value(), [])
         _copy(producer.RegionFactoryPSet.RegionPSet, regionProducer.RegionPSet, skip=skip)
         if producer.RegionFactoryPSet.ComponentName.value() == "GlobalRegionProducerFromBeamSpot":
