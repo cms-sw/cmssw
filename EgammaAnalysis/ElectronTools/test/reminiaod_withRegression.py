@@ -25,12 +25,12 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:5CC11361-3B3B-E611-B854-90B11C0BCDAE.root'),#/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/000FF6AC-9F2A-E611-A063-0CC47A4C8EB0.root'),
+    fileNames = cms.untracked.vstring('/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/50000/000FF6AC-9F2A-E611-A063-0CC47A4C8EB0.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -66,23 +66,23 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 # The regressions are in the conditions database starting at this versions
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_2016_TrancheIV_v7', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Other access methods:
 
 # Apply the regression from local sqlite file
-from EgammaAnalysis.ElectronTools.regressionWeights_local_cfi import GBRDWrapperRcd
-process.regressions           = GBRDWrapperRcd
-process.es_prefer_regressions = cms.ESPrefer('PoolDBESSource','regressions')
-process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
-process.EGMenergyCorrection = cms.Path(process.regressionApplication)
+#from EgammaAnalysis.ElectronTools.regressionWeights_local_cfi import GBRDWrapperRcd
+#process.regressions           = GBRDWrapperRcd
+#process.es_prefer_regressions = cms.ESPrefer('PoolDBESSource','regressions')
+#process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+#process.EGMenergyCorrection = cms.Path(process.regressionApplication)
 
 # Apply the regression from a remote database
-#from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
-#process = regressionWeights(process)
+from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
+process = regressionWeights(process)
 
-# process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
-# process.EGMenergyCorrection = cms.Path(process.regressionApplication)
+process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+process.EGMenergyCorrection = cms.Path(process.regressionApplication)
 
 # Path and EndPath definitions
 
