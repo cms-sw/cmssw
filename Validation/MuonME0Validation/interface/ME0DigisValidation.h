@@ -50,7 +50,7 @@ private:
     edm::EDGetToken InputTagToken_Digi;
     double sigma_x_, sigma_y_;
     
-    Int_t npart;
+    int npart;
     
 };
 

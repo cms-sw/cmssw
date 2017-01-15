@@ -48,7 +48,7 @@ public:
   edm::EDGetToken InputTagToken_;
   edm::EDGetToken InputTagTokenST_;
   
-  Int_t npart;
+  int npart;
   double sigma_x_, sigma_y_;
   double eta_max_, eta_min_;
   double pt_min_;
