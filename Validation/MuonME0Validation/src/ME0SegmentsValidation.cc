@@ -179,7 +179,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         //   float localY = segLP.y();
         //   float dirTheta = segLD.theta();
         //   float dirPhi = segLD.phi();
-        Short_t numberRH = me0rhs.size();
+        int numberRH = me0rhs.size();
         float chi2 = (float) me0s->chi2();
         float ndof = me0s->degreesOfFreedom();
         double time = me0s->time();
@@ -195,8 +195,8 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         me0_segment_time->Fill(time);
         me0_segment_timeErr->Fill(timeErr);
      
-        Short_t numberRHSig = 0;
-        Short_t numberRHBkg = 0;
+        int numberRHSig = 0;
+        int numberRHBkg = 0;
         std::vector<ME0RecHit> selectedME0RecHits;
         
         for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++)
@@ -224,9 +224,9 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             LocalPoint extrPoint(xe,ye,ze); // in segment rest frame
             auto extSegm = rhr->toLocal(chamber->toGlobal(extrPoint)); // in layer restframe
             
-            Short_t region = me0id.region();
-            Short_t layer = me0id.layer();
-            //     Short_t chamber = me0id.chamber();
+            int region = me0id.region();
+            int layer = me0id.layer();
+            //     int chamber = me0id.chamber();
             
             float x = rhLP.x();
             float xErr = erhLEP.xx();
@@ -282,9 +282,9 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                 for(auto const& rh : seg.second) {//loop over the tracking recHits already matched to signal digis
                     
                     auto me0id = rh.me0Id();
-                    Short_t region_rh = (Short_t) me0id.region();
-                    Short_t layer_rh = (Short_t) me0id.layer();
-                    Short_t chamber_rh = (Short_t) me0id.chamber();
+                    int region_rh = (int) me0id.region();
+                    int layer_rh = (int) me0id.layer();
+                    int chamber_rh = (int) me0id.chamber();
                     
                     const ME0DetId id(sh.detUnitId());
                     int region_sh = id.region();
@@ -326,25 +326,25 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
 
 std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, LocalPoint rhLP, edm::Handle<ME0DigiPreRecoCollection> ME0Digis)
 {
-    Short_t region_rh = (Short_t) me0id.region();
-    Short_t layer_rh = (Short_t) me0id.layer();
-    Short_t roll_rh = (Short_t) me0id.roll();
-    Short_t chamber_rh = (Short_t) me0id.chamber();
+    int region_rh = (int) me0id.region();
+    int layer_rh = (int) me0id.layer();
+    int roll_rh = (int) me0id.roll();
+    int chamber_rh = (int) me0id.chamber();
     
     float l_x_rh = rhLP.x();
     float l_y_rh = rhLP.y();
     
-    Short_t particleType = 0;
-    Short_t isPrompt = -1;
+    int particleType = 0;
+    int isPrompt = -1;
     
     for (ME0DigiPreRecoCollection::DigiRangeIterator cItr=ME0Digis->begin(); cItr!=ME0Digis->end(); cItr++) {
         
         ME0DetId id = (*cItr).first;
         
-        Short_t region_dg = (Short_t) id.region();
-        Short_t layer_dg = (Short_t) id.layer();
-        Short_t roll_dg = (Short_t) id.roll();
-        Short_t chamber_dg = (Short_t) id.chamber();
+        int region_dg = (int) id.region();
+        int layer_dg = (int) id.layer();
+        int roll_dg = (int) id.roll();
+        int chamber_dg = (int) id.chamber();
         
         if(region_rh != region_dg) continue;
         if(layer_rh != layer_dg) continue;

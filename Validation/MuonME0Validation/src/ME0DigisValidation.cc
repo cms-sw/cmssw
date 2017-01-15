@@ -111,10 +111,10 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     }
     const BoundPlane & surface = gdet->surface();
 
-    Short_t region = (Short_t) id.region();
-    Short_t layer = (Short_t) id.layer();
-    Short_t chamber = (Short_t) id.chamber();
-//    Short_t roll = (Short_t) id.roll();
+    int region = (int) id.region();
+    int layer = (int) id.layer();
+    int chamber = (int) id.chamber();
+//    int roll = (int) id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -161,10 +161,10 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             if(!(abs(particleType_sh) == 13 && evtId_sh == 0 && bx_sh == 0 && procType_sh == 0)) continue;
             
             const ME0DetId id(hits->detUnitId());
-            Short_t region_sh = id.region();
-            Short_t layer_sh = id.layer();
-            Short_t chamber_sh = id.chamber();
-//            Short_t roll_sh = id.roll();
+            int region_sh = id.region();
+            int layer_sh = id.layer();
+            int chamber_sh = id.chamber();
+//            int roll_sh = id.roll();
             
             int region_sh_num = 0 ;
             if ( region_sh == -1 ) region_sh_num = 0 ;
