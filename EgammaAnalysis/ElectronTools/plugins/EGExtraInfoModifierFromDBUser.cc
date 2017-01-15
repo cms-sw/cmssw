@@ -707,12 +707,14 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::Photon& pho) const {
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
 
-  //  std::cout << "    ";
-  //  for (int i =0 ; i<32; i++) {
-  //    if (!iseb && i>28) continue;
-  //    std::cout << eval[i] << " ";
-  //  }
-  //  std::cout << mean << " " << sigma << std::endl;
+  //  std::cout << coridx << " " << raw_pt << " " << the_sc->eta() << " " << the_sc->position().Eta() << "    ";
+  //   for (int i =0 ; i<32; i++) {
+  //     if (!iseb && i>28) continue;
+  //     std::cout << eval[i] << " ";
+  //   }
+  //   std::cout << mean << " " << sigma << " ";
+  //   for (size_t i=0; i<4; i++) std::cout << meanoffset + meanscale*vdt::fast_sin(ph_forestH_mean_[i]->GetResponse(eval.data())) << " "; 
+  //   std::cout << std::endl;
 
   // Correct the energy
   const double ecor = mean*(raw_energy + raw_es_energy);
