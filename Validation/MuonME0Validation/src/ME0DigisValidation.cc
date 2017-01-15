@@ -36,8 +36,8 @@ void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
   me0_strip_dg_den_eta_tot = ibooker.book1D( "me0_strip_dg_den_eta_tot", "Denominator; #eta; Entries", 12, 1.8, 3.0);
   me0_strip_dg_num_eta_tot = ibooker.book1D( "me0_strip_dg_num_eta_tot", "Numerator; #eta; Entries", 12, 1.8, 3.0);
     
-  Float_t bins[] = {62.3, 68.2, 74.1, 81.1, 88.2, 96.6, 104.9, 115.1, 125.2, 137.3, 149.5};
-  Int_t binnum = sizeof(bins)/sizeof(Float_t) - 1;
+  float bins[] = {62.3, 68.2, 74.1, 81.1, 88.2, 96.6, 104.9, 115.1, 125.2, 137.3, 149.5};
+  int binnum = sizeof(bins)/sizeof(float) - 1;
     
   me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius; Entries", binnum, bins);
   me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius; Entries", binnum, bins);
@@ -124,15 +124,15 @@ void ME0DigisValidation::analyze(const edm::Event& e,
 
       GlobalPoint gp = surface.toGlobal(lp);
 
-      Float_t g_r = (Float_t) gp.perp();
-      Float_t g_x = (Float_t) gp.x();
-      Float_t g_y = (Float_t) gp.y();
-      Float_t g_z = (Float_t) gp.z();
+      float g_r = (float) gp.perp();
+      float g_x = (float) gp.x();
+      float g_y = (float) gp.y();
+      float g_z = (float) gp.z();
         
       int particleType = digiItr->pdgid();
       int isPrompt = digiItr->prompt();
     
-      Float_t timeOfFlight = digiItr->tof();
+      float timeOfFlight = digiItr->tof();
         
       me0_strip_dg_x_local_tot->Fill(lp.x());
       me0_strip_dg_y_local_tot->Fill(lp.y());
@@ -182,18 +182,18 @@ void ME0DigisValidation::analyze(const edm::Event& e,
             
             if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh /*&& roll == roll_sh*/)) continue;
             
-            Float_t dx_loc = lp_sh.x()-lp.x();
-            Float_t dy_loc = lp_sh.y()-lp.y();
+            float dx_loc = lp_sh.x()-lp.x();
+            float dy_loc = lp_sh.y()-lp.y();
             
             if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
             
-            Float_t timeOfFlight_sh = hits->tof();
+            float timeOfFlight_sh = hits->tof();
             const LocalPoint centralLP(0., 0., 0.);
             const GlobalPoint centralGP(ME0Geometry_->idToDet(id)->surface().toGlobal(centralLP));
-            Float_t centralTOF(centralGP.mag() / 29.98); //speed of light
-            Float_t timeOfFlight_sh_corr = timeOfFlight_sh - centralTOF;
+            float centralTOF(centralGP.mag() / 29.98); //speed of light
+            float timeOfFlight_sh_corr = timeOfFlight_sh - centralTOF;
             
-            Float_t dphi_glob = gp_sh.phi()-gp.phi();
+            float dphi_glob = gp_sh.phi()-gp.phi();
         
             me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
             me0_strip_dg_dy_local_Muon[region_num][layer_num]->Fill(dy_loc);

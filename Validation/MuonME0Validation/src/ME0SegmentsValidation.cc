@@ -175,17 +175,17 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         auto segLD = me0s->localDirection();
         auto me0rhs = me0s->specificRecHits();
         
-        //   Float_t localX = segLP.x();
-        //   Float_t localY = segLP.y();
-        //   Float_t dirTheta = segLD.theta();
-        //   Float_t dirPhi = segLD.phi();
+        //   float localX = segLP.x();
+        //   float localY = segLP.y();
+        //   float dirTheta = segLD.theta();
+        //   float dirPhi = segLD.phi();
         Short_t numberRH = me0rhs.size();
-        Float_t chi2 = (Float_t) me0s->chi2();
-        Float_t ndof = me0s->degreesOfFreedom();
-        Double_t time = me0s->time();
-        Double_t timeErr = me0s->timeErr();
+        float chi2 = (float) me0s->chi2();
+        float ndof = me0s->degreesOfFreedom();
+        double time = me0s->time();
+        double timeErr = me0s->timeErr();
         
-        Float_t reducedChi2 = chi2/ndof;
+        float reducedChi2 = chi2/ndof;
         
         me0_segment_chi2->Fill(chi2);
         me0_segment_redchi2->Fill(reducedChi2);
@@ -228,21 +228,21 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             Short_t layer = me0id.layer();
             //     Short_t chamber = me0id.chamber();
             
-            Float_t x = rhLP.x();
-            Float_t xErr = erhLEP.xx();
-            Float_t y = rhLP.y();
-            Float_t yErr = erhLEP.yy();
+            float x = rhLP.x();
+            float xErr = erhLEP.xx();
+            float y = rhLP.y();
+            float yErr = erhLEP.yy();
             
-            Float_t globalR = rhGP.perp();
-            Float_t globalX = rhGP.x();
-            Float_t globalY = rhGP.y();
-            Float_t globalZ = rhGP.z();
+            float globalR = rhGP.perp();
+            float globalX = rhGP.x();
+            float globalY = rhGP.y();
+            float globalZ = rhGP.z();
             
-            Float_t xExt = extSegm.x();
-            Float_t yExt = extSegm.y();
+            float xExt = extSegm.x();
+            float yExt = extSegm.y();
             
-            Float_t pull_x = (x - xExt) / sqrt(xErr);
-            Float_t pull_y = (y - yExt) / sqrt(yErr);
+            float pull_x = (x - xExt) / sqrt(xErr);
+            float pull_y = (y - yExt) / sqrt(yErr);
             
             int region_num=0 ;
             if ( region ==-1 ) region_num = 0 ;
@@ -287,16 +287,16 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
                     Short_t chamber_rh = (Short_t) me0id.chamber();
                     
                     const ME0DetId id(sh.detUnitId());
-                    Int_t region_sh = id.region();
-                    Int_t layer_sh = id.layer();
-                    Int_t chamber_sh = id.chamber();
+                    int region_sh = id.region();
+                    int layer_sh = id.layer();
+                    int chamber_sh = id.chamber();
                     
                     if( !(region_sh == region_rh && chamber_sh == chamber_rh && layer_sh == layer_rh) ) continue;
 
                     LocalPoint lp_sh = sh.localPosition();
                     LocalPoint lp_rh = rh.localPosition();
-                    Float_t dx_loc = lp_sh.x()-lp_rh.x();
-                    Float_t dy_loc = lp_sh.y()-lp_rh.y();
+                    float dx_loc = lp_sh.x()-lp_rh.x();
+                    float dy_loc = lp_sh.y()-lp_rh.y();
 
                     if(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_) ++num_sh_matched;
                     
@@ -304,7 +304,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
             
             }//End loop over SHs
             
-            Float_t quality = 0;
+            float quality = 0;
             if(num_sh != 0) quality = num_sh_matched/(1.0*num_sh);
             if(quality > 0) isThereOneSegmentMatched = true;
             
@@ -331,8 +331,8 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, LocalPoint r
     Short_t roll_rh = (Short_t) me0id.roll();
     Short_t chamber_rh = (Short_t) me0id.chamber();
     
-    Float_t l_x_rh = rhLP.x();
-    Float_t l_y_rh = rhLP.y();
+    float l_x_rh = rhLP.x();
+    float l_y_rh = rhLP.y();
     
     Short_t particleType = 0;
     Short_t isPrompt = -1;
@@ -355,8 +355,8 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, LocalPoint r
         for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
         {
             
-            Float_t l_x_dg = digiItr->x();
-            Float_t l_y_dg = digiItr->y();
+            float l_x_dg = digiItr->x();
+            float l_y_dg = digiItr->y();
             
             if(l_x_rh != l_x_dg) continue;
             if(l_y_rh != l_y_dg) continue;
