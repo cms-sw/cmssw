@@ -536,7 +536,7 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
   if (ecor < highEnergy_ECALTRKThr_ &&
       eOverP > eOverP_ECALTRKThr_ && 
       std::abs(ecor - trkMomentum) < epDiffSig_ECALTRKThr_*std::sqrt(pModeError*pModeError+sigmacor*sigmacor) && 
-      trkMomentum < epSig_ECALTRKThr_*trkMomentumError) { 
+      trkMomentumError < epSig_ECALTRKThr_*trkMomentum) { 
 
     raw_pt = ecor/cosh(trkEta);
     if (iseb && raw_pt < lowEnergy_ECALTRKThr_)
