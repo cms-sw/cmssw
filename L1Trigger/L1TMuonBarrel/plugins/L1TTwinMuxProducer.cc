@@ -30,7 +30,7 @@ public:
   ~L1TTwinMuxProducer() {}
   void produce(edm::Event & e, const edm::EventSetup& c);
 private:
-  L1TTwinMuxAlgortithm * m_l1tma;
+  std::unique_ptr<L1TTwinMuxAlgortithm>  m_l1tma;
   edm::EDGetToken m_dtdigi, m_dtthetadigi, m_rpcsource;
 
 };
@@ -38,8 +38,7 @@ private:
 
 
 
-L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet & pset) {
-m_l1tma = new L1TTwinMuxAlgortithm();
+L1TTwinMuxProducer::L1TTwinMuxProducer(const edm::ParameterSet & pset):m_l1tma(new L1TTwinMuxAlgortithm()) {
 
 m_dtdigi      = consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag>("DTDigi_Source"));
 m_dtthetadigi = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("DTThetaDigi_Source"));
