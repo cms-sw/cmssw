@@ -8,7 +8,6 @@
 
 #include "TRandom3.h"
 
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -23,20 +22,17 @@ using namespace std;
 namespace evf{
 
 
-    ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
-      actionId_(pset.getUntrackedParameter<int>("defaultAction",-1)),
-      intqualifier_(pset.getUntrackedParameter<int>("defaultQualifier",0)), 
-      actionRequired_(actionId_!=-1)
-    {
-      
-    }
-  void ExceptionGenerator::beginStream()
+  ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
+    actionId_(pset.getUntrackedParameter<int>("defaultAction",-1)),
+    intqualifier_(pset.getUntrackedParameter<int>("defaultQualifier",0)), 
+    qualifier2_(pset.getUntrackedParameter<double>("secondQualifier",1)), 
+    actionRequired_(actionId_!=-1)
   {
     // timing destribution from (https://twiki.cern.ch/twiki/bin/viewauth/CMS/HLTCpuTimingFAQ#2011_Most_Recent_Data)
     // /castor/cern.ch/user/d/dsperka/HLT/triggerSkim_HLTPhysics_run178479_68_188.root
     // Baseline result with CMSSW_4_2_9_HLT3_hltpatch3 and /online/collisions/2011/5e33/v2.1/HLT/V9 :
     // vocms110:/store/timing_178479/outfile-178479-col1.root
-    
+
     timingHisto_ = new TH1D("timingHisto_","Total time for all modules per event",100,0,1000);
     timingHisto_->SetBinContent(1,5016);
     timingHisto_->SetBinContent(2,4563);
@@ -140,8 +136,10 @@ namespace evf{
     timingHisto_->SetBinContent(101,147);
     timingHisto_->SetEntries(24934);
   }
+
   void ExceptionGenerator::beginRun(edm::Run& r, const edm::EventSetup& iSetup)
   {
+
     gettimeofday(&tv_start_,0);
   }
 
@@ -184,12 +182,12 @@ namespace evf{
 	      *pi=0;
 	      break;
 	    case 9:
-	      for(unsigned int j=0; j<intqualifier_*1000;j++){
+	      for(unsigned int j=0; j<intqualifier_*1000*100;j++){
 		dummy += sqrt(log(float(j+1)))/float(j*j);
 	      }
 	      break;
             case 10:
-              iterations = static_cast<unsigned int>(
+              iterations = 100*static_cast<unsigned int>(
                 timingHisto_->GetRandom() * intqualifier_*17. + 0.5
               );
 	      for(unsigned int j=0; j<iterations;j++){
@@ -224,11 +222,40 @@ namespace evf{
 	      }
 	      break;
 	    case 13:
-	      void *vp = malloc(1024);
-	      memset((char *)vp - 32, 0, 1024);
-	      free(vp);
+              {
+	        void *vp = malloc(1024);
+	        memset((char *)vp - 32, 0, 1024);
+	        free(vp);
+              }
 	      break;
+	    case 14:
+              {
+                float mean = 60.; // timingHisto_->GetMean();
+                float scale = intqualifier_ / mean;
+                float off = intqualifier_ * (1. - qualifier2_);
+                scale  = scale*qualifier2_; // scale factor (1 default)
+                iterations = static_cast<unsigned int>(max(1.,off + timingHisto_->GetRandom() * scale));
+                //std::cout << " off " << off << " scale " << scale << " " << iterations << std::endl;
+                ::usleep(iterations*1000);
+              }
+              break;
+	    case 15:
+              {
+                float mean = 60.; // timingHisto_->GetMean();
+                float scale = intqualifier_ / mean;
+                float off = intqualifier_ * (1. - qualifier2_);
+                scale  = scale*qualifier2_; // scale factor (1 default)
+                iterations = static_cast<unsigned int>(max(1.,off + timingHisto_->GetRandom() * scale));
+                iterations *= 100000;
+	        for(unsigned int j=0; j<iterations;j++){
+		  dummy += sqrt(log(float(j+1)))/float(j*j);
+	        }
+              }
+              break;
+            default:
+              break;
 	    }
+
 	}
     }
     
