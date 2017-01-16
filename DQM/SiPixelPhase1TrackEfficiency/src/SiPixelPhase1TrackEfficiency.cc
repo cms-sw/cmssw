@@ -20,8 +20,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-
 
 SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
@@ -102,9 +100,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       if (pixhit) {
         lp = pixhit->localPosition();
       } else {
-        TrajectoryStateCombiner tsc;
-        TrajectoryStateOnSurface tsos = tsc(measurement.forwardPredictedState(), measurement.backwardPredictedState());
-        lp = tsos.localPosition();
+        lp = measurement.updatedState().localPosition();
       }
 
       MeasurementPoint mp = topol.measurementPosition(lp);
