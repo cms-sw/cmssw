@@ -6,10 +6,6 @@ SiPixelPhase1Geometry = cms.PSet(
   # SPixel*Name and friends use the isUpgrade flag, so we also have it as a setting here.
   upgradePhase = cms.int32(1),
 
-  # Blades are numbered from 1 to n_inner_ring_blades for the inner ring, and 
-  # from n_inner_ring_blades+1 to <max_blade> for the outer ring
-  n_inner_ring_blades = cms.int32(22), 
-
   # module geometry. The phase1 detector has only one sort, so this is easy.
   # the values are assumed to be 0-based, unlike most others.
   # TODO: maybe we can use the SiPixelFrameReverter and friends to do these
