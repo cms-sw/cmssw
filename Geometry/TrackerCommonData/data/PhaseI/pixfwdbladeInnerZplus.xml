@@ -8,7 +8,7 @@
  <Constant name="WedgeAngle"         value="5.532*deg"/> <!-- was 5.565 -->
  <Constant name="DetectorShiftX"     value="0.156*mm"/> <!-- offset of modules w.r.t blade center was 0.172-->
  <Constant name="ModulePosX"         value="5.221*mm"/> <!-- distance from module center to blade symmetry axis was 5.258-->
- <Constant name="WaferT"             value="0.300*mm"/> <!-- wafer thickness; was 0.250*um-->
+ <Constant name="WaferT"             value="0.290*mm"/> <!-- wafer thickness; was 0.250*um-->
  <Constant name="ROChipL"            value="8.005*mm"/>    <!-- Readout chip length -->
  <Constant name="ROChipW"            value="10.735*mm"/>   <!-- Readout chip width -->
  <Constant name="ROChipT"            value="0.200*mm"/>    <!-- Readout chip thickness; was 0.150*mm -->
