@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/plugins/ElectronMVAEstimatorRun2Phys14NonTrig.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Phys14NonTrig.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
