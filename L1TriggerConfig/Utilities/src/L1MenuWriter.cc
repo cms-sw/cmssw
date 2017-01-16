@@ -22,7 +22,7 @@ private:
 public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    explicit L1MenuWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){
+    explicit L1MenuWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
     virtual ~L1MenuWriter(void){}
