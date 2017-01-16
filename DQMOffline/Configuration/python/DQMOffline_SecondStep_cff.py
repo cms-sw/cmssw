@@ -78,7 +78,7 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMMessageLoggerClientSeq )
 
 
-from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import DQMHarvestL1Trigger
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 
 DQMHarvestCommon = cms.Sequence(
     dqmRefHistoRootFileGetter *
