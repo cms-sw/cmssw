@@ -43,6 +43,23 @@ class CTPPSDiamondLocalTrack
     inline double getTySigma() const { return ty_sigma_; }
 
     inline double getChiSquared() const { return chi_squared_; }
+    
+    //--- spatial set'ters
+
+    inline void setX0(const double& x0) { pos0_.SetX(x0); }
+    inline void setX0Sigma(const double& x0_sigma) { x0_sigma_=x0_sigma; }
+
+    inline void setY0(const double& y0) { pos0_.SetY(y0); }
+    inline void setY0Sigma(const double& y0_sigma) { y0_sigma_=y0_sigma; }
+
+    inline void setZ0(const double& z) { pos0_.SetZ(z); }
+
+    inline void setTx(const double& tx) { tx_=tx; }
+    inline void setTxSigma(const double& tx_sigma) { tx_sigma_=tx_sigma; }
+
+    inline void setTy(const double& ty) { ty_=ty; }
+    inline void setTySigma(const double& ty_sigma) { ty_sigma_=ty_sigma; }
+
     inline void setChiSquared( const double& chisq ) { chi_squared_ = chisq; }
 
     //inline double getChiSquaredOverNDF() const { return chiSquared_ / (track_hits_vector_.size() - 4); }
@@ -55,6 +72,11 @@ class CTPPSDiamondLocalTrack
 
     inline double getT() const { return t_; }
     inline double getTSigma() const { return t_sigma_; }
+    
+    //--- temporal set'ters
+
+    inline void setT( const double& t) { t_=t; }
+    inline void setTSigma( const double& t_sigma) { t_sigma_=t_sigma; }
 
     friend bool operator<( const CTPPSDiamondLocalTrack&, const CTPPSDiamondLocalTrack& );
 
