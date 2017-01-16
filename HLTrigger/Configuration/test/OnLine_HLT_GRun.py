@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/GRun/V3 (CMSSW_9_0_0_pre2)
+# /dev/CMSSW_9_0_0/GRun/V4 (CMSSW_9_0_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V3')
+  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V4')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -4717,7 +4717,7 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
       win_gain = cms.double( 1.0 ),
       tfilterEnvelope = cms.vdouble( 4.0, 12.04, 13.0, 10.56, 23.5, 8.82, 37.0, 7.38, 56.0, 6.3, 81.0, 5.64, 114.5, 5.44, 175.5, 5.38, 350.5, 5.14 )
     ),
-    ts4chi2 = cms.vdouble( 15.0, 5000.0 ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
     ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet( 
       MinimumChargeThreshold = cms.double( 20.0 ),
@@ -4749,7 +4749,7 @@ process.hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     ),
     timeSigmaSiPM = cms.double( 2.5 ),
     applyPedConstraint = cms.bool( True ),
-    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
     noiseSiPM = cms.double( 1.0 ),
     meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet( 
@@ -4876,12 +4876,12 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     applyTimeSlew = cms.bool( True ),
     applyTimeConstraint = cms.bool( True ),
     timingshapedcutsParameters = cms.PSet(  ),
-    ts4chi2 = cms.vdouble( 15.0, 5000.0 ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
     ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet(  ),
     timeSigmaSiPM = cms.double( 2.5 ),
     applyPedConstraint = cms.bool( True ),
-    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
     noiseSiPM = cms.double( 1.0 ),
     meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet(  ),
@@ -4939,12 +4939,12 @@ process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     applyTimeSlew = cms.bool( True ),
     applyTimeConstraint = cms.bool( True ),
     timingshapedcutsParameters = cms.PSet(  ),
-    ts4chi2 = cms.vdouble( 15.0, 5000.0 ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
     ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet(  ),
     timeSigmaSiPM = cms.double( 2.5 ),
     applyPedConstraint = cms.bool( True ),
-    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
     noiseSiPM = cms.double( 1.0 ),
     meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet(  ),
@@ -11148,7 +11148,7 @@ process.hltHbherecoMethod2L1EGSeeded = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
     noiseHPD = cms.double( 1.0 ),
     pulseJitter = cms.double( 1.0 ),
-    pedSigmaSiPM = cms.double( 1.5 ),
+    pedSigmaSiPM = cms.double( 6.5E-4 ),
     timeMin = cms.double( -12.5 ),
     setTimingShapedCutsFlags = cms.bool( True ),
     applyPulseJitter = cms.bool( False ),
@@ -11161,7 +11161,7 @@ process.hltHbherecoMethod2L1EGSeeded = cms.EDProducer( "HcalHitReconstructor",
       tfilterEnvelope = cms.vdouble( 50.0, -2.0, 4.25, 52.0, -2.0, 4.09, 54.0, -2.0, 3.95, 56.0, -2.0, 3.82, 58.0, -2.0, 3.71, 60.0, -2.0, 3.6, 63.0, -2.0, 3.46, 66.0, -2.0, 3.33, 69.0, -2.0, 3.22, 73.0, -2.0, 3.1, 77.0, -2.0, 2.99, 82.0, -2.0, 2.87, 88.0, -2.0, 2.75, 95.0, -2.0, 2.64, 103.0, -2.0, 2.54, 113.0, -2.0, 2.44, 127.0, -2.0, 2.33, 146.0, -2.0, 2.23, 176.0, -2.0, 2.13, 250.0, -2.0, 2.0 ),
       win_gain = cms.double( 3.0 )
     ),
-    ts4chi2 = cms.vdouble( 15.0, 5000.0 ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
     ts4Min = cms.double( 0.0 ),
     pulseShapeParameters = cms.PSet( 
       UseDualFit = cms.bool( True ),
@@ -11191,10 +11191,10 @@ process.hltHbherecoMethod2L1EGSeeded = cms.EDProducer( "HcalHitReconstructor",
       LeftSlopeCut = cms.vdouble( 5.0, 2.55, 2.55 ),
       TS4TS5UpperCut = cms.vdouble( 1.0, 0.8, 0.75, 0.72 )
     ),
-    timeSigmaSiPM = cms.double( 3.5 ),
+    timeSigmaSiPM = cms.double( 2.5 ),
     applyPedConstraint = cms.bool( True ),
-    ts4Max = cms.vdouble( 100.0, 70000.0 ),
-    noiseSiPM = cms.double( 2.0 ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
+    noiseSiPM = cms.double( 1.0 ),
     meanTime = cms.double( 0.0 ),
     flagParameters = cms.PSet( 
       hitEnergyMinimum = cms.double( 1.0 ),
@@ -12866,7 +12866,7 @@ process.hltHbherecoMethod2L1EGUnseeded = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
     noiseHPD = cms.double( 1.0 ),
     pulseJitter = cms.double( 1.0 ),
-    pedSigmaSiPM = cms.double( 1.5 ),
+    pedSigmaSiPM = cms.double( 6.5E-4 ),
     timeMin = cms.double( -12.5 ),
     setTimingShapedCutsFlags = cms.bool( True ),
     applyPulseJitter = cms.bool( False ),
@@ -12879,7 +12879,7 @@ process.hltHbherecoMethod2L1EGUnseeded = cms.EDProducer( "HcalHitReconstructor",
       tfilterEnvelope = cms.vdouble( 50.0, -2.0, 4.25, 52.0, -2.0, 4.09, 54.0, -2.0, 3.95, 56.0, -2.0, 3.82, 58.0, -2.0, 3.71, 60.0, -2.0, 3.6, 63.0, -2.0, 3.46, 66.0, -2.0, 3.33, 69.0, -2.0, 3.22, 73.0, -2.0, 3.1, 77.0, -2.0, 2.99, 82.0, -2.0, 2.87, 88.0, -2.0, 2.75, 95.0, -2.0, 2.64, 103.0, -2.0, 2.54, 113.0, -2.0, 2.44, 127.0, -2.0, 2.33, 146.0, -2.0, 2.23, 176.0, -2.0, 2.13, 250.0, -2.0, 2.0 ),
       win_gain = cms.double( 3.0 )
     ),
-    ts4chi2 = cms.vdouble( 15.0, 5000.0 ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
     ts4Min = cms.double( 0.0 ),
     pulseShapeParameters = cms.PSet( 
       UseDualFit = cms.bool( True ),
@@ -12909,10 +12909,10 @@ process.hltHbherecoMethod2L1EGUnseeded = cms.EDProducer( "HcalHitReconstructor",
       LeftSlopeCut = cms.vdouble( 5.0, 2.55, 2.55 ),
       TS4TS5UpperCut = cms.vdouble( 1.0, 0.8, 0.75, 0.72 )
     ),
-    timeSigmaSiPM = cms.double( 3.5 ),
+    timeSigmaSiPM = cms.double( 2.5 ),
     applyPedConstraint = cms.bool( True ),
-    ts4Max = cms.vdouble( 100.0, 70000.0 ),
-    noiseSiPM = cms.double( 2.0 ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
+    noiseSiPM = cms.double( 1.0 ),
     meanTime = cms.double( 0.0 ),
     flagParameters = cms.PSet( 
       hitEnergyMinimum = cms.double( 1.0 ),
