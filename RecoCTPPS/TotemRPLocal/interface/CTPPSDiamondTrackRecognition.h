@@ -18,10 +18,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
 #include "TF1.h"
-
-#define LOWER_HIT_LIMIT_MM -1e3
-#define HIGHER_HIT_LIMIT_MM 1e3
-#define PAD_FUNCTION (1/(1+exp(-(x-[0])/[2])))*(1/(1+exp((x-[0]-[1])/[2])))
+#include <vector>
 
 /**
  * \brief Class performing smart reconstruction for CTPPS Diamond Detectors.
@@ -38,16 +35,18 @@ class CTPPSDiamondTrackRecognition
 
     void addHit(const CTPPSDiamondRecHit recHit);
     
-    void produceTracks(DetSet<CTPPSDiamondLocalTrack> &tracks);
+    void produceTracks(edm::DetSet<CTPPSDiamondLocalTrack> &tracks);
     
   protected:
-    const double resolution_mm;
+    const double threshold_;
+    const double resolution_mm_;
+    double sigma_;
 
     /// pointer to the geometry
     const TotemRPGeometry* geometry;
     
     /// Function for pad efficiency
-    vector<TF1> hit_function_v;
+    std::vector<TF1> hit_function_v;
 
 };
 
