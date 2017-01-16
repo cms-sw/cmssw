@@ -148,7 +148,7 @@ process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff")
 # this also loads the plugins. After that, some values cannot be changed any more, since they were copied around.
 
 # Now change things back to Phase1 MC
-SiPixelPhase1Geometry.n_inner_ring_blades = 22
+SiPixelPhase1Geometry.upgradePhase = 1
 
 
 #process.load('RecoTracker.Configuration.RecoTracker_cff')
