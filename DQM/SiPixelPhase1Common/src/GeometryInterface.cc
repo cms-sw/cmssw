@@ -266,7 +266,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
         return from_coord(coord->signed_blade_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else if (phase == 1) {
-        return from_coord(coord->signed_shifted_blade_panel_coord(
+        return from_coord(coord->signed_blade_panel_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else {
         // TODO: phase2
