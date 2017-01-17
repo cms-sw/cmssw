@@ -76,9 +76,12 @@ public:
 private:
   unsigned int verbosity;
 
-  // label of the CTPPS sub-system
+  /// label of the CTPPS sub-system
   string subSystemName;
 
+
+  /// the mapping files
+  std::vector<std::string> mappingFileNames;
 
   struct ConfigBlock
   {
@@ -197,6 +200,7 @@ const string TotemDAQMappingESSourceXML::tagDiamondCh = "diamond_channel";
 
 TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet& conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
+  subSystemName(conf.getUntrackedParameter<string>("subSystem")),
   currentBlock(0),
   currentBlockValid(false)
 {
@@ -209,7 +213,7 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet& 
     configuration.push_back(b);
   }
 
-  setWhatProduced(this);
+  setWhatProduced(this, subSystemName);
   findingRecord<TotemReadoutRcd>();
 }
 
