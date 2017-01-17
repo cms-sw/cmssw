@@ -315,10 +315,26 @@ class TrackPrinter(_RecHitPrinter):
     def printHeader(self, track):
         lst = []
         lst.append(self._prefix+"Track %d pT %f eta %f phi %f dxy %f err %f dz %f err %f" % (track.index(), track.pt(), track.eta(), track.phi(), track.dxy(), track.dxyErr(), track.dz(), track.dzErr()))
+
+        hp = "loose"
+        if track.isHP():
+            hp = "HP"
+
         algo = track.algo()
         oriAlgo = track.originalAlgo()
+        algos = []
+        algoMask = track.algoMask()
+        for i in xrange(Algo.algoSize):
+            if algoMask & 1:
+                algos.append(Algo.toString(i))
+            algoMask = algoMask >> 1
+        algoMaskStr = ""
+        if len(algos) >= 2:
+            algoMaskStr = " algoMask "+",".join(algos)
+
+
         lst.append(self._prefix+" pixel hits %d strip hits %d" % (track.nPixel(), track.nStrip()))
-        lst.append(self._prefix+" HP %s algo %s originalAlgo %s stopReason %s" % (str(track.isHP()), Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), StopReason.toString(track.stopReason())))
+        lst.append(self._prefix+" is %s algo %s originalAlgo %s%s stopReason %s" % (hp, Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), algoMaskStr, StopReason.toString(track.stopReason())))
         return lst
 
     def printHits(self, track):
