@@ -57,6 +57,18 @@ ME0SegAlgoRU::ME0SegAlgoRU(const edm::ParameterSet& ps)
 
 std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits){ 
   theEnsemble = ensemble;
+  #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
+  ME0DetId chId((ensemble.first)->id());
+  edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegmentAlgorithm::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    auto me0id = (*rh)->me0Id();
+    auto ch    = theEnsemble.first;
+    auto ep    = (theEnsemble.second).find(me0id)->second;
+    auto rhGP  = ep->toGlobal((*rh)->localPosition());
+    auto rhLP  = ch->toLocal(rhGP);
+    edm::LogVerbatim("ME0SegAlgoRU") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Glb y = "<<std::showpos<<std::setw(9)<<rhLP.y()<<" Time = "<<std::showpos<<(*rh)->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+  }
+  #endif
   return this->buildSegments(rechits);  
 } 
 
@@ -291,8 +303,21 @@ std::vector<ME0Segment> ME0SegAlgoRU::buildSegments(const EnsembleHitContainer& 
 	  timeUncrt=timeUncrt/(proto_segment.size()-1);
 	timeUncrt = sqrt(timeUncrt);
 	std::sort(proto_segment.begin(),proto_segment.end(),sortByLayer());
+
+	// Set Out from IP
+	// Function was removed from MuonSegFit 
+	// since it depended on chamber INFO
+	// which is different for GEM and ME0
+	// So I implement it here
+	auto ch    = theEnsemble.first;
+	double globalZpos    = ( ch->toGlobal( sfit_->intercept() ) ).z();
+	double globalZdir    = ( ch->toGlobal( sfit_->localdir()  ) ).z();
+	double directionSign = globalZpos * globalZdir;
+	LocalVector localDir = (directionSign * localDir ).unit();
+
+
 	ME0Segment temp(proto_segment, sfit_->intercept(),
-			sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2(), averageTime, timeUncrt);
+			/*sfit_->localdir(),*/ localDir, sfit_->covarianceMatrix(), sfit_->chi2(), averageTime, timeUncrt);
 	sfit_ = 0;
 	segments.push_back(temp);                         
 	//if the segment has 3 hits flag them as used in a particular way 
@@ -382,6 +407,24 @@ std::vector<ME0Segment> ME0SegAlgoRU::buildSegments(const EnsembleHitContainer& 
     }  
   }//while 
   */
+
+#ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
+std::vector<ME0Segment>::iterator it =segments.begin();
+for(std::vector<ME0Segment>::iterator it =segments.begin(); it != segments.end(); ++it) {
+  ME0DetId chId(it->me0DetId());
+  auto rechits = it->specificRecHits();
+  edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU] segment in chamber " << chId << " which contains "<<rechits.size()<<" rechits and with specs: \n"<<*it;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+      auto me0id = rh->me0Id();
+      auto ch    = theEnsemble.first;
+      auto ep    = (theEnsemble.second).find(me0id)->second;
+      auto rhGP  = ep->toGlobal(rh->localPosition());
+      auto rhLP  = ch->toLocal(rhGP);
+      edm::LogVerbatim("ME0SegAlgoRU") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()<<" Time = "<<std::showpos<<rh->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+    }
+}
+#endif    
+
   // Give the segments to the ME0Ensemble 
   return segments; 
 }//build segments 
@@ -462,6 +505,7 @@ bool ME0SegAlgoRU::areHitsCloseInEta(const ME0RecHit* h1, const ME0RecHit* h2) c
     good = std::abs(etaP1-etaP2) <= 1;
     dR = 0;
   }
+  edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInEta] gp1 = "<<gp1<<" in eta part = "<<etaP1<<" and gp2 = "<<gp2<<" in eta part = "<<etaP2<<" ==> dR = "<<dR<<" ==> return "<<(good && dR<dRMax)<<std::endl;
   return (good && dR<dRMax);
 } 
 
@@ -476,6 +520,7 @@ bool ME0SegAlgoRU::areHitsCloseInGlobalPhi(const ME0RecHit* h1, const ME0RecHit*
   GlobalPoint gp2 = part2->toGlobal(h2->localPosition());	 
 
   float dphi12 = deltaPhi(gp1.barePhi(),gp2.barePhi());
+  edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInGlobalPhi] gp1 = "<<gp1<<" and gp2 = "<<gp2<<" ==> dPhi = "<<dphi12<<" ==> return "<<(fabs(dphi12) < dPhiMax)<<std::endl;
   return fabs(dphi12) < dPhiMax; 
 } 
 
@@ -527,7 +572,7 @@ float ME0SegAlgoRU::phiAtZ(float z) const {
 
   // Returns a phi in [ 0, 2*pi )
   //  const ME0EtaPartition* l1 = theEnsemble.second.find((*(proto_segment.begin()))->me0Id())->second;
-  const ME0EtaPartition* l1 = theEnsemble.first;
+  const auto* l1 = theEnsemble.first;
   GlobalPoint gp = l1->toGlobal(sfit_->intercept());
   GlobalVector gv = l1->toGlobal(sfit_->localdir());
 
@@ -594,7 +639,7 @@ void ME0SegAlgoRU::updateParameters() {
   // for ME0 we take the me0rechit from the proto_segment we transform into Tracking Rechits 
   // the local rest frame is the ME0Chamber of layer 1 the refPart
   MuonSegFit::MuonRecHitContainer muonRecHits;
-  const ME0EtaPartition * refPart = theEnsemble.first;
+  const auto * refPart = theEnsemble.first;
   for (auto rh=proto_segment.begin();rh<proto_segment.end(); rh++){
     const ME0EtaPartition * thePartition   = (theEnsemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
@@ -892,7 +937,7 @@ void ME0SegAlgoRU::compareProtoSegment(const ME0RecHit* h, int layer) {
   std::unique_ptr<MuonSegFit> oldfit;// =  new MuonSegFit( *sfit_ );                                                                                                                  
 
   MuonSegFit::MuonRecHitContainer muonRecHits;
-  const ME0EtaPartition * refPart = theEnsemble.first;
+  const auto * refPart = theEnsemble.first;
   for (auto rh=proto_segment.begin();rh<proto_segment.end(); rh++){
     const ME0EtaPartition * thePartition   = (theEnsemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
@@ -916,7 +961,7 @@ void ME0SegAlgoRU::compareProtoSegment(const ME0RecHit* h, int layer) {
 void ME0SegAlgoRU::increaseProtoSegment(const ME0RecHit* h, int layer, int chi2_factor) { 
 
   MuonSegFit::MuonRecHitContainer muonRecHits;
-  const ME0EtaPartition * refPart = theEnsemble.first;
+  const auto* refPart = theEnsemble.first;
   for (auto rh=proto_segment.begin();rh<proto_segment.end(); rh++){
     const ME0EtaPartition * thePartition   = (theEnsemble.second.find((*rh)->me0Id()))->second;
     GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
