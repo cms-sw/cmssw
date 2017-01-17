@@ -82,15 +82,17 @@ upgradeProperties = {}
 
 upgradeProperties[2017] = {
     '2017' : {
-        'Geom' : 'DB:Extended',
+        'Geom' : 'Extended2017',
         'GT' : 'auto:phase1_2017_realistic',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/HCalCustoms.customise_Hcal2017',
         'HLTmenu': '@relval2016',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2017Design' : {
-        'Geom' : 'DB:Extended',
+        'Geom' : 'Extended2017',
         'GT' : 'auto:phase1_2017_design',
+        'Custom' : 'SLHCUpgradeSimulations/Configuration/HCalCustoms.customise_Hcal2017',
         'HLTmenu': '@relval2016',
         'Era' : 'Run2_2017',
         'BeamSpot': 'GaussSigmaZ4cm',
