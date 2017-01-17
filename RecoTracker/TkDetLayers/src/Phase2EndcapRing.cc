@@ -64,7 +64,8 @@ Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
   LogDebug("TkDetLayers") << "DEBUG INFO for Phase2EndcapRing" ;
   for(vector<const GeomDet*>::const_iterator it=theFrontDets.begin(); 
       it!=theFrontDets.end(); it++){
-    LogDebug("TkDetLayers") << "frontDet phi,z,r: " 
+    LogDebug("TkDetLayers") << "frontDet detId,phi,z,r: "
+                            << (*it)->geographicalId().rawId()  << " , "
 			    << (*it)->surface().position().phi()  << " , "
 			    << (*it)->surface().position().z()    << " , "
 			    << (*it)->surface().position().perp() ;
@@ -73,7 +74,8 @@ Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
   if(!theFrontDetBrothers.empty()){
     for(vector<const GeomDet*>::const_iterator it=theFrontDetBrothers.begin(); 
         it!=theFrontDetBrothers.end(); it++){
-      LogDebug("TkDetLayers") << "frontDet brothers phi,z,r: " 
+      LogDebug("TkDetLayers") << "frontDet brothers detId,phi,z,r: "
+                            << (*it)->geographicalId().rawId()  << " , "
   			    << (*it)->surface().position().phi()  << " , "
   			    << (*it)->surface().position().z()    << " , "
   			    << (*it)->surface().position().perp() ;
@@ -82,7 +84,8 @@ Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
 
   for(vector<const GeomDet*>::const_iterator it=theBackDets.begin(); 
       it!=theBackDets.end(); it++){
-    LogDebug("TkDetLayers") << "backDet phi,z,r: " 
+    LogDebug("TkDetLayers") << "backDet detId,phi,z,r: "
+                            << (*it)->geographicalId().rawId()  << " , "
 			    << (*it)->surface().position().phi() << " , "
 			    << (*it)->surface().position().z()   << " , "
 			    << (*it)->surface().position().perp() ;
@@ -91,7 +94,8 @@ Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
   if(!theBackDetBrothers.empty()){
     for(vector<const GeomDet*>::const_iterator it=theBackDetBrothers.begin(); 
         it!=theBackDetBrothers.end(); it++){
-      LogDebug("TkDetLayers") << "backDet brothers phi,z,r: " 
+      LogDebug("TkDetLayers") << "backDet brothers detId,phi,z,r: "
+                            << (*it)->geographicalId().rawId()  << " , "
   			    << (*it)->surface().position().phi() << " , "
   			    << (*it)->surface().position().z()   << " , "
   			    << (*it)->surface().position().perp() ;
@@ -160,9 +164,11 @@ Phase2EndcapRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  crossings.closestIndex(), crossingSide);
 
   //due to propagator problems, when we add single pt sub modules, we should order them in z (endcap)
-  sort(result.begin(),result.end(),DetGroupElementZLess());
+  if(!theFrontDetBrothers.empty() && !theBackDetBrothers.empty())
+    sort(result.begin(),result.end(),DetGroupElementZLess());
 
 #ifdef EDM_ML_DEBUG
+  LogTrace("TkDetLayers") <<"Number of groups : " << result.size() << std::endl;
   for (auto&  grp : result) {
     if ( grp.empty() )  continue;
       LogTrace("TkDetLayers") <<"New group in Phase2EndcapRing made by : " << std::endl;
