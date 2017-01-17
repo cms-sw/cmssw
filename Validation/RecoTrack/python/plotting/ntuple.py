@@ -1,5 +1,8 @@
 import ROOT
 
+import sys
+import difflib
+
 class Detector:
 #    class Phase0: pass # not supported yet
     class Phase1: pass
@@ -206,6 +209,32 @@ def parseDetId(detid):
         raise Exception("Got unknown subdet %d" % subdet)
     raise Exception("Supporting only phase1 DetIds at the moment")
 
+# Common diff helpers, used in the printout helpers
+def _difflist(list1, list2):
+    diff = difflib.unified_diff(list1, list2, lineterm="", n=len(list1))
+    for item in diff:
+        if item[:2] == "@@":
+            break
+    return list(diff)
+
+def _makediff(funcs, obj1, obj2):
+    different = False
+    ret = []
+    for f in funcs:
+        out1 = f(obj1)
+        out2 = f(obj2)
+        dff = _difflist(out1, out2)
+        if len(dff) == 0:
+            ret.extend([" "+s for s in out1])
+        else:
+            ret.extend(dff)
+            different = True
+    if different:
+        return ret
+    else:
+        return []
+
+
 # Common detailed printout helpers
 class _RecHitPrinter(object):
     def __init__(self, indent=0):
@@ -231,6 +260,7 @@ class _RecHitPrinter(object):
         self._prefix = self._backup.pop()
 
     def _printHits(self, hits):
+        lst = []
         for hit in hits:
             matched = ""
             coord = ""
@@ -239,24 +269,40 @@ class _RecHitPrinter(object):
                     matched = "matched to TP:SimHit " + ",".join(["%d:%d"%(sh.trackingParticle().index(), sh.index()) for sh in hit.simHits()])
                 coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
             detId = parseDetId(hit.detId())
-            print self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched)
+            lst.append(self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched))
+        return lst
 
 class SeedPrinter(_RecHitPrinter):
     def __init__(self, *args, **kwargs):
         super(SeedPrinter, self).__init__(*args, **kwargs)
 
-    def __call__(self, seed):
+    def printSeed(self, seed):
+        lst = []
         track = seed.track()
         madeTrack = "did not make a track"
         if track.isValid():
             madeTrack = "made track %d" % track.index()
 
-        print self._prefix+"Seed %d algo %s %s" % (seed.indexWithinAlgo(), Algo.toString(seed.algo()), madeTrack)
-        print self._prefix+" starting state: pT %f local pos x,y %f,%f mom x,y,z %f,%f,%f" % (seed.statePt(), seed.stateTrajX(), seed.stateTrajY(), seed.stateTrajPx(), seed.stateTrajPy(), seed.stateTrajPz())
-        print self._prefix+" hits"
+        lst.append(self._prefix+"Seed %d algo %s %s" % (seed.indexWithinAlgo(), Algo.toString(seed.algo()), madeTrack))
+        lst.append(self._prefix+" starting state: pT %f local pos x,y %f,%f mom x,y,z %f,%f,%f" % (seed.statePt(), seed.stateTrajX(), seed.stateTrajY(), seed.stateTrajPx(), seed.stateTrajPy(), seed.stateTrajPz()))
+        lst.append(self._prefix+" hits")
         self.indent(2)
-        self._printHits(seed.hits())
+        lst.extend(self._printHits(seed.hits()))
         self.restoreIndent()
+        return lst
+
+    def __call__(self, seed, out=sys.stdout):
+        if isinstance(out, list):
+            lst = out
+        else:
+            lst = []
+
+        lst.extend(self.printSeed(seed))
+
+        if not isinstance(out, list):
+            for line in lst:
+                out.write(line),
+                out.write("\n")
 
 class TrackPrinter(_RecHitPrinter):
     def __init__(self, indent=0, hits=True, seedPrinter=SeedPrinter(), trackingParticles=True, trackingParticlePrinter=None):
@@ -266,35 +312,85 @@ class TrackPrinter(_RecHitPrinter):
         self._trackingParticles = trackingParticles
         self._trackingParticlePrinter = trackingParticlePrinter
 
-    def __call__(self, track):
-        print self._prefix+"Track %d pT %f eta %f phi %f dxy %f err %f dz %f err %f" % (track.index(), track.pt(), track.eta(), track.phi(), track.dxy(), track.dxyErr(), track.dz(), track.dzErr())
+    def printHeader(self, track):
+        lst = []
+        lst.append(self._prefix+"Track %d pT %f eta %f phi %f dxy %f err %f dz %f err %f" % (track.index(), track.pt(), track.eta(), track.phi(), track.dxy(), track.dxyErr(), track.dz(), track.dzErr()))
         algo = track.algo()
         oriAlgo = track.originalAlgo()
-        print self._prefix+" pixel hits %d strip hits %d" % (track.nPixel(), track.nStrip())
-        print self._prefix+" HP %s algo %s originalAlgo %s stopReason %s" % (str(track.isHP()), Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), StopReason.toString(track.stopReason()))
+        lst.append(self._prefix+" pixel hits %d strip hits %d" % (track.nPixel(), track.nStrip()))
+        lst.append(self._prefix+" HP %s algo %s originalAlgo %s stopReason %s" % (str(track.isHP()), Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), StopReason.toString(track.stopReason())))
+        return lst
+
+    def printHits(self, track):
+        lst = []
+        lst.append(self._prefix+" hits")
+        self.indent(2)
+        lst.extend(self._printHits(track.hits()))
+        self.restoreIndent()
+        return lst
+
+    def printSeed(self, track):
+        self._seedPrinter.setIndentFrom(self, adjust=1)
+        lst = self._seedPrinter.printSeed(track.seed())
+        self._seedPrinter.restoreIndent()
+        return lst
+
+    def printTrackingParticles(self, track):
+        lst = []
+        if track.nMatchedTrackingParticles == 0:
+            lst.append(self._prefix+" not matched to any TP")
+        elif self._trackingParticlePrinter is None:
+            lst.append(self._prefix+" matched to TPs "+",".join([str(tpInfo.trackingParticle().index()) for tpInfo in track.matchedTrackingParticleInfos()]))
+        else:
+            lst.append(self._prefix+" matched to TPs")
+            self._trackingParticlePrinter.indent(2)
+            for tpInfo in track.matchedTrackingParticleInfos():
+                lst.extend(self._trackingParticlePrinter.printTrackingParticle(tpInfo.trackingParticle()))
+            self._trackingParticlePrinter.indent(-2)
+        return lst
+
+    def printTrack(self, track):
+        lst = []
+        lst.extend(self.printHeader(track))
 
         if self._hits:
-            print self._prefix+" hits"
-            self.indent(2)
-            self._printHits(track.hits())
-            self.restoreIndent()
+            lst.extend(self.printHits(track))
 
         if self._seedPrinter:
-            self._seedPrinter.setIndentFrom(self, adjust=1)
-            self._seedPrinter(track.seed())
-            self._seedPrinter.restoreIndent()
+            lst.extend(self.printSeed(track))
 
+        return lst
+
+    def printMatchedTrackingParticles(self, track):
+        lst = []
         if self._trackingParticles:
-            if track.nMatchedTrackingParticles == 0:
-                print self._prefix+" not matched to any TP"
-            elif self._trackingParticlePrinter is None:
-                print self._prefix+" matched to TPs", ",".join([str(tpInfo.trackingParticle().index()) for tpInfo in track.matchedTrackingParticleInfos()])
-            else:
-                print self._prefix+" matched to TPs"
-                self._trackingParticlePrinter.indent(2)
-                for tpInfo in track.matchedTrackingParticleInfos():
-                    self._trackingParticlePrinter(tpInfo.trackingParticle())
-                self._trackingParticlePrinter.indent(-2)
+            lst.extend(self.printTrackingParticles(track))
+        return lst
+
+    def __call__(self, track, out=sys.stdout):
+        if isinstance(out, list):
+            lst = out
+        else:
+            lst = []
+
+        lst.extend(self.printTrack(track))
+        lst.extend(self.printTrackingParticles(track))
+
+        if not isinstance(out, list):
+            for line in lst:
+                out.write(line)
+                out.write("\n")
+
+    def diff(self, track1, track2):
+        generators = [
+            self.printHeader
+        ]
+        if self._hits:
+            generators.append(self.printHits)
+        if self._seedPrinter:
+            generators.append(self.printSeed)
+
+        return _makediff(generators, track1, track2)
 
 class TrackingParticlePrinter:
     def __init__(self, indent=0, parentage=True, hits=True, tracks=True, trackPrinter=None, seedPrinter=SeedPrinter()):
@@ -318,58 +414,94 @@ class TrackingParticlePrinter:
         fromB = ""
         if tp.isFromBHadron():
             fromB = " from B hadron"
-        print self._prefix+"TP %d pdgId %d%s%s pT %f eta %f phi %f" % (tp.index(), tp.pdgId(), genIds, fromB, tp.pt(), tp.eta(), tp.phi())
+        return [self._prefix+"TP %d pdgId %d%s%s pT %f eta %f phi %f" % (tp.index(), tp.pdgId(), genIds, fromB, tp.pt(), tp.eta(), tp.phi())]
+        
 
     def _parentageChain(self, tp):
+        lst = []
         prodVtx = tp.parentVertex()
         if prodVtx.nSourceTrackingParticles() == 1:
-            self._printTP(next(prodVtx.sourceTrackingParticles()))
+            lst.extend(self._printTP(next(prodVtx.sourceTrackingParticles())))
         elif prodVtx.nSourceTrackingParticles() >= 2:
             self.indent(1)
             for tp in prodVtx.sourceTrackingParticles():
-                self._printTP(tp)
+                self._printTP(tp, out)
                 self.indent(1)
-                self._parentageChain(tp)
+                lst.extend(self._parentageChain(tp))
                 self.indent(-1)
             self.indent(-1)
+        return lst
 
-    def __call__(self, tp):
-        self._printTP(tp)
+    def printTrackingParticle(self, tp):
+        lst = []
+        lst.extend(self._printTP(tp))
         if self._parentage:
             if tp.parentVertex().nSourceTrackingParticles() > 0:
-                print self._prefix+" parentage chain"
+                lst.append(self._prefix+" parentage chain")
                 self.indent(2)
-                self._parentageChain(tp)
+                lst.extend(self._parentageChain(tp))
                 self.indent(-2)
+        return lst
 
+    def printHits(self, tp):
+        lst = []
         if self._hits:
-            print self._prefix+" sim hits"
+            lst.append(self._prefix+" sim hits")
             for simhit in tp.simHits():
                 detId = parseDetId(simhit.detId())
-                print self._prefix+"  %d: pdgId %d process %d %s detId %d %s x,y,z %f,%f,%f" % (simhit.index(), simhit.particle(), simhit.process(), simhit.layerStr(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z())
+                lst.append(self._prefix+"  %d: pdgId %d process %d %s detId %d %s x,y,z %f,%f,%f" % (simhit.index(), simhit.particle(), simhit.process(), simhit.layerStr(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z()))
+        return lst
 
-        if self._tracks:
-            if tp.nMatchedTracks() == 0:
-                print self._prefix+" not matched to any track"
-            elif self._trackPrinter is None:
-                print self._prefix+" matched to tracks", ",".join([str(trkInfo.track().index()) for trkInfo in tp.matchedTrackInfos()])
-            else:
-                print self._prefix+" matched to tracks"
-                self._trackPrinter.indent(2)
-                for trkInfo in tp.matchedTrackInfos():
-                    self._trackPrinter(trkInfo.track())
-                self._trackPrinter.restoreIndent()
+    def printMatchedTracks(self, tp):
+        lst = []
+        if tp.nMatchedTracks() == 0:
+            lst.append(self._prefix+" not matched to any track")
+        elif self._trackPrinter is None:
+            lst.append(self._prefix+" matched to tracks"+",".join([str(trkInfo.track().index()) for trkInfo in tp.matchedTrackInfos()]))
+        else:
+            lst.append(self._prefix+" matched to tracks")
+            self._trackPrinter.indent(2)
+            for trkInfo in tp.matchedTrackInfos():
+                lst.extend(self._trackPrinter.printTrack(trkInfo.track()))
+            self._trackPrinter.restoreIndent()
+        return lst
 
+    def printMatchedSeeds(self, tp):
+        lst = []
         if self._seedPrinter:
             if tp.nMatchedSeeds() == 0:
-                print self._prefix+ " not matched to any seed"
+                lst.append(self._prefix+ " not matched to any seed")
             else:
-                print self._prefix+" matched to seeds"
+                lst.append(self._prefix+" matched to seeds")
                 self._seedPrinter.setIndentFrom(self, adjust=2)
                 for seedInfo in tp.matchedSeedInfos():
-                    self._seedPrinter(seedInfo.seed())
+                    self._seedPrinter(seedInfo.seed(), lst)
                 self._seedPrinter.restoreIndent()
+        return lst
 
+    def __call__(self, tp, out=sys.stdout):
+        if isinstance(out, list):
+            lst = out
+        else:
+            lst = []
+
+        lst.extend(self.printTrackingParticle(tp))
+        lst.extend(self.printHits(tp))
+        lst.extend(self.printMatchedTracks(tp))
+        lst.extend(self.printMatchedSeeds(tp))
+
+        for line in lst:
+            out.write(line)
+            out.write("\n")
+
+    def diff(self, tp1, tp2):
+        generators = [
+            self.printTrackingParticle,
+            self.printHits,
+            self.printMatchedTracks,
+            self.printMatchedSeeds
+        ]
+        return _makediff(generators, tp1, tp2)
 
 # to be kept is synch with enum HitSimType in TrackingNtuple.py
 class HitSimType:
