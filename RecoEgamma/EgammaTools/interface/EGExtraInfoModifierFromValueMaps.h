@@ -272,7 +272,7 @@ addValueToObject(ObjType& obj,
 		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
 		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map)
 {
-  MapType value;
+  MapType value{};
   assignValue(ptr,val_map.second,vmaps,value);
   if( !obj.hasUserData(val_map.first) ) {
     obj.addUserData(val_map.first,value);
