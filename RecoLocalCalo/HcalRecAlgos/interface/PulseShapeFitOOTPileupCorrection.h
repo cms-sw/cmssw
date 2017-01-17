@@ -51,6 +51,7 @@ namespace FitterFuncs{
      double sigmaHPDQIE8(double ifC);
      double sigmaSiPMQIE10(double ifC);
      double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
+     void setinvertpedSig2(double x) { invertpedSig2_ = x; }
 
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
