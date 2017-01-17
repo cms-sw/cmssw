@@ -39,8 +39,7 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 #                                   does not correct photon H/E or R9
 
 process.load("RecoEgamma.EgammaTools.egammaGainSwitchFix_cff")                                          
-process.p = cms.Path(process.egammaGainSwitchFixSequence)
-                    
+process.p = cms.Path(process.egammaGainSwitchSimpleFixSequence)
 
 
 
