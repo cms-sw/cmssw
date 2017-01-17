@@ -14,6 +14,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
@@ -229,6 +230,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   auto out_duplicateCandidates = std::make_unique<std::vector<TrackCandidate>>();
 
   auto out_candidateMap = std::make_unique<CandidateToDuplicate>();
+  LogDebug("DuplicateTrackMerger") << "Number of tracks to be checked for merging: " << tracks.size();
 
   for(int i = 0; i < (int)tracks.size(); i++){
     const reco::Track *rt1 = &tracks[i];
