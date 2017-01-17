@@ -639,6 +639,9 @@ class TrackingNtuple(object):
     Main benefit is to provide nice interface for
     - iterating over events
     - querying whether hit/seed information exists
+
+    Note that to iteratate over the evets with zip(), you should use
+    itertools.izip() instead.
     """
     def __init__(self, fileName, tree="trackingNtuple/tree"):
         """Constructor.
@@ -704,6 +707,7 @@ class Event(object):
         return self._entry
 
     def event(self):
+        """Returns event number."""
         return self._tree.event
 
     def lumi(self):
@@ -713,6 +717,14 @@ class Event(object):
     def run(self):
         """Returns run number."""
         return self._tree.run
+
+    def eventId(self):
+        """Returns (run, lumi, event) tuple."""
+        return (self._tree.run, self._tree.lumi, self._tree.event)
+
+    def eventIdStr(self):
+        """Returns 'run:lumi:event' string."""
+        return "%d:%d:%d" % self.eventId()
 
     def beamspot(self):
         """Returns BeamSpot object."""
