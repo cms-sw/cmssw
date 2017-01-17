@@ -26,105 +26,45 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
                                        
 )
 
-   
-
-
-process.load('RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi')
-process.ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("selectDigi","selectedEcalEBDigiCollection")
-process.ecalWeightUncalibRecHit.EEdigiCollection = cms.InputTag("selectDigi","selectedEcalEEDigiCollection")
-process.load('RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi')
-process.ecalWeightsRecHits = process.ecalRecHit.clone()
-process.ecalWeightsRecHits.EEuncalibRecHitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEE")
-process.ecalWeightsRecHits.EBuncalibRecHitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB")
-process.ecalWeightsRecHits.recoverEBFE = cms.bool(False)
-process.ecalWeightsRecHits.recoverEEFE = cms.bool(False)
-process.ecalWeightsRecHits.killDeadChannels = cms.bool(False)
-
-
-process.ecalMultiAndGSWeightsRecHitEB = \
-    cms.EDProducer("CombinedRecHitCollectionProducer",
-                   primaryRecHits=cms.InputTag("reducedEcalRecHitsEB"),
-                   secondaryRecHits=cms.InputTag("ecalWeightsRecHits","EcalRecHitsEB"),
-                   outputCollectionName=cms.string(""),
-                   flagsToReplaceHit=cms.vstring("kHasSwitchToGain6","kHasSwitchToGain1")
-)
-
-process.load("RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff")
-process.particleFlowRecHitECAL.producers[0].src=cms.InputTag("ecalMultiAndGSWeightsRecHitEB")
-process.particleFlowRecHitECAL.producers[1].src=cms.InputTag("reducedEcalRecHitsEE")
-process.particleFlowRecHitPS.producers[0].src=cms.InputTag("reducedEcalRecHitsES")
-process.particleFlowClusterECAL.energyCorrector.recHitsEBLabel=cms.InputTag("ecalMultiAndGSWeightsRecHitEB")
-process.particleFlowClusterECAL.energyCorrector.recHitsEELabel=cms.InputTag("reducedEcalRecHitsEE")
-
-process.load("RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff")
-
-process.particleFlowSuperClusterECAL.regressionConfig.ecalRecHitsEB=cms.InputTag("ecalMultiAndGSWeightsRecHitEB")
-process.particleFlowSuperClusterECAL.regressionConfig.ecalRecHitsEE=cms.InputTag("reducedEcalRecHitsEE")
-
 process.bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
+process.load("RecoEgamma.EgammaTools.ecalWeightRecHitFromSelectedDigis_cff")
+process.load("RecoEcal.EgammaClusterProducers.ecalMultiAndGSWeightRecHitEB_cfi")
+process.load("RecoEcal.EgammaClusterProducers.gsFixedSuperClustering_cff")
+process.load("RecoEcal.EgammaClusterProducers.gsFixedRefinedBarrelSuperClusters_cfi")
+process.load("RecoEcal.EgammaClusterProducers.gsBrokenToGSFixedSuperClustersMap_cfi")
+process.load("RecoEgamma.EgammaElectronProducers.gsFixedGsfElectronCores_cfi")
+process.load("RecoEgamma.EgammaElectronProducers.gsFixedGsfElectrons_cfi")
 
-process.fixedRefinedBarrelSuperClusters = cms.EDProducer("EGRefinedSCFixer",
-                                                         fixedSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
-                                                         orgSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel",processName=cms.InputTag.skipCurrentProcess()),
-                                                         orgRefinedSC=cms.InputTag("particleFlowEGamma"),
-                                                         fixedPFClusters=cms.InputTag("particleFlowClusterECAL"),
-                                
-                                                         )
-process.oldSuperClustersToNewMap = cms.EDProducer("MapNewToOldSCs",
-                                                  oldSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel",processName=cms.InputTag.skipCurrentProcess()),
-                                                  newSC=cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
-                                                  oldRefinedSC=cms.InputTag("particleFlowEGamma"),
-                                                  newRefinedSC=cms.InputTag("fixedRefinedBarrelSuperClusters")
-)
-
-process.newGsfElectronCores = cms.EDProducer("GsfElectronCoreGSCrysFixer",
-                                             orgCores=cms.InputTag("gedGsfElectronCores"),
-                                             ebRecHits=cms.InputTag("reducedEcalRecHitsEB"), ##ffs, weights dont have the gains switches set properly for some reason, doesnt matter, all we need this for is the gain so we can use orginal multifit
-                #                             ebRecHits=cms.InputTag("ecalWeightsRecHits","EcalRecHitsEB"), ##ffs, weights dont have the gains switches set properly for some reason
-                                             oldRefinedSCToNewMap=cms.InputTag("oldSuperClustersToNewMap","refinedSCs"),
-                                             oldSCToNewMap=cms.InputTag("oldSuperClustersToNewMap","parentSCs"),
-)
-
-#this module properly fixes the electrons
-from RecoEgamma.EgammaTools.regressionModifier_cfi import regressionModifier
-process.newGsfElectrons = cms.EDProducer("GsfElectronGSCrysFixer",
-                                         newCores=cms.InputTag("newGsfElectronCores"),
-                                         oldEles=cms.InputTag("gedGsfElectrons"),
-                                         ebRecHits=cms.InputTag("ecalMultiAndGSWeightsRecHitEB"),
-                                         newCoresToOldCoresMap=cms.InputTag("newGsfElectronCores","parentCores"),
-                                         regressionConfig = regressionModifier.clone(rhoCollection=cms.InputTag("fixedGridRhoFastjetAllTmp")),
-
-)
+process.egammaGainSwitchFixSequence = cms.Sequence(
+    process.ecalWeightLocalRecoFromSelectedDigis*
+    process.ecalMultiAndGSWeightRecHitEB*
+    process.gsFixedParticleFlowSuperClustering*
+    process.gsFixedRefinedBarrelSuperClusters*
+    process.gsBrokenToGSFixedSuperClustersMap*
+    process.gsFixedGsfElectronCores*
+    process.gsFixedGsfElectrons)
                                          
 
 #this does the simple fix (replace the crystals, assume fraction of 1)
 process.newGsfElectronsSimpleFix = cms.EDProducer("GsfEleGSCrysSimpleFixer",
                                                   oldEles = cms.InputTag("gedGsfElectrons"),
                                                   ebMultiRecHits = cms.InputTag("reducedEcalRecHitsEB"),
-                                                  ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightsRecHitEB"),
+                                                  ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightRecHitEB"),
 )
 #this does the simple fix (replace the crystals, assume fraction of 1)
 process.newPhotonsSimpleFix = cms.EDProducer("PhotonGSCrysSimpleFixer",
                                              oldPhos = cms.InputTag("gedPhotons"),
                                              ebMultiRecHits = cms.InputTag("reducedEcalRecHitsEB"),
-                                             ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightsRecHitEB"),
+                                             ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightRecHitEB"),
                                              energyTypesToFix = cms.vstring("ecal_standard","ecal_photons","regression1","regression2"),
                                              energyTypeForP4 = cms.string("regression2")
 )
  
-process.gsFixSeq = cms.Sequence(process.bunchSpacingProducer*
-                                process.ecalWeightUncalibRecHit*
-                                process.ecalWeightsRecHits*
-                                process.ecalMultiAndGSWeightsRecHitEB*
-                                process.pfClusteringPS*
-                                process.pfClusteringECAL*
-                                process.particleFlowSuperClusteringSequence*
-                                process.fixedRefinedBarrelSuperClusters*
-                                process.oldSuperClustersToNewMap*
-                                process.newGsfElectronCores*
-                                process.newGsfElectrons*
-                                process.newGsfElectronsSimpleFix*
-                                process.newPhotonsSimpleFix)
+process.gsFixSeq = cms.Sequence(
+    process.bunchSpacingProducer*
+    process.egammaGainSwitchFixSequence*
+    process.newGsfElectronsSimpleFix*
+    process.newPhotonsSimpleFix)
 process.p = cms.Path(process.gsFixSeq)
 
 
