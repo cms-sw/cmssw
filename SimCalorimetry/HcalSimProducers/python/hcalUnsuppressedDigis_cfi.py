@@ -43,8 +43,8 @@ hcalSimBlock = cms.PSet(
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( hcalSimBlock, hitsProducer=cms.string('famosSimHits') )
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
 
 # remove HE processing for phase 2, completely put in HGCal land
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
