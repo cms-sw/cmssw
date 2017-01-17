@@ -21,7 +21,7 @@ dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
 validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_gen)
 validationHarvestingNoHLT = cms.Path(postValidation*postValidation_gen)
 
-_validationHarvesting_fastsim = validation.copy()
+_validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
     _validationHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
