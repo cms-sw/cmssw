@@ -69,6 +69,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   virtual void endJob();
   bool isHit2D(const TrackingRecHit &hit) const;
   bool hasFirstLayerPixelHits(const reco::TransientTrack track);
+  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack track);
   std::pair<Double_t,Double_t> getMedian(TH1F *histo);
   std::pair<Double_t,Double_t> getMAD(TH1F *histo);
   std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
@@ -105,9 +106,12 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   double vertexZMax_;
 
   // requirements on the probe
-  bool    askFirstLayerHit_;  // ask hit in the first layer of pixels 
+  bool    askFirstLayerHit_;  // ask hit in the first layer of pixels
+  bool    doBPix_;
+  bool    doFPix_;
   double  ptOfProbe_;
-  double  etaOfProbe_; 
+  double  etaOfProbe_;
+  bool    isPhase1_;
   int nBins_;                 // actual number of histograms     
   std::vector<unsigned int> runControlNumbers_;
 
@@ -207,13 +211,23 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   int   hasRecVertex_[nMaxtracks_];
   int   isGoodTrack_[nMaxtracks_];
 
+  // histogram for max(eta)
+  TH1F* h_etaMax;
+  TH1F* h_nbins;
+
   // ---- directly histograms // ===> unbiased residuals
   
   // absolute residuals
 
   TH1F* a_dxyPhiResiduals[nMaxBins_];
   TH1F* a_dxyEtaResiduals[nMaxBins_];
-  
+
+  TH1F* a_dxPhiResiduals[nMaxBins_];
+  TH1F* a_dxEtaResiduals[nMaxBins_];
+
+  TH1F* a_dyPhiResiduals[nMaxBins_];
+  TH1F* a_dyEtaResiduals[nMaxBins_];
+
   TH1F* a_dzPhiResiduals[nMaxBins_];
   TH1F* a_dzEtaResiduals[nMaxBins_];
   
