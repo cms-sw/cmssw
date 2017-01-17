@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
-                                           subDirs = cms.untracked.vstring("Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
-                                                                           "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*"),
+                                           subDirs = cms.untracked.vstring(
+        "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitEffFromHitPattern*",
+                                           ),
                                            efficiency = cms.vstring(
         "effic_vs_PU_PXB1 'PXB Layer1 Efficiency vs GoodNumVertices' Hits_valid_PXB_Subdet1 Hits_total_PXB_Subdet1",
         "effic_vs_PU_PXB2 'PXB Layer2 Efficiency vs GoodNumVertices' Hits_valid_PXB_Subdet2 Hits_total_PXB_Subdet2",
