@@ -215,7 +215,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
 					    trk->pt(),trk->eta(),trk->phi(),
 					    id,pvSlimmedColl,pvSlimmed.key()));
 
-    if(trk->pt()>minPtToStoreProps_ || trkStatus==TrkStatus::VTX) cands.back().setTrackProperties(*trk);
+    if(trk->pt()>minPtToStoreProps_ || trkStatus==TrkStatus::VTX) cands.back().setTrackProperties(*trk,0);
     if(pvOrig.trackWeight(trk) > 0.5) {
          cands.back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
     }

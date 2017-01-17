@@ -12,5 +12,6 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
       cms.InputTag("inclusiveCandidateSecondaryVertices"),
       cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
       ),      
-    minPtForTrackProperties = cms.double(0.95)
+    minPtForTrackProperties = cms.double(0.95),
+    covariancePackingSchemas = cms.vint32(1,257,513,769,0)   
 )
