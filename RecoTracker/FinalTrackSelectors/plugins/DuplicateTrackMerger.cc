@@ -125,6 +125,7 @@ namespace {
 #include "TFile.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 
 #include "DuplicateTrackType.h"
 
@@ -497,6 +498,15 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
     ++t1HitIter; ++t2HitIter;
     unsigned int missedLayers = 0;
     while(t1HitIter != t1->recHitsEnd() && t2HitIter != t2->recHitsEnd()) {
+      // in case of invalid hits, reject immediately
+      if((*t1HitIter)->getType() != TrackingRecHit::valid || trackerHitRTTI::isUndef(**t1HitIter) ||
+         (*t2HitIter)->getType() != TrackingRecHit::valid || trackerHitRTTI::isUndef(**t2HitIter)) {
+        IfLogTrace(debug_, "DuplicateTrackMerger") << " t1 hit " << std::distance(t1->recHitsBegin(), t1HitIter)
+                                                   << " t2 hit " << std::distance(t2->recHitsBegin(), t2HitIter)
+                                                   << " either is invalid, types t1 " << (*t1HitIter)->getType() << " t2 " << (*t2HitIter)->getType();
+        return false;
+      }
+
       const auto& t1DetId = (*t1HitIter)->geographicalId();
       const auto& t2DetId = (*t2HitIter)->geographicalId();
 
