@@ -31,7 +31,9 @@ class EcalUncalibRecHitMultiFitAlgo
   void setPrefitMaxChiSq(double x) { _prefitMaxChiSq = x; }
   void setDynamicPedestals(bool b=true) { _dynamicPedestals = b; }
   void setMitigateBadSamples(bool b=true) { _mitigateBadSamples = b; }
+  void setSelectiveBadSampleCriteria(bool b=true) { _selectiveBadSampleCriteria = b; }
   void setAddPedestalUncertainty(double x) { _addPedestalUncertainty = x; }
+  void setSimplifiedNoiseModelForGainSwitch(bool b) { _simplifiedNoiseModelForGainSwitch = b; }
   
  private:
    PulseChiSqSNNLS _pulsefunc;
@@ -41,7 +43,9 @@ class EcalUncalibRecHitMultiFitAlgo
    double _prefitMaxChiSq;
    bool _dynamicPedestals;
    bool _mitigateBadSamples;
+   bool _selectiveBadSampleCriteria;
    double _addPedestalUncertainty;
+   bool _simplifiedNoiseModelForGainSwitch;
    BXVector _singlebx;
 
 };

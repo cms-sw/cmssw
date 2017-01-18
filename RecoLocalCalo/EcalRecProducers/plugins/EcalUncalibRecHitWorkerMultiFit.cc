@@ -50,10 +50,16 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   prefitMaxChiSqEB_ = ps.getParameter<double>("prefitMaxChiSqEB");
   prefitMaxChiSqEE_ = ps.getParameter<double>("prefitMaxChiSqEE");
   
-  dynamicPedestals_ = ps.getParameter<bool>("dynamicPedestals");
-  mitigateBadSamples_ = ps.getParameter<bool>("mitigateBadSamples");
-  addPedestalUncertainty_ = ps.getParameter<double>("addPedestalUncertainty");
-
+  dynamicPedestalsEB_ = ps.getParameter<bool>("dynamicPedestalsEB");
+  dynamicPedestalsEE_ = ps.getParameter<bool>("dynamicPedestalsEE");
+  mitigateBadSamplesEB_ = ps.getParameter<bool>("mitigateBadSamplesEB");
+  mitigateBadSamplesEE_ = ps.getParameter<bool>("mitigateBadSamplesEE");
+  selectiveBadSampleCriteriaEB_ = ps.getParameter<bool>("selectiveBadSampleCriteriaEB");
+  selectiveBadSampleCriteriaEE_ = ps.getParameter<bool>("selectiveBadSampleCriteriaEE");
+  addPedestalUncertaintyEB_ = ps.getParameter<double>("addPedestalUncertaintyEB");
+  addPedestalUncertaintyEE_ = ps.getParameter<double>("addPedestalUncertaintyEE");
+  simplifiedNoiseModelForGainSwitch_ = ps.getParameter<bool>("simplifiedNoiseModelForGainSwitch");
+  
   // algorithm to be used for timing
   auto const & timeAlgoName = ps.getParameter<std::string>("timealgo");
   if(timeAlgoName=="RatioMethod") timealgo_=ratioMethod;
@@ -262,9 +268,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         const EcalPulseShapes::Item * aPulse = 0;
         const EcalPulseCovariances::Item * aPulseCov = 0;
 
-        multiFitMethod_.setDynamicPedestals(dynamicPedestals_);
-        multiFitMethod_.setMitigateBadSamples(mitigateBadSamples_);
-        multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertainty_);
+        multiFitMethod_.setSimplifiedNoiseModelForGainSwitch(simplifiedNoiseModelForGainSwitch_);
         
         if (detid.subdetId()==EcalEndcap) {
                 unsigned int hashedIndex = EEDetId(detid).hashedIndex();
@@ -275,6 +279,10 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 aPulseCov = &pulsecovariances->endcap(hashedIndex);
                 multiFitMethod_.setDoPrefit(doPrefitEE_);
 		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
+                multiFitMethod_.setDynamicPedestals(dynamicPedestalsEE_);
+                multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEE_);
+                multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEE_);
+                multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEE_);
 		offsetTime = offtime->getEEValue();
         } else {
                 unsigned int hashedIndex = EBDetId(detid).hashedIndex();
@@ -286,6 +294,10 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 multiFitMethod_.setDoPrefit(doPrefitEB_);
 		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
 		offsetTime = offtime->getEBValue();
+                multiFitMethod_.setDynamicPedestals(dynamicPedestalsEB_);
+                multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEB_);
+                multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEB_);
+                multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEB_);        
         }
 
         double pedVec[3] = { aped->mean_x12, aped->mean_x6, aped->mean_x1 };
@@ -582,9 +594,15 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEE", 10., true) and
-	      edm::ParameterDescription<bool>("dynamicPedestals", false, true) and
-	      edm::ParameterDescription<bool>("mitigateBadSamples", false, true) and
-	      edm::ParameterDescription<double>("addPedestalUncertainty", 0., true) and
+	      edm::ParameterDescription<bool>("dynamicPedestalsEB", false, true) and
+	      edm::ParameterDescription<bool>("dynamicPedestalsEE", false, true) and
+	      edm::ParameterDescription<bool>("mitigateBadSamplesEB", false, true) and
+	      edm::ParameterDescription<bool>("mitigateBadSamplesEE", false, true) and
+	      edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEB", false, true) and
+	      edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEE", false, true) and
+	      edm::ParameterDescription<double>("addPedestalUncertaintyEB", 0., true) and
+	      edm::ParameterDescription<double>("addPedestalUncertaintyEE", 0., true) and
+	      edm::ParameterDescription<bool>("simplifiedNoiseModelForGainSwitch", true, true) and
 	      edm::ParameterDescription<std::string>("timealgo", "RatioMethod", true) and
 	      edm::ParameterDescription<std::vector<double>>("EBtimeFitParameters", {-2.015452e+00, 3.130702e+00, -1.234730e+01, 4.188921e+01, -8.283944e+01, 9.101147e+01, -5.035761e+01, 1.105621e+01}, true) and
 	      edm::ParameterDescription<std::vector<double>>("EEtimeFitParameters", {-2.390548e+00, 3.553628e+00, -1.762341e+01, 6.767538e+01, -1.332130e+02, 1.407432e+02, -7.541106e+01, 1.620277e+01}, true) and

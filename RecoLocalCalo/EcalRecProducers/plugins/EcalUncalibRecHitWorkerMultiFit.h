@@ -90,9 +90,15 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
                 bool doPrefitEE_;
 		double prefitMaxChiSqEB_;
 		double prefitMaxChiSqEE_;
-                bool dynamicPedestals_;
-                bool mitigateBadSamples_;
-                double addPedestalUncertainty_;
+                bool dynamicPedestalsEB_;
+                bool dynamicPedestalsEE_;
+                bool mitigateBadSamplesEB_;
+                bool mitigateBadSamplesEE_;
+                bool selectiveBadSampleCriteriaEB_;
+                bool selectiveBadSampleCriteriaEE_;
+                double addPedestalUncertaintyEB_;
+                double addPedestalUncertaintyEE_;
+                bool simplifiedNoiseModelForGainSwitch_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 

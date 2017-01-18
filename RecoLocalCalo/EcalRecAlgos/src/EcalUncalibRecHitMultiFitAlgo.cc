@@ -11,7 +11,9 @@ EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() :
   _prefitMaxChiSq(1.0),
   _dynamicPedestals(false),
   _mitigateBadSamples(false),
-  _addPedestalUncertainty(0.) { 
+  _selectiveBadSampleCriteria(false),
+  _addPedestalUncertainty(0.),
+  _simplifiedNoiseModelForGainSwitch(true) { 
     
   _singlebx.resize(1);
   _singlebx << 0;
@@ -104,18 +106,14 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
         
   }
   
-  //special handling for case where maximum sample has gain switched but previous sample has not
-  //which is potentially affected by slew rate limitation (EB only)
+  //special handling for gain switch, where sample before maximum is potentially affected by slew rate limitation
+  //optionally apply a stricter criteria, assuming slew rate limit is only reached in case where maximum sample has gain switched but previous sample has not
   //A floating negative single-sample offset is added to the fit
   //such that the affected sample is treated only as a lower limit for the true amplitude
-  if (_mitigateBadSamples && hasGainSwitch) {
-    bool isbarrel = dataFrame.id().subdetId()==EcalBarrel;
-    for(unsigned int iSample = 0; iSample < nsample; iSample++) {      
-      bool isSlewLimited = isbarrel && iSample==(iSampleMax-1) && gainsNoise.coeff(iSampleMax)>0 && gainsNoise.coeff(iSample)!=gainsNoise.coeff(iSampleMax);
-      if (isSlewLimited) {
-        badSamples[iSample] = 1;
-      }
-    }
+  bool mitigateBadSample = _mitigateBadSamples && hasGainSwitch && iSampleMax>0;
+  mitigateBadSample &= (!_selectiveBadSampleCriteria || (gainsNoise.coeff(iSampleMax-1)!=gainsNoise.coeff(iSampleMax)) );
+  if (mitigateBadSample) {
+    badSamples[iSampleMax-1] = 1;
   }
   
   double amplitude, amperr, chisq;
@@ -126,17 +124,27 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   if (hasGainSwitch) {
     std::array<double,3> pedrmss = {{aped->rms_x12, aped->rms_x6, aped->rms_x1}};
     std::array<double,3> gainratios = {{ 1., aGain->gain12Over6(), aGain->gain6Over1()*aGain->gain12Over6()}};
-    noisecov = SampleMatrix::Zero();
-    for (unsigned int gainidx=0; gainidx<noisecors.size(); ++gainidx) {
-      SampleGainVector mask = gainidx*SampleGainVector::Ones();
-      SampleVector pedestal = (gainsNoise.array()==mask.array()).cast<SampleVector::value_type>();
-      if (pedestal.maxCoeff()>0.) {
-        //select out relevant components of each correlation matrix, and assume no correlation between samples with
-        //different gain
-        noisecov += gainratios[gainidx]*gainratios[gainidx]*pedrmss[gainidx]*pedrmss[gainidx]*pedestal.asDiagonal()*noisecors[gainidx]*pedestal.asDiagonal();
-        if (!dynamicPedestal && _addPedestalUncertainty>0.) {
-          //add fully correlated component to noise covariance to inflate pedestal uncertainty
-          noisecov += gainratios[gainidx]*gainratios[gainidx]*_addPedestalUncertainty*_addPedestalUncertainty*pedestal.asDiagonal()*SampleMatrix::Ones()*pedestal.asDiagonal();
+    if (_simplifiedNoiseModelForGainSwitch) {
+      int gainidxmax = gainsNoise[iSampleMax];
+      noisecov = gainratios[gainidxmax]*gainratios[gainidxmax]*pedrmss[gainidxmax]*pedrmss[gainidxmax]*noisecors[gainidxmax];
+      if (!dynamicPedestal && _addPedestalUncertainty>0.) {
+        //add fully correlated component to noise covariance to inflate pedestal uncertainty
+        noisecov += _addPedestalUncertainty*_addPedestalUncertainty*SampleMatrix::Ones();
+      }
+    }
+    else {
+      noisecov = SampleMatrix::Zero();
+      for (unsigned int gainidx=0; gainidx<noisecors.size(); ++gainidx) {
+        SampleGainVector mask = gainidx*SampleGainVector::Ones();
+        SampleVector pedestal = (gainsNoise.array()==mask.array()).cast<SampleVector::value_type>();
+        if (pedestal.maxCoeff()>0.) {
+          //select out relevant components of each correlation matrix, and assume no correlation between samples with
+          //different gain
+          noisecov += gainratios[gainidx]*gainratios[gainidx]*pedrmss[gainidx]*pedrmss[gainidx]*pedestal.asDiagonal()*noisecors[gainidx]*pedestal.asDiagonal();
+          if (!dynamicPedestal && _addPedestalUncertainty>0.) {
+            //add fully correlated component to noise covariance to inflate pedestal uncertainty
+            noisecov += gainratios[gainidx]*gainratios[gainidx]*_addPedestalUncertainty*_addPedestalUncertainty*pedestal.asDiagonal()*SampleMatrix::Ones()*pedestal.asDiagonal();
+          }
         }
       }
     }
