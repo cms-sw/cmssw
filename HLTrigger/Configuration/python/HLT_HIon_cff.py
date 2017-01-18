@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/HIon/V3 (CMSSW_9_0_0_pre2)
+# /dev/CMSSW_9_0_0/HIon/V4 (CMSSW_9_0_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V4')
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -8723,12 +8723,12 @@ fragment.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     applyTimeSlew = cms.bool( True ),
     applyTimeConstraint = cms.bool( True ),
     timingshapedcutsParameters = cms.PSet(  ),
-    ts4chi2 = cms.vdouble( 15.0, 5000.0 ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
     ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet(  ),
     timeSigmaSiPM = cms.double( 2.5 ),
     applyPedConstraint = cms.bool( True ),
-    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
     noiseSiPM = cms.double( 1.0 ),
     meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet(  ),
