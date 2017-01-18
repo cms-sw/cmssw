@@ -209,7 +209,74 @@ def parseDetId(detid):
         raise Exception("Got unknown subdet %d" % subdet)
     raise Exception("Supporting only phase1 DetIds at the moment")
 
+# Common track-track matching by hits (=clusters)
+def _commonHits(trk1, trk2):
+    """Returns the number of common hits in trk1 and trk2. Matching is
+    done via the hit type and index, so effectively the matching is
+    done by clusters. Invalid hits are ignored.
+
+    """
+    hits1 = set()
+    for hit in trk1.hits():
+        if not hit.isValidHit(): continue
+        hits1.add( (type(hit), hit.index()) )
+
+    ncommon = 0
+    for hit in trk2.hits():
+        if not hit.isValidHit(): continue
+        if (type(hit), hit.index()) in hits1:
+            ncommon += 1
+
+    return ncommon
+
+def _matchTracksByHits(reftrk, trklist):
+    if len(trklist) == 0:
+        return None
+
+    hits1 = set()
+    for hit in reftrk.hits():
+        if not hit.isValidHit(): continue
+        hits1.add( (type(hit), hit.index()) )
+
+    best = (None, 0)
+    for trk in trklist:
+        ncommon = 0
+        for hit in trk.hits():
+            if not hit.isValidHit(): continue
+            if (type(hit), hit.index()) in hits1:
+                ncommon += 1
+        if ncommon > best[1]:
+            best = (trk, ncommon)
+
+    return best[0]
+
 # Common diff helpers, used in the printout helpers
+class _DiffResult(object):
+    def __init__(self, diff=[], hasDifference=False):
+        self._diff = []
+        self._hasDifference = hasDifference
+        self.extend(diff)
+
+    def setDifference(self):
+        self._hasDifference = True
+
+    def hasDifference(self):
+        return self._hasDifference
+
+    def extend(self, diff):
+        if isinstance(diff, _DiffResult):
+            self._diff.append(diff)
+            if diff.hasDifference():
+                self.setDifference()
+        else:
+            self._diff.extend(diff)
+
+    def __str__(self):
+        return "\n".join(str(item) for item in self._diff)
+
+    def __len__(self):
+        return len(self._diff)
+
 def _difflist(list1, list2):
     diff = difflib.unified_diff(list1, list2, lineterm="", n=len(list1))
     for item in diff:
@@ -217,22 +284,15 @@ def _difflist(list1, list2):
             break
     return list(diff)
 
-def _makediff(funcs, obj1, obj2):
-    different = False
-    ret = []
-    for f in funcs:
-        out1 = f(obj1)
-        out2 = f(obj2)
-        dff = _difflist(out1, out2)
-        if len(dff) == 0:
-            ret.extend([" "+s for s in out1])
-        else:
-            ret.extend(dff)
-            different = True
-    if different:
-        return ret
+def _makediff(list1, list2):
+    diff = _difflist(list1, list2)
+    if len(diff) == 0:
+        return _DiffResult([" "+s for s in list1], hasDifference=False)
     else:
-        return []
+        return _DiffResult(diff, hasDifference=True)
+
+def _mapdiff(func, obj1, obj2):
+    return _DiffResult(_makediff(func(obj1), func(obj2)))
 
 
 # Common detailed printout helpers
@@ -339,17 +399,28 @@ class TrackPrinter(_RecHitPrinter):
 
     def printHits(self, track):
         lst = []
-        lst.append(self._prefix+" hits")
-        self.indent(2)
-        lst.extend(self._printHits(track.hits()))
-        self.restoreIndent()
+        if self._hits:
+            lst.append(self._prefix+" hits")
+            self.indent(2)
+            lst.extend(self._printHits(track.hits()))
+            self.restoreIndent()
         return lst
 
     def printSeed(self, track):
-        self._seedPrinter.setIndentFrom(self, adjust=1)
-        lst = self._seedPrinter.printSeed(track.seed())
-        self._seedPrinter.restoreIndent()
+        lst = []
+        if self._seedPrinter:
+            self._seedPrinter.setIndentFrom(self, adjust=1)
+            lst.extend(self._seedPrinter.printSeed(track.seed()))
+            self._seedPrinter.restoreIndent()
         return lst
+
+    def diffSeeds(self, track1, track2):
+        ret = _DiffResult()
+        if self._seedPrinter:
+            self._seedPrinter.setIndentFrom(self, adjust=1)
+            ret.extend(_makediff(self._seedPrinter.printSeed(track1.seed()), self._seedPrinter.printSeed(track2.seed())))
+            self._seedPrinter.restoreIndent()
+        return ret
 
     def printTrackingParticles(self, track):
         lst = []
@@ -366,15 +437,9 @@ class TrackPrinter(_RecHitPrinter):
         return lst
 
     def printTrack(self, track):
-        lst = []
-        lst.extend(self.printHeader(track))
-
-        if self._hits:
-            lst.extend(self.printHits(track))
-
-        if self._seedPrinter:
-            lst.extend(self.printSeed(track))
-
+        lst = self.printHeader(track)
+        lst.extend(self.printHits(track))
+        lst.extend(self.printSeed(track))
         return lst
 
     def printMatchedTrackingParticles(self, track):
@@ -398,15 +463,11 @@ class TrackPrinter(_RecHitPrinter):
                 out.write("\n")
 
     def diff(self, track1, track2):
-        generators = [
-            self.printHeader
-        ]
-        if self._hits:
-            generators.append(self.printHits)
-        if self._seedPrinter:
-            generators.append(self.printSeed)
-
-        return _makediff(generators, track1, track2)
+        ret = _DiffResult()
+        ret.extend(_mapdiff(self.printHeader, track1, track2))
+        ret.extend(_mapdiff(self.printHits, track1, track2))
+        ret.extend(self.diffSeeds(track1, track2))
+        return ret
 
 class TrackingParticlePrinter:
     def __init__(self, indent=0, parentage=True, hits=True, tracks=True, trackPrinter=None, seedPrinter=SeedPrinter()):
@@ -468,19 +529,66 @@ class TrackingParticlePrinter:
                 lst.append(self._prefix+"  %d: pdgId %d process %d %s detId %d %s x,y,z %f,%f,%f" % (simhit.index(), simhit.particle(), simhit.process(), simhit.layerStr(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z()))
         return lst
 
+    def _printMatchedTracks0(self):
+        return [self._prefix+" not matched to any track"]
+
+    def _printMatchedTracksHeader(self):
+        return [self._prefix+" matched to tracks"]
+
+    def _printMatchedTracksWithoutPrinter(self, tp):
+        ret = self._printMatchedTracksHeader()
+        ret[0] += ",".join([str(trkInfo.track().index()) for trkInfo in tp.matchedTrackInfos()])
+
+    def _printMatchedTracksWithPrinter(self, tp):
+        lst = self._printMatchedTracksHeader()
+        self._trackPrinter.indent(2)
+        for trkInfo in tp.matchedTrackInfos():
+            lst.extend(self._trackPrinter.printTrack(trkInfo.track()))
+        self._trackPrinter.restoreIndent()
+        return lst
+
     def printMatchedTracks(self, tp):
         lst = []
         if tp.nMatchedTracks() == 0:
-            lst.append(self._prefix+" not matched to any track")
+            lst.extend(self._printMatchedTracks0())
         elif self._trackPrinter is None:
-            lst.append(self._prefix+" matched to tracks"+",".join([str(trkInfo.track().index()) for trkInfo in tp.matchedTrackInfos()]))
+            lst.extend(self._printMatchedTracksWithoutPrinter(tp))
         else:
-            lst.append(self._prefix+" matched to tracks")
-            self._trackPrinter.indent(2)
-            for trkInfo in tp.matchedTrackInfos():
-                lst.extend(self._trackPrinter.printTrack(trkInfo.track()))
-            self._trackPrinter.restoreIndent()
+            lst.extend(self._printMatchedTracksWithPrinter(tp))
         return lst
+
+    def diffMatchedTracks(self, tp1, tp2):
+        ntrk1 = tp1.nMatchedTracks()
+        ntrk2 = tp2.nMatchedTracks()
+
+        if ntrk1 == 0 or ntrk2 == 0:
+            if ntrk1 == 0 and ntrk2 == 0:
+                return _makediff(self._printMatchedTracks0(), self._printMatchedTracks0())
+            else:
+                return _makediff(self.printMatchedTracks(tp1), self.printMatchedTracks(tp2))
+
+        if self._trackPrinter is None:
+            return _makediff(self.printMatchedTracks(tp1), self.printMatchedTracks(tp2))
+
+        self._trackPrinter.indent(2)
+
+        diff = _makediff(self._printMatchedTracksHeader(), self._printMatchedTracksHeader())
+        trks2 = [trkInfo2.track() for trkInfo2 in tp2.matchedTrackInfos()]
+        for trkInfo1 in tp1.matchedTrackInfos():
+            trk1 = trkInfo1.track()
+            matchedTrk2 = _matchTracksByHits(trk1, trks2)
+
+            if matchedTrk2 is None: # no more tracks in tp2
+                diff.extend(_makediff(self._trackPrinter.printTrack(trk1), []))
+            else: # diff trk1 to best-matching track from tp2
+                trks2.remove(matchedTrk2)
+                diff.extend(self._trackPrinter.diff(trk1, matchedTrk2))
+
+        for trk2 in trks2: # remaining tracks in tp2
+            diff.extend(_makediff([], self._trackPrinter.printTrack(trk2)))
+
+        self._trackPrinter.restoreIndent()
+        return diff
 
     def printMatchedSeeds(self, tp):
         lst = []
@@ -511,13 +619,12 @@ class TrackingParticlePrinter:
             out.write("\n")
 
     def diff(self, tp1, tp2):
-        generators = [
-            self.printTrackingParticle,
-            self.printHits,
-            self.printMatchedTracks,
-            self.printMatchedSeeds
-        ]
-        return _makediff(generators, tp1, tp2)
+        ret = _DiffResult()
+        ret.extend(_mapdiff(self.printTrackingParticle, tp1, tp2))
+        ret.extend(_mapdiff(self.printHits, tp1, tp2))
+        ret.extend(self.diffMatchedTracks(tp1, tp2))
+        ret.extend(_mapdiff(self.printMatchedSeeds, tp1, tp2))
+        return ret
 
 # to be kept is synch with enum HitSimType in TrackingNtuple.py
 class HitSimType:
