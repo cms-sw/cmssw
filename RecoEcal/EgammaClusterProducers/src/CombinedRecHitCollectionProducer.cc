@@ -46,6 +46,8 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection>  secondaryRecHitsToken_; 
   const std::vector<int> flagsToReplaceHit_;
   const std::string outputCollectionName_;
+  const std::string outputReplacedHitsCollName_;
+  const std::string outputReplacingHitsCollName_;
   const std::string outputDetIdCollName_;
 };
 
@@ -56,11 +58,15 @@ CombinedRecHitCollectionProducer(const edm::ParameterSet& iConfig):
   secondaryRecHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter< edm::InputTag > ("secondaryRecHits"))),
   flagsToReplaceHit_(StringToEnumValue<EcalRecHit::Flags>(iConfig.getParameter<std::vector<std::string> >("flagsToReplaceHit"))),
   outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")),
+  outputReplacedHitsCollName_(iConfig.getParameter<std::string>("outputReplacedHitsCollName")),
+  outputReplacingHitsCollName_(iConfig.getParameter<std::string>("outputReplacingHitsCollName")),
   outputDetIdCollName_("hitsNotReplaced")
 {
 
    //register your products
   produces< EcalRecHitCollection > (outputCollectionName_);
+  produces< EcalRecHitCollection > (outputReplacedHitsCollName_);
+  produces< EcalRecHitCollection > (outputReplacingHitsCollName_);
   produces< DetIdCollection> (outputDetIdCollName_);
 }
 
@@ -77,6 +83,8 @@ produce (edm::Event& iEvent,
   
   auto outColl = std::make_unique<EcalRecHitCollection>();
   auto missingDetIds = std::make_unique<DetIdCollection>();
+  auto outReplacedHits = std::make_unique<EcalRecHitCollection>(); //all the hits in primary coll replaced by secondary coll
+  auto outReplacingHits = std::make_unique<EcalRecHitCollection>(); //all the hits in secondary coll which replaced a primary coll rec hit
   
   for(auto& hit : *primaryRecHits){
     
@@ -87,7 +95,8 @@ produce (edm::Event& iEvent,
       auto secHit = secondaryRecHits->find(hit.detid());
       if(secHit!=secondaryRecHits->end()){ //found secondary hit
 	outColl->push_back(*secHit);
-	//	if(hit.checkFlags({EcalRecHit::kHasSwitchToGain1}))std::cout <<"old hit "<<hit.energy()<<" new  hit "<<secHit->energy()<<std::endl;
+	outReplacingHits->push_back(*secHit);
+	outReplacedHits->push_back(hit);
       }else{
  	outColl->push_back(hit);
 	missingDetIds->push_back(hit.detid());
@@ -97,6 +106,8 @@ produce (edm::Event& iEvent,
     }
   }
   iEvent.put(std::move(outColl),outputCollectionName_);
+  iEvent.put(std::move(outReplacingHits),outputReplacingHitsCollName_);
+  iEvent.put(std::move(outReplacedHits),outputReplacedHitsCollName_);
   iEvent.put(std::move(missingDetIds),outputDetIdCollName_);
 }
 #include "FWCore/Framework/interface/MakerMacros.h"

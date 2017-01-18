@@ -19,11 +19,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v3'
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
-#        '/store/mc/RunIISpring16DR80/ZToEE_NNPDF30_13TeV-powheg_M_200_400/RAWAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/50000/FAB476A3-4F13-E611-B591-008CFAF06402.root',
-        #"file:/opt/ppd/scratch/harper/mcTestFiles/DoubleEG_Run273450_4C4E9B34-2D1C-E611-AACF-02163E013455_AOD.root"
-        "file:/opt/ppd/scratch/harper/dataFiles/DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_1.root",
-)
-                                       
+        #"file:/opt/ppd/scratch/harper/dataFiles/DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_1.root",
+        "/store/user/sharper/EventSkim/DiHEEPWOSS_GainSwitch/AOD/DoubleEG/Run2016G-23Sep2016-v1_AOD_DiHEEPWOSS_GainSwitch/170112_185336/0000/DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_1.root", 
+                               )
 )
 
 
