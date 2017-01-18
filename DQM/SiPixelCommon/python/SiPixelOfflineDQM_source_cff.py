@@ -22,7 +22,7 @@ from DQM.SiPixelMonitorRecHit.SiPixelMonitorRecHit_cfi import *
 SiPixelRecHitSource.saveFile = False
 
 # Pixel Track Monitoring
-from RefitterForPixelDQM.py import *
+from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
 SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('initialStepTrackCandidates')
