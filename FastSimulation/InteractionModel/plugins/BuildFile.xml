@@ -1,0 +1,6 @@
+<use name="FastSimulation/InteractionModel"/>
+<use name="DataFormats/Math"/>
+<use name="FastSimulation/Layer"/>
+<use name="FastSimulation/Particle"/>
+<use name="FastSimulation/Utilities"/>
+<flags EDM_PLUGIN="1"/>

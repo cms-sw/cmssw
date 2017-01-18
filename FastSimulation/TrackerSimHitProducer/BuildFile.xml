@@ -1,0 +1,21 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/GeomPropagators"/>
+
+<use name="FastSimulation/Particle"/>
+<use name="FastSimulation/TrajectoryManager"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="SimDataFormats/TrackingHit"/>
+
+<use name="MagneticField/UniformEngine"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="CondFormats/External"/>
+
+<export>
+  <lib   name="1"/>
+</export>

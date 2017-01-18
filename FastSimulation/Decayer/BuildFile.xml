@@ -1,0 +1,7 @@
+<use name="FastSimulation/Particle"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="GeneratorInterface/Pythia8Interface"/>
+<use name="pythia8"/>
+<export>
+  <lib name="1"/>
+</export>
