@@ -100,7 +100,8 @@ SiPixelHitEfficiencySource.ringOn = False
 
 #HI track modules
 hiTracks = "hiGeneralTracks"
-refittedForPixelDQM.src=hiTracks
+hiRefittedForPixelDQM= refittedForPixelDQM.clone()
+hiRefittedForPixelDQM.src=hiTracks
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
     TrackCandidateProducer = hiTracks,
@@ -124,7 +125,7 @@ siPixelOfflineDQM_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSo
 
 siPixelOfflineDQM_cosmics_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
 
-siPixelOfflineDQM_heavyions_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + refittedForPixelDQM + SiPixelTrackResidualSource_HeavyIons + SiPixelHitEfficiencySource_HeavyIons + dqmInfo)
+siPixelOfflineDQM_heavyions_source = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + hiRefittedForPixelDQM + SiPixelTrackResidualSource_HeavyIons + SiPixelHitEfficiencySource_HeavyIons + dqmInfo)
 
 siPixelOfflineDQM_source_woTrack = cms.Sequence(SiPixelHLTSource + SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + dqmInfo)
 
