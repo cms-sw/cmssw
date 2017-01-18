@@ -8,7 +8,7 @@ SiPixelTrackResidualSource = cms.EDAnalyzer("SiPixelTrackResidualSource",
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelTrackResiduals"),
     clustersrc = cms.InputTag("siPixelClusters"),                            
-    tracksrc   = cms.InputTag("generalTracks"),
+    tracksrc   = cms.InputTag("refittedForPixelDQM"),
     debug = cms.untracked.bool(False),                          
     saveFile = cms.untracked.bool(False),
     outputFile = cms.string('Pixel_DQM_TrackResidual.root'),
@@ -27,7 +27,7 @@ SiPixelTrackResidualSource = cms.EDAnalyzer("SiPixelTrackResidualSource",
     PtMinRes = cms.untracked.double(4.0),
     vtxsrc= cms.untracked.string("offlinePrimaryVertices"),
 
-    trajectoryInput = cms.InputTag('generalTracks'),              
+    trajectoryInput = cms.InputTag('refittedForPixelDQM'),              
     digisrc = cms.InputTag("siPixelDigis") 
 )
 
