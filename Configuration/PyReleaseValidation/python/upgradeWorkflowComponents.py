@@ -9,6 +9,10 @@ upgradeKeys[2017] = [
     '2017PU',
     '2017Design',
     '2017DesignPU',
+    '2018',
+    '2018PU',
+    '2018Design',
+    '2018DesignPU',
 ]
 
 upgradeKeys[2023] = [
@@ -98,12 +102,31 @@ upgradeProperties[2017] = {
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
     },
+    '2018' : {
+        'Geom' : 'Extended2018',
+        'GT' : 'auto:phase1_2018_realistic',
+        'HLTmenu': '@relval2016',
+        'Era' : 'Run2_2018',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+    },
+    '2018Design' : {
+        'Geom' : 'Extended2018',
+        'GT' : 'auto:phase1_2018_design',
+        'HLTmenu': '@relval2016',
+        'Era' : 'Run2_2018',
+        'BeamSpot': 'GaussSigmaZ4cm',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
 }
 
 upgradeProperties[2017]['2017PU'] = deepcopy(upgradeProperties[2017]['2017'])
 upgradeProperties[2017]['2017PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 upgradeProperties[2017]['2017DesignPU'] = deepcopy(upgradeProperties[2017]['2017Design'])
 upgradeProperties[2017]['2017DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2018PU'] = deepcopy(upgradeProperties[2017]['2018'])
+upgradeProperties[2017]['2018PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+upgradeProperties[2017]['2018DesignPU'] = deepcopy(upgradeProperties[2017]['2018Design'])
+upgradeProperties[2017]['2018DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
 upgradeProperties[2023] = {
     '2023D7' : {
