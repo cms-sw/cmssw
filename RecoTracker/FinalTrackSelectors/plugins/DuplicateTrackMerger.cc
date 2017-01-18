@@ -20,6 +20,8 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackMerger.h"
 
 #include <vector>
@@ -73,7 +75,9 @@ namespace {
       bool useForestFromDB_;
       std::string forestLabel_;
       
-      
+      std::string propagatorName_;
+      std::string chi2EstimatorName_;
+
       /// track input collection
       edm::EDGetTokenT<reco::TrackCollection> trackSource_;
       /// minDeltaR3d cut value
@@ -105,6 +109,9 @@ namespace {
 
       const MagneticField *magfield_;
       const TrackerTopology *ttopo_;
+      const TrackerGeometry *geom_;
+      const Propagator *propagator_;
+      const Chi2MeasurementEstimatorBase *chi2Estimator_;
 
       ///Merger
       TrackMerger merger_;
@@ -120,6 +127,7 @@ namespace {
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "TFile.h"
@@ -154,6 +162,8 @@ DuplicateTrackMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
      desc.add<std::string>("GBRForestFileName","");
      desc.add<bool>("useInnermostState",true);
      desc.add<std::string>("ttrhBuilderName","WithAngleAndTemplate");
+     desc.add<std::string>("propagatorName", "PropagatorWithMaterial");
+     desc.add<std::string>("chi2EstimatorName", "DuplicateTrackMergerChi2Est");
      descriptions.add("DuplicateTrackMerger", desc);
 }
 
@@ -183,6 +193,9 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
 
   dbFileName_ = iPara.getParameter<std::string>("GBRForestFileName");
   useForestFromDB_ = dbFileName_.empty();
+
+  propagatorName_ = iPara.getParameter<std::string>("propagatorName");
+  chi2EstimatorName_ = iPara.getParameter<std::string>("chi2EstimatorName");
 
   /*
   tmvaReader_ = new TMVA::Reader("!Color:Silent");
@@ -268,6 +281,18 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<TrackerTopology> httopo;
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   ttopo_ = httopo.product();
+
+  edm::ESHandle<TrackerGeometry> hgeom;
+  iSetup.get<TrackerDigiGeometryRecord>().get(hgeom);
+  geom_ = hgeom.product();
+
+  edm::ESHandle<Propagator> hpropagator;
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, hpropagator);
+  propagator_ = hpropagator.product();
+
+  edm::ESHandle<Chi2MeasurementEstimatorBase> hestimator;
+  iSetup.get<TrackingComponentsRecord>().get(chi2EstimatorName_, hestimator);
+  chi2Estimator_ = hestimator.product();
 
   TSCPBuilderNoMaterial tscpBuilder;
   auto out_duplicateCandidates = std::make_unique<std::vector<TrackCandidate>>();
@@ -494,6 +519,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
                                                << " t2 hit " << std::distance(t2->recHitsBegin(), t2HitIter);
 
     auto prevSubdet = (*t1HitIter)->geographicalId().subdetId();
+    const TrajectoryStateOnSurface tsosInner = trajectoryStateTransform::innerStateOnSurface(*t2, *geom_, magfield_);
 
     ++t1HitIter; ++t2HitIter;
     unsigned int missedLayers = 0;
@@ -585,6 +611,16 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
                                                      << " are on same layer, but in non-pixel detector (det " << t1Det << " subdet " << t1Subdet << " layer " << t1Layer << ")";
           return false;
         }
+      }
+
+      // Propagate longer track to the shorter track hit surface, check compatibility
+      TrajectoryStateOnSurface tsosPropagated = propagator_->propagate(tsosInner, (*t1HitIter)->det()->surface());
+      auto passChi2Pair = chi2Estimator_->estimate(tsosPropagated, **t1HitIter);
+      if(!passChi2Pair.first) {
+        IfLogTrace(debug_, "DuplicateTrackMerger") << " t1 hit " << std::distance(t1->recHitsBegin(), t1HitIter)
+                                                   << " t2 hit " << std::distance(t2->recHitsBegin(), t2HitIter)
+                                                   << " hit chi2 compatibility failed with chi2 " << passChi2Pair.second;
+        return false;
       }
 
       prevSubdet = t1Subdet;
