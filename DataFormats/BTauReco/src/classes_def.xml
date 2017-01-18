@@ -80,6 +80,7 @@
   <class name="reco::ShallowTagInfoRefProd"/>
   <class name="reco::ShallowTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::ShallowTagInfoCollection>"/>
+	<class name="edm::Wrapper<std::vector<reco::ShallowTagInfo> >"/>
 
   <class name="reco::CombinedTauTagInfo" ClassVersion="11">
    <version ClassVersion="11" checksum="224969361"/>
