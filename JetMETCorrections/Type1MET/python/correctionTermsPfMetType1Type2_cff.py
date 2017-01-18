@@ -1,14 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain, \
-                                                              ak4PFCHSL1FastjetCorrector, \
-                                                              ak4PFCHSL2RelativeCorrector, \
-                                                              ak4PFCHSL3AbsoluteCorrector, \
-                                                              ak4PFCHSResidualCorrector, \
-                                                              ak4PFCHSL1FastL2L3ResidualCorrector, \
-                                                              ak4PFCHSL1FastL2L3CorrectorChain, \
-                                                              ak4PFCHSL1FastL2L3Corrector
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 ##____________________________________________________________________________||
 # select PFCandidates ("unclustered energy") not within jets
