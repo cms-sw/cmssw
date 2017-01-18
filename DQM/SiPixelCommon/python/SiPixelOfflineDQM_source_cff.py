@@ -25,13 +25,10 @@ SiPixelRecHitSource.saveFile = False
 from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
-SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('initialStepTrackCandidates')
-SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_Cosmics_cfi import *
 SiPixelTrackResidualSource_Cosmics.saveFile = False
 from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
 SiPixelHitEfficiencySource.saveFile = False
-SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
 from DQM.TrackerMonitorTrack.SiPixelMonitorTrackResiduals_cfi import *
 
 ##online/offline
