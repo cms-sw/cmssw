@@ -692,6 +692,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
 
 
 void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
@@ -755,6 +756,12 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   edm:: Handle<reco::TrackCollection> TracksForRes;
   //iEvent.getByLabel( "generalTracks", TracksForRes );
   iEvent.getByToken(  generalTracksToken_, TracksForRes );
+  
+  if (debug_) {
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(generalTracksToken_, labels);
+    std::cout << "Track for Res from " << labels.module << std::endl;
+  }
 
   //
   // transient track builder, needs B-field from data base (global tag in .py)
@@ -952,6 +959,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   iEvent.getByToken( trackToken_, trackCollectionHandle );
   auto const & trackColl = *(trackCollectionHandle.product());
   
+
   // get clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  clusterColl;
   //iEvent.getByLabel( clustersrc_, clusterColl );
@@ -973,6 +981,13 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   //get trajectories
   edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
   iEvent.getByToken ( tracksrcToken_, trajCollectionHandle );
+
+  if(debug_){
+   edm::EDConsumerBase::Labels labels;
+   labelsForToken(tracksrcToken_, labels);
+   std::cout << "Trajectories for Res from " << labels.module << std::endl;
+  }
+
   if (trajCollectionHandle.isValid()) {
 
   auto const & trajColl = *(trajCollectionHandle.product());
