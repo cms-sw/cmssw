@@ -327,6 +327,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
 
   edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
   event.getByToken(trajTracksToken_, TrajTracksMap);
+
   if(!TrajTracksMap.isValid()) return;
   LogDebug("TrackerValidationVariables") << "TrajTrack collection size " << TrajTracksMap->size();
   

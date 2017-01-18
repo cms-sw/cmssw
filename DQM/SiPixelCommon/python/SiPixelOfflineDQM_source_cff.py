@@ -101,7 +101,6 @@ hiRefittedForPixelDQM= refittedForPixelDQM.clone()
 hiRefittedForPixelDQM.src=hiTracks
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
-    TrackCandidateProducer = hiTracks,
     vtxsrc='hiSelectedVertex'
     )
 
