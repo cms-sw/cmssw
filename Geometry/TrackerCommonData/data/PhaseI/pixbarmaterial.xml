@@ -7,10 +7,7 @@
     <MaterialFraction fraction="0.560">
       <rMaterial name="materials:micro_twisted_boundle"/>
     </MaterialFraction>
-    <MaterialFraction fraction="0.320">
-      <rMaterial name="materials:CFK"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.120">
+    <MaterialFraction fraction="0.440">
       <rMaterial name="materials:CFK"/>
     </MaterialFraction>
   </CompositeMaterial>
