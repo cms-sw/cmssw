@@ -100,7 +100,7 @@ SiPixelHitEfficiencySource.ringOn = False
 
 #HI track modules
 hiTracks = "hiGeneralTracks"
-process.RefittedForPixelDQM.src=hiTracks
+refittedForPixelDQM.src=hiTracks
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
     TrackCandidateProducer = hiTracks,
