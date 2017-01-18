@@ -105,7 +105,7 @@
       <rMaterial name="pixbarmaterial:Polyurethane"/>
      </MaterialFraction>
    </CompositeMaterial>
-  <CompositeMaterial name="Flange4_Airex" density="1.000*g/cm3" symbol=" " method="mixture by weight">   <!-- Airex 1.0 empty factor-->
+  <CompositeMaterial name="Flange4_InnerCFK" density="1.000*g/cm3" symbol=" " method="mixture by weight">   <!-- Airex 1.0 empty factor-->
      <MaterialFraction fraction="1.00">
       <rMaterial name="materials:CFK"/>
      </MaterialFraction>
