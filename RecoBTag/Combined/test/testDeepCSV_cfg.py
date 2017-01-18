@@ -49,7 +49,10 @@ process.maxEvents.input = 100
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands = MINIAODSIMEventContent.outputCommands
 process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
+process.out.outputCommands.append('keep *_deepNNTagInfos*_*_*')
+process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 #                                         ##
 process.out.fileName = 'testDeepCSV.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+process.add_(cms.Service("InitRootHandlers", DebugLevel =cms.untracked.int32(3)))

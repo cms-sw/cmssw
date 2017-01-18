@@ -27,8 +27,6 @@ public:
 
   virtual TaggingVariableList taggingVariables(void) const { return list_; }
 
-	// Used by ROOT storage
-	CMS_CLASS_VERSION(3)
 protected:
   const TaggingVariableList  list_;
 	const edm::RefToBase<Jet>  jetRef_;
