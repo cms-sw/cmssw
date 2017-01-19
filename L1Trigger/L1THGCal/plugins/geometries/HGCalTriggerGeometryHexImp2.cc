@@ -91,8 +91,17 @@ getTriggerCellFromCell( const unsigned cell_id ) const
     HGCalDetId cell_det_id(cell_id);
     int wafer_type = cell_det_id.waferType();
     unsigned cell = cell_det_id.cell();
-    // FIXME: better way to do this cell->TC mapping?
-    unsigned trigger_cell = cells_to_trigger_cells_.at(std::make_pair(wafer_type,cell));
+    unsigned trigger_cell = 0;
+    try
+    {
+        // FIXME: better way to do this cell->TC mapping?
+        trigger_cell = cells_to_trigger_cells_.at(std::make_pair(wafer_type,cell));
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: HGCal  cell " << cell << " is not mapped to any trigger cell for the wafer type " << wafer_type
+            << ". The trigger cell mapping should be modified.\n";
+    }
     return HGCalDetId((ForwardSubdetector)cell_det_id.subdetId(), cell_det_id.zside(), cell_det_id.layer(), cell_det_id.waferType(), cell_det_id.wafer(), trigger_cell).rawId();
 }
 
@@ -104,18 +113,26 @@ getModuleFromCell( const unsigned cell_id ) const
     unsigned wafer = cell_det_id.wafer();
     unsigned subdet = cell_det_id.subdetId();
     unsigned module = 0;
-    switch(subdet)
+    try
     {
-        case ForwardSubdetector::HGCEE:
-            module = wafer_to_module_ee_.at(wafer);
-            break;
-        case ForwardSubdetector::HGCHEF:
-            module = wafer_to_module_fh_.at(wafer);
-            break;
-        default:
-            edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
-            return 0;
-    };
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                module = wafer_to_module_ee_.at(wafer);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                module = wafer_to_module_fh_.at(wafer);
+                break;
+            default:
+                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
+                return 0;
+        };
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Wafer " << wafer << " is not mapped to any trigger module for subdetector " << subdet
+            << ". The module mapping should be modified. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/HGCALTriggerPrimitivesSimulation#Trigger_geometry for details.\n";
+    }
     return HGCalDetId((ForwardSubdetector)cell_det_id.subdetId(), cell_det_id.zside(), cell_det_id.layer(), cell_det_id.waferType(), module, HGCalDetId::kHGCalCellMask).rawId();
 }
 
@@ -127,17 +144,25 @@ getModuleFromTriggerCell( const unsigned trigger_cell_id ) const
     unsigned wafer = trigger_cell_det_id.wafer();
     unsigned subdet = trigger_cell_det_id.subdetId();
     unsigned module = 0;
-    switch(subdet)
+    try 
     {
-        case ForwardSubdetector::HGCEE:
-            module = wafer_to_module_ee_.at(wafer);
-            break;
-        case ForwardSubdetector::HGCHEF:
-            module = wafer_to_module_fh_.at(wafer);
-            break;
-        default:
-            edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
-            return 0;
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                module = wafer_to_module_ee_.at(wafer);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                module = wafer_to_module_fh_.at(wafer);
+                break;
+            default:
+                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer->module mapping for subdet "<<subdet<<"\n";
+                return 0;
+        } 
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Wafer " << wafer << " is not mapped to any trigger module for subdetector " << subdet
+            << ". The module mapping should be modified. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/HGCALTriggerPrimitivesSimulation#Trigger_geometry for details.\n";
     };
     return HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), trigger_cell_det_id.waferType(), module, HGCalDetId::kHGCalCellMask).rawId();
 }
