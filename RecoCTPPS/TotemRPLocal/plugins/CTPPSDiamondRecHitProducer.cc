@@ -24,6 +24,8 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
+#include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
+
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
@@ -36,32 +38,31 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > recHitsToken_;
+    CTPPSDiamondRecHitProducerAlgorithm algo_;
 };
 
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet& iConfig ) :
-  recHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) )
+  recHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) ),
+  algo_( iConfig )
 {
-  produces< std::vector<CTPPSDiamondRecHit> >();
+  produces< edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
 
 CTPPSDiamondRecHitProducer::~CTPPSDiamondRecHitProducer()
-{
-}
+{}
 
 void
 CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  std::unique_ptr< std::vector<CTPPSDiamondRecHit> > pOut( new std::vector<CTPPSDiamondRecHit> );
+  std::unique_ptr< edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
 
   edm::Handle< edm::DetSetVector<CTPPSDiamondDigi> > digis;
   iEvent.getByToken( recHitsToken_, digis );
 
   for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator dsv_digi = digis->begin(); dsv_digi != digis->end(); dsv_digi++ ) {
     const CTPPSDiamondDetId detid( dsv_digi->detId() );
-
-    for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator ds_digi = dsv_digi->begin(); ds_digi != dsv_digi->end(); ds_digi++ ) {
-      // ...
-    }
+    edm::DetSet<CTPPSDiamondRecHit>& rec_hits = pOut->find_or_insert( detid );
+    algo_.build( *( dsv_digi ), rec_hits );
   }
 
   iEvent.put( std::move( pOut ) );
