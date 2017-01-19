@@ -49,7 +49,10 @@
   <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
   <class name="std::vector<CTPPSDiamondRecHit>"/>
-  <class name="edm::Wrapper< std::vector<CTPPSDiamondRecHit> >"/>
+  <class name="std::vector< edm::DetSet<CTPPSDiamondRecHit> >"/>
+  <class name="edm::DetSet<CTPPSDiamondRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
 
   <class name="CTPPSDiamondLocalTrack" ClassVersion="2">
     <version ClassVersion="2" checksum="2879004042"/>
