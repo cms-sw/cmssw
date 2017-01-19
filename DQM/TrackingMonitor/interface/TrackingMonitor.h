@@ -151,6 +151,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	MonitorElement* GoodTracksFractionVsGoodPVtx;
 	MonitorElement* NumberOfRecHitsPerTrackVsGoodPVtx;
 	MonitorElement* NumberOfPVtxVsGoodPVtx;
+	MonitorElement* NumberOfPixelClustersVsGoodPVtx;
+	MonitorElement* NumberOfStripClustersVsGoodPVtx;
 
 	// Monitoring vs lumi
 	MonitorElement* NumberEventsOfVsLUMI;
@@ -159,6 +161,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	MonitorElement* NumberOfRecHitsPerTrackVsLUMI;
 	MonitorElement* NumberOfGoodPVtxVsLUMI;
 	MonitorElement* NumberOfGoodPVtxWO0VsLUMI;
+	MonitorElement* NumberOfPixelClustersVsLUMI;
+	MonitorElement* NumberOfStripClustersVsLUMI;
 
 	// add in order to deal with LS transitions
         MonitorElement * NumberOfTracks_lumiFlag;

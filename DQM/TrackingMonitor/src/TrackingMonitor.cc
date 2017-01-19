@@ -71,12 +71,16 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , GoodTracksFractionVsGoodPVtx(NULL)
     , NumberOfRecHitsPerTrackVsGoodPVtx(NULL)
     , NumberOfPVtxVsGoodPVtx(NULL)
+    , NumberOfPixelClustersVsGoodPVtx(NULL)
+    , NumberOfStripClustersVsGoodPVtx(NULL)
     , NumberEventsOfVsLUMI(NULL)
     , NumberOfTracksVsLUMI(NULL)
     , GoodTracksFractionVsLUMI(NULL)
     , NumberOfRecHitsPerTrackVsLUMI(NULL)
     , NumberOfGoodPVtxVsLUMI(NULL)
     , NumberOfGoodPVtxWO0VsLUMI(NULL)
+    , NumberOfPixelClustersVsLUMI(NULL)
+    , NumberOfStripClustersVsLUMI(NULL)
     , NumberOfTracks_lumiFlag(NULL)
 				//    , NumberOfGoodTracks_lumiFlag(NULL)
 
@@ -418,6 +422,23 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfPVtxVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Mean number of vertices",2);
+
+       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       histname = "NumberOfPixelClustersVsGoodPVtx";
+       NumberOfPixelClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusPxMin,NClusPxMax,"");
+       NumberOfPixelClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Mean number of pixel clusters",2);
+       
+       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       histname = "NumberOfStripClustersVsGoodPVtx";
+       NumberOfStripClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusStrMin,NClusStrMax,"");
+       NumberOfStripClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfStripClustersVsGoodPVtx->setAxisTitle("Mean number of strip clusters",2);
+  
      }
   
 
@@ -467,6 +488,23 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfGoodPVtxWO0VsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices",2);
+
+       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       histname = "NumberOfPixelClustersVsGoodPVtx";
+       NumberOfPixelClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusPxMin,NClusPxMax,"");
+       NumberOfPixelClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters",2);
+       
+       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       histname = "NumberOfStripClustersVsLUMI";
+       NumberOfStripClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusStrMin,NClusStrMax,"");
+       NumberOfStripClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfStripClustersVsLUMI->setAxisTitle("Mean number of strip clusters",2);
+  
      }
      
 
@@ -917,7 +955,17 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if ( doPlotsVsLUMI_ || doAllPlots )	    
 	      NumberOfGoodPVtxVsLUMI->Fill(lumi,float(totalNumGoodPV));
 	  }
-
+      
+	  std::vector<int> NClus;
+	  setNclus(iEvent,NClus);
+	  for (uint  i=0; i< ClusterLabels.size(); i++){
+	    if ( doPlotsVsLUMI_ || doAllPlots )	{
+	      if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
+	    }
+	    if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	  }
 	
 	if ( doPlotsVsBXlumi_ ) {
 	  double bxlumi = theLumiDetails_->getValue(iEvent);
