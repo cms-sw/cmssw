@@ -24,14 +24,11 @@ class RunFEConfigDat : public IDataItem {
   std::list<ODDelaysDat> getDelays();
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const RunFEConfigDat* item, RunIOV* iov ) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, RunFEConfigDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, RunFEConfigDat >* fillMap, RunIOV* iov) noexcept(false);
 
   // User data
 

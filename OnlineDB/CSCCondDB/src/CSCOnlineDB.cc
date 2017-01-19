@@ -3,7 +3,7 @@
   /**
    * Constructor for condbon
    */
-  condbon::condbon () throw (oracle::occi::SQLException)
+  condbon::condbon () noexcept(false)
   {
     std::string db_user;
     std::string db_pass;
@@ -18,7 +18,7 @@
   /**
    * Destructor for condbon.
    */
-  condbon::~condbon () throw (oracle::occi::SQLException)
+  condbon::~condbon () noexcept(false)
   {
     env->terminateConnection (con);
     oracle::occi::Environment::terminateEnvironment (env);

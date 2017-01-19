@@ -48,6 +48,7 @@ struct UnsafeCache {
 };
 
 struct Dummy {
+  ~Dummy() noexcept(false) {};
 };
 
 } //end anonymous namespace
