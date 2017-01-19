@@ -18,7 +18,7 @@
       <rParent name="cms:CMSE"/>
       <rChild name="CTPPS_Timing_Negative_Station:CTPPS_Timing_Negative_Station"/>
       <Translation x="0*mm" y="0*mm" z="[CTPPS_Timing_Negative_Station_Position_z]"/>
-      <rRotation name="rotations:000D"/>
+      <rRotation name="rotations:180R"/>
     </PosPart>
   </PosPartSection>
 
