@@ -48,7 +48,7 @@ SiPixelPhase1TrackEfficiencyVertices= DefaultHistoTrack.clone(
     xlabel= "# Vertices",
     dimensions = 1,
     range_min = -0.5,
-    range_max = 100.5, 
+    range_max = 100.5,
     range_nbins =101,
     specs = VPSet(
         Specification().groupBy("")
@@ -60,13 +60,31 @@ SiPixelPhase1TrackEfficiencyVertices= DefaultHistoTrack.clone(
    )
 )
 
+SiPixelPhase1TrackEfficiencyChiSqaure= DefaultHistoTrack.clone(
+    name = "chi2",
+    title = "VertexChiSqaure",
+    xlabel= "Vertex chi2",
+    dimensions = 1,
+    range_min = 0,
+    range_max = 2,
+    range_nbins =160,
+    specs = VPSet(
+        Specification().groupBy("")
+                   .save(),
+        Specification().groupBy("/Lumisection")
+                   .reduce("MEAN")
+                   .groupBy("","EXTEND_X")
+                   .save()
+   )
+)
 
 
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
   SiPixelPhase1TrackEfficiencyEfficiency,
-  SiPixelPhase1TrackEfficiencyVertices
+  SiPixelPhase1TrackEfficiencyVertices,
+  SiPixelPhase1TrackEfficiencyChiSqaure,
 )
 
 

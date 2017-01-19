@@ -9,19 +9,19 @@
 #include "DQM/SiPixelPhase1Clusters/interface/SiPixelPhase1Clusters.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 
-SiPixelPhase1Clusters::SiPixelPhase1Clusters(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig) 
+SiPixelPhase1Clusters::SiPixelPhase1Clusters( const edm::ParameterSet& iConfig ) :
+   SiPixelPhase1Base( iConfig )
 {
-  srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("src"));
+   srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >( iConfig.getParameter<edm::InputTag>( "src" ) );
 }
 
 void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -29,12 +29,12 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
 
-  bool hasClusters=false;  
+  bool hasClusters=false;
 
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
-  
+
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
     auto id = DetId(it->detId());
@@ -76,5 +76,4 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 
 }
 
-DEFINE_FWK_MODULE(SiPixelPhase1Clusters);
-
+DEFINE_FWK_MODULE( SiPixelPhase1Clusters );

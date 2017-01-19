@@ -6,7 +6,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   title = "Cluster Charge",
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
-  
+
   specs = VPSet(
     #StandardSpecification2DProfile,
     StandardSpecificationPixelmapProfile,
@@ -151,6 +151,7 @@ SiPixelPhase1ClustersPositionYZ = DefaultHistoDigiCluster.clone(
   specs = VPSet(
   )
 )
+
 
 SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   name = "sizeyvseta",

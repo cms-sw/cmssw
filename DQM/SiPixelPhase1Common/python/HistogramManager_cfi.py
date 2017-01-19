@@ -38,7 +38,7 @@ PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
 PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
 
-# Default histogram configuration. This is _not_ used automatically, but you 
+# Default histogram configuration. This is _not_ used automatically, but you
 # can import and pass this (or clones of it) in the plugin config.
 DefaultHisto = cms.PSet(
   # Setting this to False hides all plots of this HistogramManager. It does not even record any data.
@@ -51,7 +51,7 @@ DefaultHisto = cms.PSet(
   # If False, no histograms are booked for DetIds where any column is undefined.
   # since or-columns are not supported any longer, this has to be False, otherwise
   # you will see a PXBarrel_UNDEFINED with endcap modules and the other way round.
-  # It could still be useful for debugging, to see if there is more UNDEFINED 
+  # It could still be useful for debugging, to see if there is more UNDEFINED
   # than expected.
   bookUndefined = cms.bool(False),
 
@@ -65,18 +65,18 @@ DefaultHisto = cms.PSet(
   ylabel = cms.string("count"),
   dimensions = cms.int32(1),
   range_min = cms.double(0),
-  range_max = cms.double(100), 
+  range_max = cms.double(100),
   range_nbins = cms.int32(100),
   range_y_min = cms.double(0),
-  range_y_max = cms.double(100), 
+  range_y_max = cms.double(100),
   range_y_nbins = cms.int32(100),
 
   # This structure is output by the SpecficationBuilder.
   specs = cms.VPSet()
-  #  cms.PSet(spec = 
+  #  cms.PSet(spec =
   #    cms.VPset(
   #      cms.PSet(
-  #        type = GROUPBY, 
+  #        type = GROUPBY,
   #        stage = FIRST,
   #        columns = cms.vstring("P1PXBBarrel|P1PXECEndcap", "DetId"),
   #        arg = cms.string("")
@@ -104,7 +104,6 @@ DefaultHistoTrack.topFolderName= cms.string("PixelPhase1/Tracks")
 DefaultHistoReadout=DefaultHisto.clone()
 DefaultHistoReadout.topFolderName= cms.string("PixelPhase1/FED/Readout")
 
-# Commonly used specifications. 
 StandardSpecifications1D = [
     # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
     # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
@@ -114,7 +113,7 @@ StandardSpecifications1D = [
                             .save()
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer", "EXTEND_X")
-                            .save(),                         
+                            .save(),
     Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade")
                             .save()
                             .reduce("MEAN")
@@ -137,29 +136,28 @@ StandardSpecifications1D = [
     Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule")
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
-                            .save(),    
-
+                            .save(),
 ]
 
 StandardSpecificationTrend = [
     Specification().groupBy("PXBarrel/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
                    .save(),
     Specification().groupBy("PXForward/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXForward", "EXTEND_X")
                    .save()
 ]
 
 StandardSpecificationTrend2D = [
     Specification().groupBy("PXBarrel/PXLayer/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer", "EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
     Specification().groupBy("PXForward/PXDisk/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save()
@@ -210,7 +208,7 @@ StandardSpecificationOccupancy = [ #this produces pixel maps with counting
 
 # the same for NDigis and friends. Needed due to technical limitations...
 StandardSpecifications1D_Num = [
-    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/DetId/Event") 
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/DetId/Event")
                             .reduce("COUNT") # per-event counting
                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder").save()
                             .reduce("MEAN")
@@ -220,7 +218,7 @@ StandardSpecifications1D_Num = [
                             .reduce("COUNT")
                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName")
                             .save(),
-    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/DetId/Event") 
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/DetId/Event")
                             .reduce("COUNT") # per-event counting
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade").save()
                             .reduce("MEAN")
@@ -256,7 +254,11 @@ StandardSpecificationInclusive_Num = [#to count inclusively objects in substruct
     Specification().groupBy("PXForward/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward")
-                   .save()
+                   .save(),
+    Specification().groupBy("PXAll/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXAll")
+                   .save(),
 ]
 
 StandardSpecificationTrend_Num = [
@@ -264,7 +266,7 @@ StandardSpecificationTrend_Num = [
     Specification().groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXBarrel/PXLayer","EXTEND_X")
                    .groupBy("PXBarrel", "EXTEND_Y")
                    .save(),
@@ -277,7 +279,7 @@ StandardSpecificationTrend_Num = [
     Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/PXDisk/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXForward/PXDisk","EXTEND_X")
                    .groupBy("PXForward", "EXTEND_Y")
                    .save(),
@@ -287,6 +289,13 @@ StandardSpecificationTrend_Num = [
                    .reduce("MEAN")
                    .groupBy("PXForward", "EXTEND_X")
                    .save(),
+
+    Specification().groupBy("PXAll/Event")
+                    .reduce("COUNT")
+                    .groupBy("PXAll/Lumisection")
+                    .reduce("MEAN")
+                    .groupBy("PXAll", "EXTEND_X" )
+                    .save()
 ]
 
 
@@ -295,7 +304,7 @@ StandardSpecification2DProfile_Num = [
        .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule" + "/DetId/Event")
        .reduce("COUNT")
        .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule")
-       .reduce("MEAN") 
+       .reduce("MEAN")
        .groupBy("PXBarrel/PXLayer/SignedLadder", "EXTEND_X")
        .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
        .save(),
@@ -319,4 +328,3 @@ def VPSet(*args):
             e = list(a)
         l = l+e
     return cms.VPSet(l)
-

@@ -48,13 +48,13 @@ SiPixelPhase1ClustersNdigisInclusive = DefaultHistoDigiCluster.clone(
 
 
 SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
-  name = "feddigis", # This is the same as above up to the ranges. maybe we 
-  title = "Digis",   # should allow setting the range per spec, but OTOH a 
+  name = "feddigis", # This is the same as above up to the ranges. maybe we
+  title = "Digis",   # should allow setting the range per spec, but OTOH a
   xlabel = "digis",  # HistogramManager is almost free.
   range_min = 0,
   range_max = 1000,
   range_nbins = 200,
-  dimensions = 0, 
+  dimensions = 0,
   specs = VPSet(
     Specification().groupBy("FED/Event")
                    .reduce("COUNT")
@@ -64,10 +64,10 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   )
 )
 
-SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(                                                                                                                                                   
-  name = "feddigistrend", # This is the same as above up to the ranges. maybe we                                                                                                                                            
-  title = "Digis",   # should allow setting the range per spec, but OTOH a                                                                                                                                             
-  xlabel = "digis",  # HistogramManager is almost free.                                                                                                                                                                
+SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
+  name = "feddigistrend", # This is the same as above up to the ranges. maybe we
+  title = "Digis",   # should allow setting the range per spec, but OTOH a
+  xlabel = "digis",  # HistogramManager is almost free.
   range_min = 0,
   range_max = 1000,
   range_nbins = 200,
@@ -163,7 +163,7 @@ SiPixelPhase1DigisConf = cms.VPSet(
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
-        src = cms.InputTag("simSiPixelDigis"), 
+        src = cms.InputTag("simSiPixelDigis"),
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )

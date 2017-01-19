@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1TrackEfficiency_h 
-#define SiPixelPhase1TrackEfficiency_h 
+#ifndef SiPixelPhase1TrackEfficiency_h
+#define SiPixelPhase1TrackEfficiency_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1TrackEfficiency
 // Class  :     SiPixelPhase1TrackEfficiency
 //
@@ -18,7 +18,8 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
     VALID,
     MISSING,
     EFFICIENCY,
-    VERTICES
+    VERTICES,
+    CHISQ
   };
 
   public:

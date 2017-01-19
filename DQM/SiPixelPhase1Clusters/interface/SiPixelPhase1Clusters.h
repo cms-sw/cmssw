@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1Clusters_h 
-#define SiPixelPhase1Clusters_h 
+#ifndef SiPixelPhase1Clusters_h
+#define SiPixelPhase1Clusters_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1Clusters
 // Class  :     SiPixelPhase1Clusters
 //

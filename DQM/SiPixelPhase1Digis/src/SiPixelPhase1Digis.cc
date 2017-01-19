@@ -23,13 +23,13 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig)
 {
   srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
-} 
+}
 
 void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(srcToken_, input);
-  if (!input.isValid()) return; 
+  if (!input.isValid()) return;
   bool hasDigis;
 
   edm::DetSetVector<PixelDigi>::const_iterator it;
@@ -38,19 +38,18 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
       hasDigis=true;
       histo[ADC].fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
       histo[MAP].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row()); 
-      histo[OCCUPANCY].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row()); 
+      histo[OCCUPANCY].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row());
       histo[NDIGIS    ].fill(DetId(it->detId()), &iEvent); // count
       histo[NDIGISINCLUSIVE].fill(DetId(it->detId()), &iEvent); // count
-      histo[NDIGIS_FED].fill(DetId(it->detId()), &iEvent); 
-      histo[NDIGIS_FEDtrend].fill(DetId(it->detId()), &iEvent);  
+      histo[NDIGIS_FED].fill(DetId(it->detId()), &iEvent);
+      histo[NDIGIS_FEDtrend].fill(DetId(it->detId()), &iEvent);
     }
   }
   if (hasDigis) histo[EVENT].fill(DetId(0), &iEvent);
   histo[NDIGIS    ].executePerEventHarvesting(&iEvent);
   histo[NDIGISINCLUSIVE].executePerEventHarvesting(&iEvent);
-  histo[NDIGIS_FED].executePerEventHarvesting(&iEvent); 
+  histo[NDIGIS_FED].executePerEventHarvesting(&iEvent);
   histo[NDIGIS_FEDtrend].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Digis);
-
