@@ -18,20 +18,30 @@ class CTPPSDiamondRecHit
       x_( 0. ), x_width_( 0. ), y_( 0. ), y_width_( 0. ),
       t_( 0. ), tot_( 0. ),
       ts_index_( 0 ) {;}
-    CTPPSDiamondRecHit(double x, double x_width, double y, double y_width, double t, double tot, int oot_idx) :
+    CTPPSDiamondRecHit( double x, double x_width, double y, double y_width, double t, double tot, int oot_idx ) :
       x_( x ), x_width_( x_width ), y_( y ), y_width_( y_width ),
       t_( t ), tot_( tot ),
       ts_index_( oot_idx ) {;}
 
+    inline void setX( const double& x ) { x_ = x; }
     inline double getX() const { return x_; }
+
+    inline void setY( const double& y ) { y_ = y; }
+    inline double getY() const { return y_; }
+
+    inline void setXWidth( const double& xwidth ) { x_width_ = xwidth; }
     inline double getXWidth() const { return x_width_; }
 
-    inline double getY() const { return y_; }
+    inline void setYWidth( const double& ywidth ) { y_width_ = ywidth; }
     inline double getYWidth() const { return y_width_; }
 
+    inline void setT( const double& t ) { t_ = t; }
     inline double getT() const { return t_; }
+
+    inline void setToT( const double& tot ) { tot_ = tot;  }
     inline double getToT() const { return tot_; }
 
+    inline void setOOTIndex( const int& i ) { ts_index_ = i; }
     inline int getOOTIndex() const { return ts_index_; }
 
   private:
