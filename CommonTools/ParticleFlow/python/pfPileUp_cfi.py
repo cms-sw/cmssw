@@ -31,3 +31,17 @@ pfPileUp = cms.EDProducer(
       useTiming = cms.bool(False),
       ),
     )
+ 
+ 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    pfPileUp,
+    usePrimaryVertexAssignment = True
+)
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    pfPileUp,
+    assignment=dict(useTiming=True)
+)
+ 
