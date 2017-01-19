@@ -23,9 +23,11 @@ class GenericValidation:
         self.filesToCompare = {}
         self.config = config
 
-        defaults = {"jobmode":      self.general["jobmode"],
+        defaults = {
+                    "jobmode":      self.general["jobmode"],
                     "cmssw":        os.environ['CMSSW_BASE'],
-                    "parallelJobs": "1"
+                    "parallelJobs": "1",
+                    "jobid":        "",
                    }
         defaults.update(addDefaults)
         mandatories = []
@@ -46,6 +48,14 @@ class GenericValidation:
             msg = ("Maximum allowed number of parallel jobs "
                    +str(maximumNumberJobs)+" exceeded!!!")
             raise AllInOneError(msg)
+
+        self.jobid = self.general["jobid"]
+        if self.jobid:
+            try:  #make sure it's actually a valid jobid
+                output = getCommandOutput2("bjobs %(jobid)s 2>&1"%self.general)
+                if "is not found" in output: raise RuntimeError
+            except RuntimeError:
+                raise AllInOneError("%s is not a valid jobid.\nMaybe it finished already?"%self.jobid)
 
         self.cmssw = self.general["cmssw"]
         badcharacters = r"\'"
