@@ -1,5 +1,5 @@
-#ifndef EigenMatrixTypes_h
-#define EigenMatrixTypes_h
+#ifndef RecoLocalCalo_EcalRecAlgos_EigenMatrixTypes_h
+#define RecoLocalCalo_EcalRecAlgos_EigenMatrixTypes_h
 
 #include <Eigen/Dense>
 #include <array>
