@@ -10,9 +10,9 @@
 
 class ITimeIOV {
  public:
-  virtual void fetchAt(IIOV* fillIOV, const Tm eventTm, ITag* tag) const throw(std::runtime_error) =0;
+  virtual void fetchAt(IIOV* fillIOV, const Tm eventTm, ITag* tag) const noexcept(false) =0;
 
-  virtual void fetchWithin(std::vector<IIOV*>* fillVec, const Tm beginTm, const Tm endTm, ITag* tag) const throw(std::runtime_error) =0;
+  virtual void fetchWithin(std::vector<IIOV*>* fillVec, const Tm beginTm, const Tm endTm, ITag* tag) const noexcept(false) =0;
   
 };
 

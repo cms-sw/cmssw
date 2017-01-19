@@ -55,7 +55,7 @@ ODCCSConfig::~ODCCSConfig()
 
 
 
-int ODCCSConfig::fetchNextId()  throw(std::runtime_error) {
+int ODCCSConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -77,7 +77,7 @@ int ODCCSConfig::fetchNextId()  throw(std::runtime_error) {
 }
 
 void ODCCSConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -133,7 +133,7 @@ void ODCCSConfig::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODCCSConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -193,7 +193,7 @@ void ODCCSConfig::writeDB()
 
 
 void ODCCSConfig::fetchData(ODCCSConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -239,7 +239,7 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
   }
 }
 
-int ODCCSConfig::fetchID()    throw(std::runtime_error)
+int ODCCSConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

@@ -58,19 +58,19 @@ class RunDCSHVDat : public IDataItem {
 
 
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const RunDCSHVDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunDCSHVDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void fetchLastData(std::map< EcalLogicID, RunDCSHVDat >* fillMap)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, const Tm& timeStart  )
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   // User data

@@ -118,14 +118,14 @@ void LMFLmrSubIOV::getParameters(ResultSet *rset) {
 }
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   return getIOVIDsLaterThan(t, tinf, 0);
 }
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t, int howmany) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   return getIOVIDsLaterThan(t, tinf, howmany);
@@ -133,13 +133,13 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &t, int howmany)
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin,
 						const Tm &tmax) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   return getIOVIDsLaterThan(tmin, tmax, 0);
 }
 
 std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
 						int howMany) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   Tm tinf;
   tinf.setToString("9999-12-31 23:59:59");
   std::string sql = "SELECT * FROM (SELECT LMR_SUB_IOV_ID "  

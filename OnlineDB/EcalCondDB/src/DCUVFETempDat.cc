@@ -28,7 +28,7 @@ DCUVFETempDat::~DCUVFETempDat()
 
 
 void DCUVFETempDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void DCUVFETempDat::prepareWrite()
 
 
 void DCUVFETempDat::writeDB(const EcalLogicID* ecid, const DCUVFETempDat* item, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void DCUVFETempDat::writeDB(const EcalLogicID* ecid, const DCUVFETempDat* item, 
 
 
 void DCUVFETempDat::fetchData(std::map< EcalLogicID, DCUVFETempDat >* fillMap, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -115,7 +115,7 @@ void DCUVFETempDat::fetchData(std::map< EcalLogicID, DCUVFETempDat >* fillMap, D
 }
 
 void DCUVFETempDat::writeArrayDB(const std::map< EcalLogicID, DCUVFETempDat >* data, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
