@@ -172,12 +172,13 @@ def L1TReEmulFromRAWLegacyMuon(process):
 
 #  - muon converter
     process.load('L1Trigger.L1TCommon.muonLegacyInStage2FormatDigis_cfi')
-    process.muonLegacyInStage2FormatDigis.muonSource = cms.InputTag('simGmtDigis') 
+    process.muonLegacyInStage2FormatDigis.muonSource = cms.InputTag('simGmtDigis')  
 
 ##  - DT TP emulator
-    from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import dtTriggerPrimitiveDigis
+#    from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import dtTriggerPrimitiveDigis
 #    import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
-    process.simDtTriggerPrimitiveDigis = dtTriggerPrimitiveDigis.clone()
+#    process.simDtTriggerPrimitiveDigis = dtTriggerPrimitiveDigis.clone()
+#    process.simDtTriggerPrimitiveDigis.digiTag = cms.InputTag('muonDTDigis')
 
 # - CSC TP emulator 
 #pb: why do we need to re-emulate the CSC?? can t we just use the trigger primitives from the emtf of from the csc trigger primitives collection
@@ -194,10 +195,13 @@ def L1TReEmulFromRAWLegacyMuon(process):
 #    import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
     from L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi import csctfTrackDigis
     process.simCsctfTrackDigis = csctfTrackDigis.clone()
-    process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'simCscTriggerPrimitiveDigis', 'MPCSORTED' )
-    # pb: taking the dt trigger primitived from the bmtf digis
-    process.simCsctfTrackDigis.DTproducer = 'bmtfDigis'
+    # maybe here we could use "emtfStage2Digis" instead - it is true that it would break on earlier runs though... could make an era check here... fro the momemnt let's just re-emulate them
+    #process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'simCscTriggerPrimitiveDigis', 'MPCSORTED' )
+    process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'emtfStage2Digis' ) 
+    # pb: taking the dt trigger primitived from the bmtf digis - also here we need to add an era check otherwise wil crash on 2015 (we can use dttfDigis for 2015)
+    process.simCsctfTrackDigis.DTproducer = 'dttfDigis'
     #'dtTriggerPrimitiveDigis'
+    #bmtfDigis
     from L1Trigger.CSCTrackFinder.csctfDigis_cfi import csctfDigis
     process.simCsctfDigis = csctfDigis.clone()
     process.simCsctfDigis.CSCTrackProducer = 'simCsctfTrackDigis'
@@ -206,8 +210,10 @@ def L1TReEmulFromRAWLegacyMuon(process):
 ## 
     from L1Trigger.DTTrackFinder.dttfDigis_cfi import dttfDigis
     process.simDttfDigis = dttfDigis.clone()
-    process.simDttfDigis.DTDigi_Source  = 'bmtfDigis'
+    # pb: taking the dt trigger primitived from the bmtf digis - also here we need to add an era check otherwise wil crash on 2015 (we can use dttfDigis for 2015)
+    process.simDttfDigis.DTDigi_Source  = 'dttfDigis'
     #'dtTriggerPrimitiveDigis'
+    #bmtfDigis
     process.simDttfDigis.CSCStub_Source = 'simCsctfTrackDigis'
 ##
 ## - RPC PAC Trigger emulator
