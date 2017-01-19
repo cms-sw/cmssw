@@ -6,6 +6,9 @@
 <use   name="DataFormats/PatCandidates"/>
 <use   name="rootmath"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="TrackingTools/Records">
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="CommonTools/RecoAlgos">
 <export>
   <lib   name="1"/>
 </export>

@@ -19,22 +19,28 @@ class PrimaryVertexAssignment {
  public:
   enum Quality {UsedInFit=7,PrimaryDz=6,PrimaryV0=5,BTrack=4,Unused=3,OtherDz=2,NotReconstructedPrimary=1,Unassigned=0};
  
-  PrimaryVertexAssignment(const edm::ParameterSet& iConfig):
-   maxDzSigForPrimaryAssignment_(iConfig.getParameter<double>("maxDzSigForPrimaryAssignment")),
-   maxDzForPrimaryAssignment_(iConfig.getParameter<double>("maxDzForPrimaryAssignment")),
-   maxDtSigForPrimaryAssignment_(iConfig.getParameter<double>("maxDtSigForPrimaryAssignment")),   
-   maxJetDeltaR_(iConfig.getParameter<double>("maxJetDeltaR")),
-   minJetPt_(iConfig.getParameter<double>("minJetPt")),
-   maxDistanceToJetAxis_(iConfig.getParameter<double>("maxDistanceToJetAxis")),
-   maxDzForJetAxisAssigment_(iConfig.getParameter<double>("maxDzForJetAxisAssigment")),
-   maxDxyForJetAxisAssigment_(iConfig.getParameter<double>("maxDxyForJetAxisAssigment")),
-   maxDxySigForNotReconstructedPrimary_(iConfig.getParameter<double>("maxDxySigForNotReconstructedPrimary")),
-   maxDxyForNotReconstructedPrimary_(iConfig.getParameter<double>("maxDxyForNotReconstructedPrimary")),
-   useTiming_(iConfig.getParameter<bool>("useTiming"))
-  {}
+  PrimaryVertexAssignment() {}
+  
+  PrimaryVertexAssignment(const edm::ParameterSet& iConfig) {
+    init(iConfig);
+  }
 
   ~PrimaryVertexAssignment(){}
 
+  void init(const edm::ParameterSet& iConfig) {
+    maxDzSigForPrimaryAssignment_ = iConfig.getParameter<double>("maxDzSigForPrimaryAssignment");
+    maxDzForPrimaryAssignment_ = iConfig.getParameter<double>("maxDzForPrimaryAssignment");
+    maxDtSigForPrimaryAssignment_ = iConfig.getParameter<double>("maxDtSigForPrimaryAssignment");   
+    maxJetDeltaR_ = iConfig.getParameter<double>("maxJetDeltaR");
+    minJetPt_ = iConfig.getParameter<double>("minJetPt");
+    maxDistanceToJetAxis_ = iConfig.getParameter<double>("maxDistanceToJetAxis");
+    maxDzForJetAxisAssigment_ = iConfig.getParameter<double>("maxDzForJetAxisAssigment");
+    maxDxyForJetAxisAssigment_ = iConfig.getParameter<double>("maxDxyForJetAxisAssigment");
+    maxDxySigForNotReconstructedPrimary_ = iConfig.getParameter<double>("maxDxySigForNotReconstructedPrimary");
+    maxDxyForNotReconstructedPrimary_ = iConfig.getParameter<double>("maxDxyForNotReconstructedPrimary");
+    useTiming_ = iConfig.getParameter<bool>("useTiming");
+  }
+  
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices, 
                const reco::TrackRef& trackRef,
                const reco::Track * track,

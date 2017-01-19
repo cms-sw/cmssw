@@ -36,7 +36,22 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   } else {
     checkClosestZVertex_ = false;
   }
-
+  
+  usePrimaryVertexAssignment_ = false;
+  assignmentQualityForPrimary_ = 0;
+  
+  //configure the assignment algo if in use
+  if (iConfig.exists("usePrimaryVertexAssignment")) {
+    usePrimaryVertexAssignment_ = iConfig.getParameter<bool>("usePrimaryVertexAssignment");
+    
+    if (usePrimaryVertexAssignment_) {
+      assignmentAlgo_.init(iConfig.getParameterSet("assignment")); 
+      assignmentQualityForPrimary_ = iConfig.getParameter<int>("assignmentQualityForPrimary");
+      
+      tokenJets_ = consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("Jets"));
+    }
+  }
+  
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
@@ -106,10 +121,27 @@ void PFPileUp::produce(Event& iEvent,
     }
 
 
-
-    pileUpAlgo_.process(*pfCandidatesRef,*vertices);
-    pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
-
+    if (usePrimaryVertexAssignment_) {
+      edm::ESHandle<TransientTrackBuilder> builder;
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+      
+      Handle<edm::View<reco::Candidate> > jets;
+      iEvent.getByToken( tokenJets_, jets);
+      
+      pOutput->reserve(pfCandidatesRef->size());
+      for(auto const & pf : *pfCandidatesRef) {
+        std::pair<int,PrimaryVertexAssignment::Quality> vtxWithQuality = assignmentAlgo_.chargedHadronVertex( *vertices, *pf, *jets, *builder);
+        
+        if (vtxWithQuality.first!=0 || vtxWithQuality.second<assignmentQualityForPrimary_) {
+          pOutput->push_back(pf);
+        }
+      }
+    }
+    else {
+      pileUpAlgo_.process(*pfCandidatesRef,*vertices);
+      pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
+    }
+    
     // for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
     // 	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
     // 	  ibyValue != byValueEnd; ++ibyValue ) {

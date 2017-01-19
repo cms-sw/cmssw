@@ -6,6 +6,7 @@ from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import *
 
 pfPileUpJME = _pfPileUp.clone(PFCandidates='particleFlowPtrs',
                               Vertices = 'goodOfflinePrimaryVertices',
+                              Jets=cms.InputTag('ak4PFJets'),
                               checkClosestZVertex = False )
 pfNoPileUpJME = _pfNoPileUp.clone(topCollection = 'pfPileUpJME',
                                   bottomCollection = 'particleFlowPtrs' )
