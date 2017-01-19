@@ -16,7 +16,7 @@
  */
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 template <class T, typename C = std::vector<typename T::ConstituentTypeFwdPtr>>
-class JetConstituentSelector : public edm::EDFilter {
+class JetConstituentSelector : public edm::stream::EDFilter<> {
 public:
 
   using JetsOutput = std::vector<T>;
