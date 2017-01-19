@@ -29,9 +29,9 @@ class EcalUncalibRecHitMultiFitAlgo
   void disableErrorCalculation() { _computeErrors = false; }
   void setDoPrefit(bool b) { _doPrefit = b; }
   void setPrefitMaxChiSq(double x) { _prefitMaxChiSq = x; }
-  void setDynamicPedestals(bool b=true) { _dynamicPedestals = b; }
-  void setMitigateBadSamples(bool b=true) { _mitigateBadSamples = b; }
-  void setSelectiveBadSampleCriteria(bool b=true) { _selectiveBadSampleCriteria = b; }
+  void setDynamicPedestals(bool b) { _dynamicPedestals = b; }
+  void setMitigateBadSamples(bool b) { _mitigateBadSamples = b; }
+  void setSelectiveBadSampleCriteria(bool b) { _selectiveBadSampleCriteria = b; }
   void setAddPedestalUncertainty(double x) { _addPedestalUncertainty = x; }
   void setSimplifiedNoiseModelForGainSwitch(bool b) { _simplifiedNoiseModelForGainSwitch = b; }
   
