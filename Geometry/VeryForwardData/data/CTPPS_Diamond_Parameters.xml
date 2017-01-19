@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-<!--  _________________    ___________________    __________________________    _____________________________
-    *|    PATTERN 1    |**|    Pattern 2      |**|          Pattern 3       |**|            Pattern 4        |*   ^
+<!-- E.g. for the first plane
+      _________________    ___________________    __________________________    _____________________________     ^
+    *|    PATTERN 1    |**|    Pattern 2      |**|          Pattern 3       |**|            Pattern 4        |*  /|\
     *| _______________ |**| ________   ______ |**| ______   ____   ___   __ |**| _____   ____   ___   __   _ |*   |
     *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
     *||               ||**||        |*|      ||**||      |*|    |*|   |*|  ||**||     |*|    |*|   |*|  |*| ||*   |
@@ -34,15 +35,15 @@
     <!-- Metalized Layers -->
     <Constant name="Gold_thick" value="150e-9*m"/>
     <Constant name="Chromium_thick" value="50e-9*m"/>
-    <Constant name="Metalized_thick" value="[Gold_thick]*2+[Chromium_thick]"/>
+    <Constant name="Metalized_thick" value="2*[Gold_thick]+[Chromium_thick]"/>
     <Constant name="PCB_thick" value="1.20*mm"/>
     <Constant name="UnMet_Edge" value="0.15*mm"/>
     <Constant name="UnMet_gap" value="0.10*mm"/>
     <Constant name="Plane_gap" value="12.0*mm"/>
 
     <!-- Detector Pixels -->
-    <Constant name="Str_dz" value="[Chromium_thick]+2*[Gold_thick]"/>
     <Constant name="Str_dy" value="4.20*mm"/>
+    <Constant name="Str_dz" value="[Metalized_thick]"/>
 
     <Constant name="Pat1_Str1_dx" value="4.20*mm"/>
     <Constant name="Pat2_Str1_dx" value="2.35*mm"/>
@@ -57,27 +58,14 @@
     <Constant name="Pat4_Str4_dx" value="0.65*mm"/>
     <Constant name="Pat4_Str5_dx" value="0.55*mm"/>
 
-    <Constant name="Pat1_Str1" value="[Pat1_Str1_dx]+2*[UnMet_Edge]"/>
-    <Constant name="Pat2_Str1" value="[Pat2_Str1_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
-    <Constant name="Pat2_Str2" value="[Pat2_Str2_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
-    <Constant name="Pat3_Str1" value="[Pat3_Str1_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
-    <Constant name="Pat3_Str2" value="[Pat3_Str2_dx]+[UnMet_gap]"/>
-    <Constant name="Pat3_Str3" value="[Pat3_Str3_dx]+[UnMet_gap]"/>
-    <Constant name="Pat3_Str4" value="[Pat3_Str4_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
-    <Constant name="Pat4_Str1" value="[Pat4_Str1_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
-    <Constant name="Pat4_Str2" value="[Pat4_Str2_dx]+[UnMet_gap]"/>
-    <Constant name="Pat4_Str3" value="[Pat4_Str3_dx]+[UnMet_gap]"/>
-    <Constant name="Pat4_Str4" value="[Pat4_Str4_dx]+[UnMet_gap]"/>
-    <Constant name="Pat4_Str5" value="[Pat4_Str5_dx]+[UnMet_Edge]+[UnMet_gap]/2"/>
-
     <!-- Detector Planes -->
     <Constant name="Plane_dx" value="4*[Diamond_dx]"/>
     <Constant name="Plane_dy" value="[Diamond_dy]"/>
     <Constant name="Plane_dz" value="[Str_dz]+[Diamond_dz]+[PCB_thick]"/>
 
     <!-- Diamond Detector Box -->
-    <Constant name="Main_Box_dx" value="4*[Diamond_dx]"/>
-    <Constant name="Main_Box_dy" value="[Diamond_dy]"/>
+    <Constant name="Main_Box_dx" value="5*cm"/>
+    <Constant name="Main_Box_dy" value="5*cm"/> <!--FIXME-->
     <Constant name="Main_Box_dz" value="[Plane_dz]*4+[Plane_gap]*3"/>
   </ConstantsSection>
 

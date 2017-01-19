@@ -82,6 +82,7 @@ totemGeomXMLFiles = cms.vstring(
         'Geometry/VeryForwardData/data/RP_Param_Beam_Region.xml')
 
 ctppsDiamondGeomXMLFiles = cms.vstring(
+        'Geometry/VeryForwardData/data/RP_Materials.xml', # FIXME
         'Geometry/CMSCommonData/data/materials.xml',
         'Geometry/CMSCommonData/data/rotations.xml',
         'Geometry/CMSCommonData/data/normal/cmsextent.xml',
@@ -92,13 +93,14 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
         'Geometry/CMSCommonData/data/mgnt.xml',
         'Geometry/ForwardCommonData/data/forward.xml',
         # diamond detectors
-        'Geometry/VeryForwardData/data/CTPPS_Diamond_Materials.xml',
-        'Geometry/VeryForwardData/data/CTPPS_Diamond_Parameters.xml',
-        'Geometry/VeryForwardData/data/CTPPS_Diamond_X_Distance.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Timing_Station_Parameters.xml',
         'Geometry/VeryForwardData/data/CTPPS_Timing_Stations_Assembly.xml',
         'Geometry/VeryForwardData/data/CTPPS_Timing_Negative_Station.xml',
         'Geometry/VeryForwardData/data/CTPPS_Timing_Positive_Station.xml',
         'Geometry/VeryForwardData/data/CTPPS_Timing_Horizontal_Pot.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Materials.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_Parameters.xml',
+        'Geometry/VeryForwardData/data/CTPPS_Diamond_X_Distance.xml',
         'Geometry/VeryForwardData/data/CTPPS_Diamond_Detector_Assembly.xml',
         'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
         'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
