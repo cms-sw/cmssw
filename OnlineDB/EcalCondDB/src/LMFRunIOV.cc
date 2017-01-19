@@ -318,7 +318,7 @@ std::string LMFRunIOV::writeDBSql(Statement *stmt)
 std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par, 
 						const std::string &sql,
 						const std::string &method) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::list<LMFRunIOV> l;
   this->checkConnection();

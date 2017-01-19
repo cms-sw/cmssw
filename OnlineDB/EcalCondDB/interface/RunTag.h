@@ -29,8 +29,8 @@ class RunTag : public ITag {
   void setRunTypeDef(const RunTypeDef& runTypeDef);
 
   // Methods using ID
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
   // operators
   inline bool operator==(const RunTag& t) const
@@ -49,11 +49,11 @@ class RunTag : public ITag {
   RunTypeDef m_runTypeDef;
 
   // Methods from ITag
-  int writeDB() throw(std::runtime_error);
-  void fetchParentIDs(int* locId, int* runTypeID) throw(std::runtime_error);
+  int writeDB() noexcept(false);
+  void fetchParentIDs(int* locId, int* runTypeID) noexcept(false);
 
   // Public access methods
-  void fetchAllTags( std::vector<RunTag>* fillVec) throw(std::runtime_error);
+  void fetchAllTags( std::vector<RunTag>* fillVec) noexcept(false);
 
 };
 
