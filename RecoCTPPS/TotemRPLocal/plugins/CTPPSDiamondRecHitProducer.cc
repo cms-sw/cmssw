@@ -37,12 +37,12 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
   private:
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
-    edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > recHitsToken_;
+    edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
     CTPPSDiamondRecHitProducerAlgorithm algo_;
 };
 
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer( const edm::ParameterSet& iConfig ) :
-  recHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) ),
+  digiToken_( consumes< edm::DetSetVector<CTPPSDiamondDigi> >( iConfig.getParameter<edm::InputTag>( "digiTag" ) ) ),
   algo_( iConfig )
 {
   produces< edm::DetSetVector<CTPPSDiamondRecHit> >();
@@ -57,7 +57,7 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   std::unique_ptr< edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
 
   edm::Handle< edm::DetSetVector<CTPPSDiamondDigi> > digis;
-  iEvent.getByToken( recHitsToken_, digis );
+  iEvent.getByToken( digiToken_, digis );
 
   for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator dsv_digi = digis->begin(); dsv_digi != digis->end(); dsv_digi++ ) {
     const CTPPSDiamondDetId detid( dsv_digi->detId() );
