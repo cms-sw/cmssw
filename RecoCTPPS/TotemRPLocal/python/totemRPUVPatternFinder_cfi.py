@@ -38,7 +38,7 @@ totemRPUVPatternFinder = cms.EDProducer("TotemRPUVPatternFinder",
     # if a RP or projection needs adjustment of the above settings, you can use the following format
 	#	exceptionalSettings = cms.VPSet(
 	#	    cms.PSet(
-	#	        rpId = cms.uint32(20),
+	#	        rpId = cms.uint32(1998061568), # RP id according to CTPPSDetId
 	#	        minPlanesPerProjectionToFit_U = cms.uint32(2),
 	#	        minPlanesPerProjectionToFit_V = cms.uint32(3),
 	#	        threshold_U = cms.double(1.99),
