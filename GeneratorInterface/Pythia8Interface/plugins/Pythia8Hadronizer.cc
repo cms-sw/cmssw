@@ -685,9 +685,17 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   //fill additional weights for systematic uncertainties
   //this is a hack because pythia does not currently provide ordered access to the weights
   //*FIXME* to be improved with future pythia version
-  for (const string &key : fSortedWeightKeys) {
-    double wgt = (*fMasterGen->info.weights_detailed)[key];
-    event()->weights().push_back(wgt);
+  if (fMasterGen->info.getWeightsDetailedSize() > 0) {
+    for (const string &key : fSortedWeightKeys) {
+      double wgt = (*fMasterGen->info.weights_detailed)[key];
+      event()->weights().push_back(wgt);
+    }
+  }
+  else {
+    for (unsigned int i = 0; i < fMasterGen->info.getWeightsCompressedSize(); i++) {
+      double wgt = fMasterGen->info.getWeightsCompressedValue(i);
+      event()->weights().push_back(wgt);
+    }
   }
 
   return true;
