@@ -6,6 +6,7 @@
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/BTauReco"/>
@@ -17,6 +18,8 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DQMServices/Core"/>
+<use   name="CommonTools/Utils"/>
+<use   name="CommonTools/TriggerUtils"/>
 <use   name="root"/>
 <use   name="roofit"/>
 <use   name="boost"/>

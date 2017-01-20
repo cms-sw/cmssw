@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.Trigger.metMonitoring_cfi import metMonitoring
+from DQMOffline.Trigger.METMonitor_cfi import hltMETmonitoring
 
 # HLT_PFMETNoMu90_PFMHTNoMu90_IDTight
 PFMETNoMu90_PFMHTNoMu90_METmonitoring = hltMETmonitoring.clone()
