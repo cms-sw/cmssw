@@ -275,7 +275,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   std::string name;
   std::string tag("Rphi");
   if (isStereo) tag = "Stereo";
-  char buf[5]; //for string operations
+  char buf[20]; //for string operations
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
   DDName  parentName = parent().name(); 
@@ -374,7 +374,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
 
   //Supplies Box(es)
   for (int i= 0; i < (int)(siFrSuppBoxWidth.size());i++){
-    sprintf(buf,"%i",i);
+    snprintf(buf, sizeof(buf), "%i", i);
     name    = idName + "SuppliesBox"+buf;
     matname = DDName(DDSplit(siFrSuppBoxMat).first, DDSplit(siFrSuppBoxMat).second);
     matter  = DDMaterial(matname);
@@ -595,8 +595,8 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   
   //Si - Reencorcement
   for (int i= 0; i < (int)(siReenforceWidth.size());i++){
-    char buf[5];
-    sprintf(buf,"%i",i);
+    char buf[20];
+    snprintf(buf, sizeof(buf), "%i", i);
     name    = idName + "SiReenforce"+buf;
     matname = DDName(DDSplit(siReenforceMat).first, DDSplit(siReenforceMat).second);
     matter  = DDMaterial(matname);
