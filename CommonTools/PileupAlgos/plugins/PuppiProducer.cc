@@ -128,7 +128,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pReco.id = 0;
       
       if (std::abs(pReco.charge)>0) {
-        edm::Ref<reco::PFCandidateCollection> candref(hPFProduct.id(),itPF-pfCol->begin(),0);
+        edm::Ref<reco::PFCandidateCollection> candref(pfCol->refAt(itPF-pfCol->begin()).castTo<edm::Ref<reco::PFCandidateCollection> >());
         int quality = (*pvAssignmentQuality)[candref];
         if (quality >= fAssignmentQualityForPrimary) {
           int vtxid = (*pvAssignment)[candref].key();
