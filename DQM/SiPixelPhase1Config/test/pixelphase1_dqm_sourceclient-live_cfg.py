@@ -59,7 +59,7 @@ dqmRunConfigDefaults = {
     'userarea': cms.PSet(
         type = cms.untracked.string("userarea"),
         collectorPort = cms.untracked.int32(9190),
-        collectorHost = cms.untracked.string('lxplus019'),
+        collectorHost = cms.untracked.string('lxplus109'),
     ),
 }
 

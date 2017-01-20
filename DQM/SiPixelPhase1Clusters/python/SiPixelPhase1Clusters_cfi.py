@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
+from DQM.SiPixelPhase1Common.TriggerEventFlag_cfi import *
 
 SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   name = "charge",
@@ -70,6 +71,15 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
     StandardSpecification2DProfile_Num,
     StandardSpecificationTrend_Num,
     StandardSpecifications1D_Num,
+  )
+)
+
+SiPixelPhase1ClustersNClustersFiltered = SiPixelPhase1ClustersNClusters.clone(
+  name = "filtered_clusters",
+  title = "Filter Clusters",
+  triggerlist = cms.VPSet(
+    genericTriggerEventFlag4L1bd,
+    genericTriggerEventFlag4HLTdb
   )
 )
 
@@ -209,6 +219,7 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersSizeX,
   SiPixelPhase1ClustersSizeY,
   SiPixelPhase1ClustersNClusters,
+  SiPixelPhase1ClustersNClustersFiltered,
   SiPixelPhase1ClustersNClustersInclusive,
   SiPixelPhase1ClustersEventrate,
   SiPixelPhase1ClustersPositionB,

@@ -72,7 +72,7 @@ DefaultHisto = cms.PSet(
   range_y_nbins = cms.int32(100),
 
   # This structure is output by the SpecficationBuilder.
-  specs = cms.VPSet()
+  specs = cms.VPSet(),
   #  cms.PSet(spec =
   #    cms.VPset(
   #      cms.PSet(
@@ -90,6 +90,10 @@ DefaultHisto = cms.PSet(
   #   )
   # )
   #)
+
+  # By default, no trigger flags will be used.
+  # Pre-defined trigger flags could be found in TriggerEventFlag_cfi.py file
+  triggerflags = cms.VPSet(),
 )
 
 DefaultHistoDigiCluster=DefaultHisto.clone()

@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1RecHits_h 
-#define SiPixelPhase1RecHits_h 
+#ifndef SiPixelPhase1RecHits_h
+#define SiPixelPhase1RecHits_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1RecHits
 // Class  :     SiPixelPhase1RecHits
 //
@@ -24,7 +24,7 @@ class SiPixelPhase1RecHits : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1RecHits(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void phase1analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
   edm::EDGetTokenT<SiPixelRecHitCollection> srcToken_;

@@ -4,7 +4,7 @@
 //
 // Package:     SiPixelPhase1Digis
 // Class  :     SiPixelPhase1Digis
-// 
+//
 
 // Original Author: Marcel Schneider
 
@@ -16,13 +16,13 @@
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 
 class SiPixelPhase1Digis : public SiPixelPhase1Base {
-  // List of quantities to be plotted. 
+  // List of quantities to be plotted.
   enum {
     ADC, // digi ADC readouts
     NDIGIS, // number of digis per event and module
     NDIGISINCLUSIVE, //Total number of digis in BPix and FPix
     NDIGIS_FED, // number of digis per event and FED
-    NDIGIS_FEDtrend, // number of digis per event and FED 
+    NDIGIS_FEDtrend, // number of digis per event and FED
     EVENT, // event frequency
     MAP, // digi hitmap per module
     OCCUPANCY, // like map but coarser
@@ -32,7 +32,7 @@ class SiPixelPhase1Digis : public SiPixelPhase1Base {
   public:
   explicit SiPixelPhase1Digis(const edm::ParameterSet& conf);
 
-  void analyze(const edm::Event&, const edm::EventSetup&) ;
+  void phase1analyze(const edm::Event&, const edm::EventSetup&) ;
 
   private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> srcToken_;

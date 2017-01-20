@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1GeometryDebug
 // Class  :     SiPixelPhase1GeometryDebug
 //
@@ -9,7 +9,7 @@
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-// This small plugin plots out varois geometry quantities against each other. 
+// This small plugin plots out varois geometry quantities against each other.
 // This is useful to see where a specific module or ROC ends up in a 2D map.
 class SiPixelPhase1GeometryDebug : public SiPixelPhase1Base {
   enum {
@@ -20,11 +20,11 @@ class SiPixelPhase1GeometryDebug : public SiPixelPhase1Base {
   };
 
   public:
-  explicit SiPixelPhase1GeometryDebug(const edm::ParameterSet& conf) 
+  explicit SiPixelPhase1GeometryDebug(const edm::ParameterSet& conf)
     : SiPixelPhase1Base(conf) {
   }
 
-  void analyze(const edm::Event& iEvent, const edm::EventSetup&) {
+  void phase1analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     auto& all = geometryInterface.allModules();
     GeometryInterface::Column ladder = geometryInterface.intern("PXLadder");
     GeometryInterface::Column blade  = geometryInterface.intern("PXBlade");
@@ -37,7 +37,7 @@ class SiPixelPhase1GeometryDebug : public SiPixelPhase1Base {
       auto detid = iq.sourceModule.rawId();
 
       auto ladbld = geometryInterface.extract(ladder, iq);
-      if (ladbld.second == GeometryInterface::UNDEFINED) 
+      if (ladbld.second == GeometryInterface::UNDEFINED)
         ladbld = geometryInterface.extract(blade, iq);
 
       histo[DETID ].fill((float) detid,         iq.sourceModule, &iEvent, iq.col, iq.row);
@@ -49,4 +49,3 @@ class SiPixelPhase1GeometryDebug : public SiPixelPhase1Base {
 };
 
 DEFINE_FWK_MODULE(SiPixelPhase1GeometryDebug);
-

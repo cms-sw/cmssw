@@ -32,7 +32,7 @@ class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1TrackClusters(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void phase1analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;

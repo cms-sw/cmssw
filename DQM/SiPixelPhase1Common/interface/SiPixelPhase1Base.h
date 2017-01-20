@@ -40,17 +40,21 @@ class HistogramManagerHolder {
 // use it but if you just need some normal HistogramManager this should be perfect.
 class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
   public:
-  SiPixelPhase1Base(const edm::ParameterSet& iConfig)
-    : DQMEDAnalyzer(), HistogramManagerHolder(iConfig) {};
 
-  // You should analyze something, and call histoman.fill(...).
-  //void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  // Adding required to loop through trigger flag setting from EDANalyzer derived class,
+  // GenericTriggerEventFlag requires EDConsumeBase protected member calls.
+  SiPixelPhase1Base(const edm::ParameterSet& iConfig);
 
-  // This booking is usually fine.
-  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup) {
-    for (HistogramManager& histoman : histo)
-      histoman.book(iBooker, iSetup);
-  };
+  // the original analyzer overloaded to include trigger flag setups
+  // Cannot be inherited anymore
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) final;
+
+  // Overload phase1analyze as you would a normal analyze functions
+  // with you own handles, HistogramManager.fill() calls etc.
+  virtual void phase1analyze(edm::Event const& e, edm::EventSetup const& eSetup) = 0;
+
+  // Booking histograms as required by the DQMEDAnalyzer
+  void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup);
 
   virtual ~SiPixelPhase1Base() {};
 };

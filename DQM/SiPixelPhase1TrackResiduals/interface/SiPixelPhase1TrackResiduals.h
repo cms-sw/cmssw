@@ -1,7 +1,7 @@
-#ifndef SiPixelPhase1TrackResiduals_h 
-#define SiPixelPhase1TrackResiduals_h 
+#ifndef SiPixelPhase1TrackResiduals_h
+#define SiPixelPhase1TrackResiduals_h
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1TrackResiduals
 // Class  :     SiPixelPhase1TrackResiduals
 //
@@ -20,7 +20,7 @@ class SiPixelPhase1TrackResiduals : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1TrackResiduals(const edm::ParameterSet& conf);
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void phase1analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
   TrackerValidationVariables validator;

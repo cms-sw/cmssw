@@ -24,7 +24,7 @@ SiPixelPhase1Clusters::SiPixelPhase1Clusters( const edm::ParameterSet& iConfig )
    srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >( iConfig.getParameter<edm::InputTag>( "src" ) );
 }
 
-void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1Clusters::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
@@ -50,6 +50,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
       histo[SIZEX  ].fill(double(cluster.sizeX()  ), id, &iEvent, col, row);
       histo[SIZEY  ].fill(double(cluster.sizeY()  ), id, &iEvent, col, row);
       histo[NCLUSTERS].fill(id, &iEvent, col, row);
+      histo[NCLUSTERS_FILTERED].fill(id, &iEvent, col, row);
       histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
       hasClusters=true;
       if (cluster.size()>1){

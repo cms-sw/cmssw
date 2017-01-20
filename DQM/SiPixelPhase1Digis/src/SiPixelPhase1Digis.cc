@@ -25,7 +25,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
-void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1Digis::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(srcToken_, input);
@@ -37,7 +37,7 @@ void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup
     for(PixelDigi const& digi : *it) {
       hasDigis=true;
       histo[ADC].fill((double) digi.adc(), DetId(it->detId()), &iEvent, digi.column(), digi.row());
-      histo[MAP].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row()); 
+      histo[MAP].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row());
       histo[OCCUPANCY].fill(DetId(it->detId()), &iEvent, digi.column(), digi.row());
       histo[NDIGIS    ].fill(DetId(it->detId()), &iEvent); // count
       histo[NDIGISINCLUSIVE].fill(DetId(it->detId()), &iEvent); // count

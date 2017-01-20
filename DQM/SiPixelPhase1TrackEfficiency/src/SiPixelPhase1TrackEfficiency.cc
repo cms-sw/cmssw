@@ -31,7 +31,7 @@ SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency( const edm::Parameter
    vtxToken_              = consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag>( "primaryvertices" ) );
 }
 
-void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1TrackEfficiency::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;

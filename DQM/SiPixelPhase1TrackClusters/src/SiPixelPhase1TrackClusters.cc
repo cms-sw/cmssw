@@ -29,7 +29,7 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
   trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
 }
 
-void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1TrackClusters::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
