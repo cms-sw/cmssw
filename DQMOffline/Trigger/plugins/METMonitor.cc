@@ -45,7 +45,6 @@ METMonitor::METMonitor( const edm::ParameterSet& iConfig ) :
   metPhiME_.numerator   = nullptr;
   metPhiME_.denominator = nullptr;
   
-  std::cout << "[METMonitor::METMonitor] DONE" << std::endl;
 }
 
 METMonitor::~METMonitor()
@@ -74,7 +73,6 @@ MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
 
 void METMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
 {
-  std::cout << "[METMonitor::setMETitle] me" << std::endl;
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);
   me.denominator->setAxisTitle(titleX,1);
@@ -86,52 +84,37 @@ void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& hist
 {
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, min, max);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, min, max);
-  std::cout << "[METMonitor::bookME] " << histname << " DONE" << std::endl;
 }
 void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& histname, std::string& histtitle, std::vector<double> binning)
 {
-  std::cout << "[METMonitor::bookME] " << histname << std::endl;
   int nbins = binning.size()-1;
-  std::cout << "[METMonitor::bookME] nbins: " << nbins << std::endl;
   std::vector<float> fbinning(binning.begin(),binning.end());
   float* arr = &fbinning[0];
-  for (int i=0; i< nbins; i++)
-    std::cout << "[METMonitor::bookME] arr: " << arr[i] << std::endl;
   //  std::copy(binning.begin(), binning.end(), arr);
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
-  std::cout << "[METMonitor::bookME] " << histname << " DONE" << std::endl;
 }
 void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, double& ymin, double& ymax)
 {
   me.numerator   = ibooker.bookProfile(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
   me.denominator = ibooker.bookProfile(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-  std::cout << "[METMonitor::bookME] " << histname << " DONE" << std::endl;
 }
 void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& histname, std::string& histtitle, int& nbinsX, double& xmin, double& xmax, int& nbinsY, double& ymin, double& ymax)
 {
   me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  std::cout << "[METMonitor::bookME] " << histname << " DONE" << std::endl;
 }
 void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& histname, std::string& histtitle, std::vector<double> binningX, std::vector<double> binningY)
 {
   int nbinsX = binningX.size()-1;
-  std::cout << "[METMonitor::bookME] nbinsX: " << nbinsX << std::endl;  
   std::vector<float> fbinningX(binningX.begin(),binningX.end());
   float* arrX = &fbinningX[0];
-  for (int i=0; i< nbinsX; i++)
-    std::cout << "[METMonitor::bookME] arrX: " << arrX[i] << std::endl;
   int nbinsY = binningY.size()-1;
-  std::cout << "[METMonitor::bookME] nbinsY: " << nbinsY << std::endl;  
   std::vector<float> fbinningY(binningY.begin(),binningY.end());
   float* arrY = &fbinningY[0];
-  for (int i=0; i< nbinsY; i++)
-    std::cout << "[METMonitor::bookME] arrY: " << arrY[i] << std::endl;
 
   me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, arrX, nbinsY, arrY);
   me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
-  std::cout << "[METMonitor::bookME] " << histname << " DONE" << std::endl;
 }
 
 void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
@@ -148,7 +131,6 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,metME_,histname,histtitle,met_binning_.nbins,met_binning_.xmin, met_binning_.xmax);
   setMETitle(metME_,"PF MET [GeV]","events / [GeV]");
 
-  std::cout << "[METMonitor::bookHistograms] met_variable_binning_ " << met_variable_binning_.size() << std::endl; 
   histname = "met_variable"; histtitle = "PFMET";
   bookME(ibooker,metME_variableBinning_,histname,histtitle,met_variable_binning_);
   setMETitle(metME_variableBinning_,"PF MET [GeV]","events / [GeV]");
@@ -165,7 +147,6 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
 
-  std::cout << "[METMonitor::bookHistograms] DONE" << std::endl;
 }
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -174,7 +155,6 @@ void METMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
-  std::cout << "[METMonitor::analyze] analyzing " << std::endl;
   // Filter out events if Trigger Filtering is requested
   if (den_genTriggerEventFlag_->on() && ! den_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -185,7 +165,6 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   
   float met = pfmet.pt();
   float phi = pfmet.phi();
-  std::cout << "met: " << met << std::endl;
 
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
