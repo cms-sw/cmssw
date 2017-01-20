@@ -337,12 +337,29 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     // set all constants to 1. or smear as specified by user
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAlphas ) ;
     findingRecord<EcalLaserAlphasRcd> () ;
-    getLaserAlphaFromFile_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFile",false);
-    std::cout << " getLaserAlphaFromFile_ " <<  getLaserAlphaFromFile_ << std::endl;
-    if(getLaserAlphaFromFile_) {
-      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt");
-      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt");
-      std::cout << " EELaserAlphaFile_ " <<  EELaserAlphaFile_.c_str() << std::endl;
+    getLaserAlphaFromFileEB_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFileEB",false);
+    getLaserAlphaFromFileEE_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFileEE",false);
+    getLaserAlphaFromTypeEB_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromTypeEB",false);
+    getLaserAlphaFromTypeEE_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromTypeEE",false);
+    std::cout << " getLaserAlphaFromFileEB_ " <<  getLaserAlphaFromFileEB_ << std::endl;
+    std::cout << " getLaserAlphaFromFileEE_ " <<  getLaserAlphaFromFileEE_ << std::endl;
+    std::cout << " getLaserAlphaFromTypeEB_ " <<  getLaserAlphaFromTypeEB_ << std::endl;
+    std::cout << " getLaserAlphaFromTypeEE_ " <<  getLaserAlphaFromTypeEE_ << std::endl;
+    if(getLaserAlphaFromFileEB_) {
+      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt"); // file is used to read the alphas
+    }
+    if(getLaserAlphaFromFileEE_) {
+      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt"); // file is used to read the alphas
+    } 
+    if(getLaserAlphaFromTypeEB_) {
+      laserAlphaMeanEBR_  = ps.getUntrackedParameter<double>("laserAlphaMeanEBR",1.55); // alpha russian crystals in EB
+      laserAlphaMeanEBC_  = ps.getUntrackedParameter<double>("laserAlphaMeanEBC",1.00); // alpha chinese crystals in EB
+      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt"); // file to find out which one is russian/chinese
+    }
+    if(getLaserAlphaFromTypeEE_) {
+      laserAlphaMeanEER_  = ps.getUntrackedParameter<double>("laserAlphaMeanEER",1.16); // alpha russian crystals in EE
+      laserAlphaMeanEEC_  = ps.getUntrackedParameter<double>("laserAlphaMeanEEC",1.00); // alpha chinese crystals in EE
+      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt"); // file is used to find out which one is russian or chinese
     }
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef ) ;
     findingRecord<EcalLaserAPDPNRatiosRefRcd> () ;
@@ -1039,19 +1056,16 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 
   std::cout << " produceEcalLaserAlphas " << std::endl;
   auto ical = std::make_unique<EcalLaserAlphas>();
-  if(getLaserAlphaFromFile_) {
+
+  // get Barrel alpha from type
+  if(getLaserAlphaFromTypeEB_) {
     std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
     int SMpos[36] = {-10, 4, -7, -16, 6, -9, 11, -17, 5, 18, 3, -8, 1, -3, -13, 14, -6, 2,
 		     15, -18, 8, 17, -2, 9, -1, 10, -5, 7, -12, -11, 16, -4, -15, -14, 12, 13};
     // check!
     int SMCal[36] = {12,17,10, 1, 8, 4,27,20,23,25, 6,34,35,15,18,30,21, 9,
 		     24,22,13,31,26,16, 2,11, 5, 0,29,28,14,33,32, 3, 7,19};
-    /*
-  int slot_to_constr[37]={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9
-			  ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
-  int constr_to_slot[36]={28,4,25,34,6,27,11,35,5,18,3,26,1,21,31,14,24,2,15,
-			  36,8,17,20,9,19,10,23,7,30,29,16,22,33,32,12,13  };
-    */
+
     for(int SMcons = 0; SMcons < 36; SMcons++) {
       int SM = SMpos[SMcons];
       if(SM < 0) SM = 17 + abs(SM);
@@ -1060,7 +1074,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	 std::cout << " SM pb : read SM " <<  SMcons<< " SMpos " << SM
 		   << " SMCal " << SMCal[SM] << std::endl;
     }
-    // check
+
     std::string type, batch;
     int readSM, pos, bar, bar2;
     float alpha = 0;
@@ -1068,29 +1082,56 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
       int SM = SMpos[SMcons];
       for(int ic = 0; ic < 1700; ic++) {
 	fEB >> readSM >> pos >> bar >>  bar2 >> type >> batch;
-	//	if(ic == 0) std::cout << readSM << " " << pos << " " << bar << " " << bar2 << " " 
-	//			      << type << " " << batch << std::endl;
+
 	if(readSM != SMcons || pos != ic + 1) 
 	  std::cout << " barrel read pb read SM " << readSM << " const SM " << SMcons
 		    << " read pos " << pos << " ic " << ic << std::endl;
 	if(SM < 0) SM = 18 + abs(SM);
 	EBDetId ebdetid(SM, pos, EBDetId::SMCRYSTALMODE);
 	if(bar == 33101 || bar == 30301 )
-	  alpha = 1.52;
+	  alpha = laserAlphaMeanEBR_;
 	else if(bar == 33106) {
 	  if(bar2 <= 2000)
-	    alpha = 1.0;
+	    alpha = laserAlphaMeanEBC_;
 	  else {
 	    std::cout << " problem with barcode first " << bar << " last " << bar2 
 		      << " read SM " << readSM << " read pos " << pos << std::endl;
-	    alpha = 0.0;
+	    alpha = laserAlphaMeanEBR_;
 	  }
 	}
 	ical->setValue( ebdetid, alpha );
+
+	if((ic==1650 )){
+	  std::cout << " ic/alpha "<<ic<<"/"<<alpha<<std::endl; 
+	}
+
       }
     }  // loop over SMcons
-  }   // laserAlpha from a file
-  else {
+    fEB.close(); 
+    // end laserAlpha from type 
+  }    else if(getLaserAlphaFromFileEB_) { 
+    // laser alpha from file 
+    std::cout <<"Laser alpha for EB will be taken from File"<<std::endl; 
+    int ieta, iphi;
+    float alpha;
+    std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
+    //    std::ifstream fEB(EBLaserAlphaFile_.c_str());
+    for(int ic = 0; ic < 61200; ic++) {
+      fEB >> ieta>> iphi>>alpha;
+
+      if (EBDetId::validDetId(ieta,iphi)) {
+	EBDetId ebid(ieta,iphi);
+	ical->setValue( ebid, alpha );
+	std::cout << " ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
+      }
+      if((ieta==10)){
+	std::cout << "I will print some alphas from the file... ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
+      }
+    }
+    fEB.close(); 
+
+  } else {
+    // laser alpha from mean and smearing 
     for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
       if(ieta==0) continue;
       for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
@@ -1104,12 +1145,9 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
   }   // do not read a file
 
   std::cout << " produceEcalLaserAlphas EE" << std::endl;
-  if(getLaserAlphaFromFile_) {
+  if(getLaserAlphaFromTypeEE_) {
     std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
-    int check[101][101];
-    for(int x = 1; x < 101; x++)
-      for(int y = 1; y < 101; y++)
-	check[x][y] = -1;
+
     for(int crystal = 0; crystal < 14648; crystal++) {
       int x, y ,z, bid, bar, bar2;
       float LY, alpha = 0;
@@ -1118,17 +1156,15 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	std::cout << " wrong coordinates for barcode " << bar 
 		  << " x " << x << " y " << y << " z " << z << std::endl;
       else {
-	if(z == 1) check[x][y] = 1;
-	else check[x][y] = 0;
 	if(bar == 33201 || (bar == 30399 && bar2 < 568))
-	  alpha = 1.52;
+	    alpha = laserAlphaMeanEER_;
 	else if((bar == 33106 && bar2 > 2000 && bar2 < 4669) 
 		|| (bar == 30399 && bar2 > 567))
-	  alpha = 1.0;
+	  alpha = laserAlphaMeanEEC_;
 	else {
 	  std::cout << " problem with barcode " << bar << " " << bar2 
 		    << " x " << x << " y " << y << " z " << z << std::endl;
-	  alpha = 0.0;
+	  alpha = laserAlphaMeanEER_;
 	}
       } 
       if (EEDetId::validDetId(x, y, z)) {
@@ -1137,12 +1173,37 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
       }
       else // should not occur
 	std::cout << " problem with EEDetId " << " x " << x << " y " << y << " z " << z << std::endl;
-    }  // loop over crystal in file
-    for(int x = 1; x < 101; x++)
-      for(int y = 1; y < 101; y++)
-	if(check[x][y] == 1) std::cout << " missing x " << x << " y " << y << std::endl;
-  }  // laserAlpha from a file
-  else {
+    }  
+    fEE.close(); 
+
+    // end laserAlpha from type EE
+
+  } else if (getLaserAlphaFromFileEE_) {
+
+    std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
+
+    for(int crystal = 0; crystal < 14648; crystal++) {
+      int x, y ,z;
+      float alpha = 1;
+      fEE >> z >> x >> y >> alpha;
+      if(x < 1 || x > 100 || y < 1 || y > 100 || z==0 || z>1 || z<-1 ) {
+	std::cout << "ERROR: wrong coordinates for crystal " 
+		  << " x " << x << " y " << y << " z " << z << std::endl;
+	std::cout << " the format of the file should be z x y alpha " << std::endl;
+      } else {
+	if (EEDetId::validDetId(x, y, z)) {
+	  EEDetId eedetidpos(x, y, z);
+	  ical->setValue( eedetidpos, alpha );
+	}
+	else // should not occur
+	  std::cout << " problem with EEDetId " << " x " << x << " y " << y << " z " << z << std::endl;
+      }  
+    }
+    fEE.close(); 
+
+    // end laser alpha from file EE
+  }  else {
+    // alphas from python config file
     for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
       for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
 	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
@@ -1151,7 +1212,6 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	  EEDetId eedetidpos(iX,iY,1);
 	  ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
 	}
-
 	if (EEDetId::validDetId(iX,iY,-1)) {
 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
 	  EEDetId eedetidneg(iX,iY,-1);
@@ -1159,7 +1219,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	}
       } // loop over iY
     } // loop over iX
-  }  // do not read a file
+  }  
   
   return ical;
 }
