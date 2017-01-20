@@ -300,6 +300,11 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
       return from_coord(coord->sector(iq.sourceModule()));
     }
   );
+  addExtractor(intern("Channel"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->channel(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+    }
+  );
 
 }
 
@@ -369,6 +374,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
 
   // TODO: ranges should be set manually below, since booking probably cannot
   // infer them correctly (no ROC-level granularity)
+  // PERF: this is slow. Prefer SiPixelCordinates versions here.
   addExtractor(intern("LinkInFed"),
     [siPixelFrameReverter] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
