@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -90,6 +91,20 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
     if( len_prescale_table_ )
         cout << hash( prescale_table_, sizeof(int)*len_prescale_table_ ) << endl;
     else cout << 0 << endl;
+
+    if( prescale_table_verbosity > 1 ){
+        cout << endl << " Detailed view on the prescales * masks: " << endl;
+        for(size_t col=0; col<ptr->prescale_table_.size(); col++)
+            cout << setw(8) << " Index " << col;
+        cout << endl;
+        size_t nRows = (ptr->prescale_table_)[ 0 ].size();
+        for(size_t row=0; row<nRows; row++){
+            for(size_t col=0; col<ptr->prescale_table_.size(); col++)
+                cout << setw(8) << (ptr->prescale_table_)[ col ][ row ] ;
+            cout << endl;
+        }
+        cout << endl;
+    }
 
     size_t len_bxmask_map_ = 0;
     for(std::map<int, std::vector<int> >::const_iterator it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end(); it++){
