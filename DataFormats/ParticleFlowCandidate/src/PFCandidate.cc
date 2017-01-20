@@ -158,6 +158,7 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   if(nullptr != tmp) {
     elementsInBlocks_.store( new ElementsInBlocks{*tmp}, std::memory_order_release);
   }
+    delete tmp;
 }
 
 PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
@@ -168,6 +169,7 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   } else {
     delete elementsInBlocks_.exchange(nullptr, std::memory_order_acq_rel);
   }
+  delete tmp;
   blocksStorage_=iOther.blocksStorage_;
   elementsStorage_=iOther.elementsStorage_;
   sourcePtr_=iOther.sourcePtr_;
@@ -680,7 +682,6 @@ const math::XYZPoint & PFCandidate::vertex() const {
 
 const PFCandidate::ElementsInBlocks& 
 PFCandidate::elementsInBlocks() const { 
-      
   if (nullptr == elementsInBlocks_.load(std::memory_order_acquire))
     {
       std::unique_ptr<ElementsInBlocks> temp( new ElementsInBlocks(blocksStorage_.size()));
@@ -690,6 +691,7 @@ PFCandidate::elementsInBlocks() const {
       if(elementsInBlocks_.compare_exchange_strong(expected,temp.get(),std::memory_order_acq_rel)) {
 	temp.release();
       }
+      temp.get_deleter();
     }
   return *(elementsInBlocks_.load(std::memory_order_acquire));
 }
