@@ -31,6 +31,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        DeltaZCut      = cms.double(0.3),
                        candName       = cms.InputTag('particleFlow'),
                        vertexName     = cms.InputTag('offlinePrimaryVertices'),
+                       PVAssignment = cms.InputTag(''),
+                       PVAssignmentQuality = cms.InputTag(''),
                        #candName      = cms.string('packedPFCandidates'),
                        #vertexName     = cms.string('offlineSlimmedPrimaryVertices'),
                        applyCHS       = cms.bool  (True),
@@ -42,6 +44,8 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        clonePackedCands   = cms.bool(False), # should only be set to True for MiniAOD
                        vtxNdofCut     = cms.int32(4),
                        vtxZCut        = cms.double(24),
+                       UsePVAssignmentMap = cms.bool(False),
+                       AssignmentQualityForPrimary = cms.int32(2),
                        algos          = cms.VPSet( 
                         cms.PSet( 
                          etaMin = cms.vdouble(0.),
@@ -79,4 +83,12 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        #   puppiAlgos = puppiForward
                        # )
                       )
+)
+                        
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    puppi,
+    UsePVAssignmentMap = True,
+    PVAssignment = cms.InputTag('primaryVertexAssociation','original'),
+    PVAssignmentQuality = cms.InputTag('primaryVertexAssociation','original'),
 )
