@@ -10,6 +10,8 @@ namespace ecaldqm
 {
   TimingTask::TimingTask() :
     DQWorkerTask(),
+    chi2ThresholdEB_(0.),
+    chi2ThresholdEE_(0.),
     energyThresholdEB_(0.),
     energyThresholdEE_(0.)
   {
@@ -18,6 +20,8 @@ namespace ecaldqm
   void
   TimingTask::setParams(edm::ParameterSet const& _params)
   {
+    chi2ThresholdEB_   = _params.getUntrackedParameter<double>("chi2ThresholdEB");
+    chi2ThresholdEE_   = _params.getUntrackedParameter<double>("chi2ThresholdEE");
     energyThresholdEB_ = _params.getUntrackedParameter<double>("energyThresholdEB");
     energyThresholdEE_ = _params.getUntrackedParameter<double>("energyThresholdEE");
   }
@@ -58,8 +62,8 @@ namespace ecaldqm
                     float time(hit.time());
                     float energy(hit.energy());
 
-                    float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? 16. : 50.;
-                    if ( hit.chi2() > chi2Threshold ) return;
+                    float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
+                    if( hit.chi2() > chi2Threshold ) return;
 
                     meTimeAmp.fill(id, energy, time);
                     meTimeAmpAll.fill(id, energy, time);
@@ -71,6 +75,39 @@ namespace ecaldqm
                       meTimeAllMap.fill(id, time);
                     }
                   });
+  }
+
+  // For In-time vs Out-of-Time amplitude correlation MEs:
+  // Only UncalibRecHits carry information about OOT amplitude
+  // But still need to make sure we apply similar cuts as on RecHits
+  void TimingTask::runOnUncalibRecHits( EcalUncalibratedRecHitCollection const& _uhits )
+  {
+    MESet& meTimeAmpBXm( MEs_.at("TimeAmpBXm") );
+    MESet& meTimeAmpBXp( MEs_.at("TimeAmpBXp") );
+
+    for( EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr ) {
+
+      // Apply reconstruction quality cuts
+      if( !uhitItr->checkFlag(EcalUncalibratedRecHit::kGood) ) continue;
+      DetId id( uhitItr->id() );
+      float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
+      if( uhitItr->chi2() > chi2Threshold ) continue;
+
+      // Apply amplitude cut based on approx rechit energy
+      float amp( uhitItr->amplitude() );
+      float ampThreshold( id.subdetId() == EcalBarrel ? energyThresholdEB_*20. : energyThresholdEE_*5. ); // 1 GeV ~ ( EB:20, EE:5 ) ADC
+      if( amp < ampThreshold ) continue;
+
+      // Apply jitter timing cut based on approx rechit timing
+      float timeOff( id.subdetId() == EcalBarrel ? 0.4 : 1.8 );
+      float hitTime( uhitItr->jitter()*25. + timeOff ); // 1 jitter ~ 25 ns
+      if( abs(hitTime) >= 5. ) continue;
+
+      // Fill MEs
+      meTimeAmpBXm.fill( id,amp,uhitItr->outOfTimeAmplitude(4) ); // BX-1
+      meTimeAmpBXp.fill( id,amp,uhitItr->outOfTimeAmplitude(6) ); // BX+1
+
+    }
   }
 
   DEFINE_ECALDQM_WORKER(TimingTask);
