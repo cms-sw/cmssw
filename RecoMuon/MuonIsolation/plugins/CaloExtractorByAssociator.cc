@@ -29,6 +29,10 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
+namespace {
+  constexpr double dRMax_CandDep = 1.0;//pick up candidate own deposits up to this dR if theDR_Max is smaller
+}
+
 CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, edm::ConsumesCollector && iC) :
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
@@ -162,6 +166,8 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
       double et = energy*cosTheta;
+      if (deltar0 > std::max(dRMax_CandDep, theDR_Max)
+	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = reco::deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
@@ -181,8 +187,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       }
 
       //check theDR_Max only here to keep vetoHits being added to the veto energy
-      if ((deltar0 > theDR_Max && ! vetoHit)
-	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
+      if (deltar0 > theDR_Max && ! vetoHit) continue;
 
       if (vetoHit ){
 	depEcal.addCandEnergy(et);
@@ -200,6 +205,8 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
+      if (deltar0 > std::max(dRMax_CandDep, theDR_Max)
+	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = reco::deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
@@ -219,8 +226,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       }
 
       //check theDR_Max only here to keep vetoHits being added to the veto energy
-      if ((deltar0 > theDR_Max && ! vetoHit)
-	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
+      if (deltar0 > theDR_Max && ! vetoHit) continue;
 
       if (vetoHit ){
 	depHcal.addCandEnergy(et);
@@ -238,6 +244,8 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
+      if (deltar0 > std::max(dRMax_CandDep, theDR_Max)
+	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = reco::deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
@@ -257,8 +265,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       }
 
       //check theDR_Max only here to keep vetoHits being added to the veto energy
-      if ((deltar0 > theDR_Max && ! vetoHit)
-	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
+      if (deltar0 > theDR_Max && ! vetoHit) continue;
 
       if (vetoHit ){
 	depHOcal.addCandEnergy(et);
@@ -274,6 +281,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     for (; calCI != mInfo.towers.end(); ++calCI){
       const CaloTower* calCPtr = *calCI;
       double deltar0 = reco::deltaR(muon,*calCPtr);
+      if (deltar0> std::max(dRMax_CandDep, theDR_Max)) continue; 
 
       //even more copy-pasting .. need to refactor
       double etecal = calCPtr->emEt();
