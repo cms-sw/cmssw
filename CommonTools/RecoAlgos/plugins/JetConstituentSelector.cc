@@ -16,7 +16,7 @@
  */
 
 
-#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 template <class T, typename C = std::vector<typename T::ConstituentTypeFwdPtr>>
-class JetConstituentSelector : public edm::stream::EDFilter<> {
+class JetConstituentSelector : public edm::stream::EDProducer<> {
 public:
 
   using JetsOutput = std::vector<T>;
@@ -43,7 +43,7 @@ public:
     produces<ConstituentsOutput>("constituents");
   }
 
-  bool filter(edm::Event& iEvent, edm::EventSetup const& iSetup) override
+  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override
   {
     auto jets = std::make_unique<JetsOutput>();
     auto candsOut = std::make_unique<ConstituentsOutput>();
@@ -65,7 +65,6 @@ public:
 
     iEvent.put(std::move(jets));
     iEvent.put(std::move(candsOut), "constituents");
-    return true;
   }
 
 private:
