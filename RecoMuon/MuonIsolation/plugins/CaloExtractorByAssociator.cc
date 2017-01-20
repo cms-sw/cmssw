@@ -22,8 +22,6 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-//#include "CommonTools/Utils/interface/deltaR.h"
-//#include "PhysicsTools/Utilities/interface/deltaR.h"
 
 using namespace edm;
 using namespace std;
@@ -164,8 +162,6 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max
-	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = reco::deltaR(mInfo.trkGlobPosAtEcal, eHitPos);
@@ -184,6 +180,10 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      //check theDR_Max only here to keep vetoHits being added to the veto energy
+      if ((deltar0 > theDR_Max && ! vetoHit)
+	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
+
       if (vetoHit ){
 	depEcal.addCandEnergy(et);
       } else {
@@ -200,8 +200,6 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max
-	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = reco::deltaR(mInfo.trkGlobPosAtHcal, hHitPos);
@@ -220,6 +218,10 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      //check theDR_Max only here to keep vetoHits being added to the veto energy
+      if ((deltar0 > theDR_Max && ! vetoHit)
+	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
+
       if (vetoHit ){
 	depHcal.addCandEnergy(et);
       } else {
@@ -236,8 +238,6 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max
-	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
       double deltar = reco::deltaR(mInfo.trkGlobPosAtHO, hoHitPos);
@@ -256,6 +256,10 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      //check theDR_Max only here to keep vetoHits being added to the veto energy
+      if ((deltar0 > theDR_Max && ! vetoHit)
+	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
+
       if (vetoHit ){
 	depHOcal.addCandEnergy(et);
       } else {
@@ -270,7 +274,6 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     for (; calCI != mInfo.towers.end(); ++calCI){
       const CaloTower* calCPtr = *calCI;
       double deltar0 = reco::deltaR(muon,*calCPtr);
-      if (deltar0>theDR_Max) continue;
 
       //even more copy-pasting .. need to refactor
       double etecal = calCPtr->emEt();
@@ -327,19 +330,21 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 	}
       }
 
+      if (deltar0>theDR_Max && !(vetoTowerEcal || vetoTowerHcal || vetoTowerHOCal)) continue;
+
       reco::isodeposit::Direction towerDir(calCPtr->eta(), calCPtr->phi());
       //! add the Et of the tower to deposits if it's not a vetoed; put into muonEnergy otherwise
       if (doEcal){
 	if (vetoTowerEcal) depEcal.addCandEnergy(etecal);
-	else depEcal.addDeposit(towerDir, etecal);
+	else if (deltar0<=theDR_Max) depEcal.addDeposit(towerDir, etecal);
       }
       if (doHcal){
 	if (vetoTowerHcal) depHcal.addCandEnergy(ethcal);
-	else depHcal.addDeposit(towerDir, ethcal);
+	else if (deltar0<=theDR_Max) depHcal.addDeposit(towerDir, ethcal);
       }
       if (doHOcal){
 	if (vetoTowerHOCal) depHOcal.addCandEnergy(ethocal);
-	else depHOcal.addDeposit(towerDir, ethocal);
+	else if (deltar0<=theDR_Max) depHOcal.addDeposit(towerDir, ethocal);
       }
     }
   }
