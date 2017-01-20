@@ -241,10 +241,10 @@ namespace {
   }
 
 
-  //FIXME::Erica not clear because I need both
   std::map<unsigned int, double> chargeFraction(const Phase2TrackerCluster1D& cluster, const DetId& detId,
                                                 const edm::DetSetVector<StripDigiSimLink>& digiSimLink) {
     std::map<unsigned int, double> simTrackIdToAdc;
+    auto ex = cms::Exception("LogicError") << "Not possible to use StripDigiSimLink with Phase2TrackerCluster1D! ";
     return simTrackIdToAdc;
   }
 
@@ -311,6 +311,7 @@ private:
     Strip = 1,
     Glued = 2,
     Invalid = 3,
+    Phase2OT = 4,
     Unknown = 99
   };
 
@@ -716,6 +717,7 @@ private:
   std::vector<unsigned int> see_nPixel  ;
   std::vector<unsigned int> see_nGlued  ;
   std::vector<unsigned int> see_nStrip  ;
+  std::vector<unsigned int> see_nPhase2OT;
   std::vector<unsigned int> see_algo    ;
   std::vector<int> see_trkIdx;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
@@ -1032,6 +1034,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_nPixel"   , &see_nPixel  );
     t->Branch("see_nGlued"   , &see_nGlued  );
     t->Branch("see_nStrip"   , &see_nStrip  );
+    t->Branch("see_nPhase2OT", &see_nPhase2OT);
     t->Branch("see_algo"     , &see_algo    );
     t->Branch("see_trkIdx"   , &see_trkIdx  );
     t->Branch("see_shareFrac", &see_shareFrac);
@@ -1299,6 +1302,7 @@ void TrackingNtuple::clearVariables() {
   see_nPixel  .clear();
   see_nGlued  .clear();
   see_nStrip  .clear();
+  see_nPhase2OT.clear();
   see_algo    .clear();
   see_trkIdx  .clear();
   see_shareFrac.clear();
@@ -1544,8 +1548,8 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
   SimHitData ret;
 
   std::map<unsigned int, double> simTrackIdToChargeFraction;
-  if(!isPhase2) simTrackIdToChargeFraction = chargeFraction(GetCluster<SimLink>::call(cluster), hitId, digiSimLinks);
-  else simTrackIdToChargeFraction = chargeFraction(cluster.phase2OTCluster(), hitId, digiSimLinks);
+  if(hitType == HitType::Phase2OT) simTrackIdToChargeFraction = chargeFraction(cluster.phase2OTCluster(), hitId, digiSimLinks);
+  else simTrackIdToChargeFraction = chargeFraction(GetCluster<SimLink>::call(cluster), hitId, digiSimLinks);
 
   ret.type = HitSimType::Noise;
   auto range = clusterToTPMap.equal_range( cluster );
@@ -1953,7 +1957,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       const int key = hit->cluster().key();
       const int lay = tTopo.layer(hitId);
       SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
-                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Strip, true);
+                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT, true);
 
       ph2_isBarrel .push_back( hitId.subdetId()==1 );
       ph2_det      .push_back( hitId.subdetId() );
@@ -2160,18 +2164,23 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
             }
 
             hitIdx.push_back( clusterKey );
-            hitType.push_back( static_cast<int>(HitType::Strip) );
+            if(clusterRef.isPhase2()){
+              hitType.push_back( static_cast<int>(HitType::Phase2OT) );
+            } else {
+              hitType.push_back( static_cast<int>(HitType::Strip) );
+            }
 	  }
 	} else {
           LogTrace("TrackingNtuple") << " not pixel and not Strip detector";
         }
       }
       LogTrace("TrackingNtuple") << " after running on hits";
-      see_hitIdx  .push_back( hitIdx  );
-      see_hitType .push_back( hitType );
-      see_nPixel  .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Pixel)) );
-      see_nGlued  .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Glued)) );
-      see_nStrip  .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Strip)) );
+      see_hitIdx   .push_back( hitIdx  );
+      see_hitType  .push_back( hitType );
+      see_nPixel   .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Pixel)) );
+      see_nGlued   .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Glued)) );
+      see_nStrip   .push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Strip)) );
+      see_nPhase2OT.push_back( std::count(hitType.begin(), hitType.end(), static_cast<int>(HitType::Phase2OT)) );
       //the part below is not strictly needed
       float chi2 = -1;
       if (nHits==2) {
@@ -2359,7 +2368,6 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         continue;
 
       LogTrace("TrackingNtuple") << " " << subdetstring(hitId.subdetId()) << " " << tTopo.layer(hitId);
-      bool isPixel = (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel || hitId.subdetId() == (int) PixelSubdetector::PixelEndcap );
 
       if (hit->isValid()) {
         //ugly... but works
@@ -2391,7 +2399,13 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         }
 
         hitIdx.push_back(clusterKey);
-        hitType.push_back( static_cast<int>( isPixel ? HitType::Pixel : HitType::Strip ) );
+        if(clusterRef.isPixel()){
+          hitType.push_back( static_cast<int>(HitType::Pixel));
+        } else if(clusterRef.isPhase2()){
+          hitType.push_back( static_cast<int>(HitType::Strip));
+        } else {
+          hitType.push_back( static_cast<int>(HitType::Phase2OT));
+        }
       } else  {
         LogTrace("TrackingNtuple") << " - invalid hit";
 
