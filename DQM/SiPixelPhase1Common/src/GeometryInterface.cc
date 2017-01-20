@@ -241,31 +241,39 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   );
 
   // Pixel Map axis. 
-  // TODO: binning should be phase-dependent. Or maybe even per-plot configurable.
-  addExtractor(intern("SignedModuleCoord"),
+  // TODO: automatic range and binning for phase0 are incorrect.
+  // Should be set manually here.
+  addExtractor(intern("SignedModuleCoord"), // BPIX x
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_module_coord(iq.sourceModule(),
         std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/8.0
   );
-  addExtractor(intern("SignedLadderCoord"),
+  addExtractor(intern("SignedLadderCoord"), // BPIX y
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_ladder_coord(iq.sourceModule(),
         std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/2.0
   );
-  addExtractor(intern("SignedDiskCoord"),
+  addExtractor(intern("SignedDiskCoord"), // FPIX x (per-ring)
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_disk_coord(iq.sourceModule(),
         std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/8.0
   );
-  addExtractor(intern("SignedBladePanelCoord"),
+  addExtractor(intern("SignedDiskRingCoord"), // FPIX x (FPIX-as-one-plot)
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_disk_ring_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/16.0
+  );
+  addExtractor(intern("SignedBladePanelCoord"), // FPIX y
     [coord, from_coord, phase] (InterestingQuantities const& iq) {
       if (phase == 0) {
         return from_coord(coord->signed_blade_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else if (phase == 1) {
+        // FPIX-as-one-plot should use signed_shifted_ here
         return from_coord(coord->signed_blade_panel_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else {
@@ -274,8 +282,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
       }
     }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
   );
-
-  addExtractor(intern("SignedBladePanel"),
+  addExtractor(intern("SignedBladePanel"), // per-module FPIX y
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_blade_panel_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/2.0
