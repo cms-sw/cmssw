@@ -465,7 +465,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                        mei.range_y_nbins, mei.range_y_min, mei.range_y_max);
       } else if (mei.dimensions == 2 && mei.do_profile) {
         h.me = iBooker.bookProfile(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
-                       mei.range_x_nbins, mei.range_x_min, mei.range_x_max, 0.0, 0.0);
+                       mei.range_x_nbins, mei.range_x_min, mei.range_x_max, 0.0, 0.0, "");
       } else if (mei.dimensions == 3 && mei.do_profile) {
         h.me = iBooker.bookProfile2D(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
                        mei.range_x_nbins, mei.range_x_min, mei.range_x_max,
