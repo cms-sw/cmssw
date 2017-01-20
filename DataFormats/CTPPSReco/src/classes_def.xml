@@ -44,7 +44,7 @@
 <!-- diamonds objects -->
 
   <class name="CTPPSDiamondRecHit" ClassVersion="2">
-    <version ClassVersion="2" checksum="882047390"/>
+    <version ClassVersion="2" checksum="3356585814"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
