@@ -11,7 +11,7 @@
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& iConfig ) :
-  ts_to_ns_( iConfig.getParameter<double>( "timeSliceTons" ) ),
+  ts_to_ns_( iConfig.getParameter<double>( "timeSliceNs" ) ),
   t_shift_( iConfig.getParameter<int>( "timeShift" ) )
 {}
 
@@ -23,13 +23,12 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const edm::DetSet<CTPPSDiamondDigi>&
     const int t = it->getLeadingEdge(),
               t0 = ( t-t_shift_ ) % 1024,
               time_slice = ( t-t_shift_ ) / 1024;
+    if ( t==0 ) { continue; }
     const double x_pos = 0.,
                  x_width = 0.,
                  y_pos = 0.,
-                 y_width = 0.,
-                 t_lead = t0 * ts_to_ns_,
-                 t_trail = it->getTrailingEdge() * ts_to_ns_;
-    const CTPPSDiamondRecHit rechit( x_pos, x_width, y_pos, y_width, t_lead, ( t_lead-t_trail ), time_slice );
+                 y_width = 0.;
+    const CTPPSDiamondRecHit rechit( x_pos, x_width, y_pos, y_width, ( t0 * ts_to_ns_ ), ( it->getTrailingEdge()-t0 ) * ts_to_ns_, time_slice, it->getHPTDCErrorFlags() );
     output.push_back( rechit );
     //output.push_back(TotemRPRecHit(rp_topology_.GetHitPositionInReadoutDirection(it->getCenterStripPosition()), nominal_sigma));
   }

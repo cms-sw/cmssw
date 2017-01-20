@@ -11,10 +11,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # raw data source
-process.source = cms.Source("NewEventStreamFileReader",
+#process.source = cms.Source("NewEventStreamFileReader",
+#    fileNames = cms.untracked.vstring(
+#        '/store/t0streamer/Data/Physics/000/286/591/run286591_ls0521_streamPhysics_StorageManager.dat',
+#    )
+#)
+process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/t0streamer/Data/Physics/000/286/591/run286591_ls0521_streamPhysics_StorageManager.dat',
-    )
+        'root://eoscms.cern.ch:1094//eos/totem/data/ctpps/run284036.root',
+    ),
 )
 
 process.maxEvents = cms.untracked.PSet(
