@@ -91,9 +91,9 @@ class HcalDbHardcode {
     void makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& sipm);
     HcalTPChannelParameter makeHardcodeTPChannelParameter (HcalGenericDetId fId);
     void makeHardcodeTPParameters (HcalTPParameters& tppar);
+    int getLayersInDepth(int ieta, int depth, const HcalTopology* topo);
     
   private:
-    int getLayersInDepth(int ieta, int depth, const HcalTopology* topo);
     //member variables
     HcalHardcodeParameters theDefaultParameters_;
     HcalHardcodeParameters theHBParameters_, theHEParameters_, theHFParameters_, theHOParameters_;

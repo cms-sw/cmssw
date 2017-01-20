@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 
 ### load which are the tracks collection 2 be monitored

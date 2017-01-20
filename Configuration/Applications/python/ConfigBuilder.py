@@ -1954,6 +1954,7 @@ class ConfigBuilder(object):
                         pathName='dqmofflineOnPAT_%d_step'%(i)
 
                 setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
+                self.schedule.append(getattr(self.process,pathName))
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """

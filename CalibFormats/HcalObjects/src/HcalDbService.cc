@@ -27,6 +27,7 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mLutMetadata(0),
   mSiPMParameters(0), mSiPMCharacteristics(0),
   mTPChannelParameters(0), mTPParameters(0),
+  mMCParams(0),
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
@@ -56,6 +57,18 @@ const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalG
 { 
   buildCalibWidths();
   return (*mCalibWidthSet.load(std::memory_order_acquire)).getCalibrationWidths(fId);
+}
+
+const HcalCalibrationsSet* HcalDbService::getHcalCalibrationsSet() const 
+{ 
+  buildCalibrations();
+  return mCalibSet.load(std::memory_order_acquire);
+}
+
+const HcalCalibrationWidthsSet* HcalDbService::getHcalCalibrationWidthsSet() const 
+{ 
+  buildCalibWidths();
+  return mCalibWidthSet.load(std::memory_order_acquire);
 }
 
 void HcalDbService::buildCalibrations() const {
@@ -313,6 +326,13 @@ const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics () cons
 const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter (const HcalGenericDetId& fId) const {
   if (mTPChannelParameters) {
     return mTPChannelParameters->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalMCParam* HcalDbService::getHcalMCParam (const HcalGenericDetId& fId) const {
+  if (mMCParams) {
+    return mMCParams->getValues (fId);
   }
   return 0;
 }

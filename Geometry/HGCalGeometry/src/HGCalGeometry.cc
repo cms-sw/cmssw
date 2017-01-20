@@ -1,5 +1,4 @@
-/*
- * Geometry for High Granularity Calorimeter
+/* for High Granularity Calorimeter
  * This geometry is essentially driven by topology, 
  * which is thus encapsulated in this class. 
  * This makes this geometry not suitable to be loaded
@@ -19,7 +18,7 @@
 typedef CaloCellGeometry::Tr3D Tr3D;
 typedef std::vector<float> ParmVec;
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
   : m_topology( topology_ ),
@@ -29,7 +28,7 @@ HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
     m_subdet( topology_.subDetector()) {
   
   m_validIds.reserve( topology().totalModules());
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Expected total # of Geometry Modules " 
 	    << topology().totalGeomModules() << std::endl;
 #endif
@@ -72,21 +71,24 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   m_cellVec.at( cellIndex ) = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
   m_validGeomIds.at( cellIndex ) = geomId ;
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   unsigned int nOld = m_validIds.size();
 #endif
   for (int cell = 0; cell < cells; ++cell) {
-    id.iCell = cell;
-    m_validIds.push_back( topology().encode(id));
-    if ((topology().dddConstants().geomMode() == HGCalGeometryMode::Square) &&
-	(!m_halfType)) {
-      id.iSubSec = -id.iSubSec;
-      m_validIds.push_back( topology().encode(id));
-      id.iSubSec = -id.iSubSec;
+    id.iCell  = cell;
+    DetId idc = topology().encode(id);
+    if (topology().valid(idc)) {
+      m_validIds.push_back(idc);
+      if ((topology().dddConstants().geomMode() == HGCalGeometryMode::Square) &&
+	  (!m_halfType)) {
+	id.iSubSec = -id.iSubSec;
+	m_validIds.push_back( topology().encode(id));
+	id.iSubSec = -id.iSubSec;
+      }
     }
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "HGCalGeometry::newCell-> [" << cellIndex << "]"
 	    << " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
      	    << " back:" <<  f2.x() << '/' << f2.y() << '/' << f2.z()
@@ -146,7 +148,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
     }
     const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
     glob = m_cellVec[cellIndex].getPosition(lcoord);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "getPosition:: index " << cellIndex << " Local " << lcoord.x()
 	      << ":" << lcoord.y() << " ID " << id_.iCell << ":" << id_.iLay 
 	      << " Global " << glob << std::endl;
@@ -202,7 +204,7 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       id_.iSubSec = topology().dddConstants().waferTypeT(kxy.first);
       if (id_.iSubSec != 1) id_.iSubSec = -1;
     }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "getClosestCell: local " << local << " Id " << id_.zside 
 	      << ":" << id_.iLay << ":" << id_.iSec << ":" << id_.iSubSec
 	      << ":" << id_.iCell << std::endl;
@@ -239,7 +241,7 @@ unsigned int HGCalGeometry::indexFor(const DetId& id) const {
       geoId = (DetId)(HGCalDetId(id).geometryCell());
     }
     cellIndex = topology().detId2denseGeomId(geoId);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     std::cout << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId()
 	      << std::dec << " index " << cellIndex << std::endl;
 #endif
@@ -255,7 +257,7 @@ const CaloCellGeometry* HGCalGeometry::cellGeomPtr(uint32_t index) const {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return 0;
   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   //  std::cout << "cellGeomPtr " << m_cellVec[index];
 #endif
   if (0 == cell->param()) return 0;
@@ -290,7 +292,7 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
       }
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "getClosestCellIndex::Input " << zp << ":" << phip << " Index "
 	    << cellIndex;
   if (cellIndex < m_cellVec.size()) 
@@ -304,12 +306,9 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
 }
 
 // FIXME: Change sorting algorithm if needed
-namespace
-{
-  struct rawIdSort
-  {
-    bool operator()( const DetId& a, const DetId& b )
-    {
+namespace {
+  struct rawIdSort {
+    bool operator()( const DetId& a, const DetId& b ) {
       return( a.rawId() < b.rawId());
     }
   };
@@ -320,11 +319,10 @@ void HGCalGeometry::sortDetIds( void ) {
   std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
 }
 
-void
-HGCalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
-			   CaloSubdetectorGeometry::IVec&   iVector,
-			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const {
+void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
+			       CaloSubdetectorGeometry::IVec&   iVector,
+			       CaloSubdetectorGeometry::DimVec& dimVector,
+			       CaloSubdetectorGeometry::IVec& dinsVector ) const {
 
   unsigned int numberOfCells = topology().totalGeomModules(); // total Geom Modules both sides
   unsigned int numberOfShapes = HGCalGeometry::k_NumberOfShapes;
@@ -369,8 +367,7 @@ HGCalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
     }
   }
   
-  for( unsigned int i( 0 ); i < numberOfCells; ++i )
-  {
+  for (unsigned int i( 0 ); i < numberOfCells; ++i) {
     DetId detId = m_validGeomIds[i];
     int layer = ((detId.subdetId() ==  ForwardSubdetector::HGCEE) ?
 		 (HGCEEDetId(detId).layer()) :
@@ -380,12 +377,10 @@ HGCalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
     
     Tr3D tr;
     const CaloCellGeometry* ptr( cellGeomPtr( i ));
-    if( 0 != ptr )
-    {
+    if ( 0 != ptr ) {
       ptr->getTransform( tr, ( Pt3DVec* ) 0 );
 
-      if( Tr3D() == tr ) // there is no rotation
-      {
+      if( Tr3D() == tr ) { // there is no rotation
 	const GlobalPoint& gp( ptr->getPosition()); 
 	tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z());
       }
@@ -394,8 +389,7 @@ HGCalGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
       trVector.push_back( tt.x());
       trVector.push_back( tt.y());
       trVector.push_back( tt.z());
-      if( 6 == numberOfTransformParms())
-      {
+      if (6 == numberOfTransformParms()) {
 	const CLHEP::HepRotation rr( tr.getRotation());
 	const ROOT::Math::Transform3D rtr( rr.xx(), rr.xy(), rr.xz(), tt.x(),
 					   rr.yx(), rr.yy(), rr.yz(), tt.y(),

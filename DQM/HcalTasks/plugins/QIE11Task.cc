@@ -20,6 +20,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	_cut = ps.getUntrackedParameter<double>("cut", 50.0);
 	_ped = ps.getUntrackedParameter<int>("ped", 4);
 	_laserType = ps.getUntrackedParameter<int32_t>("laserType", -1);
+	_eventType = ps.getUntrackedParameter<int32_t>("eventType", -1);
 }
 /* virtual */ void QIE11Task::bookHistograms(DQMStore::IBooker &ib,
 	edm::Run const& r, edm::EventSetup const& es)
@@ -143,7 +144,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 
 /* virtual */ bool QIE11Task::_isApplicable(edm::Event const& e)
 {
-  if (_ptype!=fOnline || _laserType < 0)
+  if (_ptype!=fOnline || (_laserType < 0 && _eventType < 0))
     return true;
   else
     {
@@ -153,13 +154,14 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 	return false;
 
       //      event type check first
-      uint8_t eventType = cumn->eventType();
-      if (eventType!=constants::EVENTTYPE_LASER)
-	return false;
+      int eventType = cumn->eventType();
+      if (eventType==_eventType)
+	return true;
 
       //      check if this analysis task is of the right laser type
       int laserType = cumn->valueUserWord(0);
-      if (laserType==_laserType) return true;
+      if (laserType==_laserType)
+	return true;
     }
 
   return false;

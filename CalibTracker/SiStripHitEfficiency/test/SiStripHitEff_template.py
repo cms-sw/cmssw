@@ -17,7 +17,7 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1))
 
 process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
-    CalibTreeFilenames = cms.untracked.vstring('root://cms-xrd-globale.cern.ch//newfilelocation'),
+    CalibTreeFilenames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//newfilelocation'),
     Threshold         = cms.double(0.1),
     nModsMin          = cms.int32(25),
     doSummary         = cms.int32(0),
@@ -31,9 +31,11 @@ process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     ClusterTrajDist   = cms.untracked.double(64),   # default 64
     StripsApvEdge     = cms.untracked.double(10),   # default 10  
     SpaceBetweenTrains = cms.untracked.int32(25),   # default 25
+    UseCommonMode     = cms.untracked.bool(False),  # default False
     ShowEndcapSides   = cms.untracked.bool(True),  # default True
     ShowRings         = cms.untracked.bool(True),  # default False
-    showTOB6TEC9      = cms.untracked.bool(False),  # default False
+    ShowTOB6TEC9      = cms.untracked.bool(False),  # default False
+    ShowOnlyGoodModules = cms.untracked.bool(False),  # default False
     TkMapMin          = cms.untracked.double(0.95), # default 0.90
     EffPlotMin        = cms.untracked.double(0.90), # default 0.90
     Title             = cms.string(' Hit Efficiency ')

@@ -3,6 +3,7 @@
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -23,6 +24,7 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   theLayerLevel   = muonConstants.getValue("m0_layer")/theLevelPart;
   theSectorLevel  = muonConstants.getValue("m0_sector")/theLevelPart;
   theRollLevel    = muonConstants.getValue("m0_roll")/theLevelPart;
+  theNEtaPart     = muonConstants.getValue("m0_nroll");
 
   // Debug using LOCAL_DEBUG
   #ifdef LOCAL_DEBUG
@@ -31,6 +33,7 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
     std::cout << "theLayerLevel "  << theLayerLevel   <<std::endl;
     std::cout << "theSectorLevel " << theSectorLevel <<std::endl;
     std::cout << "theRollLevel "   << theRollLevel   <<std::endl;
+    std::cout << "theNEtaPart  "   << theNEtaPart    <<std::endl;
   #endif
   // -----------------------
 
@@ -41,6 +44,7 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
   DebugStringStream << "theLayerLevel "  << theLayerLevel   <<std::endl;
   DebugStringStream << "theSectorLevel " << theSectorLevel <<std::endl;
   DebugStringStream << "theRollLevel "   << theRollLevel   <<std::endl;
+  DebugStringStream << "theNEtaPart  "   << theNEtaPart    <<std::endl;
   std::string DebugString = DebugStringStream.str();
   edm::LogVerbatim("ME0NumberingScheme")<<DebugString;
   // --------------------
@@ -73,9 +77,11 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
 
 
-  int maxLevel = theLayerLevel;
+  int maxLevel = 0;
+  if(theNEtaPart==1)  maxLevel = theLayerLevel;
+  else                maxLevel = theRollLevel;
   if (num.getLevels()!=maxLevel) {
-    std::cout << "MuonME0NS::BNToUN "
+    throw cms::Exception("MuonNumbering") << "MuonME0NS::BNToUN "
 	      << "BaseNumber has " << num.getLevels() << " levels,"
 	      << "need "<<maxLevel<<std::endl;
     return 0;
@@ -90,8 +96,11 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   else                                    
     region =-1;
   layer   = num.getBaseNo(theLayerLevel)+1;
-  roll=1;
   chamber = num.getBaseNo(theSectorLevel) + 1;
+
+  if(theNEtaPart==1)  roll = 0;
+  else                roll = num.getBaseNo(theRollLevel)+1;
+
   // collect all info
   
   // Debug using LOCAL_DEBUG

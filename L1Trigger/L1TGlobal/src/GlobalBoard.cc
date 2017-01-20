@@ -224,7 +224,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 	        if(nObj<nrL1Tau) {
 		   (*m_candL1Tau).push_back(i,&(*tau));
 	        } else {
-		  edm::LogWarning("L1TGlobal") << " Too many Tau ("<<nObj<<") for uGT Configuration maxTau =" <<nrL1Tau << std::endl;
+		  LogTrace("L1TGlobal") << " Too many Tau ("<<nObj<<") for uGT Configuration maxTau =" <<nrL1Tau << std::endl;
 		}
 		   
 	        LogDebug("L1TGlobal") << "tau  Pt " << tau->hwPt() << " Eta  " << tau->hwEta() << " Phi " << tau->hwPhi() << "  Qual " << tau->hwQual() <<"  Iso " << tau->hwIso() << std::endl;
@@ -304,21 +304,38 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 /*  In case we need to split these out
 	          switch ( etsum->getType() ) {
 		     case l1t::EtSum::EtSumType::kMissingEt:
-		       (*m_candETM).push_back(i,&(*etsum));
-		       LogDebug("L1TGlobal") << "ETM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+		       {
+			 //(*m_candETM).push_back(i,&(*etsum));
+			 LogDebug("L1TGlobal") << "ETM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+		       }
 		       break; 
 		     case l1t::EtSum::EtSumType::kMissingHt:
-		       (*m_candHTM.push_back(i,&(*etsum);
-		       LogDebug("L1TGlobal") << "HTM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+		       {
+			 //(*m_candHTM).push_back(i,&(*etsum));
+			 LogDebug("L1TGlobal") << "HTM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+		       }
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalEt:
-		       (*m_candETT.push_back(i,&(*etsum);
-		       LogDebug("L1TGlobal") << "ETT:  Pt " << etsum->hwPt() << std::endl;
+		       {
+			 //(*m_candETT).push_back(i,&(*etsum));
+			 LogDebug("L1TGlobal") << "ETT:  Pt " << etsum->hwPt() << std::endl;
+		       }
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalHt:
-		       (*m_candHTT.push_back(i,&(*etsum);
-		       LogDebug("L1TGlobal") << "HTT:  Pt " << etsum->hwPt() << std::endl;
-		       break; 		     
+		       {
+			 //(*m_candHTT).push_back(i,&(*etsum));
+			 LogDebug("L1TGlobal") << "HTT:  Pt " << etsum->hwPt() << std::endl;
+		       }
+		       break;
+		     case l1t::EtSum::EtSumType::kTowerCount:
+		       {
+			 //(*m_candTowerCount).push_back(i,&(*etsum));
+			 LogDebug("L1TGlobal") << "TowerCount: " << etsum->hwPt() << std::endl;
+		       }
+		       break;
+		     default:
+		       LogDebug("L1TGlobal") << "Default encounted " << std::endl;
+		       break;
 		  }
 */
 	      
@@ -496,7 +513,7 @@ void l1t::GlobalBoard::runGTL(
 
         iChip++;
 
-       AlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
+	AlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
                m_conditionResultMaps[iChip];
 
 
@@ -683,7 +700,7 @@ void l1t::GlobalBoard::runGTL(
                 }
                     break;
                 case CondNull: {
-
+		  
                     // do nothing
 
                 }

@@ -159,3 +159,12 @@ phase2_hgcal.toModify( RecoEgammaFEVT, outputCommands = RecoEgammaFEVT.outputCom
 phase2_hgcal.toModify( RecoEgammaRECO, outputCommands = RecoEgammaRECO.outputCommands + _phase2_hgcal_RecoEgamma_tokeep )
 phase2_hgcal.toModify( RecoEgammaAOD,  outputCommands = RecoEgammaAOD.outputCommands + _phase2_hgcal_RecoEgamma_tokeep )
 
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+#HI-specific products needed in pp scenario special configurations
+for e in [pA_2016, peripheralPbPb]:
+    for ec in [RecoEgammaAOD.outputCommands, RecoEgammaRECO.outputCommands, RecoEgammaFEVT.outputCommands]:
+        e.toModify( ec, func=lambda outputCommands: outputCommands.extend(['keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerppGED_*_*',
+                                                                           'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerpp_*_*'
+                                                                           ])
+                    )

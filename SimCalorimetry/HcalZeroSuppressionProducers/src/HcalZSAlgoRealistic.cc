@@ -1,5 +1,4 @@
 #include "HcalZSAlgoRealistic.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
 #include <iostream>
 
 HcalZSAlgoRealistic::HcalZSAlgoRealistic(bool mp, int levelHB, int levelHE, int levelHO, int levelHF, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS) : 
@@ -115,19 +114,3 @@ bool HcalZSAlgoRealistic::shouldKeep(const QIE11DataFrame& digi) const{
     return keepMe(digi,start,finish,thresholdHE_,0);
   }
 }
-
-bool HcalZSAlgoRealistic::shouldKeep(const HcalUpgradeDataFrame& digi) const{
-  if (digi.id().subdet()==HcalForward) {
-    int start  = std::max(0,HFsearchTS_.first);
-    int finish = std::min(digi.size()-1,HFsearchTS_.second);
-    return keepMe(digi,start,finish,thresholdHF_,digi.zsCrossingMask());
-  } else  if (digi.id().subdet()==HcalBarrel) {
-    int start  = std::max(0,HBsearchTS_.first);
-    int finish = std::min(digi.size()-1,HBsearchTS_.second);
-    return keepMe(digi,start,finish,thresholdHB_,digi.zsCrossingMask());
-  } else {
-    int start  = std::max(0,HEsearchTS_.first);
-    int finish = std::min(digi.size()-1,HEsearchTS_.second);
-    return keepMe(digi,start,finish,thresholdHE_,digi.zsCrossingMask());
-  }
-}  

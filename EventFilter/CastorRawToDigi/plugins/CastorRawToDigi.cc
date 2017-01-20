@@ -12,7 +12,6 @@ using namespace std;
 #include <iostream>
 #include "EventFilter/CastorRawToDigi/interface/CastorRawCollections.h"
 #include "CalibCalorimetry/HcalPlugins/src/HcalTextCalibrations.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

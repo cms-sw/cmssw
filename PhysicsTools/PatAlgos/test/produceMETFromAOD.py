@@ -10,7 +10,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #configurable options =======================================================================
-runOnData=False #data/MC switch
 usePrivateSQlite=False #use external JECs (sqlite file)
 useHFCandidates=True #create an additionnal NoHF slimmed MET collection if the option is set to false
 redoPuppi=False # rebuild puppiMET
@@ -54,10 +53,7 @@ if usePrivateSQlite:
 
 ### =====================================================================================================
 # Define the input source
-if runOnData:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_0_pre4/SinglePhoton/MINIAOD/80X_dataRun2_v0_RelVal_sigPh2015D-v1/00000/600919D1-51AA-E511-8E4C-0025905B855C.root'
-else:
-  fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_3/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_v3_gs7120p2NewGTv3-v1/00000/36E82F31-D6EF-E511-A22B-0025905B8574.root'
+fname = 'root://eoscms.cern.ch//store/relval/CMSSW_8_0_20/RelValTTbar_13/GEN-SIM-RECO/80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/1E399A96-C47A-E611-A718-0025905B8572.root'
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
@@ -79,6 +75,8 @@ if not useHFCandidates:
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
 
+process.load("PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi")
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
 runMETCorrectionsAndUncertainties(process,
@@ -112,9 +110,7 @@ if runOnData:
   runOnData( process )
 
 
-process.out.outputCommands = cms.untracked.vstring( "keep *_slimmedMETs_*_*",
-                                                    "keep *_slimmedMETsNoHF_*_*",
-                                                    "keep *_slimmedMETsPuppi_*_*",
+process.out.outputCommands = cms.untracked.vstring( "keep *_patPFMet*_*_*",
                                                     )
 process.out.fileName = cms.untracked.string('corMETMiniAOD.root')
   

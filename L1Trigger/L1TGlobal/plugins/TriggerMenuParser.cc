@@ -323,7 +323,8 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
                     condition.getType() == esConditionType::TotalHt ||
 		    condition.getType() == esConditionType::MissingEt ||
 		    condition.getType() == esConditionType::MissingHt ||
-		    condition.getType() == esConditionType::MissingEtHF ||		    
+		    condition.getType() == esConditionType::MissingEtHF ||
+		    condition.getType() == esConditionType::TowerCount ||
 		    condition.getType() == esConditionType::MinBiasHFP0 ||
 		    condition.getType() == esConditionType::MinBiasHFM0 ||
 		    condition.getType() == esConditionType::MinBiasHFP1 ||
@@ -2064,7 +2065,11 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
     else if( condEnergySum.getType() == esConditionType::MissingEtHF ){
       energySumObjType = GlobalObject::gtETMHF;
       cType = TypeETMHF;
-    } 
+    }
+    else if( condEnergySum.getType() == esConditionType::TowerCount ){
+      energySumObjType = GlobalObject::gtTowerCount;
+      cType = TypeTowerCount;
+    }
     else if( condEnergySum.getType() == esConditionType::MinBiasHFP0 ){
       energySumObjType = GlobalObject::gtMinBiasHFP0;
       cType = TypeMinBiasHFP0;
@@ -2293,7 +2298,11 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
     else if( corrESum->getType()== esObjectType::ETMHF ){
       energySumObjType = GlobalObject::gtETMHF;
       cType = TypeETMHF;
-    } 
+    }
+    else if( corrESum->getType()== esObjectType::TOWERCOUNT ){
+      energySumObjType = GlobalObject::gtTowerCount;
+      cType = TypeTowerCount;
+    }
     else {
       edm::LogError("TriggerMenuParser")
 	<< "Wrong type for energy-sum correclation condition (" << type
@@ -2751,6 +2760,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  
         } else if(object.getType() == esObjectType::ETM   ||
 	          object.getType() == esObjectType::ETMHF ||
+	          object.getType() == esObjectType::TOWERCOUNT ||
 	          object.getType() == esObjectType::HTM ) {
 	 
 	  // we have Energy Sum
@@ -2771,7 +2781,11 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	     case esObjectType::ETMHF: { 
 	      objType[jj] = GlobalObject::gtETMHF;
 	     }
-	        break; 		
+	        break;
+	     case esObjectType::TOWERCOUNT: {
+	      objType[jj] = GlobalObject::gtTowerCount;
+	     }
+	        break;
 	      default: {
 	      }
 	        break;			

@@ -85,6 +85,13 @@ namespace {
 	zcell = HcalZDCDetId(section, false, depth);
 	if(zdctopology.valid(zcell)) result.push_back(zcell);     
       }
+      section = HcalZDCDetId::RPD;
+      for(int depth= 1; depth < 17; depth++){
+	zcell = HcalZDCDetId(section, true, depth);
+	if(zdctopology.valid(zcell)) result.push_back(zcell);
+	zcell = HcalZDCDetId(section, false, depth);
+	if(zdctopology.valid(zcell)) result.push_back(zcell);     
+      }
 
       // HcalGenTriggerTower (HcalGenericSubdetector = 5) 
       // NASTY HACK !!!
@@ -140,6 +147,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.setKillHE(iConfig.getParameter<bool>("killHE"));
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
+  useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
   // HE and HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
@@ -443,37 +451,41 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
  
   auto result = std::make_unique<HcalRespCorrs>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
+  for (const auto& cell : cells) {
 
     double corr = 1.0; 
 
-    if ((he_recalibration != 0 ) && 
-	((*cell).genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
-      
-      int depth_ = HcalDetId(*cell).depth();
-      int ieta_  = HcalDetId(*cell).ieta();
-      corr = he_recalibration->getCorr(ieta_, depth_); 
-      
-      /*
-	std::cout << "HE ieta, depth = " << ieta_  << ",  " << depth_  
-	<< "   corr = "  << corr << std::endl;
-      */
-
+    //check for layer 0 reweighting: when depth 1 has only one layer, it is layer 0
+    if( useLayer0Weight && 
+      ((cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap) || (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) &&
+      (HcalDetId(cell).depth()==1 && dbHardcode.getLayersInDepth(HcalDetId(cell).ietaAbs(),HcalDetId(cell).depth(),topo)==1) )
+    {
+      //layer 0 is thicker than other layers (9mm vs 3.7mm) and brighter (Bicron vs SCSN81)
+      //in Run1/Run2 (pre-2017 for HE), ODU for layer 0 had neutral density filter attached
+      //NDF was simulated as weight of 0.5 applied to Geant energy deposits
+      //for Phase1, NDF is removed - simulated as weight of 1.2 applied to Geant energy deposits
+      //to maintain RECO calibrations, move the layer 0 energy scale back to its previous state using respcorrs
+      corr = 0.5/1.2;
     }
-    else if ((hf_recalibration != 0 ) && 
-	((*cell).genericSubdet() == HcalGenericDetId::HcalGenForward)) {   
-      int depth_ = HcalDetId(*cell).depth();
-      int ieta_  = HcalDetId(*cell).ieta();
+
+    if ((he_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
+      int depth_ = HcalDetId(cell).depth();
+      int ieta_  = HcalDetId(cell).ieta();
+      corr *= he_recalibration->getCorr(ieta_, depth_); 
+#ifdef DebugLog      
+      std::cout << "HE ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#endif
+    }
+    else if ((hf_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenForward)) {
+      int depth_ = HcalDetId(cell).depth();
+      int ieta_  = HcalDetId(cell).ieta();
       corr = hf_recalibration->getCorr(ieta_, depth_, iLumi); 
-
-      /*
-	std::cout << "HF ieta, depth = " << ieta_  << ",  " << depth_  
-	<< "   corr = "  << corr << std::endl;
-      */
-
+#ifdef DebugLog
+      std::cout << "HF ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#endif
     }
 
-    HcalRespCorr item(cell->rawId(),corr);
+    HcalRespCorr item(cell.rawId(),corr);
     result->addValues(item);
   }
   return result;
@@ -846,6 +858,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("useHOUpgrade",true);
 	desc.add<bool>("testHFQIE10",false);
 	desc.add<bool>("killHE",false);
+	desc.add<bool>("useLayer0Weight",false);
 	desc.addUntracked<std::vector<std::string> >("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
 	
@@ -860,7 +873,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<int>("mcShape",125);
 	desc_hb.add<int>("recoShape",105);
 	desc_hb.add<double>("photoelectronsToAnalog",0.0);
-	desc_hb.add<double>("darkCurrent",0.0);
+	desc_hb.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
 	edm::ParameterSetDescription desc_hbUpgrade;
@@ -874,7 +887,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<int>("mcShape",203);
 	desc_hbUpgrade.add<int>("recoShape",203);
 	desc_hbUpgrade.add<double>("photoelectronsToAnalog",57.5);
-	desc_hbUpgrade.add<double>("darkCurrent",0.055);
+	desc_hbUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>(0.055));
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -888,7 +901,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<int>("mcShape",125);
 	desc_he.add<int>("recoShape",105);
 	desc_he.add<double>("photoelectronsToAnalog",0.0);
-	desc_he.add<double>("darkCurrent",0.0);
+	desc_he.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
 
 	edm::ParameterSetDescription desc_heUpgrade;
@@ -902,7 +915,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<int>("mcShape",203);
 	desc_heUpgrade.add<int>("recoShape",203);
 	desc_heUpgrade.add<double>("photoelectronsToAnalog",57.5);
-	desc_heUpgrade.add<double>("darkCurrent",0.055);
+	desc_heUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>(0.055));
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
@@ -916,7 +929,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<int>("mcShape",301);
 	desc_hf.add<int>("recoShape",301);
 	desc_hf.add<double>("photoelectronsToAnalog",0.0);
-	desc_hf.add<double>("darkCurrent",0.0);
+	desc_hf.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -930,7 +943,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<int>("mcShape",301);
 	desc_hfUpgrade.add<int>("recoShape",301);
 	desc_hfUpgrade.add<double>("photoelectronsToAnalog",0.0);
-	desc_hfUpgrade.add<double>("darkCurrent",0.0);
+	desc_hfUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
 	edm::ParameterSetDescription desc_hfrecal;
@@ -951,7 +964,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<int>("mcShape",201);
 	desc_ho.add<int>("recoShape",201);
 	desc_ho.add<double>("photoelectronsToAnalog",4.0);
-	desc_ho.add<double>("darkCurrent",0.055);
+	desc_ho.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
 	edm::ParameterSetDescription validator_sipm;

@@ -285,18 +285,22 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          //            rMax="[SupportTubeR2]-[Tol]"           dz="[SupportTubeL]" 
          //            startPhi="0*deg"                       deltaPhi="360*deg"/>
          DDCutTubs rs(solid);
-         xos << "<CutTubs name=\""  << rs.toString() << "\""
-         << " rMin=\"" << rs.rIn() << "*mm\""
-         << " rMax=\"" << rs.rOut() << "*mm\""
-         << " dz=\"" << rs.zhalf() << "*mm\""
-         << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
-         << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\"/>"
-	 << std::endl;
 	 const std::array<double, 3> &pLowNorm(rs.lowNorm());
 	 const std::array<double, 3> &pHighNorm(rs.highNorm());
-         xos << " LowNorm=\"" << pLowNorm[0] << ",\"" << pLowNorm[1] << ",\"" << pLowNorm[2] << "\"/>"
-         << " HighNorm=\"" << pHighNorm[0] << ",\"" << pHighNorm[1] << ",\"" << pHighNorm[2] << "\"/>"
-         << std::endl;
+
+         xos << "<CutTubs name=\""  << rs.toString() << "\""
+	     << " dz=\"" << rs.zhalf() << "*mm\""
+	     << " rMin=\"" << rs.rIn() << "*mm\""
+	     << " rMax=\"" << rs.rOut() << "*mm\""
+	     << " startPhi=\"" << rs.startPhi()/deg << "*deg\""
+	     << " deltaPhi=\"" << rs.deltaPhi()/deg << "*deg\""
+	     << " lx=\"" << pLowNorm[0] << "\""
+	     << " ly=\"" << pLowNorm[1] << "\""
+	     << " lz=\"" << pLowNorm[2] << "\""
+	     << " tx=\"" << pHighNorm[0] << "\""
+	     << " ty=\"" << pHighNorm[1] << "\""
+	     << " tz=\"" << pHighNorm[2] << "\"/>"
+	     << std::endl;
          break;
       }
          //       return new PSolid( pstrs(solid.toString()), solid.parameters()

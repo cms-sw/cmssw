@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_set>
 #include <memory>
 #include <tuple>
 
@@ -94,7 +95,7 @@ private :
   std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
 
   //geometries
-  std::vector<DetId> validIds_;
+  std::unordered_set<DetId> validIds_;
   const HGCalGeometry* gHGCal_;
   const HcalGeometry* gHcal_;
 

@@ -79,6 +79,12 @@ std::vector<const TrackingRecHit*> MuonTrackLoader::unpackHit(const TrackingRecH
         } else if (subdet == (uint16_t) MuonSubdetId::RPC) {
             hits.push_back(&hit);
         }
+        else if (subdet == (uint16_t) MuonSubdetId::GEM) {
+            hits.push_back(&hit);
+        }
+	else if (subdet == (uint16_t) MuonSubdetId::ME0) { //segment
+            hits = hit.recHits();
+        }
     }
     return hits;
 }

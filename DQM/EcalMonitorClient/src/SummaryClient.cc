@@ -2,6 +2,8 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <algorithm>
@@ -66,7 +68,8 @@ namespace ecaldqm
 
     MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
     MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
-    MESet const& sFEByLumi(sources_.at("FEByLumi"));
+    MESet const& sFEByLumi(sources_.at("FEByLumi")); // Does NOT include FE=Disabled
+    MESet const& sFEStatusErrMapByLumi(sources_.at("FEStatusErrMapByLumi")); // Includes FE=Disabled
 
     double integrityByLumi[nDCC];
     double rawDataByLumi[nDCC];
@@ -96,15 +99,18 @@ namespace ecaldqm
 
     std::map<uint32_t, int> badChannelsCount;
 
-    // Override IntegrityByLumi check if Desync errors present
+    // Override IntegrityByLumi check if any Desync errors present
     // Used to set an entire FED to BAD
     MESet const& sBXSRP(sources_.at("BXSRP"));
     MESet const& sBXTCC(sources_.at("BXTCC"));
     std::vector<bool> hasMismatchDCC(nDCC,false);
     for ( unsigned iDCC(0); iDCC < nDCC; ++iDCC ) {
-      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. ) // "any" => 50
+      if ( sBXSRP.getBinContent(iDCC + 1) > 50. || sBXTCC.getBinContent(iDCC + 1) > 50. ) // "any" = 50
         hasMismatchDCC[iDCC] = true;
     }
+
+    // Get RawData mask
+    uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
     MESet::iterator qEnd(meQualitySummary.end());
     for(MESet::iterator qItr(meQualitySummary.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
@@ -120,11 +126,14 @@ namespace ecaldqm
       int timing(sTiming ? sTiming->getBinContent(id) : kUnknown);
       int trigprim(sTriggerPrimitives ? sTriggerPrimitives->getBinContent(id) : kUnknown);
       int rawdata(sRawData.getBinContent(id));
+			
+      double rawdataLS(sFEStatusErrMapByLumi.getBinContent(id)); // Includes FE=Disabled
 
       // If there are no RawData or Integrity errors in this LS, set them back to GOOD
       //if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
       if(integrity == kBad && integrityByLumi[iDCC] == 0. && !hasMismatchDCC[iDCC]) integrity = kGood;
-      if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
+      //if(rawdata == kBad && rawDataByLumi[iDCC] == 0.) rawdata = kGood;
+      if(rawdata == kBad && rawDataByLumi[iDCC] == 0. && rawdataLS == 0.) rawdata = kGood;
 
       // Fill Global Quality Summary
       int status(kGood);
@@ -141,7 +150,7 @@ namespace ecaldqm
       }
       qItr->setBinContent(status);
 
-      // Keep running count of good/bad channels/towers
+      // Keep running count of good/bad channels/towers: Uses cumulative stats.
       if(status == kBad){
         if(id.subdetId() == EcalBarrel) badChannelsCount[EBDetId(id).tower().rawId()] += 1;
         if(id.subdetId() == EcalEndcap) badChannelsCount[EEDetId(id).sc().rawId()] += 1;
@@ -153,9 +162,10 @@ namespace ecaldqm
       dccChannels[iDCC] += 1.;
       totalChannels += 1.;
 
-      // Keep running count of good channels in RawData only:
-      // Only RawData used in by LS reporting to save memory
-      if(rawdata != kBad){
+      // Keep running count of good channels in RawData only: Uses LS stats only.
+      // LS-based reports only use RawData as input to save on having to run other workers
+      bool isMasked(meQualitySummary.maskMatches(id, mask, statusManager_));
+      if( rawdataLS == 0. || isMasked ){ // channel != kBad in rawdata
         dccGoodRaw[iDCC] += 1.;
         totalGoodRaw += 1.;
       }

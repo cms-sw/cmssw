@@ -34,6 +34,7 @@
 <use   name="L1Trigger/CSCTrackFinder"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="L1Trigger/L1TMuon"/>
+<use   name="EventFilter/L1TRawToDigi"/>
 <use   name="CondTools/L1Trigger"/>
 <use   name="root"/>
 <use   name="boost"/>

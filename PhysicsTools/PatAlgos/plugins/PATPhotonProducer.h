@@ -81,6 +81,7 @@ namespace pat {
       edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;      
       
       bool addPFClusterIso_;
+      bool addPuppiIsolation_;
       edm::EDGetTokenT<edm::ValueMap<float> > ecalPFClusterIsoT_;
       edm::EDGetTokenT<edm::ValueMap<float> > hcalPFClusterIsoT_;
 
@@ -123,6 +124,10 @@ namespace pat {
       std::vector<edm::EDGetTokenT<edm::ValueMap<Bool_t> > > photIDTokens_;
 
       bool useUserData_;
+      //PUPPI isolation tokens
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+      edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
       pat::PATUserDataHelper<pat::Photon>      userDataHelper_;
       
       const CaloTopology * ecalTopology_;

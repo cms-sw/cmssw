@@ -10,14 +10,7 @@ namespace {
   // create reference GEM Chamber ID for segment
   inline
   DetId buildDetId(GEMDetId id) {
-    // GE1/1 => station 1
-    // GE2/1 => station 2 & 3 => combine Short & Long to mimick future technology that can have 4+ layers
-    int station, layer;
-    if (id.station()==1) station = 1;
-    else if (id.station()==2 || id.station()==3) station = 3;
-    else station = 0; 
-    layer = 0;
-    return GEMDetId(id.region(),id.ring(),station,layer,id.chamber(),id.roll());
+    return GEMDetId(id.region(),id.ring(),id.station(),0,id.chamber(),id.roll());
   }
 }
 

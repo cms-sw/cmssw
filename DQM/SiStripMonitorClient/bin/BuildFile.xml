@@ -6,3 +6,4 @@
 <bin   name="ls_cert" file="ls_cert.cc"></bin>
 <bin   name="lsbs_cert" file="lsbs_cert.cc"></bin>
 <bin   name="moduleOccupancyPlots" file="moduleOccupancyPlots.cc"></bin>
+<bin   name="moduleOccupancyTrend" file="moduleOccupancyTrend.cc"></bin>

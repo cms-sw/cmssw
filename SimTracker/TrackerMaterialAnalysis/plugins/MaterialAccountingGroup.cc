@@ -42,6 +42,8 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
               << GlobalPoint(position.x(), position.y(), position.z()).perp()
               << ", " << GlobalPoint(position.x(), position.y(), position.z()).z()
               << ") cm" << std::endl;
+    LogTrace("MaterialAccountingGroup") << "Name of added element: "
+                                        << fv.logicalPart().toString() << std::endl;
     m_elements.push_back( GlobalPoint(position.x(), position.y(), position.z()) );
   }
 

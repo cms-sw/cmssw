@@ -166,6 +166,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
 
   G4Region* aRegion = 
     G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+  G4Region* bRegion = 
+    G4RegionStore::GetInstance()->GetRegion("HGCalRegion");
 
   aParticleIterator->reset();
   while( (*aParticleIterator)() ){
@@ -195,6 +197,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
       msc->AddEmModel(-1, msc3, aRegion);
+      if (bRegion) msc->AddEmModel(-1, msc3, bRegion);
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
       G4CoulombScattering* ss = new G4CoulombScattering();
@@ -225,6 +228,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc->AddEmModel(0, msc1);
       msc->AddEmModel(0, msc2);
       msc->AddEmModel(-1, msc3, aRegion);
+      if (bRegion) msc->AddEmModel(-1, msc3, bRegion);
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
       G4CoulombScattering* ss = new G4CoulombScattering();

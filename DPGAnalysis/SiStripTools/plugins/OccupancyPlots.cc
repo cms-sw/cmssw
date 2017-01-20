@@ -299,6 +299,12 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
      }
   }
 
+  // counting the number of channels per module subset
+
+  // the histograms have to be reset to avoid double counting if endRun is called more than once
+
+  if(m_nchannels_ideal && *m_nchannels_ideal) (*m_nchannels_ideal)->Reset();
+  if(m_nchannels_real && *m_nchannels_real) (*m_nchannels_real)->Reset();
 
   edm::ESHandle<SiStripQuality> quality;
   iSetup.get<SiStripQualityRcd>().get("",quality);

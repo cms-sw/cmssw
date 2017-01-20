@@ -85,7 +85,11 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
-process.VtxSmeared.MeanZ = -10.0
+process.VtxSmeared.MeanX  = 0.0
+process.VtxSmeared.SigmaX = 0.55
+process.VtxSmeared.MeanY  = 0.0
+process.VtxSmeared.SigmaY = 0.65
+process.VtxSmeared.MeanZ  = -3500.0
 process.VtxSmeared.SigmaZ = 0
 process.HGCalTBAnalyzer.DoRecHits = False
 

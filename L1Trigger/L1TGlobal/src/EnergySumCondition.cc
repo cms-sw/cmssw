@@ -169,6 +169,10 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     case gtETMHF:
       type = l1t::EtSum::EtSumType::kMissingEtHF;
       MissingEnergy = true;
+      break;
+    case gtTowerCount:
+      type = l1t::EtSum::EtSumType::kTowerCount;
+      MissingEnergy = false;
       break;      
     case gtMinBiasHFP0:
       type = l1t::EtSum::EtSumType::kMinBiasHFP0;

@@ -5,6 +5,7 @@ dtTriggerMonitor = cms.EDAnalyzer("DTLocalTriggerTask",
     staticBooking = cms.untracked.bool(True),
     # labels of DDU/TM data and 4D segments
     tm_label = cms.untracked.string('twinMuxStage2Digis:PhIn'),
+    tmTh_label = cms.untracked.InputTag("twinMuxStage2Digis","ThIn"),
     ros_label = cms.untracked.string('dtunpacker'),
     seg_label = cms.untracked.string('dt4DSegments'),
     minBXDDU = cms.untracked.int32(0),  # min BX for DDU plots
@@ -12,7 +13,7 @@ dtTriggerMonitor = cms.EDAnalyzer("DTLocalTriggerTask",
     maxBXTM = cms.untracked.int32(2),  # max BX for TM plots
     minBXTM = cms.untracked.int32(0), # min BX for TM plots
     process_seg = cms.untracked.bool(False), # if true enables comparisons with reconstructed segments    
-    process_ros = cms.untracked.bool(True),  # if true enables DDU data analysis
+    process_ros = cms.untracked.bool(False),  # if true enables DDU data analysis
     process_tm = cms.untracked.bool(True), # if true enables TM data analysis
     testPulseMode = cms.untracked.bool(False), # if true enables test pluse mode
     detailedAnalysis = cms.untracked.bool(False), #if true enables detailed analysis plots

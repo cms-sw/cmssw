@@ -159,7 +159,30 @@ namespace pat {
       float hcalPFClusterIso() const { return hcalPFClusIso_; };
       void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
       void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
+      /// returns PUPPI isolations			
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
+      /// returns PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
+      /// sets PUPPI isolations
+      void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiChargedHadronIso_ = chargedhadrons_;
+         puppiNeutralHadronIso_ = neutralhadrons_;
+         puppiPhotonIso_ = photons_;
 
+      }
+      /// sets PUPPINoLeptons isolations
+      void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons_;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons_;
+         puppiNoLeptonsPhotonIso_ = photons_;
+
+      }
       // ---- PF specific methods ----
       bool isPF() const{ return isPF_; }
       void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate ; }
@@ -343,6 +366,16 @@ namespace pat {
       /// PFCluster Isolation (a la HLT)
       float ecalPFClusIso_;
       float hcalPFClusIso_;
+
+      /// PUPPI isolations
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
+
+      /// PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso_;
+      float puppiNoLeptonsNeutralHadronIso_;
+      float puppiNoLeptonsPhotonIso_;
 
       /// conversion veto
       bool passConversionVeto_;

@@ -49,6 +49,7 @@ class QIE11Task : public hcaldqm::DQTask
 		double _cut;
 		int _ped;
 		int _laserType;
+		int _eventType;
 
 
 		//	filters

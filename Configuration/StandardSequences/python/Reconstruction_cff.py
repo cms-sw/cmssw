@@ -47,7 +47,7 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 from RecoTracker.SpecialSeedGenerators.cosmicDC_cff import *
 
 localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 _phase2_localreco = localreco.copyAndExclude([castorreco])
 _phase2_localreco_HcalNZS = localreco_HcalNZS.copyAndExclude([castorreco])

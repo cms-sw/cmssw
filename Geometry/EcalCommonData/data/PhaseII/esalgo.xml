@@ -4,6 +4,8 @@
 <SolidSection label="esalgo.xml">
   <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
     <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:ESMidZ]"   rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:ESMidZ]"   rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
     <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
   </Polycone>
 </SolidSection>

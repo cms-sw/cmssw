@@ -1,6 +1,7 @@
 <environment>
   <use name="SimCalorimetry/HcalSimAlgos"/>
   <use name="SimDataFormats/CrossingFrame"/>
+  <use name="CommonTools/UtilAlgos"/>
   <bin file="HPDIonFeedbackTest.cpp"/>
   <bin file="HcalShapeIntegratorTest.cpp"/>
   <bin file="HcalTimeSlewTest.cpp"/>
@@ -8,5 +9,7 @@
   <library file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
   </library>
   <library file="HcalDigitizerTest.cc" name="HcalDigitizerTest">
+  </library>
+  <library file="SiPMNonlinearityAnalyzer.cc" name="SiPMNonlinearityAnalyzer">
   </library>
 </environment>

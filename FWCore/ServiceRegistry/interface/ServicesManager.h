@@ -83,7 +83,7 @@ public:
                         typeid(T).name(),
                         "'.\n");
                } else {
-                  itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
+                  const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));
                   //the 'add()' should have put the service into the list
                   assert(itFound != type2Service_.end());
@@ -108,7 +108,7 @@ public:
                } else {
                   //Actually create the service in order to 'flush out' any
                   // configuration errors for the service
-                  itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
+                 const_cast<ServicesManager&>(*this).createServiceFor(itFoundMaker->second);
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));
                   //the 'add()' should have put the service into the list
                   assert(itFound != type2Service_.end());
@@ -150,6 +150,7 @@ private:
 
          void fillListOfMakers(std::vector<ParameterSet>&);
          void createServices();
+         void createServiceFor(MakerHolder const&);
 
          // ---------- member data --------------------------------
          //hold onto the Manager passed in from the ServiceToken so that

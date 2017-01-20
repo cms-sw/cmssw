@@ -36,6 +36,8 @@ patElectrons = cms.EDProducer("PATElectronProducer",
       userFunctionLabels = cms.vstring()
     ),
 
+
+
     # embedding of AOD items
     embedGsfElectronCore = cms.bool(True),  ## embed in AOD externally stored gsf electron core
     embedGsfTrack        = cms.bool(True),  ## embed in AOD externally stored gsf track
@@ -89,5 +91,6 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
 
     # PFClusterIso
-    addPFClusterIso = cms.bool(False)
+    addPFClusterIso = cms.bool(False),
+    addPuppiIsolation = cms.bool(False)
 )

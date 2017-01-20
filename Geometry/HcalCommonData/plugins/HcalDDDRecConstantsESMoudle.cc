@@ -32,7 +32,7 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDRecConstants.h>
 #include <Geometry/Records/interface/HcalRecNumberingRecord.h>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 class HcalDDDRecConstantsESModule : public edm::ESProducer {
 
@@ -51,7 +51,7 @@ private:
 };
 
 HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout <<"constructing HcalDDDRecConstantsESModule" << std::endl;
 #endif
   setWhatProduced(this);
@@ -67,7 +67,7 @@ void HcalDDDRecConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 // ------------ method called to produce the data  ------------
 HcalDDDRecConstantsESModule::ReturnType
 HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDRecConstantsESModule::produce" << std::endl;
 #endif
   if (hcalDDDConst_ == 0) {

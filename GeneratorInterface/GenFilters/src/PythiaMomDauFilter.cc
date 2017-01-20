@@ -11,7 +11,7 @@ using namespace std;
 
 
 PythiaMomDauFilter::PythiaMomDauFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+label_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
 daughterID(iConfig.getUntrackedParameter("DaughterID", 0)),
 chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),
@@ -56,7 +56,7 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
  bool accepted = false;
  bool mom_accepted = false;
  Handle<HepMCProduct> evt;
- iEvent.getByLabel(label_, evt);
+ iEvent.getByToken(label_, evt);
 
  const HepMC::GenEvent * myGenEvent = evt->GetEvent();
  int ndauac = 0;

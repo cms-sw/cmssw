@@ -19,6 +19,8 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/TotemAnalysisMask.h"
@@ -82,11 +84,25 @@ public:
 private:
   unsigned int verbosity;
 
-  /// the mapping files
-  std::vector<std::string> mappingFileNames;
+  struct ConfigBlock
+  {
+    /// validity interval
+    edm::EventRange validityRange;
 
-  /// the mask files
-  std::vector<std::string> maskFileNames;
+    /// the mapping files
+    std::vector<std::string> mappingFileNames;
+
+    /// the mask files
+    std::vector<std::string> maskFileNames;
+  };
+
+  vector<ConfigBlock> configuration;
+
+  /// index of the current block in 'configuration' array
+  unsigned int currentBlock;
+
+  /// flag whether the 'currentBlock' index is valid
+  bool currentBlockValid;
 
   /// enumeration of XML node types
   enum NodeType { nUnknown, nTop, nArm, nRPStation, nRPPot, nRPPlane, nChip, nTriggerVFAT,
@@ -114,9 +130,6 @@ private:
 private:
   /// adds the path prefix, if needed
   string CompleteFileName(const string &fn);
-
-  /// returns the top element from an XML file
-  xercesc::DOMDocument* GetDOMDocument(string file);
 
   /// returns true iff the node is of the given name
   bool Test(xercesc::DOMNode *node, const std::string &name)
@@ -208,11 +221,71 @@ const string TotemDAQMappingESSourceXML::tagT1ChannelType="t1_channel_type";
 
 TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet& conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  mappingFileNames(conf.getUntrackedParameter< vector<string> >("mappingFileNames")),
-  maskFileNames(conf.getUntrackedParameter< vector<string> >("maskFileNames"))
+  currentBlock(0),
+  currentBlockValid(false)
 {
+  for (const auto it : conf.getParameter<vector<ParameterSet>>("configuration"))
+  {
+    ConfigBlock b;
+    b.validityRange = it.getParameter<EventRange>("validityRange");
+    b.mappingFileNames = it.getParameter< vector<string> >("mappingFileNames");
+    b.maskFileNames = it.getParameter< vector<string> >("maskFileNames");
+    configuration.push_back(b);
+  }
+
   setWhatProduced(this);
   findingRecord<TotemReadoutRcd>();
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+  const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
+{
+  LogVerbatim("TotemDAQMappingESSourceXML")
+    << ">> TotemDAQMappingESSourceXML::setIntervalFor(" << key.name() << ")";
+
+  LogVerbatim("TotemDAQMappingESSourceXML")
+    << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
+
+  currentBlockValid = false;
+  for (unsigned int idx = 0; idx < configuration.size(); ++idx)
+  {
+    const auto &bl = configuration[idx];
+
+    // event id "1:min" has a special meaning and is translated to a truly minimal event id (1:0:0)
+    EventID startEventID = bl.validityRange.startEventID();
+    if (startEventID == EventID(1, 0, 1))
+      startEventID = EventID(1, 0, 0);
+
+    if (startEventID <= iosv.eventID() && iosv.eventID() <= bl.validityRange.endEventID())
+    {
+      currentBlockValid = true;
+      currentBlock = idx;
+  
+      const IOVSyncValue begin(startEventID);
+      const IOVSyncValue end(bl.validityRange.endEventID());
+      oValidity = ValidityInterval(begin, end);
+      
+      LogVerbatim("TotemDAQMappingESSourceXML")
+        << "    block found: index=" << currentBlock
+        << ", interval=(" << startEventID << " - " << bl.validityRange.endEventID() << ")";
+
+      return;
+    }
+  }
+
+  if (!currentBlockValid)
+  {
+    throw cms::Exception("TotemDAQMappingESSourceXML::setIntervalFor") <<
+      "No configuration for event " << iosv.eventID();
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+
+TotemDAQMappingESSourceXML::~TotemDAQMappingESSourceXML()
+{ 
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -225,40 +298,11 @@ string TotemDAQMappingESSourceXML::CompleteFileName(const string &fn)
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-  const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
-{
-  ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-DOMDocument* TotemDAQMappingESSourceXML::GetDOMDocument(string file)
-{
-  XercesDOMParser* parser = new XercesDOMParser();
-  parser->parse(file.c_str());
-
-  DOMDocument* xmlDoc = parser->getDocument();
-
-  if (!xmlDoc)
-    throw cms::Exception("TotemDAQMappingESSourceXML::GetDOMDocument") << "Cannot parse file `" << file
-      << "' (xmlDoc = NULL)." << endl;
-
-  return xmlDoc;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-TotemDAQMappingESSourceXML::~TotemDAQMappingESSourceXML()
-{ 
-}
-
-//----------------------------------------------------------------------------------------------------
-
 edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnalysisMask> >
   TotemDAQMappingESSourceXML::produce( const TotemReadoutRcd & )
 {
+  assert(currentBlockValid);
+
   boost::shared_ptr<TotemDAQMapping> mapping(new TotemDAQMapping());
   boost::shared_ptr<TotemAnalysisMask> mask(new TotemAnalysisMask());
 
@@ -275,12 +319,12 @@ edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnal
   }
 
   // load mapping files
-  for (unsigned int i = 0; i < mappingFileNames.size(); ++i)
-    ParseXML(pMapping, CompleteFileName(mappingFileNames[i]), mapping, mask);
+  for (const auto &fn : configuration[currentBlock].mappingFileNames)
+    ParseXML(pMapping, CompleteFileName(fn), mapping, mask);
 
   // load mask files
-  for (unsigned int i = 0; i < maskFileNames.size(); ++i)
-    ParseXML(pMask, CompleteFileName(maskFileNames[i]), mapping, mask);
+  for (const auto &fn : configuration[currentBlock].maskFileNames)
+    ParseXML(pMask, CompleteFileName(fn), mapping, mask);
 
   // release Xerces
   XMLPlatformUtils::Terminate();
@@ -294,11 +338,19 @@ edm::ESProducts< boost::shared_ptr<TotemDAQMapping>, boost::shared_ptr<TotemAnal
 void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
   const boost::shared_ptr<TotemDAQMapping> &mapping, const boost::shared_ptr<TotemAnalysisMask> &mask)
 {
-  DOMDocument* domDoc = GetDOMDocument(file);
+  unique_ptr<XercesDOMParser> parser(new XercesDOMParser());
+  parser->parse(file.c_str());
+
+  DOMDocument* domDoc = parser->getDocument();
+
+  if (!domDoc)
+    throw cms::Exception("TotemDAQMappingESSourceXML::ParseXML") << "Cannot parse file `" << file
+      << "' (domDoc = NULL)." << endl;
+
   DOMElement* elementRoot = domDoc->getDocumentElement();
 
   if (!elementRoot)
-    throw cms::Exception("TotemDAQMappingESSourceXML::ParseMappingXML") << "File `" <<
+    throw cms::Exception("TotemDAQMappingESSourceXML::ParseXML") << "File `" <<
       file << "' is empty." << endl;
 
   ParseTreeRP(pType, elementRoot, nTop, 0, mapping, mask);
@@ -399,15 +451,20 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
       vfatInfo.hwID = hw_id;
       vfatInfo.symbolicID.subSystem = TotemSymbID::RP;
 
+      const unsigned int armIdx = (parentID / 1000) % 10; 
+      const unsigned int stIdx = (parentID / 100) % 10; 
+      const unsigned int rpIdx = (parentID / 10) % 10; 
+      const unsigned int plIdx = parentID % 10; 
+
       if (type == nChip)
       {
-        vfatInfo.symbolicID.symbolicID = parentID * 10 + id;
+        vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
         vfatInfo.type = TotemVFATInfo::data;
       }
 
       if (type == nTriggerVFAT)
       {
-        vfatInfo.symbolicID.symbolicID = parentID;
+        vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx);
         vfatInfo.type = TotemVFATInfo::CC;
       }
 
@@ -419,9 +476,14 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // store mask data
     if (pType == pMask && type == nChip)
     {
+      const unsigned int armIdx = (parentID / 1000) % 10; 
+      const unsigned int stIdx = (parentID / 100) % 10; 
+      const unsigned int rpIdx = (parentID / 10) % 10; 
+      const unsigned int plIdx = parentID % 10; 
+
       TotemSymbID symbId;
       symbId.subSystem = TotemSymbID::RP;
-      symbId.symbolicID = parentID * 10 + id;
+      symbId.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
 
       TotemVFATAnalysisMask am;
       am.fullMask = fullMask;

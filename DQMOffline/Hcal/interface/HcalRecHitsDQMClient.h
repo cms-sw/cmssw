@@ -28,6 +28,18 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -47,6 +59,9 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   std::string dirNameJet_;
   std::string dirNameMET_;
 
+  const HcalDDDRecConstants *hcons;
+  int maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_, maxDepthAll_;
+ 
   int nChannels_[5]; // 0:any, 1:HB, 2:HE, 3:HO, 4: HF
 
  public:
@@ -54,6 +69,7 @@ class HcalRecHitsDQMClient : public DQMEDHarvester {
   virtual ~HcalRecHitsDQMClient();
   
   virtual void beginJob(void);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
   int HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);

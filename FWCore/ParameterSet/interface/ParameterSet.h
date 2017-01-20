@@ -248,7 +248,7 @@ namespace edm {
     void eraseSimpleParameter(std::string const& name);
     void eraseOrSetUntrackedParameterSet(std::string const& name);
 
-    std::unique_ptr<std::vector<ParameterSet> > popVParameterSet(std::string const& name);
+    std::vector<ParameterSet> popVParameterSet(std::string const& name);
 
     typedef std::map<std::string, Entry> table;
     table const& tbl() const {return tbl_;}

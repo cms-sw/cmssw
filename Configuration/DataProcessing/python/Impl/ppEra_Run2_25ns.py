@@ -11,7 +11,7 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-import Configuration.StandardSequences.Eras as eras
+from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
 
 from Configuration.DataProcessing.Impl.pp import pp
 
@@ -20,7 +20,7 @@ class ppEra_Run2_25ns(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
-        self.eras=eras.eras.Run2_25ns
+        self.eras=Run2_25ns
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]

@@ -1,9 +1,22 @@
 <use   name="clhep"/>
+<use   name="boost"/>
+<use   name="root"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="CondTools/Hcal"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
+
+<library name="PMTParams" file="make_*cc">   </library>
+<bin     file="write_HFPhase1PMTParams.cc">
+  <lib name="PMTParams"/>
+</bin>
+
+<library name="PMTParamsVis" file="visualizeHFPhase1PMTParams.cc">
+  <use  name="rootgpad"/>
+</library>
+<bin     file="makeHFPhase1PMTParamsPlots.cc">
+  <lib name="PMTParams"/>
+  <lib name="PMTParamsVis"/>
+</bin>

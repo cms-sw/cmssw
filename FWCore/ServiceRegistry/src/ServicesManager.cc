@@ -268,6 +268,39 @@ namespace edm {
       }
 
       void
+      ServicesManager::createServiceFor(MakerHolder const& iMaker) {
+         std::string serviceType = iMaker.pset_->getParameter<std::string>("@service_type");
+         std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
+                                                                   ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
+         ConfigurationDescriptions descriptions(filler->baseType());
+         filler->fill(descriptions);
+         
+         try {
+            convertException::wrap([&]() {
+               descriptions.validate(*(iMaker.pset_), serviceType);
+            });
+         }
+         catch (cms::Exception & iException) {
+            std::ostringstream ost;
+            ost << "Validating configuration of service of type " << serviceType;
+            iException.addContext(ost.str());
+            throw;
+         }
+         try {
+            convertException::wrap([&]() {
+               // This creates the service
+               iMaker.add(*this);
+            });
+         }
+         catch (cms::Exception & iException) {
+            std::ostringstream ost;
+            ost << "Constructing service of type " << serviceType;
+            iException.addContext(ost.str());
+            throw;
+         }
+      }
+     
+      void
       ServicesManager::createServices() {
 
          //create a shared_ptr of 'this' that will not delete us
@@ -291,36 +324,7 @@ namespace edm {
            // Check to make sure this maker is still there.  They are deleted
            // sometimes and that is OK.
            if(itMaker != type2Maker_->end()) {
-
-             std::string serviceType = itMaker->second.pset_->getParameter<std::string>("@service_type");
-             std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
-               ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
-             ConfigurationDescriptions descriptions(filler->baseType());
-             filler->fill(descriptions);
-
-             try {
-               convertException::wrap([&]() {
-                 descriptions.validate(*(itMaker->second.pset_), serviceType);
-               });
-             }
-             catch (cms::Exception & iException) {
-               std::ostringstream ost;
-               ost << "Validating configuration of service of type " << serviceType;
-               iException.addContext(ost.str());
-               throw;
-             }
-             try {
-               convertException::wrap([&]() {
-                 // This creates the service
-                 itMaker->second.add(*this);
-               });
-             }
-             catch (cms::Exception & iException) {
-               std::ostringstream ost;
-               ost << "Constructing service of type " << serviceType;
-               iException.addContext(ost.str());
-               throw;
-             }
+              createServiceFor(itMaker->second);
            }
          }
          //No longer need the makers

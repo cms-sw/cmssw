@@ -75,7 +75,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
 ### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
-    paths = cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v', 'HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v','HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
+    paths = cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v', 'HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -89,7 +89,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
 ## Updating to HLT paths to be monitored by TOP PAG in 2016
-    select =  cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v', 'HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v','HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
+    select =  cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v', 'HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
   ),  
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(

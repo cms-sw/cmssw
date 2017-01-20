@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")

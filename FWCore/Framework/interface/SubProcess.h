@@ -14,6 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
@@ -57,9 +58,9 @@ namespace edm {
     SubProcess& operator=(SubProcess const&) = delete; // Disallow copying
     SubProcess(SubProcess&&) = default; // Allow Moving
     SubProcess& operator=(SubProcess&&) = default; // Allow moving
-    
+
     //From OutputModule
-    void selectProducts(ProductRegistry const& preg, 
+    void selectProducts(ProductRegistry const& preg,
                         ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                         std::map<BranchID, bool>& keepAssociation);
 
@@ -78,18 +79,18 @@ namespace edm {
 
     void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
-    
+
     void doBeginStream(unsigned int);
     void doEndStream(unsigned int);
     void doStreamBeginRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts);
-    
+
     void doStreamEndRun(unsigned int iID, RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
-    
+
     void doStreamBeginLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
-    
+
     void doStreamEndLuminosityBlock(unsigned int iID, LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
-    
+
     // Write the luminosity block
     void writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
 
@@ -104,33 +105,21 @@ namespace edm {
     void closeOutputFiles() {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->closeOutputFiles();
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.closeOutputFiles();
-        }
-      }
+      for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
     }
 
     // Call openNewFileIfNeeded() on all OutputModules
     void openNewOutputFilesIfNeeded() {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->openNewOutputFilesIfNeeded();
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.openNewOutputFilesIfNeeded();
-        }
-      }
+      for_all(subProcesses_, [](auto& subProcess) { subProcess.openNewOutputFilesIfNeeded(); });
     }
 
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock& fb) {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->openOutputFiles(fb);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.openOutputFiles(fb);
-        }
-      }
+      for_all(subProcesses_, [&fb](auto& subProcess) { subProcess.openOutputFiles(fb); });
     }
 
     void updateBranchIDListHelper(BranchIDLists const&);
@@ -142,11 +131,7 @@ namespace edm {
     void respondToCloseInputFile(FileBlock const& fb) {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->respondToCloseInputFile(fb);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.respondToCloseInputFile(fb);
-        }
-      }
+      for_all(subProcesses_, [&fb](auto& subProcess) { subProcess.respondToCloseInputFile(fb); });
     }
 
     // Call shouldWeCloseFile() on all OutputModules.
@@ -155,11 +140,9 @@ namespace edm {
       if(schedule_->shouldWeCloseOutput()) {
         return true;
       }
-      if(hasSubProcesses()) {
-        for(auto const& subProcess : *subProcesses_) {
-          if(subProcess.shouldWeCloseOutput()) { 
-            return true;
-          }
+      for(auto const& subProcess : subProcesses_) {
+        if(subProcess.shouldWeCloseOutput()) {
+          return true;
         }
       }
       return false;
@@ -168,21 +151,13 @@ namespace edm {
     void preForkReleaseResources() {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->preForkReleaseResources();
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.preForkReleaseResources();
-        }
-      }
+      for_all(subProcesses_, [](auto& subProcess){ subProcess.preForkReleaseResources(); });
     }
 
     void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->postForkReacquireResources(iChildIndex, iNumberOfChildren);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.postForkReacquireResources(iChildIndex, iNumberOfChildren);
-        }
-      }
+      for_all(subProcesses_, [iChildIndex, iNumberOfChildren](auto& subProcess){ subProcess.postForkReacquireResources(iChildIndex, iNumberOfChildren); });
     }
 
     /// Return a vector allowing const access to all the ModuleDescriptions for this SubProcess
@@ -217,11 +192,7 @@ namespace edm {
     void enableEndPaths(bool active) {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->enableEndPaths(active);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.enableEndPaths(active);
-        }
-      }
+      for_all(subProcesses_, [active](auto& subProcess){ subProcess.enableEndPaths(active); });
     }
 
     /// Return true if end_paths are active, and false if they are inactive.
@@ -244,11 +215,9 @@ namespace edm {
       if(schedule_->terminate()) {
         return true;
       }
-      if(hasSubProcesses()) {
-        for(auto const& subProcess : *subProcesses_) {
-          if(subProcess.terminate()) { 
-            return true;
-          }
+      for(auto const& subProcess : subProcesses_) {
+        if(subProcess.terminate()) {
+          return true;
         }
       }
       return false;
@@ -258,21 +227,17 @@ namespace edm {
     void clearCounters() {
       ServiceRegistry::Operate operate(serviceToken_);
       schedule_->clearCounters();
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.clearCounters();
-        }
-      }
+      for_all(subProcesses_, [](auto& subProcess){ subProcess.clearCounters(); });
     }
 
   private:
-     void beginJob();
-     void endJob();
-     void process(EventPrincipal const& e);
-     void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
-     void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
-     void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
-     void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void beginJob();
+    void endJob();
+    void process(EventPrincipal const& e);
+    void beginRun(RunPrincipal const& r, IOVSyncValue const& ts);
+    void endRun(RunPrincipal const& r, IOVSyncValue const& ts, bool cleaningUpAfterException);
+    void beginLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts);
+    void endLuminosityBlock(LuminosityBlockPrincipal const& lb, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const;
     void fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID);
@@ -282,10 +247,6 @@ namespace edm {
 
     std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID() {
       return droppedBranchIDToKeptBranchID_;
-    }
-
-    bool hasSubProcesses() const {
-      return subProcesses_.get() != nullptr && !subProcesses_->empty();
     }
 
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
@@ -313,7 +274,7 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::propagate_const<std::unique_ptr<Schedule>> schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
-    edm::propagate_const<std::unique_ptr<std::vector<SubProcess>>> subProcesses_;
+    std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<ParameterSet>> processParameterSet_;
 
     // keptProducts_ are pointers to the BranchDescription objects describing
@@ -336,6 +297,6 @@ namespace edm {
   };
 
   // free function
-  std::unique_ptr<std::vector<ParameterSet> > popSubProcessVParameterSet(ParameterSet& parameterSet);
+  std::vector<ParameterSet> popSubProcessVParameterSet(ParameterSet& parameterSet);
 }
 #endif

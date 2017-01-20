@@ -6,7 +6,6 @@
  * this class reads the constant section of
  * the numbering xml-file for fast timer device
  *  
- *  $Date: 2014/03/20 00:06:50 $
  * \author Sunanda Banerjee, SINP <sunanda.banerjee@cern.ch>
  *
  */
@@ -15,37 +14,38 @@
 #include<vector>
 #include<iostream>
 
-#include "DetectorDescription/Core/interface/DDsvalues.h"
-
-class DDCompactView;    
-class DDFilteredView;
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
 
 class FastTimeDDDConstants {
 
 public:
 
-  FastTimeDDDConstants( const DDCompactView& cpv );
+  FastTimeDDDConstants(const FastTimeParameters* ftp);
   ~FastTimeDDDConstants();
 
-  int                 computeCells()            const;
-  int                 getType()                 const {return cellType;}
-  std::pair<int,int>  getXY(int copy)           const;
-  std::pair<int,int>  getXY(double x, double y) const;
-  int                 getCells()                const {return 4*nCells;}
-  bool                isValidXY(int ix, int iy) const;
-  bool                isValidCell(int copy)     const;
-  int                 quadrant(int ix, int iy)  const;
-  int                 quadrant(int copy)        const;
+  std::pair<int,int>  getZPhi(double z, double phi)            const;
+  std::pair<int,int>  getEtaPhi(double r, double phi)          const;
+  GlobalPoint         getPosition(int type, int izeta, int iphi,
+				  int zside)                   const;
+  std::vector<GlobalPoint> getCorners(int type, int izeta,int iphi,
+				      int zside)               const;
+  int                 getCells(int type)                       const;
+  double              getRin(int type)                         const;
+  double              getRout(int type)                        const;
+  double              getZHalf(int type)                       const;
+  double              getZPos(int type)                        const;
+  bool                isValidXY(int type, int izeta, int iphi) const;
+  int                 numberEtaZ(int type)                     const;
+  int                 numberPhi(int type)                      const;
        
 private:
-  void                initialize(const DDCompactView& cpv);
-  void                loadSpecPars(const DDFilteredView& fv);
-  std::vector<double> getDDDArray(const std::string &, 
-                                  const DDsvalues_type &) const;
+  void                initialize();
 
-  int                 nCells, nCols, nRows, cellType;
-  double              rIn, rOut, cellSize;
-  std::vector<int>    firstY, lastY, firstCell, lastCell;
+  const FastTimeParameters* ftpar_;
+  double                    etaMin_, etaMax_, dEta_;
+  double                    dZBarrel_, dPhiBarrel_, dPhiEndcap_;
+  std::vector<double>       rLimits_;
 };
 
 #endif

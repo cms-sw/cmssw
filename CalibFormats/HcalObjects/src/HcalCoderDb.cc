@@ -6,7 +6,6 @@
 
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
 
 HcalCoderDb::HcalCoderDb (const HcalQIECoder& fCoder, const HcalQIEShape& fShape)
   : mCoder (&fCoder),
@@ -47,13 +46,6 @@ template <class Digi> void HcalCoderDb::fC2adc_ (const CaloSamples& clf, Digi& d
   }
 }
 
-template <> void HcalCoderDb::fC2adc_<HcalUpgradeDataFrame> (const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const {
-  df = HcalUpgradeDataFrame(clf.id(), fCapIdOffset, clf.size(), clf.presamples());
-  for (int i=0; i<clf.size(); ++i) {
-    df.setSample(i, mCoder->adc(*mShape, clf[i], df.capId(i)), 0, true);
-  }
-}
-
 template <> void HcalCoderDb::fC2adc_<QIE10DataFrame> (const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const {
   int presample = clf.presamples ();
   for (int i=0; i<clf.size(); i++) {
@@ -78,7 +70,6 @@ void HcalCoderDb::adc2fC(const HODataFrame& df, CaloSamples& lf) const {adc2fC_ 
 void HcalCoderDb::adc2fC(const HFDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 void HcalCoderDb::adc2fC(const ZDCDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 void HcalCoderDb::adc2fC(const HcalCalibDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
-void HcalCoderDb::adc2fC(const HcalUpgradeDataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 void HcalCoderDb::adc2fC(const QIE10DataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 void HcalCoderDb::adc2fC(const QIE11DataFrame& df, CaloSamples& lf) const {adc2fC_ (df, lf);}
 
@@ -87,7 +78,6 @@ void HcalCoderDb::fC2adc(const CaloSamples& clf, HFDataFrame& df, int fCapIdOffs
 void HcalCoderDb::fC2adc(const CaloSamples& clf, HODataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
 void HcalCoderDb::fC2adc(const CaloSamples& clf, ZDCDataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
 void HcalCoderDb::fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
-void HcalCoderDb::fC2adc(const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
 void HcalCoderDb::fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
 void HcalCoderDb::fC2adc(const CaloSamples& clf, QIE11DataFrame& df, int fCapIdOffset) const {fC2adc_ (clf, df, fCapIdOffset);}
 

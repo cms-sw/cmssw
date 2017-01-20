@@ -17,15 +17,18 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
 
   // Add some LogDebug for these settings
 
-  metTowThresholdHw_ = floor(params_->etSumEtThreshold(0)/params_->towerLsbSum());
+  metTowThresholdHw_ = floor(params_->etSumEtThreshold(2)/params_->towerLsbSum());
   metTowThresholdHwHF_ = metTowThresholdHw_;
-  ettTowThresholdHw_ = floor(params_->etSumEtThreshold(2)/params_->towerLsbSum());
+  ettTowThresholdHw_ = floor(params_->etSumEtThreshold(0)/params_->towerLsbSum());
   ettTowThresholdHwHF_ = ettTowThresholdHw_; 
 
   metEtaMax_ = params_->etSumEtaMax(0);
   metEtaMaxHF_ = CaloTools::kHFEnd;
   ettEtaMax_ = params_->etSumEtaMax(2);
   ettEtaMaxHF_ = CaloTools::kHFEnd;
+
+  nTowThresholdHw_ = floor(params_->etSumEtThreshold(4)/params_->towerLsbSum());
+  nTowEtaMax_ = params_->etSumEtaMax(4);
 }
 
 
@@ -35,6 +38,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
                                                                std::vector<l1t::EtSum> & etsums) {
 
   
+  uint32_t ntowers(0);
+  math::XYZTLorentzVector p4;
+
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
 
@@ -53,6 +59,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       int32_t ringExHF(0), ringEyHF(0), ringEtHF(0);
       int32_t ringEtEm(0);
       uint32_t ringMB0(0), ringMB1(0);
+      uint32_t ringNtowers(0);
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
 
@@ -85,9 +92,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	if (tower.hwPt()>ettTowThresholdHwHF_ && CaloTools::mpEta(abs(tower.hwEta()))<=CaloTools::mpEta(ettEtaMaxHF_)) 
 	  ringEtHF += tower.hwPt();
 		
-  // scalar sum (EM)
-  if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_)
-    ringEtEm += tower.hwEtEm();
+        // scalar sum (EM)
+        if (tower.hwPt()>ettTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=ettEtaMax_)
+          ringEtEm += tower.hwEtEm();
 
 	// count HF tower HCAL flags
 	if (CaloTools::mpEta(abs(tower.hwEta()))>=CaloTools::mpEta(CaloTools::kHFBegin) &&
@@ -95,6 +102,9 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	    (tower.hwQual() & 0x4) > 0) 
 	  ringMB0 += 1;
 	  
+        // tower counting 
+	if (tower.hwPt()>nTowThresholdHw_ && CaloTools::mpEta(abs(tower.hwEta()))<=nTowEtaMax_) 
+	  ringNtowers += 1;
       }    
       
       ex += ringEx;
@@ -109,12 +119,12 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       mb0 += ringMB0;
       mb1 += ringMB1;
 
+      ntowers += ringNtowers;
     }
 
     if (mb0>0xf) mb0 = 0xf;
     if (mb1>0xf) mb1 = 0xf;
 
-    math::XYZTLorentzVector p4;
 
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
     l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
@@ -147,6 +157,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     etsums.push_back(etSumMinBias0);
     etsums.push_back(etSumMinBias1);
+
   }
+
+  //tower count is in aux: only on eta- side!!
+  l1t::EtSum etSumNtowers(p4,l1t::EtSum::EtSumType::kTowerCount,ntowers,0,0,0);
+  etsums.push_back(etSumNtowers);
 
 }

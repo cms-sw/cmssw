@@ -3,9 +3,9 @@
 
 <ConstantsSection label="pixfwdOuterDiskZminus.xml" eval="true">
   <Constant name="OuterRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskOuterRingHalfWidth]"/>
-  <Constant name="OuterRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[OuterRingHalfWidth]"/>
+  <Constant name="OuterRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[OuterRingHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]*2"/>
   <Constant name="InnerRingHalfWidth"   value="[pixfwdSupportRingParameters:OuterDiskInnerRingHalfWidth]"/>
-  <Constant name="InnerRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[InnerRingHalfWidth]"/>
+  <Constant name="InnerRingZ"           value="[pixfwdDisks:DiskHalfWidth]-[InnerRingHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]*2"/>
 </ConstantsSection>
  
 <!-- support ring solids -->
@@ -21,7 +21,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskOuterRing"/> 
-  <String  name="Material"         value="materials:C_C_OuterOuterRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:C_C_OuterOuterRing"/> 
   <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingRMax]"/>
@@ -32,7 +32,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFOuterRing"/> 
-  <String  name="Material"         value="materials:FPix_CFSkin_OuterOuterRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_OuterOuterRing"/> 
   <Numeric name="zPos"             value="[OuterRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskOuterRingCFRMax]"/>
@@ -43,7 +43,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskInnerRing"/> 
-  <String  name="Material"         value="materials:C_C_OuterInnerRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:C_C_OuterInnerRing"/> 
   <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingRMax]"/>
@@ -54,7 +54,7 @@
 <Algorithm name="track:DDCutTubsFromPoints">
   <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
   <String  name="SolidName"        value="PixelForwardOuterDiskCFInnerRing"/> 
-  <String  name="Material"         value="materials:FPix_CFSkin_OuterInnerRing"/> 
+  <String  name="Material"         value="pixfwdMaterials:FPix_CFSkin_OuterInnerRing"/> 
   <Numeric name="zPos"             value="[InnerRingZ]"/>
   <Numeric name="rMin"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMin]"/>
   <Numeric name="rMax"             value="[pixfwdSupportRingParameters:OuterDiskInnerRingCFRMax]"/>
@@ -83,4 +83,27 @@
   <String  name="FlagString"       value="YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"/>
 </Algorithm>
 
+<SolidSection label="pixfwdOuterDiskZminus.xml">
+ <Tubs name="FlexCableDisk" rMin="[pixfwd:FlexCableDiskRmin]" rMax="[pixfwd:FlexCableDiskRmax]" dz="[pixfwd:FlexCableDiskHalfThickness]" startPhi="0." deltaPhi="360*deg"/>
+</SolidSection>
+<LogicalPartSection label="pixfwdOuterDiskZminus.xml">
+
+ <LogicalPart name="FlexCableDisk" category="support">
+    <rSolid name="FlexCableDisk"/>
+    <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFlexCable2"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="pixfwdOuterDiskZminus.xml">
+  <PosPart copyNumber="1">
+    <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
+    <rChild name="FlexCableDisk"/>
+    <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]-[pixfwd:FlexCableDiskHalfThickness]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="pixfwdDisks:PixelForwardDiskZminus"/>
+    <rChild name="FlexCableDisk"/>
+    <Translation x="0." y="0." z="[pixfwdDisks:DiskHalfWidth]+[pixfwd:FlexCableDiskHalfThickness]-[OuterRingHalfWidth]*2"/>
+  </PosPart>
+</PosPartSection>
 </DDDefinition>

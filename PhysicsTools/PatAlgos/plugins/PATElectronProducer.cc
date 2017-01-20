@@ -37,6 +37,8 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+
 #include "FWCore/Utilities/interface/transform.h"
 
 #include <vector>
@@ -76,6 +78,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   reducedEndcapRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
   // PFCluster Isolation maps
   addPFClusterIso_(iConfig.getParameter<bool>("addPFClusterIso")),
+  addPuppiIsolation_(iConfig.getParameter<bool>("addPuppiIsolation")),
   ecalPFClusterIsoT_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"))),
   hcalPFClusterIsoT_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"))),
   // embed high level selection variables?
@@ -103,6 +106,16 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   // resolution configurables
   if (addResolutions_) {
     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+  }
+  if(addPuppiIsolation_){
+    //puppi
+    PUPPIIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationChargedHadrons"));
+    PUPPIIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationNeutralHadrons"));
+    PUPPIIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiIsolationPhotons"));
+    //puppiNoLeptons
+    PUPPINoLeptonsIsolation_charged_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons"));
+    PUPPINoLeptonsIsolation_neutral_hadrons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons"));
+    PUPPINoLeptonsIsolation_photons_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("puppiNoLeptonsIsolationPhotons"));
   }
   // electron ID configurables
   if (addElecID_) {
@@ -279,6 +292,25 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
             << "No primary vertex available from EventSetup, not adding high level selection \n";
     }
   }
+  //value maps for puppi isolation
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPIIsolation_photons;
+  //value maps for puppiNoLeptons isolation
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_charged_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_neutral_hadrons;
+  edm::Handle<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons;
+  if(addPuppiIsolation_){
+    //puppi
+    iEvent.getByToken(PUPPIIsolation_charged_hadrons_, PUPPIIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPIIsolation_neutral_hadrons_, PUPPIIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPIIsolation_photons_, PUPPIIsolation_photons);  
+    //puppiNoLeptons
+    iEvent.getByToken(PUPPINoLeptonsIsolation_charged_hadrons_, PUPPINoLeptonsIsolation_charged_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_neutral_hadrons_, PUPPINoLeptonsIsolation_neutral_hadrons);
+    iEvent.getByToken(PUPPINoLeptonsIsolation_photons_, PUPPINoLeptonsIsolation_photons);  
+  }
+  
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
 
@@ -300,6 +332,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       bool MatchedToAmbiguousGsfTrack=false;
       for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
 	unsigned int idx = itElectron - electrons->begin();
+  	auto elePtr = electrons -> ptrAt(idx);
 	if (Matched || MatchedToAmbiguousGsfTrack) continue;
 
 	reco::GsfTrackRef EgTk= itElectron->gsfTrack();
@@ -323,6 +356,14 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
+    	  if (addPuppiIsolation_) {		 
+	    anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+      	    anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
+    	  }
+	  else {
+      	    anElectron.setIsolationPUPPI(-999., -999.,-999.);
+	    anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+          }
 
           //it should be always true when particleFlow electrons are used.
           anElectron.setIsPF( true );
@@ -503,6 +544,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       edm::RefToBase<reco::GsfElectron> elecsRef = electrons->refAt(idx);
       reco::CandidateBaseRef elecBaseRef(elecsRef);
       Electron anElectron(elecsRef);
+      auto elePtr = electrons -> ptrAt(idx);
 
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
@@ -605,7 +647,15 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	anElectron.setEcalPFClusterIso(-999.);
 	anElectron.setHcalPFClusterIso(-999.);
       }
-
+      if (addPuppiIsolation_) {
+        anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
+        anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);
+      }
+      else {
+        anElectron.setIsolationPUPPI(-999., -999.,-999.);
+        anElectron.setIsolationPUPPINoLeptons(-999., -999.,-999.);
+      }
+        
       std::vector<DetId> selectedCells;
       bool barrel = itElectron->isEB();
       //loop over sub clusters
@@ -892,6 +942,16 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 		false >> (edm::ParameterDescription<edm::InputTag>("ecalPFClusterIsoMap", edm::InputTag(""), true) and
 			  edm::ParameterDescription<edm::InputTag>("hcalPFClusterIsoMap", edm::InputTag(""),true)));
 
+  iDesc.ifValue(edm::ParameterDescription<bool>("addPuppiIsolation", false, true),
+    true >> (edm::ParameterDescription<edm::InputTag>("puppiIsolationChargedHadrons", edm::InputTag("egmElectronPUPPIIsolation","h+-DR030-BarVeto000-EndVeto001"), true) and
+       edm::ParameterDescription<edm::InputTag>("puppiIsolationNeutralHadrons", edm::InputTag("egmElectronPUPPIIsolation","h0-DR030-BarVeto000-EndVeto000"), true) and 
+       edm::ParameterDescription<edm::InputTag>("puppiIsolationPhotons", edm::InputTag("egmElectronPUPPIIsolation","gamma-DR030-BarVeto000-EndVeto008"), true) and
+       edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationChargedHadrons", edm::InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008"), true) and 
+       edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationNeutralHadrons", edm::InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008"), true) and 
+       edm::ParameterDescription<edm::InputTag>("puppiNoLeptonsIsolationPhotons", edm::InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008"), true))  or
+    false >> edm::EmptyGroupDescription());
+    
+
   // embedding
   iDesc.add<bool>("embedGsfElectronCore", true)->setComment("embed external gsf electron core");
   iDesc.add<bool>("embedGsfTrack", true)->setComment("embed external gsf track");
@@ -979,6 +1039,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   edm::ParameterSetDescription userDataPSet;
   PATUserDataHelper<Electron>::fillDescription(userDataPSet);
   iDesc.addOptional("userData", userDataPSet);
+
 
   // electron shapes
   iDesc.add<bool>("addElectronShapes", true);

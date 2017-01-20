@@ -18,12 +18,12 @@ l1tMenuLabel = ""
 l1Menus= {
     'Fake'         : ( ','.join( [ 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'             , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
     'Fake1'        : ( ','.join( [ 'L1Menu_Collisions2015_25nsStage1_v5'                     , l1MenuRecord,connectionString, l1MenuLabel, "2015-10-26 12:00:00.000"] ), ),
-    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
-    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
+    'FULL'         : ( ','.join( [ 'L1Menu_Collisions2016_v9_m2_xml'                         ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-10-06 19:36:53.000"] ), ),
+    'GRun'         : ( ','.join( [ 'L1Menu_Collisions2016_v9_m2_xml'                         ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-10-06 19:36:53.000"] ), ),
     '25ns15e33_v4' : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
     '25ns10e33_v2' : ( ','.join( [ 'L1Menu_Collisions2016_v4_xml'                            ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-05-24 14:55:00.000"] ), ),
     'HIon'         : ( ','.join( [ 'L1Menu_CollisionsHeavyIons2015_v5_uGT_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
-    'PIon'         : ( ','.join( [ 'L1Menu_Collisions2016_v6r5_ugt_1board_xml'               ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-08-23 20:00:00.000"] ), ),
+    'PIon'         : ( ','.join( [ 'L1Menu_HeavyIons2016_v3_m2_xml'                          ,l1tMenuRecord,connectionString,l1tMenuLabel, "2016-11-22 11:11:00.000"] ), ),
     'PRef'         : ( ','.join( [ 'L1Menu_Collisions2015_5TeV_pp_reference_v5_uGT_v2_mc_xml',l1tMenuRecord,connectionString,l1tMenuLabel, "2016-03-04 15:00:00.000"] ), ),
 }
 
@@ -39,7 +39,7 @@ hltGTs = {
     'run2_mc_25ns15e33_v4'   : ('run2_mc'             ,l1Menus['25ns15e33_v4']),
     'run2_mc_25ns10e33_v2'   : ('run2_mc'             ,l1Menus['25ns10e33_v2']),
     'run2_mc_HIon'           : ('run2_mc_hi'          ,l1Menus['HIon']),
-    'run2_mc_PIon'           : ('run2_mc'             ,l1Menus['PIon']),
+    'run2_mc_PIon'           : ('run2_mc_pa'          ,l1Menus['PIon']),
     'run2_mc_PRef'           : ('run2_mc'             ,l1Menus['PRef']),
 
     'run1_hlt_Fake'          : ('run1_hlt'            ,l1Menus['Fake']),
@@ -63,7 +63,9 @@ hltGTs = {
     'run2_data_HIon'         : ('run2_data'           ,l1Menus['HIon']),
     'run2_data_PIon'         : ('run2_data_relval'    ,l1Menus['PIon']),
     'run2_data_PRef'         : ('run2_data_relval'    ,l1Menus['PRef']),
-
+    
+    'phase1_2017_design_GRun'     : ('phase1_2017_design'   ,l1Menus['GRun']),
+    'phase1_2017_realistic_GRun'  : ('phase1_2017_realistic',l1Menus['GRun']),
 }
 
 def autoCondHLT(autoCond):

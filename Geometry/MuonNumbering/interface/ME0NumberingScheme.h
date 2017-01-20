@@ -25,7 +25,7 @@ private:
   int theSectorLevel;
   int theLayerLevel;
   int theRollLevel;
-
+  int theNEtaPart;
 };
 
 #endif

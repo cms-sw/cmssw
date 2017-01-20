@@ -19,11 +19,13 @@ using namespace edm;
 
 MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
+
+  // Input booleans
+  IsminiAOD = parameters.getParameter<bool>("IsminiAOD");
   
   // the services:
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  
-  theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
+  theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("MuonCollection"));
 
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
@@ -52,6 +54,8 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
+  
+  theFolder = parameters.getParameter<string>("folder");
 }
 
 
@@ -63,7 +67,7 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				      edm::EventSetup const & /* iSetup */){
     
   ibooker.cd();
-  ibooker.setCurrentFolder("Muons/MuonRecoAnalyzer");
+  ibooker.setCurrentFolder(theFolder);
   
   muReco = ibooker.book1D("muReco", "muon reconstructed tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta");
@@ -333,33 +337,32 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   theService->update(iSetup);
  
   // Take the muon container
-  edm::Handle<reco::MuonCollection> muons;
+  edm::Handle<edm::View<reco::Muon> > muons; 
   iEvent.getByToken(theMuonCollectionLabel_,muons);
  
 
   float res=0, pull=0;
   if(!muons.isValid()) return;
-  
-  for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
-    
-    if(recoMu->isGlobalMuon()) {
 
+  for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
+      
+    if(muon->isGlobalMuon()) {
       LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is global - filling the histos";
-      if(recoMu->isTrackerMuon() && recoMu->isStandAloneMuon())
-	muReco->Fill(1);
-      if(!(recoMu->isTrackerMuon()) && recoMu->isStandAloneMuon())
-	muReco->Fill(2);
-      if(!recoMu->isStandAloneMuon())
-	LogTrace(metname)<<"[MuonRecoAnalyzer] ERROR: the mu is global but not standalone!";
+      if(muon->isTrackerMuon() && muon->isStandAloneMuon())
+  	muReco->Fill(1);
+      if(!(muon->isTrackerMuon()) && muon->isStandAloneMuon())
+  	muReco->Fill(2);
+      if(!muon->isStandAloneMuon())
+  	LogTrace(metname)<<"[MuonRecoAnalyzer] ERROR: the mu is global but not standalone!";
 
       // get the track combinig the information from both the Tracker and the Spectrometer
-      reco::TrackRef recoCombinedGlbTrack = recoMu->combinedMuon();
+      reco::TrackRef recoCombinedGlbTrack = muon->combinedMuon();
+      
       // get the track using only the tracker data
-      reco::TrackRef recoTkGlbTrack = recoMu->track();
+      reco::TrackRef recoTkGlbTrack = muon->track();
       // get the track using only the mu spectrometer data
-      reco::TrackRef recoStaGlbTrack = recoMu->standAloneMuon();
+      reco::TrackRef recoStaGlbTrack = muon->standAloneMuon();
 
-  
       etaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta());
       etaGlbTrack[1]->Fill(recoTkGlbTrack->eta());
       etaGlbTrack[2]->Fill(recoStaGlbTrack->eta());
@@ -397,7 +400,6 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       thetaResolution[3]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoCombinedGlbTrack->theta());
       thetaResolution[4]->Fill(recoCombinedGlbTrack->theta(), -recoStaGlbTrack->theta()+recoCombinedGlbTrack->theta());
       thetaResolution[5]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoStaGlbTrack->theta());
-
 
      
       phiGlbTrack[0]->Fill(recoCombinedGlbTrack->phi());
@@ -481,11 +483,11 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       oneOverptPull->Fill(pull);
 
 
-      //--- Test new tunePMuonBestTrack() method from Muon.h
+      // //--- Test new tunePMuonBestTrack() method from Muon.h
 
-      reco::TrackRef recoBestTrack = recoMu->muonBestTrack();
+      reco::TrackRef recoBestTrack = muon->muonBestTrack();
 
-      reco::TrackRef recoTunePBestTrack = recoMu->tunePMuonBestTrack();
+      reco::TrackRef recoTunePBestTrack = muon->tunePMuonBestTrack();
 
       double bestTrackPt =  recoBestTrack->pt();
 
@@ -495,7 +497,6 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       tunePResolution->Fill(tunePBestTrackRes); 
    
-
       oneOverptResolution[3]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[4]->Fill(recoCombinedGlbTrack->eta(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[5]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
@@ -505,56 +506,62 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       oneOverptResolution[9]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[10]->Fill(recoCombinedGlbTrack->pt(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
       oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
+            
 
-      // valid hits Glb track
-      double rhGlb = recoCombinedGlbTrack->found();
-      // valid hits Glb track from Tracker
-      double rhGlb_StaProvenance=0;
-      // valid hits Glb track from Sta system
-      double rhGlb_TkProvenance=0;
-      for (trackingRecHit_iterator recHit = recoCombinedGlbTrack->recHitsBegin();
-	   recHit!=recoCombinedGlbTrack->recHitsEnd(); ++recHit){
-	if((*recHit)->isValid()){
-	  DetId id = (*recHit)->geographicalId();
-	  if (id.det() == DetId::Muon)
-	    rhGlb_StaProvenance++;
-	  if (id.det() == DetId::Tracker)
-	    rhGlb_TkProvenance++;
+      if (!IsminiAOD){ 
+	// valid hits Glb track
+	double rhGlb = recoCombinedGlbTrack->found();
+	// valid hits Glb track from Tracker
+	double rhGlb_StaProvenance=0;
+	// valid hits Glb track from Sta system
+	double rhGlb_TkProvenance=0;
+	
+	
+	
+	for (trackingRecHit_iterator recHit = recoCombinedGlbTrack->recHitsBegin();
+	     recHit!=recoCombinedGlbTrack->recHitsEnd(); ++recHit){
+	  
+	  if((*recHit)->isValid()){
+	    DetId id = (*recHit)->geographicalId();
+	    if (id.det() == DetId::Muon)
+	      rhGlb_StaProvenance++;
+	    if (id.det() == DetId::Tracker)
+	      rhGlb_TkProvenance++;
+	  }
 	}
+	// valid hits Sta track associated to Glb track
+	double rhStaGlb = recoStaGlbTrack->recHitsSize();
+	// valid hits Traker track associated to Glb track
+	double rhTkGlb = recoTkGlbTrack->found();
+	// invalid hits Traker track associated to Glb track
+	double rhTkGlb_notValid = recoTkGlbTrack->lost();
+	
+	// fill the histos
+	rhAnalysis[0]->Fill(rhGlb_StaProvenance/rhGlb);
+	rhAnalysis[1]->Fill(rhGlb_TkProvenance/rhGlb);
+	rhAnalysis[2]->Fill(rhGlb_StaProvenance/rhStaGlb);
+	rhAnalysis[3]->Fill(rhGlb_TkProvenance/rhTkGlb);
+	rhAnalysis[4]->Fill(rhGlb/(rhStaGlb+rhTkGlb));
+	rhAnalysis[5]->Fill(rhTkGlb_notValid/rhGlb);
       }
-      // valid hits Sta track associated to Glb track
-      double rhStaGlb = recoStaGlbTrack->recHitsSize();
-      // valid hits Traker track associated to Glb track
-      double rhTkGlb = recoTkGlbTrack->found();
-      // invalid hits Traker track associated to Glb track
-      double rhTkGlb_notValid = recoTkGlbTrack->lost();
-   
-      // fill the histos
-      rhAnalysis[0]->Fill(rhGlb_StaProvenance/rhGlb);
-      rhAnalysis[1]->Fill(rhGlb_TkProvenance/rhGlb);
-      rhAnalysis[2]->Fill(rhGlb_StaProvenance/rhStaGlb);
-      rhAnalysis[3]->Fill(rhGlb_TkProvenance/rhTkGlb);
-      rhAnalysis[4]->Fill(rhGlb/(rhStaGlb+rhTkGlb));
-      rhAnalysis[5]->Fill(rhTkGlb_notValid/rhGlb);
-
       // aligment plots (mu system w.r.t. tracker rotation)
       if(recoCombinedGlbTrack->charge()>0)
 	muVStkSytemRotation[0]->Fill(recoCombinedGlbTrack->pt(),recoTkGlbTrack->pt()/recoCombinedGlbTrack->pt());
       else
 	muVStkSytemRotation[1]->Fill(recoCombinedGlbTrack->pt(),recoTkGlbTrack->pt()/recoCombinedGlbTrack->pt());
-    
     }
+    
 
 
-    if(recoMu->isTrackerMuon() && !(recoMu->isGlobalMuon())) {
+    if(muon->isTrackerMuon() && !(muon->isGlobalMuon())) {
       LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is tracker only - filling the histos";
-      if(recoMu->isStandAloneMuon())
-	muReco->Fill(3);
-      if(!(recoMu->isStandAloneMuon()))
-	muReco->Fill(4);
+      if(muon->isStandAloneMuon())
+    	muReco->Fill(3);
+      if(!(muon->isStandAloneMuon()))
+    	muReco->Fill(4);
 
       // get the track using only the tracker data
-      reco::TrackRef recoTrack = recoMu->track();
+      reco::TrackRef recoTrack = muon->track();
 
       etaTrack->Fill(recoTrack->eta());
       thetaTrack->Fill(recoTrack->theta());
@@ -567,13 +574,13 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     }
 
-    if(recoMu->isStandAloneMuon() && !(recoMu->isGlobalMuon())) {
+    if(muon->isStandAloneMuon() && !(muon->isGlobalMuon())) {
       LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is STA only - filling the histos";
-      if(!(recoMu->isTrackerMuon()))
-	muReco->Fill(5);
+      if(!(muon->isTrackerMuon()))
+  	muReco->Fill(5);
      
       // get the track using only the mu spectrometer data
-      reco::TrackRef recoStaTrack = recoMu->standAloneMuon();
+      reco::TrackRef recoStaTrack = muon->standAloneMuon();
 
       etaStaTrack->Fill(recoStaTrack->eta());
       thetaStaTrack->Fill(recoStaTrack->theta());
@@ -586,19 +593,19 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     }
     
-    if(recoMu->isCaloMuon() && !(recoMu->isGlobalMuon()) && !(recoMu->isTrackerMuon()) && !(recoMu->isStandAloneMuon()))
+    if(muon->isCaloMuon() && !(muon->isGlobalMuon()) && !(muon->isTrackerMuon()) && !(muon->isStandAloneMuon()))
       muReco->Fill(6);
   
     //efficiency plots
   
     // get the track using only the mu spectrometer data
-    reco::TrackRef recoStaGlbTrack = recoMu->standAloneMuon();
+    reco::TrackRef recoStaGlbTrack = muon->standAloneMuon();
   
-    if(recoMu->isStandAloneMuon()){
+    if(muon->isStandAloneMuon()){
       etaEfficiency[0]->Fill(recoStaGlbTrack->eta());
       phiEfficiency[0]->Fill(recoStaGlbTrack->phi());
     }
-    if(recoMu->isStandAloneMuon() && recoMu->isGlobalMuon()){
+    if(muon->isStandAloneMuon() && muon->isGlobalMuon()){
       etaEfficiency[1]->Fill(recoStaGlbTrack->eta());
       phiEfficiency[1]->Fill(recoStaGlbTrack->phi());
     }

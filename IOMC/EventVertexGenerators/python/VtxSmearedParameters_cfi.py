@@ -23,6 +23,17 @@ GaussVtxSmearingParameters = cms.PSet(
     SigmaZ = cms.double(5.3),
     TimeOffset = cms.double(0.0)
 )
+# Gaussian smearing
+GaussVtxSigmaZ4cmSmearingParameters = cms.PSet(
+    MeanX = cms.double(0.0),
+    MeanY = cms.double(0.0),
+    MeanZ = cms.double(0.0),
+    SigmaY = cms.double(0.0015),
+    SigmaX = cms.double(0.0015),
+    SigmaZ = cms.double(4.0),
+    TimeOffset = cms.double(0.0)
+)
+
 # Flat Smearing
 FlatVtxSmearingParameters = cms.PSet(
     MaxZ = cms.double(5.3),

@@ -111,7 +111,7 @@ else
 #    list="Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13"
 #	list="Pt1000Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13"
 #	list="Pt1000Startup_UP15 "
-	list="TTbarStartup_13 ZEEStartup_13 "
+	list="TTbarStartup_13 ZEEStartup_13  QcdPt80Pt120Startup_13 "
     for element in $list    
     do   
         echo "element =" $element   

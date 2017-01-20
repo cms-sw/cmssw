@@ -22,6 +22,6 @@ public:
   }
 };
 
-enum class HGCalGeometryMode : int { Square=0, Hexagon=1 };
+enum class HGCalGeometryMode : int { Square=0, Hexagon=1, HexagonFull=2 };
 
 #endif

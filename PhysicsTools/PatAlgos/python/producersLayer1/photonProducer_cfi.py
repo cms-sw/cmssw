@@ -32,6 +32,7 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
       userFunctionLabels = cms.vstring()
     ),
 
+
     # embedding of AOD items
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
     embedSeedCluster               = cms.bool(True),  ## embed in AOD externally stored the photon's seedcluster 
@@ -72,5 +73,6 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     resolutions     = cms.PSet(),
 
     # PFClusterIso
-    addPFClusterIso = cms.bool(False)
+    addPFClusterIso = cms.bool(False),
+    addPuppiIsolation = cms.bool(False)
 )

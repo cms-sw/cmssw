@@ -31,7 +31,6 @@ cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2015devCastorSys
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2015devXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2016XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2017XML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2017devXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2019XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D1XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D2XML_cfi"

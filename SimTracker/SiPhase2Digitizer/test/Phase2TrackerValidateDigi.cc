@@ -39,6 +39,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -61,7 +62,8 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
   itPixelDigiToken_(consumes< edm::DetSetVector<PixelDigi> >(itPixelDigiSrc_)),
   itPixelDigiSimLinkToken_(consumes< edm::DetSetVector<PixelDigiSimLink> >(itPixelDigiSimLinkSrc_)),
   simTrackToken_(consumes< edm::SimTrackContainer >(simTrackSrc_)),
-  simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_))
+  simVertexToken_(consumes< edm::SimVertexContainer >(simVertexSrc_)),
+  GeVperElectron(3.61E-09) // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
 {
   for(auto itag : pSimHitSrc_) simHitTokens_.push_back(consumes< edm::PSimHitContainer >(itag));
 
@@ -175,31 +177,31 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
       if (fabs(dZ) <= 0.01) continue;
       
       if ((*isim).trackId() != id) continue; 
+      if (DetId(detId).det() != DetId::Detector::Tracker) continue;
+  
+      const GeomDet *geomDet = gHandle->idToDet(detId);
+      if (!geomDet) continue;
+      Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
+
+      SimulatedXYPositionMap->Fill(pdPos.x(), pdPos.y());   
+      SimulatedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
+      
       const TrackerGeomDet* geomDetUnit(gHandle->idToDetUnit(detId));
-
-      float xval = -999.9;
-      float yval = -999.9;
-      float zval = -999.9;
-      float rval = -999.9;
-      if (geomDetUnit) {
-	Global3DPoint pdPos = geomDetUnit->surface().toGlobal(isim->localPosition());
-        xval = pdPos.x();
-        yval = pdPos.y();
-        zval = pdPos.z();
-        rval = std::sqrt(pdPos.x()*pdPos.x() + pdPos.y()*pdPos.y());
-      }
-      SimulatedRZPositionMap->Fill(zval*10.0, rval*10.0);   
-      SimulatedXYPositionMap->Fill(xval*10.0, yval*10.0);   
-
+      const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(geomDetUnit);
+      int nColumns  = tkDetUnit->specificTopology().ncolumns();
+      
       nHits++;
       std::map<unsigned int, DigiMEs>::iterator pos = layerMEs.find(layer);
       if (pos == layerMEs.end()) continue;
       DigiMEs local_mes = pos->second;
       
+      if (nColumns <= 2) local_mes.SimHitElossS->Fill((*isim).energyLoss()/GeVperElectron);
+      else local_mes.SimHitElossP->Fill((*isim).energyLoss()/GeVperElectron);
+      
       if (fabs(eta) <  etaCut_) fillHistogram(local_mes.SimTrackPt, local_mes.SimTrackPtP, local_mes.SimTrackPtS, pt, type);
       if (pt > ptCut_) fillHistogram(local_mes.SimTrackEta, local_mes.SimTrackEtaP, local_mes.SimTrackEtaS, eta, type);
       if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.SimTrackPhi, local_mes.SimTrackPhiP, local_mes.SimTrackPhiS, phi, type);
-
+      
       bool digiFlag;
       
       if (pixelFlag_) digiFlag = findITPixelDigi(rawid,id);
@@ -210,9 +212,9 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, unsigned
 	if (pt > ptCut_) fillHistogram(local_mes.MatchedTrackEta,local_mes.MatchedTrackEtaP,local_mes.MatchedTrackEtaS,eta,type);
 	if ( fabs(eta) < etaCut_ && pt > ptCut_) fillHistogram(local_mes.MatchedTrackPhi,local_mes.MatchedTrackPhiP,local_mes.MatchedTrackPhiS,phi,type);
 	
-	MatchedRZPositionMap->Fill(zval*10.0, rval*10.0);   
-	MatchedXYPositionMap->Fill(xval*10.0, yval*10.0);   
-
+	MatchedRZPositionMap->Fill(pdPos.z()*10., std::hypot(pdPos.x(),pdPos.y())*10.);   
+	MatchedXYPositionMap->Fill(pdPos.x(), pdPos.y());
+	
       }
     }
   }
@@ -360,7 +362,7 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 				 Parameters.getParameter<double>("ymax"));
   Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
   HistoName.str("");
-  HistoName << "SimulatedRosVsZPos";
+  HistoName << "SimulatedRPosVsZPos";
   SimulatedRZPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
@@ -390,7 +392,7 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 
   Parameters =  config_.getParameter<edm::ParameterSet>("XYPositionMapH");  
   HistoName.str("");
-  HistoName << "MatchedXPosVsYPos";
+  HistoName << "MatchedSimXPosVsYPos";
   MatchedXYPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
@@ -400,7 +402,7 @@ void Phase2TrackerValidateDigi::bookHistograms(DQMStore::IBooker & ibooker,
 				 Parameters.getParameter<double>("ymax"));
   Parameters =  config_.getParameter<edm::ParameterSet>("RZPositionMapH");  
   HistoName.str("");
-  HistoName << "MatchedRPosVsZPos";
+  HistoName << "MatchedSimRPosVsZPos";
   MatchedRZPositionMap = ibooker.book2D(HistoName.str(), HistoName.str(),
 				 Parameters.getParameter<int32_t>("Nxbins"),
 				 Parameters.getParameter<double>("xmin"),
@@ -560,6 +562,21 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker & ibooker, uns
     HistoName.str("");
     HistoName << "MatchedTrackPhiS_" << fname2.str();   
     local_mes.MatchedTrackPhiS = ibooker.book1D(HistoName.str(),HistoName.str(),
+						Parameters.getParameter<int32_t>("Nbins"),
+						Parameters.getParameter<double>("xmin"),
+						Parameters.getParameter<double>("xmax"));
+
+    Parameters =  config_.getParameter<edm::ParameterSet>("SimHitElossH");
+    HistoName.str("");
+    HistoName << "SimHitElossS_" << fname2.str();   
+    local_mes.SimHitElossS = ibooker.book1D(HistoName.str(),HistoName.str(),
+						Parameters.getParameter<int32_t>("Nbins"),
+						Parameters.getParameter<double>("xmin"),
+						Parameters.getParameter<double>("xmax"));
+
+    HistoName.str("");
+    HistoName << "SimHitElossP_" << fname2.str();   
+    local_mes.SimHitElossP = ibooker.book1D(HistoName.str(),HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
 						Parameters.getParameter<double>("xmax"));

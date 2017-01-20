@@ -186,7 +186,7 @@ namespace JME {
                         return m_formula_str;
                     }
 
-                    TFormula* getFormula() const {
+                    TFormula const * getFormula() const {
                         return m_formula.get();
                     }
 

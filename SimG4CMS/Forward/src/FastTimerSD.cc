@@ -1,17 +1,26 @@
-#include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
-
-#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
-#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
 #include "SimG4CMS/Forward/interface/FastTimerSD.h"
+
+#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
+
+#include "DetectorDescription/Core/interface/DDFilter.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
+#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
+
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
+#include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "G4Track.hh"
 #include "G4SDManager.hh"
@@ -26,7 +35,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
 			 const SensitiveDetectorCatalog & clg, 
@@ -35,7 +44,7 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
   SensitiveTkDetector(name, cpv, clg, p), ftcons(0), name(name),
   hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
   currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
+  postStepPoint(0), eventno(0) {
     
   //Add FastTimer Sentitive Detector Name
   collectionName.insert(name);
@@ -44,16 +53,14 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FastTimerSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-  //int verbn = 1;
     
   SetVerboseLevel(verbn);
-#ifdef DebugLog
-  LogDebug("FastTimerSim") 
-    << "*******************************************************\n"
-    << "*                                                     *\n"
-    << "* Constructing a FastTimerSD  with name " << name << "\n"
-    << "*                                                     *\n"
-    << "*******************************************************";
+#ifdef EDM_ML_DEBUG
+  std::cout << "*******************************************************\n"
+	    << "*                                                     *\n"
+	    << "* Constructing a FastTimerSD  with name " << name << "\n"
+	    << "*                                                     *\n"
+	    << "*******************************************************\n";
 #endif    
     
   slave  = new TrackingSlaveSD(name);
@@ -71,17 +78,24 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
     edm::LogInfo("FastTimerSim") << "FastTimerSD : Assigns SD to LV " << (*it);
   }
     
-  ftcons = new FastTimeDDDConstants(cpv) ;
-  type   = ftcons->getType();
-  
-  edm::LogInfo("FastTimerSim") << "FastTimerSD: Instantiation completed";
+  std::string attribute = "ReadOutName";
+  DDSpecificsFilter filter;
+  DDValue           ddv(attribute,name,0);
+  filter.setCriteria(ddv,DDCompOp::equals);
+  DDFilteredView fv(cpv);
+  fv.addFilter(filter);
+  fv.firstChild();
+  DDsvalues_type sv(fv.mergedSpecifics());
+  std::vector<int> temp = dbl_to_int(getDDDArray("Type",sv));
+  type_  = temp[0];
+
+  edm::LogInfo("FastTimerSim") << "FastTimerSD: Instantiation completed for "
+			       << name << " of type " << type_;
 }
 
 
 FastTimerSD::~FastTimerSD() { 
-
   if (slave)  delete slave; 
-  if (ftcons) delete ftcons;
 }
 
 double FastTimerSD::getEnergyDeposit(G4Step* aStep) {
@@ -89,8 +103,8 @@ double FastTimerSD::getEnergyDeposit(G4Step* aStep) {
 }
 
 void FastTimerSD::Initialize(G4HCofThisEvent * HCE) { 
-#ifdef DebugLog
-  LogDebug("FastTimerSim") << "FastTimerSD : Initialize called for " << name;
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimerSD : Initialize called for " << name << std::endl;
 #endif
 
   theHC = new BscG4HitCollection(name, collectionName[0]);
@@ -109,9 +123,8 @@ bool FastTimerSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     return true;
   } else {
     GetStepInfo(aStep);
-#ifdef DebugLog
-    LogDebug("FastTimerSim") << "FastTimerSD :  number of hits = " 
-			     << theHC->entries();
+#ifdef EDM_ML_DEBUG
+    std::cout << "FastTimerSD :  number of hits = " << theHC->entries() <<"\n";
 #endif
     if (HitExists() == false && edeposit>0. ){ 
       CreateNewHit();
@@ -135,9 +148,9 @@ void FastTimerSD::GetStepInfo(G4Step* aStep) {
 
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-#ifdef DebugLog
-  edm::LogInfo("FastTimerSim") << "FastTimerSD :particleType =  " 
-			       << theTrack->GetDefinition()->GetParticleName();
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimerSD :particleType =  " 
+	    << theTrack->GetDefinition()->GetParticleName() << std::endl;
 #endif
   if (particleCode == emPDG ||
       particleCode == epPDG ||
@@ -150,9 +163,8 @@ void FastTimerSD::GetStepInfo(G4Step* aStep) {
   tSlice    = (100*postStepPoint->GetGlobalTime() )/CLHEP::nanosecond;
   tSliceID  = (int) tSlice;
   unitID    = setDetUnitId(aStep);
-#ifdef DebugLog
-  LogDebug("FastTimerSim") << "FastTimerSD:unitID = " << std::hex << unitID
-			   << std::dec;
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimerSD:unitID = " << std::hex << unitID << std::dec<<"\n";
 #endif
   primaryID    = theTrack->GetTrackID();
   //  Position     = hitPoint;
@@ -176,20 +188,18 @@ uint32_t FastTimerSD::setDetUnitId(G4Step * aStep) {
 
   //Find the depth segment
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  float globalZ = aStep->GetPreStepPoint()->GetPosition().z();
-  int        iz = (globalZ > 0) ? 1 : -1;
-  std::pair<int,int> ixy;
-  if (type == 1) {
-    ixy = ftcons->getXY(touch->GetReplicaNumber(0));
-  } else {
-    ixy = ftcons->getXY(hitPointLocal.x(),hitPointLocal.y());
-  }
-  uint32_t id = FastTimeDetId(ixy.first,ixy.second,iz).rawId();
-#ifdef DebugLog
-  edm::LogInfo("FastTimerSim") << "Levels " << touch->GetReplicaNumber(0) <<":"
-			       << globalZ << " Ixyz " << ixy.first << ":" 
-			       << ixy.second << ":" << iz  << " id " 
-			       << std::hex << id << std::dec;
+  G4ThreeVector global = aStep->GetPreStepPoint()->GetPosition();
+  G4ThreeVector local  = touch->GetHistory()->GetTopTransform().TransformPoint(global);
+  int        iz = (global.z() > 0) ? 1 : -1;
+  std::pair<int,int> izphi = ((ftcons) ? ((type_ == 1) ? 
+					  (ftcons->getZPhi(std::abs(local.z()),local.phi())) : 
+					  (ftcons->getEtaPhi(local.perp(),local.phi()))) :
+			      (std::pair<int,int>(0,0)));
+  uint32_t id = FastTimeDetId(type_,izphi.first,izphi.second,iz).rawId();
+#ifdef EDM_ML_DEBUG
+  std::cout << "Volume " << touch->GetVolume(0)->GetName() << ":" << global.z()
+	    << " Iz(eta)phi " << izphi.first << ":"  << izphi.second << ":" 
+	    << iz  << " id " << std::hex << id << std::dec << std::endl;
 #endif
   return id;
 }
@@ -236,7 +246,6 @@ G4bool FastTimerSD::HitExists() {
 
 
 void FastTimerSD::ResetForNewPrimary() {
-  
   entrancePoint  = SetToLocal(hitPoint);
   exitPoint      = SetToLocalExit(hitPointExit);
   incidentEnergy = preStepPoint->GetKineticEnergy();
@@ -256,28 +265,26 @@ void FastTimerSD::StoreHit(BscG4Hit* hit){
 
 void FastTimerSD::CreateNewHit() {
 
-#ifdef DebugLog
-  LogDebug("FastTimerSim") << "FastTimerSD CreateNewHit for"
-			   << " PV "     << currentPV->GetName()
-			   << " PVid = " << currentPV->GetCopyNo()
-			   << " Unit "   << unitID <<std::endl;
-  LogDebug("FastTimerSim") << " primary "    << primaryID
-			   << " time slice " << tSliceID 
-			   << " For Track  " << theTrack->GetTrackID()
-			   << " which is a " << theTrack->GetDefinition()->GetParticleName();
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimerSD CreateNewHit for" << " PV "
+	    << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo()
+	    << " Unit " << unitID << std::endl;
+  std::cout << " primary " << primaryID << " time slice " << tSliceID 
+	    << " For Track  " << theTrack->GetTrackID() << " which is a "
+	    << theTrack->GetDefinition()->GetParticleName();
 	   
   if (theTrack->GetTrackID()==1) {
-    LogDebug("FastTimerSim") << " of energy "     << theTrack->GetTotalEnergy();
+    std::cout << " of energy "     << theTrack->GetTotalEnergy();
   } else {
-    LogDebug("FastTimerSim") << " daughter of part. " << theTrack->GetParentID();
+    std::cout << " daughter of part. " << theTrack->GetParentID();
   }
 
-  LogDebug("FastTimerSim")  << " and created by " ;
+  std::cout << " and created by " ;
   if (theTrack->GetCreatorProcess()!=NULL)
-    LogDebug("FastTimerSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
+    std::cout << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
-    LogDebug("FastTimerSim") << "NO process";
-  LogDebug("FastTimerSim") << std::endl;
+    std::cout << "NO process";
+  std::cout << std::endl;
 #endif          
     
   currentHit = new BscG4Hit;
@@ -318,10 +325,10 @@ void FastTimerSD::UpdateHit() {
   if (Eloss > 0.) {
     currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
-#ifdef DebugLog
-    LogDebug("FastTimerSim") << "updateHit: add eloss " << Eloss <<std::endl;
-    LogDebug("FastTimerSim") << "CurrentHit="<< currentHit<< ", PostStepPoint="
-			     << postStepPoint->GetPosition();
+#ifdef EDM_ML_DEBUG
+    std::cout << "updateHit: add eloss " << Eloss <<std::endl;
+    std::cout << "CurrentHit="<< currentHit<< ", PostStepPoint = "
+	      << postStepPoint->GetPosition() << std::endl;
 #endif
     currentHit->setEnergyLoss(Eloss);
   }  
@@ -354,11 +361,11 @@ void FastTimerSD::EndOfEvent(G4HCofThisEvent* ) {
   // here we loop over transient hits and make them persistent
   for (int j=0; j<theHC->entries(); j++) {
     BscG4Hit* aHit = (*theHC)[j];
-#ifdef DebugLog
-    edm::LogInfo("FastTimerSim") << "hit number " << j << " unit ID = "
-				 << std::hex << aHit->getUnitID() << std::dec
-				 << " entry z " << aHit->getEntry().z()
-				 << " entry theta " << aHit->getThetaAtEntry();
+#ifdef EDM_ML_DEBUG
+    std::cout << "hit number " << j << " unit ID = " << std::hex 
+	      << aHit->getUnitID() << std::dec << " entry z "
+	      << aHit->getEntry().z() << " entry theta "
+	      << aHit->getThetaAtEntry() << std::endl;
 #endif
     Local3DPoint locExitPoint(0,0,0);
     Local3DPoint locEntryPoint(aHit->getEntry().x(),
@@ -384,8 +391,8 @@ void FastTimerSD::clear() {}
 void FastTimerSD::DrawAll() {} 
 
 void FastTimerSD::PrintAll() {
-#ifdef DebugLog
-  edm::LogInfo("FastTimerSim") << "FastTimerSD: Collection "<<theHC->GetName();
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimerSD: Collection " << theHC->GetName() << std::endl;
 #endif
   theHC->PrintAllHits();
 } 
@@ -394,10 +401,25 @@ void FastTimerSD::fillHits(edm::PSimHitContainer& c, std::string n) {
   if (slave->name() == n) c=slave->hits();
 }
 
+void FastTimerSD::update(const BeginOfJob * job) {
+
+  const edm::EventSetup* es = (*job)();
+  edm::ESHandle<FastTimeDDDConstants> fdc;
+  es->get<IdealGeometryRecord>().get(fdc);
+  if (fdc.isValid()) {
+    ftcons = &(*fdc);
+  } else {
+    edm::LogError("FastTimerSim") << "FastTimerSD : Cannot find FastTimeDDDConstants";
+    throw cms::Exception("Unknown", "FastTimerSD") << "Cannot find FastTimeDDDConstants\n";
+  }
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimerSD::Initialized with FastTimeDDDConstants\n";
+#endif
+}
+
 void FastTimerSD::update (const BeginOfEvent * i) {
-#ifdef DebugLog
-  edm::LogInfo("FastTimerSim") << "Dispatched BeginOfEvent for " << GetName()
-			       << " !" ;
+#ifdef EDM_ML_DEBUG
+  std::cout << "Dispatched BeginOfEvent for " << GetName() << " !\n" ;
 #endif
    clearHits();
    eventno = (*i)()->GetEventID();
@@ -423,4 +445,23 @@ std::vector<std::string> FastTimerSD::getNames(){
   std::vector<std::string> temp;
   temp.push_back(slave->name());
   return temp;
+}
+
+std::vector<double> FastTimerSD::getDDDArray(const std::string & str, 
+					     const DDsvalues_type & sv) {
+
+  DDValue value(str);
+  if (DDfetch(&sv,value)) {
+    const std::vector<double> & fvec = value.doubles();
+    int nval = fvec.size();
+    if (nval < 1) {
+      edm::LogError("FastTimerSim") << "FastTimerSD : # of " << str
+				    << " bins " << nval << " < 1 ==> illegal";
+      throw cms::Exception("DDException") << "FastTimerSD: cannot get array " << str;
+    }
+    return fvec;
+  } else {
+    edm::LogError("FastTimerSim") << "FastTimerSD: cannot get array " << str;
+    throw cms::Exception("DDException") << "FastTimerSD: cannot get array " << str;
+  }
 }

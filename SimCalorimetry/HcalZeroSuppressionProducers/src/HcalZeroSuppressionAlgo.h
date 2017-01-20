@@ -17,13 +17,11 @@ public:
   void suppress(const HBHEDigiCollection& input, HBHEDigiCollection& output);
   void suppress(const HODigiCollection& input, HODigiCollection& output);
   void suppress(const HFDigiCollection& input, HFDigiCollection& output);
-  void suppress(const HcalUpgradeDigiCollection& input, HcalUpgradeDigiCollection& output);
   void suppress(const QIE10DigiCollection& input, QIE10DigiCollection& output);
   void suppress(const QIE11DigiCollection& input, QIE11DigiCollection& output);
   virtual bool shouldKeep(const HBHEDataFrame& digi) const = 0;
   virtual bool shouldKeep(const HODataFrame& digi) const = 0;
   virtual bool shouldKeep(const HFDataFrame& digi) const = 0;
-  virtual bool shouldKeep(const HcalUpgradeDataFrame& digi) const = 0;
   virtual bool shouldKeep(const QIE10DataFrame& digi) const = 0;
   virtual bool shouldKeep(const QIE11DataFrame& digi) const = 0;
   void setDbService(const HcalDbService* db) { m_dbService=db; }

@@ -11,7 +11,7 @@ readGeometryFromDB = False
 # material-budget grouping into the DDD of the detector. So we need to read the
 # geometry using the XMLIdealGeometryRecord.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2017NewFPixReco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 else:
 # GlobalTag and geometry via it
   process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
@@ -19,6 +19,9 @@ else:
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_design', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
+
+# Add our custom detector grouping to DDD
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseI.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseI_cff")
@@ -52,7 +55,7 @@ def customizeMessageLogger(process):
     process.MessageLogger.destinations.extend([destination])
     process.MessageLogger._Parameterizable__addParameter(destination, how_to_debug)
     # 4. Define and extend the categories we would like to monitor
-    log_debug_categories = ['TrackingMaterialAnalyser']
+    log_debug_categories = ['TrackingMaterialAnalyser', 'MaterialAccountingGroup']
     process.MessageLogger.categories.extend(log_debug_categories)
 
     # 5. Extend the configuration of the configured destination so that it

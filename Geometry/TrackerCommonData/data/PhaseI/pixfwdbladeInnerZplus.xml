@@ -197,7 +197,7 @@
  </LogicalPart>
  <LogicalPart name="PixelForwardFlexCable" category="unspecified">
   <rSolid name="PixelForwardFlexCable"/>
-  <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFelxCable"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_AluFlexCable"/>
  </LogicalPart>
 </LogicalPartSection>
 

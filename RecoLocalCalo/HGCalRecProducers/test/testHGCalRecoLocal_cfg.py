@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("testHGCalRecoLocal",eras.Phase2C2)
+process = cms.Process("testHGCalRecoLocal",eras.Phase2C2_timing)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -125,5 +125,10 @@ for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
 # customisation of the process.
-from SLHCUpgradeSimulations.Configuration.phase2TkFlat import customise
-process=customise(process)
+# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforFullSim
+
+#call to customisation function customizeHLTforFullSim imported from HLTrigger.Configuration.customizeHLTforMC
+process = customizeHLTforFullSim(process)
+
+# End of customisation functions

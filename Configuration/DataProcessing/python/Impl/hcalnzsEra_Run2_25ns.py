@@ -10,14 +10,14 @@ import os
 import sys
 
 from Configuration.DataProcessing.Impl.hcalnzs import hcalnzs
-import Configuration.StandardSequences.Eras as eras
+from Configuration.Eras.Era_Run2_25ns_cff import Run2_25ns
 
 class hcalnzsEra_Run2_25ns(hcalnzs):
     def __init__(self):
         hcalnzs.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
-        self.eras = eras.eras.Run2_25ns
+        self.eras = Run2_25ns
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]

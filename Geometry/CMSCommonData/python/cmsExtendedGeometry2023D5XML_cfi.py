@@ -123,9 +123,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/zdclumi.xml',
         'Geometry/ForwardCommonData/data/cmszdc.xml',
         'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
-        'Geometry/HGCalCommonData/data/fastTiming.xml',
-        'Geometry/HGCalCommonData/data/v2/fastTimingElement.xml',
-        'Geometry/HGCalCommonData/data/fastTimingConst.xml',
+        'Geometry/HGCalCommonData/data/fastTimingEndcap.xml',
+        'Geometry/HGCalCommonData/data/fastTimingElement.xml',
     )+
     cms.vstring(
         'Geometry/MuonCommonData/data/PhaseII/muonNumbering.xml',

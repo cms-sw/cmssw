@@ -6,7 +6,6 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
@@ -24,7 +23,6 @@ public:
   virtual void adc2fC(const HFDataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const ZDCDataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const HcalCalibDataFrame& df, CaloSamples& lf) const = 0;
-  virtual void adc2fC(const HcalUpgradeDataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const QIE10DataFrame& df, CaloSamples& lf) const = 0;
   virtual void adc2fC(const QIE11DataFrame& df, CaloSamples& lf) const = 0;
   virtual void fC2adc(const CaloSamples& clf, HBHEDataFrame& df, int fCapIdOffset) const = 0;
@@ -32,7 +30,6 @@ public:
   virtual void fC2adc(const CaloSamples& clf, HODataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, ZDCDataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const = 0;
-  virtual void fC2adc(const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, QIE10DataFrame& df, int fCapIdOffset) const = 0;
   virtual void fC2adc(const CaloSamples& clf, QIE11DataFrame& df, int fCapIdOffset) const = 0;
 };

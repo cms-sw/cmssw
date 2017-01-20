@@ -625,11 +625,43 @@ class Subtract:
         ret = histoA.Clone(self._name)
         ret.SetTitle(self._title)
 
-        for i in xrange(1, histoA.GetNbinsX()+1):
+        for i in xrange(0, histoA.GetNbinsX()+2): # include under- and overflow too
             val = histoA.GetBinContent(i)-histoB.GetBinContent(i)
             ret.SetBinContent(i, val)
             ret.SetBinError(i, math.sqrt(val))
 
+        return ret
+
+class Transform:
+    """Class to transform bin contents in an arbitrary way."""
+    def __init__(self, name, histo, func, title=""):
+        """Constructor.
+
+        Argument:
+        name  -- String for name of the resulting histogram
+        histo -- String for a source histogram (needs to be cumulative)
+        func  -- Function to operate on the bin content
+        """
+        self._name = name
+        self._histo = histo
+        self._func = func
+        self._title = title
+
+    def __str__(self):
+        """String representation, returns the name"""
+        return self._name
+
+    def create(self, tdirectory):
+        """Create and return the transformed histogram from a TDirectory"""
+        histo = _getOrCreateObject(tdirectory, self._histo)
+        if not histo:
+            return None
+
+        ret = histo.Clone(self._name)
+        ret.SetTitle(self._title)
+
+        for i in xrange(0, histo.GetNbinsX()+2):
+            ret.SetBinContent(i, self._func(histo.GetBinContent(i)))
         return ret
 
 class FakeDuplicate:
@@ -683,6 +715,56 @@ class FakeDuplicate:
             hfakedup.SetBinError(i, errVal)
 
         return hfakedup
+
+class CutEfficiency:
+    """Class for making a cut efficiency histograms.
+
+          N after cut
+    eff = -----------
+            N total
+    """
+    def __init__(self, name, histo, title=""):
+        """Constructor
+
+        Arguments:
+        name  -- String for name of the resulting histogram
+        histo -- String for a source histogram (needs to be cumulative)
+        """
+        self._name = name
+        self._histo = histo
+        self._title = title
+
+    def __str__(self):
+        """String representation, returns the name"""
+        return self._name
+
+    def create(self, tdirectory):
+        """Create and return the cut efficiency histogram from a TDirectory"""
+        histo = _getOrCreateObject(tdirectory, self._histo)
+        if not histo:
+            return None
+
+        # infer cumulative direction from the under/overflow bins
+        ascending = histo.GetBinContent(0) < histo.GetBinContent(histo.GetNbinsX())
+        if ascending:
+            n_tot = histo.GetBinContent(histo.GetNbinsX())
+        else:
+            n_tot = histo.GetBinContent(0)
+
+        if n_tot == 0:
+            return histo
+
+        ret = histo.Clone(self._name)
+        ret.SetTitle(self._title)
+
+        # calculate efficiency
+        for i in xrange(1, histo.GetNbinsX()+1):
+            n = histo.GetBinContent(i)
+            val = n/n_tot
+            errVal = math.sqrt(val*(1-val)/n_tot)
+            ret.SetBinContent(i, val)
+            ret.SetBinError(i, errVal)
+        return ret
 
 class AggregateBins:
     """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""

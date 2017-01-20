@@ -12,7 +12,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 DDHGCalNoTaperEndcap::DDHGCalNoTaperEndcap() {
   edm::LogInfo("HGCalGeom") << "DDHGCalNoTaperEndcap test: Creating an instance";
@@ -64,16 +64,16 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
   double offsetX   = xQuadrant*0.5*offsetXY;
   double offsetY   = yQuadrant*0.5*offsetXY;
   
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   int rowmax(0), column(0);
 #endif
   while (abs(offsetX) < m_rMax) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     column++;
     int row(0);
 #endif
     while (abs(offsetY) < m_rMax) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
       row++;
 #endif
       double limit1 = sqrt((offsetX+0.5*xQuadrant*offsetXY)*
@@ -86,7 +86,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
 			   (offsetY-0.5*yQuadrant*offsetXY) );
       // Make sure we do not add supermodules in rMin area
       if (limit2 > m_rMin && limit1 < m_rMax) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	std::cout << m_childName << " copyNo = " << copyNo << " (" << column 
 		  << "," << row << "): offsetX,Y = " << offsetX << "," 
 		  << offsetY << " limit=" << limit1 << ":" << limit2 
@@ -115,7 +115,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
 
 	copyNo += m_incrCopyNo;
       } else {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	std::cout << " (" << column << "," << row << "): offsetX,Y = " 
 		  << offsetX << "," << offsetY << " is out of limit=" << limit1
 		  << ":" << limit2 << " rMin, rMax = " << m_rMin << "," 
@@ -127,7 +127,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
       offsetY += yQuadrant*offsetXY;
 
     }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     if (row > rowmax) rowmax = row;
 #endif
     xphi    += xQuadrant*2.*tiltAngle;
@@ -136,7 +136,7 @@ DDHGCalNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQua
     offsetX += xQuadrant*offsetXY;
 
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << rowmax << " rows and " << column << " columns in quadrant " 
 	    << xQuadrant << ":" << yQuadrant << std::endl;
 #endif

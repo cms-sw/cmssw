@@ -136,6 +136,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
     v_dEdx.push_back(dEdx2Handle.product());
   }
 
+  std::vector<float> mvaDummy;
+
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int www=0;www<label.size();www++){
     //
@@ -348,7 +350,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
       
       double dR=0;//fixme: plots vs dR not implemented for now
-      histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), nullptr, nullptr, isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
+      histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track, ttopo, bs.position(), nullptr, nullptr, isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR, mvaDummy, 0, 0);
       
       // dE/dx
       if (dodEdxPlots_) histoProducerAlgo_->fill_dedx_recoTrack_histos(w,track, v_dEdx);

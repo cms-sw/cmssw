@@ -39,14 +39,14 @@ namespace metsig {
 
          reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
 					  const std::vector< edm::Handle<reco::CandidateView> >& leptons,
-					  const edm::View<reco::Candidate>& pfCandidates,
+					  const edm::Handle<edm::View<reco::Candidate> >& pfCandidates,
 					  double rho,
 					  JME::JetResolution & resPtObj,
 					  JME::JetResolution & resPhiObj,
 					  JME::JetResolutionScaleFactor & resSFObj,
 					  bool isRealData);
 
-     double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
+     static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met );
 
       private:
          bool cleanJet(const reco::Jet& jet, 

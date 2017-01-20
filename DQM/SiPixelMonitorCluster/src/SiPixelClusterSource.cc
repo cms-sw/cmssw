@@ -48,6 +48,7 @@ using namespace edm;
 SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  digisrc_( conf_.getParameter<edm::InputTag>( "digisrc" ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
@@ -70,6 +71,7 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
 
    //set Token(-s)
    srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf_.getParameter<edm::InputTag>("src"));
+   digisrcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>("digisrc"));
    firstRun = true;
    topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 }
@@ -152,6 +154,32 @@ void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run 
   meClusFpixMProf = iBooker.bookProfile(ss1.str(),ss2.str(),2400,0.,150,0,0,"");
   meClusFpixMProf->getTH1()->SetCanExtend(TH1::kAllAxes);
 
+  iBooker.setCurrentFolder(topFolderName_+"/Barrel");
+  for (int i = 1; i <= noOfLayers; i++) {
+    int ybins = -1; float ymin = 0.; float ymax = 0.;
+    if (i==1) { ybins = 42; ymin = -10.5; ymax = 10.5; }
+    if (i==2) { ybins = 66; ymin = -16.5; ymax = 16.5; }
+    if (i==3) { ybins = 90; ymin = -22.5; ymax = 22.5; }
+    ss1.str(std::string()); ss1 << "pix_bar Occ_roc_online_" + digisrc_. label() + "_layer_" << i;
+    ss2.str(std::string()); ss2 << "Pixel Barrel Occupancy, ROC level (Online): Layer " << i;
+    meZeroRocBPIX.push_back(iBooker.book2D(ss1.str(),ss2.str(),72,-4.5,4.5,ybins,ymin,ymax));
+    meZeroRocBPIX.at(i-1)->setAxisTitle("ROC / Module",1);
+    meZeroRocBPIX.at(i-1)->setAxisTitle("ROC / Ladder",2);
+  }
+
+  iBooker.setCurrentFolder(topFolderName_+"/Endcap");
+  meZeroRocFPIX = iBooker.book2D("ROC_endcap_occupancy","Pixel Endcap Occupancy, ROC level (Online)",72, -4.5, 4.5,288,-12.5,12.5);
+  meZeroRocFPIX->setBinLabel(1, "Disk-2 Pnl2",1);
+  meZeroRocFPIX->setBinLabel(9, "Disk-2 Pnl1",1);
+  meZeroRocFPIX->setBinLabel(19, "Disk-1 Pnl2",1);
+  meZeroRocFPIX->setBinLabel(27, "Disk-1 Pnl1",1);
+  meZeroRocFPIX->setBinLabel(41, "Disk+1 Pnl1",1);
+  meZeroRocFPIX->setBinLabel(49, "Disk+1 Pnl2",1);
+  meZeroRocFPIX->setBinLabel(59, "Disk+2 Pnl1",1);
+  meZeroRocFPIX->setBinLabel(67, "Disk+2 Pnl2",1);
+  meZeroRocFPIX->setAxisTitle("Blades in Inner (>0) / Outer(<) Halves",2);
+  meZeroRocFPIX->setAxisTitle("ROC occupancy",3);
+
 }
 
 //------------------------------------------------------------------
@@ -176,10 +204,20 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   // get input data
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  input;
   iEvent.getByToken(srcToken_, input);
+  auto const & clustColl = *(input.product());
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry* tracker = &(* pDD);
+
+  edm::Handle< edm::DetSetVector<PixelDigi> >  digiinput;
+  iEvent.getByToken( digisrcToken_, digiinput );
+  const edm::DetSetVector<PixelDigi> diginp = *(digiinput.product());
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
 
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventFpixClusters = 0;
@@ -218,7 +256,21 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   
   //std::cout<<"nEventFpixClusters: "<<nEventFpixClusters<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
   
-  
+  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+    
+    DetId detId = (*it)->geographicalId();
+    
+    // fill barrel
+    if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+      getrococcupancy(detId,diginp,pTT,meZeroRocBPIX);
+    }
+    
+    // fill endcap
+    if (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      getrococcupancye(detId,clustColl,pTT,pDD,meZeroRocFPIX);
+    }
+    
+  }   
 
   // slow down...
   if(slowDown) usleep(10000);
@@ -372,6 +424,106 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker, const edm::Event
   }
 
 }
+
+void SiPixelClusterSource::getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,
+					   std::vector<MonitorElement*> meinput) {
+  
+  edm::DetSetVector<PixelDigi>::const_iterator ipxsearch = diginp.find(detId);
+  if( ipxsearch != diginp.end() ) {
+    
+    // Look at digis now
+    edm::DetSet<PixelDigi>::const_iterator  pxdi;
+    for (pxdi = ipxsearch->begin(); pxdi != ipxsearch->end(); pxdi++) {
+      
+      bool isHalfModule = PixelBarrelName(DetId(detId),tTopo,isUpgrade).isHalfModule();
+      int  DBlayer      = PixelBarrelName(DetId(detId),tTopo,isUpgrade).layerName();
+      int  DBmodule     = PixelBarrelName(DetId(detId),tTopo,isUpgrade).moduleName();
+      int  DBladder     = PixelBarrelName(DetId(detId),tTopo,isUpgrade).ladderName();
+      int  DBshell      = PixelBarrelName(DetId(detId),tTopo,isUpgrade).shell();
+      
+      // add sign to the modules
+      if (DBshell==1 || DBshell==2) { DBmodule = -DBmodule; }
+      if (DBshell==1 || DBshell==3) { DBladder = -DBladder; }
+      
+    int col = pxdi->column();
+    int row = pxdi->row();
+    
+    float modsign = (float)DBmodule/(abs((float)DBmodule));
+    float ladsign = (float)DBladder/(abs((float)DBladder));
+    float rocx = ((float)col/(52.*8.))*modsign + ((float)DBmodule-(modsign)*0.5);
+    float rocy = ((float)row/(80.*2.))*ladsign + ((float)DBladder-(ladsign)*0.5);
+    
+    // do the flip where need
+    bool flip    = false;
+    if ( (DBladder%2==0) && (!isHalfModule) ) { flip = true; }
+    if ((flip) && (DBladder>0)) {
+      if      ( ( ((float)DBladder-(ladsign)*0.5)<=rocy) && (rocy<(float)DBladder))    { rocy = rocy + ladsign*0.5; }
+      else if ( ( ((float)DBladder)<=rocy) && (rocy<((float)DBladder+(ladsign)*0.5)) ) { rocy = rocy - ladsign*0.5; }
+    }
+    
+    // tweak border effect for negative modules/ladders
+    if (modsign<0) { rocx = rocx -0.0001; }
+    if (ladsign<0) { rocy = rocy -0.0001; } else { rocy = rocy +0.0001; }
+    if (abs(DBladder)==1) { rocy = rocy + ladsign*0.5; } //take care of the half module
+    meinput[DBlayer-1]->Fill(rocx,rocy);
+    } // end of looping over pxdi
+  }
+}
+
+
+void SiPixelClusterSource::getrococcupancye(DetId detId, const edmNew::DetSetVector<SiPixelCluster> & clustColl, 
+					    const TrackerTopology* const pTT, edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput) {
+  
+  edmNew::DetSetVector<SiPixelCluster>::const_iterator ipxsearch = clustColl.find(detId);
+  if( ipxsearch != clustColl.end() ) {
+    
+    // Look at clusters now
+    edmNew::DetSet<SiPixelCluster>::const_iterator  pxclust;
+    for (pxclust = ipxsearch->begin(); pxclust != ipxsearch->end(); pxclust++) {
+      
+      const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
+      const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);    
+      const PixelTopology * topol = &(pixDet->specificTopology());
+      LocalPoint clustlp = topol->localPosition( MeasurementPoint(pxclust->x(),pxclust->y()) );
+      GlobalPoint clustgp = geoUnit->surface().toGlobal( clustlp );    
+      
+      float xclust = pxclust->x();
+      float yclust = pxclust->y();
+      float z      = clustgp.z();    
+      
+      int pxfside   = PixelEndcapName(detId,pTT,isUpgrade).halfCylinder();     
+      int pxfpanel  = PixelEndcapName(detId,pTT,isUpgrade).pannelName();
+      int pxfmodule = PixelEndcapName(detId,pTT,isUpgrade).plaquetteName();
+      int pxfdisk   = PixelEndcapName(detId,pTT,isUpgrade).diskName();
+      int pxfblade  = PixelEndcapName(detId,pTT,isUpgrade).bladeName();
+      
+      if ( (pxfside==1) || (pxfside==3) ) { pxfblade = -1.*pxfblade; }      
+      
+      if (z<0.) { pxfdisk  = -1.*pxfdisk; }
+      
+      int clu_sdpx = ((pxfdisk>0) ? 1 : -1) * (2 * (abs(pxfdisk) - 1) + pxfpanel);
+      int binselx = (pxfpanel==1&&(pxfmodule==1||pxfmodule==4)) ? (pxfmodule==1) : ((pxfpanel==1&& xclust<80.0)||(pxfpanel==2&&xclust>=80.0));
+      int nperpan = 2 * pxfmodule + pxfpanel - 1 + binselx;
+      int clu_roc_binx = ((pxfdisk>0) ? nperpan : 9 - nperpan) + (clu_sdpx + 4) * 8 - 2 * ((abs(pxfdisk)==1) ? pxfdisk : 0);
+ 
+      int clu_roc_biny = -99.;
+      int nrocly = pxfmodule + pxfpanel;
+      for (int i=0; i<nrocly; i++) {
+	int j = (pxfdisk<0) ? i : nrocly - 1 - i;
+	if (yclust>=(j*52.0)&& yclust<((j+1)*52.0))
+	  clu_roc_biny = 6 - nrocly + 2 * i + ((pxfblade>0) ? pxfblade-1 : pxfblade + 12)*12 + 1;
+      }
+      if (pxfblade>0) { clu_roc_biny = clu_roc_biny+144; }
+      
+      meinput->setBinContent(clu_roc_binx,clu_roc_biny, meinput->getBinContent(clu_roc_binx,clu_roc_biny)+1);
+      meinput->setBinContent(clu_roc_binx,clu_roc_biny+1, meinput->getBinContent(clu_roc_binx,clu_roc_biny+1)+1);
+      
+    }
+  }
+  
+}
+
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiPixelClusterSource);

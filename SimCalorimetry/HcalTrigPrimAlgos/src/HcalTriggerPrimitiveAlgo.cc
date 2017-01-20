@@ -1,16 +1,23 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameters.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
-#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
 #include <iostream>
+
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
@@ -29,7 +36,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    NCTScaleShift(0), RCTScaleShift(0),
-                                                   peak_finder_algorithm_(2)
+                                                   peak_finder_algorithm_(2),
+                                                   override_parameters_()
 {
    //No peak finding setting (for Fastsim)
    if (!peakfind_){
@@ -57,16 +65,18 @@ HcalTriggerPrimitiveAlgo::setUpgradeFlags(bool hb, bool he, bool hf)
 
 
 void
-HcalTriggerPrimitiveAlgo::overrideParameters(unsigned int hf_tdc_mask,
-                                             unsigned int hf_adc_threshold,
-                                             unsigned int hf_fg_threshold)
+HcalTriggerPrimitiveAlgo::overrideParameters(const edm::ParameterSet& ps)
 {
-   auto parameters = new TPParameters();
-   parameters->hf_tdc_mask = hf_tdc_mask;
-   parameters->hf_adc_threshold = hf_adc_threshold;
-   parameters->hf_fg_threshold = hf_fg_threshold;
+   override_parameters_ = ps;
 
-   override_parameters_ = std::unique_ptr<const TPParameters>(parameters);
+   if (override_parameters_.exists("ADCThresholdHF")) {
+      override_adc_hf_ = true;
+      override_adc_hf_value_ = override_parameters_.getParameter<uint32_t>("ADCThresholdHF");
+   }
+   if (override_parameters_.exists("TDCMaskHF")) {
+      override_tdc_hf_ = true;
+      override_tdc_hf_value_ = override_parameters_.getParameter<unsigned long long>("TDCMaskHF");
+   }
 }
 
 
@@ -208,6 +218,9 @@ HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame)
       auto& details = theHFUpgradeDetailMap[id][fid.maskDepth()];
       details[fid.depth() - 1].samples = samples;
       details[fid.depth() - 1].digi = frame;
+      details[fid.depth() - 1].validity.resize(frame.samples());
+      for (int idx = 0; idx < frame.samples(); ++idx)
+         details[fid.depth() - 1].validity[idx] = validChannel(frame, idx);
    }
 }
 
@@ -486,17 +499,11 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
             uint32_t ADCLong = details.LongDigi[ibin].adc();
             uint32_t ADCShort = details.ShortDigi[ibin].adc();
 
-            if (details.LongDigi.id().ietaAbs() != 29) {
+            if (details.LongDigi.id().ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
                finegrain[ibin][1] = (ADCLong > FG_HF_threshold_ || ADCShort > FG_HF_threshold_);
 
-               if (HCALFEM != 0) {
-                  finegrain[ibin][0] = HCALFEM->fineGrainbit(
-                        ADCShort, details.ShortDigi.id(),
-                        details.ShortDigi[ibin].capid(),
-                        ADCLong, details.LongDigi.id(),
-                        details.LongDigi[ibin].capid()
-                  );
-               }
+               if (HCALFEM != 0)
+                  finegrain[ibin][0] = HCALFEM->fineGrainbit(details.ShortDigi, details.LongDigi, ibin);
             }
         }
     }
@@ -513,9 +520,31 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(
     
 }
 
+bool
+HcalTriggerPrimitiveAlgo::validChannel(const QIE10DataFrame& digi, int ts) const
+{
+   auto mask = conditions_->getHcalTPChannelParameter(HcalDetId(digi.id()))->getMask();
+   if (mask)
+      return false;
+
+   auto parameters = conditions_->getHcalTPParameters();
+   auto adc_threshold = parameters->getADCThresholdHF();
+   auto tdc_mask = parameters->getTDCMaskHF();
+
+   if (override_adc_hf_)
+      adc_threshold = override_adc_hf_value_;
+   if (override_tdc_hf_)
+      tdc_mask = override_tdc_hf_value_;
+
+   if (digi[ts].adc() < adc_threshold)
+      return true;
+
+   return (1ul << digi[ts].le_tdc()) & tdc_mask;
+}
+
 void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result,
-        const int hf_lumi_shift, const HcalFeatureBit* hcalfem)
+        const int hf_lumi_shift, const HcalFeatureBit* embit)
 {
     // Align digis and TP
     const int shift = samples.presamples() - numberOfPresamples_;
@@ -530,7 +559,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
         return;
     }
 
-    std::vector<int> finegrain(numberOfSamples_, false);
+    std::vector<std::bitset<2>> finegrain(numberOfSamples_, false);
 
     // Set up out output of IntergerCaloSamples
     IntegerCaloSamples output(samples.id(), numberOfSamples_);
@@ -549,56 +578,69 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2017(
             bool saturated = false;
 
             for (auto i: {0, 2}) {
-               if (idx < details[i].samples.size()) {
-                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
-                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
-                     long_fiber_val += details[i].samples[idx];
-                     saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
-                     ++long_fiber_count;
-                  }
+               if (idx < details[i].samples.size() and details[i].validity[idx]) {
+                  long_fiber_val += details[i].samples[idx];
+                  saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
+                  ++long_fiber_count;
                }
             }
             for (auto i: {1, 3}) {
-               if (idx < details[i].samples.size()) {
-                  if ((unsigned int) details[i].digi[idx].adc() < override_parameters_->hf_adc_threshold
-                        or (1ul << (details[i].digi[idx].le_tdc() - 1)) & override_parameters_->hf_tdc_mask) {
-                     short_fiber_val += details[i].samples[idx];
-                     saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
-                     ++short_fiber_count;
-                  }
+               if (idx < details[i].samples.size() and details[i].validity[idx]) {
+                  short_fiber_val += details[i].samples[idx];
+                  saturated = saturated || (details[i].samples[idx] == QIE10_LINEARIZATION_ET);
+                  ++short_fiber_count;
                }
             }
 
             if (saturated) {
                output[ibin] = QIE10_MAX_LINEARIZATION_ET;
             } else {
-               // If both channels are valid, we cut the sum in half.
-               if (long_fiber_count == 2)
-                  long_fiber_val *= 0.5;
-               if (short_fiber_count == 2)
-                  short_fiber_val *= 0.5;
+               // For details of the energy handling, see:
+               // https://cms-docdb.cern.ch/cgi-bin/DocDB/ShowDocument?docid=12306
+               //
+               // If a channel for one fiber is invalid, use the value of the
+               // other channel (by doubling the sum) to calculate the
+               // energy in the fiber
+               if (long_fiber_count == 1)
+                  long_fiber_val *= 2;
+               if (short_fiber_count == 1)
+                  short_fiber_val *= 2;
 
                auto sum = long_fiber_val + short_fiber_val;
-               // If both towers are valid, we cut the sum in half
-               if (long_fiber_count > 0 and short_fiber_count > 0)
-                  sum *= 0.5;
+               // Similar to above, if a fiber is invalid (i.e., both
+               // channels for the fiber invalid), substitute the value of
+               // the other fiber by doubling the sum.
+               if (long_fiber_count == 0 or short_fiber_count == 0)
+                  sum *= 2;
 
                output[ibin] += sum;
             }
 
-            // int ADCLong = details.LongDigi[ibin].adc();
-            // int ADCShort = details.ShortDigi[ibin].adc();
-            // if(hcalfem != 0)
-            // {
-            //     finegrain[ibin] = (finegrain[ibin] || hcalfem->fineGrainbit(ADCShort, details.ShortDigi.id(), details.ShortDigi[ibin].capid(), ADCLong, details.LongDigi.id(), details.LongDigi[ibin].capid()));
-            // }
+            for (const auto& detail: details) {
+               if (idx < int(detail.digi.size()) and detail.validity[idx] and HcalDetId(detail.digi.id()).ietaAbs() >= FIRST_FINEGRAIN_TOWER) {
+                  finegrain[ibin][1] = finegrain[ibin][1] or (detail.digi[idx].adc() > (int) FG_HF_threshold_);
+               }
+            }
+
+            if (embit != 0) {
+               finegrain[ibin][0] = embit->fineGrainbit(
+                     details[1].digi, details[3].digi,
+                     details[0].digi, details[2].digi,
+                     details[1].validity[idx], details[3].validity[idx],
+                     details[0].validity[idx], details[2].validity[idx],
+                     idx
+               );
+            }
         }
     }
 
     for (int bin = 0; bin < numberOfSamples_; ++bin) {
-       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]});
+       output[bin] = min({(unsigned int) QIE10_MAX_LINEARIZATION_ET, output[bin]}) >> hf_lumi_shift;
     }
-    outcoder_->compress(output, finegrain, result);
+    std::vector<int> finegrain_converted;
+    for (const auto& fg: finegrain)
+       finegrain_converted.push_back(fg.to_ulong());
+    outcoder_->compress(output, finegrain_converted, result);
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){

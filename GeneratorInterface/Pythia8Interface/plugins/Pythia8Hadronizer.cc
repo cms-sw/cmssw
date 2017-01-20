@@ -433,7 +433,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     }
 
   }
-  
+
   return (status&&status1);
 }
 

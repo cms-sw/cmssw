@@ -13,7 +13,11 @@ anEff = cms.EDAnalyzer("HitEff",
                        trajectories        = cms.InputTag("generalTracks"),
                        siStripClusters     = cms.InputTag("siStripClusters"),
                        siStripDigis        = cms.InputTag("siStripDigis"),
-                       trackerEvent        = cms.InputTag("MeasurementTrackerEvent")
+                       trackerEvent        = cms.InputTag("MeasurementTrackerEvent"),
+                       lumiScalers = cms.InputTag("scalersRawToDigi"),
+                       addLumi = cms.untracked.bool(False),
+                       commonMode = cms.InputTag("siStripDigis", "CommonMode"),
+                       addCommonMode = cms.untracked.bool(False)
                        )
 
 hiteff = cms.Sequence( anEff )

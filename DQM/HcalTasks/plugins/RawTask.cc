@@ -14,7 +14,7 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	_calibProcessing = ps.getUntrackedParameter<bool>("calibProcessing",
 		false);
 	_thresh_calib_nbadq = ps.getUntrackedParameter<int>("thresh_calib_nbadq",
-		1000);
+		5000);
 
 	_tokFEDs = consumes<FEDRawDataCollection>(_tagFEDs);
 	_tokReport = consumes<HcalUnpackerReport>(_tagReport);
@@ -64,12 +64,13 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 		it!=vFEDsuTCA.end(); ++it)
 	{
+        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		vhashFEDsuTCA.push_back(HcalElectronicsId(
-		hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
-		FIBERCH_MIN, false).rawId());
+		    cspair.first, cspair.second, FIBER_uTCA_MIN1,
+		    FIBERCH_MIN, false).rawId());
 		_vhashFEDs.push_back(HcalElectronicsId(
-		hcaldqm::utilities::fed2crate(*it), SLOT_uTCA_MIN, FIBER_uTCA_MIN1,
-		FIBERCH_MIN, false).rawId());
+		    cspair.first, cspair.second, FIBER_uTCA_MIN1,
+		    FIBERCH_MIN, false).rawId());
 	}
 	_filter_FEDsVME.initialize(filter::fPreserver, 
 		hcaldqm::hashfunctions::fFED, vhashFEDsVME);
@@ -358,8 +359,9 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 			/* online only */
 			if (_ptype==fOnline)
 			{
-				HcalElectronicsId eid = HcalElectronicsId(hcaldqm::utilities::fed2crate(fed),
-					SLOT_uTCA_MIN, FIBER_uTCA_MIN1, FIBERCH_MIN, false);
+                std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(fed);
+				HcalElectronicsId eid = HcalElectronicsId(cspair.first,
+					cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false);
 				if (_filter_FEDsuTCA.filter(eid))
 					continue;
 				_cDataSizevsLS_FED.fill(eid, _currentLS, double(raw.size())/1024.);

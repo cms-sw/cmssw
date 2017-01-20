@@ -545,6 +545,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 										 TKNoSeedBin, TKNoSeedMin, TKNoSeedMax)));
        SeedsVsClusters[i]->setAxisTitle("Number of Clusters", 1);
        SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
+       SeedsVsClusters[i]->getTH2F()->SetCanExtend(TH1::kAllAxes);
      }
    }
   
@@ -613,6 +614,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	title = "# of Clusters in (Pixel+Strip) Detectors";
       NumberOfTrkVsClusters[i]->setAxisTitle(title, 1);
       NumberOfTrkVsClusters[i]->setAxisTitle("Number of Tracks", 2);
+      NumberOfTrkVsClusters[i]->getTH1()->SetCanExtend(TH1::kXaxis);
     }
   }
   

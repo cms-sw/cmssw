@@ -33,6 +33,7 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pha
     Phase2TrackerDigi firstDigi;
     unsigned int sizeCluster(0);
     bool closeCluster(false); 
+    bool HIPbit(false); 
 
     // Loop over the Digis
     // for the S modules, 1 column = 1 strip, so adjacent digis are along the rows
@@ -56,13 +57,16 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pha
             // Otherwise check if we need to close a cluster (end of cluster)
             else closeCluster = ((sizeCluster != 0) ? true : false);
 
+	    // update the HIP bit
+	    HIPbit |= (matrix_(row, col)==2);
+
             // Always close a cluster if we reach the end of the loop
             if (sizeCluster != 0 and row == (nrows_ - 1)) closeCluster = true;
 
             // If we have to close a cluster, do it
             if (closeCluster) { 
                 // Add the cluster to the list
-                clusters.push_back(Phase2TrackerCluster1D(firstDigi, sizeCluster));
+                clusters.push_back(Phase2TrackerCluster1D(firstDigi, sizeCluster, HIPbit)); 
                 // Reset the variables
                 sizeCluster = 0;
                 // Increase the number of clusters
@@ -83,7 +87,7 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pha
  */
 
 void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet< Phase2TrackerDigi >::const_iterator begin, edm::DetSet< Phase2TrackerDigi >::const_iterator end) {
-    for (edm::DetSet< Phase2TrackerDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), true);
+    for (edm::DetSet< Phase2TrackerDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), true, di->overThreshold());
 }
 
 /*
@@ -91,6 +95,6 @@ void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet< Phase2TrackerDig
  */
 
 void Phase2TrackerClusterizerAlgorithm::clearMatrix(edm::DetSet< Phase2TrackerDigi >::const_iterator begin, edm::DetSet< Phase2TrackerDigi >::const_iterator end) {
-    for (edm::DetSet< Phase2TrackerDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), false);
+    for (edm::DetSet< Phase2TrackerDigi >::const_iterator di(begin); di != end; ++di) matrix_.set(di->row(), di->column(), false, false);
 }
 

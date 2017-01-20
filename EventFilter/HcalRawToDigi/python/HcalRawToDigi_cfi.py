@@ -3,7 +3,7 @@ import EventFilter.HcalRawToDigi.hcalRawToDigi_cfi
 
 # This version is intended for unpacking standard production data
 hcalDigis =  EventFilter.HcalRawToDigi.hcalRawToDigi_cfi.hcalRawToDigi.clone()
-# Flag to enable unpacking of ZDC channels (default = false)
+# Flag to enable unpacking of ZDC channels (default = True)
 hcalDigis.UnpackZDC = cms.untracked.bool(True)
 # Flag to enable unpacking of TTP channels (default = false)
 hcalDigis.UnpackTTP = cms.untracked.bool(True)

@@ -416,10 +416,10 @@ h->setBinContent(j+1, 0);
 
   //#hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> nhits_vs_eta,
-    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta;
+    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta,nME0hits_vs_eta;
 
   std::vector<MonitorElement*> h_hits_eta,
-    h_DThits_eta,h_CSChits_eta,h_RPChits_eta,h_GEMhits_eta;;
+    h_DThits_eta,h_CSChits_eta,h_RPChits_eta,h_GEMhits_eta,h_ME0hits_eta;
     
 
   std::vector< std::vector<double> > etaintervals;

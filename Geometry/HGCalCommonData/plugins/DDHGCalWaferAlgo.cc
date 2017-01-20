@@ -13,10 +13,10 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalWaferAlgo.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 DDHGCalWaferAlgo::DDHGCalWaferAlgo() {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo test: Creating an instance";
 #endif
 }
@@ -36,7 +36,7 @@ void DDHGCalWaferAlgo::initialize(const DDNumericArguments & nArgs,
   positionY   = dbl_to_int(vArgs["PositionY"]);
   angles      = vArgs["Angles"];
   detectorType= dbl_to_int(vArgs["DetectorType"]);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalGeom") << childNames.size() << " children: "
 			    << childNames[0] << "; " << childNames[1]
 			    << " positioned " << positionX.size() 
@@ -49,7 +49,7 @@ void DDHGCalWaferAlgo::initialize(const DDNumericArguments & nArgs,
   rotns       = sArgs["RotNameSpace"];
   idNameSpace = DDCurrentNamespace::ns();
   parentName  = parent().name(); 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo debug: Parent " 
 			    << parentName << " NameSpace " << idNameSpace
 			    << " for Rotation " << rotns;
@@ -58,7 +58,7 @@ void DDHGCalWaferAlgo::initialize(const DDNumericArguments & nArgs,
 
 void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
   
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalGeom") << "==>> Constructing DDHGCalWaferAlgo...";
 #endif
   double dx = 0.5*cellSize;
@@ -74,7 +74,7 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
       rotstr = rotstr + std::to_string(angles[k]);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
 	edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo: Creating new rotation "
 				  << DDName(rotstr, rotns) << "\t90, " 
 				  << angles[k] << ", 90, " << (angles[k]+90) 
@@ -90,7 +90,7 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
     DDTranslation tran(xpos, ypos, 0);
     int copy = cellType*1000+k;
     cpv.position(DDName(name,idNameSpace), parentName, copy, tran, rotation);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     edm::LogInfo("HGCalGeom") << "DDHGCalWaferAlgo: " 
 			      << DDName(name,idNameSpace) << " number " << copy
 			      << " positioned in " << parentName << " at "

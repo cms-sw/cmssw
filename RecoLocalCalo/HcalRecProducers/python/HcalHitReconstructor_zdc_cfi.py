@@ -5,6 +5,7 @@ zdcreco = cms.EDProducer(
     correctionPhaseNS = cms.double(0.0),
     digiLabelhcal = cms.InputTag("hcalDigis"),
     digiLabelcastor = cms.InputTag("castorDigis"),
+    digiLabelQIE10ZDC = cms.InputTag("hcalDigis:ZDC"),
     Subdetector = cms.string('ZDC'),
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew = cms.bool(False),

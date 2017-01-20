@@ -1,0 +1,26 @@
+<use   name="HeavyFlavorAnalysis/RecoDecay"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="PhysicsTools/CandUtils"/>
+<use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/KinematicFit"/>
+<use   name="RecoVertex/KinematicFitPrimitives"/>
+<use   name="RecoVertex/VertexPrimitives"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/TransientTrack"/>
+<export>
+  <flags SEAL_PLUGIN="1"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="DataFormats/VertexReco"/>
+  <use   name="RecoVertex/KinematicFitPrimitives"/>
+  <use   name="TrackingTools/PatternTools"/>
+  <lib   name="1"/>
+</export>

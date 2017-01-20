@@ -23,6 +23,7 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
     associatormap = pset.getParameter< edm::InputTag >("associatormap");
     UseAssociators = pset.getParameter< bool >("UseAssociators");
     useGEMs_ = pset.getParameter< bool >("useGEMs");
+    useME0_ = pset.getParameter< bool >("useME0");
     tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
 					  pset.getParameter<double>("minRapidityTP"),
 					  pset.getParameter<double>("maxRapidityTP"),
@@ -163,6 +164,7 @@ private:
 
   bool UseAssociators;
   bool useGEMs_;
+  bool useME0_;
   double minPhi, maxPhi;
   int nintPhi;
   bool useGsf;

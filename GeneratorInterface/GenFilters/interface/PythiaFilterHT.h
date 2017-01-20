@@ -31,6 +31,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
+namespace edm {
+    class HepMCProduct;
+}
 //
 // class decleration
 //
@@ -45,7 +48,7 @@ class PythiaFilterHT : public edm::EDFilter {
    private:
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> label_;
        int particleID;
        double minpcut;
        double maxpcut;

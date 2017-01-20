@@ -118,7 +118,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv, const 
   // construct the regions, stations and rings. 
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re);
-    for (int st=1; st<=2; ++st) {
+    for (int st=1; st<=GEMDetId::maxStationId; ++st) {
       GEMStation* station = new GEMStation(re, st);
       std::string sign( re==-1 ? "-" : "");
       std::string name("GE" + sign + std::to_string(st) + "/1");

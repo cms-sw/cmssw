@@ -123,6 +123,8 @@ class HLTMuonMatchAndPlot
   StringCutObjectSelector<reco::Muon> targetMuonSelector_;
   double targetZ0Cut_; 
   double targetD0Cut_;
+  double targetptCutZ_;
+  double targetptCutJpsi_;
   StringCutObjectSelector<reco::Muon> probeMuonSelector_;
   double probeZ0Cut_; 
   double probeD0Cut_;

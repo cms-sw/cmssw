@@ -3,6 +3,18 @@
 
 #include <unordered_map>
 #include <array>
+#include <functional>
+
+#include "DataFormats/DetId/interface/DetId.h"
+
+namespace std {
+  template<>
+  struct hash<DetId> {
+    std::size_t operator()(const DetId& id) const {      
+      return std::hash<uint32_t>()(id.rawId());
+    }
+  };
+}
 
 namespace hgc_digi {
 

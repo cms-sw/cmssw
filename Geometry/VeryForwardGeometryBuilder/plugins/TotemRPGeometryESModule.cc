@@ -123,11 +123,11 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     // Is it sensor? If yes, apply full sensor alignments
     if (! pD->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME))
     {
-      unsigned int decId = TotemRPDetId::rawToDecId(pD->geographicalID().rawId());
+      unsigned int plId = pD->geographicalID();
 
       if (alignments.isValid())
       {
-        const RPAlignmentCorrectionData& ac = alignments->GetFullSensorCorrection(decId);
+        const RPAlignmentCorrectionData& ac = alignments->GetFullSensorCorrection(plId);
         pD->ApplyAlignment(ac);
       }
     }
@@ -135,8 +135,8 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     // Is it RP box? If yes, apply RP alignments
     if (! pD->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
     {
-      unsigned int rpId = pD->copyno();
-
+      unsigned int rpId = pD->geographicalID();
+      
       if (alignments.isValid())
       {
         const RPAlignmentCorrectionData& ac = alignments->GetRPCorrection(rpId);
@@ -277,14 +277,16 @@ class MeasuredGeometryProducer {
         }
 
         // Extracts RP id from object namespace - object must be RP_Box, or RP_Hybrid (NOT RP_Silicon_Detector)
-        static inline int getRPIdFromNamespace(const DDLogicalPart &part) {
-            int nsLength = part.name().ns().length();
-            return atoi(part.name().ns().substr(nsLength - 3, nsLength).c_str());
-        }
+        static inline TotemRPDetId getRPIdFromNamespace(const DDLogicalPart &part)
+        {
+            const int nsLength = part.name().ns().length();
+            const unsigned int rpDecId = atoi(part.name().ns().substr(nsLength - 3, nsLength).c_str());
 
-        // Creates Detector id from RP id and Detector no
-        static inline int getDetectorId(const int rpId, const int detNo) {
-            return rpId * 10 + detNo;
+            const unsigned int armIdx = rpDecId / 100;
+            const unsigned int stIdx = (rpDecId / 10) % 10;
+            const unsigned int rpIdx = rpDecId % 10;
+
+            return TotemRPDetId(armIdx, stIdx, rpIdx);
         }
 
         // -------------------------------------
@@ -343,12 +345,13 @@ class MeasuredGeometryProducer {
                     DDTranslation       translation(it->edge()->trans());
                     DDRotationMatrix    &rotationMatrix = *(new DDRotationMatrix(it->edge()->rot()));
 
-                    if (isRPBox(to)) {
-                        const int rpId = getRPIdFromNamespace(to);
-                        if (alignments != NULL) {
+                    if (isRPBox(to))
+                    {
+                        if (alignments != NULL)
+                        {
+                            TotemRPDetId rpId = getRPIdFromNamespace(to);
                             const RPAlignmentCorrectionData correction = alignments->GetRPCorrection(rpId);
-                            applyCorrection(from, to, correction,
-                                    translation, rotationMatrix, false);
+                            applyCorrection(from, to, correction, translation, rotationMatrix, false);
                         }
                     }
 
@@ -358,7 +361,8 @@ class MeasuredGeometryProducer {
             }
         }
 
-        void positionDetectors(void) {
+        void positionDetectors(void)
+        {
             DDCompactView::graph_type::const_iterator it = idealCV.graph().begin_iter();
             DDCompactView::graph_type::const_iterator itEnd = idealCV.graph().end_iter();
             for (; it != itEnd; ++it) {
@@ -370,12 +374,13 @@ class MeasuredGeometryProducer {
                     DDTranslation       translation(it->edge()->trans());
                     DDRotationMatrix    &rotationMatrix = *(new DDRotationMatrix(it->edge()->rot()));
 
-                    const int rpId  = getRPIdFromNamespace(from);
-                    const int detId = getDetectorId(rpId, copyNo);
-                    if (alignments != NULL) {
+                    if (alignments != NULL)
+                    {
+                        TotemRPDetId detId = getRPIdFromNamespace(from);
+                        detId.setPlane(copyNo);
+
                         const RPAlignmentCorrectionData correction = alignments->GetFullSensorCorrection(detId);
-                        applyCorrection(from, to, correction, 
-                                translation, rotationMatrix);
+                        applyCorrection(from, to, correction, translation, rotationMatrix);
                     }
 
                     const DDRotation rotation = DDanonymousRot(&rotationMatrix);
@@ -386,7 +391,8 @@ class MeasuredGeometryProducer {
 
     public:
         MeasuredGeometryProducer(const edm::ESHandle<DDCompactView> &idealCV,
-                const edm::ESHandle<RPAlignmentCorrectionsData> &alignments) : idealCV(*idealCV), alignments(alignments.isValid() ? &(*alignments) : NULL) {
+              const edm::ESHandle<RPAlignmentCorrectionsData> &alignments) : idealCV(*idealCV),
+              alignments(alignments.isValid() ? &(*alignments) : NULL) {
             root = this->idealCV.root();
         }
 

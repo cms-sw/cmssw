@@ -169,6 +169,11 @@ namespace pat {
 	    //<< key << " was not stored for this particle.";
           }
       }
+
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
+
       /// Sets the isolation variable for a specifc key.
       /// Note that you can't set isolation for a pseudo-key like CaloIso
       void setIsolation(IsolationKeys key, float value) {
@@ -191,6 +196,14 @@ namespace pat {
       void setHcalIso(float caloIso)   { setIsolation(HcalIso,  caloIso);  }
       /// Sets user isolation variable #index
       void setUserIso(float value, uint8_t index=0)  { setIsolation(IsolationKeys(UserBaseIso + index), value); }
+      /// Sets PUPPI isolation
+      void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiChargedHadronIso_ = chargedhadrons_;
+         puppiNeutralHadronIso_ = neutralhadrons_;
+         puppiPhotonIso_ = photons_;
+
+      }
 
       // ---- methods for photon isolation deposits ----
       /// Returns the IsoDeposit associated with some key, or a null pointer if it is not available
@@ -391,6 +404,11 @@ namespace pat {
 
       float ecalPFClusIso_;
       float hcalPFClusIso_;
+
+      //PUPPI isolations
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;

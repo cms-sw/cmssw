@@ -92,8 +92,8 @@ class ME0DetId :public DetId {
   static const int minLayerId=     0;
   static const int maxLayerId=    6;
 
-  static const int minRollId=	  0;
-  static const int maxRollId=	  1; // ME0 layer consits of 1 etapartition for now, change here when changing ME0 Geometry
+  static const int minRollId=	  0;  
+  static const int maxRollId=	  10; // ME0 layer consists of 10 etapartitions
 
  private:
   static const int RegionNumBits_  =  2;

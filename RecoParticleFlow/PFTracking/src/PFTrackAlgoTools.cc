@@ -24,7 +24,7 @@ namespace PFTrackAlgoTools {
       return cuts[4];
     case reco::TrackBase::muonSeededStepInOut:
     case reco::TrackBase::muonSeededStepOutIn:
-      return cuts[5];
+      return cuts.at(5);
     case reco::TrackBase::hltIter0:
     case reco::TrackBase::hltIter1:
     case reco::TrackBase::hltIter2:
@@ -36,7 +36,7 @@ namespace PFTrackAlgoTools {
     case reco::TrackBase::hltIterX:
       return  cuts[0];
     default:
-      return hltIterativeTracking ? cuts[6]:cuts[0];
+      return hltIterativeTracking ? cuts.at(5):cuts[0];
 
     }
   }
@@ -65,7 +65,7 @@ namespace PFTrackAlgoTools {
       return cuts[4];
     case reco::TrackBase::muonSeededStepInOut:
     case reco::TrackBase::muonSeededStepOutIn:
-      return cuts[5];
+      return cuts.at(5);
     case reco::TrackBase::hltIter0:
     case reco::TrackBase::hltIter1:
     case reco::TrackBase::hltIter2:
@@ -77,7 +77,7 @@ namespace PFTrackAlgoTools {
     case reco::TrackBase::hltIterX:
       return  cuts[0];
     default:
-      return hltIterativeTracking ? cuts[6]:cuts[0];
+      return hltIterativeTracking ? cuts.at(5):cuts[0];
 
     }
   }

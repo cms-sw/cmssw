@@ -3,246 +3,231 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
-FastTimeDDDConstants::FastTimeDDDConstants(const DDCompactView& cpv) {
+FastTimeDDDConstants::FastTimeDDDConstants(const FastTimeParameters* ft) : ftpar_(ft) {
 
-#ifdef DebugLog
-  edm::LogInfo("HGCalGeom") << "FastTimeDDDConstants::FastTimeDDDConstants ( const DDCompactView& cpv ) constructor";
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimeDDDConstants::FastTimeDDDConstants ( const FastTimeParameters* ft ) constructor\n";
 #endif
-  initialize(cpv);
+  initialize();
 
 }
 
 FastTimeDDDConstants::~FastTimeDDDConstants() { 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "FastTimeDDDConstants:destructed!!!" << std::endl;
 #endif
 }
 
-int FastTimeDDDConstants::computeCells() const {
+std::pair<int,int> FastTimeDDDConstants::getZPhi(double z, double phi) const {
 
-  int copy(0);
-#ifdef DebugLog
-  int column(0), rowmax(0);
+  if (phi < 0) phi += CLHEP::twopi;
+  int    iz   = (int)(z/dZBarrel_) + 1;
+  if (iz   > ftpar_->nZBarrel_) iz    = ftpar_->nZBarrel_;
+  int    iphi = (int)(phi/dPhiBarrel_) + 1;
+  if (iphi > ftpar_->nPhiBarrel_) iphi = 1;
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimeDDDConstants:Barrel z|phi " << z << " " 
+	    << phi/CLHEP::deg << " iz|iphi " << iz << " " << iphi << std::endl;
 #endif
-  double offsetX (0), offsetY(0);
-  while (offsetX < rOut) {
-#ifdef DebugLog
-    column++;
-    int row(0);
-#endif
-    while (offsetY <rOut) {
-#ifdef DebugLog
-      row++;
-#endif
-      double limit1 = sqrt((offsetX+cellSize)*(offsetX+cellSize) +
-			   (offsetY+cellSize)*(offsetY+cellSize));
-      double limit2 = sqrt(offsetX*offsetX+offsetY*offsetY);
-      if (limit2 > rIn && limit1 < rOut) copy++;
-      offsetY += cellSize;
+  return std::pair<int,int>(iz,iphi);
+}
+
+std::pair<int,int> FastTimeDDDConstants::getEtaPhi(double r, double phi) const {
+
+  if (phi < 0) phi += CLHEP::twopi;
+  int    ir(ftpar_->nEtaEndcap_);
+  for (unsigned int k=1; k<rLimits_.size(); ++k) {
+    if (r > rLimits_[k]) {
+      ir    = k;  break;
     }
-#ifdef DebugLog
-    if (row > rowmax) rowmax = row;
+  }
+  int    iphi = (int)(phi/dPhiEndcap_) + 1;
+  if (iphi > ftpar_->nPhiEndcap_) iphi = 1;
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimeDDDConstants:Endcap r|phi " << r << " " 
+	    << phi/CLHEP::deg << " ir|iphi " << ir << " " << iphi << std::endl;
 #endif
-    offsetY  = 0;
-    offsetX += cellSize;
-  }
-#ifdef DebugLog
-  std::cout << rowmax << " rows and " << column << " columns with total of "
-	    << copy << " cells in a quadrant " << std::endl;
-#endif
-  return 4*copy;
+  return std::pair<int,int>(ir,iphi);
 }
 
-std::pair<int,int> FastTimeDDDConstants::getXY(int copy) const {
+GlobalPoint FastTimeDDDConstants::getPosition(int type, int izeta, int iphi,
+					      int zside) const {
 
-  int iq = quadrant(copy);
-  if (iq != 0) {
-    int ism = copy - (iq-1)*nCells;
-    int jx(0), jy(0);
-    for (unsigned int k=0; k<firstY.size(); ++k) {
-      if (ism >= firstCell[k] && ism <= lastCell[k]) {
-	jx = k + 1;
-	jy = ism - firstCell[k] + firstY[k];
-	break;
-      }
-    }
-    int ix = (iq == 1 || iq == 4) ? (jx + nCols) : (nCols+1-jx);
-    int iy = (iq == 1 || iq == 2) ? (jy + nRows) : (nRows+1-jy);
-    return std::pair<int,int>(ix,iy);
-  } else {
-    return std::pair<int,int>(0,0);
+  double x(0), y(0), z(0);
+  if (type == 1) {
+    double phi = (iphi-0.5)*dPhiBarrel_;
+    x = ftpar_->geomParBarrel_[2]*cos(phi);
+    y = ftpar_->geomParBarrel_[2]*sin(phi);
+    z = ftpar_->geomParBarrel_[0]+(izeta-0.5)*dZBarrel_;
+  } else if (type == 2) {
+    double phi = (iphi-0.5)*dPhiEndcap_;
+    double r   = (izeta <= 0 || izeta >= (int)(rLimits_.size())) ? 0 :
+      0.5*(rLimits_[izeta-1]+rLimits_[izeta]);
+    x = (zside < 0) ? -r*cos(phi) : r*cos(phi);
+    y = r*sin(phi);
+    z = ftpar_->geomParEndcap_[2];
   }
+  if (zside < 0) z = -z;
+  GlobalPoint p(x,y,z);
+  return p;
 }
 
-std::pair<int,int> FastTimeDDDConstants::getXY(double x, double y) const {
+std::vector<GlobalPoint> FastTimeDDDConstants::getCorners(int type, int izeta, 
+							  int iphi,
+							  int zside) const {
 
-  int jx = floor(fabs(x)/cellSize);
-  int jy = floor(fabs(y)/cellSize);
-  int iq(0);
-  if (x < 0) {
-    if (y < 0) iq = 3;
-    else       iq = 2;
-  } else {
-    if (y < 0) iq = 4;
-    else       iq = 1;
+  double x(0), y(0), z(0), dx(0), dz(0), r(0), phi(0);
+  if (type == 1) {
+    phi  = (iphi-0.5)*dPhiBarrel_;
+    r    = ftpar_->geomParBarrel_[2];
+    x    = r*cos(phi);
+    y    = r*sin(phi);
+    z    = ftpar_->geomParBarrel_[0]+(izeta-0.5)*dZBarrel_;
+    dx   = 0.5*ftpar_->geomParBarrel_[3];
+    dz   = 0.5*dZBarrel_;
+  } else if (type == 2) {
+    phi  = (iphi-0.5)*dPhiEndcap_;
+    r    = (izeta <= 0 || izeta >= (int)(rLimits_.size())) ? 0 :
+      0.5*(rLimits_[izeta-1]+rLimits_[izeta]);
+    x    = (zside < 0) ? -r*cos(phi) : r*cos(phi);
+    y    = r*sin(phi);
+    z    = ftpar_->geomParEndcap_[2];
+    dx   = 0.5*r*dPhiEndcap_;
+    dz   = 0.5*ftpar_->geomParEndcap_[3];
   }
-  int ix = (iq == 1 || iq == 4) ? (jx + nCols) : (nCols+1-jx);
-  int iy = (iq == 1 || iq == 2) ? (jy + nRows) : (nRows+1-jy);
-  if (isValidXY(ix,iy)) {
-    return std::pair<int,int>(ix,iy);
-  } else {
-    return std::pair<int,int>(0,0);
+  if (zside < 0) {z = -z; dz = -dz;}
+  static const int signx[8] = {-1,-1, 1, 1,-1,-1, 1, 1};
+  static const int signy[8] = {-1, 1, 1,-1,-1, 1, 1,-1};
+  static const int signz[8] = {-1,-1,-1,-1, 1, 1, 1, 1};
+  std::vector<GlobalPoint> pts;
+  for (unsigned int i=0; i != 8; ++i) {
+    GlobalPoint p(x+signx[i]*dx,y+signy[i]*dx,z+signz[i]*dz);
+    pts.push_back(p);
   }
+  return pts;
 }
 
-bool FastTimeDDDConstants::isValidXY(int ix, int iy) const {
-  int  iq = quadrant(ix,iy);
-  if (iq != 0) {
-    int kx = (iq == 1 || iq == 4) ? (ix-nCols) : (nCols-1-ix);
-    int ky = (iq == 1 || iq == 2) ? (iy-nRows) : (nRows-1-iy);
-    bool ok = (ky+1 >= firstY[kx] && ky+1 <= lastY[kx]);
-    return ok;
-  } else {
-    return false;
+int FastTimeDDDConstants::getCells(int type) const {
+  int numb(0);
+  if (type == 1) {
+    numb = (ftpar_->nZBarrel_)*(ftpar_->nPhiBarrel_);
+  } else if (type == 2) {
+    numb = (ftpar_->nEtaEndcap_)*(ftpar_->nPhiEndcap_);
   }
+  return numb;
 }
 
-bool FastTimeDDDConstants::isValidCell(int copy) const {
-  bool ok = (copy > 0 && copy <= getCells());
+double FastTimeDDDConstants::getRin(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = (ftpar_->geomParBarrel_[2]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[0]);
+  }
+  return value;
+}
+
+double FastTimeDDDConstants::getRout(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = (ftpar_->geomParBarrel_[2]+ftpar_->geomParBarrel_[3]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[1]);
+  }
+  return value;
+}
+
+double FastTimeDDDConstants::getZHalf(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = 0.5*(ftpar_->geomParBarrel_[1]-ftpar_->geomParBarrel_[0]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[3]);
+  }
+  return value;
+}
+
+double FastTimeDDDConstants::getZPos(int type) const {
+  double value(0);
+  if (type == 1) {
+    value = 0.5*(ftpar_->geomParBarrel_[1]+ftpar_->geomParBarrel_[0]);
+  } else if (type == 2) {
+    value = (ftpar_->geomParEndcap_[2]);
+  }
+  return value;
+}
+
+bool FastTimeDDDConstants::isValidXY(int type, int izeta, int iphi) const {
+  bool ok(false);
+  if (type == 1) {
+    ok = ((izeta > 0) && (izeta <= ftpar_->nZBarrel_) && 
+	  (iphi > 0) && (iphi <= ftpar_->nPhiBarrel_));
+  } else if (type == 2) {
+    ok = ((izeta > 0) && (izeta <= ftpar_->nEtaEndcap_) && 
+	  (iphi > 0) && (iphi <= ftpar_->nPhiEndcap_));
+  }
   return ok;
 }
 
-int FastTimeDDDConstants::quadrant(int ix, int iy) const {
-  int iq(0);
-  if (ix>nCols && ix<=2*nCols) {
-    if (iy>nRows && iy<=2*nRows) iq = 1;
-    else if (iy>0 && iy<=nRows)  iq = 4;
-  } else if (ix>0 && ix<=nCols) {
-    if (iy>nRows && iy<=2*nRows) iq = 2;
-    else if (iy>0 && iy<=nRows)  iq = 3;
+int FastTimeDDDConstants::numberEtaZ(int type) const {
+  int numb(0);
+  if (type == 1) {
+    numb = (ftpar_->nZBarrel_);
+  } else if (type == 2) {
+    numb = (ftpar_->nEtaEndcap_);
   }
-  return iq;
+  return numb;
 }
 
-int FastTimeDDDConstants::quadrant(int copy) const {
-  int iq(0);
-  if (copy > 4*nCells) {
-  } else if (copy > 3*nCells) {
-    iq = 4;
-  } else if (copy > 2*nCells) {
-    iq = 3;
-  } else if (copy > nCells) {
-    iq = 2;
-  } else if (copy > 0) {
-    iq = 1;
+int FastTimeDDDConstants::numberPhi(int type) const {
+  int numb(0);
+  if (type == 1) {
+    numb = (ftpar_->nPhiBarrel_);
+  } else if (type == 2) {
+    numb = (ftpar_->nPhiEndcap_);
   }
-  return iq;
+  return numb;
 }
 
-void FastTimeDDDConstants::initialize(const DDCompactView& cpv) {
+void FastTimeDDDConstants::initialize() {
 
-  std::string attribute = "Volume"; 
-  std::string value     = "SFBX";
-  DDValue val(attribute, value, 0.0);
-  
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool ok = fv.firstChild();
-
-  if (ok) {
-    loadSpecPars(fv);
-  } else {
-    edm::LogError("HGCalGeom") << "FastTimeDDDConstants: cannot get filtered"
-			       << " view for " << attribute 
-			       << " not matching " << value;
-    throw cms::Exception("DDException") << "FastTimeDDDConstants: cannot match " << attribute << " to " << value;
-  }
-}
-
-void FastTimeDDDConstants::loadSpecPars(const DDFilteredView& fv) {
-
-  DDsvalues_type sv(fv.mergedSpecifics());
-
-  // First and Last Row number in each column
-  firstY = dbl_to_int(getDDDArray("firstRow",sv));
-  lastY  = dbl_to_int(getDDDArray("lastRow", sv));
-  if (firstY.size() != lastY.size()) {
-    edm::LogError("HGCalGeom") << "FastTimeDDDConstants: unequal numbers "
-			       << firstY.size() << ":" << lastY.size()
-			       << " elements for first and last rows";
-    throw cms::Exception("DDException") << "FastTimeDDDConstants: wrong array sizes for first/last Row";
-  }
-
-  nCells = 0;
-  nCols  = (int)(firstY.size());
-  nRows  = 0;
-  for (int k=0; k<nCols; ++k) {
-    firstCell.push_back(nCells+1);
-    nCells += (lastY[k]-firstY[k]+1);
-    lastCell.push_back(nCells);
-    if (lastY[k] > nRows) nRows = lastY[k];
-  }
-
-#ifdef DebugLog
-  std::cout << "FastTimeDDDConstants: nCells = " << nCells << ", nRow = " 
-	    << 2*nRows << ", nColumns = " << 2*nCols << std::endl;
-  for (int k=0; k<nCols; ++k) 
-    std::cout << "Column[" << k << "] Cells = " << firstCell[k] << ":" 
-	      << lastCell[k] << ", Rows = " << firstY[k] << ":" << lastY[k] 
-	      << std::endl;
+  double thmin = atan(ftpar_->geomParEndcap_[0]/ftpar_->geomParEndcap_[2]);
+  etaMax_      = -log(0.5*thmin);
+  double thmax = atan(ftpar_->geomParEndcap_[1]/ftpar_->geomParEndcap_[2]);
+  etaMin_      = -log(0.5*thmax);
+  dEta_        = (etaMax_-etaMin_)/ftpar_->nEtaEndcap_;
+#ifdef EDM_ML_DEBUG
+  std::cout << "Theta range " << thmin/CLHEP::deg << ":" << thmax/CLHEP::deg
+	    << " Eta range " << etaMin_ << ":" << etaMax_ << ":" << dEta_ 
+	    << std::endl;
 #endif
-
-  std::vector<double> gpar = getDDDArray("geomPars",sv);
-  if (gpar.size() < 3) {
-    edm::LogError("HGCalGeom") << "FastTimeDDDConstants: too few "
-			       << gpar.size() << " elements for gpar";
-    throw cms::Exception("DDException") << "FastTimeDDDConstants: wrong array sizes for gpar";
+  for (int k=0; k<=ftpar_->nEtaEndcap_; ++k) {
+    double eta   = etaMin_ + k*dEta_;
+    double theta = 2.0*atan(exp(-eta));
+    double rval  = (ftpar_->geomParEndcap_[2])*tan(theta);
+    rLimits_.push_back(rval);
   }
-  rIn      = gpar[0];
-  rOut     = gpar[1];
-  cellSize = gpar[2];
-#ifdef DebugLog
-  std::cout << "FastTimeDDDConstants: cellsize " << cellSize << " in region "
-	    << rIn << ":" << rOut << std::endl;
-#endif
-
-  gpar     = getDDDArray("geomType",sv);
-  cellType = int(gpar[0]);
-#ifdef DebugLog
-  std::cout << "FastTimeDDDConstants: cell type " << cellType << std::endl;
-#endif
-}
-
-std::vector<double> FastTimeDDDConstants::getDDDArray(const std::string & str, 
-						      const DDsvalues_type & sv) const {
-
-#ifdef DebugLog
-  std::cout << "FastTimeDDDConstants:getDDDArray called for " << str << std::endl;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value)) {
-#ifdef DebugLog
-    std::cout << "FastTimeDDDConstants: " << value << std::endl;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nval > 0) return fvec;
+  dZBarrel_   = ftpar_->geomParBarrel_[1]/ftpar_->nZBarrel_;
+  dPhiBarrel_ = CLHEP::twopi/ftpar_->nPhiBarrel_;
+  dPhiEndcap_ = CLHEP::twopi/ftpar_->nPhiEndcap_;
+#ifdef EDM_ML_DEBUG
+  std::cout << "FastTimeDDDConstants initialized with " << ftpar_->nZBarrel_ 
+	    << ":" << ftpar_->nPhiBarrel_ << ":" << getCells(1) 
+	    << " cells for barrel; dz|dphi " << dZBarrel_ << "|" << dPhiBarrel_
+	    << " and " << ftpar_->nEtaEndcap_ << ":" << ftpar_->nPhiEndcap_
+	    << ":" << getCells(2) << " cells for endcap; dphi " << dPhiEndcap_
+	    << " The Limits in R are" << std::endl;
+  for (unsigned int k=0; k<rLimits_.size(); ++k) {
+    std::cout << "[" << k << "] " << rLimits_[k] << " ";
+    if (k%8 == 7) std::cout << std::endl;
   }
-  edm::LogError("HGCalGeom") << "FastTimeDDDConstants: cannot get array " 
-			     << str;
-  throw cms::Exception("DDException") << "FastTimeDDDConstants: cannot get array " << str;
+  if ((rLimits_.size()-1)%8 != 7) std::cout << std::endl;
+#endif
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

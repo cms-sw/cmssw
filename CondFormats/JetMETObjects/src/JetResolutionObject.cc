@@ -385,16 +385,16 @@ namespace JME {
             return 1;
 
         // Set parameters
-        TFormula* formula = m_definition.getFormula();
-        if (! formula)
+        auto const* pFormula = m_definition.getFormula();
+        if (! pFormula)
             return 1;
-
+	auto formula = *pFormula;
         // Create vector of variables value. Throw if some values are missing
         std::vector<float> variables = variables_parameters.createVector(m_definition.getVariables());
 
         const std::vector<float>& parameters = record.getParametersValues();
         for (size_t index = 0; index < parameters.size(); index++) {
-            formula->SetParameter(index, parameters[index]);
+            formula.SetParameter(index, parameters[index]);
         }
 
         double variables_[4] = {0};
@@ -402,7 +402,7 @@ namespace JME {
             variables_[index] = clip(variables[index], record.getVariablesRange()[index].min, record.getVariablesRange()[index].max);
         }
 
-        return formula->EvalPar(variables_);
+        return formula.EvalPar(variables_);
     }
 }
 

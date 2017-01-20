@@ -315,6 +315,7 @@ ZDCLogicalMapEntry::ZDCLogicalMapEntry(
   if (in_s_det=="ZDC_EM") myzdcsec = HcalZDCDetId::EM;
   else if (in_s_det=="ZDC_HAD") myzdcsec = HcalZDCDetId::HAD;
   else if (in_s_det=="ZDC_LUM") myzdcsec = HcalZDCDetId::LUM;
+  else if (in_s_det=="ZDC_RPD") myzdcsec = HcalZDCDetId::RPD;
   else myzdcsec = HcalZDCDetId::Unknown;
  
   (in_sid > 0) ? myzdccheck = true : myzdccheck = false;
@@ -352,7 +353,8 @@ char* ZDCLogicalMapEntry::printLMapLine() {
   if (myzdcsec==0) mydet += "Unknown";
   else if (myzdcsec==1) mydet += "EM";
   else if (myzdcsec==2) mydet += "HAD";
-  else mydet += "LUM";
+  else if (myzdcsec==3) mydet += "LUM";
+  else mydet += "RPD";
 
   (hcaleid.htrTopBottom()==0) ? myfpga = "bot" : myfpga = "top";
 

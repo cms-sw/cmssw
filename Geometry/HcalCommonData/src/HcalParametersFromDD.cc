@@ -12,7 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 namespace {
   int getTopologyMode(const char* s, const DDsvalues_type & sv, bool type) {
@@ -139,7 +139,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
     throw cms::Exception( "HcalParametersFromDD" ) << "Not found "<< attribute.c_str() << " but needed.";
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   int i(0);
   std::cout << "HcalParametersFromDD: MaxDepth: ";
   for (const auto& it : php.maxDepth) std::cout << it << ", ";

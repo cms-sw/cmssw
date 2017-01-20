@@ -207,7 +207,8 @@ void PFBlockAlgo::findBlocks() {
     ElementList::value_type::pointer p1(bare_elements_[range.first->second]);
     the_block.addElement(p1);
     const unsigned block_size = blocksmap.count(key) + 1;
-    std::unordered_map<std::pair<size_t,size_t>, PFBlockLink > links(block_size*block_size);
+    //reserve up to 1M or 8MB; pay rehash cost for more
+    std::unordered_map<std::pair<unsigned int,unsigned int>, PFBlockLink > links(min(1000000u,block_size*block_size));
     auto itr = range.first;
     ++itr;
     for( ; itr != range.second; ++itr ) {
@@ -234,7 +235,7 @@ void PFBlockAlgo::findBlocks() {
 
 void 
 PFBlockAlgo::packLinks( reco::PFBlock& block, 
-			   const std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links ) const {
+			   const std::unordered_map<std::pair<unsigned int,unsigned int>,PFBlockLink>& links ) const {
   constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;
   
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();

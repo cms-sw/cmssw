@@ -214,7 +214,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int hOverEBit = egammas_raw.at(iEG).hwQual()>>1 & (0x1);
       int shapeBit  = egammas_raw.at(iEG).hwQual()>>2 & (0x1);
 
-      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE());
+      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE()) || (params_->egBypassEGVetos());
 
       if(!IDcuts) continue;
 

@@ -28,7 +28,7 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDSimConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 class HcalDDDSimConstantsESModule : public edm::ESProducer {
 
@@ -49,7 +49,7 @@ private:
 };
 
 HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout <<"constructing HcalDDDSimConstantsESModule" << std::endl;
 #endif
   setWhatProduced(this, dependsOn(&HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants));
@@ -65,7 +65,7 @@ void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 // ------------ method called to produce the data  ------------
 HcalDDDSimConstantsESModule::ReturnType
 HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDSimConstantsESModule::produce" << std::endl;
 #endif
   if (hcalDDDConst_ == 0) {
@@ -80,14 +80,14 @@ void HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants(const HcalParame
   std::string                   label_;
   edm::ESHandle<HcalParameters> parHandle;
   igr.get(label_, parHandle);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants" << std::endl;
 #endif
   if ( hcalDDDConst_ != 0 ) {
     delete hcalDDDConst_;
   }
   const HcalParameters* hpar = &(*parHandle);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "about to make my new hcalDDDConst_ with " << hpar << std::endl;
 #endif
   hcalDDDConst_ = new HcalDDDSimConstants(hpar);

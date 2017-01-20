@@ -6,6 +6,8 @@
   <Constant name="rMaxFine"   value="75.0*cm"/>
   <Constant name="rMaxMiddle" value="120.0*cm"/>
   <Constant name="rMaxCoarse" value="2000.0*cm"/>
+  <Constant name="rMin"       value="32.1*cm"/>
+  <Constant name="rMax"       value="164.5*cm"/>
 </ConstantsSection>
 
 <PosPartSection label="hgcalEE.xml">
@@ -93,6 +95,9 @@
     <Parameter name="RadiusBound"  value="[rMaxFine]"/>
     <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
     <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
   </SpecPar>
 </SpecParSection>
 

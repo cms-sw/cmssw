@@ -25,7 +25,7 @@ class HcalTimeSlew {
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
   static double delay(double fC, BiasSetting bias=Medium);
-  static double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2]);
+  static double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true);
 };
 
 #endif

@@ -21,10 +21,7 @@ L1NtupleRAW = cms.Sequence(
   +l1uGTTree
 )
 
-from Configuration.StandardSequences.Eras import eras
-
 #  do not have l1t::CaloTowerBxCollection in Stage1 
-if eras.stage1L1Trigger.isChosen() or eras.Run2_25ns.isChosen():
-    L1NtupleRAW.remove(l1CaloTowerTree)
-    L1NtupleRAW.remove(l1UpgradeTfMuonTree)
-
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+_stage1_L1NTupleRAW = L1NtupleRaw.copyAndExclude([l1CaloTowerTree,l1UpgradeTfMuonTree])
+stage1L1Trigger.toReplaceWith(L1NtupleRaw,_stage1_L1NTupleRAW)

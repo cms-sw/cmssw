@@ -7,8 +7,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 ME0Geometry::ME0Geometry(){}
-
-
 ME0Geometry::~ME0Geometry(){}  
 
  
@@ -51,30 +49,56 @@ const GeomDet* ME0Geometry::idToDet(DetId id) const{
 const std::vector<ME0Chamber const*>& ME0Geometry::chambers() const {
   return allChambers;
 }
+ 
 
+const std::vector<ME0Layer const*>& ME0Geometry::layers() const {
+  return allLayers;
+}
 
 
 const std::vector<ME0EtaPartition const*>& ME0Geometry::etaPartitions() const{
   return allEtaPartitions;
 }
 
+
 const ME0EtaPartition* ME0Geometry::etaPartition(ME0DetId id) const{
   return dynamic_cast<const ME0EtaPartition*>(idToDetUnit(id));
 }
 
 
+const ME0Layer* ME0Geometry::layer(ME0DetId id) const{
+  return dynamic_cast<const ME0Layer*>(idToDetUnit(id));
+}
+
+const ME0Chamber* ME0Geometry::chamber(ME0DetId id) const{
+  return dynamic_cast<const ME0Chamber*>(idToDetUnit(id));
+}
+
+
 void
 ME0Geometry::add(ME0EtaPartition* etaPartition){
-  theDets.push_back(etaPartition);
   allEtaPartitions.push_back(etaPartition);
   theEtaPartitions.push_back(etaPartition);
   theEtaPartitionIds.push_back(etaPartition->geographicalId());
+  theDets.push_back(etaPartition);
   theDetIds.push_back(etaPartition->geographicalId());
   theEtaPartitionTypes.push_back(&etaPartition->type());
   theMap.insert(std::pair<DetId,GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
 }
 
+
+void
+ME0Geometry::add(ME0Layer* layer){
+  allLayers.push_back(layer);
+  // theLayers.push_back(layer);                      ??? what would this be fore?
+  // theLayerIds.push_back(layer->geographicalId());  ??? what would this be fore?
+  theDets.push_back(layer);
+  theDetIds.push_back(layer->geographicalId());
+  theEtaPartitionTypes.push_back(&layer->type());
+  theMap.insert(std::pair<DetId,GeomDetUnit*>
+		(layer->geographicalId(),layer));
+}
 
 
 void

@@ -30,7 +30,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iNoiseSiPM =        conf.getParameter<double>("noiseSiPM");
     const double iTMin =             conf.getParameter<double>("timeMin");
     const double iTMax =             conf.getParameter<double>("timeMax");
-    const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
+    const std::vector<double> its4Chi2 =           conf.getParameter<std::vector<double>>("ts4chi2");
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
     if (iPedestalConstraint) assert(iPedSigHPD);
@@ -57,8 +57,9 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
 static std::unique_ptr<HcalDeterministicFit>
 parseHBHEMethod3Description(const edm::ParameterSet& conf)
 {
-    const float iPedSubThreshold = conf.getParameter<double>("pedestalUpperLimit");
-    const int iTimeSlewParsType =  conf.getParameter<int>   ("timeSlewParsType");
+    const bool iApplyTimeSlew  =  conf.getParameter<bool>  ("applyTimeSlewM3");
+    const float iPedSubThreshold =  conf.getParameter<double>("pedestalUpperLimit");
+    const int iTimeSlewParsType  =  conf.getParameter<int>   ("timeSlewParsType");
     const double irespCorrM3 =     conf.getParameter<double>("respCorrM3");
     const std::vector<double>& iTimeSlewPars =
                      conf.getParameter<std::vector<double> >("timeSlewPars");
@@ -68,7 +69,7 @@ parseHBHEMethod3Description(const edm::ParameterSet& conf)
 
     std::unique_ptr<HcalDeterministicFit> fit = std::make_unique<HcalDeterministicFit>();
     fit->init( (HcalTimeSlew::ParaSource)iTimeSlewParsType,
-	       HcalTimeSlew::Medium,
+	       HcalTimeSlew::Medium, iApplyTimeSlew,
 	       pedSubFxn, iTimeSlewPars, irespCorrM3);
     return fit;
 }
@@ -96,6 +97,7 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
                                      ps.getParameter<int>   ("samplesToAdd"),
                                      ps.getParameter<double>("correctionPhaseNS"),
                                      ps.getParameter<double>("tdcTimeShift"),
+                                     ps.getParameter<bool>  ("correctForPhaseContainment"),
                                      std::move(m2), std::move(detFit))
             );
     }

@@ -66,7 +66,7 @@ namespace edm {
    {
    public:
       SerialTaskQueue():
-      m_taskChosen{ATOMIC_FLAG_INIT},
+      m_taskChosen(ATOMIC_FLAG_INIT),
       m_pauseCount{0}
       {  }
       

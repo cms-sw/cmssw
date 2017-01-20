@@ -20,7 +20,9 @@
 //
 //
 
-
+namespace edm {
+    class HepMCProduct;
+}
 // system include files
 #include <memory>
 
@@ -50,7 +52,7 @@ class PythiaMomDauFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> label_;
        std::vector<int> dauIDs;
        std::vector<int> desIDs;
        int particleID;

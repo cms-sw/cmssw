@@ -1,4 +1,3 @@
-
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -47,6 +46,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -96,7 +96,7 @@ namespace {
   class SendSourceTerminationSignalIfException {
   public:
     SendSourceTerminationSignalIfException(edm::ActivityRegistry* iReg):
-    reg_(iReg) {}
+      reg_(iReg) {}
     ~SendSourceTerminationSignalIfException() {
       if(reg_) {
         reg_->preSourceEarlyTerminationSignal_(edm::TerminationOrigin::ExceptionFromThisContext);
@@ -108,7 +108,7 @@ namespace {
   private:
     edm::ActivityRegistry* reg_; // We do not use propagate_const because the registry itself is mutable.
   };
-  
+
 }
 
 namespace edm {
@@ -133,14 +133,14 @@ namespace edm {
     std::string modtype(main_input->getParameter<std::string>("@module_type"));
 
     std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
-      ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
+                                                              ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
     ConfigurationDescriptions descriptions(filler->baseType());
     filler->fill(descriptions);
 
     try {
       convertException::wrap([&]() {
-        descriptions.validate(*main_input, std::string("source"));
-      });
+          descriptions.validate(*main_input, std::string("source"));
+        });
     }
     catch (cms::Exception & iException) {
       std::ostringstream ost;
@@ -173,10 +173,10 @@ namespace edm {
       //even if we have an exception, send the signal
       std::shared_ptr<int> sentry(nullptr,[areg,&md](void*){areg->postSourceConstructionSignal_(md);});
       convertException::wrap([&]() {
-        input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
-        input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
-        input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
-      });
+          input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
+          input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
+          input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
+        });
     }
     catch (cms::Exception& iException) {
       std::ostringstream ost;
@@ -191,13 +191,13 @@ namespace edm {
   std::shared_ptr<EDLooperBase>
   fillLooper(eventsetup::EventSetupsController& esController,
              eventsetup::EventSetupProvider& cp,
-                         ParameterSet& params) {
+             ParameterSet& params) {
     std::shared_ptr<EDLooperBase> vLooper;
 
     std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
 
     if(loopers.size() == 0) {
-       return vLooper;
+      return vLooper;
     }
 
     assert(1 == loopers.size());
@@ -211,17 +211,16 @@ namespace edm {
       vLooper = eventsetup::LooperFactory::get()->addTo(esController,
                                                         cp,
                                                         *providerPSet);
-      }
-      return vLooper;
-
+    }
+    return vLooper;
   }
 
   // ---------------------------------------------------------------
   EventProcessor::EventProcessor(std::string const& config,
-                                ServiceToken const& iToken,
-                                serviceregistry::ServiceLegacy iLegacy,
-                                std::vector<std::string> const& defaultServices,
-                                std::vector<std::string> const& forcedServices) :
+                                 ServiceToken const& iToken,
+                                 serviceregistry::ServiceLegacy iLegacy,
+                                 std::vector<std::string> const& defaultServices,
+                                 std::vector<std::string> const& forcedServices) :
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -261,8 +260,8 @@ namespace edm {
   }
 
   EventProcessor::EventProcessor(std::string const& config,
-                                std::vector<std::string> const& defaultServices,
-                                std::vector<std::string> const& forcedServices) :
+                                 std::vector<std::string> const& defaultServices,
+                                 std::vector<std::string> const& forcedServices) :
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -294,8 +293,8 @@ namespace edm {
     numberOfForkedChildren_(0),
     numberOfSequentialEventsPerChild_(1),
     setCpuAffinity_(false),
-  asyncStopRequestedWhileProcessingEvents_(false),
-  nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
+    asyncStopRequestedWhileProcessingEvents_(false),
+    nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
     eventSetupDataToExcludeFromPrefetching_()
   {
     std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
@@ -305,8 +304,8 @@ namespace edm {
   }
 
   EventProcessor::EventProcessor(std::shared_ptr<ProcessDesc>& processDesc,
-                 ServiceToken const& token,
-                 serviceregistry::ServiceLegacy legacy) :
+                                 ServiceToken const& token,
+                                 serviceregistry::ServiceLegacy legacy) :
     actReg_(),
     preg_(),
     branchIDListHelper_(),
@@ -381,7 +380,7 @@ namespace edm {
     asyncStopRequestedWhileProcessingEvents_(false),
     nextItemTypeFromProcessingEvents_(InputSource::IsEvent),
     eventSetupDataToExcludeFromPrefetching_()
-{
+  {
     if(isPython) {
       std::shared_ptr<ParameterSet> parameterSet = PythonProcessDesc(config).parameterSet();
       auto processDesc = std::make_shared<ProcessDesc>(parameterSet);
@@ -395,11 +394,11 @@ namespace edm {
 
   void
   EventProcessor::init(std::shared_ptr<ProcessDesc>& processDesc,
-                        ServiceToken const& iToken,
-                        serviceregistry::ServiceLegacy iLegacy) {
+                       ServiceToken const& iToken,
+                       serviceregistry::ServiceLegacy iLegacy) {
 
     //std::cerr << processDesc->dump() << std::endl;
-   
+
     // register the empty parentage vector , once and for all
     ParentageRegistry::instance()->insertMapped(Parentage());
 
@@ -409,8 +408,8 @@ namespace edm {
     std::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
     // If there are subprocesses, pop the subprocess parameter sets out of the process parameter set
-    std::unique_ptr<std::vector<ParameterSet> > subProcessVParameterSet(popSubProcessVParameterSet(*parameterSet));
-    bool hasSubProcesses = subProcessVParameterSet.get() != nullptr;
+    auto subProcessVParameterSet = popSubProcessVParameterSet(*parameterSet);
+    bool const hasSubProcesses = !subProcessVParameterSet.empty();
 
     // Now set some parameters specific to the main process.
     ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
@@ -426,8 +425,8 @@ namespace edm {
       }
     }
     /* TODO: when we support having each stream run in a different thread use this default
-    unsigned int nStreams =nThreads;
-     */
+       unsigned int nStreams =nThreads;
+    */
     unsigned int nStreams =1;
     if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
       nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
@@ -436,34 +435,34 @@ namespace edm {
       }
     }
     /*
-    bool nRunsSet = false;
-     */
+      bool nRunsSet = false;
+    */
     unsigned int nConcurrentRuns =1;
     /*
-    if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
-    nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
-    }
-     */
+      if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
+      nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+      }
+    */
     unsigned int nConcurrentLumis =1;
     /*
-    if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
-    nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
-    } else {
+      if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
+      nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+      } else {
       nConcurrentLumis = nConcurrentRuns;
-    }
-     */
+      }
+    */
     //Check that relationships between threading parameters makes sense
     /*
-    if(nThreads<nStreams) {
+      if(nThreads<nStreams) {
       //bad
-    }
-    if(nConcurrentRuns>nStreams) {
+      }
+      if(nConcurrentRuns>nStreams) {
       //bad
-    }
-    if(nConcurrentRuns>nConcurrentLumis) {
+      }
+      if(nConcurrentRuns>nConcurrentLumis) {
       //bad
-    }
-     */
+      }
+    */
     //forking
     ParameterSet const& forking = optionsPset.getUntrackedParameterSet("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
@@ -471,12 +470,9 @@ namespace edm {
     setCpuAffinity_ = forking.getUntrackedParameter<bool>("setCpuAffinity", false);
     continueAfterChildFailure_ = forking.getUntrackedParameter<bool>("continueAfterChildFailure",false);
     std::vector<ParameterSet> const& excluded = forking.getUntrackedParameterSetVector("eventSetupDataToExcludeFromPrefetching", std::vector<ParameterSet>());
-    for(std::vector<ParameterSet>::const_iterator itPS = excluded.begin(), itPSEnd = excluded.end();
-        itPS != itPSEnd;
-        ++itPS) {
-      eventSetupDataToExcludeFromPrefetching_[itPS->getUntrackedParameter<std::string>("record")].insert(
-                                                std::make_pair(itPS->getUntrackedParameter<std::string>("type", "*"),
-                                                               itPS->getUntrackedParameter<std::string>("label", "")));
+    for(auto const& ps : excluded) {
+      eventSetupDataToExcludeFromPrefetching_[ps.getUntrackedParameter<std::string>("record")].emplace(ps.getUntrackedParameter<std::string>("type", "*"),
+                                                                                                       ps.getUntrackedParameter<std::string>("label", ""));
     }
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
@@ -486,13 +482,13 @@ namespace edm {
     ScheduleItems items;
 
     //initialize the services
-    std::shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(*pServiceSets, *parameterSet, iToken, iLegacy, true);
+    auto& serviceSets = processDesc->getServicesPSets();
+    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy, true);
     serviceToken_ = items.addCPRandTNS(*parameterSet, token);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-    
+
     if(nStreams>1) {
       edm::Service<RootHandlers> handler;
       handler->willBeUsingThreads();
@@ -515,7 +511,7 @@ namespace edm {
       nConcurrentLumis=1;
       nConcurrentRuns=1;
     }
-    
+
     preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
@@ -547,28 +543,24 @@ namespace edm {
     for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
       // Reusable event principal
       auto ep = std::make_shared<EventPrincipal>(preg(), branchIDListHelper(),
-           thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
+                                                 thinnedAssociationsHelper(), *processConfiguration_, historyAppender_.get(), index);
       principalCache_.insert(ep);
     }
-    // initialize the subprocesses, if there are any
-    if(hasSubProcesses) {
-      if(subProcesses_ == nullptr) {
-        subProcesses_ = std::make_unique<std::vector<SubProcess> >();
-      }
-      subProcesses_->reserve(subProcessVParameterSet->size());
-      for(auto& subProcessPSet : *subProcessVParameterSet) { 
-        subProcesses_->emplace_back(subProcessPSet,
-                                    *parameterSet,
-                                    preg(),
-                                    branchIDListHelper(),
-                                    *thinnedAssociationsHelper_,
-                                    *espController_,
-                                    *actReg_,
-                                    token,
-                                    serviceregistry::kConfigurationOverrides,
-                                    preallocations_,
-                                    &processContext_);
-       }
+
+    // fill the subprocesses, if there are any
+    subProcesses_.reserve(subProcessVParameterSet.size());
+    for(auto& subProcessPSet : subProcessVParameterSet) {
+      subProcesses_.emplace_back(subProcessPSet,
+                                 *parameterSet,
+                                 preg(),
+                                 branchIDListHelper(),
+                                 *thinnedAssociationsHelper_,
+                                 *espController_,
+                                 *actReg_,
+                                 token,
+                                 serviceregistry::kConfigurationOverrides,
+                                 preallocations_,
+                                 &processContext_);
     }
   }
 
@@ -580,7 +572,6 @@ namespace edm {
     // manually destroy all these thing that may need the services around
     // propagate_const<T> has no reset() function
     espController_ = nullptr;
-    subProcesses_ = nullptr;
     esp_ = nullptr;
     schedule_ = nullptr;
     input_ = nullptr;
@@ -628,8 +619,8 @@ namespace edm {
     //}
     try {
       convertException::wrap([&]() {
-        input_->doBeginJob();
-      });
+          input_->doBeginJob();
+        });
     }
     catch(cms::Exception& ex) {
       ex.addContext("Calling beginJob for the source");
@@ -637,20 +628,12 @@ namespace edm {
     }
     schedule_->beginJob(*preg_);
     // toerror.succeeded(); // should we add this?
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        subProcess.doBeginJob();
-      }
-    }
+    for_all(subProcesses_, [](auto& subProcess){ subProcess.doBeginJob(); });
     actReg_->postBeginJobSignal_();
-    
+
     for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
       schedule_->beginStream(i);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.doBeginStream(i);
-        }
-      }
+      for_all(subProcesses_, [i](auto& subProcess){ subProcess.doBeginStream(i); });
     }
   }
 
@@ -665,19 +648,15 @@ namespace edm {
     //NOTE: this really should go elsewhere in the future
     for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
       c.call([this,i](){this->schedule_->endStream(i);});
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          c.call([&subProcess,i](){ subProcess.doEndStream(i); } );
-        }
+      for(auto& subProcess : subProcesses_) {
+        c.call([&subProcess,i](){ subProcess.doEndStream(i); } );
       }
     }
     auto actReg = actReg_.get();
     c.call([actReg](){actReg->preEndJobSignal_();});
     schedule_->endJob(c);
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        c.call(std::bind(&SubProcess::doEndJob, &subProcess));
-      }
+    for(auto& subProcess : subProcesses_) {
+      c.call(std::bind(&SubProcess::doEndJob, &subProcess));
     }
     c.call(std::bind(&InputSource::doEndJob, input_.get()));
     if(looper_) {
@@ -702,7 +681,7 @@ namespace edm {
     volatile unsigned int num_children_done = 0;
     volatile int child_fail_exit_status = 0;
     volatile int child_fail_signal = 0;
-    
+
     //NOTE: We setup the signal handler to run in the main thread which
     // is also the same thread that then reads the above values
 
@@ -752,9 +731,9 @@ namespace edm {
       }
       return n;
     }
-    
+
     /*This class embodied the thread which is used to listen to the forked children and
-     then tell them which events they should process */
+      then tell them which events they should process */
     class MessageSenderToSource {
     public:
       MessageSenderToSource(std::vector<int> const& childrenSockets, std::vector<int> const& childrenPipes, long iNEventsToProcess);
@@ -767,33 +746,31 @@ namespace edm {
       unsigned int m_aliveChildren;
       int m_maxFd;
     };
-    
+
     MessageSenderToSource::MessageSenderToSource(std::vector<int> const& childrenSockets,
                                                  std::vector<int> const& childrenPipes,
                                                  long iNEventsToProcess):
-    m_childrenPipes(childrenPipes),
-    m_nEventsToProcess(iNEventsToProcess),
-    m_aliveChildren(childrenSockets.size()),
-    m_maxFd(0)
+      m_childrenPipes(childrenPipes),
+      m_nEventsToProcess(iNEventsToProcess),
+      m_aliveChildren(childrenSockets.size()),
+      m_maxFd(0)
     {
       FD_ZERO(&m_socketSet);
-      for (std::vector<int>::const_iterator it = childrenSockets.begin(), itEnd = childrenSockets.end();
-           it != itEnd; it++) {
-        FD_SET(*it, &m_socketSet);
-        if (*it > m_maxFd) {
-          m_maxFd = *it;
+      for (auto const socket : childrenSockets) {
+        FD_SET(socket, &m_socketSet);
+        if (socket > m_maxFd) {
+          m_maxFd = socket;
         }
       }
-      for (std::vector<int>::const_iterator it = childrenPipes.begin(), itEnd = childrenPipes.end();
-           it != itEnd; ++it) {
-        FD_SET(*it, &m_socketSet);
-        if (*it > m_maxFd) {
-          m_maxFd = *it;
+      for (auto const pipe : childrenPipes) {
+        FD_SET(pipe, &m_socketSet);
+        if (pipe > m_maxFd) {
+          m_maxFd = pipe;
         }
       }
       m_maxFd++; // select reads [0,m_maxFd).
     }
-   
+
     /* This function is the heart of the communication between parent and child.
      * When ready for more data, the child (see MessageReceiverForSource) requests
      * data through a AF_UNIX socket message.  The parent will then assign the next
@@ -809,18 +786,18 @@ namespace edm {
      * Note this function is complemented by the SIGCHLD handler above as currently only the SIGCHLD
      * handler can distinguish between success and failure cases.
      */
- 
+
     void
     MessageSenderToSource::operator()() {
       multicore::MessageForParent childMsg;
       LogInfo("ForkingController") << "I am controller";
       //this is the master and therefore the controller
-      
+
       multicore::MessageForSource sndmsg;
       sndmsg.startIndex = 0;
       sndmsg.nIndices = m_nEventsToProcess;
       do {
-        
+
         fd_set readSockets, errorSockets;
         // Wait for a request from a child for events.
         memcpy(&readSockets, &m_socketSet, sizeof(m_socketSet));
@@ -850,7 +827,7 @@ namespace edm {
             }
             continue;
           }
-          
+
           if (!FD_ISSET(idx, &readSockets)) {
             continue;
           }
@@ -859,16 +836,16 @@ namespace edm {
           // writes from blocking.
           bool is_pipe = false;
           for (std::vector<int>::const_iterator it = m_childrenPipes.begin(), itEnd = m_childrenPipes.end(); it != itEnd; it++) {
-              if (*it == idx) {
-                is_pipe = true;
-                char buf;
-                while (((rc = read(idx, &buf, 1)) < 0) && (errno == EINTR)) {}
-                if (rc <= 0) {
-                  m_aliveChildren--;
-                  FD_CLR(idx, &m_socketSet);
-                  close(idx);
-                }
+            if (*it == idx) {
+              is_pipe = true;
+              char buf;
+              while (((rc = read(idx, &buf, 1)) < 0) && (errno == EINTR)) {}
+              if (rc <= 0) {
+                m_aliveChildren--;
+                FD_CLR(idx, &m_socketSet);
+                close(idx);
               }
+            }
           }
 
           // Only execute this block if the FD is a socket for sending the child work.
@@ -879,7 +856,7 @@ namespace edm {
               close(idx);
               continue;
             }
-          
+
             // Tell the child what events to process.
             // If 'send' fails, then the child process has failed (any other possibilities are
             // eliminated because we are using fixed-size messages with Unix datagram sockets).
@@ -894,15 +871,15 @@ namespace edm {
             sndmsg.startIndex += sndmsg.nIndices;
           }
         }
-      
+
       } while (m_aliveChildren > 0);
-      
+
       return;
     }
 
   }
 
-  
+
   void EventProcessor::possiblyContinueAfterForkChildFailure() {
     if(child_failed && continueAfterChildFailure_) {
       if (child_fail_signal) {
@@ -977,7 +954,7 @@ namespace edm {
             try {
               recordPtr->doGet(*itDataKey);
             } catch(cms::Exception& e) {
-             LogWarning("ForkingEventSetupPreFetching") << e.what();
+              LogWarning("ForkingEventSetupPreFetching") << e.what();
             }
           }
         }
@@ -1156,7 +1133,7 @@ namespace edm {
     sigdelset(&unblockingSigSet, SIGINT);
     pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
 
-    // If there are too many fd's (unlikely, but possible) for select, denote this 
+    // If there are too many fd's (unlikely, but possible) for select, denote this
     // because the sender will fail.
     bool too_many_fds = false;
     if (pipes[1]+1 > FD_SETSIZE) {
@@ -1268,10 +1245,10 @@ namespace edm {
     else if(fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
     else {
       throw Exception(errors::Configuration, "Illegal fileMode parameter value: ")
-      << fileMode_ << ".\n"
-      << "Legal values are 'NOMERGE' and 'FULLMERGE'.\n";
+        << fileMode_ << ".\n"
+        << "Legal values are 'NOMERGE' and 'FULLMERGE'.\n";
     }
-    
+
     statemachine::EmptyRunLumiMode emptyRunLumiMode;
     if(emptyRunLumiMode_.empty()) emptyRunLumiMode = statemachine::handleEmptyRunsAndLumis;
     else if(emptyRunLumiMode_ == std::string("handleEmptyRunsAndLumis")) emptyRunLumiMode = statemachine::handleEmptyRunsAndLumis;
@@ -1279,15 +1256,15 @@ namespace edm {
     else if(emptyRunLumiMode_ == std::string("doNotHandleEmptyRunsAndLumis")) emptyRunLumiMode = statemachine::doNotHandleEmptyRunsAndLumis;
     else {
       throw Exception(errors::Configuration, "Illegal emptyMode parameter value: ")
-      << emptyRunLumiMode_ << ".\n"
-      << "Legal values are 'handleEmptyRunsAndLumis', 'handleEmptyRuns', and 'doNotHandleEmptyRunsAndLumis'.\n";
+        << emptyRunLumiMode_ << ".\n"
+        << "Legal values are 'handleEmptyRunsAndLumis', 'handleEmptyRuns', and 'doNotHandleEmptyRunsAndLumis'.\n";
     }
-    
+
     auto machine = std::make_unique<statemachine::Machine>(
-                                             this,
-                                             fileMode,
-                                             emptyRunLumiMode);
-    
+                                                           this,
+                                                           fileMode,
+                                                           emptyRunLumiMode);
+
     machine->initiate();
     return machine;
   }
@@ -1295,7 +1272,7 @@ namespace edm {
   bool
   EventProcessor::checkForAsyncStopRequest(StatusCode& returnCode) {
     bool returnValue = false;
-    
+
     // Look for a shutdown signal
     if(shutdown_flag.load(std::memory_order_acquire)) {
       returnValue = true;
@@ -1313,10 +1290,10 @@ namespace edm {
     std::unique_ptr<statemachine::Machine> machine;
     {
       beginJob(); //make sure this was called
-      
+
       //StatusCode returnCode = epSuccess;
       stateMachineWasInErrorState_ = false;
-      
+
       // make the services available
       ServiceRegistry::Operate operate(serviceToken_);
 
@@ -1325,82 +1302,82 @@ namespace edm {
       asyncStopRequestedWhileProcessingEvents_=false;
       try {
         convertException::wrap([&]() {
-          
-          InputSource::ItemType itemType;
-          
-          while(true) {
-            
-            bool more = true;
-            if(numberOfForkedChildren_ > 0) {
-              size_t size = preg_->size();
+
+            InputSource::ItemType itemType;
+
+            while(true) {
+
+              bool more = true;
+              if(numberOfForkedChildren_ > 0) {
+                size_t size = preg_->size();
+                {
+                  SendSourceTerminationSignalIfException sentry(actReg_.get());
+                  more = input_->skipForForking();
+                  sentry.completedSuccessfully();
+                }
+                if(more) {
+                  if(size < preg_->size()) {
+                    principalCache_.adjustIndexesAfterProductRegistryAddition();
+                  }
+                  principalCache_.adjustEventsToNewProductRegistry(preg());
+                }
+              }
               {
                 SendSourceTerminationSignalIfException sentry(actReg_.get());
-                more = input_->skipForForking();
+                itemType = (more ? input_->nextItemType() : InputSource::IsStop);
                 sentry.completedSuccessfully();
               }
-              if(more) {
-                if(size < preg_->size()) {
-                  principalCache_.adjustIndexesAfterProductRegistryAddition();
-                }
-                principalCache_.adjustEventsToNewProductRegistry(preg());
-              }
-            }
-            {
-              SendSourceTerminationSignalIfException sentry(actReg_.get());
-              itemType = (more ? input_->nextItemType() : InputSource::IsStop);
-              sentry.completedSuccessfully();
-            }
-            
-            FDEBUG(1) << "itemType = " << itemType << "\n";
-            
-            if(checkForAsyncStopRequest(returnCode)) {
-              actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
-              forceLooperToEnd_ = true;
-              machine->process_event(statemachine::Stop());
-              forceLooperToEnd_ = false;
-              break;
-            }
-            
-            if(itemType == InputSource::IsEvent) {
-              machine->process_event(statemachine::Event());
-              if(asyncStopRequestedWhileProcessingEvents_) {
+
+              FDEBUG(1) << "itemType = " << itemType << "\n";
+
+              if(checkForAsyncStopRequest(returnCode)) {
+                actReg_->preSourceEarlyTerminationSignal_(TerminationOrigin::ExternalSignal);
                 forceLooperToEnd_ = true;
                 machine->process_event(statemachine::Stop());
                 forceLooperToEnd_ = false;
-                returnCode = asyncStopStatusCodeFromProcessingEvents_;
                 break;
               }
-              itemType = nextItemTypeFromProcessingEvents_;
-            }
-            
-            if(itemType == InputSource::IsEvent) {
-            }
-            else if(itemType == InputSource::IsStop) {
-              machine->process_event(statemachine::Stop());
-            }
-            else if(itemType == InputSource::IsFile) {
-              machine->process_event(statemachine::File());
-            }
-            else if(itemType == InputSource::IsRun) {
-              machine->process_event(statemachine::Run(input_->reducedProcessHistoryID(), input_->run()));
-            }
-            else if(itemType == InputSource::IsLumi) {
-              machine->process_event(statemachine::Lumi(input_->luminosityBlock()));
-            }
-            else if(itemType == InputSource::IsSynchronize) {
-              //For now, we don't have to do anything
-            }
-            // This should be impossible
-            else {
-              throw Exception(errors::LogicError)
-              << "Unknown next item type passed to EventProcessor\n"
-              << "Please report this error to the Framework group\n";
-            }
-            if(machine->terminated()) {
-              break;
-            }
-          }  // End of loop over state machine events
-        }); // convertException::wrap
+
+              if(itemType == InputSource::IsEvent) {
+                machine->process_event(statemachine::Event());
+                if(asyncStopRequestedWhileProcessingEvents_) {
+                  forceLooperToEnd_ = true;
+                  machine->process_event(statemachine::Stop());
+                  forceLooperToEnd_ = false;
+                  returnCode = asyncStopStatusCodeFromProcessingEvents_;
+                  break;
+                }
+                itemType = nextItemTypeFromProcessingEvents_;
+              }
+
+              if(itemType == InputSource::IsEvent) {
+              }
+              else if(itemType == InputSource::IsStop) {
+                machine->process_event(statemachine::Stop());
+              }
+              else if(itemType == InputSource::IsFile) {
+                machine->process_event(statemachine::File());
+              }
+              else if(itemType == InputSource::IsRun) {
+                machine->process_event(statemachine::Run(input_->reducedProcessHistoryID(), input_->run()));
+              }
+              else if(itemType == InputSource::IsLumi) {
+                machine->process_event(statemachine::Lumi(input_->luminosityBlock()));
+              }
+              else if(itemType == InputSource::IsSynchronize) {
+                //For now, we don't have to do anything
+              }
+              // This should be impossible
+              else {
+                throw Exception(errors::LogicError)
+                  << "Unknown next item type passed to EventProcessor\n"
+                  << "Please report this error to the Framework group\n";
+              }
+              if(machine->terminated()) {
+                break;
+              }
+            }  // End of loop over state machine events
+          }); // convertException::wrap
       } // Try block
       // Some comments on exception handling related to the boost state machine:
       //
@@ -1446,7 +1423,7 @@ namespace edm {
       // terminate the state machine before invoking its destructor.
       // We've seen crashes that are not understood when that is not
       // done.  Maintainers of this code should be careful about this.
-      
+
       catch (cms::Exception & e) {
         alreadyHandlingException_ = true;
         terminateMachine(std::move(machine));
@@ -1471,18 +1448,18 @@ namespace edm {
         }
         throw;
       }
-      
+
       if(machine->terminated()) {
         FDEBUG(1) << "The state machine reports it has been terminated\n";
         machine.reset();
       }
-      
+
       if(stateMachineWasInErrorState_) {
         throw cms::Exception("BadState")
-        << "The boost state machine in the EventProcessor exited after\n"
-        << "entering the Error state.\n";
+          << "The boost state machine in the EventProcessor exited after\n"
+          << "entering the Error state.\n";
       }
-      
+
     }
     if(machine.get() != nullptr) {
       terminateMachine(std::move(machine));
@@ -1507,7 +1484,7 @@ namespace edm {
     if((numberOfForkedChildren_ > 0) or
        (preallocations_.numberOfStreams()>1 and
         preallocations_.numberOfThreads()>1)) {
-        fb_->setNotFastClonable(FileBlock::ParallelProcesses);
+      fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
     sentry.completedSuccessfully();
   }
@@ -1524,11 +1501,7 @@ namespace edm {
   void EventProcessor::openOutputFiles() {
     if (fb_.get() != nullptr) {
       schedule_->openOutputFiles(*fb_);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.openOutputFiles(*fb_);
-        }
-      }
+      for_all(subProcesses_, [this](auto& subProcess){ subProcess.openOutputFiles(*fb_); });
     }
     FDEBUG(1) << "\topenOutputFiles\n";
   }
@@ -1536,28 +1509,16 @@ namespace edm {
   void EventProcessor::closeOutputFiles() {
     if (fb_.get() != nullptr) {
       schedule_->closeOutputFiles();
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.closeOutputFiles();
-        }
-      }
+      for_all(subProcesses_, [](auto& subProcess){ subProcess.closeOutputFiles(); });
     }
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
   void EventProcessor::respondToOpenInputFile() {
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        subProcess.updateBranchIDListHelper(branchIDListHelper_->branchIDLists());
-      }
-    }
+    for_all(subProcesses_, [this](auto& subProcess){ subProcess.updateBranchIDListHelper(branchIDListHelper_->branchIDLists()); } );
     if (fb_.get() != nullptr) {
       schedule_->respondToOpenInputFile(*fb_);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.respondToOpenInputFile(*fb_);
-        }
-      }
+      for_all(subProcesses_, [this](auto& subProcess) { subProcess.respondToOpenInputFile(*fb_); });
     }
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
@@ -1565,11 +1526,7 @@ namespace edm {
   void EventProcessor::respondToCloseInputFile() {
     if (fb_.get() != nullptr) {
       schedule_->respondToCloseInputFile(*fb_);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.respondToCloseInputFile(*fb_);
-        }
-      }
+      for_all(subProcesses_, [this](auto& subProcess){ subProcess.respondToCloseInputFile(*fb_); });
     }
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
@@ -1610,10 +1567,10 @@ namespace edm {
 
   bool EventProcessor::shouldWeCloseOutput() const {
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
-    if(hasSubProcesses()) {
-      for(auto const& subProcess : *subProcesses_) {
+    if(!subProcesses_.empty()) {
+      for(auto const& subProcess : subProcesses_) {
         if(subProcess.shouldWeCloseOutput()) {
-          return true; 
+          return true;
         }
       }
       return false;
@@ -1661,11 +1618,7 @@ namespace edm {
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Traits;
       schedule_->processOneGlobal<Traits>(runPrincipal, es);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.doBeginRun(runPrincipal, ts);
-        }
-      }
+      for_all(subProcesses_, [&runPrincipal, &ts](auto& subProcess){ subProcess.doBeginRun(runPrincipal, ts); });
     }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1675,11 +1628,7 @@ namespace edm {
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
       for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
         schedule_->processOneStream<Traits>(i,runPrincipal, es);
-        if(hasSubProcesses()) {
-          for(auto& subProcess : *subProcesses_) {
-            subProcess.doStreamBeginRun(i, runPrincipal, ts);
-          }
-        }
+        for_all(subProcesses_, [i, &runPrincipal, &ts](auto& subProcess){ subProcess.doStreamBeginRun(i, runPrincipal, ts); });
       }
     }
     FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
@@ -1711,11 +1660,8 @@ namespace edm {
       for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
         typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Traits;
         schedule_->processOneStream<Traits>(i,runPrincipal, es, cleaningUpAfterException);
-        if(hasSubProcesses()) {
-          for(auto& subProcess : *subProcesses_) {
-            subProcess.doStreamEndRun(i,runPrincipal, ts, cleaningUpAfterException);
-          }
-        }
+        for_all(subProcesses_, [i, &runPrincipal, &ts, cleaningUpAfterException](auto& subProcess) { subProcess.doStreamEndRun(i,runPrincipal, ts, cleaningUpAfterException);
+          });
       }
     }
     FDEBUG(1) << "\tstreamEndRun " << run.runNumber() << "\n";
@@ -1725,11 +1671,7 @@ namespace edm {
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
       schedule_->processOneGlobal<Traits>(runPrincipal, es, cleaningUpAfterException);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException);
-        }
-      }
+      for_all(subProcesses_, [&runPrincipal, &ts, cleaningUpAfterException](auto& subProcess){subProcess.doEndRun(runPrincipal, ts, cleaningUpAfterException); });
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -1764,11 +1706,7 @@ namespace edm {
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Traits;
       schedule_->processOneGlobal<Traits>(lumiPrincipal, es);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.doBeginLuminosityBlock(lumiPrincipal, ts);
-        }
-      }
+      for_all(subProcesses_, [&lumiPrincipal, &ts](auto& subProcess){ subProcess.doBeginLuminosityBlock(lumiPrincipal, ts); });
     }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
@@ -1778,11 +1716,7 @@ namespace edm {
       for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
         typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
         schedule_->processOneStream<Traits>(i,lumiPrincipal, es);
-        if(hasSubProcesses()) {
-          for(auto& subProcess : *subProcesses_) {
-            subProcess.doStreamBeginLuminosityBlock(i,lumiPrincipal, ts);
-          }
-        }
+        for_all(subProcesses_, [i, &lumiPrincipal, &ts](auto& subProcess){ subProcess.doStreamBeginLuminosityBlock(i,lumiPrincipal, ts); });
       }
     }
     FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
@@ -1815,11 +1749,7 @@ namespace edm {
       for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
         typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Traits;
         schedule_->processOneStream<Traits>(i,lumiPrincipal, es, cleaningUpAfterException);
-        if(hasSubProcesses()) {
-          for(auto& subProcess : *subProcesses_) {
-            subProcess.doStreamEndLuminosityBlock(i,lumiPrincipal, ts, cleaningUpAfterException);
-          }
-        }
+        for_all(subProcesses_, [i, &lumiPrincipal, &ts, cleaningUpAfterException](auto& subProcess){ subProcess.doStreamEndLuminosityBlock(i,lumiPrincipal, ts, cleaningUpAfterException); });
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
@@ -1829,11 +1759,7 @@ namespace edm {
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
       schedule_->processOneGlobal<Traits>(lumiPrincipal, es, cleaningUpAfterException);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);
-        }
-      }
+      for_all(subProcesses_, [&lumiPrincipal, &ts, cleaningUpAfterException](auto& subProcess){	subProcess.doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException); });
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
@@ -1908,41 +1834,25 @@ namespace edm {
 
   void EventProcessor::writeRun(statemachine::Run const& run) {
     schedule_->writeRun(principalCache_.runPrincipal(run.processHistoryID(), run.runNumber()), &processContext_);
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        subProcess.writeRun(run.processHistoryID(), run.runNumber());
-      }
-    }
+    for_all(subProcesses_, [&run](auto& subProcess){ subProcess.writeRun(run.processHistoryID(), run.runNumber()); });
     FDEBUG(1) << "\twriteRun " << run.runNumber() << "\n";
   }
 
   void EventProcessor::deleteRunFromCache(statemachine::Run const& run) {
     principalCache_.deleteRun(run.processHistoryID(), run.runNumber());
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        subProcess.deleteRunFromCache(run.processHistoryID(), run.runNumber());
-      }
-    }
+    for_all(subProcesses_, [&run](auto& subProcess){ subProcess.deleteRunFromCache(run.processHistoryID(), run.runNumber()); });
     FDEBUG(1) << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
   void EventProcessor::writeLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     schedule_->writeLumi(principalCache_.lumiPrincipal(phid, run, lumi), &processContext_);
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        subProcess.writeLumi(phid, run, lumi);
-      }
-    }
+    for_all(subProcesses_, [&phid, run, lumi](auto& subProcess){ subProcess.writeLumi(phid, run, lumi); });
     FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     principalCache_.deleteLumi(phid, run, lumi);
-    if(hasSubProcesses()) {
-      for(auto& subProcess : *subProcesses_) {
-        subProcess.deleteLumiFromCache(phid, run, lumi);
-      }
-    }
+    for_all(subProcesses_, [&phid, run, lumi](auto& subProcess){ subProcess.deleteLumiFromCache(phid, run, lumi); });
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 
@@ -1952,11 +1862,11 @@ namespace edm {
                          unsigned int iStreamIndex,
                          std::atomic<bool>* iFinishedProcessingEvents,
                          tbb::task* iWaitTask):
-    m_proc(iProc),
-    m_streamID(iStreamIndex),
-    m_finishedProcessingEvents(iFinishedProcessingEvents),
-    m_waitTask(iWaitTask){}
-    
+      m_proc(iProc),
+      m_streamID(iStreamIndex),
+      m_finishedProcessingEvents(iFinishedProcessingEvents),
+      m_waitTask(iWaitTask){}
+
     tbb::task* execute() {
       m_proc->processEventsForStreamAsync(m_streamID,m_finishedProcessingEvents);
       m_waitTask->decrement_ref_count();
@@ -1968,7 +1878,7 @@ namespace edm {
     edm::propagate_const<std::atomic<bool>*> m_finishedProcessingEvents;
     edm::propagate_const<tbb::task*> m_waitTask;
   };
-  
+
   void EventProcessor::processEventsForStreamAsync(unsigned int iStreamIndex,
                                                    std::atomic<bool>* finishedProcessingEvents) {
     try {
@@ -1978,7 +1888,7 @@ namespace edm {
         edm::Service<RootHandlers> handler;
         handler->initializeThisThreadForUse();
       }
-      
+
       if(iStreamIndex==0) {
         processEvent(0);
       }
@@ -1992,12 +1902,12 @@ namespace edm {
           break;
         }
         {
-          
-          
+
+
           {
             //nextItemType and readEvent need to be in same critical section
             std::lock_guard<std::mutex> sourceGuard(nextTransitionMutex_);
-            
+
             if(finishedProcessingEvents->load(std::memory_order_acquire)) {
               //std::cerr<<"finishedProcessingEvents\n";
               break;
@@ -2041,7 +1951,7 @@ namespace edm {
       //std::cerr<<"task caught exception\n";
     }
   }
-  
+
   void EventProcessor::readAndProcessEvent() {
     if(numberOfForkedChildren_>0) {
       readEvent(0);
@@ -2055,11 +1965,11 @@ namespace edm {
 
     //Task assumes Stream 0 has already read the event that caused us to go here
     readEvent(0);
-    
+
     //To wait, the ref count has to b 1+#streams
     tbb::task* eventLoopWaitTask{new (tbb::task::allocate_root()) tbb::empty_task{}};
     eventLoopWaitTask->increment_ref_count();
-    
+
     const unsigned int kNumStreams = preallocations_.numberOfStreams();
     unsigned int iStreamIndex = 0;
     for(; iStreamIndex<kNumStreams-1; ++iStreamIndex) {
@@ -2070,7 +1980,7 @@ namespace edm {
     eventLoopWaitTask->increment_ref_count();
     eventLoopWaitTask->spawn_and_wait_for_all(*(new (tbb::task::allocate_root()) StreamProcessingTask{this,iStreamIndex,&finishedProcessingEvents,eventLoopWaitTask}));
     tbb::task::destroy(*eventLoopWaitTask);
-    
+
     //One of the processing threads saw an exception
     if(deferredExceptionPtrIsSet_) {
       std::rethrow_exception(deferredExceptionPtr_);
@@ -2080,11 +1990,11 @@ namespace edm {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
     StreamContext streamContext(event.streamID(), &processContext_);
-    
+
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     input_->readEvent(event, streamContext);
     sentry.completedSuccessfully();
-    
+
     FDEBUG(1) << "\treadEvent\n";
   }
   void EventProcessor::processEvent(unsigned int iStreamIndex) {
@@ -2106,11 +2016,7 @@ namespace edm {
     {
       typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Traits;
       schedule_->processOneEvent<Traits>(iStreamIndex,*pep, es);
-      if(hasSubProcesses()) {
-        for(auto& subProcess : *subProcesses_) {
-          subProcess.doEvent(*pep);
-        }
-      }
+      for_all(subProcesses_, [pep](auto& subProcess) { subProcess.doEvent(*pep); });
     }
 
     //NOTE: If we have a looper we only have one Stream
@@ -2148,10 +2054,10 @@ namespace edm {
   bool EventProcessor::shouldWeStop() const {
     FDEBUG(1) << "\tshouldWeStop\n";
     if(shouldWeStop_) return true;
-    if(hasSubProcesses()) {
-      for(auto const& subProcess : *subProcesses_) {
+    if(!subProcesses_.empty()) {
+      for(auto const& subProcess : subProcesses_) {
         if(subProcess.terminate()) {
-          return true; 
+          return true;
         }
       }
       return false;

@@ -170,12 +170,12 @@ namespace edm {
     }
   }
 
-  std::unique_ptr<std::vector<ParameterSet> > ParameterSet::popVParameterSet(std::string const& name) {
+  std::vector<ParameterSet> ParameterSet::popVParameterSet(std::string const& name) {
     assert(!isRegistered());
     vpsettable::iterator it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
-    auto vpset = std::make_unique<std::vector<ParameterSet>>();
-    std::swap(*vpset, it->second.vpsetForUpdate());
+    std::vector<ParameterSet> vpset;
+    std::swap(vpset, it->second.vpsetForUpdate());
     vpsetTable_.erase(it);
     return vpset;
   }

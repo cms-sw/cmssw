@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import hfTPScaleShift
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
@@ -29,14 +32,13 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     upgradeHB = cms.bool(False),
     upgradeHE = cms.bool(False),
 
-    parameters = cms.untracked.PSet(
-        TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
-        ADCThreshold=cms.uint32(0),
-        FGThreshold=cms.uint32(12)
-    ),
-    
-    
-#
+    # parameters = cms.untracked.PSet(
+    #     FGVersionHBHE=cms.uint32(0),
+    #     TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
+    #     ADCThreshold=cms.uint32(0),
+    #     FGThreshold=cms.uint32(12)
+    # ),
+
     #vdouble weights = { -1, -1, 1, 1} //low lumi algo
     # Input digi label (_must_ be without zero-suppression!)
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),
@@ -51,3 +53,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
 
     HFTPScaleShift = hfTPScaleShift,
 )
+
+run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=cms.bool(True))
+run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHF=cms.bool(True))
+run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
