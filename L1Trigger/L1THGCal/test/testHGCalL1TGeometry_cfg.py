@@ -100,10 +100,11 @@ process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
+process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.TriggerGeometryName = cms.string('HGCalTriggerGeometryHexImp2')
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping.txt")
-process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping.txt")
+process.hgcalTriggerGeometryESProducer.TriggerGeometry.L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/module_mapping_PairsRing_V7_0.txt")
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.eeSDName = cms.string('HGCalEESensitive')
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.fhSDName = cms.string('HGCalHESiliconSensitive')
 process.hgcalTriggerGeometryESProducer.TriggerGeometry.bhSDName = cms.string('HGCalHEScintillatorSensitive')
