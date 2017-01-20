@@ -20,7 +20,7 @@ MET200_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MET2
 # HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight
 MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_METmonitoring = hltMETmonitoring.clone()
 MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_METmonitoring.FolderName = cms.string('HLT/MET/MonoCentralPFJet80_PFMETNoMu120/')
-MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 
 # HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight
 MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring = hltMETmonitoring.clone()
