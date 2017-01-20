@@ -31,7 +31,7 @@ namespace {
   }
 }
 
-BOOST_PYTHON_MODULE(libFWCoreParameterSet)
+BOOST_PYTHON_MODULE(libFWCorePythonParameterSet)
 {
   boost::python::register_exception_translator<cms::Exception>(translator);
 
