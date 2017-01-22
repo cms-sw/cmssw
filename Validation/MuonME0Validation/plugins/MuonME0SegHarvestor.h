@@ -28,6 +28,6 @@ public:
     TProfile* ComputeEff(TH1F* num, TH1F* denum, std::string nameHist );
     
 private:
-    std::string dbe_path_,outputFile_;
+    std::string dbe_path_;
 };
 #endif

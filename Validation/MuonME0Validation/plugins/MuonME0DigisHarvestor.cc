@@ -174,6 +174,9 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
       
       ProcessBooking( ibooker, ig, "me0_strip_dg_eta_tot", num_vs_eta_tot, den_vs_eta_tot );
       
+      delete num_vs_eta_tot;
+      delete den_vs_eta_tot;
+      
   }
   else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<eta_label_num_tot<<" or "<<eta_label_den_tot;
   
@@ -195,6 +198,9 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
               std::string l_s = l_suffix[j];
               std::string name = "me0_strip_dg_eta"+r_s+l_s;
               ProcessBooking( ibooker, ig, name, num_vs_eta, den_vs_eta );
+              
+              delete num_vs_eta;
+              delete den_vs_eta;
             
           }
           else edm::LogWarning("MuonME0DigisHarvestor")<<"Can not find histograms: "<<eta_label_num<<" "<<eta_label_den;
@@ -217,6 +223,8 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           TH1F* eleBkg = (TH1F*)ig.get(label_eleBkg.Data())->getTH1F()->Clone();
           eleBkg->Sumw2();
           ProcessBookingBKG( ibooker, ig, "me0_strip_dg_elePosBkg_rad", eleBkg, numEvts);
+          
+          delete eleBkg;
     
       }
       if( ig.get(label_neuBkg.Data()) !=nullptr ) {
@@ -224,6 +232,8 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           TH1F* neuBkg = (TH1F*)ig.get(label_neuBkg.Data())->getTH1F()->Clone();
           neuBkg->Sumw2();
           ProcessBookingBKG( ibooker, ig, "me0_strip_dg_neuBkg_rad", neuBkg, numEvts);
+          
+          delete neuBkg;
       
       }
       if( ig.get(label_totBkg.Data()) !=nullptr ) {
@@ -231,8 +241,12 @@ MuonME0DigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
           TH1F* totBkg = (TH1F*)ig.get(label_totBkg.Data())->getTH1F()->Clone();
           totBkg->Sumw2();
           ProcessBookingBKG( ibooker, ig, "me0_strip_dg_totBkg_rad", totBkg, numEvts);
+          
+          delete totBkg;
 
       }
+      
+      delete numEvts;
       
   }
     

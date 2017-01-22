@@ -30,6 +30,6 @@ public:
   TH1F* ComputeBKG(TH1F* hist1, TH1F* hist2, std::string nameHist );
 
 private:
-  std::string dbe_path_,outputFile_;
+  std::string dbe_path_;
 };
 #endif
