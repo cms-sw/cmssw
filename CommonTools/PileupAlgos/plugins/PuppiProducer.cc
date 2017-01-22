@@ -128,12 +128,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pReco.id = 0;
       
       if (std::abs(pReco.charge)>0) {
-        edm::Ref<reco::PFCandidateCollection> candref(pfCol->refAt(itPF-pfCol->begin()).castTo<edm::Ref<reco::PFCandidateCollection> >());
+        reco::PFCandidateRef candref(pfCol->refAt(itPF-pfCol->begin()).castTo<reco::PFCandidateRef>());
         int quality = (*pvAssignmentQuality)[candref];
         if (quality >= fAssignmentQualityForPrimary) {
-          int vtxid = (*pvAssignment)[candref].key();
-          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(pvCol->at(vtxid).position());
-          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(pvCol->at(vtxid).position());
+          const reco::VertexRef &vtxref = (*pvAssignment)[candref];
+          int vtxid = vtxref.key();
+          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(vtxref->position());
+          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(vtxref->position());
           if      ( pPF->trackRef().isNonnull()    ) pD0 = pPF->trackRef()   ->d0();
           else if ( pPF->gsfTrackRef().isNonnull() ) pD0 = pPF->gsfTrackRef()->d0();
           
