@@ -94,7 +94,7 @@ public:
                            const TrackerTopology* ttopo);
 
   const edm::ParameterSet& getConf() const {return conf_;}
- private:
+ protected:
   edm::ParameterSet conf_;
   edm::EDGetToken src_;
  protected:
