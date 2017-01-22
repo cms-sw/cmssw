@@ -214,18 +214,6 @@ public:
         return extra_->seedRef();
     }
 
-    ///  Access the lightweight track residuals; these are stored in
-    ///  TrackExtra and provide residual information with 4 bits of
-    ///  precision per hit
-    const TrackResiduals &residuals() const {
-        return extra_->residuals();
-    }
-   
-    /// return the residual (local x/y) for the hit in the ith position;
-    /// this position is aligned with the position in the HitPattern
-    double residualX(int position) const;
-    double residualY(int position) const;
-
 private:
     /// Reference to additional information stored only on RECO.
     TrackExtraRef extra_;
