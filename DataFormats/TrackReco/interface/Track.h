@@ -214,6 +214,10 @@ public:
         return extra_->seedRef();
     }
 
+    /// get the residuals
+    const TrackResiduals &residuals() const {return extra_->residuals();}
+
+
 private:
     /// Reference to additional information stored only on RECO.
     TrackExtraRef extra_;
