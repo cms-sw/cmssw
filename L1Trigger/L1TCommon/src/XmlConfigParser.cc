@@ -3,8 +3,8 @@
 //#include <utility>
 using namespace std;
 
-#include "L1TriggerConfig/XmlConfigTools/interface/XmlConfigParser.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

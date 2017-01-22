@@ -1,7 +1,0 @@
-<use name="xerces-c"/>
-<use name="L1Trigger/L1TCommon"/>
-
-<export>
-  <lib name="1"/>
-</export>
-
