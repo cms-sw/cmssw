@@ -1,4 +1,3 @@
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -328,6 +327,8 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
 
   edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
   event.getByToken(trajTracksToken_, TrajTracksMap);
+
+  if(!TrajTracksMap.isValid()) return;
   LogDebug("TrackerValidationVariables") << "TrajTrack collection size " << TrajTracksMap->size();
   
   const Trajectory* trajectory;

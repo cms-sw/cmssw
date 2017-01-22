@@ -89,7 +89,9 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 	edm::LogError("TrackRefitter") << " BeamSpot is (0,0,0), it is probably because is not valid in the event"; break; }
 
       if (theTCollection.failedToGet()){
-	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection."; break;}
+        edm::EDConsumerBase::Labels labels;
+        labelsForToken(src_, labels);
+	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection." << labels.module; break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
 
       try {
