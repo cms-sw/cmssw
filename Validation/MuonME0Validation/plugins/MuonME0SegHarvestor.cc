@@ -123,6 +123,9 @@ MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig
       
       ProcessBooking( ibooker, ig, "me0segment_eff_vs_eta", num_vs_eta, den_vs_eta );
       
+      delete num_vs_eta;
+      delete den_vs_eta;
+      
   }
   else edm::LogWarning("MuonME0SegHarvestor")<<"Can not find histograms: "<<eta_label_num<<" or "<<eta_label_den;
  
@@ -135,6 +138,9 @@ MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig
       
       ProcessBooking( ibooker, ig, "me0segment_eff_vs_pt", num_vs_pt, den_vs_pt );
       
+      delete num_vs_pt;
+      delete den_vs_pt;
+      
   }
   else edm::LogWarning("MuonME0SegHarvestor")<<"Can not find histograms: "<<pt_label_num<<" or "<<pt_label_den;
 
@@ -146,6 +152,9 @@ MuonME0SegHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig
       den_vs_phi->Sumw2();
       
       ProcessBooking( ibooker, ig, "me0segment_eff_vs_phi", num_vs_phi, den_vs_phi );
+      
+      delete num_vs_phi;
+      delete den_vs_phi;
       
   }
   else edm::LogWarning("MuonME0SegHarvestor")<<"Can not find histograms: "<<phi_label_num<<" or "<<phi_label_den;
