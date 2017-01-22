@@ -91,4 +91,5 @@ phase2_common.toModify(
     UsePVAssignmentMap = True,
     PVAssignment = cms.InputTag('primaryVertexAssociation','original'),
     PVAssignmentQuality = cms.InputTag('primaryVertexAssociation','original'),
+    vertexName = cms.InputTag('offlinePrimaryVertices4D'),
 )

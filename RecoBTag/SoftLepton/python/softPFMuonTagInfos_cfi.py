@@ -11,3 +11,9 @@ softPFMuonsTagInfos = cms.EDProducer("SoftPFMuonTagInfoProducer",
   filterRatio2      = cms.double(0.7),
   filterPromptMuons = cms.bool(False)
 )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    softPFMuonsTagInfos,
+    primaryVertex = cms.InputTag("offlinePrimaryVertices4D"),
+)

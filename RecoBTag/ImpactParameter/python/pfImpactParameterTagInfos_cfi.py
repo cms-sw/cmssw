@@ -19,3 +19,9 @@ pfImpactParameterTagInfos = cms.EDProducer("CandIPProducer",
     candidates = cms.InputTag("particleFlow"),
     maxDeltaR = cms.double(0.4)
 )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    pfImpactParameterTagInfos,
+    primaryVertex = cms.InputTag("offlinePrimaryVertices4D"),
+)

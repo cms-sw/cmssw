@@ -8,3 +8,9 @@ bToCharmDecayVertexMerged = cms.EDProducer("BtoCharmDecayVertexMerger",
       minCosPAtomerge = cms.double(0.99),
       maxPtreltomerge = cms.double(7777.0)
 )
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    bToCharmDecayVertexMerged,
+    primaryVertices = cms.InputTag("offlinePrimaryVertices4D"),
+)

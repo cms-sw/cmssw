@@ -6,3 +6,8 @@ goodOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
    filter = cms.bool(False)
 )
 
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    goodOfflinePrimaryVertices,
+    src = cms.InputTag("offlinePrimaryVertices4D"),
+)
