@@ -614,7 +614,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
- <CompositeMaterial name="SectorA" density="0.3661*g/cm3" symbol=" " method="mixture by weight">
+ <CompositeMaterial name="SectorA" density="0.4200*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.329">
       <rMaterial name="trackermaterial:T_FR4"/>
     </MaterialFraction>
@@ -712,7 +712,7 @@
     </MaterialFraction>
   </CompositeMaterial>
 
-  <CompositeMaterial name="SectorBC" density="0.9875*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="SectorBC" density="1.133*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.265">
       <rMaterial name="trackermaterial:T_FR4"/>
     </MaterialFraction>
@@ -793,3 +793,4 @@
 </MaterialSection>
 
 </DDDefinition>
+
