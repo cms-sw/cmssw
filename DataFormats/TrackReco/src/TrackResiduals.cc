@@ -29,5 +29,16 @@ namespace reco {
     float TrackResiduals::unpack_residual(StorageType x) { return unpack(x,rmin,rdiv); }
     TrackResiduals::StorageType TrackResiduals::pack_residual(float x) { return pack(x,rmin,rmult); }
 
+    void TrackResiduals::setResidualXY(int idx, float residualX, float residualY) {
+         m_storage[4*idx]   = pack_residual(residualX); 
+         m_storage[4*idx+1] = pack_residual(residualY);
+    }
+    void TrackResiduals::setPullXY(int idx, float pullX, float pullY) {
+         m_storage[4*idx+2] = pack_pull(pullX);
+         m_storage[4*idx+3] = pack_pull(pullY);
+    }
+
+
+
 }  // reco nm
  
