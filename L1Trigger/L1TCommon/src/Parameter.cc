@@ -1,4 +1,4 @@
-#include "L1TriggerConfig/XmlConfigTools/interface/Parameter.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 
 using namespace std;
 
