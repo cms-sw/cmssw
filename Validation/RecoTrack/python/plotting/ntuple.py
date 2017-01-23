@@ -163,7 +163,7 @@ class _RecoHitAdaptor(object):
     def hits(self):
         """Returns generator for hits.
 
-        Generator returns PixelHit/StripHit/GluedHit depending on the
+        Generator returns PixelHit/StripHit/GluedHit/Phase2OT depending on the
         hit type.
 
         """
@@ -176,6 +176,8 @@ class _RecoHitAdaptor(object):
                 yield GluedHit(self._tree, ihit)
             elif hitType == 3:
                 yield InvalidHit(self._tree, ihit)
+            elif hitType == 4:
+                yield Phase2OTHit(self._tree, ihit)
             else:
                 raise Exception("Unknown hit type %d" % hitType)
 
@@ -210,6 +212,14 @@ class _RecoHitAdaptor(object):
             if hitType != 3:
                 continue
             yield InvalidHit(self._tree, ihit)
+
+    def phase2OTHits(self):
+        """Returns generator for phase2 outer tracker hits."""
+        self._checkIsValid()
+        for ihit, hitType in self._hits():
+            if hitType != 4:
+                continue
+            yield Phase2OTHit(self._tree, ihit)
 
 class _SimHitAdaptor(object):
     """Adaptor class for objects containing or matched to SimHits (e.g. TrackingParticles, reco hits)."""
@@ -362,6 +372,10 @@ class Event(object):
     def gluedHits(self):
         """Returns GluedHits object."""
         return GluedHits(self._tree)
+
+    def phase2OTHits(self):
+        """Returns Phase2OTHits object."""
+        return Phase2OTHits(self._tree)
 
     def seeds(self):
         """Returns Seeds object."""
@@ -618,6 +632,31 @@ class InvalidHit(_Object):
         det = self._tree.inv_det[self._index]
         invalid_type = self._tree.inv_type[self._index]
         return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type._toString[invalid_type])
+
+##########
+class Phase2OTHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
+    """Class representing a phase2 OT hit."""
+    def __init__(self, tree, index):
+        """Constructor.
+
+        Arguments:
+        tree  -- TTree object
+        index -- Index of the hit
+        """
+        super(Phase2OTHit, self).__init__(tree, index, "ph2")
+
+    def isValidHit(self):
+        return True
+
+class Phase2OTHits(_Collection):
+    """Class presenting a collection of phase2 OT hits."""
+    def __init__(self, tree):
+        """Constructor.
+
+        Arguments:
+        tree -- TTree object
+        """
+        super(Phase2OTHits, self).__init__(tree, "ph2_isBarrel", Phase2OTHit)
 
 ##########
 def _seedOffsetForAlgo(tree, algo):
