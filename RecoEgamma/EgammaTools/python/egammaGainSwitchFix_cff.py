@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms 
 
-bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
+bunchSpacingProducerGSFix = cms.EDProducer("BunchSpacingProducer")
 
 #this module re-makes the rec-hits using the weights reco for hits saved in ecal selected digis 
 from RecoEgamma.EgammaTools.ecalWeightRecHitFromSelectedDigis_cff import *
@@ -24,7 +24,7 @@ from RecoEgamma.EgammaPhotonProducers.gsFixedGedPhotonCores_cfi import *
 from RecoEgamma.EgammaPhotonProducers.gsFixedGedPhotons_cfi import *
 
 egammaGainSwitchFixSequence = cms.Sequence(
-    bunchSpacingProducer*
+    bunchSpacingProducerGSFix*
     ecalWeightLocalRecoFromSelectedDigis*
     ecalMultiAndGSWeightRecHitEB*
     gsFixedParticleFlowSuperClustering*
@@ -39,7 +39,7 @@ from RecoEgamma.EgammaElectronProducers.gsSimpleFixedGsfElectrons_cfi import gsS
 from RecoEgamma.EgammaElectronProducers.gsSimpleFixedPhotons_cfi import gsSimpleFixedPhotons
 
 egammaGainSwitchSimpleFixSequence = cms.Sequence(
-    bunchSpacingProducer*
+    bunchSpacingProducerGSFix*
     ecalWeightLocalRecoFromSelectedDigis*
     ecalMultiAndGSWeightRecHitEB*
     gsSimpleFixedGsfElectrons*
