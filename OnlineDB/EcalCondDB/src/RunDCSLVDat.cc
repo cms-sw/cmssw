@@ -30,7 +30,7 @@ RunDCSLVDat::~RunDCSLVDat()
 
 
 void RunDCSLVDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -39,14 +39,14 @@ void RunDCSLVDat::prepareWrite()
 
 
 void RunDCSLVDat::writeDB(const EcalLogicID* ecid, const RunDCSLVDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSLVDat::fetchData(map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchLastData(fillMap);
 
@@ -182,7 +182,7 @@ void  RunDCSLVDat::setStatusForEndcaps(RunDCSLVDat &dat, const Tm& sinceTm) {
 }
 
 void RunDCSLVDat::fetchLastData(map< EcalLogicID, RunDCSLVDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 

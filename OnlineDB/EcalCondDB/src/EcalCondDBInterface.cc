@@ -67,7 +67,7 @@ void EcalCondDBInterface::fillLogicId2DetIdMaps() {
 
 
 EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   string sql = "SELECT name, logic_id, id1, id2, id3, maps_to FROM channelView WHERE logic_id = :logicID AND name=maps_to";
@@ -104,7 +104,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
 }
 
 std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV *iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::list<ODDelaysDat> ret;
   RunFEConfigDat d;
@@ -142,7 +142,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
 						 int id2,
 						 int id3,
 						 string mapsTo )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   if (mapsTo == "") {
@@ -204,7 +204,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
 							    int fromId2, int toId2,
 							    int fromId3, int toId3,
 							    string mapsTo )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   if (mapsTo == "") {
     mapsTo = name;
@@ -404,7 +404,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string n
 							    string mapsTo, int orderedBy )
   // the orderedBy can be 1, 2, 3, 4
   // corresponding to id1 id2 id3 or logic_id 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   if (mapsTo == "") {
     mapsTo = name;
@@ -516,7 +516,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string n
 
 
 void EcalCondDBInterface::insertRunIOV(RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     iov->setConnection(env, conn);
@@ -529,7 +529,7 @@ void EcalCondDBInterface::insertRunIOV(RunIOV* iov)
 }
 
 void EcalCondDBInterface::insertLmfSeq(LMFSeqDat *iov) 
-  throw(std::runtime_error) 
+  noexcept(false) 
 {
   try {
     iov->setConnection(env, conn);
@@ -542,7 +542,7 @@ void EcalCondDBInterface::insertLmfSeq(LMFSeqDat *iov)
 }
 
 void EcalCondDBInterface::insertLmfLmrSubIOV(LMFLmrSubIOV *iov) 
-  throw(std::runtime_error) 
+  noexcept(false) 
 {
   try {
     iov->setConnection(env, conn);
@@ -555,7 +555,7 @@ void EcalCondDBInterface::insertLmfLmrSubIOV(LMFLmrSubIOV *iov)
 }
 
 void EcalCondDBInterface::insertLmfIOV(LMFIOV *iov) 
-  throw(std::runtime_error) 
+  noexcept(false) 
 {
   try {
     iov->setConnection(env, conn);
@@ -568,7 +568,7 @@ void EcalCondDBInterface::insertLmfIOV(LMFIOV *iov)
 }
 
 void EcalCondDBInterface::insertLmfDat(LMFDat *dat) 
-  throw(std::runtime_error) 
+  noexcept(false) 
 {
   try {
     dat->setConnection(env, conn);
@@ -581,7 +581,7 @@ void EcalCondDBInterface::insertLmfDat(LMFDat *dat)
 }
 
 void EcalCondDBInterface::insertLmfDat(std::list<LMFDat *> dat) 
-  throw(std::runtime_error) 
+  noexcept(false) 
 {
   try {
     std::list<LMFDat *>::iterator i = dat.begin();
@@ -599,7 +599,7 @@ void EcalCondDBInterface::insertLmfDat(std::list<LMFDat *> dat)
 }
 
 void EcalCondDBInterface::insertLmfRunIOV(LMFRunIOV *iov) 
-  throw(std::runtime_error) 
+  noexcept(false) 
 {
   try {
     iov->setConnection(env, conn);
@@ -612,7 +612,7 @@ void EcalCondDBInterface::insertLmfRunIOV(LMFRunIOV *iov)
 }
 
 void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     iov->setConnection(env, conn);
@@ -625,7 +625,7 @@ void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
 }
 
 void EcalCondDBInterface::updateRunIOVEndTime(RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     iov->setConnection(env, conn);
@@ -638,7 +638,7 @@ void EcalCondDBInterface::updateRunIOVEndTime(RunIOV* iov)
 }
 
 void EcalCondDBInterface::updateRunIOVStartTime(RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     iov->setConnection(env, conn);
@@ -651,7 +651,7 @@ void EcalCondDBInterface::updateRunIOVStartTime(RunIOV* iov)
 }
 
 void EcalCondDBInterface::updateRunConfig(ODRunConfigInfo* od)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     od->setConnection(env, conn);
@@ -664,7 +664,7 @@ void EcalCondDBInterface::updateRunConfig(ODRunConfigInfo* od)
 }
 
 RunIOV EcalCondDBInterface::fetchRunIOV(RunTag* tag, run_t run)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   RunIOV iov;
   iov.setConnection(env, conn);
@@ -675,7 +675,7 @@ RunIOV EcalCondDBInterface::fetchRunIOV(RunTag* tag, run_t run)
 
 
 RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   RunIOV iov;
   iov.setConnection(env, conn);
@@ -684,7 +684,7 @@ RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run)
 }
 
 RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, const Tm &t) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   RunIOV iov;
   iov.setConnection(env, conn);
@@ -693,7 +693,7 @@ RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, const Tm &t)
 }
 
 void EcalCondDBInterface::insertMonRunIOV(MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     iov->setConnection(env, conn);
@@ -706,7 +706,7 @@ void EcalCondDBInterface::insertMonRunIOV(MonRunIOV* iov)
 }
 
 void EcalCondDBInterface::insertDCUIOV(DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
     iov->setConnection(env, conn);
@@ -722,7 +722,7 @@ void EcalCondDBInterface::insertDCUIOV(DCUIOV* iov)
 
 
 MonRunIOV EcalCondDBInterface::fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t subrun)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   RunIOV runiov = fetchRunIOV(runtag, run);
   MonRunIOV moniov;
@@ -734,7 +734,7 @@ MonRunIOV EcalCondDBInterface::fetchMonRunIOV(RunTag* runtag, MonRunTag* montag,
 
 
 DCUIOV EcalCondDBInterface::fetchDCUIOV(DCUTag* tag, const Tm& eventTm)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   DCUIOV dcuiov;
   dcuiov.setConnection(env, conn);
@@ -748,7 +748,7 @@ RunIOV EcalCondDBInterface::fetchLMFLastRun() const {
 }
 
 LMFRunIOV EcalCondDBInterface::fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t subrun)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   RunIOV runiov = fetchRunIOV(runtag, run);
   LMFRunIOV lmfiov;
@@ -789,7 +789,7 @@ bool EcalCondDBInterface::fetchLMFRunIOV(const LMFSeqDat &seq, LMFRunIOV& iov,
 }
 
 CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, const Tm& eventTm)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   CaliIOV caliiov;
   caliiov.setConnection(env, conn);
@@ -798,7 +798,7 @@ CaliIOV EcalCondDBInterface::fetchCaliIOV(CaliTag* tag, const Tm& eventTm)
 }
 
 DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(const EcalLogicID& ecid)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   DCSPTMTempList r;
   r.setConnection(env, conn);
@@ -807,7 +807,7 @@ DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(const EcalLogicID& ecid)
 }
 
 DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(const EcalLogicID& ecid, const Tm& start, const Tm& end)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   DCSPTMTempList r;
   r.setConnection(env, conn);
@@ -816,7 +816,7 @@ DCSPTMTempList EcalCondDBInterface::fetchDCSPTMTempList(const EcalLogicID& ecid,
 }
 
 RunList EcalCondDBInterface::fetchRunList(const RunTag& tag)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   RunList r;
   r.setConnection(env, conn);
@@ -825,7 +825,7 @@ RunList EcalCondDBInterface::fetchRunList(const RunTag& tag)
   return r;
 }
 
-RunList EcalCondDBInterface::fetchRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error){
+RunList EcalCondDBInterface::fetchRunList(const RunTag& tag, int min_run, int max_run) noexcept(false){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -833,7 +833,7 @@ RunList EcalCondDBInterface::fetchRunList(const RunTag& tag, int min_run, int ma
   return r;
 }
 
-RunList EcalCondDBInterface::fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error){
+RunList EcalCondDBInterface::fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) noexcept(false){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -841,7 +841,7 @@ RunList EcalCondDBInterface::fetchNonEmptyRunList(const RunTag& tag, int min_run
   return r;
 }
 
-RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error){
+RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) noexcept(false){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -850,7 +850,7 @@ RunList EcalCondDBInterface::fetchNonEmptyGlobalRunList(const RunTag& tag, int m
 }
 
 RunList EcalCondDBInterface::fetchRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -859,7 +859,7 @@ RunList EcalCondDBInterface::fetchRunListByLocation(const RunTag& tag, int min_r
 }
 
 RunList EcalCondDBInterface::fetchGlobalRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) 
-  throw(std::runtime_error) {
+  noexcept(false) {
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -868,7 +868,7 @@ RunList EcalCondDBInterface::fetchGlobalRunListByLocation(const RunTag& tag, int
 }
 
 RunList EcalCondDBInterface::fetchRunListLastNRuns(const RunTag& tag, int max_run, int n_runs) 
-  throw(std::runtime_error){
+  noexcept(false){
   RunList r;
   r.setConnection(env, conn);
   r.setRunTag(tag);
@@ -882,7 +882,7 @@ RunList EcalCondDBInterface::fetchRunListLastNRuns(const RunTag& tag, int max_ru
 // from here it is for the MonRunList 
 
 MonRunList EcalCondDBInterface::fetchMonRunList(const RunTag& tag, const MonRunTag& monrunTag)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   MonRunList r;
   r.setConnection(env, conn);
@@ -893,7 +893,7 @@ MonRunList EcalCondDBInterface::fetchMonRunList(const RunTag& tag, const MonRunT
 }
 
 MonRunList EcalCondDBInterface::fetchMonRunList(const RunTag& tag, const MonRunTag& monrunTag,int min_run, int max_run)
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   MonRunList r;
   r.setConnection(env, conn);
@@ -904,7 +904,7 @@ MonRunList EcalCondDBInterface::fetchMonRunList(const RunTag& tag, const MonRunT
 }
 
 MonRunList EcalCondDBInterface::fetchMonRunListLastNRuns(const RunTag& tag, const MonRunTag& monrunTag,int max_run, int n_runs )
-  throw(std::runtime_error)
+  noexcept(false)
 {  
   MonRunList r;
   r.setConnection(env, conn);

@@ -41,17 +41,17 @@ class MonMemTTConsistencyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MonMemTTConsistencyDat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MonMemTTConsistencyDat >* data, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::map< EcalLogicID, MonMemTTConsistencyDat >* fillVec, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_processedEvents;
