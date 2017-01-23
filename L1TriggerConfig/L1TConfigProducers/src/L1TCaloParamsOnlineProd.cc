@@ -7,9 +7,9 @@
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloStage2ParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsO2ORcd.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/XmlConfigParser.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/ConvertToLUT.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
+#include "L1Trigger/L1TCommon/interface/ConvertToLUT.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include "xercesc/util/PlatformUtils.hpp"

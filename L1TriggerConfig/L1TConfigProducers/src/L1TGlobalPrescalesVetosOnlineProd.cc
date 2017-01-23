@@ -7,8 +7,8 @@
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosO2ORcd.h"
 #include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/XmlConfigParser.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 
 class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos> {
 private:

@@ -123,13 +123,19 @@ template<> unsigned long      castTo<unsigned long>     (const char *arg);
 template<> unsigned long long castTo<unsigned long long>(const char *arg);
 
 // apart from the types above there may still be some numeric types left
+template<class T> T castToInt_impl(const char *arg, std::true_type);
+template<class T> T castToInt_impl(const char *arg, std::false_type);
+template<class T> T castTo_impl(const char *arg, std::true_type, std::false_type);
+template<class T> T castTo_impl(const char *arg, std::false_type, std::true_type);
+template<class T> T castTo_impl(const char *arg, std::false_type, std::false_type);
+
 //  try to guess the type trait first
 template<class T> T castTo(const char *arg) {
-    castTo_impl(arg, std::is_integral<T>(), std::is_floating_point<T>());
+    return castTo_impl<T>(arg, std::is_integral<T>(), std::is_floating_point<T>());
 }
 // integral type can be signed and unsigned
 template<class T> T castTo_impl(const char *arg, std::true_type, std::false_type){
-    castToInt_impl(arg, std::is_unsigned<T>());
+    return castToInt_impl<T>(arg, std::is_unsigned<T>());
 }
 // unsigned case
 template<class T> T castToInt_impl(const char *arg, std::true_type){
