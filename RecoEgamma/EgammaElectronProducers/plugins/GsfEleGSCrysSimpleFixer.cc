@@ -104,10 +104,13 @@ void GsfEleGSCrysSimpleFixer::produce( edm::Event & iEvent, const edm::EventSetu
 							      &ebMultiRecHits,&ebMultiAndWeightsRecHits);
       float energyCorr = newRawEnergy / eleRef->superCluster()->rawEnergy();
       
-      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),eleRef->superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
-      reco::GsfElectron::ShowerShape stupidShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),eleRef->superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
-      newEle.full5x5_setShowerShape(full5x5ShowerShape);   
-      newEle.setShowerShape(stupidShowerShape);   
+      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+      reco::GsfElectron::ShowerShape showerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+      //so the no fractions showershape had hcalDepth1/2 corrected by the regression energy, hence we need to know the type
+      GainSwitchTools::correctHadem(showerShape,energyCorr,GainSwitchTools::ShowerShapeType::Fractions);
+      GainSwitchTools::correctHadem(full5x5ShowerShape,energyCorr,GainSwitchTools::ShowerShapeType::Full5x5);
+      newEle.full5x5_setShowerShape(full5x5ShowerShape);
+      newEle.setShowerShape(showerShape);   
       
       newEle.setCorrectedEcalEnergy(newEle.ecalEnergy()*energyCorr);
       newEle.setCorrectedEcalEnergyError(newEle.ecalEnergyError()*energyCorr);

@@ -137,6 +137,25 @@ reco::SuperClusterRef GainSwitchTools::matchSCBySeedCrys(const reco::SuperCluste
 }
 
 
+void 
+GainSwitchTools::correctHadem(reco::GsfElectron::ShowerShape& showerShape,float eNewOverEOld,const GainSwitchTools::ShowerShapeType ssType)
+{
+  if(ssType==ShowerShapeType::Full5x5) showerShape.hcalDepth1OverEcal/=eNewOverEOld;
+  if(ssType==ShowerShapeType::Full5x5) showerShape.hcalDepth2OverEcal/=eNewOverEOld;
+  showerShape.hcalDepth1OverEcalBc/=eNewOverEOld;
+  showerShape.hcalDepth2OverEcalBc/=eNewOverEOld;
+}
+  
+void
+GainSwitchTools::correctHadem(reco::Photon::ShowerShape& showerShape,float eNewOverEOld)
+{
+  showerShape.hcalDepth1OverEcal/=eNewOverEOld;
+  showerShape.hcalDepth2OverEcal/=eNewOverEOld;
+  showerShape.hcalDepth1OverEcalBc/=eNewOverEOld;
+  showerShape.hcalDepth2OverEcalBc/=eNewOverEOld;
+}
+  
+
 int GainSwitchTools::calDIEta(int lhs,int rhs)
 {
   int retVal = lhs - rhs;

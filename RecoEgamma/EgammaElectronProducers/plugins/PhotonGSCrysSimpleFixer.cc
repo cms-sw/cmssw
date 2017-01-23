@@ -108,10 +108,15 @@ void PhotonGSCrysSimpleFixer::produce( edm::Event & iEvent, const edm::EventSetu
 							      &ebMultiRecHits,&ebMultiAndWeightsRecHits);
       float energyCorr = newRawEnergy / phoRef->superCluster()->rawEnergy();
       
-      reco::Photon::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newPho.full5x5_showerShapeVariables(),newPho.superCluster(),phoRef->superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
-      reco::Photon::ShowerShape stupidShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newPho.showerShapeVariables(),newPho.superCluster(),phoRef->superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+      reco::Photon::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newPho.full5x5_showerShapeVariables(),newPho.superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+      reco::Photon::ShowerShape showerShape = GainSwitchTools::redoEcalShowerShape<false>(newPho.showerShapeVariables(),newPho.superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+
+      
+      GainSwitchTools::correctHadem(showerShape,energyCorr);
+      GainSwitchTools::correctHadem(full5x5ShowerShape,energyCorr);
+
       newPho.full5x5_setShowerShapeVariables(full5x5ShowerShape);   
-      newPho.setShowerShapeVariables(stupidShowerShape);   
+      newPho.setShowerShapeVariables(showerShape);   
       
       for(int typeAsInt : energyTypesToFix_){
 	auto type = static_cast<reco::Photon::P4type>(typeAsInt);

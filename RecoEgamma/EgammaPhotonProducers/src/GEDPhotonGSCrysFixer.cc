@@ -74,10 +74,16 @@ void GEDPhotonGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup &
       reco::Photon newPho(*phoRef);
       newPho.setPhotonCore(newCoreRef);
 
-      reco::Photon::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newPho.full5x5_showerShapeVariables(),newPho.superCluster(),phoRef->superCluster(),&ebRecHits,topology_,geometry_);
-      reco::Photon::ShowerShape ShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newPho.showerShapeVariables(),newPho.superCluster(),phoRef->superCluster(),&ebRecHits,topology_,geometry_);
+      reco::Photon::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newPho.full5x5_showerShapeVariables(),newPho.superCluster(),&ebRecHits,topology_,geometry_);
+      reco::Photon::ShowerShape showerShape = GainSwitchTools::redoEcalShowerShape<false>(newPho.showerShapeVariables(),newPho.superCluster(),&ebRecHits,topology_,geometry_);
+      
+      float eNewSCOverEOldSC = newPho.superCluster()->energy()/phoRef->superCluster()->energy();
+      GainSwitchTools::correctHadem(showerShape,eNewSCOverEOldSC);
+      GainSwitchTools::correctHadem(full5x5ShowerShape,eNewSCOverEOldSC);
+
+
       newPho.full5x5_setShowerShapeVariables(full5x5ShowerShape);   
-      newPho.setShowerShapeVariables(ShowerShape);   
+      newPho.setShowerShapeVariables(showerShape);   
 
       if( gedRegression_ ) {
 	gedRegression_->modifyObject(newPho);
