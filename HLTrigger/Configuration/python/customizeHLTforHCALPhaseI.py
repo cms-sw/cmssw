@@ -165,25 +165,30 @@ def customizeHLTforHEforPhaseI(process):
    
     # reconstruct HBHE rechits with Method 3
     if 'hltHbhereco' in process.__dict__:
+        digiLabel = process.hltHbhereco.digiLabel.value()
         process.hltHbhereco = hltHbhereco.clone()
+        process.hltHbhereco.digiLabelQIE8  = digiLabel
+        process.hltHbhereco.digiLabelQIE11 = digiLabel
 
     # reconstruct HBHE rechits with Method 2 around E/Gamma candidates (seeded by L1 objects)
     if 'hltHbherecoMethod2L1EGSeeded' in process.__dict__:
+        digiLabel = process.hltHbherecoMethod2L1EGSeeded.digiLabel.value()
         process.hltHbherecoMethod2L1EGSeeded = hltHbhereco.clone()
-        process.hltHbherecoMethod2L1EGSeeded.processQIE8     = cms.bool(True)
-        process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE8   = cms.InputTag("hltHcalDigisL1EGSeeded")
+        process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE8   = digiLabel
+        process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE11  = digiLabel
+        # set processQIE11 to False until HLTHcalDigisInRegionsProducer can produce QIE11
         process.hltHbherecoMethod2L1EGSeeded.processQIE11    = cms.bool(False)
-        process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE11  = cms.InputTag("hltHcalDigisL1EGSeeded")
         process.hltHbherecoMethod2L1EGSeeded.algorithm.useM2 = cms.bool(True)
         process.hltHbherecoMethod2L1EGSeeded.algorithm.useM3 = cms.bool(False)
 
     # reconstruct HBHE rechits with Method 2 around E/Gamma candidates (unseeded)
     if 'hltHbherecoMethod2L1EGUnseeded' in process.__dict__:
+        digiLabel = process.hltHbherecoMethod2L1EGUnseeded.digiLabel.value()
         process.hltHbherecoMethod2L1EGUnseeded = hltHbhereco.clone()
-        process.hltHbherecoMethod2L1EGUnseeded.processQIE11    = cms.bool(True)
-        process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE8   = cms.InputTag("hltHcalDigisL1EGUnseeded")
+        process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE8   = digiLabel
+        process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE11  = digiLabel
+        # set processQIE11 to False until HLTHcalDigisInRegionsProducer can produce QIE11
         process.hltHbherecoMethod2L1EGUnseeded.processQIE11    = cms.bool(False)
-        process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE11  = cms.InputTag("hltHcalDigisL1EGUnseeded")
         process.hltHbherecoMethod2L1EGUnseeded.algorithm.useM2 = cms.bool(True)
         process.hltHbherecoMethod2L1EGUnseeded.algorithm.useM3 = cms.bool(False)
 
