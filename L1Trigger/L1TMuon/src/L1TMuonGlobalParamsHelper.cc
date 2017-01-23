@@ -2,7 +2,7 @@
 #include <strstream>
 
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/ConvertToLUT.h"
+#include "L1Trigger/L1TCommon/interface/ConvertToLUT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams & p) : L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(p))

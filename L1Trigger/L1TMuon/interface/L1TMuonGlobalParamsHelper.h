@@ -17,8 +17,8 @@
 
 //this is temp hack to avoid ALCA/DB signoff requirement for now:
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParams_PUBLIC.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/Parameter.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
 class L1TMuonGlobalParamsHelper : public L1TMuonGlobalParams_PUBLIC {
