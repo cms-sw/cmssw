@@ -8,7 +8,6 @@
   <use name="DataFormats/L1Trigger"/>
   <use name="CondFormats/L1TObjects"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="L1TriggerConfig/XmlConfigTools"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
