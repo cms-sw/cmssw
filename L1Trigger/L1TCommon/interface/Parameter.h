@@ -13,7 +13,7 @@
 
 namespace l1t {
 
-// assuming string is castable to T
+// assuming string is castable to T (some specific cases are defined in the end)
 template<class T> T castTo(const char *arg);
 
 class Parameter {
@@ -84,9 +84,9 @@ public:
     std::map<std::string,unsigned int> getColumnIndices(void) const noexcept { return columnNameToIndex; }
 
     Parameter& operator=(const Parameter  & s) = default;
-    Parameter& operator=(      Parameter && s) = default; // must be noexcept 
+    Parameter& operator=(      Parameter && s) = default; // should be noexcept 
     Parameter(const Parameter  & s) = default;
-    Parameter(      Parameter && s) = default; // must be noexcept 
+    Parameter(      Parameter && s) = default; // should be noexcept 
 
     Parameter(const char *id,
             const char *procOrRole,
@@ -106,36 +106,44 @@ public:
     ~Parameter(void){}
 };
 
-// specializations for several fundamental types
+// specializations for most of the fundamental types are provided (also covers simple typedefs)
 template<> bool               castTo<bool>              (const char *arg);
+template<> char               castTo<char>              (const char *arg);
+template<> short              castTo<short>             (const char *arg);
+template<> int                castTo<int>               (const char *arg);
+template<> long               castTo<long>              (const char *arg);
 template<> long long          castTo<long long>         (const char *arg);
-template<> unsigned long long castTo<unsigned long long>(const char *arg);
+template<> float              castTo<float>             (const char *arg);
+template<> double             castTo<double>            (const char *arg);
 template<> long double        castTo<long double>       (const char *arg);
+template<> unsigned char      castTo<unsigned char>     (const char *arg);
+template<> unsigned short     castTo<unsigned short>    (const char *arg);
+template<> unsigned int       castTo<unsigned int>      (const char *arg);
+template<> unsigned long      castTo<unsigned long>     (const char *arg);
+template<> unsigned long long castTo<unsigned long long>(const char *arg);
 
-// try to guess the type trait
+// apart from the types above there may still be some numeric types left
+//  try to guess the type trait first
 template<class T> T castTo(const char *arg) {
     castTo_impl(arg, std::is_integral<T>(), std::is_floating_point<T>());
 }
-
-// integral type
+// integral type can be signed and unsigned
 template<class T> T castTo_impl(const char *arg, std::true_type, std::false_type){
     castToInt_impl(arg, std::is_unsigned<T>());
 }
-// unsigned
+// unsigned case
 template<class T> T castToInt_impl(const char *arg, std::true_type){
     return castTo<unsigned long long>(arg);
 }
-// signed
+// signed case
 template<class T> T castToInt_impl(const char *arg, std::false_type){
     return castTo<long long>(arg);
 }
-
 // floating point type
 template<class T> T castTo_impl(const char *arg, std::false_type, std::true_type){
     return castTo<long double>(arg);
 }
-
-// assume a non-fundamental type T is initializable with a string
+// last hope that a non-fundamental type T is initializable with a string
 template<class T> T castTo_impl(const char *arg, std::false_type, std::false_type) {
     return T(arg);
 }
