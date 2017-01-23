@@ -1,48 +1,47 @@
 import FWCore.ParameterSet.Config as cms
-from RecoBTag.Combined.DeepNNTagInfoProducer_cfi import deepNNTagInfos
-from RecoBTag.Combined.DeepCMVATagInfoProducer_cfi import deepCMVATagInfos
-from RecoBTag.Combined.DeepFlavourJetTagsProducer_cfi import deepFlavourJetTags, deepFlavourCMVAJetTags
-
+from RecoBTag.Combined.DeepNNTagInfoProducer_cfi import pfDeepCSVTagInfos
+from RecoBTag.Combined.DeepCMVATagInfoProducer_cfi import pfDeepCMVATagInfos
+from RecoBTag.Combined.DeepFlavourJetTagsProducer_cfi import pfDeepCSVJetTags, pfDeepCMVAJetTags
 
 ##
 ## Negative and positive taggers for light SF estimation
 ##
 
-deepNNNegativeTagInfos = deepNNTagInfos.clone(
+pfDeepCSVNegativeTagInfos = pfDeepCSVTagInfos.clone(
 	svTagInfos=cms.InputTag('pfInclusiveSecondaryVertexFinderNegativeTagInfos')
 	)
-deepNNNegativeTagInfos.computer.vertexFlip = True
-deepNNNegativeTagInfos.computer.trackFlip = True
-deepNNNegativeTagInfos.computer.trackSelection.sip3dSigMax = 0
-deepNNNegativeTagInfos.computer.trackPseudoSelection.sip3dSigMax = 0
-deepNNNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMin = -99999.9
-deepNNNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMax = -2.0
+pfDeepCSVNegativeTagInfos.computer.vertexFlip = True
+pfDeepCSVNegativeTagInfos.computer.trackFlip = True
+pfDeepCSVNegativeTagInfos.computer.trackSelection.sip3dSigMax = 0
+pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip3dSigMax = 0
+pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMin = -99999.9
+pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMax = -2.0
 
-negativeDeepFlavourJetTags = deepFlavourJetTags.clone(
-	src=cms.InputTag('deepNNNegativeTagInfos')
+pfNegativeDeepCSVJetTags = pfDeepCSVJetTags.clone(
+	src=cms.InputTag('pfDeepCSVNegativeTagInfos')
 	)
 
-deepNNPositiveTagInfos = deepNNTagInfos.clone()
-deepNNPositiveTagInfos.computer.trackSelection.sip3dSigMin = 0
-deepNNPositiveTagInfos.computer.trackPseudoSelection.sip3dSigMin = 0
-positiveDeepFlavourJetTags = deepFlavourJetTags.clone(
-	src=cms.InputTag('deepNNPositiveTagInfos')
+pfDeepCSVPositiveTagInfos = pfDeepCSVTagInfos.clone()
+pfDeepCSVPositiveTagInfos.computer.trackSelection.sip3dSigMin = 0
+pfDeepCSVPositiveTagInfos.computer.trackPseudoSelection.sip3dSigMin = 0
+pfPositiveDeepCSVJetTags = pfDeepCSVJetTags.clone(
+	src=cms.InputTag('pfDeepCSVPositiveTagInfos')
 	)
 
 # Deep CMVA
-deepCMVANegativeTagInfos = deepCMVATagInfos.clone(
-	deepNNTagInfos = cms.InputTag('deepNNNegativeTagInfos')
+pfDeepCMVANegativeTagInfos = pfDeepCMVATagInfos.clone(
+	deepNNTagInfos = cms.InputTag('pfDeepCSVNegativeTagInfos')
 	)
 	
-negativeDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
-	src=cms.InputTag('deepCMVANegativeTagInfos')
+pfNegativeDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
+	src=cms.InputTag('pfDeepCMVANegativeTagInfos')
 	)
 
-deepCMVAPositiveTagInfos = deepCMVATagInfos.clone(
-	deepNNTagInfos = cms.InputTag('deepNNPositiveTagInfos')
+pfDeepCMVAPositiveTagInfos = pfDeepCMVATagInfos.clone(
+	deepNNTagInfos = cms.InputTag('pfDeepCSVPositiveTagInfos')
 	)
-positiveDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
-	src=cms.InputTag('deepCMVAPositiveTagInfos')
+pfPositiveDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
+	src=cms.InputTag('pfDeepCMVAPositiveTagInfos')
 	)
 
 
@@ -51,9 +50,9 @@ positiveDeepFlavourCMVAJetTags = deepFlavourCMVAJetTags.clone(
 ## Deep Flavour sequence, not complete as it would need the IP and SV tag infos
 ##
 pfDeepFlavour = cms.Sequence(
-	deepNNTagInfos *
-	deepCMVATagInfos *
-	deepFlavourJetTags *
-	deepFlavourCMVAJetTags
+	pfDeepCSVTagInfos 
+	##* pfDeepCMVATagInfos * #SKIP for the moment
+	* pfDeepCSVJetTags 
+	##* pfDeepCMVAJetTags
 )
 

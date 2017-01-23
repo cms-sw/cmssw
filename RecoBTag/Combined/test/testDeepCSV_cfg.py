@@ -9,7 +9,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 
 ## uncomment the following line to update different jet collections
 ## and add them to the event content
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection, addJetCollection
 
 ## An example where the jet energy correction are updated to the current GlobalTag
 ## and a userFloat containing the previous mass of the jet and an additional
@@ -26,19 +26,20 @@ updateJetCollection(
    btagDiscriminators = [
       'pfCombinedSecondaryVertexV2BJetTags',
 
-      'deepFlavourJetTags:probudsg', 
-      'deepFlavourJetTags:probb', 
-      'deepFlavourJetTags:probc', 
-      'deepFlavourJetTags:probbb', 
-      'deepFlavourJetTags:probcc',
+      'pfDeepCSVJetTags:probudsg', 
+      'pfDeepCSVJetTags:probb', 
+      'pfDeepCSVJetTags:probc', 
+      'pfDeepCSVJetTags:probbb', 
+      'pfDeepCSVJetTags:probcc',
       
-      ## 'deepFlavourCMVAJetTags:probudsg', 
-      ## 'deepFlavourCMVAJetTags:probb', 
-      ## 'deepFlavourCMVAJetTags:probc', 
-      ## 'deepFlavourCMVAJetTags:probbb', 
-      ## 'deepFlavourCMVAJetTags:probcc'
+      ## 'pfDeepCMVAJetTags:probudsg', 
+      ## 'pfDeepCMVAJetTags:probb', 
+      ## 'pfDeepCMVAJetTags:probc', 
+      ## 'pfDeepCMVAJetTags:probbb', 
+      ## 'pfDeepCMVAJetTags:probcc'
       ] ## to add discriminators
 )
+
 process.updatedPatJets.userData.userFloats.src += ['oldJetMass']
 
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
@@ -49,10 +50,10 @@ process.maxEvents.input = 100
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
 process.out.outputCommands = MINIAODSIMEventContent.outputCommands
 process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
-process.out.outputCommands.append('keep *_deepNNTagInfos*_*_*')
+process.out.outputCommands.append('keep *_pfDeepCSVTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 #                                         ##
 process.out.fileName = 'testDeepCSV.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
-process.add_(cms.Service("InitRootHandlers", DebugLevel =cms.untracked.int32(3)))
+# process.add_(cms.Service("InitRootHandlers", DebugLevel =cms.untracked.int32(3)))
