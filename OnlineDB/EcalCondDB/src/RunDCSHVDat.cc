@@ -35,7 +35,7 @@ RunDCSHVDat::~RunDCSHVDat()
 
 
 void RunDCSHVDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -44,14 +44,14 @@ void RunDCSHVDat::prepareWrite()
 
 
 void RunDCSHVDat::writeDB(const EcalLogicID* ecid, const RunDCSHVDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSHVDat::fetchData(map< EcalLogicID, RunDCSHVDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchLastData(fillMap);
 
@@ -412,7 +412,7 @@ void  RunDCSHVDat::setStatusForEndcaps(RunDCSHVDat &dat, const Tm& sinceTm) {
 }
 
 void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -442,7 +442,7 @@ void RunDCSHVDat::fetchLastData(map< EcalLogicID, RunDCSHVDat >* fillMap )
 }
 
 void RunDCSHVDat::fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, const Tm& timeStart  )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 

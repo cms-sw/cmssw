@@ -28,7 +28,7 @@ MonShapeQualityDat::~MonShapeQualityDat()
 
 
 void MonShapeQualityDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void MonShapeQualityDat::prepareWrite()
 
 
 void MonShapeQualityDat::writeDB(const EcalLogicID* ecid, const MonShapeQualityDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void MonShapeQualityDat::writeDB(const EcalLogicID* ecid, const MonShapeQualityD
 
 
 void MonShapeQualityDat::fetchData(std::map< EcalLogicID, MonShapeQualityDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -115,7 +115,7 @@ void MonShapeQualityDat::fetchData(std::map< EcalLogicID, MonShapeQualityDat >* 
 }
 
 void MonShapeQualityDat::writeArrayDB(const std::map< EcalLogicID, MonShapeQualityDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
