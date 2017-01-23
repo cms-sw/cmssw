@@ -258,8 +258,11 @@ namespace {
 
     double adcSum = 0;
     PixelDigiSimLink found;
+
     for (unsigned int istr(0); istr < cluster.size(); ++istr) {
-      //FIXME::where is the adc info for Phase2TrackerCluster1D?
+      //In the OT, there is no measurement of the charge, so no ADC value.
+      //Only in the SSA chip (so in PSs) you have one "threshold" flag that tells you if the charge of at least one strip in the cluster exceeded 1.2 MIPs.
+
       //const SiPixelCluster::Pixel& pixel = cluster.pixel(iPix);
       //adcSum += pixel.adc;
       uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
@@ -449,8 +452,7 @@ private:
                           const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                           const edm::DetSetVector<SimLink>& digiSimLinks,
                           const SimHitRefKeyToIndex& simHitRefKeyToIndex,
-                          HitType hitType,
-                          bool isPhase2 = false
+                          HitType hitType
                           );
 
   // ----------member data ---------------------------
@@ -1551,8 +1553,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
                                                         const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                                         const edm::DetSetVector<SimLink>& digiSimLinks,
                                                         const SimHitRefKeyToIndex& simHitRefKeyToIndex,
-                                                        HitType hitType,
-                                                        bool isPhase2
+                                                        HitType hitType
                                                         ) {
   SimHitData ret;
 
@@ -1966,7 +1967,7 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       const int key = hit->cluster().key();
       const int lay = tTopo.layer(hitId);
       SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
-                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT, true);
+                                           clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT);
 
       ph2_isBarrel .push_back( hitId.subdetId()==1 );
       ph2_det      .push_back( hitId.subdetId() );
