@@ -52,6 +52,7 @@ namespace popcon {
 
   private:
     std::string m_name;
+    std::string fname;
   };
 }
 #endif
