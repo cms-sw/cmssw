@@ -109,14 +109,9 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
     // Effinciecy
     int centralStrip = topology.channel(entr)+1;;
     float fire = CLHEP::RandFlat::shoot(engine);
-//    float smearedOffsetY = CLHEP::RandGaussQ::shoot(engine,_hit->localPosition().y(),sigmaY);
-//    float smearedPositionY = _hit->localPosition().y()+smearedOffsetY;
 
     float smearedPositionY = CLHEP::RandGaussQ::shoot(engine,_hit->localPosition().y(),sigmaY);
 
-    //std::cout<<"roll->nstrips()\t=\t"<<roll->nstrips()<<std::endl;
-    //std::cout<<"localPitch\t"<<roll->localPitch(_hit->localPosition())<<std::endl;
-    //std::cout<<"Pitch\t"<<roll->pitch()<<std::endl;
     if (fire < veff[centralStrip-1]) {
 
       int fstrip=centralStrip;
@@ -156,17 +151,6 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 	      cls.push_back(fstrip);
 	    }
 	  }
-	  // if (deltaw<0.) {
-	  //   if (lstrip < roll->nstrips() ){
-	  //     lstrip++;
-	  //     cls.push_back(lstrip);
-	  //   }
-	  // }else{
-	  //   if (fstrip > 1 ){
-	  //     fstrip--;
-	  //     cls.push_back(fstrip);
-	  //   }
-	  // }
 	}
       }
 
