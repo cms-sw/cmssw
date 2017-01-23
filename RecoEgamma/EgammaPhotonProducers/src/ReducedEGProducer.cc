@@ -55,7 +55,9 @@ namespace std {
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
+  gsFixedPhotonMapT_(consumes<edm::ValueMap<reco::PhotonRef> >(config.getParameter<edm::InputTag>("gsFixedPhotonMap"))),
   gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
+  gsFixedElectronMapT_(consumes<edm::ValueMap<reco::GsfElectronRef> >(config.getParameter<edm::InputTag>("gsFixedElectronMap"))),
   conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
   singleConversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("singleConversions"))),
   barrelEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"))),
@@ -156,8 +158,14 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   edm::Handle<reco::PhotonCollection> photonHandle;
   theEvent.getByToken(photonT_, photonHandle);
 
+  edm::Handle<edm::ValueMap<reco::PhotonRef > > gsFixedPhotonMapHandle;
+  theEvent.getByToken(gsFixedPhotonMapT_, gsFixedPhotonMapHandle);  
+
   edm::Handle<reco::GsfElectronCollection> gsfElectronHandle;
   theEvent.getByToken(gsfElectronT_, gsfElectronHandle);  
+
+  edm::Handle<edm::ValueMap<reco::GsfElectronRef > > gsFixedElectronMapHandle;
+  theEvent.getByToken(gsFixedElectronMapT_, gsFixedElectronMapHandle);  
   
   edm::Handle<reco::ConversionCollection> conversionHandle;
   theEvent.getByToken(conversionT_, conversionHandle);  
@@ -264,14 +272,19 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   //loop over photons and fill maps
   for (unsigned int ipho=0; ipho<photonHandle->size(); ++ipho) {
+
     const reco::Photon &photon = (*photonHandle)[ipho];
     
     bool keep = keepPhotonSel_(photon);
     if (!keep) continue;
-    
-    reco::PhotonRef photonref(photonHandle,ipho);
-    
     photons->push_back(photon);
+    
+    reco::PhotonRef gsFixedPhotonRef(photonHandle,ipho);
+
+    // // check if it was fixed
+    // std::cout << gsFixedPhotonMapHandle->contains(gsFixedPhotonRef.id()) << std::endl;
+    // std::cout << (*gsFixedPhotonMapHandle)[gsFixedPhotonRef].isNull() << std::endl;
+    reco::PhotonRef photonref = (*gsFixedPhotonMapHandle)[gsFixedPhotonRef];
     
     //fill pf candidate value map vector
     pfCandIsoPairVecPho.push_back((*photonPfCandMapHandle)[photonref]);
@@ -342,10 +355,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     
     bool keep = keepGsfElectronSel_(gsfElectron);    
     if (!keep) continue;
-    
-    reco::GsfElectronRef gsfElectronref(gsfElectronHandle,iele);
-    
     gsfElectrons->push_back(gsfElectron);
+   
+    reco::GsfElectronRef gsFixedGsfElectronref(gsfElectronHandle,iele);
+    reco::GsfElectronRef gsfElectronref = (*gsFixedElectronMapHandle)[gsFixedGsfElectronref];
+        
     pfCandIsoPairVecEle.push_back((*gsfElectronPfCandMapHandle)[gsfElectronref]);
     
     //fill electron id valuemap vectors

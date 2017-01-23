@@ -8,6 +8,7 @@ namespace {
   }
 }
 
+typedef edm::ValueMap<reco::PhotonRef> PhotonRefMap;
 
 GEDPhotonGSCrysFixer::GEDPhotonGSCrysFixer( const edm::ParameterSet & pset )
 {
@@ -30,6 +31,7 @@ GEDPhotonGSCrysFixer::GEDPhotonGSCrysFixer( const edm::ParameterSet & pset )
   }
 
   produces<reco::PhotonCollection >();
+  produces<PhotonRefMap>();
 }
 
 namespace {
@@ -63,10 +65,13 @@ void GEDPhotonGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup &
   auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
   auto& newCoresToOldCoresMap = *getHandle(iEvent,newCoresToOldCoresMapToken_);
   auto newCoresHandle = getHandle(iEvent,newCoresToken_);
-  
+
+  std::vector<reco::PhotonRef> oldPhotons;
+
   for(size_t phoNr=0;phoNr<phosHandle->size();phoNr++){
     reco::PhotonRef phoRef(phosHandle,phoNr);
-  
+    oldPhotons.emplace_back(phoRef);
+
     reco::PhotonCoreRef newCoreRef = getNewCore(phoRef,newCoresHandle,newCoresToOldCoresMap);
     
     if(newCoreRef.isNonnull()){ //okay we have to remake the photon
@@ -95,7 +100,12 @@ void GEDPhotonGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup &
     }
   }
   
-  iEvent.put(std::move(outPhos));
+  auto&& newPhotonsHandle(iEvent.put(std::move(outPhos)));
+  std::unique_ptr<PhotonRefMap> pRefMap(new PhotonRefMap);
+  PhotonRefMap::Filler refMapFiller(*pRefMap);
+  refMapFiller.insert(newPhotonsHandle, oldPhotons.begin(), oldPhotons.end());
+  refMapFiller.fill();
+  iEvent.put(std::move(pRefMap));
 }
 
 void GEDPhotonGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 

@@ -73,9 +73,7 @@ namespace {
   }
 }
 
-
-
-
+typedef edm::ValueMap<reco::GsfElectronRef> ElectronRefMap;
 
 GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
 {
@@ -98,6 +96,8 @@ GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
   }
 
   produces<reco::GsfElectronCollection >();
+  produces<ElectronRefMap>();
+
 }
 
 namespace {
@@ -131,10 +131,13 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
   auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
   auto& newCoresToOldCoresMap = *getHandle(iEvent,newCoresToOldCoresMapToken_);
   auto newCoresHandle = getHandle(iEvent,newCoresToken_);
+
+  std::vector<reco::GsfElectronRef> oldElectrons;
   
   for(size_t eleNr=0;eleNr<elesHandle->size();eleNr++){
     reco::GsfElectronRef eleRef(elesHandle,eleNr);
-  
+    oldElectrons.emplace_back(eleRef);
+
     reco::GsfElectronCoreRef newCoreRef = getNewCore(eleRef,newCoresHandle,newCoresToOldCoresMap);
     
     if(newCoreRef.isNonnull()){ //okay we have to remake the electron
@@ -162,7 +165,12 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
     }
   }
   
-  iEvent.put(std::move(outEles));
+  auto&& newElectronsHandle(iEvent.put(std::move(outEles)));
+  std::unique_ptr<ElectronRefMap> pRefMap(new ElectronRefMap);
+  ElectronRefMap::Filler refMapFiller(*pRefMap);
+  refMapFiller.insert(newElectronsHandle, oldElectrons.begin(), oldElectrons.end());
+  refMapFiller.fill();
+  iEvent.put(std::move(pRefMap));
 }
 
 void GsfElectronGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 
