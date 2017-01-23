@@ -334,10 +334,6 @@ int RPCSimModelTiming::LeftRightNeighbour(const RPCRoll& roll, const LocalPoint 
   double deltawL = fabs((roll.centreOfStrip(leftStrip)).x()-hit_pos.x());
   double deltawR = fabs((roll.centreOfStrip(rightStrip)).x()-hit_pos.x());
 
-  //  std::cout<<"deltaw\t"<<deltaw<<std::endl;
-  //  std::cout<<"deltawL\t"<<deltawL<<std::endl;
-  //  std::cout<<"deltawR\t"<<deltawR<<std::endl;
-
   if(deltawL>=deltawR){
     return +1;
   }
