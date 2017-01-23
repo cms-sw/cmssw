@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-deepFlavourJetTags = cms.EDProducer(
+pfDeepCSVJetTags = cms.EDProducer(
 	'DeepFlavourJetTagsProducer',
-	src = cms.InputTag('deepNNTagInfos'),
+	src = cms.InputTag('pfDeepCSVTagInfos'),
 	NNConfig = cms.FileInPath('RecoBTag/Combined/data/DeepFlavourNoSL.json')
 	)
 	
-deepFlavourCMVAJetTags = cms.EDProducer(
+pfDeepCMVAJetTags = cms.EDProducer(
 	'DeepFlavourJetTagsProducer',
-	src = cms.InputTag('deepCMVATagInfos'),
+	src = cms.InputTag('pfDeepCMVATagInfos'),
 	NNConfig = cms.FileInPath('RecoBTag/Combined/data/Model_DeepCMVA.json')
 )

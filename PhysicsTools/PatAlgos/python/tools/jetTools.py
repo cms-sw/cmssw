@@ -279,28 +279,28 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
                     _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
                     _btagInfo.trackSelection.totalHitsMin = cms.uint32(8)
-            if btagInfo == 'deepNNTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+            if btagInfo == 'pfDeepCSVTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCSVTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
-            if btagInfo == 'deepNNNegativeTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNNegativeTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)))
+            if btagInfo == 'pfDeepCSVNegativeTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCSVNegativeTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
-            if btagInfo == 'deepNNPositiveTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepNNPositiveTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+            if btagInfo == 'pfDeepCSVPositiveTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCSVPositiveTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
-            if btagInfo == 'deepCMVATagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepCMVATagInfos.clone(deepNNTagInfos = cms.InputTag(btagPrefix+'deepNNTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+            if btagInfo == 'pfDeepCMVATagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCMVATagInfos.clone(pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
-            if btagInfo == 'deepCMVANegativeTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepCMVATagInfos.clone(deepNNTagInfos = cms.InputTag(btagPrefix+'deepNNTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+            if btagInfo == 'pfDeepCMVANegativeTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCMVATagInfos.clone(pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
-            if btagInfo == 'deepCMVAPositiveTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.deepCMVATagInfos.clone(deepNNTagInfos = cms.InputTag(btagPrefix+'deepNNTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+            if btagInfo == 'pfDeepCMVAPositiveTagInfos':
+                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCMVATagInfos.clone(pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)     
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
