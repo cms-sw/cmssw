@@ -12,21 +12,19 @@
  *
  *   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
  *
- *
  */
 
-
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 template <class T, typename C = std::vector<typename T::ConstituentTypeFwdPtr>>
 class JetConstituentSelector : public edm::stream::EDProducer<> {
@@ -41,6 +39,15 @@ public:
   {
     produces<JetsOutput>();
     produces<ConstituentsOutput>("constituents");
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+  {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src")->setComment("InputTag used for retrieving jets in event.");
+    desc.add<std::string>("cut")->setComment("Cut used by which to select jets.  For example:\n"
+                                             "  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
+    descriptions.add("JetConsituentSelector", desc);
   }
 
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override
