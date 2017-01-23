@@ -139,9 +139,7 @@ void MuonME0DigisHarvestor::ProcessBookingBKG( DQMStore::IBooker& ibooker, DQMSt
         
         rate->SetTitle( title.Data() );
         ibooker.book1D( rate->GetName(),rate );
-        
-        delete rate;
-        
+
     }
     else {
         
