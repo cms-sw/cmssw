@@ -7,25 +7,7 @@
 
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TEfficiencyHarvesting.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
-#include "DataFormats/Luminosity/interface/LumiDetails.h" // Luminosity Information
-#include "DataFormats/Luminosity/interface/LumiSummary.h" // Luminosity Information
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"            // L1Gt - Masks
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h" // L1Gt - Masks
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-
-#include "TList.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;
 using namespace std;
@@ -129,14 +111,13 @@ void L1TEfficiencyPlotHandler::computeEfficiency(DQMStore::IBooker &ibooker, DQM
 //___________DQM_analyzer_class________________________________________
 L1TEfficiencyHarvesting::L1TEfficiencyHarvesting(const ParameterSet & ps) :
         verbose_(ps.getUntrackedParameter<bool>("verbose")),
-        plotCfgs_(ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")),
         plotHandlers_()
 {
   if (verbose_) {
     edm::LogInfo("L1TEfficiencyHarvesting") << "____________ Storage initialization ____________ " << endl;
   }
 
-  for (auto plotConfig : plotCfgs_) {
+  for (auto plotConfig : ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")) {
     vector < string > plots = plotConfig.getUntrackedParameter < vector < string >> ("plots");
     for (auto plot : plots) {
       plotHandlers_.push_back(L1TEfficiencyPlotHandler(plotConfig, plot));

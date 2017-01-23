@@ -124,11 +124,10 @@ void L1TDiffHarvesting::L1TDiffPlotHandler::bookDiff(DQMStore::IBooker &ibooker)
 }
 
 L1TDiffHarvesting::L1TDiffHarvesting(const edm::ParameterSet& ps) :
-    plotCfgs_(ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")), //
     plotHandlers_()
 {
   using namespace std;
-  for (auto plotConfig : plotCfgs_) {
+  for (auto plotConfig : ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")) {
     vector < string > plots = plotConfig.getUntrackedParameter < vector < string >> ("plots");
     for (auto plot : plots) {
       plotHandlers_.push_back(L1TDiffPlotHandler(plotConfig, plot));
