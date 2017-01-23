@@ -30,7 +30,7 @@ ConfigurationDatabaseImplOracle::~ConfigurationDatabaseImplOracle() {
 
 }
 
-void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) noexcept(false) {
   std::map<std::string,std::string> params;
   std::string user, host, method, db, port,password;
   ConfigurationDatabaseImpl::parseAccessor(accessor,method,host,port,user,db,params);
@@ -88,7 +88,7 @@ inline static int cvtChar(int c) {
 
 void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
 		std::map<hcal::ConfigurationDatabase::LUTId,
-		hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException) {
+		hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) noexcept(false) {
 
 	if (env_ == NULL || conn_ == NULL) XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database is not open");
   	checksums.clear();
@@ -141,7 +141,7 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
 
 }
 
-void ConfigurationDatabaseImplOracle::getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplOracle::getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) noexcept(false) {
   if (m_lutCache.crate!=crate || m_lutCache.tag!=tag) {
     m_lutCache.clear();
     getLUTs_real(tag,crate,m_lutCache.luts);
@@ -160,7 +160,7 @@ void ConfigurationDatabaseImplOracle::getLUTs(const std::string& tag, int crate,
 
 void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int crate,
 			std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs)
-								throw (hcal::exception::ConfigurationDatabaseException)
+								noexcept(false)
 {
 
    try {
@@ -225,7 +225,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 
 }
 
-void ConfigurationDatabaseImplOracle::getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplOracle::getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) noexcept(false) {
   if (m_patternCache.crate!=crate || m_patternCache.tag!=tag) {
     m_patternCache.clear();
     getPatterns_real(tag,crate,m_patternCache.patterns);
@@ -243,7 +243,7 @@ void ConfigurationDatabaseImplOracle::getPatterns(const std::string& tag, int cr
 
 void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, int crate,
 			std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns)
-							throw (hcal::exception::ConfigurationDatabaseException) {
+							noexcept(false) {
    try {
         //Lets run the SQl Query
         Statement* stmt = conn_->createStatement();
@@ -297,7 +297,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
 void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const std::string& rbx,
                         hcal::ConfigurationDatabase::RBXdatumType dtype,
                         std::map<ConfigurationDatabase::RBXdatumId, hcal::ConfigurationDatabase::RBXdatum>& RBXdata)
-                        throw (hcal::exception::ConfigurationDatabaseException) {
+                        noexcept(false) {
 
         RBXdata.clear();
 
@@ -404,7 +404,7 @@ void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const s
 
 void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, int crate, int slot,
                 std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds)
-                throw (hcal::exception::ConfigurationDatabaseException) {
+                noexcept(false) {
 
    try {
         //Lets run the SQl Query
@@ -447,7 +447,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
 
 void ConfigurationDatabaseImplOracle::getHLXMasks(const std::string& tag, int crate, int slot,
                         std::map<hcal::ConfigurationDatabase::FPGAId, hcal::ConfigurationDatabase::HLXMasks>& masks)
-                                        throw (hcal::exception::ConfigurationDatabaseException) {
+                                        noexcept(false) {
   if (m_hlxMaskCache.crate!=crate || m_hlxMaskCache.tag!=tag) {
     m_hlxMaskCache.clear();
     getHLXMasks_real(tag,crate,m_hlxMaskCache.masks);
@@ -466,7 +466,7 @@ void ConfigurationDatabaseImplOracle::getHLXMasks(const std::string& tag, int cr
 
 void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, int crate,
                 std::map<ConfigurationDatabase::FPGAId, ConfigurationDatabase::HLXMasks>& masks)
-                throw (hcal::exception::ConfigurationDatabaseException) {
+                noexcept(false) {
    try {
         //Lets run the SQl Query
         Statement* stmt = conn_->createStatement();
