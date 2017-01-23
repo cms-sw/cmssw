@@ -271,14 +271,25 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
         return from_coord(coord->signed_blade_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else if (phase == 1) {
-        // FPIX-as-one-plot should use signed_shifted_ here
         return from_coord(coord->signed_blade_panel_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else {
-        // TODO: phase2
-        return UNDEFINED;
+        return UNDEFINED; // TODO: phase2
       }
-    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2 
+  );
+  addExtractor(intern("SignedShiftedBladePanelCoord"), // FPIX-as-one y
+    [coord, from_coord, phase] (InterestingQuantities const& iq) {
+      if (phase == 0) {
+        return from_coord(coord->signed_blade_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else if (phase == 1) {
+        return from_coord(coord->signed_shifted_blade_panel_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else {
+        return UNDEFINED; // TODO: phase2
+      }
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.1 // half-roc for phase0
   );
   addExtractor(intern("SignedBladePanel"), // per-module FPIX y
     [coord, from_coord] (InterestingQuantities const& iq) {
