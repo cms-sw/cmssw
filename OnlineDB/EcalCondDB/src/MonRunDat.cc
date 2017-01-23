@@ -32,7 +32,7 @@ MonRunDat::~MonRunDat()
 
 
 void MonRunDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -50,7 +50,7 @@ void MonRunDat::prepareWrite()
 
 
 void MonRunDat::writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -84,7 +84,7 @@ void MonRunDat::writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIO
 
 
 void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

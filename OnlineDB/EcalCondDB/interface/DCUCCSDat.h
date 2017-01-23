@@ -83,16 +83,16 @@ class DCUCCSDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const DCUCCSDat* item, DCUIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, DCUCCSDat>* data, DCUIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, DCUCCSDat >* fillVec, DCUIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_m1_vdd1;

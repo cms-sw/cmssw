@@ -44,7 +44,7 @@ Tm RunDCSMagnetDat::getTime() const
 
 
 void RunDCSMagnetDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -53,14 +53,14 @@ void RunDCSMagnetDat::prepareWrite()
 
 
 void RunDCSMagnetDat::writeDB(const EcalLogicID* ecid, const RunDCSMagnetDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 }
 
 
 
 void RunDCSMagnetDat::fetchData(map< EcalLogicID, RunDCSMagnetDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<<"going to call fetchLastData"<<std::endl;
@@ -151,7 +151,7 @@ int  RunDCSMagnetDat::nowMicroseconds() {
 
 
 void RunDCSMagnetDat::fetchLastData(map< EcalLogicID, RunDCSMagnetDat >* fillMap )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
