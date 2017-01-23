@@ -1,5 +1,5 @@
-#ifndef L1TriggerConfig_XmlConfigTools_l1t_TriggerSystem_h
-#define L1TriggerConfig_XmlConfigTools_l1t_TriggerSystem_h
+#ifndef L1Trigger_L1TCommon_l1t_TriggerSystem_h
+#define L1Trigger_L1TCommon_l1t_TriggerSystem_h
 
 #include <vector>
 #include <string>
