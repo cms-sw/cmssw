@@ -14,24 +14,16 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-#include <TString.h>
-
-#include <iostream>
-#include <fstream>
 #include <vector>
 
 namespace dqmoffline {
@@ -95,8 +87,6 @@ protected:
 private:
 
   bool verbose_;
-
-  std::vector<edm::ParameterSet> plotCfgs_;
 
   L1TEfficiencyPlotHandlerCollection plotHandlers_;
 
