@@ -28,8 +28,8 @@ public:
   virtual TaggingVariableList taggingVariables(void) const { return list_; }
 
 protected:
-  const TaggingVariableList  list_;
-	const edm::RefToBase<Jet>  jetRef_;
+  /*const*/ TaggingVariableList  list_;
+	/*const*/ edm::RefToBase<Jet>  jetRef_;
 };
 
 DECLARE_EDM_REFS( ShallowTagInfo )
