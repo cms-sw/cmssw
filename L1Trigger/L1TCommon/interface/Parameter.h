@@ -1,5 +1,5 @@
-#ifndef L1TriggerConfig_XmlConfigTools_l1t_Parameter_h
-#define L1TriggerConfig_XmlConfigTools_l1t_Parameter_h
+#ifndef L1Trigger_L1TCommon_l1t_Parameter_h
+#define L1Trigger_L1TCommon_l1t_Parameter_h
 
 #include<map>
 #include<list>

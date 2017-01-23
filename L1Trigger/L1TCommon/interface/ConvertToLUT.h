@@ -1,5 +1,5 @@
-#ifndef L1TriggerConfig_XmlConfigTools_l1t_ConvertToLUT
-#define L1TriggerConfig_XmlConfigTools_l1t_ConvertToLUT
+#ifndef L1Trigger_L1TCommon_l1t_ConvertToLUT
+#define L1Trigger_L1TCommon_l1t_ConvertToLUT
 
 #include <vector>
 #include <sstream>
