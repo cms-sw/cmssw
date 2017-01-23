@@ -20,6 +20,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -129,10 +131,6 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
   assert(trackerGeometryHandle.isValid());
 
-  // some parameters to record the ROCs here
-  auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
-  auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
-
   // Now traverse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
@@ -152,16 +150,16 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    // TODO: add all ROCs?
-    // TODO: Things are more complicated for phase2, and we support that via 
-    // SiPixelCoordinates, so we should support it here too.
-    iq.row = 1; iq.col = 1;
+    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometryHandle->idToDetUnit(id));
+    assert(detUnit);
+    const PixelTopology* topo = &detUnit->specificTopology();
+    iq.row = 0; iq.col = 0;
     all_modules.push_back(iq);
-    iq.row = module_rows-1; iq.col = 1;
+    iq.row = topo->nrows()-1; iq.col = 0;
     all_modules.push_back(iq);
-    iq.row = 1; iq.col = module_cols-1;
+    iq.row = 0; iq.col = topo->ncolumns()-1;
     all_modules.push_back(iq);
-    iq.row = module_rows-1; iq.col = module_cols-1;
+    iq.row = topo->nrows()-1; iq.col = topo->ncolumns()-1;
     all_modules.push_back(iq);
   }
 }
