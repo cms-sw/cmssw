@@ -42,10 +42,10 @@ public:
 
   template<bool noZS>
   static reco::GsfElectron::ShowerShape 
-  redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
+    redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const reco::SuperClusterRef& superClusOld, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
   template<bool noZS>
   static reco::Photon::ShowerShape 
-  redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
+    redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const reco::SuperClusterRef& superClusOld, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry);
 
 private:
   static int calDIEta(int lhs,int rhs);
@@ -60,7 +60,7 @@ private:
 
 template<bool noZS>
 reco::GsfElectron::ShowerShape 
-GainSwitchTools::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry)
+GainSwitchTools::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const reco::SuperClusterRef& superClusOld, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry)
 {
   const reco::CaloCluster & seedClus = *(superClus->seed());
   
@@ -71,7 +71,12 @@ GainSwitchTools::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,
   showerShape.sigmaIphiIphi =!edm::isNotFinite(localCovariances[2]) ? sqrt(localCovariances[2]) : 0;
   showerShape.e1x5 = EcalClusterToolsT<noZS>::e1x5(seedClus,recHits,topology);
   showerShape.e2x5Max = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology);
-  showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology);
+  float new_e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology);
+  showerShape.hcalDepth1OverEcalBc = showerShape.hcalDepth1OverEcalBc * showerShape.e5x5 / new_e5x5;
+  showerShape.hcalDepth2OverEcalBc = showerShape.hcalDepth2OverEcalBc * showerShape.e5x5 / new_e5x5;
+  showerShape.e5x5 = new_e5x5;
+  showerShape.hcalDepth1OverEcal = showerShape.hcalDepth1OverEcal * superClusOld->energy() / superClus->energy();
+  showerShape.hcalDepth2OverEcal = showerShape.hcalDepth2OverEcal * superClusOld->energy() / superClus->energy();
   showerShape.r9 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology)/superClus->rawEnergy();  
   const float see_by_spp = showerShape.sigmaIetaIeta*showerShape.sigmaIphiIphi;
   if(  see_by_spp > 0 ) {
@@ -92,7 +97,7 @@ GainSwitchTools::redoEcalShowerShape(reco::GsfElectron::ShowerShape showerShape,
   
 template<bool noZS>
 reco::Photon::ShowerShape 
-GainSwitchTools::redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry)
+GainSwitchTools::redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const reco::SuperClusterRef& superClus, const reco::SuperClusterRef& superClusOld, const EcalRecHitCollection* recHits,const CaloTopology* topology,const CaloGeometry* geometry)
 {
   const reco::CaloCluster & seedClus = *(superClus->seed());
   
@@ -103,6 +108,10 @@ GainSwitchTools::redoEcalShowerShape(reco::Photon::ShowerShape showerShape,const
   showerShape.e2x5 = EcalClusterToolsT<noZS>::e2x5Max(seedClus,recHits,topology);
   showerShape.e3x3 = EcalClusterToolsT<noZS>::e3x3(seedClus,recHits,topology);
   showerShape.e5x5 = EcalClusterToolsT<noZS>::e5x5(seedClus,recHits,topology);
+  showerShape.hcalDepth1OverEcalBc = showerShape.hcalDepth1OverEcalBc * superClusOld->energy() / superClus->energy();
+  showerShape.hcalDepth2OverEcalBc = showerShape.hcalDepth2OverEcalBc * superClusOld->energy() / superClus->energy();
+  showerShape.hcalDepth1OverEcal = showerShape.hcalDepth1OverEcal * superClusOld->energy() / superClus->energy();
+  showerShape.hcalDepth2OverEcal = showerShape.hcalDepth2OverEcal * superClusOld->energy() / superClus->energy();
   showerShape.maxEnergyXtal =  EcalClusterToolsT<noZS>::eMax(seedClus,recHits);
   //showerShape.effSigmaRR fine as its preshower, this only does ECAL shapes
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]);

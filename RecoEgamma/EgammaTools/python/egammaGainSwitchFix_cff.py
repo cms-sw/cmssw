@@ -18,7 +18,10 @@ from RecoEcal.EgammaClusterProducers.gsBrokenToGSFixedSuperClustersMap_cfi impor
 from RecoEgamma.EgammaElectronProducers.gsFixedGsfElectronCores_cfi import *
 #turns the cores into gsf electrons, again only modifying those which have a gs eb crystal
 from RecoEgamma.EgammaElectronProducers.gsFixedGsfElectrons_cfi import *
-
+#this makes makes a new colleciton of ged photon cores, modifying only those that have a gs eb crystal
+from RecoEgamma.EgammaPhotonProducers.gsFixedGedPhotonCores_cfi import *
+#turns the cores into ged photons, again only modifying those which have a gs eb crystal
+from RecoEgamma.EgammaPhotonProducers.gsFixedGedPhotons_cfi import *
 
 egammaGainSwitchFixSequence = cms.Sequence(
     bunchSpacingProducer*
@@ -28,8 +31,9 @@ egammaGainSwitchFixSequence = cms.Sequence(
     gsFixedRefinedBarrelSuperClusters*
     gsBrokenToGSFixedSuperClustersMap*
     gsFixedGsfElectronCores*
-    gsFixedGsfElectrons)
-
+    gsFixedGsfElectrons*
+    gsFixedGedPhotonCores*
+    gsFixedGedPhotons)
 
 from RecoEgamma.EgammaElectronProducers.gsSimpleFixedGsfElectrons_cfi import gsSimpleFixedGsfElectrons
 from RecoEgamma.EgammaElectronProducers.gsSimpleFixedPhotons_cfi import gsSimpleFixedPhotons

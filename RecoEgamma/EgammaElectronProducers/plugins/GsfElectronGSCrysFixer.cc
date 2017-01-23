@@ -140,10 +140,10 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
     if(newCoreRef.isNonnull()){ //okay we have to remake the electron
 
       reco::GsfElectron newEle(*eleRef,newCoreRef);
-      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
-      reco::GsfElectron::ShowerShape stupidShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
+      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),eleRef->superCluster(),&ebRecHits,topology_,geometry_);
+      reco::GsfElectron::ShowerShape ShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),eleRef->superCluster(),&ebRecHits,topology_,geometry_);
       newEle.full5x5_setShowerShape(full5x5ShowerShape);   
-      newEle.setShowerShape(stupidShowerShape);   
+      newEle.setShowerShape(ShowerShape);   
 
       if( gedRegression_ ) {
 	gedRegression_->modifyObject(newEle);

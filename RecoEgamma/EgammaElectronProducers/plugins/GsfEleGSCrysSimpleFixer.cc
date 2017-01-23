@@ -104,8 +104,8 @@ void GsfEleGSCrysSimpleFixer::produce( edm::Event & iEvent, const edm::EventSetu
 							      &ebMultiRecHits,&ebMultiAndWeightsRecHits);
       float energyCorr = newRawEnergy / eleRef->superCluster()->rawEnergy();
       
-      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
-      reco::GsfElectron::ShowerShape stupidShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+      reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),eleRef->superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
+      reco::GsfElectron::ShowerShape stupidShowerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),eleRef->superCluster(),&ebMultiAndWeightsRecHits,topology_,geometry_);
       newEle.full5x5_setShowerShape(full5x5ShowerShape);   
       newEle.setShowerShape(stupidShowerShape);   
       
