@@ -47,7 +47,6 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
   reco::GsfTrackRefProd rTracks = evt.getRefBeforePut<reco::GsfTrackCollection>();
 
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
-  edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
   edm::Ref<reco::GsfTrackExtraCollection>::key_type idxGsf = 0;
   edm::Ref<reco::GsfTrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
@@ -126,46 +125,19 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    Traj2TrackHits t2t(hitBuilder,false);
+    reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s;
+    Traj2TrackHits t2t;
     auto ih = selHits->size();
-    assert(ih==hidx);
-    t2t(*theTraj,*selHits,useSplitting);
+    t2t(*theTraj,*selHits,trajParams,chi2s);
     auto ie = selHits->size();
-    unsigned int nHitsAdded = 0;
+    tx.setHits(rHits,ih,ie-ih);
+    tx.setTrajParams(std::move(trajParams),std::move(chi2s));
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
       track.appendHitPattern(hit, *ttopo);
-      ++nHitsAdded;
     }
-    tx.setHits(rHits, hidx, nHitsAdded);
-    hidx += nHitsAdded;
 
-    /*
-    TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits,useSplitting);
-    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
-    // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    if (theTraj->direction() == alongMomentum) {
-        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin(); 
-                j != transHits.end(); j++) {
-            if ((**j).hit() != 0){
-                TrackingRecHit *hit = (**j).hit()->clone();
-                track.appendHitPattern(*hit, *ttopo);
-                selHits->push_back(hit);
-                tx.add(TrackingRecHitRef(rHits, hidx++));
-            }
-        }
-    }else{
-        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end() - 1;
-                j != transHits.begin() - 1; --j) {
-            if ((**j).hit() != 0){
-                TrackingRecHit *hit = (**j).hit()->clone();
-                track.appendHitPattern(*hit, *ttopo);
-                selHits->push_back(hit);
-                tx.add(TrackingRecHitRef(rHits, hidx++));
-            }
-        }
-    }
-    */
     // ----
 
     std::vector<reco::GsfTangent> tangents;

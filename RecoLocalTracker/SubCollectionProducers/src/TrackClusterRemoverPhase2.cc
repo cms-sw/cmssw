@@ -21,6 +21,8 @@
 
 #include "TrackingTools/PatternTools/interface/TrackCollectionTokens.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 #include<limits>
 
 /* This is a copy of the TrackClusterRemover 
@@ -45,12 +47,12 @@ namespace {
 
     using QualityMaskCollection = std::vector<unsigned char>;
 
-    const float maxChi2_;
+    const unsigned char maxChi2_;
     const int minNumberOfLayersWithMeasBeforeFiltering_;
     const reco::TrackBase::TrackQuality trackQuality_;
 
 
-    const TrackCollectionTokens trajectories_;
+    const TrackCollectionTokens tracks_;
     edm::EDGetTokenT<QualityMaskCollection> srcQuals;
     
     const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
@@ -83,11 +85,11 @@ namespace {
   }
   
   TrackClusterRemoverPhase2::TrackClusterRemoverPhase2(const edm::ParameterSet& iConfig) :
-    maxChi2_(iConfig.getParameter<double>("maxChi2")),
+    maxChi2_(Traj2TrackHits::toChi2x5(iConfig.getParameter<double>("maxChi2"))),
     minNumberOfLayersWithMeasBeforeFiltering_(iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering")),
     trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
 
-    trajectories_(iConfig.getParameter<edm::InputTag>("trajectories"),consumesCollector()),
+    tracks_(iConfig.getParameter<edm::InputTag>("trajectories"),consumesCollector()),
     pixelClusters_(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("phase2pixelClusters"))),
     phase2OTClusters_(consumes<edmNew::DetSetVector<Phase2TrackerCluster1D> >(iConfig.getParameter<edm::InputTag>("phase2OTClusters")))
   {
@@ -153,11 +155,8 @@ namespace {
    if (trackQuality_!=reco::TrackBase::undefQuality) qualMask = 1<<trackQuality_; 
  
     
-    auto const & tracks = trajectories_.tracks(iEvent);
-    auto const & trajs = trajectories_.trajectories(iEvent);
+    auto const & tracks = tracks_.tracks(iEvent);
     auto s = tracks.size();
-
-    assert(s==trajs.size());
 
     QualityMaskCollection oldStyle;
     QualityMaskCollection const * pquals=nullptr;
@@ -184,13 +183,14 @@ namespace {
       bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
       if ( !goodTk) continue;
       if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
-      const Trajectory &tj = trajs[i];
-      const auto & tms = tj.measurements();
-      for (auto const & tm :  tms) {
-	auto const & hit = *tm.recHit();
-	if (!hit.isValid()) continue; 
-	if ( tm.estimate() > maxChi2_ ) continue; // skip outliers
-        auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
+      auto const & chi2sX5 = track.extra()->chi2sX5();
+      assert(chi2sX5.size()==track.recHitsSize());
+      auto hb = track.recHitsBegin();
+      for(unsigned int h=0;h<track.recHitsSize();h++){
+        auto hit = *(hb+h);
+	if (!hit->isValid()) continue; 
+	if ( chi2sX5[h] > maxChi2_ ) continue; // skip outliers
+        auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(*hit);
         auto const & cluster = thit.firstClusterRef();
         // FIXME when we will get also Phase2 pixel
 	if (cluster.isPixel()) collectedPixels[cluster.key()]=true;
