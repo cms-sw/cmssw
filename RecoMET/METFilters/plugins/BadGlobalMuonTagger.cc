@@ -23,7 +23,7 @@ class BadGlobalMuonTagger : public edm::stream::EDFilter<> {
         edm::EDGetTokenT<edm::View<reco::Muon>> muons_;            
         edm::EDGetTokenT<std::vector<reco::Vertex>> vtx_;            
         double ptCut_;
-        bool   selectClones_, verbose_;
+        bool   selectClones_, taggingMode_, verbose_;
 
         bool outInOnly(const reco::Muon &mu) const {
             const reco::Track &tk = *mu.innerTrack();
@@ -51,7 +51,9 @@ BadGlobalMuonTagger::BadGlobalMuonTagger(const edm::ParameterSet & iConfig) :
     muons_(consumes<edm::View<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))),
     vtx_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("vtx"))),
     ptCut_(iConfig.getParameter<double>("muonPtCut")),
-    selectClones_(iConfig.getParameter<bool>("selectClones"))
+    selectClones_(iConfig.getParameter<bool>("selectClones")),
+    taggingMode_(iConfig.getParameter<bool> ("taggingMode")),
+    verbose_(iConfig.getUntrackedParameter<bool> ("verbose",true))
 {
     produces<edm::PtrVector<reco::Muon>>("bad");
 }
@@ -120,7 +122,7 @@ BadGlobalMuonTagger::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     }
 
     iEvent.put(std::move(out), "bad");
-    return found;
+    return taggingMode_ || found;
 }
 
 
