@@ -13,11 +13,11 @@ class BadGlobalMuonTagger:
         tk = mu.innerTrack().get();
         return tk.algoMask().count() == 1 and tk.isAlgoInMask(tk.muonSeededStepOutIn);
     def preselection(self, mu): 
-        return mu.isGlobalMuon() and (not(self.selectClones_) or self.outInOnly(mu));
+        return (not(self.selectClones_) or self.outInOnly(mu));
     def tighterId(self, mu): 
         return mu.isMediumMuon() and mu.numberOfMatchedStations() >= 2; 
     def tightGlobal(self, mu):
-        return (mu.globalTrack().hitPattern().muonStationsWithValidHits() >= 3 and mu.globalTrack().normalizedChi2() <= 20);
+        return mu.isGlobalMuon() and (mu.globalTrack().hitPattern().muonStationsWithValidHits() >= 3 and mu.globalTrack().normalizedChi2() <= 20);
     def safeId(self, mu): 
         if (mu.muonBestTrack().ptError() > 0.2 * mu.muonBestTrack().pt()): return False;
         return mu.numberOfMatchedStations() >= 1 or self.tightGlobal(mu);

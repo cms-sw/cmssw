@@ -30,13 +30,13 @@ class BadGlobalMuonTagger : public edm::stream::EDFilter<> {
             return tk.algoMask().count() == 1 && tk.isAlgoInMask(reco::Track::muonSeededStepOutIn);
         }
         bool preselection(const reco::Muon &mu) const { 
-            return mu.isGlobalMuon() && (!selectClones_ || outInOnly(mu));
+            return (!selectClones_ || outInOnly(mu));
         }
         bool tighterId(const reco::Muon &mu) const { 
             return muon::isMediumMuon(mu) && mu.numberOfMatchedStations() >= 2; 
         }
         bool tightGlobal(const reco::Muon &mu) const {
-            return (mu.globalTrack()->hitPattern().muonStationsWithValidHits() >= 3 && mu.globalTrack()->normalizedChi2() <= 20);
+            return mu.isGlobalMuon() && (mu.globalTrack()->hitPattern().muonStationsWithValidHits() >= 3 && mu.globalTrack()->normalizedChi2() <= 20);
         }
         bool safeId(const reco::Muon &mu) const { 
             if (mu.muonBestTrack()->ptError() > 0.2 * mu.muonBestTrack()->pt()) { return false; }
