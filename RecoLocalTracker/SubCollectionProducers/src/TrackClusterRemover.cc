@@ -23,6 +23,8 @@
 
 #include "TrackingTools/PatternTools/interface/TrackCollectionTokens.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 #include<limits>
 
 namespace {
@@ -41,7 +43,7 @@ namespace {
 
     using QualityMaskCollection = std::vector<unsigned char>;
 
-    const float maxChi2_;
+    const unsigned char maxChi2x5_;
     const int minNumberOfLayersWithMeasBeforeFiltering_;
     const reco::TrackBase::TrackQuality trackQuality_;
 
@@ -79,7 +81,7 @@ namespace {
   }
   
   TrackClusterRemover::TrackClusterRemover(const edm::ParameterSet& iConfig) :
-    maxChi2_(iConfig.getParameter<double>("maxChi2")),
+    maxChi2x5_(Traj2TrackHits::toChi2x5(iConfig.getParameter<double>("maxChi2"))),
     minNumberOfLayersWithMeasBeforeFiltering_(iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering")),
     trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
 
@@ -152,10 +154,9 @@ namespace {
  
     
     auto const & tracks = trajectories_.tracks(iEvent);
-    auto const & trajs = trajectories_.trajectories(iEvent);
     auto s = tracks.size();
 
-    assert(s==trajs.size());
+    // assert(s==trajs.size());
 
     QualityMaskCollection oldStyle;
     QualityMaskCollection const * pquals=nullptr;
@@ -182,12 +183,15 @@ namespace {
       bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
       if ( !goodTk) continue;
       if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
-      const Trajectory &tj = trajs[i];
-      const auto & tms = tj.measurements();
-      for (auto const & tm :  tms) {
-	auto const & hit = *tm.recHit();
+
+      auto const & chi2sX5 = track.extra()->chi2sX5();
+      assert(chi2sX5.size()==track.recHitsSize());
+      auto hb = track.recHitsBegin();
+      for(unsigned int h=0;h<track.recHitsSize();h++){
+        auto recHit = *(hb+h);
+	auto const & hit = *recHit;
 	if (!hit.isValid()) continue; 
-	if ( tm.estimate() > maxChi2_ ) continue; // skip outliers
+	if ( chi2sX5[h] > maxChi2x5_ ) continue; // skip outliers
         auto const & thit = reinterpret_cast<BaseTrackerRecHit const&>(hit);
         auto const & cluster = thit.firstClusterRef();
 	if (cluster.isStrip()) collectedStrips[cluster.key()]=true;
