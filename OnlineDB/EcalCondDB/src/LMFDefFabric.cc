@@ -167,7 +167,7 @@ int LMFDefFabric::getRunTagID(std::string tag, int version) const {
 }
 
 void LMFDefFabric::initialize() 
-  throw (std::runtime_error) {
+  noexcept(false) {
   _lmfColors.clear();
   _lmfTrigTypes.clear();
   _lmfRunTags.clear();
