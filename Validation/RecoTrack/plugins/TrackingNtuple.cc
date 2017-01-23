@@ -464,6 +464,7 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > pixelSimLinkToken_;
   edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > stripSimLinkToken_;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksToken_;
+  bool includeStripHits_, includePhase2OTHits_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitToken_;
   edm::EDGetTokenT<SiStripRecHit2DCollection> stripRphiRecHitToken_;
@@ -771,6 +772,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   pixelSimLinkToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(iConfig.getUntrackedParameter<edm::InputTag>("pixelDigiSimLink"))),
   stripSimLinkToken_(consumes<edm::DetSetVector<StripDigiSimLink> >(iConfig.getUntrackedParameter<edm::InputTag>("stripDigiSimLink"))),
   siphase2OTSimLinksToken_(consumes<edm::DetSetVector<PixelDigiSimLink> >(iConfig.getUntrackedParameter<edm::InputTag>("phase2OTSimLink"))),
+  includeStripHits_(iConfig.getUntrackedParameter<edm::InputTag>("stripDigiSimLink").label() != ""),
+  includePhase2OTHits_(iConfig.getUntrackedParameter<edm::InputTag>("phase2OTSimLink").label() != ""),
   beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamSpot"))),
   pixelRecHitToken_(consumes<SiPixelRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("pixelRecHits"))),
   stripRphiRecHitToken_(consumes<SiStripRecHit2DCollection>(iConfig.getUntrackedParameter<edm::InputTag>("stripRphiRecHits"))),
@@ -915,74 +918,80 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("pix_bbxi"  , &pix_bbxi );
     t->Branch("pix_bbxi"  , &pix_bbxi );
     //strips
-    t->Branch("str_isBarrel"  , &str_isBarrel );
-    t->Branch("str_isStereo"  , &str_isStereo );
-    t->Branch("str_det"       , &str_det      );
-    t->Branch("str_lay"       , &str_lay      );
-    t->Branch("str_detId"     , &str_detId    );
-    t->Branch("str_trkIdx"    , &str_trkIdx   );
-    if(includeSeeds_) {
-      t->Branch("str_seeIdx"    , &str_seeIdx   );
+    if(includeStripHits_){
+      LogDebug("TrackingNtuple") << "including strips";
+      t->Branch("str_isBarrel"  , &str_isBarrel );
+      t->Branch("str_isStereo"  , &str_isStereo );
+      t->Branch("str_det"       , &str_det      );
+      t->Branch("str_lay"       , &str_lay      );
+      t->Branch("str_detId"     , &str_detId    );
+      t->Branch("str_trkIdx"    , &str_trkIdx   );
+      if(includeSeeds_) {
+        t->Branch("str_seeIdx"    , &str_seeIdx   );
+      }
+      t->Branch("str_simHitIdx" , &str_simHitIdx);
+      t->Branch("str_chargeFraction", &str_chargeFraction);
+      t->Branch("str_simType", &str_simType);
+      t->Branch("str_x"     , &str_x    );
+      t->Branch("str_y"     , &str_y    );
+      t->Branch("str_z"     , &str_z    );
+      t->Branch("str_xx"    , &str_xx   );
+      t->Branch("str_xy"    , &str_xy   );
+      t->Branch("str_yy"    , &str_yy   );
+      t->Branch("str_yz"    , &str_yz   );
+      t->Branch("str_zz"    , &str_zz   );
+      t->Branch("str_zx"    , &str_zx   );
+      t->Branch("str_radL"  , &str_radL );
+      t->Branch("str_bbxi"  , &str_bbxi );
+      //matched hits
+      t->Branch("glu_isBarrel"  , &glu_isBarrel );
+      t->Branch("glu_det"       , &glu_det      );
+      t->Branch("glu_lay"       , &glu_lay      );
+      t->Branch("glu_detId"     , &glu_detId    );
+      t->Branch("glu_monoIdx"   , &glu_monoIdx  );
+      t->Branch("glu_stereoIdx" , &glu_stereoIdx);
+      if(includeSeeds_) {
+        t->Branch("glu_seeIdx"    , &glu_seeIdx   );
+      }
+      t->Branch("glu_x"         , &glu_x        );
+      t->Branch("glu_y"         , &glu_y        );
+      t->Branch("glu_z"         , &glu_z        );
+      t->Branch("glu_xx"        , &glu_xx       );
+      t->Branch("glu_xy"        , &glu_xy       );
+      t->Branch("glu_yy"        , &glu_yy       );
+      t->Branch("glu_yz"        , &glu_yz       );
+      t->Branch("glu_zz"        , &glu_zz       );
+      t->Branch("glu_zx"        , &glu_zx       );
+      t->Branch("glu_radL"      , &glu_radL     );
+      t->Branch("glu_bbxi"      , &glu_bbxi     );
     }
-    t->Branch("str_simHitIdx" , &str_simHitIdx);
-    t->Branch("str_chargeFraction", &str_chargeFraction);
-    t->Branch("str_simType", &str_simType);
-    t->Branch("str_x"     , &str_x    );
-    t->Branch("str_y"     , &str_y    );
-    t->Branch("str_z"     , &str_z    );
-    t->Branch("str_xx"    , &str_xx   );
-    t->Branch("str_xy"    , &str_xy   );
-    t->Branch("str_yy"    , &str_yy   );
-    t->Branch("str_yz"    , &str_yz   );
-    t->Branch("str_zz"    , &str_zz   );
-    t->Branch("str_zx"    , &str_zx   );
-    t->Branch("str_radL"  , &str_radL );
-    t->Branch("str_bbxi"  , &str_bbxi );
-    //matched hits
-    t->Branch("glu_isBarrel"  , &glu_isBarrel );
-    t->Branch("glu_det"       , &glu_det      );
-    t->Branch("glu_lay"       , &glu_lay      );
-    t->Branch("glu_detId"     , &glu_detId    );
-    t->Branch("glu_monoIdx"   , &glu_monoIdx  );
-    t->Branch("glu_stereoIdx" , &glu_stereoIdx);
-    if(includeSeeds_) {
-      t->Branch("glu_seeIdx"    , &glu_seeIdx   );
-    }
-    t->Branch("glu_x"         , &glu_x        );
-    t->Branch("glu_y"         , &glu_y        );
-    t->Branch("glu_z"         , &glu_z        );
-    t->Branch("glu_xx"        , &glu_xx       );
-    t->Branch("glu_xy"        , &glu_xy       );
-    t->Branch("glu_yy"        , &glu_yy       );
-    t->Branch("glu_yz"        , &glu_yz       );
-    t->Branch("glu_zz"        , &glu_zz       );
-    t->Branch("glu_zx"        , &glu_zx       );
-    t->Branch("glu_radL"      , &glu_radL     );
-    t->Branch("glu_bbxi"      , &glu_bbxi     );
     //phase2 OT
-    t->Branch("ph2_isBarrel"  , &ph2_isBarrel );
-    t->Branch("ph2_det"       , &ph2_det      );
-    t->Branch("ph2_lay"       , &ph2_lay      );
-    t->Branch("ph2_detId"     , &ph2_detId    );
-    t->Branch("ph2_trkIdx"    , &ph2_trkIdx   );
-    if(includeSeeds_) {
-      t->Branch("ph2_seeIdx"    , &ph2_seeIdx   );
+    if(includePhase2OTHits_){
+      LogDebug("TrackingNtuple") << "including phase2 ot";
+      t->Branch("ph2_isBarrel"  , &ph2_isBarrel );
+      t->Branch("ph2_det"       , &ph2_det      );
+      t->Branch("ph2_lay"       , &ph2_lay      );
+      t->Branch("ph2_detId"     , &ph2_detId    );
+      t->Branch("ph2_trkIdx"    , &ph2_trkIdx   );
+      if(includeSeeds_) {
+        t->Branch("ph2_seeIdx"    , &ph2_seeIdx   );
+      }
+      t->Branch("ph2_simHitIdx" , &ph2_simHitIdx);
+      t->Branch("ph2_chargeFraction", &ph2_chargeFraction);
+      t->Branch("ph2_simType", &ph2_simType);
+      t->Branch("ph2_x"     , &ph2_x    );
+      t->Branch("ph2_y"     , &ph2_y    );
+      t->Branch("ph2_z"     , &ph2_z    );
+      t->Branch("ph2_xx"    , &ph2_xx   );
+      t->Branch("ph2_xy"    , &ph2_xy   );
+      t->Branch("ph2_yy"    , &ph2_yy   );
+      t->Branch("ph2_yz"    , &ph2_yz   );
+      t->Branch("ph2_zz"    , &ph2_zz   );
+      t->Branch("ph2_zx"    , &ph2_zx   );
+      t->Branch("ph2_radL"  , &ph2_radL );
+      t->Branch("ph2_bbxi"  , &ph2_bbxi );
+      t->Branch("ph2_bbxi"  , &ph2_bbxi );
     }
-    t->Branch("ph2_simHitIdx" , &ph2_simHitIdx);
-    t->Branch("ph2_chargeFraction", &ph2_chargeFraction);
-    t->Branch("ph2_simType", &ph2_simType);
-    t->Branch("ph2_x"     , &ph2_x    );
-    t->Branch("ph2_y"     , &ph2_y    );
-    t->Branch("ph2_z"     , &ph2_z    );
-    t->Branch("ph2_xx"    , &ph2_xx   );
-    t->Branch("ph2_xy"    , &ph2_xy   );
-    t->Branch("ph2_yy"    , &ph2_yy   );
-    t->Branch("ph2_yz"    , &ph2_yz   );
-    t->Branch("ph2_zz"    , &ph2_zz   );
-    t->Branch("ph2_zx"    , &ph2_zx   );
-    t->Branch("ph2_radL"  , &ph2_radL );
-    t->Branch("ph2_bbxi"  , &ph2_bbxi );
-    t->Branch("ph2_bbxi"  , &ph2_bbxi );
     //invalid hits
     t->Branch("inv_isBarrel"  , &inv_isBarrel );
     t->Branch("inv_det"       , &inv_det      );
@@ -1440,11 +1449,11 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const auto& pixelDigiSimLinks = *pixelDigiSimLinksHandle;
 
   edm::Handle<edm::DetSetVector<StripDigiSimLink> > stripDigiSimLinksHandle;
-  bool foundStripSimLinks = iEvent.getByToken(stripSimLinkToken_, stripDigiSimLinksHandle);
+  iEvent.getByToken(stripSimLinkToken_, stripDigiSimLinksHandle);
 
   // Phase2 OT DigiSimLink
   edm::Handle<edm::DetSetVector<PixelDigiSimLink> > siphase2OTSimLinksHandle;
-  bool foundPhase2OTSimLinks = iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinksHandle);
+  iEvent.getByToken(siphase2OTSimLinksToken_, siphase2OTSimLinksHandle);
 
   //beamspot
   Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -1463,7 +1472,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     fillPixelHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, pixelDigiSimLinks, *theTTRHBuilder, tTopo, simHitRefKeyToIndex, hitProductIds);
 
     //strip hits
-    if(foundStripSimLinks){
+    if(includeStripHits_){
       LogDebug("TrackingNtuple") << "foundStripSimLink" ;
       const auto& stripDigiSimLinks = *stripDigiSimLinksHandle;
       fillStripRphiStereoHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, stripDigiSimLinks, *theTTRHBuilder, tTopo, simHitRefKeyToIndex, hitProductIds);
@@ -1472,7 +1481,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       fillStripMatchedHits(iEvent, *theTTRHBuilder, tTopo, monoStereoClusterList);
     }
 
-    if(foundPhase2OTSimLinks){
+    if(includePhase2OTHits_){
       LogDebug("TrackingNtuple") << "foundPhase2OTSimLinks" ;
       const auto& phase2OTSimLinks = *siphase2OTSimLinksHandle;
       fillPhase2OTHits(iEvent, clusterToTPMap, tpKeyToIndex, *simHitsTPAssoc, phase2OTSimLinks, *theTTRHBuilder, tTopo, simHitRefKeyToIndex, hitProductIds);
