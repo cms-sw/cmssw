@@ -273,10 +273,8 @@ class IOV:
                             'payload_hash':(DbRef(Payload,'hash'),_Col.pk) }
 
 
-# the string  'GLOBAL' being a keyword in sqlalchemy ( upper case ), when used in the model cause the two GT tables to be unreadable ( bug ) 
-# the only choice is to use lower case names, and rename the tables in sqlite after creation!!
 class GlobalTag:
-    __tablename__       = 'global_tag'
+    __tablename__       = 'GLOBAL_TAG'
     columns             = { 'name':(sqlalchemy.String(name_length),_Col.pk),
                             'validity': (sqlalchemy.BIGINT,_Col.notNull),
                             'description':(sqlalchemy.String(description_length),_Col.notNull),
@@ -285,7 +283,7 @@ class GlobalTag:
                             'snapshot_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
 class GlobalTagMap:
-    __tablename__       = 'global_tag_map'
+    __tablename__       = 'GLOBAL_TAG_MAP'
     columns             = { 'global_tag_name':(DbRef(GlobalTag,'name'),_Col.pk),
                             'record':(sqlalchemy.String(name_length),_Col.pk),
                             'label':(sqlalchemy.String(name_length),_Col.pk),
@@ -430,23 +428,6 @@ class Connection(object):
         self.get_dbtype(TagLog).__table__.create(bind = self.engine)
         self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
         self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
-        #self.metadata.create_all(self.engine)
-        if self.is_sqlite:
-            # horrible hack, but no choice because of the sqlalchemy bug ( see comment in the model) 
-            import sqlite3
-            import string
-            conn = sqlite3.connect( self._url.database )
-            c = conn.cursor()
-            stmt = string.Template('ALTER TABLE $before RENAME TO $after')
-            c.execute( stmt.substitute( before=GlobalTag.__tablename__, after='TMP0' ) )
-            c.execute( stmt.substitute( before='TMP0', after=GlobalTag.__tablename__.upper() ) )
-            c.execute( stmt.substitute( before=GlobalTagMap.__tablename__, after='TMP1' ) )
-            c.execute( stmt.substitute( before='TMP1', after=GlobalTagMap.__tablename__.upper() ) )
-            conn.commit()
-            conn.close()
-        # TODO: Create indexes
-        #logger.debug('Creating indexes...')
-
 
 # Connection helpers
 def _getCMSFrontierConnectionString(database):
