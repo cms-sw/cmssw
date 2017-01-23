@@ -42,7 +42,7 @@ class RPCSimModelTiming : public RPCSim
   int LeftRightNeighbour(const RPCRoll& roll, const LocalPoint & hit_pos, int strip);
 
  protected:
-  void init(){};
+  void init() override{};
   
   double aveEff;
   double aveCls;
