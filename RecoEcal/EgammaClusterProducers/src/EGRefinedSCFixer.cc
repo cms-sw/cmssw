@@ -52,6 +52,12 @@ public:
 		     const reco::SuperCluster& orgSC,
 		     const reco::SuperCluster& fixedSC);
 		     
+  
+  void 
+  putClustersIntoEvent(edm::Event& iEvent,
+		       std::unique_ptr<reco::SuperClusterCollection> superClusters);
+
+
 
   static std::vector<edm::Ptr<reco::CaloCluster> >
   getSubClustersMissing(const reco::SuperCluster& lhs,
@@ -78,12 +84,15 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> orgSCToken_;
   edm::EDGetTokenT<reco::SuperClusterCollection> fixedSCToken_;
   edm::EDGetTokenT<edm::View<reco::PFCluster> > fixedPFClustersToken_;
-  
+  const std::string ebeeClustersCollection_;
+  const std::string esClustersCollection_;
   
 
 };
 
-EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
+EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig ):
+  ebeeClustersCollection_("EBEEClusters"),
+  esClustersCollection_("ESClusters")
 {
   orgRefinedSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgRefinedSC"));
   orgSCToken_ = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("orgSC"));
@@ -91,6 +100,8 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig )
   fixedPFClustersToken_ = consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("fixedPFClusters"));
 
   produces<reco::SuperClusterCollection>(); 
+  produces<reco::CaloClusterCollection>(ebeeClustersCollection_);
+  produces<reco::CaloClusterCollection>(esClustersCollection_);  
 }
  
 namespace {
@@ -169,11 +180,71 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     }else if(orgSC.isNull()){
       //didnt find the orginal supercluster, just pass this through as a refined sc
       fixedRefinedSCs->push_back(fixedSC);      
-    }//else{
-      //      std::cout <<"for "<<SCPrinter(fixedSC)<<" did not find orgSC "<<orgSC.isNonnull()<<" refined "<<orgRefinedSC.isNonnull()<<std::endl;
-    //}
+    }
   }
-  iEvent.put(std::move(fixedRefinedSCs));
+
+  putClustersIntoEvent(iEvent,std::move(fixedRefinedSCs));
+}
+
+void EGRefinedSCFixer::putClustersIntoEvent(edm::Event& iEvent,std::unique_ptr<reco::SuperClusterCollection> superClusters)
+{
+  //now we need to rewrite out the sub clusters as calo clusters
+  //we will follow https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_X/RecoParticleFlow/PFProducer/plugins/PFEGammaProducer.cc#L444-L493
+  auto caloClustersEBEE = std::make_unique<reco::CaloClusterCollection>(); 
+  auto caloClustersES = std::make_unique<reco::CaloClusterCollection>(); 
+  
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapEBEE; //maps of pfclusters to caloclusters 
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapES;  
+
+  for(const auto& superClus : *superClusters){
+    for(const auto& pfClus : superClus.clusters()){
+      if(!pfClusterMapEBEE.count(pfClus)) {
+        caloClustersEBEE->push_back(*pfClus);
+        pfClusterMapEBEE[pfClus] = caloClustersEBEE->size() - 1;
+      }
+      else{
+        throw cms::Exception("EGRefinedSCFixer::putClustersIntoEvent")
+	  << "Found an EB/EE pfcluster matched to more than one supercluster!" 
+	  << std::dec << std::endl;
+      }
+    }
+    for(const auto& pfClus : superClus.preshowerClusters()){
+      if(!pfClusterMapES.count(pfClus)) {
+        caloClustersES->push_back(*pfClus);
+        pfClusterMapES[pfClus] = caloClustersES->size() - 1;
+      }
+      else {
+        throw cms::Exception("EGRefinedSCFixer::putClustersIntoEvent")
+            << "Found an ES pfcluster matched to more than one supercluster!" 
+            << std::dec << std::endl;
+      }
+    }
+  }
+  
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
+  
+  //relink superclusters to output caloclusters
+  for( auto& superClus : *superClusters ) {
+    edm::Ptr<reco::CaloCluster> seedPtr(caloClusHandleEBEE,pfClusterMapEBEE[superClus.seed()]);
+    superClus.setSeed(seedPtr);
+    
+    reco::CaloClusterPtrVector clusters;
+    for (auto& pfClus : superClus.clusters()) {
+      edm::Ptr<reco::CaloCluster> clusPtr(caloClusHandleEBEE,pfClusterMapEBEE[pfClus]);
+      clusters.push_back(clusPtr);
+    }
+    superClus.setClusters(clusters);
+    
+    reco::CaloClusterPtrVector psClusters;
+    for (auto& pfClus : superClus.preshowerClusters()) {
+      edm::Ptr<reco::CaloCluster> clusPtr(caloClusHandleES,pfClusterMapES[pfClus]);
+      psClusters.push_back(clusPtr);
+    }
+    superClus.setPreshowerClusters(psClusters);  
+  }
+  
+  iEvent.put(std::move(superClusters));
 
 }
 
