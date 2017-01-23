@@ -30,6 +30,9 @@ using namespace Pythia8;
 #include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+// Resonance scale hook
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegResHook.h"
+
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
 
@@ -123,6 +126,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     //
     PowhegHooks* fEmissionVetoHook;
     EmissionVetoHook1* fEmissionVetoHook1;
+    
+    // Resonance scale hook
+    PowhegResHook* fPowhegResHook;
     
     //resonance decay filter hook
     ResonanceDecayFilterHook *fResonanceDecayFilterHook;
@@ -258,6 +264,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fMasterGen->settings.addParm("PTFilter:scaleToFilter", 0.4,true,true,0.0, 10.);
   fMasterGen->settings.addParm("PTFilter:quarkRapidity",10.0,true,true,0.0, 10.);
   fMasterGen->settings.addParm("PTFilter:quarkPt",       -.1,true,true,-.1,100.);
+  
+  //add settings for powheg resonance scale calculation
+  fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
 
   // Reweight user hook
   //
@@ -401,6 +410,26 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
       <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
   
+  if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
+
+    if(fJetMatchingHook || fEmissionVetoHook1)
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible are : jetMatching, emissionVeto1 \n";
+
+    fEmissionVetoHook = new PowhegHooks();
+
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
+    fMultiUserHook->addHook(fEmissionVetoHook);
+
+  }
+  
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook = new PowhegResHook();
+    fMultiUserHook->addHook(fPowhegResHook);
+  }
+  
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
   if (resonanceDecayFilter && !fResonanceDecayFilterHook) {
     fResonanceDecayFilterHook = new ResonanceDecayFilterHook;
@@ -464,6 +493,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     fMultiUserHook->addHook(fEmissionVetoHook);
 
+  }
+  
+  bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
+  if (PowhegRes) {
+    edm::LogInfo("Pythia8Interface") << "Turning on resonance scale setting from CMSSW Pythia8Interface";
+    fPowhegResHook = new PowhegResHook();
+    fMultiUserHook->addHook(fPowhegResHook);
   }
 
   //adapted from main89.cc in pythia8 examples
