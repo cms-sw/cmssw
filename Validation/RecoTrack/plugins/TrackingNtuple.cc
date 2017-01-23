@@ -2409,9 +2409,9 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         if(clusterRef.isPixel()){
           hitType.push_back( static_cast<int>(HitType::Pixel));
         } else if(clusterRef.isPhase2()){
-          hitType.push_back( static_cast<int>(HitType::Strip));
-        } else {
           hitType.push_back( static_cast<int>(HitType::Phase2OT));
+        } else {
+          hitType.push_back( static_cast<int>(HitType::Strip));
         }
       } else  {
         LogTrace("TrackingNtuple") << " - invalid hit";
