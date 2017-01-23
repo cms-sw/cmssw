@@ -6,7 +6,7 @@ import difflib
 class Detector:
 #    class Phase0: pass # not supported yet
     class Phase1: pass
-#    class Phase2: pass # not supported yet
+    class Phase2: pass
 
     def __init__(self):
         self._detector = self.Phase1
@@ -196,6 +196,27 @@ class TECDetId(_Side, _ModuleType, DetId):
         self.module = (detid >> 2) & 0x7
     def __str__(self):
         return "side %d wheel %d order %d petal %d ring %d module %d" % (self.side, self.wheel, self.order, self.petal, self.ring, self.module)
+class TIDDetIdPhase2(_Side, DetId):
+    PanelForward = 1
+    PanelBackward = 1
+    def __init__(self, detid):
+        super(TIDDetIdPhase2, self).__init__(detid=detid)
+        self.side = (detid >> 23) & 0x3
+        self.disk = (detid >> 18) & 0xF
+        self.ring = (detid >> 12) & 0x3F
+        self.panel = (detid >> 10) & 0x3
+        self.module = (detid >> 2) & 0xFF
+    def __str__(self):
+        return "side %d disk %d ring %d panel %d" % (self.side, self.disk, self.ring, self.panel)
+class TOBDetIdPhase2(DetId):
+    def __init__(self, detid):
+        super(TOBDetIdPhase2, self).__init__(detid=detid)
+        self.layer = (detid >> 20) & 0xF
+        self.side = (detid >> 18) & 0x3
+        self.ladder = (detid >> 10) & 0xFF
+        self.module = (detid >> 2) & 0x3FF
+    def __str__(self):
+        return "layer %d side %d ladder %d module %d" % (self.layer, self.side, self.ladder, self.module)
 
 def parseDetId(detid):
     subdet = DetId(detid).subdet
@@ -207,7 +228,15 @@ def parseDetId(detid):
         if subdet == SubDet.TOB: return TOBDetId(detid)
         if subdet == SubDet.TEC: return TECDetId(detid)
         raise Exception("Got unknown subdet %d" % subdet)
-    raise Exception("Supporting only phase1 DetIds at the moment")
+    elif detector.get() == Detector.Phase2:
+        if subdet == SubDet.BPix: return BPixDetIdPhase1(detid)
+        if subdet == SubDet.FPix: return FPixDetIdPhase1(detid)
+        if subdet == SubDet.TIB: raise Exception("TIB not included in subDets for Phase2")
+        if subdet == SubDet.TID: return TIDDetIdPhase2(detid)
+        if subdet == SubDet.TOB: return TOBDetIdPhase2(detid)
+        if subdet == SubDet.TEC: raise Exception("TEC not included in subDets for Phase2")
+        raise Exception("Got unknown subdet %d" % subdet)
+    raise Exception("Supporting only phase1 and phase2 DetIds at the moment")
 
 # Common track-track matching by hits (=clusters)
 def _commonHits(trk1, trk2):
