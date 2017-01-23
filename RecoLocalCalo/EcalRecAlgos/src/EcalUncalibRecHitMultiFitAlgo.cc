@@ -83,7 +83,8 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   bool status = false;
 
   // in case of gain switch, just use max-sample
-  if(iGainSwitch) {
+  // for legacy re-reco of 2016 data, max-sample can be used for EB w/o impact on data/MC consistency
+  if(iGainSwitch && dataFrame.id().subdetId() == EcalBarrel) {
     EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
     rh.setAmplitudeError(0.);
     for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
