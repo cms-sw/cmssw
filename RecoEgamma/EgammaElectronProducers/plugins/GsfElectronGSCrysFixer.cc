@@ -74,6 +74,7 @@ namespace {
 }
 
 typedef edm::ValueMap<reco::GsfElectronRef> ElectronRefMap;
+typedef edm::ValueMap<bool>                 BoolMap;
 
 GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
 {
@@ -97,6 +98,7 @@ GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
 
   produces<reco::GsfElectronCollection >();
   produces<ElectronRefMap>();
+  produces<BoolMap>();
 
 }
 
@@ -133,6 +135,7 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
   auto newCoresHandle = getHandle(iEvent,newCoresToken_);
 
   std::vector<reco::GsfElectronRef> oldElectrons;
+  std::vector<bool>                 isUpdated;
   
   for(size_t eleNr=0;eleNr<elesHandle->size();eleNr++){
     reco::GsfElectronRef eleRef(elesHandle,eleNr);
@@ -160,8 +163,10 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
       //      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<<std::endl;
       
       outEles->push_back(newEle);
+      isUpdated.emplace_back(true);
     }else{
       outEles->push_back(*eleRef);
+      isUpdated.emplace_back(false);
     }
   }
   
@@ -171,6 +176,12 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
   refMapFiller.insert(newElectronsHandle, oldElectrons.begin(), oldElectrons.end());
   refMapFiller.fill();
   iEvent.put(std::move(pRefMap));
+  std::unique_ptr<BoolMap> bRefMap(new BoolMap);
+  BoolMap::Filler boolMapFiller(*bRefMap);
+  boolMapFiller.insert(newElectronsHandle, isUpdated.begin(), isUpdated.end());
+  boolMapFiller.fill();
+  iEvent.put(std::move(bRefMap));
+
 }
 
 void GsfElectronGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 
