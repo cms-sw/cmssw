@@ -53,7 +53,6 @@ private:
 
   typedef std::vector<L1TDiffPlotHandler> L1TDiffPlotHandlers;
 
-  std::vector<edm::ParameterSet> plotCfgs_;
   L1TDiffPlotHandlers plotHandlers_;
 };
 

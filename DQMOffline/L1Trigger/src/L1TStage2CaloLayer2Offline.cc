@@ -9,14 +9,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
 
-#include <iostream>
-#include <iomanip>
-#include <stdio.h>
-#include <string>
-#include <sstream>
-#include <math.h>
-#include <algorithm>
-
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
