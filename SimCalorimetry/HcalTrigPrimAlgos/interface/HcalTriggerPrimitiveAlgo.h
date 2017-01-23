@@ -270,9 +270,6 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
             analyze(item.second, result.back());
          } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
             analyze2017(item.second, result.back(), fg_algo);
-         } else {
-            // Tower 16 may show up here if HE is upgraded, but HB is not
-            // present
          }
       }
    }
