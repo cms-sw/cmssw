@@ -625,7 +625,21 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   if (evtgenDecays) evtgenDecays->decay();
 
   event().reset(new HepMC::GenEvent);
-  return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+  bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+
+  if (!py8hepmc) {
+    return false;
+  }
+  
+  //fill compresse lhe weights for systematic uncertainties
+  if (fMasterGen->info.getWeightsCompressedSize() > 0) {
+    for (unsigned int i = 0; i < fMasterGen->info.getWeightsCompressedSize(); i++) {
+      double wgt = fMasterGen->info.getWeightsCompressedValue(i);
+      event()->weights().push_back(wgt);
+    }
+  }
+  
+  return true;
 
 }
 
