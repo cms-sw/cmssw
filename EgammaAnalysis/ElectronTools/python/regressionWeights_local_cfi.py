@@ -4,7 +4,7 @@ GBRDWrapperRcd  =  cms.ESSource("PoolDBESSource",
                                 CondDBSetup,
                                 DumpStat=cms.untracked.bool(True),
                                 timetype = cms.string('runnumber'),
-                                connect = cms.string('sqlite_file:/afs/cern.ch/work/r/rcoelhol/RegressionPR/80release/newvars/database/RegressionDatabase/SQLiteFiles/GED_80X_Winter2016/ged_regression_20170113.db'),
+                                connect = cms.string('sqlite_file:/afs/cern.ch/work/r/rcoelhol/RegressionPR/80release/newvars/database/RegressionDatabase/SQLiteFiles/GED_80X_Winter2016/ged_regression_20170114.db'),
                                 toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('GBRDWrapperRcd'),

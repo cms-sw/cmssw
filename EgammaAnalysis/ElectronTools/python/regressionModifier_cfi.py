@@ -20,8 +20,8 @@ regressionModifier = \
               ecalrechitsEB       = cms.InputTag("reducedEcalRecHitsEB"),
               ecalrechitsEE       = cms.InputTag("reducedEcalRecHitsEE"),
 
-              lowEnergy_ECALonlyThr = cms.double(90.),
-              lowEnergy_ECALTRKThr = cms.double(45.),
+              lowEnergy_ECALonlyThr = cms.double(300.),
+              lowEnergy_ECALTRKThr = cms.double(50.),
               highEnergy_ECALTRKThr = cms.double(200.),
               eOverP_ECALTRKThr = cms.double(0.025),
               epDiffSig_ECALTRKThr = cms.double(15.),

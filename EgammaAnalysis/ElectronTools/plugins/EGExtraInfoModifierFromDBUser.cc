@@ -105,8 +105,8 @@ private:
 
   const CaloTopology *topology_;
 
-  double lowEnergy_ECALonlyThr_; // 90
-  double lowEnergy_ECALTRKThr_;  // 45
+  double lowEnergy_ECALonlyThr_; // 300
+  double lowEnergy_ECALTRKThr_;  // 50
   double highEnergy_ECALTRKThr_; // 200
   double eOverP_ECALTRKThr_;     // 0.025
   double epDiffSig_ECALTRKThr_;  // 15
@@ -473,7 +473,7 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
     eval[28] = raw_es_energy/raw_energy;
 
   }
-  
+
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
   constexpr double meanlimlow  = -1.0;
@@ -506,6 +506,15 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
   //apply transformation to limited output range (matching the training)
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+
+  // std::cout << coridx << " " << raw_pt << " " << the_sc->eta() << " " << the_sc->position().Eta() << "    ";
+  // for (int i =0 ; i<32; i++) {
+  //   if (!iseb && i>28) continue;
+  //   std::cout << eval[i] << " ";
+  // }
+  // std::cout << mean << " " << sigma << " ";
+  // std::cout << std::endl;
+
 
   // Correct the energy
   const double ecor = mean*(raw_energy + raw_es_energy);
@@ -555,10 +564,8 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
     eval[4] = ele.ecalDrivenSeed();
     eval[5] = full5x5_ess.r9;
     eval[6] = fbrem;
-    eval[7] = el_track->chi2(); 
-    eval[8] = el_track->ndof();
-    eval[9] = trkEta; 
-    eval[10] = trkPhi; 
+    eval[7] = trkEta; 
+    eval[8] = trkPhi; 
     
     float rawcomb = ( ecor*trkMomentumError*trkMomentumError + trkMomentum*(raw_energy+raw_es_energy)*(raw_energy+raw_es_energy)*sigma*sigma ) / ( trkMomentumError*trkMomentumError + (raw_energy + raw_es_energy)*(raw_energy + raw_es_energy)*sigma*sigma );
 
@@ -570,6 +577,12 @@ void EGExtraInfoModifierFromDBUser::modifyObject(reco::GsfElectron& ele) const {
     double mean_trk = meanoffset + meanscale*vdt::fast_sin(rawmean_trk);
     double sigma_trk = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma_trk);
 
+    // std::cout << coridx << " " << rawcomb << " " << raw_pt << " " << ecor << " " << trkEta << "    ";
+    // for (int i =0 ; i<9; i++) {
+    //   std::cout << eval[i] << " ";
+    // }
+    // std::cout << mean_trk << " " << sigma_trk << std::endl;
+    
     // Final correction
     combinedEnergy = mean_trk*rawcomb;
     combinedEnergyError = sigma_trk*rawcomb;
