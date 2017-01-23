@@ -75,7 +75,7 @@ namespace l1t {
           << " given to data encoded with HGC codec type: " 
           << codec_ << std::dec;
       }
-      data = codec.decode(data_);
+      data = codec.decode(data_, detid_);
     }
  
     void print(std::ostream& out) const;
@@ -96,7 +96,7 @@ namespace l1t {
         << " given to data encoded with HGC codec type: " 
         << codec_;
     }
-    out << codec.decode(data_);
+    out << codec.decode(data_, detid_);
     out << std::endl << " decoded from: " << std::endl;
     this->print(out);
   }
