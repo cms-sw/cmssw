@@ -82,17 +82,19 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   double amplitude, amperr, chisq;
   bool status = false;
 
-  // in case of gain switch, just use max-sample
-  if(iGainSwitch) {
-    EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
-    rh.setAmplitudeError(0.);
-    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-      int bx = _pulsefunc.BXs().coeff(ipulse);
-      if (bx!=0) {
-        rh.setOutOfTimeAmplitude(bx+5, 0.0);
+  if(_gainSwitchFix) {
+    // in case of gain switch, just use max-sample
+    if(iGainSwitch) {
+      EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
+      rh.setAmplitudeError(0.);
+      for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+        int bx = _pulsefunc.BXs().coeff(ipulse);
+        if (bx!=0) {
+          rh.setOutOfTimeAmplitude(bx+5, 0.0);
+        }
       }
+      return rh;
     }
-    return rh;
   }
   
   //optimized one-pulse fit for hlt
