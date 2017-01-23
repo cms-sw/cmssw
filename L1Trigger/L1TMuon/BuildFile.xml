@@ -31,4 +31,3 @@
 
 <use name="L1Trigger/RPCTrigger"/>
 
-<use name="L1TriggerConfig/XmlConfigTools"/>

@@ -31,8 +31,8 @@
 #include "CondFormats/DataRecord/interface/L1TMuonGlobalParamsRcd.h"
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/TriggerSystem.h"
-#include "L1TriggerConfig/XmlConfigTools/interface/Parameter.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/Parameter.h"
 #include "L1Trigger/L1TCommon/interface/Mask.h"
 
 //
