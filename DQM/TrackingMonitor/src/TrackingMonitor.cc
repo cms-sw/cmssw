@@ -715,9 +715,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
       theTrackAnalyzer->setBX(iEvent);
       theTrackAnalyzer->setLumi(iEvent,iSetup);
-      for ( edm::View<reco::Track>::const_iterator track = trackHandle->begin();
-	    track != trackHandle->end(); ++track ) {
-	
+      for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+	    track != trackCollection.end(); ++track ) {
+
 	if ( doPlotsVsBX_ || doAllPlots )
 	  NumberOfRecHitsPerTrackVsBX->Fill(bx,track->numberOfValidHits());
 	if ( numSelection_(*track) ) {
@@ -902,8 +902,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if (totalNumGoodPV>1) NumberOfTracksVsPUPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
 	    NumberOfPVtxVsGoodPVtx          -> Fill(float(totalNumGoodPV),pvHandle->size());
 
-	    for ( edm::View<reco::Track>::const_iterator track = trackHandle->begin();
-		  track != trackHandle->end(); ++track ) {
+	    for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+		  track != trackCollection.end(); ++track ) {
 
 	      NumberOfRecHitsPerTrackVsGoodPVtx -> Fill(float(totalNumGoodPV), track->numberOfValidHits());
 	    }
