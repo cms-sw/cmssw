@@ -27,7 +27,11 @@ namespace pfEGHelpers {
       //   tmvaReaderEle_.AddVariable("HOverPin",&HOverPin);
       tmvaReaderEle_.AddVariable("lateBrem",&lateBrem);
       tmvaReaderEle_.AddVariable("firstBrem",&firstBrem);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
       std::unique_ptr<TMVA::IMethod> temp( tmvaReaderEle_.BookMVA("BDT", wfile.fullPath().c_str()) );
+#else
+      tmvaReaderEle_.BookMVA("BDT", wfile.fullPath().c_str());
+#endif
       gbrEle_.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReaderEle_.FindMVA("BDT") ) ) );
     }
     {
@@ -42,7 +46,11 @@ namespace pfEGHelpers {
       tmvaReader_.AddVariable("track_pt", &track_pt);  
       tmvaReader_.AddVariable("STIP",&STIP);  
       tmvaReader_.AddVariable("nlost", &nlost);  
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
       std::unique_ptr<TMVA::IMethod> temp( tmvaReader_.BookMVA("BDT", wfile.fullPath().c_str()) );
+#else
+      tmvaReader_.BookMVA("BDT", wfile.fullPath().c_str());
+#endif
       gbrSingleLeg_.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader_.FindMVA("BDT") ) ) );
     }
   }
