@@ -458,9 +458,10 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
   event.getByToken(trajCollectionToken_, trajsH);
   bool yesTraj = trajsH.isValid();
   std::vector<Trajectory> const * trajs = nullptr;
-  if (yesTraj) trajs = &(*trajs);
+  if (yesTraj) trajs = &(*trajsH);
+  if (yesTraj) assert (trajs->size()==tracks.size());
+
   Trajectory const * trajectory =  nullptr;
-  
   for (unsigned int i=0; i<ntrk; ++i) {
     auto const & track = tracks[i];  
     if (yesTraj) trajectory = &(*trajs)[i];
