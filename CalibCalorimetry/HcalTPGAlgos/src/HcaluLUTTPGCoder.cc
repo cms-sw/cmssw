@@ -239,10 +239,12 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
   }
 
   for (const auto& id: metadata->getAllChannels()) {
-     HcalDetId cell(id);
-     if (!topo_->valid(cell))
+     if (not (id.det() == DetId::Hcal and topo_->valid(id)))
         continue;
+     HcalDetId cell(id);
      HcalSubdetector subdet = cell.subdet();
+     if (subdet != HcalBarrel and subdet != HcalEndcap and subdet != HcalForward)
+        continue;
 
      const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
      const HcalQIEShape* shape = conditions.getHcalShape(cell);
