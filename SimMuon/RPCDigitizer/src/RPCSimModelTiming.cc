@@ -196,7 +196,7 @@ RPCDetId rpcId = roll->id();
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
   unsigned int nstrips = roll->nstrips();
   double area = 0.0;
-float striplength, xmin,xmax ;
+  float striplength, xmin,xmax ;
   if ( rpcId.region() == 0 )
     {
       const RectangularStripTopology* top_ = dynamic_cast<const
