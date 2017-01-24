@@ -238,126 +238,119 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     cosh_ieta[i] = cosh((eta1 + eta2)/2.);
   }
 
-  HcalSubdetector subdets[] = {HcalBarrel, HcalEndcap, HcalForward};
-  for (int isub = 0; isub < 3; ++isub){
-    HcalSubdetector subdet = subdets[isub];
-    for (int ieta = -HcalDetId::kHcalEtaMask2; ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
-      for (int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
-	for (int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
-	  HcalDetId cell(subdet, ieta, iphi, depth);
-	  if (!topo_->valid(cell)) continue;
+  for (const auto& id: metadata->getAllChannels()) {
+     HcalDetId cell(id);
+     if (!topo_->valid(cell))
+        continue;
+     HcalSubdetector subdet = cell.subdet();
 
-	  const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
-	  const HcalQIEShape* shape = conditions.getHcalShape(cell);
-	  HcalCoderDb coder (*channelCoder, *shape);
-	  const HcalLutMetadatum *meta = metadata->getValues(cell);
+     const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
+     const HcalQIEShape* shape = conditions.getHcalShape(cell);
+     HcalCoderDb coder (*channelCoder, *shape);
+     const HcalLutMetadatum *meta = metadata->getValues(cell);
 
-          unsigned int mipMax = 0;
-          unsigned int mipMin = 0;
+     unsigned int mipMax = 0;
+     unsigned int mipMin = 0;
 
-          if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2017) {
-             const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
-             mipMax = channelParameters->getFGBitInfo() >> 16;
-             mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
-          }
+     if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2017) {
+        const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
+        mipMax = channelParameters->getFGBitInfo() >> 16;
+        mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
+     }
 
-	  int lutId = getLUTId(subdet, ieta, iphi, depth);
-	  float ped = 0;
-	  float gain = 0;
-	  uint32_t status = 0;
+     int lutId = getLUTId(cell);
+     float ped = 0;
+     float gain = 0;
+     uint32_t status = 0;
 
-	  if (LUTGenerationMode_){
-	    const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
-	    for (int capId = 0; capId < 4; ++capId){
-	      ped += calibrations.pedestal(capId);
-	      gain += calibrations.LUTrespcorrgain(capId);
-	    }
-	    ped /= 4.0;
-	    gain /= 4.0;
+     if (LUTGenerationMode_){
+        const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
+        for (int capId = 0; capId < 4; ++capId){
+           ped += calibrations.pedestal(capId);
+           gain += calibrations.LUTrespcorrgain(capId);
+        }
+        ped /= 4.0;
+        gain /= 4.0;
 
-	    //Get Channel Quality
-	    const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
-	    status = channelStatus->getValue();
-	  } else {
-	    const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
-	    ped = myL1TObj->getPedestal();
-	    gain = myL1TObj->getRespGain();
-	    status = myL1TObj->getFlag();
-	  } // LUTGenerationMode_
+        //Get Channel Quality
+        const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
+        status = channelStatus->getValue();
+     } else {
+        const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
+        ped = myL1TObj->getPedestal();
+        gain = myL1TObj->getRespGain();
+        status = myL1TObj->getFlag();
+     } // LUTGenerationMode_
 
-	  ped_[lutId] = ped;
-	  gain_[lutId] = gain;
-	  bool isMasked = ( (status & bitToMask_) > 0 );
-	  float rcalib = meta->getRCalib();
+     ped_[lutId] = ped;
+     gain_[lutId] = gain;
+     bool isMasked = ( (status & bitToMask_) > 0 );
+     float rcalib = meta->getRCalib();
 
-	  // Input LUT for HB/HE/HF
-	  if (subdet == HcalBarrel || subdet == HcalEndcap){
-	    HBHEDataFrame frame(cell);
-	    frame.setSize(1);
-	    CaloSamples samples(cell, 1);
+     // Input LUT for HB/HE/HF
+     if (subdet == HcalBarrel || subdet == HcalEndcap){
+        HBHEDataFrame frame(cell);
+        frame.setSize(1);
+        CaloSamples samples(cell, 1);
 
-	    int granularity = meta->getLutGranularity();
+        int granularity = meta->getLutGranularity();
 
-	    for (unsigned int adc = 0; adc < INPUT_LUT_SIZE; ++adc) {
-	      frame.setSample(0,HcalQIESample(adc));
-	      coder.adc2fC(frame,samples);
-	      float adc2fC = samples[0];
+        for (unsigned int adc = 0; adc < INPUT_LUT_SIZE; ++adc) {
+           frame.setSample(0,HcalQIESample(adc));
+           coder.adc2fC(frame,samples);
+           float adc2fC = samples[0];
 
-	      if (isMasked) inputLUT_[lutId][adc] = 0;
-	      else inputLUT_[lutId][adc] = (LutElement) std::min(std::max(0, int((adc2fC -ped) * gain * rcalib / nominalgain_ / granularity)), QIE8_LUT_BITMASK);
-	    }
+           if (isMasked) inputLUT_[lutId][adc] = 0;
+           else inputLUT_[lutId][adc] = (LutElement) std::min(std::max(0, int((adc2fC -ped) * gain * rcalib / nominalgain_ / granularity)), QIE8_LUT_BITMASK);
+        }
 
-            unsigned short data[] = {0, 0, 0};
-            QIE11DataFrame upgradeFrame(edm::DataFrame(0, data, 3));
-            CaloSamples upgradeSamples(cell, 1);
-            for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
-               upgradeFrame.setSample(0, adc, 0, true);
-               coder.adc2fC(upgradeFrame, upgradeSamples);
-               float adc2fC = upgradeSamples[0];
+        unsigned short data[] = {0, 0, 0};
+        QIE11DataFrame upgradeFrame(edm::DataFrame(0, data, 3));
+        CaloSamples upgradeSamples(cell, 1);
+        for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
+           upgradeFrame.setSample(0, adc, 0, true);
+           coder.adc2fC(upgradeFrame, upgradeSamples);
+           float adc2fC = upgradeSamples[0];
 
-               if (isMasked) {
-                  upgradeQIE11LUT_[lutId][adc] = 0;
-               } else {
-                  upgradeQIE11LUT_[lutId][adc] = (LutElement) std::min(std::max(0, int((adc2fC -ped) * gain * rcalib / nominalgain_ / granularity)), QIE11_LUT_BITMASK);
-                  if (adc >= mipMin and adc < mipMax)
-                     upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB0;
-                  else if (adc >= mipMax)
-                     upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB1;
-               }
-            }
-	  }  // endif HBHE
-	  else if (subdet == HcalForward){
-             HFDataFrame frame(cell);
-             frame.setSize(1);
-             CaloSamples samples(cell, 1);
+           if (isMasked) {
+              upgradeQIE11LUT_[lutId][adc] = 0;
+           } else {
+              upgradeQIE11LUT_[lutId][adc] = (LutElement) std::min(std::max(0, int((adc2fC -ped) * gain * rcalib / nominalgain_ / granularity)), QIE11_LUT_BITMASK);
+              if (adc >= mipMin and adc < mipMax)
+                 upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB0;
+              else if (adc >= mipMax)
+                 upgradeQIE11LUT_[lutId][adc] |= QIE11_LUT_MSB1;
+           }
+        }
+     }  // endif HBHE
+     else if (subdet == HcalForward){
+        HFDataFrame frame(cell);
+        frame.setSize(1);
+        CaloSamples samples(cell, 1);
 
-             for (unsigned int adc = 0; adc < INPUT_LUT_SIZE; ++adc) {
-                frame.setSample(0,HcalQIESample(adc));
-                coder.adc2fC(frame,samples);
-                float adc2fC = samples[0];
-                if (isMasked) inputLUT_[lutId][adc] = 0;
-                else inputLUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped) * gain * rcalib / lsb_ / cosh_ieta[abs(ieta)] )), QIE8_LUT_BITMASK);
-             }
+        for (unsigned int adc = 0; adc < INPUT_LUT_SIZE; ++adc) {
+           frame.setSample(0,HcalQIESample(adc));
+           coder.adc2fC(frame,samples);
+           float adc2fC = samples[0];
+           if (isMasked) inputLUT_[lutId][adc] = 0;
+           else inputLUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped) * gain * rcalib / lsb_ / cosh_ieta[cell.ietaAbs()] )), QIE8_LUT_BITMASK);
+        }
 
-             unsigned short data[] = {0, 0, 0, 0};
-             QIE10DataFrame upgradeFrame(edm::DataFrame(0, data, 4));
-             CaloSamples upgradeSamples(cell, 1);
-             for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
-                upgradeFrame.setSample(0, adc, 0, 0, 0, true);
-                coder.adc2fC(upgradeFrame, upgradeSamples);
-                float adc2fC = upgradeSamples[0];
+        unsigned short data[] = {0, 0, 0, 0};
+        QIE10DataFrame upgradeFrame(edm::DataFrame(0, data, 4));
+        CaloSamples upgradeSamples(cell, 1);
+        for (unsigned int adc = 0; adc < UPGRADE_LUT_SIZE; ++adc) {
+           upgradeFrame.setSample(0, adc, 0, 0, 0, true);
+           coder.adc2fC(upgradeFrame, upgradeSamples);
+           float adc2fC = upgradeSamples[0];
 
-                if (isMasked)
-                   upgradeQIE10LUT_[lutId][adc] = 0;
-                else
-                   upgradeQIE10LUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped) * gain * rcalib / lsb_ / cosh_ieta[abs(ieta)] )), QIE10_LUT_BITMASK);
-             }
-	  } // endif HF
-
-	} // for depth
-      } // for iphi
-    } // for iphi
-  }// for subdet
+           if (isMasked)
+              upgradeQIE10LUT_[lutId][adc] = 0;
+           else
+              upgradeQIE10LUT_[lutId][adc] = std::min(std::max(0,int((adc2fC - ped) * gain * rcalib / lsb_ / cosh_ieta[cell.ietaAbs()] )), QIE10_LUT_BITMASK);
+        }
+     } // endif HF
+  }// for cell
 }
 
 void HcaluLUTTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const {
