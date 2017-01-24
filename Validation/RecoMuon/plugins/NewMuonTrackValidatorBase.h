@@ -62,8 +62,6 @@ class NewMuonTrackValidatorBase {
     ignoremissingtkcollection_(pset.getUntrackedParameter<bool>("ignoremissingtrackcollection",false))
 
     {
-      dbe_ = edm::Service<DQMStore>().operator->();
-
       minEta = muonHistoParameters.getParameter<double>("minEta");
       maxEta = muonHistoParameters.getParameter<double>("maxEta");
       nintEta = muonHistoParameters.getParameter<int>("nintEta");
@@ -196,8 +194,6 @@ class NewMuonTrackValidatorBase {
   }
 
  protected:
-
-  DQMStore* dbe_;
 
   std::vector<edm::InputTag> label;
   edm::InputTag bsSrc;
