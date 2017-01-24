@@ -65,7 +65,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
       fibin = hpar->phitable[etaR-hpar->etaMin[2]];
       if (unitPhi(fibin) > 2) fioff = hpar->phioff[4];
     }
-    phi  = fioff + (iphi - 0.5)*fibin;
+    phi  =-fioff + (iphi - 0.5)*fibin;
     dphi = 0.5*fibin;
     if (idet == static_cast<int>(HcalForward)) {
       int ir = nR + hpar->etaMin[2] - etaR - 1;
@@ -643,7 +643,7 @@ double HcalDDDSimConstants::deltaEta(int det, int etaR, int depth) const {
     }
   } else {
     if (etaR > 0 && etaR < nEta) {
-      if (etaR == hpar->noff[1]-1 && depth > 2) {
+      if (etaR == hpar->noff[1]-1 && depth > depthEta29[0]) {
 	tmp = 0.5*(hpar->etaTable[etaR+1]-hpar->etaTable[etaR-1]);
       } else if (det == static_cast<int>(HcalOuter)) {
 	if (etaR == hpar->noff[2]) {
@@ -682,7 +682,7 @@ double HcalDDDSimConstants::getEta(int det, int etaR, int zside,
     }
   } else {
     if (etaR > 0 && etaR < nEta) {
-      if (etaR == hpar->noff[1]-1 && depth > 2) {
+      if (etaR == hpar->noff[1]-1 && depth > depthEta29[0]) {
 	tmp = 0.5*(hpar->etaTable[etaR+1]+hpar->etaTable[etaR-1]);
       } else if (det == static_cast<int>(HcalOuter)) {
 	if (etaR == hpar->noff[2]) {
