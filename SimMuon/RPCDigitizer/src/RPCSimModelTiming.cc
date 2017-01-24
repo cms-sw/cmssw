@@ -35,6 +35,7 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(config)
 {
@@ -52,6 +53,8 @@ RPCSimModelTiming::RPCSimModelTiming(const edm::ParameterSet& config) : RPCSim(c
   nbxing=config.getParameter<int>("Nbxing");
   gate=config.getParameter<double>("Gate");
   frate=config.getParameter<double>("Frate");
+  do_Y =  config.getParameter<bool>("do_Y_coordinate");
+  sigmaY = config.getParameter<double>("sigmaY");
 
   if (rpcdigiprint) {
     std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
@@ -85,7 +88,6 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 
   RPCDetId rpcId = roll->id();
   RPCGeomServ RPCname(rpcId);
-  //std::string nameRoll = RPCname.name();
 
   const Topology& topology=roll->specs()->topology();
 
@@ -107,15 +109,14 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
     int centralStrip = topology.channel(entr)+1;;
     float fire = CLHEP::RandFlat::shoot(engine);
 
+    float smearedPositionY = CLHEP::RandGaussQ::shoot(engine,_hit->localPosition().y(),sigmaY);
+
     if (fire < veff[centralStrip-1]) {
 
       int fstrip=centralStrip;
       int lstrip=centralStrip;
 
       // Compute the cluster size
-      // double w = CLHEP::RandFlat::shoot(engine);
-      //if (w < 1.e-10) w=1.e-10;
-//       int clsize = this->getClSize(posX, engine); // This is for one and the same cls for all the chambers
       int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
       std::vector<int> cls;
       cls.push_back(centralStrip);
@@ -133,8 +134,8 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 	if (clsize%2 == 0 ){
 	  // insert the last strip according to the 
 	  // simhit position in the central strip 
-	  double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
-	  if (deltaw<0.) {
+	  int lr = LeftRightNeighbour(*roll, entr, centralStrip);
+	  if (lr==1) {
 	    if (lstrip < roll->nstrips() ){
 	      lstrip++;
 	      cls.push_back(lstrip);
@@ -156,6 +157,12 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
             RPCDigi adigi(*i,time_hit);
             adigi.hasTime(true);
             adigi.setTime(precise_time);
+ 	    if(do_Y)
+	    {
+	  	adigi.hasY(true);
+	  	adigi.setY(smearedPositionY);
+		adigi.setDeltaY(sigmaY);
+	    }
             irpc_digis.insert(adigi);
 
 	    theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
@@ -166,8 +173,14 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 	  RPCDigi adigi(*i,time_hit);
           adigi.hasTime(true);
           adigi.setTime(precise_time);
+          if(do_Y)
+          {
+		adigi.hasY(true);
+		adigi.setY(smearedPositionY);
+		adigi.setDeltaY(sigmaY);
+          }
           irpc_digis.insert(adigi);
- theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
+          theDetectorHitMap.insert(DetectorHitMap::value_type(digi,&(*_hit)));
 	}
       }
     }
@@ -177,35 +190,28 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
 void RPCSimModelTiming::simulateNoise(const RPCRoll* roll,
                      CLHEP::HepRandomEngine* engine) 
 {
-//std::cout<<"RPCSimModelTiming::simulateNoise"<<std::endl;
-
 RPCDetId rpcId = roll->id();
-//std::cout<<"RPCSimModelTiming::simulateNoise X1"<<std::endl;
   RPCGeomServ RPCname(rpcId);
-//std::cout<<"RPCSimModelTiming::simulateNoise X2"<<std::endl;
-// std::cout<<"rpcId.rawId() = "<<rpcId.rawId()<<std::endl;
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
-//std::cout<<"RPCSimModelTiming::simulateNoise X3"<<std::endl;
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());
-//std::cout<<"RPCSimModelTiming::simulateNoise X4"<<std::endl;
   unsigned int nstrips = roll->nstrips();
   double area = 0.0;
-
+  float striplength, xmin,xmax ;
   if ( rpcId.region() == 0 )
     {
       const RectangularStripTopology* top_ = dynamic_cast<const
         RectangularStripTopology*>(&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float)roll->nstrips())).x();
-      float striplength = (top_->stripLength());
+      xmin = (top_->localPosition(0.)).x();
+      xmax = (top_->localPosition((float)roll->nstrips())).x();
+      striplength = (top_->stripLength());
       area = striplength*(xmax-xmin);
     }
   else
     {
       const TrapezoidalStripTopology* top_=dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float)roll->nstrips())).x();
-      float striplength = (top_->stripLength());
+      xmin = (top_->localPosition(0.)).x();
+      xmax = (top_->localPosition((float)roll->nstrips())).x();
+      striplength = (top_->stripLength());
       area = striplength*(xmax-xmin);
     }
 
@@ -223,9 +229,17 @@ RPCDetId rpcId = roll->id();
       
       double precise_time = CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate);
       int time_hit = (static_cast<int>(precise_time)) - nbxing/2;
-//      std::pair<int, int> digi(j+1,time_hit);
-//      strips.insert(digi);
             RPCDigi adigi(j+1,time_hit);
+            adigi.hasTime(true);
+            adigi.setTime(precise_time);
+   if(do_Y)
+	{
+     double positionY = CLHEP::RandFlat::shoot(engine,striplength);
+positionY-=striplength/2; 
+	  adigi.hasY(true);
+	  adigi.setY(positionY);
+          adigi.setDeltaY(sigmaY);
+}
             irpc_digis.insert(adigi);
 
     }
@@ -283,4 +297,29 @@ int RPCSimModelTiming::getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*
     }
   }
   return min;
+}
+
+int RPCSimModelTiming::LeftRightNeighbour(const RPCRoll& roll, const LocalPoint & hit_pos, int strip){
+
+  //if left return -1
+  //if right return +1
+
+  int leftStrip =  strip-1;
+  int rightStrip = strip+1;
+
+  if(leftStrip<0)
+    return +1;
+  if( rightStrip > roll.nstrips())
+    return -1;
+
+  double deltawL = fabs((roll.centreOfStrip(leftStrip)).x()-hit_pos.x());
+  double deltawR = fabs((roll.centreOfStrip(rightStrip)).x()-hit_pos.x());
+
+  if(deltawL>=deltawR){
+    return +1;
+  }
+  else {
+    return -1;
+  }
+
 }
