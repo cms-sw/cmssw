@@ -78,10 +78,11 @@ TrackMonReal.doSeedParameterHistos = True
 # Clone for Real Data (Collison)
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 TrackMonColl = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
-TrackMonColl.TrackProducer = 'refittedForPixelDQM'
+TrackMonColl.TrackProducer = 'generalTracks'
 TrackMonColl.FolderName = 'Tracking/TrackParameters'
 TrackMonColl.AlgoName = 'CKFTk'
 TrackMonColl.doSeedParameterHistos = True
+
 # Sequences
 #removed modules using TkDetMap service
 #SiStripSourcesSimData = cms.Sequence(SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
