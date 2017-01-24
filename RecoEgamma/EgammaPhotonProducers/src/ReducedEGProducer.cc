@@ -55,11 +55,7 @@ namespace std {
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
-  gsFixedPhotonMapT_(consumes<edm::ValueMap<reco::PhotonRef> >(config.getParameter<edm::InputTag>("gsFixedPhotonMap"))),
-  gsFixedPhotonBoolMapT_(consumes<edm::ValueMap<bool> >(config.getParameter<edm::InputTag>("gsFixedPhotonMap"))),
   gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
-  gsFixedElectronMapT_(consumes<edm::ValueMap<reco::GsfElectronRef> >(config.getParameter<edm::InputTag>("gsFixedElectronMap"))),
-  gsFixedElectronBoolMapT_(consumes<edm::ValueMap<bool> >(config.getParameter<edm::InputTag>("gsFixedElectronMap"))),
   conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
   singleConversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("singleConversions"))),
   barrelEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"))),
@@ -91,8 +87,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
   keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
-  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons")),
-  keepObjectsBeforeGSFix_(config.getParameter<bool>("keepObjectsBeforeGSFix"))
+  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
 {  
   const std::vector<edm::InputTag>& photonidinputs = 
     config.getParameter<std::vector<edm::InputTag> >("photonIDSources");
@@ -122,15 +117,6 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   produces< reco::PhotonCoreCollection >(outPhotonCores_);
   produces< reco::GsfElectronCollection >(outGsfElectrons_);
   produces< reco::GsfElectronCoreCollection >(outGsfElectronCores_);
-
-  if (keepObjectsBeforeGSFix_) {
-    produces< reco::PhotonCollection >(outPhotons_+"BeforeGSFix");
-    produces< reco::PhotonCoreCollection >(outPhotonCores_+"BeforeGSFix");
-    produces< reco::GsfElectronCollection >(outGsfElectrons_+"BeforeGSFix");
-    produces< reco::GsfElectronCoreCollection >(outGsfElectronCores_+"BeforeGSFix");
-  }
-
-  // We still have to implement the collections below
   produces< reco::ConversionCollection >(outConversions_);
   produces< reco::ConversionCollection >(outSingleConversions_);
   produces< reco::SuperClusterCollection >(outSuperClusters_);  
@@ -164,22 +150,14 @@ ReducedEGProducer::~ReducedEGProducer()
 
 void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
-  //get input collections  
+  //get input collections
+  
+  
   edm::Handle<reco::PhotonCollection> photonHandle;
   theEvent.getByToken(photonT_, photonHandle);
 
-  edm::Handle<edm::ValueMap<reco::PhotonRef > > gsFixedPhotonMapHandle;
-  edm::Handle<edm::ValueMap<bool > > gsFixedPhotonBoolMapHandle;
-  theEvent.getByToken(gsFixedPhotonMapT_, gsFixedPhotonMapHandle);  
-  theEvent.getByToken(gsFixedPhotonBoolMapT_, gsFixedPhotonBoolMapHandle);  
-
   edm::Handle<reco::GsfElectronCollection> gsfElectronHandle;
   theEvent.getByToken(gsfElectronT_, gsfElectronHandle);  
-
-  edm::Handle<edm::ValueMap<reco::GsfElectronRef > > gsFixedElectronMapHandle;
-  edm::Handle<edm::ValueMap<bool > > gsFixedElectronBoolMapHandle;
-  theEvent.getByToken(gsFixedElectronMapT_, gsFixedElectronMapHandle);  
-  theEvent.getByToken(gsFixedElectronBoolMapT_, gsFixedElectronBoolMapHandle);  
   
   edm::Handle<reco::ConversionCollection> conversionHandle;
   theEvent.getByToken(conversionT_, conversionHandle);  
@@ -231,12 +209,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::auto_ptr<reco::PhotonCoreCollection> photonCores(new reco::PhotonCoreCollection);
   std::auto_ptr<reco::GsfElectronCollection> gsfElectrons(new reco::GsfElectronCollection);
   std::auto_ptr<reco::GsfElectronCoreCollection> gsfElectronCores(new reco::GsfElectronCoreCollection);
-
-  std::auto_ptr<reco::PhotonCollection> photons_beforeGSFix(new reco::PhotonCollection);
-  std::auto_ptr<reco::PhotonCoreCollection> photonCores_beforeGSFix(new reco::PhotonCoreCollection);
-  std::auto_ptr<reco::GsfElectronCollection> gsfElectrons_beforeGSFix(new reco::GsfElectronCollection);
-  std::auto_ptr<reco::GsfElectronCoreCollection> gsfElectronCores_beforeGSFix(new reco::GsfElectronCoreCollection);
-
   std::auto_ptr<reco::ConversionCollection> conversions(new reco::ConversionCollection);
   std::auto_ptr<reco::ConversionCollection> singleConversions(new reco::ConversionCollection);
   std::auto_ptr<reco::SuperClusterCollection> superClusters(new reco::SuperClusterCollection);
@@ -270,9 +242,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
  
   //maps to collection indices of output objects
   std::map<reco::PhotonCoreRef, unsigned int> photonCoreMap;
-  std::map<reco::PhotonCoreRef, unsigned int> photonCoreMap_beforeGSFix;
   std::map<reco::GsfElectronCoreRef, unsigned int> gsfElectronCoreMap;
-  std::map<reco::GsfElectronCoreRef, unsigned int> gsfElectronCoreMap_beforeGSFix;
   std::map<reco::ConversionRef, unsigned int> conversionMap;
   std::map<reco::ConversionRef, unsigned int> singleConversionMap;
   std::map<reco::SuperClusterRef, unsigned int> superClusterMap;
@@ -294,35 +264,15 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   //loop over photons and fill maps
   for (unsigned int ipho=0; ipho<photonHandle->size(); ++ipho) {
-
     const reco::Photon &photon = (*photonHandle)[ipho];
     
     bool keep = keepPhotonSel_(photon);
     if (!keep) continue;
+    
+    reco::PhotonRef photonref(photonHandle,ipho);
+    
     photons->push_back(photon);
     
-    reco::PhotonRef gsFixedPhotonRef(photonHandle,ipho);
-
-    // // check if it was fixed
-    // std::cout << gsFixedPhotonMapHandle->contains(gsFixedPhotonRef.id()) << std::endl;
-    // std::cout << (*gsFixedPhotonMapHandle)[gsFixedPhotonRef].isNull() << std::endl;
-    reco::PhotonRef photonref;
-    if (gsFixedPhotonMapHandle.isValid()) {
-      photonref = (*gsFixedPhotonMapHandle)[gsFixedPhotonRef];
-      if (gsFixedPhotonBoolMapHandle.isValid()) {
-	if (keepObjectsBeforeGSFix_ && (*gsFixedPhotonBoolMapHandle)[gsFixedPhotonRef]) {
-	  photons_beforeGSFix->push_back(*photonref);
-	  const reco::PhotonCoreRef &photonCore_beforeGSFix = photonref->photonCore();
-	  photonCores_beforeGSFix->push_back(*photonCore_beforeGSFix);
-	  if (!photonCoreMap_beforeGSFix.count(photonCore_beforeGSFix)) {
-	    photonCoreMap_beforeGSFix[photonCore_beforeGSFix] = photonCores_beforeGSFix->size() - 1;
-	  }
-	}
-      }
-    } else {
-      photonref = gsFixedPhotonRef;
-    }
-
     //fill pf candidate value map vector
     pfCandIsoPairVecPho.push_back((*photonPfCandMapHandle)[photonref]);
 
@@ -392,28 +342,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     
     bool keep = keepGsfElectronSel_(gsfElectron);    
     if (!keep) continue;
+    
+    reco::GsfElectronRef gsfElectronref(gsfElectronHandle,iele);
+    
     gsfElectrons->push_back(gsfElectron);
-   
-    reco::GsfElectronRef gsFixedGsfElectronref(gsfElectronHandle,iele);
-    reco::GsfElectronRef gsfElectronref;
-
-
-    if (gsFixedElectronMapHandle.isValid()) {
-      gsfElectronref = (*gsFixedElectronMapHandle)[gsFixedGsfElectronref];
-      if (gsFixedElectronBoolMapHandle.isValid()) {
-	if (keepObjectsBeforeGSFix_ && (*gsFixedElectronBoolMapHandle)[gsFixedGsfElectronref]) {
-	  gsfElectrons_beforeGSFix->push_back(*gsfElectronref);
-	  const reco::GsfElectronCoreRef &gsfElectronCore_beforeGSFix = gsfElectronref->core();
-	  gsfElectronCores_beforeGSFix->push_back(*gsfElectronCore_beforeGSFix);
-	  if (!gsfElectronCoreMap_beforeGSFix.count(gsfElectronCore_beforeGSFix)) {
-	    gsfElectronCoreMap_beforeGSFix[gsfElectronCore_beforeGSFix] = gsfElectronCores_beforeGSFix->size() - 1;
-	  }
-	}
-      }
-    } else {
-      gsfElectronref = gsFixedGsfElectronref;
-    }
-        
     pfCandIsoPairVecEle.push_back((*gsfElectronPfCandMapHandle)[gsfElectronref]);
     
     //fill electron id valuemap vectors
@@ -732,7 +664,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //put photon and gsfelectroncores into the event
   const edm::OrphanHandle<reco::PhotonCoreCollection> &outPhotonCoreHandle = theEvent.put(photonCores,outPhotonCores_);
   const edm::OrphanHandle<reco::GsfElectronCoreCollection> &outgsfElectronCoreHandle = theEvent.put(gsfElectronCores,outGsfElectronCores_);
-
+  
   //loop over photons and electrons and relink the cores
   for (reco::Photon &photon : *photons) {
     const auto &coremapped = photonCoreMap.find(photon.photonCore());
@@ -751,39 +683,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       gsfElectron.setCore(coreref);
     }
   }
-
-  if (keepObjectsBeforeGSFix_) {
-    const edm::OrphanHandle<reco::PhotonCoreCollection> &outPhotonCoreHandle_beforeGSFix = theEvent.put(photonCores_beforeGSFix,outPhotonCores_+"BeforeGSFix");
-    const edm::OrphanHandle<reco::GsfElectronCoreCollection> &outgsfElectronCoreHandle_beforeGSFix = theEvent.put(gsfElectronCores_beforeGSFix,outGsfElectronCores_+"BeforeGSFix");
-
-    for (reco::Photon &photon : *photons_beforeGSFix) {
-      const auto &coremapped = photonCoreMap_beforeGSFix.find(photon.photonCore());
-      if (coremapped != photonCoreMap_beforeGSFix.end()) {
-	//make new ref
-	reco::PhotonCoreRef coreref(outPhotonCoreHandle_beforeGSFix,coremapped->second);
-	photon.setPhotonCore(coreref);
-      }
-    }
-
-    for (reco::GsfElectron &gsfElectron : *gsfElectrons_beforeGSFix) {
-      const auto &coremapped = gsfElectronCoreMap_beforeGSFix.find(gsfElectron.core());
-      if (coremapped != gsfElectronCoreMap_beforeGSFix.end()) {
-	//make new ref
-	reco::GsfElectronCoreRef coreref(outgsfElectronCoreHandle_beforeGSFix,coremapped->second);
-	gsfElectron.setCore(coreref);
-      }
-    }
-
-  }
-
   
   //(finally) store the output photon and electron collections
   const edm::OrphanHandle<reco::PhotonCollection> &outPhotonHandle = theEvent.put(photons,outPhotons_);  
   const edm::OrphanHandle<reco::GsfElectronCollection> &outGsfElectronHandle = theEvent.put(gsfElectrons,outGsfElectrons_);
-  if (keepObjectsBeforeGSFix_) {
-    const edm::OrphanHandle<reco::PhotonCollection> &outPhotonsHandle_beforeGSFix = theEvent.put(photons_beforeGSFix,outPhotons_+"BeforeGSFix");
-    const edm::OrphanHandle<reco::GsfElectronCollection> &outgsfElectronsHandle_beforeGSFix = theEvent.put(gsfElectrons_beforeGSFix,outGsfElectrons_+"BeforeGSFix");
-  }  
+  
   //still need to output relinked valuemaps
   
   //photon pfcand isolation valuemap

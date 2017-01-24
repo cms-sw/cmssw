@@ -1,17 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
-  keepObjectsBeforeGSFix = cms.bool(True),
   keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
   slimRelinkPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
   relinkPhotons = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), #keep all associated clusters/rechits/conversions
   keepGsfElectrons = cms.string(""), #keep in output
   slimRelinkGsfElectrons = cms.string(""), #keep only slimmed SuperCluster plus seed cluster
   relinkGsfElectrons = cms.string("pt>5"), #keep all associated clusters/rechits/conversions
-  photons = cms.InputTag("gsFixedGedPhotons"),
-  gsFixedPhotonMap = cms.InputTag("gsFixedGedPhotons"),                               
-  gsfElectrons = cms.InputTag("gsFixedGsfElectrons"),
-  gsFixedElectronMap = cms.InputTag("gsFixedGsfElectrons"),                               
+  photons = cms.InputTag("gedPhotons"),
+  gsfElectrons = cms.InputTag("gedGsfElectrons"),
   conversions = cms.InputTag("allConversions"),
   singleConversions = cms.InputTag("particleFlowEGamma"),
   barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB"),

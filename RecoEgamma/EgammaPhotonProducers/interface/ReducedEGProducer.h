@@ -57,11 +57,7 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
   
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
- const edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef> > gsFixedPhotonMapT_;
- const edm::EDGetTokenT<edm::ValueMap<bool> > gsFixedPhotonBoolMapT_;
  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_; 
- const edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> > gsFixedElectronMapT_;
- const edm::EDGetTokenT<edm::ValueMap<bool> > gsFixedElectronBoolMapT_;
  const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
  const edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
  
@@ -104,8 +100,6 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
  const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
-
- bool keepObjectsBeforeGSFix_;
 };
 #endif
 
