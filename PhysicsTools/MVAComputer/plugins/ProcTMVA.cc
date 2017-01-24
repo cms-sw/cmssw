@@ -56,8 +56,15 @@ class ProcTMVA : public VarProcessor {
 	virtual void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
-  std::auto_ptr<TMVA::Reader>     reader;
-  std::auto_ptr<TMVA::MethodBase> method;
+  std::unique_ptr<TMVA::Reader>     reader;
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
+  // Versions of ROOT older than 6.07 don't cleanup the classifier methods
+  // leading to memory leaks, so use unique_ptr for older versions
+  template <class T> using maybe_own = std::unique_ptr<T>;
+#else
+  template <class T> using maybe_own = T*;
+#endif
+  maybe_own<TMVA::MethodBase> method;
   std::string   methodName;
   unsigned int  nVars;
 
@@ -73,7 +80,7 @@ ProcTMVA::ProcTMVA(const char *name,
 	VarProcessor(name, calib, computer)
 {
 
-  reader = std::auto_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:Silent" ));
+  reader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:Silent" ));
   
   ext::imemstream is(
 		     reinterpret_cast<const char*>(&calib->store.front()),
@@ -105,9 +112,9 @@ ProcTMVA::ProcTMVA(const char *name,
     TMVA::Types::Instance().GetMethodType(methodName);
   // Check if xml format
   if (weight_text.find("<?xml") != std::string::npos) {
-   method = std::auto_ptr<TMVA::MethodBase>
-     ( dynamic_cast<TMVA::MethodBase*>
-       ( reader->BookMVA( methodType, weight_text.c_str() ) ) );
+     method = maybe_own<TMVA::MethodBase>
+       ( dynamic_cast<TMVA::MethodBase*>
+	 ( reader->BookMVA( methodType, weight_text.c_str() ) ) );
   } else {
     // Write to a temporary file
     TString weight_file_name(boost::filesystem::unique_path().c_str());
@@ -118,7 +125,7 @@ ProcTMVA::ProcTMVA(const char *name,
     edm::LogInfo("LegacyMVA") << "Building legacy TMVA plugin - "
       << "the weights are being stored in " << weight_file_name << std::endl;
     methodName_t.Append(methodName.c_str());
-    method = std::auto_ptr<TMVA::MethodBase>
+    method = maybe_own<TMVA::MethodBase>
       ( dynamic_cast<TMVA::MethodBase*>
         ( reader->BookMVA( methodName_t, weight_file_name ) ) );
     remove(weight_file_name.Data());
@@ -174,14 +181,14 @@ ProcTMVA::ProcTMVA(const char *name,
 			  TMVA::Types::Instance().GetMethodType(methodName);
 
  if (isXml){
-   method = std::auto_ptr<TMVA::MethodBase>
+   method = std::unique_ptr<TMVA::MethodBase>
      ( dynamic_cast<TMVA::MethodBase*>
        ( reader->BookMVA( methodType, weights.c_str() ) ) ); 
  }
  else{
    methodName_t.Clear();
    methodName_t.Append(methodName.c_str());
-   method = std::auto_ptr<TMVA::MethodBase>
+   method = std::unique_ptr<TMVA::MethodBase>
      ( dynamic_cast<TMVA::MethodBase*>
        ( reader->BookMVA( methodName_t, weight_file_name ) ) );
  }
@@ -206,7 +213,7 @@ void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
   inputs.reserve(n);
 	for(unsigned int i = 0; i < n; i++)
     inputs.push_back(*iter++);
-  std::auto_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
+  std::unique_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
 
   double result = method->GetMvaValue(evt.get());
 

@@ -510,7 +510,11 @@ namespace goodseedhelpers {
         reader.AddVariable("pt", &pt);
         reader.AddVariable("eta", &eta);
         
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
         std::unique_ptr<TMVA::IMethod> temp( reader.BookMVA(method_, weights[j].fullPath().c_str()) );
+#else
+        reader.BookMVA(method_, weights[j].fullPath().c_str());
+#endif
         
         gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA(method_) ) ) );
       }    
