@@ -17,12 +17,20 @@ from RecoJets.JetProducers.caloJetsForTrk_cff import *
 from RecoVertex.PrimaryVertexProducer.TkClusParameters_cff import DA2DParameters
 unsortedOfflinePrimaryVertices1D = offlinePrimaryVertices.clone()
 unsortedOfflinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(0.7)
-offlinePrimaryVertices1D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVertices1DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D:WithBS", particles="trackRefsForJetsBeforeSorting")
+offlinePrimaryVertices1D=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D", particles="trackRefsForJetsBeforeSorting1D")
+offlinePrimaryVertices1DWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices1D:WithBS", particles="trackRefsForJetsBeforeSorting1D")
 unsortedOfflinePrimaryVerticesLegacy = offlinePrimaryVertices.clone()
-offlinePrimaryVerticesLegacy=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVerticesLegacy", particles="trackRefsForJetsBeforeSorting")
-offlinePrimaryVerticesLegacyWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVerticesLegacy:WithBS", particles="trackRefsForJetsBeforeSorting")
+offlinePrimaryVerticesLegacy=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVerticesLegacy", particles="trackRefsForJetsBeforeSortingLegacy")
+offlinePrimaryVerticesLegacyWithBS=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVerticesLegacy:WithBS", particles="trackRefsForJetsBeforeSortingLegacy")
 DA2DParameters.TkDAClusParameters.verbose = cms.untracked.bool(False)
+trackWithVertexRefSelectorBeforeSorting1D = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices1D")
+trackWithVertexRefSelectorBeforeSorting1D.ptMax=9e99
+trackWithVertexRefSelectorBeforeSorting1D.ptErrorCut=9e99
+trackRefsForJetsBeforeSorting1D = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting1D")
+trackWithVertexRefSelectorBeforeSortingLegacy = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVerticesLegacy")
+trackWithVertexRefSelectorBeforeSortingLegacy.ptMax=9e99
+trackWithVertexRefSelectorBeforeSortingLegacy.ptErrorCut=9e99
+trackRefsForJetsBeforeSortingLegacy = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSortingLegacy")
 
 unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
 offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices", particles="trackRefsForJetsBeforeSorting")
@@ -51,13 +59,17 @@ from SimTracker.TrackAssociation.trackTimeValueMapProducer_cfi import trackTimeV
 _phase2_tktiming_vertexreco = cms.Sequence( tpClusterProducer *
                                             quickTrackAssociatorByHits *
                                             trackTimeValueMapProducer *
+                                            vertexreco.copy() *
                                             unsortedOfflinePrimaryVertices1D *
+                                            trackWithVertexRefSelectorBeforeSorting1D *
+                                            trackRefsForJetsBeforeSorting1D *
                                             offlinePrimaryVertices1D *
                                             offlinePrimaryVertices1DWithBS *
                                             unsortedOfflinePrimaryVerticesLegacy *
+                                            trackWithVertexRefSelectorBeforeSortingLegacy *
+                                            trackRefsForJetsBeforeSortingLegacy *
                                             offlinePrimaryVerticesLegacy *
-                                            offlinePrimaryVerticesLegacyWithBS *
-                                            vertexreco.copy()
+                                            offlinePrimaryVerticesLegacyWithBS                                            
                                             )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
