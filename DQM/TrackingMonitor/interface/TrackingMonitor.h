@@ -81,8 +81,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
 	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
-	edm::EDGetTokenT<reco::TrackCollection> allTrackToken_;
-	edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+	edm::EDGetTokenT<edm::View<reco::Track> > allTrackToken_;
+	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 
