@@ -47,6 +47,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     bunchSpacingManual_ = ps.getParameter<int>("bunchSpacing");
   }
 
+  gainSwitchFix_ = ps.getParameter<bool>("gainSwitchFix");
   doPrefitEB_ = ps.getParameter<bool>("doPrefitEB");
   doPrefitEE_ = ps.getParameter<bool>("doPrefitEE");
 
@@ -110,6 +111,7 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 
         // for the multifit method
         if(!ampErrorCalculation_) multiFitMethod_.disableErrorCalculation();
+        multiFitMethod_.doGainSwitchFix(gainSwitchFix_);
         es.get<EcalSamplesCorrelationRcd>().get(noisecovariances);
         es.get<EcalPulseShapesRcd>().get(pulseshapes);
         es.get<EcalPulseCovariancesRcd>().get(pulsecovariances);
@@ -573,6 +575,7 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
 	      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
 	      edm::ParameterDescription<int>("bunchSpacing", 0, true) and
+              edm::ParameterDescription<bool>("gainSwitchFix", true, true) and 
 	      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
 	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
