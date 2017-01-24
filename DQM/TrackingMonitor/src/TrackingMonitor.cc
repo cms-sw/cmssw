@@ -113,8 +113,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   edm::InputTag trackProducer    = conf_.getParameter<edm::InputTag>("TrackProducer");
   edm::InputTag tcProducer       = conf_.getParameter<edm::InputTag>("TCProducer");
   edm::InputTag seedProducer     = conf_.getParameter<edm::InputTag>("SeedProducer");
-  allTrackToken_       = consumes<reco::TrackCollection>(alltrackProducer);
-  trackToken_          = consumes<reco::TrackCollection>(trackProducer);
+  allTrackToken_       = consumes<edm::View<reco::Track> >(alltrackProducer);
+  trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
 
@@ -713,15 +713,16 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       NumberEventsOfVsBX->Fill(bx);
 
     // get the track collection
-    edm::Handle<reco::TrackCollection> trackHandle;
+    edm::Handle<edm::View<reco::Track> > trackHandle;
     iEvent.getByToken(trackToken_, trackHandle);
 
     int numberOfTracks_den = 0;
-    edm::Handle<reco::TrackCollection> allTrackHandle;
+    edm::Handle<edm::View<reco::Track> > allTrackHandle;
     iEvent.getByToken(allTrackToken_,allTrackHandle);
     if (allTrackHandle.isValid()) {
-      for (reco::TrackCollection::const_iterator track = allTrackHandle->begin();
-	   track!=allTrackHandle->end(); ++track) {
+      for ( edm::View<reco::Track>::const_iterator track = allTrackHandle->begin();
+	    track != allTrackHandle->end(); ++track ) {
+
 	if ( denSelection_(*track) )
 	  numberOfTracks_den++;
       }
@@ -745,16 +746,16 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       int numberOfTracks_num = 0;
       int numberOfTracks_pv0 = 0;
 
-      reco::TrackCollection trackCollection = *trackHandle;
+      const edm::View<reco::Track>& trackCollection = *trackHandle;
       // calculate the mean # rechits and layers
       int totalRecHits = 0, totalLayers = 0;
 
       theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
       theTrackAnalyzer->setBX(iEvent);
       theTrackAnalyzer->setLumi(iEvent,iSetup);
-      for (reco::TrackCollection::const_iterator track = trackCollection.begin();
-	   track!=trackCollection.end(); ++track) {
-	
+      for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+	    track != trackCollection.end(); ++track ) {
+
 	if ( doPlotsVsBX_ || doAllPlots )
 	  NumberOfRecHitsPerTrackVsBX->Fill(bx,track->numberOfValidHits());
 	if ( numSelection_(*track) ) {
@@ -939,8 +940,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if (totalNumGoodPV>1) NumberOfTracksVsPUPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
 	    NumberOfPVtxVsGoodPVtx          -> Fill(float(totalNumGoodPV),pvHandle->size());
 
-	    for (reco::TrackCollection::const_iterator track = trackCollection.begin();
-		 track!=trackCollection.end(); ++track) {
+	    for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+		  track != trackCollection.end(); ++track ) {
+
 	      NumberOfRecHitsPerTrackVsGoodPVtx -> Fill(float(totalNumGoodPV), track->numberOfValidHits());
 	    }
 
