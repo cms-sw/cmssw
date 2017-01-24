@@ -55,8 +55,10 @@ process.MINIAODoutput = cms.OutputModule("PoolOutputModule",
     fastCloning = cms.untracked.bool(False),
     fileName = cms.untracked.string('file:miniaod.root'),
     outputCommands = process.MINIAODEventContent.outputCommands,
-    overrideInputFileSplitLevels = cms.untracked.bool(True)
+    overrideInputFileSplitLevels = cms.untracked.bool(True),
 )
+
+process.MINIAODoutput.outputCommands.extend(['keep *_reducedEgamma_*BeforeGSFix_*']) 
 
 # Additional output definition
 

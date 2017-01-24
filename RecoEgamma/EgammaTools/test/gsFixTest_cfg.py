@@ -35,11 +35,12 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 #                                   correction is ( supercluster raw energy - E(gain switched multi fit hits) + E(gain switched weights hits) ) / supercluster raw energy
 #                                   does not correct photon H/E or R9
 
+process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
+process.bunchSpacingProducerSequence = cms.Sequence(process.bunchSpacingProducer)
+
 process.load("RecoEgamma.EgammaTools.egammaGainSwitchFix_cff")                                          
-process.p = cms.Path(process.egammaGainSwitchFixSequence)
+process.p = cms.Path(process.bunchSpacingProducerSequence * process.egammaGainSwitchFixSequence)
                     
-
-
 
 #dumps the products made for easier debugging, you wouldnt normally need to do this
 #edmDumpEventContent outputTest.root shows you all the products produced
