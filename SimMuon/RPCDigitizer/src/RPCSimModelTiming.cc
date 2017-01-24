@@ -230,7 +230,7 @@ RPCDetId rpcId = roll->id();
       double precise_time = CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate);
       int time_hit = (static_cast<int>(precise_time)) - nbxing/2;
             RPCDigi adigi(j+1,time_hit);
-	     adigi.hasTime(true);
+            adigi.hasTime(true);
             adigi.setTime(precise_time);
    if(do_Y)
 	{
