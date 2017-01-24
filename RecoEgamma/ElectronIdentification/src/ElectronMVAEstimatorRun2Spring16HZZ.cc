@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring15NonTrig.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring16HZZ.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -10,22 +10,25 @@
 #include "TMath.h"
 #include "TMVA/MethodBDT.h"
 
-ElectronMVAEstimatorRun2Spring15NonTrig::ElectronMVAEstimatorRun2Spring15NonTrig(const edm::ParameterSet& conf):
+ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
-  _tag(conf.getParameter<std::string>("mvaTag")),
-  _MethodName("BDTG method"),
-  _beamSpotLabel(conf.getParameter<edm::InputTag>("beamSpot")),
-  _conversionsLabelAOD(conf.getParameter<edm::InputTag>("conversionsAOD")),
-  _conversionsLabelMiniAOD(conf.getParameter<edm::InputTag>("conversionsMiniAOD")) {
+  tag_(conf.getParameter<std::string>("mvaTag")),
+  MethodName_("BDTG method"),
+  beamSpotLabel_(conf.getParameter<edm::InputTag>("beamSpot")),
+  conversionsLabelAOD_(conf.getParameter<edm::InputTag>("conversionsAOD")),
+  conversionsLabelMiniAOD_(conf.getParameter<edm::InputTag>("conversionsMiniAOD")) {
   
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
+  init(weightFileNames);
+}
 
+void ElectronMVAEstimatorRun2Spring16HZZ::init(const std::vector <std::string> weightFileNames) {
   if( (int)(weightFileNames.size()) != nCategories )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
 
-  _gbrForests.clear();
+  gbrForest_s.clear();
   // Create a TMVA reader object for each category
   for(int i=0; i<nCategories; i++){
 
@@ -33,41 +36,71 @@ ElectronMVAEstimatorRun2Spring15NonTrig::ElectronMVAEstimatorRun2Spring15NonTrig
     // when the vector clear() is called in the destructor
 
     edm::FileInPath weightFile( weightFileNames[i] );
-    _gbrForests.push_back( createSingleReader(i, weightFile ) );
+    gbrForest_s.push_back( createSingleReader(i, weightFile ) );
 
   }
 
 }
 
-ElectronMVAEstimatorRun2Spring15NonTrig::
-~ElectronMVAEstimatorRun2Spring15NonTrig(){
+ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ():
+  AnyMVAEstimatorRun2Base(edm::ParameterSet()) {}
+
+ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ(const std::string &mvaTag, const std::string &conversionsTag, const std::string &beamspotTag):
+  AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
+  tag_(mvaTag),
+  MethodName_("BDTG method"),
+  beamSpotLabel_(edm::InputTag(beamspotTag)),
+  conversionsLabelAOD_(edm::InputTag(conversionsTag)),
+  conversionsLabelMiniAOD_(conversionsLabelAOD_) {
+ }
+
+
+
+ElectronMVAEstimatorRun2Spring16HZZ::
+~ElectronMVAEstimatorRun2Spring16HZZ(){
 }
 
 
-void ElectronMVAEstimatorRun2Spring15NonTrig::setConsumes(edm::ConsumesCollector&& cc) const {
+void ElectronMVAEstimatorRun2Spring16HZZ::setConsumes(edm::ConsumesCollector&& cc) const {
 
   // All tokens for event content needed by this MVA
 
   // Beam spot (same for AOD and miniAOD)
-   cc.consumes<reco::BeamSpot>(_beamSpotLabel);
+   cc.consumes<reco::BeamSpot>(beamSpotLabel_);
 
   // Conversions collection (different names in AOD and miniAOD)
-  cc.mayConsume<reco::ConversionCollection>(_conversionsLabelAOD);
-  cc.mayConsume<reco::ConversionCollection>(_conversionsLabelMiniAOD);
+  cc.mayConsume<reco::ConversionCollection>(conversionsLabelAOD_);
+  cc.mayConsume<reco::ConversionCollection>(conversionsLabelMiniAOD_);
   
 
 }
 
-float ElectronMVAEstimatorRun2Spring15NonTrig::
+float ElectronMVAEstimatorRun2Spring16HZZ::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
   
   const int iCategory = findCategory( particle );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
-  const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
+  return mvaValue(iCategory, vars);
+}
+
+float ElectronMVAEstimatorRun2Spring16HZZ::
+mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) const {
+  edm::Handle<reco::ConversionCollection> conversions;
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(conversionsLabelAOD_, conversions);
+  iEvent.getByLabel(beamSpotLabel_, beamSpot);
+  const int iCategory = findCategory( particle );
+  const std::vector<float> vars = std::move( fillMVAVariables( particle, conversions, beamSpot.product() ) );  
+  return mvaValue(iCategory, vars);
+}
+
+float ElectronMVAEstimatorRun2Spring16HZZ::
+mvaValue( const int iCategory, const std::vector<float> & vars) const  {
+  const float result = gbrForest_s.at(iCategory)->GetClassifier(vars.data());
 
   const bool debug = false;
   if(debug) {
-    std::cout << " *** Inside the class _MethodName " << _MethodName << std::endl;
+    std::cout << " *** Inside the class MethodName_ " << MethodName_ << std::endl;
     std::cout << " bin " << iCategory
 	      << " fbrem " <<  vars[11]
 	      << " kfchi2 " << vars[9]
@@ -94,7 +127,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
   return result;
 }
 
-int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
+int ElectronMVAEstimatorRun2Spring16HZZ::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
   
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -103,7 +136,10 @@ int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
+   return findCategory(eleRecoPtr.get());
+}
 
+int ElectronMVAEstimatorRun2Spring16HZZ::findCategory( const reco::GsfElectron * eleRecoPtr ) const {
   float pt = eleRecoPtr->pt();
   float eta = eleRecoPtr->superCluster()->eta();
 
@@ -136,7 +172,7 @@ int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::
   return iCategory;
 }
 
-bool ElectronMVAEstimatorRun2Spring15NonTrig::
+bool ElectronMVAEstimatorRun2Spring16HZZ::
 isEndcapCategory(int category ) const {
 
   bool isEndcap = false;
@@ -147,7 +183,7 @@ isEndcapCategory(int category ) const {
 }
 
 
-std::unique_ptr<const GBRForest> ElectronMVAEstimatorRun2Spring15NonTrig::
+std::unique_ptr<const GBRForest> ElectronMVAEstimatorRun2Spring16HZZ::
 createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
 
   //
@@ -159,62 +195,67 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   // Configure all variables and spectators. Note: the order and names
   // must match what is found in the xml weights file!
   //
+
+
   // Pure ECAL -> shower shapes
-  tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &_allMVAVars.see);
-  tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &_allMVAVars.spp);
-  tmpTMVAReader.AddVariable("ele_oldcircularity",   &_allMVAVars.OneMinusE1x5E5x5);
-  tmpTMVAReader.AddVariable("ele_oldr9",            &_allMVAVars.R9);
-  tmpTMVAReader.AddVariable("ele_scletawidth",      &_allMVAVars.etawidth);
-  tmpTMVAReader.AddVariable("ele_sclphiwidth",      &_allMVAVars.phiwidth);
-  tmpTMVAReader.AddVariable("ele_he",               &_allMVAVars.HoE);
-  // Endcap only variables
-  if( isEndcapCategory(iCategory) )
-    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &_allMVAVars.PreShowerOverRaw);
-  
+  tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &allMVAVars_.see);
+  tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &allMVAVars_.spp);
+  tmpTMVAReader.AddVariable("ele_oldcircularity",   &allMVAVars_.OneMinusE1x5E5x5);
+  tmpTMVAReader.AddVariable("ele_oldr9",            &allMVAVars_.R9);
+  tmpTMVAReader.AddVariable("ele_scletawidth",      &allMVAVars_.etawidth);
+  tmpTMVAReader.AddVariable("ele_sclphiwidth",      &allMVAVars_.phiwidth);
+  tmpTMVAReader.AddVariable("ele_oldhe",               &allMVAVars_.HoE);
+ 
   //Pure tracking variables
-  tmpTMVAReader.AddVariable("ele_kfhits",           &_allMVAVars.kfhits);
-  tmpTMVAReader.AddVariable("ele_kfchi2",           &_allMVAVars.kfchi2);
-  tmpTMVAReader.AddVariable("ele_gsfchi2",        &_allMVAVars.gsfchi2);
+  tmpTMVAReader.AddVariable("ele_kfhits",           &allMVAVars_.kfhits);
+  tmpTMVAReader.AddVariable("ele_kfchi2",           &allMVAVars_.kfchi2);
+  tmpTMVAReader.AddVariable("ele_gsfchi2",        &allMVAVars_.gsfchi2);
 
   // Energy matching
-  tmpTMVAReader.AddVariable("ele_fbrem",           &_allMVAVars.fbrem);
+  tmpTMVAReader.AddVariable("ele_fbrem",           &allMVAVars_.fbrem);
 
-  tmpTMVAReader.AddVariable("ele_gsfhits",         &_allMVAVars.gsfhits);
-  tmpTMVAReader.AddVariable("ele_expected_inner_hits",             &_allMVAVars.expectedMissingInnerHits);
-  tmpTMVAReader.AddVariable("ele_conversionVertexFitProbability",  &_allMVAVars.convVtxFitProbability);
+  tmpTMVAReader.AddVariable("ele_gsfhits",         &allMVAVars_.gsfhits);
+  tmpTMVAReader.AddVariable("ele_expected_inner_hits",             &allMVAVars_.expectedMissingInnerHits);
+  tmpTMVAReader.AddVariable("ele_conversionVertexFitProbability",  &allMVAVars_.convVtxFitProbability);
 
-  tmpTMVAReader.AddVariable("ele_ep",              &_allMVAVars.EoP);
-  tmpTMVAReader.AddVariable("ele_eelepout",        &_allMVAVars.eleEoPout);
-  tmpTMVAReader.AddVariable("ele_IoEmIop",         &_allMVAVars.IoEmIoP);
+  tmpTMVAReader.AddVariable("ele_ep",              &allMVAVars_.EoP);
+  tmpTMVAReader.AddVariable("ele_eelepout",        &allMVAVars_.eleEoPout);
+  tmpTMVAReader.AddVariable("ele_IoEmIop",         &allMVAVars_.IoEmIoP);
   
   // Geometrical matchings
-  tmpTMVAReader.AddVariable("ele_deltaetain",      &_allMVAVars.deta);
-  tmpTMVAReader.AddVariable("ele_deltaphiin",      &_allMVAVars.dphi);
-  tmpTMVAReader.AddVariable("ele_deltaetaseed",    &_allMVAVars.detacalo);
+  tmpTMVAReader.AddVariable("ele_deltaetain",      &allMVAVars_.deta);
+  tmpTMVAReader.AddVariable("ele_deltaphiin",      &allMVAVars_.dphi);
+  tmpTMVAReader.AddVariable("ele_deltaetaseed",    &allMVAVars_.detacalo);
+
+  // Endcap only variables
+  if( isEndcapCategory(iCategory) )
+    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &allMVAVars_.PreShowerOverRaw);
+ 
   
   // Spectator variables  
-  tmpTMVAReader.AddSpectator("ele_pT",             &_allMVAVars.pt);
-  tmpTMVAReader.AddSpectator("ele_isbarrel",       &_allMVAVars.isBarrel);
-  tmpTMVAReader.AddSpectator("ele_isendcap",       &_allMVAVars.isEndcap);
-  tmpTMVAReader.AddSpectator("scl_eta",            &_allMVAVars.SCeta);
-
-  tmpTMVAReader.AddSpectator("ele_eClass",                 &_allMVAVars.eClass);
-  tmpTMVAReader.AddSpectator("ele_pfRelIso",               &_allMVAVars.pfRelIso);
-  tmpTMVAReader.AddSpectator("ele_expected_inner_hits",    &_allMVAVars.expectedInnerHits);
-  tmpTMVAReader.AddSpectator("ele_vtxconv",                &_allMVAVars.vtxconv);
-  tmpTMVAReader.AddSpectator("mc_event_weight",            &_allMVAVars.mcEventWeight);
-  tmpTMVAReader.AddSpectator("mc_ele_CBmatching_category", &_allMVAVars.mcCBmatchingCategory);
+  tmpTMVAReader.AddSpectator("ele_pt",             &allMVAVars_.pt);
+  tmpTMVAReader.AddSpectator("ele_isEE",       &allMVAVars_.isBarrel);
+  tmpTMVAReader.AddSpectator("ele_isEB",       &allMVAVars_.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEBEtaGap",       &allMVAVars_.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEBPhiGap",       &allMVAVars_.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEBEEGap",       &allMVAVars_.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEERingGap",       &allMVAVars_.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEEDeeGap",       &allMVAVars_.isEndcap);
+  tmpTMVAReader.AddSpectator("ele_isEE",            &allMVAVars_.SCeta);
+  tmpTMVAReader.AddSpectator("scl_eta",            &allMVAVars_.SCeta);
+  tmpTMVAReader.AddSpectator("ele_eClass",                 &allMVAVars_.eClass);
+  tmpTMVAReader.AddSpectator("mc_ele_matchedFromCB", &allMVAVars_.mcCBmatchingCategory);
 
   //
   // Book the method and set up the weights file
   //
-  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath() ) );
+  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(MethodName_ , weightFile.fullPath() ) );
 
-  return std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(_MethodName) ) ) );
+  return std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(MethodName_) ) ) );
 }
 
 // A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2Spring15NonTrig::
+std::vector<float> ElectronMVAEstimatorRun2Spring16HZZ::
 fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
                  const edm::Event& iEvent ) const {
 
@@ -225,13 +266,13 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   edm::Handle<reco::ConversionCollection> conversions;
 
   // Get data needed for conversion rejection
-  iEvent.getByLabel(_beamSpotLabel, theBeamSpot);
+  iEvent.getByLabel(beamSpotLabel_, theBeamSpot);
 
   // Conversions in miniAOD and AOD have different names,
   // but the same type, so we use the same handle with different tokens.
-  iEvent.getByLabel(_conversionsLabelAOD, conversions);
+  iEvent.getByLabel(conversionsLabelAOD_, conversions);
   if( !conversions.isValid() )
-    iEvent.getByLabel(_conversionsLabelMiniAOD, conversions);
+    iEvent.getByLabel(conversionsLabelMiniAOD_, conversions);
 
   // Make sure everything is retrieved successfully
   if(! (theBeamSpot.isValid() 
@@ -250,6 +291,14 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
+  return fillMVAVariables(eleRecoPtr.get(), conversions, theBeamSpot.product());
+}
+
+// A function that should work on both pat and reco objects
+std::vector<float> ElectronMVAEstimatorRun2Spring16HZZ::
+fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
+                 const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot ) const {
+
 
   // Both pat and reco particles have exactly the same accessors, so we use a reco ptr 
   // throughout the code, with a single exception as of this writing, handled separately below.
@@ -264,7 +313,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   allMVAVars.R9             = eleRecoPtr->full5x5_r9();
   allMVAVars.etawidth       = superCluster->etaWidth();
   allMVAVars.phiwidth       = superCluster->phiWidth();
-  allMVAVars.HoE            = eleRecoPtr->hadronicOverEm();
+  allMVAVars.HoE            = eleRecoPtr->full5x5_hcalOverEcal(); //hadronicOverEm();
   // Endcap only variables
   allMVAVars.PreShowerOverRaw  = superCluster->preshowerEnergy() / superCluster->rawEnergy();
 
@@ -273,10 +322,10 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   // This behavior is reported and is expected to change in the future (post-7.4.5 some time).
   bool validKF= false; 
   reco::TrackRef myTrackRef = eleRecoPtr->closestCtfTrackRef();
-  const edm::Ptr<pat::Electron> elePatPtr(eleRecoPtr);
+  const pat::Electron * elePatPtr = dynamic_cast<const pat::Electron *>(eleRecoPtr);
   // Check if this is really a pat::Electron, and if yes, get the track ref from this new
   // pointer instead
-  if( elePatPtr.get() != NULL )
+  if( elePatPtr != NULL )
     myTrackRef = elePatPtr->closestCtfTrackRef();
   validKF = (myTrackRef.isAvailable() && (myTrackRef.isNonnull()) );  
 
@@ -337,7 +386,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
 
   std::vector<float> vars;
 
-  if( isEndcapCategory( findCategory( particle ) ) ) {
+  if( isEndcapCategory( findCategory( eleRecoPtr ) ) ) {
     vars = std::move( packMVAVariables(allMVAVars.see,
                                        allMVAVars.spp,
                                        allMVAVars.OneMinusE1x5E5x5,
@@ -345,9 +394,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
                                        allMVAVars.etawidth,
                                        allMVAVars.phiwidth,
                                        allMVAVars.HoE,
-                                       // Endcap only variables
-                                       allMVAVars.PreShowerOverRaw,                                       
-                                       //Pure tracking variables
+                                      //Pure tracking variables
                                        allMVAVars.kfhits,
                                        allMVAVars.kfchi2,
                                        allMVAVars.gsfchi2,                                       
@@ -363,6 +410,9 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
                                        allMVAVars.deta,
                                        allMVAVars.dphi,
                                        allMVAVars.detacalo,                                       
+                                       // Endcap only variables
+                                       allMVAVars.PreShowerOverRaw,                                       
+ 
                                        // Spectator variables  
                                        allMVAVars.pt,
                                        allMVAVars.isBarrel,
@@ -415,7 +465,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   return vars;
 }
 
-void ElectronMVAEstimatorRun2Spring15NonTrig::constrainMVAVariables(AllVariables& allMVAVars) const {
+void ElectronMVAEstimatorRun2Spring16HZZ::constrainMVAVariables(AllVariables& allMVAVars) const {
 
   // Check that variables do not have crazy values
 
@@ -464,6 +514,3 @@ void ElectronMVAEstimatorRun2Spring15NonTrig::constrainMVAVariables(AllVariables
 
 }
 
-DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
-		  ElectronMVAEstimatorRun2Spring15NonTrig,
-		  "ElectronMVAEstimatorRun2Spring15NonTrig");
