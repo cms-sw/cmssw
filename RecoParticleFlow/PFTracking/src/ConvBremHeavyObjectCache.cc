@@ -45,7 +45,11 @@ namespace convbremhelpers {
     reader.AddVariable("kftrack_Epout",&Epout);
     reader.AddVariable("kftrack_detaBremKF",&detaBremKF);
     reader.AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
     std::unique_ptr<TMVA::IMethod> temp( reader.BookMVA("BDT", weights.c_str()) );
+#else
+    reader.BookMVA("BDT", weights.c_str());
+#endif
     return std::unique_ptr<const GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA("BDT") ) ) );
   }  
 }

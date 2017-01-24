@@ -44,7 +44,11 @@ ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
   // Taken from Daniele (his mail from the 30/11)
   //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
   // training of the 7/12 with Nvtx added
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
   std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,fileName.c_str()) );
+#else
+  tmvaReader.BookMVA(ele_mva_name,fileName.c_str());
+#endif
   gbr.emplace_back(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
 }
 
@@ -80,7 +84,11 @@ ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
     // Taken from Daniele (his mail from the 30/11)
     //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
     // training of the 7/12 with Nvtx added
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
     std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,wgtfile) );
+#else
+    tmvaReader.BookMVA(ele_mva_name,wgtfile);
+#endif
     gbr.emplace_back(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
   }
 }
