@@ -40,6 +40,8 @@
 
 //  issues: sub cluster ordering may not be correct (its sorted by decreasing energy)
 //  issues: when it assigns a sub cluster to a refined SC, it doesnt remove it from others
+//          however it now checks for this and will through an exception if the sub cluster
+//          is present in two superclusters
 
 class EGRefinedSCFixer : public edm::stream::EDProducer<> {
 public:
@@ -332,12 +334,20 @@ EGRefinedSCFixer::makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedS
   posY /= scNrgy;
   posZ /= scNrgy;
 
-  //intentionally passing in scCorrNrgy its not supposed to be scNrgy
-  reco::SuperCluster newSC(scCorrNrgy,math::XYZPoint(posX,posY,posZ));
+  //now we need to figure out the seed which we take as the same as the non-refined SC
+  //which we match on seed crystal ID
+  edm::Ptr<reco::CaloCluster> seedPtr(fixedClusters.id());
+  for(const auto& clusPtr : clusters){
+    if(clusPtr->seed()==fixedSC.seed()->seed()){
+      seedPtr=clusPtr;
+      break;
+    }
+  }
 
-  
+  //intentionally passing in scCorrNrgy its not supposed to be scNrgy
+  reco::SuperCluster newSC(scCorrNrgy,math::XYZPoint(posX,posY,posZ));  
   newSC.setCorrectedEnergy(scCorrNrgy);
-  newSC.setSeed(fixedSC.seed()); //the seed is the same as the non-refined SC
+  newSC.setSeed(seedPtr); //the seed is the same as the non-refined SC
   newSC.setPreshowerEnergyPlane1(0.);
   newSC.setPreshowerEnergyPlane2(0.);
   newSC.setPreshowerEnergy(0.); 
