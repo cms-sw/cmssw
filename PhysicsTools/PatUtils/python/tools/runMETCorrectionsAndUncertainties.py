@@ -443,6 +443,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if metType == "PF" and not hasattr(process, 'pat'+metType+'Met'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
+            task.add(process.producePatPFMETCorrectionsTask)
+            task.add(process.patPFMetT2SmearCorrTask)
+            task.add(process.patPFMetTxyCorrTask)
+            task.add(process.jetCorrectorsTask)
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
