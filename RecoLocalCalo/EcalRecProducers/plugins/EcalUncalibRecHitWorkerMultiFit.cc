@@ -575,7 +575,7 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
 	      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
 	      edm::ParameterDescription<int>("bunchSpacing", 0, true) and
-              edm::ParameterDescription<bool>("gainSwitchEBMaxSample", true, true) and 
+              edm::ParameterDescription<bool>("gainSwitchEBMaxSample", false, true) and
 	      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
 	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
