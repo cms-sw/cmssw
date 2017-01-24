@@ -83,7 +83,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   bool status = false;
 
   // for legacy re-reco of 2016 data, max-sample can be used for EB w/o impact on data/MC consistency
-  if(_gainSwitchFix) {
+  if(_gainSwitchEBMaxSample) {
   // in case of gain switch, just use max-sample
     if(iGainSwitch && dataFrame.id().subdetId() == EcalBarrel) {
       EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );

@@ -93,7 +93,7 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
                 const EcalWeightSet::EcalWeightMatrix* weights[2];
                 EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
                 EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
-                bool gainSwitchFix_;
+                bool gainSwitchEBMaxSample_;
                 bool doPrefitEB_;
                 bool doPrefitEE_;
 		double prefitMaxChiSqEB_;
