@@ -176,7 +176,7 @@ void RPCSimModelTiming::simulate(const RPCRoll* roll,
           if(do_Y)
           {
 		adigi.hasY(true);
-                adigi.setY(smearedPositionY);
+		adigi.setY(smearedPositionY);
 		adigi.setDeltaY(sigmaY);
           }
           irpc_digis.insert(adigi);
