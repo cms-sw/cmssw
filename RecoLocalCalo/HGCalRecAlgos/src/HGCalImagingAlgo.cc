@@ -37,10 +37,24 @@ void HGCalImagingAlgo::makeClusters(const HGCRecHitCollection& hits)
   //loop over all hits and create the Hexel structure, skip energies below ecut
   for (unsigned int i=0;i<hits.size();++i) {
     const HGCRecHit& hgrh = hits[i];
-    if(hgrh.energy() < ecut) continue; 
     DetId detid = hgrh.detid();
+    int layer = rhtools_.getLayerWithOffset(detid);
+    float thickness = -9999.;
+    unsigned thickIndex = -1;
+    if( layer <= 40 ) {
+      thickness = rhtools_.getSiThickness(detid);
+      if( thickness>99. && thickness<101.) thickIndex=0;
+      else if( thickness>199. && thickness<201. ) thickIndex=1;
+      else if( thickness>299. && thickness<301. ) thickIndex=2;
+      else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
+    }
+    float sigmaNoise = -9999.;
+    if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
+    else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
+    //if(hgrh.energy() < ecut) continue; 
+    if(hgrh.energy() < 3*sigmaNoise) continue; //this sets the ZS threshold at three times the sigma noise for the sensor
 
-    int layer = rhtools_.getLayerWithOffset(detid)+int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
+    layer += int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
     
     // determine whether this is a half-hexagon
     bool isHalf = rhtools_.isHalfCell(detid);    
@@ -254,7 +268,21 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 
     //    std::cout << " delta " << lp[ds[i]].delta << " rho " << lp[ds[i]].rho << std::endl;
     if(nd[ds[i]].data.delta < delta_c) break; // no more cluster centers to be looked at 
-    if(nd[ds[i]].data.rho < maxdensity/kappa  /* || lp[ds[i]].rho<0.001*/) continue; 
+    unsigned layer = rhtools_.getLayerWithOffset(nd[ds[i]].data.detid);
+    float thickness  = -9999.;
+    unsigned thickIndex = -1;
+    if( layer <= 40 ) {
+      thickness = rhtools_.getSiThickness(nd[ds[i]].data.detid);
+      if( thickness>99. && thickness<101.) thickIndex=0;
+      else if( thickness>199. && thickness<201. ) thickIndex=1;
+      else if( thickness>299. && thickness<301. ) thickIndex=2;
+      else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
+    }
+    float sigmaNoise = -9999.;
+    if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
+    else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
+    if( nd[ds[i]].data.rho < 9*sigmaNoise ) continue; // set equal to 9 times noise threshold
+    //if(nd[ds[i]].data.rho < maxdensity/kappa  /* || lp[ds[i]].rho<0.001*/) continue; 
     //skip this as a potential cluster center because it fails the density cut
 
     nd[ds[i]].data.clusterIndex = clusterIndex;

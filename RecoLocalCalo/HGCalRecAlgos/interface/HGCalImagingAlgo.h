@@ -63,6 +63,29 @@ class HGCalImagingAlgo
 							    algoId(algoId_in),
 							    verbosity(the_verbosity){
   }
+
+  HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
+		   //		   const CaloSubdetectorTopology *thetopology_p,
+		   reco::CaloCluster::AlgoId algoId_in,
+                   std::vector<double> dEdXweights_in,
+                   std::vector<double> thicknessCorrection_in,
+                   std::vector<double> fcPerMip_in,
+                   double fcPerEle_in,
+                   std::vector<double> nonAgedNoises_in,
+                   double noiseMip_in,
+		   VerbosityLevel the_verbosity = pERROR) : delta_c(delta_c_in), kappa(kappa_in), 
+							    ecut(ecut_in),    
+							    cluster_offset(0),
+							    sigma2(1.0),
+							    algoId(algoId_in),
+							    dEdXweights(dEdXweights_in),
+                                                            thicknessCorrection(thicknessCorrection_in),
+                                                            fcPerMip(fcPerMip_in),
+                                                            fcPerEle(fcPerEle_in),
+                                                            nonAgedNoises(nonAgedNoises_in),
+                                                            noiseMip(noiseMip_in),
+							    verbosity(the_verbosity){
+  }
   
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
 		   double showerSigma, 
@@ -73,6 +96,30 @@ class HGCalImagingAlgo
 							    cluster_offset(0),
 							    sigma2(std::pow(showerSigma,2.0)),
 							    algoId(algoId_in),
+							    verbosity(the_verbosity){
+  }
+
+  HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
+		   double showerSigma, 
+		   //		   const CaloSubdetectorTopology *thetopology_p,
+		   reco::CaloCluster::AlgoId algoId_in,
+                   std::vector<double> dEdXweights_in,
+                   std::vector<double> thicknessCorrection_in,
+                   std::vector<double> fcPerMip_in,
+                   double fcPerEle_in,
+                   std::vector<double> nonAgedNoises_in,
+                   double noiseMip_in,
+		   VerbosityLevel the_verbosity = pERROR) : delta_c(delta_c_in), kappa(kappa_in), 
+							    ecut(ecut_in),    
+							    cluster_offset(0),
+							    sigma2(std::pow(showerSigma,2.0)),
+							    algoId(algoId_in),
+							    dEdXweights(dEdXweights_in),
+                                                            thicknessCorrection(thicknessCorrection_in),
+                                                            fcPerMip(fcPerMip_in),
+                                                            fcPerEle(fcPerEle_in),
+                                                            nonAgedNoises(nonAgedNoises_in),
+                                                            noiseMip(noiseMip_in),
 							    verbosity(the_verbosity){
   }
 
@@ -126,6 +173,14 @@ class HGCalImagingAlgo
 
   // The algo id
   reco::CaloCluster::AlgoId algoId;
+
+  // various parameters used for calculating the noise levels for a given sensor
+  std::vector<double> dEdXweights;
+  std::vector<double> thicknessCorrection;
+  std::vector<double> fcPerMip;
+  double fcPerEle;
+  std::vector<double> nonAgedNoises;
+  double noiseMip;
 
   // The verbosity level
   VerbosityLevel verbosity;
