@@ -93,8 +93,8 @@ private:
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG;
-  std::vector<double>           layer0wt, gpar;
+  G4int                         mumPDG, mupPDG, depth_;
+  std::vector<double>           gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;
   std::vector<G4Material*>      materials;
