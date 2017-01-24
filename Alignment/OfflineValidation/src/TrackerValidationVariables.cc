@@ -446,22 +446,23 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
   edm::ESHandle<MagneticField> magneticField;
   eventSetup.get<IdealMagneticFieldRecord>().get(magneticField);
 
-  edm::Handle<reco::TrackCollection> tracks;
-  event.getByToken(tracksToken_, tracks);
-
-  edm::Handle<std::vector<Trajectory>> trajs;
-  event.getByToken(trajCollectionToken_, trajs);
-
-
-  if(!tracks.isValid()) return;
-  LogDebug("TrackerValidationVariables") << "Track collection size " << tracks->size();
+  edm::Handle<reco::TrackCollection> tracksH;
+  event.getByToken(tracksToken_, tracksH);
+  if(!tracksH.isValid()) return;
+  auto const & tracks = *tracksH;
+  auto ntrk = tracks.size();
+  LogDebug("TrackerValidationVariables") << "Track collection size " << ntrk;
   
-  bool yesTraj = trajs.isValid();
 
-  const Trajectory* trajectory =  nullptr;
+  edm::Handle<std::vector<Trajectory>> trajsH;
+  event.getByToken(trajCollectionToken_, trajsH);
+  bool yesTraj = trajsH.isValid();
+  std::vector<Trajectory> const * trajs = nullptr;
+  if (yesTraj) trajs = &(*trajs);
+  Trajectory const * trajectory =  nullptr;
   
-  int i=0;
-  for ( auto const & track : *tracks) {  
+  for (unsigned int i=0; i<ntrk; ++i) {
+    auto const & track = tracks[i];  
     if (yesTraj) trajectory = &(*trajs)[i];
     
     if (!trackFilter(track)) continue;
