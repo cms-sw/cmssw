@@ -42,6 +42,5 @@ phase2_common.toModify(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(
     pfPileUp,
-    Vertices = cms.InputTag("offlinePrimaryVertices4D"),
     assignment=dict(useTiming=True)
 )

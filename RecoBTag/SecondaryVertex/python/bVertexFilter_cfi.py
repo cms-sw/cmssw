@@ -24,9 +24,3 @@ bVertexFilter = cms.EDFilter("BVertexFilter",
       useVertexKinematicAsJetAxis = cms.bool(True),
       minVertices = cms.int32(0)
 )
-
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(
-    bVertexFilter,
-    primaryVertices = cms.InputTag("offlinePrimaryVertices4D"),
-)

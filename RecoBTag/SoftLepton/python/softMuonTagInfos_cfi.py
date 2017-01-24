@@ -16,9 +16,3 @@ softMuonTagInfos = cms.EDProducer("SoftLepton",
 
     muonSelection = muonSelection.AllGlobalMuons
 )
-
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(
-    softMuonTagInfos,
-    primaryVertex = cms.InputTag("offlinePrimaryVertices4D"),
-)

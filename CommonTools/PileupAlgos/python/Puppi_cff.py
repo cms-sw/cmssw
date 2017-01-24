@@ -92,9 +92,3 @@ phase2_common.toModify(
     PVAssignment = cms.InputTag('primaryVertexAssociation','original'),
     PVAssignmentQuality = cms.InputTag('primaryVertexAssociation','original'),
 )
-
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(
-    puppi,
-    vertexName = cms.InputTag('offlinePrimaryVertices4D'),
-)

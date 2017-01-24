@@ -16,9 +16,3 @@ impactParameterTagInfos = cms.EDProducer("TrackIPProducer",
     jetDirectionUsingGhostTrack = cms.bool(False),
     useTrackQuality = cms.bool(False)
 )
-
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(
-    impactParameterTagInfos,
-    primaryVertex = cms.InputTag("offlinePrimaryVertices4D"),
-)

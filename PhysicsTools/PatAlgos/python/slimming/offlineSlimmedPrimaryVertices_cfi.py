@@ -7,9 +7,3 @@ offlineSlimmedPrimaryVertices = cms.EDProducer("PATVertexSlimmer",
 # this need new input file with scores made at RECO time (PR #8102, #8101), enable before MINIAOD prod in 74x
 #   score = cms.InputTag("offlinePrimaryVertices"), 
 )
-
-from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(
-    offlineSlimmedPrimaryVertices,
-    src=cms.InputTag("offlinePrimaryVertices4D"),
-)
