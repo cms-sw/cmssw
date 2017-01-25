@@ -132,7 +132,7 @@ protected:
   std::vector<position> splitSegment( Range x, Range y ) const;
 
   /// check the weights passed as an std::vector have the correct size
-  void check_weight(const std::vector<double> & weight) throw (std::invalid_argument)
+  void check_weight(const std::vector<double> & weight) noexcept(false)
   {
     // run time check for vector size
     if (weight.size() != m_size)
