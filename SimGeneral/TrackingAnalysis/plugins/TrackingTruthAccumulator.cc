@@ -655,8 +655,8 @@ namespace // Unnamed namespace for things only used in this file
 		// through the hits "in order" (ok, most important is
 		// to get the first hit right because processType and
 		// particleType are taken from it)
-		for( std::multimap<unsigned int,size_t>::const_iterator iHitIndex=trackIdToHitIndex_.lower_bound( simTrack.trackId() );
-				iHitIndex!=trackIdToHitIndex_.upper_bound( simTrack.trackId() );
+		for( auto iHitIndex=trackIdToHitIndex_.lower_bound( simTrack.trackId() ), end=trackIdToHitIndex_.upper_bound( simTrack.trackId() );
+				iHitIndex!=end;
 				++iHitIndex )
 		{
 			const auto& pSimHit=simHits_[ iHitIndex->second ];
