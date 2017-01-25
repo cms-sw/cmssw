@@ -51,6 +51,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 //Turn on integrity checking
 //#define DO_DEBUG_TESTING
@@ -532,6 +533,15 @@ template<class T> void TrackingTruthAccumulator::fillSimHits( std::vector<const 
 		}
 
 	} // end of loop over InputTags
+
+        // sort the SimHits according to their time of flight,
+        // necessary for looping over them "in order" in
+        // TrackingParticleFactory::createTrackingParticle()
+        std::sort(returnValue.begin(), returnValue.end(), [](const PSimHit *a, const PSimHit *b) {
+            const auto atof = edm::isFinite(a->timeOfFlight()) ? a->timeOfFlight() : std::numeric_limits<decltype(a->timeOfFlight())>::max();
+            const auto btof = edm::isFinite(b->timeOfFlight()) ? b->timeOfFlight() : std::numeric_limits<decltype(b->timeOfFlight())>::max();
+            return atof < btof;
+          });
 }
 
 
@@ -639,6 +649,12 @@ namespace // Unnamed namespace for things only used in this file
 		DetId oldDetector;
 		DetId newDetector;
 
+		// Loop over the SimHits associated to this SimTrack
+		// in the order defined by time of flight, which is
+		// probably the best quantity available for going
+		// through the hits "in order" (ok, most important is
+		// to get the first hit right because processType and
+		// particleType are taken from it)
 		for( std::multimap<unsigned int,size_t>::const_iterator iHitIndex=trackIdToHitIndex_.lower_bound( simTrack.trackId() );
 				iHitIndex!=trackIdToHitIndex_.upper_bound( simTrack.trackId() );
 				++iHitIndex )
