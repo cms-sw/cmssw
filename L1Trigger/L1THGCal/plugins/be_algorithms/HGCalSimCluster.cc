@@ -6,6 +6,7 @@
 
 // HGCalClusters and detId
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 // PF Cluster definition
@@ -22,6 +23,7 @@
 
 // Energy calibration
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
+
 
 // Print out something before crashing or throwing exceptions
 #include <iostream>
@@ -60,7 +62,15 @@ namespace HGCalTriggerBackend{
 
             // token
             edm::EDGetTokenT< std::vector<SimCluster> > sim_token_;
+            // Digis
+            edm::EDGetToken inputee_, inputfh_, inputbh_;
 
+            // add to cluster shapes, once per trigger cell
+            void addToClusterShapes(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi, float r=0.0){
+                auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
+                auto iterator = pair.first;
+                iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
+            }
             // add to cluster
             void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float  energy,float  eta, float phi)
             {
@@ -89,6 +99,7 @@ namespace HGCalTriggerBackend{
                 pp4.SetM  (  0  ) ;
                 p4 += pp4;
                 iterator -> second . second . setP4(p4);
+                //iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
                 return ;
             }
 
@@ -118,6 +129,10 @@ namespace HGCalTriggerBackend{
                 // pf clusters cannot be safely cast to SimCluster
                 //sim_token_ = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","DIGI")); 
                 sim_token_ = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","")); 
+                // -- inputee_ = cc.consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"));
+                //inputee_ = cc.consumes<HGCEEDigiCollection>(edm::InputTag("mix","HGCDigisEE",""));
+                //inputfh_ = cc.consumes<HGCHEDigiCollection>(edm::InputTag("mix","HGCDigisHEfront",""));
+                // -- inputbh_ = cc.consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis")); 
             }
 
             // setProduces
@@ -163,6 +178,26 @@ namespace HGCalTriggerBackend{
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::[run] Start"<<endl;
 #endif
+                //0.5. Get Digis, construct a map, detid -> energy
+                /*
+                edm::Handle<HGCEEDigiCollection> ee_digis_h;
+                edm::Handle<HGCHEDigiCollection> fh_digis_h, bh_digis_h;
+
+                evt.getByToken(inputee_,ee_digis_h);
+                evt.getByToken(inputfh_,fh_digis_h);
+                //evt.getByToken(inputbh_,bh_digis_h);
+                
+                if (not ee_digis_h.isValid()){
+                       throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] EE Digis from HGC not available"; 
+                }
+                if (not fh_digis_h.isValid()){
+                       throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] FH Digis from HGC not available"; 
+                }
+#ifdef HCAL_DEBUG
+                std::cout <<"[HGCalTriggerSimCluster]::[run]::[INFO] BH digis not loaded"<<std::endl;
+#endif
+                */
+                
                 //1. construct a cluster container that hosts the cluster per truth-particle
                 std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> > cluster_container;// PID-> bx,cluster
                 evt.getByToken(sim_token_,sim_handle_);
@@ -228,6 +263,7 @@ namespace HGCalTriggerBackend{
                             auto calibratedDigiEnergy=calibratedtriggercell.p4().E();  
                             double eta=triggercell.p4().Eta();
                             double phi=triggercell.p4().Phi();
+                            double z = triggercell.position().z(); // may be useful for cluster shapes
                             //2.B get the HGCAL-base-cell associated to it / geometry
                             //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
                             //for(const auto& cell : tc.components() )  // HGcell -- unsigned
@@ -235,6 +271,8 @@ namespace HGCalTriggerBackend{
                             
                             // normalization loop -- this loop is fast ~4 elem
                             double norm=0.0;
+                            map<unsigned, double> energy_for_cluster_shapes;
+                            
                             for(const auto& cell : geometry_->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
                             {
                                 HGCalDetId cellId(cell);
@@ -248,6 +286,7 @@ namespace HGCalTriggerBackend{
                                     const auto & pid= p.first;
                                     const auto & fraction=p.second;
                                     norm += fraction;
+                                    energy_for_cluster_shapes[pid] += calibratedDigiEnergy *fraction; // norm will be done later
                                 }
                             }
                             // 
@@ -271,6 +310,12 @@ namespace HGCalTriggerBackend{
                                     //addToCluster(cluster_container, pid, 0 energy,ETA/PHI?  ) ;
                                     addToCluster(cluster_container, pid, 0,energy,eta,phi  ) ; // how do I get eta, phi w/o the hgcal geometry?
                                 }
+                            }
+                            for(const auto& iterator :energy_for_cluster_shapes)
+                            {
+                                double energy = iterator.second / norm;
+                                unsigned pid = iterator.first;
+                                addToClusterShapes(cluster_container, pid, 0,energy,eta,phi,z  ) ;// only one for trigger cell 
                             }
                     } //end of for-loop
                 }
