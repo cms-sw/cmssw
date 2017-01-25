@@ -42,10 +42,9 @@ TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
   , verbose_( iConfig.getUntrackedParameter<bool>( "verbose", false ) ) {
    //now do whatever initialization is needed
   // open output file to store histograms}
-  TString tversion(edm::getReleaseVersion());
-  tversion = tversion.Remove(0,1);
-  tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
-  outputFile_  = std::string(tversion)+"_"+outputFile_;
+  auto tversion = edm::getReleaseVersion();
+  tversion = tversion.erase(tversion.size() - 1, 1).erase(0, 1);
+  outputFile_  = tversion + "_" + outputFile_;
   rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); 
   if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
     simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
