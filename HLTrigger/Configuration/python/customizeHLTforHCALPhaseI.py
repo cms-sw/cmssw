@@ -6,7 +6,7 @@ import itertools
 from HLTrigger.Configuration.common import *
 
 # import the relevant eras from Configuration.Eras.*
-from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 
 
@@ -175,9 +175,9 @@ def customizeHLTforHEforPhaseI(process):
         digiLabel = process.hltHbherecoMethod2L1EGSeeded.digiLabel.value()
         process.hltHbherecoMethod2L1EGSeeded = hltHbhereco.clone()
         process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE8   = digiLabel
-        process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE11  = digiLabel
         # set processQIE11 to False until HLTHcalDigisInRegionsProducer can produce QIE11
         process.hltHbherecoMethod2L1EGSeeded.processQIE11    = cms.bool(False)
+        process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE11  = cms.InputTag('')
         process.hltHbherecoMethod2L1EGSeeded.algorithm.useM2 = cms.bool(True)
         process.hltHbherecoMethod2L1EGSeeded.algorithm.useM3 = cms.bool(False)
 
@@ -186,18 +186,18 @@ def customizeHLTforHEforPhaseI(process):
         digiLabel = process.hltHbherecoMethod2L1EGUnseeded.digiLabel.value()
         process.hltHbherecoMethod2L1EGUnseeded = hltHbhereco.clone()
         process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE8   = digiLabel
-        process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE11  = digiLabel
         # set processQIE11 to False until HLTHcalDigisInRegionsProducer can produce QIE11
         process.hltHbherecoMethod2L1EGUnseeded.processQIE11    = cms.bool(False)
+        process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE11  = cms.InputTag('')
         process.hltHbherecoMethod2L1EGUnseeded.algorithm.useM2 = cms.bool(True)
         process.hltHbherecoMethod2L1EGUnseeded.algorithm.useM3 = cms.bool(False)
 
     return process
 
 
-# attach `customizeHLTforHEforPhaseI' to the `run2_HE_2017' era
+# attach `customizeHLTforHEforPhaseI' to the `run2_HCAL_2017' era
 def modifyHLTforHEforPhaseI(process):
-    run2_HE_2017.toModify(process, customizeHLTforHEforPhaseI)
+    run2_HCAL_2017.toModify(process, customizeHLTforHEforPhaseI)
 
 
 # modify the HLT configuration for the Phase I HF upgrade
