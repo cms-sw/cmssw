@@ -62,6 +62,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
   useParam         = m_HC.getParameter<bool>("UseParametrize");
   testNumber       = m_HC.getParameter<bool>("TestNumberingScheme");
+  neutralDensity   = m_HC.getParameter<bool>("doNeutralDensityFilter");
   usePMTHit        = m_HC.getParameter<bool>("UsePMTHits");
   betaThr          = m_HC.getParameter<double>("BetaThreshold");
   eminHitHB        = m_HC.getParameter<double>("EminHitHB")*MeV;
@@ -108,7 +109,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << "Delivered luminosity for Darkening " 
 			  << deliveredLumi << " Flag (HE) " << ageingFlagHE
 			  << " Flag (HF) " << ageingFlagHF << "\n"
-			  << "Application of Fiducial Cut " << applyFidCut;
+			  << "Application of Fiducial Cut " << applyFidCut
+			  << "Flag for test number|neutral density filter "
+			  << testNumber << " " << neutralDensity;
 
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) 
@@ -497,7 +500,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 			  << " iphi: " << phi << " zside " << z << "  lay: " 
 			  << lay-2;
 #endif 
-  if (depth_==0 && (det==1 || det==2) && (!testNumber))
+  if (depth_==0 && (det==1 || det==2) && ((!testNumber) || neutralDensity))
     weight = hcalConstants->getLayer0Wt(det,phi,z);
   if (useLayerWt) {
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
