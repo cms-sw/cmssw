@@ -1,45 +1,41 @@
-#ifndef ECALTRIGGERPRIMITIVEDIGI_H
-#define ECALTRIGGERPRIMITIVEDIGI_H 1
+#ifndef ECALEBTRIGGERPRIMITIVEDIGI_H
+#define ECALEBTRIGGERPRIMITIVEDIGI_H 1
 
 #include <ostream>
 #include <vector>
-
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 
 
 
-/** \class EcalTriggerPrimitiveDigi
+/** \class EcalEBTriggerPrimitiveDigi
 
-see also EcalTrigPrimCompactColl.
+
 
 */
 
-class EcalTriggerPrimitiveDigi {
+class EcalEBTriggerPrimitiveDigi {
  public:
-  typedef EcalTrigTowerDetId key_type; ///< For the sorted collection
+  typedef EBDetId key_type; ///< For the sorted collection
+
+  EcalEBTriggerPrimitiveDigi(); // for persistence
+  EcalEBTriggerPrimitiveDigi(const EBDetId& id);
   
 
-  EcalTriggerPrimitiveDigi(); // for persistence
-  explicit EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id);
-  
-  
-
-  void swap(EcalTriggerPrimitiveDigi& rh) {
+  void swap(EcalEBTriggerPrimitiveDigi& rh) {
     std::swap(id_,rh.id_);
     std::swap(size_,rh.size_);
     std::swap(data_,rh.data_);
   }
   
-  
-  const EcalTrigTowerDetId& id() const { return id_; }
+  const EBDetId& id() const { return id_; }
   int size() const { return size_; }
     
   const EcalTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
   const EcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
     
   void setSize(int size);
-  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam;}
+  void setSample(int i, const EcalTriggerPrimitiveSample& sam);
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
     
   static const int MAXSAMPLES = 20;
@@ -72,17 +68,17 @@ class EcalTriggerPrimitiveDigi {
   int sampleOfInterest() const;
 
 private:
-  EcalTrigTowerDetId id_;
+  EBDetId id_;
   int size_;
   std::vector<EcalTriggerPrimitiveSample> data_;
 };
 
 
-inline void swap(EcalTriggerPrimitiveDigi& lh, EcalTriggerPrimitiveDigi& rh) {
+inline void swap(EcalEBTriggerPrimitiveDigi& lh, EcalEBTriggerPrimitiveDigi& rh) {
   lh.swap(rh);
 }
 
-std::ostream& operator<<(std::ostream& s, const EcalTriggerPrimitiveDigi& digi);
+std::ostream& operator<<(std::ostream& s, const EcalEBTriggerPrimitiveDigi& digi);
 
 
 
