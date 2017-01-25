@@ -256,7 +256,7 @@ def _check_same_object(args):
 
 def _connect(db, init, authPath, verbose, read_only, force):
 
-    logging.debug('Connecting to %s ...', db)
+    logging.debug('Preparing connection  to %s ...', db)
 
     url = conddb.make_url( db, read_only )
     pretty_url = url
