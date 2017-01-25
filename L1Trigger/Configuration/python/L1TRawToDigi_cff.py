@@ -70,7 +70,7 @@ def unpack_stage2():
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
+if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     print "L1TRawToDigi Sequence configured for Run1 (Legacy) trigger. "
     unpack_legacy()
     L1TRawToDigi = cms.Sequence(L1TRawToDigi_Legacy);
