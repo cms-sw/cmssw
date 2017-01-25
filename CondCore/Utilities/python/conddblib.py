@@ -5,7 +5,7 @@ __author__ = 'Miguel Ojeda'
 __copyright__ = 'Copyright 2013, CERN'
 __credits__ = ['Giacomo Govi', 'Miguel Ojeda', 'Andreas Pfeiffer']
 __license__ = 'Unknown'
-__maintainer__ = 'Miguel Ojeda'
+__maintainer__ = 'Giacomo Govi'
 __email__ = 'mojedasa@cern.ch'
 
 
@@ -181,8 +181,6 @@ def fq_name( schema_name, table_name ):
     return name
 
 db_models = {}
-ora_types = {}
-sqlite_types = {} 
 
 class _Col(Enum):
     nullable = 0
@@ -496,31 +494,32 @@ def connect(url, init=False, authPath=None, verbose=0):
         2 = In addition, results of the queries (all rows and the column headers).
     '''
 
-    if url.drivername == 'oracle' and url.password is None:
-        if authPath is None:
-            if authPathEnvVar in os.environ:
-                authPath = os.environ[authPathEnvVar]
-        authFile = None
-        if authPath is not None:
-            authFile = os.path.join(authPath,'.netrc')
-        if authFile is not None:
-            entryKey = url.host+"/"+url.username
-            logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
-            import netrc
-            try:
-                # Try to find the netrc entry
-                (username, account, password) = netrc.netrc( authFile ).authenticators(entryKey)
-                url.password = password
-            except IOError as e:
-                logging.error('.netrc file expected in %s has not been found or cannot be open.' %authPath)
-                raise e
-            except TypeError as e:
-                logging.error('The .netrc file in %s is invalid, or the targeted entry has not been found.' %authPath)
-            except Exception as e:
-                logging.error('Problem with .netrc file in %s: %s' %(authPath,str(e)))     
-        else:
-            import getpass
-            url.password = getpass.getpass('Password for %s: ' % str(url))
+    if url.drivername == 'oracle':
+        if url.username is None:
+            logging.error('Could not resolve the username for the connection %s. Please provide a connection in the format oracle://[user]:[pass]@[host]' %url )
+            raise Exception('Connection format error: %s' %url )
+        if url.password is None:
+            if authPath is None:
+                if authPathEnvVar in os.environ:
+                    authPath = os.environ[authPathEnvVar]
+            authFile = None
+            if authPath is not None:
+                authFile = os.path.join(authPath,'.netrc')
+            if authFile is not None:
+                print 'url=%s host=%s username=%s' %(url,url.host,url.username)
+                entryKey = url.host.lower()+"/"+url.username.lower()
+                logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
+                import netrc
+                params = netrc.netrc( authFile ).authenticators(entryKey)
+                if params is not None:
+                    (username, account, password) = params
+                    url.password = password
+                else:
+                    msg = 'The entry %s has not been found in the .netrc file.' %entryKey
+                    raise TypeError(msg)
+            else:
+                import getpass
+                url.password = getpass.getpass('Password for %s: ' % str(url))
 
     if verbose >= 1:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
