@@ -223,7 +223,6 @@ namespace {
 
     double adcSum = 0;
     StripDigiSimLink found;
-
     int first  = cluster.firstStrip();
     for(size_t i=0; i<cluster.amplitudes().size(); ++i) {
       adcSum += cluster.amplitudes()[i];
@@ -251,24 +250,26 @@ namespace {
   std::map<unsigned int, double> chargeFraction(const Phase2TrackerCluster1D& cluster, const DetId& detId,
                                                 const edm::DetSetVector<PixelDigiSimLink>& digiSimLink) {
     std::map<unsigned int, double> simTrackIdToAdc;
-
+    LogDebug("TrackingNtuple") << "chargeFraction for phase2 clusters..";
     auto idetset = digiSimLink.find(detId);
     if(idetset == digiSimLink.end())
       return simTrackIdToAdc;
 
     double adcSum = 0;
     PixelDigiSimLink found;
+    LogDebug("TrackingNtuple") << "size of the cluster: " << cluster.size();
 
     for (unsigned int istr(0); istr < cluster.size(); ++istr) {
       //In the OT, there is no measurement of the charge, so no ADC value.
       //Only in the SSA chip (so in PSs) you have one "threshold" flag that tells you if the charge of at least one strip in the cluster exceeded 1.2 MIPs.
-
-      //const SiPixelCluster::Pixel& pixel = cluster.pixel(iPix);
-      //adcSum += pixel.adc;
       uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
       forEachMatchedSimLink(*idetset, channel, [&](const PixelDigiSimLink& simLink){
-          //double& adc = simTrackIdToAdc[simLink.SimTrackId()];
-          //adc += pixel.adc*simLink.fraction();
+          LogDebug("TrackingNtuple") << "forEachMatchedSimLink";
+          if(cluster.threshold()){ 
+              double& adc = simTrackIdToAdc[simLink.SimTrackId()];
+              adc += simLink.fraction(); 
+              LogDebug("TrackingNtuple") << "adc: " << adc;
+          }
         });
     }
 
