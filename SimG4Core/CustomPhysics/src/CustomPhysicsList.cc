@@ -33,7 +33,7 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   particleDefFilePath = fp.fullPath();
   edm::LogInfo("SimG4CoreCustomPhysics") 
     << "CustomPhysicsList: Path for custom particle definition file: \n"
-    <<particleDefFilePath;
+    <<particleDefFilePath << "\n" << "      dark_factor= " << dfactor;
 }
 
 CustomPhysicsList::~CustomPhysicsList() {
