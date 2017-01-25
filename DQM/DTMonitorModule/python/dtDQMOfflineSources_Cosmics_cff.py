@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.DTMonitorModule.dtChamberEfficiency_Cosmics_cfi import *
-from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 from DQM.DTMonitorModule.dtDCSByLumiTask_cfi import *
+from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 from DQM.DTMonitorModule.dtRunConditionVar_cfi import *
 dtSegmentAnalysisMonitor.detailedAnalysis = True
 dtSegmentAnalysisMonitor.slideTimeBins = False
@@ -14,10 +14,6 @@ dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
                          subSystemFolder = cms.untracked.string('DT')
                          )
 
-# DT digitization and reconstruction
-# Switched to TwinMux
-from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
-from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 
 dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
@@ -46,12 +42,11 @@ DTDataIntegrityTask.processingMode = "Offline"
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
 dtSourcesCosmics = cms.Sequence(dtDataIntegrityUnpacker  +
-                         twinMuxStage2Digis +
-                         DTDataIntegrityTask +
-                         dtDCSByLumiMonitor + 
-                         dtRunConditionVar + 
-                         dtSegmentAnalysisMonitor +
-                         dtResolutionAnalysisMonitor +
-                         dtEfficiencyMonitor +
-                         dtTriggerEfficiencyMonitor +
-                         dqmInfoDT)
+                                DTDataIntegrityTask +
+                                dtDCSByLumiMonitor + 
+                                dtRunConditionVar + 
+                                dtSegmentAnalysisMonitor +
+                                dtResolutionAnalysisMonitor +
+                                dtEfficiencyMonitor +
+                                dtTriggerEfficiencyMonitor +
+                                dqmInfoDT)

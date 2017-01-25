@@ -14,10 +14,6 @@ dqmInfoDT = cms.EDAnalyzer("DQMEventInfo",
                          subSystemFolder = cms.untracked.string('DT')
                          )
 
-# DT digitization and reconstruction
-# Switched to TwinMux
-from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
-from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 
 dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
     dataType = cms.string('DDU'),
@@ -39,13 +35,13 @@ dtDataIntegrityUnpacker = cms.EDProducer("DTUnpackingModule",
         performDataIntegrityMonitor = cms.untracked.bool(True)
     )
 )
+
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 DTDataIntegrityTask.processingMode = "Offline"
 
 from DQM.DTMonitorModule.dtTriggerEfficiencyTask_cfi import *
 
 dtSources = cms.Sequence(dtDataIntegrityUnpacker  +
-                         twinMuxStage2Digis  +
                          DTDataIntegrityTask +
                          dtDCSByLumiMonitor + 
                          dtRunConditionVar + 
