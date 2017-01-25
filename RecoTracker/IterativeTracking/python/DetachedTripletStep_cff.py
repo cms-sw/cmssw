@@ -193,6 +193,11 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedTripletStep = ClassifierMerger.clone()
 detachedTripletStep.inputClassifiers=['detachedTripletStepClassifier1','detachedTripletStepClassifier2']
 
+trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1',
+     qualityCuts = [-0.2,0.3,0.8],
+))
+
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(

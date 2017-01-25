@@ -191,11 +191,13 @@ highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
     Fitter = 'FlexibleKFFittingSmoother',
 )
 
+
 # Final selection
 # MVA selection to be enabled after re-training, for time being we go with cut-based selector
-#from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 #from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 #
+
 #highPtTripletStepClassifier1 = TrackMVAClassifierPrompt.clone()
 #highPtTripletStepClassifier1.src = 'highPtTripletStepTracks'
 #highPtTripletStepClassifier1.GBRForestLabel = 'MVASelectorIter0_13TeV'
@@ -238,6 +240,14 @@ highPtTripletStep = TrackCutClassifier.clone(
         )
     )
 )
+
+#Retrained weights allow the use of MVA for Phase1
+trackingPhase1.toReplaceWith(highPtTripletStep,	TrackMVAClassifierPrompt.clone(
+    src	= 'highPtTripletStepTracks',
+    GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1',
+    qualityCuts	= [0.2,0.3,0.4],
+))
+
 
 # For Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
