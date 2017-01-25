@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <TH2F.h>
 #include <TH2I.h>
@@ -25,10 +25,10 @@ protected:
   size_t m_yBins;
   size_t m_size;
 
-  std::vector< boost::shared_ptr<Histogram> > m_histograms;
-  boost::shared_ptr<Histogram> m_normalization;
-  boost::shared_ptr<ColorMap>  m_colormap;
-  boost::shared_ptr<Histogram> m_dummy;
+  std::vector< std::shared_ptr<Histogram> > m_histograms;
+  std::shared_ptr<Histogram> m_normalization;
+  std::shared_ptr<ColorMap>  m_colormap;
+  std::shared_ptr<Histogram> m_dummy;
 
 public:
   /// default CTOR 
