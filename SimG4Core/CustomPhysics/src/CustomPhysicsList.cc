@@ -26,7 +26,7 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
-    dfactor = p.getParameter<double>("dark_factor");
+  dfactor = p.getParameter<double>("dark_factor");
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
 
