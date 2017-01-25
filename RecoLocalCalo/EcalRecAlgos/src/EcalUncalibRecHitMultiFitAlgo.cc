@@ -13,7 +13,8 @@ EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() :
   _mitigateBadSamples(false),
   _selectiveBadSampleCriteria(false),
   _addPedestalUncertainty(0.),
-  _simplifiedNoiseModelForGainSwitch(true) { 
+  _simplifiedNoiseModelForGainSwitch(true),
+  _gainSwitchUseMaxSample(false){
     
   _singlebx.resize(1);
   _singlebx << 0;
@@ -105,19 +106,32 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
     }
         
   }
-  
+
+  double amplitude, amperr, chisq;
+  bool status = false;
+    
   //special handling for gain switch, where sample before maximum is potentially affected by slew rate limitation
   //optionally apply a stricter criteria, assuming slew rate limit is only reached in case where maximum sample has gain switched but previous sample has not
-  //A floating negative single-sample offset is added to the fit
+  //option 1: use simple max-sample algorithm
+  if (hasGainSwitch && _gainSwitchUseMaxSample) {
+    EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
+    rh.setAmplitudeError(0.);
+    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+      int bx = _pulsefunc.BXs().coeff(ipulse);
+      if (bx!=0) {
+        rh.setOutOfTimeAmplitude(bx+5, 0.0);
+      }
+    }
+    return rh;
+  }
+
+  //option2: A floating negative single-sample offset is added to the fit
   //such that the affected sample is treated only as a lower limit for the true amplitude
   bool mitigateBadSample = _mitigateBadSamples && hasGainSwitch && iSampleMax>0;
   mitigateBadSample &= (!_selectiveBadSampleCriteria || (gainsNoise.coeff(iSampleMax-1)!=gainsNoise.coeff(iSampleMax)) );
   if (mitigateBadSample) {
     badSamples[iSampleMax-1] = 1;
   }
-  
-  double amplitude, amperr, chisq;
-  bool status = false;
   
   //compute noise covariance matrix, which depends on the sample gains
   SampleMatrix noisecov;

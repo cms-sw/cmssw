@@ -94,6 +94,8 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
                 bool dynamicPedestalsEE_;
                 bool mitigateBadSamplesEB_;
                 bool mitigateBadSamplesEE_;
+                bool gainSwitchUseMaxSampleEB_;
+                bool gainSwitchUseMaxSampleEE_;
                 bool selectiveBadSampleCriteriaEB_;
                 bool selectiveBadSampleCriteriaEE_;
                 double addPedestalUncertaintyEB_;
