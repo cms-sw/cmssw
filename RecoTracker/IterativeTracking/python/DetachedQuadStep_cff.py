@@ -420,6 +420,11 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 detachedQuadStep = ClassifierMerger.clone()
 detachedQuadStep.inputClassifiers=['detachedQuadStepClassifier1','detachedQuadStepClassifier2']
 
+trackingPhase1.toReplaceWith(detachedQuadStep, detachedQuadStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1',
+     qualityCuts = [-0.5,0.0,0.5],
+))
+
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 trackingPhase1PU70.toReplaceWith(detachedQuadStep, RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = [

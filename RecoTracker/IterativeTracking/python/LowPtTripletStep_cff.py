@@ -206,8 +206,16 @@ lowPtTripletStep.src = 'lowPtTripletStepTracks'
 lowPtTripletStep.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
-# For Phase1
-# MVA selection to be enabled after re-training, for time being we go with cut-based selector
+
+
+# Retrained weights for Phase1
+trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
+     GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1',
+     qualityCuts = [0.0,0.2,0.4],
+))
+
+
+# Cut based selector for Phase1
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import TrackCutClassifier as _TrackCutClassifier
 _cutClassifierForPhase1 = _TrackCutClassifier.clone(
     src = "lowPtTripletStepTracks",
@@ -232,7 +240,7 @@ _cutClassifierForPhase1 = _TrackCutClassifier.clone(
         ),
     )
 )
-trackingPhase1.toReplaceWith(lowPtTripletStep, _cutClassifierForPhase1)
+
 trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, _cutClassifierForPhase1)
 
 # For LowPU and Phase1PU70

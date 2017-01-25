@@ -38,6 +38,8 @@ tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     )
 )
 
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+
 # Triplet TrackingRegion
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpotFixedZ_cfi import globalTrackingRegionFromBeamSpotFixedZ as _globalTrackingRegionFromBeamSpotFixedZ
 tobTecStepTrackingRegionsTripl = _globalTrackingRegionFromBeamSpotFixedZ.clone(RegionPSet = dict(
@@ -330,6 +332,11 @@ tobTecStepClassifier2.qualityCuts = [0.0,0.0,0.0]
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 tobTecStep = ClassifierMerger.clone()
 tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
+
+trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     qualityCuts = [-0.6,-0.45,-0.3],
+))
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
