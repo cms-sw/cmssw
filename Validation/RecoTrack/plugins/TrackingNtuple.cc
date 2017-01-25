@@ -1422,7 +1422,6 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(const OmniClusterRef& cl
       auto tpIndex = tpKeyToIndex.find(trackingParticle.key());
       if( tpIndex == tpKeyToIndex.end())
         continue;
-      if( trackingParticle->numberOfHits() == 0 ) continue;
 
       //now get the corresponding sim hit
       std::pair<TrackingParticleRef, TrackPSimHitRef> simHitTPpairWithDummyTP(trackingParticle,TrackPSimHitRef());
