@@ -88,7 +88,8 @@ private:
   HFShowerFibreBundle *         showerBundle;
   HEDarkening *                 m_HEDarkening;
   HFDarkening *                 m_HFDarkening;
-  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit, testNumber;
+  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
+  bool                          testNumber, neutralDensity;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;

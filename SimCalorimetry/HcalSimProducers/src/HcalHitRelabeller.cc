@@ -8,7 +8,9 @@
 
 //#define EDM_ML_DEBUG
 
-HcalHitRelabeller::HcalHitRelabeller(const edm::ParameterSet&) : theGeometry(0), theRecNumber(0) { }
+HcalHitRelabeller::HcalHitRelabeller(const edm::ParameterSet& ps) : 
+  theGeometry(0), theRecNumber(0),
+  neutralDensity_(ps.getParameter<bool>("doNeutralDensityFilter")) { }
 
 void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 
@@ -18,7 +20,11 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 #ifdef EDM_ML_DEBUG
       std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() << std::dec << '\n';
 #endif
-      double energy = (hcalHits[ii].energy())*(energyWt(hcalHits[ii].id()));
+      double energy = (hcalHits[ii].energy());
+      if (neutralDensity_) {
+	energy *= (energyWt(hcalHits[ii].id()));
+	hcalHits[ii].setEnergy(energy);
+      }
       DetId newid = relabel(hcalHits[ii].id());
 #ifdef EDM_ML_DEBUG
       std::cout << "Hit " << ii << " out of " << hcalHits.size() << " " 
@@ -26,7 +32,6 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
                 << std::endl;
 #endif
       hcalHits[ii].setID(newid.rawId());
-      hcalHits[ii].setEnergy(energy);
 #ifdef EDM_ML_DEBUG
       std::cout << "Modified Hit " << hcalHits[ii] << std::endl;
 #endif
