@@ -64,7 +64,8 @@ public:
   static std::unordered_set<unsigned>
   getListOfClusterSeedIdsForNewSC(const reco::SuperCluster& orgRefinedSC,
 				  const reco::SuperCluster& orgSC,
-				  const reco::SuperCluster& fixedSC);
+				  const reco::SuperCluster& fixedSC,
+				  const std::vector<edm::Ptr<reco::CaloCluster> >& clustersAddedToAnySC);
   
   static std::vector<edm::Ptr<reco::PFCluster> >
   getClustersFromSeedIds(const std::unordered_set<unsigned>& seedIds,const edm::Handle<edm::View<reco::PFCluster> >& inClusters);
@@ -73,7 +74,8 @@ public:
   makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedSC,
 			   const reco::SuperCluster& orgSC,
 			   const reco::SuperCluster& fixedSC,
-			   const edm::Handle<edm::View<reco::PFCluster> >& fixedClusters);
+			   const edm::Handle<edm::View<reco::PFCluster> >& fixedClusters,
+			   const std::vector<edm::Ptr<reco::CaloCluster> >& clustersAddedToAnySC);
 
 private:
   typedef edm::View<reco::PFCluster> PFClusterView;
@@ -171,6 +173,8 @@ namespace{
       return out;
     }
   };
+  //  std::ostream& operator<<(std::ostream& out,const SCDeepPrinter& obj){return obj(out);}
+
 } 
 
 void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
@@ -196,6 +200,19 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   std::vector<reco::SuperClusterRef> mappedSCsEB(fixedEBSCs->size());
   std::vector<reco::SuperClusterRef> mappedSCsEE(fixedEESCs->size());
 
+  std::vector<edm::Ptr<reco::CaloCluster> > clusterAddedToAnyEBSC;
+  for(auto& refinedSC : *orgRefinedSCs){  
+    if(refinedSC.seed()->seed().subdetId() == EcalBarrel) { 
+      reco::SuperClusterRef parentSC = GainSwitchTools::matchSCBySeedCrys(refinedSC,orgEBSCs);
+      if(parentSC.isNonnull()) {
+	auto clusAdded = getSubClustersMissing(refinedSC,*parentSC);
+	for(auto clusPtr : clusAdded) clusterAddedToAnyEBSC.push_back(clusPtr);
+      }else{ //no parent supercluster, all superclusters in this supercluster are addded
+	for(auto clusPtr : refinedSC.clusters()) clusterAddedToAnyEBSC.push_back(clusPtr);
+      }
+    }
+  }
+    
   for (unsigned iO(0); iO != orgRefinedSCs->size(); ++iO) {
     auto& orgRefinedSC(orgRefinedSCs->at(iO));
     mappedRefinedSCs.emplace_back(orgRefinedSCs, iO);
@@ -210,11 +227,15 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         auto fixedEBSC(GainSwitchTools::matchSCBySeedCrys(*orgEBSC, fixedEBSCs, 2, 2));
        
         // here we may genuinely miss a mapping, if the seed position moves too much by re-reconstruction
+	// Sam: its very unlikely, if not impossible. To be replaced the gain switched crystal must be within +/-1 crystal a hybrid supercluster seed crystal because of ecalSelectedDigis. You could only get a shift larger than 1 if you had two supercluster seed crystals very close together and even then I'm not sure its possible. 
         if (fixedEBSC.isNonnull()) {
           mappedSCsEB[fixedEBSC.key()] = orgEBSC;
 
-          auto fixedRefinedSC(makeFixedRefinedBarrelSC(orgRefinedSC, *orgEBSC, *fixedEBSC, fixedPFClusters));
+          auto fixedRefinedSC(makeFixedRefinedBarrelSC(orgRefinedSC, *orgEBSC, *fixedEBSC, fixedPFClusters,clusterAddedToAnyEBSC));
           fixedRefinedSCs->push_back(fixedRefinedSC);
+
+	  //	  std::cout<<" org refined "<<SCDeepPrinter(orgRefinedSC)<<std::endl;
+	  //std::cout<<" new refined "<<SCDeepPrinter(fixedRefinedSC)<<std::endl;
 
           continue;
         }
@@ -233,6 +254,7 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     // if EE or no PFSuperCluster match
     fixedRefinedSCs->push_back(orgRefinedSC);
   }
+
 
   // Put the PF SC maps in Event
   std::auto_ptr<SCRefMap> pEBSCRefMap(new SCRefMap);
@@ -341,21 +363,35 @@ EGRefinedSCFixer::getSubClustersMissing(const reco::SuperCluster& lhs,
 std::unordered_set<unsigned>
 EGRefinedSCFixer::getListOfClusterSeedIdsForNewSC(const reco::SuperCluster& orgRefinedSC,
 						  const reco::SuperCluster& orgSC,
-						  const reco::SuperCluster& fixedSC)
+						  const reco::SuperCluster& fixedSC,
+						  const std::vector<edm::Ptr<reco::CaloCluster> >& clustersAddedToAnySC)
   
 {
   auto clusAdded = getSubClustersMissing(orgRefinedSC,orgSC);
   auto clusRemoved = getSubClustersMissing(orgSC,orgRefinedSC);
+
   
   std::unordered_set<unsigned> detIdsOfClustersForNewSC;
   for(auto& clus : fixedSC.clusters()){
     auto compFunc=[&clus](auto& rhs){return rhs->seed().rawId()==clus->seed().rawId();};
-    if(std::find_if(clusRemoved.begin(),clusRemoved.end(),compFunc)==clusRemoved.end()){
+    
+    //first check if the cluster was removed by the refining process
+    bool notRemoved = std::find_if(clusRemoved.begin(),clusRemoved.end(),compFunc)==clusRemoved.end();
+
+    //now check if it was assigned to another supercluster (it wont be picked up by the previous
+    //check if the parent supercluster picked it up during reclustering)
+    //if its a cluster which is added to any supercluster it wont add it
+    //its okay if it was added to this supercluster as we will add it in below
+    bool notAddedToASuperCluster = std::find_if(clustersAddedToAnySC.begin(),
+						clustersAddedToAnySC.end(),compFunc)==clustersAddedToAnySC.end();
+ 
+    if(notRemoved && notAddedToASuperCluster){
       detIdsOfClustersForNewSC.insert(clus->seed().rawId());
     }
   }
-  for(auto clus : clusAdded)
+  for(auto clus : clusAdded){
     detIdsOfClustersForNewSC.insert(clus->seed().rawId());
+  }
   
   return detIdsOfClustersForNewSC;
 }
@@ -381,9 +417,10 @@ reco::SuperCluster
 EGRefinedSCFixer::makeFixedRefinedBarrelSC(const reco::SuperCluster& orgRefinedSC,
 					   const reco::SuperCluster& orgSC,
 					   const reco::SuperCluster& fixedSC,
-					   const edm::Handle<edm::View<reco::PFCluster> >& fixedClusters)
+					   const edm::Handle<edm::View<reco::PFCluster> >& fixedClusters,
+					   const std::vector<edm::Ptr<reco::CaloCluster> >& clustersAddedToAnySC)
 {
-  auto listOfSeedIds = getListOfClusterSeedIdsForNewSC(orgRefinedSC,orgSC,fixedSC);
+  auto listOfSeedIds = getListOfClusterSeedIdsForNewSC(orgRefinedSC,orgSC,fixedSC,clustersAddedToAnySC);
 
   // make sure the seed cluster is in the listOfSeedIds
   unsigned seedSeedId(fixedSC.seed()->seed().rawId());
