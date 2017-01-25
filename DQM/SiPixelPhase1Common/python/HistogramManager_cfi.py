@@ -137,7 +137,12 @@ StandardSpecifications1D = [
     Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule")
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
-                            .save(),    
+                            .save(),
+
+    Specification().groupBy("PXBarrel/PXLayer")    
+                            .save(),
+    Specification().groupBy("PXForward/PXDisk")    
+                            .save()
 
 ]
 
@@ -173,8 +178,8 @@ StandardSpecification2DProfile = [
        .reduce("MEAN")
        .save(),
     Specification(PerLayer2D)
-       .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
-       .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
+       .groupBy("PXForward/PXRing/SignedBladePanel/PXDisk")
+       .groupBy("PXForward/PXRing/SignedBladePanel", "EXTEND_X")
        .groupBy("PXForward/PXRing", "EXTEND_Y")
        .reduce("MEAN")
        .save(),
@@ -249,6 +254,15 @@ StandardSpecifications1D_Num = [
                              .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule")
                              .reduce("MEAN")
                              .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
+                             .save(),
+
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
                              .save()
 ]
 

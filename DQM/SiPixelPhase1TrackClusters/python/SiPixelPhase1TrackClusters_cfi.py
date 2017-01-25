@@ -3,7 +3,7 @@ from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
 SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   name = "charge",
-  title = "Corrected Cluster Charge",
+  title = "Corrected Cluster Charge (OnTrack)",
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
 
@@ -16,7 +16,7 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
 
 SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
   name = "size",
-  title = "Total Cluster Size",
+  title = "Total Cluster Size (OnTrack)",
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
 
