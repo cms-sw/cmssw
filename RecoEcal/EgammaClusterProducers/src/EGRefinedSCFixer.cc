@@ -36,8 +36,8 @@
 //  
 //  for matching the new fixed superclusters vs old superclusters, the seed crystal may gain
 //  as the gain switched crystal will now have a larger energy
-//  but it should be within the 5x5 (really the 3x3 of the orginal SC)
-//  so we do a dIR = dIEta^2 + dIPhi^2 match of <=8 (ie be in the 5x5)
+//  but it really should be in the 3x3 of the orginal SC (the gain switch crysal has to be here to be redone)
+//  so we do a dIR = dIEta^2 + dIPhi^2 match of <=2 (ie be in the 3x3)
 //  but take the smallest dIR
 
 //  issues: sub cluster ordering may not be correct (its sorted by decreasing energy)
@@ -224,7 +224,8 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
       // particleFlowEGamma can create superclusters directly out of PFClusters too
       // -> there is not always a matching EB SC
       if (orgEBSC.isNonnull()) {
-        auto fixedEBSC(GainSwitchTools::matchSCBySeedCrys(*orgEBSC, fixedEBSCs, 2, 2));
+	//changing the matching to be in  3x3 now (had issues with suprious matches)
+        auto fixedEBSC(GainSwitchTools::matchSCBySeedCrys(*orgEBSC, fixedEBSCs, 1, 1));
        
         // here we may genuinely miss a mapping, if the seed position moves too much by re-reconstruction
 	// Sam: its very unlikely, if not impossible. To be replaced the gain switched crystal must be within +/-1 crystal a hybrid supercluster seed crystal because of ecalSelectedDigis. You could only get a shift larger than 1 if you had two supercluster seed crystals very close together and even then I'm not sure its possible. 
