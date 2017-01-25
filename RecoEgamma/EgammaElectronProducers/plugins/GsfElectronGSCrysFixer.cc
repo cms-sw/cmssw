@@ -156,12 +156,14 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
 
       reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
       reco::GsfElectron::ShowerShape showerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
-      newEle.full5x5_setShowerShape(full5x5ShowerShape);   
-      newEle.setShowerShape(showerShape);   
-
+    
       float eNewSCOverEOldSC = newEle.superCluster()->energy()/oldEle.superCluster()->energy();
       GainSwitchTools::correctHadem(showerShape,eNewSCOverEOldSC,GainSwitchTools::ShowerShapeType::Fractions);
       GainSwitchTools::correctHadem(full5x5ShowerShape,eNewSCOverEOldSC,GainSwitchTools::ShowerShapeType::Full5x5);
+
+      newEle.full5x5_setShowerShape(full5x5ShowerShape);   
+      newEle.setShowerShape(showerShape);   
+
 
       if( gedRegression_ )
 	gedRegression_->modifyObject(newEle);
