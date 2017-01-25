@@ -191,10 +191,10 @@ GEDPhotonGSCrysFixer::produce(edm::Event& _event, const edm::EventSetup& _setup)
       outPhoton.setShowerShapeVariables(newSS);
 
       reco::Photon::ShowerShape new55SS;
-      newSS.e1x5 = noZS::EcalClusterTools::e1x5(newSeed, &ebHits, topology_);
-      newSS.e2x5 = noZS::EcalClusterTools::e2x5Max(newSeed, &ebHits, topology_);
-      newSS.e3x3 = noZS::EcalClusterTools::e3x3(newSeed, &ebHits, topology_);
-      newSS.e5x5 = noZS::EcalClusterTools::e5x5(newSeed, &ebHits, topology_);
+      new55SS.e1x5 = noZS::EcalClusterTools::e1x5(newSeed, &ebHits, topology_);
+      new55SS.e2x5 = noZS::EcalClusterTools::e2x5Max(newSeed, &ebHits, topology_);
+      new55SS.e3x3 = noZS::EcalClusterTools::e3x3(newSeed, &ebHits, topology_);
+      new55SS.e5x5 = noZS::EcalClusterTools::e5x5(newSeed, &ebHits, topology_);
       new55SS.maxEnergyXtal = noZS::EcalClusterTools::eMax(newSeed, &ebHits);
       new55SS.sigmaEtaEta = std::sqrt(cov55[0]);
       new55SS.sigmaIetaIeta = std::sqrt(locCov55[0]);
