@@ -56,6 +56,10 @@ public:
   Alignables& TIDs() {
     return this->subStructures(alignableObjectId_.typeToName(align::TIDEndcap));
   }
+  /// Return pixel endcap half cylinders
+  Alignables& pixelEndcapHalfCylinders() {
+    return this->subStructures(alignableObjectId_.typeToName(align::TPEHalfCylinder));
+  }
 
   /// Return inner and outer barrel GeomDets together 
   Alignables barrelGeomDets() { return this->merge(this->innerBarrelGeomDets(),
