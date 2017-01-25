@@ -164,15 +164,15 @@ public:
 
 
 private:
-  float theQbp;    ///< q/p (charged) or 1/p (neutral)
-  float theDxdz;   ///< tangent of direction in local x vs. z
-  float theDydz;   ///< tangent of direction in local y vs. z
-  float theX;      ///< local x position
-  float theY;      ///< local y position
+  float theQbp = .0;    ///< q/p (charged) or 1/p (neutral)
+  float theDxdz = .0;   ///< tangent of direction in local x vs. z
+  float theDydz = .0;   ///< tangent of direction in local y vs. z
+  float theX = .0;      ///< local x position
+  float theY = .0;      ///< local y position
 
-  short thePzSign; ///< sign of local pz
+  short thePzSign = 0; ///< sign of local pz
 
-  short theCharge; ///< charge
+  short theCharge = 0; ///< charge
 
 };
 
