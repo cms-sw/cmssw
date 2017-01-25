@@ -2,65 +2,66 @@
 #define RecoEgamma_EgammaPhotonProducers_GEDPhotonGSCrysFixer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h" 
-#include "FWCore/Framework/interface/ESHandle.h"
-
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCoreFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonCoreFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-
-#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-
-#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
-
-#include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
-
-#include <iostream>
-#include <string>
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class GEDPhotonGSCrysFixer : public edm::stream::EDProducer<> {
-public:
-  explicit GEDPhotonGSCrysFixer(const edm::ParameterSet& );
-  virtual ~GEDPhotonGSCrysFixer(){}
-  
-  void produce(edm::Event&, const edm::EventSetup& ) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, 
-			    edm::EventSetup const&) override;
-  
+ public:
+
+  GEDPhotonGSCrysFixer (const edm::ParameterSet&);
+  ~GEDPhotonGSCrysFixer();
+
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+ private:
+  template<typename T>
+  void
+  getToken(edm::EDGetTokenT<T>& token, edm::ParameterSet const& pset, std::string const& label, std::string const& instance = "")
+  {
+    auto tag(pset.getParameter<edm::InputTag>(label));
+    if (!instance.empty())
+      tag = edm::InputTag(tag.label(), instance, tag.process());
+
+    token = consumes<T>(tag);
+  }
 
   template<typename T>
-  void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label){
-    token=consumes<T>(pset.getParameter<edm::InputTag>(label));
+  edm::Handle<T>
+  getHandle(edm::Event const& iEvent, edm::EDGetTokenT<T> const& token, std::string const& name)
+  {
+    edm::Handle<T> handle;
+    if (!iEvent.getByToken(token, handle))
+      throw cms::Exception("ProductNotFound") << name;
+
+    return handle;
   }
-private:
-  edm::EDGetTokenT<reco::PhotonCollection> oldGedPhosToken_;
+
+  typedef edm::View<reco::Photon> PhotonView;
+  typedef edm::ValueMap<reco::SuperClusterRef> SCRefMap;
+
+  edm::EDGetTokenT<PhotonView> inputPhotonsToken_;
   edm::EDGetTokenT<reco::PhotonCoreCollection> newCoresToken_;
-  edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::SuperClusterRef> > newCoresToOldCoresMapToken_;
-  
-  const CaloTopology* topology_;  
-  const CaloGeometry* geometry_;
-  std::unique_ptr<ModifyObjectValueBase> gedRegression_;
+  edm::EDGetTokenT<SCRefMap> newCoresToOldSCMapToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> ebHitsToken_;
+  edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
+
+  PhotonEnergyCorrector energyCorrector_;
+
+  CaloTopology const* topology_{0};
+  CaloGeometry const* geometry_{0};
 };
+
 #endif

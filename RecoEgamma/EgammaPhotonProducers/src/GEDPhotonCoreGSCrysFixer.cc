@@ -1,68 +1,90 @@
+#include <memory>
+
 #include "RecoEgamma/EgammaPhotonProducers/interface/GEDPhotonCoreGSCrysFixer.h"
 
-namespace {
-  template<typename T> edm::Handle<T> getHandle(const edm::Event& iEvent,const edm::EDGetTokenT<T>& token){
-    edm::Handle<T> handle;
-    iEvent.getByToken(token,handle);
-    return handle;
-  }
+#include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
+#include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
+
+GEDPhotonCoreGSCrysFixer::GEDPhotonCoreGSCrysFixer(const edm::ParameterSet& config)
+{
+  getToken(inputCoresToken_, config, "photonCores");
+  getToken(refinedSCsToken_, config, "refinedSCs");
+  getToken(refinedSCMapToken_, config, "refinedSCs");
+  getToken(ebSCsToken_, config, "scs", "particleFlowSuperClusterECALBarrel");
+  getToken(ebSCMapToken_, config, "refinedSCs", "parentSCsEB");
+  getToken(eeSCsToken_, config, "scs", "particleFlowSuperClusterECALEndcapWithPreshower");
+  getToken(eeSCMapToken_, config, "refinedSCs", "parentSCsEE");
+  getToken(convsToken_, config, "conversions");
+  getToken(singleLegConvsToken_, config, "refinedSCs");
+
+  produces<reco::PhotonCoreCollection>();
+  produces<SCRefMap>(); // new core to old SC
 }
 
-
-GEDPhotonCoreGSCrysFixer::GEDPhotonCoreGSCrysFixer( const edm::ParameterSet & pset )
+GEDPhotonCoreGSCrysFixer::~GEDPhotonCoreGSCrysFixer()
 {
-  getToken(orgCoresToken_,pset,"orgCores");
-  getToken(ebRecHitsToken_,pset,"ebRecHits");
-  getToken(oldRefinedSCToNewMapToken_,pset,"oldRefinedSCToNewMap");
-  getToken(oldSCToNewMapToken_,pset,"oldSCToNewMap");
-  
-  produces<reco::PhotonCoreCollection >();
-  produces<edm::ValueMap<reco::SuperClusterRef> >("parentCores");
 }
 
-
-void GEDPhotonCoreGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
+void
+GEDPhotonCoreGSCrysFixer::produce(edm::Event& _event, edm::EventSetup const&)
 {
-  auto outCores = std::make_unique<reco::PhotonCoreCollection>();
-  
-  auto phoCoresHandle = getHandle(iEvent,orgCoresToken_);
-  auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
-  auto& oldRefinedSCToNewMap = *getHandle(iEvent,oldRefinedSCToNewMapToken_);
-  auto& oldSCToNewMap = *getHandle(iEvent,oldSCToNewMapToken_);
-  
-  std::vector<reco::SuperClusterRef> parentCores;
+  std::auto_ptr<reco::PhotonCoreCollection> pOutput(new reco::PhotonCoreCollection);
 
-  for(size_t coreNr=0;coreNr<phoCoresHandle->size();coreNr++){
-    reco::PhotonCoreRef coreRef(phoCoresHandle,coreNr);
-    const reco::PhotonCore& core = *coreRef;
-   
-    //passing in the old refined supercluster
-    if(GainSwitchTools::hasEBGainSwitchIn5x5(*core.superCluster(),&ebRecHits,topology_)){
-      reco::PhotonCore newCore(core);
-      //these references may be null, lets see what happens!     
-      //turns out the orginal pho may have null references, odd
-      if(core.superCluster().isNonnull()) newCore.setSuperCluster( oldRefinedSCToNewMap[core.superCluster()] );
-      if(core.parentSuperCluster().isNonnull()) newCore.setParentSuperCluster( oldSCToNewMap[core.parentSuperCluster()] );
-        
-      outCores->push_back(newCore);
-      parentCores.push_back(coreRef->superCluster());
+  auto& inputCores(*getHandle(_event, inputCoresToken_, "photonCores"));
+  auto refinedSCs(getHandle(_event, refinedSCsToken_, "refinedSCs"));
+  auto& refinedSCMap(*getHandle(_event, refinedSCMapToken_, "refinedSCMap"));
+  auto ebSCs(getHandle(_event, ebSCsToken_, "ebSCs"));
+  auto& ebSCMap(*getHandle(_event, ebSCMapToken_, "ebSCMap"));
+  auto eeSCs(getHandle(_event, eeSCsToken_, "eeSCs"));
+  auto& eeSCMap(*getHandle(_event, eeSCMapToken_, "eeSCMap"));
+  auto convs(getHandle(_event, convsToken_, "conversions"));
+  auto singleLegConvs(getHandle(_event, singleLegConvsToken_, "singleLegConversions"));
+
+  std::vector<reco::SuperClusterRef> oldSCRefs;
+
+  for (auto& inCore : inputCores) {
+    pOutput->emplace_back();
+    auto& outCore(pOutput->back());
+
+    // NOTE: These mappings can result in NULL superclusters!
+    auto oldRefinedSC(inCore.superCluster());
+    EBDetId seedId(oldRefinedSC->seed()->seed());
+
+    outCore.setSuperCluster(GainSwitchTools::findNewRef(oldRefinedSC, refinedSCs, refinedSCMap));
+
+    oldSCRefs.push_back(oldRefinedSC);
+
+    auto parentSC(inCore.parentSuperCluster());
+    if (parentSC.isNonnull()) {
+      if (parentSC->seed()->seed().subdetId() == EcalBarrel)
+        outCore.setParentSuperCluster(GainSwitchTools::findNewRef(parentSC, ebSCs, ebSCMap));
+      else
+        outCore.setParentSuperCluster(GainSwitchTools::findNewRef(parentSC, eeSCs, eeSCMap));
     }
+
+    outCore.setPFlowPhoton(true);
+    outCore.setStandardPhoton(false);
+
+    // here we rely on ConversionGSCrysFixer and EGRefinedSCFixer translating conversions in the same order as the input
+    // super ugly and not safe but we don't have a dictionary for ValueMap<ConversionRef>
+
+    for (auto&& oldPtr : inCore.conversions())
+      outCore.addConversion(reco::ConversionRef(convs, oldPtr.key()));
+    
+    for (auto&& oldPtr : inCore.conversionsOneLeg())
+      outCore.addOneLegConversion(reco::ConversionRef(singleLegConvs, oldPtr.key()));
+
+    for (auto&& seed : inCore.electronPixelSeeds())
+      outCore.addElectronPixelSeed(seed);
   }
-  
-  auto outCoresHandle = iEvent.put(std::move(outCores));
-  
-  std::unique_ptr<edm::ValueMap<reco::SuperClusterRef> > parentCoresValMap(new edm::ValueMap<reco::SuperClusterRef>());
-  typename edm::ValueMap<reco::SuperClusterRef>::Filler filler(*parentCoresValMap);
-  filler.insert(outCoresHandle, parentCores.begin(), parentCores.end());
-  filler.fill();
-  iEvent.put(std::move(parentCoresValMap),"parentCores");
+
+  auto newCoresHandle(_event.put(pOutput));
+
+  std::auto_ptr<SCRefMap> pRefMap(new SCRefMap);
+  SCRefMap::Filler refMapFiller(*pRefMap);
+  refMapFiller.insert(newCoresHandle, oldSCRefs.begin(), oldSCRefs.end());
+  refMapFiller.fill();
+  _event.put(pRefMap);
 }
-
-void GEDPhotonCoreGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 
-						      edm::EventSetup const& es) {
-  edm::ESHandle<CaloTopology> caloTopo ;
-  es.get<CaloTopologyRecord>().get(caloTopo);
-  topology_ = caloTopo.product();
-}
-
-

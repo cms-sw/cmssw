@@ -23,9 +23,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
-
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 #include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
@@ -39,23 +36,26 @@ public:
   virtual ~GsfElectronCoreGSCrysFixer(){}
   
   void produce(edm::Event&, const edm::EventSetup& ) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, 
-			    edm::EventSetup const&) override;
-  
 
   template<typename T>
-  void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label){
-    token=consumes<T>(pset.getParameter<edm::InputTag>(label));
+  void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label, const std::string& instance = ""){
+    auto tag(pset.getParameter<edm::InputTag>(label));
+    if (!instance.empty())
+      tag = edm::InputTag(tag.label(), instance, tag.process());
+
+    token = consumes<T>(tag);
   }
 private:
-  edm::EDGetTokenT<reco::GsfElectronCoreCollection> orgCoresToken_;
-  edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::SuperClusterRef> > oldRefinedSCToNewMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::SuperClusterRef> > oldSCToNewMapToken_;
-  const CaloTopology* topology_;
-  
-};
+  typedef edm::ValueMap<reco::SuperClusterRef> SCRefMap;
 
+  edm::EDGetTokenT<reco::GsfElectronCoreCollection> orgCoresToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> refinedSCsToken_; // new
+  edm::EDGetTokenT<SCRefMap> refinedSCMapToken_; // new->old
+  edm::EDGetTokenT<reco::SuperClusterCollection> ebSCsToken_; // new
+  edm::EDGetTokenT<SCRefMap> ebSCMapToken_; // new->old
+  edm::EDGetTokenT<reco::SuperClusterCollection> eeSCsToken_; // new
+  edm::EDGetTokenT<SCRefMap> eeSCMapToken_; // new->old
+};
 
 namespace {
   template<typename T> edm::Handle<T> getHandle(const edm::Event& iEvent,const edm::EDGetTokenT<T>& token){
@@ -69,59 +69,59 @@ namespace {
 GsfElectronCoreGSCrysFixer::GsfElectronCoreGSCrysFixer( const edm::ParameterSet & pset )
 {
   getToken(orgCoresToken_,pset,"orgCores");
-  getToken(ebRecHitsToken_,pset,"ebRecHits");
-  getToken(oldRefinedSCToNewMapToken_,pset,"oldRefinedSCToNewMap");
-  getToken(oldSCToNewMapToken_,pset,"oldSCToNewMap");
+  getToken(refinedSCsToken_, pset, "refinedSCs");
+  getToken(refinedSCMapToken_, pset, "refinedSCs");
+  getToken(ebSCsToken_, pset, "scs", "particleFlowSuperClusterECALBarrel");
+  getToken(ebSCMapToken_, pset, "refinedSCs", "parentSCsEB");
+  getToken(eeSCsToken_, pset, "scs", "particleFlowSuperClusterECALEndcapWithPreshower");
+  getToken(eeSCMapToken_, pset, "refinedSCs", "parentSCsEE");
   
   produces<reco::GsfElectronCoreCollection >();
-  produces<edm::ValueMap<reco::SuperClusterRef> >("parentCores");
+  produces<SCRefMap>(); // new core to old SC
 }
 
 
-void GsfElectronCoreGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
+void GsfElectronCoreGSCrysFixer::produce(edm::Event & iEvent, const edm::EventSetup &)
 {
   auto outCores = std::make_unique<reco::GsfElectronCoreCollection>();
   
   auto eleCoresHandle = getHandle(iEvent,orgCoresToken_);
-  auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
-  auto& oldRefinedSCToNewMap = *getHandle(iEvent,oldRefinedSCToNewMapToken_);
-  auto& oldSCToNewMap = *getHandle(iEvent,oldSCToNewMapToken_);
-  
-  std::vector<reco::SuperClusterRef> parentCores;
+  auto refinedSCs(getHandle(iEvent, refinedSCsToken_));
+  auto& refinedSCMap(*getHandle(iEvent, refinedSCMapToken_));
+  auto ebSCs(getHandle(iEvent, ebSCsToken_));
+  auto& ebSCMap(*getHandle(iEvent, ebSCMapToken_));
+  auto eeSCs(getHandle(iEvent, eeSCsToken_));
+  auto& eeSCMap(*getHandle(iEvent, eeSCMapToken_));
 
-  for(size_t coreNr=0;coreNr<eleCoresHandle->size();coreNr++){
-    reco::GsfElectronCoreRef coreRef(eleCoresHandle,coreNr);
-    const reco::GsfElectronCore& core = *coreRef;
-   
-    //passing in the old refined supercluster
-    if(GainSwitchTools::hasEBGainSwitchIn5x5(*core.superCluster(),&ebRecHits,topology_)){
-      reco::GsfElectronCore newCore(core);
-      //these references may be null, lets see what happens!     
-      //turns out the orginal ele may have null references, odd
-      if(core.superCluster().isNonnull()) newCore.setSuperCluster( oldRefinedSCToNewMap[core.superCluster()] );
-      if(core.parentSuperCluster().isNonnull()) newCore.setParentSuperCluster( oldSCToNewMap[core.parentSuperCluster()] );
-        
-      outCores->push_back(newCore);
-      parentCores.push_back(coreRef->superCluster());
+  std::vector<reco::SuperClusterRef> oldSCRefs;
+  
+  for (auto& inCore : *eleCoresHandle) {
+    outCores->emplace_back(inCore);
+    auto& outCore(outCores->back());
+
+    // NOTE: These mappings can result in NULL superclusters!
+    auto& oldRefinedSC(inCore.superCluster());
+    outCore.setSuperCluster(GainSwitchTools::findNewRef(oldRefinedSC, refinedSCs, refinedSCMap));
+
+    oldSCRefs.push_back(oldRefinedSC);
+
+    auto& parentSC(inCore.parentSuperCluster());
+    if (parentSC.isNonnull()) {
+      if (parentSC->seed()->seed().subdetId() == EcalBarrel)
+        outCore.setParentSuperCluster(GainSwitchTools::findNewRef(parentSC, ebSCs, ebSCMap));
+      else
+        outCore.setParentSuperCluster(GainSwitchTools::findNewRef(parentSC, eeSCs, eeSCMap));
     }
   }
   
-  auto outCoresHandle = iEvent.put(std::move(outCores));
-  
-  std::unique_ptr<edm::ValueMap<reco::SuperClusterRef> > parentCoresValMap(new edm::ValueMap<reco::SuperClusterRef>());
-  typename edm::ValueMap<reco::SuperClusterRef>::Filler filler(*parentCoresValMap);
-  filler.insert(outCoresHandle, parentCores.begin(), parentCores.end());
-  filler.fill();
-  iEvent.put(std::move(parentCoresValMap),"parentCores");
-}
+  auto newCoresHandle(iEvent.put(std::move(outCores)));
 
-void GsfElectronCoreGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 
-						      edm::EventSetup const& es) {
-  edm::ESHandle<CaloTopology> caloTopo ;
-  es.get<CaloTopologyRecord>().get(caloTopo);
-  topology_ = caloTopo.product();
+  std::auto_ptr<SCRefMap> pRefMap(new SCRefMap);
+  SCRefMap::Filler refMapFiller(*pRefMap);
+  refMapFiller.insert(newCoresHandle, oldSCRefs.begin(), oldSCRefs.end());
+  refMapFiller.fill();
+  iEvent.put(pRefMap);
 }
-
 
 DEFINE_FWK_MODULE(GsfElectronCoreGSCrysFixer);
 #endif

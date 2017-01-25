@@ -50,14 +50,21 @@ public:
   
 
   template<typename T>
-  void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label){
-    token=consumes<T>(pset.getParameter<edm::InputTag>(label));
+  void getToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& pset,const std::string& label, const std::string& instance = ""){
+    auto tag(pset.getParameter<edm::InputTag>(label));
+    if (!instance.empty())
+      tag = edm::InputTag(tag.label(), instance, tag.process());
+
+    token = consumes<T>(tag);
   }
 private:
-  edm::EDGetTokenT<reco::GsfElectronCollection> oldGsfElesToken_;
+  typedef edm::View<reco::GsfElectron> GsfElectronView;
+  typedef edm::ValueMap<reco::SuperClusterRef> SCRefMap;
+
+  edm::EDGetTokenT<GsfElectronView> oldGsfElesToken_;
   edm::EDGetTokenT<reco::GsfElectronCoreCollection> newCoresToken_;
+  edm::EDGetTokenT<SCRefMap> newCoresToOldSCMapToken_;
   edm::EDGetTokenT<EcalRecHitCollection> ebRecHitsToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::SuperClusterRef> > newCoresToOldCoresMapToken_;
   
   const CaloTopology* topology_;  
   const CaloGeometry* geometry_;
@@ -73,15 +80,16 @@ namespace {
   }
 }
 
+
+
 typedef edm::ValueMap<reco::GsfElectronRef> ElectronRefMap;
-typedef edm::ValueMap<bool>                 BoolMap;
 
 GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
 {
-  getToken(newCoresToken_,pset,"newCores");
   getToken(oldGsfElesToken_,pset,"oldEles");
+  getToken(newCoresToken_,pset,"newCores");
+  getToken(newCoresToOldSCMapToken_, pset, "newCores");
   getToken(ebRecHitsToken_,pset,"ebRecHits");
-  getToken(newCoresToOldCoresMapToken_,pset,"newCoresToOldCoresMap");
 
   //ripped wholesale from GEDGsfElectronFinalizer
   if( pset.existsAs<edm::ParameterSet>("regressionConfig") ) {
@@ -97,21 +105,20 @@ GsfElectronGSCrysFixer::GsfElectronGSCrysFixer( const edm::ParameterSet & pset )
   }
 
   produces<reco::GsfElectronCollection >();
+  // new -> old
   produces<ElectronRefMap>();
-  produces<BoolMap>();
-
 }
 
 namespace {
   
-  reco::GsfElectronCoreRef getNewCore(const reco::GsfElectronRef& oldEle,
+  reco::GsfElectronCoreRef getNewCore(reco::GsfElectron const& oldEle,
 				      edm::Handle<reco::GsfElectronCoreCollection>& newCores,
-				      edm::ValueMap<reco::SuperClusterRef> newToOldCoresMap)
+				      edm::ValueMap<reco::SuperClusterRef> const& newToOldCoresMap)
   {
     for(size_t coreNr=0;coreNr<newCores->size();coreNr++){
       reco::GsfElectronCoreRef coreRef(newCores,coreNr);
       auto oldRef = newToOldCoresMap[coreRef];
-      if( oldRef.isNonnull() && oldRef==oldEle->superCluster()){
+      if( oldRef.isNonnull() && oldRef==oldEle.superCluster()){
 	return coreRef;
       }
     }
@@ -127,61 +134,47 @@ void GsfElectronGSCrysFixer::produce( edm::Event & iEvent, const edm::EventSetup
     gedRegression_->setEvent(iEvent);
     gedRegression_->setEventContent(iSetup);
   }
- 
 
   auto elesHandle = getHandle(iEvent,oldGsfElesToken_);
   auto& ebRecHits = *getHandle(iEvent,ebRecHitsToken_);
-  auto& newCoresToOldCoresMap = *getHandle(iEvent,newCoresToOldCoresMapToken_);
   auto newCoresHandle = getHandle(iEvent,newCoresToken_);
+  auto newCoresToOldSCMap = *getHandle(iEvent, newCoresToOldSCMapToken_);
 
   std::vector<reco::GsfElectronRef> oldElectrons;
-  std::vector<bool>                 isUpdated;
-  
-  for(size_t eleNr=0;eleNr<elesHandle->size();eleNr++){
-    reco::GsfElectronRef eleRef(elesHandle,eleNr);
-    oldElectrons.emplace_back(eleRef);
 
-    reco::GsfElectronCoreRef newCoreRef = getNewCore(eleRef,newCoresHandle,newCoresToOldCoresMap);
-    
-    if(newCoreRef.isNonnull()){ //okay we have to remake the electron
+  unsigned iE(0);
+  for (auto& oldEle : *elesHandle) {
+    auto&& refToBase(elesHandle->refAt(iE++));
+    oldElectrons.emplace_back(refToBase.id(), &oldEle, refToBase.key());
 
-      reco::GsfElectron newEle(*eleRef,newCoreRef);
+    reco::GsfElectronCoreRef newCoreRef = getNewCore(oldEle,newCoresHandle,newCoresToOldSCMap);
+
+    outEles->emplace_back(oldEle,newCoreRef);
+    auto& newEle(outEles->back());
+
+    if (GainSwitchTools::hasEBGainSwitchIn5x5(*oldEle.superCluster(), &ebRecHits, topology_)) {
+
       reco::GsfElectron::ShowerShape full5x5ShowerShape = GainSwitchTools::redoEcalShowerShape<true>(newEle.full5x5_showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
       reco::GsfElectron::ShowerShape showerShape = GainSwitchTools::redoEcalShowerShape<false>(newEle.showerShape(),newEle.superCluster(),&ebRecHits,topology_,geometry_);
-
-      float eNewSCOverEOldSC = newEle.superCluster()->energy()/eleRef->superCluster()->energy();
-      GainSwitchTools::correctHadem(showerShape,eNewSCOverEOldSC,GainSwitchTools::ShowerShapeType::Fractions);
-      GainSwitchTools::correctHadem(full5x5ShowerShape,eNewSCOverEOldSC,GainSwitchTools::ShowerShapeType::Full5x5);
-
       newEle.full5x5_setShowerShape(full5x5ShowerShape);   
       newEle.setShowerShape(showerShape);   
 
-      if( gedRegression_ ) {
-	gedRegression_->modifyObject(newEle);
-      }
+      float eNewSCOverEOldSC = newEle.superCluster()->energy()/oldEle.superCluster()->energy();
+      GainSwitchTools::correctHadem(showerShape,eNewSCOverEOldSC,GainSwitchTools::ShowerShapeType::Fractions);
+      GainSwitchTools::correctHadem(full5x5ShowerShape,eNewSCOverEOldSC,GainSwitchTools::ShowerShapeType::Full5x5);
 
-      //      std::cout <<"made a new electron "<<newEle.ecalEnergy()<<" old "<<eleRef->ecalEnergy()<<std::endl;
-      
-      outEles->push_back(newEle);
-      isUpdated.emplace_back(true);
-    }else{
-      outEles->push_back(*eleRef);
-      isUpdated.emplace_back(false);
+      if( gedRegression_ )
+	gedRegression_->modifyObject(newEle);
     }
   }
   
   auto&& newElectronsHandle(iEvent.put(std::move(outEles)));
-  std::unique_ptr<ElectronRefMap> pRefMap(new ElectronRefMap);
+
+  std::auto_ptr<ElectronRefMap> pRefMap(new ElectronRefMap);
   ElectronRefMap::Filler refMapFiller(*pRefMap);
   refMapFiller.insert(newElectronsHandle, oldElectrons.begin(), oldElectrons.end());
   refMapFiller.fill();
-  iEvent.put(std::move(pRefMap));
-  std::unique_ptr<BoolMap> bRefMap(new BoolMap);
-  BoolMap::Filler boolMapFiller(*bRefMap);
-  boolMapFiller.insert(newElectronsHandle, isUpdated.begin(), isUpdated.end());
-  boolMapFiller.fill();
-  iEvent.put(std::move(bRefMap));
-
+  iEvent.put(pRefMap);
 }
 
 void GsfElectronGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& lb, 

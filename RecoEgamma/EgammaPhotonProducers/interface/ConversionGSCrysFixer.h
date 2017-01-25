@@ -1,5 +1,11 @@
-#ifndef RecoEgamma_EgammaPhotonProducers_GEDPhotonCoreGSCrysFixer_h
-#define RecoEgamma_EgammaPhotonProducers_GEDPhotonCoreGSCrysFixer_h
+#ifndef RecoEgamma_EgammaPhotonProducers_ConversionGSCrysFixer_h
+#define RecoEgamma_EgammaPhotonProducers_ConversionGSCrysFixer_h
+/** \class ConversionGSCrysFixer
+ **  
+ **
+ **  \author Yutaro Iiyama, MIT
+ **
+ ***/
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -8,21 +14,19 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-class GEDPhotonCoreGSCrysFixer : public edm::stream::EDProducer<> {
+class ConversionGSCrysFixer : public edm::stream::EDProducer<> {
  public:
 
-  GEDPhotonCoreGSCrysFixer (const edm::ParameterSet&);
-  ~GEDPhotonCoreGSCrysFixer();
+  ConversionGSCrysFixer (const edm::ParameterSet&);
+  ~ConversionGSCrysFixer();
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   typedef edm::ValueMap<reco::SuperClusterRef> SCRefMap;
-  typedef edm::ValueMap<reco::ConversionRef> ConvRefMap;
 
   template<typename T>
   void
@@ -45,17 +49,14 @@ class GEDPhotonCoreGSCrysFixer : public edm::stream::EDProducer<> {
     return handle;
   }
 
-  edm::EDGetTokenT<reco::PhotonCoreCollection> inputCoresToken_;
-  edm::EDGetTokenT<reco::SuperClusterCollection> refinedSCsToken_; // new
-  edm::EDGetTokenT<SCRefMap> refinedSCMapToken_; // new->old
+  edm::EDGetTokenT<reco::ConversionCollection> inputConvsToken_;
+  //  edm::EDGetTokenT<reco::ConversionCollection> inputSingleLegConvsToken_;
+  //  edm::EDGetTokenT<reco::SuperClusterCollection> refinedSCsToken_; // new
+  //  edm::EDGetTokenT<SCRefMap> refinedSCMapToken_; // new->old
   edm::EDGetTokenT<reco::SuperClusterCollection> ebSCsToken_; // new
   edm::EDGetTokenT<SCRefMap> ebSCMapToken_; // new->old
   edm::EDGetTokenT<reco::SuperClusterCollection> eeSCsToken_; // new
   edm::EDGetTokenT<SCRefMap> eeSCMapToken_; // new->old
-  edm::EDGetTokenT<reco::ConversionCollection> convsToken_; // new
-  edm::EDGetTokenT<ConvRefMap> convMapToken_; // new->old
-  edm::EDGetTokenT<reco::ConversionCollection> singleLegConvsToken_; // new
-  edm::EDGetTokenT<ConvRefMap> singleLegConvMapToken_; // new->old
 };
 
 #endif

@@ -47,7 +47,7 @@ def customiseForAODGainSwitchFix(process,newNameSuffex=""):
                   "particleFlowClusterECALUncorrectedGSFixed" : "particleFlowClusterECALUncorrected" + newNameSuffex,
                   "particleFlowClusterECALGSFixed" : "particleFlowClusterECAL" + newNameSuffex,
                   "particleFlowSuperClusterECALGSFixed" : "particleFlowSuperClusterECAL" + newNameSuffex,
-                  "gsFixedRefinedBarrelSuperClusters" : "particleFlowEGamma" + newNameSuffex,
+                  "gsFixedRefinedSuperClusters" : "particleFlowEGamma" + newNameSuffex,
                   "gsFixedGsfElectronCores" : "gedGsfElectronCores" + newNameSuffex,
                   "gsFixedGsfElectrons" : "gedGsfElectrons" + newNameSuffex,
                   "gsFixedGedPhotonCores" : "gedPhotonCore" + newNameSuffex,

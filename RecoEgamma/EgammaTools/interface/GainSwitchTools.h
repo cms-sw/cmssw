@@ -39,10 +39,15 @@ public:
 
   //needs to be multifit rec-hits currently as weights dont have gs flags set
   static std::vector<DetId> gainSwitchedIdsIn5x5(const DetId& id,const EcalRecHitCollection* recHits,const CaloTopology* topology);
-  
-  
-  static reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl );
-  static reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl,int maxDEta,int maxDPhi);
+
+  template<typename HANDLE>
+  static reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster&, HANDLE const&);
+  template<typename HANDLE>
+  static reco::SuperClusterRef matchSCBySeedCrys(const reco::SuperCluster&, HANDLE const&, int maxDEta, int maxDPhi);
+
+  // find an entry in H::element_type (a collection) that maps in M to R
+  template<typename R, typename H, typename M>
+  static edm::Ref<typename H::element_type> findNewRef(R const&, H const&, M const&);
 
   template<bool noZS>
   static reco::GsfElectron::ShowerShape 
@@ -70,7 +75,59 @@ private:
   
 };
 
+template<typename R, typename H, typename M>
+edm::Ref<typename H::element_type>
+GainSwitchTools::findNewRef(R const& _oldRef, H const& _newHandle, M const& _map)
+{
+  for (unsigned iC(0); iC != _newHandle->size(); ++iC) {
+    edm::Ref<typename H::element_type> ref(_newHandle, iC);
+    auto&& mappedRef(_map[ref]);
+    if (mappedRef.id() == _oldRef.id() && mappedRef.key() == _oldRef.key())
+      return ref;
+  }
+  return edm::Ref<typename H::element_type>(_newHandle.id());
+}
 
+template<typename HANDLE>
+reco::SuperClusterRef
+GainSwitchTools::matchSCBySeedCrys(const reco::SuperCluster& sc, HANDLE const& scColl)
+{
+  for(size_t scNr=0;scNr<scColl->size();scNr++){
+    if(scColl->at(scNr).seed()->seed().rawId() ==sc.seed()->seed().rawId())
+      return reco::SuperClusterRef(scColl,scNr);
+  }
+  return reco::SuperClusterRef(nullptr,0);
+}
+
+template<typename HANDLE>
+reco::SuperClusterRef
+GainSwitchTools::matchSCBySeedCrys(const reco::SuperCluster& sc, HANDLE const& scColl,int maxDEta,int maxDPhi)
+{
+  reco::SuperClusterRef bestRef(scColl.id());
+
+  int bestDIR2 = maxDEta*maxDEta+maxDPhi*maxDPhi+1; //+1 is to make it slightly bigger than max allowed
+  
+  if(sc.seed()->seed().subdetId()==EcalBarrel){
+    EBDetId scDetId(sc.seed()->seed());
+    
+    for(size_t scNr=0;scNr<scColl->size();scNr++){
+      reco::SuperClusterRef matchRef(scColl,scNr);
+      if(matchRef->seed()->seed().subdetId()==EcalBarrel){
+	EBDetId matchDetId(matchRef->seed()->seed());
+	int dIEta = calDIEta(scDetId.ieta(),matchDetId.ieta());
+	int dIPhi = calDIPhi(scDetId.iphi(),matchDetId.iphi());
+	int dIR2 = dIEta*dIEta+dIPhi*dIPhi;
+	if(dIR2<bestDIR2){
+	  bestDIR2=dIR2;
+	  bestRef = reco::SuperClusterRef(scColl,scNr);
+	}
+      }
+    }
+    
+    
+  }
+  return bestRef;
+}
 
 template<bool noZS>
 reco::GsfElectron::ShowerShape 

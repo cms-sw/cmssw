@@ -9,36 +9,38 @@ from RecoEcal.EgammaClusterProducers.ecalMultiAndGSWeightRecHitEB_cfi import *
 from RecoEcal.EgammaClusterProducers.gsFixedSuperClustering_cff import *
 #this module remakes the refined EGamma superclusters although it has to approximate them as there is not
 #enough info in AOD to properly remake them
-from RecoEcal.EgammaClusterProducers.gsFixedRefinedBarrelSuperClusters_cfi import *
-#this makes a make of old superclusters with the gs issue to new superclusters without the gs issue
-from RecoEcal.EgammaClusterProducers.gsBrokenToGSFixedSuperClustersMap_cfi import *
+from RecoEcal.EgammaClusterProducers.gsFixedRefinedSuperClusters_cfi import *
 #this makes makes a new colleciton of gsfelectron cores, modifying only those that have a gs eb crystal
 from RecoEgamma.EgammaElectronProducers.gsFixedGsfElectronCores_cfi import *
 #turns the cores into gsf electrons, again only modifying those which have a gs eb crystal
 from RecoEgamma.EgammaElectronProducers.gsFixedGsfElectrons_cfi import *
-#this makes makes a new colleciton of ged photon cores, modifying only those that have a gs eb crystal
-from RecoEgamma.EgammaPhotonProducers.gsFixedGedPhotonCores_cfi import *
-#turns the cores into ged photons, again only modifying those which have a gs eb crystal
-from RecoEgamma.EgammaPhotonProducers.gsFixedGedPhotons_cfi import *
+#this makes makes a new colleciton of photon cores, modifying only those that have a gs eb crystal
+from RecoEgamma.EgammaPhotonProducers.gsFixedGEDPhotonCores_cfi import *
+#turns the cores into photons, again only modifying those which have a gs eb crystal
+from RecoEgamma.EgammaPhotonProducers.gsFixedGEDPhotons_cfi import *
+#replace the superclusters of allConversions
+from RecoEgamma.EgammaPhotonProducers.gsFixedConversions_cfi import *
+
+egammaGainSwitchLocalFixSequence = cms.Sequence(
+    ecalWeightLocalRecoFromSelectedDigis*
+    ecalMultiAndGSWeightRecHitEB
+)
 
 egammaGainSwitchFixSequence = cms.Sequence(
-#    bunchSpacingProducer*
-    ecalWeightLocalRecoFromSelectedDigis*
-    ecalMultiAndGSWeightRecHitEB*
+    egammaGainSwitchLocalFixSequence*
     gsFixedParticleFlowSuperClustering*
-    gsFixedRefinedBarrelSuperClusters*
-    gsBrokenToGSFixedSuperClustersMap*
+    gsFixedRefinedSuperClusters*
     gsFixedGsfElectronCores*
     gsFixedGsfElectrons*
-    gsFixedGedPhotonCores*
-    gsFixedGedPhotons)
+    gsFixedConversions*
+    gsFixedGEDPhotonCores*
+    gsFixedGEDPhotons
+    )
 
 from RecoEgamma.EgammaElectronProducers.gsSimpleFixedGsfElectrons_cfi import gsSimpleFixedGsfElectrons
 from RecoEgamma.EgammaElectronProducers.gsSimpleFixedPhotons_cfi import gsSimpleFixedPhotons
 
 egammaGainSwitchSimpleFixSequence = cms.Sequence(
-#    bunchSpacingProducer*
-    ecalWeightLocalRecoFromSelectedDigis*
-    ecalMultiAndGSWeightRecHitEB*
+    egammaGainSwitchLocalFixSequence*
     gsSimpleFixedGsfElectrons*
     gsSimpleFixedPhotons)

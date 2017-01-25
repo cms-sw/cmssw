@@ -98,45 +98,6 @@ float GainSwitchTools::newRawEnergyNoFracs(const reco::SuperCluster& superClus,c
 }
 
 
-
-reco::SuperClusterRef GainSwitchTools::matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl )
-{
-  for(size_t scNr=0;scNr<scColl->size();scNr++){
-    reco::SuperClusterRef scRef(scColl,scNr);
-    if(scRef->seed()->seed().rawId() ==sc.seed()->seed().rawId()) return scRef;
-  }
-  return reco::SuperClusterRef(nullptr,0);
-}
-
-reco::SuperClusterRef GainSwitchTools::matchSCBySeedCrys(const reco::SuperCluster& sc,edm::Handle<reco::SuperClusterCollection> scColl,int maxDEta,int maxDPhi)
-{
-  reco::SuperClusterRef bestRef(scColl.id());
-
-  int bestDIR2 = maxDEta*maxDEta+maxDPhi*maxDPhi+1; //+1 is to make it slightly bigger than max allowed
-  
-  if(sc.seed()->seed().subdetId()==EcalBarrel){
-    EBDetId scDetId(sc.seed()->seed());
-    
-    for(size_t scNr=0;scNr<scColl->size();scNr++){
-      reco::SuperClusterRef matchRef(scColl,scNr);
-      if(matchRef->seed()->seed().subdetId()==EcalBarrel){
-	EBDetId matchDetId(matchRef->seed()->seed());
-	int dIEta = calDIEta(scDetId.ieta(),matchDetId.ieta());
-	int dIPhi = calDIPhi(scDetId.iphi(),matchDetId.iphi());
-	int dIR2 = dIEta*dIEta+dIPhi*dIPhi;
-	if(dIR2<bestDIR2){
-	  bestDIR2=dIR2;
-	  bestRef = reco::SuperClusterRef(scColl,scNr);
-	}
-      }
-    }
-    
-    
-  }
-  return bestRef;
-}
-
-
 void 
 GainSwitchTools::correctHadem(reco::GsfElectron::ShowerShape& showerShape,float eNewOverEOld,const GainSwitchTools::ShowerShapeType ssType)
 {

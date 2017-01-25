@@ -20,7 +20,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v3'
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
         #"file:/opt/ppd/scratch/harper/dataFiles/DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_1.root",
-        "/store/user/sharper/EventSkim/DiHEEPWOSS_GainSwitch/AOD/DoubleEG/Run2016G-23Sep2016-v1_AOD_DiHEEPWOSS_GainSwitch/170112_185336/0000/DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_10.root", 
+        "file:DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_2.root",#/store/user/sharper/EventSkim/DiHEEPWOSS_GainSwitch/AOD/DoubleEG/Run2016G-23Sep2016-v1_AOD_DiHEEPWOSS_GainSwitch/170112_185336/0000/DoubleEG_Run2016G-23Sep2016-v1_DiHEEPWOSS_GainSwitch_10.root", 
                                )
 )
 
@@ -38,10 +38,18 @@ process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(
 process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 process.bunchSpacingProducerSequence = cms.Sequence(process.bunchSpacingProducer)
 
-process.load("RecoEgamma.EgammaTools.egammaGainSwitchFix_cff")                                          
-process.p = cms.Path(process.bunchSpacingProducerSequence * process.egammaGainSwitchFixSequence)
-                    
+process.load("RecoEgamma.EgammaTools.egammaGainSwitchFixForPAT_cff")
+process.load("RecoParticleFlow.PFProducer.pfGSFixLinkerForPAT_cff")
+process.load("RecoEgamma.EgammaIsolationAlgos.pfClusterIsolationRemapForPAT_cff")
+process.load("RecoEgamma.ElectronIdentification.idExternalRemapForPAT_cff")
 
+process.p = cms.Path(process.bunchSpacingProducerSequence * 
+                     process.egammaGainSwitchFixSequence *
+                     process.particleFlowLinks *
+                     process.pfClusterIsolationSequence *
+                     process.ElectronIDExternalProducerRemapSequence *
+                     process.PhotonIDExternalProducerRemapSequence)
+                    
 #dumps the products made for easier debugging, you wouldnt normally need to do this
 #edmDumpEventContent outputTest.root shows you all the products produced
 #will be very slow when this is happening
