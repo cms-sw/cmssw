@@ -8,7 +8,7 @@ from CalibTracker.SiStripCommon.SiStripBFieldFilter_cfi import *
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
 AAGFilter = triggerResultsFilter.clone(
 #                       triggerConditions = cms.vstring("HLT_ZeroBias_*"),
-                        triggerConditions = cms.vstring("HLT_ZeroBias_FirstCollisionAAG_*"),
+                        triggerConditions = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*"),
                         hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
                         l1tResults = cms.InputTag( "" ),
                         throw = cms.bool(False)
