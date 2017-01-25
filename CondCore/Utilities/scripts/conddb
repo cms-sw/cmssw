@@ -256,7 +256,7 @@ def _check_same_object(args):
 
 def _connect(db, init, authPath, verbose, read_only, force):
 
-    logging.debug('Preparing connection  to %s ...', db)
+    logging.debug('Preparing connection to %s ...', db)
 
     url = conddb.make_url( db, read_only )
     pretty_url = url
@@ -1053,32 +1053,46 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
     if toIOV is not None:
         query = query.filter(IOV1.since <= toIOV)
     query = query.filter(_inserted_before(IOV1,args.snapshot))
-    query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
     iovs = {}
     hashes = set()
-    for iov in query:
-        iov = _rawdict(iov)
-        iov['tag_name'] = second
+    if not args.o2oTest:
+        query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
+        for iov in query:
+            iov = _rawdict(iov)
+            #iov['tag_name'] = second
 
-        # In the first IOV of the tag we need to use the starting point given
-        # by the user, instead of the one coming from the source tag; unless
-        # the starting point was before any IOV: in such case, up to the first
-        # IOV there is no payload, so we use the one from the source tag.
-        # Note that we need to replace it for every insertion time (since
-        # the primary key is (since, insertion_time).
-        if prev_iov is not None and iov['since'] == prev_iov:
-            iov['since'] = fromIOV
-            first_iov = False
+            # In the first IOV of the tag we need to use the starting point given
+            # by the user, instead of the one coming from the source tag; unless
+            # the starting point was before any IOV: in such case, up to the first
+            # IOV there is no payload, so we use the one from the source tag.
+            # Note that we need to replace it for every insertion time (since
+            # the primary key is (since, insertion_time).
+            if prev_iov is not None and iov['since'] == prev_iov:
+                iov['since'] = fromIOV
+                first_iov = False
 
-        since = iov['since']
+            since = iov['since']
         
-        if since not in iovs.keys():
+            if since not in iovs.keys():
             # updating the insertion time to the execution time. 
             # Because of that, for a given since, only the most recent will be added.
-            iovs[since] = iov['payload_hash']
-            hashes.add( iov['payload_hash'] )
-        else:
-            logging.warning('Skipping older iov with since %s...', since)
+                iovs[since] = iov['payload_hash']
+                hashes.add( iov['payload_hash'] )
+            else:
+                logging.warning('Skipping older iov with since %s...', since)
+    else:
+        query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
+        lastIov = None
+        for iov in query:
+            iov = _rawdict(iov)
+            since = iov['since'] 
+            if lastIov is None:
+                lastIov = since
+            else:
+                if lastIov != since:
+                    iovs[since] = iov['payload_hash']
+                    hashes.add( iov['payload_hash'] )
+                    break 
     logging.info('Found %s iovs and %s referenced payloads to copy.',len(iovs.keys()), len(hashes))
     # Copy the payloads referenced in the selected iovs
     np = 0
@@ -1161,6 +1175,9 @@ def copy(args):
         if args.force and args.yes:
             if args.note is None or args.note=='' or args.note==' ':
                 raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
+        if args.o2oTest:
+            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override:
+                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override or snapshot.')
 
         copyTime = datetime.datetime.now()
 
@@ -1784,6 +1801,7 @@ def main():
     parser_copy.add_argument('--note','-n', help='Editing note.')
     parser_copy.add_argument('--override','-o', action='store_true', help='Override the existing iovs for the interval covered by the new iovs.') 
     parser_copy.add_argument('--snapshot','-s', help="Timestamp of the snapshot to consider for the source iovs. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
+    parser_copy.add_argument('--o2oTest', action='store_true', help='Special copy for o2o test. Copy the second to last iov of the source tag, to allow to run the o2o procedure to add the last iov. It cannot be executed with the from, to, ovveride and snapshot options.')
     parser_copy.set_defaults(func=copy)
 
     parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
