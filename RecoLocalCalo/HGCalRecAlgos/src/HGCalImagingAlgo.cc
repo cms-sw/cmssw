@@ -51,8 +51,8 @@ void HGCalImagingAlgo::makeClusters(const HGCRecHitCollection& hits)
     float sigmaNoise = -9999.;
     if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
     else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
-    //if(hgrh.energy() < ecut) continue; 
-    if(hgrh.energy() < 3*sigmaNoise) continue; //this sets the ZS threshold at three times the sigma noise for the sensor
+    if(!dependSensor && hgrh.energy() < ecut) continue; 
+    if(dependSensor && hgrh.energy() < ecut*sigmaNoise) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
 
     layer += int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
     
@@ -281,9 +281,9 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     float sigmaNoise = -9999.;
     if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
     else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
-    if( nd[ds[i]].data.rho < 9*sigmaNoise ) continue; // set equal to 9 times noise threshold
-    //if(nd[ds[i]].data.rho < maxdensity/kappa  /* || lp[ds[i]].rho<0.001*/) continue; 
     //skip this as a potential cluster center because it fails the density cut
+    if(!dependSensor && nd[ds[i]].data.rho < maxdensity/kappa  /* || lp[ds[i]].rho<0.001*/) continue; 
+    if(dependSensor && nd[ds[i]].data.rho < kappa*sigmaNoise ) continue; // set equal to kappa times noise threshold
 
     nd[ds[i]].data.clusterIndex = clusterIndex;
     if (verbosity < pINFO)
