@@ -384,21 +384,21 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 pass 
             elif hasattr(getattr(btag, btagDiscr), 'tagInfos'):
                 setattr(
-									process, newDiscr, 
-									getattr(btag, btagDiscr).clone(
-										tagInfos = cms.VInputTag( 
-											*[ cms.InputTag(btagPrefix+x+labelName+postfix) \
-													 for x in supportedBtagDiscr[discriminator_name][0] ] 
-											 )
-										)
-									)
+                  process, newDiscr, 
+                  getattr(btag, btagDiscr).clone(
+                    tagInfos = cms.VInputTag( 
+                      *[ cms.InputTag(btagPrefix+x+labelName+postfix) \
+                           for x in supportedBtagDiscr[discriminator_name][0] ] 
+                       )
+                    )
+                  )
             elif hasattr(getattr(btag, btagDiscr), 'src'):
                 setattr(
-									process, newDiscr,
-									getattr(btag, btagDiscr).clone(
-										src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix) 
-										)
-									)
+                  process, newDiscr,
+                  getattr(btag, btagDiscr).clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix) 
+                    )
+                  )
             else:
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
@@ -407,11 +407,11 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
     ## replace corresponding tags for pat jet production
     patJets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(btagPrefix+x+labelName+postfix) for x in acceptedTagInfos ] )
     patJets.discriminatorSources = cms.VInputTag(*[ 
-				cms.InputTag(btagPrefix+x+labelName+postfix) \
-					if ':' not in x else \
-					cms.InputTag(btagPrefix+x.split(':')[0]+labelName+postfix+':'+x.split(':')[1]) \
-					for x in acceptedBtagDiscriminators 
-				])
+        cms.InputTag(btagPrefix+x+labelName+postfix) \
+          if ':' not in x else \
+          cms.InputTag(btagPrefix+x.split(':')[0]+labelName+postfix+':'+x.split(':')[1]) \
+          for x in acceptedBtagDiscriminators 
+        ])
     if len(acceptedBtagDiscriminators) > 0 :
         patJets.addBTagInfo = True
     ## if re-running IVF

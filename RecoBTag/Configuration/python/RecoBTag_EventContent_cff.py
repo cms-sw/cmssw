@@ -28,8 +28,8 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfCombinedCvsBJetTags_*_*',
         # ChargeTag
         'keep *_pfChargeBJetTags_*_*',
-				# DeepFlavour
-				'keep *_pfDeepCSVJetTags_*_*',
+        # DeepFlavour
+        'keep *_pfDeepCSVJetTags_*_*',
         # DeepCMVA
         'keep *_pfDeepCMVAJetTags_*_*',
     )
@@ -52,7 +52,7 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfCombinedSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
         'keep *_pfGhostTrackVertexTagInfos_*_*',
-				'keep *_pfGhostTrackBJetTags_*_*',
+        'keep *_pfGhostTrackBJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         # CTagging
@@ -62,8 +62,8 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfCombinedCvsBJetTags_*_*',
         # ChargeTag
         'keep *_pfChargeBJetTags_*_*',
-				# DeepFlavour
-				'keep *_pfDeepCSVJetTags_*_*',
+        # DeepFlavour
+        'keep *_pfDeepCSVJetTags_*_*',
         # DeepCMVA
         'keep *_pfDeepCMVAJetTags_*_*',
     )
@@ -89,8 +89,8 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfCombinedCvsBJetTags_*_*',
         # ChargeTag
         'keep *_pfChargeBJetTags_*_*',
-				# DeepFlavour
-				'keep *_pfDeepCSVJetTags_*_*',
+        # DeepFlavour
+        'keep *_pfDeepCSVJetTags_*_*',
         # DeepCMVA
         'keep *_pfDeepCMVAJetTags_*_*',
     )

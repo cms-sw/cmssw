@@ -28,14 +28,14 @@ supportedBtagInfos = [
     # C-Tagging tag infos
   , 'pfInclusiveSecondaryVertexFinderCvsLTagInfos'
   , 'pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos'
-		# DeepFlavour	
-	, 'pfDeepCSVTagInfos'
-	, 'pfDeepCSVNegativeTagInfos'
-	, 'pfDeepCSVPositiveTagInfos'
-		# DeepCMVA	
-	, 'pfDeepCMVATagInfos'
-	, 'pfDeepCMVANegativeTagInfos'
-	, 'pfDeepCMVAPositiveTagInfos'
+    # DeepFlavour	
+  , 'pfDeepCSVTagInfos'
+  , 'pfDeepCSVNegativeTagInfos'
+  , 'pfDeepCSVPositiveTagInfos'
+    # DeepCMVA	
+  , 'pfDeepCMVATagInfos'
+  , 'pfDeepCMVANegativeTagInfos'
+  , 'pfDeepCMVAPositiveTagInfos'
     # TopTagInfos (unrelated to b tagging)
   , 'caTopTagInfos'
   ]
@@ -136,7 +136,7 @@ supportedBtagDiscr = {
   , 'pfCombinedCvsBJetTags'                                 : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
   , 'pfNegativeCombinedCvsBJetTags'                         : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
   , 'pfPositiveCombinedCvsBJetTags'                         : [["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]]
-		# DeepFlavour
+    # DeepFlavour
   , 'pfDeepCSVJetTags:probudsg'                           : [['pfDeepCSVTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepCSVJetTags:probb'                              : [['pfDeepCSVTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfDeepCSVJetTags:probc'                              : [['pfDeepCSVTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
@@ -152,7 +152,7 @@ supportedBtagDiscr = {
   , 'pfPositiveDeepCSVJetTags:probc'                      : [['pfDeepCSVPositiveTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfPositiveDeepCSVJetTags:probbb'                     : [['pfDeepCSVPositiveTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
   , 'pfPositiveDeepCSVJetTags:probcc'                     : [['pfDeepCSVPositiveTagInfos'], ["pfImpactParameterTagInfos", 'pfInclusiveSecondaryVertexFinderTagInfos']]
-  		# DeepCMVA
+    # DeepCMVA
   , 'pfDeepCMVAJetTags:probudsg'                           : [["pfDeepCMVATagInfos"], ["pfImpactParameterTagInfos","softPFMuonsTagInfos","softPFElectronsTagInfos","pfInclusiveSecondaryVertexFinderTagInfos"]]
   , 'pfDeepCMVAJetTags:probb'                              : [["pfDeepCMVATagInfos"], ["pfImpactParameterTagInfos","softPFMuonsTagInfos","softPFElectronsTagInfos","pfInclusiveSecondaryVertexFinderTagInfos"]]
   , 'pfDeepCMVAJetTags:probc'                              : [["pfDeepCMVATagInfos"], ["pfImpactParameterTagInfos","softPFMuonsTagInfos","softPFElectronsTagInfos","pfInclusiveSecondaryVertexFinderTagInfos"]]
