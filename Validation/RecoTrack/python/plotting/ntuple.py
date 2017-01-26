@@ -465,6 +465,81 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
     return diff
 
 
+def _formatHitDiffForTwiki(diffHits, prefix):
+    #line_re = re.compile("(?P<sign>[\+- ])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)")
+    #line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(?P<missing>inactive)?")
+    line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(\((?P<missing>missing|inactive)\))?\s+\d+")
+
+    summary = []
+    prevdet = ""
+    prevsign = " "
+    diffLines = diffHits.lines()
+
+    # skip header
+    for line in diffLines:
+        if "hits" in line:
+            break
+
+    for line in diffLines:
+        m = line_re.search(line)
+        if not m:
+            break
+            raise Exception("regex not found from line %s" % line.rstrip())
+        sign = m.group("sign")
+        det = m.group("det")
+        lay = m.group("lay")
+
+        if det != prevdet:
+            if prevsign != " ":
+                summary.append("%ENDCOLOR%")
+                prevsign = " "
+            summary.extend([" ", det])
+            prevdet = det
+
+        if sign != prevsign:
+            if prevsign != " ":
+                summary.append("%ENDCOLOR%")
+            if sign == "-":
+                summary.append("%RED%")
+            elif sign == "+":
+                summary.append("%GREEN%")
+            prevsign = sign
+
+        #print sign, det, lay
+        #if len(summary) > 0:
+        #    print " ", summary[-1]
+
+        #if det != prevdet:
+        #    if prevsign != " ":
+        #        #if len(summary) > 0:
+        #        #    if 
+        #        summary.append("%ENDCOLOR")
+        #    summary.extend([" ", det])
+        #    if prevsign == "-":
+        #        summary.append("%RED%")
+        #    elif prevsign == "+":
+        #        summary.append("%GREEN%")
+        #    prevdet = det
+        summary.append(lay)
+        if m.group("missing"):
+            if m.group("missing") == "missing":
+                summary.append("(m)")
+            elif m.group("missing") == "inactive":
+                summary.append("(i)")
+
+    if prevsign != " ":
+        summary.append("%ENDCOLOR%")
+    # prune "changed" missing/inactive hits
+    i = 2
+    while i < len(summary)-5:
+        if summary[i] == "(i)" or summary[i] == "(m)":
+            if summary[i-2] == "%RED%" and summary[i+1] == "%ENDCOLOR%" and summary[i+2] == "%GREEN%" and summary[i+3] == summary[i-1] and summary[i+4] == summary[i] and summary[i+5] == "%ENDCOLOR%":
+                summary[i-2:i+6] = [summary[i-1], summary[i]]
+        i += 1
+
+    line = " "+"".join(summary)
+    return ["?"+prefix+line]
+
 # Common detailed printout helpers
 class _RecHitPrinter(object):
     def __init__(self, indent=0):
@@ -597,7 +672,10 @@ class TrackPrinter(_RecHitPrinter):
         ret = _DiffResult()
         if self._seedPrinter:
             self._seedPrinter.setIndentFrom(self, adjust=1)
-            ret.extend(_makediff(self._seedPrinter.printSeed(track1.seed()), self._seedPrinter.printSeed(track2.seed())))
+            diffSeed = _makediff(self._seedPrinter.printSeed(track1.seed()), self._seedPrinter.printSeed(track2.seed()))
+            ret.extend(diffSeed)
+            if self._diffForTwiki and diffSeed.hasDifference():
+                ret.extend(_formatHitDiffForTwiki(diffSeed, self._prefix+" "))
             self._seedPrinter.restoreIndent()
         return ret
 
@@ -672,74 +750,7 @@ class TrackPrinter(_RecHitPrinter):
         diffHits = _mapdiff(self.printHits, track1, track2)
         ret.extend(diffHits)
         if self._hits and self._diffForTwiki and diffHits.hasDifference():
-            #line_re = re.compile("(?P<sign>[\+- ])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)")
-            #line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(?P<missing>inactive)?")
-            line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(\((?P<missing>missing|inactive)\))?\s+\d+")
-
-            summary = []
-            prevdet = ""
-            prevsign = " "
-            diffLines = diffHits.lines()
-            next(diffLines) # skip header
-            for line in diffLines:
-                m = line_re.search(line)
-                if not m:
-                    break
-                    raise Exception("regex not found from line %s" % line.rstrip())
-                sign = m.group("sign")
-                det = m.group("det")
-                lay = m.group("lay")
-
-                if det != prevdet:
-                    if prevsign != " ":
-                        summary.append("%ENDCOLOR%")
-                        prevsign = " "
-                    summary.extend([" ", det])
-                    prevdet = det
-
-                if sign != prevsign:
-                    if prevsign != " ":
-                        summary.append("%ENDCOLOR%")
-                    if sign == "-":
-                        summary.append("%RED%")
-                    elif sign == "+":
-                        summary.append("%GREEN%")
-                    prevsign = sign
-
-                #print sign, det, lay
-                #if len(summary) > 0:
-                #    print " ", summary[-1]
-
-                #if det != prevdet:
-                #    if prevsign != " ":
-                #        #if len(summary) > 0:
-                #        #    if 
-                #        summary.append("%ENDCOLOR")
-                #    summary.extend([" ", det])
-                #    if prevsign == "-":
-                #        summary.append("%RED%")
-                #    elif prevsign == "+":
-                #        summary.append("%GREEN%")
-                #    prevdet = det
-                summary.append(lay)
-                if m.group("missing"):
-                    if m.group("missing") == "missing":
-                        summary.append("(m)")
-                    elif m.group("missing") == "inactive":
-                        summary.append("(i)")
-
-            if prevsign != " ":
-                summary.append("%ENDCOLOR%")
-            # prune "changed" missing/inactive hits
-            i = 2
-            while i < len(summary)-5:
-                if summary[i] == "(i)" or summary[i] == "(m)":
-                    if summary[i-2] == "%RED%" and summary[i+1] == "%ENDCOLOR%" and summary[i+2] == "%GREEN%" and summary[i+3] == summary[i-1] and summary[i+4] == summary[i] and summary[i+5] == "%ENDCOLOR%":
-                        summary[i-2:i+6] = [summary[i-1], summary[i]]
-                i += 1
-
-            line = self._prefix+" "+"".join(summary)
-            ret.extend(["?"+self._prefix+line])
+            ret.extend(_formatHitDiffForTwiki(diffHits, self._prefix))
 
         ret.extend(self.diffSeeds(track1, track2))
         ret.extend(_mapdiff(self.printTrackingParticles, track1, track2))
