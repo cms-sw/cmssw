@@ -1,3 +1,11 @@
+'''
+Example on how to use this script:
+1) prepare the payload with L1ConfigWriteSinglePayloadExt_cfg.py
+   (as, for example, is done in L1TriggerConfig/Utilities/test/runOneByOne.sh)
+2) call this script with first run of the new IOV and system key used above
+   e.g.:
+   cmsRun L1ConfigWriteIOVDummyExt_cfg.py runNumber=1 tscKey='EMTF_ALGO_EMPTY' useO2OTags=1
+'''
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1ConfigWriteIOVDummyExt")
@@ -54,16 +62,16 @@ else:
     initL1O2OTagsExt()
     tagBaseVec = initL1O2OTagsExt.tagBaseVec
 
-##
-#process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
-#process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyL1TMuonEndcap2')
-#process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
-#    cms.PSet(
-#        record = cms.string('L1TMuonEndcapParamsO2ORcd'),
-#        type = cms.string('L1TMuonEndCapParams'),
-#        key = cms.string('EMTF_ALGO_PTLUTv4')
-#    )
-#)
+#
+process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
+process.L1TriggerKeyDummyExt.tscKey = cms.string('dummyTransientKey_' + options.tscKey)
+process.L1TriggerKeyDummyExt.objectKeys = cms.VPSet(
+    cms.PSet(
+        record = cms.string('L1TMuonEndcapParamsO2ORcd'),
+        type = cms.string('L1TMuonEndCapParams'),
+        key = cms.string(options.tscKey)
+    )
+)
 
     
 # writer modules
@@ -72,7 +80,7 @@ initIOVWriterExt( process,
                outputDBConnect = options.outputDBConnect,
                outputDBAuth = options.outputDBAuth,
                tagBaseVec = tagBaseVec,
-               tscKey = options.tscKey )
+               tscKey = '' )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
