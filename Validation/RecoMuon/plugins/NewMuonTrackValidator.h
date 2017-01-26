@@ -22,6 +22,7 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
     associatormap = pset.getParameter< edm::InputTag >("associatormap");
     UseAssociators = pset.getParameter< bool >("UseAssociators");
     useGEMs_ = pset.getParameter< bool >("useGEMs");
+    useME0_ = pset.getParameter< bool >("useME0");
     edm::ParameterSet tpset = pset.getParameter<edm::ParameterSet>("muonTPSelector");
     tpSelector = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
 					  tpset.getParameter<double>("minRapidity"),
@@ -151,6 +152,7 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
 
   bool UseAssociators;
   bool useGEMs_;
+  bool useME0_;
 
   // select tracking particles
   //(i.e. "denominator" of the efficiency ratio)
