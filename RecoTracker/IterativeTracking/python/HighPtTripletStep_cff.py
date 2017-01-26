@@ -80,7 +80,7 @@ import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cf
 highPtTripletStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "highPtTripletStepHitDoublets",
     produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
