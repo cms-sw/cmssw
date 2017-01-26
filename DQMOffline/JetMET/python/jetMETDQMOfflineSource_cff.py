@@ -85,9 +85,19 @@ dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
 
 HBHENoiseFilterResultProducerDQM=HBHENoiseFilterResultProducer.clone()
 
-jetPreDQMSeq=cms.Sequence(ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*ak4CaloResidualCorrector*
-                          ak4PFL1FastjetCorrector*ak4PFL2RelativeCorrector*ak4PFL3AbsoluteCorrector*ak4PFResidualCorrector*
-                          ak4PFCHSL1FastjetCorrector*ak4PFCHSL2RelativeCorrector*ak4PFCHSL3AbsoluteCorrector*ak4PFCHSResidualCorrector)
+jetPreDQMTask = cms.Task(ak4CaloL2RelativeCorrector,
+                         ak4CaloL3AbsoluteCorrector,
+                         ak4CaloResidualCorrector,
+                         ak4PFL1FastjetCorrector,
+                         ak4PFL2RelativeCorrector,
+                         ak4PFL3AbsoluteCorrector,
+                         ak4PFResidualCorrector,
+                         ak4PFCHSL1FastjetCorrector,
+                         ak4PFCHSL2RelativeCorrector,
+                         ak4PFCHSL3AbsoluteCorrector,
+                         ak4PFCHSResidualCorrector
+)
+jetPreDQMSeq=cms.Sequence(jetPreDQMTask)
 
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
