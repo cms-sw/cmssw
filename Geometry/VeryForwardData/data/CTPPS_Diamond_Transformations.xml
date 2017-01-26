@@ -8,6 +8,13 @@
     <Rotation name="y_90_rot" phiX="0*deg" thetaX="(90+90)*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="90*deg"/>
     <Rotation name="x_180_rot" phiX="0*deg" thetaX="90*deg" phiY="270*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="180*deg"/>
     <Rotation name="z_180_rot" phiX="180*deg" thetaX="90*deg" phiY="270*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+    <RotationSequence name="planes_box_rotation">
+      <RotationByAxis axis="y" angle="270*deg"/>
+    </RotationSequence>
+    <RotationSequence name="planes_rotation">
+      <RotationByAxis axis="y" angle="180*deg"/>
+    </RotationSequence>
+
 <!--    <RotationSequence name="y90D">
       <RotationByAxis axis="y" angle="90*deg"/>
     </RotationSequence>

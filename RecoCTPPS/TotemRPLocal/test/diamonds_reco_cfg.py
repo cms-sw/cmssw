@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("CTPPS")
 
 # minimum of logs
-process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring(),
-    destinations = cms.untracked.vstring('cerr'),
-    cerr = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
-    )
-)
+#process.MessageLogger = cms.Service("MessageLogger",
+#    statistics = cms.untracked.vstring(),
+#    destinations = cms.untracked.vstring('cerr'),
+#    cerr = cms.untracked.PSet(
+#        threshold = cms.untracked.string('WARNING')
+#    )
+#)
 
 # raw data source
 #process.source = cms.Source("NewEventStreamFileReader",
@@ -23,7 +23,7 @@ process.source = cms.Source('PoolSource',
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 
 # diamonds mapping
@@ -51,10 +51,15 @@ process.load('EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi')
 process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # rechits production
+process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHitProducer_cfi')
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:AOD.root"),
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_ctpps*_*_*',
+    ),
 )
 
 # execution configuration

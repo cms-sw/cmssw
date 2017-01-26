@@ -1,67 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-  <ConstantsSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
-    <Constant name="surface_margin" value="1*mm"/>
-    <Constant name="outer_diameter" value="145*mm"/>
-    <Constant name="wall_thickness" value="2*mm"/>
-    <Constant name="height_lower_part" value="130*mm"/>
-    <Constant name="wall_thickness_bottom_wall" value="2*mm"/>
-    <Constant name="window_width" value="20*mm"/>
-    <Constant name="window_height" value="22*mm"/>
-    <Constant name="window_thickness" value="0.3*mm"/>
-    <Constant name="height" value="138*mm"/>
-    <Constant name="Cylinder_beam_distance" value="3*mm"/>
+  <ConstantsSection label="CTPPS_Timing_Horizontal_Pot.xml">
+    <Constant name="inner_diameter" value="141*mm"/>
+    <Constant name="plane_length" value="135*mm"/>
+    <Constant name="cut_width" value="16.57*mm"/>
+    <Constant name="cut_depth" value="1.7*mm"/>
+    <Constant name="thin_window_thickness" value="0.2*mm"/>
   </ConstantsSection>
 
-  <SolidSection label="CTPPS_Timing_Horizontal_Pot.xml">
-    <Tubs name="CTPPS_Timing_Cylinder_Primary_Vacuum" rMin="0*mm" rMax="[outer_diameter]/2+[surface_margin]" dz="[height]/2+[surface_margin]" startPhi="0*deg" deltaPhi="360*deg"/>
-    <Tubs name="CTPPS_Timing_Cylinder_wall1" rMin="[outer_diameter]/2-[wall_thickness]" rMax="[outer_diameter]/2-[window_thickness]" dz="[height_lower_part]/2" startPhi="0*deg" deltaPhi="360*deg"/>
-    <Tubs name="CTPPS_Timing_Cylinder_bottom_wall1" rMin="0*mm" rMax="[outer_diameter]/2-[wall_thickness]" dz="[wall_thickness_bottom_wall]/2" startPhi="0*deg" deltaPhi="360*deg"/>
-    <Box name="RB_Cylinder_Window_Rect"  dx="[window_width]/2" dy="2*[wall_thickness]" dz="[window_height]/2-[window_thickness]/2"/>
-    <Box name="CTPPS_Timing_Cylinder_bottom_wall_cut"  dx="48.01/2*mm+6.35*mm" dy="[outer_diameter]" dz="[wall_thickness_bottom_wall]/2"/>
-    <SubtractionSolid name="CTPPS_Timing_Cylinder_wall2">
-      <rSolid name="CTPPS_Timing_Cylinder_wall1"/>
-      <rSolid name="RB_Cylinder_Window_Rect"/>
-      <Translation x="0*mm" y="[outer_diameter]/2" z="-[height_lower_part]/2+[window_height]/2+[window_thickness]/2" />
-    </SubtractionSolid>
-    <SubtractionSolid name="CTPPS_Timing_Cylinder_wall">
-      <rSolid name="CTPPS_Timing_Cylinder_wall2"/>
-      <rSolid name="RB_Cylinder_Window_Rect"/>
-      <Translation x="0*mm" y="-[outer_diameter]/2" z="-[height_lower_part]/2+[window_height]/2+[window_thickness]/2" />
-    </SubtractionSolid>
-    <SubtractionSolid name="CTPPS_Timing_Cylinder_bottom_wall">
-      <rSolid name="CTPPS_Timing_Cylinder_bottom_wall1"/>
-      <rSolid name="CTPPS_Timing_Cylinder_bottom_wall_cut"/>
-      <Translation x="0*mm" y="0*mm" z="[window_thickness]"/>
+  <SolidSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
+    <Tubs name="Primary_Vacuum_nocut" rMin="0*mm" rMax="[inner_diameter]/2" dz="[plane_length]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="Bottom_Wall_nocut" rMin="0*mm" rMax="[inner_diameter]/2" dz="([cut_depth]+[thin_window_thickness])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <!--<Box name="Window_Cut" dx="[cut_width]/2+[cut_depth]" dy="[inner_diameter]/2" dz="[cut_depth]/2"/>-->
+    <Trd1 name="Window_Cut" dz="[cut_depth]/2" dy2="[cut_width]/2+[cut_depth]" dy1="[cut_width]/2" dx1="[inner_diameter]/2" dx2="[inner_diameter]/2"/>
+    <UnionSolid name="Primary_Vacuum">
+      <rSolid name="Primary_Vacuum_nocut"/>
+      <rSolid name="Window_Cut"/>
+      <Translation x="0*mm" y="0*mm" z="-([plane_length]+[cut_depth])/2"/>
+    </UnionSolid>
+    <SubtractionSolid name="Bottom_Wall">
+      <rSolid name="Bottom_Wall_nocut"/>
+      <rSolid name="Window_Cut"/>
+      <Translation x="0*mm" y="0*mm" z="([cut_depth]+[thin_window_thickness])/2-[cut_depth]/2"/>
     </SubtractionSolid>
   </SolidSection>
 
   <LogicalPartSection label="CTPPS_Timing_Horizontal_Pot.xml">
-    <LogicalPart name="CTPPS_Timing_Cylinder_Primary_Vacuum">
-      <rSolid name="CTPPS_Timing_Cylinder_Primary_Vacuum"/>
+    <LogicalPart name="Primary_Vacuum">
+      <rSolid name="Primary_Vacuum"/>
       <rMaterial name="materials:Vacuum"/>
     </LogicalPart>
-    <LogicalPart name="CTPPS_Timing_Cylinder_wall">
-      <rSolid name="CTPPS_Timing_Cylinder_wall"/>
-      <rMaterial name="materials:Air"/>
-    </LogicalPart>
-    <LogicalPart name="CTPPS_Timing_Cylinder_bottom_wall">
-      <rSolid name="CTPPS_Timing_Cylinder_bottom_wall"/>
-      <rMaterial name="materials:Air"/>
+    <LogicalPart name="Bottom_Wall">
+      <rSolid name="Bottom_Wall"/>
+      <rMaterial name="RP_Materials:AISI-316L-Steel"/>
     </LogicalPart>
   </LogicalPartSection>
 
-  <PosPartSection label="CTPPS_Timing_Horizontal_Pot.xml">
+  <PosPartSection label="CTPPS_Timing_Horizontal_Pot.xml" eval="true">
     <PosPart copyNumber="1">
-      <rParent name="CTPPS_Timing_Cylinder_Primary_Vacuum"/>
-      <rChild name="CTPPS_Timing_Cylinder_wall"/>
-      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="-[height]/2+[height_lower_part]/2"/>
-    </PosPart>
-    <PosPart copyNumber="1">
-      <rParent name="CTPPS_Timing_Cylinder_Primary_Vacuum"/>
-      <rChild name="CTPPS_Timing_Cylinder_bottom_wall"/>
-      <Translation x="[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]" y="0*mm" z="-[height]/2+[wall_thickness_bottom_wall]/2"/>
+      <rParent name="Primary_Vacuum"/>
+      <rChild name="Bottom_Wall"/>
+      <Translation x="0*cm" y="0*mm" z="-[plane_length]/2-[cut_depth]/2-[thin_window_thickness]/2+[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]"/>
     </PosPart>
   </PosPartSection>
 
