@@ -97,7 +97,10 @@ def customizeGSFixForPAT(process):
     miniAOD_addOrginalEGamma(process,"BeforeGSFix")
     process.MINIAODoutput.outputCommands.extend(['keep *_reducedEgammaBeforeGSFix_*_*',
                                                  'keep *_slimmedElectronsBeforeGSFix_*_*',
-                                                 'keep *_slimmedPhotonsBeforeGSFix_*_*'])
+                                                 'keep *_slimmedPhotonsBeforeGSFix_*_*',
+                                                 'drop *_reducedEgammaBeforeGSFix_reducedGedGsfElectrons_*',
+                                                 'drop *_reducedEgammaBeforeGSFix_reducedGedPhotons_*',
+                                                 ])
     process.reducedEgamma.gsfElectrons = cms.InputTag("gedGsfElectronsGSFixed")
     process.reducedEgamma.gsfElectronsPFValMap = cms.InputTag("particleBasedIsolationGSFixed","gedGsfElectrons")
     process.reducedEgamma.gsfElectronPFClusterIsoSources = cms.VInputTag(
