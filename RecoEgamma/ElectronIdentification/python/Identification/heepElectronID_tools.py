@@ -511,11 +511,15 @@ def configureHEEPElectronID_V61(wpEB, wpEE):
         )
     return parameterSet
 
-def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD, task=None):
-    process.load("RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi")
+def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
+
+    newTask = cms.Task()
+    seq.associate(newTask)
     if task:
-        task.add(process.heepIDVarValueMaps)
-    seq.insert(insertIndex,process.heepIDVarValueMaps)
+        task.add(newTask)
+
+    process.load("RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi")
+    newTask.add(process.heepIDVarValueMaps)
 
     if useMiniAOD==False:
         process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -531,16 +535,7 @@ def addHEEPProducersToSeq(process,seq,insertIndex,useMiniAOD, task=None):
         from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import lostTracks
         process.lostTracksForTkIso = lostTracks.clone()
         process.lostTracksForTkIso.packedPFCandidates =cms.InputTag("packedCandsForTkIso")
-        seq.insert(insertIndex,process.primaryVertexAssociation)
-        seq.insert(insertIndex+1,process.offlineSlimmedPrimaryVertices)
-        seq.insert(insertIndex+2,process.packedCandsForTkIso)
-        seq.insert(insertIndex+3,process.lostTracksForTkIso)
-        if task:
-            task.add(
-                process.primaryVertexAssociation,
-                process.offlineSlimmedPrimaryVertices,
-                process.packedPFCandidates,
-                process.packedCandsForTkIso,
-                process.lostTracks,
-                process.lostTracksForTkIso
-            )
+        newTask.add(process.primaryVertexAssociation,
+                    process.offlineSlimmedPrimaryVertices,
+                    process.packedCandsForTkIso,
+                    process.lostTracksForTkIso)
