@@ -208,7 +208,6 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
     const EcalTrigTowerDetId &thisTower=hitTowers_[itow].second;
     if (debug_) std::cout << " Data for TOWER num " << itow << " index " << index << " TowerId " << thisTower <<  " size " << towerMapEB_[itow].size() << std::endl;    
     // loop over all strips assigned to this trigger tower
-    int nstr=0;
     int nxstals=0;
     for(unsigned int iStrip = 0; iStrip < towerMapEB_[itow].size();++iStrip)
       {
