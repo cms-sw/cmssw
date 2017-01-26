@@ -28,6 +28,13 @@ rskey=$3
 
 echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS
 
+#ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
+#ONLINEDB_OPTIONS="onlineDBConnect=oracle://int2r_lb/CMS_TRG_R onlineDBAuth=./"
+ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_orcoff_prep/CMS_TRG_R onlineDBAuth=./"
+PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_adg/CMS_CONDITIONS protoDBAuth=./"
+#ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_lb/CMS_TRG_R onlineDBAuth=/data/O2O/L1T/"
+#PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS protoDBAuth=/data/O2O/L1T/"
+
 if [ ${xflag} -eq 0 ]
 then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
@@ -49,10 +56,10 @@ fi
 
 #export UTM_XSD_DIR=/data/O2O/L1T/v9_20160823/CMSSW_8_0_18/utm/tmXsd
 
-if cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
+if cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
     echo "TSC payloads absent; writing $KEY_CONTENT now"
-    cmsRun ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} logTransactions=0 print
+    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
     then
@@ -62,14 +69,14 @@ else
     fi
 fi
 
-cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug"
+cmsRun $CMSSW_RELEASE_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug"
 o2ocode=${PIPESTATUS[0]}
 
 if [ ${o2ocode} -eq 0 ]
 then
     echo
     echo "`date` : checking O2O"
-    if cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyExt=1 runNumber=${runnum} | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
+    if cmsRun $CMSSW_RELEASE_BASE/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyExt=1 runNumber=${runnum} | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
     else
 	echo "L1-O2O-ERROR: IOV NOT OK"
 	echo "L1-O2O-ERROR: IOV NOT OK" 1>&2
