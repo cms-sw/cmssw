@@ -20,7 +20,7 @@ class MonPulseShapeDat : public IDataItem {
   inline std::string getTable() { return "MON_PULSE_SHAPE_DAT"; }
 
   inline void setSamples( std::vector<float> &samples, int gain )
-    throw(std::runtime_error)
+    noexcept(false)
     { 
       if (samples.size() != 10) {
 	throw(std::runtime_error("MonPulseShapeDat::setSamples:  There should be 10 samples."));
@@ -38,7 +38,7 @@ class MonPulseShapeDat : public IDataItem {
     }
 
   inline std::vector<float> getSamples(int gain) const
-    throw(std::runtime_error)
+    noexcept(false)
     { 
       if (gain == 1) {
 	return m_samplesG1;
@@ -53,13 +53,13 @@ class MonPulseShapeDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fillVec, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   std::vector<float> m_samplesG1;

@@ -94,6 +94,8 @@ public :
   Int_t                      t_ieta;
   Double_t                   t_EventWeight;
   Int_t                      t_goodPV;
+  Int_t                      t_nVtx;
+  Int_t                      t_nTrk;
   Double_t                   t_l1pt;
   Double_t                   t_l1eta;
   Double_t                   t_l1phi;
@@ -105,15 +107,16 @@ public :
   Double_t                   t_mindR2;
   Double_t                   t_eMipDR;
   Double_t                   t_eHcal;
-  Double_t                   t_eHcalDelta;
+  Double_t                   t_eHcal10;
+  Double_t                   t_eHcal30;
   Double_t                   t_hmaxNearP;
+  Double_t                   t_gentrackP;
   Bool_t                     t_selectTk;
   Bool_t                     t_qltyFlag;
   Bool_t                     t_qltyMissFlag;
   Bool_t                     t_qltyPVFlag;
-  Double_t                   t_gentrackP;
-  std::vector<unsigned int> *t_DetIds;
-  std::vector<double>       *t_HitEnergies;
+  std::vector<unsigned int> *t_DetIds, *t_DetIds1, *t_DetIds3;
+  std::vector<double>       *t_HitEnergies, *t_HitEnergies1, *t_HitEnergies3;
   std::vector<bool>         *t_trgbits;
   
   // List of branches
@@ -123,6 +126,8 @@ public :
   TBranch                   *b_t_ieta;          //!
   TBranch                   *b_t_EventWeight;   //!
   TBranch                   *b_t_goodPV;        //!
+  TBranch                   *b_t_nVtx;          //!
+  TBranch                   *b_t_nTrk;          //!
   TBranch                   *b_t_l1pt;          //!
   TBranch                   *b_t_l1eta;         //!
   TBranch                   *b_t_l1phi;         //!
@@ -134,15 +139,20 @@ public :
   TBranch                   *b_t_mindR2;        //!
   TBranch                   *b_t_eMipDR;        //!
   TBranch                   *b_t_eHcal;         //!
-  TBranch                   *b_t_eHcalDelta;    //;
+  TBranch                   *b_t_eHcal10;       //!
+  TBranch                   *b_t_eHcal30;       //!
   TBranch                   *b_t_hmaxNearP;     //!
+  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_selectTk;      //!
   TBranch                   *b_t_qltyFlag;      //!
   TBranch                   *b_t_qltyMissFlag;  //!
   TBranch                   *b_t_qltyPVFlag;    //!
-  TBranch                   *b_t_gentrackP;     //!
   TBranch                   *b_t_DetIds;        //!
+  TBranch                   *b_t_DetIds1;       //!
+  TBranch                   *b_t_DetIds3;       //!
   TBranch                   *b_t_HitEnergies;   //!
+  TBranch                   *b_t_HitEnergies1;  //!
+  TBranch                   *b_t_HitEnergies3;  //!
   TBranch                   *b_t_trgbits;       //!
 
   TH1D                                             *h_pbyE, *h_cvg;
@@ -150,7 +160,7 @@ public :
   bool                                              truncateFlag_, useMean_;
   int                                               sysmode_;
   bool                                              useGen_;
-  double                                            log16by24_;
+  double                                            log25by16_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
   std::map<unsigned int, TH1D*>                     histos;
@@ -271,7 +281,7 @@ CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean, int mode,
     TDirectory * dir = (TDirectory*)f->Get("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root:/isopf");
     dir->GetObject("CalibTree",tree);
   }
-  log16by24_ = std::log(16.0)/24.0;
+  log2by16_ = std::log(2.5)/16.0;
   Init(tree, dupFileName);
 }
 
@@ -308,9 +318,13 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   // (once per file to be processed).
 
   // Set object pointer
-  t_DetIds = 0;
-  t_HitEnergies = 0;
-  t_trgbits = 0;
+  t_DetIds       = 0;
+  t_DetIds1      = 0;
+  t_DetIds3      = 0;
+  t_HitEnergies  = 0;
+  t_HitEnergies1 = 0;
+  t_HitEnergies3 = 0;
+  t_trgbits      = 0;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;
@@ -323,6 +337,8 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
   fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
   fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
+  fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
+  fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
   fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
   fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
   fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
@@ -334,15 +350,20 @@ void CalibTree::Init(TTree *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_mindR2", &t_mindR2, &b_t_mindR2);
   fChain->SetBranchAddress("t_eMipDR", &t_eMipDR, &b_t_eMipDR);
   fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
-  fChain->SetBranchAddress("t_eHcalDelta", &t_eHcalDelta, &b_t_eHcalDelta);
+  fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
+  fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
   fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
   fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
   fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
   fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
-  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
   fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
+  fChain->SetBranchAddress("t_DetIds1", &t_DetIds1, &b_t_DetIds1);
+  fChain->SetBranchAddress("t_DetIds3", &t_DetIds3, &b_t_DetIds3);
   fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+  fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1,&b_t_HitEnergies1);
+  fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3,&b_t_HitEnergies3);
   fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
   Notify();
 
@@ -469,7 +490,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
     }
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     if (goodTrack()) {
-      double Etot(0), Etot2(0);
+      double Etot(0), Etot2(0), Etot1(0), Etot3(0);
       for (unsigned int idet=0; idet<(*t_DetIds).size(); idet++) { 
 	unsigned int id = (*t_DetIds)[idet];
 	double hitEn(0);
@@ -481,17 +502,37 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	Etot  += hitEn;
 	Etot2 += ((*t_HitEnergies)[idet]);
       }
+      for (unsigned int idet=0; idet<(*t_DetIds1).size(); idet++) { 
+	unsigned int id = (*t_DetIds1)[idet];
+	unsigned int detid = truncateId(id);
+	double hitEn(0);
+	if (Cprev.find(detid) != Cprev.end()) 
+	  hitEn = Cprev[detid].first * (*t_HitEnergies1)[idet];
+	else 
+	  hitEn = (*t_HitEnergies1)[idet];
+	Etot1 += hitEn;
+      }
+      for (unsigned int idet=0; idet<(*t_DetIds3).size(); idet++) { 
+	unsigned int id = (*t_DetIds3)[idet];
+	unsigned int detid = truncateId(id);
+	double hitEn(0);
+	if (Cprev.find(detid) != Cprev.end()) 
+	  hitEn = Cprev[detid].first * (*t_HitEnergies3)[idet];
+	else 
+	  hitEn = (*t_HitEnergies3)[idet];
+	Etot3 += hitEn;
+      }
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       double pufac(1.0);
-      if (sysmode_ < 0 && pmom > 0 && t_eHcalDelta > 0.02*pmom) { 
+      if (sysmode_ < 0 && pmom > 0) { 
 	double a1(-0.35), a2(-0.65);
 	if (std::abs(t_ieta) == 25) {
 	  a2 = -0.30;
 	} else if (std::abs(t_ieta) > 25) {
 	  a1 = -0.45; a2 = -0.10;
 	}
-	pufac = (1.0 + a1 * (Etot/pmom) * (t_eHcalDelta/pmom) *
-		 (1 + a2 * (t_eHcalDelta/pmom)));
+	pufac = (1.0 + a1 * (Etot/pmom) * ((Etot3-Etot1)/pmom) *
+		 (1 + a2 * ((Etot3-Etot1)/pmom)));
       }
       double ratio= Etot*pufac/(pmom-t_eMipDR);
       if (debug) std::cout << " Weights " << evWt << ":" << pufac << " Energy "
@@ -711,8 +752,13 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 }
 
 bool CalibTree::goodTrack() {
-  bool ok(true);
+  bool   ok(true);
   double cut(2.0);
+  if      (sysmode_ == -1) cut = 10.0;
+  else if (sysmode_ < -1) {
+    double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
+    cut        = 8.0*exp(eta*log2by16_);
+  }
   double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
   if        (sysmode_ == 1) {
     ok = ((t_qltyFlag) && (t_hmaxNearP < cut) && 
@@ -742,10 +788,6 @@ bool CalibTree::goodTrack() {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) &&
 	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (pmom > 40.0) &&
 	  (pmom < 60.0));
-  } else if (sysmode_ == -1) {
-    double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
-    cut        = 2.0*exp(eta*log16by24_);
-    ok         = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
   } else                    {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
 	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&

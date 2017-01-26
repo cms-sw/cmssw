@@ -17,7 +17,6 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"  
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"  
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"  
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyResidual.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
@@ -47,7 +46,8 @@
 // Constructor ----------------------------------------------------------------
 
 HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
-  AlignmentAlgorithmBase( cfg )
+  AlignmentAlgorithmBase(cfg),
+  surveyResiduals_(cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals"))
 {
   
   // parse parameters
@@ -105,10 +105,6 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   col_cut = cfg.getParameter<double>("CLAngleCut");
   cos_cut = cfg.getParameter<double>("CSAngleCut");
 	
-  for (std::string &s : cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")) {
-    theLevels.push_back(AlignableObjectId::stringToId(s) );
-  }
-	
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] constructed.";
 	
 }
@@ -121,6 +117,13 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 				   AlignmentParameterStore* store )
 {
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Initializing...";
+
+  alignableObjectId_ = std::make_unique<AlignableObjectId>
+    (AlignableObjectId::commonObjectIdProvider(tracker, muon));
+
+  for (const auto& level: surveyResiduals_) {
+    theLevels.push_back(alignableObjectId_->stringToId(level));
+  }
 
   edm::ESHandle<Alignments> globalPositionRcd;
 

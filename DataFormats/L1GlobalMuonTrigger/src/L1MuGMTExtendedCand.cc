@@ -101,8 +101,8 @@ unsigned int L1MuGMTExtendedCand::detector() const {
 //
 bool L1MuGMTExtendedCand::operator==(const L1MuGMTExtendedCand& cand) const {
 
-  if ( (L1MuGMTCand const&) *this != cand )   return false; 
-  if ( m_rank                     != m_rank ) return false;
+  if ( (L1MuGMTCand const&) *this != cand ) return false; 
+  if ( m_rank != cand.m_rank ) return false;
   return true;
 
 }

@@ -38,7 +38,7 @@ void ODRunConfigCycleInfo::clear() {
 }
 
 void ODRunConfigCycleInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -54,7 +54,7 @@ void ODRunConfigCycleInfo::prepareWrite()
 
 
 void ODRunConfigCycleInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -90,7 +90,7 @@ void ODRunConfigCycleInfo::writeDB()
 
 
 int ODRunConfigCycleInfo::fetchID() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -129,7 +129,7 @@ int ODRunConfigCycleInfo::fetchID()
 
 
 int ODRunConfigCycleInfo::fetchIDLast()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -157,7 +157,7 @@ int ODRunConfigCycleInfo::fetchIDLast()
 
 
 void ODRunConfigCycleInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -189,7 +189,7 @@ void ODRunConfigCycleInfo::setByID(int id)
 
 
 void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -216,7 +216,7 @@ void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
 }
 
  void ODRunConfigCycleInfo::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

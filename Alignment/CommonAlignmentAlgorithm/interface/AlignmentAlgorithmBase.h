@@ -131,6 +131,9 @@ public:
   /// Returns whether algorithm proccesses events in current configuration
   virtual bool processesEvents() { return true; }
 
+  /// Returns whether algorithm produced results to be stored
+  virtual bool storeAlignments() { return true; }
+
   // TODO: DEPRECATED: Actually, there are no iterative algorithms, use
   //                   initialze() and terminate()
   /// Called at start of loop, default implementation is dummy for

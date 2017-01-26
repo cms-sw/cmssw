@@ -11,42 +11,30 @@ else:
     print "L1T INFO:  L1REPACK:uGT (intended for 2016 data) will unpack uGMT and CaloLaye2 outputs and re-emulate uGT"
 
     # First, inputs to uGT:
-    import EventFilter.L1TRawToDigi.gmtStage2Digis_cfi
-    unpackGmtStage2 = EventFilter.L1TRawToDigi.gmtStage2Digis_cfi.gmtStage2Digis.clone(
-        InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
-
-    import EventFilter.L1TRawToDigi.caloStage2Digis_cfi
-    unpackCaloStage2 = EventFilter.L1TRawToDigi.caloStage2Digis_cfi.caloStage2Digis.clone(
+    import EventFilter.L1TRawToDigi.gtStage2Digis_cfi
+    unpackGtStage2 = EventFilter.L1TRawToDigi.gtStage2Digis_cfi.gtStage2Digis.clone(
         InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *
-    simGtStage2Digis.MuonInputTag   = cms.InputTag("unpackGmtStage2","Muon")
-    simGtStage2Digis.EGammaInputTag = cms.InputTag("unpackCaloStage2","EGamma")
-    simGtStage2Digis.TauInputTag    = cms.InputTag("unpackCaloStage2","Tau")
-    simGtStage2Digis.JetInputTag    = cms.InputTag("unpackCaloStage2","Jet")
-    simGtStage2Digis.EtSumInputTag  = cms.InputTag("unpackCaloStage2","EtSum")
-    simGtStage2Digis.ExtInputTag    = cms.InputTag("simGtExtFakeStage2Digis") # as in default
+    simGtStage2Digis.MuonInputTag   = cms.InputTag("unpackGtStage2","Muon")
+    simGtStage2Digis.EGammaInputTag = cms.InputTag("unpackGtStage2","EGamma")
+    simGtStage2Digis.TauInputTag    = cms.InputTag("unpackGtStage2","Tau")
+    simGtStage2Digis.JetInputTag    = cms.InputTag("unpackGtStage2","Jet")
+    simGtStage2Digis.EtSumInputTag  = cms.InputTag("unpackGtStage2","EtSum")
+    simGtStage2Digis.ExtInputTag    = cms.InputTag("unpackGtStage2") # as in default
 
 
     # Finally, pack the new L1T output back into RAW
     
-    # pack unpacked
-    from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import caloStage2Raw as packCaloStage2
-    packCaloStage2.InputLabel = cms.InputTag("unpackCaloStage2")
-
-    # pack unpacked
-    from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import gmtStage2Raw as packGmtStage2
-    packGmtStage2.InputLabel = cms.InputTag("unpackGmtStage2")
-
     # pack simulated uGT
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import gtStage2Raw as packGtStage2
-    packGtStage2.MuonInputTag   = cms.InputTag("unpackGmtStage2","Muon")
-    packGtStage2.EGammaInputTag = cms.InputTag("unpackCaloStage2","EGamma")
-    packGtStage2.TauInputTag    = cms.InputTag("unpackCaloStage2","Tau")
-    packGtStage2.JetInputTag    = cms.InputTag("unpackCaloStage2","Jet")
-    packGtStage2.EtSumInputTag  = cms.InputTag("unpackCaloStage2","EtSum")
+    packGtStage2.MuonInputTag   = cms.InputTag("unpackGtStage2","Muon")
+    packGtStage2.EGammaInputTag = cms.InputTag("unpackGtStage2","EGamma")
+    packGtStage2.TauInputTag    = cms.InputTag("unpackGtStage2","Tau")
+    packGtStage2.JetInputTag    = cms.InputTag("unpackGtStage2","Jet")
+    packGtStage2.EtSumInputTag  = cms.InputTag("unpackGtStage2","EtSum")
     packGtStage2.GtInputTag     = cms.InputTag("simGtStage2Digis") # as in default
-    packGtStage2.ExtInputTag    = cms.InputTag("simGtStage2Digis") # as in default
+    packGtStage2.ExtInputTag    = cms.InputTag("unpackGtStage2") # as in default
     
 
     # combine the new L1 RAW with existing RAW for other FEDs
@@ -61,9 +49,7 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackGmtStage2
-                                +unpackCaloStage2
-                                +SimL1TechnicalTriggers
+    SimL1Emulator = cms.Sequence(unpackGtStage2
                                 +SimL1TGlobal
                                 +packGtStage2
                                 +rawDataCollector)

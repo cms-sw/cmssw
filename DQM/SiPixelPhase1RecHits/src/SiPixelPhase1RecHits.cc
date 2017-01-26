@@ -50,6 +50,10 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
       histo[ERROR_Y].fill(lerr_y, id, &iEvent);
 
       histo[POS].fill(rechit_x, rechit_y, id, &iEvent);
+
+      double clusterProbability = rechit.clusterProbability(0);
+      if (clusterProbability > 0)
+        histo[CLUSTER_PROB].fill(log10(clusterProbability), id, &iEvent);
     }
   }
 

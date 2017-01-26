@@ -36,16 +36,16 @@ class MonLed2Dat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MonLed2Dat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 void writeArrayDB(const std::map< EcalLogicID,  MonLed2Dat>* data, MonRunIOV* iov)
-  throw(std::runtime_error);
+  noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MonLed2Dat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_vptMean;
