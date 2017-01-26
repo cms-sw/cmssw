@@ -4,6 +4,8 @@ from Validation.Configuration.globalValidation_cff import *
 from Validation.RecoHI.TrackValidationHeavyIons_cff import *
 from Validation.RecoJets.JetValidationHeavyIons_cff import *
 from Validation.RecoHI.muonValidationHeavyIons_cff import *
+# add new muon validation
+#from Validation.RecoHI.NewMuonValidationHeavyIons_cff import *
 
 # change track label for rechits
 hiTracks = 'hiGeneralTracks'
@@ -23,10 +25,12 @@ egammaSuperClusterAnalyzer.endcapCorSuperClusterCollection = cms.InputTag("corre
 
 
 # prevalidation sequence for all EDFilters and EDProducers
+#
 globalPrevalidationHI = cms.Sequence(
     hiTrackPrevalidation
+# to be customized for OLD or NEW muon validation
   * hiRecoMuonPrevalidation
-
+#  * NEWhiRecoMuonPrevalidation
 )
 
 
@@ -49,7 +53,9 @@ globalValidationHI = cms.Sequence(
     
     + hiTrackValidation         # validation of 'hiGeneralTracks'
     + hiJetValidation           # validation of pileup jet finders
+# to be customized for OLD or NEW muon validation
     + hiRecoMuonValidation      # validation of offline muon reco
+#    + NEWhiRecoMuonValidation      # validation of offline muon reco
    
     )
 
