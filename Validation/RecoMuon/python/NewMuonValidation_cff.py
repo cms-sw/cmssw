@@ -98,6 +98,17 @@ NEWtevMuonDytTrackVMuonAssoc.associatormap = 'NEWtpToTevDytMuonAssociation'
 NEWtevMuonDytTrackVMuonAssoc.label = ('tevMuons:dyt',)
 NEWtevMuonDytTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
 
+NEWgemMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
+NEWgemMuonTrackVMuonAssoc.associatormap = 'NEWtpToGEMMuonMuonAssociation'
+NEWgemMuonTrackVMuonAssoc.label = ('extractGemMuons',)
+NEWgemMuonTrackVMuonAssoc.muonHistoParameters = gemMuonHistoParameters
+
+NEWme0MuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
+NEWme0MuonTrackVMuonAssoc.associatormap = 'NEWtpToME0MuonMuonAssociation'
+NEWme0MuonTrackVMuonAssoc.label = ('extractMe0Muons',)
+NEWme0MuonTrackVMuonAssoc.muonTPSelector = NewMe0MuonTPSet
+NEWme0MuonTrackVMuonAssoc.muonHistoParameters = me0MuonHistoParameters
+
 # cosmics 2-leg reco
 NEWtrkCosmicMuonTrackVSelMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWtrkCosmicMuonTrackVSelMuonAssoc.associatormap = 'NEWtpToTkCosmicSelMuonAssociation'
@@ -154,7 +165,13 @@ NEWmuonValidation_seq = cms.Sequence(
     +seedsOfSTAmuons_seq + NEWtpToStaSeedAssociation + NEWstaSeedTrackVMuonAssoc
     +NEWtpToStaMuonAssociation + NEWstaMuonTrackVMuonAssoc
     +NEWtpToStaUpdMuonAssociation + NEWstaUpdMuonTrackVMuonAssoc
-    + NEWtpToGlbMuonAssociation + NEWglbMuonTrackVMuonAssoc
+    +NEWtpToGlbMuonAssociation + NEWglbMuonTrackVMuonAssoc
+)
+
+NEWmuonValidation_reduced_seq = cms.Sequence(
+    probeTracks_seq + NEWtpToTkMuonAssociation + NEWtrkProbeTrackVMuonAssoc
+    +NEWtpToStaUpdMuonAssociation + NEWstaUpdMuonTrackVMuonAssoc
+    +NEWtpToGlbMuonAssociation + NEWglbMuonTrackVMuonAssoc
 )
 
 NEWmuonValidationTEV_seq = cms.Sequence(
@@ -183,6 +200,9 @@ NEWmuonValidationCosmic_seq = cms.Sequence(
     +NEWtpToGlbCosmicSelMuonAssociation + NEWglbCosmicMuonTrackVSelMuonAssoc
     +NEWtpToGlbCosmic1LegSelMuonAssociation + NEWglbCosmic1LegMuonTrackVSelMuonAssoc
 )
+
+NEWgemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + NEWtpToGEMMuonMuonAssociation + NEWgemMuonTrackVMuonAssoc)
+NEWme0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + NEWtpToME0MuonMuonAssociation + NEWme0MuonTrackVMuonAssoc)
 
 #####################################################################################
 # Configurations for RecoMuonValidator
@@ -302,12 +322,28 @@ NEWrecoMuonValidation = cms.Sequence(
     + muonValidationRMV_seq
     )
 
-from Configuration.StandardSequences.Eras import eras
 # no displaced muons in fastsim
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     NEWrecoMuonValidation = cms.Sequence(NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq)
 
 # sequence for cosmic muons
 NEWrecoCosmicMuonValidation = cms.Sequence(
     NEWmuonValidationCosmic_seq
     )
+
+# sequences for muon upgrades
+#
+#NEW_run3_muonValidation = NEWmuonValidation_seq.copy() #For full validation
+NEW_run3_muonValidation = NEWmuonValidation_reduced_seq.copy()
+NEW_run3_muonValidation += NEWgemMuonValidation
+
+NEW_phase2_muonValidation = NEW_run3_muonValidation.copy()
+NEW_phase2_muonValidation += NEWme0MuonValidation
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+#run3_GEM.toReplaceWith( NEWmuonValidation_seq, NEW_run3_muonValidation ) #For full validation
+run3_GEM.toReplaceWith( NEWrecoMuonValidation, NEW_run3_muonValidation )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+#phase2_muon.toReplaceWith( NEWmuonValidation_seq, NEW_phase2_muonValidation ) #For full validation
+phase2_muon.toReplaceWith( NEWrecoMuonValidation, NEW_phase2_muonValidation )

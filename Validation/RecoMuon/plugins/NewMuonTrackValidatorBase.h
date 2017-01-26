@@ -262,7 +262,7 @@ class NewMuonTrackValidatorBase {
   std::vector<MonitorElement*> chi2_vs_nhits, etares_vs_eta;
   std::vector<MonitorElement*> ptres_vs_phi, chi2_vs_phi, nhits_vs_phi, phires_vs_phi;
 
-  std::vector<MonitorElement*> nhits_vs_eta,nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta;
+  std::vector<MonitorElement*> nhits_vs_eta,nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta,nME0hits_vs_eta;
   std::vector<MonitorElement*> chi2_vs_eta, nlosthits_vs_eta;
   std::vector<MonitorElement*> nTRK_LayersWithMeas_vs_eta,nPixel_LayersWithMeas_vs_eta;
 

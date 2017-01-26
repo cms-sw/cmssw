@@ -16,6 +16,21 @@ NewMuonTPSet = cms.PSet(
     chargedOnly = cms.bool(True)
 )
 
+NewMe0MuonTPSet = cms.PSet(
+    src = cms.InputTag("mix", "MergedTrackTruth"),
+    pdgId = cms.vint32(13, -13),
+    tip = cms.double(3.5),
+    lip = cms.double(30.0),
+    minHit = cms.int32(0),
+    ptMin = cms.double(0.9),
+    minRapidity = cms.double(-2.8),
+    maxRapidity = cms.double(2.8),
+    signalOnly = cms.bool(True),
+    intimeOnly = cms.bool(True),  # discard OOT PU
+    stableOnly = cms.bool(True),  # discard decays in flight from the signal event
+    chargedOnly = cms.bool(True)
+)
+
 NewDisplacedMuonTPSet = cms.PSet(
     src = cms.InputTag("mix", "MergedTrackTruth"),
     pdgId = cms.vint32(13, -13),

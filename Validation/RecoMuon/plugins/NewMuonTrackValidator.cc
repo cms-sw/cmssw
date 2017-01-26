@@ -115,8 +115,10 @@ void NewMuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 	nCSChits_vs_eta.push_back( ibooker.book2D("nCSChits_vs_eta","Number of CSC hits vs eta",nintEta,minEta,maxEta,nintCSCHit,minCSCHit,maxCSCHit) );
 	nRPChits_vs_eta.push_back( ibooker.book2D("nRPChits_vs_eta","Number of RPC hits vs eta",nintEta,minEta,maxEta,nintRPCHit,minRPCHit,maxRPCHit) );
 	if (useGEMs_)
-	  nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","Number of GEM hits vs eta",nintEta,minEta,maxEta,
-						    nintNHit,minNHit,maxNHit) );
+	  nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","Number of GEM hits vs eta",nintEta,minEta,maxEta,nintNHit,minNHit,maxNHit) );
+	if(useME0_)
+	  nME0hits_vs_eta.push_back( ibooker.book2D("nME0hits_vs_eta","Number of ME0 hits vs eta",nintEta,minEta,maxEta,nintNHit,minNHit,maxNHit) );
+
       }
 
       if (do_TRKhitsPlots) {
@@ -672,6 +674,7 @@ void NewMuonTrackValidator::analyze(const edm::Event& event, const edm::EventSet
 	  nCSChits_vs_eta[w]->Fill(xetaRec,track->hitPattern().numberOfValidMuonCSCHits());
 	  nRPChits_vs_eta[w]->Fill(xetaRec,track->hitPattern().numberOfValidMuonRPCHits());	
 	  if(useGEMs_) nGEMhits_vs_eta[w]->Fill(xetaRec,track->hitPattern().numberOfValidMuonGEMHits());
+	  if(useME0_) nME0hits_vs_eta[w]->Fill(xetaRec,track->hitPattern().numberOfValidMuonME0Hits());
 	}
 
 	if (do_TRKhitsPlots) {

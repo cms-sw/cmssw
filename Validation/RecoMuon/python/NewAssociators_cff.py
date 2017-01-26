@@ -35,6 +35,20 @@ tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
 )
 
 #
+# Configuration for Muon track extractor
+#
+import SimMuon.MCTruth.MuonTrackProducer_cfi
+extractGemMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractGemMuons.selectionTags = ('All',)
+extractGemMuons.trackType = "gemMuonTrack"
+extractGemMuonsTracks_seq = cms.Sequence( extractGemMuons )
+
+extractMe0Muons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractMe0Muons.selectionTags = cms.vstring('All',)
+extractMe0Muons.trackType = "me0MuonTrack"
+extractMe0MuonsTracks_seq = cms.Sequence( extractMe0Muons )
+
+#
 # Configuration for Seed track extractor
 #
 import SimMuon.MCTruth.SeedToTrackProducer_cfi
@@ -142,6 +156,16 @@ NEWtpToTevDytMuonAssociation.tracksTag = 'tevMuons:dyt'
 NEWtpToTevDytMuonAssociation.UseTracker = True
 NEWtpToTevDytMuonAssociation.UseMuon = True
 
+NEWtpToME0MuonMuonAssociation = MABH.clone()
+NEWtpToME0MuonMuonAssociation.tracksTag = 'extractMe0Muons'
+NEWtpToME0MuonMuonAssociation.UseTracker = True
+NEWtpToME0MuonMuonAssociation.UseMuon = False
+
+NEWtpToGEMMuonMuonAssociation = MABH.clone()
+NEWtpToGEMMuonMuonAssociation.tracksTag = 'extractGemMuons'
+NEWtpToGEMMuonMuonAssociation.UseTracker = True
+NEWtpToGEMMuonMuonAssociation.UseMuon = False
+
 NEWtpToL3TkMuonAssociation = MABHhlt.clone()
 NEWtpToL3TkMuonAssociation.tracksTag = 'hltL3TkTracksFromL2'
 NEWtpToL3TkMuonAssociation.UseTracker = True
@@ -240,8 +264,8 @@ NewMuonAssociationHLT_seq = cms.Sequence(
 
 
 # fastsim has no hlt specific dt hit collection
-from Configuration.StandardSequences.Eras import eras
-if eras.fastSim.isChosen():
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
     _DTrechitTag = SimMuon.MCTruth.NewMuonAssociatorByHits_cfi.NewMuonAssociatorByHits.DTrechitTag
     NEWtpToL3TkMuonAssociation.DTrechitTag = _DTrechitTag
     NEWtpToL2MuonAssociation.DTrechitTag = _DTrechitTag

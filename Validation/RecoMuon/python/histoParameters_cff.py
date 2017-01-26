@@ -104,6 +104,30 @@ trkMuonHistoParameters.maxNHit = 40.5
 trkMuonHistoParameters.do_TRKhitsPlots = True
 trkMuonHistoParameters.do_MUOhitsPlots = False
 #####################################################################################
+# GEMmuon tracks
+gemMuonHistoParameters =  trkMuonHistoParameters.clone()
+gemMuonHistoParameters.usetracker = True
+gemMuonHistoParameters.usemuon = False
+gemMuonHistoParameters.minEta = -2.4
+gemMuonHistoParameters.maxEta = +2.4
+gemMuonHistoParameters.nintEta = 48
+#gemMuonHistoParameters.nintNHit = 41  default del tracker ok ?
+#gemMuonHistoParameters.maxNHit = 40.5
+gemMuonHistoParameters.do_TRKhitsPlots = True
+gemMuonHistoParameters.do_MUOhitsPlots = True  # ??? it seems they are not done with the current code 
+#####################################################################################
+# ME0muon tracks
+me0MuonHistoParameters =  trkMuonHistoParameters.clone()
+me0MuonHistoParameters.usetracker = True
+me0MuonHistoParameters.usemuon = False
+me0MuonHistoParameters.minEta = -2.8
+me0MuonHistoParameters.maxEta = +2.8
+me0MuonHistoParameters.nintEta = 56
+#me0MuonHistoParameters.nintNHit = 41  default del tracker ok ?
+#me0MuonHistoParameters.maxNHit = 40.5
+me0MuonHistoParameters.do_TRKhitsPlots = True
+me0MuonHistoParameters.do_MUOhitsPlots = True  # ??? it seems they are not done with the current code
+#####################################################################################
 # STA tracks
 staMuonHistoParameters = defaultMuonHistoParameters.clone()
 staMuonHistoParameters.usetracker = False

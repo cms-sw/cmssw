@@ -33,6 +33,7 @@ NewMuonTrackValidator = cms.EDAnalyzer("NewMuonTrackValidator",
     associators = cms.vstring('MuonAssociationByHits'),
     UseAssociators = cms.bool(False),
     useGEMs = cms.bool(False),
+    useME0 = cms.bool(False),
     associatormap = cms.InputTag("tpToMuonTrackAssociation"),
     #
     # BiDirectional Logic for RecoToSim association corrects the Fake rates (counting ghosts and split tracks as fakes)
@@ -48,5 +49,7 @@ NewMuonTrackValidator = cms.EDAnalyzer("NewMuonTrackValidator",
     muonHistoParameters = cms.PSet(defaultMuonHistoParameters)
 )
 
-from Configuration.StandardSequences.Eras import eras
-eras.run3_GEM.toModify( NewMuonTrackValidator, useGEMs = cms.bool(True) )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( NewMuonTrackValidator, useGEMs = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( NewMuonTrackValidator, useME0 = cms.bool(True) )
