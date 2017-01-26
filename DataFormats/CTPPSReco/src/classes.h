@@ -10,7 +10,6 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
-#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
 #include <vector>
 
@@ -54,12 +53,6 @@ namespace DataFormats_CTPPSReco {
     edm::DetSet<CTPPSDiamondRecHit> ds_rh;
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
-
-    CTPPSDiamondLocalTrack ctd_lt;
-    edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;
-    edm::Wrapper<CTPPSDiamondLocalTrack> wrp_ctd_lt;
-    std::vector<CTPPSDiamondLocalTrack> vec_ctd_lt;
-    edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> > wrp_vec_ctd_lt;
 
   };
 }

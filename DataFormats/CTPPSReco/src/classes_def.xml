@@ -54,12 +54,4 @@
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
 
-  <class name="CTPPSDiamondLocalTrack" ClassVersion="2">
-    <version ClassVersion="2" checksum="2879004042"/>
-  </class>
-  <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
-  <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
-  <class name="std::vector<CTPPSDiamondLocalTrack>"/>
-  <class name="edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> >"/>
-
 </lcgdict>
