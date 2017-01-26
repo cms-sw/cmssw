@@ -1,14 +1,29 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <ConstantsSection label="CTPPS_Diamond_Detector_Assembly.xml" eval="true">
-    <Constant name="Shift_dx" value="-[CTPPS_Diamond_Parameters:Main_Box_dx]/2+[CTPPS_Diamond_Parameters:Diamond_dx]"/>
+    <Constant name="Shift_dx" value="[CTPPS_Diamond_Parameters:Plane_dx]/2-([CTPPS_Diamond_Parameters:PCB_dx]+[CTPPS_Diamond_Parameters:PCB_extend_dx])/2-[CTPPS_Timing_Horizontal_Pot:cut_depth]"/>
+    <Constant name="box_dz" value="([CTPPS_Diamond_Parameters:Metalized_thick]*2+[CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:PCB_thick])*4+[CTPPS_Diamond_Parameters:Plane_gap]*3"/>
   </ConstantsSection>
 
   <SolidSection label="CTPPS_Diamond_Detector_Assembly.xml">
     <!-- Detector Main Box and Planes -->
-    <Box name="CTPPS_Diamond_Main_Box" dx="[CTPPS_Diamond_Parameters:Main_Box_dx]/2" dy="[CTPPS_Diamond_Parameters:Main_Box_dy]/2" dz="(([CTPPS_Diamond_Parameters:Metalized_thick]*2+[CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:PCB_thick])*4+[CTPPS_Diamond_Parameters:Plane_gap]*3)/2"/>
+    <Box name="Main_Box_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[box_dz]/2"/>
+    <Trd1 name="Main_Box_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[box_dz]/2" dx2="[box_dz]/2"/>
+    <UnionSolid name="CTPPS_Diamond_Main_Box">
+      <rSolid name="Main_Box_main"/>
+      <rSolid name="Main_Box_extra"/>
+      <rRotation name="rotations:90YX"/>
+      <Translation x="-[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" y="0*mm" z="0*mm"/>
+    </UnionSolid>
     <!--<Box name="Downstream_Plane" dx="0*mm" dy="0*mm" dz="0*mm"/>-->
-    <Box name="PCB" dx="[CTPPS_Diamond_Parameters:Main_Box_dx]/2" dy="[CTPPS_Diamond_Parameters:Main_Box_dy]/2" dz="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
+    <Box name="PCB_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
+    <Trd1 name="PCB_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[CTPPS_Diamond_Parameters:PCB_thick]/2" dx2="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
+    <UnionSolid name="PCB">
+      <rSolid name="PCB_main"/>
+      <rSolid name="PCB_extra"/>
+      <rRotation name="rotations:90YX"/>
+      <Translation x="-[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" y="0*mm" z="0*mm"/>
+    </UnionSolid>
   </SolidSection>
 
   <LogicalPartSection label="CTPPS_Diamond_Detector_Assembly.xml">
@@ -17,52 +32,38 @@
       <rSolid name="CTPPS_Diamond_Main_Box"/>
       <rMaterial name="materials:Vacuum"/>
     </LogicalPart>
-    <!--FIXME to be defined -->
-    <!--<LogicalPart name="Downstream_Plane" category="unspecified">
-      <rSolid name="Downstream_Plane"/>
-      <rMaterial name="materials:Copper"/>
-    </LogicalPart>-->
     <LogicalPart name="PCB" category="support">
       <rSolid name="PCB"/>
-      <rMaterial name="RP_Materials:PCB"/> <!--FIXME use RO4350B-->
+      <rMaterial name="RP_Materials:PCB"/> <!--should be equivalent to actual RO4350B-->
     </LogicalPart>
   </LogicalPartSection>
 
   <PosPartSection label="CTPPS_Diamond_Detector_Assembly.xml">
     <PosPart copyNumber="1">
-      <rParent name="CTPPS_Timing_Horizontal_Pot:CTPPS_Timing_Cylinder_wall"/>
+      <rParent name="CTPPS_Timing_Horizontal_Pot:Bottom_Wall"/>
       <rChild name="CTPPS_Diamond_Main_Box"/>
-<!--      <Translation x="[CTPPS_Timing_Horizontal_Pot:window_thickness]-[CTPPS_Timing_Horizontal_Pot:height_lower_part]/2+[CTPPS_Diamond_Parameters:Main_Box_dy]" y="[CTPPS_Timing_Horizontal_Pot:outer_diameter]-4*([CTPPS_Diamond_Parameters:Metalized_thick]+[CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:PCB_thick])-3*[CTPPS_Diamond_Parameters:Plane_gap]+[CTPPS_Timing_Horizontal_Pot:wall_thickness]/2" z="0*mm"/>-->
-      <!--<Rotation name="Detector_Box" phiX="0*deg" phiY="0*deg" phiZ="270*deg" thetaX="90*deg" thetaY="0*deg" thetaZ="90*deg"/>-->
-<!--      <rRotation name="rotations:000D"/>-->
-      <Translation x="0*cm" y="[CTPPS_Timing_Horizontal_Pot:outer_diameter]/2-[CTPPS_Timing_Horizontal_Pot:wall_thickness]-[CTPPS_Diamond_Parameters:Metalized_thick]*4-[CTPPS_Diamond_Parameters:Diamond_dz]*4-[CTPPS_Diamond_Parameters:PCB_thick]*4-[CTPPS_Diamond_Parameters:Plane_gap]*3" z="[CTPPS_Timing_Horizontal_Pot:window_thickness]-[CTPPS_Timing_Horizontal_Pot:height_lower_part]/2+[CTPPS_Diamond_Parameters:Main_Box_dy]"/>-->
-      <!--<rRotation name="rotations:RM1902"/>-->
-      <!--<rRotation name="CTPPS_Diamonds_Transformations:Box_rotation"/>-->
-      <Rotation name="Detector_Box" phiX="0*deg" phiY="0*deg" phiZ="270*deg" thetaX="90*deg" thetaY="0*deg" thetaZ="90*deg"/>
+      <rRotation name="CTPPS_Diamond_Transformations:planes_box_rotation"/>
+      <Translation x="0*cm" y="0*cm" z="(-[CTPPS_Timing_Horizontal_Pot:cut_depth]+[CTPPS_Timing_Horizontal_Pot:thin_window_thickness])/2+[CTPPS_Timing_Horizontal_Pot:plane_length]/2+[CTPPS_Diamond_Parameters:PCB_extend_dx]"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="CTPPS_Diamond_Main_Box"/>
       <rChild name="CTPPS_Diamond_Plane1:CTPPS_Diamond_Plane"/>
       <Translation y="0*cm" x="[Shift_dx]" z="-([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])*3/2"/>
-      <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="CTPPS_Diamond_Main_Box"/>
       <rChild name="CTPPS_Diamond_Plane2:CTPPS_Diamond_Plane"/>
       <Translation y="0*cm" x="[Shift_dx]" z="-([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])/2"/>
-      <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="CTPPS_Diamond_Main_Box"/>
       <rChild name="CTPPS_Diamond_Plane3:CTPPS_Diamond_Plane"/>
       <Translation y="0*cm" x="[Shift_dx]" z="([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])/2"/>
-      <rRotation name="rotations:000D"/>
     </PosPart>
     <PosPart copyNumber="4">
       <rParent name="CTPPS_Diamond_Main_Box"/>
       <rChild name="CTPPS_Diamond_Plane4:CTPPS_Diamond_Plane"/>
       <Translation y="0*cm" x="[Shift_dx]" z="([CTPPS_Diamond_Parameters:Plane_dz]+[CTPPS_Diamond_Parameters:Plane_gap])*3/2"/>
-      <rRotation name="rotations:000D"/>
     </PosPart>
   </PosPartSection>
 

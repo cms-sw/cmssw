@@ -11,22 +11,22 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 
 class CTPPSDiamondRecHitProducerAlgorithm
 {
   public:
     CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& conf );
 
-    void build( const edm::DetSet<CTPPSDiamondDigi>&, edm::DetSet<CTPPSDiamondRecHit>& );
+    void build( const TotemRPGeometry*, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
 
   private:
-    RPTopology rp_topology_;
     /// Conversion constant between HPTDC time slice and absolute time (in ns)
     double ts_to_ns_;
     int t_shift_;

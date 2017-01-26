@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -26,6 +27,9 @@
 
 #include "RecoCTPPS/TotemRPLocal/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 
+#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+
 class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
 {
   public:
@@ -38,6 +42,10 @@ class CTPPSDiamondRecHitProducer : public edm::stream::EDProducer<>
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > digiToken_;
+
+    /// A watcher to detect geometry changes.
+    //edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
+
     CTPPSDiamondRecHitProducerAlgorithm algo_;
 };
 
@@ -56,14 +64,16 @@ CTPPSDiamondRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 {
   std::unique_ptr< edm::DetSetVector<CTPPSDiamondRecHit> > pOut( new edm::DetSetVector<CTPPSDiamondRecHit> );
 
+  // get the digi collection
   edm::Handle< edm::DetSetVector<CTPPSDiamondDigi> > digis;
   iEvent.getByToken( digiToken_, digis );
 
-  for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator dsv_digi = digis->begin(); dsv_digi != digis->end(); dsv_digi++ ) {
-    const CTPPSDiamondDetId detid( dsv_digi->detId() );
-    edm::DetSet<CTPPSDiamondRecHit>& rec_hits = pOut->find_or_insert( detid );
-    algo_.build( *( dsv_digi ), rec_hits );
-  }
+  // get the geometry
+  edm::ESHandle<TotemRPGeometry> geometry;
+  iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
+
+  // produce the rechits collection
+  algo_.build( geometry.product(), *( digis ), *( pOut ) );
 
   iEvent.put( std::move( pOut ) );
 }
