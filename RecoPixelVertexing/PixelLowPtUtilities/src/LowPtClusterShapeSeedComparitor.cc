@@ -123,7 +123,8 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits) cons
   assert(hits.size()==3);
 
   const ClusterShapeHitFilter * filter = theShapeFilter.product();
-  assert(filter != 0 && "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called");
+  if(filter == 0)
+    throw cms::Exception("LogicError") << "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called";
 
    // Get global positions
    GlobalPoint  globalPoss[3];
