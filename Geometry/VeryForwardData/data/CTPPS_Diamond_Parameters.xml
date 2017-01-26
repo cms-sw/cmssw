@@ -36,7 +36,6 @@
     <Constant name="Gold_thick" value="150e-9*m"/>
     <Constant name="Chromium_thick" value="50e-9*m"/>
     <Constant name="Metalized_thick" value="2*[Gold_thick]+[Chromium_thick]"/>
-    <Constant name="PCB_thick" value="1.20*mm"/>
     <Constant name="UnMet_Edge" value="0.15*mm"/>
     <Constant name="UnMet_gap" value="0.10*mm"/>
     <Constant name="Plane_gap" value="12.0*mm"/>
@@ -64,8 +63,13 @@
     <Constant name="Plane_dz" value="[Str_dz]+[Diamond_dz]+[PCB_thick]"/>
 
     <!-- Diamond Detector Box -->
-    <Constant name="Main_Box_dx" value="5*cm"/>
-    <Constant name="Main_Box_dy" value="5*cm"/> <!--FIXME-->
+    <Constant name="PCB_dx" value="135*mm"/>
+    <Constant name="PCB_dy" value="100*mm"/> <!--FIXME-->
+    <Constant name="PCB_thick" value="1.20*mm"/>
+    <Constant name="PCB_extend_dx" value="3*mm"/>
+    <Constant name="PCB_extend_dy1" value="15*mm"/>
+    <Constant name="PCB_extend_dy2" value="19*mm"/>
+
     <Constant name="Main_Box_dz" value="[Plane_dz]*4+[Plane_gap]*3"/>
   </ConstantsSection>
 

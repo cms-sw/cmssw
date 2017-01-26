@@ -16,20 +16,32 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const 
 {}
 
 void
-CTPPSDiamondRecHitProducerAlgorithm::build( const edm::DetSet<CTPPSDiamondDigi>& input, edm::DetSet<CTPPSDiamondRecHit>& output )
+CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
 {
-  for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator it = input.begin(); it != input.end(); ++it )
+  for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator vec = input.begin(); vec != input.end(); ++vec )
   {
-    const int t = it->getLeadingEdge(),
-              t0 = ( t-t_shift_ ) % 1024,
-              time_slice = ( t-t_shift_ ) / 1024;
-    if ( t==0 ) { continue; }
-    const double x_pos = 0.,
-                 x_width = 0.,
-                 y_pos = 0.,
-                 y_width = 0.;
-    const CTPPSDiamondRecHit rechit( x_pos, x_width, y_pos, y_width, ( t0 * ts_to_ns_ ), ( it->getTrailingEdge()-t0 ) * ts_to_ns_, time_slice, it->getHPTDCErrorFlags() );
-    output.push_back( rechit );
-    //output.push_back(TotemRPRecHit(rp_topology_.GetHitPositionInReadoutDirection(it->getCenterStripPosition()), nominal_sigma));
+    const CTPPSDiamondDetId detid( vec->detId() );
+
+    const DetGeomDesc* det = geom->GetDetector( detid );
+    const double x_pos = det->translation().x(),
+                 x_width = det->params().at( 0 ),
+                 y_pos = det->translation().y(),
+                 y_width = det->params().at( 1 );
+
+std::cout << detid << " --> " << det->translation().x() << "," << det->translation().y() << "," << det->translation().z() << std::endl;
+
+    edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
+
+    for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi )
+    {
+      const int t = digi->getLeadingEdge();
+      if ( t==0 ) { continue; }
+
+      const int t0 = ( t-t_shift_ ) % 1024,
+                time_slice = ( t-t_shift_ ) / 1024;
+
+      const CTPPSDiamondRecHit rechit( x_pos, x_width, y_pos, y_width, ( t0 * ts_to_ns_ ), ( digi->getTrailingEdge()-t0 ) * ts_to_ns_, time_slice, digi->getHPTDCErrorFlags() );
+      rec_hits.push_back( rechit );
+    }
   }
 }
