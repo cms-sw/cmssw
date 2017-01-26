@@ -98,8 +98,8 @@ def customizeGSFixForPAT(process):
     process.MINIAODoutput.outputCommands.extend(['keep *_reducedEgammaBeforeGSFix_*_*',
                                                  'keep *_slimmedElectronsBeforeGSFix_*_*',
                                                  'keep *_slimmedPhotonsBeforeGSFix_*_*',
-                                                 'keep EBDigiCollection_selectDigi_*_*',
-                                                 'keep EEDigiCollection_selectDigi_*_*',
+#                                                 'keep EBDigiCollection_selectDigi_*_*',
+#                                                 'keep EEDigiCollection_selectDigi_*_*',
                                                  'drop *_reducedEgammaBeforeGSFix_reducedGedGsfElectrons_*',
                                                  'drop *_reducedEgammaBeforeGSFix_reducedGedPhotons_*',
                                                  ])
