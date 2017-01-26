@@ -55,6 +55,9 @@ private:
   const int fedId_;
   /// if invert_=true, invert that event accept decision
   const bool invert_;
+  /// use 64-bit L1 count from TCDS FED 1024
+  const bool useFED1024L1Count_;
+
 };
 
 #endif
