@@ -28,8 +28,6 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
                  y_pos = det->translation().y(),
                  y_width = det->params().at( 1 );
 
-std::cout << detid << " --> " << det->translation().x() << "," << det->translation().y() << "," << det->translation().z() << std::endl;
-
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
     for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi )
