@@ -17,7 +17,8 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   enum {
     VALID,
     MISSING,
-    EFFICIENCY
+    EFFICIENCY,
+    VERTICES
   };
 
   public:
@@ -28,24 +29,6 @@ class SiPixelPhase1TrackEfficiency : public SiPixelPhase1Base {
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
   edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-};
-
-class SiPixelPhase1TrackEfficiencyHarvester : public SiPixelPhase1Harvester { 
-  enum {
-    VALID,
-    MISSING,
-    EFFICIENCY
-  };
-
-  public:
-  explicit SiPixelPhase1TrackEfficiencyHarvester(const edm::ParameterSet& conf);
-
-  void doHarvesting(SummationStep const& s, HistogramManager::Table& efficiency);
-  
-  private:
-  // we use the custom arg as a tag, to not mix up different tables.
-  std::map<std::string, HistogramManager::Table> valid;
-  std::map<std::string, HistogramManager::Table> missing;
 };
 
 #endif

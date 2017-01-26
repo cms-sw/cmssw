@@ -9,8 +9,10 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   
   specs = VPSet(
     StandardSpecification2DProfile,
+    StandardSpecificationPixelmapProfile,
     StandardSpecificationTrend,
-    StandardSpecifications1D
+    StandardSpecifications1D,
+    StandardSpecificationTrend2D
   )
 )
 
@@ -22,7 +24,8 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    StandardSpecifications1D
+    StandardSpecifications1D,
+    StandardSpecificationTrend2D
   )
 )
 
@@ -35,21 +38,37 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   specs = VPSet(
     StandardSpecification2DProfile_Num,
     StandardSpecificationTrend_Num,
-    StandardSpecifications1D_Num
+    StandardSpecifications1D_Num,
   )
 )
 
+
+SiPixelPhase1ClustersNClustersInclusive = DefaultHistoDigiCluster.clone(
+  name = "clusters",
+  title = "Clusters",
+  range_min = 0, range_max = 2000, range_nbins = 200,
+  xlabel = "clusters",
+  dimensions = 0,
+  specs = VPSet(
+    StandardSpecificationInclusive_Num
+  )
+)
+
+
 SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
-  name = "bigfpixclustereventrate",
-  title = "Number of Events with > 180 FPIX clusters",
-  xlabel = "Lumisection",
+  name = "clustereventrate",
+  title = "Number of Events with clusters",
   ylabel = "#Events",
   dimensions = 0,
   specs = VPSet(
     Specification().groupBy("Lumisection")
+                   .groupBy("", "EXTEND_X").save(),
+    Specification().groupBy("BX")
                    .groupBy("", "EXTEND_X").save()
-  )
+    )
+
 )
+
 
 SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
   name = "clusterposition_zphi",
@@ -115,16 +134,56 @@ SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   )
 )
 
+SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
+  name = "charge",
+  title = "Cluster Charge",
+  range_min = 0, range_max = 200e3, range_nbins = 200,
+  xlabel = "Charge (electrons)",
+  specs = VPSet(
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save(),
+
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
+                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
+                             .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
+  )
+)
+
+SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
+  name = "clusters",
+  title = "Clusters",
+  range_min = 0, range_max = 10, range_nbins = 10,
+  xlabel = "clusters",
+  dimensions = 0,
+  specs = VPSet(
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/Sector").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
+                             .groupBy("PXForward/HalfCylinder").save(),
+
+    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/Sector/Lumisection").reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
+                             .groupBy("PXForward/HalfCylinder/Lumisection").reduce("MEAN")
+                             .groupBy("PXForward/HalfCylinder", "EXTEND_X").save(),
+  )
+)
+
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
   SiPixelPhase1ClustersSize,
   SiPixelPhase1ClustersNClusters,
+  SiPixelPhase1ClustersNClustersInclusive,
   SiPixelPhase1ClustersEventrate,
   SiPixelPhase1ClustersPositionB,
   SiPixelPhase1ClustersPositionF,
   SiPixelPhase1ClustersPositionXZ,
   SiPixelPhase1ClustersPositionYZ,
-  SiPixelPhase1ClustersSizeVsEta
+  SiPixelPhase1ClustersSizeVsEta,
+  SiPixelPhase1ClustersReadoutCharge,
+  SiPixelPhase1ClustersReadoutNClusters
 )
 
 

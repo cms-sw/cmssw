@@ -29,13 +29,12 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
 
+  bool hasClusters=false;  
+
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   assert(tracker.isValid());
   
-  auto forward = geometryInterface.intern("PXForward");
-  auto nforward = 0;
-
   edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
   for (it = input->begin(); it != input->end(); ++it) {
     auto id = DetId(it->detId());
@@ -44,10 +43,16 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
     const PixelTopology& topol = theGeomDet->specificTopology();
 
     for(SiPixelCluster const& cluster : *it) {
-      histo[CHARGE].fill(double(cluster.charge()), id, &iEvent);
+      int row = cluster.x()-0.5, col = cluster.y()-0.5;
+      histo[READOUT_CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
+      histo[CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[SIZE  ].fill(double(cluster.size()  ), id, &iEvent);
-      if (cluster.size() > 1)
+      if (cluster.size() > 1){
         histo[NCLUSTERS].fill(id, &iEvent);
+        histo[NCLUSTERSINCLUSIVE].fill(id, &iEvent);
+        histo[READOUT_NCLUSTERS].fill(id, &iEvent);
+        hasClusters=true;
+      }
 
       LocalPoint clustlp = topol.localPosition(MeasurementPoint(cluster.x(), cluster.y()));
       GlobalPoint clustgp = theGeomDet->surface().toGlobal(clustlp);
@@ -57,14 +62,16 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
       histo[POSITION_YZ].fill(clustgp.y(),   clustgp.z(),     id, &iEvent);
       histo[SIZE_VS_ETA].fill(clustgp.eta(), cluster.sizeY(), id, &iEvent);
 
-      if (geometryInterface.extract(forward, id) != GeometryInterface::UNDEFINED)
-        nforward++;
     }
   }
 
-  if (nforward > 180) 
-    histo[EVENTRATE].fill(DetId(0), &iEvent);
+
+  if (hasClusters) histo[EVENTRATE].fill(DetId(0), &iEvent);
+
   histo[NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[READOUT_NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[NCLUSTERSINCLUSIVE].executePerEventHarvesting(&iEvent);
+
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1Clusters);

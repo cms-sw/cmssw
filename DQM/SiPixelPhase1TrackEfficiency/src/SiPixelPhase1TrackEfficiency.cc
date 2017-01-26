@@ -20,6 +20,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+
 
 SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
@@ -38,7 +40,11 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   // get primary vertex
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken( vtxToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
+
+  if (!vertices.isValid()) return;
+  histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
+  if (vertices->size() == 0) return;
+
   // should be used for weird cuts
   //const auto primaryVertex = vertices->at(0); 
 
@@ -90,20 +96,34 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
 
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
-      int row = 0, col = 0;
+      const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
+      const PixelTopology& topol = geomdetunit->specificTopology();
+      LocalPoint lp;
       if (pixhit) {
-        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
-        const PixelTopology& topol = geomdetunit->specificTopology();
-        LocalPoint const& lp = pixhit->localPositionFast();
-        MeasurementPoint mp = topol.measurementPosition(lp);
-        row = (int) mp.x();
-        col = (int) mp.y();
+        lp = pixhit->localPosition();
+      } else {
+        TrajectoryStateCombiner tsc;
+        TrajectoryStateOnSurface tsos = tsc(measurement.forwardPredictedState(), measurement.backwardPredictedState());
+        lp = tsos.localPosition();
       }
 
-      if (isHitValid)   histo[VALID  ].fill(id, &iEvent, col, row);
-      if (isHitMissing) histo[MISSING].fill(id, &iEvent, col, row);
+      MeasurementPoint mp = topol.measurementPosition(lp);
+      int row = (int) mp.x();
+      int col = (int) mp.y();
+
+
+      if (isHitValid)   {
+        histo[VALID].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(1, id, &iEvent, col, row);
+      }
+      if (isHitMissing) {
+        histo[MISSING].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(0, id, &iEvent, col, row);
+      }
     }
   }
+histo[VALID  ].executePerEventHarvesting(&iEvent);
+histo[MISSING].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackEfficiency);

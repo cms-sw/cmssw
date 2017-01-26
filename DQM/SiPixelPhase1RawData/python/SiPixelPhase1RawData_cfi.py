@@ -13,10 +13,10 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
     Specification().groupBy("FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED/FED").save(),
-    Specification().groupBy("FED/FED/FEDChannel")
+    Specification().groupBy("FED/FED/LinkInFed")
                    .groupBy("FED/FED", "EXTEND_X")
                    .save(),
-    Specification().groupBy("FED/FEDChannel")
+    Specification().groupBy("FED/LinkInFed")
                    .groupBy("FED", "EXTEND_X")
                    .groupBy("", "EXTEND_Y")
                    .save()
