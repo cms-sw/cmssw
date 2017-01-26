@@ -161,6 +161,237 @@ def customiseFor16792(process):
 
     return process
 
+# Migrate PixelTrackProducer and HLT to new seeding framework
+def customiseFor17170(process):
+    from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
+    from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+    from RecoTauTag.HLTProducers.tauRegionalPixelSeedTrackingRegions_cfi import tauRegionalPixelSeedTrackingRegions as _tauRegionalPixelSeedTrackingRegions
+    from RecoTauTag.HLTProducers.seededTrackingRegionsFromBeamSpotFixedZLength_cfi import seededTrackingRegionsFromBeamSpotFixedZLength as _seededTrackingRegionsFromBeamSpotFixedZLength
+    from RecoHI.HiTracking.hiTrackingRegionFromClusterVtx_cfi import hiTrackingRegionFromClusterVtx as _hiTrackingRegionFromClusterVtx
+
+    from RecoTracker.TkSeedGenerator.trackerClusterCheck_cfi import trackerClusterCheck as _trackerClusterCheck
+
+    from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+    from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+    from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+    from RecoTracker.TkSeedGenerator.multiHitFromChi2EDProducer_cfi import multiHitFromChi2EDProducer as _multiHitFromChi2EDProducer
+
+    from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cfi import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
+    from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cfi import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+
+    def _copy(old, new, skip=[]):
+        skipSet = set(skip)
+        for key in old.parameterNames_():
+            if key not in skipSet:
+                setattr(new, key, getattr(old, key))
+
+    def _regionHitSet(producer):
+        # region
+        regionProducer = {
+            "GlobalRegionProducerFromBeamSpot": _globalTrackingRegionFromBeamSpot,
+            "GlobalTrackingRegionWithVerticesProducer": _globalTrackingRegionWithVertices,
+            "TauRegionalPixelSeedGenerator": _tauRegionalPixelSeedTrackingRegions,
+            "CandidateSeededTrackingRegionsProducer": _seededTrackingRegionsFromBeamSpotFixedZLength,
+            "HITrackingRegionForPrimaryVtxProducer": _hiTrackingRegionFromClusterVtx,
+        }.get(producer.RegionFactoryPSet.ComponentName.value(), None)
+        if regionProducer is None: # got a region not migrated yet
+            raise Exception("Encountered %s from module %s which is not yet migrated to the new seeding framework. Please migrate." % (producer.RegionFactoryPSet.ComponentName.value(), producer.label()))
+        regionProducer = regionProducer.clone()
+        # some instances of the following region producers have the
+        # following parameters in the HLT configuration, while the
+        # region producers themselves do not use these parameters
+        skip = {
+            "TauRegionalPixelSeedGenerator": ["precise", "JetMaxEta", "JetMaxN", "JetMinPt", "beamSpot", "originZPos", "useFakeVertices", "useMultipleScattering", "deltaEta", "deltaPhi"],
+            "GlobalRegionProducerFromBeamSpot": ["useFakeVertices"],
+            "GlobalTrackingRegionWithVerticesProducer": ["originHalfLength"],
+            "CandidateSeededTrackingRegionsProducer": ["useFakeVertices", "useMultipleScattering", "originZPos", "vertexSrc", "zErrorVertex", "fixedError", "nSigmaZ", "sigmaZVertex", "useFixedError", "useFoundVertices"],
+        }.get(producer.RegionFactoryPSet.ComponentName.value(), [])
+        _copy(producer.RegionFactoryPSet.RegionPSet, regionProducer.RegionPSet, skip=skip)
+        if producer.RegionFactoryPSet.ComponentName.value() == "GlobalRegionProducerFromBeamSpot":
+            # to preserve old behaviour
+            # if nSigmaZ/originHalfLength was missing, it was internally set to 0
+            if not hasattr(producer.RegionFactoryPSet.RegionPSet, "nSigmaZ"):
+                regionProducer.RegionPSet.nSigmaZ = 0
+            if not hasattr(producer.RegionFactoryPSet.RegionPSet, "originHalfLength"):
+                regionProducer.RegionPSet.originHalfLength = 0
+
+        # hit doublet generator
+        doubletProducer = _hitPairEDProducer.clone(
+            seedingLayers = producer.OrderedHitsFactoryPSet.SeedingLayers.value(),
+            trackingRegions = regionLabel,
+            clusterCheck = clusterCheckLabel,
+        )
+
+        # hit triplet generator
+        tripletProducer = None
+        skip = ["ComponentName"]
+        if producer.OrderedHitsFactoryPSet.ComponentName.value() == "StandardHitPairGenerator":
+            doubletProducer.produceSeedingHitSets = True
+            doubletProducer.maxElement = producer.OrderedHitsFactoryPSet.maxElement.value()
+        elif producer.OrderedHitsFactoryPSet.ComponentName.value() == "StandardHitTripletGenerator":
+            doubletProducer.produceIntermediateHitDoublets = True
+
+            tripletProducer = {
+                "PixelTripletHLTGenerator": _pixelTripletHLTEDProducer,
+                "PixelTripletLargeTipGenerator": _pixelTripletLargeTipEDProducer,
+            }.get(producer.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName.value(), None)
+            if tripletProducer is None: # got a triplet generator not migrated yet
+                raise Exception("Encountered %s from module %s which is not yet migrated to the new seeding framework. Please migrate." % (producer.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName.value(), producer.label()))
+            tripletProducer = tripletProducer.clone(
+                doublets = doubletLabel,
+                produceSeedingHitSets = True,
+            )
+        elif producer.OrderedHitsFactoryPSet.ComponentName.value() == "StandardMultiHitGenerator":
+            doubletProducer.produceIntermediateHitDoublets = True
+            if producer.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName.value() != "MultiHitGeneratorFromChi2":
+                raise Exception("In %s, StandardMultiHitGenerator without MultiHitGeneratorFromChi2, but with %s" % label, producer.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName.value())
+            tripletProducer = _multiHitFromChi2EDProducer.clone(
+                doublets = doubletLabel,
+            )
+            # some instances have "debug" parameter set while the producer does not use it
+            skip.append("debug")
+        else: # got a hit generator not migrated yet
+            raise Exception("Encountered %s from module %s which is not yet migrated to the new seeding framework. Please migrate." % (producer.OrderedHitsFactoryPSet.ComponentName.value(), producer.label()))
+        if tripletProducer:
+            _copy(producer.OrderedHitsFactoryPSet.GeneratorPSet, tripletProducer, skip=skip)
+            doubletProducer.maxElement = 0 # this was the old behaviour when calling doublet generator from triplet generator
+
+
+        return (regionProducer, doubletProducer, tripletProducer)
+
+
+    # Bit of a hack to replace a module with another, but works
+    #
+    # In principle setattr(process) could work too, but it expands the
+    # sequences and I don't want that
+    modifier = cms.Modifier()
+    modifier._setChosen()
+
+    for producer in producers_by_type(process, "SeedGeneratorFromRegionHitsEDProducer"):
+        label = producer.label()
+        if "Seeds" in label:
+            regionLabel = label.replace("Seeds", "TrackingRegions")
+            clusterCheckLabel = label.replace("Seeds", "ClusterCheck")
+            doubletLabel = label.replace("Seeds", "HitDoublets")
+            tripletLabel = label.replace("Seeds", "HitTriplets")
+        else:
+            regionLabel = label + "TrackingRegions"
+            clusterCheckLabel = label + "ClusterCheck"
+            doubletLabel = label + "HitPairs"
+            tripletLabel = label + "HitTriplets"
+
+        ## Construct new producers
+        # cluster check
+        clusterCheckProducer = _trackerClusterCheck.clone()
+        _copy(producer.ClusterCheckPSet, clusterCheckProducer)
+        if not hasattr(producer.ClusterCheckPSet, "cut"):
+            clusterCheckProducer.cut = "" # to preserve old behaviour
+
+        # region and hit ntuplet
+        (regionProducer, doubletProducer, tripletProducer) = _regionHitSet(producer)
+
+        # seed creator
+        seedCreatorPSet = producer.SeedCreatorPSet
+        if hasattr(seedCreatorPSet, "refToPSet_"):
+            seedCreatorPSet = getattr(process, seedCreatorPSet.refToPSet_.value())
+
+        seedProducer = {
+            "SeedFromConsecutiveHitsCreator": _seedCreatorFromRegionConsecutiveHitsEDProducer,
+            "SeedFromConsecutiveHitsTripletOnlyCreator": _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer,
+        }.get(seedCreatorPSet.ComponentName.value(), None)
+        if seedProducer is None: # got a seed creator not migrated yet
+            raise Exception("Encountered %s from module %s which is not yet migrated to the new seeding framework. Please migrate." % (producer.SeedCreatorPSet.ComponentName.value(), producer.label()))
+        seedProducer = seedProducer.clone(
+            seedingHitSets = tripletLabel if tripletProducer else doubletLabel
+        )
+        _copy(seedCreatorPSet, seedProducer, skip=[
+            "ComponentName",
+            "maxseeds", # some HLT seed creators include maxseeds parameter which does nothing except with CosmicSeedCreator
+        ])
+        seedProducer.SeedComparitorPSet = producer.SeedComparitorPSet
+
+        # Set new producers to process
+        setattr(process, regionLabel, regionProducer)
+        setattr(process, clusterCheckLabel, clusterCheckProducer)
+        setattr(process, doubletLabel, doubletProducer)
+        if tripletProducer:
+            setattr(process, tripletLabel, tripletProducer)
+        modifier.toReplaceWith(producer, seedProducer)
+
+        # Modify sequences (also paths to be sure, altough in practice
+        # the seeding modules should be only in sequences in HLT?)
+        for seqs in [process.sequences_(), process.paths_()]:
+            for seqName, seq in seqs.iteritems():
+                # Is there really no simpler way to add
+                # regionProducer+doubletProducer+tripletProducer
+                # before producer in the sequence?
+                #
+                # cms.Sequence.replace() would look much simpler, but
+                # it traverses the contained sequences too, leading to
+                # multiple replaces as we already loop over all
+                # sequences of a cms.Process, and also expands the
+                # contained sequences if a replacement occurs there.
+                try:
+                    index = seq.index(producer)
+                except:
+                    continue
+
+                # Inserted on reverse order, succeeding module will be
+                # inserted before preceding one
+                if tripletProducer:
+                    seq.insert(index, tripletProducer)
+                seq.insert(index, doubletProducer)
+                seq.insert(index, clusterCheckProducer)
+                seq.insert(index, regionProducer)
+
+
+    for producer in producers_by_type(process, "PixelTrackProducer"):
+        label = producer.label()
+        if "PixelTracks" in label:
+            regionLabel = label.replace("PixelTracks", "PixelTracksTrackingRegions")
+            doubletLabel = label.replace("PixelTracks", "PixelTracksHitDoublets")
+            tripletLabel = label.replace("PixelTracks", "PixelTracksHitTriplets")
+        else:
+            regionLabel = label + "TrackingRegions"
+            doubletLabel = label + "HitPairs"
+            tripletLabel = label + "HitTriplets"
+
+        ## Construct new producers
+        # region and hit ntuplet
+        (regionProducer, doubletProducer, tripletProducer) = _regionHitSet(producer)
+
+        # Disable cluster check as in legacy PixelTrackProducer
+        doubletProducer.clusterCheck = ""
+
+        # Remove old PSets
+        del producer.RegionFactoryPSet
+        del producer.OrderedHitsFactoryPSet
+
+        # Set ntuplet input
+        producer.SeedingHitSets = cms.InputTag(tripletLabel if tripletProducer else doubletLabel)
+
+        # Set new producers to process
+        setattr(process, regionLabel, regionProducer)
+        setattr(process, doubletLabel, doubletProducer)
+        if tripletProducer:
+            setattr(process, tripletLabel, tripletProducer)
+
+        for seqs in [process.sequences_(), process.paths_()]:
+            for seqName, seq in seqs.iteritems():
+                try:
+                    index = seq.index(producer)
+                except:
+                    continue
+
+                # Inserted on reverse order, succeeding module will be
+                # inserted before preceding one
+                if tripletProducer:
+                    seq.insert(index, tripletProducer)
+                seq.insert(index, doubletProducer)
+                seq.insert(index, regionProducer)
+
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -187,6 +418,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         print "# Applying 90X customization for ",menuType
         process = customiseFor16792(process)
         process = customiseFor17094(process)
+        process = customiseFor17170(process)
         pass
 
 #   stage-2 changes only if needed
