@@ -53,7 +53,7 @@ BadGlobalMuonTagger::BadGlobalMuonTagger(const edm::ParameterSet & iConfig) :
     ptCut_(iConfig.getParameter<double>("muonPtCut")),
     selectClones_(iConfig.getParameter<bool>("selectClones")),
     taggingMode_(iConfig.getParameter<bool> ("taggingMode")),
-    verbose_(iConfig.getUntrackedParameter<bool> ("verbose",true))
+    verbose_(iConfig.getUntrackedParameter<bool> ("verbose",false))
 {
     produces<edm::PtrVector<reco::Muon>>("bad");
 }
