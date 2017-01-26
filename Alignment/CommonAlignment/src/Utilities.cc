@@ -3,6 +3,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
 
 align::EulerAngles align::toAngles(const RotationType& rot)
 {

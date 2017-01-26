@@ -35,17 +35,16 @@
     <Constant name="zTop"   value="([zRead]+[tRead]+[tTop])"/>
   
     <Constant name="dzGap"  value="0.2500*mm"/>
-    <Constant name="dzS1"   value="60.600*mm"/>
+    <Constant name="dzS1"   value="73.803*mm"/>
     <Constant name="dzS2"   value="([dzS1])"/>
-    <Constant name="dzS3"   value="50.205*mm"/>
+    <Constant name="dzS3"   value="58.463*mm"/>
     <Constant name="dzS4"   value="([dzS3])"/>
-    <Constant name="dzS5"   value="41.805*mm"/>
+    <Constant name="dzS5"   value="46.566*mm"/>
     <Constant name="dzS6"   value="([dzS5])"/>
-    <Constant name="dzS7"   value="34.910*mm"/>
+    <Constant name="dzS7"   value="38.213*mm"/>
     <Constant name="dzS8"   value="([dzS7])"/>
-    <Constant name="dzS9"   value="29.275*mm"/>
-    <Constant name="dzS0"   value="([dzS9])"/>
-    <Constant name="dzInL"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+[dzS9]+[dzS0]+9*[dzGap])"/>
+
+    <Constant name="dzInL"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+7*[dzGap])"/>
     <Constant name="z10L"   value="([dzInL]-[dzS1])"/> 
     <Constant name="z20L"   value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/> 
     <Constant name="z30L"   value="([z20L]-[dzS2]-2*[dzGap]-[dzS3])"/> 
@@ -54,8 +53,7 @@
     <Constant name="z60L"   value="([z50L]-[dzS5]-2*[dzGap]-[dzS6])"/> 
     <Constant name="z70L"   value="([z60L]-[dzS6]-2*[dzGap]-[dzS7])"/> 
     <Constant name="z80L"   value="([z70L]-[dzS7]-2*[dzGap]-[dzS8])"/> 
-    <Constant name="z90L"   value="([z80L]-[dzS8]-2*[dzGap]-[dzS9])"/> 
-    <Constant name="z00L"   value="([z90L]-[dzS9]-2*[dzGap]-[dzS0])"/> 
+
     <Constant name="dxTop"  value="(([rPos]+[dzInL])*[slope])"/>
     <Constant name="dx11"   value="([dxTop]-[slope]*([dzInL]-[z10L]+[dzS1]))"/>
     <Constant name="dx12"   value="([dxTop]-[slope]*([dzInL]-[z10L]-[dzS1]))"/>
@@ -73,10 +71,6 @@
     <Constant name="dx72"   value="([dxTop]-[slope]*([dzInL]-[z70L]-[dzS7]))"/>
     <Constant name="dx81"   value="([dxTop]-[slope]*([dzInL]-[z80L]+[dzS8]))"/>
     <Constant name="dx82"   value="([dxTop]-[slope]*([dzInL]-[z80L]-[dzS8]))"/>
-    <Constant name="dx91"   value="([dxTop]-[slope]*([dzInL]-[z90L]+[dzS9]))"/>
-    <Constant name="dx92"   value="([dxTop]-[slope]*([dzInL]-[z90L]-[dzS9]))"/>
-    <Constant name="dx01"   value="([dxTop]-[slope]*([dzInL]-[z00L]+[dzS0]))"/>
-    <Constant name="dx02"   value="([dxTop]-[slope]*([dzInL]-[z00L]-[dzS0]))"/>
   </ConstantsSection>
 
   <SolidSection label="me0.xml">
@@ -99,9 +93,6 @@
   <Trd1 name="GHA006" dz="[dzS6]" dy1="[tSense]" dy2="[tSense]" dx1="[dx61]" dx2="[dx62]" />
   <Trd1 name="GHA007" dz="[dzS7]" dy1="[tSense]" dy2="[tSense]" dx1="[dx71]" dx2="[dx72]" />
   <Trd1 name="GHA008" dz="[dzS8]" dy1="[tSense]" dy2="[tSense]" dx1="[dx81]" dx2="[dx82]" />
-  <Trd1 name="GHA009" dz="[dzS9]" dy1="[tSense]" dy2="[tSense]" dx1="[dx91]" dx2="[dx92]" />
-  <Trd1 name="GHA010" dz="[dzS0]" dy1="[tSense]" dy2="[tSense]" dx1="[dx01]" dx2="[dx02]" />
-  
   </SolidSection>
 
   <LogicalPartSection label="me0.xml">
@@ -182,17 +173,8 @@
     <rSolid name="GHA008"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA009" category="unspecified">
-    <rSolid name="GHA009"/>
-    <rMaterial name="gemf:M_GEM_Gas"/>
-  </LogicalPart>
-  <LogicalPart name="GHA010" category="unspecified">
-    <rSolid name="GHA010"/>
-    <rMaterial name="gemf:M_GEM_Gas"/>
-  </LogicalPart>
 
   </LogicalPartSection>
-
   <PosPartSection label="me0.xml">
     <PosPart copyNumber="1">
       <rParent name="mf:ME0RingP"/>
@@ -544,16 +526,6 @@
       <rParent name="ME0L"/>
       <rChild name="GHA008"/>
       <Translation x="0*fm" y="0*fm" z="[z80L]" />
-    </PosPart>
-    <PosPart copyNumber="9">
-      <rParent name="ME0L"/>
-      <rChild name="GHA009"/>
-      <Translation x="0*fm" y="0*fm" z="[z90L]" />
-    </PosPart>
-    <PosPart copyNumber="10">
-      <rParent name="ME0L"/>
-      <rChild name="GHA010"/>
-      <Translation x="0*fm" y="0*fm" z="[z00L]" />
     </PosPart>
   </PosPartSection>
 

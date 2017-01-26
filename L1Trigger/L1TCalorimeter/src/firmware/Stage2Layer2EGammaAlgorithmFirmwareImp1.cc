@@ -147,13 +147,14 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int hwIsoEnergy = hwEtSum-hwFootPrint;
 
       // development vars
-      egamma.setTowerIPhi((short int)CaloTools::towerEta(cluster.hwEta()));
-      egamma.setTowerIEta((short int)CaloTools::towerPhi(cluster.hwEta(), cluster.hwPhi()));
+      egamma.setTowerIPhi((short int)cluster.hwPhi());
+      egamma.setTowerIEta((short int)cluster.hwEta());
       egamma.setRawEt((short int)egamma.hwPt());
       egamma.setIsoEt((short int)hwIsoEnergy);
       egamma.setFootprintEt((short int)hwFootPrint);
       egamma.setNTT((short int)nrTowers);
       egamma.setShape((short int)returnShape(cluster));
+      egamma.setTowerHoE((short int)returnHoE(seed));      
       
       // Energy calibration
       // Corrections function of ieta, ET, and cluster shape
@@ -501,3 +502,27 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnShape(const l1t
   return shape;
 }
  
+
+
+
+/*****************************************************************/
+int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnHoE(const l1t::CaloTower& tow)
+/*****************************************************************/
+{
+
+  int ratio =  tow.hwEtRatio();
+  int qual  = tow.hwQual();
+  bool denomZeroFlag = ((qual&0x1) > 0);
+  bool eOverHFlag    = ((qual&0x2) > 0);
+
+  if (denomZeroFlag && !eOverHFlag) //E=0
+    ratio = -1;
+  if (denomZeroFlag && eOverHFlag) //H=0
+    ratio = 8; // ratio is on 3 bits, so 8 should be ok for overflow
+  if (!denomZeroFlag && !eOverHFlag) // H > E
+    ratio = -1;
+  //else E >= H , so ratio=log(E/H)
+
+  return ratio;
+
+}

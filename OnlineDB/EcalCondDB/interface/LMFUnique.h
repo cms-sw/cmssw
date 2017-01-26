@@ -55,12 +55,12 @@ class LMFUnique: public IUniqueDBObject {
   std::string getClassName() const { return m_className; }
   std::string getString(std::string fieldname) const;
 
-  int fetchID() throw(std::runtime_error); 
+  int fetchID() noexcept(false); 
 
   LMFUnique& setString(std::string key, std::string value);
   LMFUnique& setInt(std::string key, int value);
   void attach(std::string name, LMFUnique *u);
-  void setByID(int id) throw(std::runtime_error);
+  void setByID(int id) noexcept(false);
 
   virtual void dump() const ;
   virtual void dump(int n) const ;
@@ -68,8 +68,7 @@ class LMFUnique: public IUniqueDBObject {
   inline void debug() { m_debug = 1; }
   inline void nodebug() { m_debug = 0; }
 
-  virtual boost::ptr_list<LMFUnique> fetchAll() const 
-    throw (std::runtime_error);
+  virtual boost::ptr_list<LMFUnique> fetchAll() const noexcept(false);
 
   virtual bool operator<(const LMFUnique &r) {
     return (m_ID < r.m_ID);
@@ -92,8 +91,8 @@ class LMFUnique: public IUniqueDBObject {
   virtual LMFUnique * createObject() const;
 
  protected:
-  virtual int writeDB() throw(std::runtime_error);
-  virtual int writeForeignKeys() throw(std::runtime_error);
+  virtual int writeDB() noexcept(false);
+  virtual int writeForeignKeys() noexcept(false);
   virtual void setClassName(std::string s) { m_className = s; }
 
   std::string m_className;

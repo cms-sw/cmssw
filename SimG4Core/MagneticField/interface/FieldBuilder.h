@@ -2,68 +2,39 @@
 #define SimG4Core_FieldBuilder_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-// #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include <memory>
 
-// class DDLogicalPart;
 class MagneticField;
-
-class G4FieldManager;
+class CMSFieldManager;
 class G4Mag_UsualEqRhs;
 class G4PropagatorInField;
 class G4LogicalVolume;
 
 namespace sim {
   class Field;
-  class ChordFinderSetter;
   class FieldBuilder {
+
   public:
+
     FieldBuilder(const MagneticField*, const edm::ParameterSet&);
-    //~FieldBuilder();
 
-    /*
-      void readFieldParameters(DDLogicalPart theLogicalPart,
-                               const std::string& keywordField);
-    */
-    void build(G4FieldManager* fM = nullptr,
-	       G4PropagatorInField* fP = nullptr,
-               ChordFinderSetter *setter = nullptr);
+    ~FieldBuilder();
 
-    /*
-      void configure(const std::string& keywordField,
-	   	     G4FieldManager * fM = 0,
-		     G4PropagatorInField * fP = 0);
-    */
+    void build(CMSFieldManager* fM, G4PropagatorInField* fP);
+
     void configureForVolume( const std::string& volName, 
 			     edm::ParameterSet& volPSet,
-			     G4FieldManager * fM = nullptr,
-			     G4PropagatorInField * fP = nullptr,
-                             ChordFinderSetter *setter = nullptr);
-    G4LogicalVolume * fieldTopVolume();
+			     CMSFieldManager * fM,
+			     G4PropagatorInField * fP);
 
   private:
-    void configureFieldManager(G4FieldManager * fM, ChordFinderSetter *setter);
-    void configurePropagatorInField(G4PropagatorInField * fP);  
-  private:
-    std::auto_ptr<Field> theField;
+
+    Field* theField;
     G4Mag_UsualEqRhs *theFieldEquation;
-    G4LogicalVolume  *theTopVolume;
-	 
-    std::string keywordField;
-    std::string fieldType;
-    double fieldValue;
-    std::string stepper;
-    double minStep;
-    double dChord;
-    double dOneStep;
-    double dIntersection;
-    double dIntersectionAndOneStep;
-    double maxLoopCount;
-    double minEpsilonStep;
-    double maxEpsilonStep;
+    G4LogicalVolume  *theTopVolume;	 
+    edm::ParameterSet thePSet;
     double delta;
-    edm::ParameterSet thePSet ;
   };
-}
+};
 
 #endif

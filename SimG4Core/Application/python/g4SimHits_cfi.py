@@ -87,14 +87,18 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
                 Stepper = cms.string('G4ClassicalRK4'),
                 Type = cms.string('CMSIMField'),
                 StepperParam = cms.PSet(
-                    MaximumEpsilonStep = cms.untracked.double(0.01), ## in mm
-                    DeltaOneStep = cms.double(0.001), ## in mm
+                    MaximumEpsilonStep = cms.untracked.double(0.01),   ## in mm
+                    DeltaOneStep = cms.double(0.001),      ## in mm
                     MaximumLoopCounts = cms.untracked.double(1000.0),
                     DeltaChord = cms.double(0.001), ## in mm
-                    MinStep = cms.double(0.1), ## in mm
+                    MinStep = cms.double(0.1),      ## in mm
                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
-                    DeltaIntersection = cms.double(0.0001), ## in mm
-                    MinimumEpsilonStep = cms.untracked.double(1e-05) ## in mm
+                    DeltaIntersection = cms.double(0.0001),## in mm
+                    MinimumEpsilonStep = cms.untracked.double(1e-05), ## in mm
+                    EnergyThSimple = cms.double(0.0),                ## in GeV
+                    DeltaChordSimple = cms.double(0.1),    ## in mm
+                    DeltaOneStepSimple = cms.double(0.1),  ## in mm
+                    DeltaIntersectionSimple = cms.double(0.01),       ## in mm
                 )
             )
         ),

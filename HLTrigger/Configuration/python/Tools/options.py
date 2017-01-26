@@ -4,8 +4,6 @@ globalTag = {
   'Fake1': 'auto:run2_mc_Fake1',
   'FULL' : 'auto:run2_mc_FULL',
   'GRun' : 'auto:run2_mc_GRun',       # used as default
-  '25ns10e33_v2' : 'auto:run2_mc_25ns10e33_v2',
-  '25ns15e33_v4' : 'auto:run2_mc_25ns15e33_v4',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',

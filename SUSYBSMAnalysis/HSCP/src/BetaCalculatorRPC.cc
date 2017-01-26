@@ -24,8 +24,8 @@ void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHi
   for(std::vector<susybsm::RPCHit4D>::iterator point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
     outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
     increasing &= (point->bx>=lastbx); //condition 2: BX must be increase when going inside-out.
-    anydifferentzero &= (!point->bx==0); //to check one knee withoutzeros
-    anydifferentone &= (!point->bx==1); //to check one knee withoutones
+    anydifferentzero &= (!(point->bx==0)); //to check one knee withoutzeros
+    anydifferentone &= (!(point->bx==1)); //to check one knee withoutones
     lastbx = point->bx;
     //float r=point->gp.mag();
     //std::cout<<"Inside BetaCalculatorRPC \t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" outOfTime"<<outOfTime<<" increasing"<<increasing<<" anydifferentzero"<<anydifferentzero<<std::endl;

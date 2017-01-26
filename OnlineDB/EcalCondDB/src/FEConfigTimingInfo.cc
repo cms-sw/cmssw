@@ -34,7 +34,7 @@ FEConfigTimingInfo::~FEConfigTimingInfo()
 
 
 
-int FEConfigTimingInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigTimingInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -57,7 +57,7 @@ int FEConfigTimingInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void FEConfigTimingInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -96,7 +96,7 @@ void FEConfigTimingInfo::setParameters(const std::map<string,string>& my_keys_ma
 }
 
 void FEConfigTimingInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -123,7 +123,7 @@ void FEConfigTimingInfo::writeDB()
 
 
 void FEConfigTimingInfo::fetchData(FEConfigTimingInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -157,7 +157,7 @@ void FEConfigTimingInfo::fetchData(FEConfigTimingInfo * result)
 }
 
 void FEConfigTimingInfo::fetchLastData(FEConfigTimingInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -181,7 +181,7 @@ void FEConfigTimingInfo::fetchLastData(FEConfigTimingInfo * result)
   }
 }
 
-int FEConfigTimingInfo::fetchID()    throw(std::runtime_error)
+int FEConfigTimingInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -216,7 +216,7 @@ int FEConfigTimingInfo::fetchID()    throw(std::runtime_error)
 
 
 void FEConfigTimingInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 

@@ -468,7 +468,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 					if (isVtx0) {
 					    if (lPack->fromPV(vtx_i) == pat::PackedCandidate::PVUsedInFit) inVtx0 = true;
 					    if (lPack->fromPV(vtx_i) == 0) inVtxOther = true;
-					    dZ0 = lPack->dz(vtx_i);
+					    dZ0 = lPack->dz(iv.position());
 					}
 
 					if (fabs(lPack->dz(iv.position())) < fabs(dZ_tmp)) {

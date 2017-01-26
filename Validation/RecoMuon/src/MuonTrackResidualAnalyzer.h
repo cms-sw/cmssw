@@ -62,7 +62,7 @@ public:
 
   virtual void beginJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun() ;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 

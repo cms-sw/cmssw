@@ -29,7 +29,7 @@ DCSPTMTempList::~DCSPTMTempList()
 
 
 void DCSPTMTempList::fetchValuesForECID(const EcalLogicID& ecid)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -94,7 +94,7 @@ void DCSPTMTempList::fetchValuesForECID(const EcalLogicID& ecid)
 }
 
 void DCSPTMTempList::fetchValuesForECIDAndTime(const EcalLogicID& ecid, const Tm& start, const Tm& end)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();

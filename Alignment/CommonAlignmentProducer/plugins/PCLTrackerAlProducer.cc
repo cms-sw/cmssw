@@ -38,7 +38,6 @@
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 
 /*** Geometry ***/
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -971,11 +970,6 @@ void PCLTrackerAlProducer
 ::finish()
 {
   if (theAlignmentAlgo->processesEvents() && nevent_ == 0) {
-    // beginOfJob is usually called by the framework in the first event of the first loop
-    // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
-    // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
-    // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
-    // some geometry information that is not defined either without having seen an event.
     edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
                              << "Did not process any events, stop "
                              << "without terminating algorithm.";
@@ -987,10 +981,9 @@ void PCLTrackerAlProducer
   theAlignmentAlgo->terminate();
 
   if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
-    // if this is not the harvesting step there is no reason to look for the PEDE log and res files and to call the storeAlignmentsToDB method
-    MillePedeFileReader mpReader(theParameterSet.getParameter<edm::ParameterSet>("MillePedeFileReader"));
-    mpReader.read();
-    if (mpReader.storeAlignments()) {
+    // if this is not the harvesting step there is no reason to look for the
+    // PEDE log and res files and to call the storeAlignmentsToDB method
+    if (theAlignmentAlgo->storeAlignments()) {
       storeAlignmentsToDB();
     }
   } else {

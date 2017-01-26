@@ -1,18 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from HLTrigger.Configuration.common import *
 
-#
-# reusable functions
-def producers_by_type(process, *types):
-    return (module for module in process._Process__producers.values() if module._TypedParameterizable__type in types)
-def filters_by_type(process, *types):
-    return (filter for filter in process._Process__filters.values() if filter._TypedParameterizable__type in types)
-def analyzers_by_type(process, *types):
-    return (analyzer for analyzer in process._Process__analyzers.values() if analyzer._TypedParameterizable__type in types)
-
-def esproducers_by_type(process, *types):
-    return (module for module in process._Process__esproducers.values() if module._TypedParameterizable__type in types)
-
-#
 # CMSSW version specific customizations
 def customizeHLTforHighPU(process):
     for module in producers_by_type(process,"SiPixelClusterProducer"):
