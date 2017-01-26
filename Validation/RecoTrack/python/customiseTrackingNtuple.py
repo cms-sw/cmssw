@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+def _label(tag):
+    t = cms.InputTag(tag)
+    return t.getModuleLabel()+t.getProductInstanceLabel()
+
 def customiseTrackingNtuple(process):
     process.load("Validation.RecoTrack.trackingNtuple_cff")
     process.TFileService = cms.Service("TFileService",
@@ -23,7 +27,7 @@ def customiseTrackingNtuple(process):
         ntuplePath.insert(0, cms.SequencePlaceholder("mix"))
 
         process.load("Validation.RecoTrack.crossingFramePSimHitToPSimHits_cfi")
-        instanceLabels = [tag.getModuleLabel()+tag.getProductInstanceLabel() for tag in process.simHitTPAssocProducer.simHitSrc]
+        instanceLabels = [_label(tag) for tag in process.simHitTPAssocProducer.simHitSrc]
         process.crossingFramePSimHitToPSimHits.src = ["mix:"+l for l in instanceLabels]
         process.simHitTPAssocProducer.simHitSrc = ["crossingFramePSimHitToPSimHits:"+l for l in instanceLabels]
         process.trackingNtupleSequence.insert(0, process.crossingFramePSimHitToPSimHits)
