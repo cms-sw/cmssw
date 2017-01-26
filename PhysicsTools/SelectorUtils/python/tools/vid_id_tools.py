@@ -109,7 +109,6 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True,
             
         from RecoEgamma.ElectronIdentification.Identification.heepElectronID_tools import addHEEPProducersToSeq
         addHEEPProducersToSeq(process=process,seq=process.egmGsfElectronIDSequence,
-                              insertIndex=process.egmGsfElectronIDSequence.index(process.egmGsfElectronIDs),
                               useMiniAOD=useMiniAOD,task=task)
         
 ####
