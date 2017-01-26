@@ -11,8 +11,8 @@
     <RotationSequence name="planes_box_rotation">
       <RotationByAxis axis="y" angle="270*deg"/>
     </RotationSequence>
-    <RotationSequence name="planes_rotation">
-      <RotationByAxis axis="y" angle="180*deg"/>
+    <RotationSequence name="planes_x_rotation">
+      <RotationByAxis axis="x" angle="180*deg"/>
     </RotationSequence>
 
 <!--    <RotationSequence name="y90D">
