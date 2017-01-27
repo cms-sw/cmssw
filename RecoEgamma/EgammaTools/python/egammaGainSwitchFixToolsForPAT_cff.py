@@ -104,6 +104,7 @@ def customizeGSFixForPAT(process):
     process.load("RecoParticleFlow.PFProducer.pfGSFixLinkerForPAT_cff")
     process.load("RecoEgamma.EgammaIsolationAlgos.pfClusterIsolationRemapForPAT_cff")
     process.load("RecoEgamma.ElectronIdentification.idExternalRemapForPAT_cff")
+    process.load("RecoEgamma.EgammaTools.egammaGainSwitchFlag_cff")
 
     #this clones all the modules before they were modified to run on the orginal collections
     miniAOD_addOrginalEGamma(process,"BeforeGSFix")
@@ -144,5 +145,13 @@ def customizeGSFixForPAT(process):
     process.reducedEgamma.barrelEcalHits = cms.InputTag("ecalMultiAndGSWeightRecHitEB")
     process.reducedEgamma.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
     process.reducedEgamma.preshowerEcalHits = cms.InputTag("reducedEcalRecHitsES")
+
+    for modification in process.slimmedPhotons.modifierConfig.modifications:
+        if modification.modifierName != 'EGExtraInfoModifierFromIntValueMaps': continue
+        modification.photon_config.hasGainSwitchFlag = cms.InputTag('PhotonGainSwitchFlagProducer:hasGainSwitchFlag')
+    for modification in process.slimmedElectrons.modifierConfig.modifications:
+        if modification.modifierName != 'EGExtraInfoModifierFromIntValueMaps': continue
+        modification.electron_config.hasGainSwitchFlag = cms.InputTag('ElectronGainSwitchFlagProducer:hasGainSwitchFlag')
+
 
     return process
