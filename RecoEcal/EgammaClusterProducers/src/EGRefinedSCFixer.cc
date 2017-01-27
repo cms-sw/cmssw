@@ -17,6 +17,7 @@
 #include "RecoEgamma/EgammaTools/interface/GainSwitchTools.h"
 
 #include <unordered_set>
+#include <iostream>
 
 //work in progress (emergancy fix!)
 //issue: we need to re-make the refined superclusters
@@ -247,8 +248,9 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
       if (orgEESC.isNonnull()) {
         // there is nothing "fixed" here - two clusters are identical
         auto fixedEESC(GainSwitchTools::matchSCBySeedCrys(*orgEESC, fixedEESCs));
+	
         // fixedEESC has to be nonnull
-        mappedSCsEE[fixedEESC.key()] = orgEESC;
+	if(fixedEESC.isNonnull()) mappedSCsEE[fixedEESC.key()] = orgEESC;
       }
     }
 
