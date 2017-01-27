@@ -58,14 +58,14 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
 
         hw_payload =
             l1t::OnlineDBqueryHelper::fetch( {"CONF"},
-                                             "BMTF_COLBS",
+                                             "BMTF_CLOBS",
                                              hw_key,
                                              m_omdsReader
                                            ) ["CONF"];
 
         algo_payload =
             l1t::OnlineDBqueryHelper::fetch( {"CONF"},
-                                             "BMTF_COLBS",
+                                             "BMTF_CLOBS",
                                              algo_key,
                                              m_omdsReader
                                            ) ["CONF"];
@@ -81,13 +81,13 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
 
         mp7_payload =
             l1t::OnlineDBqueryHelper::fetch( {"CONF"},
-                                             "BMTF_COLBS",
+                                             "BMTF_CLOBS",
                                              mp7_key,
                                              m_omdsReader
                                            ) ["CONF"];
         amc13_payload =
             l1t::OnlineDBqueryHelper::fetch( {"CONF"},
-                                             "BMTF_COLBS",
+                                             "BMTF_CLOBS",
                                              amc13_key,
                                              m_omdsReader
                                            ) ["CONF"];
