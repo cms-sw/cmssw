@@ -1566,8 +1566,11 @@ class AddJetID(ConfigToolBase):
         print "Making new jet ID label with label " + jetIdTag
 
         ## replace jet id sequence
+        task = getPatAlgosToolsTask(process)
         process.load("RecoJets.JetProducers.ak4JetID_cfi")
-        setattr( process, jetIdLabel, process.ak4JetID.clone(src = jetSrc))
+        task.add(process.ak4JetID)
+        addToProcessAndTask(jetIdLabel, process.ak4JetID.clone(src = jetSrc),
+                            process, task)
 
 
 addJetID=AddJetID()
