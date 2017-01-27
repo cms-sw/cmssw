@@ -169,6 +169,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltEgammaGsfTracks",
       "hltEgammaCkfTrackCandidatesForGSFUnseeded",
       "hltEgammaGsfTracksUnseeded",
+      "hltDoubleEle8CkfTrackCandidateMaker",
       # === hltPF
       "hltPFJetCkfTrackCandidates",
       "hltPFJetCtfWithMaterialTracks",
