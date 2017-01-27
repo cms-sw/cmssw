@@ -88,11 +88,23 @@ def miniAOD_addOrginalEGamma(process,suffix):
         setattr(process,new_name,getattr(process,name).clone())  
         replace_input_tags(process,new_name,getattr(process,new_name),modules_to_clone,suffix)
           
+    process.reducedEgammaBeforeGSFix.gsfElectronIDSources = cms.VInputTag(
+        cms.InputTag("eidLoose", processName=cms.InputTag.skipCurrentProcess()),
+        cms.InputTag("eidRobustHighEnergy", processName=cms.InputTag.skipCurrentProcess()),
+        cms.InputTag("eidRobustLoose", processName=cms.InputTag.skipCurrentProcess()),
+        cms.InputTag("eidRobustTight", processName=cms.InputTag.skipCurrentProcess()),
+        cms.InputTag("eidTight", processName=cms.InputTag.skipCurrentProcess()),
+        )
 
 
 
 
 def customizeGSFixForPAT(process): 
+    process.load("RecoEgamma.EgammaTools.egammaGainSwitchFixForPAT_cff")
+    process.load("RecoParticleFlow.PFProducer.pfGSFixLinkerForPAT_cff")
+    process.load("RecoEgamma.EgammaIsolationAlgos.pfClusterIsolationRemapForPAT_cff")
+    process.load("RecoEgamma.ElectronIdentification.idExternalRemapForPAT_cff")
+
     #this clones all the modules before they were modified to run on the orginal collections
     miniAOD_addOrginalEGamma(process,"BeforeGSFix")
     process.MINIAODoutput.outputCommands.extend(['keep *_reducedEgammaBeforeGSFix_*_*',

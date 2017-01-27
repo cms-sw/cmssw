@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolation_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.pfClusterIsolationRemap_cfi import *
 
 electronHcalPFClusterIsolationProducerGSFixed = electronHcalPFClusterIsolationRemapper.clone(
