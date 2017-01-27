@@ -1544,10 +1544,7 @@ class ConfigBuilder(object):
 		self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-		if self._options.fast:
-			self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforFastSim")
-		else:
-			self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforFullSim")
+		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
 
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
