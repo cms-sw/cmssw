@@ -4,7 +4,7 @@
 /**
   \class    TSGForOI
   \brief    Create L3MuonTrajectorySeeds from L2 Muons updated at vertex in an outside in manner
-  \author   Benjamin Radburn-Smith
+  \author   Benjamin Radburn-Smith, Santiago Folgueras
  */
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -55,8 +55,8 @@ private:
 	const double fixedErrorRescalingForHitless_;
 
 	/// Whether or not to use an automatically calculated SF value
-	const bool adjustErrorsDyanmicallyForHits_;
-	const bool adjustErrorsDyanmicallyForHitless_;
+	const bool adjustErrorsDynamicallyForHits_;
+	const bool adjustErrorsDynamicallyForHitless_;
 
 	/// Estimator used to find dets and TrajectoryMeasurements
 	const std::string estimatorName_;
@@ -69,11 +69,11 @@ private:
 	/// Maximum eta value to activate searching in the TOB
 	const double maxEtaForTOB_;
 
-	/// Switch to use hitless seeds or not
-	const bool useHitlessSeeds_;
-
 	/// Switch to use hitless + hits for seeds depending on the L2 properties
-	const bool useHybridSeeds_;
+	const bool useHitlessAndHitSeeds_;
+
+	/// Switch ON to use Stereo layers instead of first hit found
+	const bool useStereoLayersInTEC_;
 
 	/// Surface used to make a TSOS at the PCA to the beamline
 	Plane::PlanePointer dummyPlane_;
@@ -90,9 +90,9 @@ private:
 	const double tsosDiffDeltaR_;
 
 	/// Counters and flags for the implementation
-	bool foundCompatibleDet_;
 	bool analysedL2_;
-	bool useHitsInHybrid_;
+	//	bool useHitsInHybrid_;
+	bool foundHitlessSeed_;
 	unsigned int numSeedsMade_;
 	unsigned int layerCount_;
 
@@ -111,14 +111,10 @@ private:
 			const Propagator& propagatorAlong,
 			const Propagator& propagatorOpposite,
 			const reco::TrackRef l2,
-			std::unique_ptr<std::vector<TrajectorySeed> >& seeds);
+			std::auto_ptr<std::vector<TrajectorySeed> >& seeds);
 
 	/// Function used to calculate the dynamic error SF by analysing the L2
-	double calculateSFFromL2(const GeometricSearchDet& layer,
-			const TrajectoryStateOnSurface &tsosAtMuonSystem,
-			const TrajectoryStateOnSurface &tsosOnLayer,
-			const Propagator& propagatorOpposite,
-			const reco::TrackRef track);
+	double calculateSFFromL2(const reco::TrackRef track);
 
 	/// Function to find hits on layers and create seeds from updated TSOS
 	int makeSeedsFromHits(const GeometricSearchDet &layer,
