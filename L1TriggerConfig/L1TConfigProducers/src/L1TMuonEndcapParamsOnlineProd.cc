@@ -11,9 +11,11 @@
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
+#include "OnlineDBqueryHelper.h"
 
 class L1TMuonEndcapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams> {
 private:
+    bool handleObsolteKeys;
 public:
     virtual std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) override ;
 
@@ -21,7 +23,9 @@ public:
     ~L1TMuonEndcapParamsOnlineProd(void){}
 };
 
-L1TMuonEndcapParamsOnlineProd::L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams>(iConfig) {}
+L1TMuonEndcapParamsOnlineProd::L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams>(iConfig) {
+    handleObsolteKeys = iConfig.getUntrackedParameter<bool>("handleObsolteKeys",true);
+}
 
 std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) {
     using namespace edm::es;
@@ -39,120 +43,83 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
     std::string  rsKey = objectKey.substr(   objectKey.find(":")+1, std::string::npos );
 
+    edm::LogInfo( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Producing L1TMuonEndcapParams with TSC key = " << tscKey << " and RS key = " << rsKey ;
 
-    std::string stage2Schema = "CMS_TRG_L1_CONF" ;
-    edm::LogInfo( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Producing L1TMuonEndcapParams with TSC key =" << tscKey << " and RS key = " << rsKey ;
+    std::string algo_key, hw_key;
+    std::string algo_payload, hw_payload;
+    try {
+        std::map<std::string,std::string> keys =
+            l1t::OnlineDBqueryHelper::fetch( {"HW","ALGO"},
+                                             "EMTF_KEYS",
+                                             tscKey,
+                                             m_omdsReader
+                                           );
 
-        // first, find keys for the algo and RS tables
+        hw_key   = keys["HW"];
+        algo_key = keys["ALGO"];
 
-        // ALGO and HW
-        std::vector< std::string > queryStrings ;
-        queryStrings.push_back( "ALGO" ) ;
-        queryStrings.push_back( "HW"   ) ;
-
-        std::string algo_key, hw_key;
-
-        // select ALGO,HW from CMS_TRG_L1_CONF.BMTF_KEYS where ID = tscKey ;
-        l1t::OMDSReader::QueryResults queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "EMTF_KEYS",
-                                     "EMTF_KEYS.ID",
-                                     m_omdsReader.singleAttribute(tscKey)
-                                   ) ;
-
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O" ) << "Cannot get EMTF_KEYS.{ALGO,HW}" ;
-            throw std::runtime_error("Broken key");
+        // all EMTF ALGO keys before "EMTF_ALGO_BASE/v6" are broken and will crash the code below, let's promote them to v6
+        if( handleObsolteKeys ){
+            size_t pos = algo_key.find("EMTF_ALGO_BASE/v");
+            if( pos != std::string::npos ){
+                int v = atoi(algo_key.c_str()+16);
+                if( v>0 && v<6 ){
+                    algo_key = "EMTF_ALGO_BASE/v6";
+                    edm::LogError( "L1-O2O" ) << "Inconsistent old ALGO key -> changing to " << algo_key ;
+                }
+            }
+            // HW has to be consistent with the ALGO: promote everything to EMTF_HW/v8
+            pos = hw_key.find("EMTF_HW/v");
+            if( pos != std::string::npos ){
+                int v = atoi(hw_key.c_str()+9);
+                if( v>0 && v<8 ){
+                    hw_key = "EMTF_HW/v8";
+                    edm::LogError( "L1-O2O" ) << "Inconsistent old HW key -> changing to " << hw_key ;
+                }
+            }
         }
 
-        if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
-        if( !queryResult.fillVariable( "HW",   hw_key  ) ) hw_key   = "";
+        hw_payload = l1t::OnlineDBqueryHelper::fetch( {"CONF"},
+                                                      "EMTF_CLOBS",
+                                                       hw_key,
+                                                       m_omdsReader
+                                                    ) ["CONF"];
 
-    // all EMTF ALGO keys before "EMTF_ALGO_BASE/v6" are broken and will crash the code below, let's promote them to v6
-    size_t pos = algo_key.find("EMTF_ALGO_BASE/v");
-    if( pos != std::string::npos ){
-        int v = atoi(algo_key.c_str()+16);
-        if( v>0 && v<6 ){
-            algo_key = "EMTF_ALGO_BASE/v6";
-            edm::LogError( "L1-O2O" ) << "Inconsistent old ALGO key -> changing to " << algo_key ;
-        }
+        algo_payload = l1t::OnlineDBqueryHelper::fetch( {"CONF"},
+                                                        "EMTF_CLOBS",
+                                                         algo_key,
+                                                         m_omdsReader
+                                                      ) ["CONF"];
+
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << e.what();
+        throw std::runtime_error("Broken key");
     }
-    // HW has to be consistent with the ALGO: promote everything to EMTF_HW/v8
-    pos = hw_key.find("EMTF_HW/v");
-    if( pos != std::string::npos ){
-        int v = atoi(hw_key.c_str()+9);
-        if( v>0 && v<8 ){
-            hw_key = "EMTF_HW/v8";
-            edm::LogError( "L1-O2O" ) << "Inconsistent old HW key -> changing to " << hw_key ;
-        }
-    }
 
-        queryStrings.clear();
-        queryStrings.push_back( "CONF" );
+    l1t::XmlConfigParser xmlRdr;
+    l1t::TriggerSystem trgSys;
 
-        std::string xmlHWpayload;
+    xmlRdr.readDOMFromString( hw_payload );
+    xmlRdr.readRootElement  ( trgSys     );
 
-        // query HW configuration
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "EMTF_HW",
-                                     "EMTF_HW.ID",
-                                     m_omdsReader.singleAttribute(hw_key)
-                                   ) ;
+    xmlRdr.readDOMFromString( algo_payload );
+    xmlRdr.readRootElement  ( trgSys       );
 
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Cannot get EMTF_HW.CONF for ID="<<hw_key;
-            throw std::runtime_error("Broken key");
-        }
+    trgSys.setConfigured();
 
-        if( !queryResult.fillVariable( "CONF", xmlHWpayload ) ) xmlHWpayload = "";
+    std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor will do
 
-        // query ALGO configuration
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "EMTF_ALGO",
-                                     "EMTF_ALGO.ID",
-                                     m_omdsReader.singleAttribute(algo_key)
-                                   ) ;
+    std::string core_fwv = conf["core_firmware_version"].getValueAsStr();
+    tm brokenTime;
+    strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
+    time_t sinceEpoch = timegm(&brokenTime);
 
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Cannot get EMTF_ALGO.CONF for ID="<<algo_key;
-            throw std::runtime_error("Broken key");
-        }
+    l1t::EndCapParamsHelper data( new L1TMuonEndCapParams() );
 
-        std::string xmlALGOpayload;
+    data.SetFirmwareVersion( sinceEpoch );
+    data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
 
-        if( !queryResult.fillVariable( "CONF", xmlALGOpayload ) ) xmlALGOpayload = "";
-
-
-        l1t::XmlConfigParser xmlRdr;
-        l1t::TriggerSystem trgSys;
-
-        xmlRdr.readDOMFromString( xmlHWpayload );
-        xmlRdr.readRootElement  ( trgSys       );
-
-        xmlRdr.readDOMFromString( xmlALGOpayload );
-        xmlRdr.readRootElement  ( trgSys         );
-
-        trgSys.setConfigured();
-
-
-        std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor
-
-        std::string core_fwv = conf["core_firmware_version"].getValueAsStr();
-        tm brokenTime;
-        strptime(core_fwv.c_str(), "%Y-%m-%d %T", &brokenTime);
-        time_t sinceEpoch = timegm(&brokenTime);
-
-        l1t::EndCapParamsHelper data( new L1TMuonEndCapParams() );
-
-        data.SetFirmwareVersion( sinceEpoch );
-        data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
-
-        std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
+    std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
 
     return retval;
 }
