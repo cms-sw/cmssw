@@ -72,6 +72,7 @@ public:
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
+  double                    getLayer0Wt(int det, int phi, int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getMaxDepth(const int itype, const int ieta) const;
   int                       getMinDepth(const int itype, const int ieta) const;

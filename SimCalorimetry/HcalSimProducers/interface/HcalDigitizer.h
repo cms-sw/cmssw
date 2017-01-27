@@ -150,6 +150,7 @@ private:
   bool debugCS_;
   bool ignoreTime_;
   bool injectTestHits_;
+  bool neutralDensity_;
 
   std::string hitsProducer_;
 

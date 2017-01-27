@@ -21,6 +21,7 @@ hcalSimBlock = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     DelivLuminosity = cms.double(0),
     TestNumbering = cms.bool(False),
+    doNeutralDensityFilter = cms.bool(False),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
