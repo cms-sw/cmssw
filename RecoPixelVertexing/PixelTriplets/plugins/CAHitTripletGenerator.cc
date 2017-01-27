@@ -91,7 +91,6 @@ void CAHitTripletGenerator::initEvent(const edm::Event& ev, const edm::EventSetu
   if (theComparitor) theComparitor->init(ev, es);
 }
 
-// Pseudocode: Function to set up the graph structure based on the available layers. Done in the first iteration of the loop over the regions
 namespace {
   void createGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	for (unsigned int i = 0; i < layers.size(); i++)
@@ -125,7 +124,6 @@ namespace {
 	}
   }
 }
-// Pseudocode: clear out the graph for the next iteration in the loop over all regions
 namespace {
   void clearGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	g.theLayerPairs.clear();
@@ -139,7 +137,6 @@ namespace {
 
   }
 }
-// Pseudocode: fill graph for this iteration in the loop over all the regions
 namespace {
   template <typename T_HitDoublets, typename T_GeneratorOrPairsFunction>
   void fillGraph(const SeedingLayerSetsHits& layers, CAGraph& g, T_HitDoublets& hitDoublets,
@@ -240,20 +237,18 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
     return pair.innerLayerIndex() == inner && pair.outerLayerIndex() == outer;
   };
 
- // Pseudocode: start loop over the regions
  int index =0;
  for(const auto& regionLayerPairs: regionDoublets) {
 
 	 const TrackingRegion& region = regionLayerPairs.region();
-	 hitDoublets.clear(); //Psuedocode: make sure the doublets are empty in the beginning
+	 hitDoublets.clear(); 
 
-	  if (index == 0){   //Psuedocode: in first iteration, create the graph strucutre
+	  if (index == 0){   
 	  	createGraphStructure(layers, g);
 	  }
-	  else{  // Psuedocode:in following iterations, clean out the graph, but do not recreate the structure 
+	  else{   
   		clearGraphStructure(layers, g);
 	  }
-	  // Psuedocode:now fill the graph for this region
 	  fillGraph(layers, g, hitDoublets,
 	            [&](const SeedingLayerSetsHits::SeedingLayer& inner,
 	                const SeedingLayerSetsHits::SeedingLayer& outer,
@@ -267,9 +262,7 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 	      }
 	      return false;
 	    });
-	// Psuedocode: removed CAHitTrippletGenerator::hitQuadruplets function to have everything in one loop over the regions
-	const int numberOfHitsInNtuplet = 3;// should probably be made dynamic?
-	/// Psuedocode:from here on out, no further changes to the code necessary
+	const int numberOfHitsInNtuplet = 3;
 	std::vector<CACell::CAntuplet> foundTriplets;
 
 	CellularAutomaton ca(g);
