@@ -26,10 +26,7 @@ postValidationTracking = cms.Sequence(
     + postProcessorVertexSequence
 )
 postValidation = cms.Sequence(
-# to be customized for OLD or NEW validation
       recoMuonPostProcessors
-#      NEWrecoMuonPostProcessors
-#
     + postValidationTracking
     + MuIsoValPostProcessor
     + calotowersPostProcessor
@@ -46,9 +43,7 @@ postValidation = cms.Sequence(
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 postValidation_preprod = cms.Sequence(
-# to be customized for OLD or NEW muon validation
     recoMuonPostProcessors
-#    NEWrecoMuonPostProcessors
   + postProcessorTrackSequence
   + MuIsoValPostProcessor
 )  

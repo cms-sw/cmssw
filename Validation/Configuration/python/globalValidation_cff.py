@@ -76,9 +76,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + validSimHit+muondtdigianalyzer 
                                  + cscDigiValidation
                                  + validationMuonRPCDigis 
-# to be customized for OLD or NEW muon validation
                                  + recoMuonValidation 
-#                                 + NEWrecoMuonValidation
                                  + muIsoVal_seq 
                                  + muonIdValDQMSeq 
                                  + mixCollectionValidation 

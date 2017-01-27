@@ -1,64 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # Track selector
-from Validation.RecoMuon.NewSelectors_cff import *
-
-# TrackAssociation
-from SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi import *
-import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
-
-trackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
-
-onlineTrackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
-onlineTrackAssociatorByHits.ThreeHitTracksAreSpecial = False
-
-# select probeTracks from generalTracks
-import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
-probeTracks = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-#probeTracks.quality = cms.vstring('highPurity')
-#probeTracks.quality = cms.vstring('loose'),      # default
-probeTracks.tip = 3.5
-probeTracks.lip = 30.
-probeTracks.ptMin = 4.0
-probeTracks.minRapidity = -2.4
-probeTracks.maxRapidity = 2.4
-probeTracks_seq = cms.Sequence( probeTracks )
-
-#
-# quickTrackAssociatorByHits on probeTracks used as monitor wrt MuonAssociatorByHits
-#
-tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
-    associator = cms.InputTag('trackAssociatorByHits'),
-    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
-#    label_tr = cms.InputTag('generalTracks')
-    label_tr = cms.InputTag('probeTracks')
-)
-
-#
-# Configuration for Muon track extractor
-#
-import SimMuon.MCTruth.MuonTrackProducer_cfi
-extractGemMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
-extractGemMuons.selectionTags = ('All',)
-extractGemMuons.trackType = "gemMuonTrack"
-extractGemMuonsTracks_seq = cms.Sequence( extractGemMuons )
-
-extractMe0Muons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
-extractMe0Muons.selectionTags = cms.vstring('All',)
-extractMe0Muons.trackType = "me0MuonTrack"
-extractMe0MuonsTracks_seq = cms.Sequence( extractMe0Muons )
-
-#
-# Configuration for Seed track extractor
-#
-import SimMuon.MCTruth.SeedToTrackProducer_cfi
-seedsOfSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.clone()
-seedsOfSTAmuons.L2seedsCollection = cms.InputTag("ancientMuonSeed")
-seedsOfSTAmuons_seq = cms.Sequence( seedsOfSTAmuons )
-
-seedsOfDisplacedSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.clone()
-seedsOfDisplacedSTAmuons.L2seedsCollection = cms.InputTag("displacedMuonSeeds")
-seedsOfDisplacedSTAmuons_seq = cms.Sequence( seedsOfDisplacedSTAmuons )
+from Validation.RecoMuon.selectors_cff import *
+from Validation.RecoMuon.track_selectors_cff import *
 
 #
 # MuonAssociatorByHits used for all track collections
@@ -233,9 +177,9 @@ NEWtpToGlbCosmic1LegSelMuonAssociation.UseMuon = True
 #
 
 NewMuonAssociation_seq = cms.Sequence(
-    probeTracks_seq+NEWtpToTkMuonAssociation
-    +trackAssociatorByHits+tpToTkmuTrackAssociation
-    +seedsOfSTAmuons_seq+NEWtpToStaSeedAssociation+NEWtpToStaMuonAssociation+NEWtpToStaUpdMuonAssociation
+    cms.SequencePlaceholder("probeTracks_seq")+NEWtpToTkMuonAssociation
+    +cms.SequencePlaceholder("muonTkAssociation_seq")
+    +cms.SequencePlaceholder("seedsOfSTAmuons_seq")+NEWtpToStaSeedAssociation+NEWtpToStaMuonAssociation+NEWtpToStaUpdMuonAssociation
     +NEWtpToGlbMuonAssociation
     )
 
@@ -244,7 +188,7 @@ NewMuonAssociationTEV_seq = cms.Sequence(
     )
 
 NewMuonAssociationDisplaced_seq = cms.Sequence(
-    seedsOfDisplacedSTAmuons_seq+NEWtpToDisplacedStaSeedAssociation+NEWtpToDisplacedStaMuonAssociation
+    cms.SequencePlaceholder("seedsOfDisplacedSTAmuons_seq")+NEWtpToDisplacedStaSeedAssociation+NEWtpToDisplacedStaMuonAssociation
     +NEWtpToDisplacedTrkMuonAssociation+NEWtpToDisplacedGlbMuonAssociation
     )
 

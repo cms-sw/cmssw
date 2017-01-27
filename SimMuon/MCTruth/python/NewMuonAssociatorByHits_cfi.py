@@ -140,8 +140,8 @@ NewMuonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
 )
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
+run3_GEM.toModify( NewMuonAssociatorByHits, useGEMs = cms.bool(True) )
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
-phase2_tracker.toModify( muonAssociatorByHits, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
+phase2_tracker.toModify( NewMuonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
+phase2_tracker.toModify( NewMuonAssociatorByHits, stripSimLinkSrc = "simSiPixelDigis:Tracker" )
 

@@ -72,9 +72,7 @@ validation_preprod = cms.Sequence(
                           +trackingTruthValid
                           +tracksValidation
                           +METRelValSequence
-# to be customized for OLD or NEW muon validation
                           +recoMuonValidation
-#                          +NEWrecoMuonValidation
                           +muIsoVal_seq
                           +muonIdValDQMSeq
                           +hltvalidation_preprod
