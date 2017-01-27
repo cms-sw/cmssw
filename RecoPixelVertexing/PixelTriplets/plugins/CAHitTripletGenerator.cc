@@ -126,22 +126,17 @@ namespace {
   }
 }
 // Pseudocode: clear out the graph for the next iteration in the loop over all regions
-
 namespace {
   void clearGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	g.theLayerPairs.clear();
-	for (unsigned int i = 0; i < layers.size(); i++)
-	{
-		for (unsigned int j = 0; j < 3; ++j)
-		{
-			auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(),
-					layers[i][j].name());
-			if (foundVertex->isOuterHitOfCell.size() > 0)
-			{
-				foundVertex->isOuterHitOfCell.clear();
-			}
-		}
+	for (unsigned int i = 0; i < g.theLayers.size(); i++ ){
+		g.theLayers[i].theInnerLayers.clear();
+		g.theLayers[i].theInnerLayerPairs.clear();
+		g.theLayers[i].theOuterLayers.clear();
+		g.theLayers[i].theOuterLayerPairs.clear();
+
 	}
+
   }
 }
 // Pseudocode: fill graph for this iteration in the loop over all the regions
