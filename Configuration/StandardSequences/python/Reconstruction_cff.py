@@ -34,6 +34,7 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
+from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_cff import *
 #
 # new tau configuration
 #
@@ -56,7 +57,7 @@ phase2_common.toReplaceWith(localreco, _phase2_localreco)
 phase2_common.toReplaceWith(localreco_HcalNZS, _phase2_localreco_HcalNZS)
 
 _ctpps_2016_localreco = localreco.copy()
-_ctpps_2016_localreco += totemRPLocalReconstruction
+_ctpps_2016_localreco += totemRPLocalReconstruction+ctppsDiamondLocalReconstruction
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
