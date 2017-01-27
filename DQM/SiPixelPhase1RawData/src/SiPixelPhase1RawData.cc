@@ -14,23 +14,23 @@
 
 
 SiPixelPhase1RawData::SiPixelPhase1RawData(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig) 
+  SiPixelPhase1Base(iConfig)
 {
   srcToken_ = consumes<DetSetVector<SiPixelRawDataError>>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
 
-void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1RawData::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<DetSetVector<SiPixelRawDataError>> input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
 
   for (auto it = input->begin(); it != input->end(); ++it) {
-    for (auto& siPixelRawDataError : *it) { 
+    for (auto& siPixelRawDataError : *it) {
       int fed = siPixelRawDataError.getFedId();
       int type = siPixelRawDataError.getType();
       DetId id = it->detId();
-      
+
       // encoding of the channel number within the FED error word
       const uint32_t LINK_bits = 6;
       const uint32_t LINK_shift = 26;
@@ -59,7 +59,7 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
 
       if (type == 30) { // TBM stuff.
         uint32_t statemachine_state = errorWord >> 8 & 0xF; // next 4 bits after data
-        const uint32_t tbm_types[16] = { 
+        const uint32_t tbm_types[16] = {
           0, 1, 2, 4,
           2, 4, 2, 4,
           3, 1, 4, 4,
@@ -79,7 +79,7 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
       // the GeometryInterface does understand that.
 
       histo[NERRORS].fill(id, &iEvent, fed, chanNmbr);
-      histo[TYPE_NERRORS].fill(type, id, &iEvent, fed, chanNmbr); 
+      histo[TYPE_NERRORS].fill(type, id, &iEvent, fed, chanNmbr);
     }
   }
 
@@ -87,4 +87,3 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1RawData);
-

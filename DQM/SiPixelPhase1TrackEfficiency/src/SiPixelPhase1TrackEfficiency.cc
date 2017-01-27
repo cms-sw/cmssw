@@ -9,26 +9,29 @@
 #include "DQM/SiPixelPhase1TrackEfficiency/interface/SiPixelPhase1TrackEfficiency.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
-SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency(const edm::ParameterSet& iConfig) :
-  SiPixelPhase1Base(iConfig) 
+#include <iostream>
+
+SiPixelPhase1TrackEfficiency::SiPixelPhase1TrackEfficiency( const edm::ParameterSet& iConfig ) :
+   SiPixelPhase1Base( iConfig )
 {
-  trackAssociationToken_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
-  vtxToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryvertices"));
+   trackAssociationToken_ = consumes<TrajTrackAssociationCollection>( iConfig.getParameter<edm::InputTag>( "trajectories" ) );
+   vtxToken_              = consumes<reco::VertexCollection>( iConfig.getParameter<edm::InputTag>( "primaryvertices" ) );
 }
 
-void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1TrackEfficiency::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // get geometry
   edm::ESHandle<TrackerGeometry> tracker;
@@ -38,9 +41,17 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
   // get primary vertex
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken( vtxToken_, vertices);
-  if (!vertices.isValid() || vertices->size() == 0) return;
+
+  if (!vertices.isValid()) return;
+  histo[VERTICES].fill(vertices->size(),DetId(0),&iEvent);
+  if (vertices->size() == 0) return;
+
+  // Filling in vertex Chi2 histogram
+  for( const auto& vertex : *vertices ){
+    histo[CHISQ].fill( vertex.chi2(), DetId(0), &iEvent );
+  }
   // should be used for weird cuts
-  //const auto primaryVertex = vertices->at(0); 
+  //const auto primaryVertex = vertices->at(0);
 
   // get the map
   edm::Handle<TrajTrackAssociationCollection> ttac;
@@ -83,28 +94,38 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
 
       DetId id = hit->geographicalId();
       uint32_t subdetid = (id.subdetId());
-      if (   subdetid != PixelSubdetector::PixelBarrel 
+      if (   subdetid != PixelSubdetector::PixelBarrel
           && subdetid != PixelSubdetector::PixelEndcap) continue;
 
       bool isHitValid   = hit->getType()==TrackingRecHit::valid;
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
 
       const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
-      int row = 0, col = 0;
+      const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
+      const PixelTopology& topol = geomdetunit->specificTopology();
+      LocalPoint lp;
       if (pixhit) {
-        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
-        const PixelTopology& topol = geomdetunit->specificTopology();
-        LocalPoint const& lp = pixhit->localPositionFast();
-        MeasurementPoint mp = topol.measurementPosition(lp);
-        row = (int) mp.x();
-        col = (int) mp.y();
+        lp = pixhit->localPosition();
+      } else {
+        lp = measurement.updatedState().localPosition();
       }
 
-      if (isHitValid)   histo[VALID  ].fill(id, &iEvent, col, row);
-      if (isHitMissing) histo[MISSING].fill(id, &iEvent, col, row);
+      MeasurementPoint mp = topol.measurementPosition(lp);
+      int row = (int) mp.x();
+      int col = (int) mp.y();
+
+      if (isHitValid)   {
+        histo[VALID].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(1, id, &iEvent, col, row);
+      }
+      if (isHitMissing) {
+        histo[MISSING].fill(id, &iEvent, col, row);
+        histo[EFFICIENCY].fill(0, id, &iEvent, col, row);
+      }
     }
   }
+histo[VALID  ].executePerEventHarvesting(&iEvent);
+histo[MISSING].executePerEventHarvesting(&iEvent);
 }
 
-DEFINE_FWK_MODULE(SiPixelPhase1TrackEfficiency);
-
+DEFINE_FWK_MODULE( SiPixelPhase1TrackEfficiency );

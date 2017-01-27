@@ -9,7 +9,7 @@ def loadDQMRunConfigFromFile():
         #os.path.expanduser("~/.dqm_run_config"),
         os.path.join(os.curdir, "dqm_run_config"),
     ]
-    
+
     config = ConfigParser.ConfigParser()
     files_read = config.read(conf_locations)
 
@@ -22,7 +22,7 @@ dqmRunConfigDefaults = {
     'userarea': cms.PSet(
         type = cms.untracked.string("userarea"),
         collectorPort = cms.untracked.int32(9190),
-        collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
+        collectorHost = cms.untracked.string('lxplus087.cern.ch'),
     ),
     'playback': cms.PSet(
         type = cms.untracked.string("playback"),
@@ -71,7 +71,7 @@ from DQMServices.Components.DQMEventInfo_cfi import *
 from DQMServices.FileIO.DQMFileSaverOnline_cfi import *
 
 # upload should be either a directory or a symlink for dqm gui destination
-dqmSaver.path = "./upload" 
+dqmSaver.path = "./upload"
 dqmSaver.tag = "PID%06d" % os.getpid()
 dqmSaver.producer = 'DQM'
 dqmSaver.backupLumiCount = 15
