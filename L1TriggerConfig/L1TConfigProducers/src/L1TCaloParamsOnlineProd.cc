@@ -280,8 +280,10 @@ std::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std::s
     
     l1t::CaloParamsHelper m_params_helper( *(baseSettings.product()) );
 
-    readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs);
-    readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs);
+    if( !readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs) )
+        throw std::runtime_error("Parsing error for CaloLayer1");
+    if( !readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs) )
+        throw std::runtime_error("Parsing error for CaloLayer2");
 
     std::shared_ptr< l1t::CaloParams > retval = std::make_shared< l1t::CaloParams >( m_params_helper ) ;
     return retval;
