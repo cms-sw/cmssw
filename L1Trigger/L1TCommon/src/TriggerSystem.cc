@@ -34,6 +34,7 @@ void TriggerSystem::addProcessor (const char *processor, const char *role, const
         procToRole [processor] = role;
         procToSlot [processor] = slot;
         procParameters.insert( make_pair(string(processor),std::map<std::string,Parameter>()) ) ;
+        procMasks.     insert( make_pair(string(processor),std::map<std::string,Mask>()) ) ;
         roleForProcs [role]. insert(processor);
         crateForProcs[crate].insert(processor);
     }
