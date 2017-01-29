@@ -522,6 +522,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
   double noiseADCArr[HcalConst::maxSamples]={};
   double noiseDCArr[HcalConst::maxSamples]={};
   double noiseArrSq[HcalConst::maxSamples]={};
+  double noisePHArr[HcalConst::maxSamples]={};
   double tsTOT = 0, tstrig = 0; // in fC
   double tsTOTen = 0; // in GeV
 
@@ -554,12 +555,29 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
       noiseDCArr[ip] = psfPtr_->getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
     }
 
+    // Photo statistics uncertainties
+    //      sigmaFC/FC = 1/sqrt(Ne);
+    noisePHArr[ip] = 0;
+    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
+      noisePHArr[ip] = (charge-ped)/sqrt((charge-ped)/channelData.fcByPE());
+    }
+
+    /*
+    // FIXME: in the future switch the photostatistics on also for the HPD
+    if(!channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
+      // the fcByPE is not in the DB, but is hard coded in python
+      // https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_0/SimCalorimetry/HcalSimProducers/python/hcalSimParameters_cfi.py#L62
+      // Note in DIGI (from kPedro): the output number of photoelectrons after smearing is treated very differently for SiPMs: *each* pe is assigned a different time based on a random generation from the Y11 pulse plus the SimHit time. In HPDs, the overall pulse is shaped all at once using just the SimHit time.
+      noisePHArr[ip] = (charge-ped)/sqrt(0.3305*16);
+    }
+    */
+
     // sum all in quadrature
     if(channelData.hasTimeInfo()) {
-      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip);
+      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip) +  noisePHArr[ip]*noisePHArr[ip];
     } else {
       // FIXME: in the future switch the HPDnoise from the DB
-      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noise_*noise_;
+      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noisePHArr[ip]*noisePHArr[ip] + noise_*noise_;
     }
 
     tsTOT += charge - ped;
