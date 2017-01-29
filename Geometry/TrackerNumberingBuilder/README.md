@@ -7,8 +7,7 @@ The graph of the `GeometricDet` tree can be found in [this file](doc/GeometricDe
 The predefined DetId schemas available in this package are:
 * The Run 1 (aka _present_) detector DetId schema
 * The Phase 1 detector DetId schema where the pixel detector is replaced by the upgraded one
-* The Phase 2 upgrade detector DetId schema where only the strip tracker is replaced by the upgraded outer tracker and the pixel is `a-la TP`
-* The Phase 2 upgrade detector DetId schema where a new ordering for also the pixel is introduced to take into account the new Geometry for the TDR
+* The Phase 2 upgrade detector DetId schema where both the strip and the pixel detectors are replaced by the upgraded ones - TDR-like
 
 In the table below the DetId levels which are in normal font represents _real_ hierarchy levels which are present 
 also in the `GeometricDet` tree which is build in parallel to the DetId assignment. Those levels which are in _italic_ font are _fake_ levels and are not known by the GeometricDet tree.
@@ -123,64 +122,12 @@ Subdetectors 3 to 6 are as for the Run 1 detector since the SiStrip Tracker is t
 The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2017Constants_cfi` for `TrackerTopology`
 The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml](../TrackerCommonData/data/PhaseI/trackerParameters.xml)
 
-### Phase 2 Upgrade Detector DetId schema Flat or Tilted Geometry with old pixel detector
-The phase 2 detector DetId schema is identical to the one of the phase 1 detector for the inner pixel detector while for the outer tracker subdetector 5, for the barrel, and subdetector 4, for the endcap, are used. In some cases the name of the `TrackerTopology` methods is not so meaningful. In particular, for the Outer Tracker, the methods DoubleSided is not implemented, firstly because there is no need, secondly because it is not possible, just looking at the DetId and without something hardcoded, to understand if the module is single or double. This is also valid for Run I and Phase I.
-The OT tilted option has been introduced in the subdetector 5 with two bits (in the table referred with _subdetector part_ ) that correspond to the rings in the negative and positive part and the central barrel part. The order is thus changed respectevely for the three different subparts: ladders by increasing phi and rings by increasing |z|, same consistency for the modules order.
-With this subdetector, the flat geometry is compatible using just the central barrel part of the subdetector 5.
- 
-* Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
-
-| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
-|------|-----------|-----------|-----|----|-----|
-| _not used_ | 24 | 0x1 | 1 | | |
-| Layer | 20 | 0xF | 4 | pxbLayer(id) or layer(id) | increasing r |
-| Ladder | 12 | 0xFF | 8 | pxbLadder(id) | increasing phi |
-| Module | 2 | 0x3FF | 10 | pxbModule(id) | increasing z |
-| _not used_ | 0 | 0x3 | 2 | | |
-
-* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
-
-| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
-|------|-----------|-----------|----|-----|-----|
-| subdetector part | 23 | 0x3 | 2 | pxfSide(id) or side(id) | 1=FPIX- 2=FPIX+ |
-| _not used_ | 22 | 0x1 | 1 | | |
-| Disk | 18 | 0xF | 4 | pxfDisk(id) or layer(id) | increasing abs(z) |
-| _Blade_ | 12 | 0x3F | 6 | pxfBlade(id) | increasing phi and r: first inner ring blades and the outer ring blades |
-| Panel | 10 | 0x3 | 2 | pxfPanel(id) | 1=forward 2=backward |
-| Module | 2 | 0xFF | 8 | pxfModule(id) | always = 1 |
-| _not used_ | 0 | 0x3 | 2 | | |
-
-* Subdetector 5  (`DetId::subDetId() == StripSubdetector::TOB`): Phase2 Outer Tracker Barrel
-
-| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
-|------|-----------|-----------|-----|----|-----|
-| _not used_ | 24 | 0x1 | 1 | | |
-| Layer | 20 | 0xF | 4 | tobLayer(id) or layer(id) | increasing r |
-| _subdetector part_ | 18| 0x3 | 2 | tobSide(id) | 1=rings- 2=rings+ 3=barrel0|
-| Ladder | 10 | 0xFF | 8 | tobRod(id) | increasing abs(z) (rings) or phi(barrel) |
-| Module | 2 | 0xFF | 8 | tobModule(id) | increasing phi (rings) or z(barrel) |
-| Module type | 0 | 0x3 | 2 | tobLower(id) or tobUpper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
-
-* Subdetector 4  (`DetId::subDetId() == StripSubdetector::TID`): Phase2 Outer Tracker Endcap
-
-| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
-|------|-----------|-----------|----|-----|----|
-| subdetector part | 23 | 0x3 | 2 | tidSide(id) or side(id) | 1=-ve 2=+ve |
-| _not used_ | 22 | 0x1 | 1 | | |
-| Disk | 18 | 0xF | 4 | tidDisk(id) or side(id) | increasing abs(z) |
-| _Ring_ | 12 | 0x3F | 6 | tidRing(id) | increasing r |
-| Panel | 10 | 0x3 | 2 | _tidOrder(id)_ | always = 1 |
-| Module | 2 | 0xFF | 8 | tidModule(id) | increasing phi |
-| Module type | 0 | 0x3 | 2 | tidLower(id) or tidUpper(id) | 1=lower in local s.o.r.(P sensor into PS), 2=upper in local s.o.r.(S sensor into PS), 0=pair |
-
-The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
-The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml](../TrackerCommonData/data/PhaseII/trackerParameters.xml)
-
-
-### Phase 2 Upgrade Detector DetId schema Tilted Geometry with new pixel detector for TDR (from Version V4021)
+### Phase 2 Upgrade Detector DetId schema Flat or Tilted Geometry with new pixel detector for TDR (from Version V4021)
 The phase 2 detector DetId schema for the pixel has been re-designed in order to have the correct hierarchy endcap-->disk-->ring-->module 
 while the outer tracker, use, as in previous case, subdetector 5, for the barrel, and subdetector 4, for the endcap. In some cases the name of the `TrackerTopology` methods is not so meaningful. In particular, for the Outer Tracker, the methods DoubleSided is not implemented, firstly because there is no need, secondly because it is not possible, just looking at the DetId and without something hardcoded, to understand if the module is single or double. This is also valid for Run I and Phase I.
 The OT tilted option has been introduced in the subdetector 5 with two bits (in the table referred with _subdetector part_ ) that correspond to the rings in the negative and positive part and the central barrel part. The order is thus changed respectevely for the three different subparts: ladders by increasing phi and rings by increasing |z|, same consistency for the modules order.
+
+With this subdetector, the flat geometry is compatible using just the central barrel part of the subdetector 5.
  
 * Subdetector 1: (`DetId::subDetId() == PixelSubdetector::PixelBarrel`): Phase1 Pixel Barrel
 
@@ -228,7 +175,6 @@ The OT tilted option has been introduced in the subdetector 5 with two bits (in 
 
 The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
 The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml](../TrackerCommonData/data/PhaseII/trackerParameters.xml
-
 
 
 ### Subdetector `GeometricDet` Enumerators

@@ -96,7 +96,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun HIon PIon PRef 25ns15e33_v4 25ns10e33_v2 Fake Fake1 )
+  foreach table ( GRun HIon PIon PRef Fake Fake1 )
 
     set name = ${table}_${gtag}  
 
@@ -141,30 +141,6 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:GRun
       set GTAG = ${BASE2}_GRun
       set RTAG = ${BASE2RD}_GRun
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:Full
-    else if ( $table == 25ns15e33_v4 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:25ns15e33_v4
-      set GTAG = ${BASE2}_25ns15e33_v4
-      set RTAG = ${BASE2RD}_25ns15e33_v4
-      set NN   = $NNPP
-      set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
-      set Custom = " "
-      set L1REPACK = L1REPACK:Full
-    else if ( $table == 25ns10e33_v2 ) then
-      set XL1T = $XL1TPP3
-      set XHLT = HLT:25ns10e33_v2
-      set GTAG = ${BASE2}_25ns10e33_v2
-      set RTAG = ${BASE2RD}_25ns10e33_v2
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
@@ -230,9 +206,19 @@ foreach gtag ( MC DATA )
     echo "Creating DigiL1Raw $name"
     cmsDriver.py RelVal                 --step=DIGI,L1,DIGI2RAW                            --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1Raw_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAWSIM                  --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_DigiL1Raw_$name.py
 
+    cat >>RelVal_DigiL1Raw_$name.py<<EOF
+process.options.numberOfThreads = cms.untracked.uint32(1)
+process.options.numberOfStreams = cms.untracked.uint32(1)
+EOF
+
     echo
     echo "Creating DigiL1RawHLT $name"
     cmsDriver.py RelVal                 --step=DIGI:pdigi_valid,L1,DIGI2RAW,$XHLT          --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'           --eventcontent=FEVTDEBUGHLT            --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
+
+    cat >>RelVal_DigiL1RawHLT_$name.py<<EOF
+process.options.numberOfThreads = cms.untracked.uint32(1)
+process.options.numberOfStreams = cms.untracked.uint32(1)
+EOF
 
     echo
     echo "Creating FastSim $name"

@@ -35,12 +35,12 @@ class ODScanConfig : public IODConfig {
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
  private:
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite()  noexcept(false);
+  void writeDB()       noexcept(false);
   void clear();
-  void fetchData(ODScanConfig * result)     throw(std::runtime_error);
-  int fetchID()  throw(std::runtime_error);
-  int fetchNextId() throw(std::runtime_error);
+  void fetchData(ODScanConfig * result)     noexcept(false);
+  int fetchID()  noexcept(false);
+  int fetchNextId() noexcept(false);
 
 
   // User data

@@ -37,17 +37,17 @@ class ODBadTTDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::vector< ODBadTTDat >& data, ODBadTTInfo* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::vector< ODBadTTDat >* fillMap, ODBadTTInfo* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_sm;

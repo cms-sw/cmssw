@@ -14,7 +14,9 @@ workflows = Matrix()
 #just define all of them
 
 #2017 WFs to run in IB (TenMuE_0_200, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
-numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0]
+#same for 2018
+numWFIB = [10021.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
+           10821.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0]
 for i,key in enumerate(upgradeKeys[2017]):
     numWF=numWFAll[2017][i]
     for frag in upgradeFragments:
@@ -53,15 +55,15 @@ def _trackingRun2(stepList):
             continue
         res.append(s)
     return res
-def _trackingPhase1PU70(stepList):
+def _trackingPhase1CA(stepList):
     res = []
     for step in stepList:
         s = step
         if 'RecoFull' in step:
             if 'trackingOnly' in step:
-                s = s.replace('Only', 'OnlyPhase1PU70')
+                s = s.replace('Only', 'OnlyPhase1CA')
             else:
-                s = s.replace('Full', 'Full_trackingPhase1PU70')
+                s = s.replace('Full', 'Full_trackingPhase1CA')
         if 'ALCA' in s:
             continue
         res.append(s)
@@ -73,5 +75,5 @@ def _trackingPhase1PU70(stepList):
 workflows[10024.1] = [ workflows[10024.0][0], _trackingOnly(workflows[10024.0][1]) ]
 workflows[10024.2] = [ workflows[10024.0][0], _trackingRun2(workflows[10024.0][1]) ]
 workflows[10024.3] = [ workflows[10024.1][0], _trackingRun2(workflows[10024.1][1]) ]
-workflows[10024.4] = [ workflows[10024.0][0], _trackingPhase1PU70(workflows[10024.0][1]) ]
-workflows[10024.5] = [ workflows[10024.1][0], _trackingPhase1PU70(workflows[10024.1][1]) ]
+workflows[10024.4] = [ workflows[10024.0][0], _trackingPhase1CA(workflows[10024.0][1]) ]
+workflows[10024.5] = [ workflows[10024.1][0], _trackingPhase1CA(workflows[10024.1][1]) ]

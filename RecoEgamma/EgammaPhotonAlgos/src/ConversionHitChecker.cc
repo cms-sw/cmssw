@@ -73,25 +73,14 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
   //if not then we need to subtract it from the count of hits before the vertex, since it has been implicitly included
 
   GlobalVector momDir = closest->updatedState().globalMomentum().unit();
-  double decayLengthHitToVtx = (vtxPos - closest->updatedState().globalPosition()).dot(momDir);
+  float decayLengthHitToVtx = (vtxPos - closest->updatedState().globalPosition()).dot(momDir);
 
   AlgebraicVector3 j;
   j[0] = momDir.x();
   j[1] = momDir.y();
   j[2] = momDir.z();
-  AlgebraicVector6 jj;
-  jj[0] = momDir.x();
-  jj[1] = momDir.y();
-  jj[2] = momDir.z();
-  jj[3] =0.;
-  jj[4] =0.;
-  jj[5] =0.;
-  
-  //TODO: In principle the hit measurement position is correlated with the vertex fit
-  //at worst though we inflate the uncertainty by a factor of two
-  double trackError2 = ROOT::Math::Similarity(jj,closest->updatedState().cartesianError().matrix());
-  double vertexError2 = ROOT::Math::Similarity(j,vtx.covariance());
-  double decayLenError = sqrt(trackError2+vertexError2);
+  float vertexError2 = ROOT::Math::Similarity(j,vtx.covariance());
+  auto decayLenError = std::sqrt(vertexError2);
 
   Measurement1DFloat decayLength(decayLengthHitToVtx,decayLenError);
 

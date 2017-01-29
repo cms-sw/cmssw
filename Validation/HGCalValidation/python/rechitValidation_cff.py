@@ -8,4 +8,4 @@ hgcalRecHitValidationHEF = hgcalRecHitValidationEE.clone(
 
 hgcalRecHitValidationHEB = hgcalRecHitValidationEE.clone(
     DetectorName  = cms.string("HCal"),
-    RecHitSource  = cms.InputTag("hbhereco"))
+    RecHitSource  = cms.InputTag("HGCalRecHit", "HGCHEBRecHits"))

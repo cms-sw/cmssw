@@ -31,7 +31,7 @@ FEConfigBadXTDat::~FEConfigBadXTDat()
 
 
 void FEConfigBadXTDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void FEConfigBadXTDat::prepareWrite()
 
 
 void FEConfigBadXTDat::writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -68,7 +68,7 @@ void FEConfigBadXTDat::writeDB(const FEConfigBadXTDat* item, FEConfigBadXTInfo* 
 
 
 void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBadXTInfo* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -105,7 +105,7 @@ void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBad
 //  ************************************************************************   // 
 
 void FEConfigBadXTDat::writeArrayDB(const std::vector< FEConfigBadXTDat >& data, FEConfigBadXTInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 

@@ -42,7 +42,7 @@ public:
   const std::vector<double> &  getEtaTableHF() const {return hpar->etaTableHF;}
   unsigned int              findLayer(int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const;
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
-  const std::vector<double> &  getLayer0Wt() const {return hpar->Layer0Wt;}
+  double                    getLayer0Wt(int det, int phi, int zside) const;
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   std::pair<int,int>        getModHalfHBHE(const int type) const;
   std::pair<double,double>  getPhiCons(int det, int ieta);

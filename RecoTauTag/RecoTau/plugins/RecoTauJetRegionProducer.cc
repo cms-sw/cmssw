@@ -91,10 +91,10 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // Build Ptrs for all the PFCandidates
   typedef edm::Ptr<reco::PFCandidate> PFCandPtr;
   std::vector<PFCandPtr> pfCands;
-  pfCands.reserve(pfCandsHandle->size());
+  pfCands.reserve(pfCandsHandle->size());  
   for ( size_t icand = 0; icand < pfCandsHandle->size(); ++icand ) {
-    pfCands.push_back(PFCandPtr(pfCandsHandle, icand));
-  }
+    pfCands.push_back(PFCandPtr(pfCandsHandle, icand));    
+  }  
 
   // Get the jets
   edm::Handle<reco::CandidateView> jetView;
@@ -106,8 +106,18 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // Get the association map matching jets to PFCandidates
   // (needed for recinstruction of boosted taus)
   edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
+  std::vector<std::unordered_set<unsigned> > fastJetToPFCandMap;
   if ( pfCandAssocMapSrc_.label() != "" ) {
     evt.getByToken(pfCandAssocMap_token, jetToPFCandMap);
+    fastJetToPFCandMap.resize(nJets);
+    for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
+      // Get a ref to jet
+      const reco::PFJetRef& jetRef = jets[ijet];
+      const auto& pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
+      for ( const auto& pfCandMappedToJet : pfCandsMappedToJet ) {
+	fastJetToPFCandMap[ijet].emplace(pfCandMappedToJet.key());
+      }
+    }
   }
 
   // Get the original product, so we can match against it - otherwise the
@@ -133,39 +143,32 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   auto newJets = std::make_unique<reco::PFJetCollection>();
 
   // Keep track of the indices of the current jet and the old (original) jet
-  // -1 indicates no match.
+  // -1 indicates no match.  
   std::vector<int> matchInfo(nOriginalJets, -1);
   newJets->reserve(nJets);
+  
   for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
     // Get a ref to jet
-    reco::PFJetRef jetRef = jets[ijet];
+    const reco::PFJetRef& jetRef = jets[ijet];
     // Make an initial copy.
     newJets->emplace_back(*jetRef);
     reco::PFJet& newJet = newJets->back();
     // Clear out all the constituents
     newJet.clearDaughters();
     // Loop over all the PFCands
-    for ( std::vector<PFCandPtr>::const_iterator pfCand = pfCands.begin();
-	  pfCand != pfCands.end(); ++pfCand ) {
+    for ( const auto& pfCand : pfCands ) {
       bool isMappedToJet = false;
-      if ( pfCandAssocMapSrc_.label() != "" ) {
+      if ( jetToPFCandMap.isValid() ) {
 	auto temp = jetToPFCandMap->find(jetRef);
 	if( temp == jetToPFCandMap->end() ) {
 	  edm::LogWarning("WeirdCandidateMap") << "Candidate map for jet " << jetRef.key() << " is empty!";
 	  continue;
 	}
-	edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
-	for ( edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCandMappedToJet = pfCandsMappedToJet.begin();
-	      pfCandMappedToJet != pfCandsMappedToJet.end(); ++pfCandMappedToJet ) {
-	  if ( reco::deltaR2(**pfCandMappedToJet, **pfCand) < 1.e-8 ) {
-	    isMappedToJet = true;
-	    break;
-	  }
-	}
+	isMappedToJet = fastJetToPFCandMap[ijet].count(pfCand.key());	
       } else {
 	isMappedToJet = true;
       }
-      if ( reco::deltaR2(*jetRef, **pfCand) < deltaR2_ && isMappedToJet ) newJet.addDaughter(*pfCand);
+      if ( reco::deltaR2(*jetRef, *pfCand) < deltaR2_ && isMappedToJet ) newJet.addDaughter(pfCand);
     }
     if ( verbosity_ ) {
       std::cout << "jet #" << ijet << ": Pt = " << jetRef->pt() << ", eta = " << jetRef->eta() << ", phi = " << jetRef->eta() << ","

@@ -60,6 +60,8 @@ highPtTripletStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(Regio
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.55))
 from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
 trackingPhase1PU70.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.7))
 trackingPhase2PU140.toModify(highPtTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.9, originRadius = 0.03))
@@ -78,12 +80,28 @@ import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cf
 highPtTripletStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "highPtTripletStepHitDoublets",
     produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "highPtTripletStepHitTriplets",
 )
+
+from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+trackingPhase1.toModify(highPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
+trackingPhase1.toReplaceWith(highPtTripletStepHitTriplets, _caHitTripletEDProducer.clone(
+    doublets = "highPtTripletStepHitDoublets",
+    extraHitRPhitolerance = highPtTripletStepHitTriplets.extraHitRPhitolerance,
+    SeedComparitorPSet = highPtTripletStepHitTriplets.SeedComparitorPSet,
+    maxChi2 = dict(
+        pt1    = 0.8, pt2    = 8,
+        value1 = 100, value2 = 6,
+    ),
+    useBendingCorrection = True,
+    CAThetaCut = 0.004,
+    CAPhiCut = 0.07,
+    CAHardPtCut = 0.3,
+))
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff

@@ -14,6 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -110,6 +111,9 @@ class PedeLabelerBase
   /// label for parameter 'paramNum' (counted from 0) of an integrated calibration
   virtual unsigned int calibrationLabel(const IntegratedCalibrationBase* calib,
                                         unsigned int paramNum) const;
+  const AlignableTracker* alignableTracker() const { return topLevelAlignables_.aliTracker_; }
+  const AlignableMuon* alignableMuon() const { return topLevelAlignables_.aliMuon_; }
+  const AlignableExtras* alignableExtras() const { return topLevelAlignables_.aliExtras_; }
 
   static const unsigned int theMaxNumParam;
   static const unsigned int theParamInstanceOffset;
@@ -120,9 +124,16 @@ class PedeLabelerBase
   /// (to be used for calibrations)
   virtual unsigned int firstNonAlignableLabel() const;
 
+  /// Return tracker alignable object ID provider derived from the tracker's geometry
+  const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
+
   const RunRange theOpenRunRange;
 
  private:
+
+  const TopLevelAlignables topLevelAlignables_;
+  const AlignableObjectId alignableObjectId_;
+
   /// pairs of calibrations and their first label
   std::vector<std::pair<IntegratedCalibrationBase*, unsigned int> > theCalibrationLabels;
 

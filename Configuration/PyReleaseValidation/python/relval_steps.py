@@ -1701,10 +1701,12 @@ from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 defaultDataSets={}
 defaultDataSets['2017']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 defaultDataSets['2017Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
+defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
+defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 defaultDataSets['2023D7']=''
-defaultDataSets['2023D2']=''
+defaultDataSets['2023D10']=''
 defaultDataSets['2023D7Timing']=''
-defaultDataSets['2023D2Timing']=''
+defaultDataSets['2023D10Timing']=''
 defaultDataSets['2023D4Timing']=''
 defaultDataSets['2023D4']=''
 defaultDataSets['2023D8']=''
@@ -1730,7 +1732,7 @@ PUDataSets={}
 for ds in defaultDataSets:
     key='MinBias_14TeV_pythia8_TuneCUETP8M1'+'_'+ds
     name=baseDataSetReleaseBetter[key]
-    if '2017' in name:
+    if '2017' in name or '2018' in name:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     else:
     	PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
@@ -1935,5 +1937,5 @@ for step in upgradeSteps:
 # 2017 tracking specific eras
 steps['RecoFull_trackingRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_2017']])
 steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_trackingOnly_2017']])
-steps['RecoFull_trackingPhase1PU70_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1PU70'}, steps['RecoFull_2017']])
-steps['RecoFull_trackingOnlyPhase1PU70_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1PU70'}, steps['RecoFull_trackingOnly_2017']])
+steps['RecoFull_trackingPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_2017']])
+steps['RecoFull_trackingOnlyPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_trackingOnly_2017']])

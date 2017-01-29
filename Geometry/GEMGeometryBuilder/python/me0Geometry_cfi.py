@@ -5,5 +5,5 @@ import FWCore.ParameterSet.Config as cms
 #
 ME0GeometryESModule = cms.ESProducer("ME0GeometryESModule",
     useDDD = cms.bool(True),
-    use10EtaPart = cms.bool(False),
+    use10EtaPart = cms.bool(True),
 )

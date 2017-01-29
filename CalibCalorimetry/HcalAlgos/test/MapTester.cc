@@ -54,9 +54,7 @@ class MapTester : public edm::EDAnalyzer {
       bool generateTextfiles_;
       bool generateEmap_;
 
-      virtual void beginRun(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
 
       // ----------member data ---------------------------
 };
@@ -74,18 +72,10 @@ MapTester::~MapTester()
 
 }
 
+
 // ------------ method called to for each event  ------------
-void
-MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  using namespace edm;
-  beginRun(iSetup);
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
 void 
-MapTester::beginRun(const edm::EventSetup& iSetup)
+MapTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   char tempbuff[128];
 
@@ -124,11 +114,6 @@ MapTester::beginRun(const edm::EventSetup& iSetup)
     myemap = mymap.generateHcalElectronicsMap();
     edm::LogInfo( "MapTester") <<"dumping the emap..."<<std::endl;
     HcalDbASCIIIO::dumpObject(outStream,myemap);}
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MapTester::endJob() {
 }
 
 //define this as a plug-in

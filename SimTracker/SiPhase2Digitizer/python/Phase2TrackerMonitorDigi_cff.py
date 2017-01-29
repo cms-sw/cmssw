@@ -5,6 +5,14 @@ from SimTracker.SiPhase2Digitizer.Phase2TrackerMonitorDigi_cfi import *
 pixDigiMon = digiMon.clone()
 pixDigiMon.PixelPlotFillingFlag = cms.bool(True)
 pixDigiMon.TopFolderName = cms.string("Ph2TkPixelDigi")
+pixDigiMon.NumberOfDigisPerDetH = cms.PSet(
+    Nbins = cms.int32(200),
+    xmin = cms.double(0.0),
+    xmax = cms.double(2000.))
+pixDigiMon.NumberOfClustersPerDetH = cms.PSet(
+    Nbins = cms.int32(200),
+    xmin = cms.double(0.0),
+    xmax = cms.double(2000.))
 pixDigiMon.PositionOfDigisH = cms.PSet(
     Nxbins = cms.int32(1350),
     xmin   = cms.double(0.5),

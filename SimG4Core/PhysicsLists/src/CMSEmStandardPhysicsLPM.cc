@@ -165,9 +165,9 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   G4double highEnergyLimit = 100*MeV;
 
   G4Region* aRegion = 
-    G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+    G4RegionStore::GetInstance()->GetRegion("HcalRegion",false);
   G4Region* bRegion = 
-    G4RegionStore::GetInstance()->GetRegion("HGCalRegion");
+    G4RegionStore::GetInstance()->GetRegion("HGCalRegion",false);
 
   aParticleIterator->reset();
   while( (*aParticleIterator)() ){

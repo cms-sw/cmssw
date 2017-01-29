@@ -27,6 +27,8 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CandidateSeededTrackingRegionsP
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
 using TauRegionalPixelSeedTrackingRegionEDProducer = TrackingRegionEDProducerT<TauRegionalPixelSeedGenerator>;
 DEFINE_FWK_MODULE(TauRegionalPixelSeedTrackingRegionEDProducer);
+using CandidateSeededTrackingRegionsEDProducer = TrackingRegionEDProducerT<CandidateSeededTrackingRegionsProducer>;
+DEFINE_FWK_MODULE(CandidateSeededTrackingRegionsEDProducer);
 
 DEFINE_FWK_MODULE(L2TauJetsMerger);
 DEFINE_FWK_MODULE(L1HLTJetsMatching);

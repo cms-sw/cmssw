@@ -108,6 +108,8 @@ namespace edm {
   class ModuleRegistry;
   class ThinnedAssociationsHelper;
   class TriggerResultInserter;
+  class WaitingTaskHolder;
+
   
   class Schedule {
   public:
@@ -129,10 +131,10 @@ namespace edm {
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);
 
-    void processOneEvent(unsigned int iStreamID,
-                         EventPrincipal& principal,
-                         EventSetup const& eventSetup,
-                         bool cleaningUpAfterException = false);
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              unsigned int iStreamID,
+                              EventPrincipal& principal,
+                              EventSetup const& eventSetup);
 
     template <typename T>
     void processOneGlobal(typename T::MyPrincipal& principal,
