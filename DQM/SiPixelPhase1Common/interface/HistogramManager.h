@@ -52,17 +52,10 @@ public:
   void executeHarvesting(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter);
 
   typedef std::map<GeometryInterface::Values, AbstractHistogram> Table;
-  // Set a handler to be called when a custom() step is hit. This can do 
-  // arbitrary things to the histogram Table, including copying it for later 
-  // use. Using such saved tables form other HistogramManagers, e.g. 
-  // efficiencies can be computed here.
-  template<typename FUNC>
-  void setCustomHandler(FUNC handler) {customHandler = handler; };
 
 private:
   const edm::ParameterSet& iConfig;
   GeometryInterface& geometryInterface;
-  std::function<void(SummationStep const& step, Table& t, DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter)> customHandler;
 
   std::vector<SummationSpecification> specs;
   std::vector<Table> tables;
