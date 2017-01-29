@@ -313,7 +313,7 @@ process.SiPixelPhase1ClustersPositionF.specs = VPSet(
 process.SiPixelPhase1RawDataNErrors.enabled = True
 process.SiPixelPhase1RawDataNErrors.specs = VPSet(
   Specification().groupBy("PXForward/PXBlade").groupBy("PXForward", "EXTEND_X").save(),
-  Specification().groupBy("FEDChannel").groupBy("", "EXTEND_X").save()
+  Specification().groupBy("LinkInFed").groupBy("", "EXTEND_X").save()
 )
 
 process.SiPixelPhase1RawDataTypeNErrors.enabled = True
