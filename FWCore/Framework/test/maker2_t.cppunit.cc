@@ -13,6 +13,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/MakeModuleParams.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -42,7 +43,9 @@ CPPUNIT_TEST_SUITE(testmaker2);
 CPPUNIT_TEST(maker2Test);
 CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
+  void setUp(){
+    RootAutoLibraryLoader::enable();
+  }
   void tearDown(){}
   void maker2Test();
 };
