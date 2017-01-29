@@ -30,25 +30,32 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
   setWhatProduced(this);
 }
 
-
 GEMGeometryESModule::~GEMGeometryESModule(){}
-
 
 std::shared_ptr<GEMGeometry>
 GEMGeometryESModule::produce(const MuonGeometryRecord & record) 
 {
-  if(useDDD){
+  if( useDDD ) {
     edm::ESTransientHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     GEMGeometryBuilderFromDDD builder;
     return std::shared_ptr<GEMGeometry>(builder.build(&(*cpv), *mdc));
-  }else{
+  } else {
     edm::ESHandle<RecoIdealGeometry> riggem;
-    record.getRecord<GEMRecoGeometryRcd>().get(riggem);
-    GEMGeometryBuilderFromCondDB builder;
-    return std::shared_ptr<GEMGeometry>(builder.build(*riggem));
+    auto gemRcd = record.tryToGetRecord<GEMRecoGeometryRcd>();
+
+    if( gemRcd != 0 ) {
+      record.getRecord<GEMRecoGeometryRcd>().get(riggem);
+
+      GEMGeometryBuilderFromCondDB builder;
+      return std::shared_ptr<GEMGeometry>(builder.build(*riggem));
+    }      
+    else
+      edm::LogInfo("GEMGeom") << "No GEMRecoGeometryRcd record found in the EventSetup for synchronization value.";
+
+    return std::shared_ptr<GEMGeometry>( new GEMGeometry );
   }
 }
 
