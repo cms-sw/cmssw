@@ -37,6 +37,9 @@ struct HBHERecHitAuxSetter
     static const unsigned OFF_LINK_ERR = 28;
     static const unsigned OFF_CAPID_ERR = 29;
 
+    // Flag identifying combined "Plan 1" rechits
+    static const unsigned OFF_COMBINED = 30;
+
     // Main function for setting the aux words.
     static void setAux(const HBHEChannelInfo& info,
                        HBHERecHit* rechit);
