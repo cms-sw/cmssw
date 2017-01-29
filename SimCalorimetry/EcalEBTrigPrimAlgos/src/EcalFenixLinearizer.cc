@@ -34,7 +34,6 @@ void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * e
   }
   else std::cout <<" could not find EcalTPGLinearizationConstMap entry for "<<raw << std::endl;
 
-  const EcalTPGPedestalsMap & pedMap = ecaltpPed->getMap() ;
   EcalTPGPedestalsMapIterator itped=ecaltpPed->find(raw);
   if (itped!=ecaltpPed->end())   peds_=&(*itped);
   else std::cout <<" could not find EcalTPGPedestalsMap entry for "<<raw << std::endl;
