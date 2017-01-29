@@ -27,7 +27,7 @@ eidTightGSFixed = eidTight.clone(
     newToOldObjectMap = cms.InputTag('gedGsfElectronsGSFixed'),
 )
 
-ElectronIDExternalProducerRemapSequence = cms.Sequence(
+ElectronIDExternalProducerRemapSequenceForPAT = cms.Sequence(
     eidLooseGSFixed + 
     eidRobustHighEnergyGSFixed + 
     eidRobustLooseGSFixed + 
@@ -50,7 +50,7 @@ PhotonCutBasedIDTightGSFixed = PhotonCutBasedIDTight.clone(
     newToOldObjectMap = cms.InputTag('gedPhotonsGSFixed'),
 )
 
-PhotonIDExternalProducerRemapSequence = cms.Sequence(
+PhotonIDExternalProducerRemapSequenceForPAT = cms.Sequence(
     PhotonCutBasedIDLooseGSFixed +
     PhotonCutBasedIDLooseEMGSFixed +
     PhotonCutBasedIDTightGSFixed
