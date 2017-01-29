@@ -30,76 +30,67 @@ hiDetachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiDetachedTrip
 hiDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiDetachedTripletStepClusters')
 
 # SEEDS
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
+from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
+
+hiDetachedTripletStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+    precise = True,
+    useMultipleScattering = False,
+    useFakeVertices       = False,
+    beamSpot = "offlineBeamSpot",
+    useFixedError = True,
+    nSigmaZ = 4.0,
+    sigmaZVertex = 4.0,
+    fixedError = 0.5,
+    VertexCollection = "hiSelectedVertex",
+    ptMin = 0.9,
+    useFoundVertices = True,
+    originRadius = 0.5
+))
+hiDetachedTripletStepTracksHitDoublets = _hitPairEDProducer.clone(
+    clusterCheck = "",
+    seedingLayers = "hiDetachedTripletStepSeedLayers",
+    trackingRegions = "hiDetachedTripletStepTrackingRegions",
+    maxElement = 0,
+    produceIntermediateHitDoublets = True,
+)
+hiDetachedTripletStepTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
+    doublets = "hiDetachedTripletStepTracksHitDoublets",
+    extraHitRPhitolerance = 0.0,
+    extraHitRZtolerance = 0.0,
+    maxElement = 1000000,
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    produceSeedingHitSets = True,
+)
+hiDetachedTripletStepPixelTracksFilter = hiFilter.clone(
+    nSigmaTipMaxTolerance = 0,
+    lipMax = 1.0,
+    tipMax = 1.0,
+    ptMin = 0.95,
+)
 hiDetachedTripletStepPixelTracks = cms.EDProducer("PixelTrackProducer",
 
     passLabel  = cms.string('Pixel detached tracks with vertex constraint'),
 
-    RegionFactoryPSet = cms.PSet(
-        ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer'),
-        RegionPSet = cms.PSet(
-            precise = cms.bool(True),
-            useMultipleScattering = cms.bool(False),
-            useFakeVertices       = cms.bool(False),            
-            beamSpot = cms.InputTag("offlineBeamSpot"),
-            useFixedError = cms.bool(True),
-            nSigmaZ = cms.double(4.0),
-            sigmaZVertex = cms.double(4.0),
-            fixedError = cms.double(0.5),
-            VertexCollection = cms.InputTag("hiSelectedVertex"),
-            ptMin = cms.double(0.9),
-            useFoundVertices = cms.bool(True),
-            originRadius = cms.double(0.5)
-        )
-    ),
-     
     # Ordered Hits
-    OrderedHitsFactoryPSet = cms.PSet( 
-          ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	  SeedingLayers = cms.InputTag( "PixelLayerTriplets" ),
-          GeneratorPSet = cms.PSet( 
-		PixelTripletHLTGenerator
-          )
-    ),
+    SeedingHitSets = cms.InputTag("hiDetachedTripletStepTracksHitTriplets"),
 	
     # Fitter
-    FitterPSet = cms.PSet( 
-	  ComponentName = cms.string('PixelFitterByHelixProjections'),
-	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    ),
+    Fitter = cms.InputTag("pixelFitterByHelixProjections"),
 	
     # Filter
-    useFilterWithES = cms.bool( True ),
-    FilterPSet = cms.PSet( 
-        nSigmaLipMaxTolerance = cms.double(0),
-        chi2 = cms.double(1000.0),
-        ComponentName = cms.string('HIPixelTrackFilter'),
-        nSigmaTipMaxTolerance = cms.double(0),
-        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
-        VertexCollection = cms.InputTag("hiSelectedVertex"),
-        useClusterShape = cms.bool(False),
-        lipMax = cms.double(1.0),
-        tipMax = cms.double(1.0),
-        ptMin = cms.double(0.95)
-    ),
+    Filter = cms.InputTag("hiDetachedTripletStepPixelTracksFilter"),
 	
     # Cleaner
-    CleanerPSet = cms.PSet(  
-          ComponentName = cms.string( "TrackCleaner" )
-    )
+    Cleaner = cms.string("trackCleaner")
 )
 
-
-
-hiDetachedTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRPhitolerance = cms.double(0.0)
-hiDetachedTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.extraHitRZtolerance = cms.double(0.0)
-hiDetachedTripletStepPixelTracks.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiDetachedTripletStepSeedLayers')
-
-hiDetachedTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(1000000)
-hiDetachedTripletStepPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 
 import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
 hiDetachedTripletStepSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
@@ -200,6 +191,11 @@ hiDetachedTripletStepQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
 
 hiDetachedTripletStep = cms.Sequence(hiDetachedTripletStepClusters*
                                      hiDetachedTripletStepSeedLayers*
+                                     hiDetachedTripletStepTrackingRegions*
+                                     hiDetachedTripletStepTracksHitDoublets*
+                                     hiDetachedTripletStepTracksHitTriplets*
+                                     pixelFitterByHelixProjections*
+                                     hiDetachedTripletStepPixelTracksFilter*
                                      hiDetachedTripletStepPixelTracks*
                                      hiDetachedTripletStepSeeds*
                                      hiDetachedTripletStepTrackCandidates*

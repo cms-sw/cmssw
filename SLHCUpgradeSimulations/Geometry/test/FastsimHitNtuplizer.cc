@@ -65,7 +65,7 @@ FastsimHitNtuplizer::FastsimHitNtuplizer(edm::ParameterSet const& conf) :
 
 FastsimHitNtuplizer::~FastsimHitNtuplizer() { }  
 
-void FastsimHitNtuplizer::endJob() 
+void FastsimHitNtuplizer::endRun(const edm::Run&, const edm::EventSetup& es) 
 {
   std::cout << " FastsimHitNtuplizer::endJob" << std::endl;
   tfile_->Write();
@@ -74,7 +74,7 @@ void FastsimHitNtuplizer::endJob()
 
 
 
-void FastsimHitNtuplizer::beginJob(const edm::EventSetup& es)
+void FastsimHitNtuplizer::beginRun(const edm::Run&, const edm::EventSetup& es)
 {
   std::cout << " FastsimHitNtuplizer::beginJob" << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("OutputFile");

@@ -7,6 +7,7 @@ from copy import deepcopy
 # which outputs a valid form.
 
 # these need to stay in sync with the C++ enums.  TODO: Can we use Python3 enum or sth.?
+# Internal specification step types
 NO_TYPE  = cms.int32(0)
 GROUPBY  = cms.int32(1)  # only "SUM", real histograms
 EXTEND_X = cms.int32(2)  # use geometry column as coordinate axis, concatenate 
@@ -14,17 +15,20 @@ EXTEND_Y = cms.int32(3)
 COUNT    = cms.int32(4)  # drop all values, only count entries. Atm only step1.
 REDUCE   = cms.int32(5)  # histogram-to-scalar operator for harvesting, atm only MEAN
 SAVE     = cms.int32(6)  # atm not used in execution. Marks stage1/2 switch.
-CUSTOM   = cms.int32(7)  # call callback in harvesting
 USE_X    = cms.int32(8)  # use arg-th fill(...) parameter for the respective axis. 
 USE_Y    = cms.int32(9)
 USE_Z    = cms.int32(10)
 PROFILE  = cms.int32(11) # marker for step1 to make a profile, related to REDUCE(MEAN)
 
+# Specifications are broken down into Stages, that are executed at different 
+# points in time (in the fill call, in pre-event harvesting (counters), in
+# harvesting (DQM step2)
 NO_STAGE = cms.int32(0)
 FIRST    = cms.int32(1)  # first grouping, before and/or after counting 
 STAGE1   = cms.int32(2)  # USE/EXTEND/PROFILE for step1
 STAGE2   = cms.int32(3)  # REDUCE/EXTEND/GROUPBY/CUSTOM for harvesting
 
+# small helpers
 def val(maybecms):
   if hasattr(maybecms, "value"):
     return maybecms.value()
@@ -39,26 +43,30 @@ def parent(path):
 DefaultConf = cms.PSet(enabled = cms.bool(True))
 
 
-# The Specification format is very rigid and looks much less like a program in
-# the internal form:
-# - There is one entry FIRST, which is a GROUPBY(SUM) or COUNT and some columns
-# - There is another entry FIRST, which is a GROUPBY(SUM) and some columns iff
+# The internal Specification format is very rigid and looks much less like a 
+# program in the internal form:
+# - There is one entry FIRST, which is a GROUPBY or COUNT and some columns
+# - There is another entry FIRST, which is a GROUPBY and some columns iff
 #   the one before was COUNT
 # - There are some entries STAGE1
 #  - There is one entry per dimension (ordered)
 #  - which is either USE_* or EXTEND_*
-#  - with one column, that is usually NOT listed in first.
+#  - with one column, that is NOT listed in FIRST.
 #  - There is optionally an entry PROFILE to make a profile.
-# - There are 0-n steps STAGE2, which are one of GROUPBY(SUM), EXTEND_X, CUSTOM
+# - There are 0-n steps STAGE2, which are one of GROUPBY, EXTEND_X
 #  - The argument for GROUPBY and EXTEND_X is a subset of columns of last step
-#  - CUSTOM may have an arbitrary argument that is simply passed down
 #  - SAVE is ignored
 
 class Specification(cms.PSet):
   def __init__(self, conf = DefaultConf):
     super(Specification, self).__init__()
+    # these are the steps passed down to C++. Will be filled later.
     self.spec = cms.VPSet()
+    # this is currently only an additional enable flag. Might add topFolder or
+    # range there in the future.
     self.conf = conf
+
+    # these are onlly used during construction.
     self._activeColumns = set()
     self._state = FIRST
 
@@ -70,8 +78,14 @@ class Specification(cms.PSet):
     return t 
 
   def groupBy(self, cols, mode = "SUM"):
-    cnames = val(cols).split("/")
+    cnames = filter(len, val(cols).split("/")) # omit empty items
     newstate = self._state
+
+    # The behaviour of groupBy depends a lot on when it happens:
+    # - The first (or second, if there is per-event counting) are very special
+    # - others in STAGE1 have to be EXTEND, and they will be translated into a
+    #   list of exactly 3 USE/EXTEND steps (one per dimension).
+    # - in STAGE2 they are just passed down to C++.
 
     if self._state == FIRST:
       cname = cnames
@@ -100,10 +114,10 @@ class Specification(cms.PSet):
       else:
         raise Exception("Only EXTEND_X or EXTEND_Y allowed here, not " + mode)
 
-      # remove the column in earlier steps, we always re-extract in step1.
+      # remove the column in the FIRST groupBy, we always re-extract in step1.
       c = list(cname)[0]
       for s in self.spec:
-        if s.stage == FIRST and c in s.columns:
+        if s.stage == FIRST and s.type == GROUPBY and c in s.columns:
           s.columns.remove(c)
       if c in self._activeColumns:
         self._activeColumns.remove(c)
@@ -134,8 +148,9 @@ class Specification(cms.PSet):
       arg = cms.string(mode)
     ))
 
+    # In the very beginning emit standard column assignments, they will be 
+    # changed later (above and in save()) to reflect the EXTENDS given above.
     if newstate == STAGE1 and self._state == FIRST:
-      # emit standard column assignments, will be changed later
       self._x = cms.PSet(
         type = USE_X, stage = STAGE1,
         columns = cms.vstring(),
@@ -160,6 +175,10 @@ class Specification(cms.PSet):
     return self
 
   def reduce(self, sort):
+    # reduce can be MEAN or COUNT. in STAGE2, just pass through.
+    # in STAGE1, MEAN (anywhere) means make a PROFILE
+    # COUNT can mean per-event counting or a occupancy plot, which is acheived
+    # by ignoring the values passed to fill() (like dimensions=0, TODO).
     if self._state == FIRST:
       if sort != "COUNT":
         raise Exception("First statement must be groupBy.")
@@ -210,19 +229,8 @@ class Specification(cms.PSet):
     self._state = STAGE2
     return self
 
-  def custom(self, arg = ""):
-    if self._state != STAGE2:
-      raise Exception("Custom processing exists only in Harvesting.")
-    self.spec.append(cms.PSet(
-      type = CUSTOM, 
-      stage = self._state, 
-      columns = cms.vstring(),
-      arg = cms.string(arg)
-    ))
-    return self
-
-
   def saveAll(self):
+    # call groupBy() and save() until all colums are consumed.
     self.save()
     columns = self._lastColumns
     for i in range(len(columns)-1, 0, -1):

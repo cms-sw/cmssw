@@ -17,6 +17,7 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -522,7 +523,8 @@ namespace edm {
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(
                                                     prealloc.numberOfStreams(),
                                                     modDesc,
-                                                    tns);
+                                                    tns,
+                                                    processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
@@ -616,6 +618,9 @@ namespace edm {
       // The trigger report (pass/fail etc.):
 
       LogVerbatim("FwkSummary") << "";
+      if(streamSchedules_[0]->context().processContext()->isSubProcess()) {
+        LogVerbatim("FwkSummary") << "TrigReport Process: "<<streamSchedules_[0]->context().processContext()->processName();
+      }
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
       if(!tr.trigPathSummaries.empty()) {
         LogVerbatim("FwkSummary") << "TrigReport"
@@ -944,12 +949,12 @@ namespace edm {
     streamSchedules_[iStreamID]->endStream();
   }
   
-  void Schedule::processOneEvent(unsigned int iStreamID,
-                                 EventPrincipal& ep,
-                                 EventSetup const& es,
-                                 bool cleaningUpAfterException) {
+  void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
+                                      unsigned int iStreamID,
+                                      EventPrincipal& ep,
+                                      EventSetup const& es) {
     assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEvent(ep,es,cleaningUpAfterException);
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es);
   }
   
   void Schedule::preForkReleaseResources() {

@@ -45,7 +45,7 @@ TProfile2D* prof2d_x0_det_total;
 const std::vector<std::string> DETECTORS{"BeamPipe", "TIB", "TIDF", "TIDB",
       "InnerServices", "TOB",
       "TEC", "TkStrct", "PixBar",
-      "PixFwdPlus", "PixFwdMinus",
+      "PixFwdPlus", "PixFwdMinus","PixFwd",
       "Tracker", "TrackerSum",
       "Pixel", "Strip",
       "InnerTracker",
@@ -277,7 +277,7 @@ void createPlots(TString plot) {
   can.Update();
   //  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can.Write();
   //
@@ -486,10 +486,9 @@ void create2DPlots(TString plot) {
 
   //  can2.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can2.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can2.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can2.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   can2.SaveAs( Form( "%s/%s_%s_bw.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can2.Write();
-  //
   
   // restore properties
   gStyle->SetStripDecimals(true);
@@ -571,7 +570,7 @@ void createRatioPlots(TString plot) {
   canR.Update();
   //  canR.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  canR.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  canR.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  canR.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   canR.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  canR.Write();
 }

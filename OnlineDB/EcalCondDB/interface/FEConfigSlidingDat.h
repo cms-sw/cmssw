@@ -21,19 +21,15 @@ class FEConfigSlidingDat : public IDataItem {
   inline float getSliding() const { return m_sliding; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigSlidingDat* item, FEConfigSlidingInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigSlidingDat* item, FEConfigSlidingInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigSlidingDat>* data, FEConfigSlidingInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigSlidingDat>* data, FEConfigSlidingInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigSlidingDat >* fillMap, FEConfigSlidingInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigSlidingDat >* fillMap, FEConfigSlidingInfo* iconf) noexcept(false);
 
   // User data
   float m_sliding;

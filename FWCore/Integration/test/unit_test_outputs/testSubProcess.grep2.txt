@@ -434,57 +434,57 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 1 time = 5000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -570,57 +570,57 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 2 time = 10000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -706,6 +706,15 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -748,15 +757,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
-++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 3 time = 15000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -842,6 +842,15 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -884,15 +893,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
-++++ starting: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -1208,57 +1208,57 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 5 time = 25000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -1344,57 +1344,57 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 6 time = 30000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -1480,6 +1480,15 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -1522,15 +1531,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
-++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 7 time = 35000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -1616,6 +1616,15 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -1658,15 +1667,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
-++++ starting: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -1982,6 +1982,15 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -2024,15 +2033,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
-++++ starting: processing event : stream = 0 run = 1 lumi = 3 event = 9 time = 45000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -2118,6 +2118,15 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
 ++++ starting: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -2160,15 +2169,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
-++++ starting: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -2714,57 +2714,57 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 1 time = 55000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -2850,57 +2850,57 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 2 time = 60000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -2986,6 +2986,15 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -3028,15 +3037,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
-++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 3 time = 65000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -3122,6 +3122,15 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -3164,15 +3173,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
-++++ starting: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -3488,57 +3488,57 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 5 time = 75000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -3624,57 +3624,57 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 6 time = 80000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -3760,6 +3760,15 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -3802,15 +3811,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
-++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 7 time = 85000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -3896,6 +3896,15 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -3938,15 +3947,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
-++++ starting: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -4262,6 +4262,15 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -4304,15 +4313,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
-++++ starting: processing event : stream = 0 run = 2 lumi = 3 event = 9 time = 95000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -4398,6 +4398,15 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
 ++++ starting: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -4440,15 +4449,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
-++++ starting: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -4994,57 +4994,57 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 1 time = 105000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -5130,57 +5130,57 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 2 time = 110000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -5266,6 +5266,15 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -5308,15 +5317,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
-++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 3 time = 115000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -5402,6 +5402,15 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -5444,15 +5453,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
-++++ starting: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -5768,57 +5768,57 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 5 time = 125000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -5904,57 +5904,57 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
-++++++ finished: processing path 'path1' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
-++++++ finished: processing path 'path2' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
-++++++ finished: processing path 'path3' : stream = 0
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
-++++++ finished: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
-++++++ starting: processing path 'endPath1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
-++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
-++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
-++++++ finished: processing path 'endPath1' : stream = 0
-++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
 ++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
 ++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 11
 ++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 10
+++++++ finished: processing path 'path1' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ finished: processing event for module: stream = 0 label = 'test' id = 11
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ starting: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++++ finished: processing event for module: stream = 0 label = 'testmerge' id = 12
+++++++ finished: processing path 'path2' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ finished: processing event for module: stream = 0 label = 'get' id = 13
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ starting: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++++ finished: processing event for module: stream = 0 label = 'getInt' id = 14
+++++++ finished: processing path 'path3' : stream = 0
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ starting: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++++ finished: processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
+++++++ finished: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ starting: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++++ finished: processing event for module: stream = 0 label = 'TriggerResults' id = 9
+++++++ starting: processing path 'endPath1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: prefetching before processing event for module: stream = 0 label = 'out' id = 16
+++++++++ starting: processing event for module: stream = 0 label = 'out' id = 16
+++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
+++++++ finished: processing path 'endPath1' : stream = 0
+++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 6 time = 130000001
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -6040,6 +6040,15 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -6082,15 +6091,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
-++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 7 time = 135000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -6176,6 +6176,15 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -6218,15 +6227,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
-++++ starting: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -6542,6 +6542,15 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -6584,15 +6593,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
-++++ starting: processing event : stream = 0 run = 3 lumi = 3 event = 9 time = 145000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
@@ -6678,6 +6678,15 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
 ++++ starting: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
 ++++++ starting: processing path 'path4' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
+++++++ starting: processing path 'path3' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
+++++++ starting: processing path 'path2' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
+++++++ starting: processing path 'path1' : stream = 0
+++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
+++++ starting: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
+++++++ starting: processing path 'path4' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 15
 ++++++ starting: processing path 'path3' : stream = 0
 ++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 13
@@ -6720,15 +6729,6 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'out' id = 16
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
-++++ starting: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
-++++++ starting: processing path 'path4' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'dependsOnNoPut' id = 23
-++++++ starting: processing path 'path3' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'get' id = 21
-++++++ starting: processing path 'path2' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'test' id = 19
-++++++ starting: processing path 'path1' : stream = 0
-++++++++ starting: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: prefetching before processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ starting: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18
 ++++++++ finished: processing event for module: stream = 0 label = 'thingWithMergeProducer' id = 18

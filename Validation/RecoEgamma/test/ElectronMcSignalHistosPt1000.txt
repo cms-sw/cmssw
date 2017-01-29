@@ -248,9 +248,9 @@ ElectronMcSignalValidatorPt1000/h_ele_chargeInfo    1 1 1 1 0
 
 Provenance
 
-ElectronMcSignalValidatorPt1000/h_ele_provenance                  1 1 0 0
-ElectronMcSignalValidatorPt1000/h_ele_provenance_barrel           1 1 0 0
-ElectronMcSignalValidatorPt1000/h_ele_provenance_endcaps          1 1 1 0
+ElectronMcSignalValidatorPt1000/h_ele_provenance                  0 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_provenance_barrel           0 1 0 0
+ElectronMcSignalValidatorPt1000/h_ele_provenance_endcaps          0 1 1 0
 ElectronMcSignalValidatorPt1000/h_ele_mva                         1 1 0 0
 ElectronMcSignalValidatorPt1000/h_ele_mva_barrel                  1 1 0 0
 ElectronMcSignalValidatorPt1000/h_ele_mva_endcaps                 1 1 1 0

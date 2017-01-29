@@ -50,65 +50,65 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fTTSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cFG_TTSubdet[i].initialize(_name, "FG",
 			hcaldqm::hashfunctions::fTTSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 	_cEtall_TTSubdet.initialize(_name, "Et",
 		hcaldqm::hashfunctions::fTTSubdet,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cMsn_FEDVME.initialize(_name, "Missing",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMsn_FEDuTCA.initialize(_name, "Missing",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cEtMsm_FEDVME.initialize(_name, "EtMsm",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cEtMsm_FEDuTCA.initialize(_name, "EtMsm",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cFGMsm_FEDVME.initialize(_name, "FGMsm",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSLBSLBCh),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cFGMsm_FEDuTCA.initialize(_name, "FGMsm",
 		hcaldqm::hashfunctions::fFED,
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCATPFiberChuTCATP),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cMsnuTCA.initialize(_name, "Missing", 
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cMsnVME.initialize(_name, "Missing",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cEtMsm.initialize(_name, "EtMsm",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cFGMsm.initialize(_name, "FGMsm",
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	char aux[20];
 	for (unsigned int i=0; i<4; i++)

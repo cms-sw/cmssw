@@ -47,6 +47,8 @@ ME0ReDigiProducer::ME0ReDigiProducer(const edm::ParameterSet& ps)
   discretizeY_ = ps.getParameter<bool>("discretizeY");
   reDigitizeOnlyMuons_ = ps.getParameter<bool>("reDigitizeOnlyMuons");
   reDigitizeNeutronBkg_ = ps.getParameter<bool>("reDigitizeNeutronBkg");
+  rateFact_ = ps.getParameter<double>("rateFact");
+  instLumiDefault_ = ps.getParameter<double>("instLumiDefault");
   instLumi_ = ps.getParameter<double>("instLumi");
 }
 
@@ -133,7 +135,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
 
       // scale background hits for luminosity
       if (!me0Digi.prompt())
-	if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/5) continue;
+	  if (CLHEP::RandFlat::shoot(engine) > instLumi_*1.0/(instLumiDefault_*rateFact_)) continue;
       
       edm::LogVerbatim("ME0ReDigiProducer")
         << "\tPassed selection" << std::endl;

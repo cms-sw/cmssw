@@ -23,9 +23,12 @@ const unsigned int PedeLabelerBase::theParamInstanceOffset = 700000;
 const unsigned int PedeLabelerBase::theMinLabel = 1; // must be > 0
 
 PedeLabelerBase::PedeLabelerBase(const TopLevelAlignables &alignables,
-				 const edm::ParameterSet &config)
-  :theOpenRunRange(std::make_pair<RunNumber,RunNumber>( RunNumber( cond::timeTypeSpecs[cond::runnumber].beginValue) ,  // since we know we have a runnumber here, we can
-						        RunNumber( cond::timeTypeSpecs[cond::runnumber].endValue  ) )) // simply convert the Time_t to make the compiler happy
+				 const edm::ParameterSet &config) :
+  theOpenRunRange(std::make_pair<RunNumber,RunNumber>(RunNumber(cond::timeTypeSpecs[cond::runnumber].beginValue), // since we know we have a runnumber here, we can
+                                                      RunNumber(cond::timeTypeSpecs[cond::runnumber].endValue))), // simply convert the Time_t to make the compiler happy
+  topLevelAlignables_(alignables),
+  alignableObjectId_{AlignableObjectId::commonObjectIdProvider(alignables.aliTracker_,
+                                                               alignables.aliMuon_)}
 {
   
 }

@@ -148,6 +148,8 @@ public:
   bool isBH() const { return ((hcons_ == 0) ? false : hcons_->isBH()); }
 
   const HcalDDDRecConstants* dddConstants () const {return hcons_;}
+  bool  withSpecialRBXHBHE() const {return false;}
+  HcalDetId mergedDepthDetId(HcalDetId& id) const { return id; }
 
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */

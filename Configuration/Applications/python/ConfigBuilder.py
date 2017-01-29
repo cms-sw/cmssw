@@ -422,6 +422,10 @@ class ConfigBuilder(object):
 			   for line in textOfFiles:
 				   for fileName in [x for x in line.split() if '.lhe' in x]:
 					   self.process.source.fileNames.append(location+article+'/'+fileName)
+			   #check first if list of LHE files is loaded (not empty)
+			   if len(line)<2:
+				   print 'Issue to load LHE files, please check and try again.'
+				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:

@@ -35,9 +35,9 @@ class RunIOV : public IIOV {
   // Methods from IUniqueDBObject
   int getID(){ return m_ID;} ;
 
-  int fetchID() throw(std::runtime_error);
-  int fetchIDByRunAndTag() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  int fetchIDByRunAndTag() noexcept(false);
+  void setByID(int id) noexcept(false);
 
   // operators
   inline bool operator==(const RunIOV &r) const
@@ -58,29 +58,29 @@ class RunIOV : public IIOV {
   RunTag m_runTag;
   Tm m_dbtime;
 
-  int writeDB() throw(std::runtime_error);
-  int updateEndTimeDB() throw(std::runtime_error);
-  int updateStartTimeDB() throw(std::runtime_error);
+  int writeDB() noexcept(false);
+  int updateEndTimeDB() noexcept(false);
+  int updateStartTimeDB() noexcept(false);
 
-  void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
-  void setByRun(std::string location, run_t run) throw(std::runtime_error);
-  void setByTime(std::string location, const Tm &t) throw(std::runtime_error);
-  void setByRecentData(std::string dataTable, RunTag* tag, run_t run = (unsigned int)-1) throw(std::runtime_error);
-  void setByRecentData(std::string dataTable, std::string location, run_t run) throw(std::runtime_error);
+  void setByRun(RunTag* tag, run_t run) noexcept(false);
+  void setByRun(std::string location, run_t run) noexcept(false);
+  void setByTime(std::string location, const Tm &t) noexcept(false);
+  void setByRecentData(std::string dataTable, RunTag* tag, run_t run = (unsigned int)-1) noexcept(false);
+  void setByRecentData(std::string dataTable, std::string location, run_t run) noexcept(false);
 
 
-/*   void fetchEarliest(RunIOV* fillIOV, RunTag* tag) const throw(std::runtime_error); */
-/*   void fetchLatest(RunIOV* fillIOV, RunTag* tag) const throw(std::runtime_error); */
-/*   oracle::occi::Statement* prepareFetch(const std::string sql, RunTag* tag) const throw(std::runtime_error); */
-/*   void fill(RunIOV* target, oracle::occi::ResultSet* rset) const throw(std::runtime_error); */
+/*   void fetchEarliest(RunIOV* fillIOV, RunTag* tag) const noexcept(false); */
+/*   void fetchLatest(RunIOV* fillIOV, RunTag* tag) const noexcept(false); */
+/*   oracle::occi::Statement* prepareFetch(const std::string sql, RunTag* tag) const noexcept(false); */
+/*   void fill(RunIOV* target, oracle::occi::ResultSet* rset) const noexcept(false); */
 
 /*   // Methods for fetching by Tm */
-/*   void fetchAt(RunIOV* iov, const Tm eventTm, RunTag* tag) const throw(std::runtime_error); */
-/*   void fetchWithin(std::vector<RunIOV>* fillVec, const Tm beginTm, const Tm endTm, RunTag* tag) const throw(std::runtime_error); */
+/*   void fetchAt(RunIOV* iov, const Tm eventTm, RunTag* tag) const noexcept(false); */
+/*   void fetchWithin(std::vector<RunIOV>* fillVec, const Tm beginTm, const Tm endTm, RunTag* tag) const noexcept(false); */
 
 /*   // Methods for fetching by run_t */
-/*   void fetchAt(RunIOV* fillIOV, const run_t run, RunTag* tag) const throw(std::runtime_error); */
-/*   void fetchWithin(std::vector<RunIOV>* fillVec, const run_t beginRun, const run_t endRun, RunTag* tag) const throw(std::runtime_error); */
+/*   void fetchAt(RunIOV* fillIOV, const run_t run, RunTag* tag) const noexcept(false); */
+/*   void fetchWithin(std::vector<RunIOV>* fillVec, const run_t beginRun, const run_t endRun, RunTag* tag) const noexcept(false); */
 };
 
 #endif

@@ -228,6 +228,13 @@ def miniAOD_customizeCommon(process):
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
+        
+    #heepIDVarValueMaps only exists if HEEP V6.1 or HEEP 7.0 ID has already been loaded
+    if hasattr(process,'heepIDVarValueMaps'):
+        process.heepIDVarValueMaps.elesMiniAOD = cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+        #force HEEP to use miniAOD (otherwise it'll detect the AOD)
+        process.heepIDVarValueMaps.dataFormat = cms.int32(2)
+        
 
     #VID Photon IDs
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff',

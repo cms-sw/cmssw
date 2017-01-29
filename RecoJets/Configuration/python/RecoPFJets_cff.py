@@ -79,10 +79,10 @@ fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
 
 
 
-ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
-                                        src = cms.InputTag("ak8PFJetsCHS"),
-                                        cut = cms.string("pt > 100.0 && abs(rapidity()) < 2.4")
-                                        )
+ak8PFJetsCHSConstituents = cms.EDProducer("PFJetConstituentSelector",
+                                          src = cms.InputTag("ak8PFJetsCHS"),
+                                          cut = cms.string("pt > 100.0 && abs(rapidity()) < 2.4")
+                                         )
 
 
 # Advanced Algorithms for AK4, AK5, AK8 and CA8 :

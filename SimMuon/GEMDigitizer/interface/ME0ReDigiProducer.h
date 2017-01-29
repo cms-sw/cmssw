@@ -58,6 +58,8 @@ private:
   bool verbose_;
   bool reDigitizeOnlyMuons_;
   bool reDigitizeNeutronBkg_;
+  double instLumiDefault_;
+  double rateFact_;
   double instLumi_;
   std::vector<double> centralTOF_;
   int nPartitions_;
