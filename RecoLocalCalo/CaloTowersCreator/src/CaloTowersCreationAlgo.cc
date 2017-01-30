@@ -265,7 +265,7 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo, const 
     std::vector<int> tower28depths;
     int ndepths, startdepth;
     theHcalTopology->getDepthSegmentation(theHcalTopology->lastHERing()-1,tower28depths);
-    theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,ndepths,startdepth);
+    theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,1,1,ndepths,startdepth);
     
     //keep track of which depths are merged
     //layer 5 = index 6 (layers start at -1)
