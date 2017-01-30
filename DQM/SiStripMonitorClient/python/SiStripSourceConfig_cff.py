@@ -17,6 +17,9 @@ from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
 SiStripMonitorCluster.SelectAllDetectors = True
 SiStripMonitorCluster.StripQualityLabel = ''
 
+# refitter ### (FIXME rename, move)
+from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
+
 # On/Off Track Cluster Monitor ####
 # Clone for Sim data
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
@@ -37,7 +40,7 @@ SiStripMonitorTrackReal.Mod_On        = True
 # Clone for Real Data (Collision)
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrackColl = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrackColl.TrackProducer = 'generalTracks'
+SiStripMonitorTrackColl.TrackProducer = 'refittedForPixelDQM'
 SiStripMonitorTrackColl.TrackLabel    = ''
 SiStripMonitorTrackColl.Cluster_src   = 'siStripClusters'
 SiStripMonitorTrackColl.Mod_On        = True
@@ -55,8 +58,8 @@ MonitorTrackResidualsReal.trajectoryInput     = 'ctfWithMaterialTracksP5'
 # Clone for Real Data
 MonitorTrackResidualsColl = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResidualsColl.Tracks              = 'generalTracks'
-MonitorTrackResidualsColl.trajectoryInput     = 'generalTracks'
+MonitorTrackResidualsColl.Tracks              = 'refittedForPixelDQM'
+MonitorTrackResidualsColl.trajectoryInput     = 'refittedForPixelDQM'
 
 
 # Tracking Monitor ####
@@ -79,6 +82,7 @@ TrackMonColl.TrackProducer = 'generalTracks'
 TrackMonColl.FolderName = 'Tracking/TrackParameters'
 TrackMonColl.AlgoName = 'CKFTk'
 TrackMonColl.doSeedParameterHistos = True
+
 # Sequences
 #removed modules using TkDetMap service
 #SiStripSourcesSimData = cms.Sequence(SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
@@ -86,7 +90,7 @@ TrackMonColl.doSeedParameterHistos = True
 #SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)
 SiStripSourcesSimData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
 SiStripSourcesRealData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
-SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)
+SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*refittedForPixelDQM*SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)
 
 
 
