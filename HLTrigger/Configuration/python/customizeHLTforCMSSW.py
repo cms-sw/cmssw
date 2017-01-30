@@ -161,7 +161,6 @@ def customiseFor16792(process):
 
     return process
 
-<<<<<<< HEAD
 # Migrate PixelTrackProducer and HLT to new seeding framework
 def customiseFor17170(process):
     from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
