@@ -1308,6 +1308,9 @@ class TrackingNtuple(object):
         self._tree = self._file.Get(tree)
         self._entries = self._tree.GetEntriesFast()
 
+    def file(self):
+        return self._file
+
     def tree(self):
         return self._tree
 

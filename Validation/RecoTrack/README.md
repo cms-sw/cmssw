@@ -26,7 +26,8 @@ RECO, it needs both RECO and DIGI files as an input.
 For the ntuple content, take a look on the
 [TrackingNtuple](plugins/TrackingNtuple.cc) code itself, and an
 example PyROOT script for analysis,
-[`trackingNtupleExample.py`](test/trackingNtupleExample.py). The
+[`trackingNtupleExample.py`](test/trackingNtupleExample.py) (see also
+further below for more applications and example scripts). The
 script uses a simple support library
 [`ntuple.py`](python/plotting/ntuple.py), but its use is not
 mandatory, i.e. you can use the ntuple also "directly". The main
@@ -62,6 +63,12 @@ more information see
 [SWGuideMixingModule](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMixingModule#playback_option).
 If the "playback mode" is not enabled, an exception will be thrown in
 the C++ code for a missing SimHit.
+
+### Applications
+
+Use `--help` to check out the parameters.
+
+* [`printTrackingNtuple.py`](scripts/printTrackingNtuple.py) Prints information on individual tracks/TrackingParticles in individual events
 
 ### Example scripts
 
