@@ -12,6 +12,7 @@ DisplacedEleMuPSet = cms.PSet(
     # -- Analysis specific cuts
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings
+    parametersDxy      = cms.vdouble(50, -50, 50),
     parametersTurnOn = cms.vdouble( 0, 5, 10, 15, 20,
                                     25, 30, 35, 40,
                                     45, 50, 55, 60,
@@ -22,4 +23,6 @@ DisplacedEleMuPSet = cms.PSet(
                                     145, 150, 155, 160,
                                     165, 170, 175, 180,
                                     185, 190, 195, 200),
+    dropPt2 = cms.bool(True),
+    dropPt3 = cms.bool(True),
     )
