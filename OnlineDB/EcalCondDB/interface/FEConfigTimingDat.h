@@ -23,17 +23,13 @@ class FEConfigTimingDat : public IDataItem {
   inline int getTimingPar2() const { return m_par2; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigTimingDat* item, FEConfigTimingInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigTimingDat* item, FEConfigTimingInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigTimingDat>* data, FEConfigTimingInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigTimingDat>* data, FEConfigTimingInfo* iconf) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, FEConfigTimingDat >* fillMap, FEConfigTimingInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigTimingDat >* fillMap, FEConfigTimingInfo* iconf) noexcept(false);
 
   // User data
   int m_par1;

@@ -13,7 +13,7 @@
 // system include files
 #include <iostream>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "TColor.h"
 #include "TROOT.h"
 #include "TMath.h"
@@ -325,7 +325,7 @@ FWColorManager::geomColor(FWGeomColorIndex iIndex) const
 }
 
 
-static boost::shared_ptr<std::map<Color_t,Color_t> > m_oldColorToIndexMap;
+static std::shared_ptr<std::map<Color_t,Color_t> > m_oldColorToIndexMap;
 
 Color_t
 FWColorManager::oldColorToIndex(Color_t iColor, int version) const
@@ -343,7 +343,7 @@ FWColorManager::oldColorToIndex(Color_t iColor, int version) const
    if (version < 3)
    {
       if(0==m_oldColorToIndexMap.get()) {
-         m_oldColorToIndexMap = boost::shared_ptr<std::map<Color_t,Color_t> >(new std::map<Color_t,Color_t>());
+         m_oldColorToIndexMap = std::make_shared<std::map<Color_t,Color_t> >();
          (*m_oldColorToIndexMap)[kRed]=kFWRed;
          (*m_oldColorToIndexMap)[kBlue]=kFWBlue;
          (*m_oldColorToIndexMap)[kYellow]=kFWYellow;

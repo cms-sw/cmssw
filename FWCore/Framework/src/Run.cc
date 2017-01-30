@@ -76,7 +76,7 @@ namespace edm {
 */
 
   void
-  Run::commit_() {
+  Run::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
     RunPrincipal const& rp = runPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
@@ -84,6 +84,18 @@ namespace edm {
     while(pit != pie) {
         rp.put(*pit->second, std::move(get_underlying_safe(pit->first)));
         ++pit;
+    }
+
+    auto sz = iShouldPut.size();
+    if(sz !=0 and sz != putProducts().size()) {
+      //some were missed
+      auto& p = provRecorder_.principal();
+      for(auto index: iShouldPut){
+        auto resolver = p.getProductResolverByIndex(index);
+        if(not resolver->productResolved()) {
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
+        }
+      }
     }
 
     // the cleanup is all or none

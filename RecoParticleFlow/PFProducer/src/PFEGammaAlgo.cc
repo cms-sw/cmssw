@@ -2022,6 +2022,12 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     
     // build the refined supercluster from those clusters left in the cand
     refinedscs_.push_back(buildRefinedSuperCluster(RO));
+
+    // forward the time from the seed cluster
+    if (!RO.ecalclusters.empty()) {
+        auto const & seedPFClust = *RO.ecalclusters.front().first->clusterRef();
+        cand.setTime( seedPFClust.time(), seedPFClust.timeError() );
+    }
     
     const reco::SuperCluster& the_sc = refinedscs_.back();
     // with the refined SC in hand we build a naive candidate p4 

@@ -17,13 +17,13 @@ muonDigi = cms.Sequence(simMuonCSCDigis+simMuonDTDigis+simMuonRPCDigis)
 from CondCore.DBCommon.CondDBCommon_cfi import *
 
 from SimMuon.GEMDigitizer.muonGEMDigi_cff import *
-from SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi import *
+from SimMuon.GEMDigitizer.muonME0Digi_cff import *
 
 _run3_muonDigi = muonDigi.copy()
 _run3_muonDigi += muonGEMDigi
 
 _phase2_muonDigi = _run3_muonDigi.copy()
-_phase2_muonDigi += simMuonME0Digis
+_phase2_muonDigi += muonME0Digi
 
 def _modifySimMuonForPhase2( theProcess ):
     theProcess.rpcphase2recovery_essource = cms.ESSource("PoolDBESSource",

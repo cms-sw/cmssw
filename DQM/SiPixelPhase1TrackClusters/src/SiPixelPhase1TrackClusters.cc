@@ -77,7 +77,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
-
+        
       // get the cluster
       auto clust = pixhit->cluster();
       if (clust.isNull()) continue; 
@@ -150,8 +150,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     }
   }
 
-  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting();
-  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting();
+  histo[ONTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[OFFTRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
 }
 
 DEFINE_FWK_MODULE(SiPixelPhase1TrackClusters);

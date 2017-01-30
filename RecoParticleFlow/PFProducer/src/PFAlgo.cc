@@ -3139,6 +3139,8 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
     pfCandidates_->back().setMuonRef( muonRef );
 
 
+  //Set time
+  if (elt.isTimeValid()) pfCandidates_->back().setTime( elt.time(), elt.timeError() );
 
   //OK Now try to reconstruct the particle as a muon
   bool isMuon=pfmu_->reconstructMuon(pfCandidates_->back(),muonRef,allowLoose);
@@ -3280,6 +3282,9 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 
   //Set the cnadidate Vertex
   pfCandidates_->back().setVertex(vertexPos);  
+
+  //Set the time
+  pfCandidates_->back().setTime( cluster.time(), cluster.timeError() );
 
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 

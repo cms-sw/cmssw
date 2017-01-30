@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,7 +42,7 @@
 #include <iostream>
 #include <iomanip>
 
-class BoostedTauSeedsProducer : public edm::EDProducer 
+class BoostedTauSeedsProducer : public edm::stream::EDProducer<>
 {
  public:
   explicit BoostedTauSeedsProducer(const edm::ParameterSet&);
@@ -77,6 +77,8 @@ BoostedTauSeedsProducer::BoostedTauSeedsProducer(const edm::ParameterSet& cfg)
 
 namespace
 {
+  typedef std::vector<std::unordered_set<uint32_t> > JetToConstitMap;
+  
   reco::PFJet convertToPFJet(const reco::Jet& jet, const reco::Jet::Constituents& jetConstituents)
   {    
     // CV: code for filling pfJetSpecific objects taken from
@@ -159,22 +161,15 @@ namespace
     }
   }
 
-  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const reco::Jet::Constituents& jetConstituents, double dRmatch, bool invert)
+  std::vector<reco::PFCandidateRef> getPFCandidates_exclJetConstituents(const reco::Jet& jet, const edm::Handle<reco::PFCandidateCollection>& pfCandidates, const JetToConstitMap::value_type& constitmap, const reco::Jet::Constituents& jetConstituents, double /*dRmatch*/, bool invert)
   { 
+    //const double dRmatch2 = dRmatch*dRmatch; // comment out for now in case someone needs a dR-based search again
     auto const & collection_cand = (*pfCandidates);
     std::vector<reco::PFCandidateRef> pfCandidates_exclJetConstituents;
     size_t numPFCandidates = pfCandidates->size();
     for ( size_t pfCandidateIdx = 0; pfCandidateIdx < numPFCandidates; ++pfCandidateIdx ) {
-      if(!(deltaR(collection_cand[pfCandidateIdx].p4(), jet.p4())<1.0)) continue;
-      bool isJetConstituent = false;
-      for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-	double dR = deltaR(collection_cand[pfCandidateIdx].p4(), (*jetConstituent)->p4());
-	if ( dR < dRmatch ) {
-	  isJetConstituent = true;
-	  break;
-	}
-      }
+      if(!(deltaR2(collection_cand[pfCandidateIdx], jet)<1.0)) continue;
+      bool isJetConstituent = constitmap.count(pfCandidateIdx);      
       if ( !(isJetConstituent^invert) ) {
 	reco::PFCandidateRef pfCandidate(pfCandidates, pfCandidateIdx);
 	pfCandidates_exclJetConstituents.push_back(pfCandidate);
@@ -220,6 +215,17 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
   auto selectedSubjetPFCandidateAssociationForIsolation = std::make_unique<JetToPFCandidateAssociation>(&evt.productGetter());
   //auto selectedSubjetPFCandidateAssociationForIsoDepositVetos = std::make_unique<JetToPFCandidateAssociation>(&evt.productGetter());
 
+  // cache for jet->pfcandidate
+  JetToConstitMap constitmap(subjets->size());
+
+  // fill constituents map
+  const auto& thesubjets = *subjets;
+  for( unsigned i = 0; i < thesubjets.size(); ++i ) {
+    for ( unsigned j = 0; j < thesubjets[i].numberOfDaughters(); ++j ) {
+      constitmap[i].emplace(thesubjets[i].daughterPtr(j).key());
+    }
+  }
+
   for ( size_t idx = 0; idx < (subjets->size() / 2); ++idx ) {
     const reco::Jet* subjet1 = &subjets->at(2*idx);
     const reco::Jet* subjet2 = &subjets->at(2*idx + 1);
@@ -251,8 +257,8 @@ void BoostedTauSeedsProducer::produce(edm::Event& evt, const edm::EventSetup& es
     edm::Ref<reco::PFJetCollection> subjetRef2(selectedSubjetRefProd, selectedSubjets->size() - 1);
         
     // find all PFCandidates that are not constituents of the **other** subjet
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, subjetConstituents2, 1.e-4, false);
-    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, subjetConstituents1, 1.e-4, false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet1 = getPFCandidates_exclJetConstituents(*subjet1, pfCandidates, constitmap[2*idx], subjetConstituents2, 1.e-4, false);
+    std::vector<reco::PFCandidateRef> pfCandidatesNotInSubjet2 = getPFCandidates_exclJetConstituents(*subjet2, pfCandidates, constitmap[2*idx+1], subjetConstituents1, 1.e-4, false);
     if ( verbosity_ >= 1 ) {
       std::cout << "#pfCandidatesNotInSubjet1 = " << pfCandidatesNotInSubjet1.size() << std::endl;
       std::cout << "#pfCandidatesNotInSubjet2 = " << pfCandidatesNotInSubjet2.size() << std::endl;

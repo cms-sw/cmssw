@@ -11,25 +11,29 @@
 // core framework functionality
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// topology
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-// common alignment
+// alignment
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignmentLevel.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/TrackerAlignment/interface/TrackerNameSpace.h"
 
-
+class DetId;
+class TrackerTopology;
+class TrackerGeometry;
 
 class TrackerAlignmentLevelBuilder {
 
   //========================== PUBLIC METHODS =================================
   public: //===================================================================
 
-    TrackerAlignmentLevelBuilder(const TrackerTopology*);
+    TrackerAlignmentLevelBuilder(const TrackerTopology*,
+                                 const TrackerGeometry*);
     virtual ~TrackerAlignmentLevelBuilder();
 
     void addDetUnitInfo(const DetId& detId);
     std::vector<align::AlignmentLevels> build();
+    const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
+    const align::TrackerNameSpace& trackerNameSpace() const;
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
@@ -52,6 +56,9 @@ class TrackerAlignmentLevelBuilder {
   //===========================================================================
 
     const TrackerTopology* trackerTopology_;
+    const AlignableObjectId alignableObjectId_;
+    align::TrackerNameSpace trackerNameSpace_;
+    bool levelsBuilt_{false};
 
     // PixelBarrel
     std::set<unsigned int> pxbLayerIDs_;

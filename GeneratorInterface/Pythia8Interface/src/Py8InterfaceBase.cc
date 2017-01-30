@@ -70,6 +70,9 @@ bool Py8InterfaceBase::readSettings( int )
    fMasterGen->settings.addParm("PTFilter:quarkRapidity",10.0,true,true,0.0, 10.);
    fMasterGen->settings.addParm("PTFilter:quarkPt",       -.1,true,true,-.1,100.);
    
+   //add settings for powheg resonance scale calculation
+   fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
+   
    fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
    fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
   

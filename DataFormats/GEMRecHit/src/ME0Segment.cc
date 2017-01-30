@@ -11,7 +11,7 @@ namespace {
   // define a Super Layer Id from the first layer of the first rechits, and put to first layer
   inline
   DetId buildDetId(ME0DetId id) {
-    return ME0DetId(id.region(),1,id.chamber(),id.roll());
+    return ME0DetId(id.chamberId());
   }
 }
 

@@ -12,8 +12,10 @@
     <Constant name="z40"    value="([z30]-5*cm)"/> 
     <Constant name="z50"    value="([z40]-5*cm)"/> 
     <Constant name="z60"    value="([z50]-5*cm)"/> 
-    <Constant name="xBot"   value="([rMin]*tan(10*deg))"/> 
-    <Constant name="xTop"   value="(2.*[dZ]*tan(10*deg)+[xBot])"/>
+    <Constant name="Angle"  value="10.0*deg"/>
+    <Constant name="slope"  value="tan([Angle])"/>
+    <Constant name="xBot"   value="([rMin]*[slope])"/> 
+    <Constant name="xTop"   value="(2.*[dZ]*[slope]+[xBot])"/>
     <Constant name="tBase"  value="1.6*mm"/>
     <Constant name="tFoil"  value="0.025*mm"/>
     <Constant name="tSense" value="(6.0*mm-[tFoil])/2"/>
@@ -44,6 +46,8 @@
     <Trd1 name="ME0Foil" dz="[dZ]" dy1="[tFoil]"  dy2="[tFoil]"  dx1="[xBot]" dx2="[xTop]" />
     <Trd1 name="ME0Read" dz="[dZ]" dy1="[tRead]"  dy2="[tRead]"  dx1="[xBot]" dx2="[xTop]" />
     <Trd1 name="ME0Top"  dz="[dZ]" dy1="[tTop]"   dy2="[tTop]"   dx1="[xBot]" dx2="[xTop]" />
+  
+  <Trd1 name="GHA001" dz="[dZ]" dy1="[tSense]" dy2="[tSense]" dx1="[xBot]" dx2="[xTop]" />
   </SolidSection>
 
   <LogicalPartSection label="me0.xml">
@@ -59,29 +63,9 @@
       <rSolid name="ME0Box"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
-    <LogicalPart name="ME0L1" category="unspecified">
+    <LogicalPart name="ME0L" category="unspecified">
       <rSolid name="ME0L"/>
       <rMaterial name="gemf:M_GEM_Gas"/>
-    </LogicalPart>
-    <LogicalPart name="ME0L2" category="unspecified">
-      <rSolid name="ME0L"/>
-      <rMaterial name="gemf:M_GEM_Gas"/>
-    </LogicalPart>
-    <LogicalPart name="ME0L3" category="unspecified">
-      <rSolid name="ME0L"/>
-      <rMaterial name="gemf:M_GEM_Gas"/>
-    </LogicalPart>
-    <LogicalPart name="ME0L4" category="unspecified">
-      <rSolid name="ME0L"/>
-      <rMaterial name="gemf:M_GEM_Gas"/>
-    </LogicalPart>
-    <LogicalPart name="ME0L5" category="unspecified">
-      <rSolid name="ME0L"/>
-      <rMaterial name="gemf:M_GEM_Gas"/>
-    </LogicalPart>
-    <LogicalPart name="ME0L6" category="unspecified">
-      <rSolid name="ME0L"/>
-    <rMaterial name="gemf:M_GEM_Gas"/>
     </LogicalPart>
     <LogicalPart name="ME0Foil" category="unspecified">
       <rSolid name="ME0Foil"/>
@@ -111,6 +95,11 @@
       <rSolid name="ME0Top"/>
       <rMaterial name="materials:Aluminium"/>
     </LogicalPart>
+
+  <LogicalPart name="GHA001" category="unspecified">
+    <rSolid name="GHA001"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
   </LogicalPartSection>
 
   <PosPartSection label="me0.xml">
@@ -126,7 +115,7 @@
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="ME0Box"/>
-      <rChild name="ME0L1"/>
+      <rChild name="ME0L"/>
       <Translation x="0*fm" y="[z10]" z="0*fm" />
     </PosPart>
     <PosPart copyNumber="1">
@@ -176,7 +165,7 @@
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="ME0Box"/>
-      <rChild name="ME0L2"/>
+      <rChild name="ME0L"/>
       <Translation x="0*fm" y="[z20]" z="0*fm" />
     </PosPart>
     <PosPart copyNumber="2">
@@ -226,7 +215,7 @@
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="ME0Box"/>
-      <rChild name="ME0L3"/>
+      <rChild name="ME0L"/>
       <Translation x="0*fm" y="[z30]" z="0*fm" />
     </PosPart>
     <PosPart copyNumber="3">
@@ -276,7 +265,7 @@
     </PosPart>
     <PosPart copyNumber="4">
       <rParent name="ME0Box"/>
-      <rChild name="ME0L4"/>
+      <rChild name="ME0L"/>
       <Translation x="0*fm" y="[z40]" z="0*fm" />
     </PosPart>
     <PosPart copyNumber="4">
@@ -326,7 +315,7 @@
     </PosPart>
     <PosPart copyNumber="5">
       <rParent name="ME0Box"/>
-      <rChild name="ME0L5"/>
+      <rChild name="ME0L"/>
       <Translation x="0*fm" y="[z50]" z="0*fm" />
     </PosPart>
     <PosPart copyNumber="5">
@@ -376,7 +365,7 @@
     </PosPart>
     <PosPart copyNumber="6">
       <rParent name="ME0Box"/>
-      <rChild name="ME0L6"/>
+      <rChild name="ME0L"/>
       <Translation x="0*fm" y="[z60]" z="0*fm" />
     </PosPart>
     <PosPart copyNumber="6">
@@ -423,6 +412,12 @@
       <rParent name="ME0Box"/>
       <rChild name="ME0Top"/>
       <Translation x="0*fm" y="([z60]+[zTop])" z="0*fm" />
+    </PosPart>
+ 
+    <PosPart copyNumber="1">
+      <rParent name="ME0L"/>
+      <rChild name="GHA001"/>
+      <Translation x="0*fm" y="0*fm" z="0*fm" />
     </PosPart>
   </PosPartSection>
 

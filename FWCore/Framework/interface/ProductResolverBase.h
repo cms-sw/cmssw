@@ -76,6 +76,8 @@ namespace edm {
     }
     void resetProductData() { resetProductData_(false); }
 
+    virtual void resetFailedFromThisProcess();
+
     void unsafe_deleteProduct() const {
       const_cast<ProductResolverBase*>(this)->resetProductData_(true);
     }

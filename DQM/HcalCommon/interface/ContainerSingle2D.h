@@ -43,7 +43,7 @@ namespace hcaldqm
 				Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN),
 				int debug=0);
-
+			using Container::initialize;
 			//	booking
 			virtual void book(DQMStore::IBooker&,
 				std::string subsystem="Hcal", std::string aux="");

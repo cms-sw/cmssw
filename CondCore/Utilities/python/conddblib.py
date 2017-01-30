@@ -274,7 +274,7 @@ class IOV:
 
 
 class GlobalTag:
-    __tablename__       = 'global_tag'
+    __tablename__       = 'GLOBAL_TAG'
     columns             = { 'name':(sqlalchemy.String(name_length),_Col.pk),
                             'validity': (sqlalchemy.BIGINT,_Col.notNull),
                             'description':(sqlalchemy.String(description_length),_Col.notNull),
@@ -282,9 +282,8 @@ class GlobalTag:
                             'insertion_time':(sqlalchemy.TIMESTAMP,_Col.notNull),
                             'snapshot_time':(sqlalchemy.TIMESTAMP,_Col.notNull) }
 
-
 class GlobalTagMap:
-    __tablename__       = 'global_tag_map'
+    __tablename__       = 'GLOBAL_TAG_MAP'
     columns             = { 'global_tag_name':(DbRef(GlobalTag,'name'),_Col.pk),
                             'record':(sqlalchemy.String(name_length),_Col.pk),
                             'label':(sqlalchemy.String(name_length),_Col.pk),
@@ -348,6 +347,7 @@ class Connection(object):
             'cms_orcon_prod',
             'cmsintr_lb',
         }
+        self._url = url
         self._backendName = ('sqlite' if self._is_sqlite else 'oracle' ) 
         self._schemaName = ( None if self._is_sqlite else schema_name )
         logging.debug(' ... using db "%s", schema "%s"' % (url, self._schemaName) )
@@ -428,11 +428,6 @@ class Connection(object):
         self.get_dbtype(TagLog).__table__.create(bind = self.engine)
         self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
         self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
-        #self.metadata.create_all(self.engine)
-
-        # TODO: Create indexes
-        #logger.debug('Creating indexes...')
-
 
 # Connection helpers
 def _getCMSFrontierConnectionString(database):

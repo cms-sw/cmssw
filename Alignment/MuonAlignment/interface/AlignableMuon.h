@@ -15,6 +15,7 @@
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class CSCGeometry;
 
@@ -77,6 +78,8 @@ public:
   AlignmentErrorsExtended* cscAlignmentErrorsExtended();
 
 
+  /// Return muon alignable object ID provider derived from the muon system geometry
+  const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 
 private:
   
@@ -108,6 +111,8 @@ private:
   /// Set mothers recursively
   void recursiveSetMothers( Alignable* alignable );
 
+  /// alignable object ID provider
+  const AlignableObjectId alignableObjectId_;
 
   // Containers of separate components
 

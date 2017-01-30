@@ -90,7 +90,6 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
   Point pos(x_pos,y_pos,z_pos);
 
   reco::PreshowerCluster cluster = reco::PreshowerCluster(Eclust, pos, usedHits, plane);
-  used_strips = used_s;
 
   return cluster; 
 }

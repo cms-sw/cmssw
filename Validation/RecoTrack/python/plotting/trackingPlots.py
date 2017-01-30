@@ -5,7 +5,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-from plotting import Subtract, FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+from plotting import Subtract, FakeDuplicate, CutEfficiency, Transform, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
 import plotting
 import validation
 from html import PlotPurpose
@@ -102,6 +102,44 @@ def _makeDistSimPlots(postfix, quantity, common={}):
         Plot("num_simul_"+p            , ytitle="TrackingParticles", **args),
         Plot("num_assoc(simToReco)_"+p, ytitle="Reconstructed TPs", **args),
     ]
+
+def _makeMVAPlots(num, hp=False):
+    pfix = "_hp" if hp else ""
+    pfix2 = "Hp" if hp else ""
+
+    xtitle = "MVA%d output"%num
+    xtitlecut = "Cut on MVA%d output"%num
+    args = dict(xtitle=xtitle, ylog=True, ymin=_minMaxN, ymax=_minMaxN)
+
+    argsroc = dict(
+        xtitle="Efficiency (excl. trk eff)", ytitle="Fake rate",
+        xmax=_maxEff, ymax=_maxFake,
+        drawStyle="EP",
+    )
+    argsroc2 = dict(
+        ztitle="Cut on MVA%d"%num,
+        xtitleoffset=5, ytitleoffset=6.5, ztitleoffset=4,
+        adjustMarginRight=0.12
+    )
+    argsroc2.update(argsroc)
+    argsroc2["drawStyle"] = "pcolz"
+
+    true_cuteff = CutEfficiency("trueeff_vs_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix))
+    fake_cuteff = CutEfficiency("fakeeff_vs_mva%dcut%s"%(num,pfix), Subtract("num_fake_mva%dcut%s"%(num,pfix), "num_reco_mva%dcut%s"%(num,pfix), "num_assoc(recoToSim)_mva%dcut%s"%(num,pfix)))
+
+    return PlotGroup("mva%d%s"%(num,pfix2), [
+        Plot("num_assoc(recoToSim)_mva%d%s"%(num,pfix), ytitle="true tracks", **args),
+        Plot(Subtract("num_fake_mva%d%s"%(num,pfix), "num_reco_mva%d%s"%(num,pfix), "num_assoc(recoToSim)_mva%d%s"%(num,pfix)), ytitle="fake tracks", **args),
+        Plot("effic_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
+        #
+        Plot("fakerate_vs_mva%dcut%s"%(num,pfix), xtitle=xtitlecut, ytitle="Fake rate", ymax=_maxFake),
+        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix)), **argsroc),
+        Plot(ROC("effic_vs_fake_mva%d%s"%(num,pfix), "effic_vs_mva%dcut%s"%(num,pfix), "fakerate_vs_mva%dcut%s"%(num,pfix), zaxis=True), **argsroc2),
+        # Same signal efficiency, background efficiency, and ROC definitions as in TMVA
+        Plot(true_cuteff, xtitle=xtitlecut, ytitle="True track selection efficiency", ymax=_maxEff),
+        Plot(fake_cuteff, xtitle=xtitlecut, ytitle="Fake track selection efficiency", ymax=_maxEff),
+        Plot(ROC("true_eff_vs_fake_rej_mva%d%s"%(num,pfix), true_cuteff, Transform("fake_rej_mva%d%s"%(num,pfix), fake_cuteff, lambda x: 1-x)), xtitle="True track selection efficiency", ytitle="Fake track rejection", xmax=_maxEff, ymax=_maxEff),
+    ], ncols=3, legendDy=_legendDy_1row)
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
@@ -916,6 +954,11 @@ _seedingBuildingPlots = _simBasedPlots + [
     _dupandfake4,
     _dupandfake5,
     _hitsAndPt,
+    _makeMVAPlots(1),
+    _makeMVAPlots(2),
+    _makeMVAPlots(2, hp=True),
+    _makeMVAPlots(3), # add more if needed
+    _makeMVAPlots(3, hp=True), # add more if needed
 ]
 _extendedPlots = [
     _extDist1,
@@ -1034,7 +1077,9 @@ class Iteration:
                 setattr(self, name, modules)
 
         _set(clusterMasking, "_clusterMasking", [self._name+"Clusters"])
-        _set(seeding, "_seeding", [self._name+"SeedingLayers", self._name+"Seeds"])
+        # it's fine to include e.g. quadruplets here also for pair
+        # steps, as non-existing modules are just ignored
+        _set(seeding, "_seeding", [self._name+"SeedingLayers", self._name+"TrackingRegions", self._name+"HitDoublets", self._name+"HitTriplets", self._name+"HitQuadruplets", self._name+"Seeds"])
         _set(building, "_building", [self._name+"TrackCandidates"])
         _set(fit, "_fit", [self._name+"Tracks"])
         _set(selection, "_selection", [self._name])
@@ -1076,6 +1121,10 @@ class Iteration:
 _iterations = [
     Iteration("initialStepPreSplitting", clusterMasking=[],
               seeding=["initialStepSeedLayersPreSplitting",
+                       "initialStepTrackingRegionsPreSplitting",
+                       "initialStepHitDoubletsPreSplitting",
+                       "initialStepHitTripletsPreSplitting",
+                       "initialStepHitQuadrupletsPreSplitting",
                        "initialStepSeedsPreSplitting"],
               building=["initialStepTrackCandidatesPreSplitting"],
               fit=["initialStepTracksPreSplitting"],
@@ -1113,6 +1162,12 @@ _iterations = [
     Iteration("mixedTripletStep",
               seeding=["mixedTripletStepSeedLayersA",
                        "mixedTripletStepSeedLayersB",
+                       "mixedTripletStepTrackingRegionsA",
+                       "mixedTripletStepTrackingRegionsB",
+                       "mixedTripletStepHitDoubletsA",
+                       "mixedTripletStepHitDoubletsB",
+                       "mixedTripletStepHitTripletsA",
+                       "mixedTripletStepHitTripletsB",
                        "mixedTripletStepSeedsA",
                        "mixedTripletStepSeedsB",
                        "mixedTripletStepSeeds"],
@@ -1126,6 +1181,11 @@ _iterations = [
     Iteration("tobTecStep",
               seeding=["tobTecStepSeedLayersTripl",
                        "tobTecStepSeedLayersPair",
+                       "tobTecStepTrackingRegionsTripl",
+                       "tobTecStepTrackingRegionsPair",
+                       "tobTecStepHitDoubletsTripl",
+                       "tobTecStepHitDoubletsPair",
+                       "tobTecStepHitTripletsTripl",
                        "tobTecStepSeedsTripl",
                        "tobTecStepSeedsPair",
                        "tobTecStepSeeds"],
@@ -1167,6 +1227,9 @@ _iterations = [
               building=["convTrackCandidates"],
               fit=["convStepTracks"],
               selection=["convStepSelector"]),
+    Iteration("Other", clusterMasking=[], seeding=[], building=[], fit=[], selection=[],
+              other=["trackerClusterCheckPreSplitting",
+                     "trackerClusterCheck"]),
 ]
 
 def _iterModuleMap(includeConvStep=True, onlyConvStep=False):

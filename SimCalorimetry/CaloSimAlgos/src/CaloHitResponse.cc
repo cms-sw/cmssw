@@ -30,7 +30,9 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theGeometry(0),
   theMinBunch(-10), 
   theMaxBunch(10),
-  thePhaseShift_(1.) {}
+  thePhaseShift_(1.),
+  storePrecise(false),
+  ignoreTime(false) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloShapes * shapes)
@@ -44,7 +46,9 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theGeometry(0),
   theMinBunch(-10),
   theMaxBunch(10),
-  thePhaseShift_(1.) {}
+  thePhaseShift_(1.),
+  storePrecise(false),
+  ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {
 }
@@ -117,10 +121,12 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
   double signal = analogSignalAmplitude(detId, hit.energy(), parameters, engine);
 
   double time = hit.time();
+  double tof = timeOfFlight(detId);
+  if(ignoreTime) time = tof;
   if(theHitCorrection != 0) {
     time += theHitCorrection->delay(hit, engine);
   }
-  double jitter = hit.time() - timeOfFlight(detId);
+  double jitter = time - tof;
 
   const CaloVShape * shape = theShape;
   if(!shape) {
@@ -136,9 +142,23 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
 
   CaloSamples result(makeBlankSignal(detId));
 
-  for(int bin = 0; bin < result.size(); bin++) {
-    result[bin] += (*shape)(binTime)* signal;
-    binTime += BUNCHSPACE;
+  if(storePrecise){
+    result.resetPrecise();
+    int sampleBin(0);
+    //use 1ns binning for precise sample
+    for(int bin = 0; bin < result.size()*BUNCHSPACE; bin++) {
+      sampleBin = bin/BUNCHSPACE;
+      double pulseBit = (*shape)(binTime)* signal;
+      result[sampleBin] += pulseBit;
+      result.preciseAtMod(bin) += pulseBit;
+      binTime += 1.0;
+    }
+  }
+  else {
+    for(int bin = 0; bin < result.size(); bin++) {
+      result[bin] += (*shape)(binTime)* signal;
+      binTime += BUNCHSPACE;
+    }
   }
   return result;
 } 
@@ -172,8 +192,10 @@ CaloSamples * CaloHitResponse::findSignal(const DetId & detId) {
 
 CaloSamples CaloHitResponse::makeBlankSignal(const DetId & detId) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  CaloSamples result(detId, parameters.readoutFrameSize());
+  int preciseSize(storePrecise ? parameters.readoutFrameSize()*BUNCHSPACE : 0);
+  CaloSamples result(detId, parameters.readoutFrameSize(),preciseSize);
   result.setPresamples(parameters.binOfMaximum()-1);
+  if(storePrecise) result.setPrecise(result.presamples()*BUNCHSPACE,1.0);
   return result;
 }
 

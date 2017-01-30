@@ -3,13 +3,11 @@
 #define HcalSimAlgos_HcalSiPMHitResponse_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalTDCParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
 
 #include <map>
 #include <set>
 #include <vector>
-
-class HcalSiPM;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -34,7 +32,7 @@ public:
   typedef std::vector<unsigned int> photonTimeHist;
   typedef std::map< DetId, photonTimeHist > photonTimeMap;
 
-  virtual void initializeHits();
+  virtual void initializeHits() override;
 
   virtual void finalizeHits(CLHEP::HepRandomEngine*) override;
 
@@ -48,24 +46,16 @@ public:
 
   virtual void setDetIds(const std::vector<DetId> & detIds);
 
-  static double Y11TimePDF( double t );
-
-  double generatePhotonTime(CLHEP::HepRandomEngine*) const;
-
 protected:
-  virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*) const;
+  virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*);
 
 private:
-  HcalSiPM * theSiPM;
-  double theRecoveryTime;
-  int const TIMEMULT;
-  float const Y11RANGE;
-  float const Y11MAX;
-  float const Y11TIMETORISE;
+  HcalSiPM theSiPM;
   bool PreMixDigis;
+  int nbins;
+  double dt, invdt;
 
   photonTimeMap precisionTimedPhotons;
-  HcalTDCParameters theTDCParams;
 
   const std::vector<DetId>* theDetIds;
 };

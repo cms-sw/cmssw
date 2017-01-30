@@ -55,3 +55,7 @@ double HFSimParameters::fCtoGeV(const DetId & detId) const
 }
 
 
+double HFSimParameters::samplingFactor() const
+{
+  return theSamplingFactor;
+}

@@ -55,15 +55,15 @@ class L1TRate : public DQMEDAnalyzer {
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);      // Analyze
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;      // Analyze
     //void beginJob();                                                   // BeginJob
     //void endJob  ();                                                   // EndJob
     virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
     //void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // Private methods
   private:

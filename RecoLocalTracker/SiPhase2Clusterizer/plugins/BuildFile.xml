@@ -1,4 +1,12 @@
-<use name="RecoLocalTracker/SiPhase2Clusterizer"/>
-<library   file="Phase2TrackerClusterizer.cc Phase2TrackerClusterizerAlgorithm.cc Phase2TrackerClusterizerArray.cc" name="Phase2TrackerClusterizerPlugin">
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/Phase2TrackerCluster"/>
+<use   name="DataFormats/Phase2TrackerDigi"/>
+<use   name="root"/>
+<library   file="*.cc" name="Phase2TrackerClusterizerPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>

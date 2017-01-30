@@ -11,12 +11,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "CLHEP/Random/RandFlat.h"
 
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
-
 #include <iostream>
 #include <fstream>
+#include "TMath.h"
 
 HcalPulseShapes::HcalPulseShapes() 
 : theMCParams(0),
@@ -416,149 +417,18 @@ void HcalPulseShapes::computeSiPMShape()
 
 void HcalPulseShapes::computeSiPMShape2017()
 {
+  //numerical convolution of SiPM pulse + WLS fiber shape
+  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11TimePDF);
 
-  unsigned int nbin = 128; 
+  siPMShape2017_.setNBin(nBinsSiPM_);
 
-//From Kevin Pedro: numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<float> nt = {
-    0,
-    1.85771e-09,
-    1.9696e-07,
-    3.52391e-06,
-    2.12744e-05,
-    7.07217e-05,
-    0.000163262,
-    0.000300818,
-    0.000478527,
-    0.000688231,
-    0.000920541,
-    0.00116575,
-    0.0014145,
-    0.0016584,
-    0.00189028,
-    0.00210444,
-    0.00229657,
-    0.00246372,
-    0.00260414,
-    0.00271712,
-    0.0028028,
-    0.00286202,
-    0.00289615,
-    0.00290693,
-    0.00289638,
-    0.00286668,
-    0.00282009,
-    0.00275886,
-    0.00268519,
-    0.0026012,
-    0.00250889,
-    0.00241008,
-    0.00230648,
-    0.00219961,
-    0.00209083,
-    0.00198134,
-    0.00187218,
-    0.00176425,
-    0.0016583,
-    0.00155496,
-    0.00145473,
-    0.00135804,
-    0.00126517,
-    0.00117636,
-    0.00109177,
-    0.00101147,
-    0.000935512,
-    0.000863867,
-    0.000796487,
-    0.000733286,
-    0.000674152,
-    0.000618954,
-    0.000567541,
-    0.000519754,
-    0.000475424,
-    0.000434376,
-    0.000396435,
-    0.000361423,
-    0.000329166,
-    0.000299491,
-    0.000272232,
-    0.000247225,
-    0.000224316,
-    0.000203354,
-    0.000184198,
-    0.000166711,
-    0.000150766,
-    0.000136243,
-    0.000123029,
-    0.000111017,
-    0.000100108,
-    9.02108e-05,
-    8.12388e-05,
-    7.31127e-05,
-    6.57587e-05,
-    5.9109e-05,
-    5.31006e-05,
-    4.76759e-05,
-    4.27816e-05,
-    3.8369e-05,
-    3.43934e-05,
-    3.08139e-05,
-    2.75932e-05,
-    2.4697e-05,
-    2.20943e-05,
-    1.97567e-05,
-    1.76584e-05,
-    1.57759e-05,
-    1.4088e-05,
-    1.25754e-05,
-    1.12205e-05,
-    1.00076e-05,
-    8.92221e-06,
-    7.95148e-06,
-    7.08368e-06,
-    6.30824e-06,
-    5.61565e-06,
-    4.99732e-06,
-    4.44553e-06,
-    3.95331e-06,
-    3.51441e-06,
-    3.12322e-06,
-    2.77468e-06,
-    2.46425e-06,
-    2.18788e-06,
-    1.94192e-06,
-    1.72309e-06,
-    1.52848e-06,
-    1.35546e-06,
-    1.20169e-06,
-    1.06506e-06,
-    9.43716e-07,
-    8.35973e-07,
-    7.40336e-07,
-    6.55472e-07,
-    5.80189e-07,
-    5.13426e-07,
-    4.54233e-07,
-    4.01769e-07,
-    3.55281e-07,
-    3.14098e-07,
-    2.77626e-07,
-    2.45334e-07,
-    2.1675e-07,
-    1.91455e-07,
-    1.69076e-07,
-    1.49281e-07,
-    1.31776e-07,
-  };
-
-  siPMShape2017_.setNBin(nbin);
-
+  //skip first bin, always 0
   double norm = 0.;
-  for (unsigned int j = 0; j < nbin; ++j) {
+  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
     norm += (nt[j]>0) ? nt[j] : 0.;
   }
 
-  for (unsigned int j = 0; j < nbin; ++j) {
+  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
     nt[j] /= norm;
     siPMShape2017_.setShapeBin(j,nt[j]);
   }
@@ -631,3 +501,42 @@ HcalPulseShapes::defaultShape(const HcalDetId & detId) const
   }
 }
 
+//SiPM helpers
+
+inline double gexp(double t, double A, double c, double t0, double s) {
+  static double const root2(sqrt(2));
+  return -A*0.5*exp(c*t+0.5*c*c*s*s-c*s)*(erf(-0.5*root2/s*(t-t0+c*s*s))-1);
+}
+
+inline double onePulse(double t, double A, double sigma, double theta, double m) {
+  return (t<theta) ? 0 : A*TMath::LogNormal(t,sigma,theta,m);
+}
+
+double HcalPulseShapes::analyticPulseShapeSiPMHO(double t) {
+  // HO SiPM pulse shape fit from Jake Anderson ca. 2013
+  double A1(0.08757), c1(-0.5257), t01(2.4013), s1(0.6721);
+  double A2(0.007598), c2(-0.1501), t02(6.9412), s2(0.8710);
+  return gexp(t,A1,c1,t01,s1) + gexp(t,A2,c2,t02,s2);
+}
+
+double HcalPulseShapes::analyticPulseShapeSiPMHE(double t) {
+  // taken from fit to laser measurement taken by Iouri M. in Spring 2016.
+  double A1(5.204/6.94419), sigma1_shape(0.5387), theta1_loc(-0.3976), m1_scale(4.428);
+  double A2(1.855/6.94419), sigma2_shape(0.8132), theta2_loc(7.025),   m2_scale(12.29);
+  return
+    onePulse(t,A1,sigma1_shape,theta1_loc,m1_scale) +
+    onePulse(t,A2,sigma2_shape,theta2_loc,m2_scale);
+}
+
+double HcalPulseShapes::generatePhotonTime(CLHEP::HepRandomEngine* engine) {
+  double result(0.);
+  while (true) {
+    result = CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11RANGE_);
+    if (CLHEP::RandFlat::shoot(engine, HcalPulseShapes::Y11MAX_) < HcalPulseShapes::Y11TimePDF(result))
+      return result;
+  }
+}
+
+double HcalPulseShapes::Y11TimePDF(double t) {
+  return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
+}

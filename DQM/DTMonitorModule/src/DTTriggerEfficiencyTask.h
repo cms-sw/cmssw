@@ -55,7 +55,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
  protected:
 
   /// BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -72,10 +72,10 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
   std::string topFolder(std::string source) { return source=="TM" ? "DT/03-LocalTrigger-TM/" : "DT/04-LocalTrigger-DDU/"; }
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
 
  private:
 

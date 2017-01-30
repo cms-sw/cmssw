@@ -71,12 +71,16 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , GoodTracksFractionVsGoodPVtx(NULL)
     , NumberOfRecHitsPerTrackVsGoodPVtx(NULL)
     , NumberOfPVtxVsGoodPVtx(NULL)
+    , NumberOfPixelClustersVsGoodPVtx(NULL)
+    , NumberOfStripClustersVsGoodPVtx(NULL)
     , NumberEventsOfVsLUMI(NULL)
     , NumberOfTracksVsLUMI(NULL)
     , GoodTracksFractionVsLUMI(NULL)
     , NumberOfRecHitsPerTrackVsLUMI(NULL)
     , NumberOfGoodPVtxVsLUMI(NULL)
     , NumberOfGoodPVtxWO0VsLUMI(NULL)
+    , NumberOfPixelClustersVsLUMI(NULL)
+    , NumberOfStripClustersVsLUMI(NULL)
     , NumberOfTracks_lumiFlag(NULL)
 				//    , NumberOfGoodTracks_lumiFlag(NULL)
 
@@ -109,8 +113,8 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   edm::InputTag trackProducer    = conf_.getParameter<edm::InputTag>("TrackProducer");
   edm::InputTag tcProducer       = conf_.getParameter<edm::InputTag>("TCProducer");
   edm::InputTag seedProducer     = conf_.getParameter<edm::InputTag>("SeedProducer");
-  allTrackToken_       = consumes<reco::TrackCollection>(alltrackProducer);
-  trackToken_          = consumes<reco::TrackCollection>(trackProducer);
+  allTrackToken_       = consumes<edm::View<reco::Track> >(alltrackProducer);
+  trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
 
@@ -418,6 +422,23 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfPVtxVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
        NumberOfPVtxVsGoodPVtx->setAxisTitle("Mean number of vertices",2);
+
+       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       histname = "NumberOfPixelClustersVsGoodPVtx";
+       NumberOfPixelClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusPxMin,NClusPxMax,"");
+       NumberOfPixelClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Mean number of pixel clusters",2);
+       
+       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       histname = "NumberOfStripClustersVsGoodPVtx";
+       NumberOfStripClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusStrMin,NClusStrMax,"");
+       NumberOfStripClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfStripClustersVsGoodPVtx->setAxisTitle("Mean number of strip clusters",2);
+  
      }
   
 
@@ -467,6 +488,23 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfGoodPVtxWO0VsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
        NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices",2);
+
+       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       histname = "NumberOfPixelClustersVsGoodPVtx";
+       NumberOfPixelClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusPxMin,NClusPxMax,"");
+       NumberOfPixelClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters",2);
+       
+       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       histname = "NumberOfStripClustersVsLUMI";
+       NumberOfStripClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusStrMin,NClusStrMax,"");
+       NumberOfStripClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfStripClustersVsLUMI->setAxisTitle("Mean number of strip clusters",2);
+  
      }
      
 
@@ -675,15 +713,16 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       NumberEventsOfVsBX->Fill(bx);
 
     // get the track collection
-    edm::Handle<reco::TrackCollection> trackHandle;
+    edm::Handle<edm::View<reco::Track> > trackHandle;
     iEvent.getByToken(trackToken_, trackHandle);
 
     int numberOfTracks_den = 0;
-    edm::Handle<reco::TrackCollection> allTrackHandle;
+    edm::Handle<edm::View<reco::Track> > allTrackHandle;
     iEvent.getByToken(allTrackToken_,allTrackHandle);
     if (allTrackHandle.isValid()) {
-      for (reco::TrackCollection::const_iterator track = allTrackHandle->begin();
-	   track!=allTrackHandle->end(); ++track) {
+      for ( edm::View<reco::Track>::const_iterator track = allTrackHandle->begin();
+	    track != allTrackHandle->end(); ++track ) {
+
 	if ( denSelection_(*track) )
 	  numberOfTracks_den++;
       }
@@ -707,16 +746,16 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       int numberOfTracks_num = 0;
       int numberOfTracks_pv0 = 0;
 
-      reco::TrackCollection trackCollection = *trackHandle;
+      const edm::View<reco::Track>& trackCollection = *trackHandle;
       // calculate the mean # rechits and layers
       int totalRecHits = 0, totalLayers = 0;
 
       theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
       theTrackAnalyzer->setBX(iEvent);
       theTrackAnalyzer->setLumi(iEvent,iSetup);
-      for (reco::TrackCollection::const_iterator track = trackCollection.begin();
-	   track!=trackCollection.end(); ++track) {
-	
+      for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+	    track != trackCollection.end(); ++track ) {
+
 	if ( doPlotsVsBX_ || doAllPlots )
 	  NumberOfRecHitsPerTrackVsBX->Fill(bx,track->numberOfValidHits());
 	if ( numSelection_(*track) ) {
@@ -901,8 +940,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if (totalNumGoodPV>1) NumberOfTracksVsPUPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
 	    NumberOfPVtxVsGoodPVtx          -> Fill(float(totalNumGoodPV),pvHandle->size());
 
-	    for (reco::TrackCollection::const_iterator track = trackCollection.begin();
-		 track!=trackCollection.end(); ++track) {
+	    for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+		  track != trackCollection.end(); ++track ) {
+
 	      NumberOfRecHitsPerTrackVsGoodPVtx -> Fill(float(totalNumGoodPV), track->numberOfValidHits());
 	    }
 
@@ -917,7 +957,17 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if ( doPlotsVsLUMI_ || doAllPlots )	    
 	      NumberOfGoodPVtxVsLUMI->Fill(lumi,float(totalNumGoodPV));
 	  }
-
+      
+	  std::vector<int> NClus;
+	  setNclus(iEvent,NClus);
+	  for (uint  i=0; i< ClusterLabels.size(); i++){
+	    if ( doPlotsVsLUMI_ || doAllPlots )	{
+	      if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
+	    }
+	    if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	  }
 	
 	if ( doPlotsVsBXlumi_ ) {
 	  double bxlumi = theLumiDetails_->getValue(iEvent);

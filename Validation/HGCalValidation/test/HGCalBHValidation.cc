@@ -10,6 +10,7 @@
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -44,11 +45,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  virtual void beginJob() {}
+  virtual void beginJob() override {}
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-
+  void analyzeDigi(HcalDetId const& , double const& , unsigned int &);
 private:
 
   edm::Service<TFileService>                  fs_;
@@ -57,8 +58,9 @@ private:
   int                                         iSample_;
   double                                      threshold_;
   edm::EDGetTokenT<edm::PCaloHitContainer>    tok_hits_;
-  edm::EDGetTokenT<QIE11DigiCollection>       tok_hbhe_;
+  edm::EDGetToken                             tok_hbhe_;
   int                                         etaMax_;
+  bool                                        ifHCAL_;
 
   TH1D                                       *hsimE1_, *hsimE2_, *hsimTm_;
   TH1D                                       *hsimLn_, *hdigEn_, *hdigLn_;
@@ -76,9 +78,13 @@ HGCalBHValidation::HGCalBHValidation(const edm::ParameterSet& ps) {
   hcalDigis_= ps.getUntrackedParameter<edm::InputTag>("DigiCollection");
   iSample_  = ps.getUntrackedParameter<int>("Sample",5);
   threshold_= ps.getUntrackedParameter<double>("Threshold",12.0);
+  ifHCAL_   = ps.getUntrackedParameter<bool>("ifHCAL",false);
 
   tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
-  tok_hbhe_ = consumes<QIE11DigiCollection>(hcalDigis_);
+  if (ifHCAL_) 
+    tok_hbhe_ = consumes<QIE11DigiCollection>(hcalDigis_);
+  else
+    tok_hbhe_ = consumes<HGCBHDigiCollection>(hcalDigis_);
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalBHValidation::Input for SimHit: " 
 	    << edm::InputTag(g4Label_,hcalHits_) << "  Digits: " 
@@ -184,44 +190,68 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
   }
 
   //Digits
-  edm::Handle<QIE11DigiCollection> hbhecoll;
-  e.getByToken(tok_hbhe_, hbhecoll);
+  unsigned int kount(0);
+  if (ifHCAL_) {
+    edm::Handle<QIE11DigiCollection> hbhecoll;
+    e.getByToken(tok_hbhe_, hbhecoll);
 #ifdef EDM_ML_DEBUG  
-  std::cout << "HGCalBHValidation.: HBHEQIE11DigiCollection obtained with"
-	    << " flag " << hbhecoll.isValid() << std::endl;
+    std::cout << "HGCalBHValidation.: HBHEQIE11DigiCollection obtained with"
+	      << " flag " << hbhecoll.isValid() << std::endl;
 #endif
-  if (hbhecoll.isValid()) {
+    if (hbhecoll.isValid()) {
 #ifdef EDM_ML_DEBUG 
-    std::cout << "HGCalBHValidation: HBHEDigit buffer " << hbhecoll->size()
-	      << std::endl;
-    unsigned int i(0);
+      std::cout << "HGCalBHValidation: HBHEDigit buffer " << hbhecoll->size()
+		<< std::endl;
 #endif
-    for (QIE11DigiCollection::const_iterator it=hbhecoll->begin(); 
-	 it != hbhecoll->end(); ++it) {
-      QIE11DataFrame df(*it);
-      HcalDetId cell(df.id());
-      double energy = df[iSample_].adc();
-      if (energy > threshold_) {
-	int    eta    = cell.ieta();
-	int    phi    = cell.iphi();
-	int    depth  = cell.depth();
-	if ((cell.subdet() == HcalEndcap) || (cell.subdet() == HcalBarrel)) 
-	  hdi2Oc_->Fill((eta+0.1),(phi-0.1));
-	if (cell.subdet() == HcalEndcap) {
-	  hdigEn_->Fill(energy);
-	  hdigOc_->Fill((eta+0.1),(phi-0.1));
-	  hdigLn_->Fill(depth);
-	  hdi3Oc_->Fill((eta+0.1),depth);
-#ifdef EDM_ML_DEBUG
-	  ++i;
-	  std::cout << "HGCalBHDigit[" << i << "] ID " << cell << " E " 
-		    << energy << ":" << (energy > threshold_);
-	  for (int k=0; k<10; ++k) 
-	    std::cout << " [" << k << "]: " << it->adc(k);
-	  std::cout << std::endl;
-#endif
-	}
+      for (QIE11DigiCollection::const_iterator it=hbhecoll->begin(); 
+	   it != hbhecoll->end(); ++it) {
+	QIE11DataFrame df(*it);
+	HcalDetId cell(df.id());
+	double energy = df[iSample_].adc();
+	analyzeDigi(cell, energy, kount);
       }
+    }
+  } else {
+    edm::Handle<HGCBHDigiCollection> hbhecoll;
+    e.getByToken(tok_hbhe_, hbhecoll);
+#ifdef EDM_ML_DEBUG  
+    std::cout << "HGCalBHValidation.: HGCBHDigiCollection obtained with"
+	      << " flag " << hbhecoll.isValid() << std::endl;
+#endif
+    if (hbhecoll.isValid()) {
+#ifdef EDM_ML_DEBUG 
+      std::cout << "HGCalBHValidation: HGCBHDigit buffer " << hbhecoll->size()
+		<< std::endl;
+#endif
+      for (HGCBHDigiCollection::const_iterator it=hbhecoll->begin(); 
+	   it != hbhecoll->end(); ++it) {
+	HGCBHDataFrame df(*it);
+	HcalDetId cell(df.id());
+	double energy = df[iSample_].data();
+	analyzeDigi(cell, energy, kount);
+      }
+    }
+  }
+}
+
+void HGCalBHValidation::analyzeDigi(HcalDetId const& cell, double const& energy,
+				    unsigned int &kount) {
+  if (energy > threshold_) {
+    int    eta    = cell.ieta();
+    int    phi    = cell.iphi();
+    int    depth  = cell.depth();
+    if ((cell.subdet() == HcalEndcap) || (cell.subdet() == HcalBarrel)) 
+      hdi2Oc_->Fill((eta+0.1),(phi-0.1));
+    if (cell.subdet() == HcalEndcap) {
+      hdigEn_->Fill(energy);
+      hdigOc_->Fill((eta+0.1),(phi-0.1));
+      hdigLn_->Fill(depth);
+      hdi3Oc_->Fill((eta+0.1),depth);
+      ++kount;
+#ifdef EDM_ML_DEBUG
+      std::cout << "HGCalBHDigit[" << kount << "] ID " << cell << " E " 
+		<< energy << ":" << (energy > threshold_) << std::endl;
+#endif
     }
   }
 }

@@ -92,11 +92,11 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     if((simTracks.isValid())&&(simVertices.isValid())){
       for (unsigned int j=0; j<simTracks->size(); j++) {
 	int pdgid = simTracks->at(j).type();
-	if (abs(pdgid)!=13) continue;
+	if (std::abs(pdgid)!=13) continue;
 	double pt = simTracks->at(j).momentum().pt();
 	if (pt<2.5) continue;
 	double eta = simTracks->at(j).momentum().eta();
-	if (abs(eta)>2.5) continue;
+	if (std::abs(eta)>2.5) continue;
 	if (simTracks->at(j).noVertex()) continue;
 	int vertIndex = simTracks->at(j).vertIndex();
 	double x = simVertices->at(vertIndex).position().x();
@@ -104,7 +104,7 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 	double r = sqrt(x*x+y*y);
 	if (r>150.) continue; // I think units are cm here
 	double z = simVertices->at(vertIndex).position().z();
-	if (abs(z)>300.) continue; // I think units are cm here
+	if (std::abs(z)>300.) continue; // I think units are cm here
 	mu3 += 1;
 	break;
       }
@@ -130,7 +130,7 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 	    const reco::Candidate & d = *p.daughter(j);
 	    if ((d.pdgId()==11)||(d.pdgId()==-11)){wel += 1;}
 	    if ((d.pdgId()==13)||(d.pdgId()==-13)){wmu += 1;}
-// 	    if ( (abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
+// 	    if ( (std::abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
 // 	      {std::cout << "Wrong sign between mother-W and daughter !" << std::endl;}
 	  }
 	}

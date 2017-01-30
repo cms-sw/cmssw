@@ -67,8 +67,8 @@ class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
 
  protected:
   // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 

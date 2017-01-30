@@ -37,6 +37,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
+
 // GEDPhotonProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonProducer : public edm::stream::EDProducer<> {
 
@@ -47,7 +48,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 
   virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override final;
   virtual void endRun(edm::Run const&,  edm::EventSetup const&) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 
@@ -72,7 +73,7 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
 			   edm::ValueMap<reco::PhotonRef>  pfEGCandToPhotonMap,
 			   edm::Handle< reco::VertexCollection >&  pvVertices,
 			   reco::PhotonCollection & outputCollection,
-			   int& iSC);
+			   int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons_, const edm::Handle<edm::ValueMap<float>>& neutralHadrons_, const edm::Handle<edm::ValueMap<float>>& photons_);
 
 
  // std::string PhotonCoreCollection_;
@@ -88,12 +89,17 @@ class GEDPhotonProducer : public edm::stream::EDProducer<> {
  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
+ //for isolation with map-based veto
+ edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef > > > particleBasedIsolationToken;
+  //photon isolation sums
+  edm::EDGetTokenT<edm::ValueMap<float> > phoChargedIsolationToken_CITK; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoNeutralHadronIsolationToken_CITK; 
+  edm::EDGetTokenT<edm::ValueMap<float> > phoPhotonIsolationToken_CITK; 
  
   std::string conversionProducer_;
   std::string conversionCollection_;
   std::string valueMapPFCandPhoton_;
 
-  PFPhotonIsolationCalculator* thePFBasedIsolationCalculator_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
   //AA

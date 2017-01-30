@@ -59,7 +59,7 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) :
 //
   NPGParticle               = PGParticleIDs.size(); 
   for(unsigned int i=0;i<PGParticleIDs.size();i++) {
-     switch (int(fabs(PGParticleIDs.at(i)))) {
+     switch (std::abs(PGParticleIDs.at(i))) {
         case 11:
         case 22:
                DoEmSL = true;
@@ -336,7 +336,7 @@ void CastorShowerLibraryMaker::update(const G4Step * aStep) {
 // move track to z of CASTOR
          G4ThreeVector pos;
          pos.setZ(-14390);
-         double t = abs((pos.z()-trk->GetPosition().z()))/trk->GetVelocity();
+         double t = std::abs((pos.z()-trk->GetPosition().z()))/trk->GetVelocity();
          double r = (pos.z()-trk->GetPosition().z())/trk->GetMomentum().cosTheta();
          pos.setX(r*sin(trk->GetMomentum().theta())*cos(trk->GetMomentum().phi())+trk->GetPosition().x());
          pos.setY(r*sin(trk->GetMomentum().theta())*sin(trk->GetMomentum().phi())+trk->GetPosition().y());

@@ -104,6 +104,7 @@ namespace edm {
   class ModuleRegistry;
   class TriggerResultInserter;
   class PreallocationConfiguration;
+  class WaitingTaskHolder;
 
   namespace service {
     class TriggerNamesService;
@@ -167,10 +168,9 @@ namespace edm {
     
     StreamSchedule(StreamSchedule const&) = delete;
 
-    template <typename T>
-    void processOneEvent(typename T::MyPrincipal& principal,
-                         EventSetup const& eventSetup,
-                         bool cleaningUpAfterException = false);
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              EventPrincipal& ep,
+                              EventSetup const& es);
 
     template <typename T>
     void processOneStream(typename T::MyPrincipal& principal,
@@ -259,6 +259,7 @@ namespace edm {
       return number_of_unscheduled_modules_;
     }
     
+    StreamContext const& context() const { return streamContext_;}
   private:
     //Sentry class to only send a signal if an
     // exception occurs. An exception is identified
@@ -290,6 +291,10 @@ namespace edm {
 
     void resetAll();
 
+    void finishedPaths(std::exception_ptr, WaitingTaskHolder,
+                       EventPrincipal& ep, EventSetup const& es);
+    std::exception_ptr finishProcessOneEvent(std::exception_ptr);
+    
     template <typename T>
     bool runTriggerPaths(typename T::MyPrincipal const&, EventSetup const&, typename T::Context const*);
 
@@ -363,6 +368,7 @@ namespace edm {
     StreamID                streamID_;
     StreamContext           streamContext_;
     volatile bool           endpathsAreActive_;
+    std::atomic<bool>       skippingEvent_;
   };
 
   void
@@ -370,73 +376,6 @@ namespace edm {
   StreamSchedule::reportSkipped(EventPrincipal const& ep) const {
     Service<JobReport> reportSvc;
     reportSvc->reportSkippedEvent(ep.id().run(), ep.id().event());
-  }
-
-  template <typename T>
-  void StreamSchedule::processOneEvent(typename T::MyPrincipal& ep,
-                                 EventSetup const& es,
-                                 bool cleaningUpAfterException) {
-    this->resetAll();
-    for (int empty_trig_path : empty_trig_paths_) {
-      results_->at(empty_trig_path) = HLTPathStatus(hlt::Pass, 0);
-    }
-
-    T::setStreamContext(streamContext_, ep);
-    StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
-
-    SendTerminationSignalIfException terminationSentry(actReg_.get(), &streamContext_);
-    // This call takes care of the unscheduled processing.
-    workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
-
-    ++total_events_;
-    try {
-      convertException::wrap([&]() {
-        try {
-          if (runTriggerPaths<T>(ep, es, &streamContext_)) {
-            ++total_passed_;
-          }
-        }
-        catch(cms::Exception& e) {
-          exception_actions::ActionCodes action = actionTable().find(e.category());
-          assert (action != exception_actions::IgnoreCompletely);
-          assert (action != exception_actions::FailPath);
-          if (action == exception_actions::SkipEvent) {
-            edm::printCmsExceptionWarning("SkipEvent", e);
-          } else {
-            throw;
-          }
-        }
-
-        try {
-          ParentContext parentContext(&streamContext_);
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, streamID_, parentContext, &streamContext_);
-        }
-        catch (cms::Exception & ex) {
-          if (T::isEvent_) {
-            ex.addContext("Calling produce method for module TriggerResultInserter");
-          }
-          std::ostringstream ost;
-          ost << "Processing " << ep.id();
-          ex.addContext(ost.str());
-          throw;
-        }
-
-        if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
-        resetEarlyDelete();
-      });
-    }
-    catch(cms::Exception& ex) {
-      if (ex.context().empty()) {
-        addContextAndPrintException("Calling function StreamSchedule::processOneEvent", ex, cleaningUpAfterException);
-      } else {
-        addContextAndPrintException("", ex, cleaningUpAfterException);
-      }
-      throw;
-    }
-    terminationSentry.completedSuccessfully();
-    
-    //If we got here no other exception has happened so we can propogate any Service related exceptions
-    sentry.allowThrow();
   }
 
   template <typename T>

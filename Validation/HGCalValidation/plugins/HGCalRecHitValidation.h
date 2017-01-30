@@ -63,9 +63,9 @@ public:
   ~HGCalRecHitValidation();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
 private:
   template<class T1, class T2>
@@ -78,6 +78,7 @@ private:
   std::string           nameDetector_;
   edm::EDGetToken       recHitSource_;
   int                   verbosity_;
+  bool                  ifHCAL_;
   unsigned int          layers_;
   std::map<int, int>    OccupancyMap_plus;
   std::map<int, int>    OccupancyMap_minus;

@@ -41,7 +41,9 @@
 #include <fstream>
 
 MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
-  theSurveyIndex(0), _writeToDB(false), _commonMuonLevel(align::invalid), firstEvent_(true)
+  theSurveyIndex(0),
+  _levelStrings(cfg.getUntrackedParameter<std::vector<std::string> >("levels")),
+  _writeToDB(false), _commonMuonLevel(align::invalid), firstEvent_(true)
 {
 	referenceMuon=0x0;
 	currentMuon=0x0;
@@ -60,9 +62,6 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
 	_filename = cfg.getUntrackedParameter< std::string > ("outputFile");
 	
 	
-	const std::vector<std::string>& levels = 
-	    cfg.getUntrackedParameter< std::vector<std::string> > ("levels");
-	
 	_weightBy = cfg.getUntrackedParameter< std::string > ("weightBy");
 	_detIdFlag = cfg.getUntrackedParameter< bool > ("detIdFlag");
 	_detIdFlagFile = cfg.getUntrackedParameter< std::string >
@@ -73,13 +72,6 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
 	_endcap  = cfg.getUntrackedParameter<int> ("endcapNumber");
 	_station = cfg.getUntrackedParameter<int> ("stationNumber");
 	_ring    = cfg.getUntrackedParameter<int> ("ringNumber");
-	
-	//setting the levels being used in the geometry comparator
-	edm::LogInfo("MuonGeometryArrange") << "levels: " << levels.size();
-	for (unsigned int l = 0; l < levels.size(); ++l){
-		theLevels.push_back( AlignableObjectId::stringToId(levels[l]));
-		edm::LogInfo("MuonGeometryArrange") << "level: " << levels[l];
-	}
 	
 		
 	// if want to use, make id cut list
@@ -469,8 +461,14 @@ void MuonGeometryArrange::analyze(const edm::Event&,
     
     inputGeometry1 = static_cast<Alignable*> (inputAlign1->getAlignableMuon());
     inputGeometry2 = static_cast<Alignable*> (inputAlign2->getAlignableMuon());
-    Alignable* inputGeometry2Copy2 = 
-      static_cast<Alignable*> (inputAlign2a->getAlignableMuon());
+    auto inputGeometry2Copy2 = inputAlign2a->getAlignableMuon();
+
+    //setting the levels being used in the geometry comparator
+    edm::LogInfo("MuonGeometryArrange") << "levels: " << _levelStrings.size();
+    for (const auto& level: _levelStrings){
+      theLevels.push_back(inputGeometry2Copy2->objectIdProvider().stringToId(level));
+      edm::LogInfo("MuonGeometryArrange") << "level: " << level;
+    }
     
     //compare the goemetries
     compare(inputGeometry1, inputGeometry2, inputGeometry2Copy2);

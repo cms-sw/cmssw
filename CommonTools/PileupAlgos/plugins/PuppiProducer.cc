@@ -82,7 +82,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    int npv = 0;
    const reco::VertexCollection::const_iterator vtxEnd = pvCol->end();
    for (reco::VertexCollection::const_iterator vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
-      if (!vtxIter->isFake() && vtxIter->ndof()>=fVtxNdofCut && fabs(vtxIter->z())<=fVtxZCut)
+      if (!vtxIter->isFake() && vtxIter->ndof()>=fVtxNdofCut && std::abs(vtxIter->z())<=fVtxZCut)
          npv++;
    }
 
@@ -125,8 +125,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         double tmpdz = 99999;
         if      ( pPF->trackRef().isNonnull()    ) tmpdz = pPF->trackRef()   ->dz(iV->position());
         else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(iV->position());
-        if (fabs(tmpdz) < curdz){
-          curdz = fabs(tmpdz);
+        if (std::abs(tmpdz) < curdz){
+          curdz = std::abs(tmpdz);
           closestVtxForUnassociateds = pVtxId;
         }
         pVtxId++;
@@ -134,21 +134,21 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       int tmpFromPV = 0;  
       // mocking the miniAOD definitions
-      if (closestVtx != 0 && fabs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
-      if (closestVtx != 0 && fabs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
-      if (closestVtx == 0 && fabs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
-      if (closestVtx == 0 && fabs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
+      if (closestVtx != 0 && std::abs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
+      if (closestVtx != 0 && std::abs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
+      if (closestVtx == 0 && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
+      if (closestVtx == 0 && std::abs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
       pReco.id = 0; 
-      if (fabs(pReco.charge) == 0){ pReco.id = 0; }
+      if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
       else{
         if (tmpFromPV == 0){ pReco.id = 2; } // 0 is associated to PU vertex
         if (tmpFromPV == 3){ pReco.id = 1; }
         if (tmpFromPV == 1 || tmpFromPV == 2){ 
           pReco.id = 0;
-          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) < fDZCut)) pReco.id = 1;
-          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) > fDZCut)) pReco.id = 2;
+          if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) < fDZCut)) pReco.id = 1;
+          if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) > fDZCut)) pReco.id = 2;
           if (fPuppiForLeptons && tmpFromPV == 1) pReco.id = 2;
           if (fPuppiForLeptons && tmpFromPV == 2) pReco.id = 1;
         }
@@ -161,14 +161,14 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pReco.d0      = pD0;
   
       pReco.id = 0; 
-      if (fabs(pReco.charge) == 0){ pReco.id = 0; }
-      if (fabs(pReco.charge) > 0){
+      if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
+      if (std::abs(pReco.charge) > 0){
         if (lPack->fromPV() == 0){ pReco.id = 2; } // 0 is associated to PU vertex
         if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
         if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
           pReco.id = 0;
-          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) < fDZCut)) pReco.id = 1;
-          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) > fDZCut)) pReco.id = 2;
+          if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) < fDZCut)) pReco.id = 1;
+          if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) > fDZCut)) pReco.id = 2;
           if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVLoose)) pReco.id = 2;
           if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVTight)) pReco.id = 1;
         }
@@ -200,9 +200,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         throw edm::Exception(edm::errors::LogicError,"PuppiProducer: cannot get weights since inputs are not PackedCandidates");
       }
       else{
-        // if (fUseWeightsNoLep){ curpupweight = itPF->puppiWeightNoLep(); }
-        // else{ curpupweight = itPF->puppiWeight();  }
-        curpupweight = lPack->puppiWeight();
+        if (fUseWeightsNoLep){ curpupweight = lPack->puppiWeightNoLep(); }
+        else{ curpupweight = lPack->puppiWeight();  }
       }
       lWeights.push_back(curpupweight);
       fastjet::PseudoJet curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
@@ -323,18 +322,6 @@ void PuppiProducer::beginJob() {
 }
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::endJob() {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiProducer::beginRun(edm::Run&, edm::EventSetup const&) {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiProducer::endRun(edm::Run&, edm::EventSetup const&) {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
-}
-// ------------------------------------------------------------------------------------------
-void PuppiProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
 }
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -23,19 +23,19 @@ class ODFEPedestalOffsetInfo : public IODConfig {
   inline void setVersion(int id) { m_version = id; }
   inline int getVersion() const { return m_version; }
 
-  int fetchNextId() throw(std::runtime_error);
+  int fetchNextId() noexcept(false);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
-  int fetchID()  throw(std::runtime_error);
+  int fetchID() noexcept(false);
   
  private:
-  void prepareWrite()  throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB()       throw(std::runtime_error);
+  void writeDB() noexcept(false);
 
   void clear();
 
-  void fetchData(ODFEPedestalOffsetInfo * result)     throw(std::runtime_error);
-  void fetchLastData(ODFEPedestalOffsetInfo * result)     throw(std::runtime_error);
+  void fetchData(ODFEPedestalOffsetInfo * result) noexcept(false);
+  void fetchLastData(ODFEPedestalOffsetInfo * result) noexcept(false);
 
 
 

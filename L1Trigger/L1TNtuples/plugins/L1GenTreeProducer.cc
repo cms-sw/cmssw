@@ -74,7 +74,7 @@ private:
   TTree * tree_;
  
   // data format
-  L1Analysis::L1AnalysisGeneratorDataFormat * l1GenData_;
+  std::unique_ptr<L1Analysis::L1AnalysisGeneratorDataFormat>       l1GenData_;
 
   // EDM input tags
   edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
@@ -92,10 +92,11 @@ L1GenTreeProducer::L1GenTreeProducer(const edm::ParameterSet& iConfig)
   genParticleToken_ = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticleToken"));
   pileupInfoToken_ = consumes<std::vector<PileupSummaryInfo> >(iConfig.getUntrackedParameter<edm::InputTag>("pileupInfoToken"));
   
+  l1GenData_ = std::make_unique<L1Analysis::L1AnalysisGeneratorDataFormat>();
+
   // set up output
   tree_=fs_->make<TTree>("L1GenTree", "L1GenTree");
   tree_->Branch("Generator", "L1Analysis::L1AnalysisGeneratorDataFormat", &l1GenData_, 32000, 3);
-
 }
 
 
@@ -141,24 +142,14 @@ L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genParticleToken_, genParticles);
 
-  if (false) {
-    //  if (genParticles.isValid()) {
+  if (genParticles.isValid()) {
+
+    int nPart {0};
 
     for(size_t i = 0; i < genParticles->size(); ++ i) {
       const reco::GenParticle & p = (*genParticles)[i];
       int id = p.pdgId();
-      //int st = p.status();  
-      if (abs(id) == 13) {
-	unsigned int nMo=p.numberOfMothers();
-	//std::cout << "id " << id << "; st " << st 
-	//<< "; nMo " << nMo << std::endl;
-	for(unsigned int i=0;i<nMo;++i){
-	  //int thisParentID = dynamic_cast<const reco::GenParticle*>(p.mother(i))->pdgId();
-	  //std::cout << "   mother ID " << thisParentID << std::endl;
-	}
-      }
       
-      //
       // See if the parent was interesting
       int parentID = -10000;
       unsigned int nMo=p.numberOfMothers();
@@ -203,9 +194,11 @@ L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  l1GenData_->partPhi.push_back(p.phi());
 	  l1GenData_->partE.push_back(p.energy());
 	  l1GenData_->partParent.push_back(parentID);
+          l1GenData_->partCh.push_back(p.charge());
+          ++nPart;
 	}
     }
-
+    l1GenData_->nPart = nPart;
   }
 
 

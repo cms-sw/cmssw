@@ -37,7 +37,7 @@ FWGeometry::findFile( const char* fileName )
        {
            TObjString* path = (TObjString*)tokens->At( i );
            searchPath += ":";
-           searchPath += path->GetString();
+           searchPath += static_cast<const char *>(path->GetString());
            if (gSystem->Getenv("CMSSW_VERSION"))
                searchPath += "/Fireworks/Geometry/data/";
        }

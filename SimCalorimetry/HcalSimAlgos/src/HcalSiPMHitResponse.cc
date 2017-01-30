@@ -1,5 +1,4 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -11,24 +10,19 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
 
 #include <math.h>
 #include <list>
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes, bool PreMix1) :
-  CaloHitResponse(parameterMap, shapes), theSiPM(), theRecoveryTime(250.), 
-  TIMEMULT(1), Y11RANGE(80.), Y11MAX(0.04), Y11TIMETORISE(16.65), PreMixDigis(PreMix1) {
-  theSiPM = new HcalSiPM(2500);
-}
+  CaloHitResponse(parameterMap, shapes), theSiPM(), PreMixDigis(PreMix1),
+  nbins(BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_), dt(HcalPulseShapes::deltaTSiPM_), invdt(HcalPulseShapes::invDeltaTSiPM_) {}
 
-HcalSiPMHitResponse::~HcalSiPMHitResponse() {
-  if (theSiPM)
-    delete theSiPM;
-}
+HcalSiPMHitResponse::~HcalSiPMHitResponse() {}
 
 void HcalSiPMHitResponse::initializeHits() {
   precisionTimedPhotons.clear();
@@ -79,17 +73,18 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
       //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
       double signal(analogSignalAmplitude(id, hit.energy(), pars, engine)*(1-pars.sipmCrossTalk(id)));
       unsigned int photons(signal + 0.5);
+      double tof( timeOfFlight(id) );
       double time( hit.time() );
+      if(ignoreTime) time = tof;
 
       if (photons > 0)
-	if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
-	  precisionTimedPhotons.insert(
-	    std::pair<DetId, photonTimeHist >(id, 
-	      photonTimeHist(theTDCParams.nbins() * TIMEMULT *
-			     pars.readoutFrameSize(), 0)
-					      )
-				       );
-	}
+        if (precisionTimedPhotons.find(id)==precisionTimedPhotons.end()) {
+          precisionTimedPhotons.insert(
+            std::pair<DetId, photonTimeHist >(id, 
+              photonTimeHist(nbins * pars.readoutFrameSize(), 0)
+            )
+          );
+        }
 
       LogDebug("HcalSiPMHitResponse") << id;
       LogDebug("HcalSiPMHitResponse") << " fCtoGeV: " << pars.fCtoGeV(id)
@@ -100,21 +95,21 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 		<< " photons: " << photons 
 		<< " time: " << time;
       LogDebug("HcalSiPMHitResponse") << " timePhase: " << pars.timePhase()
-		<< " tof: " << timeOfFlight(id)
+		<< " tof: " << tof
 		<< " binOfMaximum: " << pars.binOfMaximum()
 		<< " phaseShift: " << thePhaseShift_;
-      double tzero(0.0*Y11TIMETORISE + pars.timePhase() - 
-		   (hit.time() - timeOfFlight(id)) - 
+      double tzero(0.0 + pars.timePhase() - 
+		   (time - tof) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
       LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
-      double tzero_bin(-tzero/(theTDCParams.deltaT()/TIMEMULT));
+      double tzero_bin(-tzero*invdt);
       LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero_bin << '\n';
       double t_pe(0.);
       int t_bin(0);
       for (unsigned int pe(0); pe<photons; ++pe) {
-        t_pe = generatePhotonTime(engine);
-        t_bin = int(t_pe/(theTDCParams.deltaT()/TIMEMULT) + tzero_bin + 0.5);
-        LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero_bin*(theTDCParams.deltaT()/TIMEMULT))
+        t_pe = HcalPulseShapes::generatePhotonTime(engine);
+        t_bin = int(t_pe*invdt + tzero_bin + 0.5);
+        LogDebug("HcalSiPMHitResponse") << "t_pe: " << t_pe << " t_pe + tzero: " << (t_pe+tzero_bin*dt)
                   << " t_bin: " << t_bin << '\n';
         if ((t_bin >= 0) && 
             (static_cast<unsigned int>(t_bin) < precisionTimedPhotons[id].size()))
@@ -125,8 +120,6 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 
 void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 {
-  double const dt(theTDCParams.deltaT()/TIMEMULT);
-
   // Add SiPM dark current noise to all cells
   for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
       idItr != theDetIds->end(); ++idItr) {
@@ -141,7 +134,7 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 
     if (dc_pe_avg <= 0.) continue;
 
-    int nPreciseBins = theTDCParams.nbins() * TIMEMULT * pars.readoutFrameSize();
+    int nPreciseBins = nbins * pars.readoutFrameSize();
 
     unsigned int sumnoisePE(0);
     double  elapsedTime(0.);
@@ -172,27 +165,24 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 
 CaloSamples HcalSiPMHitResponse::makeBlankSignal(const DetId& detId) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  int preciseSize(parameters.readoutFrameSize()*theTDCParams.nbins());
+  int preciseSize(parameters.readoutFrameSize() * nbins);
   CaloSamples result(detId, parameters.readoutFrameSize(), preciseSize);
   result.setPresamples(parameters.binOfMaximum()-1);
-  result.setPrecise(result.presamples()*theTDCParams.nbins(), 
-		    theTDCParams.deltaT());
+  result.setPrecise(result.presamples() * nbins, dt);
   return result;
 }
 
 CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id, 
 						photonTimeHist const& photonTimeBins,
-                                                CLHEP::HepRandomEngine* engine) const {
+                                                CLHEP::HepRandomEngine* engine) {
   const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));  
-  theSiPM->setNCells(pars.pixels(id));
-  theSiPM->setTau(pars.sipmTau());
-  theSiPM->setCrossTalk(pars.sipmCrossTalk(id));
-  theSiPM->setSaturationPars(pars.sipmNonlinearity(id));
+  theSiPM.setNCells(pars.pixels(id));
+  theSiPM.setTau(pars.sipmTau());
+  theSiPM.setCrossTalk(pars.sipmCrossTalk(id));
+  theSiPM.setSaturationPars(pars.sipmNonlinearity(id));
 
   //use to make signal
   CaloSamples signal( makeBlankSignal(id) );
-  double const dt(theTDCParams.deltaT()/TIMEMULT);
-  double const invdt(1./theTDCParams.deltaT());
   int sampleBin(0), preciseBin(0);
   signal.resetPrecise();
   unsigned int pe(0);
@@ -210,10 +200,10 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   for (unsigned int tbin(0); tbin < photonTimeBins.size(); ++tbin) {
     pe = photonTimeBins[tbin];
     sumPE += pe;
-    preciseBin = tbin/TIMEMULT;
-    sampleBin = preciseBin/theTDCParams.nbins();
+    preciseBin = tbin;
+    sampleBin = preciseBin/nbins;
     if (pe > 0) {
-      hitPixels = theSiPM->hitCells(engine, pe, 0., elapsedTime);
+      hitPixels = theSiPM.hitCells(engine, pe, 0., elapsedTime);
       sumHits += hitPixels;
       LogDebug("HcalSiPMHitResponse") << " elapsedTime: " << elapsedTime
 				      << " sampleBin: " << sampleBin
@@ -245,7 +235,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 	signal[sampleBin] += pulseBit;
 	signal.preciseAtMod(preciseBin) += pulseBit*invdt;
 
-	if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-6)
+	if (timeDiff > 1 && sipmPulseShape(timeDiff) < 1e-7)
 	  pulse = pulses.erase(pulse);
 	else
 	  ++pulse;
@@ -255,19 +245,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   }
 
   return signal;
-}
-
-double HcalSiPMHitResponse::generatePhotonTime(CLHEP::HepRandomEngine* engine) const {
-  double result(0.);
-  while (true) {
-    result = CLHEP::RandFlat::shoot(engine, Y11RANGE);
-    if (CLHEP::RandFlat::shoot(engine, Y11MAX) < Y11TimePDF(result))
-      return result;
-  }
-}
-
-double HcalSiPMHitResponse::Y11TimePDF(double t) {
-  return exp(-0.0635-0.1518*t)*pow(t, 2.528)/2485.9;
 }
 
 void HcalSiPMHitResponse::setDetIds(const std::vector<DetId> & detIds) {
