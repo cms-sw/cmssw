@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-hbheprereco = cms.EDProducer(
+hbheplan1 = cms.EDProducer(
     "HBHEPlan1Combiner",
 
     # Label for the input HBHERecHitCollection
-    hbheInput = cms.InputTag("FIX THIS!!!"),
+    hbheInput = cms.InputTag("hbheprereco"),
 
     # Should we ignore "Plan 1" settings provided by the HcalTopology class?
     ignorePlan1Topology = cms.bool(False),
