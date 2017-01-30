@@ -106,7 +106,8 @@ private:
               selHits_->push_back( (*hit)->clone() );
           }
           tx.setHits( rHits, firstHitIndex, selHits_->size() - firstHitIndex );
-
+          tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
+          assert(tx.trajParams().size()==tx.recHitsSize());
           if (copyTrajectories_) {
               goodTracks[current] = reco::TrackRef(rTracks, selTracks_->size() - 1);
           }
