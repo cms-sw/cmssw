@@ -44,10 +44,8 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
-  const bool useTrajectory;
   const bool usePixel;
   const bool useStrip;
   const float MeVperADCPixel;
