@@ -26,7 +26,7 @@ class EcalUncalibRecHitMultiFitAlgo
   EcalUncalibRecHitMultiFitAlgo();
   ~EcalUncalibRecHitMultiFitAlgo() { };
   EcalUncalibratedRecHit makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX);
-  void gainSwitchEBUseMaxSample(bool what) {_gainSwitchEBMaxSample = what; }
+  void setGainSwitchUseMaxSample(bool b) { _gainSwitchUseMaxSample = b; }
   void disableErrorCalculation() { _computeErrors = false; }
   void setDoPrefit(bool b) { _doPrefit = b; }
   void setPrefitMaxChiSq(double x) { _prefitMaxChiSq = x; }
@@ -34,10 +34,10 @@ class EcalUncalibRecHitMultiFitAlgo
  private:
    PulseChiSqSNNLS _pulsefunc;
    PulseChiSqSNNLS _pulsefuncSingle;
-   bool _gainSwitchEBMaxSample;
    bool _computeErrors;
    bool _doPrefit;
    double _prefitMaxChiSq;
+   bool _gainSwitchUseMaxSample;
    BXVector _singlebx;
 
 };

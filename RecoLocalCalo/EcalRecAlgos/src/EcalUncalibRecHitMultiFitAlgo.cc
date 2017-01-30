@@ -8,7 +8,8 @@
 EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() : 
   _computeErrors(true),
   _doPrefit(false),
-  _prefitMaxChiSq(1.0) { 
+  _prefitMaxChiSq(1.0),
+  _gainSwitchUseMaxSample(false){
     
   _singlebx.resize(1);
   _singlebx << 0;
@@ -83,21 +84,19 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   bool status = false;
 
   // for legacy re-reco of 2016 data, max-sample can be used for EB w/o impact on data/MC consistency
-  if(_gainSwitchEBMaxSample) {
   // in case of gain switch, just use max-sample
-    if(iGainSwitch && dataFrame.id().subdetId() == EcalBarrel) {
-      EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
-      rh.setAmplitudeError(0.);
-      for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
-        int bx = _pulsefunc.BXs().coeff(ipulse);
-        if (bx!=0) {
-          rh.setOutOfTimeAmplitude(bx+5, 0.0);
-        }
+  if(iGainSwitch && _gainSwitchUseMaxSample) {
+    EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
+    rh.setAmplitudeError(0.);
+    for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
+      int bx = _pulsefunc.BXs().coeff(ipulse);
+      if (bx!=0) {
+        rh.setOutOfTimeAmplitude(bx+5, 0.0);
       }
-      return rh;
     }
+    return rh;
   }
-  
+    
   //optimized one-pulse fit for hlt
   bool usePrefit = false;
   if (_doPrefit) {
