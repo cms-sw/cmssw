@@ -1699,7 +1699,7 @@ steps['DBLMINIAODMCUP15NODQM'] = merge([{'--conditions':'auto:run2_mc',
 from  Configuration.PyReleaseValidation.upgradeWorkflowComponents import *
 
 defaultDataSets={}
-defaultDataSets['2017']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
+defaultDataSets['2017']='CMSSW_8_1_0-81X_upgrade2017_realistic_v26-v'
 defaultDataSets['2017Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
 defaultDataSets['2018']='CMSSW_8_1_0_pre16-81X_upgrade2017_realistic_v22-v'
 defaultDataSets['2018Design']='CMSSW_8_1_0_pre16-81X_upgrade2017_design_IdealBS_v6-v'
@@ -1754,7 +1754,11 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     geom=upgradeProperties[year][k]['Geom']
     gt=upgradeProperties[year][k]['GT']
     hltversion=upgradeProperties[year][k].get('HLTmenu')
-    cust=upgradeProperties[year][k].get('Custom', None)
+    custgensim=upgradeProperties[year][k].get('CustomGensim', None)
+    custdigi=upgradeProperties[year][k].get('CustomDigi', None)
+    custreco=upgradeProperties[year][k].get('CustomReco', None)
+    custalca=upgradeProperties[year][k].get('CustomAlca', None)
+    custharvest=upgradeProperties[year][k].get('CustomHarvest', None)
     era=upgradeProperties[year][k].get('Era', None)
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
     upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
@@ -1765,7 +1769,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
+    if custgensim!=None : upgradeStepDict['GenSimFull'][k]['--customise']=custgensim
     if era is not None: upgradeStepDict['GenSimFull'][k]['--era']=era
     if beamspot is not None: upgradeStepDict['GenSimFull'][k]['--beamspot']=beamspot
 
@@ -1777,7 +1781,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : geom
                                        }
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
+    if custgensim!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=custgensim
     if era is not None: upgradeStepDict['GenSimHLBeamSpotFull'][k]['--era']=era
 
     upgradeStepDict['GenSimHLBeamSpotFull14'][k]= {'-s' : 'GEN,SIM',
@@ -1789,7 +1793,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--geometry' : geom
                                        }
     
-    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--customise']=cust
+    if custgensim!=None : upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--customise']=custgensim
     if era is not None: upgradeStepDict['GenSimHLBeamSpotFull14'][k]['--era']=era
     
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
@@ -1830,7 +1834,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
+    if custreco!=None : upgradeStepDict['RecoFull'][k]['--customise']=custreco
     if era is not None: upgradeStepDict['RecoFull'][k]['--era']=era
 
 
@@ -1852,7 +1856,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFullGlobal'][k]['--customise']=cust
+    if custreco!=None : upgradeStepDict['RecoFullGlobal'][k]['--customise']=custreco
     if era is not None: upgradeStepDict['RecoFullGlobal'][k]['--era']=era
 
     if k2 in PUDataSets:
@@ -1865,7 +1869,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=cust
+    if custreco!=None : upgradeStepDict['RecoFullLocal'][k]['--customise']=custreco
     if era is not None: upgradeStepDict['RecoFullLocal'][k]['--era']=era
 
     if k2 in PUDataSets:
@@ -1880,7 +1884,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--filetype':'DQM',
 				    '--filein':'file:step3_inDQM.root'
                                     }
-    if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
+    if custreco!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=custreco
     if era is not None: upgradeStepDict['HARVESTFull'][k]['--era']=era
 
     if k2 in PUDataSets:
@@ -1902,7 +1906,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'ALCARECO',
                                       '--geometry' : geom
                                       }
-    if cust!=None : upgradeStepDict['ALCAFull'][k]['--customise']=cust
+    if custalca!=None : upgradeStepDict['ALCAFull'][k]['--customise']=custalca
     if era is not None: upgradeStepDict['ALCAFull'][k]['--era']=era
 
 
@@ -1914,7 +1918,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                    '--fast':'',
                                    '--geometry' : geom,
                                    '--relval':'27000,3000'}
-    if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
+    if custgensim!=None : upgradeStepDict['FastSim'][k]['--customise']=custgensim
     if era is not None: upgradeStepDict['FastSim'][k]['--era']=era
 
     upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
@@ -1923,7 +1927,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--geometry' : geom,
                                     '--scenario' : 'pp'
                                     }
-    if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
+    if custharvest!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=custharvest
     if era is not None: upgradeStepDict['HARVESTFast'][k]['--era']=era
 
 
