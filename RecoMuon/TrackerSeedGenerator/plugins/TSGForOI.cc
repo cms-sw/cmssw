@@ -62,7 +62,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(src_, l2TrackCol);
 
   //	The product:
-  std::auto_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
+  std::unique_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
 
   //	Get vector of Detector layers once:
   std::vector<BarrelDetLayer const*> const& tob = measurementTracker_->geometricSearchTracker()->tobLayers();
