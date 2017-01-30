@@ -60,7 +60,9 @@ namespace reco {
     PFBlockElement(Type type=NONE) :  
       type_(type), 
       locked_(false),
-      index_( static_cast<unsigned>(-1) ) {
+      index_( static_cast<unsigned>(-1) ),
+      time_(0.f), timeError_(-1.f)
+    {
     }
 
 
@@ -122,9 +124,6 @@ namespace reco {
     virtual bool isPrimary() const { return false; }
     virtual bool isLinkedToDisplacedVertex() const {return false;}
 
-    friend std::ostream& operator<<( std::ostream& out, 
-                                     const PFBlockElement& element );
-
     // Glowinski & Gouzevitch
     void setMultilinks(const PFMultiLinksTC& ml) {multilinks_ = ml;}
     void setIsValidMultilinks(bool isVal) {multilinks_.isValid = isVal;}
@@ -133,6 +132,15 @@ namespace reco {
     bool isMultilinksValide() const {return multilinks_.isValid;}
     const PFMultilinksType& getMultilinks() const {return multilinks_.linkedClusters;}
     // ! Glowinski & Gouzevitch
+
+    /// do we have a valid time information
+    bool isTimeValid() const { return timeError_ >= 0.f; }
+    /// \return the timing
+    float time() const { return time_; }
+    /// \return the timing uncertainty
+    float timeError() const { return timeError_; }
+    /// \set the timing information
+    void setTime(float time, float timeError = 0.f) { time_ = time; timeError_ = timeError; }
 
   protected:  
 
@@ -151,6 +159,11 @@ namespace reco {
     // Glowinski & Gouzevitch
     PFMultiLinksTC multilinks_;
     // ! Glowinski & Gouzevitch
+    
+    /// timing information (valid if timeError_ >= 0)
+    float time_;
+    /// timing information uncertainty (<0 if timing not available)
+    float timeError_;
 
     const static reco::TrackRef nullTrack_;
     const static PFRecTrackRef nullPFRecTrack_;
@@ -161,5 +174,9 @@ namespace reco {
     const static VertexCompositeCandidateRef nullVertex_;
   
   };
+
+    std::ostream& operator<<( std::ostream& out, 
+                              const PFBlockElement& element );
+
 }
 #endif

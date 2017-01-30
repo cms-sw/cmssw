@@ -1,4 +1,4 @@
-#include "RecoLocalTracker/SiPhase2Clusterizer/interface/Phase2TrackerClusterizerAlgorithm.h"
+#include "Phase2TrackerClusterizerAlgorithm.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
@@ -16,7 +16,7 @@ void Phase2TrackerClusterizerAlgorithm::setup(const PixelGeomDetUnit* pixDet) {
     const PixelTopology& topol(pixDet->specificTopology());
     nrows_ = topol.nrows();
     ncols_ = topol.ncolumns();
-    matrix_.setSize(nrows_, ncols_);
+    matrix_ = decltype(matrix_)(nrows_, ncols_);
 }
 
 /* 
@@ -71,6 +71,7 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet< Pha
                 sizeCluster = 0;
                 // Increase the number of clusters
                 ++numberClusters;
+                HIPbit = false;
             }
 
             // Check if we hit the maximum number of clusters per module

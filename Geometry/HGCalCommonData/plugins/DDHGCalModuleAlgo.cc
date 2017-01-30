@@ -131,11 +131,13 @@ void DDHGCalModuleAlgo::constructLayers(DDLogicalPart module,
     double  routF  = rMax(zi);
     int     laymax = laymin+layers[i];
     double  zz     = zi;
+    double  thickTot(0);
     for (int ly=laymin; ly<laymax; ++ly) {
       int     ii     = layerType[ly];
       int     copy   = copyNumber[ii];
       double  rinB   = (layerSense[ly] == 0) ? (zo*slopeB[0]) : (zo*slopeB[1]);
       zz            += (0.5*thick[ii]);
+      thickTot      += thick[ii];
 
       std::string name = "HGCal"+names[ii]+std::to_string(copy);
 #ifdef EDM_ML_DEBUG
@@ -195,6 +197,16 @@ void DDHGCalModuleAlgo::constructLayers(DDLogicalPart module,
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
+    if (fabs(thickTot-layerThick[i]) < 0.00001) {
+    } else if (thickTot > layerThick[i]) {
+      edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick[i]
+				 << " is smaller than thickness " << thickTot
+				 << " of all its components **** ERROR ****\n";
+    } else if (thickTot < layerThick[i]) {
+      edm::LogWarning("HGCalGeom") << "Thickness of the partition " 
+				   << layerThick[i] << " does not match with "
+				   << thickTot << " of the components\n";
+    }
   }   // End of loop over blocks
 }
 
@@ -224,6 +236,7 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
   int    ncol = (int)(2.0*rout/waferW) + 1;
   int    nrow = (int)(rout/(waferW*tan(30.0*CLHEP::deg))) + 1;
   int    incm(0), inrm(0), kount(0);
+  double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
   std::cout << glog.ddname() << " rout " << rout << " Row " << nrow 
 	    << " Column " << ncol << std::endl; 
@@ -235,9 +248,19 @@ void DDHGCalModuleAlgo::positionSensitive(DDLogicalPart& glog, double rin,
       if (inr%2 == inc%2) {
 	double xpos = nc*dx;
 	double ypos = nr*dy;
-	double rpos = std::sqrt(xpos*xpos+ypos*ypos);
-	double r1   = (rpos>rr) ? rpos-rr : 0;
-	if (r1 >= rin && rpos+rr <= rout) {
+        xc[0] = xpos+dx; yc[0] = ypos-0.5*rr;
+        xc[1] = xpos+dx; yc[1] = ypos+0.5*rr;
+        xc[2] = xpos;    yc[2] = ypos+rr;
+        xc[3] = xpos-dx; yc[3] = ypos+0.5*rr;
+        xc[4] = xpos+dx; yc[4] = ypos-0.5*rr;
+        xc[5] = xpos;    yc[5] = ypos-rr;
+        bool cornerAll(true);
+        for (int k=0; k<6; ++k) {
+          double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
+          if (rpos < rin || rpos > rout) cornerAll = false;
+        }
+	if (cornerAll) {
+          double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	  DDTranslation tran(xpos, ypos, 0.0);
 	  DDRotation rotation;
 	  int copy = inr*100 + inc;

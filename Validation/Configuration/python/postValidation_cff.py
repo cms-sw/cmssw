@@ -39,9 +39,6 @@ postValidation = cms.Sequence(
     + METPostProcessor
 )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-phase1Pixel.toReplaceWith(postValidation, postValidation.copyAndExclude([ # FIXME
-    runTauEff # Excessive printouts because 2017 doesn't have HLT yet
-]))
 
 postValidation_preprod = cms.Sequence(
     recoMuonPostProcessors

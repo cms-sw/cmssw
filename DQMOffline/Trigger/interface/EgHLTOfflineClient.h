@@ -85,7 +85,7 @@ class EgHLTOfflineClient : public DQMEDHarvester {
   // virtual void beginJob();
   // virtual void analyze(const edm::Event&, const edm::EventSetup&); //dummy
   // virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
   // virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
 
   // virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context){}
@@ -93,7 +93,7 @@ class EgHLTOfflineClient : public DQMEDHarvester {
   // virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
-      edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+      edm::LuminosityBlock const &, edm::EventSetup const&) override; //performed in the endLumi
 
   //at somepoint these all may migrate to a helper class
   void createN1EffHists(const std::string& filterName, const std::string& baseName,

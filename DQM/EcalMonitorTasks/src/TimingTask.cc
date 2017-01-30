@@ -128,7 +128,7 @@ namespace ecaldqm
       // Apply jitter timing cut based on approx rechit timing
       float timeOff( id.subdetId() == EcalBarrel ? 0.4 : 1.8 );
       float hitTime( uhitItr->jitter()*25. + timeOff ); // 1 jitter ~ 25 ns
-      if( abs(hitTime) >= 5. ) continue;
+      if( std::abs(hitTime) >= 5. ) continue;
 
       // Fill MEs
       meTimeAmpBXm.fill( id,amp,uhitItr->outOfTimeAmplitude(4) ); // BX-1

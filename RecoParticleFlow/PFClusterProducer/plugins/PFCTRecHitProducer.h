@@ -41,7 +41,7 @@ class dso_hidden PFCTRecHitProducer final : public edm::stream::EDProducer<> {
 				    const edm::EventSetup & es) override;
   
   void produce(edm::Event& iEvent, 
-	       const edm::EventSetup& iSetup);
+	       const edm::EventSetup& iSetup) override;
 
 
   reco::PFRecHit*  createHcalRecHit( const DetId& detid, 

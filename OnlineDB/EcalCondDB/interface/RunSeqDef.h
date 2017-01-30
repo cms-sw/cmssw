@@ -30,8 +30,8 @@ class RunSeqDef : public IDef {
 
   
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
   // Operators.  m_desc is not considered, it cannot be written to DB anyhow
   inline bool operator==(const RunSeqDef &t) const { return m_runSeq == t.m_runSeq; }
@@ -42,10 +42,10 @@ class RunSeqDef : public IDef {
   std::string m_runSeq;
   RunTypeDef m_runType;  
 
-  int writeDB()throw(std::runtime_error);
+  int writeDB() noexcept(false);
 
 
-  void fetchAllDefs( std::vector<RunSeqDef>* fillVec) throw(std::runtime_error);
+  void fetchAllDefs( std::vector<RunSeqDef>* fillVec) noexcept(false);
 };
 
 #endif

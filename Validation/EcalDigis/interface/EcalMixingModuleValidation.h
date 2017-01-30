@@ -89,12 +89,12 @@ void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
 
 void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 // EndRun
-void endRun(const edm::Run& r, const edm::EventSetup& c);
+void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 
 private:

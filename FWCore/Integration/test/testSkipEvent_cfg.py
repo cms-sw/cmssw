@@ -75,6 +75,11 @@ process.onEndPath = cms.EDAnalyzer('RunLumiEventAnalyzer',
 # No particular reason that I selected these two modules
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
+process.p1Done = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
+process.waitTillP1Done = cms.EDAnalyzer("IntConsumingAnalyzer",
+                                        getFromModule = cms.untracked.InputTag("p1Done"))
+
+
 process.f1 = cms.EDFilter("TestFilterModule",
     acceptValue = cms.untracked.int32(98),
     onlyOne = cms.untracked.bool(False)
@@ -91,8 +96,8 @@ process.p1 = cms.Path(process.beforeException *
                       process.testThrow *
                       process.afterException *
                       process.thingWithMergeProducer *
-                      process.f1)
+                      process.f1+process.p1Done)
 
-process.p2 = cms.Path(process.afterException)
+process.p2 = cms.Path(process.waitTillP1Done+process.afterException)
 
 process.e = cms.EndPath(process.out * process.onEndPath)

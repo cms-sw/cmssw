@@ -52,9 +52,9 @@ class SeedToTrackProducer : public edm::one::EDProducer<> {
       ~SeedToTrackProducer();
 
    private:
-      virtual void beginJob();
+      virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob();
+      virtual void endJob() override;
       virtual TrajectoryStateOnSurface seedTransientState(const TrajectorySeed&);
       // ----------member data ---------------------------
     

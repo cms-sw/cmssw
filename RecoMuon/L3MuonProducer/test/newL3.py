@@ -47,54 +47,50 @@ def addL3ToHLT(process):
 		process.hltDiMuonLinks.LinkCollection = cms.InputTag("hltBRSL3MuonsLinksCombination")
 	#############################################################
 	#Making Pixel Vertices:
-	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
-	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-	    FitterPSet = cms.PSet(
-	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      fixImpactParameter = cms.double( 0.0 )
-	    ),
-	    RegionFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-	      RegionPSet = cms.PSet(
-	        precise = cms.bool( True ),
-	        originRadius = cms.double( 0.2 ),
-	        ptMin = cms.double( 0.9 ),
-	        originHalfLength = cms.double( 24.0 ),
-	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
-	      )
-	    ),
-	    CleanerPSet = cms.PSet(
-              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
-              useQuadrupletAlgo = cms.bool(False)
+        from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
+        from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
+        from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+        from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
+        from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections as _pixelFitterByHelixProjections
+        from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits as _pixelTrackCleanerBySharedHits
+        process.hltPixelTracksTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(
+            precise = True,
+            originRadius = 0.2,
+            ptMin = 0.9,
+            originHalfLength = 24.0,
+	    beamSpot = "hltOnlineBeamSpot"
+        )
+        process.hltPixelTracksHitDoublets = _hitPairEDProducer.clone(
+            clusterCheck = "",
+            seedingLayers = "hltPixelLayerTriplets",
+            trackingRegions = "hltPixelTracksTrackingRegions",
+            maxElement = 0,
+            produceIntermediateHitDoublets = True,
+        )
+        process.hltPixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
+            useBending = True,
+	    useFixedPreFiltering = False,
+	    maxElement = 100000,
+	    phiPreFiltering = 0.3,
+	    extraHitRPhitolerance = 0.06,
+	    useMultScattering = True,
+	    SeedComparitorPSet = dict(
+                ComponentName = "LowPtClusterShapeSeedComparitor",
+	        clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
             ),
-	    OrderedHitsFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	      GeneratorPSet = cms.PSet(
-	        useBending = cms.bool( True ),
-	        useFixedPreFiltering = cms.bool( False ),
-	        maxElement = cms.uint32( 100000 ),
-	        phiPreFiltering = cms.double( 0.3 ),
-	        extraHitRPhitolerance = cms.double( 0.06 ),
-	        useMultScattering = cms.bool( True ),
-	        SeedComparitorPSet = cms.PSet(
-	          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
-	          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
-	        ),
-	        extraHitRZtolerance = cms.double( 0.06 ),
-	        ComponentName = cms.string( "PixelTripletHLTGenerator" )
-	      ),
-	      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
-	    )
+	    extraHitRZtolerance = 0.06,
+        )
+        process.hltPixelTracksFitter = _pixelFitterByHelixProjections.clone()
+        process.hltPixelTrackFilterByKinematics = _pixelTrackFilterByKinematics.clone()
+        process.hltPixelTracksCleaner = _pixelTrackCleanerBySharedHits.clone(
+            ComponentName = "hltPixelTracksCleaner",
+        )
+	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
+	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
+	    FitterPSet = cms.InputTag("hltPixelTracksFitter"),
+	    Cleaner = cms.string("hltPixelTracksCleaner"),
+            SeedingHitSets = cms.InputTag("hltPixelTracksHitTriplets"),
 	)
 	
 	process.hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -115,6 +111,11 @@ def addL3ToHLT(process):
 	
 	process.HLTRecopixelvertexingSequence = cms.Sequence(
 	 process.hltPixelLayerTriplets
+         + process.hltPixelTracksTrackingRegions
+         + process.hltPixelTracksHitDoublets
+         + process.hltPixelTracksHitTriplets
+         + process.hltPixelTracksFitter
+	 + process.hltPixelTrackFilterByKinematics
 	 + process.hltPixelTracks
 	 + process.hltPixelVertices
 	)
@@ -435,53 +436,11 @@ def addL3ToHLT(process):
 	########## IO Algorthim:
 	#Making Pixel Vertices:
 	process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-	    FitterPSet = cms.PSet(
-	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      fixImpactParameter = cms.double( 0.0 )
-	    ),
-	    RegionFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-	      RegionPSet = cms.PSet(
-	        precise = cms.bool( True ),
-	        originRadius = cms.double( 0.2 ),
-	        ptMin = cms.double( 0.9 ),
-	        originHalfLength = cms.double( 24.0 ),
-	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
-	      )
-	    ),
-	    CleanerPSet = cms.PSet(
-              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
-              useQuadrupletAlgo = cms.bool(False)
-            ),
-	    OrderedHitsFactoryPSet = cms.PSet(
-	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	      GeneratorPSet = cms.PSet(
-	        useBending = cms.bool( True ),
-	        useFixedPreFiltering = cms.bool( False ),
-	        maxElement = cms.uint32( 100000 ),
-	        phiPreFiltering = cms.double( 0.3 ),
-	        extraHitRPhitolerance = cms.double( 0.06 ),
-	        useMultScattering = cms.bool( True ),
-	        SeedComparitorPSet = cms.PSet(
-	          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
-	          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
-	        ),
-	        extraHitRZtolerance = cms.double( 0.06 ),
-	        ComponentName = cms.string( "PixelTripletHLTGenerator" )
-	      ),
-	      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
-	    )
+	    Fitter = cms.InputTag("hltPixelTracksFitter"),
+	    CleanerPSet = cms.string("hltPixelTracksCleaner"),
+            SeedingHitSets = cms.InputTag("hltPixelTracksHitTriplets"),
 	)
 	
 	process.hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
@@ -502,26 +461,11 @@ def addL3ToHLT(process):
 	
 	#Start Iterative tracking:
 	process.hltBRSIter0HighPtTkMuPixelTracks = cms.EDProducer( "PixelTrackProducer",
-	    FilterPSet = cms.PSet(
-	      chi2 = cms.double( 1000.0 ),
-	      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-	      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-	      nSigmaInvPtTolerance = cms.double( 0.0 ),
-	      ptMin = cms.double( 0.1 ),
-	      tipMax = cms.double( 1.0 )
-	    ),
-	    useFilterWithES = cms.bool( False ),
+	    Filter = cms.InputTag("hltPixelTrackFilterByKinematics"),
 	    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-	    FitterPSet = cms.PSet(
-	      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-	      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-	      fixImpactParameter = cms.double( 0.0 )
-	    ),
+	    Fitter = cms.InputTag("hltPixelTracksFitter"),
 	    RegionFactoryPSet = IterMasterMuonTrackingRegionBuilder,
-	    CleanerPSet = cms.PSet(
-              ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
-              useQuadrupletAlgo = cms.bool(False)
-            ),
+	    CleanerPSet = cms.string("hltPixelTracksCleaner"),
 	    OrderedHitsFactoryPSet = cms.PSet(
 	      ComponentName = cms.string( "StandardHitTripletGenerator" ),
 	      GeneratorPSet = cms.PSet(
@@ -974,6 +918,11 @@ def addL3ToHLT(process):
 	####################### NEW Combo:
 	process.HLTBRSIterativeTrackingHighPtTkMuIteration0 = cms.Sequence(
 	 process.hltPixelLayerTriplets +
+         process.hltPixelTracksTrackingRegions +
+         process.hltPixelTracksHitDoublets +
+         process.hltPixelTracksHitTriplets +
+         process.hltPixelTracksFitter +
+	 process.hltPixelTrackFilterByKinematics +
 	 process.hltBRSIter0HighPtTkMuPixelTracks +
 	 process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks +
 	 process.hltBRSIter0HighPtTkMuCkfTrackCandidates +

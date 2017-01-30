@@ -81,4 +81,14 @@ namespace edm {
        regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }
   }
+  
+  void ProducerBase::resolvePutIndicies(BranchType iBranchType,
+                          std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                          std::string const& moduleLabel) {
+    auto range = iIndicies.equal_range(moduleLabel);
+    putIndicies_[iBranchType].reserve(iIndicies.count(moduleLabel));
+    for(auto it = range.first; it != range.second;++it) {
+      putIndicies_[iBranchType].push_back(it->second);
+    }
+  }
 }

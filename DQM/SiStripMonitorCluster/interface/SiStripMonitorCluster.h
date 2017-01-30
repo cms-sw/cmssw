@@ -40,9 +40,9 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorCluster(const edm::ParameterSet&);
   ~SiStripMonitorCluster();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) ;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   
   struct ModMEs{ // MEs for one single detector module
 

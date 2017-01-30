@@ -26,6 +26,7 @@
     <Parameter name="geomParsE"  value="[fastTimingEndcap:rInTiming]"/>
     <Parameter name="geomParsE"  value="[fastTimingEndcap:rOutTiming]"/>
     <Parameter name="geomParsE"  value="[fastTimingEndcap:zTiming]"/>
+    <Parameter name="geomParsE"  value="[fastTimingEndcap:dzTiming]"/>
     <Parameter name="numberEtaE" value="250"/>
     <Parameter name="numberPhiE" value="720"/>
   </SpecPar>

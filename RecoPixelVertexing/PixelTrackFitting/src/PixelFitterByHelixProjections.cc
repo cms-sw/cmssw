@@ -21,8 +21,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -92,28 +90,21 @@ namespace {
   }
 }
   
-PixelFitterByHelixProjections::PixelFitterByHelixProjections(
-   const edm::ParameterSet& cfg) 
- : theConfig(cfg), theField(nullptr) {}
+PixelFitterByHelixProjections::PixelFitterByHelixProjections(const edm::EventSetup *es, const MagneticField *field):
+  theES(es), theField(field) {}
 
-reco::Track* PixelFitterByHelixProjections::run(
-    const edm::EventSetup& es,
+std::unique_ptr<reco::Track> PixelFitterByHelixProjections::run(
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const
 {
-  int nhits = hits.size();
-  if (nhits <2) return 0;
+  std::unique_ptr<reco::Track> ret;
 
-  {  
-    edm::ESHandle<MagneticField> fieldESH;
-    es.get<IdealMagneticFieldRecord>().get(fieldESH);
-    theField = fieldESH.product();
-  }
+  int nhits = hits.size();
+  if (nhits <2) return ret;
 
   declareDynArray(GlobalPoint,nhits, points);
   declareDynArray(GlobalError,nhits, errors);
   declareDynArray(bool,nhits, isBarrel);
-  
 
   for ( int i=0; i!=nhits; ++i) {
     auto const & recHit = hits[i];
@@ -132,8 +123,8 @@ reco::Track* PixelFitterByHelixProjections::run(
   float curvature = circle.curvature();
 
   if ((curvature > 1.e-4)&&
-	(likely(PixelRecoUtilities::fieldInInvGev(es)>0.01))) {
-    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
+	(likely(PixelRecoUtilities::fieldInInvGev(*theES)>0.01))) {
+    float invPt = PixelRecoUtilities::inversePt( circle.curvature(), *theES);
     valPt = (invPt > 1.e-4f) ? 1.f/invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();
     valTip = iCharge * (center.mag()-1.f/curvature);
@@ -171,7 +162,8 @@ reco::Track* PixelFitterByHelixProjections::run(
   Measurement1D tip(valTip, errValTip);
   Measurement1D zip(valZip, errValZip);
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, iCharge, hits, theField, region.origin() );
+  ret.reset(builder.build(pt, phi, cotTheta, tip, zip, chi2, iCharge, hits, theField, region.origin() ));
+  return ret;
 }
 
 

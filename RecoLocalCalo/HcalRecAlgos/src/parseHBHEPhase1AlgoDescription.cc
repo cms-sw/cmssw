@@ -30,7 +30,7 @@ parseHBHEMethod2Description(const edm::ParameterSet& conf)
     const double iNoiseSiPM =        conf.getParameter<double>("noiseSiPM");
     const double iTMin =             conf.getParameter<double>("timeMin");
     const double iTMax =             conf.getParameter<double>("timeMax");
-    const double its4Chi2 =          conf.getParameter<double>("ts4chi2");
+    const std::vector<double> its4Chi2 =           conf.getParameter<std::vector<double>>("ts4chi2");
     const int iFitTimes =            conf.getParameter<int>   ("fitTimes");
 
     if (iPedestalConstraint) assert(iPedSigHPD);

@@ -51,6 +51,7 @@ namespace FitterFuncs{
      double sigmaHPDQIE8(double ifC);
      double sigmaSiPMQIE10(double ifC);
      double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda);
+     void setinvertpedSig2(double x) { invertpedSig2_ = x; }
 
      double singlePulseShapeFunc( const double *x );
      double doublePulseShapeFunc( const double *x );
@@ -108,13 +109,13 @@ public:
 	       float& chi2) const;
 
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iApplyTimeSlew,
-		     double iTS4Min, std::vector<double> iTS4Max,
+		     double iTS4Min, const std::vector<double> & iTS4Max,
 		     double iPulseJitter,
 		     double iTimeMean, double iTimeSigHPD, double iTimeSigSiPM,
 		     double iPedMean, double iPedSigHPD, double iPedSigSiPM,
 		     double iNoiseHPD, double iNoiseSiPM,
 		     double iTMin, double iTMax,
-		     double its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
+		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
     void setChi2Term( bool isHPD );
 
@@ -139,7 +140,8 @@ private:
     ROOT::Math::Functor *tpfunctor_;
     int TSMin_;
     int TSMax_;
-    double ts4Chi2_;
+    mutable double ts4Chi2_;
+    std::vector<double> vts4Chi2_;
     bool pedestalConstraint_;
     bool timeConstraint_;
     bool addPulseJitter_;

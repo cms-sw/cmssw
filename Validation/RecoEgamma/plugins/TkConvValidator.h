@@ -58,10 +58,10 @@ class TkConvValidator : public DQMEDAnalyzer
   virtual ~TkConvValidator();
 
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override ;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
-  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
-  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override ;
+  virtual void endRun (edm::Run const& r, edm::EventSetup const & es) override;
   virtual void endJob() ;
 
  private:

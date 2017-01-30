@@ -79,7 +79,7 @@ class StripSubClusterShapeTrajectoryFilter: public StripSubClusterShapeFilterBas
         virtual bool toBeContinued(TempTrajectory&) const override;
         virtual bool toBeContinued(Trajectory&) const override;
 
-        virtual std::string name() const { return "StripSubClusterShapeTrajectoryFilter"; }
+        virtual std::string name() const override { return "StripSubClusterShapeTrajectoryFilter"; }
 
         virtual void setEvent(const edm::Event & e, const edm::EventSetup & es) override {
             setEventBase(e,es);
@@ -100,10 +100,10 @@ class StripSubClusterShapeSeedFilter: public StripSubClusterShapeFilterBase, pub
             setEventBase(ev,es);
         }
         // implemented
-        virtual bool compatible(const TrajectoryStateOnSurface &tsos,  SeedingHitSet::ConstRecHitPointer hit) const ;
+        virtual bool compatible(const TrajectoryStateOnSurface &tsos,  SeedingHitSet::ConstRecHitPointer hit) const override ;
         // not implemented 
-        virtual bool compatible(const SeedingHitSet &hits) const { return true; }
-        virtual bool compatible(const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix) const ;
+        virtual bool compatible(const SeedingHitSet &hits) const override { return true; }
+        virtual bool compatible(const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix) const override ;
 
     protected:
         bool filterAtHelixStage_;

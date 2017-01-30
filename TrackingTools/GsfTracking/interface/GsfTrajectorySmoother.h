@@ -51,7 +51,7 @@ public:
 				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
-  virtual void setHitCloner(TkCloner const * hc) {
+  virtual void setHitCloner(TkCloner const * hc)  override{
   }
 
 

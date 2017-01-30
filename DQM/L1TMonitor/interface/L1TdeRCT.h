@@ -59,12 +59,12 @@ public:
 
 protected:
 // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 //For FED vector monitoring 
   virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void readFEDVector(MonitorElement*,const edm::EventSetup&); 
 
 private:

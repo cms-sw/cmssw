@@ -12,7 +12,7 @@ class RazorVarAnalyzer : public ScoutingAnalyzerBase {
     explicit RazorVarAnalyzer( const edm::ParameterSet &  ) ;
     virtual ~RazorVarAnalyzer() ;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze( const edm::Event & , const edm::EventSetup &  );
+    virtual void analyze( const edm::Event & , const edm::EventSetup &  ) override;
   private: 
     edm::InputTag m_eleCollectionTag;    
     edm::InputTag m_jetCollectionTag;

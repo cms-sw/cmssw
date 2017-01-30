@@ -58,9 +58,9 @@ class SiPixelRecHitSource : public DQMEDAnalyzer {
 
 //       typedef edm::DetSet<PixelRecHit>::const_iterator    RecHitIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, const edm::EventSetup&) override;
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);

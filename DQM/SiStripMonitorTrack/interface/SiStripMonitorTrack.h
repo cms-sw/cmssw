@@ -64,8 +64,8 @@ public:
   enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
-  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& es) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& es)  override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
@@ -104,7 +104,7 @@ private:
 		const SiStripRecHit1D*          hit1D,
 		      LocalVector               localMomentum,
 		const bool                      track_ok);
-  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t detid, enum ClusterFlags flags, bool track_ok, LocalVector LV, const Det2MEs& MEs);	
+  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t detid, enum ClusterFlags flags, bool track_ok, LocalVector LV, const Det2MEs& MEs , const TrackerTopology* tTopo);	
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV, const edm::EventSetup&, bool ok);
 
   // fill monitorables 
@@ -137,7 +137,7 @@ private:
   struct ModMEs{  
     MonitorElement* ClusterStoNCorr;
     MonitorElement* ClusterCharge;
-    MonitorElement* ClusterChargeCorr; 
+    MonitorElement* ClusterChargeCorr;
     MonitorElement* ClusterWidth;
     MonitorElement* ClusterPos;
     MonitorElement* ClusterPGV;
@@ -183,6 +183,11 @@ private:
     MonitorElement* nClustersOffTrack;
     MonitorElement* nClustersTrendOffTrack;
     MonitorElement* ClusterStoNCorrOnTrack;
+    MonitorElement* ClusterStoNCorrThinOnTrack;
+    MonitorElement* ClusterStoNCorrThickOnTrack;
+    MonitorElement* ClusterChargeCorrOnTrack;
+    MonitorElement* ClusterChargeCorrThinOnTrack;
+    MonitorElement* ClusterChargeCorrThickOnTrack;
     MonitorElement* ClusterChargeOnTrack;
     MonitorElement* ClusterChargeOffTrack;
     MonitorElement* ClusterStoNOffTrack;

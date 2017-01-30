@@ -557,7 +557,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       // ...Fill the corresponding accepts in branch-variables
       l1flag[iBit] = gtDecisionWord[iBit];
 
-      std::string l1triggername= std::string (algoBitToName[iBit]);
+      std::string l1triggername= std::string (static_cast<const char *>(algoBitToName[iBit]));
       l1Prescl[iBit] = l1GtUtils.prescaleFactor(iEvent, 
 					       l1triggername,
 					       iErrorCode);
@@ -572,7 +572,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
       l1techflag[iBit] = (int) technicalTriggerWordBeforeMask.at(iBit);
 
-      std::string l1triggername= std::string (techBitToName[iBit]);
+      std::string l1triggername= std::string (static_cast<const char *>(techBitToName[iBit]));
       l1techPrescl[iBit] = l1GtUtils.prescaleFactor(iEvent, 
 					       l1triggername,
 					       iErrorCode);

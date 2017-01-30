@@ -99,3 +99,10 @@ cases where a track is matched to TrackingParticle (by
 `QuickTrackAssociatorByHits`), but redoing the association by hits in
 the ntuple fails, because delta ray SimHit induced a RecHit that was
 included in the track.
+
+#### Vertex <-> track links
+
+If the input track collection is different from the one used for
+vertex reconstruction, the vertex <-> track links are not created.
+Possible use case is making ntuple of the tracks from a single
+iteration (without going through `generalTracks`).

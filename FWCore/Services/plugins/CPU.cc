@@ -2,7 +2,7 @@
 //
 // Package:     Services
 // Class  :     CPU
-// 
+//
 // Implementation:
 //
 // Original Author:  Natalia Garcia
@@ -34,13 +34,13 @@
 #endif
 
 namespace edm {
-  
+
   namespace service {
     class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const&, ActivityRegistry&);
       ~CPU();
-      
+
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
       virtual bool cpuInfo(std::string &models, double &avgSpeed) override;
@@ -54,7 +54,7 @@ namespace edm {
       double getAverageSpeed(const std::vector<std::pair<std::string, std::string>> & info);
       void postEndJob();
     };
-    
+
     inline
     bool isProcessWideService(CPU const*) {
       return true;
@@ -67,23 +67,19 @@ namespace edm {
     namespace {
 
       std::string i2str(int i){
-	std::ostringstream t;
-	t << i;
-	return t.str();
+        std::ostringstream t;
+        t << i;
+        return t.str();
       }
 
       std::string d2str(double d){
-	std::ostringstream t;
-	t << d;
-	return t.str();
+        std::ostringstream t;
+        t << d;
+        return t.str();
       }
 
       double str2d(std::string s){
-	return atof(s.c_str());
-      }
-
-      inline int str2i(std::string s){
-	return atoi(s.c_str());
+        return atof(s.c_str());
       }
 
       void trim(std::string& s, const std::string& drop = " \t") {
@@ -95,22 +91,22 @@ namespace edm {
       }
 
       std::string eraseExtraSpaces(std::string s) {
-	bool founded = false; 
-	std::string aux;
+        bool founded = false;
+        std::string aux;
         for(std::string::const_iterator iter = s.begin(); iter != s.end(); iter++){
-		if(founded){
+                if(founded){
                         if(*iter == ' ') founded = true;
                         else{
                                 aux += " "; aux += *iter;
-				founded = false;
-			}
-		}
-		else{
-			if(*iter == ' ') founded = true;
-			else aux += *iter;
-		}
-	}
-	return aux;
+                                founded = false;
+                        }
+                }
+                else{
+                        if(*iter == ' ') founded = true;
+                        else aux += *iter;
+                }
+        }
+        return aux;
       }
 
       // Determine the CPU set size; if this can be successfully determined, then this
@@ -146,9 +142,9 @@ namespace edm {
 
 
     CPU::CPU(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-	reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties"))
+        reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties"))
     {
-	iRegistry.watchPostEndJob(this,&CPU::postEndJob);
+        iRegistry.watchPostEndJob(this,&CPU::postEndJob);
     }
 
 
@@ -199,7 +195,7 @@ namespace edm {
             {"totalCPUs",        i2str(totalNumberCPUs)},
             {"averageCoreSpeed", d2str(avgSpeed)},
             {"CPUModels",        models}
-        };       
+        };
         unsigned set_size = -1;
         if (getCpuSetSize(set_size)) {
           reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
@@ -298,5 +294,3 @@ namespace edm {
 using edm::service::CPU;
 typedef edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase,CPU> CPUMaker;
 DEFINE_FWK_SERVICE_MAKER(CPU, CPUMaker);
-
-

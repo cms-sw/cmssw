@@ -22,9 +22,9 @@ class ElectronMatchedCandidateProducer : public edm::EDProducer
   ~ElectronMatchedCandidateProducer();
 
  private:
-  virtual void beginJob() ;
+  virtual void beginJob() override ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob()  override;
 
   // ----------member data ---------------------------
 

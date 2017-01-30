@@ -74,6 +74,22 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         if isinstance(other,_SimpleParameterTypeBase):
             return self._value != other._value
         return self._value != other
+    def __lt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value < other._value
+        return self._value < other
+    def __le__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value <= other._value
+        return self._value <= other
+    def __gt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value > other._value
+        return self._value > other
+    def __ge__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value >= other._value
+        return self._value >= other
 
 
 class UsingBlock(_SimpleParameterTypeBase):
@@ -623,13 +639,25 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                         p =pset.parameters_()
                         _modifyParametersFromDict(p,
                                                   value,errorRaiser,
-                                                  keyDepth+"."+key)
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
                         for k,v in p.iteritems():
                             setattr(pset,k,v)
+                    elif isinstance(params[key],_ValidatingParameterListBase):
+                        if any(type(k) != int for k in value.keys()):
+                            raise TypeError("Attempted to change a list using a dict whose keys are not integers")
+                        plist = params[key]
+                        if any((k < 0 or k >= len(plist)) for k in value.keys()):
+                            raise IndexError("Attempted to set an index which is not in the list")
+                        p = dict(enumerate(plist))
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
+                        for k,v in p.iteritems():
+                            plist[k] = v
                     else:
                         raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
-                elif isinstance(value,_ParameterTypeBase):
-                    params[key] =value
+                elif isinstance(value,_ParameterTypeBase) or (type(key) == int):
+                    params[key] = value
                 else:
                     params[key].setValue(value)
             else:

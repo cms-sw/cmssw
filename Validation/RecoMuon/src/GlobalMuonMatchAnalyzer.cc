@@ -233,7 +233,7 @@ GlobalMuonMatchAnalyzer::beginJob()
 }
 void GlobalMuonMatchAnalyzer::endJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
-void GlobalMuonMatchAnalyzer::endRun() {
+void GlobalMuonMatchAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
   computeEfficiencyEta(h_effic,h_goodMatchSim,h_shouldMatch);
   computeEfficiencyPt(h_efficPt,h_goodMatchSim,h_shouldMatch);
 

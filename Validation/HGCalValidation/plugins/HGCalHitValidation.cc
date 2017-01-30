@@ -68,13 +68,19 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event&, const edm::EventSetup&);
-
-private:
   typedef std::tuple<float,float,float,float> HGCHitTuple;
 
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> const& simHits,
+			  int idet, MonitorElement *hist,
+			  std::map<unsigned int, HGCHitTuple>&);
+  template<class T1>
+  void analyzeHGCalRecHit(T1 const & theHits, 
+			  std::map<unsigned int, HGCHitTuple> const& hitRefs);
+
+private:
   //HGC Geometry
   std::vector<const HGCalDDDConstants*> hgcCons_;
   std::vector<const HGCalGeometry*>     hgcGeometry_;
@@ -83,6 +89,7 @@ private:
   const CaloSubdetectorGeometry*        hcGeometry_;
   std::vector<std::string>              geometrySource_;
   std::vector<int>                      ietaExcludeBH_;
+  bool                                  ifHCAL_;
 
   edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
   edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
@@ -90,7 +97,8 @@ private:
   edm::EDGetTokenT<std::vector<PCaloHit>> bhSimHitToken_;
   edm::EDGetTokenT<HGCeeRecHitCollection> eeRecHitToken_;
   edm::EDGetTokenT<HGChefRecHitCollection> fhRecHitToken_;
-  edm::EDGetTokenT<HBHERecHitCollection> bhRecHitToken_;
+  edm::EDGetTokenT<HGChebRecHitCollection> bhRecHitTokeng_;
+  edm::EDGetTokenT<HBHERecHitCollection> bhRecHitTokenh_;
 
   //histogram related stuff
   MonitorElement *heedzVsZ, *heedyVsY, *heedxVsX;
@@ -117,13 +125,18 @@ HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet &cfg) {
   bhSimHitToken_  = consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("bhSimHitSource"));
   eeRecHitToken_  = consumes<HGCeeRecHitCollection>(cfg.getParameter<edm::InputTag>("eeRecHitSource"));
   fhRecHitToken_  = consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"));
-  bhRecHitToken_  = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
   ietaExcludeBH_  = cfg.getParameter<std::vector<int> >("ietaExcludeBH");
+  ifHCAL_         = cfg.getParameter<bool>("ifHCAL");
+  if (ifHCAL_) 
+    bhRecHitTokenh_ = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
+  else
+    bhRecHitTokeng_ = consumes<HGChebRecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
 
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HGCalValid") << "Exclude the following " 
 			     << ietaExcludeBH_.size() 
-			     << " ieta values from BH plots";
+			     << " ieta values from BH plots (BH "
+			     << ifHCAL_ << ") ";
   for (unsigned int k=0; k<ietaExcludeBH_.size(); ++k) 
     edm::LogInfo("HGCalValid") << " [" << k << "] " << ietaExcludeBH_[k];
 #endif
@@ -237,44 +250,12 @@ void HGCalHitValidation::dqmBeginRun(edm::Run const& iRun,
 void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::map<unsigned int, HGCHitTuple> eeHitRefs, fhHitRefs, bhHitRefs;
 
-  //declare topology and DDD constants
-  const HGCalTopology &heeTopo=hgcGeometry_[0]->topology();
-  const HGCalTopology &hefTopo=hgcGeometry_[1]->topology();
-
   //Accesing ee simhits
   edm::Handle<std::vector<PCaloHit>> eeSimHits;
   iEvent.getByToken(eeSimHitToken_, eeSimHits);
 
   if (eeSimHits.isValid()) {
-    for (std::vector<PCaloHit>::const_iterator simHit = eeSimHits->begin(); simHit != eeSimHits->end(); ++simHit) {
-      int subdet, zside, layer, wafer, celltype, cell;
-      HGCalTestNumbering::unpackHexagonIndex(simHit->id(), subdet, zside, layer, wafer, celltype, cell);
-      std::pair<float, float> xy = hgcCons_[0]->locateCell(cell,layer,wafer,false);
-      float zp = hgcCons_[0]->waferZ(layer,false);
-      if (zside < 0) zp = -zp;
-      float xp = (zp<0) ? -xy.first/10 : xy.first/10;
-      float yp = xy.second/10.0;
-
-      //skip this hit if after ganging it is not valid
-      std::pair<int,int> recoLayerCell=hgcCons_[0]->simToReco(cell,layer,wafer,heeTopo.detectorType());
-      cell  = recoLayerCell.first;
-      layer = recoLayerCell.second;
-
-      //skip this hit if after ganging it is not valid
-      if (layer<0 || cell<0) {
-      } else {
-	
-	//assign the RECO DetId
-	HGCalDetId id = HGCalDetId((ForwardSubdetector)(subdet),zside,layer,celltype,wafer,cell);
-	float energy = simHit->energy();
-
-	float energySum(0);
-	if (eeHitRefs.count(id.rawId()) != 0) energySum = std::get<0>(eeHitRefs[id.rawId()]);
-	energySum += energy;
-	eeHitRefs[id.rawId()] = std::make_tuple(energySum,xp,yp,zp);
-	heeEnSim->Fill(energy);
-      }
-    }
+    analyzeHGCalSimHit(eeSimHits, 0, heeEnSim, eeHitRefs);
 #ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=eeHitRefs.begin();
 	 itr != eeHitRefs.end(); ++itr) {
@@ -295,34 +276,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
   edm::Handle<std::vector<PCaloHit>> fhSimHits;
   iEvent.getByToken(fhSimHitToken_, fhSimHits);
   if (fhSimHits.isValid()) {
-    for (std::vector<PCaloHit>::const_iterator simHit = fhSimHits->begin(); 
-	 simHit != fhSimHits->end();++simHit) {
-      int subdet, zside, layer, wafer, celltype, cell;
-      HGCalTestNumbering::unpackHexagonIndex(simHit->id(), subdet, zside, layer, wafer, celltype, cell);
-      std::pair<float, float> xy = hgcCons_[1]->locateCell(cell,layer,wafer,false);
-      float zp = hgcCons_[1]->waferZ(layer,false);
-      if (zside < 0) zp = -zp;
-      float xp = (zp<0) ? -xy.first/10 : xy.first/10;
-      float yp = xy.second/10.0;
-
-      //skip this hit if after ganging it is not valid
-      std::pair<int,int> recoLayerCell = hgcCons_[1]->simToReco(cell,layer,wafer,hefTopo.detectorType());
-      cell  = recoLayerCell.first;
-      layer = recoLayerCell.second;
-      //skip this hit if after ganging it is not valid
-      if(layer<0 || cell<0) {
-      } else {
-	//assign the RECO DetId
-	HGCalDetId id = HGCalDetId((ForwardSubdetector)(subdet),zside,layer,celltype,wafer,cell);
-
-	float energy = simHit->energy();
-	float energySum(0);
-	if (fhHitRefs.count(id.rawId()) != 0) energySum = std::get<0>(fhHitRefs[id.rawId()]);
-	energySum += energy;
-	fhHitRefs[id.rawId()] = std::make_tuple(energySum,xp,yp,zp);
-	hefEnSim->Fill(energy);
-      }
-    }
+    analyzeHGCalSimHit(fhSimHits, 1, hefEnSim, fhHitRefs);
 #ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=fhHitRefs.begin();
 	 itr != fhHitRefs.end(); ++itr) {
@@ -347,20 +301,19 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 	 simHit != bhSimHits->end(); ++simHit) {
       int subdet, z, depth, eta, phi, lay;
       HcalTestNumbering::unpackHcalIndex(simHit->id(), subdet, z, depth, eta, phi, lay);
-      HcalCellType::HcalCell cell = hcCons_->cell(subdet, z, lay, eta, phi);
-
-      double zp  = cell.rz/10; 
 
       if (subdet == static_cast<int>(HcalEndcap)) {
+	HcalCellType::HcalCell cell = hcCons_->cell(subdet, z, lay, eta, phi);
+	double zp  = cell.rz/10; 
+
 	HcalDDDRecConstants::HcalID idx = hcConr_->getHCID(subdet,eta,phi,lay,depth);
 	int sign = (z==0)?(-1):(1);
 	zp      *= sign;
 	HcalDetId id = HcalDetId(HcalEndcap,sign*idx.eta,idx.phi,idx.depth);  
 
 	float energy = simHit->energy();
-	float energySum(0);
-	if (bhHitRefs.count(id.rawId()) != 0) energySum = std::get<0>(bhHitRefs[id.rawId()]);
-	energySum += energy;
+	float energySum(energy);
+	if (bhHitRefs.count(id.rawId()) != 0) energySum += std::get<0>(bhHitRefs[id.rawId()]);
 	hebEnSim->Fill(energy);
 	if (std::find(ietaExcludeBH_.begin(),ietaExcludeBH_.end(),idx.eta) ==
 	    ietaExcludeBH_.end()) {
@@ -460,50 +413,99 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 
 
   //accessing BH Rechit information
-  edm::Handle<HBHERecHitCollection> bhRecHit;
-  iEvent.getByToken(bhRecHitToken_, bhRecHit);
-  if (bhRecHit.isValid()) {
-    const HBHERecHitCollection* theHits = (bhRecHit.product());
-    
-    for (auto it = theHits->begin(); it!=theHits->end(); ++it) {
-      DetId id = it->id();
-      if (id.subdetId() == (int)(HcalEndcap)) {
-	double energy = it->energy();
-	hebEnRec->Fill(energy);
-	GlobalPoint xyz = hcGeometry_->getGeometry(id)->getPosition();
-
-	std::map<unsigned int, HGCHitTuple>::const_iterator itr = bhHitRefs.find(id.rawId());
-	if (itr != bhHitRefs.end()) {
-	  float ang3 = xyz.phi().value(); // returns the phi in radians
-	  double fac = sinh(std::get<1>(itr->second));
-	  double pT  = std::get<3>(itr->second) / fac;
-	  double xp = pT * cos(std::get<2>(itr->second));
-	  double yp = pT * sin(std::get<2>(itr->second));
-	  hebRecVsSimX->Fill(xp,xyz.x());
-	  hebRecVsSimY->Fill(yp,xyz.y());
-	  hebRecVsSimZ->Fill(std::get<3>(itr->second),xyz.z());
-	  hebdEtaVsEta->Fill(std::get<1>(itr->second),(xyz.eta()-std::get<1>(itr->second)));
-	  hebdPhiVsPhi->Fill(std::get<2>(itr->second),(ang3-std::get<2>(itr->second)));
-	  hebdzVsZ->Fill(std::get<3>(itr->second),(xyz.z()-std::get<3>(itr->second)));
-	  hebEnSimRec->Fill(std::get<0>(itr->second),energy);
-
-#ifdef EDM_ML_DEBUG
-	  edm::LogInfo("HGCalValid") << "BHHit: " << std::hex << id.rawId()
-				     << std::dec << " Sim (" 
-				     << std::get<0>(itr->second) << ", "
-				     << std::get<1>(itr->second) << ", " 
-				     << std::get<2>(itr->second) << ", " 
-				     << std::get<3>(itr->second) << ") Rec ("
-				     << energy << ", "  << xyz.x() << ", " 
-				     << xyz.y() << ", " << xyz.z() << ")\n";
-#endif
-	}
-      }
+  if (ifHCAL_) {
+    edm::Handle<HBHERecHitCollection> bhRecHit;
+    iEvent.getByToken(bhRecHitTokenh_, bhRecHit);
+    if (bhRecHit.isValid()) {
+      const HBHERecHitCollection* theHits = (bhRecHit.product());
+      analyzeHGCalRecHit(theHits, bhHitRefs);
+    } else {
+      edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
     }
   } else {
-    edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+    edm::Handle<HGChebRecHitCollection> bhRecHit;
+    iEvent.getByToken(bhRecHitTokeng_, bhRecHit);
+    if (bhRecHit.isValid()) {
+      const HGChebRecHitCollection* theHits = (bhRecHit.product());
+      analyzeHGCalRecHit(theHits, bhHitRefs);
+    } else {
+      edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+    }
   }
-  
+}
+
+void HGCalHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> const& simHits,
+					    int idet, MonitorElement *hist,
+					    std::map<unsigned int, HGCHitTuple>& hitRefs) {
+
+  const HGCalTopology &hTopo=hgcGeometry_[idet]->topology();
+  for (std::vector<PCaloHit>::const_iterator simHit = simHits->begin(); simHit != simHits->end(); ++simHit) {
+    int subdet, zside, layer, wafer, celltype, cell;
+    HGCalTestNumbering::unpackHexagonIndex(simHit->id(), subdet, zside, layer, wafer, celltype, cell);
+    std::pair<float, float> xy = hgcCons_[idet]->locateCell(cell,layer,wafer,false);
+    float zp = hgcCons_[idet]->waferZ(layer,false);
+    if (zside < 0) zp = -zp;
+    float xp = (zp<0) ? -xy.first/10 : xy.first/10;
+    float yp = xy.second/10.0;
+
+    //skip this hit if after ganging it is not valid
+    std::pair<int,int> recoLayerCell=hgcCons_[idet]->simToReco(cell,layer,wafer,hTopo.detectorType());
+    cell  = recoLayerCell.first;
+    layer = recoLayerCell.second;
+
+    //skip this hit if after ganging it is not valid
+    if (layer<0 || cell<0) {
+    } else {
+      //assign the RECO DetId
+      HGCalDetId id = HGCalDetId((ForwardSubdetector)(subdet),zside,layer,celltype,wafer,cell);
+      float energy = simHit->energy();
+
+      float energySum(energy);
+      if (hitRefs.count(id.rawId()) != 0) energySum += std::get<0>(hitRefs[id.rawId()]);
+      hitRefs[id.rawId()] = std::make_tuple(energySum,xp,yp,zp);
+      hist->Fill(energy);
+    }
+  }
+}
+
+template<class T1>
+void HGCalHitValidation::analyzeHGCalRecHit(T1 const & theHits, 
+					    std::map<unsigned int, HGCHitTuple> const& hitRefs) {
+  for (auto it = theHits->begin(); it!=theHits->end(); ++it) {
+    DetId id = it->id();
+    if (id.subdetId() == (int)(HcalEndcap)) {
+      double energy = it->energy();
+      hebEnRec->Fill(energy);
+      GlobalPoint xyz = hcGeometry_->getGeometry(id)->getPosition();
+
+      std::map<unsigned int, HGCHitTuple>::const_iterator itr = hitRefs.find(id.rawId());
+      if (itr != hitRefs.end()) {
+	float ang3 = xyz.phi().value(); // returns the phi in radians
+	double fac = sinh(std::get<1>(itr->second));
+	double pT  = std::get<3>(itr->second) / fac;
+	double xp = pT * cos(std::get<2>(itr->second));
+	double yp = pT * sin(std::get<2>(itr->second));
+	hebRecVsSimX->Fill(xp,xyz.x());
+	hebRecVsSimY->Fill(yp,xyz.y());
+	hebRecVsSimZ->Fill(std::get<3>(itr->second),xyz.z());
+	hebdEtaVsEta->Fill(std::get<1>(itr->second),(xyz.eta()-std::get<1>(itr->second)));
+	hebdPhiVsPhi->Fill(std::get<2>(itr->second),(ang3-std::get<2>(itr->second)));
+	hebdzVsZ->Fill(std::get<3>(itr->second),(xyz.z()-std::get<3>(itr->second)));
+	hebEnSimRec->Fill(std::get<0>(itr->second),energy);
+
+#ifdef EDM_ML_DEBUG
+	edm::LogInfo("HGCalValid") << "BHHit: " << std::hex << id.rawId()
+				   << std::dec << " Sim (" 
+				   << std::get<0>(itr->second) << ", "
+				   << std::get<1>(itr->second) << ", " 
+				   << std::get<2>(itr->second) << ", " 
+				   << std::get<3>(itr->second) << ") Rec ("
+				   << energy << ", "  << xyz.x() << ", " 
+				   << xyz.y() << ", " << xyz.z() << ")\n";
+#endif
+      }
+    }
+  }
 }
 
 //define this as a plug-in

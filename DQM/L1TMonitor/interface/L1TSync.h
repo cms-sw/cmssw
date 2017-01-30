@@ -90,12 +90,12 @@ class L1TSync : public DQMEDAnalyzer {
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
     virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 
   // Private Methods

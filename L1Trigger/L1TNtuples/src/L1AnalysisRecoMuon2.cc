@@ -7,7 +7,9 @@
 using namespace std;
 using namespace muon;
 
-L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2()
+L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2(const edm::ParameterSet& pset) :
+  muPropagator1st_(pset.getParameter<edm::ParameterSet>("muProp1st")),
+  muPropagator2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd"))
 {
 }
 
@@ -29,8 +31,6 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
   for(reco::MuonCollection::const_iterator it=muons->begin();
       it!=muons->end() && recoMuon_.nMuons < maxMuon;
       ++it) {
-
-
 
     recoMuon_.e.push_back(it->energy());    
     recoMuon_.pt.push_back(it->pt());    
@@ -77,7 +77,29 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
 
     recoMuon_.nMuons++;
 
+    // extrapolation of track coordinates
+    TrajectoryStateOnSurface stateAtMuSt1 = muPropagator1st_.extrapolate(*it);
+    if (stateAtMuSt1.isValid()) {
+      recoMuon_.etaSt1.push_back(stateAtMuSt1.globalPosition().eta());
+      recoMuon_.phiSt1.push_back(stateAtMuSt1.globalPosition().phi());
+    } else {
+      recoMuon_.etaSt1.push_back(-9999);
+      recoMuon_.phiSt1.push_back(-9999);
+    }
+
+    TrajectoryStateOnSurface stateAtMuSt2 = muPropagator2nd_.extrapolate(*it);
+    if (stateAtMuSt2.isValid()) {
+      recoMuon_.etaSt2.push_back(stateAtMuSt2.globalPosition().eta());
+      recoMuon_.phiSt2.push_back(stateAtMuSt2.globalPosition().phi());
+    } else {
+      recoMuon_.etaSt2.push_back(-9999);
+      recoMuon_.phiSt2.push_back(-9999);
+    }
   }
 }
 
-
+void L1Analysis::L1AnalysisRecoMuon2::init(const edm::EventSetup &eventSetup)
+{
+  muPropagator1st_.init(eventSetup);
+  muPropagator2nd_.init(eventSetup);
+}

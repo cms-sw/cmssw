@@ -28,7 +28,7 @@ FEConfigWeightDat::~FEConfigWeightDat()
 
 
 void FEConfigWeightDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void FEConfigWeightDat::prepareWrite()
 
 
 void FEConfigWeightDat::writeDB(const EcalLogicID* ecid, const FEConfigWeightDat* item, FEConfigWeightInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void FEConfigWeightDat::writeDB(const EcalLogicID* ecid, const FEConfigWeightDat
 
 
 void FEConfigWeightDat::fetchData(map< EcalLogicID, FEConfigWeightDat >* fillMap, FEConfigWeightInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -113,7 +113,7 @@ void FEConfigWeightDat::fetchData(map< EcalLogicID, FEConfigWeightDat >* fillMap
 }
 
 void FEConfigWeightDat::writeArrayDB(const std::map< EcalLogicID, FEConfigWeightDat >* data, FEConfigWeightInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

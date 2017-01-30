@@ -62,7 +62,7 @@ class GlobalRecHitsHistogrammer : public DQMEDAnalyzer
 
   explicit GlobalRecHitsHistogrammer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsHistogrammer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
 

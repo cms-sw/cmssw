@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
-                                           subDirs = cms.untracked.vstring("Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
-                                                                           "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*"),
+                                           subDirs = cms.untracked.vstring(
+        "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitEffFromHitPattern*",
+                                           ),
                                            efficiency = cms.vstring(
         "effic_vs_PU_PXB1 'PXB Layer1 Efficiency vs GoodNumVertices' Hits_valid_PXB_Subdet1 Hits_total_PXB_Subdet1",
         "effic_vs_PU_PXB2 'PXB Layer2 Efficiency vs GoodNumVertices' Hits_valid_PXB_Subdet2 Hits_total_PXB_Subdet2",
@@ -90,4 +92,24 @@ trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
                                            verbose = cms.untracked.uint32(5),
                                            outputFileName = cms.untracked.string(""),
                                            )
+def __extendEfficiencyForPixels(dets):
+    """Inject the efficiency computation for the additional layers in the
+    PhaseI detectors wrt Run2. The input list is cloned and modified
+    rather than updated in place. The substitution add another layer
+    by replacing flat '3' -> '4' for the barrel case and '2' -> '3'
+    for the forward case.
+    """
+    from re import match
+    ret = []
+    for d in dets:
+        ret.append(d)
+        if match('.*PXB3.*', d):
+            ret.append(d.replace('3', '4'))
+        elif match('.*PXF2.*', d):
+            ret.append(d.replace('2', '3'))
+    return ret
 
+
+# Use additional pixel layers in PhaseI geometry.
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(trackingEffFromHitPattern, efficiency = __extendEfficiencyForPixels(trackingEffFromHitPattern.efficiency))

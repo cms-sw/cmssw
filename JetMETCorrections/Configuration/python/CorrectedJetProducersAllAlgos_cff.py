@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff import *
-from JetMETCorrections.Configuration.JetCorrectionProducers_cff import *
+from JetMETCorrections.Configuration.CorrectedJetProducers_cff import *
 
 # L1 Correction Producers
 ak7CaloJetsL1 = ak4CaloJetsL1.clone( src = 'ak7CaloJets' )

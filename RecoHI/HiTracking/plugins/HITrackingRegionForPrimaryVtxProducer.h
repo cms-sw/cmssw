@@ -56,6 +56,34 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
   }   
   
   virtual ~HITrackingRegionForPrimaryVtxProducer(){}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<double>("ptMin", 0.7);
+    desc.add<bool>("doVariablePtMin", true);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("nSigmaZ", 3.0);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+    desc.add<bool>("precise", true);
+    desc.add<bool>("useMultipleScattering", false);
+    desc.add<bool>("useFakeVertices", false);
+    desc.add<edm::InputTag>("siPixelRecHits", edm::InputTag("siPixelRecHits"));
+    desc.add<double>("directionXCoord", 1.0);
+    desc.add<double>("directionYCoord", 1.0);
+    desc.add<double>("directionZCoord", 0.0);
+    desc.add<bool>("useFoundVertices", true);
+    desc.add<edm::InputTag>("VertexCollection", edm::InputTag("hiPixelClusterVertex"));
+    desc.add<bool>("useFixedError", true);
+    desc.add<double>("fixedError", 3.0);
+    desc.add<double>("sigmaZVertex", 3.0);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("hiTrackingRegionFromClusterVtx", descRegion);
+  }
   
   int estimateMultiplicity
     (const edm::Event& ev, const edm::EventSetup& es) const
