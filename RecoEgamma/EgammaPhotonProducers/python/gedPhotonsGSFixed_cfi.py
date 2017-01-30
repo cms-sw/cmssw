@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 
-gsFixedGEDPhotons = cms.EDProducer('GEDPhotonGSCrysFixer',
+gedPhotonsGSFixed = cms.EDProducer('GEDPhotonGSCrysFixer',
     photons = cms.InputTag('gedPhotons', '', cms.InputTag.skipCurrentProcess()),
-    newCores = cms.InputTag('gsFixedGEDPhotonCores'),
+    newCores = cms.InputTag('gedPhotonCoreGSFixed'),
     barrelEcalHits=cms.InputTag("ecalMultiAndGSGlobalRecHitEB"),
     primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
     # rest for regression
