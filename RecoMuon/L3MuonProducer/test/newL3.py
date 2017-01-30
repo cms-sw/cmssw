@@ -205,7 +205,7 @@ def addL3ToHLT(process):
 	#OI Seeding:
 	process.hltIterL3OISeedsFromL2Muons = cms.EDProducer("TSGForOI",
 	        MeasurementTrackerEvent = cms.InputTag("hltSiStripClusters"),
-	        UseHitlessAndHitSeeds = cms.bool(True),
+	        UseHitSeeds = cms.bool(True),
 	        adjustErrorsDynamicallyForHitless = cms.bool(True),
 	        adjustErrorsDynamicallyForHits = cms.bool(True),
 	        debug = cms.untracked.bool(False),
