@@ -14,7 +14,7 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 /// constructor with config
-HLTMuonL2SelectorForL3IO::HLTMuonL2SelectorForL3IO(const edm::ParameterSet& iConfig):
+HLTMuonL2SelectorForL3IO::HLTMuonL2SelectorForL3IO(const edm::ParameterSet& iConfig):  
   l2Src_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("l2Src"))),
   l3OISrc_(consumes<reco::RecoChargedCandidateCollection>(iConfig.getParameter<edm::InputTag>("l3OISrc"))),
   l3linkToken_(consumes<reco::MuonTrackLinksCollection>(iConfig.getParameter<edm::InputTag>("InputLinks"))),
@@ -22,9 +22,10 @@ HLTMuonL2SelectorForL3IO::HLTMuonL2SelectorForL3IO(const edm::ParameterSet& iCon
   max_NormalizedChi2_ (iConfig.getParameter<double> ("MaxNormalizedChi2")),
   max_PtDifference_ (iConfig.getParameter<double> ("MaxPtDifference")),
   min_Nhits_ (iConfig.getParameter<int> ("MinNhits")),
-  min_NmuonHits_ (iConfig.getParameter<int> ("MinNmuonHits")) {
-  LogTrace("Muon|RecoMuon|HLTMuonL2SelectorForL3IO")<<"constructor called";
-  produces<reco::TrackCollection>();
+  min_NmuonHits_ (iConfig.getParameter<int> ("MinNmuonHits"))  
+{
+   LogTrace("Muon|RecoMuon|HLTMuonL2SelectorForL3IO")<<"constructor called";
+   produces<reco::TrackCollection>();
 }
 
 /// destructor
@@ -55,10 +56,11 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
     for (unsigned int il3=0; il3 != l3muonH->size(); ++il3){
       reco::RecoChargedCandidateRef cand(l3muonH,il3);
       
-      for(unsigned int l(0); l <links->size(); ++l){
+      for (unsigned int l(0); l <links->size(); ++l){
 	const reco::MuonTrackLinks* link = &links->at(l);
 	reco::TrackRef tk = cand->track();
-
+	
+	// Check if the L3 link matches the L3 candidate
 	bool useThisLink=false;	
 	const reco::Track& globalTrack = *link->globalTrack();
 	float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
@@ -69,10 +71,11 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
 	
 	if (!useThisLink) continue;
 	
+	// Check whether the stand-alone track matches a L2, if not, we will re-use this L2
 	const reco::TrackRef staTrack = link->standAloneTrack();	
 	if (l2muRef==staTrack) re_do_this_L2=false; 
       
-	// TEST THE QUALITY if L2 found
+	// Check the quality of the reconstructed L3, if poor quality, we will re-use this L2
 	if (staTrack==l2muRef && applyL3Filters_) {
 	  re_do_this_L2 = true;
 	  const reco::Track& globalTrack = *link->globalTrack();
