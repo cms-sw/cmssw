@@ -14,30 +14,37 @@ def muonRecoMitigation(process,
     sequence=cms.Sequence()    
 
     if selection=="":
+        typeFix=""
+
         if runOnMiniAOD:
-            from RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff import badGlobalMuonTagger, cloneGlobalMuonTagger
+            from RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff import badGlobalMuonTaggerMAOD, cloneGlobalMuonTaggerMAOD
+            typeFix="MAOD"
+            badMuModule=badGlobalMuonTaggerMAOD
+            cloneMuModule=cloneGlobalMuonTaggerMAOD
         else:
             from RecoMET.METFilters.badGlobalMuonTaggersAOD_cff import badGlobalMuonTagger, cloneGlobalMuonTagger
+            badMuModule=badGlobalMuonTagger
+            cloneMuModule=cloneGlobalMuonTagger
 
         vtags=cms.VInputTag()
         if cleaningScheme in ["bad","all","computeAllApplyBad","computeAllApplyClone"]:
-            setattr(process, 'badGlobalMuonTagger'+postfix, badGlobalMuonTagger.clone() )
-            sequence +=getattr(process,"badGlobalMuonTagger")
+            setattr(process, 'badGlobalMuonTagger'+typeFix+postfix, badMuModule.clone() )
+            sequence +=getattr(process,"badGlobalMuonTagger"+typeFix+postfix)
             if cleaningScheme in ["bad","computeAllApplyBad"]:
-                badMuonCollection = 'badGlobalMuonTagger'+postfix+':bad'
+                badMuonCollection = 'badGlobalMuonTagger'+typeFix+postfix+':bad'
         if cleaningScheme in ["clone","duplicated","all","computeAllApplyBad","computeAllApplyClone"]:
-            setattr(process, 'cloneGlobalMuonTagger'+postfix, cloneGlobalMuonTagger.clone() )
-            sequence +=getattr(process,"cloneGlobalMuonTagger")
+            setattr(process, 'cloneGlobalMuonTagger'+typeFix+postfix, cloneMuModule.clone() )
+            sequence +=getattr(process,"cloneGlobalMuonTagger"+typeFix+postfix)
             if cleaningScheme in ["clone","duplicated","computeAllApplyClone"]:
-                badMuonCollection = 'cloneGlobalMuonTagger'+postfix+':bad'
+                badMuonCollection = 'cloneGlobalMuonTagger'+typeFix+postfix+':bad'
         
         if cleaningScheme=="all":
             badMuonCollection="badMuons"+postfix
             badMuonProducer = cms.EDProducer(
                 "CandViewMerger",
                 src = cms.VInputTag(
-                    cms.InputTag('badGlobalMuonTagger'+postfix,'bad'),
-                    cms.InputTag('cloneGlobalMuonTagger'+postfix,'bad'),
+                    cms.InputTag('badGlobalMuonTagger'+typeFix+postfix,'bad'),
+                    cms.InputTag('cloneGlobalMuonTagger'+typeFix+postfix,'bad'),
                     )
                 )
             setattr(process,badMuonCollection,badMuonProducer)
