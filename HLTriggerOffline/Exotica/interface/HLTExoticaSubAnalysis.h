@@ -76,6 +76,7 @@ public:
     ~HLTExoticaSubAnalysis();
     void beginJob();
     void beginRun(const edm::Run & iRun, const edm::EventSetup & iEventSetup);
+    void endRun();
 
     /// Method to book all relevant histograms in the DQMStore.
     /// Uses the IBooker interface for thread safety.
@@ -150,6 +151,10 @@ private:
     std::vector<double> _parametersTurnOnSumEt;
     std::vector<double> _parametersDxy;
 
+    // flag to switch off
+    bool _drop_pt2;
+    bool _drop_pt3;
+
     /// gen/rec objects cuts
     std::map<unsigned int, std::string> _genCut;
     std::map<unsigned int, std::string> _recCut;
@@ -169,6 +174,7 @@ private:
     StringCutObjectSelector<reco::PFMET>       * _recPFMHTSelector;
     StringCutObjectSelector<reco::GenMET>      * _genMETSelector;
     StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+    StringCutObjectSelector<reco::CaloMET>     * _recCaloMHTSelector;
     StringCutObjectSelector<l1extra::L1EtMissParticle> * _l1METSelector;
     StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
     StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
@@ -177,6 +183,9 @@ private:
 
     /// The plotters: managers of each hlt path where the plots are done
     std::vector<HLTExoticaPlotter> _plotters;
+
+    /// counting HLT passed events  
+    std::map<std::string,int> _triggerCounter;
 
     /// Interface to the HLT information
     HLTConfigProvider _hltConfig;
