@@ -54,6 +54,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   dynamicPedestalsEE_ = ps.getParameter<bool>("dynamicPedestalsEE");
   mitigateBadSamplesEB_ = ps.getParameter<bool>("mitigateBadSamplesEB");
   mitigateBadSamplesEE_ = ps.getParameter<bool>("mitigateBadSamplesEE");
+  gainSwitchUseMaxSampleEB_ = ps.getParameter<bool>("gainSwitchUseMaxSampleEB");
+  gainSwitchUseMaxSampleEE_ = ps.getParameter<bool>("gainSwitchUseMaxSampleEE");
   selectiveBadSampleCriteriaEB_ = ps.getParameter<bool>("selectiveBadSampleCriteriaEB");
   selectiveBadSampleCriteriaEE_ = ps.getParameter<bool>("selectiveBadSampleCriteriaEE");
   addPedestalUncertaintyEB_ = ps.getParameter<double>("addPedestalUncertaintyEB");
@@ -281,6 +283,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
 		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEE_);
                 multiFitMethod_.setDynamicPedestals(dynamicPedestalsEE_);
                 multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEE_);
+                multiFitMethod_.setGainSwitchUseMaxSample(gainSwitchUseMaxSampleEE_);
                 multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEE_);
                 multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEE_);
 		offsetTime = offtime->getEEValue();
@@ -293,11 +296,12 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 aPulseCov = &pulsecovariances->barrel(hashedIndex);
                 multiFitMethod_.setDoPrefit(doPrefitEB_);
 		multiFitMethod_.setPrefitMaxChiSq(prefitMaxChiSqEB_);
-		offsetTime = offtime->getEBValue();
                 multiFitMethod_.setDynamicPedestals(dynamicPedestalsEB_);
                 multiFitMethod_.setMitigateBadSamples(mitigateBadSamplesEB_);
+                multiFitMethod_.setGainSwitchUseMaxSample(gainSwitchUseMaxSampleEB_);
                 multiFitMethod_.setSelectiveBadSampleCriteria(selectiveBadSampleCriteriaEB_);
                 multiFitMethod_.setAddPedestalUncertainty(addPedestalUncertaintyEB_);        
+		offsetTime = offtime->getEBValue();
         }
 
         double pedVec[3] = { aped->mean_x12, aped->mean_x6, aped->mean_x1 };
@@ -598,6 +602,8 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<bool>("dynamicPedestalsEE", false, true) and
 	      edm::ParameterDescription<bool>("mitigateBadSamplesEB", false, true) and
 	      edm::ParameterDescription<bool>("mitigateBadSamplesEE", false, true) and
+	      edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEB", false, true) and
+	      edm::ParameterDescription<bool>("gainSwitchUseMaxSampleEE", false, true) and
 	      edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEB", false, true) and
 	      edm::ParameterDescription<bool>("selectiveBadSampleCriteriaEE", false, true) and
 	      edm::ParameterDescription<double>("addPedestalUncertaintyEB", 0., true) and

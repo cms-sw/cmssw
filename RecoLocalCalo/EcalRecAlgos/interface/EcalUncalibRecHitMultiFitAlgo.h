@@ -34,6 +34,7 @@ class EcalUncalibRecHitMultiFitAlgo
   void setSelectiveBadSampleCriteria(bool b) { _selectiveBadSampleCriteria = b; }
   void setAddPedestalUncertainty(double x) { _addPedestalUncertainty = x; }
   void setSimplifiedNoiseModelForGainSwitch(bool b) { _simplifiedNoiseModelForGainSwitch = b; }
+  void setGainSwitchUseMaxSample(bool b) { _gainSwitchUseMaxSample = b; }
   
  private:
    PulseChiSqSNNLS _pulsefunc;
@@ -46,6 +47,7 @@ class EcalUncalibRecHitMultiFitAlgo
    bool _selectiveBadSampleCriteria;
    double _addPedestalUncertainty;
    bool _simplifiedNoiseModelForGainSwitch;
+   bool _gainSwitchUseMaxSample;
    BXVector _singlebx;
 
 };
