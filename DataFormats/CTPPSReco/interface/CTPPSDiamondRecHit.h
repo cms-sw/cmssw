@@ -64,7 +64,7 @@ class CTPPSDiamondRecHit
 
 inline bool operator<( const CTPPSDiamondRecHit& l, const CTPPSDiamondRecHit& r )
 {
-  //FIXME only sort by leading edge time?
+  // only sort by leading edge time
   return ( l.getT() < r.getT() );
 }
 

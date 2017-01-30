@@ -64,7 +64,7 @@
 
     <!-- Diamond Detector Box -->
     <Constant name="PCB_dx" value="135*mm"/>
-    <Constant name="PCB_dy" value="100*mm"/> <!--FIXME-->
+    <Constant name="PCB_dy" value="100*mm"/> <!-- arbitrary (as for now) -->
     <Constant name="PCB_thick" value="1.20*mm"/>
     <Constant name="PCB_extend_dx" value="3*mm"/>
     <Constant name="PCB_extend_dy1" value="15*mm"/>

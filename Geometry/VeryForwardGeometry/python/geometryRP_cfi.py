@@ -116,14 +116,6 @@ XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
     rootNodeName = cms.string('cms:CMSE')
 )
 
-###FIXME remove me
-XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
-#    geomXMLFiles = totemGeomXMLFiles,
-    geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles,
-    rootNodeName = cms.string('cms:CMSE')
-)
-####FIXME
-
 # position of RPs
 XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
 
