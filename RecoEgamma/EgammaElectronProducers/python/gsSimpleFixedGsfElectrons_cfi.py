@@ -4,5 +4,5 @@ import FWCore.ParameterSet.Config as cms
 gsSimpleFixedGsfElectrons = cms.EDProducer("GsfEleGSCrysSimpleFixer",
                                            oldEles = cms.InputTag("gedGsfElectrons"),
                                            ebMultiRecHits = cms.InputTag("reducedEcalRecHitsEB"),
-                                           ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightRecHitEB"),
+                                           ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSGlobalRecHitEB"),
 )

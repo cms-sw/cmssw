@@ -10,7 +10,7 @@ import RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff
 particleFlowRecHitECALGSFixed=RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff.particleFlowRecHitECAL.clone()
 particleFlowRecHitPSGSFixed=RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff.particleFlowRecHitPS.clone()
 
-particleFlowRecHitECALGSFixed.producers[0].src=cms.InputTag("ecalMultiAndGSWeightRecHitEB")
+particleFlowRecHitECALGSFixed.producers[0].src=cms.InputTag("ecalMultiAndGSGlobalRecHitEB")
 particleFlowRecHitECALGSFixed.producers[1].src=cms.InputTag("reducedEcalRecHitsEE")
 particleFlowRecHitPSGSFixed.producers[0].src=cms.InputTag("reducedEcalRecHitsES")
 
@@ -22,14 +22,14 @@ particleFlowClusterECALUncorrectedGSFixed = RecoParticleFlow.PFClusterProducer.p
 particleFlowClusterECALUncorrectedGSFixed.recHitsSource = cms.InputTag("particleFlowRecHitECALGSFixed")
 
 particleFlowClusterECALGSFixed = RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff.particleFlowClusterECAL.clone()
-particleFlowClusterECALGSFixed.energyCorrector.recHitsEBLabel=cms.InputTag("ecalMultiAndGSWeightRecHitEB")
+particleFlowClusterECALGSFixed.energyCorrector.recHitsEBLabel=cms.InputTag("ecalMultiAndGSGlobalRecHitEB")
 particleFlowClusterECALGSFixed.energyCorrector.recHitsEELabel=cms.InputTag("reducedEcalRecHitsEE")
 particleFlowClusterECALGSFixed.inputECAL = cms.InputTag("particleFlowClusterECALUncorrectedGSFixed")
 particleFlowClusterECALGSFixed.inputPS = cms.InputTag("particleFlowClusterPSGSFixed")
 
 import RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff
 particleFlowSuperClusterECALGSFixed=RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff.particleFlowSuperClusterECAL.clone()
-particleFlowSuperClusterECALGSFixed.regressionConfig.ecalRecHitsEB=cms.InputTag("ecalMultiAndGSWeightRecHitEB")
+particleFlowSuperClusterECALGSFixed.regressionConfig.ecalRecHitsEB=cms.InputTag("ecalMultiAndGSGlobalRecHitEB")
 particleFlowSuperClusterECALGSFixed.regressionConfig.ecalRecHitsEE=cms.InputTag("reducedEcalRecHitsEE")
 particleFlowSuperClusterECALGSFixed.PFClusters = cms.InputTag("particleFlowClusterECALGSFixed")
 particleFlowSuperClusterECALGSFixed.ESAssociation = cms.InputTag("particleFlowClusterECALGSFixed")

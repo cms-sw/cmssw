@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalMultiAndGSWeightRecHitEB = cms.EDProducer("CombinedRecHitCollectionProducer",
+ecalMultiAndGSGlobalRecHitEB = cms.EDProducer("CombinedRecHitCollectionProducer",
                                               primaryRecHits=cms.InputTag("reducedEcalRecHitsEB",processName=cms.InputTag.skipCurrentProcess()),
-                                              secondaryRecHits=cms.InputTag("ecalWeightRecHitSelectedDigis","EcalRecHitsEB"),
+                                              secondaryRecHits=cms.InputTag("ecalGlobalRecHitSelectedDigis","EcalRecHitsEB"),
                                               outputCollectionName=cms.string(""),
                                               outputReplacedHitsCollName =cms.string("gsMultiFit"),
-                                              outputReplacingHitsCollName =cms.string("gsWeight"),
-                                              
+                                              outputReplacingHitsCollName =cms.string("gsGlobal"),                                              
                                               flagsToReplaceHit=cms.vstring("kHasSwitchToGain6","kHasSwitchToGain1")
                                               )

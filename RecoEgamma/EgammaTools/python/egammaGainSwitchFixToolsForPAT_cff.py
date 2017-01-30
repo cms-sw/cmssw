@@ -127,7 +127,7 @@ def customizeGSFixForPAT(process):
         cms.InputTag("PhotonCutBasedIDLooseEMGSFixed"),    
         cms.InputTag("PhotonCutBasedIDTightGSFixed")
         )
-    process.reducedEgamma.barrelEcalHits = cms.InputTag("ecalMultiAndGSWeightRecHitEB")
+    process.reducedEgamma.barrelEcalHits = cms.InputTag("ecalMultiAndGSGlobalRecHitEB")
     process.reducedEgamma.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
     process.reducedEgamma.preshowerEcalHits = cms.InputTag("reducedEcalRecHitsES")
 
