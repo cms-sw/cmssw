@@ -43,7 +43,7 @@ bool RPCRecHitStandardAlgo::compute(const RPCRoll& roll,
     if ( roll.id().region() != 0 ) {
       const auto& topo = dynamic_cast<const TrapezoidalStripTopology&>(roll.topology());
       const double angle = topo.stripAngle((cluster.firstStrip()+cluster.lastStrip())/2.);
-      const double x = centreOfCluster + y*std::tan(angle);
+      const double x = centreOfCluster - y*std::tan(angle);
       Point = LocalPoint(x, y, 0);
 
       // rescale x-error by the change of local pitch
