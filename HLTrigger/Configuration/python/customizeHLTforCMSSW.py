@@ -389,6 +389,7 @@ def customiseFor17170(process):
                     seq.insert(index, tripletProducer)
                 seq.insert(index, doubletProducer)
                 seq.insert(index, regionProducer)
+    return process
 
 # customize for removing Trajectory from the event
 def customiseFor17098(process):
