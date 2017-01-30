@@ -3,7 +3,7 @@
 #
 import FWCore.ParameterSet.Config as cms
 
-#from Validation.RecoMuon.selectors_cff import *
+from Validation.RecoMuon.selectors_cff import *
 from Validation.RecoMuon.NewAssociators_cff import *
 from Validation.RecoMuon.histoParameters_cff import *
 import Validation.RecoMuon.NewMuonTrackValidator_cfi
