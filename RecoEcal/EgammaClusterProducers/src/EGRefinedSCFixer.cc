@@ -19,13 +19,11 @@
 #include <unordered_set>
 #include <iostream>
 
-//work in progress (emergancy fix!)
-//issue: we need to re-make the refined superclusters
-//we only really need to do this for barrel super with a gain switch
-//but usual to remake without gain switch for debugging
-//however it is barrel only
-//everything else is copied or relinked to produce the same set of outputs
-//as particleFlowEGamma
+
+//issue: we need to re-make the refined superclusters in the AOD
+//problem: to do this properly, we need the outer position of the track, not stored in AOD
+//         so we cant re-run PFEGammaProducer which would normally do this
+//solution: we fudge it in the following way
 
 //how it works:
 //  a refined supercluster will have subclusters added or removed w.r.t to its parent SC
@@ -35,6 +33,11 @@
 //  we id clusters via seed crystal, this shouldnt change for any cluster without a gain switch, 
 //  its still a local maximum
 //  
+//  it is important to know that for the digis to be saved in miniAOD, it must be within the 3x3
+//  of a hybrid (or multi 5x5 in endcap) supercluster seed crystal. The hybrid supercluster seed
+//  crystals should map well to the PF supercluster seed crystal, particularly for isolated high 
+//  energy e/gamma objects
+//
 //  for matching the new fixed superclusters vs old superclusters, the seed crystal may gain
 //  as the gain switched crystal will now have a larger energy
 //  but it really should be in the 3x3 of the orginal SC (the gain switch crysal has to be here to be redone)
@@ -42,7 +45,6 @@
 //  but take the smallest dIR
 
 //  issues: sub cluster ordering may not be correct (its sorted by decreasing energy)
-//  issues: when it assigns a sub cluster to a refined SC, it doesnt remove it from others
 
 class EGRefinedSCFixer : public edm::stream::EDProducer<> {
 public:
@@ -145,38 +147,6 @@ namespace {
   }
 }
 
-namespace{
-  class SCPrinter {
-    const reco::SuperCluster& sc_;
-  public:
-    SCPrinter(const reco::SuperCluster& sc):sc_(sc){}
-    std::ostream& operator()(std::ostream& out)const{
-      out <<"E "<<sc_.energy()<<" raw E "<<sc_.rawEnergy()<<" eta "<<sc_.eta()<<" phi "<<sc_.phi()<<" seedId "<<sc_.seed()->seed().rawId()<<" nrclus "<<sc_.clustersSize();
-      return out;
-    }
-
-  };
-  // std::ostream& operator<<(std::ostream& out,const SCPrinter& obj){return obj(out);}
-
-}
-
-namespace{
-  class SCDeepPrinter {
-    const reco::SuperCluster& sc_;
-  public:
-    SCDeepPrinter(const reco::SuperCluster& sc):sc_(sc){}
-    std::ostream& operator()(std::ostream& out)const{
-      out <<"E "<<sc_.energy()<<" raw E "<<sc_.rawEnergy()<<" eta "<<sc_.eta()<<" phi "<<sc_.phi()<<" seedId "<<sc_.seed()->seed().rawId()<<" nrclus "<<sc_.clustersSize() <<std::endl;
-      for(auto& clus : sc_.clusters()){
-	out <<" clus E "<<clus->energy()<<" Ecorr "<<clus->correctedEnergy()<<" seed "<<clus->seed().rawId()<<" nrHits "<<clus->hitsAndFractions().size()<<std::endl;
-      }
-      return out;
-    }
-  };
-  //  std::ostream& operator<<(std::ostream& out,const SCDeepPrinter& obj){return obj(out);}
-
-} 
-
 void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   auto const& orgRefinedSCs = getHandle(iEvent, orgRefinedSCToken_);
@@ -193,6 +163,9 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   // EB clusters are fixed, EE are direct translation from the original
   auto fixedBCs = std::make_unique<reco::CaloClusterCollection>();
   // direct translation of the original ES collection - there is nothing "fixed" about this
+  // however they may be slightly different as we are reclustering from reduced rec-hit collections
+  // this will mainly effect non-photon or non-electron superclusters as those superclusters
+  // save less rec-hits surrounding them
   auto fixedESs = std::make_unique<reco::CaloClusterCollection>();
   auto fixedConvs = std::make_unique<reco::ConversionCollection>();
 
@@ -224,19 +197,12 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
       // particleFlowEGamma can create superclusters directly out of PFClusters too
       // -> there is not always a matching EB SC
       if (orgEBSC.isNonnull()) {
-	//changing the matching to be in  3x3 now (had issues with suprious matches)
         auto fixedEBSC(GainSwitchTools::matchSCBySeedCrys(*orgEBSC, fixedEBSCs, 1, 1));
-       
-        // here we may genuinely miss a mapping, if the seed position moves too much by re-reconstruction
-	// Sam: its very unlikely, if not impossible. To be replaced the gain switched crystal must be within +/-1 crystal a hybrid supercluster 
-	// seed crystal because of ecalSelectedDigis. 
-	// You could only get a shift larger than 1 if you had two supercluster seed crystals very close together and even then I'm not sure its possible. 
         if (fixedEBSC.isNonnull()) {
           mappedSCsEB[fixedEBSC.key()] = orgEBSC;
 
           auto fixedRefinedSC(makeFixedRefinedBarrelSC(orgRefinedSC, *orgEBSC, *fixedEBSC, fixedPFClusters,clusterAddedToAnyEBSC));
           fixedRefinedSCs->push_back(fixedRefinedSC);
-
 
           continue;
         }
@@ -245,10 +211,12 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     else {
       auto orgEESC(GainSwitchTools::matchSCBySeedCrys(orgRefinedSC, orgEESCs));
       if (orgEESC.isNonnull()) {
-        // there is nothing "fixed" here - two clusters are identical
+	//there is nothing "fixed" here - two clusters are in theory identical but
+	//there could be mild differences given we are clustering from the 
+	//reduced rec-hit collecitons 
+	//for example this can lead to small energy changes leading a cluster to be 
+	//now below the 4 GeV Et threshold to make a supercluster and therefore disappear	 
         auto fixedEESC(GainSwitchTools::matchSCBySeedCrys(*orgEESC, fixedEESCs));
-	
-        // fixedEESC has to be nonnull
 	if(fixedEESC.isNonnull()) mappedSCsEE[fixedEESC.key()] = orgEESC;
       }
     }
