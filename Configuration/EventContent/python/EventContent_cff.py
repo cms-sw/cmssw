@@ -822,7 +822,11 @@ if fastSim.isChosen():
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
-  phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + ['keep Phase2TrackerDigiedmDetSetVector_mix_*_*'])
+  phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
+  'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+  'keep *_TTClustersFromPhase2TrackerDigis_*_*',
+  'keep *_TTStubsFromPhase2TrackerDigis_*_*'
+   ])
 
 
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
