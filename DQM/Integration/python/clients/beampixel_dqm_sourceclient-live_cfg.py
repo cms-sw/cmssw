@@ -115,14 +115,14 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
-    from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+    from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import *
     process.RegionPSetBlock.RegionPSet.originRadius = cms.double(0.4)
 
     process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
     process.pixelVertices.TkFilterParameters.minPt = cms.double(0.9)
 
-    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-    process.pixelTracks.RegionFactoryPSet= cms.PSet(RegionPSetBlock, ComponentName = cms.string("GlobalTrackingRegion"))
+    from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import globalTrackingRegion
+    process.pixelTracksTrackingRegions = globalTrackingRegion.clone()
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
