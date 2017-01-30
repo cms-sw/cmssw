@@ -100,6 +100,9 @@ def customizeGSFixForPAT(process):
                                                  'keep EEDigiCollection_selectDigi_*_*',
                                                  'drop *_reducedEgammaBeforeGSFix_reducedGedGsfElectrons_*',
                                                  'drop *_reducedEgammaBeforeGSFix_reducedGedPhotons_*',
+                                                 'keep *_ecalMultiAndGSGlobalRecHitEB_hitsNotReplaced_*',
+                                                 'keep *_particleFlowEGammaGSFixed_dupECALClusters_*',
+                                                 'keep *_particleFlowEGammaGSFixed_dupESClusters_*',
                                                  ])
     process.reducedEgamma.gsfElectrons = cms.InputTag("gedGsfElectronsGSFixed")
     process.reducedEgamma.gsfElectronsPFValMap = cms.InputTag("particleBasedIsolationGSFixed","gedGsfElectrons")

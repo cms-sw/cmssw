@@ -106,14 +106,23 @@ private:
   edm::EDGetTokenT<reco::PFClusterCollection> fixedPFClustersToken_;
 
   // output instance name of EB/EE BC collection
-  std::string ebeeClustersCollection_;
+  const std::string ebeeClustersCollection_;
   // output instance name of ES BC collection
-  std::string esClustersCollection_;
+  const std::string esClustersCollection_;
+  
+  //if this is true, throw on  duplicate clusters entering the event
+  //if false, we flags the event and move on
+  const bool throwOnDupECALClustersInEvent_;
+  const bool throwOnDupESClustersInEvent_;
+
 };
 
 EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig) :
   ebeeClustersCollection_("EBEEClusters"),
-  esClustersCollection_("ESClusters")
+  esClustersCollection_("ESClusters"),
+  throwOnDupECALClustersInEvent_(iConfig.getParameter<bool>("throwOnDupECALClustersInEvent")),
+  throwOnDupESClustersInEvent_(iConfig.getParameter<bool>("throwOnDupESClustersInEvent"))
+				 
 {
   getToken(orgRefinedSCToken_, iConfig, "orgRefinedSC");
   getToken(orgBCToken_, iConfig, "orgRefinedSC", "EBEEClusters");
@@ -134,6 +143,9 @@ EGRefinedSCFixer::EGRefinedSCFixer(const edm::ParameterSet& iConfig) :
   produces<SCRefMap>();
   produces<SCRefMap>("parentSCsEB");
   produces<SCRefMap>("parentSCsEE");
+  //flags to tell us if we have duplicate clusters
+  produces<bool>("dupECALClusters");
+  produces<bool>("dupESClusters");
 }
  
 namespace {
@@ -243,6 +255,8 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
   std::map<reco::CaloClusterPtr, unsigned int> pfClusterMapEBEE; //maps of pfclusters to caloclusters
   std::map<reco::CaloClusterPtr, unsigned int> pfClusterMapES;
 
+  bool duplicateECALClusters=false;
+  bool duplicateESClusters=false; 
   for (auto& sc : *fixedRefinedSCs) {
     // The cluster ref in fixed EB and the other superclusters point to different collections (former to gs-fixed, latter to original)
     // but we are copying the basic clusters by value and remaking yet another collection here -> no need to distinguish
@@ -252,9 +266,13 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         pfClusterMapEBEE[ptr] = fixedBCs->size();
         fixedBCs->emplace_back(*ptr);
       }
-      else
-        throw cms::Exception("EGRefinedSCFixer::produce")
-          << "Found an EB/EE pfcluster matched to more than one supercluster!";
+      else{
+	duplicateECALClusters=true;
+	if(throwOnDupECALClustersInEvent_){
+	  throw cms::Exception("EGRefinedSCFixer::produce")
+	    << "Found an EB/EE pfcluster matched to more than one supercluster!";
+	}
+      }
     }
 
     for (auto&& cItr = sc.preshowerClustersBegin(); cItr!=sc.preshowerClustersEnd(); ++cItr) {
@@ -263,12 +281,18 @@ void EGRefinedSCFixer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         pfClusterMapES[ptr] = fixedESs->size();
         fixedESs->emplace_back(*ptr);
       }
-      else
-        throw cms::Exception("PFEgammaProducer::produce")
-          << "Found an ES pfcluster matched to more than one supercluster!";
+      else{
+	duplicateESClusters=true;
+	if(throwOnDupESClustersInEvent_){  
+	  throw cms::Exception("PFEgammaProducer::produce")
+	    << "Found an ES pfcluster matched to more than one supercluster!";
+	}
+      }
     }
   }
-
+  iEvent.put(std::make_unique<bool>(duplicateECALClusters),"dupECALClusters");
+  iEvent.put(std::make_unique<bool>(duplicateESClusters),"dupESClusters");
+  
   //put calocluster output collections in event and get orphan handles to create ptrs
   auto caloClusHandleEBEE(iEvent.put(std::move(fixedBCs), ebeeClustersCollection_));
   auto caloClusHandleES(iEvent.put(std::move(fixedESs), esClustersCollection_));

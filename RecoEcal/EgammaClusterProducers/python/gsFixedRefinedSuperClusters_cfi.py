@@ -5,4 +5,7 @@ gsFixedRefinedSuperClusters = cms.EDProducer("EGRefinedSCFixer",
     orgSC = cms.InputTag("particleFlowSuperClusterECAL", '', cms.InputTag.skipCurrentProcess()),
     fixedSC = cms.InputTag("particleFlowSuperClusterECALGSFixed"),
     fixedPFClusters = cms.InputTag("particleFlowClusterECALGSFixed"),
+    throwOnDupECALClustersInEvent = cms.bool(False),
+    throwOnDupESClustersInEvent = cms.bool(True)
+                                             
 )
