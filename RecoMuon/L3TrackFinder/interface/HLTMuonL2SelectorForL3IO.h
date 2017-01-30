@@ -21,19 +21,19 @@
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class HLTMuonL2SelectorForL3IO : public edm::stream::EDProducer<> {
-  public:
+ public:
   /// constructor with config
   HLTMuonL2SelectorForL3IO(const edm::ParameterSet&);
   
   /// destructor
   virtual ~HLTMuonL2SelectorForL3IO(); 
-
+  
   /// default values
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+  
   /// select muons
   virtual void produce(edm::Event&, const edm::EventSetup&);
-    
+  
  private:
   const edm::EDGetTokenT<reco::TrackCollection> l2Src_;
   const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> l3OISrc_;
