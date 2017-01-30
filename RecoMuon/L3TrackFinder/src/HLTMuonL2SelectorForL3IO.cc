@@ -89,7 +89,7 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
     }
     if (re_do_this_L2) result->push_back(*l2muRef);  // used the L2 if no L3 if matched or if the matched L3 has poor quality cuts. 
   }
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 void HLTMuonL2SelectorForL3IO::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

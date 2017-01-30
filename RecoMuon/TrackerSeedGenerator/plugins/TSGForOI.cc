@@ -21,13 +21,13 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   adjustErrorsDynamicallyForHits_(iConfig.getParameter<bool>("adjustErrorsDynamicallyForHits")),
   adjustErrorsDynamicallyForHitless_(iConfig.getParameter<bool>("adjustErrorsDynamicallyForHitless")),
   estimatorName_(iConfig.getParameter<std::string>("estimator")),
-  measurementTrackerTag_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
   minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
   maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
-  useHitlessAndHitSeeds_(iConfig.getParameter<bool>("UseHitlessAndHitSeeds")),
+  useHitSeeds_(iConfig.getParameter<bool>("UseHitSeeds")),
   useStereoLayersInTEC_(iConfig.getParameter<bool>("UseStereoLayersInTEC")),
   dummyPlane_(Plane::build(Plane::PositionType(), Plane::RotationType())),
   updator_(new KFUpdator()),
+  measurementTrackerTag_(consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))),
   pT1_(iConfig.getParameter<double>("pT1")),
   pT2_(iConfig.getParameter<double>("pT2")),
   pT3_(iConfig.getParameter<double>("pT3")),
@@ -38,7 +38,7 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   SF3_(iConfig.getParameter<double>("SF3")),
   SF4_(iConfig.getParameter<double>("SF4")),
   SF5_(iConfig.getParameter<double>("SF5")),
-  tsosDiffDeltaR_(iConfig.getParameter<double>("tsosDiffDeltaR"))
+  tsosDiff_(iConfig.getParameter<double>("tsosDiff"))
 {
   numOfMaxSeeds_=iConfig.getParameter<uint32_t>("maxSeeds");
   produces<std::vector<TrajectorySeed> >();
@@ -78,11 +78,11 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iSetup.get<TrackingComponentsRecord>().get("hltESPSmartPropagatorAnyOpposite", SmartOpposite);
   iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
 
-  //	Loop over the L2's and making seeds for all of them:
+  //	Loop over the L2's and make seeds for all of them:
   LogTrace(theCategory) << "TSGForOI::produce: Number of L2's: " << l2TrackCol->size();
   for (unsigned int l2TrackColIndex(0);l2TrackColIndex!=l2TrackCol->size();++l2TrackColIndex){
     const reco::TrackRef l2(l2TrackCol, l2TrackColIndex);
-    std::auto_ptr<std::vector<TrajectorySeed> > out(new std::vector<TrajectorySeed>());
+    std::unique_ptr<std::vector<TrajectorySeed> > out(new std::vector<TrajectorySeed>());
     LogTrace("TSGForOI") << "TSGForOI::produce: L2 muon pT, eta, phi --> " << l2->pt() << " , " << l2->eta() << " , " << l2->phi() << endl;
     
     FreeTrajectoryState fts = trajectoryStateTransform::initialFreeState(*l2, magfield_.product());
@@ -90,26 +90,28 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     TrajectoryStateOnSurface tsosAtIP = TrajectoryStateOnSurface(fts, *dummyPlane_);
     LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatIP: " << tsosAtIP << std::endl;
     
-    FreeTrajectoryState notUpdatedFts = trajectoryStateTransform::innerFreeState(*l2,magfield_.product());
-    dummyPlane_->move(notUpdatedFts.position() - dummyPlane_->position());
-    TrajectoryStateOnSurface tsosAtMuonSystem = TrajectoryStateOnSurface(notUpdatedFts, *dummyPlane_);
+    // get the TSOS on the innermost layer of the L2. 
+    TrajectoryStateOnSurface tsosAtMuonSystem = trajectoryStateTransform::innerStateOnSurface(*l2, *geometry_, magfield_.product());
     LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<endl;
     
-    if (useHitlessAndHitSeeds_){  // 
+    if (useHitSeeds_){  // 
       LogTrace("TSGForOI") << "TSGForOI::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
       StateOnTrackerBound fromInside(propagatorAlong.get());
       TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
       
       StateOnTrackerBound fromOutside(&*SmartOpposite);
-      TrajectoryStateOnSurface outerTkStateOutside = fromOutside(notUpdatedFts);
+      TrajectoryStateOnSurface outerTkStateOutside = fromOutside(tsosAtMuonSystem);
 
-      auto diffDeltaR=0.0;
+      // for now only checking if the two positions (using updated and not-updated) agree withing certain extent, 
+      // will probably have to design something fancier for the future. 
+      auto dist=0.0;
       if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()){
-	diffDeltaR = deltaR(outerTkStateInside.globalMomentum(),outerTkStateOutside.globalMomentum());
+        float deta = outerTkStateInside.globalPosition().eta() - outerTkStateOutside.globalPosition().eta();
+        float dphi = outerTkStateInside.globalPosition().phi() - outerTkStateOutside.globalPosition().phi();
+	dist = sqrt(deta*deta+dphi*dphi);
       }
-      if (diffDeltaR>tsosDiffDeltaR_){
-	// add a hit-based seed:
-	++numOfMaxSeeds_;
+      if (dist>tsosDiff_){
+	++numOfMaxSeeds_;	// add a hit-based seed
       }
     } 
 
@@ -122,7 +124,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       layerCount_ = 0;
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount_ << endl; 
-	findSeedsOnLayer(**it, tsosAtIP, tsosAtMuonSystem, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
+	findSeedsOnLayer(**it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
     
@@ -136,7 +138,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       layerCount_ = 0;
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount_ << endl; 
-	findSeedsOnLayer(**it, tsosAtIP, tsosAtMuonSystem, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
+	findSeedsOnLayer(**it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
 
@@ -145,7 +147,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       layerCount_ = 0;
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount_ << endl; 
-	findSeedsOnLayer(**it, tsosAtIP, tsosAtMuonSystem, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
+	findSeedsOnLayer(**it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, out);
       }
     }
 
@@ -155,16 +157,15 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } //L2Collection
   edm::LogInfo(theCategory) << "TSGForOI::produce: number of seeds made: " << result->size();
 
-  iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
 				const TrajectoryStateOnSurface &tsosAtIP,
-				const TrajectoryStateOnSurface &tsosAtMuonSystem,
 				const Propagator& propagatorAlong,
 				const Propagator& propagatorOpposite,
 				const reco::TrackRef l2,
-				std::auto_ptr<std::vector<TrajectorySeed> >& out) {
+				std::unique_ptr<std::vector<TrajectorySeed> >& out) {
   
   if (numSeedsMade_>numOfMaxSeeds_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: numSeedsMade = " << numSeedsMade_ << " , layerCount = " <<  layerCount_ << endl;
@@ -175,7 +176,7 @@ void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
   if (!adjustErrorsDynamicallyForHitless_) errorSFHitless_ = fixedErrorRescalingForHitless_;
 
   // Hitless:
-  if (useHitlessAndHitSeeds_ && !foundHitlessSeed_) {
+  if (useHitSeeds_ && !foundHitlessSeed_) {
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
     std::vector< GeometricSearchDet::DetWithState > dets;
     layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimator_, dets);
@@ -189,14 +190,14 @@ void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
       else{
 	// calculate SF from L2 (only once -- if needed)
 	if (!analysedL2_ && adjustErrorsDynamicallyForHitless_) {
-	  errorSFHitless_=calculateSFFromL2(l2); //layer,tsosAtMuonSystem,tsosOnLayer,propagatorOpposite,l2);
+	  errorSFHitless_=calculateSFFromL2(l2);
 	  analysedL2_=true;
 	}
 	
 	dets.front().second.rescaleError(errorSFHitless_);
-	PTrajectoryStateOnDet const& PTSOD = trajectoryStateTransform::persistentState(tsosOnLayer,detOnLayer->geographicalId().rawId());
+	PTrajectoryStateOnDet const& ptsod = trajectoryStateTransform::persistentState(tsosOnLayer,detOnLayer->geographicalId().rawId());
 	TrajectorySeed::recHitContainer rHC;
-	out->push_back(TrajectorySeed(PTSOD,rHC,oppositeToMomentum));
+	out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
 	LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
 	foundHitlessSeed_=true;
       }
@@ -212,11 +213,8 @@ void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
   numSeedsMade_=out->size();
 }
 
-double TSGForOI::calculateSFFromL2(//const GeometricSearchDet& layer,
-				   //const TrajectoryStateOnSurface& tsosAtMuonSystem,
-				   //const TrajectoryStateOnSurface& tsosOnLayer,
-				   //const Propagator& propagatorOpposite,
-				   const reco::TrackRef track){
+double TSGForOI::calculateSFFromL2(const reco::TrackRef track){
+
   double theSF=1.0;
   //	L2 direction vs pT blowup - as was previously done:
   //	Split into 4 pT ranges: <pT1_, pT1_<pT2_, pT2_<pT3_, <pT4_: 13,30,70
@@ -309,7 +307,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<bool>("adjustErrorsDynamicallyForHits",false);
   desc.add<bool>("adjustErrorsDynamicallyForHitless",false);
   desc.add<edm::InputTag>("MeasurementTrackerEvent",edm::InputTag("hltSiStripClusters"));
-  desc.add<bool>("UseHitlessAndHitSeeds",true);
+  desc.add<bool>("UseHitSeeds",true);
   desc.add<bool>("UseStereoLayersInTEC",false);
   desc.add<std::string>("estimator","hltESPChi2MeasurementEstimator100");
   desc.add<double>("maxEtaForTOB",1.2);
@@ -327,7 +325,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("SF3",5.0);
   desc.add<double>("SF4",7.0);
   desc.add<double>("SF5",10.0);
-  desc.add<double>("tsosDiffDeltaR",0.03);
+  desc.add<double>("tsosDiff",0.03);
   descriptions.add("TSGForOI",desc);
 }
 
