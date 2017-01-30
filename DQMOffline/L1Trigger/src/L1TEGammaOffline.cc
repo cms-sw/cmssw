@@ -124,7 +124,8 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     ;
   return; //continue to next event
 
-  auto probeElectron = gsfElectrons->at(1);
+  // for now without tag&probe
+  auto probeElectron = gsfElectrons->at(0);
 
   // find corresponding L1 EG
   double minDeltaR = 0.3;
@@ -384,9 +385,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
   int bunchCrossing = 0;
 
   for (auto egamma = l1EGamma->begin(bunchCrossing); egamma != l1EGamma->end(bunchCrossing); ++egamma) {
-//    double et = egamma->et();
-//    double phi = egamma->phi();
-//    double eta = egamma->eta();
+    // fill photon histograms
   }
 }
 
