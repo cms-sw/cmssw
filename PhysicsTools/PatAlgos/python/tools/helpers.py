@@ -376,8 +376,52 @@ if __name__=="__main__":
            p.b = cms.EDProducer("b", src=cms.InputTag("a"))
            p.c = cms.EDProducer("c", src=cms.InputTag("b","instance"))
            p.s = cms.Sequence(p.a*p.b*p.c *p.a)
-           cloneProcessingSnippet(p, p.s, "New")
-           self.assertEqual(p.dumpPython(),'import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")\n\nprocess.a = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.c = cms.EDProducer("c",\n    src = cms.InputTag("b","instance")\n)\n\n\nprocess.cNew = cms.EDProducer("c",\n    src = cms.InputTag("bNew","instance")\n)\n\n\nprocess.bNew = cms.EDProducer("b",\n    src = cms.InputTag("aNew")\n)\n\n\nprocess.aNew = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.b = cms.EDProducer("b",\n    src = cms.InputTag("a")\n)\n\n\nprocess.s = cms.Sequence(process.a*process.b*process.c*process.a)\n\n\nprocess.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew)\n\n\n')
+           cloneProcessingSnippet(p, p.s, "New", addToTask = True)
+           self.assertEqual(p.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+process.a = cms.EDProducer("a",
+    src = cms.InputTag("gen")
+)
+
+
+process.aNew = cms.EDProducer("a",
+    src = cms.InputTag("gen")
+)
+
+
+process.b = cms.EDProducer("b",
+    src = cms.InputTag("a")
+)
+
+
+process.bNew = cms.EDProducer("b",
+    src = cms.InputTag("aNew")
+)
+
+
+process.c = cms.EDProducer("c",
+    src = cms.InputTag("b","instance")
+)
+
+
+process.cNew = cms.EDProducer("c",
+    src = cms.InputTag("bNew","instance")
+)
+
+
+process.patAlgosToolsTask = cms.Task(process.aNew, process.bNew, process.cNew)
+
+
+process.s = cms.Sequence(process.a+process.b+process.c+process.a)
+
+
+process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
+
+
+""")
        def testContains(self):
            p = cms.Process("test")
            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
@@ -388,8 +432,8 @@ if __name__=="__main__":
            self.assert_( contains(p.s1, "a") )
            self.assert_( not contains(p.s2, "a") )
        def testJetCollectionString(self):
-           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patFooBarJets')
-           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatFooBarJets')
+           self.assertEqual(jetCollectionString(algo = 'Foo', type = 'Bar'), 'patJetsFooBar')
+           self.assertEqual(jetCollectionString(prefix = 'prefix', algo = 'Foo', type = 'Bar'), 'prefixPatJetsFooBar')
        def testListModules(self):
            p = cms.Process("test")
            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
