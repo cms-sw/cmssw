@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 gsSimpleFixedPhotons = cms.EDProducer("PhotonGSCrysSimpleFixer",
                                               oldPhos = cms.InputTag("gedPhotons"),
                                       ebMultiRecHits = cms.InputTag("reducedEcalRecHitsEB"),
-                                      ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSWeightRecHitEB"),
+                                      ebMultiAndWeightsRecHits = cms.InputTag("ecalMultiAndGSGlobalRecHitEB"),
                                       energyTypesToFix = cms.vstring("ecal_standard","ecal_photons","regression1","regression2"),
                                       energyTypeForP4 = cms.string("regression2")
 )

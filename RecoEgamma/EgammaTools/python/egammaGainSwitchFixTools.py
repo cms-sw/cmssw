@@ -40,7 +40,7 @@ def replaceModulesInSeq(process,seq,names_dict):
 
 def customiseForAODGainSwitchFix(process,newNameSuffex=""):
     process.load("RecoEgamma.EgammaTools.egammaGainSwitchFix_cff")
-    names_dict = {"ecalMultiAndGSWeightRecHitEB" : "reducedEcalRecHitsEB" + newNameSuffex,
+    names_dict = {"ecalMultiAndGSGlobalRecHitEB" : "reducedEcalRecHitsEB" + newNameSuffex,
                   "particleFlowRecHitECALGSFixed" : "particleFlowRecHitECAL" + newNameSuffex,
                   "particleFlowRecHitPSGSFixed" : "particleFlowRecHitPS" + newNameSuffex,
                   "particleFlowClusterPSGSFixed" : "particleFlowClusterPS" + newNameSuffex,

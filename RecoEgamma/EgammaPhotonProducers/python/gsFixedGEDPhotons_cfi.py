@@ -5,7 +5,7 @@ from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 gsFixedGEDPhotons = cms.EDProducer('GEDPhotonGSCrysFixer',
     photons = cms.InputTag('gedPhotons', '', cms.InputTag.skipCurrentProcess()),
     newCores = cms.InputTag('gsFixedGEDPhotonCores'),
-    barrelEcalHits=cms.InputTag("ecalMultiAndGSWeightRecHitEB"),
+    barrelEcalHits=cms.InputTag("ecalMultiAndGSGlobalRecHitEB"),
     primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
     # rest for regression
     minR9Barrel = cms.double(0.94),
