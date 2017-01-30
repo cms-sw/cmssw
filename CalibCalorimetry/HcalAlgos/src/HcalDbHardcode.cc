@@ -564,30 +564,37 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
   HcalSiPMType theType = HcalNoSiPM;
   double thePe2fC = getParameters(fId).photoelectronsToAnalog();
   double theDC = getParameters(fId).darkCurrent(0);
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel && useHBUpgrade_) {
-    HcalDetId hid(fId);
-    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
-    if(nLayersInDepth > 4) {
-      theType = HcalHBHamamatsu2;
-      theDC = getParameters(fId).darkCurrent(1);
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
+    if(useHBUpgrade_) {
+      HcalDetId hid(fId);
+      int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+      if(nLayersInDepth > 4) {
+        theType = HcalHBHamamatsu2;
+        theDC = getParameters(fId).darkCurrent(1);
+      }
+      else {
+        theType = HcalHBHamamatsu1;
+        theDC = getParameters(fId).darkCurrent(0);
+      }
     }
-    else {
-      theType = HcalHBHamamatsu1;
-      theDC = getParameters(fId).darkCurrent(0);
+    else theType = HcalHPD;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+    if(useHEUpgrade_) {
+      HcalDetId hid(fId);
+      int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
+      if(nLayersInDepth > 4) {
+        theType = HcalHEHamamatsu2;
+        theDC = getParameters(fId).darkCurrent(1);
+      }
+      else {
+        theType = HcalHEHamamatsu1;
+        theDC = getParameters(fId).darkCurrent(0);
+      }
     }
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap && useHEUpgrade_) {
-    HcalDetId hid(fId);
-    int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
-    if(nLayersInDepth > 4) {
-      theType = HcalHEHamamatsu2;
-      theDC = getParameters(fId).darkCurrent(1);
-    }
-    else {
-      theType = HcalHEHamamatsu1;
-      theDC = getParameters(fId).darkCurrent(0);
-    }
-  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter && useHOUpgrade_) {
-    theType = HcalHOHamamatsu;
+    else theType = HcalHPD;
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    if(useHOUpgrade_) theType = HcalHOHamamatsu;
+    else theType = HcalHPD;
   }
   
   return HcalSiPMParameter(fId.rawId(), theType, thePe2fC, theDC, 0, 0);
@@ -597,7 +604,7 @@ void HcalDbHardcode::makeHardcodeSiPMCharacteristics (HcalSiPMCharacteristics& s
   // SiPMCharacteristics are constants for each type of SiPM:
   // Type, # of pixels, 3 parameters for non-linearity, cross talk parameter, ..
   // Obtained from data sheet and measurements
-  // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1
+  // types (in order): HcalHOZecotek=1, HcalHOHamamatsu, HcalHEHamamatsu1, HcalHEHamamatsu2, HcalHBHamamatsu1, HcalHBHamamatsu2, HcalHPD
   for(unsigned ip = 0; ip < theSiPMCharacteristics_.size(); ++ip){
     auto& ps = theSiPMCharacteristics_[ip];
     sipm.loadObject(ip+1,
