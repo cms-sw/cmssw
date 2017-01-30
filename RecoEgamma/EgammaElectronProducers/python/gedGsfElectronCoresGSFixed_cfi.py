@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-gsFixedGsfElectronCores = cms.EDProducer("GsfElectronCoreGSCrysFixer",
+gedGsfElectronCoresGSFixed = cms.EDProducer("GsfElectronCoreGSCrysFixer",
     orgCores=cms.InputTag("gedGsfElectronCores", '', cms.InputTag.skipCurrentProcess()),
-    refinedSCs = cms.InputTag('gsFixedRefinedSuperClusters'),
+    refinedSCs = cms.InputTag('particleFlowEGammaGSFixed'),
     scs = cms.InputTag('particleFlowSuperClusterECALGSFixed'),
 )
