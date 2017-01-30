@@ -71,7 +71,7 @@ plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4", "EffEta", "EffPhi", "E
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
 obj_types  = ["Mu","refittedStandAloneMuons","Track","Ele","Photon","PFTau","PFJet","MET","PFMET","PFMHT","GenMET","CaloJet"
-             ,"CaloMET","l1MET"]
+             ,"CaloMET","CaloMHT","l1MET"]
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module
 triggers = [ ] 
 efficiency_strings = []
@@ -138,9 +138,13 @@ hltExoticaPostSingleMuon = hltExoticaPostProcessor.clone()
 hltExoticaPostSingleMuon.subDirs = ['HLT/Exotica/SingleMuon']
 hltExoticaPostSingleMuon.efficiencyProfile = efficiency_strings
 
-hltExoticaPostHT = hltExoticaPostProcessor.clone()
-hltExoticaPostHT.subDirs = ['HLT/Exotica/HT']
-hltExoticaPostHT.efficiencyProfile = efficiency_strings
+hltExoticaPostPFHT = hltExoticaPostProcessor.clone()
+hltExoticaPostPFHT.subDirs = ['HLT/Exotica/PFHT']
+hltExoticaPostPFHT.efficiencyProfile = efficiency_strings
+
+hltExoticaPostCaloHT = hltExoticaPostProcessor.clone()
+hltExoticaPostCaloHT.subDirs = ['HLT/Exotica/CaloHT']
+hltExoticaPostCaloHT.efficiencyProfile = efficiency_strings
 
 hltExoticaPostJetNoBptx = hltExoticaPostProcessor.clone()
 hltExoticaPostJetNoBptx.subDirs = ['HLT/Exotica/JetNoBptx']
@@ -209,7 +213,8 @@ hltExoticaPostProcessors = cms.Sequence(
     hltExoticaPostHighPtPhoton +
     hltExoticaPostDiPhoton +
     # HT path
-    hltExoticaPostHT +
+    hltExoticaPostPFHT +
+    hltExoticaPostCaloHT +
     # NoBptx paths
     hltExoticaPostJetNoBptx +
     hltExoticaPostMuonNoBptx +

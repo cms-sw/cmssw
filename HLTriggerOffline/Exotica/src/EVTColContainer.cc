@@ -59,6 +59,7 @@ struct EVTColContainer {
         L1MET   = 390004,
         PFJET   = 211,
         CALOJET = 111, 
+	CALOMHT = 400002,
         _nMAX
     };
 
@@ -75,6 +76,7 @@ struct EVTColContainer {
     const std::vector<reco::PFMET>               * pfMHTs;
     const std::vector<reco::GenMET>              * genMETs;
     const std::vector<reco::CaloMET>             * caloMETs;
+    const std::vector<reco::CaloMET>             * caloMHTs;
     const std::vector<l1extra::L1EtMissParticle> * l1METs;
     const std::vector<reco::PFTau>               * pfTaus;
     const std::vector<reco::PFJet>               * pfJets;
@@ -95,6 +97,7 @@ struct EVTColContainer {
         pfMHTs(0),
         genMETs(0),
         caloMETs(0),
+        caloMHTs(0),
         l1METs(0),
         pfTaus(0),
         pfJets(0),
@@ -128,6 +131,7 @@ struct EVTColContainer {
         pfMHTs = 0;
         genMETs = 0;
         caloMETs = 0;
+        caloMHTs = 0;
         l1METs = 0;
         pfTaus = 0;
         pfJets = 0;
@@ -182,6 +186,11 @@ struct EVTColContainer {
         caloMETs = v;
         ++nInitialized;
     }
+    void setCaloMHT(const reco::CaloMETCollection * v)
+    {
+        caloMHTs = v;
+        ++nInitialized;
+    }
     void set(const l1extra::L1EtMissParticleCollection * v)
     {
         l1METs = v;
@@ -227,6 +236,8 @@ struct EVTColContainer {
             size = genMETs->size();
         } else if (objtype == EVTColContainer::CALOMET && caloMETs != 0) {
             size = caloMETs->size();
+        } else if (objtype == EVTColContainer::CALOMHT && caloMHTs != 0) {
+            size = caloMHTs->size();
         } else if (objtype == EVTColContainer::L1MET && l1METs != 0) {
             size = l1METs->size();
         } else if (objtype == EVTColContainer::PFTAU && pfTaus != 0) {
@@ -265,6 +276,8 @@ struct EVTColContainer {
             objTypestr = "GenMET";
         } else if (objtype == EVTColContainer::CALOMET) {
             objTypestr = "CaloMET";
+        } else if (objtype == EVTColContainer::CALOMHT) {
+            objTypestr = "CaloMHT";
         } else if (objtype == EVTColContainer::L1MET) {
             objTypestr = "l1MET";
         } else if (objtype == EVTColContainer::PFTAU) {
