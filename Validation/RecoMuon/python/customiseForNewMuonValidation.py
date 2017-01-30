@@ -1,25 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
 def enableNewMuonVal(process):
-    "Enable new muon validation sequence, both in step3 and harvesting"    
+    "Enable new muon validation sequence, both for sources and harvesting"    
     
-    if ( hasattr(process,"validation") or  \
-         hasattr(process,"globalValidation") ) and \
+    if hasattr(process,"validation") and \
        hasattr(process,"recoMuonValidation") :
 
         print "[enableNewMuonVal] : pp RECO"
 
+        process.probeTracks.quality = cms.vstring('loose')
+
         process.load("Validation.RecoMuon.NewMuonValidation_cff")
 
-        if hasattr(process,"globalValidation") :
-            process.globalValidation.replace(process.recoMuonValidation, \
-                                             process.NEWrecoMuonValidation)
-
         if hasattr(process,"validation") :
+            print "[enableNewMuonVal] : pp RECO validation"
             process.validation.replace(process.recoMuonValidation, \
                                        process.NEWrecoMuonValidation)
+            print process.validation      
 
-    probeTracks.quality = cms.vstring('loose')
 
     if hasattr(process,"hltvalidation") and \
        hasattr(process,"recoMuonValidation") :
@@ -33,8 +31,21 @@ def enableNewMuonVal(process):
                                        process.NEWrecoMuonValidationHLT_seq)
 
 
-    if ( hasattr(process,"postValidation_preprod") or  \
-         hasattr(process,"postValidation") )       and \
+    if hasattr(process,"globalValidationCosmics") and \
+       hasattr(process,"recoMuonValidationCosmics") :
+
+        print "[enableNewMuonVal] : Cosmic RECO"
+
+        probeTracks.quality = cms.vstring('loose')
+
+        process.load("Validation.RecoMuon.NewMuonValidation_cff")
+
+        if hasattr(process,"validationCosmics") :
+            process.validation.replace(process.recoMuonValidationCosmics, \
+                                       process.NEWrecoMuonValidationCosmics)
+
+
+    if hasattr(process,"postValidation") and \
        hasattr(process,"recoMuonPostProcessors") :
 
         print "[enableNewMuonVal] : pp RECO Harvesting"
@@ -45,10 +56,17 @@ def enableNewMuonVal(process):
             process.postValidation.replace(process.recoMuonPostProcessors, \
                                            process.NEWrecoMuonPostProcessors)
 
-        if hasattr(process,"postValidation_preprod") :
-            process.postValidation_preprod.replace(process.recoMuonPostProcessors, \
-                                                   process.NEWrecoMuonPostProcessors)
 
+    if hasattr(process,"postValidation_fastsim") and \
+       hasattr(process,"recoMuonPostProcessors") :
+
+        print "[enableNewMuonVal] : pp RECO Harvesting (FastSim)"
+
+        process.load("Validation.RecoMuon.NewPostProcessor_cff")
+
+        if hasattr(process,"postValidation_fastsim") :
+            process.postValidation_fastsim.replace(process.recoMuonPostProcessors, \
+                                                   process.NEWrecoMuonPostProcessors)
 
             
     if hasattr(process,"hltpostvalidation") and \
@@ -62,7 +80,19 @@ def enableNewMuonVal(process):
                                               process.NEWrecoMuonPostProcessorsHLT)
     
 
+    if hasattr(process,"postValidationCosmics") and \
+       hasattr(process,"postProcessorMuonMultiTrack") :
+
+        print "[enableNewMuonVal] : pp RECO Harvesting"
+
+        process.load("Validation.RecoMuon.NewPostProcessor_cff")
+
+        if hasattr(process,"postValidationCosmics") :
+            process.postValidationCosmics.replace(process.postProcessorMuonMultiTrack, \
+                                           process.NEWpostProcessorMuonTrack)
+
     return process
+
     
 
 

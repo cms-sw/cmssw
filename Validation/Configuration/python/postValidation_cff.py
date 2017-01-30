@@ -25,6 +25,7 @@ postValidationTracking = cms.Sequence(
       postProcessorTrackSequence
     + postProcessorVertexSequence
 )
+
 postValidation = cms.Sequence(
       recoMuonPostProcessors
     + postValidationTracking
@@ -50,9 +51,7 @@ postValidation_preprod = cms.Sequence(
 
 
 postValidation_fastsim = cms.Sequence(
-# to be customized for OLD or NEW muon validation
       recoMuonPostProcessors
-#      NEWrecoMuonPostProcessors
     + postProcessorTrackSequence
     + MuIsoValPostProcessor
     + photonPostProcessor
@@ -96,9 +95,7 @@ postValidation_gen = cms.Sequence(
 )
 
 postValidationCosmics = cms.Sequence(
-# to be customized for OLD or NEW muon validation
     postProcessorMuonMultiTrack
-#    postProcessorMuonTrack
 )
 
 postValidationMiniAOD = cms.Sequence(
