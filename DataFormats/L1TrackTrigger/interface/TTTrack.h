@@ -99,8 +99,8 @@ class TTTrack
 
  private:
 
-    bool checkValidArgs(unsigned int nPar, std::string fcn) const;
-    bool checkValidArgsForSet(unsigned int nPar, std::string fcn) const;
+    bool checkValidArgs(unsigned int nPar) const;
+    bool checkValidArgsForSet(unsigned int nPar) const;
   
 
 }; /// Close class
@@ -135,10 +135,9 @@ TTTrack< T >::TTTrack()
 
 /// Another Constructor
 template< typename T >
-//TTTrack< T >::TTTrack( std::vector< edm::Ptr< TTStub< T > > > aStubs )
 TTTrack< T >::TTTrack( std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > aStubs )
 {
-  theStubRefs = aStubs;
+  theStubRefs     = aStubs;
   theMomentum4Par = GlobalVector(0.0,0.0,0.0);
   theMomentum5Par = GlobalVector(0.0,0.0,0.0);
   theRInv4Par     = 0.0;
@@ -162,9 +161,7 @@ TTTrack< T >::~TTTrack(){}
 template< typename T >
 void TTTrack< T >::setMomentum( GlobalVector aMomentum, unsigned int nPar ) {
 
-  if (!checkValidArgsForSet(nPar,"setMomentum")){
-    return;
-  }
+  if (!checkValidArgsForSet(nPar)) return;
 
   if (nPar==4) {
     valid4ParFit = true;
@@ -185,9 +182,8 @@ void TTTrack< T >::setMomentum( GlobalVector aMomentum, unsigned int nPar ) {
 template< typename T >
 GlobalVector TTTrack< T >::getMomentum(unsigned int nPar) const{
 
-  if (!checkValidArgs(nPar,"getMomentum")){
+  if (!checkValidArgs(nPar))
     return GlobalVector(0.0,0.0,0.0);
-  }
 
   if (nPar==4) {
     return theMomentum4Par;
@@ -206,9 +202,7 @@ GlobalVector TTTrack< T >::getMomentum(unsigned int nPar) const{
 template< typename T >
 void TTTrack< T >::setRInv(double aRInv, unsigned int nPar) {
 
-  if (!checkValidArgsForSet(nPar,"setRInv")){
-    return;
-  }
+  if (!checkValidArgsForSet(nPar)) return;
 
   if (nPar==4) {
     valid4ParFit = true;
@@ -228,9 +222,7 @@ void TTTrack< T >::setRInv(double aRInv, unsigned int nPar) {
 template< typename T >
 double TTTrack< T >::getRInv(unsigned int nPar) const {
 
-  if (!checkValidArgs(nPar,"getRInv")){
-    return 0.0;
-  }
+  if (!checkValidArgs(nPar)) return 0.0;
 
   if (nPar==4) {
     return theRInv4Par;
@@ -248,9 +240,7 @@ double TTTrack< T >::getRInv(unsigned int nPar) const {
 template< typename T >
 void TTTrack< T >::setPOCA(GlobalPoint aPOCA, unsigned int nPar){
 
-  if (!checkValidArgsForSet(nPar,"setPOCA")){
-    return;
-  }
+  if (!checkValidArgsForSet(nPar)) return;
 
   if (nPar==4) {
     valid4ParFit = true;
@@ -270,10 +260,8 @@ template< typename T >
 GlobalPoint TTTrack< T >::getPOCA(unsigned int nPar) const
 {
 
-  if (!checkValidArgs(nPar,"getPOCA")){
-    return GlobalPoint(0.0,0.0,0.0);
-  }
-
+  if (!checkValidArgs(nPar)) return GlobalPoint(0.0,0.0,0.0);
+ 
   if (nPar==4) {
     return thePOCA4Par;
   }
@@ -290,9 +278,7 @@ GlobalPoint TTTrack< T >::getPOCA(unsigned int nPar) const
 template< typename T >
 void TTTrack< T >::setChi2(double aChi2, unsigned int nPar) {
 
-  if (!checkValidArgsForSet(nPar,"setChi2")){
-    return;
-  }
+  if (!checkValidArgsForSet(nPar)) return;
 
   if (nPar==4) {
     valid4ParFit = true;
@@ -315,9 +301,7 @@ template< typename T >
 double TTTrack< T >::getChi2(unsigned int nPar) const
 {
 
-  if (!checkValidArgs(nPar,"getChi2")){
-    return 0.0;
-  }
+  if (!checkValidArgs(nPar)) return 0.0;
 
   if (nPar==4) {
     return theChi24Par;
@@ -338,9 +322,7 @@ template< typename T >
 double TTTrack< T >::getChi2Red(unsigned int nPar) const
 {
 
-  if (!checkValidArgs(nPar,"getChi2Red")){
-    return 0.0;
-  }
+  if (!checkValidArgs(nPar)) return 0.0;
 
   if (nPar==4) {
     return theChi24Par/( 2*theStubRefs.size() - 4 );
@@ -359,9 +341,7 @@ double TTTrack< T >::getChi2Red(unsigned int nPar) const
 template< typename T >
 void TTTrack< T >::setStubPtConsistency(double aStubPtConsistency, unsigned int nPar) {
 
-  if (!checkValidArgsForSet(nPar,"setStubPtConsistency")){
-    return;
-  }
+  if (!checkValidArgsForSet(nPar)) return;
 
   if (nPar==4) {
     valid4ParFit = true;
@@ -384,9 +364,7 @@ template< typename T >
 double TTTrack< T >::getStubPtConsistency(unsigned int nPar) const
 {
 
-  if (!checkValidArgs(nPar,"getStubPtConsistency")){
-    return 0.0;
-  }
+  if (!checkValidArgs(nPar)) return 0.0;
 
   if (nPar==4) {
     return theStubPtConsistency4Par;
@@ -409,7 +387,6 @@ template< typename T>
 bool TTTrack< T >::isTheSameAs( TTTrack< T > aTrack ) const
 {
   /// Take the other stubs
-//  std::vector< edm::Ptr< TTStub< T > > > otherStubPtrs = aTrack.getStubPtrs();
   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > otherStubRefs = aTrack.getStubRefs();
 
   /// Count shared stubs
@@ -470,31 +447,26 @@ std::string TTTrack< T >::print( unsigned int i ) const
     output << padding << "stub: " << iStub++ << ", DetId: " << ((*stubIter)->getDetId()).rawId() << '\n';
   }
 
-  //output << ", z-vertex: " << thePOCA.z() << " (cm), transverse momentum " << theMomentum.perp() << " (GeV/c)";
-  //output << ", red. chi2 " << this->getChi2Red() << '\n';
-
   return output.str();
 }
 
 
 template< typename T >
-bool TTTrack< T >::checkValidArgs(unsigned int nPar, std::string fcn) const {
+bool TTTrack< T >::checkValidArgs(unsigned int nPar) const {
       
   if (!(nPar==4||nPar==5)) {
-    edm::LogError("TTTrack") << " In method "<<fcn<<
-      " called with nPar="<<nPar<<std::endl;
+    edm::LogError("TTTrack") << " A getter method was called with nPar = "<< nPar << 
+      " but only authorized values are 4 and 5" << std::endl;
     return false;
   }
 
   if ((nPar==4)&&!valid4ParFit) {
-    edm::LogError("TTTrack") << " In method "<<fcn<<
-      " called with nPar="<<nPar<<" but no valid 4 parameter fit"<<std::endl;
+    edm::LogError("TTTrack") << " You try to get info with nPar="<<nPar<<" but no valid 4 parameter fit info is present, use 5 instead"<<std::endl;
     return false;
   }
 
   if ((nPar==5)&&!valid5ParFit) {
-    edm::LogError("TTTrack") << " In method "<<fcn<<
-      " called with nPar="<<nPar<<" but no valid 5 parameter fit"<<std::endl;
+    edm::LogError("TTTrack") << " You try to get info with nPar="<<nPar<<" but no valid 5 parameter fit info is present, use 4 instead"<<std::endl;
     return false;
   }
 
@@ -502,11 +474,10 @@ bool TTTrack< T >::checkValidArgs(unsigned int nPar, std::string fcn) const {
   
 }
 template< typename T >
-bool TTTrack< T >::checkValidArgsForSet(unsigned int nPar, std::string fcn) const {
+bool TTTrack< T >::checkValidArgsForSet(unsigned int nPar) const {
       
   if (!(nPar==4||nPar==5)) {
-    edm::LogError("TTTrack") << " In method "<<fcn<<
-      " called with nPar="<<nPar<<std::endl;
+    edm::LogError("TTTrack") << " A setter method is called with nPar="<<nPar<< " only possible values are 4/5" << std::endl;
     return false;
   }
 

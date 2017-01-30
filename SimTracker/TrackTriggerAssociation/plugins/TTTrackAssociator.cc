@@ -156,11 +156,7 @@ void TTTrackAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, c
 
       /// If only one TrackingParticle, GENUINE
       /// if different than one, COMBINATORIC
-      if ( nTPs != 1 )
-      {
-        continue;
-	if (nTPs>1) std::cout << "This should never happen!!!" << std::endl;
-      }
+      if ( nTPs != 1 ) continue;
 
       /// Here, the track may only be GENUINE
       /// Fill the map
