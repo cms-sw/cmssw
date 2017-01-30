@@ -20,7 +20,7 @@ from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
-     +HLTMuonPostVal
+    +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
     +topHLTriggerValidationHarvest
