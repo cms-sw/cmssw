@@ -28,8 +28,16 @@ HLTExoticaPlotter::HLTExoticaPlotter(const edm::ParameterSet & pset,
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
     _parametersTurnOnSumEt(pset.getParameter<std::vector<double> >("parametersTurnOnSumEt")),
-    _parametersDxy(pset.getParameter<std::vector<double> >("parametersDxy"))
+    _parametersDxy(pset.getParameter<std::vector<double> >("parametersDxy")),
+    _drop_pt2(false),
+    _drop_pt3(false)
 {
+    if (pset.exists("dropPt2")) {
+      _drop_pt2 = pset.getParameter<bool>("dropPt2");
+    }
+    if (pset.exists("dropPt3")) {
+      _drop_pt3 = pset.getParameter<bool>("dropPt3");
+    }
     LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::constructor()";
 }
 
@@ -67,8 +75,8 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
                 continue;
               } else {
                 bookHist(iBooker, source, objTypeStr, "MaxPt1");
-                bookHist(iBooker, source, objTypeStr, "MaxPt2");
-                bookHist(iBooker, source, objTypeStr, "MaxPt3");
+                if (!_drop_pt2) bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                if (!_drop_pt3) bookHist(iBooker, source, objTypeStr, "MaxPt3");
                 bookHist(iBooker, source, objTypeStr, "Eta");
                 bookHist(iBooker, source, objTypeStr, "Phi");
  
@@ -86,8 +94,8 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
                 bookHist(iBooker, source, objTypeStr, "SumEt");
               } else {
                 bookHist(iBooker, source, objTypeStr, "MaxPt1");
-                bookHist(iBooker, source, objTypeStr, "MaxPt2");
-                bookHist(iBooker, source, objTypeStr, "MaxPt3");
+                if (!_drop_pt2) bookHist(iBooker, source, objTypeStr, "MaxPt2");
+                if (!_drop_pt3) bookHist(iBooker, source, objTypeStr, "MaxPt3");
                 bookHist(iBooker, source, objTypeStr, "Eta");
                 bookHist(iBooker, source, objTypeStr, "Phi");
 
@@ -125,7 +133,10 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
     int counttotal = 0;
 
     // 3 : pt1, pt2, pt3
-    const int totalobjectssize3 = 3 * countobjects.size();
+    int totalobjectssize = 1;
+    if (!_drop_pt2) totalobjectssize++;
+    if (!_drop_pt3) totalobjectssize++;
+    totalobjectssize *= countobjects.size();
     // Fill the histos if pass the trigger (just the two with higher pt)
     for (size_t j = 0; j < matches.size(); ++j) {
         // Is this object owned by this trigger? If not we are not interested...
@@ -161,7 +172,7 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  ++(countobjects[objType]);
 	  ++counttotal;
         } 
-	else if (countobjects[objType] == 1) {
+	else if (countobjects[objType] == 1 && !_drop_pt2) {
 	  if( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
             this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt2", pt);
 	  }
@@ -169,7 +180,7 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  ++(countobjects[objType]);
 	  ++counttotal;
         } 
-	else if (countobjects[objType] == 2) {
+	else if (countobjects[objType] == 2 && !_drop_pt3) {
 	  if( !( TString(objTypeStr).Contains("MET") || TString(objTypeStr).Contains("MHT") ) ) {
             this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt3", pt);
 	  }
@@ -178,7 +189,7 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
 	  ++counttotal;
         } 
 	else {
-	  if (counttotal == totalobjectssize3) {
+	  if (counttotal == totalobjectssize) {
 	    break;
 	  }
         }

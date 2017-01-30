@@ -109,6 +109,10 @@ void HLTExoticaValidator::beginJob()
 
 void HLTExoticaValidator::endRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
 {
+    for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
+         iter != _analyzers.end(); ++iter) {
+        iter->endRun();
+    }
 }
 
 

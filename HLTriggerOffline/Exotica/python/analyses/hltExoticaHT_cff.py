@@ -5,7 +5,7 @@ HTPSet = cms.PSet(
         "HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v",
         "HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_v",
         #"HLT_PFHT750_4Jet_v", # Run2
-        "HLT_PFHT750_4Jet_Pt50_v",
+        "HLT_PFHT750_4Jet_v",
         "HLT_PFHT650_4Jet_v", # Run2
         "HLT_PFHT550_4Jet_v", # Run2
         #"HLT_PFHT900_v",      # Run2
