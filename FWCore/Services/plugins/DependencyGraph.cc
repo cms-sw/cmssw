@@ -72,12 +72,20 @@ private:
   const char * edmModuleType(edm::ModuleDescription const & module);
 
   struct node {
-    std::string  name;
-    unsigned int id;
-    EDMModuleType  type;
-    bool         scheduled;
+    std::string   name;
+    unsigned int  id;
+    EDMModuleType type;
+    bool          scheduled;
   };
 
+  // directed graph, with `vertex_properties` attached to each vertex and no properties attached to edges
+  boost::adjacency_list<
+      boost::vecS,
+      boost::vecS,
+      boost::directedS,
+      node,
+      boost::no_property
+  > m_graph;
 };
 
 constexpr
@@ -153,23 +161,16 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p)
 void
 DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsumes, ProcessContext const & context) {
 
-  // build a directed graph, with `vertex_properties` attached to each vertex and no properties attached to edges
-  boost::adjacency_list<
-      boost::vecS,
-      boost::vecS,
-      boost::directedS,
-      node,
-      boost::no_property
-  > graph(pathsAndConsumes.allModules().size());
-
-  // create graph vertices for the source module
-  boost::add_vertex(graph);
-  graph[0] = { "source", 0, EDMModuleType::Source, false };
+  // create graph vertex for the source module
+  boost::add_vertex(m_graph);
+  m_graph[0] = { "source", 0, EDMModuleType::Source, true };
 
   // create graph vertices associated to all modules in the process
-  for (edm::ModuleDescription const * module: pathsAndConsumes.allModules()) {
-    graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
-  }
+  auto size = pathsAndConsumes.allModules().size();
+  for (size_t i = 0; i < size; ++i)
+    boost::add_vertex(m_graph);
+  for (edm::ModuleDescription const * module: pathsAndConsumes.allModules())
+    m_graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
 
   // paths and endpaths
   auto const & paths = pathsAndConsumes.paths();
@@ -178,38 +179,38 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
   // mark scheduled modules
   for (unsigned int i = 0; i < paths.size(); ++i)
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnPath(i))
-      graph[module->id()].scheduled = true;
+      m_graph[module->id()].scheduled = true;
   for (unsigned int i = 0; i < endps.size(); ++i)
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnEndPath(i))
-      graph[module->id()].scheduled = true;
+      m_graph[module->id()].scheduled = true;
 
   // add graph edges associated to module dependencies
-  for (auto vertex: make_range(boost::vertices(graph)))
-  {
-    if (vertex == 0)
-      // the Source (id = 0) is not part of the consumes interface
-      continue;
-    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(graph[vertex].id))
-      boost::add_edge(vertex, module->id(), graph);
-  }
+  for (edm::ModuleDescription const * consumer: pathsAndConsumes.allModules())
+    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id()))
+      boost::add_edge(consumer->id(), module->id(), m_graph);
 
   // draw the dependency graph
   std::ofstream out("dependency.gv");
   boost::write_graphviz(
       out,
-      graph,
+      m_graph,
       [&](auto & out, auto const & node) {
-        out << "[label=\"" << graph[node].name << "\" " <<
-               "shape=\"" << shapes[static_cast<std::underlying_type_t<EDMModuleType>>(graph[node].type)] << "\" " <<
+        out << "[label=\"" << m_graph[node].name << "\" " <<
+               "shape=\"" << shapes[static_cast<std::underlying_type_t<EDMModuleType>>(m_graph[node].type)] << "\" " <<
                "style=\"filled\" " <<
                "color=\"black\" " <<
-               "fillcolor=\"" << (graph[node].scheduled ? "white" : "lightgrey") << "\"]"; },
+               "fillcolor=\"" << (m_graph[node].scheduled ? "white" : "lightgrey") << "\"]"; },
       [&](auto & out, auto const & edge) { },
       [&](auto & out) {
         out << "label=\"process " << context.processName() << "\"\n" <<
                "labelloc=top\n"; }
   );
   out.close();
+}
+
+inline
+bool isProcessWideService(DependencyGraph const *) {
+  return true;
 }
 
 
