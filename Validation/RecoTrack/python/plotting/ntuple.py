@@ -876,7 +876,7 @@ class TrackingParticlePrinter:
         if tp.isFromBHadron():
             fromB = " from B hadron"
         return [
-            self._prefix+"TP %d pdgId %d%s%s pT %f eta %f phi %f" % (tp.index(), tp.pdgId(), genIds, fromB, tp.pt(), tp.eta(), tp.phi()),
+            self._prefix+"TP %d pdgId %d%s%s ev:bx %d:%d pT %f eta %f phi %f" % (tp.index(), tp.pdgId(), genIds, fromB, tp.event(), tp.bunchCrossing(), tp.pt(), tp.eta(), tp.phi()),
             self._prefix+" pixel hits %d strip hits %d dxy %f dz %f" % (tp.nPixel(), tp.nStrip(), tp.pca_dxy(), tp.pca_dz())
         ]
         
@@ -913,14 +913,21 @@ class TrackingParticlePrinter:
             lst.append(self._prefix+" sim hits")
             for simhit in tp.simHits():
                 detId = parseDetId(simhit.detId())
-                matched = "matched to RecHits "+",".join(str(h.index()) for h in simhit.hits())
+                tmp = []
+                for h in simhit.hits():
+                    tmp.append(",".join([str(trk.index()) for trk in h.tracks()]) + ":%d"%h.index())
+                if len(tmp) == 0:
+                    matched = "not matched to any Track/RecHit"
+                else:
+                    matched = "matched to Tracks:RecHits "+";".join(tmp)
+
                 lst.append(self._prefix+"  %s %d pdgId %d process %d detId %d %s x,y,z %f,%f,%f %s" % (simhit.layerStr(), simhit.index(), simhit.particle(), simhit.process(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z(), matched))
         return lst
 
     def _printMatchedTracksHeader(self):
         return [self._prefix+" matched to tracks"]
 
-    def _printMatchedTracks(self, tracks, header=None):
+    def _printMatchedTracks(self, tracks, header=None, useTrackPrinter=True):
         lst = []
         if header is not None:
             lst.append(self._prefix+" "+header)
@@ -944,9 +951,9 @@ class TrackingParticlePrinter:
                 bestTrack = tp.bestMatchingTrack()
                 if bestTrack is not None:
                     lst.pop()
-                    lst.extend(self._printMatchedTracks([bestTrack], header+", but a following track with >= 3 matched hits is found"))
+                    lst.extend(self._printMatchedTracks([bestTrack], header+", but a following track with >= 3 matched hits is found", useTrackPrinter=useTrackPrinter))
         else:
-            lst.extend(self._printMatchedTracks([trkInfo.track() for trkInfo in tp.matchedTrackInfos()]))
+            lst.extend(self._printMatchedTracks([trkInfo.track() for trkInfo in tp.matchedTrackInfos()], useTrackPrinter=useTrackPrinter))
         return lst
 
     def diffMatchedTracks(self, tp1, tp2):
