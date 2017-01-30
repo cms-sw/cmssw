@@ -56,6 +56,7 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
     int nStripHits = 0;
 
     // first, look at the full track to see whether it is good
+    auto const & trajParams = track.extra()->trajParams();
     auto hb = track.recHitsBegin();
     for(unsigned int h=0;h<track.recHitsSize();h++){
        auto hit = *(hb+h);
@@ -89,14 +90,14 @@ void SiPixelPhase1TrackEfficiency::analyze(const edm::Event& iEvent, const edm::
       bool isHitValid   = hit->getType()==TrackingRecHit::valid;
       bool isHitMissing = hit->getType()==TrackingRecHit::missing;
 
-      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
+      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
       const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(id) );
       const PixelTopology& topol = geomdetunit->specificTopology();
       LocalPoint lp;
       if (pixhit) {
         lp = pixhit->localPosition();
       } else {
-        lp = measurement.updatedState().localPosition();
+        lp = trajParams[h].position();
       }
 
       MeasurementPoint mp = topol.measurementPosition(lp);
