@@ -44,18 +44,10 @@ GEMGeometryESModule::produce(const MuonGeometryRecord & record)
     return std::shared_ptr<GEMGeometry>(builder.build(&(*cpv), *mdc));
   } else {
     edm::ESHandle<RecoIdealGeometry> riggem;
-    auto gemRcd = record.tryToGetRecord<GEMRecoGeometryRcd>();
+    record.getRecord<GEMRecoGeometryRcd>().get(riggem);
 
-    if( gemRcd != 0 ) {
-      record.getRecord<GEMRecoGeometryRcd>().get(riggem);
-
-      GEMGeometryBuilderFromCondDB builder;
-      return std::shared_ptr<GEMGeometry>(builder.build(*riggem));
-    }      
-    else
-      edm::LogInfo("GEMGeom") << "No GEMRecoGeometryRcd record found in the EventSetup for synchronization value.";
-
-    return std::shared_ptr<GEMGeometry>( new GEMGeometry );
+    GEMGeometryBuilderFromCondDB builder;
+    return std::shared_ptr<GEMGeometry>(builder.build(*riggem));
   }
 }
 
