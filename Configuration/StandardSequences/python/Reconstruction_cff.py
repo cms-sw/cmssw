@@ -71,7 +71,7 @@ from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
 _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
-_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction
+_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction+ctppsDiamondLocalReconstruction
 ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
