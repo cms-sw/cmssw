@@ -177,9 +177,9 @@ NEWtpToGlbCosmic1LegSelMuonAssociation.UseMuon = True
 #
 
 NewMuonAssociation_seq = cms.Sequence(
-    cms.SequencePlaceholder("probeTracks_seq")+NEWtpToTkMuonAssociation
+    probeTracks_seq+NEWtpToTkMuonAssociation
     +cms.SequencePlaceholder("muonTkAssociation_seq")
-    +cms.SequencePlaceholder("seedsOfSTAmuons_seq")+NEWtpToStaSeedAssociation+NEWtpToStaMuonAssociation+NEWtpToStaUpdMuonAssociation
+    +seedsOfSTAmuons_seq+NEWtpToStaSeedAssociation+NEWtpToStaMuonAssociation+NEWtpToStaUpdMuonAssociation
     +NEWtpToGlbMuonAssociation
     )
 
@@ -188,7 +188,7 @@ NewMuonAssociationTEV_seq = cms.Sequence(
     )
 
 NewMuonAssociationDisplaced_seq = cms.Sequence(
-    cms.SequencePlaceholder("seedsOfDisplacedSTAmuons_seq")+NEWtpToDisplacedStaSeedAssociation+NEWtpToDisplacedStaMuonAssociation
+    seedsOfDisplacedSTAmuons_seq+NEWtpToDisplacedStaSeedAssociation+NEWtpToDisplacedStaMuonAssociation
     +NEWtpToDisplacedTrkMuonAssociation+NEWtpToDisplacedGlbMuonAssociation
     )
 
