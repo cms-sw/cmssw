@@ -17,11 +17,7 @@
 
 ConversionGSCrysFixer::ConversionGSCrysFixer(const edm::ParameterSet& config)
 {
-  // singleLegConversions = EGRefinedSCFixer
   getToken(inputConvsToken_, config, "conversions");
-  //  getToken(inputSingleLegConvsToken_, config, "scMaps");
-  //  getToken(refinedSCsToken_, config, "scMaps");
-  //  getToken(refinedSCMapToken_, config, "scMaps");
   getToken(ebSCsToken_, config, "superClusters", "particleFlowSuperClusterECALBarrel");
   getToken(ebSCMapToken_, config, "scMaps", "parentSCsEB");
   getToken(eeSCsToken_, config, "superClusters", "particleFlowSuperClusterECALEndcapWithPreshower");
@@ -40,9 +36,6 @@ ConversionGSCrysFixer::produce(edm::Event& _event, edm::EventSetup const&)
   std::auto_ptr<reco::ConversionCollection> pOutput(new reco::ConversionCollection);
 
   auto& inputConvs(*getHandle(_event, inputConvsToken_, "conversions"));
-  //  auto& inputSingleLegConvs(*getHandle(_event, inputSingleLegConvsToken_, "singleLegConversions"));
-  //  auto refinedSCs(getHandle(_event, refinedSCsToken_, "refinedSCs"));
-  //  auto& refinedSCMap(*getHandle(_event, refinedSCMapToken_, "refinedSCMap"));
   auto ebSCs(getHandle(_event, ebSCsToken_, "ebSCs"));
   auto& ebSCMap(*getHandle(_event, ebSCMapToken_, "ebSCMap"));
   auto eeSCs(getHandle(_event, eeSCsToken_, "eeSCs"));

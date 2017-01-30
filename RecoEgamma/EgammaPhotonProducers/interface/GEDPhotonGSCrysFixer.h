@@ -23,7 +23,8 @@ class GEDPhotonGSCrysFixer : public edm::stream::EDProducer<> {
   GEDPhotonGSCrysFixer (const edm::ParameterSet&);
   ~GEDPhotonGSCrysFixer();
 
-  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&,
+                            edm::EventSetup const&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:

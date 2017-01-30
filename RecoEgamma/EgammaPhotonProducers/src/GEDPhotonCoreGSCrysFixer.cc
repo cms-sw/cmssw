@@ -17,7 +17,7 @@ GEDPhotonCoreGSCrysFixer::GEDPhotonCoreGSCrysFixer(const edm::ParameterSet& conf
   getToken(eeSCsToken_, config, "scs", "particleFlowSuperClusterECALEndcapWithPreshower");
   getToken(eeSCMapToken_, config, "refinedSCs", "parentSCsEE");
   getToken(convsToken_, config, "conversions");
-  getToken(singleLegConvsToken_, config, "refinedSCs");
+  getToken(singleLegConvsToken_, config, "singleconversions");
 
   produces<reco::PhotonCoreCollection>();
   produces<SCRefMap>(); // new core to old SC

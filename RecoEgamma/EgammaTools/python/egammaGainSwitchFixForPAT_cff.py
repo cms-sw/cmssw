@@ -14,14 +14,11 @@ gedGsfElectronCoresGSFixed = gsFixedGsfElectronCores.clone(
 gedGsfElectronsGSFixed = gsFixedGsfElectrons.clone(
     newCores = 'gedGsfElectronCoresGSFixed'
 )
-allConversionsGSFixed = gsFixedConversions.clone(
-    superClusters = 'particleFlowSuperClusterECALGSFixed',
-    scMaps = 'particleFlowEGammaGSFixed'
-)
 gedPhotonCoreGSFixed = gsFixedGEDPhotonCores.clone(
     refinedSCs = 'particleFlowEGammaGSFixed',
     scs = 'particleFlowSuperClusterECALGSFixed',
-    conversions = 'allConversionsGSFixed'
+    conversions = 'allConversions',
+    singleconversions = 'particleFlowEGamma'
 )
 gedPhotonsGSFixed = gsFixedGEDPhotons.clone(
     newCores = 'gedPhotonCoreGSFixed'
@@ -42,7 +39,6 @@ egammaGainSwitchFixSequence = cms.Sequence(
     particleFlowEGammaGSFixed*
     gedGsfElectronCoresGSFixed*
     gedGsfElectronsGSFixed*
-    allConversionsGSFixed*
     gedPhotonCoreGSFixed*
     gedPhotonsGSFixed
 )

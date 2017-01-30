@@ -58,7 +58,7 @@ GEDPhotonGSCrysFixer::~GEDPhotonGSCrysFixer()
 }
 
 void
-GEDPhotonGSCrysFixer::beginRun(edm::Run const&, edm::EventSetup const& _setup)
+GEDPhotonGSCrysFixer::beginLuminosityBlock(edm::LuminosityBlock const& _lb, edm::EventSetup const& _setup) 
 {
   energyCorrector_.init(_setup);
 

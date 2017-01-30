@@ -1,8 +1,8 @@
-#ifndef EgammaIsolationRemappers_EgammaHcalPFClusterIsolationRemapper_h
-#define EgammaIsolationRemappers_EgammaHcalPFClusterIsolationRemapper_h
+#ifndef EgammaIsolationRemappers_EgammaPFClusterIsolationRemapper_h
+#define EgammaIsolationRemappers_EgammaPFClusterIsolationRemapper_h
 
 //*****************************************************************************
-// File:      EgammaHcalPFClusterIsolationRemapper.h
+// File:      EgammaPFClusterIsolationRemapper.h
 // ----------------------------------------------------------------------------
 // OrigAuth:  Yutaro Iiyama
 // Institute: MIT
@@ -15,10 +15,10 @@
 #include "DataFormats/Common/interface/Ref.h"
 
 template<typename C>
-class EgammaHcalPFClusterIsolationRemapper : public edm::stream::EDProducer<> {
+class EgammaPFClusterIsolationRemapper : public edm::stream::EDProducer<> {
  public:
-  EgammaHcalPFClusterIsolationRemapper(const edm::ParameterSet&);
-  ~EgammaHcalPFClusterIsolationRemapper();
+  EgammaPFClusterIsolationRemapper(const edm::ParameterSet&);
+  ~EgammaPFClusterIsolationRemapper();
  
   void produce(edm::Event&, const edm::EventSetup&);
  private:

@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaEcalPFClusterIsolationRemapper.h"
+#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaPFClusterIsolationRemapper.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 template<typename C>
-EgammaEcalPFClusterIsolationRemapper<C>::EgammaEcalPFClusterIsolationRemapper(const edm::ParameterSet& config) : 
+EgammaPFClusterIsolationRemapper<C>::EgammaPFClusterIsolationRemapper(const edm::ParameterSet& config) : 
   emObjectProducer_       (consumes<C>(config.getParameter<edm::InputTag>("candidateProducer"))),
   newToOldObjectMap_      (consumes<CRefMap>(config.getParameter<edm::InputTag>("newToOldObjectMap"))),
   isolationMap_           (consumes<FloatMap>(config.getParameter<edm::InputTag>("isolationMap")))
@@ -16,12 +16,12 @@ EgammaEcalPFClusterIsolationRemapper<C>::EgammaEcalPFClusterIsolationRemapper(co
 }
 
 template<typename C>
-EgammaEcalPFClusterIsolationRemapper<C>::~EgammaEcalPFClusterIsolationRemapper()
+EgammaPFClusterIsolationRemapper<C>::~EgammaPFClusterIsolationRemapper()
 {
 }
 
 template<typename C>
-void EgammaEcalPFClusterIsolationRemapper<C>::produce(edm::Event& iEvent, const edm::EventSetup&)
+void EgammaPFClusterIsolationRemapper<C>::produce(edm::Event& iEvent, const edm::EventSetup&)
 {
   edm::Handle<C> emObjectHandle;
   iEvent.getByToken(emObjectProducer_, emObjectHandle);
@@ -56,8 +56,8 @@ void EgammaEcalPFClusterIsolationRemapper<C>::produce(edm::Event& iEvent, const 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-typedef EgammaEcalPFClusterIsolationRemapper<reco::GsfElectronCollection> ElectronEcalPFClusterIsolationRemapper;
-typedef EgammaEcalPFClusterIsolationRemapper<reco::PhotonCollection> PhotonEcalPFClusterIsolationRemapper;
+typedef EgammaPFClusterIsolationRemapper<reco::GsfElectronCollection> ElectronPFClusterIsolationRemapper;
+typedef EgammaPFClusterIsolationRemapper<reco::PhotonCollection> PhotonPFClusterIsolationRemapper;
 
-DEFINE_FWK_MODULE(ElectronEcalPFClusterIsolationRemapper);
-DEFINE_FWK_MODULE(PhotonEcalPFClusterIsolationRemapper);
+DEFINE_FWK_MODULE(ElectronPFClusterIsolationRemapper);
+DEFINE_FWK_MODULE(PhotonPFClusterIsolationRemapper);

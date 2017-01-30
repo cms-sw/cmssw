@@ -77,7 +77,6 @@ PhotonGSCrysSimpleFixer::PhotonGSCrysSimpleFixer( const edm::ParameterSet & pset
   energyTypesToFix_(StringToEnumValue<reco::Photon::P4type>(pset.getParameter<std::vector<std::string> >("energyTypesToFix"))),
   energyTypeForP4_(static_cast<reco::Photon::P4type>(StringToEnumValue<reco::Photon::P4type>(pset.getParameter<std::string>("energyTypeForP4"))))
 { 
-  std::cout <<"new photons: warning we have not yet fixed H/E variables with the new E"<<std::endl;
   getToken(oldPhosToken_,pset,"oldPhos");
   getToken(ebMultiAndWeightsRecHitsToken_,pset,"ebMultiAndWeightsRecHits");
   getToken(ebMultiRecHitsToken_,pset,"ebMultiRecHits");

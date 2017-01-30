@@ -18,8 +18,6 @@ from RecoEgamma.EgammaElectronProducers.gsFixedGsfElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.gsFixedGEDPhotonCores_cfi import *
 #turns the cores into photons, again only modifying those which have a gs eb crystal
 from RecoEgamma.EgammaPhotonProducers.gsFixedGEDPhotons_cfi import *
-#replace the superclusters of allConversions
-from RecoEgamma.EgammaPhotonProducers.gsFixedConversions_cfi import *
 
 egammaGainSwitchLocalFixSequence = cms.Sequence(
     ecalWeightLocalRecoFromSelectedDigis*
@@ -32,15 +30,6 @@ egammaGainSwitchFixSequence = cms.Sequence(
     gsFixedRefinedSuperClusters*
     gsFixedGsfElectronCores*
     gsFixedGsfElectrons*
-    gsFixedConversions*
     gsFixedGEDPhotonCores*
     gsFixedGEDPhotons
     )
-
-from RecoEgamma.EgammaElectronProducers.gsSimpleFixedGsfElectrons_cfi import gsSimpleFixedGsfElectrons
-from RecoEgamma.EgammaElectronProducers.gsSimpleFixedPhotons_cfi import gsSimpleFixedPhotons
-
-egammaGainSwitchSimpleFixSequence = cms.Sequence(
-    egammaGainSwitchLocalFixSequence*
-    gsSimpleFixedGsfElectrons*
-    gsSimpleFixedPhotons)

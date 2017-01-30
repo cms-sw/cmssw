@@ -41,21 +41,6 @@ def miniAOD_addOrginalEGamma(process,suffix):
                       "photonIDValueMapProducer",
                       "photonRegressionValueMapProducer",
                       "photonMVAValueMapProducer",
-                      #"particleBasedIsolation",
-                      #"PhotonIDProdGED",
-                      #"eidLoose",
-                      #"eidRobustHighEnergy",
-                      #"eidRobustLoose",
-                      #"eidRobustTight",
-                      #"eidTight",
-                      #"photonEcalPFClusterIsolationProducer",
-                      #"photonHcalPFClusterIsolationProducer",
-                      #"phoEcalPFClusIso",
-                      #"phoHcalPFClusIso",
-                      #"electronEcalPFClusterIsolationProducer",
-                      #"electronHcalPFClusterIsolationProducer",
-                      #"eleEcalPFClusIso",
-                      #"eleHcalPFClusIso",
                       "phPFIsoDepositChargedPAT",
                       "phPFIsoDepositChargedAllPAT",
                       "phPFIsoDepositPUPAT",
@@ -130,8 +115,8 @@ def customizeGSFixForPAT(process):
         cms.InputTag("eidTightGSFixed"),
         )
     process.reducedEgamma.photons = cms.InputTag("gedPhotonsGSFixed")
-    process.reducedEgamma.conversions = cms.InputTag("allConversionsGSFixed")
-    process.reducedEgamma.singleConversions = cms.InputTag("particleFlowEGammaGSFixed")
+    process.reducedEgamma.conversions = cms.InputTag("allConversions", processName=cms.InputTag.skipCurrentProcess())
+    process.reducedEgamma.singleConversions = cms.InputTag("particleFlowEGamma", processName=cms.InputTag.skipCurrentProcess())
     process.reducedEgamma.photonsPFValMap = cms.InputTag("particleBasedIsolationGSFixed","gedPhotons")
     process.reducedEgamma.photonPFClusterIsoSources = cms.VInputTag(
         cms.InputTag("photonEcalPFClusterIsolationProducerGSFixed"),

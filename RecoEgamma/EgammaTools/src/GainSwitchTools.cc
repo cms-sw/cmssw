@@ -18,10 +18,12 @@ int GainSwitchTools::nrCrysWithFlagsIn5x5(const DetId& id,const std::vector<int>
       cursor.home();
       cursor.offsetBy( eastNr, northNr);
       DetId id = *cursor;
-      auto recHitIt = recHits->find(id);
-      if(recHitIt!=recHits->end() && 
-	 recHitIt->checkFlags(flags)){
-	nrFound++;
+      if (recHits != nullptr) {
+	auto recHitIt = recHits->find(id);
+	if(recHitIt!=recHits->end() && 
+	   recHitIt->checkFlags(flags)){
+	  nrFound++;
+	}
       }
     }
   }
