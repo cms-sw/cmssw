@@ -99,7 +99,6 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
 void CAHitQuadrupletGenerator::initEvent(const edm::Event& ev, const edm::EventSetup& es) {
   if (theComparitor) theComparitor->init(ev, es);
 }
-
 namespace {
   void createGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	for (unsigned int i = 0; i < layers.size(); i++)
@@ -210,11 +209,11 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
 	CAGraph g;
 
-
 	std::vector<HitDoublets> hitDoublets;
 
 
-	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);	
+	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
+	
 	createGraphStructure(layers, g);
         fillGraph(layers, g, hitDoublets,
                   [&](const SeedingLayerSetsHits::SeedingLayer& inner,
@@ -296,7 +295,7 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
- 	// re-used thoughout, need to be vectors because of RZLine interface
+ 	// re-used thoughout
 	std::array<float, 4> bc_r;
 	std::array<float, 4> bc_z;
   	std::array<float, 4> bc_errZ2;
@@ -305,8 +304,12 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
   	std::array<bool, 4> barrels;
 	bool hasAlreadyPushedACandidate = false;
 	float selectedChi2 = std::numeric_limits<float>::max();
+  	unsigned int previousfourthLayerId = 0;
+	std::array<unsigned int, 2> previousCellIds ={{0,0}};
+	unsigned int previousSideId = 0;
+	int previousSubDetId = 0;
 
- 	unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
+	unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
 
   	// Loop over quadruplets
   	for (unsigned int quadId = 0; quadId < numberOfFoundQuadruplets; ++quadId)
@@ -314,7 +317,7 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
 
     		auto isBarrel = [](const unsigned id) -> bool
     		{
-      		return id == PixelSubdetector::PixelBarrel;
+      			return id == PixelSubdetector::PixelBarrel;
     		};
     		for(unsigned int i = 0; i< 3; ++i)
     		{
@@ -330,21 +333,11 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     		barrels[3] = isBarrel(ahit->geographicalId().subdetId());
     		if(caOnlyOneLastHitPerLayerFilter)
    		{
-	 		unsigned int fourthLayerId = 0;
-  			unsigned int previousfourthLayerId = 0;
- 	 		int subDetId = 0; 
- 	 		int previousSubDetId = 0;
-	 		unsigned int sideId = 0; 
- 	 		unsigned int previousSideId = 0;
-	 		std::array<unsigned int, 2> previousCellIds ={{0,0}};
-	  		bool isTheSameTriplet = false;
-			bool isTheSameFourthLayer = false;
-
-    			fourthLayerId = tTopo->layer(ahit->geographicalId());
-            		sideId = tTopo->side(ahit->geographicalId());
-            		subDetId = ahit->geographicalId().subdetId();
-    			isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
-   			isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
+ 	     		const auto fourthLayerId = tTopo->layer(ahit->geographicalId());
+            		const auto sideId = tTopo->side(ahit->geographicalId());
+            		const auto subDetId = ahit->geographicalId().subdetId();
+    			const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
+   			const auto isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
 
     			previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
     			previousfourthLayerId = fourthLayerId;
@@ -468,7 +461,7 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
-  // re-used thoughout, need to be vectors because of RZLine interface
+  // re-used thoughout
   std::array<float, 4> bc_r;
   std::array<float, 4> bc_z;
   std::array<float, 4> bc_errZ2;
@@ -477,7 +470,10 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
   std::array<bool, 4> barrels;
   bool hasAlreadyPushedACandidate = false;
   float selectedChi2 = std::numeric_limits<float>::max();
-
+  unsigned int previousfourthLayerId = 0;
+  std::array<unsigned int, 2> previousCellIds ={{0,0}};
+  unsigned int previousSideId = 0;
+  int previousSubDetId = 0;
 
   unsigned int numberOfFoundQuadruplets = foundQuadruplets.size();
 
@@ -504,21 +500,11 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
     if(caOnlyOneLastHitPerLayerFilter)
     {
-	    unsigned int fourthLayerId = 0;
-	    unsigned int previousfourthLayerId = 0;
-	    int subDetId = 0; 
-	    int previousSubDetId = 0;
-	    unsigned int sideId = 0; 
-	    unsigned int previousSideId = 0; 
-	    std::array<unsigned int, 2> previousCellIds ={{0,0}};
-	    bool isTheSameTriplet = false;
-	    bool isTheSameFourthLayer = false;
-
-            fourthLayerId = tTopo->layer(ahit->geographicalId());
-            sideId = tTopo->side(ahit->geographicalId());
-            subDetId = ahit->geographicalId().subdetId();
-	    isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
-            isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
+	    const auto fourthLayerId = tTopo->layer(ahit->geographicalId());
+            const auto sideId = tTopo->side(ahit->geographicalId());
+            const auto subDetId = ahit->geographicalId().subdetId();
+    	    const auto isTheSameTriplet = (quadId != 0) && (foundQuadruplets[quadId][0]->getCellId() ==  previousCellIds[0]) && (foundQuadruplets[quadId][1]->getCellId() ==  previousCellIds[1]);
+            const auto isTheSameFourthLayer = (quadId != 0) &&  (fourthLayerId == previousfourthLayerId) && (subDetId == previousSubDetId) && (sideId == previousSideId);
 
 	    previousCellIds = {{foundQuadruplets[quadId][0]->getCellId(), foundQuadruplets[quadId][1]->getCellId()}};
 	    previousfourthLayerId = fourthLayerId;
