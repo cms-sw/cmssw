@@ -28,17 +28,22 @@ process.dqmSaver.tag = "BeamPixel"
 
 
 #----------------------------
+# Conditions
+#----------------------------
+# Use this to run locally (for testing purposes), choose the right GT
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data", "")
+# Otherwise use this
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+
+
+#----------------------------
 # Sub-system Configuration
 #----------------------------
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-# Use this to run locally (for testing purposes), choose the right GT
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, "80X_dataRun2_Prompt_v15", "")
-# Otherwise use this
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
 #----------------------------
