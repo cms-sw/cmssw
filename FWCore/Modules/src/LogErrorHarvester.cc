@@ -16,9 +16,9 @@
 //
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -32,15 +32,15 @@
 //
 
 namespace edm {
-  class LogErrorHarvester : public EDProducer {
+  class LogErrorHarvester : public global::EDProducer<> {
   public:
     explicit LogErrorHarvester(ParameterSet const&);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void beginJob() override;
-    virtual void produce(Event&, EventSetup const&) override;
-    virtual void endJob() override ;
+    void beginJob() override;
+    void produce(StreamID, Event&, EventSetup const&) const override;
+    void endJob() override;
   };
 
   LogErrorHarvester::LogErrorHarvester(ParameterSet const&) {
@@ -48,8 +48,8 @@ namespace edm {
   }
 
   void
-  LogErrorHarvester::produce(Event& iEvent, EventSetup const&) {
-    const auto index = iEvent.streamID().value();
+  LogErrorHarvester::produce(StreamID const sid, Event& iEvent, EventSetup const&) const {
+    const auto index = sid.value();
     if(!FreshErrorsExist(index)) {
       iEvent.put(std::make_unique<std::vector<ErrorSummaryEntry>>());
     } else {
