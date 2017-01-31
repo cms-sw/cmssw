@@ -447,7 +447,14 @@ class SerializationCodeGenerator(object):
         logging.info('Searching serializable classes in %s/%s ...', self.split_path[1], self.split_path[2])
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
-        index = clang.cindex.Index.create()
+        # if we are using spack it is probably on macOS and we need to costruct library search path
+        if "SPACK_CC" in os.environ :
+            cindex=clang.cindex
+            libpath=os.path.dirname(os.path.realpath(clang.cindex.__file__))+"/../../lib"
+            cindex.Config.set_library_path(libpath)
+            index = cindex.Index.create()
+        else :
+            index = clang.cindex.Index.create()
         translation_unit = index.parse(headers_h, flags)
         if not translation_unit:
             raise Exception('Unable to load input.')
