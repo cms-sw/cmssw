@@ -117,9 +117,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
 # Phase1
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 
-process.PerModule.enabled=True
-process.PerReadout.enabled=False
-process.OverlayCurvesForTiming.enabled=False
+process.PerModule.enabled=False
+process.PerReadout.enabled=True
+process.OverlayCurvesForTiming.enabled=True
 
 process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(QTestfile),
@@ -144,6 +144,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32(1)
 )
 
+
+
+
 #--------------------------
 # Scheduling
 #--------------------------
@@ -155,6 +158,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 else:
     process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
+
 
 process.p = cms.Path(
   process.Reco
