@@ -15,11 +15,12 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gmtStage2Raw")) )
 stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("gtStage2Raw")) )
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
 #
 # Legacy Trigger:
 #
-if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
+if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     print "L1TDigiToRaw Sequence configured for Run1 (Legacy) trigger. "
     # legacy L1 packages:
     from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
@@ -40,7 +41,7 @@ if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 #
 # Stage-1 Trigger
 #
-if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
+if stage1L1Trigger.isChosen() and not (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     print "L1TDigiToRaw Sequence configured for Stage-1 (2015) trigger. "    
     # legacy L1 packers, still in use for 2015:
     from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
@@ -65,7 +66,7 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
+if (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     print "L1TDigiToRaw Sequence configured for Stage-2 (2016) trigger. "
     from EventFilter.L1TRawToDigi.caloStage2Raw_cfi import *
     from EventFilter.L1TRawToDigi.gmtStage2Raw_cfi import *
