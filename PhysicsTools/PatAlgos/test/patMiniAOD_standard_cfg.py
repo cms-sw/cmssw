@@ -1,5 +1,5 @@
 ## import skeleton process
-from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
+from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process, patAlgosToolsTask
 
 #process.Tracer = cms.Service("Tracer")
 
