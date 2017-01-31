@@ -64,7 +64,11 @@ namespace DataFormats_CTPPSReco {
     edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;
     edm::Wrapper<CTPPSDiamondLocalTrack> wrp_ctd_lt;
     std::vector<CTPPSDiamondLocalTrack> vec_ctd_lt;
+    edm::DetSet<CTPPSDiamondLocalTrack> ds_ctd_lt;
+    std::vector< edm::DetSet<CTPPSDiamondLocalTrack> > vec_ds_ctd_lt;
     edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> > wrp_vec_ctd_lt;
+    edm::DetSetVector<CTPPSDiamondLocalTrack> dsv_ctd_lt;
+    edm::Wrapper<edm::DetSetVector<CTPPSDiamondLocalTrack> > wrp_dsv_ctd_lt;
 
     //--- common objects
 
