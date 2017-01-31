@@ -35,7 +35,6 @@ namespace edm {
   class LogErrorHarvester : public EDProducer {
   public:
     explicit LogErrorHarvester(ParameterSet const&);
-    ~LogErrorHarvester();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
@@ -46,9 +45,6 @@ namespace edm {
 
   LogErrorHarvester::LogErrorHarvester(ParameterSet const&) {
     produces<std::vector<ErrorSummaryEntry>>();
-  }
-
-  LogErrorHarvester::~LogErrorHarvester() {
   }
 
   void
