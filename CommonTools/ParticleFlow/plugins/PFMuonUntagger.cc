@@ -84,7 +84,7 @@ void PFMuonUntagger::produce(edm::Event &iEvent, const edm::EventSetup&)
     edm::Handle<reco::CandidateView> badmuons;
     for (const auto & tag : badmuons_) {
         iEvent.getByToken(tag, badmuons);
-        for (unsigned int j = 0, nj = badmuons->size(); j < nj; ++nj) {
+        for (unsigned int j = 0, nj = badmuons->size(); j < nj; ++j) {
             reco::CandidatePtr p = badmuons->ptrAt(j);
             if (p.isNonnull() && p.id() == muons.id()) {
                 reco::Muon &mu = (*copy)[p.key()];
