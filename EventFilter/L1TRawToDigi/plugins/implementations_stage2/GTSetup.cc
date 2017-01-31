@@ -41,7 +41,7 @@ namespace l1t {
                PackerFactory::get()->make("stage2::GTJetPacker"),
                PackerFactory::get()->make("stage2::GTTauPacker"),
                PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
-               //PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
+               PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
             };
 
          }
