@@ -68,7 +68,7 @@ class DataFormat:
 # for PAT and/or MINIAOD
 def switchOnVIDElectronIdProducer(process, dataFormat, task=None):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
-    if task:
+    if task is not None:
         task.add(process.egmGsfElectronIDTask)
     #*always* reset to an empty configuration
     if( len(process.egmGsfElectronIDs.physicsObjectIDs) > 0 ):
@@ -117,8 +117,10 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True,
 
 #turns on the VID electron ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-def switchOnVIDMuonIdProducer(process, dataFormat):
+def switchOnVIDMuonIdProducer(process, dataFormat, task=None):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
+    if task is not None:
+        task.add(process.muoMuonIDTask)
      #*always* reset to an empty configuration                                                                    
     if( len(process.muoMuonIDs.physicsObjectIDs) > 0 ):
         process.muoMuonIDs.physicsObjectIDs = cms.VPSet()
@@ -158,7 +160,7 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 # for PAT and/or MINIAOD
 def switchOnVIDPhotonIdProducer(process, dataFormat, task=None):
     process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
-    if task:
+    if task is not None:
         task.add(process.egmPhotonIDTask)
     #*always* reset to an empty configuration
     if( len(process.egmPhotonIDs.physicsObjectIDs) > 0 ):
