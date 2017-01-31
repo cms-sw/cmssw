@@ -99,6 +99,7 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
 void CAHitQuadrupletGenerator::initEvent(const edm::Event& ev, const edm::EventSetup& es) {
   if (theComparitor) theComparitor->init(ev, es);
 }
+
 namespace {
   void createGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	for (unsigned int i = 0; i < layers.size(); i++)
@@ -209,11 +210,11 @@ void CAHitQuadrupletGenerator::hitQuadruplets(const TrackingRegion& region,
 
 	CAGraph g;
 
+
 	std::vector<HitDoublets> hitDoublets;
 
 
-	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
-	
+	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);	
 	createGraphStructure(layers, g);
         fillGraph(layers, g, hitDoublets,
                   [&](const SeedingLayerSetsHits::SeedingLayer& inner,

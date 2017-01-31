@@ -102,7 +102,8 @@ namespace {
 					layers[i][j].name());
 			if (foundVertex == g.theLayers.end())
 			{
-				g.theLayers.emplace_back(layers[i][j].name(), layers[i][j].hits().size());
+				g.theLayers.emplace_back(layers[i][j].name(),
+					        layers[i][j].hits().size());
 				vertexIndex = g.theLayers.size() - 1;
 			}
 			else
