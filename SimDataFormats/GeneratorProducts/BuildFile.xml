@@ -4,6 +4,9 @@
 <use   name="hepmc"/>
 <use   name="xz"/>
 <use   name="roothistmatrix"/>
+<architecture name="_clang8">
+    <flags LDFLAGS="-L$(GCC_F77COMPILER_BASE)/lib64"/>
+</architecture>
 <export>
   <lib   name="1"/>
 </export>
