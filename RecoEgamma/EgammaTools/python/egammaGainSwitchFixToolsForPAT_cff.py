@@ -93,7 +93,9 @@ def customizeGSFixForPAT(process):
 
     #this clones all the modules before they were modified to run on the orginal collections
     miniAOD_addOrginalEGamma(process,"BeforeGSFix")
-    process.MINIAODoutput.outputCommands.extend(['keep *_reducedEgammaBeforeGSFix_*_*',
+    from PhysicsTools.PatAlgos.tools.helpers import addKeepStatement
+    addKeepStatement(process,'keep *_slimmedElectrons_*_*', 
+                                                ['keep *_reducedEgammaBeforeGSFix_*_*',
                                                  'keep *_slimmedElectronsBeforeGSFix_*_*',
                                                  'keep *_slimmedPhotonsBeforeGSFix_*_*',
                                                  'keep EBDigiCollection_selectDigi_*_*',
