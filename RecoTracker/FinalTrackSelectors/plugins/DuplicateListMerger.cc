@@ -102,6 +102,7 @@ void DuplicateListMerger::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("candidateSource",edm::InputTag());
   desc.add<edm::InputTag>("candidateComponents",edm::InputTag());
   desc.add<int>("diffHitsCut",5);
+  TrackCollectionCloner::fill(desc);
   descriptions.add("DuplicateListMerger", desc);  
 }
 

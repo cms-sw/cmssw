@@ -72,7 +72,7 @@ SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
 
 SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficiency",
         clusters = cms.InputTag("siPixelClusters"),
-        trajectories = cms.InputTag("generalTracks"),
+        tracks = cms.InputTag("generalTracks"),
         primaryvertices = cms.InputTag("offlinePrimaryVertices"),
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry

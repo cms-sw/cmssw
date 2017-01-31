@@ -389,7 +389,23 @@ def customiseFor17170(process):
                     seq.insert(index, tripletProducer)
                 seq.insert(index, doubletProducer)
                 seq.insert(index, regionProducer)
+    return process
 
+# customize for removing Trajectory from the event
+def customiseFor17098(process):
+    for producer in producers_by_type(process,"DeDxEstimatorProducer"):
+       del producer.UseTrajectory
+       del producer.trajectoryTrackAssociation
+    for producer in producers_by_type(process,"TrackProducer"):
+       producer.TrajectoryInEvent = cms.bool(False)
+       producer.useHitsSplitting = cms.bool(False)  # HI still set this on...
+    for producer in producers_by_type(process,"TrackCollectionFilterCloner"):
+       producer.copyExtras = cms.untracked.bool(True)
+       producer.copyTrajectories = cms.untracked.bool(False)
+       del producer.cloner
+    for producer in producers_by_type(process,"AnalyticalTrackSelector") :
+       producer.copyExtras = cms.untracked.bool(True)
+       producer.copyTrajectories = cms.untracked.bool(False)
     return process
 
 #
@@ -419,6 +435,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor16792(process)
         process = customiseFor17094(process)
         process = customiseFor17170(process)
+        process = customiseFor17098(process)
         pass
 
 #   stage-2 changes only if needed
