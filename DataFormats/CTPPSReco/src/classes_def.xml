@@ -63,7 +63,11 @@
   <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
   <class name="std::vector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::DetSet<CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector< edm::DetSet<CTPPSDiamondLocalTrack> >"/>
   <class name="edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
 
 <!-- common objects -->
 
