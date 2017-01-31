@@ -10,6 +10,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
@@ -52,11 +53,18 @@ namespace DataFormats_CTPPSReco {
     CTPPSDiamondRecHit ctd_rh;
     edm::Ptr<CTPPSDiamondRecHit> ptr_ctd_rh;
     edm::Wrapper<CTPPSDiamondRecHit> wrp_ctd_rh;
-    std::vector<CTPPSDiamondRecHit> vec_rh;
+    std::vector<CTPPSDiamondRecHit> vec_ctd_rh;
     std::vector< edm::DetSet<CTPPSDiamondRecHit> > vec_ds_rh;
     edm::DetSet<CTPPSDiamondRecHit> ds_rh;
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
+    edm::Wrapper< std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;
+
+    CTPPSDiamondLocalTrack ctd_lt;
+    edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;
+    edm::Wrapper<CTPPSDiamondLocalTrack> wrp_ctd_lt;
+    std::vector<CTPPSDiamondLocalTrack> vec_ctd_lt;
+    edm::Wrapper< std::vector<CTPPSDiamondLocalTrack> > wrp_vec_ctd_lt;
 
     //--- common objects
 
