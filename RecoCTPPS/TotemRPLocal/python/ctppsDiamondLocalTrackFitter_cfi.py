@@ -5,7 +5,7 @@ ctppsDiamondLocalTrack = cms.EDProducer("CTPPSDiamondLocalTrackFitter",
     recHitsTag = cms.InputTag("ctppsDiamondRecHit"),
     trackingAlgorithmParams = cms.PSet(
         threshold = cms.double(2.0),
-        resolution = cms.double(0.01),
+        resolution = cms.double(0.01), # in mm
         sigma = cms.double(0.0),
     ),
 )
