@@ -7,8 +7,8 @@
  Description: Harvestes LogError messages and puts them into the Event
 
  Implementation:
-     This simple implementation writes the std::vector<ErrorSummaryEntry> in the event,
-     without any fancy attempt of encoding the strings or mapping them to ints
+   This simple implementation writes the std::vector<ErrorSummaryEntry> in the event,
+   without any fancy attempt of encoding the strings or mapping them to ints
 */
 //
 // Original Author:  Giovanni Petrucciani
@@ -33,19 +33,19 @@
 
 namespace edm {
   class LogErrorHarvester : public EDProducer {
-    public:
-      explicit LogErrorHarvester(ParameterSet const&);
-      ~LogErrorHarvester();
-      static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  public:
+    explicit LogErrorHarvester(ParameterSet const&);
+    ~LogErrorHarvester();
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-    private:
-      virtual void beginJob() override;
-      virtual void produce(Event&, EventSetup const&) override;
-      virtual void endJob() override ;
+  private:
+    virtual void beginJob() override;
+    virtual void produce(Event&, EventSetup const&) override;
+    virtual void endJob() override ;
   };
 
   LogErrorHarvester::LogErrorHarvester(ParameterSet const&) {
-     produces<std::vector<ErrorSummaryEntry> >();
+    produces<std::vector<ErrorSummaryEntry>>();
   }
 
   LogErrorHarvester::~LogErrorHarvester() {
