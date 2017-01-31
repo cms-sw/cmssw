@@ -134,7 +134,7 @@ StandardSpecifications1D = [
                             .reduce("MEAN")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade","EXTEND_X")
                             .save(),
-    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule")
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/SignedModule")
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
                             .save(),
