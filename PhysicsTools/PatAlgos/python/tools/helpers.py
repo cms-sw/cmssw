@@ -295,6 +295,16 @@ class MassSearchParamVisitor(object):
 def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue,verbose=False):
     sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue,verbose))
 
+def massReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker",verbose=False):
+    for s in process.paths_().keys():
+        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
+    for s in process.endpaths_().keys():
+        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
+    if process.schedule_() is not None:
+        for task in process.schedule_()._tasks:
+            massSearchReplaceParam(task, name, old, new, verbose)
+    return(process)
+
 def listModules(sequence):
     visitor = GatherAllModulesVisitor(gatheredInstance=cms._Module)
     sequence.visit(visitor)
@@ -308,6 +318,16 @@ def listSequences(sequence):
 def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False,skipLabelTest=False) :
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
     sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly,skipLabelTest=skipLabelTest))
+
+def massReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",verbose=False,moduleLabelOnly=False,skipLabelTest=False):
+    for s in process.paths_().keys():
+        massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
+    for s in process.endpaths_().keys():
+        massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
+    if process.schedule_() is not None:
+        for task in process.schedule_()._tasks:
+            massSearchReplaceAnyInputTag(task, old, new, verbose, moduleLabelOnly, skipLabelTest)
+    return(process)
 
 def jetCollectionString(prefix='', algo='', type=''):
     """
@@ -475,4 +495,94 @@ process.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew+process.aNew)
            self.assertNotEqual(cms.InputTag("new"), p.c.vec[2])
            self.assertNotEqual(cms.InputTag("new"), p.c.vec[3])
 
+       def testMassReplaceInputTag(self):
+           process1 = cms.Process("test")
+           massReplaceInputTag(process1, "a", "b", False, False, False)
+           self.assertEqual(process1.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+""")
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
+                                nested = cms.PSet(src = cms.InputTag("a"), src2 = cms.InputTag("c")),
+                                nestedv = cms.VPSet(cms.PSet(src = cms.InputTag("a")), cms.PSet(src = cms.InputTag("d"))),
+                                vec = cms.VInputTag(cms.InputTag("a"), cms.InputTag("b"), cms.InputTag("c"), cms.InputTag("d"))
+                               )
+           p.d = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.e = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.f = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.g = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.h = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.s1 = cms.Sequence(p.a*p.b*p.c)
+           p.path1 = cms.Path(p.s1)
+           p.s2 = cms.Sequence(p.d)
+           p.path2 = cms.Path(p.e)
+           p.s3 = cms.Sequence(p.f)
+           p.endpath1 = cms.EndPath(p.s3)
+           p.endpath2 = cms.EndPath(p.g)
+           p.t1 = cms.Task(p.h)
+           p.t2 = cms.Task(p.i)
+           p.schedule = cms.Schedule()
+           p.schedule.associate(p.t1, p.t2)
+           massReplaceInputTag(p, "a", "b", False, False, False)
+           self.assertEqual(cms.InputTag("b"), p.b.src)
+           self.assertEqual(cms.InputTag("b"), p.c.vec[0])
+           self.assertEqual(cms.InputTag("c"), p.c.vec[2])
+           self.assertEqual(cms.InputTag("a"), p.d.src)
+           self.assertEqual(cms.InputTag("b"), p.e.src)
+           self.assertEqual(cms.InputTag("b"), p.f.src)
+           self.assertEqual(cms.InputTag("b"), p.g.src)
+           self.assertEqual(cms.InputTag("b"), p.h.src)
+           self.assertEqual(cms.InputTag("b"), p.i.src)
+
+       def testMassReplaceParam(self):
+           process1 = cms.Process("test")
+           massReplaceParameter(process1, "src", cms.InputTag("a"), "b", False)
+           self.assertEqual(process1.dumpPython(),
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
+
+""")
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
+                                nested = cms.PSet(src = cms.InputTag("a"), src2 = cms.InputTag("c")),
+                                nestedv = cms.VPSet(cms.PSet(src = cms.InputTag("a")), cms.PSet(src = cms.InputTag("d"))),
+                                vec = cms.VInputTag(cms.InputTag("a"), cms.InputTag("b"), cms.InputTag("c"), cms.InputTag("d"))
+                               )
+           p.d = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.e = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.f = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.g = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.h = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.i = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.s1 = cms.Sequence(p.a*p.b*p.c)
+           p.path1 = cms.Path(p.s1)
+           p.s2 = cms.Sequence(p.d)
+           p.path2 = cms.Path(p.e)
+           p.s3 = cms.Sequence(p.f)
+           p.endpath1 = cms.EndPath(p.s3)
+           p.endpath2 = cms.EndPath(p.g)
+           p.t1 = cms.Task(p.h)
+           p.t2 = cms.Task(p.i)
+           p.schedule = cms.Schedule()
+           p.schedule.associate(p.t1, p.t2)
+           massReplaceParameter(p, "src",cms.InputTag("a"), "b", False)
+           self.assertEqual(cms.InputTag("gen"), p.a.src)
+           self.assertEqual(cms.InputTag("b"), p.b.src)
+           self.assertEqual(cms.InputTag("a"), p.c.vec[0])
+           self.assertEqual(cms.InputTag("c"), p.c.vec[2])
+           self.assertEqual(cms.InputTag("a"), p.d.src)
+           self.assertEqual(cms.InputTag("b"), p.e.src)
+           self.assertEqual(cms.InputTag("b"), p.f.src)
+           self.assertEqual(cms.InputTag("b"), p.g.src)
+           self.assertEqual(cms.InputTag("b"), p.h.src)
+           self.assertEqual(cms.InputTag("b"), p.i.src)
    unittest.main()
