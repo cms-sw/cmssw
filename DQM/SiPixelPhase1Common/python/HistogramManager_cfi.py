@@ -185,6 +185,19 @@ StandardSpecification2DProfile = [
        .save(),
 ]
 
+StandardSpecification2DOccupancy = [
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule")
+       .groupBy("PXBarrel/PXLayer/SignedLadder", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+       .save(),
+    Specification(PerLayer2D)
+       .groupBy("PXForward/PXRing/SignedBladePanel/PXDisk")
+       .groupBy("PXForward/PXRing/SignedBladePanel", "EXTEND_X")
+       .groupBy("PXForward/PXRing", "EXTEND_Y")
+       .save(),
+]
+
 StandardSpecificationPixelmapProfile = [#produces pixel map with the mean (TProfile)
     Specification(PerLayer2D)
        .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")
