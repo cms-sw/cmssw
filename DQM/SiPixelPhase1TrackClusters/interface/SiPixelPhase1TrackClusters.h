@@ -10,7 +10,7 @@
 
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
   enum {
@@ -36,7 +36,7 @@ class SiPixelPhase1TrackClusters : public SiPixelPhase1Base {
 
   private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clustersToken_;
-  edm::EDGetTokenT<TrajTrackAssociationCollection> trackAssociationToken_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 };
 
 #endif

@@ -50,15 +50,10 @@ public:
         innerOk_(false),
         innerDetId_(0),
         seedDir_(anyDirection),
-        seedRef_(),
-        trackResiduals_() {
-        index idx = 0;
-        for (index i = 0; i < dimension; ++ i) {
-            for (index j = 0; j <= i; ++ j) {
-                outerCovariance_[idx] = 0;
-                innerCovariance_[idx] = 0;
-                ++idx;
-            }
+        seedRef_() {
+        for (index i = 0; i < covarianceSize; ++i) {
+            outerCovariance_[i] = 0;
+            innerCovariance_[i] = 0;
         }
     }
 
