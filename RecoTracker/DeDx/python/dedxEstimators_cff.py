@@ -2,13 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     tracks                     = cms.InputTag("generalTracks"),
-    trajectoryTrackAssociation = cms.InputTag("generalTracks"),
 
     minTrackHits       = cms.uint32(0),
     minTrackPt         = cms.double(15),
     maxTrackEta        = cms.double(5.0),
 
-    useTrajectory      = cms.bool(True),
     useStrip           = cms.bool(True),
     usePixel           = cms.bool(True),
     MeVperADCStrip     = cms.double(3.61e-06*265),
@@ -21,7 +19,6 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
 
 dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
     tracks                     = cms.InputTag("generalTracks"),
-    trajectoryTrackAssociation = cms.InputTag("generalTracks"),
  
     estimator      = cms.string('generic'),
     fraction       = cms.double(0.4),        #Used only if estimator='truncated'
@@ -29,7 +26,6 @@ dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
  
     UseStrip       = cms.bool(True),
     UsePixel       = cms.bool(False),
-    UseTrajectory  = cms.bool(True),
     ShapeTest      = cms.bool(True),
     MeVperADCStrip = cms.double(3.61e-06*265),
     MeVperADCPixel = cms.double(3.61e-06),
