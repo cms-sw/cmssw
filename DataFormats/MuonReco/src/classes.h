@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "Rtypes.h" 
@@ -114,6 +115,7 @@ namespace DataFormats_MuonReco {
     edm::ValueMap<reco::MuonRef>::const_iterator rmref_vmci;
     edm::Wrapper<edm::ValueMap<reco::MuonRef> > rmref_wvm;
 
+    edm::Wrapper<edm::Association<reco::MuonCollection> > wrap_ass_mc;
 
     //shower block
     reco::MuonShower rms;

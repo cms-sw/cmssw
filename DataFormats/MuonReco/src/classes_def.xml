@@ -101,6 +101,9 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonMETCorrectionData> >"/>
 
+  <class name="edm::Association<reco::MuonCollection>" />
+  <class name="edm::Wrapper<edm::Association<reco::MuonCollection>>" />
+
   <class name="reco::MuonQuality" ClassVersion="10">
    <version ClassVersion="10" checksum="3056161366"/>
   </class>
