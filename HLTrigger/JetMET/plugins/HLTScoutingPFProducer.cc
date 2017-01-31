@@ -85,7 +85,6 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet& iConfig):
     //register products
     produces<ScoutingPFJetCollection>();
     produces<ScoutingParticleCollection>();
-    //   produces<ScoutingVertexCollection>();
     produces<double>("rho");
     produces<double>("pfMetPt");
     produces<double>("pfMetPhi");
@@ -215,7 +214,6 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     }
 
     //put output
-    //    iEvent.put(std::move(outVertices));
     iEvent.put(std::move(outPFCandidates));
     iEvent.put(std::move(outPFJets));
     iEvent.put(std::move(outRho), "rho");
