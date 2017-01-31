@@ -79,7 +79,6 @@ HLTScoutingCaloProducer::HLTScoutingCaloProducer(const edm::ParameterSet& iConfi
 {
     //register products
     produces<ScoutingCaloJetCollection>();
-    //produces<ScoutingVertexCollection>();
     produces<double>("rho");
     produces<double>("caloMetPt");
     produces<double>("caloMetPhi");
@@ -145,18 +144,6 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
             }
         }
     }
-
-    //get vertices
-    //    Handle<reco::VertexCollection> vertexCollection;
-    //  std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
-    // if(iEvent.getByToken(vertexCollection_, vertexCollection)){
-        //produce vertices (only if present; otherwise return an empty collection)
-    //  for(auto &vtx : *vertexCollection){
-    //      outVertices->emplace_back(
-    //				      vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof(), vtx.isValid()
-    //                  );
-    //  }
-    // }
 
     //get rho
     Handle<double>rho;
