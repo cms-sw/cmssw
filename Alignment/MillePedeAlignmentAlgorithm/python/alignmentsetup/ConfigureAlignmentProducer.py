@@ -43,6 +43,15 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
         process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = "LocalGBL"
         # to account for multiple scattering in these layers
         process.AlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True
+    elif collection == "ALCARECOTkAlUpsilonMuMu":
+        process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
+             process.TwoBodyDecayTrajectoryFactory
+        )
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryMass =  9.4502
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.ParticleProperties.PrimaryWidth = 0.0644
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = "LocalGBL"
+        # to account for multiple scattering in these layers
+        process.AlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True
     elif collection == "ALCARECOTkAlCosmicsCTF0T" and cosmicsZeroTesla:
         process.AlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
             process.BrokenLinesBzeroTrajectoryFactory
