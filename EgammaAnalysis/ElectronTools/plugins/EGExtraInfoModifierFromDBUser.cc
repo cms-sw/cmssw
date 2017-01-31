@@ -23,7 +23,6 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include <vdt/vdtMath.h>
-#include <TFile.h>
 
 namespace {
   const edm::InputTag empty_tag;
