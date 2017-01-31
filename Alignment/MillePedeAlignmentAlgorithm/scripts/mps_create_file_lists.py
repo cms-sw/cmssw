@@ -294,7 +294,9 @@ class FileListCreator(object):
             processes = number_of_processes,
             initializer = lambda: signal.signal(signal.SIGINT, signal.SIG_IGN))
 
-        print_msg("Requesting information for datasets. This may take a while...")
+        print_msg("Requesting information for the following dataset(s):")
+        for d in self._datasets: print_msg("\t"+d)
+        print_msg("This may take a while...")
 
         result = pool.map_async(get_events_per_dataset, self._datasets).get(sys.maxint)
         self._events_in_dataset = sum(result)
@@ -769,16 +771,17 @@ def _get_properties(name, entity, properties, filters, sub_entity = None):
     """Retrieve `properties` from `entity` called `name`.
 
     Arguments:
+    - `name`: name of entity
+    - `entity`: type of entity
     - `properties`: list of property names
     - `filters`: list of filters on properties
-    - `entity`: type of entity
-    - `name`: name of entity
-    - `sub_entity`: type of entity from which to extract the properties
+    - `sub_entity`: type of entity from which to extract the properties;
+                    defaults to `entity`
     """
 
     if sub_entity is None: sub_entity = entity
     props = ["{0:s}.{1:s}".format(sub_entity,prop.split()[0])
-                  for prop in properties]
+             for prop in properties]
     conditions = ["{0:s}.{1:s}".format(sub_entity, filt)
                   for filt in filters]
 
