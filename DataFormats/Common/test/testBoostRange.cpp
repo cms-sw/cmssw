@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <ext/algorithm>
 #include <iostream>
 #include <vector>
 
