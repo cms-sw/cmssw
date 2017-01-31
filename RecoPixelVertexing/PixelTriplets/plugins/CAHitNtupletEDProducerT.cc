@@ -96,9 +96,7 @@ void CAHitNtupletEDProducerT<T_Generator>::produce(edm::Event& iEvent, const edm
     const TrackingRegion& region = regionLayerPairs.region();
     auto seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
 
-
     fillNtuplets(seedingHitSetsFiller, ntuplets[index]);
-
     ntuplets[index].clear();
     index++;
   }
