@@ -29,7 +29,7 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
 )
 
 SiPixelPhase1RawDataFIFOFull = DefaultHisto.clone(
-    topFolderName = DefaultHisto.topFolderName.value() +"/FED", 
+    topFolderName = DefaultHisto.topFolderName.value() +"/FED",
     name = "fifofull",
     title = "Type of FIFO full",
     xlabel = "FIFO (data bit #)",
@@ -76,12 +76,10 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
     Specification().groupBy("FED")
                    .groupBy("", "EXTEND_Y").save(),
     Specification().groupBy("FED/FED/LinkInFed")
-                   .groupBy("FED/FED","EXTEND_Y").save()                  
+                   .groupBy("FED/FED","EXTEND_Y").save()
 
   )
 )
-
-
 
 SiPixelPhase1RawDataConf = cms.VPSet(
   SiPixelPhase1RawDataNErrors,
@@ -91,10 +89,14 @@ SiPixelPhase1RawDataConf = cms.VPSet(
   SiPixelPhase1RawDataTypeNErrors,
 )
 
+SiPixelPhase1RawData_Trigger = cms.VPSet(
+)
+
 SiPixelPhase1RawDataAnalyzer = cms.EDAnalyzer("SiPixelPhase1RawData",
         src = cms.InputTag("siPixelDigis"),
         histograms = SiPixelPhase1RawDataConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1RawData_Trigger
 )
 
 SiPixelPhase1RawDataHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

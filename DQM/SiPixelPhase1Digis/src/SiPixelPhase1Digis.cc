@@ -25,7 +25,7 @@ SiPixelPhase1Digis::SiPixelPhase1Digis(const edm::ParameterSet& iConfig) :
   srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
-void SiPixelPhase1Digis::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<edm::DetSetVector<PixelDigi>> input;
   iEvent.getByToken(srcToken_, input);

@@ -162,10 +162,14 @@ SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisOccupancy,
 )
 
+# This has to mathc the order of the trigger eunmerator in the C++ header
+SiPixelPhase1Digis_Trigger = cms.VPSet()
+
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         src = cms.InputTag("simSiPixelDigis"),
         histograms = SiPixelPhase1DigisConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1Digis_Trigger
 )
 
 SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

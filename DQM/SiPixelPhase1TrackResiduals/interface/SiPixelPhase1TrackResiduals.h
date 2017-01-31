@@ -20,7 +20,7 @@ class SiPixelPhase1TrackResiduals : public SiPixelPhase1Base {
 
   public:
   explicit SiPixelPhase1TrackResiduals(const edm::ParameterSet& conf);
-  void phase1analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
   TrackerValidationVariables validator;

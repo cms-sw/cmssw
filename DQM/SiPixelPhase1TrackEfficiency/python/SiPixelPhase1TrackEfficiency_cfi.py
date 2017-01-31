@@ -87,13 +87,18 @@ SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyChiSqaure,
 )
 
+SiPixelPhase1TrackEfficiency_Trigger = cms.VPSet(
+
+)
+
 
 SiPixelPhase1TrackEfficiencyAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackEfficiency",
         clusters = cms.InputTag("siPixelClusters"),
         trajectories = cms.InputTag("generalTracks"),
         primaryvertices = cms.InputTag("offlinePrimaryVertices"),
         histograms = SiPixelPhase1TrackEfficiencyConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1TrackEfficiency_Trigger
 )
 
 SiPixelPhase1TrackEfficiencyHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

@@ -33,12 +33,12 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
-    Specification().groupBy("PXBarrel/PXLayer" + "/DetId/Event") 
-                   .reduce("COUNT") 
+    Specification().groupBy("PXBarrel/PXLayer" + "/DetId/Event")
+                   .reduce("COUNT")
                    .groupBy("PXBarrel/PXLayer")
                    .saveAll(),
-    Specification().groupBy("PXForward/PXDisk" + "/DetId/Event") 
-                   .reduce("COUNT") 
+    Specification().groupBy("PXForward/PXDisk" + "/DetId/Event")
+                   .reduce("COUNT")
                    .groupBy("PXForward/PXDisk")
                    .saveAll(),
     StandardSpecificationInclusive_Num,
@@ -72,7 +72,7 @@ SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1TrackClustersOffTrackCharge = \
-  SiPixelPhase1TrackClustersOnTrackCharge.clone(topFolderName = "PixelPhase1/OffTrack", 
+  SiPixelPhase1TrackClustersOnTrackCharge.clone(topFolderName = "PixelPhase1/OffTrack",
   enabled = False,
   title = "Cluster Charge")
 SiPixelPhase1TrackClustersOffTrackSize = \
@@ -131,12 +131,17 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersNTracksInVolume,
 )
 
+SiPixelPhase1TrackClusters_Trigger = cms.VPSet(
+
+)
+
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),
         trajectories = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1TrackClustersConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1TrackClusters_Trigger
 )
 
 SiPixelPhase1TrackClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

@@ -18,6 +18,9 @@
 
 #include "DQM/SiPixelPhase1Common/interface/HistogramManager.h"
 
+// Trigger flagging stuff
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
 #include <vector>
 
 // used as a mixin for Analyzer and Harvester.
@@ -45,18 +48,26 @@ class SiPixelPhase1Base : public DQMEDAnalyzer, public HistogramManagerHolder {
   // GenericTriggerEventFlag requires EDConsumeBase protected member calls.
   SiPixelPhase1Base(const edm::ParameterSet& iConfig);
 
-  // the original analyzer overloaded to include trigger flag setups
-  // Cannot be inherited anymore
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) final;
-
-  // Overload phase1analyze as you would a normal analyze functions
+  // Overload analyze as you would a normal analyze functions
   // with you own handles, HistogramManager.fill() calls etc.
-  virtual void phase1analyze(edm::Event const& e, edm::EventSetup const& eSetup) = 0;
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) = 0;
 
   // Booking histograms as required by the DQMEDAnalyzer
   void bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& run, edm::EventSetup const& iSetup);
 
   virtual ~SiPixelPhase1Base() {};
+
+
+  protected:
+  // Returns a value of whether the trigger stored at position "trgidx" is properly fired.
+  bool checktrigger( const edm::Event& iEvent, const edm::EventSetup& iSetup, const unsigned trgidx );
+
+  private:
+
+  // Storing the trigger objects per plugin instance
+  typedef std::unique_ptr<GenericTriggerEventFlag> TriggerPtr;
+  std::vector<TriggerPtr>   triggerlist;
+
 };
 
 // This wraps the Histogram Managers into a DQMEDHarvester. It

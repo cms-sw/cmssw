@@ -20,7 +20,7 @@ SiPixelPhase1TrackResiduals::SiPixelPhase1TrackResiduals(const edm::ParameterSet
   offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
 }
 
-void SiPixelPhase1TrackResiduals::phase1analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelPhase1TrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);

@@ -89,10 +89,15 @@ SiPixelPhase1RecHitsConf = cms.VPSet(
   SiPixelPhase1RecHitsProb,
 )
 
+SiPixelPhase1RecHits_Trigger = cms.VPSet(
+)
+
+
 SiPixelPhase1RecHitsAnalyzer = cms.EDAnalyzer("SiPixelPhase1RecHits",
         src = cms.InputTag("siPixelRecHits"),
         histograms = SiPixelPhase1RecHitsConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1RecHits_Trigger
 )
 
 SiPixelPhase1RecHitsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

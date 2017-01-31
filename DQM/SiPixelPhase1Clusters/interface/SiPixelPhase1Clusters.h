@@ -29,10 +29,14 @@ class SiPixelPhase1Clusters : public SiPixelPhase1Base {
     READOUT_CHARGE,
     READOUT_NCLUSTERS
   };
+  enum {
+    TRIG_L1,
+    TRIG_HLT
+  };
 
   public:
   explicit SiPixelPhase1Clusters(const edm::ParameterSet& conf);
-  void phase1analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
   private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;

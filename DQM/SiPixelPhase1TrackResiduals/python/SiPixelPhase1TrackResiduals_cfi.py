@@ -24,11 +24,15 @@ SiPixelPhase1TrackResidualsConf = cms.VPSet(
   SiPixelPhase1TrackResidualsResidualsY
 )
 
+SiPixelPhase1TrackResiduals_Trigger = cms.VPSet(
+)
+
 SiPixelPhase1TrackResidualsAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackResiduals",
         trajectoryInput = cms.string("generalTracks"),
         Tracks        = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1TrackResidualsConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1TrackResiduals_Trigger
 )
 
 SiPixelPhase1TrackResidualsHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

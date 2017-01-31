@@ -77,10 +77,6 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersNClustersFiltered = SiPixelPhase1ClustersNClusters.clone(
   name = "filtered_clusters",
   title = "Filter Clusters",
-  triggerlist = cms.VPSet(
-    genericTriggerEventFlag4L1bd,
-    genericTriggerEventFlag4HLTdb
-  )
 )
 
 
@@ -231,11 +227,16 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersReadoutNClusters
 )
 
+SiPixelPhase1Clusters_Trigger = cms.VPSet(
+    genericTriggerEventFlag4L1bd,
+    genericTriggerEventFlag4HLTdb
+)
 
 SiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         src = cms.InputTag("siPixelClusters"),
         histograms = SiPixelPhase1ClustersConf,
-        geometry = SiPixelPhase1Geometry
+        geometry = SiPixelPhase1Geometry,
+        triggerflags = SiPixelPhase1Clusters_Trigger,
 )
 
 SiPixelPhase1ClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

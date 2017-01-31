@@ -66,7 +66,8 @@ SiPixelPhase1GeometryDebugConf = cms.VPSet(
 
 SiPixelPhase1GeometryDebugAnalyzer = cms.EDAnalyzer("SiPixelPhase1GeometryDebug",
     histograms = SiPixelPhase1GeometryDebugConf,
-    geometry = SiPixelPhase1Geometry
+    geometry = SiPixelPhase1Geometry,
+    triggerflags = cms.VPSet()
 )
 
 SiPixelPhase1GeometryDebugHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",

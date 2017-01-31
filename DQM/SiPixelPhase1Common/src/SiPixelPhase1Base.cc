@@ -15,29 +15,11 @@ SiPixelPhase1Base::SiPixelPhase1Base( const edm::ParameterSet& iConfig ) :
   DQMEDAnalyzer(),
   HistogramManagerHolder( iConfig )
 {
-  auto histogramlist = iConfig.getParameter<edm::VParameterSet>( "histograms" );
+  auto flags = iConfig.getParameter<edm::VParameterSet>( "triggerflags" );
 
-  for( size_t i = 0; i < histogramlist.size(); ++i ){
-    auto& settings  = histogramlist.at( i );
-    auto& histogram = histo[i];
-
-    auto flags = settings.getParameter<edm::VParameterSet>( "triggerflags" );
-
-    for( auto& flag : flags ){
-      histogram.addTriggerFlag( new GenericTriggerEventFlag( flag, consumesCollector(), *this ) );
-    }
+  for( auto& flag : flags ){
+    triggerlist.emplace_back( new GenericTriggerEventFlag(flag, consumesCollector(), *this) );
   }
-}
-
-// analyze function class histogram manager per-event initializing
-void
-SiPixelPhase1Base::analyze( edm::Event const& e, edm::EventSetup const& eSetup )
-{
-  for( auto& histoman : histo ){
-    histoman.storeEventSetup( &e, &eSetup );
-  }
-
-  phase1analyze( e, eSetup );
 }
 
 // Booking histograms as required by the DQM
@@ -49,6 +31,27 @@ SiPixelPhase1Base::bookHistograms(
 {
   for( HistogramManager& histoman : histo ){
     histoman.book( iBooker, iSetup );
-    histoman.initTriggerFlag( run, iSetup );// runnig trigger flag initialization
   }
+
+  // Running trigger flag initialization (per run)
+  for( auto& trigger : triggerlist ){
+    if( trigger->on() ){
+      trigger->initRun( run, iSetup );
+    }
+  }
+}
+
+// trigger checking function
+bool
+SiPixelPhase1Base::checktrigger(
+  const edm::Event&      iEvent,
+  const edm::EventSetup& iSetup,
+  const unsigned         trgidx )
+{
+  if( !iEvent.isRealData() ) { return rand()%5; } // Failing the 4/5 time for MC (testing)
+
+  // For actual data
+  if( !triggerlist.at(trgidx)->on() ) { return true; } // if flag is not on, return true regardless
+
+  return triggerlist.at(trgidx)->accept( iEvent, iSetup );
 }
