@@ -123,8 +123,7 @@ namespace {
 		}
 	}
   }
-}
-namespace {
+
   void clearGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	g.theLayerPairs.clear();
 	for (unsigned int i = 0; i < g.theLayers.size(); i++ ){
@@ -136,8 +135,7 @@ namespace {
 	}
 
   }
-}
-namespace {
+  
   template <typename T_HitDoublets, typename T_GeneratorOrPairsFunction>
   void fillGraph(const SeedingLayerSetsHits& layers, CAGraph& g, T_HitDoublets& hitDoublets,
                  T_GeneratorOrPairsFunction generatorOrPairsFunction) {
@@ -148,8 +146,16 @@ namespace {
 			auto vertexIndex = 0;
 			auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(),
 					layers[i][j].name());
+
+			if (foundVertex == g.theLayers.end())
+			{
+				vertexIndex = g.theLayers.size() - 1;
+			}
+			else
+			{
+				vertexIndex = foundVertex - g.theLayers.begin();
+			}
 		
-			vertexIndex = foundVertex - g.theLayers.begin();
 			
 			if (j > 0)
 			{
@@ -163,7 +169,7 @@ namespace {
 				if (std::find(g.theLayerPairs.begin(), g.theLayerPairs.end(),
 						tmpInnerLayerPair) == g.theLayerPairs.end())
 				{
-					const bool nonEmpty = generatorOrPairsFunction(layers[i][j-1], layers[i][j], hitDoublets);
+					const bool nonEmpty = generatorOrPairsFunction(layers[i][j - 1], layers[i][j], hitDoublets);
                                         if(nonEmpty) {
                                           g.theLayerPairs.push_back(tmpInnerLayerPair);
                                           g.theLayers[vertexIndex].theInnerLayers.push_back(
@@ -182,7 +188,6 @@ namespace {
 	}
   }
 }
-
 
 void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 		OrderedHitTriplets & result, const edm::Event& ev,
@@ -203,6 +208,7 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 
 
 	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
+	createGraphStructure(layers,g);
         fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<HitDoublets>& hitDoublets) {
             hitDoublets.emplace_back(thePairGenerator.doublets(region, ev, es, inner, outer));
             return true;
@@ -222,12 +228,10 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 }
 
 void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDoublets,
-                                              std::vector<OrderedHitSeeds, std::allocator<OrderedHitSeeds> >& result,
-                                              const edm::EventSetup& es,
-                                              const SeedingLayerSetsHits& layers) {
+                                        std::vector<OrderedHitSeeds>& result,
+                                        const edm::EventSetup& es,
+                                        const SeedingLayerSetsHits& layers) {
   CAGraph g;
-
-
 
   std::vector<const HitDoublets *> hitDoublets;
 
@@ -235,21 +239,23 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
                            SeedingLayerSetsHits::LayerIndex inner,
                            SeedingLayerSetsHits::LayerIndex outer) {
     return pair.innerLayerIndex() == inner && pair.outerLayerIndex() == outer;
-  };
+  };	
+  std::vector<CACell::CAntuplet> foundTriplets;
 
- int index =0;
- for(const auto& regionLayerPairs: regionDoublets) {
+  int index =0;
+  for(const auto& regionLayerPairs: regionDoublets) {
 
-	 const TrackingRegion& region = regionLayerPairs.region();
-	 hitDoublets.clear(); 
-
-	  if (index == 0){   
+	const TrackingRegion& region = regionLayerPairs.region();
+	hitDoublets.clear(); 
+	foundTriplets.clear();
+ 
+	if (index == 0){   
 	  	createGraphStructure(layers, g);
-	  }
-	  else{   
+	}
+	else{  
   		clearGraphStructure(layers, g);
-	  }
-	  fillGraph(layers, g, hitDoublets,
+	}
+	fillGraph(layers, g, hitDoublets,
 	            [&](const SeedingLayerSetsHits::SeedingLayer& inner,
 	                const SeedingLayerSetsHits::SeedingLayer& outer,
 	                std::vector<const HitDoublets *>& hitDoublets) {
@@ -261,18 +267,12 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 	        return true;
 	      }
 	      return false;
-	    });
-	const int numberOfHitsInNtuplet = 3;
-	std::vector<CACell::CAntuplet> foundTriplets;
-
+	});
 	CellularAutomaton ca(g);
+	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
+                        caHardPtCut);
 
-	ca.createAndConnectCells(hitDoublets, region, caThetaCut,
-			caPhiCut, caHardPtCut);
-
-	ca.evolve(numberOfHitsInNtuplet);
-
-	ca.findNtuplets(foundTriplets, numberOfHitsInNtuplet);
+	//ca.findNtuplets(foundTriplets, numberOfHitsInNtuplet);
 
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
@@ -284,7 +284,7 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
   	std::array<GlobalPoint, 3> gps;
   	std::array<GlobalError, 3> ges;
   	std::array<bool, 3> barrels;
-
+	
  	unsigned int numberOfFoundTriplets = foundTriplets.size();
 	for (unsigned int tripletId = 0; tripletId < numberOfFoundTriplets;
 			++tripletId)

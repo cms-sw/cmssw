@@ -34,8 +34,6 @@ public:
     typedef LayerHitMapCache LayerCacheType;
 
     static constexpr unsigned int minLayers = 3;
-    //typedef OrderedHitTriplets ResultType;
-
     typedef OrderedHitSeeds ResultType;
 public:
 
@@ -53,16 +51,10 @@ public:
     virtual void hitTriplets(const TrackingRegion& reg, OrderedHitTriplets & triplets,
             const edm::Event & ev, const edm::EventSetup& es);
 
-    // new-style
-    //void hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
-    //                 OrderedHitTriplets& result,
-     //                const edm::EventSetup& es,
-      //               const SeedingLayerSetsHits& layers);
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
-                     std::vector<OrderedHitSeeds, std::allocator<OrderedHitSeeds> >& result,
+                     std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
                      const SeedingLayerSetsHits& layers);
-
 
 private:
     // actual work
