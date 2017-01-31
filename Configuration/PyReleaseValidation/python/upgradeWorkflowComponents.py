@@ -6,9 +6,9 @@ upgradeKeys = {}
 
 upgradeKeys[2017] = [
     '2017',
-    '2017PU',
+#    '2017PU',
     '2017Design',
-    '2017DesignPU',
+#    '2017DesignPU',
     '2018',
     '2018PU',
     '2018Design',
