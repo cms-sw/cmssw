@@ -132,7 +132,7 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidate
 }
 
 template <class T> void
-TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollection>& theTCollection, reco::BeamSpot& bs)
+TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackView>& theTCollection, reco::BeamSpot& bs)
 {
   //
   //get the TrackCollection from the event
