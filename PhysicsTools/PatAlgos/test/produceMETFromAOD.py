@@ -1,4 +1,4 @@
-from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
+from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process, patAlgosToolsTask
 
 process.options.wantSummary = cms.untracked.bool(False) 
 

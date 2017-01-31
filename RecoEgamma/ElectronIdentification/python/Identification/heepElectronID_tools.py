@@ -515,7 +515,7 @@ def addHEEPProducersToSeq(process,seq,useMiniAOD, task=None):
 
     newTask = cms.Task()
     seq.associate(newTask)
-    if task:
+    if task is not None:
         task.add(newTask)
 
     process.load("RecoEgamma.ElectronIdentification.heepIdVarValueMapProducer_cfi")

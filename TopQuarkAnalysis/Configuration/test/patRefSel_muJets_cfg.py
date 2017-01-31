@@ -1,3 +1,10 @@
+# As of 1 Feb 2017:
+# This configuration appears to be already broken in more
+# than one way. It fails to even run only under python.
+# For this reason, it was not converted to use Tasks.
+# If it is ever fixed, it will also need to be migrated
+# to use Tasks.
+
 #
 # This file contains the Top PAG reference selection work-flow for mu + jets analysis.
 # as defined in

@@ -13,17 +13,17 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadronsAndPhotons_cf
 pfPileUpAllChargedParticles = pfAllChargedParticles.clone( src = 'pfPileUpIso' )
 
 
-pfSortByTypeSequence = cms.Sequence(
-    pfAllNeutralHadrons+
-    pfAllChargedHadrons+
-    pfAllPhotons+
+pfSortByTypeTask = cms.Task(
+    pfAllNeutralHadrons,
+    pfAllChargedHadrons,
+    pfAllPhotons,
     # charged hadrons + electrons + muons
-    pfAllChargedParticles+
+    pfAllChargedParticles,
     # same, but from pile up
-    pfPileUpAllChargedParticles+
+    pfPileUpAllChargedParticles,
     pfAllNeutralHadronsAndPhotons
-#    +
-#    pfAllElectrons+
+#    ,
+#    pfAllElectrons,
 #    pfAllMuons
     )
-
+pfSortByTypeSequence = cms.Sequence(pfSortByTypeTask)
