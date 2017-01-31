@@ -18,6 +18,7 @@
 
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include <Validation/HcalDigis/interface/HcalDigisValidation.h>
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
@@ -604,7 +605,10 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                   int z, lay;
                   HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
                   int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
+                  HcalDDDRecConstants::HcalID hcid = hcons->getHCID(sub, ieta, iphi, lay, depth);
+                  ieta = sign*hcid.eta;
+                  iphi = hcid.phi;
+                  depth = hcid.depth;
                 } else {
                   HcalDetId id = HcalDetId(id_);
                   sub       = id.subdet(); 
@@ -820,7 +824,10 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                   int z, lay;
                   HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
                   int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
+                  HcalDDDRecConstants::HcalID hcid = hcons->getHCID(sub, ieta, iphi, lay, depth);
+                  ieta = sign*hcid.eta;
+                  iphi = hcid.phi;
+                  depth = hcid.depth;
                 } else {
                   HcalDetId id = HcalDetId(id_);
                   sub       = id.subdet(); 
@@ -935,7 +942,10 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                   int z, lay;
                   HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
                   int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
+                  HcalDDDRecConstants::HcalID hcid = hcons->getHCID(sub, ieta, iphi, lay, depth);
+                  ieta = sign*hcid.eta;
+                  iphi = hcid.phi;
+                  depth = hcid.depth;
                 } else {
                   HcalDetId id = HcalDetId(id_);
                   sub          = id.subdet();
@@ -1153,7 +1163,10 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
                   int z, lay;
                   HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
                   int sign = (z==0) ? (-1):(1);
-                  ieta     *= sign;
+                  HcalDDDRecConstants::HcalID hcid = hcons->getHCID(sub, ieta, iphi, lay, depth);
+                  ieta = sign*hcid.eta;
+                  iphi = hcid.phi;
+                  depth = hcid.depth;
                 } else {
                   HcalDetId id = HcalDetId(id_);
                   sub       = id.subdet();
