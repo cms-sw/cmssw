@@ -113,15 +113,15 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
     Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row")
                    .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName/row/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row/col")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/col")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName/row")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
                    .save(),
     StandardSpecificationOccupancy,
   )
