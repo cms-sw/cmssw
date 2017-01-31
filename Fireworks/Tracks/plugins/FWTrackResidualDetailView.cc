@@ -53,7 +53,7 @@ FWTrackResidualDetailView::~FWTrackResidualDetailView ()
 void
 FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* track)
 {
-   TrackResiduals residuals = track->residuals();
+   auto const & residuals = track->residuals();
 
    const FWGeometry *geom = id.item()->getGeom();
    assert(geom != 0);
@@ -72,11 +72,11 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
        if ((*(track->recHitsBegin() + i))->isValid()) {
            res[0][i] = getSignedResidual(geom,
                    (*(track->recHitsBegin() + i))->geographicalId().rawId(),
-                   residuals.residualX(i, hitpat));
+                   residuals.pullX(i));
        } else {
            res[0][i] = 0;
        }
-       res[1][i] = residuals.residualY(i, hitpat);
+       res[1][i] = residuals.pullY(i);
        // printf("%s, %i\n",m_det_tracker_str[substruct[i]-1],subsubstruct[i]);
    }
 
