@@ -146,8 +146,8 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 
 namespace {
      struct itemOrderGt {
-	  bool operator () (const std::pair<bool, double> &i1, 
-			    const std::pair<bool, double> &i2) 
+	  bool operator () (const std::pair<bool, double> &i1,
+			    const std::pair<bool, double> &i2) const
 	       {
 		    // sort first by visibility
 		    if (i1.first and not i2.first)
@@ -159,8 +159,8 @@ namespace {
 	       }
      };
      struct itemOrderLt {
-	  bool operator () (const std::pair<bool, double> &i1, 
-			    const std::pair<bool, double> &i2) 
+         bool operator () (const std::pair<bool, double> &i1,
+			    const std::pair<bool, double> &i2) const
 	       {
 		    // sort first by visibility
 		    if (i1.first and not i2.first)
