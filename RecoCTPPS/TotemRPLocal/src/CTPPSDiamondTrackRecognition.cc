@@ -14,15 +14,12 @@
 #include <cstdio>
 #include <algorithm>
 
-//#define CTPPS_DEBUG 1
-
 #define LOWER_HIT_LIMIT_MM -1e3
 #define HIGHER_HIT_LIMIT_MM 1e3
 #define PAD_FUNCTION "(1/(1+exp(-(x-[0])/[2])))*(1/(1+exp((x-[0]-[1])/[2])))"
 
 using namespace std;
 using namespace edm;
-
 
 //----------------------------------------------------------------------------------------------------
 
@@ -43,14 +40,11 @@ CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::Parameter
 CTPPSDiamondTrackRecognition::~CTPPSDiamondTrackRecognition() {
 }
 
-
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSDiamondTrackRecognition::clear() {
   hit_function_v.clear();
 }
-
-
 
 //----------------------------------------------------------------------------------------------------
 
@@ -64,9 +58,7 @@ void CTPPSDiamondTrackRecognition::addHit(const CTPPSDiamondRecHit recHit) {
   hit_f.SetParameters(center, width, sigma_);
   
   hit_function_v.push_back(hit_f);
-  
 }
-
 
 //----------------------------------------------------------------------------------------------------
 
@@ -96,7 +88,4 @@ void CTPPSDiamondTrackRecognition::produceTracks(DetSet<CTPPSDiamondLocalTrack> 
   }
   
 }
-
-
-
 

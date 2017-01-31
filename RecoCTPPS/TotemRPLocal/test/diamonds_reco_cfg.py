@@ -56,6 +56,9 @@ process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 # local tracks fitter
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTrackFitter_cfi')
+process.ctppsDiamondLocalTrack.trackingAlgorithmParams.threshold = cms.double(1.5)
+process.ctppsDiamondLocalTrack.trackingAlgorithmParams.sigma = cms.double(0.0)
+process.ctppsDiamondLocalTrack.trackingAlgorithmParams.resolution = cms.double(0.1) # in mm
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:AOD.root"),
