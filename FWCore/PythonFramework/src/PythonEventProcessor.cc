@@ -17,6 +17,14 @@
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
+#include "FWCore/Framework/interface/defaultCmsRunServices.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
+
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+
+#include "FWCore/MessageLogger/interface/JobReport.h"
+
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
@@ -28,6 +36,15 @@ namespace {
          });
       return 0;
    }
+  
+  std::shared_ptr<edm::ProcessDesc> addDefaultServicesToProcessDesc(std::shared_ptr<edm::ProcessDesc> iDesc) {
+    iDesc->addServices(edm::defaultCmsRunServices());
+    return iDesc;
+  }
+
+  edm::ServiceToken createJobReport() {
+    return edm::ServiceRegistry::createContaining(std::make_shared<edm::serviceregistry::ServiceWrapper<edm::JobReport>>(std::make_unique<edm::JobReport>(nullptr)));
+  }
 }
 
 //
@@ -43,7 +60,7 @@ namespace {
 //
 PythonEventProcessor::PythonEventProcessor(PythonProcessDesc const& iDesc)
 : forcePluginSetupFirst_(setupPluginSystem())
-  ,processor_(iDesc.processDesc(),edm::ServiceToken(),edm::serviceregistry::kOverlapIsError)
+  ,processor_(addDefaultServicesToProcessDesc(iDesc.processDesc()),createJobReport(),edm::serviceregistry::kOverlapIsError)
 {
 }
 
