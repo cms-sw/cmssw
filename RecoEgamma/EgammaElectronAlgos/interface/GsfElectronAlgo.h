@@ -253,7 +253,7 @@ class GsfElectronAlgo {
                                reco::GsfElectron::ShowerShape & ) ;
     void calculateShowerShape_full5x5( const reco::SuperClusterRef &, bool pflow,
                                        reco::GsfElectron::ShowerShape & ) ;
-
+    void calculateSaturationInfo(const reco::SuperClusterRef&, reco::GsfElectron::SaturationInfo&);
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;

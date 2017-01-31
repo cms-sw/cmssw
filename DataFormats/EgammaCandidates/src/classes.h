@@ -122,6 +122,7 @@ namespace DataFormats_EgammaCandidates {
     reco::GsfElectron::ClosestCtfTrack gecct ;
     reco::GsfElectron::FiducialFlags geff ;
     reco::GsfElectron::ShowerShape gess ;
+    reco::GsfElectron::SaturationInfo si ;
     reco::GsfElectron::IsolationVariables geiv ;
     reco::GsfElectron::ConversionRejection gecr ;
     reco::GsfElectron::Corrections gec ;
