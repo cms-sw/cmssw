@@ -273,7 +273,6 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDou
 	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
                         caHardPtCut);
 
-	//ca.findNtuplets(foundTriplets, numberOfHitsInNtuplet);
 
 
 	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
