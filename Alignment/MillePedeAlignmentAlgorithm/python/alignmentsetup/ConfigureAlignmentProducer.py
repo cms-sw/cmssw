@@ -21,6 +21,22 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
     process.AlignmentProducer.algoConfig.mode              = mode
     process.AlignmentProducer.algoConfig.mergeBinaryFiles  = cms.vstring()
 
+    # default pede options:
+    process.AlignmentProducer.algoConfig.pedeSteerer.method = "sparseMINRES-QLP 3  0.8"
+    process.AlignmentProducer.algoConfig.minNumHits = 8
+    process.AlignmentProducer.algoConfig.pedeSteerer.options = [
+        "entries 50 10 2",
+        "outlierdownweighting 3",
+        "dwfractioncut 0.1",
+        "compress",
+        "threads 10 10",
+        "matiter 1",
+        "printcounts 2",
+        "chisqcut  30.  6.",
+        "bandwidth 6 1",
+        "monitorresiduals",
+    ]
+
     if mode == "mille":
         process.AlignmentProducer.algoConfig.binaryFile   = binaryFile
         process.AlignmentProducer.algoConfig.monitorFile  = monitorFile
