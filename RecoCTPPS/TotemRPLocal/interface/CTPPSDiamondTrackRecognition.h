@@ -10,10 +10,11 @@
 #ifndef RecoCTPPS_TotemRPLocal_CTPPSDiamondTrackRecognition
 #define RecoCTPPS_TotemRPLocal_CTPPSDiamondTrackRecognition
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
@@ -27,7 +28,8 @@
 class CTPPSDiamondTrackRecognition
 {
   public:
-    CTPPSDiamondTrackRecognition(const double threshold = 2, const double sigma = 0., const double resolution_mm=0.01);
+    CTPPSDiamondTrackRecognition();
+    CTPPSDiamondTrackRecognition( const edm::ParameterSet& );
 
     ~CTPPSDiamondTrackRecognition();
 
@@ -42,9 +44,6 @@ class CTPPSDiamondTrackRecognition
     const double resolution_mm_;
     double sigma_;
 
-    /// pointer to the geometry
-    const TotemRPGeometry* geometry;
-    
     /// Function for pad efficiency
     std::vector<TF1> hit_function_v;
 

@@ -26,9 +26,16 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition(const double threshold, const double sigma, const double resolution_mm) :
-  threshold_(threshold), resolution_mm_(resolution_mm), sigma_(sigma), geometry(NULL) {
-    if (sigma_==.0) sigma_=1e-10;
+CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition() :
+  threshold_( 2.0 ), resolution_mm_( 0.01 ), sigma_( 0.0 )
+{}
+
+CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
+  threshold_( iConfig.getParameter<double>( "threshold" ) ),
+  resolution_mm_( iConfig.getParameter<double>( "resolution" ) ),
+  sigma_( iConfig.getParameter<double>( "sigma" ) )
+{
+    if (sigma_==.0) sigma_=1.0e-10;
 }
 
 //----------------------------------------------------------------------------------------------------
