@@ -60,23 +60,22 @@ oparser.add_option("-f","--rootmap", dest="rmfiles", action="append", default=[]
 
 #Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
 import ROOT
-# If we are using spack we are probably on macos with SIP enabled we need to
-# construct our own lib search path
 import os
-if "SPACK_CC" in os.environ :
-    if "SCRAM_ARCH" in os.environ :
-        scram_arch=os.environ['SCRAM_ARCH']
-        localtop=os.path.abspath(os.path.dirname(os.path.realpath(__file__))+"/../..")
-        libpath=localtop+"/lib/"+scram_arch
-        extlibpath=localtop+"/external/"+scram_arch+"/lib"
-        ROOT.gSystem.AddDynamicPath(libpath)
-        ROOT.gSystem.AddDynamicPath(extlibpath)
-        if "RELEASETOP" in os.environ :
-           releasetop=os.environ['RELEASETOP']
-           rlibpath=releasetop+"/lib/"+scram_arch
-           rextlibpath=releasetop+"/external/"+scram_arch+"/lib"
-           ROOT.gSystem.AddDynamicPath(rlibpath)
-           ROOT.gSystem.AddDynamicPath(rextlibpath)
+import re
+# On macos with SIP enabled we need to construct our own lib search path
+if "SCRAM_ARCH" in os.environ and re.match('osx10.*_amd64_clang.*',os.environ['SCRAM_ARCH']) :
+    scram_arch=os.environ['SCRAM_ARCH']
+    localtop=os.path.abspath(os.path.dirname(os.path.realpath(__file__))+"/../..")
+    libpath=localtop+"/lib/"+scram_arch
+    extlibpath=localtop+"/external/"+scram_arch+"/lib"
+    ROOT.gSystem.AddDynamicPath(libpath)
+    ROOT.gSystem.AddDynamicPath(extlibpath)
+    if "RELEASETOP" in os.environ :
+       releasetop=os.environ['RELEASETOP']
+       rlibpath=releasetop+"/lib/"+scram_arch
+       rextlibpath=releasetop+"/external/"+scram_arch+"/lib"
+       ROOT.gSystem.AddDynamicPath(rlibpath)
+       ROOT.gSystem.AddDynamicPath(rextlibpath)
     if "SPACK_LINK_DEPS" in os.environ :
         for p in os.environ['SPACK_LINK_DEPS'].split(':') :
             ppath=p+'/lib'
@@ -84,6 +83,7 @@ if "SPACK_CC" in os.environ :
     os.environ['DYLD_LIBRARY_PATH']=ROOT.gSystem.GetDynamicPath()
     os.environ['LD_LIBRARY_PATH']=ROOT.gSystem.GetDynamicPath()
     os.environ['DYLD_FALLBACK_LIBRARY_PATH']=ROOT.gSystem.GetDynamicPath()
+
 
 ROOT.PyConfig.DisableRootLogon = True
 
