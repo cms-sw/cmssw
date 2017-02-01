@@ -2,15 +2,13 @@
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
 
-HcalHitRelabeller::HcalHitRelabeller(const edm::ParameterSet& ps) : 
-  theGeometry(0), theRecNumber(0),
-  neutralDensity_(ps.getParameter<bool>("doNeutralDensityFilter")) { }
+HcalHitRelabeller::HcalHitRelabeller(bool nd) : 
+  theRecNumber(0),
+  neutralDensity_(nd) { }
 
 void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 
@@ -42,10 +40,7 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
   
 }
 
-
-void HcalHitRelabeller::setGeometry(const CaloGeometry*& geom, 
-				    const HcalDDDRecConstants *& recNum) {
-  theGeometry  = geom;
+void HcalHitRelabeller::setGeometry(const HcalDDDRecConstants *& recNum) {
   theRecNumber = recNum;
 }
 
