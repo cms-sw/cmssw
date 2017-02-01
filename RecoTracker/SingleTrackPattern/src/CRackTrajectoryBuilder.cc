@@ -412,152 +412,89 @@ CRackTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   
   yref = (seed_plus) ? yMin : yMax;
   
-  if ((&collpixel)!=0){
-    SiPixelRecHitCollection::DataContainer::const_iterator ipix;
-    for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
-      float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*ipix));
-    }
-  } 
-  
+  SiPixelRecHitCollection::DataContainer::const_iterator ipix;
+  for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
+    float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*ipix));
+  }
 
   if (useMatchedHits) // use matched
     {
         //add the matched hits ...
       SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripm;
 
-      if ((&collmatched)!=0){
-	for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++){
-	  float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
-
-	  int cDetId=istripm->geographicalId().rawId();
-	  bool noSeedDet = ( detIDSeedMatched.end() == find (detIDSeedMatched.begin(), detIDSeedMatched.end(), cDetId ) ) ;
-
-	  if ( noSeedDet )
+      for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++){
+	float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
+	
+	int cDetId=istripm->geographicalId().rawId();
+	bool noSeedDet = ( detIDSeedMatched.end() == find (detIDSeedMatched.begin(), detIDSeedMatched.end(), cDetId ) ) ;
+	
+	if ( noSeedDet )
 	  if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	    {
-	  //if (debug_info) cout << "adding matched hit " << &(*istripm) << endl; 
 	      allHits.push_back(&(*istripm));
-	}
-	}
       }
 
    //add the rpi hits, but only accept hits that are not matched hits
-  if ((&collrphi)!=0){
-    for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
-      float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      StripSubdetector monoDetId(istrip->geographicalId());
-      if (monoDetId.partnerDetId())
-	{
-	  edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "this det belongs to a glued det " << ych << endl;
-	  continue;
-	}
-    	  int cDetId=istrip->geographicalId().rawId();
-	  bool noSeedDet = ( detIDSeedRphi.end()== find (detIDSeedRphi.begin(), detIDSeedRphi.end(), cDetId ) ) ;
-	  if (noSeedDet)
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	{
-	 
-	  bool hitIsUnique = true;
-	  //now 
-	   if ((&collmatched)!=0)
-	     for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++)
-	       {
-		 //		 if ( isDifferentStripReHit2D ( *istrip, (istripm->stereoHit() ) ) == false)
-		   if ( isDifferentStripReHit2D ( *istrip, (istripm->monoHit() ) ) == false)
-		   {
-		     hitIsUnique = false;
-		     edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "rphi hit is in matched hits; y: " << ych << endl;
-		     break;
-		   }
-	       } //end loop over all matched
-	   if (hitIsUnique)
-	     {
-	   	 //      if (debug_info) cout << "adding rphi hit " << &(*istrip) << endl; 
-	        allHits.push_back(&(*istrip));   
-	     }
-	}
-    }
-  }
+      for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
+	float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+	StripSubdetector monoDetId(istrip->geographicalId());
+	if (monoDetId.partnerDetId())
+	  {
+	    edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "this det belongs to a glued det " << ych << endl;
+	    continue;
+	  }
+	int cDetId=istrip->geographicalId().rawId();
+	bool noSeedDet = ( detIDSeedRphi.end()== find (detIDSeedRphi.begin(), detIDSeedRphi.end(), cDetId ) ) ;
+	if (noSeedDet)
+	  if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+	    {
+	      
+	      bool hitIsUnique = true;
+	      //now 
+	      if ((&collmatched)!=0)
+		for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++)
+		  {
+		    //		 if ( isDifferentStripReHit2D ( *istrip, (istripm->stereoHit() ) ) == false)
+		    if ( isDifferentStripReHit2D ( *istrip, (istripm->monoHit() ) ) == false)
+		      {
+			hitIsUnique = false;
+			edm::LogInfo("CRackTrajectoryBuilder::SortHits")  << "rphi hit is in matched hits; y: " << ych << endl;
+			break;
+		      }
+		  } //end loop over all matched
+	      if (hitIsUnique)
+		{
+		  //      if (debug_info) cout << "adding rphi hit " << &(*istrip) << endl; 
+		  allHits.push_back(&(*istrip));   
+		}
+	    }
+      }
 
   
-  //add the stereo hits except the hits that are in the matched collection
-  //update do not use unmatched rphi hist due to limitation of alignment framework
-  //if (!useMatchedHits)
-  //if ((&collstereo)!=0){
-  //  for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
-  //    float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-  //
-  //
-  // 	  int cDetId = istrip->geographicalId().rawId();
-  //        bool noSeedDet = ( detIDSeedStereo.end()== find (detIDSeedStereo.begin(), detIDSeedStereo.end(), cDetId ) ) ;
-  //
-  //        if (noSeedDet)
-  //    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-  //      {
-  //
-  //        bool hitIsUnique = true;
-  //        //now 
-  //         if ((&collmatched)!=0)
-  //           for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++)
-  //             {
-  //      	 if ( isDifferentStripReHit2D ( *istrip, * (istripm->stereoHit() ) ) == false)
-  //      	   {
-  //      	     hitIsUnique = false;
-  //      	     edm::LogInfo("CRackTrajectoryBuilder::SortHits") << "stereo hit already in matched hits; y:  " << ych << endl;
-  //      	     break;
-  //      	   }
-  //             } //end loop over all stereo
-  //         if (hitIsUnique)
-  //           {
-  //             
-  //          //   if (debug_info) cout << "now I am adding a stero hit, either noise or not in overlap ...!!!!" << endl;
-  //                allHits.push_back(&(*istrip));   
-  //           }
-  //      }
-  //  }
-  //}
     }
   else // dont use matched ...
     {
       
-      if ((&collrphi)!=0){
-	for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
-	  float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-	  if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	    allHits.push_back(&(*istrip));   
-	}
+      for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
+	float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+	if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+	  allHits.push_back(&(*istrip));   
       }
 
-
-      if ((&collstereo)!=0){
-	for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
-	  float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-	  if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	    allHits.push_back(&(*istrip));
-	}
+      for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
+	float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+	if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+	  allHits.push_back(&(*istrip));
       }
-
     }
 
 
-//  if (seed_plus){
-//    stable_sort(allHits.begin(),allHits.end(),CompareDetY_plus(*tracker));
-//  }
-//  else {
-//    stable_sort(allHits.begin(),allHits.end(),CompareDetY_minus(*tracker));
-//  }
 
-
-  if (seed_plus){
+  if (seed_plus)
       stable_sort(allHits.begin(),allHits.end(),CompareHitY_plus(*tracker));
-  }
-  else {
+  else 
       stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
-  }
-
-
 
   if (debug_info) 
     {
