@@ -118,6 +118,15 @@ def L1NtupleRAWEMU(process):
 
     return process
 
+def L1NtupleRAWEMULegacy(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+    L1NtupleEMULegacy(process)
+
+    return process
+
+
 
 def L1NtupleAODRAW(process):
 
