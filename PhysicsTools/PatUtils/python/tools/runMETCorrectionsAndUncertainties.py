@@ -215,6 +215,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('addToPatDefaultSequence',addToPatDefaultSequence),
         self.setParameter('jetSelection',jetSelection),
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
+        self.setParameter('reclusterJets',reclusterJets),
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('postfix',postfix),
@@ -250,7 +251,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         #jet collection overloading for automatic jet reclustering or JEC application
         if reclusterJets:
-            self.setParameter('jetCollectionUnskimmed',cms.InputTag('patJets'))
+            self.setParameter('jetCollectionUnskimmed',cms.InputTag('patJets'+postfix))
             
         self.apply(process)
         
