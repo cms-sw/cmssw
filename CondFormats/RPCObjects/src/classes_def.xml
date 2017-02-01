@@ -114,4 +114,18 @@
   <class name="RPCObGasHum::Item"/>
   <class name="std::vector<RPCObGasHum::Item>"/>
 
+  <class name="RPCFebConnector" />
+  <class name="RPCLBLink" />
+  <class name="std::pair<RPCLBLink, RPCFebConnector>" />
+  <class name="std::map<RPCLBLink, RPCFebConnector>" />
+  <class name="RPCLBLinkMap" />
+  <class name="RPCDCCLink" />
+  <class name="std::pair<RPCDCCLink, RPCLBLink>" />
+  <class name="std::map<RPCDCCLink, RPCLBLink>" />
+  <class name="RPCDCCLinkMap" />
+  <class name="RPCAMCLink" />
+  <class name="std::pair<RPCAMCLink, RPCLBLink>" />
+  <class name="std::map<RPCAMCLink, RPCLBLink>" />
+  <class name="RPCAMCLinkMap" />
+
 </lcgdict>
