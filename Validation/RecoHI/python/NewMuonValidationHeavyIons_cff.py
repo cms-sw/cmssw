@@ -1,20 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoMuon.NewMuonValidation_cff import *
-
-# pt-selection of reco tracks
-import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
-cutsRecoTrkMuons = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTrkMuons.src = "hiGeneralTracks"
-cutsRecoTrkMuons.quality = []
-cutsRecoTrkMuons.ptMin = 0.0
-
-# pt-selection of tracking particles
-import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
-cutsTpMuons = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
-cutsTpMuons.ptMin = 0.0
-
-#----------------------------------------
+from Validation.RecoHI.track_selectors_cff import *
 
 # MuonAssociation labels; hit-by-hit matching only,MuonAssociator
 #
@@ -71,22 +57,42 @@ NEWhiMuonAssociation_seq = cms.Sequence(
 
 #----------------------------------------
 
+from Validation.RecoMuon.RecoMuonValidator_cff import *
+from Validation.RecoMuon.histoParameters_cff import *
+from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
+
+import Validation.RecoMuon.NewMuonTrackValidator_cfi
+
 # RecoMuonValidators labels
+NEWtrkMuonTrackVTrackAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWtrkMuonTrackVTrackAssoc.associatormap  = 'NEWtpToTkMuonAssociation'
-NEWtrkMuonTrackVTrackAssoc.associators    = 'MuonAssociationByHits'
+NEWtrkMuonTrackVTrackAssoc.associators    = ('MuonAssociationByHits',)
 NEWtrkMuonTrackVTrackAssoc.label          = ['cutsRecoTrkMuons']
 NEWtrkMuonTrackVTrackAssoc.label_tp_effic = 'cutsTpMuons'
 NEWtrkMuonTrackVTrackAssoc.label_tp_fake  = 'cutsTpMuons'
+NEWtrkMuonTrackVTrackAssoc.muonHistoParameters = trkMuonHistoParameters
 
+NEWglbMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
+NEWglbMuonTrackVMuonAssoc.associatormap = 'NEWtpToGlbMuonAssociation'
 NEWglbMuonTrackVMuonAssoc.label           = ['globalMuons']
 NEWglbMuonTrackVMuonAssoc.label_tp_effic  = 'cutsTpMuons'
 NEWglbMuonTrackVMuonAssoc.label_tp_fake   = 'cutsTpMuons'
+NEWglbMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
 
+NEWstaMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
+NEWstaMuonTrackVMuonAssoc.associatormap = 'NEWtpToStaMuonAssociation'
+NEWstaMuonTrackVMuonAssoc.label = ('standAloneMuons',)
 NEWstaMuonTrackVMuonAssoc.label_tp_effic  = 'cutsTpMuons'
 NEWstaMuonTrackVMuonAssoc.label_tp_fake  = 'cutsTpMuons'
+NEWstaMuonTrackVMuonAssoc.muonHistoParameters = staMuonHistoParameters
 
+NEWstaUpdMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
+NEWstaUpdMuonTrackVMuonAssoc.associatormap = 'NEWtpToStaUpdMuonAssociation'
+NEWstaUpdMuonTrackVMuonAssoc.label = ('standAloneMuons:UpdatedAtVtx',)
 NEWstaUpdMuonTrackVMuonAssoc.label_tp_effic  = 'cutsTpMuons'
 NEWstaUpdMuonTrackVMuonAssoc.label_tp_fake  = 'cutsTpMuons'
+NEWstaUpdMuonTrackVMuonAssoc.muonHistoParameters = staUpdMuonHistoParameters
+
 
 #change pt max of track validator
 NEWtrkMuonTrackVTrackAssoc.maxPt = cms.double(100)
