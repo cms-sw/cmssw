@@ -3,15 +3,18 @@ import FWCore.ParameterSet.Config as cms
 def enableNewMuonVal(process):
     "Enable new muon validation sequence, both for sources and harvesting"    
     
+    #CB I need to find a better IF statement here
     if hasattr(process,"validation") and \
+       not hasattr(process,"validationHI") and \
+       hasattr(process,"globalValidation") and \
        hasattr(process,"recoMuonValidation") :
-
+    
         print "[enableNewMuonVal] : pp RECO"
-
+    
         process.probeTracks.quality = cms.vstring('loose')
-
+    
         process.load("Validation.RecoMuon.NewMuonValidation_cff")
-
+    
         if hasattr(process,"validation") :
             print "[enableNewMuonVal] : pp RECO validation"
             process.validation.replace(process.recoMuonValidation, \
@@ -19,13 +22,15 @@ def enableNewMuonVal(process):
             print process.validation      
 
 
+    #CB I need to find a better IF statement here
     if hasattr(process,"hltvalidation") and \
+       not hasattr(process,"validationHI") and \
        hasattr(process,"recoMuonValidation") :
 
         print "[enableNewMuonVal] : HLT"
 
         process.load("Validation.RecoMuon.NewMuonValidationHLT_cff")
-
+        
         if hasattr(process,"hltvalidation") :
             process.validation.replace(process.recoMuonValidationHLT_seq, \
                                        process.NEWrecoMuonValidationHLT_seq)
@@ -45,6 +50,27 @@ def enableNewMuonVal(process):
                                        process.NEWrecoMuonValidationCosmics)
 
 
+    if hasattr(process,"validation") and \
+       hasattr(process,"validationHI") and \
+       hasattr(process,"hiRecoMuonPrevalidation") and \
+       hasattr(process,"hiRecoMuonValidation") :
+
+        print "[enableNewMuonVal] : HI RECO"
+
+        process.probeTracks.quality = cms.vstring('loose')
+
+        process.load("Validation.RecoHI.NewMuonValidationHeavyIons_cff")
+
+        if hasattr(process,"prevalidation") :
+            print "[enableNewMuonVal] : HI RECO validation preVal"
+            process.prevalidation.replace(process.hiRecoMuonPrevalidation, \
+                                          process.NEWhiRecoMuonPrevalidation)
+
+        if hasattr(process,"validation") :
+            print "[enableNewMuonVal] : HI RECO validation globalVal"
+            process.validation.replace(process.hiRecoMuonValidation, \
+                                       process.NEWhiRecoMuonValidation)
+        
     if hasattr(process,"postValidation") and \
        hasattr(process,"recoMuonPostProcessors") :
 
@@ -55,6 +81,17 @@ def enableNewMuonVal(process):
         if hasattr(process,"postValidation") :
             process.postValidation.replace(process.recoMuonPostProcessors, \
                                            process.NEWrecoMuonPostProcessors)
+
+    if hasattr(process,"postValidationHI") and \
+       hasattr(process,"recoMuonPostProcessors") :
+
+        print "[enableNewMuonVal] : pp RECO Harvesting"
+
+        process.load("Validation.RecoMuon.NewPostProcessor_cff")
+
+        if hasattr(process,"postValidation") :
+            process.postValidationHI.replace(process.recoMuonPostProcessors, \
+                                             process.NEWrecoMuonPostProcessors)
 
 
     if hasattr(process,"postValidation_fastsim") and \
