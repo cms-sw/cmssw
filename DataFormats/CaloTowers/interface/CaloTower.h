@@ -62,7 +62,7 @@ public:
    // setters
   void addConstituent( DetId id ) { constituents_.push_back( id ); }
   void addConstituents( const std::vector<DetId>& ids );
-  void setConstituents( std::vector<DetId>&& ids ) { constituents_=std::move(ids);}
+  void setConstituents( std::vector<DetId>& ids ) { constituents_=ids;}
 
   void setEcalTime(int t) { ecalTime_ = t; };
   void setHcalTime(int t) { hcalTime_ = t; };
