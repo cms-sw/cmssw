@@ -2,7 +2,8 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="boost"/>
-
+<use   name="Geometry/HcalCommonData"/>
+<use   name="DataFormats/HcalDetId"/>
 <export>
   <lib   name="1"/>
 </export>

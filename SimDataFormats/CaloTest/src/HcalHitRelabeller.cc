@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
+#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
