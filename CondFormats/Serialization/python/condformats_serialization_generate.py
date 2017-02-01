@@ -447,8 +447,8 @@ class SerializationCodeGenerator(object):
         logging.info('Searching serializable classes in %s/%s ...', self.split_path[1], self.split_path[2])
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
-        # if we are using spack it is probably on macOS and we need to costruct library search path
-        if "SPACK_CC" in os.environ :
+        # On macOS we need to costruct library search path
+        if "SCRAM_ARCH" in os.environ and re.match('osx10.*_amd64_clang.*',os.environ['SCRAM_ARCH']):
             cindex=clang.cindex
             libpath=os.path.dirname(os.path.realpath(clang.cindex.__file__))+"/../../lib"
             cindex.Config.set_library_path(libpath)
