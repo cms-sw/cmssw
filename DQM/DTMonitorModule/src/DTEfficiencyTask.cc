@@ -250,7 +250,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 		 << " hits, skipping" << endl; // FIXME: info output
 	  continue;
 	}
-	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D));
+        copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D));
       }
 
       // Skip the segment if it has more than 1 hit on the same layer
