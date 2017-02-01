@@ -28,6 +28,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   void preBeginJob(PathsAndConsumesOfModulesBase const &, ProcessContext const &);
+  void postBeginJob();
 
 private:
   enum class EDMModuleType {
@@ -86,6 +87,8 @@ private:
       node,
       boost::no_property
   > m_graph;
+
+  std::string m_name;
 };
 
 constexpr
@@ -137,6 +140,7 @@ DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 DependencyGraph::DependencyGraph(ParameterSet const & iConfig, ActivityRegistry & iRegistry)
 {
   iRegistry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
+  iRegistry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
 }
 
 
@@ -161,9 +165,18 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p)
 void
 DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsumes, ProcessContext const & context) {
 
-  // create graph vertex for the source module
-  boost::add_vertex(m_graph);
-  m_graph[0] = { "source", 0, EDMModuleType::Source, true };
+  // create graph vertex for the source module only if this is not a subprocess
+  if (not context.isSubProcess()) {
+    boost::add_vertex(m_graph);
+    m_graph[0] = { "source", 0, EDMModuleType::Source, true };
+    m_name = context.processName();
+  } else if (m_name.empty()) {
+    // the Service is only in a Subprocess, which is not supported
+    edm::LogError("DependencyGraph")
+      << "You have requested an instance of the DependencyGraph Service in the \"" << context.processName() 
+      << "\" SubProcess, which is not supported.\nPlease move it to the main process.";
+    return;
+  }
 
   // create graph vertices associated to all modules in the process
   auto size = pathsAndConsumes.allModules().size();
@@ -188,6 +201,14 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
   for (edm::ModuleDescription const * consumer: pathsAndConsumes.allModules())
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id()))
       boost::add_edge(consumer->id(), module->id(), m_graph);
+}
+
+void
+DependencyGraph::postBeginJob() {
+
+  if (m_name.empty())
+    // the Service is only in a Subprocess, which is not supported
+    return;
 
   // draw the dependency graph
   std::ofstream out("dependency.gv");
@@ -202,17 +223,22 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
                "fillcolor=\"" << (m_graph[node].scheduled ? "white" : "lightgrey") << "\"]"; },
       [&](auto & out, auto const & edge) { },
       [&](auto & out) {
-        out << "label=\"process " << context.processName() << "\"\n" <<
+        out << "label=\"process " << m_name << "\"\n" <<
                "labelloc=top\n"; }
   );
   out.close();
 }
+
+namespace edm {
+namespace service {
 
 inline
 bool isProcessWideService(DependencyGraph const *) {
   return true;
 }
 
+} // namespace service
+} // namespace edm
 
 // define as a framework servie
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
