@@ -285,11 +285,10 @@
       ]]>
  </ioread>
 
-  <class name="reco::TrackExtraBase" ClassVersion="11">
-   <field name="m_trajParams" transient="true"/>
-   <field name="m_chi2sX5" transient="true"/>
+  <class name="reco::TrackExtraBase" ClassVersion="12">
    <version ClassVersion="10" checksum="3548207838"/>
    <version ClassVersion="11" checksum="3450798337"/>
+   <version ClassVersion="12" checksum="1846152141"/>
   </class>
   <ioread sourceClass = "reco::TrackExtraBase" version="[-10]" targetClass="reco::TrackExtraBase" source ="TrackingRecHitRefVector recHits_" target="m_hitCollection">
     <![CDATA[m_hitCollection=onfile.recHits_.refVector().refCore();]]>
@@ -302,7 +301,8 @@
   </ioread>
 
 
-  <class name="reco::TrackExtra" ClassVersion="13">
+  <class name="reco::TrackExtra" ClassVersion="14">
+   <version ClassVersion="14" checksum="388593738"/>
    <version ClassVersion="13" checksum="2526033150"/>
    <version ClassVersion="12" checksum="106004853"/>
    <version ClassVersion="11" checksum="2586227274"/>
