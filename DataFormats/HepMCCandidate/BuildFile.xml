@@ -2,9 +2,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="root"/>
-<architecture name="_clang8">
-    <flags LDFLAGS="-L$(GCC_F77COMPILER_BASE)/lib64"/>
-</architecture>
 <export>
   <lib   name="1"/>
 </export>
