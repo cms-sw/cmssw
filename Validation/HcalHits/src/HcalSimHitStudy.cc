@@ -1,6 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

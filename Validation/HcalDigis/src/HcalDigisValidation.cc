@@ -21,7 +21,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 

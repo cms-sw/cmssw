@@ -1,7 +1,7 @@
 #include "Validation/HcalHits/interface/SimHitsValidationHcal.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #define DebugLog
 
