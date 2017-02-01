@@ -12,7 +12,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 

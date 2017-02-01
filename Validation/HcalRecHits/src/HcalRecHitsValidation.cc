@@ -2,7 +2,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output

@@ -1,6 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
