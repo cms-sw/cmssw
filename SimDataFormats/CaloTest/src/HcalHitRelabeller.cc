@@ -45,6 +45,10 @@ void HcalHitRelabeller::setGeometry(const HcalDDDRecConstants *& recNum) {
 }
 
 DetId HcalHitRelabeller::relabel(const uint32_t testId) const {
+  return HcalHitRelabeller::relabel(testId, theRecNumber);
+}
+
+DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstants * theRecNumber) {
 
 #ifdef EDM_ML_DEBUG
   std::cout << "Enter HcalHitRelabeller::relabel " << std::endl;
