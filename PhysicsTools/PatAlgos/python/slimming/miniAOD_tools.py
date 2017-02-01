@@ -108,6 +108,7 @@ def miniAOD_customizeCommon(process):
     runMetCorAndUncForMiniAODProduction(process,
                                         pfCandColl=cms.InputTag("noHFCands"),
                                         recoMetFromPFCs=True, #needed for HF removal
+                                        reclusterJets=True,
                                         jetSelection="pt>15 && abs(eta)<3.",
                                         postfix="NoHF"
                                         )

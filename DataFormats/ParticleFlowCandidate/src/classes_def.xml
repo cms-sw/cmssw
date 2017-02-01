@@ -47,6 +47,8 @@
   <class name="std::vector<edm::Ptr<std::vector<reco::PFCandidate> > >"/>
   <class name="edm::ValueMap<edm::Ptr<reco::PFCandidate> >"/>
   <class name="edm::reftobase::RefVectorHolder<reco::PFCandidateRefVector >"/>
+  <class name="edm::PtrVector<reco::PFCandidate> "/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::PFCandidate> >"/>
 
   <class name="reco::IsolatedPFCandidate"  ClassVersion="13">
    <version ClassVersion="13" checksum="1855164250"/>
