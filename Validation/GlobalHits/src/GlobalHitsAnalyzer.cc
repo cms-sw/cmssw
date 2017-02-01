@@ -11,7 +11,8 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "SimDataFormats/CaloTest/interface/HcalHitRelabeller.h"
 
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
@@ -273,10 +274,6 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 GlobalHitsAnalyzer::~GlobalHitsAnalyzer() {}
 
 void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &es) {
-  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-  es.get<HcalRecNumberingRecord>().get( pHRNDC );
-  hcons = &(*pHRNDC);
-
   // book histograms
   Char_t hname[200];
   Char_t htitle[200];
@@ -1849,7 +1846,11 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
     return;
   }
   const CaloGeometry& theCalo(*theCaloGeometry);
-    
+
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+  const HcalDDDRecConstants* hcons = &(*pHRNDC);
+
   // iterator to access containers
   edm::PCaloHitContainer::const_iterator itHit;
 
@@ -1876,14 +1877,8 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
       // create a DetId from the detUnitId      
       DetId theDetUnitId;
       unsigned int id_ = itHit->id();
-      if(testNumber){
-        int sub, depth, ieta, iphi, z, lay;
-        HcalTestNumbering::unpackHcalIndex(id_, sub, z, depth, ieta, iphi, lay);
-        int sign = (z==0) ? (-1):(1);
-        HcalDDDRecConstants::HcalID hcid = hcons->getHCID(sub, ieta, iphi, lay, depth);
-        theDetUnitId = HcalDetId((HcalSubdetector)sub,sign*hcid.eta,hcid.phi,hcid.depth);
-      }
-      else theDetUnitId = itHit->id();
+      if(testNumber) theDetUnitId = HcalHitRelabeller::relabel(id_,hcons);
+      else theDetUnitId = id_;
 
       int detector = theDetUnitId.det();
       int subdetector = theDetUnitId.subdetId();
