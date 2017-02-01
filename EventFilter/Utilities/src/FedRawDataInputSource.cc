@@ -293,7 +293,7 @@ bool FedRawDataInputSource::checkNextEvent()
           maybeOpenNewLumiSection( event_->lumi() );
 	}
       }
-      if (fileListLoopMode_)
+      if (fileListMode_ || fileListLoopMode_)
         eventRunNumber_=runNumber_;
       else 
         eventRunNumber_=event_->run();
