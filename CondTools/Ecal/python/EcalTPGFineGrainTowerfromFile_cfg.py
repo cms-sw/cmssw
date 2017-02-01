@@ -7,7 +7,7 @@ process.CondDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 #
 # Choose the output database
 #
-process.CondDB.connect = 'sqlite_file:EcalTPGFineGrainStrip.db'
+process.CondDB.connect = 'sqlite_file:EcalTPGFineGrainTower.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
   debugModules = cms.untracked.vstring('*'),
@@ -21,22 +21,34 @@ process.source = cms.Source("EmptyIOVSource",
   interval = cms.uint64(1)
 )
 
+#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+#  process.CondDB,
+#  timetype = cms.untracked.string('runnumber'),
+#  toGet = cms.VPSet(
+#    cms.PSet(
+#      record = cms.string('EcalTPGFineGrainTowerEERcd'),
+#      tag = cms.string('EcalTPGFineGrainTower_test')
+#    )
+#  )
+# )
+
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB,
   logconnect = cms.untracked.string('sqlite_file:DBLog.db'),
   timetype = cms.untracked.string('runnumber'),
   toPut = cms.VPSet(
     cms.PSet(
-      record = cms.string('EcalTPGFineGrainStripEERcd'),
-      tag = cms.string('EcalTPGFineGrainStripEE_test_10GeV')
+      record = cms.string('EcalTPGFineGrainTowerEERcd'),
+      tag = cms.string('EcalTPGFineGrainTower_test')
     )
   )
 )
 
-process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainStripfromFile",
-  record = cms.string('EcalTPGFineGrainStripEERcd'),
+process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainTowerfromFile",
+  record = cms.string('EcalTPGFineGrainTowerEERcd'),
   Source = cms.PSet(
-    FileName = cms.string('/afs/cern.ch/cms/CAF/CMSCOMM/COMM_ECAL/azabi/TPG_beamv6_trans_spikekill_FGEE_10GEV_LUT.txt')
+#    debug = cms.bool(True),
+    FileName = cms.string('/afs/cern.ch/cms/CAF/CMSCOMM/COMM_ECAL/azabi/TPG_beamv6_trans_spikekill_FGEE_2GEV_LUT.txt')
   )
 )
 
