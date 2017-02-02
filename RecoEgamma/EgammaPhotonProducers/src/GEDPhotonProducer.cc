@@ -610,14 +610,16 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     DetId seedXtalId = seedCluster.seed();
     int nSaturatedXtals = 0;
     bool isSeedSaturated = false;
-    const auto hitsAndFractions = scRef->hitsAndFractions();
-    for (auto&& hitFractionPair : hitsAndFractions) {    
-      auto&& ecalRecHit = hits->find(hitFractionPair.first);
-      if (ecalRecHit == hits->end()) continue;
-      if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) {
-	nSaturatedXtals++;
-	if (seedXtalId == ecalRecHit->detid())
-	  isSeedSaturated = true;
+    if (hits != nullptr) {
+      const auto hitsAndFractions = scRef->hitsAndFractions();
+      for (auto&& hitFractionPair : hitsAndFractions) {    
+	auto&& ecalRecHit = hits->find(hitFractionPair.first);
+	if (ecalRecHit == hits->end()) continue;
+	if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) {
+	  nSaturatedXtals++;
+	  if (seedXtalId == ecalRecHit->detid())
+	    isSeedSaturated = true;
+	}
       }
     }
     saturationInfo.nSaturatedXtals = nSaturatedXtals;
