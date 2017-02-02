@@ -63,7 +63,7 @@ public:
   void addConstituent( DetId id ) { constituents_.push_back( id ); }
   void addConstituents( const std::vector<DetId>& ids );
 #ifdef __ROOTCLING__
-  void setConstituents( std::vector<DetId>& ids ) { constituents_=ids;}
+  void setConstituents( const std::vector<DetId>& ids ) { constituents_=ids;}
 #else
   void setConstituents( std::vector<DetId>&& ids ) { constituents_=std::move(ids);}
 #endif
