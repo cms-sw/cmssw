@@ -71,6 +71,13 @@ TrackingParticleNumberOfLayers::calculate(const edm::Handle<TrackingParticleColl
       if(range.first == range.second) continue;
 
       auto iHitPtr = range.first;
+      for(; iHitPtr != range.second; ++iHitPtr) {
+        // prevent simhits with particleType != pdgId from being the "first hit"
+        if(iHitPtr->second->particleType() == pdgId)
+          break;
+      }
+      if(iHitPtr == range.second) // no simhits with particleType == pdgId
+        continue;
       int processType = iHitPtr->second->processType();
       int particleType = iHitPtr->second->particleType();
 
