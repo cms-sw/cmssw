@@ -4,6 +4,7 @@ import re
 import sys
 import math
 import difflib
+import itertools
 import collections
 
 class Detector:
@@ -533,10 +534,26 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
             diff.extend(_makediff(trackPrinter.printTrackAndMatchedTrackingParticles(trk1), []))
         else: # diff trk1 to best-matching track from trks2
             trks2.remove(matchedTrk2)
-            if ncommon == trk1.nValid() and ncommon == matchedTrk2.nValid():
-                continue
 
-            diff.extend(trackPrinter.diff(trk1, matchedTrk2))
+            # if tracks have same hits, consider their reco as identical
+            areSame = (ncommon == trk1.nValid() and ncommon == matchedTrk2.nValid())
+            # although if there is any change in their iterations, mark them different
+            if areSame:
+                areSame = (trk1.algoMask() == matchedTrk2.algoMask() and trk1.algo() == matchedTrk2.algo() and trk1.originalAlgo() == matchedTrk2.originalAlgo())
+            # if reco is the same, check if they are matched to the
+            # same TPs (in case the track-TP matching is modified
+            # between ntuples)
+            if areSame:
+                if trk1.nMatchedTrackingParticles() == matchedTrk2.nMatchedTrackingParticles():
+                    for tpInfo1, tpInfo2 in itertools.izip(trk1.matchedTrackingParticleInfos(), matchedTrk2.matchedTrackingParticleInfos()):
+                        if tpInfo1.trackingParticle().index() != tpInfo2.trackingParticle().index():
+                            areSame = False
+                            break
+                else:
+                    areSame = False
+
+            if not areSame:
+                diff.extend(trackPrinter.diff(trk1, matchedTrk2))
 
     for trk2 in trks2: # remaining tracks in trks2
         diff.extend(_makediff([], trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
