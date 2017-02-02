@@ -661,6 +661,10 @@ namespace // Unnamed namespace for things only used in this file
 		{
 			const auto& pSimHit=simHits_[ iHitIndex->second ];
 
+                        // Skip hits with particle type different from SimTrack pdgId
+                        if(pSimHit->particleType() != pdgId)
+                          continue;
+
 			// Initial condition for consistent simhit selection
 			if( init )
 			{
@@ -678,7 +682,7 @@ namespace // Unnamed namespace for things only used in this file
 			if( allowDifferentProcessTypeForDifferentDetectors_ && newDetector.det()!=oldDetector.det() ) processType=pSimHit->processType();
 
 			// Check for delta and interaction products discards
-			if( processType==pSimHit->processType() && particleType==pSimHit->particleType() && pdgId==pSimHit->particleType() )
+			if( processType==pSimHit->processType() && particleType==pSimHit->particleType() )
 			{
 				++numberOfHits;
 				oldLayer=newLayer;
