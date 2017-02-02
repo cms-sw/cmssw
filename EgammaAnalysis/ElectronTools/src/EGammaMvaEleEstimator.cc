@@ -38,9 +38,6 @@ fNMVABins(0)
 EGammaMvaEleEstimator::~EGammaMvaEleEstimator()
 {
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
-    if (fTMVAMethod[i]) delete fTMVAMethod[i];
-#endif
     if (fTMVAReader[i]) delete fTMVAReader[i];
   }
 }
@@ -67,9 +64,6 @@ void EGammaMvaEleEstimator::initialize( std::string methodName,
   //clean up first
   for (unsigned int i=0;i<fTMVAReader.size(); ++i) {
     if (fTMVAReader[i]) delete fTMVAReader[i];
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,7,0)
-    if (fTMVAMethod[i]) delete fTMVAMethod[i];
-#endif
   }
   fTMVAReader.clear();
   fTMVAMethod.clear();
