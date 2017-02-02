@@ -4,9 +4,19 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace {
   bool trackIdHitPairLess(const std::pair<unsigned int, const PSimHit*>& a, const std::pair<unsigned int, const PSimHit*>& b) {
+    return a.first < b.first;
+  }
+
+  bool trackIdHitPairLessSort(const std::pair<unsigned int, const PSimHit*>& a, const std::pair<unsigned int, const PSimHit*>& b) {
+    if(a.first == b.first) {
+      const auto atof = edm::isFinite(a.second->timeOfFlight()) ? a.second->timeOfFlight() : std::numeric_limits<decltype(a.second->timeOfFlight())>::max();
+      const auto btof = edm::isFinite(b.second->timeOfFlight()) ? b.second->timeOfFlight() : std::numeric_limits<decltype(b.second->timeOfFlight())>::max();
+      return atof < btof;
+    }
     return a.first < b.first;
   }
 }
@@ -23,7 +33,7 @@ TrackingParticleNumberOfLayers::TrackingParticleNumberOfLayers(const edm::Event&
       trackIdToHitPtr_.emplace_back(simHit.trackId(), &simHit);
     }
   }
-  std::stable_sort(trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(), trackIdHitPairLess);
+  std::stable_sort(trackIdToHitPtr_.begin(), trackIdToHitPtr_.end(), trackIdHitPairLessSort);
 }
 
 std::tuple<std::unique_ptr<edm::ValueMap<unsigned int>>,
@@ -61,6 +71,13 @@ TrackingParticleNumberOfLayers::calculate(const edm::Handle<TrackingParticleColl
       if(range.first == range.second) continue;
 
       auto iHitPtr = range.first;
+      for(; iHitPtr != range.second; ++iHitPtr) {
+        // prevent simhits with particleType != pdgId from being the "first hit"
+        if(iHitPtr->second->particleType() == pdgId)
+          break;
+      }
+      if(iHitPtr == range.second) // no simhits with particleType == pdgId
+        continue;
       int processType = iHitPtr->second->processType();
       int particleType = iHitPtr->second->particleType();
 
