@@ -21,7 +21,7 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+  setSrc( consumes<edm::View<reco::GsfTrack>>(iConfig.getParameter<edm::InputTag>( "src" )), 
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
@@ -82,7 +82,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   switch(constraint_){
   case none :
     {
-      edm::Handle<reco::GsfTrackCollection> theTCollection;
+      edm::Handle<edm::View<reco::GsfTrack>> theTCollection;
       getFromEvt(theEvent,theTCollection,bs);
       if (theTCollection.failedToGet()){
 	edm::LogError("GsfTrackRefitter")<<"could not get the reco::GsfTrackCollection."; return;}
