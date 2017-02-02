@@ -9,7 +9,8 @@
   </ioread>
 
 
-  <class name="reco::Photon" ClassVersion="16">
+  <class name="reco::Photon" ClassVersion="17">
+   <version ClassVersion="17" checksum="4077732720"/>
    <version ClassVersion="16" checksum="3459546220"/>
    <version ClassVersion="15" checksum="577991108"/>
    <version ClassVersion="13" checksum="2963666409"/>
@@ -40,6 +41,9 @@
   <class name="reco::Photon::ShowerShape" ClassVersion="12">
    <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
+  </class>
+  <class name="reco::Photon::SaturationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2679714023"/>
   </class>
   <class name="reco::Photon::MIPVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="1613378413"/>
@@ -156,7 +160,8 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="12">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="13">
+   <version ClassVersion="13" checksum="1955217576"/>
    <version ClassVersion="12" checksum="1486422105"/>
    <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
@@ -220,8 +225,12 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
+  <class name="reco::GsfElectron::SaturationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="3868678681"/>
+  </class>
 
-  <class name="reco::GsfElectron" ClassVersion="19">
+  <class name="reco::GsfElectron" ClassVersion="20">
+   <version ClassVersion="20" checksum="2375747450"/>
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>
    <version ClassVersion="17" checksum="1861965703"/>
