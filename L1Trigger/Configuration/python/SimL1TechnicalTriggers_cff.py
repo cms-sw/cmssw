@@ -26,8 +26,7 @@ import SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi
 simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-if not (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
+if not (stage2L1Trigger.isChosen()):
     SimL1TechnicalTriggers = cms.Sequence( 
         simBscDigis + 
         simRpcTechTrigDigis + 
