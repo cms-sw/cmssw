@@ -312,6 +312,19 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 
     return process
 
+# modify the HLT configuration to run the Phase I tracking in the particle flow sequence
+def customizeHLTForPFTrackingPhaseI2017tuningIter0(process):
+    process.hltPixelTracks.OrderedHitsFactoryPSet.maxChi2.pt1    = cms.double( 0.8 ) # lowpt
+    process.hltPixelTracks.OrderedHitsFactoryPSet.maxChi2.pt2    = cms.double( 2   ) # highpt
+    process.hltPixelTracks.OrderedHitsFactoryPSet.maxChi2.value1 = cms.double( 150 ) # chi2lowpt
+    process.hltPixelTracks.OrderedHitsFactoryPSet.maxChi2.value2 = cms.double(  50 ) # chi2highpt
+    process.hltPixelTracks.OrderedHitsFactoryPSet.CAThetaCut  = cms.double( 0.002 )
+    process.hltPixelTracks.OrderedHitsFactoryPSet.CAPhiCut    = cms.double( 0.2   )
+    process.hltPixelTracks.OrderedHitsFactoryPSet.CAHardPtCut = cms.double( 0     )
+    
+    return process
+
 # attach `customizeHLTForPFTrackingPhaseI2017` to the `phase1Pixel` era
 def modifyHLTForPFTrackingPhaseI2017(process):
     phase1Pixel.toModify(process, customizeHLTForPFTrackingPhaseI2017)
+    phase1Pixel.toModify(process, customizeHLTForPFTrackingPhaseI2017tuningIter0)
