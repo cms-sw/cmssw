@@ -55,13 +55,13 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
     
     for (unsigned int il3=0; il3 != l3muonH->size(); ++il3){
       reco::RecoChargedCandidateRef cand(l3muonH,il3);
+      reco::TrackRef tk = cand->track();
       
       for (unsigned int l(0); l <links->size(); ++l){
 	const reco::MuonTrackLinks* link = &links->at(l);
-	reco::TrackRef tk = cand->track();
 	
 	// Check if the L3 link matches the L3 candidate
-	bool useThisLink=false;	
+	bool useThisLink = false;
 	const reco::Track& globalTrack = *link->globalTrack();
 	float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
 	float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
