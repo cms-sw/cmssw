@@ -88,6 +88,7 @@ private:
       boost::no_property
   > m_graph;
 
+  std::string m_filename;
   std::string m_name;
 };
 
@@ -133,14 +134,16 @@ void
 DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>("fileName", "dependency.gv");
   descriptions.add("DependencyGraph", desc);
 }
 
 
-DependencyGraph::DependencyGraph(ParameterSet const & iConfig, ActivityRegistry & iRegistry)
+DependencyGraph::DependencyGraph(ParameterSet const & config, ActivityRegistry & registry) :
+  m_filename( config.getUntrackedParameter<std::string>("fileName") )
 {
-  iRegistry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
-  iRegistry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
+  registry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
+  registry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
 }
 
 
@@ -211,7 +214,7 @@ DependencyGraph::postBeginJob() {
     return;
 
   // draw the dependency graph
-  std::ofstream out("dependency.gv");
+  std::ofstream out(m_filename);
   boost::write_graphviz(
       out,
       m_graph,
