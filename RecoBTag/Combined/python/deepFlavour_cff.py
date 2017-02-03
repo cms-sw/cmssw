@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-from RecoBTag.Combined.DeepNNTagInfoProducer_cfi import pfDeepCSVTagInfos
+from RecoBTag.Combined.pfDeepCSVTagInfos_cfi import pfDeepCSVTagInfos
 from RecoBTag.Combined.DeepCMVATagInfoProducer_cfi import pfDeepCMVATagInfos
-from RecoBTag.Combined.DeepFlavourJetTagsProducer_cfi import pfDeepCSVJetTags, pfDeepCMVAJetTags
+from RecoBTag.Combined.pfDeepCSVJetTags_cfi import pfDeepCSVJetTags 
+from RecoBTag.Combined.pfDeepCMVAJetTags_cfi import pfDeepCMVAJetTags
 
 ##
 ## Negative and positive taggers for light SF estimation
