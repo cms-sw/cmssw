@@ -1,7 +1,6 @@
 #ifndef EventFilter_DTDigiToRawModule_h
 #define EventFilter_DTDigiToRawModule_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
