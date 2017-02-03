@@ -49,6 +49,8 @@ _patJets = cms.EDProducer("PATJetProducer",
         # CTagging
         cms.InputTag('pfCombinedCvsLJetTags'),
         cms.InputTag('pfCombinedCvsBJetTags'),
+        # The following code is commented-out to avoid breaking any unit test
+        # waiting for a set of AOD RelVals which have the jet tags in the event content 
         # DeepFlavour
         # cms.InputTag('pfDeepCSVJetTags:probb'),
         # cms.InputTag('pfDeepCSVJetTags:probc'),

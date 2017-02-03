@@ -44,7 +44,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-#include <math.h>
+#include <cmath>
 #include <map>
 
 using namespace reco;
@@ -131,7 +131,6 @@ DeepCMVATagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	// get other Taginfos
 	edm::Handle< edm::View<BaseTagInfo> > ipInfos;
 	iEvent.getByToken(ipInfoSrc_, ipInfos);
-	std::vector<const BaseTagInfo*> ipBaseInfo;
 	edm::Handle< edm::View<BaseTagInfo> > muInfos;
 	iEvent.getByToken(muInfoSrc_, muInfos);
 	edm::Handle< edm::View<BaseTagInfo> > elInfos;
