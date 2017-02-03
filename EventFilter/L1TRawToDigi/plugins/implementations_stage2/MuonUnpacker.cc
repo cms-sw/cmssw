@@ -9,6 +9,10 @@
 
 namespace l1t {
    namespace stage2 {
+      MuonUnpacker::MuonUnpacker() : algoVersion_(0)
+      {
+      }
+
       bool
       MuonUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
@@ -55,6 +59,18 @@ namespace l1t {
             }
          }
          return true;
+      }
+
+      unsigned int
+      MuonUnpacker::getAlgoVersion()
+      {
+        return algoVersion_;
+      }
+
+      void
+      MuonUnpacker::setAlgoVersion(unsigned int version)
+      {
+        algoVersion_ = version;
       }
    }
 }
