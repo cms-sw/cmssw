@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Track selector
-from Validation.RecoMuon.selectors_cff import *
+from Validation.RecoMuon.NewSelectors_cff import *
 from Validation.RecoMuon.track_selectors_cff import *
 
 #
