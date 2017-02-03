@@ -68,7 +68,7 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) :
 
   //BeginRun
 
-void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
+void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
