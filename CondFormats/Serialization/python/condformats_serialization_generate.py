@@ -448,7 +448,7 @@ class SerializationCodeGenerator(object):
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
         # On macOS we need to costruct library search path
-        if "SCRAM_ARCH" in os.environ and re.match('osx10.*_amd64_clang.*',os.environ['SCRAM_ARCH']):
+        if "SCRAM_ARCH" in os.environ and re.match('osx10*',os.environ['SCRAM_ARCH']):
             cindex=clang.cindex
             libpath=os.path.dirname(os.path.realpath(clang.cindex.__file__))+"/../../lib"
             cindex.Config.set_library_path(libpath)
