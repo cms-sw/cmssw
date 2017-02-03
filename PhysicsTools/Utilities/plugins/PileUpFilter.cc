@@ -3,14 +3,14 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
+//#include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
  
@@ -18,7 +18,7 @@
 // class declaration
 //
 
-class PileUpFilter : public edm::stream::EDFilter<> {
+class PileUpFilter : public edm::global::EDFilter<> {
    public:
       explicit PileUpFilter(const edm::ParameterSet&);
       ~PileUpFilter() = default;
@@ -26,7 +26,7 @@ class PileUpFilter : public edm::stream::EDFilter<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
       // ----------member data ---------------------------
    private:
@@ -62,7 +62,7 @@ PileUpFilter::PileUpFilter(const edm::ParameterSet& iConfig)
 
 // ------------ method called on each new Event  ------------
 bool
-PileUpFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+PileUpFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   
   bool pass = false;
