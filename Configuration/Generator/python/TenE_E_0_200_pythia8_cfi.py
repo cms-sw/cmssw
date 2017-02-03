@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Modified from Configuration/Generator/python/TenMuE_0_200_pythia8_cfi.py
- = cms.EDFilter("Pythia8EGun",
+generator = cms.EDFilter("Pythia8EGun",
     PGunParameters = cms.PSet(
         MaxE = cms.double(200.0),
         MinE = cms.double(0.0),
