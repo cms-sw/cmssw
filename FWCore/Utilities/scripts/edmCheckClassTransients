@@ -63,7 +63,7 @@ import ROOT
 import os
 import re
 # On macos with SIP enabled we need to construct our own lib search path
-if "SCRAM_ARCH" in os.environ and re.match('osx10.*_amd64_clang.*',os.environ['SCRAM_ARCH']) :
+if "SCRAM_ARCH" in os.environ and re.match('osx10.*',os.environ['SCRAM_ARCH']) :
     scram_arch=os.environ['SCRAM_ARCH']
     localtop=os.path.abspath(os.path.dirname(os.path.realpath(__file__))+"/../..")
     libpath=localtop+"/lib/"+scram_arch
