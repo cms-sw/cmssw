@@ -115,14 +115,6 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 
     process.hltPixelTracks.SeedingHitSets = "hltPixelTracksHitQuadruplets"
 
-    process.HLTDoRecoPixelTracksSequence = cms.Sequence(
-        process.hltPixelLayerQuadruplets +
-        process.hltPixelTracksTrackingRegions +
-        process.hltPixelTracksHitDoublets +
-        process.hltPixelTracksHitQuadruplets +
-        process.hltPixelTracks
-    )
-    
     process.HLTIter0PSetTrajectoryFilterIT.minimumNumberOfHits = cms.int32( 4 )
     process.HLTIter0PSetTrajectoryFilterIT.minHitsMinPt        = cms.int32( 4 )
     process.hltIter0PFlowTrackCutClassifier.mva.minLayers    = cms.vint32( 3, 3, 4 )
