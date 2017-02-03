@@ -42,7 +42,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         'BPix1+FPix1_pos+FPix2_pos',
         'BPix1+FPix1_neg+FPix2_neg',
         'FPix1_pos+FPix2_pos+FPix3_pos',
-        'FPix1_neg+FPix2_neg+FPix3_neg' 
+        'FPix1_neg+FPix2_neg+FPix3_neg'
     )
 
     process.hltPixelLayerQuadruplets = cms.EDProducer("SeedingLayersEDProducer",
@@ -69,12 +69,12 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         TID = cms.PSet( ),
         TOB = cms.PSet( ),
         layerList = cms.vstring(
-            'BPix1+BPix2+BPix3+BPix4', 
-            'BPix1+BPix2+BPix3+FPix1_pos', 
-            'BPix1+BPix2+BPix3+FPix1_neg', 
-            'BPix1+BPix2+FPix1_pos+FPix2_pos', 
-            'BPix1+BPix2+FPix1_neg+FPix2_neg', 
-            'BPix1+FPix1_pos+FPix2_pos+FPix3_pos', 
+            'BPix1+BPix2+BPix3+BPix4',
+            'BPix1+BPix2+BPix3+FPix1_pos',
+            'BPix1+BPix2+BPix3+FPix1_neg',
+            'BPix1+BPix2+FPix1_pos+FPix2_pos',
+            'BPix1+BPix2+FPix1_neg+FPix2_neg',
+            'BPix1+FPix1_pos+FPix2_pos+FPix3_pos',
             'BPix1+FPix1_neg+FPix2_neg+FPix3_neg'
         )
     )
@@ -109,7 +109,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         CAThetaCut = cms.double(0.0012),
         CAPhiCut = cms.double(0.2),
         CAHardPtCut = cms.double(0),
-        SeedComparitorPSet = cms.PSet( 
+        SeedComparitorPSet = cms.PSet(
             ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
             clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
         )
@@ -124,17 +124,17 @@ def customizeHLTForPFTrackingPhaseI2017(process):
     process.hltIter0PFlowTrackCutClassifier.mva.minPixelHits = cms.vint32( 0, 3, 4 )
 
     replace_with(process.hltIter1PixelLayerTriplets, cms.EDProducer( "SeedingLayersEDProducer",
-        layerList = cms.vstring( 
-            'BPix1+BPix2+BPix3', 
-            'BPix1+BPix2+FPix1_pos', 
-            'BPix1+BPix2+FPix1_neg', 
-            'BPix1+FPix1_pos+FPix2_pos', 
+        layerList = cms.vstring(
+            'BPix1+BPix2+BPix3',
+            'BPix1+BPix2+FPix1_pos',
+            'BPix1+BPix2+FPix1_neg',
+            'BPix1+FPix1_pos+FPix2_pos',
             'BPix1+FPix1_neg+FPix2_neg'
         ),
         MTOB = cms.PSet( ),
         TEC = cms.PSet( ),
         MTID = cms.PSet( ),
-        FPix = cms.PSet( 
+        FPix = cms.PSet(
             HitProducer = cms.string( "hltSiPixelRecHits" ),
             hitErrorRZ = cms.double( 0.0036 ),
             useErrorsFromParam = cms.bool( True ),
@@ -146,7 +146,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         MTIB = cms.PSet( ),
         TID = cms.PSet( ),
         TOB = cms.PSet( ),
-        BPix = cms.PSet( 
+        BPix = cms.PSet(
             HitProducer = cms.string( "hltSiPixelRecHits" ),
             hitErrorRZ = cms.double( 0.006 ),
             useErrorsFromParam = cms.bool( True ),
@@ -156,8 +156,8 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         ),
         TIB = cms.PSet( )
     ))
-    
-    process.HLTIter1PSetTrajectoryFilterIT = cms.PSet( 
+
+    process.HLTIter1PSetTrajectoryFilterIT = cms.PSet(
         ComponentType = cms.string('CkfBaseTrajectoryFilter'),
         chargeSignificance = cms.double(-1.0),
         constantValueForLostHitsFractionFilter = cms.double(2.0),
@@ -203,7 +203,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         strictSeedExtension = cms.bool(True)
     )
 
-    process.HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
+    process.HLTIter1PSetTrajectoryBuilderIT = cms.PSet(
         inOutTrajectoryFilter = cms.PSet( refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT') ),
         propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
         trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
@@ -223,17 +223,17 @@ def customizeHLTForPFTrackingPhaseI2017(process):
     replace_with(process.HLTIterativeTrackingIteration1, cms.Sequence( process.hltIter1ClustersRefRemoval + process.hltIter1MaskedMeasurementTrackerEvent + process.hltIter1PixelLayerTriplets + process.hltIter1PFlowPixelTrackingRegions + process.hltIter1PFlowPixelClusterCheck + process.hltIter1PFlowPixelHitDoublets + process.hltIter1PFlowPixelHitTriplets + process.hltIter1PFlowPixelSeeds + process.hltIter1PFlowCkfTrackCandidates + process.hltIter1PFlowCtfWithMaterialTracks + process.hltIter1PFlowTrackCutClassifierPrompt + process.hltIter1PFlowTrackCutClassifierDetached + process.hltIter1PFlowTrackCutClassifierMerged + process.hltIter1PFlowTrackSelectionHighPurity ))
 
     process.hltIter2PixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
-        layerList = cms.vstring( 
+        layerList = cms.vstring(
             'BPix1+BPix2+BPix3',
             'BPix1+BPix2+FPix1_pos',
             'BPix1+BPix2+FPix1_neg',
             'BPix1+FPix1_pos+FPix2_pos',
-            'BPix1+FPix1_neg+FPix2_neg' 
+            'BPix1+FPix1_neg+FPix2_neg'
         ),
         MTOB = cms.PSet( ),
         TEC = cms.PSet( ),
         MTID = cms.PSet( ),
-        FPix = cms.PSet( 
+        FPix = cms.PSet(
             HitProducer = cms.string( "hltSiPixelRecHits" ),
             hitErrorRZ = cms.double( 0.0036 ),
             useErrorsFromParam = cms.bool( True ),
@@ -245,7 +245,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         MTIB = cms.PSet( ),
         TID = cms.PSet( ),
         TOB = cms.PSet( ),
-        BPix = cms.PSet( 
+        BPix = cms.PSet(
             HitProducer = cms.string( "hltSiPixelRecHits" ),
             hitErrorRZ = cms.double( 0.006 ),
             useErrorsFromParam = cms.bool( True ),
