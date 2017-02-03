@@ -73,20 +73,31 @@ private:
   const char * edmModuleType(edm::ModuleDescription const & module);
 
   struct node {
-    std::string   name;
+    std::string   label;
     unsigned int  id;
     EDMModuleType type;
     bool          scheduled;
   };
 
-  // directed graph, with `vertex_properties` attached to each vertex and no properties attached to edges
-  boost::adjacency_list<
+  using GraphvizAttributes = std::map<std::string, std::string>;
+
+  // directed graph, with `node` properties attached to each vertex
+  boost::subgraph<boost::adjacency_list<
       boost::vecS,
       boost::vecS,
       boost::directedS,
-      node,
-      boost::no_property
-  > m_graph;
+      // vertex properties
+      boost::property<boost::vertex_attribute_t, GraphvizAttributes,        // Graphviz vertex attributes
+      node>,
+      // edge propoerties
+      boost::property<boost::edge_index_t, int,                             // used internally by boost::subgraph
+      boost::property<boost::edge_attribute_t, GraphvizAttributes>>,        // Graphviz edge attributes
+      // graph properties
+      boost::property<boost::graph_name_t, std::string,                     // name each boost::subgraph
+      boost::property<boost::graph_graph_attribute_t, GraphvizAttributes,   // Graphviz graph attributes
+      boost::property<boost::graph_vertex_attribute_t, GraphvizAttributes,
+      boost::property<boost::graph_edge_attribute_t, GraphvizAttributes>>>>
+  >> m_graph;
 
   std::string m_filename;
   std::string m_name;
@@ -168,42 +179,88 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p)
 void
 DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsumes, ProcessContext const & context) {
 
-  // create graph vertex for the source module only if this is not a subprocess
-  if (not context.isSubProcess()) {
-    boost::add_vertex(m_graph);
-    m_graph[0] = { "source", 0, EDMModuleType::Source, true };
-    m_name = context.processName();
-  } else if (m_name.empty()) {
-    // the Service is only in a Subprocess, which is not supported
+  // if the Service is not in the main Process do not do anything
+  if (context.isSubProcess() and m_name.empty()) {
     edm::LogError("DependencyGraph")
-      << "You have requested an instance of the DependencyGraph Service in the \"" << context.processName() 
+      << "You have requested an instance of the DependencyGraph Service in the \"" << context.processName()
       << "\" SubProcess, which is not supported.\nPlease move it to the main process.";
     return;
   }
 
-  // create graph vertices associated to all modules in the process
-  auto size = pathsAndConsumes.allModules().size();
-  for (size_t i = 0; i < size; ++i)
+  if (not context.isSubProcess()) {
+    // set the graph name property to the process name
+    m_name = context.processName();
+    boost::get_property(m_graph, boost::graph_name) = context.processName();
+    boost::get_property(m_graph, boost::graph_graph_attribute)["label"] = "process " + context.processName();
+    boost::get_property(m_graph, boost::graph_graph_attribute)["labelloc"] = "top";
+
+    // create graph vertex for the source module and fill its attributes
     boost::add_vertex(m_graph);
-  for (edm::ModuleDescription const * module: pathsAndConsumes.allModules())
-    m_graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
+    m_graph.m_graph[0] = node{ "source", 0, EDMModuleType::Source, true };
+    auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), 0);
+    attributes["label"] = "source";
+    attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(EDMModuleType::Source)];
+    attributes["style"] = "filled";
+    attributes["color"] = "black";
+    attributes["fillcolor"] = "white";
+
+    // create graph vertices associated to all modules in the process
+    auto size = pathsAndConsumes.allModules().size();
+    for (size_t i = 0; i < size; ++i)
+      boost::add_vertex(m_graph);
+
+  } else {
+    // create a subgraph to match the subprocess
+    auto & graph = m_graph.create_subgraph();
+
+    // set the subgraph name property to the subprocess name
+    boost::get_property(graph, boost::graph_name) = "cluster" + context.processName();
+    boost::get_property(graph, boost::graph_graph_attribute)["label"] = "subprocess " + context.processName();
+    boost::get_property(graph, boost::graph_graph_attribute)["labelloc"] = "top";
+
+    // create graph vertices associated to all modules in the subprocess
+    auto size = pathsAndConsumes.allModules().size();
+    for (size_t i = 0; i < size; ++i)
+      boost::add_vertex(graph);
+  }
+
+  // set the vertices properties (use the module id as the global index into the graph)
+  for (edm::ModuleDescription const * module: pathsAndConsumes.allModules()) {
+    m_graph.m_graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
+
+    auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
+    attributes["label"] = module->moduleLabel();
+    attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(edmModuleTypeEnum(*module))];
+    attributes["style"] = "filled";
+    attributes["color"] = "black";
+    attributes["fillcolor"] = "lightgrey";
+  }
 
   // paths and endpaths
   auto const & paths = pathsAndConsumes.paths();
   auto const & endps = pathsAndConsumes.endPaths();
 
-  // mark scheduled modules
+  // mark scheduled modules (use the module id as the global index into the graph)
   for (unsigned int i = 0; i < paths.size(); ++i)
-    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnPath(i))
-      m_graph[module->id()].scheduled = true;
+    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnPath(i)) {
+      m_graph.m_graph[module->id()].scheduled = true;
+      auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
+      attributes["fillcolor"] = "white";
+  }
   for (unsigned int i = 0; i < endps.size(); ++i)
-    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnEndPath(i))
-      m_graph[module->id()].scheduled = true;
+    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnEndPath(i)) {
+      m_graph.m_graph[module->id()].scheduled = true;
+      auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
+      attributes["fillcolor"] = "white";
+  }
 
   // add graph edges associated to module dependencies
   for (edm::ModuleDescription const * consumer: pathsAndConsumes.allModules())
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id()))
+    {
+      std::cerr << "module " << consumer->moduleLabel() << " depends on module " << module->moduleLabel() << std::endl;
       boost::add_edge(consumer->id(), module->id(), m_graph);
+    }
 }
 
 void
@@ -217,17 +274,7 @@ DependencyGraph::postBeginJob() {
   std::ofstream out(m_filename);
   boost::write_graphviz(
       out,
-      m_graph,
-      [&](auto & out, auto const & node) {
-        out << "[label=\"" << m_graph[node].name << "\" " <<
-               "shape=\"" << shapes[static_cast<std::underlying_type_t<EDMModuleType>>(m_graph[node].type)] << "\" " <<
-               "style=\"filled\" " <<
-               "color=\"black\" " <<
-               "fillcolor=\"" << (m_graph[node].scheduled ? "white" : "lightgrey") << "\"]"; },
-      [&](auto & out, auto const & edge) { },
-      [&](auto & out) {
-        out << "label=\"process " << m_name << "\"\n" <<
-               "labelloc=top\n"; }
+      m_graph
   );
   out.close();
 }
