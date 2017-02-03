@@ -172,10 +172,13 @@ jetCoreRegionalStep.mva.maxDz = [0.5,0.35,0.2];
 jetCoreRegionalStep.mva.maxDr = [0.3,0.2,0.1];
 jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 
-#Retrained MVA weights for Phase1
-
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 trackingPhase1.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
+     src = 'jetCoreRegionalStepTracks',
+     GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1',
+     qualityCuts = [-0.2,0.0,0.4],
+))
+trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierPrompt.clone(
      src = 'jetCoreRegionalStepTracks',
      GBRForestLabel = 'MVASelectorJetCoreRegionalStep_Phase1',
      qualityCuts = [-0.2,0.0,0.4],

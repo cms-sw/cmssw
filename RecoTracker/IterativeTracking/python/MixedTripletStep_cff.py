@@ -289,8 +289,11 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 mixedTripletStep = ClassifierMerger.clone()
 mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletStepClassifier2']
 
-#Retrained MVA weights for Phase1
 trackingPhase1.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1',
+     qualityCuts = [-0.5,0.0,0.5],
+))
+trackingPhase1QuadProp.toReplaceWith(mixedTripletStep, mixedTripletStepClassifier1.clone(
      GBRForestLabel = 'MVASelectorMixedTripletStep_Phase1',
      qualityCuts = [-0.5,0.0,0.5],
 ))

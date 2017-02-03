@@ -218,11 +218,15 @@ lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
     qualityCuts = [-0.6,-0.3,-0.1]
 )
 
-#Retrained weights for Phase1
 trackingPhase1.toReplaceWith(lowPtQuadStep, lowPtQuadStep.clone(
     GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1',
     qualityCuts = [-0.65,-0.35,-0.15],
 ))
+trackingPhase1QuadProp.toReplaceWith(lowPtQuadStep, lowPtQuadStep.clone(
+    GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1',
+    qualityCuts = [-0.65,-0.35,-0.15],
+))
+
 # For Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
