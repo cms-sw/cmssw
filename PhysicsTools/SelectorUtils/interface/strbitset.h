@@ -114,7 +114,7 @@ class strbitset {
 	   mit = mbegin;
 	 mit != mend; ++mit ) {
       char buff[100];
-      sprintf(buff, "%10s = %6d", mit->first.c_str(), bits_.at(mit->second));
+      sprintf(buff, "%10s = %6i", mit->first.c_str(), (int)(bits_.at(mit->second)));
       out << buff << std::endl;
     }
   }
