@@ -5,6 +5,8 @@
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
+
 #include "GMTSetup.h"
 
 namespace l1t {
@@ -69,8 +71,10 @@ namespace l1t {
          UnpackerMap res;
 
          auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
-         auto gmt_out_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
+         auto gmt_out_unp  = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
          auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
+
+         gmt_out_unp->setAlgoVersion(fw);
 
          // input muons
          for (int iLink = 72; iLink < 144; iLink += 2)
