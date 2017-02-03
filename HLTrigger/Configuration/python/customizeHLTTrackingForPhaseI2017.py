@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+import itertools
+
 # customisation functions for the HLT configuration
 from HLTrigger.Configuration.common import *
 
@@ -283,21 +285,25 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 
     replace_with(process.HLTIterativeTrackingIteration2, cms.Sequence( process.hltIter2ClustersRefRemoval + process.hltIter2MaskedMeasurementTrackerEvent + process.hltIter2PixelLayerTriplets + process.hltIter2PFlowPixelTrackingRegions + process.hltIter2PFlowPixelClusterCheck + process.hltIter2PFlowPixelHitDoublets + process.hltIter2PFlowPixelHitTriplets + process.hltIter2PFlowPixelSeeds + process.hltIter2PFlowCkfTrackCandidates + process.hltIter2PFlowCtfWithMaterialTracks + process.hltIter2PFlowTrackCutClassifier + process.hltIter2PFlowTrackSelectionHighPurity ))
 
-    # Need to operate on Paths as well...
-    for seqs in [process.sequences_(), process.paths_()]:
-        for seqName, seq in seqs.iteritems():
-            from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
-            l = list()
-            v = ModuleNodeVisitor(l)
-            seq.visit(v)
+    # replace hltPixelLayerTriplets and hltPixelTracksHitTriplets with hltPixelLayerQuadruplets and hltPixelTracksHitQuadruplets
+    # in any Sequence, Paths or EndPath that contains the former and not the latter
+    from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+    for sequence in itertools.chain(
+        process._Process__sequences.itervalues(),
+        process._Process__paths.itervalues(),
+        process._Process__endpaths.itervalues()
+    ):
+        modules = list()
+        sequence.visit(ModuleNodeVisitor(modules))
 
-            if process.hltPixelTracks in l and not process.hltPixelLayerQuadruplets in l:
-                seq.remove(process.hltPixelLayerTriplets) # note that this module does not necessarily exist in sequence 'seq', if it doesn't, it does not get removed
-                index = seq.index(process.hltPixelTracksHitDoublets)
-                seq.insert(index,process.hltPixelLayerQuadruplets)
-                index = seq.index(process.hltPixelTracksHitTriplets)
-                seq.remove(process.hltPixelTracksHitTriplets)
-                seq.insert(index, process.hltPixelTracksHitQuadruplets)
+        if process.hltPixelTracks in modules and not process.hltPixelLayerQuadruplets in modules:
+            # note that this module does not necessarily exist in sequence 'sequence', if it doesn't, it does not get removed
+            sequence.remove(process.hltPixelLayerTriplets)
+            index = sequence.index(process.hltPixelTracksHitDoublets)
+            sequence.insert(index,process.hltPixelLayerQuadruplets)
+            index = sequence.index(process.hltPixelTracksHitTriplets)
+            sequence.remove(process.hltPixelTracksHitTriplets)
+            sequence.insert(index, process.hltPixelTracksHitQuadruplets)
 
     # Remove entirely to avoid warning from the early deleter
     del process.hltPixelTracksHitTriplets
