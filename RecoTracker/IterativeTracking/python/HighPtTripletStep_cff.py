@@ -193,29 +193,7 @@ highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 
 
 # Final selection
-# MVA selection to be enabled after re-training, for time being we go with cut-based selector
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
-#from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
-#
-
-#highPtTripletStepClassifier1 = TrackMVAClassifierPrompt.clone()
-#highPtTripletStepClassifier1.src = 'highPtTripletStepTracks'
-#highPtTripletStepClassifier1.GBRForestLabel = 'MVASelectorIter0_13TeV'
-#highPtTripletStepClassifier1.qualityCuts = [-0.9,-0.8,-0.7]
-#
-#from RecoTracker.IterativeTracking.Phase1_DetachedTripletStep_cff import detachedTripletStepClassifier1
-#from RecoTracker.IterativeTracking.Phase1_LowPtTripletStep_cff import lowPtTripletStep
-#highPtTripletStepClassifier2 = detachedTripletStepClassifier1.clone()
-#highPtTripletStepClassifier2.src = 'highPtTripletStepTracks'
-#highPtTripletStepClassifier3 = lowPtTripletStep.clone()
-#highPtTripletStepClassifier3.src = 'highPtTripletStepTracks'
-#
-#
-#from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
-#highPtTripletStep = ClassifierMerger.clone()
-#highPtTripletStep.inputClassifiers=['highPtTripletStepClassifier1','highPtTripletStepClassifier2','highPtTripletStepClassifier3']
-#highPtTripletStep.inputClassifiers=['highPtTripletStepClassifier1','highPtTripletStepClassifier2','highPtTripletStepClassifier3']
-
 from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import TrackCutClassifier
 highPtTripletStep = TrackCutClassifier.clone(
     src = "highPtTripletStepTracks",
@@ -241,8 +219,13 @@ highPtTripletStep = TrackCutClassifier.clone(
     )
 )
 
-#Retrained weights allow the use of MVA for Phase1
 trackingPhase1.toReplaceWith(highPtTripletStep,	TrackMVAClassifierPrompt.clone(
+    src	= 'highPtTripletStepTracks',
+    GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1',
+    qualityCuts	= [0.2,0.3,0.4],
+))
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1QuadProp.toReplaceWith(highPtTripletStep,	TrackMVAClassifierPrompt.clone(
     src	= 'highPtTripletStepTracks',
     GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1',
     qualityCuts	= [0.2,0.3,0.4],
