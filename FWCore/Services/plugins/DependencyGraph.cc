@@ -83,7 +83,9 @@ private:
 
   // directed graph, with `node` properties attached to each vertex
   boost::subgraph<boost::adjacency_list<
-      boost::vecS,
+      // edge list
+      boost::setS,
+      // vertex list
       boost::vecS,
       boost::directedS,
       // vertex properties
@@ -100,7 +102,9 @@ private:
   >> m_graph;
 
   std::string m_filename;
-  std::string m_name;
+
+  bool m_initialized;
+  bool m_showPathDependencies;
 };
 
 constexpr
@@ -146,12 +150,15 @@ DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("fileName", "dependency.gv");
+  desc.addUntracked<bool>("showPathDependencies", true);
   descriptions.add("DependencyGraph", desc);
 }
 
 
 DependencyGraph::DependencyGraph(ParameterSet const & config, ActivityRegistry & registry) :
-  m_filename( config.getUntrackedParameter<std::string>("fileName") )
+  m_filename( config.getUntrackedParameter<std::string>("fileName") ),
+  m_initialized( false ),
+  m_showPathDependencies( config.getUntrackedParameter<bool>("showPathDependencies") )
 {
   registry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
   registry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
@@ -180,7 +187,7 @@ void
 DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsumes, ProcessContext const & context) {
 
   // if the Service is not in the main Process do not do anything
-  if (context.isSubProcess() and m_name.empty()) {
+  if (context.isSubProcess() and not m_initialized) {
     edm::LogError("DependencyGraph")
       << "You have requested an instance of the DependencyGraph Service in the \"" << context.processName()
       << "\" SubProcess, which is not supported.\nPlease move it to the main process.";
@@ -189,7 +196,6 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
 
   if (not context.isSubProcess()) {
     // set the graph name property to the process name
-    m_name = context.processName();
     boost::get_property(m_graph, boost::graph_name) = context.processName();
     boost::get_property(m_graph, boost::graph_graph_attribute)["label"] = "process " + context.processName();
     boost::get_property(m_graph, boost::graph_graph_attribute)["labelloc"] = "top";
@@ -209,6 +215,7 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
     for (size_t i = 0; i < size; ++i)
       boost::add_vertex(m_graph);
 
+    m_initialized = true;
   } else {
     // create a subgraph to match the subprocess
     auto & graph = m_graph.create_subgraph();
@@ -240,34 +247,60 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
   auto const & paths = pathsAndConsumes.paths();
   auto const & endps = pathsAndConsumes.endPaths();
 
-  // mark scheduled modules (use the module id as the global index into the graph)
-  for (unsigned int i = 0; i < paths.size(); ++i)
+  // add graph edges associated to module dependencies
+  for (edm::ModuleDescription const * consumer: pathsAndConsumes.allModules()) {
+    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id())) {
+      edm::LogInfo("DependencyGraph") << "module " << consumer->moduleLabel() << " depends on module " << module->moduleLabel();
+      boost::add_edge(consumer->id(), module->id(), m_graph);
+    }
+  }
+
+  // marke the modules in the paths as scheduled, and add a soft dependency to reflect the order of modules along each path
+  edm::ModuleDescription const * previous;
+  for (unsigned int i = 0; i < paths.size(); ++i) {
+    previous = nullptr;
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnPath(i)) {
       m_graph.m_graph[module->id()].scheduled = true;
       auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
       attributes["fillcolor"] = "white";
+      if (previous and m_showPathDependencies) {
+        edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module " << previous->moduleLabel() << " in path " << i;
+        auto edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
+        auto edge = edge_status.first;
+        bool status = edge_status.second;
+        if (status) {
+          auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+          attributes["style"] = "dashed";
+        }
+      }
+      previous = module;
+    }
   }
-  for (unsigned int i = 0; i < endps.size(); ++i)
+  for (unsigned int i = 0; i < endps.size(); ++i) {
+    previous = nullptr;
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnEndPath(i)) {
       m_graph.m_graph[module->id()].scheduled = true;
       auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
       attributes["fillcolor"] = "white";
-  }
-
-  // add graph edges associated to module dependencies
-  for (edm::ModuleDescription const * consumer: pathsAndConsumes.allModules())
-    for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id()))
-    {
-      std::cerr << "module " << consumer->moduleLabel() << " depends on module " << module->moduleLabel() << std::endl;
-      boost::add_edge(consumer->id(), module->id(), m_graph);
+      if (previous and m_showPathDependencies) {
+        edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module " << previous->moduleLabel() << " in endpath " << i;
+        auto edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
+        auto edge = edge_status.first;
+        bool status = edge_status.second;
+        if (status) {
+          auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+          attributes["style"] = "dashed";
+        }
+      }
+      previous = module;
     }
+  }
 }
 
 void
 DependencyGraph::postBeginJob() {
 
-  if (m_name.empty())
-    // the Service is only in a Subprocess, which is not supported
+  if (not m_initialized)
     return;
 
   // draw the dependency graph
