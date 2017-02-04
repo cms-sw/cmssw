@@ -46,6 +46,7 @@ namespace edm {
     //The c++11 abi for gcc internally uses a different namespace for standard classes
     static boost::regex const reCXX11("std::__cxx11::");
     static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
+    static boost::regex const reclangabi("std::__1::");
     static boost::regex const reULongLong("ULong64_t");
     static boost::regex const reLongLong("Long64_t");
     static boost::regex const reUnsigned("unsigned ");
@@ -78,7 +79,8 @@ namespace edm {
        using boost::regex;
        std::string name = regex_replace(iIn, reWrapper, "$1");
        name = regex_replace(name,reAIKR,"");
-      name = regex_replace(name,reCXX11,"std::");
+       name = regex_replace(name,reclangabi,"std::");
+       name = regex_replace(name,reCXX11,"std::");
        name = regex_replace(name,reString,"String");
        name = regex_replace(name,reString2,"String");
        name = regex_replace(name,reString3,"String");
