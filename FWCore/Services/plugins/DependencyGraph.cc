@@ -1,3 +1,15 @@
+/*
+ * Simple Service to make a GraphViz graph of the modules runtime dependencies:
+ *   - draw hard dependencies according to the "consumes" dependencies;
+ *   - draw soft dependencies to reflect the order of scheduled modue in each path;
+ *   - draw SubProcesses in subgraphs.
+ *
+ * Use GraphViz dot to generate an SVG representation of the dependencies:
+ *
+ *   dot -v -Tsvg dependency.gv -o dependency.svg
+ *
+ */
+
 #include <iostream>
 #include <vector>
 #include <string>
