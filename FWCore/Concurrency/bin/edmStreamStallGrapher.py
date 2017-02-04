@@ -480,10 +480,11 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             c="green"
             if (kSourceDelayedRead in moduleNames) or (kSourceFindEvent in moduleNames):
                 c = "orange"
-            for n in moduleNames:
-                if n in stalledModuleNames:
-                    c="red"
-                    break
+            else:
+                for n in moduleNames:
+                    if n in stalledModuleNames:
+                        c="red"
+                        break
             streamInfo[s].append(StreamInfoElement(startTime, time-startTime, c))
 
     streamInfo = consolidateContiguousBlocks(numStreams, streamInfo)
