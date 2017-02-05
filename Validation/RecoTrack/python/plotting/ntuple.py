@@ -4,6 +4,7 @@ import re
 import sys
 import math
 import difflib
+import collections
 
 class Detector:
 #    class Phase0: pass # not supported yet
@@ -695,12 +696,13 @@ class SeedPrinter(_RecHitPrinter):
                 out.write("\n")
 
 class TrackPrinter(_RecHitPrinter):
-    def __init__(self, indent=0, hits=True, seedPrinter=SeedPrinter(), trackingParticles=True, trackingParticlePrinter=None, diffForTwiki=False):
+    def __init__(self, indent=0, hits=True, seedPrinter=SeedPrinter(), trackingParticles=True, trackingParticlePrinter=None, bestMatchingTrackingParticle=True, diffForTwiki=False):
         super(TrackPrinter, self).__init__(indent)
         self._hits = hits
         self._seedPrinter = seedPrinter
         self._trackingParticles = trackingParticles
         self._trackingParticlePrinter = trackingParticlePrinter
+        self._bestMatchingTrackingParticle = bestMatchingTrackingParticle
         self._diffForTwiki = diffForTwiki
 
     def printHeader(self, track):
@@ -757,21 +759,33 @@ class TrackPrinter(_RecHitPrinter):
             self._seedPrinter.restoreIndent()
         return ret
 
-    def printTrackingParticles(self, track):
+    def _printTrackingParticles(self, tps, header):
         lst = []
-        if track.nMatchedTrackingParticles() == 0:
-            lst.append(self._prefix+" not matched to any TP")
-        elif self._trackingParticlePrinter is None:
-            lst.append(self._prefix+" matched to TPs "+",".join([str(tpInfo.trackingParticle().index()) for tpInfo in track.matchedTrackingParticleInfos()]))
+        if self._trackingParticlePrinter is None:
+            lst.append(self._prefix+" "+header+" "+",".join([str(tp.index()) for tp in tps]))
         else:
-            lst.append(self._prefix+" matched to TPs")
+            lst.append(self._prefix+" "+header)
             self._trackingParticlePrinter.indent(2)
-            for tpInfo in track.matchedTrackingParticleInfos():
-                tp = tpInfo.trackingParticle()
+            for tp in tps:
                 lst.extend(self._trackingParticlePrinter.printTrackingParticle(tp))
                 lst.extend(self._trackingParticlePrinter.printHits(tp))
                 lst.extend(self._trackingParticlePrinter.printMatchedTracks(tp, useTrackPrinter=False))
             self._trackingParticlePrinter.indent(-2)
+        return lst
+
+    def printTrackingParticles(self, track):
+        lst = []
+        if track.nMatchedTrackingParticles() == 0:
+            if self._bestMatchingTrackingParticle:
+                bestTP = track.bestMatchingTrackingParticle()
+                if bestTP is not None:
+                    lst.extend(self._printTrackingParticles([bestTP], "not matched to any TP, but a following TP with >= 3 matched hits is found"))
+                else:
+                    lst.append(self._prefix+" not matched to any TP")
+            else:
+                lst.append(self._prefix+" not matched to any TP")
+        else:
+            lst.extend(self._printTrackingParticles([tpInfo.trackingParticle() for tpInfo in track.matchedTrackingParticleInfos()], "matched to TPs"))
         return lst
 
     def printTrack(self, track):
@@ -839,12 +853,13 @@ class TrackPrinter(_RecHitPrinter):
         return ret
 
 class TrackingParticlePrinter:
-    def __init__(self, indent=0, parentage=True, hits=True, tracks=True, trackPrinter=None, seedPrinter=SeedPrinter()):
+    def __init__(self, indent=0, parentage=True, hits=True, tracks=True, trackPrinter=None, bestMatchingTrack=True, seedPrinter=SeedPrinter()):
         self._prefix = " "*indent
         self._parentage = parentage
         self._hits = hits
         self._tracks = tracks
         self._trackPrinter = trackPrinter
+        self._bestMatchingTrack = bestMatchingTrack
         self._seedPrinter = seedPrinter
 
     def indent(self, num):
@@ -902,33 +917,36 @@ class TrackingParticlePrinter:
                 lst.append(self._prefix+"  %s %d pdgId %d process %d detId %d %s x,y,z %f,%f,%f %s" % (simhit.layerStr(), simhit.index(), simhit.particle(), simhit.process(), detId.detid, str(detId), simhit.x(), simhit.y(), simhit.z(), matched))
         return lst
 
-    def _printMatchedTracks0(self):
-        return [self._prefix+" not matched to any track"]
-
     def _printMatchedTracksHeader(self):
         return [self._prefix+" matched to tracks"]
 
-    def _printMatchedTracksWithoutPrinter(self, tp):
-        ret = self._printMatchedTracksHeader()
-        ret[0] += " "+",".join([str(trkInfo.track().index()) for trkInfo in tp.matchedTrackInfos()])
-        return ret
-
-    def _printMatchedTracksWithPrinter(self, tp):
-        lst = self._printMatchedTracksHeader()
-        self._trackPrinter.indent(2)
-        for trkInfo in tp.matchedTrackInfos():
-            lst.extend(self._trackPrinter.printTrack(trkInfo.track()))
-        self._trackPrinter.restoreIndent()
+    def _printMatchedTracks(self, tracks, header=None):
+        lst = []
+        if header is not None:
+            lst.append(self._prefix+" "+header)
+        else:
+            lst.extend(self._printMatchedTracksHeader())
+        if self._trackPrinter is None or not useTrackPrinter:
+            lst[-1] += " "+",".join([str(track.index()) for track in tracks])
+        else:
+            self._trackPrinter.indent(2)
+            for track in tracks:
+                lst.extend(self._trackPrinter.printTrack(track))
+                self._trackPrinter.restoreIndent()
         return lst
 
     def printMatchedTracks(self, tp, useTrackPrinter=True):
         lst = []
         if tp.nMatchedTracks() == 0:
-            lst.extend(self._printMatchedTracks0())
-        elif self._trackPrinter is None or not useTrackPrinter:
-            lst.extend(self._printMatchedTracksWithoutPrinter(tp))
+            header = "not matched to any track"
+            lst.append(self._prefix+" "+header)
+            if self._bestMatchingTrack:
+                bestTrack = tp.bestMatchingTrack()
+                if bestTrack is not None:
+                    lst.pop()
+                    lst.extend(self._printMatchedTracks([bestTrack], header+", but a following track with >= 3 matched hits is found"))
         else:
-            lst.extend(self._printMatchedTracksWithPrinter(tp))
+            lst.extend(self._printMatchedTracks([trkInfo.track() for trkInfo in tp.matchedTrackInfos()]))
         return lst
 
     def diffMatchedTracks(self, tp1, tp2):
@@ -1284,6 +1302,37 @@ class _TrackingParticleMatchAdaptor(object):
         self._checkIsValid()
         for imatch in xrange(self._nMatchedTrackingParticles()):
             yield TrackingParticleMatchInfo(self._tree, self._index, imatch, self._prefix)
+
+    def bestMatchingTrackingParticle(self):
+        """Returns best-matching TrackingParticle, even for fake tracks, or None if there is no best-matching TrackingParticle.
+
+        Best-matching is defined as the one with largest number of
+        hits matched to the hits of a track (>= 3). If there are many
+        fulfilling the same number of hits, the one inducing the
+        innermost hit of the track is chosen.
+        """
+        self._checkIsValid()
+        if self._nMatchedTrackingParticles() == 1:
+            return next(self.matchedTrackingParticleInfos()).trackingParticle()
+
+        tps = collections.OrderedDict()
+        for hit in self.hits():
+            if not isinstance(hit, _SimHitAdaptor):
+                continue
+            for simHit in hit.simHits():
+                tp = simHit.trackingParticle()
+                if tp.index() in tps:
+                    tps[tp.index()] += 1
+                else:
+                    tps[tp.index()] = 1
+
+        best = (None, 2)
+        for tpIndex, nhits in tps.iteritems():
+            if nhits > best[1]:
+                best = (tpIndex, nhits)
+        if best[0] is None:
+            return None
+        return TrackingParticles(self._tree)[best[0]]
 
 ##########
 class TrackingNtuple(object):
@@ -1830,6 +1879,37 @@ class TrackingParticle(_Object, _SimHitAdaptor):
         self._checkIsValid()
         for imatch in xrange(self._nMatchedTracks()):
             yield TrackMatchInfo(self._tree, self._index, imatch, self._prefix)
+
+    def bestMatchingTrack(self):
+        """Returns best-matching track, even for non-reconstructed TrackingParticles, or None, if there is no best-matching track.
+
+        Best-matching is defined as the one with largest number of
+        hits matched to the hits of a TrackingParticle (>= 3). If
+        there are many fulfilling the same number of hits, the one
+        inducing the innermost hit of the TrackingParticle is chosen.
+        """
+        self._checkIsValid()
+        if self._nMatchedTracks() == 1:
+            return next(self.matchedTrackInfos()).track()
+
+        tracks = collections.OrderedDict()
+        for hit in self.simHits():
+            for recHit in hit.hits():
+                for track in recHit.tracks():
+                    if track.index() in tracks:
+                        tracks[track.index()] += 1
+                    else:
+                        tracks[track.index()] = 1
+
+        best = (None, 2)
+        for trackIndex, nhits in tracks.iteritems():
+            if nhits > best[1]:
+                best = (trackIndex, nhits)
+        if best[0] is None:
+            return None
+        return Tracks(self._tree)[best[0]]
+
+
 
     def _nMatchedSeeds(self):
         """Internal function to get the number of matched seeds."""
