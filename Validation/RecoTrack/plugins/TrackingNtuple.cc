@@ -623,7 +623,7 @@ private:
   std::vector<std::vector<int> > ph2_trkIdx;    // second index runs through tracks containing this hit
   std::vector<std::vector<int> > ph2_seeIdx;    // second index runs through seeds containing this hit
   std::vector<std::vector<int> > ph2_simHitIdx; // second index runs through SimHits inducing this hit
-  std::vector<std::vector<float> > ph2_chargeFraction; // second index runs through SimHits inducing this hit
+  //std::vector<std::vector<float> > ph2_chargeFraction; // Not supported at the moment for Phase2
   std::vector<unsigned short> ph2_simType;
   std::vector<float> ph2_x    ;
   std::vector<float> ph2_y    ;
@@ -950,7 +950,6 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
         t->Branch("ph2_seeIdx"    , &ph2_seeIdx   );
       }
       t->Branch("ph2_simHitIdx" , &ph2_simHitIdx);
-      t->Branch("ph2_chargeFraction", &ph2_chargeFraction);
       t->Branch("ph2_simType", &ph2_simType);
       t->Branch("ph2_x"     , &ph2_x    );
       t->Branch("ph2_y"     , &ph2_y    );
@@ -1222,7 +1221,6 @@ void TrackingNtuple::clearVariables() {
   ph2_trkIdx   .clear();
   ph2_seeIdx   .clear();
   ph2_simHitIdx.clear();
-  ph2_chargeFraction.clear();
   ph2_simType.clear();
   ph2_x    .clear();
   ph2_y    .clear();
@@ -1957,7 +1955,6 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       ph2_yz   .push_back( ttrh->globalPositionError().czy() );
       ph2_zz   .push_back( ttrh->globalPositionError().czz() );
       ph2_zx   .push_back( ttrh->globalPositionError().czx() );
-      ph2_chargeFraction.push_back( simHitData.chargeFraction );
       ph2_radL .push_back( ttrh->surface()->mediumProperties().radLen() );
       ph2_bbxi .push_back( ttrh->surface()->mediumProperties().xi() );
 
