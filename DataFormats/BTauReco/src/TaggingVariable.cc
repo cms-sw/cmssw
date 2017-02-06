@@ -131,6 +131,10 @@ const char* const TaggingVariableDescription[] = {
   /* [tau2_flightDistance2dSig]                 = */ "transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis",
   /* [tau2_vertexDeltaR]                        = */ "pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction",
   /* [z_ratio]                                  = */ "z ratio",
+  /* [Jet_SoftMu]                               = */ "SoftMu Tagger discriminator",
+  /* [Jet_SoftEl]                               = */ "SoftEl Tagger discriminator",
+  /* [Jet_JBP]                                  = */ "JBP Tagger discriminator",
+  /* [Jet_JP]                                   = */ "JP Tagger discriminator",
 
   /* [algoDiscriminator]                        = */ "discriminator output of an algorithm",
 
