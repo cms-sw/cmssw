@@ -48,13 +48,6 @@ public:
 private:
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-    //virtual void beginStream(edm::StreamID) override;
-    //virtual void endStream() override;
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
     // ----------member data ---------------------------
 
     // Configuration parameters
@@ -65,15 +58,6 @@ private:
     // Other members
     std::unique_ptr<AbsPlan1RechitCombiner> combiner_;
 };
-
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -150,53 +134,6 @@ HBHEPlan1Combiner::produce(edm::Event& iEvent, const edm::EventSetup& eventSetup
     iEvent.put(std::move(outputRechits));
 }
 
-// ------------ method called once each stream before processing any runs, lumis or events  ------------
-/*
-void
-HBHEPlan1Combiner::beginStream(edm::StreamID)
-{
-}
-*/
-
-// ------------ method called once each stream after processing all runs, lumis and events  ------------
-/*
-void
-HBHEPlan1Combiner::endStream() {
-}
-*/
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-HBHEPlan1Combiner::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-HBHEPlan1Combiner::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-HBHEPlan1Combiner::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-HBHEPlan1Combiner::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
- 
 #define add_param_set(name) /**/       \
     edm::ParameterSetDescription name; \
     name.setAllowAnything();           \
