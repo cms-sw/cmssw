@@ -188,7 +188,7 @@ PATMETProducer::getMETCovMatrix(const edm::Event& event, const edm::EventSetup& 
   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(iSetup, jetSFType_);
 
   //Compute the covariance matrix and fill it
-  reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, *inputCands,
+  reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, inputCands,
 						       *rho, resPtObj, resPhiObj, resSFObj, event.isRealData());
 
   return cov;

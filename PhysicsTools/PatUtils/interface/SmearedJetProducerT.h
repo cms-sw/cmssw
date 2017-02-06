@@ -131,14 +131,23 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     m_genJetMatcher = std::make_shared<pat::GenJetMatcher>(cfg, consumesCollector());
 
                 std::int32_t variation = cfg.getParameter<std::int32_t>("variation");
+		m_nomVar=1;
                 if (variation == 0)
                     m_systematic_variation = Variation::NOMINAL;
                 else if (variation == 1)
                     m_systematic_variation = Variation::UP;
                 else if (variation == -1)
                     m_systematic_variation = Variation::DOWN;
+		else if (variation == 101) {
+		  m_systematic_variation = Variation::NOMINAL;
+		  m_nomVar=1;
+		}
+		else if (variation == -101) {
+		  m_systematic_variation = Variation::NOMINAL;
+		  m_nomVar=-1;
+		}
                 else
-                    throw edm::Exception(edm::errors::ConfigFileReadError, "Invalid value for 'variation' parameter. Only -1, 0 or 1 are supported.");
+                    throw edm::Exception(edm::errors::ConfigFileReadError, "Invalid value for 'variation' parameter. Only -1, 0, 1 or 101, -101 are supported.");
             }
 
             produces<JetCollection>();
@@ -234,7 +243,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     }
 
                     double dPt = jet.pt() - genJet->pt();
-                    smearFactor = 1 + (jer_sf - 1.) * dPt / jet.pt();
+                    smearFactor = 1 + m_nomVar*(jer_sf - 1.) * dPt / jet.pt();
 
                 } else if (jer_sf > 1) {
                     /*
@@ -247,7 +256,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
                     }
 
                     std::normal_distribution<> d(0, sigma);
-                    smearFactor = 1. + d(m_random_generator);
+                    smearFactor = 1. + m_nomVar*d(m_random_generator);
                 } else if (m_debug) {
                     std::cout << "Impossible to smear this jet" << std::endl;
                 }
@@ -298,5 +307,7 @@ class SmearedJetProducerT : public edm::stream::EDProducer<> {
         std::mt19937 m_random_generator;
 
         GreaterByPt<T> jetPtComparator;
+
+	int m_nomVar;
 };
 #endif
