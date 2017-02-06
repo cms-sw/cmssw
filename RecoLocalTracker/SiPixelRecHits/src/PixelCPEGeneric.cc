@@ -179,6 +179,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
       float qclus = theClusterParam.theCluster->charge();     
       float locBz = theDetParam.bz;
+      float locBx = theDetParam.bx;
       //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
       
       theClusterParam.pixmx  = -999.9; // max pixel charge for truncation of 2-D cluster
@@ -202,7 +203,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       //int gtemplID0 = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
       //if(gtemplID0!=gtemplID_) cout<<" different id "<< gtemplID_<<" "<<gtemplID0<<endl;
 
-      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  
+      theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, locBx, qclus,  
 					   theClusterParam.pixmx, theClusterParam.sigmay, theClusterParam.deltay, 
 					   theClusterParam.sigmax, theClusterParam.deltax, theClusterParam.sy1, 
 					   theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, 

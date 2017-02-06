@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 8.25)
+//  SiPixelTemplateReco.cc (Version 10.00)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -40,6 +40,9 @@
 //  V8.11 - Change probQ to upper tail probability always (rather than two-sided tail probability)
 //  V8.20 - Use template cytemp/cxtemp methods to center the data cluster in the right place when the template becomes asymmetric after irradiation
 //  V8.25 - Incorporate VIs speed improvements
+//  V8.26 - Fix centering problem for small signals
+//  V9.00 - Set QProb = Q/Q_avg when calcultion is turned off, use fbin definitions of Qbin
+//  V10.00 - Use new template object to reco Phase 1 FPix hits
 //
 //
 //  Created by Morris Swartz on 10/27/06.
@@ -85,8 +88,12 @@ using namespace SiPixelTemplateReco;
 //! Reconstruct the best estimate of the hit position for pixel clusters.      
 //! \param         id - (input) identifier of the template to use                                  
 //! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
-//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
-//! \param      locBz - (input) the sign of the local B_z field for FPix (usually B_z<0 when cot(beta)>0 and B_z>0 when cot(beta)<0  
+//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
+//!                    for Phase 0 FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
+//!                    for Phase 1 FPix IP-related tracks, see next comment
+//! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
+//!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
+//!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
 //! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
 //!           origin of local coords (0,0) at center of pixel cluster[0][0].  Set dead pixels to small non-zero values (0.1 e).                    
 //! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
@@ -121,21 +128,23 @@ using namespace SiPixelTemplateReco;
 //! \param    deadpix - (input)  bool to indicate that there are dead pixels to be included in the analysis
 //! \param    zeropix - (input)  vector of index pairs pointing to the dead pixels
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
+//! \param      nypix - (output) the projected y-size of the cluster
+//! \param      nxpix - (output) the projected x-size of the cluster
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster,
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster,
 		    SiPixelTemplate& templ, 
 		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> >& zeropix,
-			 float& probQ)
+			 float& probQ, int& nypix, int& nxpix)
 			
 {
     // Local variables 
-	int i, j, k, minbin, binl, binh, binq, midpix, fypix, nypix, lypix, logypx;
-	int fxpix, nxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
+	int i, j, k, minbin, binl, binh, binq, midpix, fypix, lypix, logypx;
+	int fxpix, lxpix, logxpx, shifty, shiftx, nyzero[TYSIZE];
 	int nclusx, nclusy;
 	int deltaj, jmin, jmax, fxbin, lxbin, fybin, lybin, djy, djx;
 	//int fypix2D, lypix2D, fxpix2D, lxpix2D;
 	float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix, qscale, q50;
-	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel;
+	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq, qtotal, qpixel, fbin[3];
 	float originx, originy, qfy, qly, qfx, qlx, bias, maxpix, minmax;
 	double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi21max;
 	double hchi2, hndof, prvav, mpv, sigmaQ, kappa, xvav, beta2;
@@ -154,8 +163,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 // First, interpolate the template needed to analyze this cluster     
 // check to see of the track direction is in the physical range of the loaded template
 
-	if(!templ.interpolate(id, cotalpha, cotbeta, locBz)) {
-	   if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta<< ", local B_z = " << locBz << ", template ID = " << id << ", no reconstruction performed" << ENDL;}	
+	if(!templ.interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
+	   if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << ", local B_z = " << locBz  << ", local B_x = " << locBx << ", template ID = " << id << ", no reconstruction performed" << ENDL;}	
 	   return 20;
 	}
 	
@@ -180,7 +189,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	xsize = templ.xsize();
 	ysize = templ.ysize();
    
-// Define size of pseudopixel
+	
+// Allow Qbin Q/Q_avg fractions to vary to optimize error estimation
+	
+	for(i=0; i<3; ++i) {fbin[i] = templ.fbin(i);}
+	
+   // Define size of pseudopixel
 	
 	q50 = templ.s50();
 	pseudopix = 0.2f*q50;
@@ -507,19 +521,19 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 // uncertainty and final corrections depend upon total charge bin 	   
 	   
 	fq = qtotal/templ.qavg();
-	if(fq > 1.5f) {
+	if(fq > fbin[0]) {
 	   binq=0;
 	} else {
-	   if(fq > 1.0f) {
+	   if(fq > fbin[1]) {
 	      binq=1;
 	   } else {
-		  if(fq > 0.85f) {
+		  if(fq > fbin[2]) {
 			 binq=2;
 		  } else {
 			 binq=3;
 		  }
 	   }
-	}
+	}	
 	
 // Return the charge bin via the parameter list unless the charge is too small (then flag it)
 	
@@ -546,7 +560,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 #else
     assert(speed >= 0 && speed < 4);
 #endif
-	fybin = 2; lybin = 38; fxbin = 2; lxbin = 38; djy = 1; djx = 1;
+	fybin = 3; lybin = 37; fxbin = 3; lxbin = 37; djy = 1; djx = 1;
     if(speed > 0) {
        fybin = 8; lybin = 32;
        if(yd[fypix]) {fybin = 4; lybin = 36;}
@@ -820,10 +834,13 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	      if(chi2xbin[j] < -100.f) {
 		     ssa = 0.f;
 		     sa2 = 0.f;
+//		     std::cout << j << " ";
 		     for(i=fxpix-2; i<=lxpix+2; ++i) {
+//		        std::cout << xtemp[j][i] << ", ";
 			     ssa += xsw[i]*xtemp[j][i];
 				  sa2 += xtemp[j][i]*xtemp[j][i]*xw2[i];
 			 }
+//			 std::cout << std::endl;
 		     rat=ssa/ss2;
 		     if(rat <= 0.f) {LOGERROR("SiPixelTemplateReco") << "illegal chi2xmin normalization (1) = " << rat << ENDL; rat = 1.;}
 		     chi2xbin[j]=ss2-2.f*ssa/rat+sa2/(rat*rat);
@@ -980,7 +997,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //! \param         id - (input) identifier of the template to use                                  
 //! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
 //! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
-//! \param      locBz - (input) the sign of the local B_z field for FPix (usually B_z<0 when cot(beta)>0 and B_z>0 when cot(beta)<0  
+//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
+//!                    for Phase 0 FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
+//!                    for Phase 1 FPix IP-related tracks, see next comment
+//! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
+//!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
+//!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
 //! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
 //!           origin of local coords (0,0) at center of pixel cluster[0][0].                      
 //! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
@@ -1003,7 +1025,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, ClusMatrix & cluster, 
 		    SiPixelTemplate& templ, 
 		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
 			 float& probQ)
@@ -1012,9 +1034,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
     // Local variables 
 	const bool deadpix = false;
 	std::vector<std::pair<int, int> > zeropix;
+	int nypix, nxpix;
     
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, templ, 
-		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
+	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ, 
+		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ, nypix, nxpix);
 
 } // PixelTempReco2D
 
@@ -1055,11 +1078,15 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
     // Local variables 
 	const bool deadpix = false;
 	std::vector<std::pair<int, int> > zeropix;
-	float locBz = -1.f;
-	if(cotbeta < 0.) {locBz = -locBz;}
+	int nypix, nxpix;
+    float locBx, locBz;
+    locBx = 1.f;
+    if(cotbeta < 0.f) {locBx = -1.f;}
+    locBz = locBx;
+    if(cotalpha < 0.f) {locBz = -locBx;}
     
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, templ, 
-												yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
+	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ, 
+												yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ, nypix, nxpix);
 	
 } // PixelTempReco2D
 
@@ -1097,13 +1124,17 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	// Local variables 
 	const bool deadpix = false;
 	std::vector<std::pair<int, int> > zeropix;
-	float locBz = -1.f;
-	if(cotbeta < 0.) {locBz = -locBz;}
+	int nypix, nxpix;
+    float locBx, locBz;
+    locBx = 1.f;
+    if(cotbeta < 0.f) {locBx = -1.f;}
+    locBz = locBx;
+    if(cotalpha < 0.f) {locBz = -locBx;}
 	float probQ;
 	if(speed < 0) speed = 0;
    if(speed > 3) speed = 3;
 	
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, templ, 
-															  yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
+	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, locBx, cluster, templ, 
+															  yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ, nypix, nxpix);
 	
 } // PixelTempReco2D

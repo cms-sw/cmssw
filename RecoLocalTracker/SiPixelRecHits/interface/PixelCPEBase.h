@@ -74,6 +74,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     //float theSign; //Not used, AH
 
     float bz; // local Bz
+    float bx; // local Bx
     LocalVector driftDirection;
     float widthLAFractionX;    // Width-LA to Offset-LA in X
     float widthLAFractionY;    // same in Y
