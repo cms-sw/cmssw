@@ -105,7 +105,7 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
        }
      }
    }
-
+   
    // add jets to metsig covariance matrix and subtract them from sumPt
    for(edm::View<reco::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
      
