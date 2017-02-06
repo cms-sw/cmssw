@@ -5,6 +5,7 @@
 #include<list>
 #include<vector>
 #include<string>
+#include<memory>
 #include<iostream>
 #include<algorithm>
 #include<stdexcept>
@@ -55,15 +56,14 @@ public:
         // split the vector into elements
         const char *d = delim.c_str();
         std::list<T> elements;
-        char *copy = strdup( scalarOrVector.c_str() );
+        std::unique_ptr<char,void(*)(void*)> copy( strdup(scalarOrVector.c_str()), free );
         char *saveptr;
-        for(const char *item = strtok_r(copy,d,&saveptr); item != NULL; item = strtok_r(NULL,d,&saveptr) )
+        for(const char *item = strtok_r(copy.get(),d,&saveptr); item != NULL; item = strtok_r(NULL,d,&saveptr) )
             try {
                 elements.push_back( castTo<T>(item) );
             } catch (std::runtime_error &e){
                 throw std::runtime_error( std::string(e.what()) + "; check if delimeter '" + delim + "' is correct" );
             }
-        free(copy);
         return std::vector<T>(elements.begin(),elements.end());
     }
     // cast each element of a column of table to a vector of elements of type T
