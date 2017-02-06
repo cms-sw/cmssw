@@ -100,7 +100,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
             label.erase(pos+7); // trim a tail after "JetTags"
         }
         if(it->instance().size()) {
-            label = (label+string(":")+it->instance()); 
+            label = (label+std::string(":")+it->instance()); 
         }
         discriminatorLabels_.push_back(label);
     }

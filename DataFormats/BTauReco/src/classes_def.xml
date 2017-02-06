@@ -71,7 +71,7 @@
   <class name="reco::BoostedDoubleSVTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::BoostedDoubleSVTagInfoCollection>"/>
 
-  <class name="reco::ShallowTagInfo" ClassVersion="4">
+  <class name="reco::ShallowTagInfo" ClassVersion="3">
 		<version ClassVersion="3" checksum="3904302444"/>
   </class>
   <class name="reco::ShallowTagInfoCollection"/>
