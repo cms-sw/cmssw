@@ -243,43 +243,15 @@ namespace {
   std::map<unsigned int, double> chargeFraction(const Phase2TrackerCluster1D& cluster, const DetId& detId,
                                                 const edm::DetSetVector<StripDigiSimLink>& digiSimLink) {
     std::map<unsigned int, double> simTrackIdToAdc;
-    auto ex = cms::Exception("LogicError") << "Not possible to use StripDigiSimLink with Phase2TrackerCluster1D! ";
+    throw cms::Exception("LogicError") << "Not possible to use StripDigiSimLink with Phase2TrackerCluster1D! ";
     return simTrackIdToAdc;
   }
 
+  //In the OT, there is no measurement of the charge, so no ADC value.
+  //Only in the SSA chip (so in PSs) you have one "threshold" flag that tells you if the charge of at least one strip in the cluster exceeded 1.2 MIPs.
   std::map<unsigned int, double> chargeFraction(const Phase2TrackerCluster1D& cluster, const DetId& detId,
                                                 const edm::DetSetVector<PixelDigiSimLink>& digiSimLink) {
     std::map<unsigned int, double> simTrackIdToAdc;
-    LogDebug("TrackingNtuple") << "chargeFraction for phase2 clusters..";
-    auto idetset = digiSimLink.find(detId);
-    if(idetset == digiSimLink.end())
-      return simTrackIdToAdc;
-
-    double adcSum = 0;
-    PixelDigiSimLink found;
-    LogDebug("TrackingNtuple") << "size of the cluster: " << cluster.size();
-
-    for (unsigned int istr(0); istr < cluster.size(); ++istr) {
-      //In the OT, there is no measurement of the charge, so no ADC value.
-      //Only in the SSA chip (so in PSs) you have one "threshold" flag that tells you if the charge of at least one strip in the cluster exceeded 1.2 MIPs.
-      uint32_t channel = Phase2TrackerDigi::pixelToChannel(cluster.firstRow() + istr, cluster.column());
-      forEachMatchedSimLink(*idetset, channel, [&](const PixelDigiSimLink& simLink){
-          LogDebug("TrackingNtuple") << "forEachMatchedSimLink";
-          if(cluster.threshold()){ 
-              double& adc = simTrackIdToAdc[simLink.SimTrackId()];
-              adc += simLink.fraction(); 
-              LogDebug("TrackingNtuple") << "adc: " << adc;
-          }
-        });
-    }
-
-    for(auto& pair: simTrackIdToAdc) {
-      if(adcSum == 0.)
-        pair.second = 0.;
-      else
-        pair.second /= adcSum;
-    }
-
     return simTrackIdToAdc;
   }
 
