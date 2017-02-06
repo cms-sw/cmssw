@@ -212,9 +212,9 @@ struct Rot3 {
     axis{ix,iy,iz}{}
 
   constexpr Rot3( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
-    axis{ (Vec){xx,xy,xz,0},
-      (Vec){yx,yy,yz,0},
-	(Vec){zx,zy,zz,0}
+    axis{ {(Vec){xx,xy,xz,0}},
+          {(Vec){yx,yy,yz,0}},
+          {(Vec){zx,zy,zz,0}}
   }{}
   
   constexpr Rot3 transpose() const {
