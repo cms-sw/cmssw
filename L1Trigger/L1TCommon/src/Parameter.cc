@@ -1,4 +1,6 @@
 #include "L1Trigger/L1TCommon/interface/Parameter.h"
+#include <cstdlib>
+#include <memory>
 
 using namespace std;
 
@@ -29,34 +31,27 @@ Parameter::Parameter(const char *id,
     this->type = types;
 
     map<int,string> colIndexToName;
-    char *copy = strdup(columns);
+    unique_ptr<char,void(*)(void*)> copy( strdup(columns), free );
     unsigned long nItems = 0;
     char *saveptr;
-    for(const char *item=strtok_r(copy,delimeter,&saveptr); item != NULL; item = strtok_r(NULL,delimeter,&saveptr), nItems++){
+    for(const char *item=strtok_r(copy.get(),delimeter,&saveptr); item != NULL; item = strtok_r(NULL,delimeter,&saveptr), nItems++){
         colIndexToName.insert( make_pair(nItems,string(item)) );
         columnNameToIndex.insert( make_pair(string(item),nItems) );
-        if( table.insert( make_pair(string(item),vector<string>(rows.size())) ).second == false ){
-            free(copy);
+        if( table.insert( make_pair(string(item),vector<string>(rows.size())) ).second == false )
             throw runtime_error("Duplicate column name: '" + string(item) + "'");
-        }
     }
-    free(copy);
 
     for(unsigned int r=0; r<rows.size(); r++){
-        char *copy = strdup(rows[r].c_str());
+        unique_ptr<char,void(*)(void*)> copy( strdup(rows[r].c_str()), free );
         for(unsigned int pos=0; pos<nItems; pos++){
-            char *item = strtok_r((pos==0?copy:NULL),delimeter,&saveptr);
-            if( item == NULL ){
-                free(copy);
+            char *item = strtok_r((pos==0?copy.get():NULL),delimeter,&saveptr);
+            if( item == NULL )
                 throw runtime_error("Too few elements in '" + rows[r] + "'");
-            }
+
             table[ colIndexToName[pos] ][r] = item;
         }
-        if( strtok_r(NULL,delimeter,&saveptr) != NULL ){
-            free(copy);
+        if( strtok_r(NULL,delimeter,&saveptr) != NULL )
             throw runtime_error("Too many elements in '" + rows[r] + "', expected " + to_string(nItems));
-        }
-        free(copy);
     }
     
     this->delim = delimeter;
