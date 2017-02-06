@@ -54,7 +54,7 @@
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
 #include <TH1.h>
