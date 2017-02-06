@@ -30,14 +30,27 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "TNamed.h"
-# define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
-  const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
-  if( det )							\
-  {      							\
-    const PixelTopology* topo = &det->specificTopology(); \
-    m_fwGeometry->idToName[rawid].topology[0] = topo->nrows();	\
-    m_fwGeometry->idToName[rawid].topology[1] = topo->ncolumns(); \
-  }								\
+
+void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit ) {                                    
+   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); 
+   if( det )							
+   {      							
+      const PixelTopology* topo = &det->specificTopology(); 
+    
+      std::pair<float,float> pitch = topo->pitch();
+      m_fwGeometry->idToName[rawid].topology[0] = pitch.first;
+      m_fwGeometry->idToName[rawid].topology[1] = pitch.second;
+
+      const RectangularPixelTopology* rt = dynamic_cast<const RectangularPixelTopology*>(topo);
+      if (rt) {
+         m_fwGeometry->idToName[rawid].topology[2] = rt->xoffset();
+         m_fwGeometry->idToName[rawid].topology[3] = rt->yoffset();
+      }
+      else {
+         std::cerr << "ADD_PIXEL_TOPOLOGY can't get offsets\n";
+      }
+   }
+}
 
 # define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
   const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( detUnit ); \
