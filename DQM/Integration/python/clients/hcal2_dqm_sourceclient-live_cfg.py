@@ -47,6 +47,7 @@ referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
+process.source.minEventsPerLumi=5
 
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
@@ -107,13 +108,6 @@ process.emulTPSec.FG_threshold = cms.uint32(2)
 process.emulTPSec.InputTagFEDRaw = rawTag
 process.hbhereco = process.hbheprereco.clone()
 
-#	UPDATES REQUESTED BY STEPH
-process.hbheprereco.puCorrMethod = cms.int32(2) 
-process.hbheprereco.ts4chi2 = cms.double(9999.) 
-process.hbheprereco.timeMin = cms.double(-100.)
-process.hbheprereco.timeMax = cms.double(100.)
-process.hbheprereco.applyTimeConstraint = cms.bool(False) 
-
 #	set the tag for default unpacker
 process.hcalDigis.InputLabel = rawTag
 
@@ -148,7 +142,7 @@ process.primDigis = process.hcalDigis.clone()
 process.primDigis.InputLabel = rawTag
 primFEDs = [x*2+1100 for x in range(9)]
 primFEDs[len(primFEDs):] = [x+724 for x in range(8)]
-primFEDs[len(primFEDs):] = [1118, 1120, 1122]
+primFEDs[len(primFEDs):] = [1118,1119,1120,1121,1122,1123]
 print "Primary FEDs to be Unpacked:", primFEDs
 process.primDigis.FEDs = cms.untracked.vint32(primFEDs)
 process.hbhereco.digiLabel = cms.InputTag("primDigis")

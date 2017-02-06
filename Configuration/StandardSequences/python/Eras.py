@@ -15,6 +15,8 @@ class Eras (object):
         self.ctpps_2016 = cms.Modifier()
         self.stage1L1Trigger = cms.Modifier()
         self.stage2L1Trigger = cms.Modifier()
+        self.peripheralPbPb = cms.Modifier()
+        self.pA_2016 = cms.Modifier()
         self.phase1Pixel = cms.Modifier()
         # Implementation note: When this was first started, stage1L1Trigger wasn't in all
         # of the eras. Now that it is, it could in theory be dropped if all changes are
@@ -51,12 +53,16 @@ class Eras (object):
         # Run1 currently does nothing. It's useful to use as a no-operation era commands when scripting,
         # but also retains the flexibility to add Run1 specific commands at a later date.
         self.Run1 = cms.Modifier()
+        self.Run1_peripheralPbPb = cms.ModifierChain(self.Run1, self.peripheralPbPb)
+        self.Run1_pA = cms.ModifierChain(self.Run1, self.pA_2016)
         # The various Run2 scenarios for 2015 startup.
         self.Run2_25ns = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage1L1Trigger )
         self.Run2_50ns = cms.ModifierChain( self.run2_common, self.run2_50ns_specific )
         self.Run2_HI = cms.ModifierChain( self.run2_common, self.run2_HI_specific, self.stage1L1Trigger )
+        self.Run2_25ns_peripheralPbPb = cms.ModifierChain( self.Run2_25ns, self.peripheralPbPb )
         # Future Run 2 scenarios.
         self.Run2_2016 = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage2L1Trigger, self.run2_HF_2016, self.ctpps_2016 )
+        self.Run2_2016_pA = cms.ModifierChain( self.Run2_2016, self.pA_2016 )
         self.Run2_2017 = cms.ModifierChain( self.Run2_2016, self.phase1Pixel )
         # Scenarios further afield.
         # Phase2 is everything for the 2023 (2026?) detector that works so far in this release.
@@ -75,6 +81,7 @@ class Eras (object):
                                 self.run2_50ns_specific, self.run2_HI_specific,
                                 self.stage1L1Trigger, self.fastSim,
                                 self.run2_HF_2016, self.stage2L1Trigger,
+                                self.peripheralPbPb, self.pA_2016,
                                 self.phase1Pixel,
                                 self.phase2_common, self.phase2_tracker,
                                 self.phase2_hgc, self.phase2_muon,

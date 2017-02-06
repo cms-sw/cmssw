@@ -36,11 +36,19 @@ namespace ecaldqm
     return false;
   }
 
+  void
+  EnergyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  {
+    // Reset by LS plots at beginning of every LS
+    MEs_.at("HitMapAllByLumi").reset();
+  }
+
   void 
   EnergyTask::runOnRecHits(EcalRecHitCollection const& _hits)
   {
     MESet& meHitMap(MEs_.at("HitMap"));
     MESet& meHitMapAll(MEs_.at("HitMapAll"));
+    MESet& meHitMapAllByLumi(MEs_.at("HitMapAllByLumi"));
     MESet& meHit(MEs_.at("Hit"));
     MESet& meHitAll(MEs_.at("HitAll"));
 
@@ -61,6 +69,7 @@ namespace ecaldqm
 
       meHitMap.fill(id, energy);
       meHitMapAll.fill(id, energy);
+      meHitMapAllByLumi.fill(id, energy);
       meHit.fill(id, energy);
       meHitAll.fill(id, energy);
 

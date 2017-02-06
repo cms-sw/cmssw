@@ -1,5 +1,9 @@
 #include "DQM/HcalTasks/interface/HcalOfflineHarvesting.h"
 
+using namespace hcaldqm;
+using namespace hcaldqm::constants;
+using namespace hcaldqm::filter;
+
 HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 	DQHarvester(ps), _reportSummaryMap(NULL)
 {
@@ -13,10 +17,10 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 	for (uint32_t i=0; i<_vmarks.size(); i++)
 		_vmarks[i]=false;
 
-	_vsumgen[fRaw]=new RawRunSummary("RawRunHarvesting", _vnames[fRaw],ps);
-	_vsumgen[fDigi]=new DigiRunSummary("DigiRunHarvesting", _vnames[fDigi],ps);
-	_vsumgen[fReco]=new RecoRunSummary("RecoRunHarvesting", _vnames[fReco],ps);
-	_vsumgen[fTP]=new TPRunSummary("TPRunHarvesting", _vnames[fTP],ps);
+	_vsumgen[fRaw]=new hcaldqm::RawRunSummary("RawRunHarvesting", _vnames[fRaw],ps);
+	_vsumgen[fDigi]=new hcaldqm::DigiRunSummary("DigiRunHarvesting", _vnames[fDigi],ps);
+	_vsumgen[fReco]=new hcaldqm::RecoRunSummary("RecoRunHarvesting", _vnames[fReco],ps);
+	_vsumgen[fTP]=new hcaldqm::TPRunSummary("TPRunHarvesting", _vnames[fTP],ps);
 }
 
 /* virtual */ void HcalOfflineHarvesting::beginRun(
@@ -128,7 +132,7 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps) :
 		//	NOTE AGAIN: datatiers map [DATATIER]->[value not bin!]+1 therefore
 		if (_debug>0)
 			std::cout << _vnames[ii] << std::endl;
-		std::vector<flag::Flag> flags = (*it)->endJob(ib,ig);
+		std::vector<hcaldqm::flag::Flag> flags = (*it)->endJob(ib,ig);
 		if (_debug>0)
 		{
 			std::cout << "********************" << std::endl;

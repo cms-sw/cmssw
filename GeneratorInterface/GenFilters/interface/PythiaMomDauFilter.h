@@ -33,6 +33,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+      class HepMCProduct;
+}
 
 //
 // class decleration
@@ -50,7 +53,7 @@ class PythiaMomDauFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
       
-       std::string label_;
+      edm::EDGetTokenT<edm::HepMCProduct> label_;
        std::vector<int> dauIDs;
        std::vector<int> desIDs;
        int particleID;

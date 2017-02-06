@@ -12,7 +12,12 @@ class UCTTower;
 class UCTLayer1 {
 public:
 
-  UCTLayer1();
+  // Layer1 hardware firmware version
+  // Default (0): initial version for 2016 running
+  // 1: Update to include saturated tower codes to layer 2
+  //    (put online at run >= 275908: http://cmsonline.cern.ch/cms-elog/931059)
+  //
+  UCTLayer1(int fwv=0);
 
   virtual ~UCTLayer1();
 
@@ -58,6 +63,7 @@ private:
   std::vector<UCTCrate*> crates;
 
   uint32_t uctSummary;
+  const int fwVersion;
 
 };
 

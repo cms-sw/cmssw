@@ -114,9 +114,9 @@ HLT_Random_v*							# CMSHLT-684
 HLT_EcalCalibration_v*						# CMSHLT-684
 HLT_HcalCalibration_v*						# CMSHLT-684
 
-HLT_L1Tech6_BPTX_MinusOnly_v*					# CMSHLT-684
-HLT_L1Tech5_BPTX_PlusOnly_v*					# CMSHLT-684
-HLT_L1Tech7_NoBPTX_v*						# CMSHLT-684
+#HLT_L1Tech6_BPTX_MinusOnly_v*					# CMSHLT-684 #outdated L1 seed (CMSHLT-1060)
+#HLT_L1Tech5_BPTX_PlusOnly_v*					# CMSHLT-684 #outdated L1 seed (CMSHLT-1060)
+#HLT_L1Tech7_NoBPTX_v*						# CMSHLT-684 #outdated L1 seed (CMSHLT-1060)
 HLT_L1TOTEM1_MinBias_v*						# CMSHLT-684
 HLT_L1TOTEM2_ZeroBias_v*					# CMSHLT-684
 HLT_L1MinimumBiasHF1OR_v*					# CMSHLT-684

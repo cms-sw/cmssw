@@ -26,6 +26,13 @@
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 #include "CondFormats/L1TObjects/interface/DTTFBitArray.h"
 
+#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
+#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
+#include "L1Trigger/L1TCommon/interface/Setting.h"
+#include "L1Trigger/L1TCommon/interface/Mask.h"
+
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
+
 // class declaration
 //
 typedef std::map<short, short, std::less<short> > LUT;
@@ -38,12 +45,12 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
       int load_phi(std::vector<LUT>& , unsigned short int, unsigned short int, std::string);
       int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int );
       //void print(std::vector<LUT>& , std::vector<int>& ) const;
-      int getPtLutThreshold(int ,std::vector<int>& ) const;
       typedef boost::shared_ptr<L1TMuonBarrelParams> ReturnType;
 
       ReturnType produce(const L1TMuonBarrelParamsRcd&);
    private:
-      L1TMuonBarrelParams m_params;
+    //L1TMuonBarrelParams m_params;
+    L1TMuonBarrelParamsHelper m_params_helper;
 };
 
 //
@@ -59,149 +66,337 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
 //
 L1TMuonBarrelParamsESProducer::L1TMuonBarrelParamsESProducer(const edm::ParameterSet& iConfig)
 {
+	l1t::XmlConfigReader ttt;
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
    // Firmware version
    unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
-
-   m_params.setFwVersion(fwVersion);
-   //cout<<"FW VERSION   "<<fwVersion<<endl;
    std::string AssLUTpath = iConfig.getParameter<std::string>("AssLUTPath");
-   m_params.setAssLUTPath(AssLUTpath);
+   //m_params.setAssLUTPath(AssLUTpath);
 
-   int PT_Assignment_nbits_Phi = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
-   int PT_Assignment_nbits_PhiB = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
-   int PHI_Assignment_nbits_Phi = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
-   int PHI_Assignment_nbits_PhiB = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
-   int Extrapolation_nbits_Phi = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
-   int Extrapolation_nbits_PhiB = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
-   int BX_min = iConfig.getParameter<int>("BX_min");
-   int BX_max = iConfig.getParameter<int>("BX_max");
-   int Extrapolation_Filter = iConfig.getParameter<int>("Extrapolation_Filter");
-   int OutOfTime_Filter_Window = iConfig.getParameter<int>("OutOfTime_Filter_Window");
-   bool OutOfTime_Filter = iConfig.getParameter<bool>("OutOfTime_Filter");
-   bool Open_LUTs = iConfig.getParameter<bool>("Open_LUTs");
-   bool EtaTrackFinder = iConfig.getParameter<bool>("EtaTrackFinder");
-   bool Extrapolation_21 = iConfig.getParameter<bool>("Extrapolation_21");
+   // int PT_Assignment_nbits_Phi = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
+   // int PT_Assignment_nbits_PhiB = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
+   // int PHI_Assignment_nbits_Phi = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
+   // int PHI_Assignment_nbits_PhiB = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
+   // int Extrapolation_nbits_Phi = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
+   // int Extrapolation_nbits_PhiB = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
+   // int BX_min = iConfig.getParameter<int>("BX_min");
+   // int BX_max = iConfig.getParameter<int>("BX_max");
+   // int Extrapolation_Filter = iConfig.getParameter<int>("Extrapolation_Filter");
+   // int OutOfTime_Filter_Window = iConfig.getParameter<int>("OutOfTime_Filter_Window");
+   // bool OutOfTime_Filter = iConfig.getParameter<bool>("OutOfTime_Filter");
+   // bool Open_LUTs = iConfig.getParameter<bool>("Open_LUTs");
+   // bool EtaTrackFinder = iConfig.getParameter<bool>("EtaTrackFinder");
+   // bool Extrapolation_21 = iConfig.getParameter<bool>("Extrapolation_21");
+   bool configFromXML = iConfig.getParameter<bool>("configFromXML");
+   // bool DisableNewAlgo = iConfig.getParameter<bool>("DisableNewAlgo");
 
-   m_params.set_PT_Assignment_nbits_Phi(PT_Assignment_nbits_Phi);
-   m_params.set_PT_Assignment_nbits_PhiB(PT_Assignment_nbits_PhiB);
-   m_params.set_PHI_Assignment_nbits_Phi(PHI_Assignment_nbits_Phi);
-   m_params.set_PHI_Assignment_nbits_PhiB(PHI_Assignment_nbits_PhiB);
-   m_params.set_Extrapolation_nbits_Phi(Extrapolation_nbits_Phi);
-   m_params.set_Extrapolation_nbits_PhiB(Extrapolation_nbits_PhiB);
-   m_params.set_BX_min(BX_min);
-   m_params.set_BX_max(BX_max);
-   m_params.set_Extrapolation_Filter(Extrapolation_Filter);
-   m_params.set_OutOfTime_Filter_Window(OutOfTime_Filter_Window);
-   m_params.set_OutOfTime_Filter(OutOfTime_Filter);
-   m_params.set_Open_LUTs(Open_LUTs);
-   m_params.set_EtaTrackFinder(EtaTrackFinder);
-   m_params.set_Extrapolation_21(Extrapolation_21);
+   std::map<std::string, int> allInts;
+   std::map<std::string, bool> allBools;
+   std::map<std::string, std::vector<std::string> > allMasks;
+
+   allInts["PT_Assignment_nbits_Phi"] = iConfig.getParameter<int>("PT_Assignment_nbits_Phi");
+   allInts["PT_Assignment_nbits_PhiB"] = iConfig.getParameter<int>("PT_Assignment_nbits_PhiB");
+   allInts["PHI_Assignment_nbits_Phi"] = iConfig.getParameter<int>("PHI_Assignment_nbits_Phi");
+   allInts["PHI_Assignment_nbits_PhiB"] = iConfig.getParameter<int>("PHI_Assignment_nbits_PhiB");
+   allInts["Extrapolation_nbits_Phi"] = iConfig.getParameter<int>("Extrapolation_nbits_Phi");
+   allInts["Extrapolation_nbits_PhiB"] = iConfig.getParameter<int>("Extrapolation_nbits_PhiB");
+   allInts["BX_min"] = iConfig.getParameter<int>("BX_min");
+   allInts["BX_max"] = iConfig.getParameter<int>("BX_max");
+   allInts["Extrapolation_Filter"] = iConfig.getParameter<int>("Extrapolation_Filter");
+   allInts["OutOfTime_Filter_Window"] = iConfig.getParameter<int>("OutOfTime_Filter_Window");
+   allBools["OutOfTime_Filter"] = iConfig.getParameter<bool>("OutOfTime_Filter");
+   allBools["Open_LUTs"] = iConfig.getParameter<bool>("Open_LUTs");
+   allBools["EtaTrackFinder"] = iConfig.getParameter<bool>("EtaTrackFinder");
+   allBools["Extrapolation_21"] = iConfig.getParameter<bool>("Extrapolation_21");
+   allBools["configFromXML"] = iConfig.getParameter<bool>("configFromXML");
+   allBools["DisableNewAlgo"] = iConfig.getParameter<bool>("DisableNewAlgo");
+
+   allMasks["mask_phtf_st1"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st1");
+   allMasks["mask_phtf_st2"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st2");
+   allMasks["mask_phtf_st3"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st3");
+   allMasks["mask_phtf_st4"] = iConfig.getParameter< std::vector <string>  >("mask_phtf_st4");
+
+   allMasks["mask_ettf_st1"] = iConfig.getParameter< std::vector <string>  >("mask_ettf_st1");
+   allMasks["mask_ettf_st2"] = iConfig.getParameter< std::vector <string>  >("mask_ettf_st2");
+   allMasks["mask_ettf_st3"] = iConfig.getParameter< std::vector <string>  >("mask_ettf_st3");
+
+/*
+       m_params.set_PT_Assignment_nbits_Phi(PT_Assignment_nbits_Phi);
+       m_params.set_PT_Assignment_nbits_PhiB(PT_Assignment_nbits_PhiB);
+       m_params.set_PHI_Assignment_nbits_Phi(PHI_Assignment_nbits_Phi);
+       m_params.set_PHI_Assignment_nbits_PhiB(PHI_Assignment_nbits_PhiB);
+       m_params.set_Extrapolation_nbits_Phi(Extrapolation_nbits_Phi);
+       m_params.set_Extrapolation_nbits_PhiB(Extrapolation_nbits_PhiB);
+       m_params.set_BX_min(BX_min);
+       m_params.set_BX_max(BX_max);
+       m_params.set_Extrapolation_Filter(Extrapolation_Filter);
+       m_params.set_OutOfTime_Filter_Window(OutOfTime_Filter_Window);
+       m_params.set_OutOfTime_Filter(OutOfTime_Filter);
+       m_params.set_Open_LUTs(Open_LUTs);
+       m_params.set_EtaTrackFinder(EtaTrackFinder);
+       m_params.set_Extrapolation_21(Extrapolation_21);
+       m_params.setFwVersion(fwVersion);
+       m_params.set_DisableNewAlgo(DisableNewAlgo);
 
 
-///Read Pt assignment Luts
-    std::vector<LUT> pta_lut; pta_lut.reserve(19);
-    std::vector<int> pta_threshold(10); 
-    if ( load_pt(pta_lut,pta_threshold, PT_Assignment_nbits_Phi, AssLUTpath) != 0 ) {
-      cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
-    }
-   m_params.setpta_lut(pta_lut);
-   m_params.setpta_threshold(pta_threshold);
-
-///Read Phi assignment Luts
-    std::vector<LUT> phi_lut; phi_lut.reserve(2);
-    if ( load_phi(phi_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB, AssLUTpath) != 0 ) {
-      cout << "Can not open files to load phi-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
-    }
-    m_params.setphi_lut(phi_lut);
-
-
-///Read Extrapolation Luts
-    //std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut(0); ext_lut.reserve(12);
-    //if ( load_ext(ext_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB) != 0 ) {
-    //  cout << "Can not open files to load extrapolation look-up tables for L1TMuonBarrelTrackProducer!" << endl;
-    //}
-    //m_params.setext_lut(ext_lut);
-    //m_params.l1mudttfparams.set_soc_openlut_extr(1,1,false);
-
-   std::vector <std::string>  mask_phtf_st1 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st1");
-   std::vector <std::string>  mask_phtf_st2 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st2");
-   std::vector <std::string>  mask_phtf_st3 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st3");
-   std::vector <std::string>  mask_phtf_st4 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st4");
-
-   std::vector <std::string>  mask_ettf_st1 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st1");
-   std::vector <std::string>  mask_ettf_st2 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st2");
-   std::vector <std::string>  mask_ettf_st3 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st3");
-
-    for( int wh=-3; wh<4; wh++ ) {
-       int sec = 0;
-       for(char& c : mask_phtf_st1[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,mask);
-            sec++;
+    ///Read Pt assignment Luts
+        std::vector<LUT> pta_lut(0); pta_lut.reserve(19);
+        std::vector<int> pta_threshold(6); pta_threshold.reserve(9);
+        if ( load_pt(pta_lut,pta_threshold, PT_Assignment_nbits_Phi, AssLUTpath) != 0 ) {
+          cout << "Can not open files to load pt-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
         }
-       sec = 0;
-       for(char& c : mask_phtf_st2[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,mask);
-            sec++;
+       m_params.setpta_lut(pta_lut);
+       m_params.setpta_threshold(pta_threshold);
+
+    ///Read Phi assignment Luts
+        std::vector<LUT> phi_lut(0); phi_lut.reserve(2);
+        if ( load_phi(phi_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB, AssLUTpath) != 0 ) {
+          cout << "Can not open files to load phi-assignment look-up tables for L1TMuonBarrelTrackProducer!" << endl;
         }
-       sec = 0;
-       for(char& c : mask_phtf_st3[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,mask);
-            sec++;
-        }
-       sec = 0;
-       for(char& c : mask_phtf_st4[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,mask);
-            sec++;
-        }
-       sec = 0;
-       for(char& c : mask_ettf_st1[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,mask);
-            sec++;
-        }
-       sec = 0;
-       for(char& c : mask_ettf_st2[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,mask);
-            sec++;
-        }
-       sec = 0;
-       for(char& c : mask_ettf_st3[wh+3]) {
-            int mask = c - '0';
-            m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,mask);
-            sec++;
-            //Not used in BMTF init to false
-            m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,false);
+        m_params.setphi_lut(phi_lut);
+
+
+
+
+       m_params.l1mudttfparams.reset();
+
+       std::vector <std::string>  mask_phtf_st1 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st1");
+       std::vector <std::string>  mask_phtf_st2 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st2");
+       std::vector <std::string>  mask_phtf_st3 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st3");
+       std::vector <std::string>  mask_phtf_st4 = iConfig.getParameter< std::vector <string>  >("mask_phtf_st4");
+
+       std::vector <std::string>  mask_ettf_st1 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st1");
+       std::vector <std::string>  mask_ettf_st2 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st2");
+       std::vector <std::string>  mask_ettf_st3 = iConfig.getParameter< std::vector <string>  >("mask_ettf_st3");
+
+        for( int wh=-3; wh<4; wh++ ) {
+           int sec = 0;
+           for(char& c : mask_phtf_st1[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,mask);
+                sec++;
+            }
+           sec = 0;
+           for(char& c : mask_phtf_st2[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,mask);
+                sec++;
+            }
+           sec = 0;
+           for(char& c : mask_phtf_st3[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,mask);
+                sec++;
+            }
+           sec = 0;
+           for(char& c : mask_phtf_st4[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,mask);
+                sec++;
+            }
+           sec = 0;
+           for(char& c : mask_ettf_st1[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,mask);
+                sec++;
+            }
+           sec = 0;
+           for(char& c : mask_ettf_st2[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,mask);
+                sec++;
+            }
+           sec = 0;
+           for(char& c : mask_ettf_st3[wh+3]) {
+                int mask = c - '0';
+                m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,mask);
+                //Not used in BMTF - mask
+                m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,true);
+                sec++;
+            }
 
         }
 
-    }
-    /*
-cout<<"===="<<endl;
-  for( int wh=-3; wh<4; wh++ ) {
-    for( int sec=0; sec<12; sec++ ) {
-     // m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,false);
-      m_params.l1mudttfmasks.set_inrec_chdis_st2(wh,sec,false);
-      m_params.l1mudttfmasks.set_inrec_chdis_st3(wh,sec,false);
-      m_params.l1mudttfmasks.set_inrec_chdis_st4(wh,sec,false);
-      m_params.l1mudttfmasks.set_etsoc_chdis_st1(wh,sec,false);
-      m_params.l1mudttfmasks.set_etsoc_chdis_st2(wh,sec,false);
-      m_params.l1mudttfmasks.set_etsoc_chdis_st3(wh,sec,false);
-      m_params.l1mudttfmasks.set_inrec_chdis_csc(wh,sec,false);
 
-      //if(wh==3 || wh==-3) m_params.l1mudttfmasks.set_inrec_chdis_st1(wh,sec,true);
+    ///Read Extrapolation Luts
+        std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut(0); ext_lut.reserve(12);
+        if ( load_ext(ext_lut, PHI_Assignment_nbits_Phi, PHI_Assignment_nbits_PhiB) != 0 ) {
+          cout << "Can not open files to load extrapolation look-up tables for L1TMuonBarrelTrackProducer!" << endl;
+        }
+        m_params.setext_lut(ext_lut);
 
-    }
-  }
-*/
+    //m_params.l1mudttfextlut.load();
 
+    */
+
+        m_params_helper.configFromPy(allInts, allBools, allMasks, fwVersion, AssLUTpath);
+   if(configFromXML){
+      cout<<"Configuring BMTF Emulator from xml files.\n";
+      edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
+      edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
+      std::string xmlCfgKey = iConfig.getParameter<std::string>("xmlCfgKey");
+
+      l1t::TrigSystem trgSys;
+      trgSys.configureSystemFromFiles(hwXmlFile.fullPath(),topCfgXmlFile.fullPath(),xmlCfgKey);
+
+     /* std::map<std::string, std::string> procRole = trgSys.getProcRole();
+
+      for(auto it_proc=procRole.begin(); it_proc!=procRole.end(); it_proc++ ){
+
+          std::string procId = it_proc->first;
+
+          std::map<std::string, l1t::Setting> settings = trgSys.getSettings(procId);
+          std::vector<l1t::TableRow>  tRow = settings["regTable"].getTableRows();
+          for(auto it=tRow.begin(); it!=tRow.end(); it++)
+          {
+            if (it->getRowValue<std::string>("register_path").find("open_lut") != std::string::npos){
+              //std::cout << "Value is: " << it->getRowValue<bool>("register_value") << std::endl;
+              m_params.set_Open_LUTs(it->getRowValue<bool>("register_value"));
+            }
+            if (it->getRowValue<std::string>("register_path").find("sel_21") != std::string::npos){
+              //std::cout << "Value is: " << it->getRowValue<bool>("register_value") << std::endl;
+              m_params.set_Extrapolation_21(it->getRowValue<bool>("register_value"));
+            }
+
+            if (it->getRowValue<std::string>("register_path").find("dis_newalgo") != std::string::npos){
+              //std::cout << "Value is: " << it->getRowValue<int>("register_value") << std::endl;
+              //int fwv = (it->getRowValue<int>("register_value")==1) ? 1 : 2;
+              //m_params.setFwVersion(fwv);
+              bool disnewalgo = (it->getRowValue<int>("register_value")==1);
+              m_params.set_DisableNewAlgo(disnewalgo);
+            }
+
+            string masks[5] = {"mask_ctrl_N2", "mask_ctrl_N1", "mask_ctrl_0", "mask_ctrl_P1", "mask_ctrl_P2"};
+
+            for(int m=0; m<5; m++){
+
+                if (it->getRowValue<std::string>("register_path").find(masks[m]) != std::string::npos){
+                  string mask_ctrl = it->getRowValue<string>("register_value");
+                  const char *hexstring = mask_ctrl.c_str();
+                  ///Converts the last bit from str to int
+                  int mask = (int)strtol((hexstring+7), NULL, 16);
+                  int mask_all = (int)strtol((hexstring), NULL, 16);
+                  ///All bits must be the same
+                  if(!( mask_all==0x111111 || mask_all==0x222222 || mask_all==0x333333 || mask_all==0x444444 ||
+                     mask_all==0x555555 || mask_all==0x666666 || mask_all==0x777777) )
+                    cerr<<"BMTF: Cannot re-emulate properly. Individual link masking cannot be handled."<<endl;
+
+                  if((mask&1)>0)  {
+                     for(int sec=0; sec<12; sec++){
+                      if(masks[m]=="mask_ctrl_N2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st1(-3,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st1(-3,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_N1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st1(-2,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st1(-2,sec,true);
+                      }
+
+                      if(masks[m]=="mask_ctrl_0"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st1(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st1(1,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st1(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st1(1,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st1(2,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st1(2,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st1(3,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st1(3,sec,true);
+                      }
+                    }
+
+                  }
+
+                  if((mask&2)>0)  {
+                    for(int sec=0; sec<12; sec++){
+                      if(masks[m]=="mask_ctrl_N2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st2(-3,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st2(-3,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_N1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st2(-2,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st2(-2,sec,true);
+                      }
+
+                      if(masks[m]=="mask_ctrl_0"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st2(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st2(1,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st2(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st2(1,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st2(2,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st2(2,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st2(3,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st2(3,sec,true);
+                      }
+                    }
+                  }
+
+                  if((mask&4)>0)  {
+                    for(int sec=0; sec<12; sec++){
+                      if(masks[m]=="mask_ctrl_N2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st3(-3,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st3(-3,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_N1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st3(-2,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st3(-2,sec,true);
+                      }
+
+                      if(masks[m]=="mask_ctrl_0"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st3(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st3(1,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st3(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st3(1,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st3(2,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st3(2,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st3(3,sec,true);
+                                            m_params.l1mudttfmasks.set_etsoc_chdis_st3(3,sec,true);
+                      }
+                    }
+                  }
+
+                  if((mask&8)>0)  {
+                    for(int sec=0; sec<12; sec++){
+                      if(masks[m]=="mask_ctrl_N2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st4(-3,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_N1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st4(-2,sec,true);
+                      }
+
+                      if(masks[m]=="mask_ctrl_0"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st4(-1,sec,true);
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st4(1,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P1"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st4(2,sec,true);
+                      }
+                      if(masks[m]=="mask_ctrl_P2"){
+                                            m_params.l1mudttfmasks.set_inrec_chdis_st4(3,sec,true);
+                      }
+                    }
+                  }
+               }///if register path
+             }///for masks
+          }///for it tRow
+      }///for it procRole */
+	m_params_helper.configFromDB(trgSys);
+  }///if configDB
+	//m_params = cast_to_L1TMuonBarrelParams((L1TMuonBarrelParams_PUBLIC)m_params_helper);
+ 
 
 }
 
@@ -211,7 +406,7 @@ L1TMuonBarrelParamsESProducer::~L1TMuonBarrelParamsESProducer()
 
 }
 
-int L1TMuonBarrelParamsESProducer::load_pt(std::vector<LUT>& pta_lut,
+/*int L1TMuonBarrelParamsESProducer::load_pt(std::vector<LUT>& pta_lut,
                                   std::vector<int>& pta_threshold,
                                   unsigned short int nbitphi,
                                   std::string AssLUTpath
@@ -383,6 +578,7 @@ int L1TMuonBarrelParamsESProducer::load_phi(std::vector<LUT>& phi_lut,
 
 }
 
+
 int L1TMuonBarrelParamsESProducer::getPtLutThreshold(int pta_ind, std::vector<int>& pta_threshold) const {
 
   if ( pta_ind >= 0 && pta_ind < 13/2 ) {
@@ -395,7 +591,7 @@ int L1TMuonBarrelParamsESProducer::getPtLutThreshold(int pta_ind, std::vector<in
 
 }
 
-
+*/
 
 
 
@@ -403,6 +599,7 @@ int L1TMuonBarrelParamsESProducer::getPtLutThreshold(int pta_ind, std::vector<in
 //
 // load extrapolation look-up tables
 //
+/*
 int L1TMuonBarrelParamsESProducer::load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>& ext_lut,
                                             unsigned short int nbit_phi,
                                             unsigned short int nbit_phib) {
@@ -415,8 +612,8 @@ int L1TMuonBarrelParamsESProducer::load_ext(std::vector<L1TMuonBarrelParams::LUT
                      EX15, EX16, EX25, EX26, EX56 };
 
   // get directory name
-  string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
-  string ext_dir = "L1TriggerData/DTTrackFinder/Ext/";
+  string defaultPath = "L1Trigger/L1TMuon/data/bmtf_luts/";
+  string ext_dir = "LUTs_Ext/";
   string ext_str = "";
 
   // precision : in the look-up tables the following precision is used :
@@ -498,7 +695,7 @@ int L1TMuonBarrelParamsESProducer::load_ext(std::vector<L1TMuonBarrelParams::LUT
 //
 // member functions
 //
-
+*/
 // ------------ method called to produce the data  ------------
 L1TMuonBarrelParamsESProducer::ReturnType
 L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
@@ -506,7 +703,8 @@ L1TMuonBarrelParamsESProducer::produce(const L1TMuonBarrelParamsRcd& iRecord)
    using namespace edm::es;
    boost::shared_ptr<L1TMuonBarrelParams> pBMTFParams;
 
-   pBMTFParams = boost::shared_ptr<L1TMuonBarrelParams>(new L1TMuonBarrelParams(m_params));
+   //MTFParams = boost::shared_ptr<L1TMuonBarrelParams>(new L1TMuonBarrelParams(m_params));
+   pBMTFParams = boost::shared_ptr<L1TMuonBarrelParams>(new L1TMuonBarrelParams(m_params_helper));
    return pBMTFParams;
 }
 

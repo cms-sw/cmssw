@@ -27,6 +27,7 @@ namespace L1Analysis
     eta.clear();
     phi.clear();
     TightIsoFlag.clear();
+    RawIso.clear();
     LooseIsoFlag.clear();
     LooseAntiMuonFlag.clear();
     TightAntiMuonFlag.clear();
@@ -35,6 +36,7 @@ namespace L1Analysis
     TightAntiElectronFlag.clear();
     DMFindingNewDMs.clear();
     DMFindingOldDMs.clear();
+    charge.clear();
     }
 
     unsigned nTaus;
@@ -46,12 +48,14 @@ namespace L1Analysis
     std::vector<float> DMFindingNewDMs;
     std::vector<float> DMFindingOldDMs;
     std::vector<float> TightIsoFlag;
+    std::vector<float> RawIso;
     std::vector<float> LooseIsoFlag;
     std::vector<float> LooseAntiMuonFlag;
     std::vector<float> TightAntiMuonFlag;
     std::vector<float> VLooseAntiElectronFlag;
     std::vector<float> LooseAntiElectronFlag;
     std::vector<float> TightAntiElectronFlag;
+    std::vector<int>   charge;
 
   };
 }

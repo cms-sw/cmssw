@@ -61,10 +61,12 @@ public:
     
     inline void setJetScales(ScaleParameters& scales) { m_jetScales = scales; }
     
-    inline void setETTScales(ScaleParameters& scales) { m_ettScales = scales; }
-    inline void setHTTScales(ScaleParameters& scales) { m_httScales = scales; }
-    inline void setETMScales(ScaleParameters& scales) { m_etmScales = scales; }
-    inline void setHTMScales(ScaleParameters& scales) { m_htmScales = scales; }
+    inline void setETTScales(ScaleParameters& scales)   { m_ettScales = scales; }
+    inline void setETTEmScales(ScaleParameters& scales) { m_ettEmScales = scales; }
+    inline void setHTTScales(ScaleParameters& scales)   { m_httScales = scales; }
+    inline void setETMScales(ScaleParameters& scales)   { m_etmScales = scales; }
+    inline void setETMHfScales(ScaleParameters& scales) { m_etmHfScales = scales; }
+    inline void setHTMScales(ScaleParameters& scales)   { m_htmScales = scales; }
     
     virtual void setLUT_CalMuEta(std::string lutName, std::vector<long long> lut); 
     virtual void setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut);
@@ -77,14 +79,16 @@ public:
     inline void setScalesName(std::string name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const; 
 
-    inline ScaleParameters getMUScales() const { return m_muScales; }
-    inline ScaleParameters getEGScales() const { return m_egScales; }
-    inline ScaleParameters getTAUScales() const { return m_tauScales; }
-    inline ScaleParameters getJETScales() const { return m_jetScales; }
-    inline ScaleParameters getETTScales() const { return m_ettScales; }
-    inline ScaleParameters getETMScales() const { return m_etmScales; }
-    inline ScaleParameters getHTTScales() const { return m_httScales; }
-    inline ScaleParameters getHTMScales() const { return m_htmScales; }
+    inline ScaleParameters getMUScales() const    { return m_muScales; }
+    inline ScaleParameters getEGScales() const    { return m_egScales; }
+    inline ScaleParameters getTAUScales() const   { return m_tauScales; }
+    inline ScaleParameters getJETScales() const   { return m_jetScales; }
+    inline ScaleParameters getETTScales() const   { return m_ettScales; }
+    inline ScaleParameters getETTEmScales() const { return m_ettEmScales; }
+    inline ScaleParameters getETMScales() const   { return m_etmScales; }
+    inline ScaleParameters getETMHFScales() const { return m_etmHfScales; }
+    inline ScaleParameters getHTTScales() const   { return m_httScales; }
+    inline ScaleParameters getHTMScales() const   { return m_htmScales; }
 
 
     long long getLUT_CalMuEta(std::string lutName, int element) const;
@@ -122,8 +126,10 @@ private:
    ScaleParameters m_jetScales;
    
    ScaleParameters m_ettScales;
+   ScaleParameters m_ettEmScales;
    ScaleParameters m_httScales;
    ScaleParameters m_etmScales;
+   ScaleParameters m_etmHfScales;
    ScaleParameters m_htmScales; 
    
    //LUTs

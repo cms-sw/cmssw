@@ -17,4 +17,6 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     verbose = cms.bool(False),
     unpackEcalMask = cms.bool(False),
     unpackHcalMask = cms.bool(False),
+    # See UCTLayer1.hh for firmware version
+    firmwareVersion = cms.int32(1),
     )

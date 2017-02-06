@@ -8,4 +8,4 @@ TARGET="/online/cosmics/2012/7e33/v2.3/HLT"         # where to store the online-
 TABLES="cosmics"
 
 source subtables.sh
-createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"

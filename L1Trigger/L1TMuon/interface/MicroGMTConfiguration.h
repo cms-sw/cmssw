@@ -38,6 +38,9 @@ namespace l1t {
       static int calcGlobalPhi(int locPhi, tftype t, int proc);
 
       static int setOutputMuonQuality(int muQual, tftype type, int haloBit);
+
+      static double calcMuonEtaExtra(const l1t::Muon& mu);
+      static double calcMuonPhiExtra(const l1t::Muon& mu);
   };
 }
 #endif /* defined (__l1microgmtconfiguration_h) */

@@ -81,6 +81,7 @@ GsfElectron::GsfElectron
    //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
+   full5x5_showerShape_(electron.full5x5_showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
    pfIso_(electron.pfIso_),

@@ -25,7 +25,7 @@ namespace L1Analysis
      weight = -999.;
      pthat  = -999.;
      nVtx   = 0;
-     nPUPoissonMean = 0;
+     nMeanPU = 0;
 
      nPart = 0;
      partId.resize(0);
@@ -35,6 +35,7 @@ namespace L1Analysis
      partEta.resize(0);
      partPhi.resize(0);
      partE.resize(0);
+     partCh.resize(0);
 
      nJet = 0;     
      jetPt.resize(0);
@@ -50,7 +51,7 @@ namespace L1Analysis
     float weight;
     float pthat;
     int nVtx;
-    int nPUPoissonMean;
+    int nMeanPU;
 
     int nPart;
     std::vector<int> partId;
@@ -60,6 +61,7 @@ namespace L1Analysis
     std::vector<float> partEta;
     std::vector<float> partPhi;
     std::vector<float> partE;
+    std::vector<int> partCh;
     
     int nJet;
     std::vector<float> jetPt;

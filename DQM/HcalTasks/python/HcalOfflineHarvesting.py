@@ -11,8 +11,10 @@ hcalOfflineHarvesting = cms.EDAnalyzer(
 	mtype = cms.untracked.bool(True),
 	subsystem = cms.untracked.string("Hcal"),
 
-	thresh_fgmsm = cms.untracked.double(0.1),
-	thresh_etmsm = cms.untracked.double(0.1),
+	thresh_EtMsmRate_high = cms.untracked.double(0.2),
+	thresh_EtMsmRate_low = cms.untracked.double(0.1),
+	thresh_FGMsmRate_high = cms.untracked.double(0.2),
+	thresh_FGMsmRate_low = cms.untracked.double(0.1),
 	thresh_unihf = cms.untracked.double(0.2),
 	thresh_tcds = cms.untracked.double(1.5)
 )

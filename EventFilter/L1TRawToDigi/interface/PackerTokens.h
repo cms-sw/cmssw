@@ -1,5 +1,5 @@
-#ifndef PackerTokens_h
-#define PackerTokens_h
+#ifndef EventFilter_L1TRawToDigi_PackerTokens_h
+#define EventFilter_L1TRawToDigi_PackerTokens_h
 
 namespace edm {
    class ConsumesCollector;

@@ -12,3 +12,5 @@ PixelTripletLargeTipGenerator = cms.PSet(
     extraHitRZtolerance = cms.double(0.037)
 )
 
+from Configuration.StandardSequences.Eras import eras
+eras.peripheralPbPb.toModify(PixelTripletLargeTipGenerator, maxElement = 1000000)

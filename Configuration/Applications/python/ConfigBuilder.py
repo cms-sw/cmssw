@@ -421,6 +421,10 @@ class ConfigBuilder(object):
 			   for line in textOfFiles:
 				   for fileName in [x for x in line.split() if '.lhe' in x]:
 					   self.process.source.fileNames.append(location+article+'/'+fileName)
+			   #check first if list of LHE files is loaded (not empty)
+			   if len(line)<2:
+				   print 'Issue to load LHE files, please check and try again.'
+				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:
@@ -1665,11 +1669,11 @@ class ConfigBuilder(object):
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
-            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
-            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
-                self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+                self._options.customisation_file_unsch.insert(1,"PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
         return
 
     def prepare_EI(self, sequence = None):

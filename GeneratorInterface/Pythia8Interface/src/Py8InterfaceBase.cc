@@ -58,6 +58,8 @@ bool Py8InterfaceBase::readSettings( int )
    fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuAsEquivalent",false);
    fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuTauAsEquivalent",false);
    fMasterGen->settings.addFlag("ResonanceDecayFilter:allNuAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:udscAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:udscbAsEquivalent",false);
    fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
    fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);   
    

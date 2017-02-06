@@ -21,9 +21,7 @@
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
 #include "DQM/HcalCommon/interface/Flag.h"
 
-using namespace hcaldqm;
-using namespace hcaldqm::filter;
-class RawTask : public DQTask
+class RawTask : public hcaldqm::DQTask
 {
 	public:
 		RawTask(edm::ParameterSet const&);
@@ -38,7 +36,7 @@ class RawTask : public DQTask
 
 	protected:
 		virtual void _process(edm::Event const&, edm::EventSetup const&);
-		virtual void _resetMonitors(UpdateFreq);
+		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag		_tagFEDs;
 		edm::InputTag		_tagReport;
@@ -46,47 +44,53 @@ class RawTask : public DQTask
 		edm::EDGetTokenT<HcalUnpackerReport> _tokReport;
 
 		//	flag vector
-		std::vector<flag::Flag> _vflags;
+		std::vector<hcaldqm::flag::Flag> _vflags;
 		enum RawFlag
 		{
 			fEvnMsm = 0,
 			fBcnMsm = 1,
-			fBadQ = 2,
-			nRawFlag = 3
+			fOrnMsm = 2,
+			fBadQ = 3,
+			nRawFlag = 4
 		};
 
 		//	emap
 		HcalElectronicsMap const* _emap;
-		electronicsmap::ElectronicsMap _ehashmap;
+		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
+
+		//	physics vs calib processing switch
+		bool _calibProcessing;
+		int _thresh_calib_nbadq;
 
 		//	vector of HcalElectronicsId for FEDs
 		std::vector<uint32_t> _vhashFEDs;
 
 		//	Filters
-		HashFilter _filter_VME;
-		HashFilter _filter_uTCA;
-		HashFilter _filter_FEDsVME;
-		HashFilter _filter_FEDsuTCA;
+		hcaldqm::filter::HashFilter _filter_VME;
+		hcaldqm::filter::HashFilter _filter_uTCA;
+		hcaldqm::filter::HashFilter _filter_FEDsVME;
+		hcaldqm::filter::HashFilter _filter_FEDsuTCA;
 
 		//	Bad Quality
-		Container2D _cBadQuality_FEDVME;
-		Container2D _cBadQuality_FEDuTCA;
-		Container2D _cBadQuality_depth;
-		Container2D _cBadQualityLS_depth; // online only
-		ContainerSingleProf1D _cBadQualityvsLS;
-		ContainerSingleProf1D _cBadQualityvsBX;
+		hcaldqm::Container2D _cBadQuality_FEDVME;
+		hcaldqm::Container2D _cBadQuality_FEDuTCA;
+		hcaldqm::Container2D _cBadQuality_depth;
+		hcaldqm::Container2D _cBadQualityLS_depth; // online only
+		hcaldqm::ContainerSingleProf1D _cBadQualityvsLS;
+		hcaldqm::ContainerSingleProf1D _cBadQualityvsBX;
+		hcaldqm::ContainerProf1D _cDataSizevsLS_FED; // online only
 
 		//	Mismatches
-		Container2D _cEvnMsm_ElectronicsVME;
-		Container2D _cBcnMsm_ElectronicsVME;
-		Container2D _cOrnMsm_ElectronicsVME;
-		Container2D _cEvnMsm_ElectronicsuTCA;
-		Container2D _cBcnMsm_ElectronicsuTCA;
-		Container2D _cOrnMsm_ElectronicsuTCA;
-		ContainerXXX<uint32_t> _xEvnMsmLS, _xBcnMsmLS, _xBadQLS;
+		hcaldqm::Container2D _cEvnMsm_ElectronicsVME;
+		hcaldqm::Container2D _cBcnMsm_ElectronicsVME;
+		hcaldqm::Container2D _cOrnMsm_ElectronicsVME;
+		hcaldqm::Container2D _cEvnMsm_ElectronicsuTCA;
+		hcaldqm::Container2D _cBcnMsm_ElectronicsuTCA;
+		hcaldqm::Container2D _cOrnMsm_ElectronicsuTCA;
+		hcaldqm::ContainerXXX<uint32_t> _xEvnMsmLS, _xBcnMsmLS, _xOrnMsmLS, _xBadQLS;
 	
-		Container2D	_cSummaryvsLS_FED; // online only
-		ContainerSingle2D	_cSummaryvsLS; // online only
+		hcaldqm::Container2D	_cSummaryvsLS_FED; // online only
+		hcaldqm::ContainerSingle2D	_cSummaryvsLS; // online only
 };
 
 #endif

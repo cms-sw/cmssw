@@ -57,7 +57,7 @@ void ElectronEnergyCalibratorRun2::calibrate(SimpleElectron &electron, edm::Stre
     newEcalEnergyError = std::hypot(electron.getNewEnergyError() * scale, smear * newEcalEnergy);
   }
   electron.setNewEnergy(newEcalEnergy); 
-  electron.setNewEnergyError(newEcalEnergyError); 
+  electron.setNewEnergyError(newEcalEnergyError);
   epCombinationTool_->combine(electron);
 }
 

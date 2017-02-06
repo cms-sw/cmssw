@@ -38,18 +38,18 @@ namespace l1t {
 
     // methods to set integer values
     // in general, these should not be needed
-    void setHwPt(int pt);
-    void setHwEta(int eta);
-    void setHwPhi(int phi);
-    void setHwQual(int qual);
-    void setHwIso(int iso);
+    void setHwPt(int pt) {hwPt_=pt;}
+    void setHwEta(int eta) {hwEta_=eta;}
+    void setHwPhi(int phi) {hwPhi_=phi;}
+    void setHwQual(int qual) {hwQual_=qual;}
+    void setHwIso(int iso) {hwIso_=iso;}
 
     // methods to retrieve integer values
-    int hwPt() const;
-    int hwEta() const;
-    int hwPhi() const;
-    int hwQual() const;
-    int hwIso() const;
+    int hwPt() const {return hwPt_;}
+    int hwEta() const {return hwEta_;}
+    int hwPhi() const {return hwPhi_;}
+    int hwQual() const {return hwQual_;}
+    int hwIso() const {return hwIso_;}
 
   private:
 

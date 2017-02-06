@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 HighPtElectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
+        "HLT_Ele145_CaloIdVT_GsfTrkIdT_v",
+        "HLT_Ele200_CaloIdVT_GsfTrkIdT_v",
         "HLT_Ele105_CaloIdVT_GsfTrkIdT_v", # Run2 proposal
         "HLT_Ele115_CaloIdVT_GsfTrkIdT_v"  # 50ns backup menu
         ),

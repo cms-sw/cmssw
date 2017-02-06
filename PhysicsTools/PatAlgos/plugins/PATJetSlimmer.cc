@@ -32,10 +32,11 @@ namespace pat {
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
 
     private:
-      const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+      edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr>> pf2pcAny_;
       const edm::EDGetTokenT<edm::View<pat::Jet> >  jets_;
       const StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,rekeyDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
-      const bool modifyJet_;
+      const bool modifyJet_, mayNeedDaughterMap_, mixedDaughters_;
       std::unique_ptr<pat::ObjectModifier<pat::Jet> > jetModifier_;
   };
 
@@ -43,7 +44,6 @@ namespace pat {
 
 
 pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
-    pf2pc_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("src"))),
     dropJetVars_(iConfig.getParameter<std::string>("dropJetVars")),
     dropDaughters_(iConfig.getParameter<std::string>("dropDaughters")),
@@ -51,8 +51,17 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
     dropTrackRefs_(iConfig.getParameter<std::string>("dropTrackRefs")),
     dropSpecific_(iConfig.getParameter<std::string>("dropSpecific")),
     dropTagInfos_(iConfig.getParameter<std::string>("dropTagInfos")),
-    modifyJet_(iConfig.getParameter<bool>("modifyJets"))
+    modifyJet_(iConfig.getParameter<bool>("modifyJets")),
+    mayNeedDaughterMap_(iConfig.getParameter<std::string>("dropDaughters") != "1" && iConfig.getParameter<std::string>("rekeyDaughters") != "0"),
+    mixedDaughters_(iConfig.getParameter<bool>("mixedDaughters"))
 {
+    if (mayNeedDaughterMap_) {
+        if (mixedDaughters_) {
+            pf2pcAny_ = consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+        } else {
+            pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+        }
+    }
     edm::ConsumesCollector sumes(consumesCollector());
     if( modifyJet_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
@@ -77,7 +86,14 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Handle<View<pat::Jet> >      src;
     iEvent.getByToken(jets_, src);
     Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
-    iEvent.getByToken(pf2pc_,pf2pc);
+    Handle<edm::ValueMap<reco::CandidatePtr> > pf2pcAny;
+    if (mayNeedDaughterMap_) {
+        if (mixedDaughters_) {
+            iEvent.getByToken(pf2pcAny_,pf2pcAny);
+        } else {
+            iEvent.getByToken(pf2pc_,pf2pc);
+        }
+    }
 	
     auto_ptr<vector<pat::Jet> >  out(new vector<pat::Jet>());
     out->reserve(src->size());
@@ -112,18 +128,27 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		    //copy old 
 		    reco::CompositePtrCandidate::daughters old = jet.daughterPtrVector();
 		    jet.clearDaughters();
-		    std::map<unsigned int,reco::CandidatePtr> ptrs;	    
-		    for(unsigned int  i=0;i<old.size();i++)
-		    {
-			    //	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
-			    ptrs[((*pf2pc)[old[i]]).key()]=refToPtr((*pf2pc)[old[i]]);
-		    }
-		    for(std::map<unsigned int,reco::CandidatePtr>::iterator itp=ptrs.begin();itp!=ptrs.end();itp++) //iterate on sorted items
-		    {
-			    jet.addDaughter(itp->second);
-		    }
-
-
+                    if (mixedDaughters_) {
+                        std::vector<reco::CandidatePtr> ptrs;	    
+                        for(const reco::CandidatePtr &oldptr : old) {
+                            ptrs.push_back( (*pf2pcAny)[oldptr] );
+                        }
+                        std::sort(ptrs.begin(), ptrs.end());
+                        for(const reco::CandidatePtr &newptr : ptrs) {
+                            jet.addDaughter(newptr);
+                        }
+                    } else {
+                        std::map<unsigned int,reco::CandidatePtr> ptrs;	    
+                        for(unsigned int  i=0;i<old.size();i++)
+                        {
+                            //	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
+                            ptrs[((*pf2pc)[old[i]]).key()]=refToPtr((*pf2pc)[old[i]]);
+                        }
+                        for(std::map<unsigned int,reco::CandidatePtr>::iterator itp=ptrs.begin();itp!=ptrs.end();itp++) //iterate on sorted items
+                        {
+                            jet.addDaughter(itp->second);
+                        }
+                    }
 	    }	
 	    if (dropSpecific_(*it)) {
 		    // FIXME add method in pat::Jet

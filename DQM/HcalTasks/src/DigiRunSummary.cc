@@ -34,6 +34,12 @@ namespace hcaldqm
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 		_vhashFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN,
 			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		_vhashFEDHF.push_back(HcalElectronicsId(22, SLOT_uTCA_MIN+6,
+			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		_vhashFEDHF.push_back(HcalElectronicsId(29, SLOT_uTCA_MIN+6,
+			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
+		_vhashFEDHF.push_back(HcalElectronicsId(32, SLOT_uTCA_MIN+6,
+			FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 		_filter_FEDHF.initialize(filter::fPreserver, hashfunctions::fFED,
 			_vhashFEDHF);    // preserve only HF FEDs
 		
@@ -102,6 +108,8 @@ namespace hcaldqm
 		MonitorElement *meNumEvents = ig.get(_subsystem+
 			"/RunInfo/NumberOfEvents");
 		int numEvents = meNumEvents->getBinContent(1);
+		bool unknownIdsPresent = ig.get(_subsystem+"/"
+			+_taskname+"/UnknownIds")->getBinContent(1)>0;
 
 		//	book the Numer of Events - set axis extendable
 		if (!_booked)
@@ -143,6 +151,7 @@ namespace hcaldqm
 		vtmpflags.resize(nLSFlags);
 		vtmpflags[fDigiSize]=flag::Flag("DigiSize");
 		vtmpflags[fNChsHF]=flag::Flag("NChsHF");
+		vtmpflags[fUnknownIds]=flag::Flag("UnknownIds");
 		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
 			it!=_vhashFEDs.end(); ++it)
 		{
@@ -162,7 +171,7 @@ namespace hcaldqm
 				for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
 					ft!=vtmpflags.end(); ++ft)
 					ft->_state = flag::fNCDAQ;
-			
+
 				// push all the flags for this FED
 				// IMPORTANT!!!
 				lssum._vflags.push_back(vtmpflags);
@@ -184,6 +193,10 @@ namespace hcaldqm
 						vtmpflags[fNChsHF]._state = flag::fGOOD;
 				}
 			}
+			if (unknownIdsPresent)
+				vtmpflags[fUnknownIds]._state = flag::fBAD;
+			else
+				vtmpflags[fUnknownIds]._state = flag::fGOOD;
 
 			// push all the flags for this FED
 			lssum._vflags.push_back(vtmpflags);

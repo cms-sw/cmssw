@@ -79,6 +79,7 @@ process.AlignmentProducer.algoConfig = process.MillePedeAlignmentAlgorithm
 process.AlignmentProducer.algoConfig.mode = 'pedeRead'
 process.AlignmentProducer.algoConfig.treeFile = 'TREEFILE'
 process.AlignmentProducer.algoConfig.pedeReader.readFile = 'FILE_MUST_NOT_EXIST.res'
+process.AlignmentProducer.algoConfig.runAtPCL = True # dirty hack to allow feeding the algorithm multi-IOV DB input (restores behaviour previous to https://github.com/cms-sw/cmssw/pull/16136
 
 process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(RUNNUMBER) # choose your run!

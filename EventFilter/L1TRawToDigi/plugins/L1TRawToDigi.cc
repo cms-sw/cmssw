@@ -36,7 +36,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
-#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
+
+#include "PackingSetupFactory.h"
 
 namespace l1t {
    class L1TRawToDigi : public edm::stream::EDProducer<> {

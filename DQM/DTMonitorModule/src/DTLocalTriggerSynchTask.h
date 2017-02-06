@@ -98,9 +98,9 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > triggerHistos;
-  MonitorElement* dcc_IDDataErrorPlot;
+  MonitorElement* tm_IDDataErrorPlot;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer>   dcc_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer>   tm_Token_;
   edm::EDGetTokenT<DTLocalTriggerCollection> ddu_Token_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 };

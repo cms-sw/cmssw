@@ -12,14 +12,10 @@ def L1NtupleCustomReco(process):
 ####  Custom Jet reco ####
 
     # load JEC from SQLite file
-    process.load("CondCore.DBCommon.CondDBCommon_cfi")
+    process.load("CondCore.CondDB.CondDB_cfi")
 
     # re-apply JEC for AK4 CHS PF jets
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
-    #process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
-    #process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
-
-    #process.ak4PFCHSJetsL1FastL2L3Residual = process.ak4PFCHSJetsL1.clone(correctors = ['ak4PFCHSL1FastL2L3ResidualCorrector'])
 
 ####  Custom Met Filter reco
 
@@ -59,8 +55,9 @@ def L1NtupleCustomReco(process):
     return process
 
 
-
 def getJECFromSQLite(process):
+
+    process.load("CondCore.CondDB.CondDB_cfi")
 
     process.jec = cms.ESSource(
         "PoolDBESSource",

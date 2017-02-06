@@ -64,6 +64,9 @@ private:
   
   bool makeConnectionsMaps, makeGoldenPatterns, mergeXMLFiles;
 
+  ///Original pdf width. read from configuration.
+  unsigned int nPdfAddrBits;
+  
   ///OMTF objects
   OMTFConfiguration *myOMTFConfig;
   OMTFinputMaker *myInputMaker;

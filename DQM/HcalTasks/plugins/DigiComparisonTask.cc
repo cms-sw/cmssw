@@ -2,6 +2,8 @@
 #include "DQM/HcalTasks/interface/DigiComparisonTask.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
+
 DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -120,7 +122,7 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		_filter_uTCA);
 }
 
-/* virtual */ void DigiComparisonTask::_resetMonitors(UpdateFreq uf)
+/* virtual */ void DigiComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf)
 {
 	DQTask::_resetMonitors(uf);
 }

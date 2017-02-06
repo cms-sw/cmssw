@@ -1,8 +1,3 @@
-L1TUtmAlgorithm
-L1TUtmBin
-L1TUtmCondition
-L1TUtmCut
-L1TUtmCutValue
-L1TUtmObject
-L1TUtmScale
-L1TUtmTriggerMenu
+L1TGlobalPrescalesVetos
+L1TMuonEndCapForest
+

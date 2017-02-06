@@ -18,6 +18,7 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="PhysicsTools/SelectorUtils"/>
+<use   name="CommonTools/CandAlgos"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <use name="rootcore"/>

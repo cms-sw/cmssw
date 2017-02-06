@@ -46,12 +46,12 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps) :
   tpMode           = ps.getUntrackedParameter<bool>("testPulseMode", false);
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis", false);
   doTMTheta       = ps.getUntrackedParameter<bool>("enableTMTheta", false);
-  dcc_Token_       = consumes<L1MuDTChambPhContainer>(
-      edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
-// NEW (M.C Fouz July14) Needed, since at least version 710 
-  dccTh_Token_       = consumes<L1MuDTChambThContainer>(
-      edm::InputTag(ps.getUntrackedParameter<string>("dcc_label", "dttpgprod")));
-// end NEW
+  tm_Token_       = consumes<L1MuDTChambPhContainer>(
+      edm::InputTag(ps.getUntrackedParameter<string>("tm_label", "dttpgprod")));
+  tmTh_label_     = ps.getUntrackedParameter<edm::InputTag>("tmTh_label");
+  tmTh_Token_       = consumes<L1MuDTChambThContainer>(edm::InputTag(tmTh_label_));
+
+  //cout << "[DTLocalTriggerTask] ThetaTriggerLabel=" << tmTh_label_ << endl;
 
   ros_Token_       = consumes<DTLocalTriggerCollection>(
       edm::InputTag(ps.getUntrackedParameter<string>("ros_label", "dtunpacker")));
@@ -105,7 +105,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
     vector<string>::const_iterator trigSrcIt  = trigSources.begin();
     vector<string>::const_iterator trigSrcEnd = trigSources.end();
 
-    if(parameters.getUntrackedParameter<bool>("process_dcc", true)) {
+    if(parameters.getUntrackedParameter<bool>("process_tm", true)) {
       bookBarrelHistos(ibooker, "TM_ErrorsChamberID");
     }
 
@@ -115,13 +115,13 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	  for (int sect=1;sect<13;++sect){
 	    DTChamberId dtChId(wh,stat,sect);
 
-	    if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // TM data
-	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BXvsQual"+(*trigSrcIt));
-	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhirad"+(*trigSrcIt));
+	    if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BXvsQual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad"+(*trigSrcIt));
 	    }
 
 	    if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
-	      bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
+	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BXvsQual"+(*trigSrcIt));
 	    }
 
 	  }
@@ -131,24 +131,30 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
     else {
       for (;trigSrcIt!=trigSrcEnd;++trigSrcIt){
 	for (int wh=-2;wh<3;++wh){
-	  if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	  if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 	      parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
 	    bookWheelHistos(ibooker, wh,"COM_BXDiff"+(*trigSrcIt));
 	  }
 	  for (int sect=1;sect<13;++sect){
 	    for (int stat=1;stat<5;++stat){
 	      DTChamberId dtChId(wh,stat,sect);
-	      if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // TM data
+	      if (parameters.getUntrackedParameter<bool>("process_tm", true)){ // TM data
 
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BXvsQual"+(*trigSrcIt));
 		if (detailedAnalysis) {
-		  bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhirad"+(*trigSrcIt));
-		  bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_QualvsPhibend"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhibend"+(*trigSrcIt));
 		}
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","TM_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_Flag1stvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_BestQual"+(*trigSrcIt));
 		if (stat!=4 && doTMTheta){
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_PositionvsBX"+(*trigSrcIt));
+              bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_QualityvsBX"+(*trigSrcIt));
+
+              bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_PositionvsQual"+(*trigSrcIt));
+                
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_ThetaBXvsQual"+(*trigSrcIt));
+		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","TM_ThetaBestQual"+(*trigSrcIt));
 		}
 
 		if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // TM + Segemnt
@@ -164,7 +170,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 		  if(stat!=4){
 		    bookHistos(ibooker, dtChId,"Segment","TM_TrackThetaPosvsAngle"+(*trigSrcIt)); // theta view
 		    bookHistos(ibooker, dtChId,"Segment","TM_TrackThetaPosvsAngleandTrig"+(*trigSrcIt));
-// 		    bookHistos(ibooker, dtChId,"Segment","TM_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));     // TM theta quality not available!
+ 		    bookHistos(ibooker, dtChId,"Segment","TM_TrackThetaPosvsAngleandTrigH"+(*trigSrcIt));     // TM theta quality not available!
 		  }
 		}
 
@@ -172,9 +178,9 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
 	      if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
 
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BXvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_Flag1stvsQual"+(*trigSrcIt));
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","DDU_BestQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BXvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_Flag1stvsQual"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BestQual"+(*trigSrcIt));
 		if(stat!=4){                                                    // theta view
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DDU_ThetaBXvsQual"+(*trigSrcIt));
 		  bookHistos(ibooker, dtChId,"LocalTriggerTheta","DDU_ThetaBestQual"+(*trigSrcIt));
@@ -194,16 +200,16 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
 	      }
 
-	      if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	      if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 		  parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
-		bookHistos(ibooker, dtChId,"LocalTriggerPhi","COM_QualDDUvsQualTM"+(*trigSrcIt));
+		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","COM_QualDDUvsQualTM"+(*trigSrcIt));
 	      }
 
 	    }
 	  }
 	  for (int sect=13;sect<15;++sect){
 	    DTChamberId dtChId(wh,4,sect);
-	    if (parameters.getUntrackedParameter<bool>("process_dcc", true) &&
+	    if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
 		parameters.getUntrackedParameter<bool>("process_seg", true)){ // TM+SEG LUTs data
 	      bookHistos(ibooker, dtChId,"Segment","TM_PhitkvsPhitrig"+(*trigSrcIt));
 	      bookHistos(ibooker, dtChId,"Segment","TM_PhibtkvsPhibtrig"+(*trigSrcIt));
@@ -244,12 +250,11 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if (!nevents){
 
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    e.getByToken(dcc_Token_, l1DTTPGPh);
+    e.getByToken(tm_Token_, l1DTTPGPh);
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    // e.getByToken(dcc_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
-    e.getByToken(dccTh_Token_, l1DTTPGTh); // CHANGED (F.R.Cavallo Nov14)
+    e.getByToken(tmTh_Token_, l1DTTPGTh); 
 
-    useTM = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_dcc", true) ;
+    useTM = (l1DTTPGPh.isValid() || l1DTTPGTh.isValid()) && parameters.getUntrackedParameter<bool>("process_tm", true) ;
 
     Handle<DTLocalTriggerCollection> l1DDUTrigs;
     e.getByToken(ros_Token_,l1DDUTrigs);
@@ -261,18 +266,18 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
+
   nevents++;
 
   triggerSource(e);
 
   if ( useTM ) {
     edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-    e.getByToken(dcc_Token_, l1DTTPGPh);
+    e.getByToken(tm_Token_, l1DTTPGPh);
     vector<L1MuDTChambPhDigi> const*  l1PhTrig = l1DTTPGPh->getContainer();
 
     edm::Handle<L1MuDTChambThContainer> l1DTTPGTh;
-    //e.getByToken(dcc_Token_, l1DTTPGTh);// CHANGED (M.C Fouz July14) Needed, since at least version 710
-    e.getByToken(dccTh_Token_, l1DTTPGTh);// CHANGED (F.R. Cavallo Nov14)
+    e.getByToken(tmTh_Token_, l1DTTPGTh);
 
     vector<L1MuDTChambThDigi> const*  l1ThTrig = l1DTTPGTh->getContainer();
 
@@ -294,16 +299,17 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     runDDUvsTMAnalysis(trigsrc);
   }
 
+
 }
 
 
 void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, string histoTag) {
 
-  bool isTM = histoTag.substr(0,3) == "TM";
+  bool isTM = histoTag.substr(0,2) == "TM";
   ibooker.setCurrentFolder(topFolder(isTM));
   if (histoTag == "TM_ErrorsChamberID") {
-    dcc_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(),"TM Data ID Error",5,-2,3);
-    dcc_IDDataErrorPlot->setAxisTitle("wheel",1);
+    tm_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(),"TM Data ID Error",5,-2,3);
+    tm_IDDataErrorPlot->setAxisTitle("wheel",1);
   }
 
   return;
@@ -322,8 +328,8 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
   double maxBX=0;
   int  rangeBX=0;
 
-  string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
-  bool isTM = histoTag.substr(0,3) == "TM";
+  string histoType = histoTag.substr(3,histoTag.find("_",3)-3);
+  bool isTM = histoTag.substr(0,2) == "TM";
 
   ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
@@ -336,7 +342,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
 						       << "/Station"<< station.str() << "/" << folder << "/" << histoName << endl;
 
   if (histoType.find("BX") != string::npos){
-    if (histoTag.substr(0,3) == "TM"){
+    if (histoTag.substr(0,2) == "TM"){
       minBX= parameters.getUntrackedParameter<int>("minBXTM",-2) - 0.5;
       maxBX= parameters.getUntrackedParameter<int>("maxBXTM",2) + 0.5;
     }
@@ -347,7 +353,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
     rangeBX = (int)(maxBX-minBX);
   }
 
-  if ( folder == "LocalTriggerPhi") {
+  if ( folder == "LocalTriggerPhiIn") {
 
     if( histoType == "BXvsQual" ){
       (digiHistos[dtCh.rawId()])[histoTag] =
@@ -397,19 +403,19 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
     }
     if( histoType == "PositionvsQual" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	ibooker.book2D(histoName,"Theta trigger position vs quality",7,-0.5,6.5,7,-0.5,6.5);
-      setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
+	ibooker.book2D(histoName,"Theta trigger position vs quality",2,0.5,2.5,7,-0.5,6.5);
+      setQLabelsTheta((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
     if( histoType == "ThetaBXvsQual" ) {
       (digiHistos[dtCh.rawId()])[histoTag] =
-	ibooker.book2D(histoName,"BX vs trigger quality",7,-0.5,6.5,rangeBX,minBX,maxBX);
-      setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
+	ibooker.book2D(histoName,"BX vs trigger quality",2,0.5,2.5,rangeBX,minBX,maxBX);
+      setQLabelsTheta((digiHistos[dtCh.rawId()])[histoTag],1);
     }
-    if( histoType == "ThetaBestQual" ){
+    if( histoType == "ThetaBestQual" ){ //It does not make sense: 7 positions, how to define best?
       (digiHistos[dtCh.rawId()])[histoTag] =
-	ibooker.book1D(histoName,"Trigger quality of best primitives (theta)",7,-0.5,6.5);
-      setQLabels((digiHistos[dtCh.rawId()])[histoTag],1);
+	ibooker.book1D(histoName,"Trigger quality of best primitives (theta)",2,0.5,2.5); // 0 = not fired, 1 = L, 2 = H
+      setQLabelsTheta((digiHistos[dtCh.rawId()])[histoTag],1);
       return ;
     }
 
@@ -478,8 +484,8 @@ void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, st
 
   stringstream wheel; wheel << wh;
 
-  string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
-  bool isTM = histoTag.substr(0,3) == "TM";
+  string histoType = histoTag.substr(3,histoTag.find("_",3)-3);
+  bool isTM = histoTag.substr(0,2) == "TM";
 
   ibooker.setCurrentFolder(topFolder(isTM) + "Wheel" + wheel.str() + "/");
 
@@ -501,8 +507,11 @@ void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, st
 void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs,
 					 std::vector<L1MuDTChambThDigi> const* thTrigs ) {
 
+                               //exit(0);
+
   string histoType ;
   string histoTag ;
+
 
   // define best quality trigger segment (phi and theta)
   // in any station start from 1 and zero is kept empty
@@ -528,7 +537,7 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
 
     // FIXME: workaround for TM data with station ID
     if(phst == 0) {
-      dcc_IDDataErrorPlot->Fill(phwheel);
+      tm_IDDataErrorPlot->Fill(phwheel);
       continue;
     }
 
@@ -585,8 +594,10 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
       map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 
       for (int pos=0; pos<7; pos++) { //SM fill position for non zero position bit in theta view
-	if(thcode[pos]>0){
+	if(thcode[pos]>0){ //Fired
 	  innerME.find("TM_PositionvsBX"+trigsrc)->second->Fill(thbx,pos);          // SM BX vs Position Theta view
+          innerME.find("TM_PositionvsQual"+trigsrc)->second->Fill(thcode[pos],pos); //code = pos + qual; so 0, 1, 2 for 0, L, H resp.
+          innerME.find("TM_ThetaBXvsQual"+trigsrc)->second->Fill(thcode[pos],thbx); //code = pos + qual; so 0, 1, 2 for 0, L, H resp.
 	}
       }
     }
@@ -605,11 +616,17 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
 
 	    innerME.find("TM_BestQual"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // Best Qual Trigger Phi view
 	  }
+          if (thcode_best[wh+3][st][sc]>0 && thcode_best[wh+3][st][sc]<3){
+            DTChamberId id(wh,st,sc);
+            uint32_t indexCh = id.rawId();
+            map<string, MonitorElement*> &innerME = digiHistos[indexCh];
+
+            innerME.find("TM_ThetaBestQual"+trigsrc)->second->Fill(thcode_best[wh+3][st][sc]);  // Best Qual Trigger Theta view 
+	  }
 	}
       }
     }
   }
-
 }
 
 void DTLocalTriggerTask::runDDUAnalysis(Handle<DTLocalTriggerCollection>& trigsDDU){
@@ -816,6 +833,9 @@ void DTLocalTriggerTask::runSegmentAnalysis(Handle<DTRecSegment4DCollection>& se
 	  innerME.find("TM_TrackThetaPosvsAngle"+trigsrc)->second->Fill(y_angle,y_track);
 	  if (thcode_best[wheel+3][station][scsector] > 0) {
 	    innerME.find("TM_TrackThetaPosvsAngleandTrig"+trigsrc)->second->Fill(y_angle,y_track);
+              if (thcode_best[wheel+3][station][scsector] == 2) {
+                innerME.find("TM_TrackThetaPosvsAngleandTrigH"+trigsrc)->second->Fill(y_angle,y_track);
+              }
 	  }
 
 	}
@@ -916,6 +936,30 @@ void DTLocalTriggerTask::setQLabels(MonitorElement* me, short int iaxis){
   }
 
 }
+
+void DTLocalTriggerTask::setQLabelsTheta (MonitorElement* me, short int iaxis){
+
+  TH1* histo = me->getTH1();
+  if (!histo) return;
+
+  TAxis* axis=0;
+  if (iaxis==1) {
+    axis=histo->GetXaxis();
+  }
+  else if(iaxis==2) {
+    axis=histo->GetYaxis();
+  }
+  if (!axis) return;
+
+  string labels[2] = {"L","H"};
+  int istart = axis->GetXmin()<-1 ? 2 : 1;
+  for (int i=0;i<2;i++) {
+    axis->SetBinLabel(i+istart,labels[i].c_str());
+  }
+
+}
+
+
 
 void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
 

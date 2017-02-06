@@ -2,6 +2,8 @@
 #include "DQM/HcalTasks/interface/LEDTask.h"
 
 using namespace hcaldqm;
+using namespace hcaldqm::constants;
+using namespace hcaldqm::filter;
 LEDTask::LEDTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
@@ -48,119 +50,119 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		constants::FIBER_VME_MIN, SPIGOT_MIN, CRATE_VME_MIN).rawId());
 	vhashuTCA.push_back(HcalElectronicsId(CRATE_uTCA_MIN, SLOT_uTCA_MIN,
 		FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
-	_filter_VME.initialize(filter::fFilter, hashfunctions::fElectronics,
+	_filter_VME.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vhashVME);
-	_filter_uTCA.initialize(filter::fFilter, hashfunctions::fElectronics,
+	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vhashuTCA);
 
 	//	INITIALIZE
 	_cSignalMean_Subdet.initialize(_name, "SignalMean",
-		hashfunctions::fSubdet, 
-		new quantity::ValueQuantity(quantity::ffC_3000),
-		new quantity::ValueQuantity(quantity::fN, true));
+		hcaldqm::hashfunctions::fSubdet, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cSignalRMS_Subdet.initialize(_name, "SignalRMS",
-		hashfunctions::fSubdet, 
-		new quantity::ValueQuantity(quantity::ffC_1000),
-		new quantity::ValueQuantity(quantity::fN, true));
+		hcaldqm::hashfunctions::fSubdet, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cTimingMean_Subdet.initialize(_name, "TimingMean",
-		hashfunctions::fSubdet, 
-		new quantity::ValueQuantity(quantity::fTiming_TS200),
-		new quantity::ValueQuantity(quantity::fN, true));
+		hcaldqm::hashfunctions::fSubdet, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cTimingRMS_Subdet.initialize(_name, "TimingRMS",
-		hashfunctions::fSubdet, 
-		new quantity::ValueQuantity(quantity::fTiming_TS200), 
-		new quantity::ValueQuantity(quantity::fN, true));
+		hcaldqm::hashfunctions::fSubdet, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200), 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
 	_cSignalMean_FEDVME.initialize(_name, "SignalMean",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::ffC_3000));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000));
 	_cSignalMean_FEDuTCA.initialize(_name, "SignalMean",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::ffC_3000));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000));
 	_cSignalRMS_FEDVME.initialize(_name, "SignalRMS",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::ffC_3000));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000));
 	_cSignalRMS_FEDuTCA.initialize(_name, "SignalRMS",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::ffC_3000));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000));
 	_cTimingMean_FEDVME.initialize(_name, "TimingMean",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 	_cTimingMean_FEDuTCA.initialize(_name, "TimingMean",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 	_cTimingRMS_FEDVME.initialize(_name, "TimingRMS",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 	_cTimingRMS_FEDuTCA.initialize(_name, "TimingRMS",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 
 	_cShapeCut_FEDSlot.initialize(_name, "Shape", 
-		hashfunctions::fFEDSlot,
-		new quantity::ValueQuantity(quantity::fTiming_TS),
-		new quantity::ValueQuantity(quantity::ffC_3000));
+		hcaldqm::hashfunctions::fFEDSlot,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000));
 
 	_cSignalMean_depth.initialize(_name, "SignalMean",
-		hashfunctions::fdepth, 
-		new quantity::DetectorQuantity(quantity::fieta), 
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::ffC_3000));
+		hcaldqm::hashfunctions::fdepth, 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000));
 	_cSignalRMS_depth.initialize(_name, "SignalRMS",
-		hashfunctions::fdepth, 
-		new quantity::DetectorQuantity(quantity::fieta), 
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::ffC_1000));
+		hcaldqm::hashfunctions::fdepth, 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000));
 	_cTimingMean_depth.initialize(_name, "TimingMean",
-		hashfunctions::fdepth, 
-		new quantity::DetectorQuantity(quantity::fieta), 
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fdepth, 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 	_cTimingRMS_depth.initialize(_name, "TimingRMS",
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta), 
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fTiming_TS200));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
 
 	_cMissing_depth.initialize(_name, "Missing",
-		hashfunctions::fdepth,
-		new quantity::DetectorQuantity(quantity::fieta),
-		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cMissing_FEDVME.initialize(_name, "Missing",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSpigot),
-		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 	_cMissing_FEDuTCA.initialize(_name, "Missing",
-		hashfunctions::fFED,
-		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fN));
+		hcaldqm::hashfunctions::fFED,
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+		new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
 
 	
 	//	initialize compact containers
-	_xSignalSum.initialize(hashfunctions::fDChannel);
-	_xSignalSum2.initialize(hashfunctions::fDChannel);
-	_xTimingSum.initialize(hashfunctions::fDChannel);
-	_xTimingSum2.initialize(hashfunctions::fDChannel);
-	_xEntries.initialize(hashfunctions::fDChannel);
+	_xSignalSum.initialize(hcaldqm::hashfunctions::fDChannel);
+	_xSignalSum2.initialize(hcaldqm::hashfunctions::fDChannel);
+	_xTimingSum.initialize(hcaldqm::hashfunctions::fDChannel);
+	_xTimingSum2.initialize(hcaldqm::hashfunctions::fDChannel);
+	_xEntries.initialize(hcaldqm::hashfunctions::fDChannel);
 
 	//	BOOK
 	_cSignalMean_Subdet.book(ib, _emap, _subsystem);
@@ -196,7 +198,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
 
-/* virtual */ void LEDTask::_resetMonitors(UpdateFreq uf)
+/* virtual */ void LEDTask::_resetMonitors(hcaldqm::UpdateFreq uf)
 {
 	DQTask::_resetMonitors(uf);
 }
@@ -293,14 +295,14 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		it!=chbhe->end(); ++it)
 	{
 		const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
-		double sumQ = utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, 
+		double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, 
 			digi.size()-1);
 		if (sumQ<_lowHBHE)
 			continue;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
 
-		double aveTS = utilities::aveTS<HBHEDataFrame>(digi, 2.5, 0,
+		double aveTS = hcaldqm::utilities::aveTS<HBHEDataFrame>(digi, 2.5, 0,
 			digi.size()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
@@ -316,14 +318,14 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		it!=cho->end(); ++it)
 	{
 		const HODataFrame digi = (const HODataFrame)(*it);
-		double sumQ = utilities::sumQ<HODataFrame>(digi, 8.5, 0, 
+		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, 
 			digi.size()-1);
 		if (sumQ<_lowHO)
 			continue;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
 
-		double aveTS = utilities::aveTS<HODataFrame>(digi, 8.5, 0,
+		double aveTS = hcaldqm::utilities::aveTS<HODataFrame>(digi, 8.5, 0,
 			digi.size()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
@@ -339,14 +341,14 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		it!=chf->end(); ++it)
 	{
 		const HFDataFrame digi = (const HFDataFrame)(*it);
-		double sumQ = utilities::sumQ<HFDataFrame>(digi, 2.5, 0, 
+		double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(digi, 2.5, 0, 
 			digi.size()-1);
 		if (sumQ<_lowHF)
 			continue;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
 
-		double aveTS = utilities::aveTS<HFDataFrame>(digi, 2.5, 0,
+		double aveTS = hcaldqm::utilities::aveTS<HFDataFrame>(digi, 2.5, 0,
 			digi.size()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;

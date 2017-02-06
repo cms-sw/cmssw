@@ -22,7 +22,7 @@ process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 
 # New parameters
 process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
-process.caloParamsWriter = cms.EDAnalyzer("CaloParamsWriter")
+process.caloParamsWriter = cms.EDAnalyzer("L1TCaloParamsWriter")
 
 process.p = cms.Path(
     process.caloParamsWriter

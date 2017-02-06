@@ -543,8 +543,8 @@ std::pair<int,int> SiPixelDigiModule::getZeroLoEffROCs(){
   float SF = 1.0;
   if (mePixRocsDisk_ && meZeroOccRocsDisk_){
     if (mePixRocsDisk_->getEntries() > 0) SF = float(mePixRocsDisk_->getNbinsX()*mePixRocsDisk_->getNbinsY()/mePixRocsDisk_->getEntries());
-    for (int i = 1; i < mePixRocsDisk_->getNbinsX(); ++i){
-      for (int j = 1; j < mePixRocsDisk_->getNbinsY(); ++j){
+    for (int i = 1; i < mePixRocsDisk_->getNbinsX()+1; ++i){
+      for (int j = 1; j < mePixRocsDisk_->getNbinsY()+1; ++j){
 	float localX = float(i) - 0.5;
 	float localY = float(j)/2.0 + 0.75;
 	if (mePixRocsDisk_->getBinContent(i,j)    <  1 ) {nZeroROC++; meZeroOccRocsDisk_->Fill(localX,localY);}
@@ -555,11 +555,11 @@ std::pair<int,int> SiPixelDigiModule::getZeroLoEffROCs(){
   }
   if (mePixRocsLay_ && meZeroOccRocsLay_){
     if (mePixRocsLay_->getEntries() > 0) SF = float(mePixRocsLay_->getNbinsX()*mePixRocsLay_->getNbinsY()/mePixRocsLay_->getEntries());
-    for (int i = 1; i < mePixRocsLay_->getNbinsX(); ++i){
-      for (int j = 1; j < mePixRocsLay_->getNbinsY(); ++j){
+    for (int i = 1; i < mePixRocsLay_->getNbinsX()+1; ++i){
+      for (int j = 1; j < mePixRocsLay_->getNbinsY()+1; ++j){
 	float localX = float(i) - 0.5;
 	float localY = float(j)/2.0 + 1.25;
-	if (mePixRocsLay_->getBinContent(i,j)    <  1 ) {nZeroROC++; meZeroOccRocsLay_->Fill(localX,localY);}
+	if (mePixRocsLay_->getBinContent(i,j)    <  8 ) {nZeroROC++; meZeroOccRocsLay_->Fill(localX,localY);} //in some regions of pixel there are modules with no HV but enabled ROCs that sometime give a fake hit, so the dead rocs have to be counted to have less than 8 hits in 10 LS
 	if (mePixRocsLay_->getBinContent(i,j)*SF < 0.25){nLoEffROC++;}
       }
     }

@@ -31,7 +31,8 @@
   <class name="edm::Wrapper<l1t::JetVectorRef>"/>
 
 
-  <class name="l1t::EGamma" ClassVersion="13">
+  <class name="l1t::EGamma" ClassVersion="14">
+   <version ClassVersion="14" checksum="1235149790"/>
    <version ClassVersion="13" checksum="2044674704"/>
    <version ClassVersion="12" checksum="1332125006"/>
    <version ClassVersion="11" checksum="2788532966"/>

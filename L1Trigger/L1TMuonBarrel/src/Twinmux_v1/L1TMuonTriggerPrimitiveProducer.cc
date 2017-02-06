@@ -38,13 +38,12 @@ using namespace L1TMuon;
 using namespace edm;
 using namespace std;
 
-inline TriggerPrimitiveCollection* L1TMuonTPPproducer(
+inline void L1TMuonTPPproducer(
                                 edm::Handle<L1MuDTChambPhContainer> phiDigis,
                                 edm::Handle<L1MuDTChambThContainer> thetaDigis,
                                 edm::Handle<RPCDigiCollection> rpcDigis,
+                                TriggerPrimitiveCollection *master_out,
                                 const edm::EventSetup& es) {
-
-  TriggerPrimitiveCollection *master_out = new TriggerPrimitiveCollection();
 
   std::unique_ptr<GeometryTranslator> geom;
   geom.reset(new GeometryTranslator());
@@ -83,6 +82,6 @@ inline TriggerPrimitiveCollection* L1TMuonTPPproducer(
 		       subs_out->begin(),
 		       subs_out->end());
 
-  return master_out;
+  return;
 }
 

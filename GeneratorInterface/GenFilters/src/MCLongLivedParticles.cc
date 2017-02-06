@@ -9,7 +9,7 @@ using namespace std;
 
 
 MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig) :
-  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")) {
+  hepMCProductTag_(iConfig.getUntrackedParameter<edm::InputTag>("hepMCProductTag",edm::InputTag("generator","unsmeared"))) {
    //here do whatever other initialization is needed
   theCut = iConfig.getUntrackedParameter<double>("LengCut",10.);
 }

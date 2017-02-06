@@ -94,16 +94,19 @@ def plot(treeFile, alignables, config):
                 # initialize histograms
                 for i in range(3):
                     plots[-1].histo.append(TH1F("Time Structure {0} {1} {2} {3}".format(mode, alignables.get_name_by_objid(
-                        line.ObjId), len(plots), i), "Parameter {0}".format(time.xyz[i]), len(listMillePedeUser), 0, len(listMillePedeUser)))
+                        line.ObjId), len(plots), i), "", len(listMillePedeUser), 0, len(listMillePedeUser)))
                     plots[-1].label = line.Id
                     plots[-1].objid = line.ObjId
-
-                    plots[-1].histo[i].SetYTitle(time.unit)
+                                           
+                    if (time.unit!=""):
+                        plots[-1].histo[i].SetYTitle("#Delta"+time.xyz[i]+" ["+time.unit+"]")
+                    else:
+                        plots[-1].histo[i].SetYTitle("#Delta"+time.xyz[i])
                     plots[-1].histo[i].SetXTitle("IOV")
                     plots[-1].histo[i].SetStats(0)
                     plots[-1].histo[i].SetMarkerStyle(21)
                     # bigger labels for the text
-                    plots[-1].histo[i].GetXaxis().SetLabelSize(0.06)
+                    plots[-1].histo[i].GetXaxis().SetLabelSize(0.08)
                     plots[-1].histo[i].GetYaxis().SetTitleOffset(1.6)
 
         ######################################################################

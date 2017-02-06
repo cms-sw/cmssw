@@ -3,6 +3,8 @@
 
 #include "DQM/HcalCommon/interface/Quantity.h"
 #include "DQM/HcalCommon/interface/Flag.h"
+#include "boost/unordered_map.hpp"
+#include "boost/foreach.hpp"
 
 namespace hcaldqm
 {
@@ -49,32 +51,38 @@ namespace hcaldqm
 			fBX = 33,
 			fEnergy_1TeV = 34,
 			fState = 35,
-			nValueQuantityType = 36
+
+			fQIE10fC_300000 = 36,
+			fDataSize = 37,
+			fQIE10fC_2000 = 38,
+			fQIE8fC_1000_50 = 39,
+			nValueQuantityType = 40
 		};
 		std::string const name_value[nValueQuantityType] = {
-			"N", "Events", "Energy", "Timing", "ADC", "ADC", "ADC",
-			"fC", "fC", "fC", "Timing", "Timing", "LS", "Et", "Et",
+			"N", "Events", "Energy", "Timing", "ADC (QIE8)", "ADC (QIE8)", "ADC QIE8()",
+			"fC (QIE8)", "fC (QIE8)", "fC (QIE8)", "Timing", "Timing", "LS", "Et", "Et",
 			"FG", "Ratio", "DigiSize", "Q", "Ratio",
-			"dEtRatio", "SumdEt", "Timing", "ADC", "TDC", "TDC",
+			"dEtRatio", "SumdEt", "Timing", "ADC (QIE10)", "TDC", "TDC",
 			"Q", "Ratio", "N", "Energy", "N", "Et", "ADC", "BX",
-			"Energy", "State"
+			"Energy", "State", "fC (QIE10)", "FED Data Size (kB)", "fC (QIE10)",
+			"fC (QIE8)"
 		};
 		double const min_value[nValueQuantityType] = {
 			-0.05, 0, 0, -50, -0.5, -0.5, -0.5, 0, 0, 0, -0.5, 0, 0.5, 0,
 			0, 0, 0, -0.5, -1, 0.5, 0, 0, -0.5, -0.5, -0.5, -0.5,
-			0, 0, 0, 0, -0.05, -2, -2, -0.5, 0, flag::fNA
+			0, 0, 0, 0, -0.05, -2, -2, -0.5, 0, flag::fNA, 0, 0, 0, 0
 		};
 		double const max_value[nValueQuantityType] = {
 			1000, 1000, 200, 50, 127.5, 5, 15, 10000, 1000, 3000,
 			9.5, 9.5, 4000.5, 255.5, 255.5, 2, 1, 20.5, 1, 1.5, 
 			1, 1000, 9.5, 255.5, 63.5, 15.5, 1, 2, 3000, 100000, 10000,
-			256, 128, 3600.5, 1000, flag::nState
+			256, 128, 3600.5, 1000, flag::nState, 300000, 100, 2000, 1000
 		};
 		int const nbins_value[nValueQuantityType] = {
 			200, 200, 100, 200, 128, 100, 300, 1000, 200, 600, 
 			10, 200, 4000, 256, 128, 2, 100, 20, 100, 100, 100, 100, 10,
 			256, 64, 16, 200, 100, 3000, 500, 100, 258, 130, 3601, 200,
-			flag::nState
+			flag::nState, 10000, 100, 100, 50
 		};
 
 		class ValueQuantity : public Quantity
@@ -241,6 +249,64 @@ namespace hcaldqm
 
 			protected:
 				int _nevents;
+		};
+
+		class EventType : public ValueQuantity
+		{
+			public:
+				EventType() {}
+				EventType(std::vector<uint32_t> const& vtypes):
+					ValueQuantity(fN)
+				{this->setup(vtypes);}
+				virtual ~EventType() {}
+
+				virtual void setup(std::vector<uint32_t> const& vtypes)
+				{
+					std::cout << "SIZE = " << vtypes.size() << std::endl;
+					for (uint32_t i=0; i<vtypes.size(); i++)
+						_types.insert(std::make_pair((uint32_t)vtypes[i], i));
+				}
+				virtual int getValue(int v)
+				{
+					return _types[(uint32_t)v];
+				}
+				virtual uint32_t getBin(int v)
+				{
+					return getValue(v)+1;
+				}
+
+				virtual int nbins() {return _types.size();}
+				virtual double min() {return 0;}
+				virtual double max() {return _types.size();}
+				virtual std::string name() {return "Event Type";}
+
+			protected:
+				typedef boost::unordered_map<uint32_t, int> TypeMap;
+				TypeMap _types;
+
+			public:
+				virtual std::vector<std::string> getLabels()
+				{
+					std::vector<std::string> labels(_types.size());
+					std::cout << "SIZE = " << _types.size() << std::endl;
+					BOOST_FOREACH(TypeMap::value_type &v, _types)
+					{
+						labels[v.second] = utilities::ogtype2string((OrbitGapType) 
+							v.first);
+					}
+					return labels;
+				}
+				virtual EventType* makeCopy()
+				{
+					std::vector<uint32_t> vtypes;
+					BOOST_FOREACH(TypeMap::value_type &p, _types)
+					{
+						vtypes.push_back(p.first);
+					}
+
+					std::sort(vtypes.begin(), vtypes.end());
+					return new EventType(vtypes);
+				}
 		};
 	}
 }

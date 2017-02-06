@@ -3,6 +3,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
 
 //**************************************************************//
 //***************** CastorMonitorModule       ******************//
@@ -17,13 +20,13 @@
 
 //---- critical revision 26.06.2014 (Vladimir Popov)
 
-//==================================================================//
-//======================= Constructor ==============================//
+//**************************************************************//
+
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
 {
   fVerbosity		= ps.getUntrackedParameter<int>("debug", 0);
   if(fVerbosity>0) std::cout<<"CastorMonitorModule Constructor(start)"<<std::endl;
-
+ subsystemname_=ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
   inputTokenRaw_ 	= consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("rawLabel"));
   inputTokenReport_     = consumes<HcalUnpackerReport>(ps.getParameter<edm::InputTag>("unpackerReportLabel"));
  inputTokenDigi_ 	= consumes<CastorDigiCollection>(ps.getParameter<edm::InputTag>("digiLabel"));
@@ -34,53 +37,30 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   NBunchesOrbit		= ps.getUntrackedParameter<int>("nBunchesOrbit",3563);
   showTiming_ 		= ps.getUntrackedParameter<bool>("showTiming",false);
 
-// inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
-
-  irun_=0; 
-  ilumisec_=0; 
-  ievent_=0; 
-  itime_=0;
-  ibunch_=0;
+  irun_= ilumisec_=  ievent_ = ibunch_=0;
 
   DigiMon_ = NULL; 
   RecHitMon_ = NULL;
   LedMon_ = NULL;
  
- //---------------------- DigiMonitor ----------------------// 
-  if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) ) {
-    if(fVerbosity>0) std::cout << "CastorMonitorModule: Digi monitor flag is on...." << std::endl;
+  if ( ps.getUntrackedParameter<bool>("DigiMonitor", false) )
     DigiMon_ = new CastorDigiMonitor(ps);
-//    DigiMon_ = new CastorDigiMonitor();
-    DigiMon_->setup(ps);
-  }
 
- ////----------- RecHitMonitor ----// 
-  if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
-    if(fVerbosity>0) std::cout << "CastorMonitorModule: RecHit monitor flag is on...." << std::endl;
+  if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) )
     RecHitMon_ = new CastorRecHitMonitor(ps);
-    RecHitMon_->setup(ps);
-  }
-////--------- LEDMonitor -----// 
-  if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) {
-    if(fVerbosity>0) std::cout << "CastorMonitorModule: LED monitor flag is on...." << std::endl;
-    LedMon_ = new CastorLEDMonitor(ps);
-    LedMon_->setup(ps);
-  }
- //-------------------------------------------------------------//
-  
-  std::string subsystemname = ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
-  if(fVerbosity>1) std::cout << "===>CastorMonitor name = " << subsystemname << std::endl;
 
+  if ( ps.getUntrackedParameter<bool>("LEDMonitor", false) ) 
+    LedMon_ = new CastorLEDMonitor(ps);
+  
   ievt_ = 0;
   
   if(fVerbosity>0) std::cout<<"CastorMonitorModule Constructor(end)"<< std::endl;
 }
 
-//======================= Destructor ===============================//
 CastorMonitorModule::~CastorMonitorModule() { 
-  if (DigiMon_ != NULL) { delete DigiMon_; }
-  if (RecHitMon_ != NULL) { delete RecHitMon_; }
-  if (LedMon_ != NULL) { delete LedMon_; }
+  if (DigiMon_ != NULL)  delete DigiMon_;
+  if (RecHitMon_ != NULL) delete RecHitMon_; 
+  if (LedMon_ != NULL) delete LedMon_;
 }
 
 void CastorMonitorModule::dqmBeginRun(const edm::Run& iRun,
@@ -94,7 +74,6 @@ void CastorMonitorModule::dqmBeginRun(const edm::Run& iRun,
   }
 }
 
-//=============== bookHistograms =================//
 void CastorMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
 	const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
@@ -104,18 +83,29 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker& ibooker,
  if (RecHitMon_ != NULL) { RecHitMon_->bookHistograms(ibooker,iRun,iSetup); }
  if (LedMon_ != NULL) { LedMon_->bookHistograms(ibooker,iRun,iSetup); }
 
-//std::cout<<"CastorMonitorModule::bookHist(): CastorCurrentFolder:"<<rootFolder_<<std::endl;
-  ibooker.setCurrentFolder(rootFolder_ + "CastorEventProducts"); 
+  ibooker.setCurrentFolder(subsystemname_); 
  char s[60];
   sprintf(s,"CastorEventProducts");
-    CastorEventProduct = ibooker.book1D(s,s,4,-0.5,3.5);
-    CastorEventProduct->getTH1F()->GetXaxis()->SetBinLabel(1,"FEDs/3");
-    CastorEventProduct->getTH1F()->GetXaxis()->SetBinLabel(2,"RawData");
-    CastorEventProduct->getTH1F()->GetXaxis()->SetBinLabel(3,"CastorDigi");
-    CastorEventProduct->getTH1F()->GetXaxis()->SetBinLabel(4,"CastorRecHits");
+   CastorEventProduct = ibooker.book1D(s,s,6,-0.5,5.5);
+   CastorEventProduct->getTH1F()->GetYaxis()->SetTitle("Events");
+   TAxis *xa = CastorEventProduct->getTH1F()->GetXaxis();
+   xa->SetBinLabel(1,"FEDs/3");
+   xa->SetBinLabel(2,"RawData");
+   xa->SetBinLabel(3,"Digi");
+   xa->SetBinLabel(4,"RecHits");
+   xa->SetBinLabel(5,"Towers");
+   xa->SetBinLabel(6,"Jets");
 
- if(fVerbosity>0) 
- std::cout<<"CastorMonitorModule::bookHistogram(end)"<< std::endl;
+  sprintf(s,"CASTORUnpackReport");
+   hunpkrep=ibooker.bookProfile(s,s,6,-0.5,5.5, 100,0,1.e10,"");
+   xa = hunpkrep->getTProfile()->GetXaxis();
+   xa->SetBinLabel(1, "N_FEDs");
+   xa->SetBinLabel(2, "SPIGOT_Err");
+   xa->SetBinLabel(3, "empty");
+   xa->SetBinLabel(4, "busy");
+   xa->SetBinLabel(5, "OvF");
+   xa->SetBinLabel(6, "BadDigis");
+
  return;
 }
 
@@ -128,10 +118,8 @@ void CastorMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 void CastorMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
 {}
 
-//========================== analyze  ===============================//
 void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetup& eventSetup)
 {
-  if (fVerbosity>0) std::cout <<"  "<<std::endl;
   if (fVerbosity>0)  std::cout <<"CastorMonitorModule::analyze (start)"<<std::endl;
 
   using namespace edm;
@@ -139,99 +127,101 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   irun_     = iEvent.id().run();
   ilumisec_ = iEvent.luminosityBlock();
   ievent_   = iEvent.id().event();
-  itime_    = iEvent.time().value();
   ibunch_   = iEvent.bunchCrossing() % NBunchesOrbit;
 
   if (fVerbosity>1) { 
-//std::cout << " CastorMonitorModule: evts: "<<nevt_ <<", run: "<<irun_<<", LS: "<<ilumisec_<<std::endl;
-  std::cout <<" evt:"<<ievent_<<", time: "<<itime_ <<"\t total count = "<<ievt_<<std::endl; 
+ std::cout <<"CastorMonitorModule: run="<<irun_<<" LS:"<<ilumisec_
+  <<" evt="<<ievent_<<"\t total count = "<<ievt_<<std::endl; 
   }
 
   ievt_++;
 
   bool rawOK_    = true;
   bool digiOK_   = true;
-  bool rechitOK_ = true;
+  bool rechitOK_ = true, towerOK_ = true, jetsOK_ = true;
+  int nDigi = 0, nrecHits = 0, nTowers = 0, nJets=0;
 
   edm::Handle<FEDRawDataCollection> RawData;  
   iEvent.getByToken(inputTokenRaw_,RawData);
-  if (!RawData.isValid()) {
-    rawOK_=false;
-    if (fVerbosity>0)  std::cout << "RAW DATA NOT FOUND!" << std::endl;
-  }
-  
+  if (!RawData.isValid()) rawOK_=false;
+
+  float fedsUnpacked=0.;  
   edm::Handle<HcalUnpackerReport> report; 
   iEvent.getByToken(inputTokenReport_,report);  
-  if (!report.isValid()) {
-    rawOK_=false;
-    if (fVerbosity>0)  std::cout << "UNPACK REPORT HAS FAILED!" << std::endl;
-  }
+  if (!report.isValid()) rawOK_=false;
   else 
   {
     const std::vector<int> feds =  (*report).getFedsUnpacked();    
-    fedsUnpacked = float(feds.size())/3.;
+    fedsUnpacked = float(feds.size());
+    hunpkrep->Fill(0,fedsUnpacked);
+    hunpkrep->Fill(1,report->spigotFormatErrors());
+    hunpkrep->Fill(2,report->emptyEventSpigots());
+    hunpkrep->Fill(3,report->busySpigots());
+    hunpkrep->Fill(4,report->OFWSpigots());
+    hunpkrep->Fill(5,report->badQualityDigis());
   }
   
   edm::Handle<CastorDigiCollection> CastorDigi;
   iEvent.getByToken(inputTokenDigi_,CastorDigi);
-  if (!CastorDigi.isValid()) {
-    digiOK_=false;
-    if (fVerbosity>0)  std::cout << "DIGI DATA NOT FOUND!" << std::endl;
-  }
+  if (CastorDigi.isValid()) nDigi = CastorDigi->size();
+  else digiOK_=false;
   
   edm::Handle<CastorRecHitCollection> CastorHits;
   iEvent.getByToken(inputTokenRecHitCASTOR_,CastorHits);
-  if (!CastorHits.isValid()) {
-    rechitOK_ = false;
-    if (fVerbosity>0)  std::cout << "RECO DATA NOT FOUND!" << std::endl;
-  }
+  if (CastorHits.isValid()) nrecHits=CastorHits->size();
+  else rechitOK_ = false;
 
- CastorEventProduct->Fill(0,int(fedsUnpacked));
- CastorEventProduct->Fill(1,int(rawOK_));
- CastorEventProduct->Fill(2,int(digiOK_));
- CastorEventProduct->Fill(3,int(rechitOK_));
+  edm::Handle<reco::CastorTowerCollection> castorTowers;
+  iEvent.getByToken(inputTokenCastorTowers_,castorTowers);
+  if (castorTowers.isValid()) nTowers = castorTowers->size(); 
+  else towerOK_ = false;
+
+  edm::Handle<reco::BasicJetCollection> jets;
+  iEvent.getByToken(JetAlgorithm,jets);
+  if(jets.isValid()) nJets = jets->size();
+  else jetsOK_ = false;
+
+ if(fVerbosity>0)
+   std::cout<<"CastorProductValid(size): RawDataValid="<<RawData.isValid()
+   <<" Digi="<<digiOK_ << "(" <<nDigi<<") Hits="<<rechitOK_<< "("<<nrecHits << ")" 
+   <<" Towers="<<towerOK_<< "(" << nTowers << ")"
+   <<" Jets="<<jetsOK_<< "(" << nJets << ")" <<std::endl;
+
+ CastorEventProduct->Fill(0,fedsUnpacked/3.);
+ CastorEventProduct->Fill(1,rawOK_);
+ CastorEventProduct->Fill(2,digiOK_);
+ CastorEventProduct->Fill(3,rechitOK_);
+ CastorEventProduct->Fill(4,towerOK_);
+ CastorEventProduct->Fill(5,jetsOK_);
 
   if(digiOK_) DigiMon_->processEvent(*CastorDigi,*conditions_);
   if (showTiming_){
-      cpu_timer.stop();
-      if (DigiMon_!=NULL) std::cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
+   cpu_timer.stop();
+   if (DigiMon_!=NULL) std::cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+   cpu_timer.reset(); cpu_timer.start();
+  }
 
- if(rechitOK_) { 
-//	RecHitMon_->processEvent(*CastorHits,*hltResults);
-	RecHitMon_->processEvent(*CastorHits);
-   edm::Handle<reco::CastorTowerCollection> castorTowers;
-// iEvent.getByLabel(inputLabelCastorTowers_,castorTowers);
-   iEvent.getByToken(inputTokenCastorTowers_,castorTowers);
-	RecHitMon_->processEventTowers(*castorTowers);
-  edm::Handle<reco::BasicJetCollection> jets;
-//  iEvent.getByLabel(JetAlgorithm,jets);
-  iEvent.getByToken(JetAlgorithm,jets);
-	RecHitMon_->processEventJets(*jets);
+ if(rechitOK_)	RecHitMon_->processEvent(*CastorHits);
+ if(showTiming_){
+  cpu_timer.stop();
+  if (RecHitMon_!=NULL) std::cout<<"TIMER:: RECHIT MONITOR->"<<cpu_timer.cpuTime()<<std::endl;
+  cpu_timer.reset(); cpu_timer.start();
  }
 
+ if(digiOK_) LedMon_->processEvent(*CastorDigi,*conditions_);
  if (showTiming_){
-      cpu_timer.stop();
-      if (RecHitMon_!=NULL) std::cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
+   cpu_timer.stop();
+   if(LedMon_!=NULL) std::cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
+   cpu_timer.reset(); cpu_timer.start();
+ }
 
-  if(digiOK_) LedMon_->processEvent(*CastorDigi,*conditions_);
-   if (showTiming_){
-       cpu_timer.stop();
-       if (LedMon_!=NULL) std::cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
-       cpu_timer.reset(); cpu_timer.start();
-     }
+ if(towerOK_)	RecHitMon_->processEventTowers(*castorTowers);
+ if(jetsOK_)	RecHitMon_->processEventJets(*jets);
 
  if(fVerbosity>1 && ievt_%100 == 0)
     std::cout << "CastorMonitorModule: processed "<<ievt_<<" events"<<std::endl;
  if (fVerbosity>0)  std::cout <<"CastorMonitorModule::analyze (end)"<<std::endl;
  return;
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include <DQM/CastorMonitor/interface/CastorMonitorModule.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 
 DEFINE_FWK_MODULE(CastorMonitorModule);

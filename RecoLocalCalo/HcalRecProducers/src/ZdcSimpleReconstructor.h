@@ -8,6 +8,7 @@
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h" 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/ZdcSimpleRecAlgo.h"
 
@@ -31,7 +32,8 @@
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
-      edm::EDGetTokenT<ZDCDigiCollection> tok_input_;
+      edm::EDGetTokenT<ZDCDigiCollection> tok_input_hcal;
+      edm::EDGetTokenT<ZDCDigiCollection> tok_input_castor;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       

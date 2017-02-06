@@ -169,6 +169,8 @@ private:
     MonitorElement* ClusterNoiseOffTrack;
     MonitorElement* ClusterWidthOnTrack;
     MonitorElement* ClusterWidthOffTrack;
+    MonitorElement* ClusterPosOnTrack;
+    MonitorElement* ClusterPosOffTrack;
     MonitorElement* ClusterChargePerCMfromTrack;
     MonitorElement* ClusterChargePerCMfromOriginOnTrack;
     MonitorElement* ClusterChargePerCMfromOriginOffTrack;

@@ -23,11 +23,11 @@ class OMTFSorter{
         int charge=0);
 
 
-  void sortProcessorAndFillCandidates(unsigned int iProcessor, l1t::tftype mtfType,
-                 const std::vector<AlgoMuon> & algoCands,
-                 l1t::RegionalMuonCandBxCollection & sortedCands,
-                 int bx, int charge=0);
-
+  //convert algo muon to outgoing Candidates
+  //FIXME (MK): nothing to do with sorter, move it from here!
+   std::vector<l1t::RegionalMuonCand> candidates(
+                 unsigned int iProcessor, l1t::tftype mtfType,
+                 const std::vector<AlgoMuon> & algoCands);
 
   ///Sort results from a single reference hit.
   ///Select candidate with highest number of hit layers

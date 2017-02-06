@@ -2,5 +2,14 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/L1TMuon"/>
+<use name="DataFormats/L1TCalorimeter"/>
+<use name="L1Trigger/L1TCalorimeter"/>
+<use name="L1Trigger/L1TGlobal"/>
+<use name="L1Trigger/L1TMuon"/>
+<use name="L1Trigger/L1TMuonEndCap"/>
 <use name="EventFilter/L1TRawToDigi"/>
 <flags EDM_PLUGIN="1"/>
+<flags ADD_SUBDIR="1"/>

@@ -149,6 +149,26 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Distribution of the trigger tower flags.')
         ),
+        TTFlagsVsEt = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/%(prefix)sSRT TT Flags vs Et%(suffix)s'),
+            kind = cms.untracked.string('TH2F'),
+            yaxis = cms.untracked.PSet(
+                high = cms.untracked.double(7.5),
+                nbins = cms.untracked.int32(8),
+                low = cms.untracked.double(-0.5),
+                title = cms.untracked.string('TT flag'),
+                labels = cms.untracked.vstring(map(str, range(0, 8)))
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            xaxis = cms.untracked.PSet(
+                high = cms.untracked.double(50.0),
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP Et')
+            ),
+            btype = cms.untracked.string('User'),
+            description = cms.untracked.string('2D histograms of of TT flags of a corresponding to a given TT vs Et measured by that tower.')
+        ),
         TTFlags4 = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT TTF4 Occupancy%(suffix)s'),
             kind = cms.untracked.string('TH2F'),
@@ -190,6 +210,19 @@ ecalTrigPrimTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('2D distribution of the trigger primitive Et.')
+        ),
+        EtSummaryByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTTT%(suffix)s Et trigger tower summary by lumi'),
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                high = cms.untracked.double(256.0),
+                nbins = cms.untracked.int32(128),
+                low = cms.untracked.double(0.0),
+                title = cms.untracked.string('TP Et')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('TriggerTower'),
+            description = cms.untracked.string('2D distribution of the Trigger Primitives Et for this lumisection.')
         ),
         EtRealMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sTriggerTowerTask/%(prefix)sTTT Et map Real Digis %(sm)s'),

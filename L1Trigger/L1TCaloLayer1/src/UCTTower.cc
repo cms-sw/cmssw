@@ -39,7 +39,21 @@ bool UCTTower::process() {
     calibratedHCALET = value & etInputMax;
     logHCALET = (value & 0x7000) >> 12;
   }
-  towerData = calibratedECALET + calibratedHCALET;
+
+  // Saturation codes implemented in fwVersion 1
+  if(fwVersion >= 1) {
+    if(calibratedECALET==0xFF && calibratedHCALET==0xFF)
+      towerData = 0x1FF;
+    else if(calibratedECALET==0xFF)
+      towerData = 0x1FE;
+    else if(calibratedHCALET==0xFF)
+      towerData = 0x1FD;
+    else
+      towerData = calibratedECALET + calibratedHCALET;
+  } else {
+    towerData = calibratedECALET + calibratedHCALET;
+  }
+
   if(towerData > etMask) towerData = etMask;
   uint32_t er = 0;
   if(calibratedECALET == 0 || calibratedHCALET == 0) {
@@ -149,7 +163,8 @@ const uint16_t UCTTower::location() const {
   return l;
 }
 
-UCTTower::UCTTower(uint16_t location) {
+UCTTower::UCTTower(uint16_t location, int fwv) :
+  fwVersion(fwv) {
   if((location & 0x8000) != 0) negativeEta = true;
   crate =  (location & 0x1800) >> 11;
   card =   (location & 0x0700) >>  8;

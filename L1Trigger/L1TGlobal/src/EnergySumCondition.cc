@@ -129,16 +129,17 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
 
     // Look at objects in bx = bx + relativeBx
     int useBx = bxEval + m_gtEnergySumTemplate->condRelativeBx();
-
-    int numberObjects = candVec->size(useBx);
-    if (numberObjects < 1) {
-        return false;
-    }
-
+    
     // Fail condition if attempting to get Bx outside of range
     if( ( useBx < candVec->getFirstBX() ) ||
 	( useBx > candVec->getLastBX() ) ) {
       return false;
+    }
+    
+    // If no candidates, no use looking any further.
+    int numberObjects = candVec->size(useBx);
+    if (numberObjects < 1) {
+        return false;
     }
 
 
@@ -153,6 +154,10 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       type = l1t::EtSum::EtSumType::kTotalEt;
       MissingEnergy = false;
       break;
+    case gtETTem:
+      type = l1t::EtSum::EtSumType::kTotalEtEm;
+      MissingEnergy = false;
+      break;      
     case gtHTM:
       type = l1t::EtSum::EtSumType::kMissingHt;
       MissingEnergy = true;
@@ -161,24 +166,28 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       type = l1t::EtSum::EtSumType::kTotalHt;
       MissingEnergy = false;
       break;
-    case gtETM2:
-      type = l1t::EtSum::EtSumType::kMissingEt;//type = l1t::EtSum::EtSumType::kMissingEt2;
+    case gtETMHF:
+      type = l1t::EtSum::EtSumType::kMissingEtHF;
       MissingEnergy = true;
+      break;
+    case gtTowerCount:
+      type = l1t::EtSum::EtSumType::kTowerCount;
+      MissingEnergy = false;
       break;      
     case gtMinBiasHFP0:
-      type = l1t::EtSum::EtSumType::kMinBiasHFP0; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFP0;
+      type = l1t::EtSum::EtSumType::kMinBiasHFP0;
       MissingEnergy = false;
       break;
     case gtMinBiasHFM0:
-      type = l1t::EtSum::EtSumType::kMinBiasHFM0; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFM0;
+      type = l1t::EtSum::EtSumType::kMinBiasHFM0;
       MissingEnergy = false;
       break;     
     case gtMinBiasHFP1:
-      type = l1t::EtSum::EtSumType::kMinBiasHFP1; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFP1;
+      type = l1t::EtSum::EtSumType::kMinBiasHFP1;
       MissingEnergy = false;
       break;     
     case gtMinBiasHFM1:
-      type = l1t::EtSum::EtSumType::kMinBiasHFM1; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFM1;
+      type = l1t::EtSum::EtSumType::kMinBiasHFM1;
       MissingEnergy = false;
       break;                             
     default:

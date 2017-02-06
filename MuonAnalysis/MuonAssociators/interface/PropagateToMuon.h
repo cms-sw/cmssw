@@ -70,6 +70,8 @@ class PropagateToMuon {
         /// for cosmics, some things change: the along-opposite is not in-out, nor the innermost/outermost states are in-out really
         bool cosmicPropagation_;
 
+	bool useMB2InOverlap_;
+
         // needed services for track propagation
         edm::ESHandle<MagneticField> magfield_;
         edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;

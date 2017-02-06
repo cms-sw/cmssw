@@ -3,55 +3,51 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import popcon2dropbox
 
 options = VarParsing.VarParsing()
-options.register('popconConfigFileName',
-                'popcon2dropbox.json',
+options.register('destinationDatabase',
+                '',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "PopCon config file name")
-
+                "the destination database connection string")
+options.register('destinationTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "the destination tag name")
 options.parseArguments()
 
-md = popcon2dropbox.CondMetaData( options.popconConfigFileName )
+def setup_popcon( recordName, tagTimeType ):
+    psetForOutRec = []
+    psetForOutRec.append( cms.PSet( record = cms.string(str( recordName )),
+                                    tag = cms.string(str( options.destinationTag )),
+                                    timetype = cms.untracked.string(str(tagTimeType))
+                                    )
+                          )
 
-psetForRec = []
-for k,v in md.records().items():
-    psetForRec.append( cms.PSet( record = cms.string(str(k)),
-                                 tag = cms.string(str(v.get('destinationTag'))),
+    sqliteConnect = 'sqlite:%s' %popcon2dropbox.dbFileForDropBox
+    process = cms.Process("PopCon")
+    process.load("CondCore.CondDB.CondDB_cfi")
+    process.CondDB.DBParameters.messageLevel = cms.untracked.int32( 3 )
+    #process.CondDB.connect = 'sqlite:%s' %popcon2dropbox.dbFileForDropBox
+
+    process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+                                              DBParameters = cms.PSet( messageLevel = cms.untracked.int32( 3 ),
+                                                                       ),
+                                              connect = cms.string( sqliteConnect ),
+                                              toPut = cms.VPSet( psetForOutRec )
+    )
+    
+    process.source = cms.Source("EmptyIOVSource",
+                                timetype   = cms.string('runnumber'),
+                                firstValue = cms.uint64(1),
+                                lastValue  = cms.uint64(1),
+                                interval   = cms.uint64(1)
+    )
+    return process
+
+def psetForRecord( recordName ):
+    psetForRec = []
+    psetForRec.append( cms.PSet( record = cms.string(str(recordName)),
+                                 tag = cms.string(str( options.destinationTag ))
                                  ) 
                        )
-    
-psetForOutRec = []
-for k,v in md.records().items():
-        outRec = v.get('outputRecord')
-        if outRec == None:
-            outRec = k
-        sqliteTag = v.get('sqliteTag')
-        if sqliteTag == None:
-            sqliteTag = v.get('destinationTag')
-        psetForOutRec.append( cms.PSet( record = cms.string(str( outRec )),
-                                        tag = cms.string(str( sqliteTag )),
-                                        timetype = cms.untracked.string(str(v.get('timetype')))
-                                        )
-                              )
-
-destinationDatabase = md.destinationDatabase()
-
-
-process = cms.Process("PopCon")
-process.load("CondCore.CondDB.CondDB_cfi")
-process.CondDB.DBParameters.messageLevel = cms.untracked.int32( 3 )
-process.CondDB.connect = 'sqlite:%s' %popcon2dropbox.dbFileForDropBox
-
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDB,
-    toPut = cms.VPSet( psetForOutRec )
-)
-
-process.source = cms.Source("EmptyIOVSource",
-    timetype   = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
-    lastValue  = cms.uint64(1),
-    interval   = cms.uint64(1)
-)
-
-
+    return psetForRec

@@ -20,7 +20,7 @@ public:
   CaloTPGTranscoderULUT(const std::string& compressionFile="",
                         const std::string& decompressionFile="");
   virtual ~CaloTPGTranscoderULUT();
-  virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
+  virtual HcalTriggerPrimitiveSample hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, int fineGrain) const override;
   virtual EcalTriggerPrimitiveSample ecalCompress(const EcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const;
 
   virtual void rctEGammaUncompress(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc,

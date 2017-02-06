@@ -1,0 +1,7 @@
+<use   name="FWCore/Framework"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondTools/L1Trigger"/>
+<use   name="L1Trigger/L1TMuon"/>
+<flags   EDM_PLUGIN="1"/>
+

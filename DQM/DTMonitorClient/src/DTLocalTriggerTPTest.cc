@@ -100,7 +100,7 @@ void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
 	    DTChamberId chId(wh,stat,sect);
 
 	    // Perform TM/DDU common plot analysis (Phi ones)
-	    TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
+	    TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In","LocalTriggerPhiIn", chId)));
 	    if ( BXvsQual ) {
 
 	      if (BXvsQual->GetEntries()>1) {

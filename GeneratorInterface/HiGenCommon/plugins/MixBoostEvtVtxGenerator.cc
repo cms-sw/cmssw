@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
@@ -54,8 +53,6 @@ public:
   virtual ~MixBoostEvtVtxGenerator();
 
   /// return a new event vertex
-  //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex() ;
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
   virtual HepMC::FourVector* getVertex(edm::Event&);
@@ -104,8 +101,6 @@ private:
   TMatrixD *boost_;
   double fTimeOffset;
   
-  CLHEP::RandGaussQ*  fRandom ;
-
   edm::EDGetTokenT<reco::VertexCollection>   vtxLabel;
   edm::EDGetTokenT<HepMCProduct>  signalLabel;
   edm::EDGetTokenT<CrossingFrame<HepMCProduct> >   mixLabel;
@@ -121,6 +116,13 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
   mixLabel(consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"))),
   useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 { 
+  beta_  =  pset.getParameter<double>("Beta");
+  alpha_ = 0;
+  phi_ = 0;
+  if(pset.exists("Alpha")){
+     alpha_ =  pset.getParameter<double>("Alpha")*radian;
+     phi_   =  pset.getParameter<double>("Phi")*radian;
+  }
 
   vtxOffset.resize(3);
   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset"); 
@@ -131,39 +133,10 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
 
 MixBoostEvtVtxGenerator::~MixBoostEvtVtxGenerator() 
 {
-  delete fVertex ;
+  if (fVertex != 0) delete fVertex ;
   if (boost_ != 0 ) delete boost_;
-  delete fRandom; 
 }
 
-
-//Hep3Vector* MixBoostEvtVtxGenerator::newVertex() {
-HepMC::FourVector* MixBoostEvtVtxGenerator::newVertex() {
-
-	
-	double X,Y,Z;
-	
-	double tmp_sigz = fRandom->fire(0., fSigmaZ);
-	Z = tmp_sigz + fZ0;
-
-	double tmp_sigx = BetaFunction(Z,fZ0); 
-	// need sqrt(2) for beamspot width relative to single beam width
-	tmp_sigx /= sqrt(2.0);
-	X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
-
-	double tmp_sigy = BetaFunction(Z,fZ0);
-	// need sqrt(2) for beamspot width relative to single beam width
-	tmp_sigy /= sqrt(2.0);
-	Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
-
-	double tmp_sigt = fRandom->fire(0., fSigmaZ);
-	double T = tmp_sigt + fTimeOffset; 
-
-	if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
-	fVertex->set(X,Y,Z,T);
-		
-	return fVertex;
-}
 
 double MixBoostEvtVtxGenerator::BetaFunction(double z, double z0)
 {
@@ -237,10 +210,10 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
        tmpboostZ(3,2)=0.;
        tmpboostZ(3,3) = 1.;
 
-       tmpboostXYZ=tmpboost*tmpboostZ;
-       tmpboost.Invert();
+       tmpboostXYZ=tmpboostZ*tmpboost;
+       tmpboostXYZ.Invert();
 
-
+       //cout<<"Boosting with beta : "<<beta_<<endl;
 
        boost_ = new TMatrixD(tmpboostXYZ);
        boost_->Print();
@@ -320,10 +293,11 @@ void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
   // generate new vertex & apply the shift 
   //
-  HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
  
-  //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
-  //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+
+  HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
   
   evt.put(std::move(HepMCEvt));
   return ;

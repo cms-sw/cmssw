@@ -24,7 +24,7 @@ class Cordic
   uint32_t mMagnitudeScale;
   uint32_t mMagnitudeBits;
   uint32_t mSteps;
-  uint32_t mMagnitudeRenormalization;
+  uint64_t mMagnitudeRenormalization;
   std::vector<uint32_t> mRotations;
 
   const double mPi;

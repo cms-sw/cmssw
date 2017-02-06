@@ -5,7 +5,7 @@ genericTriggerEventFlag4HLTdb = cms.PSet(
    dbLabel       = cms.string("SiStripDQMTrigger"), # ("TrackerDQMTrigger"),
    andOrHlt      = cms.bool(True), # True:=OR; False:=AND
    hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
-   hltPaths      = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*"),
+   hltPaths      = cms.vstring("HLT_ZeroBias_v*","HLT_HIZeroBias_v*","HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*"),
    hltDBKey      = cms.string("SiStrip_HLT"),
    errorReplyHlt = cms.bool( False ),
    verbosityLevel = cms.uint32(1)
@@ -17,7 +17,7 @@ genericTriggerEventFlag4HLTdbIB = cms.PSet(
    dbLabel       = cms.string("SiStripDQMTrigger"), # ("TrackerDQMTrigger"),
    andOrHlt      = cms.bool(True), # True:=OR; False:=AND
    hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
-   hltPaths      = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*,HLT_ZeroBias_IsolatedBunches_v*"),
+   hltPaths      = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*,HLT_ZeroBias_IsolatedBunches_v*","HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*"),
    hltDBKey      = cms.string("SiStrip_HLT"),
    errorReplyHlt = cms.bool( False ),
    verbosityLevel = cms.uint32(1)

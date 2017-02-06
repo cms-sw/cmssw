@@ -23,14 +23,14 @@ namespace L1TMuon {
   public:
     DTBunchCrossingCleaner(const edm::ParameterSet&);
     ~DTBunchCrossingCleaner() {}
-
+    
     TriggerPrimitiveCollection clean(const TriggerPrimitiveCollection&) 
       const;
     
   private:	
     const int bx_window_size;
   };
-
+  
 }
 
 #endif

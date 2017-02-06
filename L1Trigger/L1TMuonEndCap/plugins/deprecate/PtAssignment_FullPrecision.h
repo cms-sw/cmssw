@@ -137,12 +137,12 @@ float CalculatePt_FullPrecision(L1TMuon::InternalTrack track){
 			
 		if(verbose) std::cout<<"\nMode = "<<mode<<"\n\n";
 		
-		Forest *forest = new Forest();
+		L1TForest *forest = new L1TForest();
 		const char *dir = "L1Trigger/L1TMuon/data/emtf_luts/ModeVariables/trees";
 		std::stringstream ss;
         ss << dir << "/" << mode;//
 		
-		forest-> loadForestFromXML(ss.str().c_str(),64);
+		forest-> loadL1TForestFromXML(ss.str().c_str(),64);
 		
 		std::vector<Double_t> Data;
 		Data.push_back(1.0);

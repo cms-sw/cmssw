@@ -8,7 +8,14 @@
 
 
 TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
+  TrajectoryFactoryBase(config, 1)
+{
+}
+
+TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config,
+                                             unsigned int tracksPerTrajectory) :
   cfg_(config),
+  tracksPerTrajectory_(tracksPerTrajectory),
   materialEffects_(materialEffects(config.getParameter<std::string>("MaterialEffects"))),
   propDir_(propagationDirection(config.getParameter<std::string>("PropagationDirection"))),
   useWithoutDet_(config.getParameter<bool>("UseHitWithoutDet")),

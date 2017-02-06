@@ -40,9 +40,9 @@ v0Monitor = cms.EDAnalyzer("V0Monitor",
             xmax  = cms.double( 30.),
       ),
       puPSet = cms.PSet(
-            nbins = cms.int32 ( 60 ),
+            nbins = cms.int32 ( 100 ),
             xmin  = cms.double( -0.5),
-            xmax  = cms.double( 59.5),
+            xmax  = cms.double( 99.5),
       ),
       lsPSet = cms.PSet(
             nbins = cms.int32 ( 2000 ),

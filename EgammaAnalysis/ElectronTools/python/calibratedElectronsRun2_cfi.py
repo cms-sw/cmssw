@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-correctionType = "76XReReco"
-files = {"Prompt2015":"EgammaAnalysis/ElectronTools/data/74X_Prompt_2015",
-         "76XReReco" :"EgammaAnalysis/ElectronTools/data/76X_16DecRereco_2015"}
+correctionType = "80Xapproval"
+files = {"Prompt2015":"EgammaAnalysis/ElectronTools/data/ScalesSmearings/74X_Prompt_2015",
+         "76XReReco" :"EgammaAnalysis/ElectronTools/data/ScalesSmearings/76X_16DecRereco_2015_Etunc",
+         "80Xapproval" : "EgammaAnalysis/ElectronTools/data/ScalesSmearings/80X_ichepV1_2016_ele"}
 
 calibratedElectrons = cms.EDProducer("CalibratedElectronProducerRun2",
 

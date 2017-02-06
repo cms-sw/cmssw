@@ -7,8 +7,8 @@ using namespace std;
 
 
 PythiaFilterHT::PythiaFilterHT(const edm::ParameterSet& iConfig) :
-	label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
-	/*minpcut(iConfig.getUntrackedParameter("MinP", 0.)),
+	label_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+        /*minpcut(iConfig.getUntrackedParameter("MinP", 0.)),
 	maxpcut(iConfig.getUntrackedParameter("MaxP", 10000.)),
 	minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
 	maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),
@@ -18,8 +18,8 @@ PythiaFilterHT::PythiaFilterHT(const edm::ParameterSet& iConfig) :
 	maxrapcut(iConfig.getUntrackedParameter("MaxRapidity", 20.)),
 	minphicut(iConfig.getUntrackedParameter("MinPhi", -3.5)),
 	maxphicut(iConfig.getUntrackedParameter("MaxPhi", 3.5)),*/
-	minhtcut(iConfig.getUntrackedParameter("MinHT", 0.)),
-	motherID(iConfig.getUntrackedParameter("MotherID", 0)) {
+	minhtcut(iConfig.getUntrackedParameter<double>("MinHT", 0.)),
+	motherID(iConfig.getUntrackedParameter<int>("MotherID", 0)) {
 
 		theNumberOfTestedEvt = 0;
 		theNumberOfSelected = 0;
@@ -59,7 +59,7 @@ bool PythiaFilterHT::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	bool accepted = false;
 	Handle<HepMCProduct> evt;
-	iEvent.getByLabel(label_, evt);
+	iEvent.getByToken(label_, evt);
 
 	const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 

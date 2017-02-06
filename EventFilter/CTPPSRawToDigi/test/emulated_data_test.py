@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TotemIntegratedRawDataTest")
+process = cms.Process("TotemEmulatedRawDataTest")
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # raw data source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/j/jkaspar/public/run268608_ls0001_streamA_StorageManager.root')
+    fileNames = cms.untracked.vstring("file:/afs/cern.ch/user/j/jkaspar/public/run268608_ls0001_streamA_StorageManager.root")
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -21,15 +21,21 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # raw-to-digi conversion
-process.load('CondFormats.TotemReadoutObjects.TotemDAQMappingESSourceXML_cfi')
-process.TotemDAQMappingESSourceXML.mappingFileNames.append("CondFormats/TotemReadoutObjects/xml/ctpps_210_mapping.xml")
+process.load('CondFormats.CTPPSReadoutObjects.TotemDAQMappingESSourceXML_cfi')
+process.totemDAQMappingESSourceXML.configuration = cms.untracked.VPSet(
+  cms.PSet(
+    validityRange = cms.untracked.EventRange("1:1:1 - 280385:999999999:999999999999"),
+    mappingFileNames = cms.untracked.vstring("CondFormats/CTPPSReadoutObjects/xml/ctpps_mapping_to_fill_5288.xml"),
+    maskFileNames = cms.untracked.vstring()
+  )
+)
 
 # in the emulated data the trigger block contains non-sense
 #process.load("EventFilter.TotemRawToDigi.totemTriggerRawToDigi_cfi")
 #process.totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 #process.totemTriggerRawToDigi.fedId = 577
 
-process.load('EventFilter.TotemRawToDigi.totemRPRawToDigi_cfi')
+process.load('EventFilter.CTPPSRawToDigi.totemRPRawToDigi_cfi')
 process.totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 process.totemRPRawToDigi.fedIds = cms.vuint32(578, 579, 580) # in the emulated data one OptoRx was not functional
 process.totemRPRawToDigi.RawToDigi.testID = 0

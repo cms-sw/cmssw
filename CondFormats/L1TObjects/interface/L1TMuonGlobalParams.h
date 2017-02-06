@@ -84,7 +84,7 @@ public:
   // double parameters indices
   enum dpIdx {maxdr=0, maxdrEtaFine=1};
 
-  L1TMuonGlobalParams() { version_=Version; pnodes_.resize(NUM_GMTPARAMNODES); }
+  L1TMuonGlobalParams() { version_=Version; fwVersion_ = 0; bxMin_ = 0; bxMax_ = 0; pnodes_.resize(NUM_GMTPARAMNODES); }
   ~L1TMuonGlobalParams() {}
 
   // FW version

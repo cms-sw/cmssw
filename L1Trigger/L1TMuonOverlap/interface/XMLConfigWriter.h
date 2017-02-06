@@ -7,12 +7,15 @@
 #include "xercesc/util/XercesDefs.hpp"
 
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+#include "L1Trigger/L1TMuonOverlap/interface/OmtfName.h"
+
 
 class GoldenPattern;
 class OMTFConfiguration;
 class OMTFinput;
 class OMTFResult;
 class AlgoMuon;
+namespace l1t {class RegionalMuonCand; }
 struct Key;
 
 namespace XERCES_CPP_NAMESPACE{
@@ -35,12 +38,15 @@ class XMLConfigWriter{
 					 unsigned int mixedEventId = 0);
 
   xercesc::DOMElement * writeEventData(xercesc::DOMElement *aTopElement,
-				       unsigned int iProcessor,
+                               const OmtfName & board,
 				       const OMTFinput & aInput);
 
-  void writeCandidateData(xercesc::DOMElement *aTopElement,
+  void writeAlgoMuon(xercesc::DOMElement *aTopElement,
 			  unsigned int iRefHit,
-			  const AlgoMuon & aCand);
+			  const AlgoMuon & aMuon);
+
+  void writeCandMuon(xercesc::DOMElement *aTopElement,
+                    const l1t::RegionalMuonCand& aCand);
 
   void writeResultsData(xercesc::DOMElement *aTopElement,
 			unsigned int iRegion,

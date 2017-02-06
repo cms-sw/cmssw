@@ -1,5 +1,5 @@
-#ifndef Block_h
-#define Block_h
+#ifndef EventFilter_L1TRawToDigi_Block_h
+#define EventFilter_L1TRawToDigi_Block_h
 
 #include <memory>
 #include <vector>

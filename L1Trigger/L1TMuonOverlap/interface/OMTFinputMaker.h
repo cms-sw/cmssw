@@ -38,6 +38,9 @@ class OMTFinputMaker {
 				   l1t::tftype type=l1t::tftype::omtf_pos);
   
 
+ void setFlag(int aFlag) {flag = aFlag; }
+ int getFlag() const { return flag;}
+
  private:
 
   ///Take the DT digis, select chambers connected to given
@@ -78,6 +81,8 @@ class OMTFinputMaker {
   AngleConverter myAngleConverter;
 
   const OMTFConfiguration* myOmtfConfig;
+
+  int flag;
 
 };
 

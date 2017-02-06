@@ -47,19 +47,25 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
 			    unsigned int iInput,
 			    int iPhi, int iEta){
 
+  bool overwrite = false;
   assert(iLayer<myOmtfConfig->nLayers());
   assert(iInput<14);
 
   if(iPhi>=(int)myOmtfConfig->nPhiBins()) return true;
+//  unsigned int origInput = iInput;
 
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) ++iInput;
+  if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) overwrite = true;
+
+//  std::cout <<" addLayerHit :"<<iLayer<<" input orig :"<<inputorig<<" now:  "<< iInput <<" phi: "<<iPhi<< std::endl;
   
   if(iInput>13) return false;
   
   measurementsPhi[iLayer][iInput] = iPhi;
   measurementsEta[iLayer][iInput] = iEta;
 
-  return true;				      
+//  return (origInput==iInput);				      
+  return (!overwrite);				      
 }
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////

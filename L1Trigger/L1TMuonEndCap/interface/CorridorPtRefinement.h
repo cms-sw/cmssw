@@ -24,10 +24,10 @@ namespace L1TMuon {
     typedef std::unique_ptr<TGraph> pTGraph;
     typedef std::map<unsigned, std::map<unsigned, pTGraph > > 
       corridor_2stn_map;
-
+    
     CorridorPtRefinement(const edm::ParameterSet&);
     ~CorridorPtRefinement() {}
-
+    
     virtual void refinePt(const edm::EventSetup&, 
 			  InternalTrack&) const;
   private:

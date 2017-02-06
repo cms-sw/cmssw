@@ -10,45 +10,24 @@
 //***************************************************//
 //---- critical revision 26.06.2014 (Vladimir Popov)
 //==================================================================//
-//======================= Constructor ==============================//
+
 CastorLEDMonitor::CastorLEDMonitor(const edm::ParameterSet& ps)
 {
- subsystemname =
+ fVerbosity = ps.getUntrackedParameter<int>("debug",0);
+ if(fVerbosity>0) std::cout<<"CastorLEDMonitor Constructor: "<<this<<std::endl; 
+subsystemname =
         ps.getUntrackedParameter<std::string>("subSystemFolder","Castor");
  ievt_=0;
 }
 
-//======================= Destructor ==============================//
 CastorLEDMonitor::~CastorLEDMonitor() { }
-  
-//========================= setup ==========================//
-void CastorLEDMonitor::setup(const edm::ParameterSet& ps)
-{
-  CastorBaseMonitor::setup(ps);
-  ievt_=0;
-  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::setup (end)"<<std::endl;  
-  return;
-}
 
-//============= bookHistograms =================//
 void CastorLEDMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 	const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   char s[60];
-  if(fVerbosity>0) std::cout<<"CastorLEDMonitor::bookHistograms"<<std::endl;  
 
   ibooker.setCurrentFolder(subsystemname + "/CastorLEDMonitor");
-  sprintf(s,"CastorLED_qVsTS(allPMT)");
-   //h2qts = ibooker.book2D(s,s, 10,0,10., 5000,0.,10000.);
-   //h2qts->getTH2F()->GetXaxis()->SetTitle("TS");
-   //h2qts->getTH2F()->GetYaxis()->SetTitle("Qcastor(fC)");
-   //h2qts->getTH2F()->SetOption("colz");
-
-  sprintf(s,"CastorLED_qVsPMT");
-   //h2QvsPMT = ibooker.book2D(s,s, 224,0,224, 5000,0.,50000.);    
-   //h2QvsPMT->getTH2F()->GetXaxis()->SetTitle("sector*14+module");
-   //h2QvsPMT->getTH2F()->GetYaxis()->SetTitle("RecHit");
-   //h2QvsPMT->getTH2F()->SetOption("colz");
 
   sprintf(s,"CastorLEDqMap(cumulative)");
     h2qMap = ibooker.book2D(s,s,14, 0,14, 16, 0,16);
@@ -60,11 +39,9 @@ void CastorLEDMonitor::bookHistograms(DQMStore::IBooker& ibooker,
     h2meanMap->getTH2F()->SetOption("colz");
 
  ievt_=0;
- if(fVerbosity>0) std::cout<<"CastorLEDMonitor::beginRun(end)"<<std::endl; 
  return;
 }
 
-//=================== processEvent  ========================//
 void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, const CastorDbService& cond)
   {
   if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent (start)"<<std::endl;  
@@ -107,6 +84,6 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
    }
   }
 
-//if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent(end)"<<std::endl;
+ if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent(end)"<<std::endl;
   return;
 }

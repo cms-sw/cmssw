@@ -403,6 +403,11 @@ Jet::tagInfoSecondaryVertex(const std::string &label) const {
     return tagInfoByTypeOrLabel<reco::SecondaryVertexTagInfo>(label);
 }
 
+const reco::BoostedDoubleSVTagInfo *
+Jet::tagInfoBoostedDoubleSV(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::BoostedDoubleSVTagInfo>(label);
+}
+
 void
 Jet::addTagInfo(const std::string &label,
 		const TagInfoFwdPtrCollection::value_type &info) {

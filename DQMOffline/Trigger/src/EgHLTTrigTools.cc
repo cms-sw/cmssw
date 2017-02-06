@@ -115,11 +115,14 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
     const std::string& pathName = hltConfig.triggerName(pathNr);
 
     if(pathName.find("HLT_")==0){ //hlt path as they all start with HLT_XXXX
-      if((pathName.find("Photon")==4 || pathName.find("Ele")==4 || pathName.find("EG")!=pathName.npos || pathName.find("Activity")==4 || pathName.find("Physics")==4 || pathName.find("DiSC") == 4)// e/g paths, pho or ele always come first
-	 && (pathName.find("Jet")==pathName.npos && pathName.find("Muon")==pathName.npos 
-	     && pathName.find("Tau")==pathName.npos && pathName.find("HT")==pathName.npos 
-	     && pathName.find("MR")==pathName.npos && pathName.find("LEITI")==pathName.npos 
-	     && pathName.find("Jpsi")==pathName.npos && pathName.find("Ups")==pathName.npos ) ){//veto x-triggers
+      if((pathName.find("Photon")==4 || pathName.find("Ele")==4 || pathName.find("EG")!=pathName.npos
+          || pathName.find("PAPhoton")==4 || pathName.find("PAEle")==4 || pathName.find("PASinglePhoton")==4
+          || pathName.find("HIPhoton")==4 || pathName.find("HIEle")==4 || pathName.find("HISinglePhoton")==4
+          || pathName.find("Activity")==4 || pathName.find("Physics")==4 || pathName.find("DiSC") == 4)
+	  && (pathName.find("Jet")==pathName.npos && pathName.find("Muon")==pathName.npos 
+	  && pathName.find("Tau")==pathName.npos && pathName.find("HT")==pathName.npos 
+	  && pathName.find("MR")==pathName.npos && pathName.find("LEITI")==pathName.npos 
+	  && pathName.find("Jpsi")==pathName.npos && pathName.find("Ups")==pathName.npos ) ){//veto x-triggers
 	//std::string lastFilter;
 	const std::vector<std::string>& filters = hltConfig.saveTagsModules(pathNr);
 

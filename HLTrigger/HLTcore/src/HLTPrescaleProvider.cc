@@ -161,7 +161,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     result.first=1;
   } else if (nL1TSeedModules==1) {
     l1tGlobalUtil_.retrieveL1Event(iEvent,iSetup);
-    const std::string l1tname(hltConfigProvider_.hltL1GTSeeds(trigger).at(0).second);
+    const std::string l1tname(hltConfigProvider_.hltL1TSeeds(trigger).at(0));
     bool l1error(!l1tGlobalUtil_.getPrescaleByName(l1tname,result.first));
     if (l1error) {
       if (count_[1]<countMax) {

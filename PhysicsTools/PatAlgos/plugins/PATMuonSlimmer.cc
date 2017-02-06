@@ -32,8 +32,8 @@ namespace pat {
     
   private:
     const edm::EDGetTokenT<pat::MuonCollection> src_;
-    const edm::EDGetTokenT<reco::PFCandidateCollection> pf_;
-    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+    std::vector<edm::EDGetTokenT<reco::PFCandidateCollection>> pf_;
+    std::vector<edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>> pf2pc_;
     const bool linkToPackedPF_;
     const StringCutObjectSelector<pat::Muon> saveTeVMuons_;
     const bool modifyMuon_;
@@ -44,12 +44,22 @@ namespace pat {
 
 pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-    pf_(mayConsume<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandidates"))),
-    pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
     saveTeVMuons_(iConfig.getParameter<std::string>("saveTeVMuons")),
     modifyMuon_(iConfig.getParameter<bool>("modifyMuons"))
 {
+    if (linkToPackedPF_) {
+        const std::vector<edm::InputTag> & pf = (iConfig.existsAs<std::vector<edm::InputTag>>("pfCandidates") ?
+                    iConfig.getParameter<std::vector<edm::InputTag>>("pfCandidates") :
+                    std::vector<edm::InputTag>(1,iConfig.getParameter<edm::InputTag>("pfCandidates")));
+        const std::vector<edm::InputTag> & pf2pc = (iConfig.existsAs<std::vector<edm::InputTag>>("packedPFCandidates") ?
+                    iConfig.getParameter<std::vector<edm::InputTag>>("packedPFCandidates") :
+                    std::vector<edm::InputTag>(1,iConfig.getParameter<edm::InputTag>("packedPFCandidates")));
+        if (pf.size() != pf2pc.size()) throw cms::Exception("Configuration") << "Mismatching pfCandidates and packedPFCandidates\n";
+        for (const edm::InputTag &tag : pf) pf_.push_back(consumes<reco::PFCandidateCollection>(tag));
+        for (const edm::InputTag &tag : pf2pc) pf2pc_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));
+    }
+
     edm::ConsumesCollector sumes(consumesCollector());
     if( modifyMuon_ ) {
       const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
@@ -83,11 +93,15 @@ pat::PATMuonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (linkToPackedPF_) {
         Handle<reco::PFCandidateCollection> pf;
         Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
-        iEvent.getByToken(pf_, pf);
-        iEvent.getByToken(pf2pc_, pf2pc);
-        for (unsigned int i = 0, n = pf->size(); i < n; ++i) {
-            const reco::PFCandidate &p = (*pf)[i];
-            if (p.muonRef().isNonnull()) mu2pc[refToPtr(p.muonRef())] = (*pf2pc)[reco::PFCandidateRef(pf, i)];
+        for (unsigned int ipfh = 0, npfh = pf_.size(); ipfh < npfh; ++ipfh) {
+            iEvent.getByToken(pf_[ipfh], pf);
+            iEvent.getByToken(pf2pc_[ipfh], pf2pc);
+            const auto & pfcoll = (*pf);
+            const auto & pfmap  = (*pf2pc);
+            for (unsigned int i = 0, n = pf->size(); i < n; ++i) {
+                const reco::PFCandidate &p = pfcoll[i];
+                if (p.muonRef().isNonnull()) mu2pc[refToPtr(p.muonRef())] = pfmap[reco::PFCandidateRef(pf, i)];
+            }
         }
     }
 

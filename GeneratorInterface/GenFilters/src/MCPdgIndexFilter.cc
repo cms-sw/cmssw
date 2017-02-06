@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 MCPdgIndexFilter::MCPdgIndexFilter(const edm::ParameterSet& cfg) :
-  token_(consumes<edm::HepMCProduct>(cfg.getUntrackedParameter("moduleLabel",std::string("generator")))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(cfg.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   pdgID(cfg.getParameter<std::vector<int> >("PdgId")),
   index(cfg.getParameter<std::vector<unsigned> >("Index")),
   maxIndex(*std::max_element(index.begin(),index.end())),

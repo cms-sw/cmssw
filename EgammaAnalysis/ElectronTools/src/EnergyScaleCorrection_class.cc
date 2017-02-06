@@ -7,6 +7,7 @@
 
 // for exit(0)
 #include <stdlib.h>
+#include <float.h> 
 // for setw
 #include <iomanip>
 //for istreamstring
@@ -33,7 +34,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
     std::string filename = correctionFileName+"_smearings.dat";
     ReadSmearingFromFile(filename);
     if(smearings.empty()) {
-      std::cerr << "[ERROR] scale correction map empty" << std::endl;
+      std::cerr << "[ERROR] smearing correction map empty" << std::endl;
       exit(1);
     }
   }
@@ -99,7 +100,11 @@ correctionValue_class EnergyScaleCorrection_class::getScaleCorrection(unsigned i
     /// \todo this can be switched to an exeption 
     std::cout << "[ERROR] Scale category not found: " << std::endl;
     std::cout << category << std::endl;
+    std::cout << "Returning uncorrected value." << std::endl;
     //     exit(1);
+    correctionValue_class nocorr;
+    std::cout << nocorr << std::endl;
+    return nocorr;
   }
   
 #ifdef DEBUG
@@ -128,7 +133,10 @@ float EnergyScaleCorrection_class::getScaleOffset(unsigned int runNumber, bool i
     /// \todo this can be switched to an exeption 
     std::cout << "[ERROR] Scale offset category not found: " << std::endl;
     std::cout << category << std::endl;
+    std::cout << "Returning uncorrected value." << std::endl;
     //     exit(1);
+    correctionValue_class nocorr;
+    return nocorr.scale;
   }
   
 #ifdef DEBUG
@@ -498,7 +506,7 @@ correctionCategory_class::correctionCategory_class(TString category_)
      category.find("Gold")   != std::string::npos || 
      category.find("highR9") != std::string::npos) {
     r9min = 0.94;
-    r9max = 10;
+    r9max = FLT_MAX;
   } else if(category.find("bad") != std::string::npos || 
 	    category.find("Bad") != std::string::npos ||
 	    category.find("lowR9") != std::string::npos

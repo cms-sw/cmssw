@@ -38,6 +38,8 @@ namespace L1Analysis
     ULong64_t orbit;
     //boost::uint64_t time;
     ULong64_t time;
+    int       nPV;
+    int       nPV_True;
     std::vector<TString> hlt;
 
     double puWeight;

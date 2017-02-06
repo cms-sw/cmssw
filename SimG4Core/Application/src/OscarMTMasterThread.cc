@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -30,7 +31,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
   // Lock the mutex
   std::unique_lock<std::mutex> lk(m_threadMutex);
 
-  LogDebug("OscarMTMasterThread") << "Master thread: Creating master thread";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread: creating master thread";
 
   // Create Genat4 master thread
   m_masterThread = std::thread([&](){
@@ -43,7 +45,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
       // Lock the mutex (i.e. wait until the creating thread has called cv.wait()
       std::unique_lock<std::mutex> lk2(m_threadMutex);
 
-      LogDebug("OscarMTMasterThread") << "Main thread: initializing RunManagerMT";
+      edm::LogInfo("SimG4CoreApplication") 
+        << "OscarMTMasterThread: initializing RunManagerMT";
 
       //UIsession manager for message handling
       uiSession.reset(new CustomUIsession());
@@ -52,7 +55,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
       runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
       m_runManagerMaster = runManagerMaster;
 
-      LogDebug("OscarMTMasterThread") << "Master thread: RunManagerMT initialization finished";
+      edm::LogInfo("SimG4CoreApplication") 
+        << "OscarMTMasterThread: initialization of RunManagerMT finished";
 
       /////////////
       // State loop
@@ -85,17 +89,24 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
         else if(m_masterThreadState == ThreadState::Destruct) {
           LogDebug("OscarMTMasterThread") << "Master thread: Breaking out of state loop";
           if(isG4Alive)
-            throw cms::Exception("Assert") << "Geant4 is still alive, master thread state must be set to EndRun before Destruct";
+            throw edm::Exception(edm::errors::LogicError) 
+	      << "Geant4 is still alive, master thread state must be set to EndRun before Destruct";
           break;
         }
         else {
-          throw cms::Exception("Assert") << "Illegal master thread state " << static_cast<int>(m_masterThreadState);
+          throw edm::Exception(edm::errors::LogicError) 
+	    << "OscarMTMasterThread: Illegal master thread state " 
+	    << static_cast<int>(m_masterThreadState);
         }
       }
 
       //////////
       // Cleanup
-      LogDebug("OscarMTMasterThread") << "Master thread: Am I unique owner of runManagerMaster? " << runManagerMaster.unique();
+      edm::LogInfo("SimG4CoreApplication") 
+        << "OscarMTMasterThread: start RunManagerMT destruction";
+      LogDebug("OscarMTMasterThread") 
+      << "Master thread: Am I unique owner of runManagerMaster? " 
+      << runManagerMaster.unique();
 
       // must be done in this thread, segfault otherwise
       runManagerMaster.reset();
@@ -103,7 +114,8 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
 
       LogDebug("OscarMTMasterThread") << "Master thread: Reseted shared_ptr";
       lk2.unlock();
-      LogDebug("OscarMTMasterThread") << "Master thread: Finished";
+      edm::LogInfo("SimG4CoreApplication") 
+        << "OscarMTMasterThread: Master thread is finished";
     });
 
   // Start waiting a signal from the condition variable (releases the lock temporarily)
@@ -113,12 +125,13 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
   m_notifyMainCv.wait(lk, [&](){return m_mainCanProceed;});
 
   lk.unlock();
-  LogDebug("OscarMTMasterThread") << "Main thread: Finish constructor";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread: Master thread is constructed";
 }
 
 OscarMTMasterThread::~OscarMTMasterThread() {
   if(!m_stopped) {
-    edm::LogError("OscarMTMasterThread") << "OscarMTMasterThread::stopThread() has not been called to stop Geant4 and join the master thread";
+    stopThread();  
   }
 }
 
@@ -133,12 +146,14 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
   m_mainCanProceed = false;
-  LogDebug("OscarMTMasterThread") << "Main thread: Signal master for BeginRun";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread: Signal master for BeginRun";
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
 
   lk2.unlock();
-  LogDebug("OscarMTMasterThread") << "Main thread: Finish beginRun";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread: finish BeginRun";
 }
 
 void OscarMTMasterThread::endRun() const {
@@ -148,19 +163,21 @@ void OscarMTMasterThread::endRun() const {
   m_masterThreadState = ThreadState::EndRun;
   m_mainCanProceed = false;
   m_masterCanProceed = true;
-  LogDebug("OscarMTMasterThread") << "Main thread: signal master thread for EndRun";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread: Signal master for EndRun";
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
   lk2.unlock();
-  LogDebug("OscarMTMasterThread") << "Main thread: Finish endRun";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread: finish EndRun";
 }
 
 void OscarMTMasterThread::stopThread() {
   if(m_stopped) {
-    edm::LogError("OscarMTMasterThread") << "Second call to OscarMTMasterThread::stopThread(), not doing anything";
     return;
   }
-  LogDebug("OscarMTMasterThread") << "Main thread: stopThread()";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread::stopTread: stop main thread";
 
   // Release our instance of the shared master run manager, so that
   // the G4 master thread can do the cleanup. Then notify the master
@@ -171,35 +188,36 @@ void OscarMTMasterThread::stopThread() {
 
   m_masterThreadState = ThreadState::Destruct;
   m_masterCanProceed = true;
-  LogDebug("OscarMTMasterThread") << "Main thread: signal master thread for Destruct";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread::stopTread: stop main thread";
   m_notifyMasterCv.notify_one();
   lk2.unlock();
 
   LogDebug("OscarMTMasterThread") << "Main thread: joining master thread";
   m_masterThread.join();
-  LogDebug("OscarMTMasterThread") << "Main thread: finished";
+  edm::LogInfo("SimG4CoreApplication") 
+    << "OscarMTMasterThread::stopTread: main thread finished";
   m_stopped = true;
 }
 
 void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
   bool geomChanged = idealGeomRcdWatcher_.check(iSetup);
   if (geomChanged && (!m_firstRun)) {
-    throw cms::Exception("BadConfig")
+    throw edm::Exception(edm::errors::Configuration)
       << "[SimG4Core OscarMTMasterThread]\n"
       << "The Geometry configuration is changed during the job execution\n"
-      << "this is not allowed, the geometry must stay unchanged\n";
+      << "this is not allowed, the geometry must stay unchanged";
   }
   if (m_pUseMagneticField) {
     bool magChanged = idealMagRcdWatcher_.check(iSetup);
     if (magChanged && (!m_firstRun)) {
-      throw cms::Exception("BadConfig")
+      throw edm::Exception(edm::errors::Configuration)
         << "[SimG4Core OscarMTMasterThread]\n"
-        << "The MagneticField configuration is changed during the job execution\n"
-        << "this is not allowed, the MagneticField must stay unchanged\n";
+	<< "The MagneticField configuration is changed during the job execution\n"
+	<< "this is not allowed, the MagneticField must stay unchanged";
     }
   }
   // Don't read from ES if not the first run, just as in
-  // RunManager::initG4()
   if(!m_firstRun)
     return;
 

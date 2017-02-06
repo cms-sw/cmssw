@@ -71,6 +71,7 @@ bool TrackHistory::evaluate ( reco::TrackBaseRef tr )
 
     TrackingParticleRef tpr( result.first );
     quality_ = result.second;
+    trackingParticle_ = tpr;
 
     if ( !tpr.isNull() )
     {

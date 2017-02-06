@@ -68,29 +68,29 @@ private:
    // Booking of histograms for the module
    
    // Algorithm bits
-   MonitorElement* algoBits_after_bxomask_;
-   MonitorElement* algoBits_after_prescaler_;
-   MonitorElement* algoBits_after_mask_;
+   MonitorElement* algoBits_before_bxmask_;
+   MonitorElement* algoBits_before_prescale_;
+   MonitorElement* algoBits_after_prescale_;
   
    // Algorithm bits correlation
-   MonitorElement* algoBits_after_bxomask_corr_;
-   MonitorElement* algoBits_after_prescaler_corr_;
-   MonitorElement* algoBits_after_mask_corr_;
+   MonitorElement* algoBits_before_bxmask_corr_;
+   MonitorElement* algoBits_before_prescale_corr_;
+   MonitorElement* algoBits_after_prescale_corr_;
  
    // Algorithm bits vs global BX number
-   MonitorElement* algoBits_after_bxomask_bx_global_;
-   MonitorElement* algoBits_after_prescaler_bx_global_;
-   MonitorElement* algoBits_after_mask_bx_global_;
+   MonitorElement* algoBits_before_bxmask_bx_global_;
+   MonitorElement* algoBits_before_prescale_bx_global_;
+   MonitorElement* algoBits_after_prescale_bx_global_;
   
    // Algorithm bits vs BX number in event
-   MonitorElement* algoBits_after_bxomask_bx_inEvt_;
-   MonitorElement* algoBits_after_prescaler_bx_inEvt_;
-   MonitorElement* algoBits_after_mask_bx_inEvt_;
+   MonitorElement* algoBits_before_bxmask_bx_inEvt_;
+   MonitorElement* algoBits_before_prescale_bx_inEvt_;
+   MonitorElement* algoBits_after_prescale_bx_inEvt_;
 
    // Algorithm bits vs LS
-   MonitorElement* algoBits_after_bxomask_lumi_;
-   MonitorElement* algoBits_after_prescaler_lumi_;
-   MonitorElement* algoBits_after_mask_lumi_;
+   MonitorElement* algoBits_before_bxmask_lumi_;
+   MonitorElement* algoBits_before_prescale_lumi_;
+   MonitorElement* algoBits_after_prescale_lumi_;
  
    // Prescale factor index 
    MonitorElement* prescaleFactorSet_;

@@ -11,7 +11,7 @@
  *    lightweight "maps" for enum string label and enum value
  *
  *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Brian Winer, OSU   Vasile Mihai Ghete - HEPHY Vienna
  *
  * $Date$
  * $Revision$
@@ -61,11 +61,13 @@ enum GtConditionType {
     TypeETT,
     TypeHTT,
     TypeHTM,
-    TypeETM2,
+    TypeETMHF,
+    TypeTowerCount,
     TypeMinBiasHFP0,
     TypeMinBiasHFM0,
     TypeMinBiasHFP1,
     TypeMinBiasHFM1,
+    TypeETTem,
     TypeExternal
 };
 

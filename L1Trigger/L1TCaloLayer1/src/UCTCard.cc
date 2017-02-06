@@ -7,17 +7,18 @@
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 
-UCTCard::UCTCard(uint32_t crt, uint32_t crd) :
+UCTCard::UCTCard(uint32_t crt, uint32_t crd, int fwv) :
   crate(crt),
   card(crd),
-  cardSummary(0) {
+  cardSummary(0),
+  fwVersion(fwv) {
   UCTGeometry g;
   regions.reserve(2*g.getNRegions());
   for(uint32_t rgn = 0; rgn < g.getNRegions(); rgn++) {
     // Negative eta side
-    regions.push_back(new UCTRegion(crate, card, true, rgn));
+    regions.push_back(new UCTRegion(crate, card, true, rgn, fwVersion));
     // Positive eta side
-    regions.push_back(new UCTRegion(crate, card, false, rgn));
+    regions.push_back(new UCTRegion(crate, card, false, rgn, fwVersion));
   }
 }
 

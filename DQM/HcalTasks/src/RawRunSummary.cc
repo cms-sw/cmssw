@@ -120,6 +120,9 @@ namespace hcaldqm
 		cEvnMsm_ElectronicsuTCA.load(ig, _emap, _filter_VME, _subsystem);
 		cBcnMsm_ElectronicsuTCA.load(ig, _emap, _filter_VME, _subsystem);
 		cBadQuality_depth.load(ig, _emap, _subsystem);
+		MonitorElement *meNumEvents = ig.get(_subsystem+
+			"/RunInfo/NumberOfEvents");
+		int numEvents = meNumEvents->getBinContent(1);
 
 		//	BOOK for the very first time
 		if (!_booked)
@@ -213,8 +216,10 @@ namespace hcaldqm
 					vtmpflags[fBcnMsm]._state = flag::fBAD;
 				else
 					vtmpflags[fBcnMsm]._state = flag::fGOOD;
-				if (_xBadQ.get(eid)>0)
+				if (double(_xBadQ.get(eid))>double(12*numEvents))
 					vtmpflags[fBadQ]._state = flag::fBAD;
+				else if (_xBadQ.get(eid)>0)
+					vtmpflags[fBadQ]._state = flag::fPROBLEMATIC;
 				else
 					vtmpflags[fBadQ]._state = flag::fGOOD;
 			}

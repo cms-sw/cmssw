@@ -115,7 +115,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
 
     // get Mu rates
     double muEt(0);
-    for(uint it=0; it<upgrade_->nMuons; ++it){
+    for(unsigned int it=0; it<upgrade_->nMuons; ++it){
       // work around a muon bug:
       int offset = upgrade_->muonQual.size() - upgrade_->nMuons;
       //cout << "INFO:  " << upgrade_->nMuons << "\n";
@@ -130,7 +130,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
 
     // get Eg rates
     int egEt(0);
-    for(uint it=0; it<upgrade_->nEGs; ++it){
+    for(unsigned int it=0; it<upgrade_->nEGs; ++it){
       hEgEt->Fill(0.5*upgrade_->egIEt[it]);
       egEt = upgrade_->egEt[it] > egEt ?  upgrade_->egEt[it]  : egEt;
     }
@@ -139,7 +139,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
     
     // get Tau rates
     int tauEt(0);
-    for(uint it=0; it<upgrade_->nTaus; ++it){
+    for(unsigned int it=0; it<upgrade_->nTaus; ++it){
       hTauEt->Fill(0.5*upgrade_->tauIEt[it]);
       tauEt = upgrade_->tauEt[it] > tauEt ? upgrade_->tauEt[it] : tauEt;
     }
@@ -148,7 +148,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
         
     // get Jet rates
     int jetEt(0);
-    for(uint it=0; it<upgrade_->nJets; ++it){
+    for(unsigned int it=0; it<upgrade_->nJets; ++it){
       hJetEt->Fill(0.5*upgrade_->jetIEt[it]);
       jetEt =  upgrade_->jetEt[it] > jetEt ? upgrade_->jetEt[it] : jetEt;
     }
@@ -159,7 +159,7 @@ void rates(const char * rootfile="L1Ntuple.root",const char * treepath="l1Upgrad
     double htSum  = -1.0;
     double metSum = -1.0;
     double mhtSum = -1.0;
-    for(uint it=0; it<upgrade_->nSums; ++it){
+    for(unsigned int it=0; it<upgrade_->nSums; ++it){
       double et = upgrade_->sumEt[it];
       if (upgrade_->sumType[it] == L1Analysis::kTotalEt)   etSum  = et;
       if (upgrade_->sumType[it] == L1Analysis::kTotalHt)   htSum  = et;

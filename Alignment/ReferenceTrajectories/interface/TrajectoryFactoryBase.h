@@ -29,7 +29,9 @@ public:
   typedef std::pair< TrajectoryStateOnSurface, TransientTrackingRecHit::ConstRecHitContainer > TrajectoryInput;
   typedef std::vector< TrajectoryStateOnSurface > ExternalPredictionCollection;
 
-  TrajectoryFactoryBase( const edm::ParameterSet & config );
+  TrajectoryFactoryBase(const edm::ParameterSet& config);
+  TrajectoryFactoryBase(const edm::ParameterSet& config,
+                        unsigned int tracksPerTrajectory);
   virtual ~TrajectoryFactoryBase( void );
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -46,6 +48,7 @@ public:
   inline MaterialEffects materialEffects( void ) const { return materialEffects_; }
   inline PropagationDirection propagationDirection( void ) const { return propDir_; }
   inline const edm::ParameterSet& configuration() const { return cfg_; }
+  inline unsigned int tracksPerTrajectory() const { return tracksPerTrajectory_; }
 
 protected:
 
@@ -60,6 +63,7 @@ private:
   PropagationDirection propagationDirection( const std::string & strPD ) const;
 
   const edm::ParameterSet cfg_; // need to keep for possible re-use after constructor... :-(
+  const unsigned int tracksPerTrajectory_;
   const MaterialEffects materialEffects_;
   const PropagationDirection propDir_;
 

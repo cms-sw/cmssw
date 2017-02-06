@@ -36,7 +36,7 @@ using namespace L1TMuon;
 class L1ITMuonBarrelPrimitiveProducer  {
 
 public:
-  inline L1ITMuonBarrelPrimitiveProducer(std::auto_ptr<MBLTContainer> _mbltContainer);
+  inline L1ITMuonBarrelPrimitiveProducer(std::shared_ptr<MBLTContainer> _mbltContainer);
   inline ~L1ITMuonBarrelPrimitiveProducer();
   inline virtual std::auto_ptr<L1MuDTChambPhContainer> produce( const edm::EventSetup&);
 
@@ -44,7 +44,7 @@ private:
   edm::InputTag _mbltCollectionInput = edm::InputTag("MBLTProducer");
   edm::ESHandle<DTGeometry> _muonGeom;
   //std::auto_ptr<MBLTContainer> mbltContainer;
-std::auto_ptr<MBLTContainer> mbltContainer;
+  std::shared_ptr<MBLTContainer> mbltContainer;
 };
 
 inline std::ostream & operator<< (std::ostream & out, const TriggerPrimitiveList & rpc )
@@ -60,7 +60,7 @@ inline L1ITMuonBarrelPrimitiveProducer::~L1ITMuonBarrelPrimitiveProducer()
 {
 }
 
-inline L1ITMuonBarrelPrimitiveProducer::L1ITMuonBarrelPrimitiveProducer( std::auto_ptr<MBLTContainer> _mbltContainer )
+inline L1ITMuonBarrelPrimitiveProducer::L1ITMuonBarrelPrimitiveProducer( std::shared_ptr<MBLTContainer> _mbltContainer )
 : mbltContainer(_mbltContainer)
 {
   //produces<L1MuDTChambPhContainer>("L1ITMuonBarrelPrimitiveProducer");
