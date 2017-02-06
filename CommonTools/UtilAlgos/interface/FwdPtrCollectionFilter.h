@@ -12,7 +12,7 @@
 #include "CommonTools/UtilAlgos/interface/FwdPtrConversionFactory.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
 #include "DataFormats/Common/interface/View.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -23,7 +23,7 @@
 namespace edm {
 
   template <class T, class S, class H = ProductFromFwdPtrFactory<T>>
-  class FwdPtrCollectionFilter : public edm::EDFilter {
+  class FwdPtrCollectionFilter : public edm::stream::EDFilter<> {
   public :
 
     explicit FwdPtrCollectionFilter(edm::ParameterSet const& ps) :
