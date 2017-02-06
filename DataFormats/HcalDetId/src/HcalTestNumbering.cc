@@ -2,7 +2,7 @@
 // File: HcalTestNumbering.cc
 // Description: Numbering scheme packing for test beam hadron calorimeter
 ///////////////////////////////////////////////////////////////////////////////
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 
 uint32_t HcalTestNumbering::packHcalIndex(int det, int z, int depth,
 					  int eta, int phi, int lay) {

@@ -29,7 +29,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <boost/foreach.hpp>
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 
