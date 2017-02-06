@@ -208,7 +208,7 @@ void XmlConfigParser::readRootElement(TriggerSystem& aTriggerSystem, const std::
       readElement(rootElement, aTriggerSystem, sysId);
     }
   } else {
-    std::cout << "No xml root element found" << std::endl;
+    throw std::runtime_error("No xml root element found");
   }
 }
 
@@ -530,7 +530,7 @@ void XmlConfigParser::readContexts(const std::string& key, const std::string& sy
       }
     }
   } else {
-    std::cout << "Key not found: " << key << std::endl;
+    throw std::runtime_error("Key not found: " + key);
   }
 }
 
