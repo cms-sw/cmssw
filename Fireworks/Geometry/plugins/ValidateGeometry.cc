@@ -962,8 +962,8 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
           {
             LocalPoint localPoint = rpt->localPosition(MeasurementPoint(row, column));
 
-            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, nrows));
-            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, ncolumns));
+            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, parameters));
+            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, parameters));
            }
         }
       }
