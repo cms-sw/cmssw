@@ -1,7 +1,7 @@
 /*HLTTauRefProducer
-Producer that creates LorentzVector Collections
-from offline reconstructed quantities to be used
-in Offline Trigger DQM etc
+  Producer that creates LorentzVector Collections
+  from offline reconstructed quantities to be used
+  in Offline Trigger DQM etc
 */
 
 #ifndef HLTTauRefProducer_h
@@ -50,23 +50,23 @@ in Offline Trigger DQM etc
 #include <string>
 
 class HLTTauRefProducer : public edm::EDProducer {
-  
+
 public:
   explicit HLTTauRefProducer(const edm::ParameterSet&);
   ~HLTTauRefProducer();
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
- private:
+
+private:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
-  
+
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > PFTauDis_;
   bool doPFTaus_;
   double ptMinPFTau_;
-  
-  
+
+
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
   edm::EDGetTokenT<reco::ElectronIDAssociationCollection> e_idAssocProd_;
