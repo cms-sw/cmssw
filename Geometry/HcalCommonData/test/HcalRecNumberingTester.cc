@@ -84,9 +84,15 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       std::cout << "Detector type: " << type << " with eta ranges "
 		<< etar.first << ":" << etar.second << std::endl;
       for (int eta=etar.first; eta<=etar.second; ++eta) {
-	std::cout << "Type:Eta " << type << ":" << eta << " Depth range "
-		  << hdc.getMinDepth(type,eta) << ":" 
-		  << hdc.getMaxDepth(type,eta) << std::endl;
+	std::vector<std::pair<int,double> > phis = hdc.getPhis(type+1, eta);
+	for (unsigned int k=0; k < phis.size(); ++k) {
+	  std::cout << "Type:Eta:phi " << type << ":" << eta << ":" 
+		    << phis[k].first << " Depth range (+z) "
+		    << hdc.getMinDepth(type,eta,phis[k].first,1) << ":" 
+		    << hdc.getMaxDepth(type,eta,phis[k].first,1) << " (-z) "
+		    << hdc.getMinDepth(type,eta,phis[k].first,-1) << ":" 
+		    << hdc.getMaxDepth(type,eta,phis[k].first,-1) << std::endl;
+	}
       }
     }
     std::vector<HcalDDDRecConstants::HcalEtaBin> hbar = hdc.getEtaBins(0);
@@ -98,8 +104,8 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
     std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
     std::cout << "HB with " << hbcell.size() << " cells" << std::endl;
     for (unsigned int i=0; i<hbcell.size(); ++i)
-      std::cout << "HB[" << i << "] det " << hbcell[i].detType() << " halves "
-		<< hbcell[i].nHalves() << ":" << hbcell[i].halfSize()
+      std::cout << "HB[" << i << "] det " << hbcell[i].detType() << " zside "
+		<< hbcell[i].zside() << ":" << hbcell[i].halfSize()
 		<< " RO " << hbcell[i].actualReadoutDirection()
 		<< " eta " << hbcell[i].etaBin() << ":" << hbcell[i].etaMin()
 		<< ":" << hbcell[i].etaMax() << " phi " << hbcell[i].nPhiBins()
@@ -111,8 +117,8 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 		<< std::endl;
     std::cout << "HE with " << hecell.size() << " cells" << std::endl;
     for (unsigned int i=0; i<hecell.size(); ++i)
-      std::cout << "HE[" << i << "] det " << hecell[i].detType() << " halves "
-		<< hecell[i].nHalves() << ":" << hecell[i].halfSize()
+      std::cout << "HE[" << i << "] det " << hecell[i].detType() << " zside "
+		<< hecell[i].zside() << ":" << hecell[i].halfSize()
 		<< " RO " << hecell[i].actualReadoutDirection()
 		<< " eta " << hecell[i].etaBin() << ":" << hecell[i].etaMin()
 		<< ":" << hecell[i].etaMax() << " phi " << hecell[i].nPhiBins()
