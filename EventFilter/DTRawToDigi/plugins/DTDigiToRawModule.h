@@ -17,7 +17,7 @@ public:
   virtual ~DTDigiToRawModule();
 
   // Operations
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
   DTDigiToRaw * packer;
