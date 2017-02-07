@@ -1,7 +1,8 @@
 import os
 import sys
+import sqlalchemy
 import subprocess
-import CondCore.Utilities.CondDBFW.shell as shell
+import CondCore.Utilities.conddblib as conddb
 
 
 def create_single_iov_db(global_tag, run_number, output_db):
@@ -13,22 +14,29 @@ def create_single_iov_db(global_tag, run_number, output_db):
     - `output_db`: name of the output sqlite file
     """
 
-    con = shell.connect()
-    tags = con.global_tag_map(global_tag_name = global_tag,
-                              record = ["TrackerAlignmentRcd",
-                                        "TrackerSurfaceDeformationRcd",
-                                        "TrackerAlignmentErrorExtendedRcd"])
-    con.close_session()
+    # setting up the DB session
+    con = conddb.connect(url = conddb.make_url())
+    session = con.session()
+    GlobalTagMap = session.get_dbtype(conddb.GlobalTagMap)
+    IOV = session.get_dbtype(conddb.IOV)
 
-    tags = {item["record"]: {"name": item["tag_name"]}
-            for item in tags.as_dicts()}
+    # query tag names for records of interest contained in `global_tag`
+    tags = session.query(GlobalTagMap.record, GlobalTagMap.tag_name).\
+           filter(GlobalTagMap.global_tag_name == global_tag,
+                  sqlalchemy.or_(
+                      GlobalTagMap.record == "TrackerAlignmentRcd",
+                      GlobalTagMap.record == "TrackerSurfaceDeformationRcd",
+                      GlobalTagMap.record == "TrackerAlignmentErrorExtendedRcd")
+           ).all()
+    tags = {item[0]: {"name": item[1]} for item in tags}
 
+    # query IOVs for each tag and find the IOV containing `run_number`
     for record,tag in tags.iteritems():
-        iovs = con.tag(name = tag["name"]).iovs().as_dicts()
+        iovs = session.query(IOV.since).filter(IOV.tag_name == tag["name"]).all()
         run_is_covered = False
         for iov in reversed(iovs):
-            if iov["since"] <= run_number:
-                tag["since"] = str(iov["since"])
+            if iov[0] <= run_number:
+                tag["since"] = str(iov[0])
                 run_is_covered = True
                 break
         if not run_is_covered:
@@ -38,6 +46,9 @@ def create_single_iov_db(global_tag, run_number, output_db):
             print msg
             print "Aborting..."
             sys.exit(1)
+
+    # closing the DB session
+    session.close()
 
     result = {}
     if os.path.exists(output_db): os.remove(output_db)
