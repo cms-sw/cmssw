@@ -221,8 +221,8 @@ mixPCFHepMCProducts = cms.PSet(
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer
 
-from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
-run2_GEMSliceTest.toModify( theMixObjects,
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toModify( theMixObjects,
     mixSH = dict(
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],

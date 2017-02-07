@@ -169,8 +169,8 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
 randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
-from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
-run2_GEMSliceTest.toModify(RandomNumberGeneratorService, simMuonGEMDigis = cms.PSet(
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toModify(RandomNumberGeneratorService, simMuonGEMDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')) )
 

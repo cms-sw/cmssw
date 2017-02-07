@@ -510,8 +510,8 @@ run2_common.toModify( cscTriggerPrimitiveDigis,
                            )
 
 ## GEM-CSC ILT in ME1/1
-from Configuration.Eras.Modifier_run2_GEMSliceTest_cff import run2_GEMSliceTest
-run2_GEMSliceTest.toModify( cscTriggerPrimitiveDigis,
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toModify( cscTriggerPrimitiveDigis,
                         GEMPadDigiProducer = cms.InputTag("simMuonGEMPadDigis"),
                         commonParam = dict(
                             isSLHC = cms.bool(True),
