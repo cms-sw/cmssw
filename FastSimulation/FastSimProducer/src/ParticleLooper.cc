@@ -40,7 +40,7 @@ fastsim::ParticleLooper::ParticleLooper(
     , momentumUnitConversionFactor_(conversion_factor( genEvent_->momentum_unit(), HepMC::Units::GEV ))
     , lengthUnitConversionFactor_(conversion_factor(genEvent_->length_unit(),HepMC::Units::LengthUnit::CM))
     , lengthUnitConversionFactor2_(lengthUnitConversionFactor_*lengthUnitConversionFactor_)
-    , timeUnitConversionFactor_(lengthUnitConversionFactor_/29.9792458) // speed of light [cm / ns]
+    , timeUnitConversionFactor_(lengthUnitConversionFactor_/fastsim::Constants::speedOfLight)
 {
     // add the main vertex from the signal event to the simvertex collection
     if(genEvent.vertices_begin() != genEvent_->vertices_end())
@@ -111,10 +111,6 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleLooper::nextParticle(const R
     // add corresponding simTrack to simTrack collection
     unsigned simTrackIndex = addSimTrack(particle.get());
     particle->setSimTrackIndex(simTrackIndex);
-
-    //std::cout << "particle position: " << particle->position().X() << ", " << particle->position().Y() << " [R="<< sqrt(particle->position().X()*particle->position().X()+particle->position().Y()*particle->position().Y()) << "], " << particle->position().Z() << ", " << (particle->position().T())
-    //      << "; momentum: " << particle->momentum().Px() << ", " << particle->momentum().Py() << ", " << particle->momentum().Pz() << ", " << particle->momentum().e()
-    //      << std::endl;
 
     // and return
     return particle;

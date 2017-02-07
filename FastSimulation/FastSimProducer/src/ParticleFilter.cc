@@ -26,16 +26,16 @@ fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet & cfg)
 
 bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
 {
-    int pId = abs(particle.pdgId());
+    int absPdgId = abs(particle.pdgId());
 
     // skip invisible particles
-    if(pId == 12 || pId == 14 || pId == 16 || pId == 1000022)
+    if(absPdgId == 12 || absPdgId == 14 || absPdgId == 16 || absPdgId == 1000022)
     {
 	return false;
     }
     
     // keep all high-energy protons
-    else if(pId == 2212 && particle.momentum().E() >= protonEMin_)
+    else if(absPdgId == 2212 && particle.momentum().E() >= protonEMin_)
     {
 	return true;
     }

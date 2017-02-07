@@ -215,16 +215,9 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
 	boundX *=  1. - localPosition.y()/detectorPlane.position().perp();
     if(fabs(localPosition.x()) > boundX  || fabs(localPosition.y()) > boundY )
     {
-       //std::cout<<"Hit position (id: " << detector.geographicalId().rawId() << "; " << simTrackId << ")= out of boundary"<<std::endl;
 	   return std::pair<double, PSimHit*>(0, 0);
     }
-/*
-        std::cout << "Hit position (id: " << detector.geographicalId().rawId() << "; " << simTrackId << ")= " 
-        << localPosition.x() << " " 
-        << localPosition.y() << " " 
-//        << sqrt(localPosition.x()*localPosition.x() + localPosition.y()*localPosition.y()) << " " 
-        << localPosition.z() << std::endl;
-*/
+
     //
     // create the hit
     //
