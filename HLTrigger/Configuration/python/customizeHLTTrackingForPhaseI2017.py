@@ -109,7 +109,8 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         CAHardPtCut = cms.double(0),
         SeedComparitorPSet = cms.PSet( 
             ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
-            clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
+            clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" ),
+            clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
         )
     )
 
