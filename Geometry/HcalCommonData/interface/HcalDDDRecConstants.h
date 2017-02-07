@@ -10,6 +10,7 @@
  *
  */
 
+#include<map>
 #include<string>
 #include<vector>
 #include<iostream>
@@ -32,12 +33,13 @@ public:
 						     phi(fi), depth(d) {}
   };
   struct HcalEtaBin {
-    int    ieta, nPhi, depthStart;
-    double etaMin, etaMax, phi0, dphi;
+    int    ieta, zside, depthStart;
+    double dphi, etaMin, etaMax;
     std::vector<std::pair<int, int> > layer;
-    HcalEtaBin(int eta=0, double et1=0, double et2=0, int nf=0, double fi0=0,
-	       double df=0) : ieta(eta), nPhi(nf),depthStart(0), etaMin(et1), 
-                              etaMax(et2), phi0(fi0), dphi(df) {}
+    std::vector<std::pair<int,double> > phis;
+    HcalEtaBin(int eta=0, int zs=1, double dfi=0, double et1=0, 
+  	       double et2=0) : ieta(eta), zside(zs), depthStart(0), dphi(dfi), 
+                               etaMin(et1), etaMax(et2) {}
   };
   struct HcalActiveLength {
     int    ieta, depth;
@@ -60,7 +62,7 @@ public:
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
   const std::vector<int> &  getDepth(const unsigned int i) const;
-  int                       getDepthEta16(int i) const {return hcons.getDepthEta16(i);}
+  int                       getDepthEta16(int det, int iphi, int zside) const {return hcons.getDepthEta16(det,iphi,zside);}
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
@@ -72,16 +74,20 @@ public:
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
+  void                      getLayerDepth(int ieta, std::map<int,int>& layers) const;
   double                    getLayer0Wt(int det, int phi, int zside) const {return hcons.getLayer0Wt(det,phi,zside);}
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
-  int                       getMaxDepth(const int itype, const int ieta) const;
-  int                       getMinDepth(const int itype, const int ieta) const;
+  int                       getMaxDepth(const int itype, const int ieta,
+					const int iphi, const int zside) const;
+  int                       getMinDepth(const int itype, const int ieta,
+					const int iphi, const int zside) const;
   int                       getNEta() const {return hpar->etagroup.size();}
   int                       getNoff(const int i) const {return hpar->noff[i];}
   int                       getNPhi(const int type) const {return nPhiBins[type];}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
+  std::vector<std::pair<int,double> > getPhis(int subdet, int ieta) const;
   const std::vector<double> &      getPhiTable()   const {return phibin;}
   const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
   double                    getRZ(int subdet, int ieta, int depth) const;
@@ -94,11 +100,19 @@ public:
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
   unsigned int              nCells() const;
+  HcalDetId                 mergedDepthDetId(HcalDetId& id) const;
+  void                      specialRBXHBHE(const std::vector<HcalDetId>&,
+					   std::vector<HcalDetId> &) const;
+  bool                      withSpecialRBXHBHE() const {return (hcons.ldMap()->getSubdet() != 0);}
        
 private:
+  void                      getOneEtaBin(int subdet, int ieta, int zside,
+					 std::vector<std::pair<int,double>>& phis,
+					 std::map<int,int>& layers,
+					 std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const;
   void                      initialize(void);
-  unsigned int              layerGroupSize( unsigned int eta ) const;
-  unsigned int              layerGroup( unsigned int eta, unsigned int i ) const;
+  unsigned int              layerGroupSize(int eta) const;
+  unsigned int              layerGroup(int eta, int i) const;
 
   const HcalParameters      *hpar;
   const HcalDDDSimConstants &hcons;
@@ -113,6 +127,8 @@ private:
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB
   std::vector<std::pair<double,double> > gconsHE; // Geometry constatnts HE
   int                 nModule[2], nHalves[2];     // Modules, Halves for HB/HE
+  std::pair<int,int>  depthMaxDf_, depthMaxSp_; // (subdet,maximum depth) default,special
+  std::map<HcalDetId,HcalDetId> detIdSp_;       // Map of Id's for special RBX
 };
 
 #endif

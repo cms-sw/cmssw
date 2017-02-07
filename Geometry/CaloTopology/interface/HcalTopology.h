@@ -98,7 +98,8 @@ public:
 
   /// finds the number of depth bins and which is the number to start with
   void depthBinInformation(HcalSubdetector subdet, int etaRing,
-                           int & nDepthBins, int & startingBin) const;
+			   int iphi, int zside, int & nDepthBins,
+			   int & startingBin) const;
 
   /// how many phi segments in this ring
   int nPhiBins(int etaRing) const;
@@ -148,8 +149,8 @@ public:
   bool isBH() const { return ((hcons_ == 0) ? false : hcons_->isBH()); }
 
   const HcalDDDRecConstants* dddConstants () const {return hcons_;}
-  bool  withSpecialRBXHBHE() const {return false;}
-  HcalDetId mergedDepthDetId(HcalDetId& id) const { return id; }
+  bool  withSpecialRBXHBHE() const {return hcons_->withSpecialRBXHBHE();}
+  HcalDetId mergedDepthDetId(HcalDetId& id) const {return hcons_->mergedDepthDetId(id); }
 
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */

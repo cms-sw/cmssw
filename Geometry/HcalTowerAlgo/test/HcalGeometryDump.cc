@@ -72,7 +72,7 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 	 i != detIds.end(); ++i, ++counter)  {
       HcalDetId hid = HcalDetId(*i);
       const CaloCellGeometry * cell = caloGeom->getGeometry(*i);
-      std::cout << "[" << counter << "] " << hid << " " << *cell << std::endl;
+      std::cout << hid << " " << cell->getPosition() << std::endl;
     }
   }
 }
