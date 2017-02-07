@@ -107,14 +107,14 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
 
    SetWindowName(windowname);
    float x1 = getURLResponseTime("lxplus.cern.ch");
-   float x2 = getURLResponseTime("uaf-2.t2.ucsd.edu");
+   float x2 = getURLResponseTime("uaf.t2.ucsd.edu");
    // printf("timtes %f %f \n", x1, x2); fflush(stdout);
 
    std::string path;
    if (x1 > 0 && x1 < x2)
       path = Form("http://fireworks.web.cern.ch/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] );
    else if (x2 > 0)
-      path = Form("http://uaf-2.t2.ucsd.edu/fireworks/%d/", fireworks::supportedDataFormatsVersion()[0]);
+      path = Form("http://uaf.t2.ucsd.edu/fireworks/%d/", fireworks::supportedDataFormatsVersion()[0]);
 
    if (!path.empty())
       fwLog(fwlog::kInfo) << "Search files at " << path  << "." << std::endl;
