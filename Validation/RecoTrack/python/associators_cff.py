@@ -135,6 +135,13 @@ tpToHLTiter4MergedTracksAssociation = cms.EDProducer("TrackAssociatorEDProducer"
     ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
+tpToHLTgsfTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
+    label_tr = cms.InputTag("hltEgammaGsfTracks"),
+    label_tp = cms.InputTag("mix","MergedTrackTruth"),
+    associator = cms.InputTag('hltTrackAssociatorByHits'),
+    ignoremissingtrackcollection = cms.untracked.bool(True)
+)
+
 tpToHLTtracksAssociationSequence = cms.Sequence(
     hltTrackAssociatorByHits +
     tpToHLTpixelTrackAssociation +
