@@ -112,7 +112,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
 
 }
 
-void HLTTauRefProducer::produce(edm::Event& iEvent, edm::EventSetup const&)
+void HLTTauRefProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   if(doPFTaus_)
     doPFTaus(iEvent);

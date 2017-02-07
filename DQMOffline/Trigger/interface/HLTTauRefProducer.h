@@ -8,8 +8,8 @@
 #define HLTTauRefProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -49,12 +49,12 @@
 #include <vector>
 #include <string>
 
-class HLTTauRefProducer : public edm::EDProducer {
+class HLTTauRefProducer : public edm::global::EDProducer<> {
 public:
 
   explicit HLTTauRefProducer(const edm::ParameterSet&);
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
 
