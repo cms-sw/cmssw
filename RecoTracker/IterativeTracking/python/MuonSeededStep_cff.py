@@ -232,12 +232,15 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
 muonSeededStepCoreInOut = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
 )
-muonSeededStepCore = cms.Sequence(
-    muonSeededStepCoreInOut +
+muonSeededStepCoreOutIn = cms.Sequence(
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
 )
+muonSeededStepCore = cms.Sequence(
+    muonSeededStepCoreInOut +
+    muonSeededStepCoreOutIn
+)
 #Phase2 : just muon Seed InOut is used in this moment
-trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+#trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
 muonSeededStepExtraInOut = cms.Sequence(
     muonSeededTracksInOutClassifier
 )
@@ -256,7 +259,8 @@ trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
     muonSeededTracksOutInSelector
 ))
 trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
-    muonSeededStepExtraInOut
+    muonSeededStepExtraInOut +
+    muonSeededTracksOutInSelector
 ))
 
 muonSeededStep = cms.Sequence(
