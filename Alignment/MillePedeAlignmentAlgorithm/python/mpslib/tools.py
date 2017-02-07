@@ -1,5 +1,6 @@
 import os
 import sys
+import importlib
 import sqlalchemy
 import subprocess
 import CondCore.Utilities.conddblib as conddb
@@ -82,3 +83,21 @@ def run_checked(cmd):
         print "Problem in running the following command:"
         print " ".join(e.cmd)
         sys.exit(1)
+
+
+def get_process_object(cfg):
+    """Returns cms.Process object defined in `cfg`.
+
+    Arguments:
+    - `cfg`: path to CMSSW config file
+    """
+
+    sys.path.append(os.path.dirname(cfg)) # add location to python path
+    cache_stdout = sys.stdout
+    sys.stdout = open(os.devnull, "w")    # suppress unwanted output
+    __configuration = \
+        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
+    sys.stdout = cache_stdout
+    sys.path.pop()                        # clean up python path again
+
+    return __configuration.process

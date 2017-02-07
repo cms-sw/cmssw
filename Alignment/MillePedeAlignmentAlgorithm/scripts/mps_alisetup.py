@@ -12,7 +12,6 @@
 import argparse
 import os
 import re
-import importlib
 import subprocess
 import ConfigParser
 import sys
@@ -87,12 +86,7 @@ def create_input_db(cfg, run_number):
     - `run_number`: run from which to extract the alignment payloads
     """
 
-    sys.path.append(os.path.dirname(cfg))
-    cache_stdout = sys.stdout
-    sys.stdout = open(os.devnull, "w") # suppress unwanted output
-    __configuration = \
-        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
-    sys.stdout = cache_stdout
+    cms_process = mps_tools.get_process_object(cfg)
 
     run_number = int(run_number)
     if not run_number > 0:
@@ -100,9 +94,9 @@ def create_input_db(cfg, run_number):
         sys.exit(1)
 
     # return if IOVs are defined; if not continue to create single IOV input
-    if len(__configuration.process.AlignmentProducer.RunRangeSelection) > 0:
+    if len(cms_process.AlignmentProducer.RunRangeSelection) > 0:
         iovs_are_defined = False
-        for pset in __configuration.process.AlignmentProducer.RunRangeSelection:
+        for pset in cms_process.AlignmentProducer.RunRangeSelection:
             if len(pset.RunRanges) > 0:
                 iovs_are_defined = True
                 break
@@ -111,11 +105,11 @@ def create_input_db(cfg, run_number):
             return ""
 
 
-    global_tag = __configuration.process.GlobalTag.globaltag.value()
+    global_tag = cms_process.GlobalTag.globaltag.value()
     input_db_name = os.path.abspath("alignment_input.db")
     tags = mps_tools.create_single_iov_db(global_tag, run_number, input_db_name)
 
-    for condition in __configuration.process.GlobalTag.toGet.value():
+    for condition in cms_process.GlobalTag.toGet.value():
         if condition.record.value() in tags: del tags[condition.record.value()]
 
     result = ""
