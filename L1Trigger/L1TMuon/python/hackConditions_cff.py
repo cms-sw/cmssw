@@ -11,6 +11,7 @@ import FWCore.ParameterSet.Config as cms
 #
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 #if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 #    print "L1TMuon conditions configured for Run1 (Legacy) trigger. "
 # 
@@ -24,7 +25,7 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
+if (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     print "L1TMuon Conditions configured for Stage-2 (2016) trigger. "
     from L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff import *
     from L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff import *

@@ -8,7 +8,8 @@ import FWCore.ParameterSet.Config as cms
 # Legacy Trigger:
 #
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if not (stage2L1Trigger.isChosen()):
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+if not (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     print "L1TGlobal Sequence configured for Legacy trigger (Run1 and Run 2015). "
 #
 # -  Global Trigger emulator
@@ -28,7 +29,7 @@ if not (stage2L1Trigger.isChosen()):
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
+if (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
 #
 # -  Global Trigger emulator
 #
