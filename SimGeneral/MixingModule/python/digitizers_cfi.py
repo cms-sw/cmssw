@@ -79,4 +79,6 @@ phase2_hgcal.toModify( theDigitizersValid,
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
                         createInitialVertexCollection = cms.bool(True) )
+phase2_timing.toModify( theDigitizersValid.mergedtruth.select,
+                        signalOnlyTP = cms.bool(True) )
 
