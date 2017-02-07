@@ -176,7 +176,7 @@ L1TMuonLegacyConverter::produce( edm::Event& iEvent,
 						   phi,
 						   muonMassGeV_ ) ;
 
-		    Muon outMu{p4, (int)0, (int)0, (int)0, (int)muItr->quality(), (int)muItr->charge(), (int)muItr->charge_valid() , (int)muItr->isol(), (int)muItr->etaRegionIndex(), (int)0, true, (int)0, (int)0, (int)0 , (int)muItr->rank() };
+		    Muon outMu{p4, (int)0, (int)0, (int)0, (int)muItr->quality(), (int)muItr->charge(), (int)muItr->charge_valid() , (int)muItr->isol(), (int)0 , (int)0, true, (int)0, (int)0, (int)0 , (int)muItr->rank() };
 		    imdMuonsLegacy->push_back( muItr->bx(), outMu ) ;
 		}
 	    }
