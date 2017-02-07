@@ -15,7 +15,7 @@
 
 #include <string>
 
-class CSCTFPacker : public edm::one::EDProducer<edm::one::SharedResources> {
+class CSCTFPacker : public edm::one::EDProducer<> {
 private:
 	edm::InputTag lctProducer, mbProducer, trackProducer;
 
