@@ -182,7 +182,7 @@ void SimHitsValidationHcal::analyze(const edm::Event& e,
 					   << depth0 << "|" << eta0 << "|" 
 					   << phi0 << "|" << lay;
 #endif
-	HcalDDDRecConstants::HcalID id = hcons->getHCID(subdet, eta0, phi0, lay, depth0);
+	HcalDDDRecConstants::HcalID id = hcons->getHCID(subdet, sign*eta0, phi0, lay, depth0);
 	
 	HcalDetId hid;
 	if (subdet==int(HcalBarrel)) {

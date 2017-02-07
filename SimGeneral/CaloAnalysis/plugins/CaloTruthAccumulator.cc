@@ -429,7 +429,7 @@ template<class T> void CaloTruthAccumulator::fillSimHits( std::vector<std::pair<
 	int subdet, z, depth0, eta0, phi0, lay;
 	HcalTestNumbering::unpackHcalIndex(simId, subdet, z, depth0, eta0, phi0, lay);
 	int sign = (z==0) ? (-1):(1);
-	HcalDDDRecConstants::HcalID tempid = hcddd_->getHCID(subdet, eta0, phi0, lay, depth0);
+	HcalDDDRecConstants::HcalID tempid = hcddd_->getHCID(subdet, sign*eta0, phi0, lay, depth0);
 	if (subdet==int(HcalEndcap)) {
 	  id = HcalDetId(HcalEndcap,sign*tempid.eta,tempid.phi,tempid.depth);    
 	}
