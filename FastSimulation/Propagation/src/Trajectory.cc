@@ -5,9 +5,8 @@
 #include "FastSimulation/Layer/interface/BarrelLayer.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FastSimulation/Constants/interface/Constants.h"
 
-
-const double fastsim::Trajectory::speedOfLight_ = 29.9792458; // [cm per ns]
 
 fastsim::Trajectory::Trajectory(const fastsim::Particle & particle)
 {
@@ -22,7 +21,7 @@ std::unique_ptr<fastsim::Trajectory> fastsim::Trajectory::createTrajectory(const
 	   LogDebug("FastSim") << "create straight trajectory";
 	   return std::unique_ptr<fastsim::Trajectory>(new fastsim::StraightTrajectory(particle));
     }
-    else if(std::abs(particle.momentum().Pt() / (speedOfLight_ * 1e-4 * particle.charge() * magneticFieldZ)) > 1e8){
+    else if(std::abs(particle.momentum().Pt() / (fastsim::Constants::speedOfLight * 1e-4 * particle.charge() * magneticFieldZ)) > 1e8){
        LogDebug("FastSim") << "create straight trajectory (huge radius)";
        return std::unique_ptr<fastsim::Trajectory>(new fastsim::StraightTrajectory(particle));
     }

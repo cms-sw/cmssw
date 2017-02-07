@@ -3,6 +3,7 @@
 #include "FastSimulation/Layer/interface/ForwardLayer.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FastSimulation/Constants/interface/Constants.h"
 #include <cmath>
 
 // helix phi definition
@@ -15,7 +16,7 @@ fastsim::HelixTrajectory::HelixTrajectory(const fastsim::Particle & particle,dou
     // exact: r = gamma*beta*m_0*c / (q*e*B) = p_T / (q * e * B)
     // momentum in units of GeV/c: r = p_T * 10^9 / (c * q * B)
     // in cmssw units: r = p_T / (c * 10^-4 * q * B)
-    , radius_(std::abs(momentum_.Pt() / (speedOfLight_ * 1e-4 * particle.charge() * magneticFieldZ)))
+    , radius_(std::abs(momentum_.Pt() / (fastsim::Constants::speedOfLight * 1e-4 * particle.charge() * magneticFieldZ)))
     , phi_(std::atan(momentum_.Py()/momentum_.Px()) + (momentum_.Px()*particle.charge() < 0 ? 3.*M_PI/2. : M_PI/2. ))
     // maybe consider (for -pi/2<x<pi/2)
     // cos(atan(x)) = 1 / sqrt(x^2+1)
@@ -35,12 +36,8 @@ fastsim::HelixTrajectory::HelixTrajectory(const fastsim::Particle & particle,dou
     // omega: negative for negative q -> seems to be what we want.
     // energy in units of GeV: omega = q * B * c^2 / (E * 10^9)
     // in cmssw units: omega[1/ns] = q * B * c^2 * 10^-4 / E
-    , phiSpeed_(-particle.charge() * magneticFieldZ * speedOfLight_ * speedOfLight_ * 1e-4 / momentum_.E())
-{//std::cout<<"Radius: "<<radius_<<std::endl;
- //std::cout<<"Center: "<<centerX_<<"; "<<centerY_<<std::endl;
- //std::cout<<"Phi0: "<<phi_*1000.<<std::endl;
- //std::cout<<"PhiSpeed: "<<phiSpeed_*1000.<<std::endl;
-}
+    , phiSpeed_(-particle.charge() * magneticFieldZ * fastsim::Constants::speedOfLight * fastsim::Constants::speedOfLight * 1e-4 / momentum_.E())
+{;}
 
 bool fastsim::HelixTrajectory::crosses(const BarrelLayer & layer) const
 {
@@ -111,26 +108,25 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
             return -1.;
         }
 
-        // TODO: Improve and use a numerically more stable procedure: easy implementation! Can also be done below for taylor expansion
+        // Uses a numerically more stable procedure:
         // https://people.csail.mit.edu/bkph/articles/Quadratics.pdf
-
         double sqrtDelta = sqrt(delta);
-        double phi1 = std::asin((-b - sqrtDelta) / (2.*a));
-        double phi2 = std::asin((-b + sqrtDelta) / (2.*a));
+        double phi1 = 0, phi2 = 0;
+        if(b < 0){
+            phi1 = std::asin((2.*c) / (-b + sqrtDelta));
+            phi2 = std::asin((-b + sqrtDelta) / (2.*a));
+        }else{
+            phi1 = std::asin((-b - sqrtDelta) / (2.*a));
+            phi2 = std::asin((2.*c) / (-b - sqrtDelta));
+        }
 
-        //std::cout<<phi1<<";"<<phi2<<std::endl;
         // asin is ambiguous, make sure to have the right solution
         if(std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi1))*(centerX_ + radius_*std::cos(phi1)) + (centerY_ + radius_*std::sin(phi1))*(centerY_ + radius_*std::sin(phi1)))) > 1e-3){
             phi1 = - phi1 + M_PI;
-            //std::cout<<"-> fixing phi1"<<std::endl;
         }
         if(std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi2))*(centerX_ + radius_*std::cos(phi2)) + (centerY_ + radius_*std::sin(phi2))*(centerY_ + radius_*std::sin(phi2)))) > 1e-3){
             phi2 = - phi2 + M_PI;
-            //std::cout<<"-> fixing phi2"<<std::endl;
         }
-        //std::cout<<std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi1))*(centerX_ + radius_*std::cos(phi1)) + (centerY_ + radius_*std::sin(phi1))*(centerY_ + radius_*std::sin(phi1))))<<std::endl;
-        //std::cout<<std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi2))*(centerX_ + radius_*std::cos(phi2)) + (centerY_ + radius_*std::sin(phi2))*(centerY_ + radius_*std::sin(phi2))))<<std::endl;
-        //std::cout<<phi1<<";"<<phi2<<std::endl;
 
 
         if(phi1 < 0){
@@ -139,9 +135,6 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
         if(phi2 < 0){
             phi2 += 2. * M_PI;
         }
-        //std::cout<<std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi1))*(centerX_ + radius_*std::cos(phi1)) + (centerY_ + radius_*std::sin(phi1))*(centerY_ + radius_*std::sin(phi1))))<<std::endl;
-        //std::cout<<std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi2))*(centerX_ + radius_*std::cos(phi2)) + (centerY_ + radius_*std::sin(phi2))*(centerY_ + radius_*std::sin(phi2))))<<std::endl;
-        //std::cout<<phi1<<";"<<phi2<<std::endl;
 
         if(std::abs(layer.getRadius() - sqrt((centerX_ + radius_*std::cos(phi1))*(centerX_ + radius_*std::cos(phi1)) + (centerY_ + radius_*std::sin(phi1))*(centerY_ + radius_*std::sin(phi1)))) > 1e-3){
             doApproximation = true;
@@ -171,10 +164,10 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
             // if the particle is already on the layer,
             // we need to make sure the 2nd solution is picked.
             if(std::abs(phi1 - phi_)*radius_ < 1e-3){
-                return t2*speedOfLight_;
+                return t2*fastsim::Constants::speedOfLight;
             }
             if(std::abs(phi2 - phi_)*radius_ < 1e-3){
-                return t1*speedOfLight_;
+                return t1*fastsim::Constants::speedOfLight;
             }
 
             if(std::abs(phi1 - phi_)*radius_ < 1e-3 && std::abs(phi2 - phi_)*radius_ < 1e-3){
@@ -182,7 +175,7 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
             }
 
             // not sure if we should stick to this t*c strategy...
-            return std::min(t1,t2)*speedOfLight_;
+            return std::min(t1,t2)*fastsim::Constants::speedOfLight;
         }
 
     }
@@ -212,11 +205,18 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
         return -1.;
     }
 
+    // https://people.csail.mit.edu/bkph/articles/Quadratics.pdf
     double sqrtDelta = sqrt(delta);
-    double delPhi1 = std::asin((-b - sqrtDelta) / (2.*a));
-    double delPhi2 = std::asin((-b + sqrtDelta) / (2.*a));
+    double delPhi1 = 0, delPhi2 = 0;
+    if(b < 0){
+        delPhi1 = std::asin((2.*c) / (-b + sqrtDelta));
+        delPhi2 = std::asin((-b + sqrtDelta) / (2.*a));
+    }else{
+        delPhi1 = std::asin((-b - sqrtDelta) / (2.*a));
+        delPhi2 = std::asin((2.*c) / (-b - sqrtDelta));
+    }
 
-    // Only one solution should be valid in most cases (Tayler expension only for small delPhi)
+    // Only one solution should be valid in most cases (Tayler expansion only for small delPhi)
     double delPhi;
     bool twoSolutions = false;
     if(phiSpeed_ > 0){
@@ -239,8 +239,8 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
     // TEST: Might have to set std::abs(delPhi2) < 1e-2 to a higher value, e.g. 1e-1?
     if(std::abs(delPhi)*radius_ < 1e-3){
         if(twoSolutions){
-            if(delPhi == delPhi1 && std::abs(delPhi2) < 1e-2) return delPhi2 / phiSpeed_ * speedOfLight_;
-            else if(delPhi == delPhi2 && std::abs(delPhi1) < 1e-2) return delPhi1 / phiSpeed_ * speedOfLight_;
+            if(delPhi == delPhi1 && std::abs(delPhi2) < 1e-2) return delPhi2 / phiSpeed_ * fastsim::Constants::speedOfLight;
+            else if(delPhi == delPhi2 && std::abs(delPhi1) < 1e-2) return delPhi1 / phiSpeed_ * fastsim::Constants::speedOfLight;
         }
         return -1;
     }
@@ -248,12 +248,12 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) co
     // Taylor approximation not valid (and not necessary to do further propagation)
     if(std::abs(delPhi) > 1) return -1;
     
-    return delPhi / phiSpeed_ * speedOfLight_;
+    return delPhi / phiSpeed_ * fastsim::Constants::speedOfLight;
 }
 
 void fastsim::HelixTrajectory::move(double deltaTimeC)
 {
-    double deltaT = deltaTimeC/speedOfLight_;
+    double deltaT = deltaTimeC/fastsim::Constants::speedOfLight;
     double deltaPhi = phiSpeed_*deltaT;
     position_.SetXYZT(
 	   centerX_ + radius_*std::cos(phi_ + deltaPhi),

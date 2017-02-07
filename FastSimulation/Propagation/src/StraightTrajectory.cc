@@ -1,4 +1,5 @@
 #include "FastSimulation/Propagation/interface/StraightTrajectory.h"
+#include "FastSimulation/Constants/interface/Constants.h"
 
 #include "FastSimulation/Layer/interface/Layer.h"
 #include "FastSimulation/Layer/interface/BarrelLayer.h"
@@ -45,7 +46,7 @@ double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelLayer
     //
     // return the earliest solution > 0, 
     // return -1 if no positive solution exists
-    // note: a always positive, sqrtDelta always positive
+    // note: 'a' always positive, sqrtDelta always positive
     //
     if(-b > sqrtDelta)
     {
@@ -64,11 +65,10 @@ void fastsim::StraightTrajectory::move(double deltaTimeC)
 {
     // be careful with rounding errors:
     // particle must be ON layer
-    // better attach a layer to the particle...
     position_.SetXYZT(
 	position_.X() + momentum_.X()/momentum_.E()*deltaTimeC,
 	position_.Y() + momentum_.Y()/momentum_.E()*deltaTimeC,
 	position_.Z() + momentum_.Z()/momentum_.E()*deltaTimeC,
-	position_.T() + deltaTimeC / speedOfLight_
+	position_.T() + deltaTimeC / fastsim::Constants::speedOfLight
 	);
 }
