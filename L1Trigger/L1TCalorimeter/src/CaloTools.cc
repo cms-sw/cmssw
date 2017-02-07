@@ -305,6 +305,7 @@ l1t::EGamma l1t::CaloTools::egP4Demux(l1t::EGamma& eg) {
  tmpEG.setFootprintEt(eg.footprintEt());
  tmpEG.setNTT(eg.nTT());
  tmpEG.setShape(eg.shape());
+ tmpEG.setTowerHoE(eg.towerHoE());
 
  return tmpEG;
 
