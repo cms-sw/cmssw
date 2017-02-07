@@ -223,22 +223,22 @@ CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	
 	//loop over simhits, extract info per channel
 	for(const auto& iSH : *(h_SH.product())){
-		HcalDetId hid;
-		unsigned int id = iSH.id();
-		if(TestNumbering){
-			int subdet, z, depth, eta, phi, lay;
-			HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, eta, phi, lay);
-			int sign = (z==0) ? -1 : 1;
-			HcalDDDRecConstants::HcalID cid = theRecNumber->getHCID(subdet, eta, phi, lay, depth);
-			hid = HcalDetId((HcalSubdetector)subdet, sign*cid.eta, cid.phi, cid.depth);
-		}
-		else hid = HcalDetId(id);
-		auto ntupIt = treemap.find(hid.rawId());
-		if(ntupIt==treemap.end()) continue;
-		CaloNtuple& ntup = ntupIt->second;
-		//append simhit info
-		ntup.energy.push_back(iSH.energy());
-		ntup.time.push_back(iSH.time());
+	  HcalDetId hid;
+	  unsigned int id = iSH.id();
+	  if(TestNumbering){
+	    int subdet, z, depth, eta, phi, lay;
+	    HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, eta, phi, lay);
+	    int sign = (z==0) ? -1 : 1;
+	    HcalDDDRecConstants::HcalID cid = theRecNumber->getHCID(subdet, sign*eta, phi, lay, depth);
+	    hid = HcalDetId((HcalSubdetector)subdet, sign*cid.eta, cid.phi, cid.depth);
+	  }
+	  else hid = HcalDetId(id);
+	  auto ntupIt = treemap.find(hid.rawId());
+	  if(ntupIt==treemap.end()) continue;
+	  CaloNtuple& ntup = ntupIt->second;
+	  //append simhit info
+	  ntup.energy.push_back(iSH.energy());
+	  ntup.time.push_back(iSH.time());
 	}
 	
 	//one tree entry per map entry
