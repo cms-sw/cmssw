@@ -29,7 +29,7 @@ RigidBodyAlignmentParameters4D::derivatives( const TrajectoryStateOnSurface &tso
   } else { // different alignable => transform into correct frame
     const AlgebraicMatrix deriv = SegmentAlignmentDerivatives4D()(tsos);
     FrameToFrameDerivative ftfd;
-    return ftfd.frameToFrameDerivative(alidet, ali) * deriv;
+    return ftfd.frameToFrameDerivative(alidet, ali).T() * deriv;
   }
 }
 
