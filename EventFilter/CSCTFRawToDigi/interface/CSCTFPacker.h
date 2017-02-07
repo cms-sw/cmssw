@@ -35,7 +35,7 @@ private:
 	edm::EDGetTokenT<L1CSCTrackCollection> L1CSCTr_Tok;
 
 public:
-	virtual void produce(edm::Event& e, const edm::EventSetup& c);
+	virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 	explicit CSCTFPacker(const edm::ParameterSet &conf);
 	~CSCTFPacker(void);
