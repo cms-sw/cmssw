@@ -219,16 +219,17 @@ double TSGForOI::calculateSFFromL2(const reco::TrackRef track){
   //	L2 direction vs pT blowup - as was previously done:
   //	Split into 4 pT ranges: <pT1_, pT1_<pT2_, pT2_<pT3_, <pT4_: 13,30,70
   //	Split into 2 eta ranges for the middle two pT ranges: 1.0,1.4
+  double abseta = std::abs(track->eta());
   if (track->pt()<=pT1_) theSF=SF1_;
   if (track->pt()>pT1_ && track->pt()<=pT2_){
-    if (std::abs(track->eta())<=eta1_) theSF=SF3_;
-    if (std::abs(track->eta())>eta1_ && std::abs(track->eta())<=eta2_) theSF=SF2_;
-    if (std::abs(track->eta())>eta2_) theSF=SF3_;
+    if (abseta<=eta1_) theSF=SF3_;
+    if (abseta>eta1_ && abseta<=eta2_) theSF=SF2_;
+    if (abseta>eta2_) theSF=SF3_;
   }
   if (track->pt()>pT2_ && track->pt()<=pT3_){
-    if (std::abs(track->eta())<=eta1_) theSF=SF5_;
-    if (std::abs(track->eta())>eta1_ && std::abs(track->eta())<=eta2_) theSF=SF4_;
-    if (std::abs(track->eta())>eta2_) theSF=SF5_;
+    if (abseta<=eta1_) theSF=SF5_;
+    if (abseta>eta1_ && abseta<=eta2_) theSF=SF4_;
+    if (abseta>eta2_) theSF=SF5_;
   }
   if (track->pt()>pT3_) theSF=SF5_;
 
