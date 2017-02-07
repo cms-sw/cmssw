@@ -36,6 +36,8 @@ hltGsfTrackValidator.histoProducerAlgoBlock.generalTpSelector.maxRapidity = cms.
 hltGsfTrackValidator.histoProducerAlgoBlock.generalTpSelector.minRapidity = cms.double(-3.0)
 hltGsfTrackValidator.maxRapidityTP = cms.double( 3.0)
 hltGsfTrackValidator.minRapidityTP = cms.double(-3.0)
+hltGsfTrackValidator.maxEta = cms.double( 3.0)
+hltGsfTrackValidator.minEta = cms.double(-3.0)
 
 from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
 hltGsfTracksPreValidation = cms.Sequence(
