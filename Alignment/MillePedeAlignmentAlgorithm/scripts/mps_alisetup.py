@@ -75,18 +75,16 @@ def get_weight_configs(config):
     return configs
 
 
-def create_input_db(cfg, run_number):
+def create_input_db(cms_process, run_number):
     """
     Create sqlite file with single-IOV tags and use it to override the GT. If
     the GT is already customized by the user, the customization has higher
     priority. Returns a snippet to be appended to the configuration file
 
     Arguments:
-    - `cfg`: path to python configuration
+    - `cms_process`: cms.Process object
     - `run_number`: run from which to extract the alignment payloads
     """
-
-    cms_process = mps_tools.get_process_object(cfg)
 
     run_number = int(run_number)
     if not run_number > 0:
@@ -288,7 +286,10 @@ if args.weight:
 
     thisCfgTemplate = "tmp.py"
     with open(thisCfgTemplate, "w") as f: f.write(tmpFile)
-    overrideGT = create_input_db(thisCfgTemplate, first_run)
+
+    cms_process = mps_tools.get_process_object(thisCfgTemplate)
+
+    overrideGT = create_input_db(cms_process, first_run)
     with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
 
     for setting in pedesettings:
@@ -484,7 +485,8 @@ for section in config.sections():
             append = ''
             firstDataset = False
             configTemplate = tmpFile
-            overrideGT = create_input_db(thisCfgTemplate,
+            cms_process = mps_tools.get_process_object(thisCfgTemplate)
+            overrideGT = create_input_db(cms_process,
                                          generalOptions["FirstRunForStartGeometry"])
 
         with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
