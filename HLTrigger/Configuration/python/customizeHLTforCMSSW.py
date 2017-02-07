@@ -408,6 +408,14 @@ def customiseFor17098(process):
        producer.copyTrajectories = cms.untracked.bool(False)
     return process
 
+# Configurable Pixel Cluster Shape in LowPtSeedComparitor
+def customiseFor17393(process):
+    for producer in producers_by_type(process,"PixelTripletHLTEDProducer"):
+         if hasattr(producer,'SeedComparitorPSet'):
+             if (producer.SeedComparitorPSet.ComponentName.value() == 'LowPtClusterShapeSeedComparitor'):
+                  producer.SeedComparitorPSet.clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
+    return process
+
 #
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -436,6 +444,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         process = customiseFor17094(process)
         process = customiseFor17170(process)
         process = customiseFor17098(process)
+        process = customiseFor17393(process)
         pass
 
 #   stage-2 changes only if needed
