@@ -299,8 +299,9 @@ def _matchTracksByTrackingParticle(reftrk, trklist, othertrklist, othertplist):
     """
     ref_viatp = []
     other_viatp = []
+    other_viatp_notinother = []
     if reftrk.nMatchedTrackingParticles() == 0:
-        return (ref_viatp, other_viatep)
+        return (ref_viatp, other_viatp, other_viatp_notinother)
 
     for tpInfo1 in reftrk.matchedTrackingParticleInfos():
         tp1 = tpInfo1.trackingParticle()
@@ -323,16 +324,9 @@ def _matchTracksByTrackingParticle(reftrk, trklist, othertrklist, othertplist):
                 t2 = next(t for t in othertrklist if t.index() == t2Index)
                 other_viatp.append(t2)
             except StopIteration:
-                # I thought first that in case the TP is matched to
-                # track2 NOT in othertrklist, I want to print that
-                # anyway because it is interesting to note that that
-                # track1 is reconstructed/something in ntuple2, but
-                # does not enter in othertrklist. But now I think the
-                # opposite.
-                pass
-                #other_viatp_notintrks2.append(trkInfo2.track())
+                other_viatp_notinother.append(trkInfo2.track())
 
-    return (ref_viatp, other_viatp)
+    return (ref_viatp, other_viatp, other_viatp_notinother)
 
 
 
@@ -356,6 +350,45 @@ class _DiffResult(object):
                 self.setDifference()
         else:
             self._diff.extend(diff)
+
+    def _highlightLine(self, line, plus, minus):
+        char = " "
+        if line[0] == "+":
+            if plus: char = "+"
+        elif line[0] == "-":
+            if minus: char = "-"
+        elif line[0] == "?":
+            char = "?"
+        return line[0]+char+line[1:]
+
+    def highlight(self, plus=False, minus=False):
+        if not (plus or minus):
+            return
+
+        for i, line in enumerate(self._diff):
+            if isinstance(line, _DiffResult):
+                line.highlight(plus, minus)
+            else:
+                self._diff[i] = self._highlightLine(line, plus, minus)
+
+    def highlightLines(self, plusregexs=[], minusregexs=[]):
+        if len(plusregexs) == 0 and len(minusregexs) == 0:
+            return
+
+        for i, line in enumerate(self._diff):
+            if isinstance(line, _DiffResult):
+                raise Exception("highlightLines() is currently allowed only for text-only _DiffResult objects")
+            plus = False
+            minus = False
+            for p in plusregexs:
+                if p.search(line):
+                    plus = True
+                    break
+            for m in minusregexs:
+                if m.search(line):
+                    plus = True
+                    break
+            self._diff[i] = self._highlightLine(line, plus, minus)
 
     def lines(self):
         for line in self._diff:
@@ -388,12 +421,27 @@ def _makediff(list1, list2, equalPrefix=" "):
 def _mapdiff(func, obj1, obj2):
     lst1 = func(obj1) if obj1 is not None else []
     lst2 = func(obj2) if obj2 is not None else []
-    return _DiffResult(_makediff(lst1, lst2))
+    return _makediff(lst1, lst2)
 
-def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, diffByHitsOnly=False):
+def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, lst1extra=[], lst2extra=[], diffByHitsOnly=False):
+    """lst1 and lst2 are the main lists to make the diff from.
+
+    lst1extra and lst2extra are optional to provide suplementary
+    tracks. Use case: lst1 and lst2 are subset of full tracks,
+    lst1extra and lst2extra contain tracks matched to the same
+    TrackingParticle but are outside of the selection of lst1/lst2.
+    """
+
     diff = _DiffResult()
-    trks1 = list(lst1)
-    trks2 = list(lst2) # make copy because it is modified
+
+    _trks1extra = list(lst1extra)
+    _trks2extra = list(lst2extra)
+
+    trks1 = list(lst1)+_trks1extra
+    trks2 = list(lst2)+_trks2extra # make copy because it is modified
+
+    trks1extra = set([t.index() for t in _trks1extra])
+    trks2extra = set([t.index() for t in _trks2extra])
 
     trks1Empty = (len(trks1) == 0)
     trks2Empty = (len(trks2) == 0)
@@ -427,6 +475,8 @@ def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, diffByHitsO
 
         # no more tracks in tp2
         if matchedTrk2 is None:
+            if trk1.index() in trks1extra:
+                raise Exception("Track %d was found in trks1extra but matchedTrk2 is None, this should not happen" % trk1.index())
             diff.extend(_makediff(trackPrinter.printTrack(trk1), []))
         else: # diff trk1 to best-matching track from trks2
             someTrk2 = matchedTrk2
@@ -434,15 +484,25 @@ def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, diffByHitsO
             tmp = trackPrinter.diff(trk1, matchedTrk2, diffTrackingParticles=False)
             if diffByHitsOnly and ncommon == trk1.nValid() and ncommon == matchedTrk2.nValid():
                 tmp.setDifference(False)
+            tmp.highlight(plus=(matchedTrk2.index() in trks2extra), minus=(trk1.index() in trks1extra))
             diff.extend(tmp)
 
     for trk2 in trks2: # remaining tracks in trks2
+        if trk2.index() in trks2extra:
+            raise Exception("Track %d was found in trks2extra, but without matching track in trks1, this should not happen" % trk2.index())
         diff.extend(_makediff([], trackPrinter.printTrack(trk2)))
 
     # finally add information of the trackingParticle
     # easiest is to pass a track matched to the TP
     tmp = _mapdiff(trackPrinter.printTrackingParticles, someTrk1, someTrk2)
     tmp.setDifference(False) # we know the TP is the same, even if the "track match" information will differ
+    def _makere(lst):
+        r = []
+        for i in lst: r.extend([re.compile("Tracks:.*%d:"%i), re.compile("matched to tracks.*%d"%i)])
+        return r
+    plusre = _makere(trks2extra)
+    minusre = _makere(trks1extra)
+    tmp.highlightLines(plusre, minusre)
     diff.extend(tmp)
 
     return diff
@@ -471,8 +531,9 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
 
         # first try via TrackingParticles
         if trk1.nMatchedTrackingParticles() > 0 and tps2:
-            (trks1_viatp, trks2_viatp) = _matchTracksByTrackingParticle(trk1, trks1, trks2, tps2)
-            if len(trks2_viatp) > 0:
+            (trks1_viatp, trks2_viatp, trks2_viatp_notintrks2) = _matchTracksByTrackingParticle(trk1, trks1, trks2, tps2)
+
+            if len(trks2_viatp) > 0 or len(trks2_viatp_notintrks2) > 0:
                 for t1 in trks1_viatp:
                     trks1.remove(t1)
                 for t2 in trks2_viatp:
@@ -484,7 +545,7 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
                 #    print [t.index() for t in trks2_viatp]
                 #    print [t.index() for t in trks2_viatp_notintrks2]
 
-                tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [trk1]+trks1_viatp, trks2_viatp, diffByHitsOnly=True)
+                tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [trk1]+trks1_viatp, trks2_viatp, lst2extra=trks2_viatp_notintrks2, diffByHitsOnly=True)
 
                 #if debug:
                 #    print str(tmp)
@@ -511,8 +572,11 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
             i = 0
             while i < len(trks2) and trks2[i].eta() < trk1.eta():
                 # is there any way to speed these up?
+                trks1_viatp = []
+                trks1_viatp_notintrks1 = []
+                trks2_viatp = []
                 if trks2[i].nMatchedTrackingParticles() > 0 and tps1:
-                    (trks2_viatp, trks1_viatp) = _matchTracksByTrackingParticle(trks2[i], trks2, trks1, tps1)
+                    (trks2_viatp, trks1_viatp, trks1_viatp_notintrks1) = _matchTracksByTrackingParticle(trks2[i], trks2, trks1, tps1)
                     if len(trks1_viatp) > 0:
                         i += 1
                         continue
@@ -522,7 +586,13 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
                     i += 1
                     continue
                 else:
-                    diff.extend(_makediff([], trackPrinter.printTrackAndMatchedTrackingParticles(trks2[i])))
+                    if len(trks1_viatp_notintrks1) > 0:
+                        if len(trks2_viatp) > 0: raise Exception("%d elements in trks2_viatp, I don't understand what is going on" % len(trks2_viatp))
+                        tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [], [trks2[i]], lst1extra=trks1_viatp_notintrks1, diffByHitsOnly=True)
+                        if tmp.hasDifference():
+                            diff.extend(tmp)
+                    else:
+                        diff.extend(_makediff([], trackPrinter.printTrackAndMatchedTrackingParticles(trks2[i])))
                     del trks2[i]
 
         # if no matching tracks in trk2 via TrackingParticles, then
