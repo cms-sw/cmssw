@@ -106,12 +106,13 @@ namespace {
 
 /*****************************************************************************/
 LowPtClusterShapeSeedComparitor::LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps, edm::ConsumesCollector& iC):
-  thePixelClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
+  thePixelClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
+  theShapeFilterLabel_(ps.getParameter<std::string>("clusterShapeHitFilter"))
 {}
 
 /*****************************************************************************/
 void LowPtClusterShapeSeedComparitor::init(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theShapeFilter);
+  es.get<CkfComponentsRecord>().get(theShapeFilterLabel_, theShapeFilter);
   es.get<TrackerTopologyRcd>().get(theTTopo);
 
   e.getByToken(thePixelClusterShapeCacheToken, thePixelClusterShapeCache);
