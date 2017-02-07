@@ -64,8 +64,7 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
 	// Check if the L3 link matches the L3 candidate
 	const reco::Track& globalTrack = *link->globalTrack();
 	float dR2 = deltaR2(tk->eta(),tk->phi(),globalTrack.eta(),globalTrack.phi());
-	float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
-	if (dR2 < 0.02*0.02 and dPt < 0.001) {
+	if (dR2 < 0.02*0.02 and std::abs(tk->pt() - globalTrack.pt()) < 0.001*tk->pt()) {
 	  useThisLink=true;
 	}
 	
@@ -82,7 +81,7 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
 	  if (globalTrack.numberOfValidHits()< min_Nhits_) continue;  	// cut on number of hits
 	  if (globalTrack.normalizedChi2() > max_NormalizedChi2_ ) continue;		//normalizedChi2 cut
 	  if (globalTrack.hitPattern().numberOfValidMuonHits() < min_NmuonHits_ ) continue;  	//min muon hits cut
-	  if (std::abs(globalTrack.pt()-l2muRef->pt())/globalTrack.pt() > max_PtDifference_) continue; // pt difference 
+	  if (std::abs(globalTrack.pt()-l2muRef->pt()) > max_PtDifference_*globalTrack.pt()) continue; // pt difference 
 	  re_do_this_L2 = false;
 	}
       }
