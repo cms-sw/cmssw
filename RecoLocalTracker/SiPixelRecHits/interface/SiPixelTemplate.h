@@ -290,7 +290,19 @@ class SiPixelTemplate {
   
 // Interpolate qfl correction in x. 
   float xflcorr(int binq, float qflx);
-  	
+  
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+	   float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+	     
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+	   float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+	
+// Overload to use for cluster splitting 
+	int qbin(int id, float cotalpha, float cotbeta, float qclus);
+	
+// Overload to keep legacy interface 
+  int qbin(int id, float cotbeta, float qclus);
+	  	
 // Method to return template errors for fastsim
   void temperrors(int id, float cotalpha, float cotbeta, int qBin, float& sigmay, float& sigmax, float& sy1, float& sy2, float& sx1, float& sx2);
 	

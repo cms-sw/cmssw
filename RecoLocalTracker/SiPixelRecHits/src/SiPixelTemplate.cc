@@ -2318,6 +2318,414 @@ void SiPixelTemplate::xtemp3d(int i, int j, std::vector<float>& xtemplate)
 
 
 // ************************************************************************************************************ 
+//! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
+//! of the cluster [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin].
+//! \param id - (input) index of the template to use
+//! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
+//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
+//!                    for Phase 0 FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
+//!                    for Phase 1 FPix IP-related tracks, see next comment
+//! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
+//!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
+//!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0//! 
+//! \param qclus - (input) the cluster charge in electrons 
+//! \param pixmax - (output) the maximum pixel charge in electrons (truncation value)
+//! \param sigmay - (output) the estimated y-error for CPEGeneric in microns
+//! \param deltay - (output) the estimated y-bias for CPEGeneric in microns
+//! \param sigmax - (output) the estimated x-error for CPEGeneric in microns
+//! \param deltax - (output) the estimated x-bias for CPEGeneric in microns
+//! \param sy1 - (output) the estimated y-error for 1 single-pixel clusters in microns
+//! \param dy1 - (output) the estimated y-bias for 1 single-pixel clusters in microns
+//! \param sy2 - (output) the estimated y-error for 1 double-pixel clusters in microns
+//! \param dy2 - (output) the estimated y-bias for 1 double-pixel clusters in microns
+//! \param sx1 - (output) the estimated x-error for 1 single-pixel clusters in microns
+//! \param dx1 - (output) the estimated x-bias for 1 single-pixel clusters in microns
+//! \param sx2 - (output) the estimated x-error for 1 double-pixel clusters in microns
+//! \param dx2 - (output) the estimated x-bias for 1 double-pixel clusters in microns
+//! \param lorywidth - (output) the estimated y Lorentz width
+//! \param lorxwidth - (output) the estimated x Lorentz width
+// ************************************************************************************************************ 
+int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus, float& pixmx, 
+    float& sigmay, float& deltay, float& sigmax, float& deltax,float& sy1, float& dy1, float& sy2, 
+    float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)		 
+{
+    // Interpolate for a new set of track angles 
+    
+
+// Find the index corresponding to id
+
+   int index = -1;
+    for( int i=0; i<(int)thePixelTemp_.size(); ++i) {      
+      if(id == thePixelTemp_[i].head.ID) {
+	index = i;
+	break;
+      }
+    }
+	 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(index < 0 || index >= (int)thePixelTemp_.size()) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin can't find needed template ID = " << id << std::endl;
+    }
+#else
+    assert(index >= 0 && index < (int)thePixelTemp_.size());
+#endif
+	 
+    //	
+
+
+    auto const & templ = thePixelTemp_[index];	
+    
+    // Interpolate the absolute value of cot(beta)     
+    
+    auto acotb = std::abs(cotbeta);
+    
+    //	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
+	
+    auto cotalpha0 =  thePixelTemp_[index].enty[0].cotalpha;
+    auto qcorrect=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta*cotbeta+cotalpha0*cotalpha0));
+    
+// for some cosmics, the ususal gymnastics are incorrect  
+
+    float cota = cotalpha; 
+    float cotb = abs_cotb_;
+    bool flip_x = false;
+	bool flip_y = false;
+	switch(thePixelTemp_[index_id_].head.Dtype) {
+	   case 0:
+		  if(cotbeta < 0.f) {flip_y = true;}
+		  break;
+	   case 1:
+	      if(locBz < 0.f) {
+			  cotb = cotbeta;
+		  } else {
+			  cotb = -cotbeta;
+			  flip_y = true;
+		  }	
+		  break;
+	   case 2:
+	   case 3:
+	   case 4:
+	      if(locBx*locBz < 0.f) {
+	         cota = -cotalpha;
+	         flip_x = true;
+	      }
+	      if(locBx > 0.f) {
+	         cotb = cotbeta;
+	      } else {
+	         cotb = -cotbeta;
+	         flip_y = true;
+	      }
+	      break;
+	   default:
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+		  throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+#else
+	      std::cout << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+#endif
+	}    
+    
+  
+   // Copy the charge scaling factor to the private variable
+
+    
+    auto qscale = thePixelTemp_[index].head.qscale;
+
+
+     /*
+    lorywidth = thePixelTemp_[index].head.lorywidth;
+    if(locBz > 0.f) {lorywidth = -lorywidth;}
+    lorxwidth = thePixelTemp_[index].head.lorxwidth;
+    */
+
+    
+    auto Ny = thePixelTemp_[index].head.NTy;
+    auto Nyx = thePixelTemp_[index].head.NTyx;
+    auto Nxx = thePixelTemp_[index].head.NTxx;
+    
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(Ny < 2 || Nyx < 1 || Nxx < 2) {
+      throw cms::Exception("DataCorrupt") << "template ID = " << id_current_ << "has too few entries: Ny/Nyx/Nxx = " << Ny << "/" << Nyx << "/" << Nxx << std::endl;
+    }
+#else
+    assert(Ny > 1 && Nyx > 0 && Nxx > 1);
+#endif
+    
+    // next, loop over all y-angle entries   
+    
+    auto ilow = 0;
+    auto ihigh = 0;
+    auto yratio = 0.f;
+      
+    {
+      auto j = std::lower_bound(templ.cotbetaY,templ.cotbetaY+Ny,cotb);
+      if (j==templ.cotbetaY+Ny) { --j;  yratio = 1.f; }
+      else if (j==templ.cotbetaY) { ++j; yratio = 0.f;}
+      else { yratio = (cotb - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+      
+      ihigh = j-templ.cotbetaY;
+      ilow = ihigh-1;
+    }
+
+
+
+    // Interpolate/store all y-related quantities (flip displacements when flip_y)
+    
+    dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
+    if(flip_y) {dy1 = -dy1;}
+    sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
+    dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
+    if(flip_y) {dy2 = -dy2;}
+    sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
+ 
+    auto qavg = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qavg + yratio*thePixelTemp_[index].enty[ihigh].qavg;
+    qavg *= qcorrect;
+    auto qmin = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin + yratio*thePixelTemp_[index].enty[ihigh].qmin;
+    qmin *= qcorrect;
+    auto qmin2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin2 + yratio*thePixelTemp_[index].enty[ihigh].qmin2;
+    qmin2 *= qcorrect;
+
+
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(qavg <= 0.f || qmin <= 0.f) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin, qavg or qmin <= 0," 
+					  << " Probably someone called the generic pixel reconstruction with an illegal trajectory state" << std::endl;
+    }
+#else
+    assert(qavg > 0.f && qmin > 0.f);
+#endif
+    
+    //  Scale the input charge to account for differences between pixelav and CMSSW simulation or data	
+    
+    auto qtotal = qscale*qclus;
+    
+    // uncertainty and final corrections depend upon total charge bin 	       
+    auto fq = qtotal/qavg;
+    int  binq;
+
+    if(fq > fbin_[0]) {
+      binq=0;
+      //std::cout<<" fq "<<fq<<" "<<qtotal<<" "<<qavg<<" "<<qclus<<" "<<qscale<<" "
+      //       <<fbin_[0]<<" "<<fbin_[1]<<" "<<fbin_[2]<<std::endl;
+    } else {
+      if(fq > fbin_[1]) {
+	binq=1;
+      } else {
+	if(fq > fbin_[2]) {
+	  binq=2;
+	} else {
+	  binq=3;
+	}
+      }
+    }
+
+    auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
+    if(flip_y) {yavggen = -yavggen;}
+    auto yrmsgen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
+    
+    
+// next, loop over all x-angle entries, first, find relevant y-slices   
+    
+    auto iylow = 0;
+    auto iyhigh = 0;
+    auto yxratio = 0.f;
+       
+
+    {
+      auto j = std::lower_bound(templ.cotbetaX,templ.cotbetaX+Nyx,acotb);
+      if (j==templ.cotbetaX+Nyx) { --j;  yxratio = 1.f; }
+      else if (j==templ.cotbetaX) { ++j; yxratio = 0.f;}
+      else { yxratio = (acotb - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+      
+      iyhigh = j-templ.cotbetaX;
+      iylow = iyhigh -1;
+    }
+
+
+
+    ilow = ihigh = 0;
+    auto xxratio = 0.f;  
+
+    {
+      auto j = std::lower_bound(templ.cotalphaX,templ.cotalphaX+Nxx,cotalpha);
+      if (j==templ.cotalphaX+Nxx) { --j;  xxratio = 1.f; }
+      else if (j==templ.cotalphaX) { ++j; xxratio = 0.f;}
+      else { xxratio = (cota - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+
+      ihigh = j-templ.cotalphaX;
+      ilow = ihigh-1; 
+    }
+    
+
+
+    dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
+    if(flip_x) {dx1 = -dx1;}
+    sx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
+    dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
+    if(flip_x) {dx2 = -dx2;}
+    sx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
+    
+    // pixmax is the maximum allowed pixel charge (used for truncation)
+    
+    pixmx=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iylow][ihigh].pixmax)
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
+    
+    auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+    if(flip_x) {xavggen = -xavggen;}
+    
+    auto xrmsgen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq])
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);		  
+    
+		
+    
+    //  Take the errors and bias from the correct charge bin
+	
+    sigmay = yrmsgen; deltay = yavggen;
+    
+    sigmax = xrmsgen; deltax = xavggen;
+    
+    // If the charge is too small (then flag it)
+    
+    if(qtotal < 0.95f*qmin) {binq = 5;} else {if(qtotal < 0.95f*qmin2) {binq = 4;}}
+    
+    return binq;
+    
+} // qbin
+
+
+// ************************************************************************************************************ 
+//! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
+//! of the cluster [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin].
+//! \param id - (input) index of the template to use
+//! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
+//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
+//!                    for Phase 0 FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
+//!                    for Phase 1 FPix IP-related tracks, see next comment
+//! \param locBx - (input) the sign of this quantity is used to determine whether to flip cot(alpha/beta)<0 quantities from cot(alpha/beta)>0 (FPix only)
+//!                    for Phase 1 FPix IP-related tracks, locBx/locBz > 0 for cot(alpha) > 0 and locBx/locBz < 0 for cot(alpha) < 0
+//!                    for Phase 1 FPix IP-related tracks, locBx > 0 for cot(beta) > 0 and locBx < 0 for cot(beta) < 0//! 
+//! \param qclus - (input) the cluster charge in electrons 
+//! \param pixmax - (output) the maximum pixel charge in electrons (truncation value)
+//! \param sigmay - (output) the estimated y-error for CPEGeneric in microns
+//! \param deltay - (output) the estimated y-bias for CPEGeneric in microns
+//! \param sigmax - (output) the estimated x-error for CPEGeneric in microns
+//! \param deltax - (output) the estimated x-bias for CPEGeneric in microns
+//! \param sy1 - (output) the estimated y-error for 1 single-pixel clusters in microns
+//! \param dy1 - (output) the estimated y-bias for 1 single-pixel clusters in microns
+//! \param sy2 - (output) the estimated y-error for 1 double-pixel clusters in microns
+//! \param dy2 - (output) the estimated y-bias for 1 double-pixel clusters in microns
+//! \param sx1 - (output) the estimated x-error for 1 single-pixel clusters in microns
+//! \param dx1 - (output) the estimated x-bias for 1 single-pixel clusters in microns
+//! \param sx2 - (output) the estimated x-error for 1 double-pixel clusters in microns
+//! \param dx2 - (output) the estimated x-bias for 1 double-pixel clusters in microns
+//! \param lorywidth - (output) the estimated y Lorentz width
+//! \param lorxwidth - (output) the estimated x Lorentz width
+// ************************************************************************************************************ 
+int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, 
+    float& sigmay, float& deltay, float& sigmax, float& deltax,float& sy1, float& dy1, float& sy2, 
+    float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)		 
+{
+	// Interpolate for a new set of track angles 
+	
+	// Local variables 
+	float locBx; //  lorywidth, lorxwidth;
+	    // Local variables 
+    locBx = 1.f;
+
+	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, locBx, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
+										  sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
+	
+} // qbin
+
+// ************************************************************************************************************ 
+//! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
+//! of the cluster [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin].
+//! \param id - (input) index of the template to use
+//! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
+//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param locBz - (input) the sign of this quantity is used to determine whether to flip cot(beta)<0 quantities from cot(beta)>0 (FPix only)
+//!                    for FPix IP-related tracks, locBz < 0 for cot(beta) > 0 and locBz > 0 for cot(beta) < 0
+//! \param qclus - (input) the cluster charge in electrons 
+//! \param pixmax - (output) the maximum pixel charge in electrons (truncation value)
+//! \param sigmay - (output) the estimated y-error for CPEGeneric in microns
+//! \param deltay - (output) the estimated y-bias for CPEGeneric in microns
+//! \param sigmax - (output) the estimated x-error for CPEGeneric in microns
+//! \param deltax - (output) the estimated x-bias for CPEGeneric in microns
+//! \param sy1 - (output) the estimated y-error for 1 single-pixel clusters in microns
+//! \param dy1 - (output) the estimated y-bias for 1 single-pixel clusters in microns
+//! \param sy2 - (output) the estimated y-error for 1 double-pixel clusters in microns
+//! \param dy2 - (output) the estimated y-bias for 1 double-pixel clusters in microns
+//! \param sx1 - (output) the estimated x-error for 1 single-pixel clusters in microns
+//! \param dx1 - (output) the estimated x-bias for 1 single-pixel clusters in microns
+//! \param sx2 - (output) the estimated x-error for 1 double-pixel clusters in microns
+//! \param dx2 - (output) the estimated x-bias for 1 double-pixel clusters in microns
+// ************************************************************************************************************ 
+/*
+int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2)
+
+{
+	float lorywidth, lorxwidth;
+	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
+								 sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
+	
+} // qbin
+*/
+
+// ************************************************************************************************************ 
+//! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
+//! of the cluster [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin].
+//! \param id - (input) index of the template to use
+//! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
+//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param qclus - (input) the cluster charge in electrons 
+// ************************************************************************************************************ 
+int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float qclus)
+{
+	// Interpolate for a new set of track angles 
+	
+	// Local variables 
+	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, locBx; //  lorywidth, lorxwidth;
+	    // Local variables 
+    locBx = 1.f;
+    if(cotbeta < 0.f) {locBx = -1.f;}
+    locBz = locBx;
+    if(cotalpha < 0.f) {locBz = -locBx;}
+
+	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, locBx, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
+										  sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
+	
+} // qbin
+
+// ************************************************************************************************************ 
+//! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
+//! of the cluster [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin].
+//! \param id - (input) index of the template to use
+//! \param cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)
+//! \param qclus - (input) the cluster charge in electrons 
+// ************************************************************************************************************ 
+int SiPixelTemplate::qbin(int id, float cotbeta, float qclus)
+{
+// Interpolate for a new set of track angles 
+				
+// Local variables 
+	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, locBx; //, lorywidth, lorxwidth;
+	const float cotalpha = 0.f;
+    locBx = 1.f;
+    if(cotbeta < 0.f) {locBx = -1.f;}
+    locBz = locBx;
+    if(cotalpha < 0.f) {locBz = -locBx;}
+	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, locBx, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
+								sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
+				
+} // qbin
+				
+
+
+
+// ************************************************************************************************************ 
 //! Interpolate beta/alpha angles to produce estimated errors for fastsim 
 //! \param id - (input) index of the template to use
 //! \param cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014)
