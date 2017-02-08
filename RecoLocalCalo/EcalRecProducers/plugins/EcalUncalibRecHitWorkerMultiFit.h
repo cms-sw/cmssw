@@ -60,11 +60,18 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
                 double timeCorrection(float ampli,
                     const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
-                const SampleMatrix & noisecor(bool barrel, int gain) const { return noisecors_[barrel?1:0][gain];}
-                const SampleMatrixGainArray &noisecor(bool barrel) const { return noisecors_[barrel?1:0]; }
+                const SampleMatrix & noisecor(bool barrel, int gain) const { return *noisecors[barrel?1:0][gain];} 
                 
                 // multifit method
-                std::array<SampleMatrixGainArray, 2> noisecors_;
+                SampleMatrix noisecorEBg12;
+                SampleMatrix noisecorEEg12;
+                SampleMatrix noisecorEBg6;
+                SampleMatrix noisecorEEg6;
+                SampleMatrix noisecorEBg1;
+                SampleMatrix noisecorEEg1;
+                SampleMatrix const * const noisecors[2][3] = 
+                       { {&noisecorEEg1, &noisecorEEg6, &noisecorEEg12}, 
+                         {&noisecorEBg1, &noisecorEBg6, &noisecorEBg12}};
                 BXVector activeBX;
                 bool ampErrorCalculation_;
                 bool useLumiInfoRunHeader_;
@@ -90,17 +97,6 @@ class EcalUncalibRecHitWorkerMultiFit final : public EcalUncalibRecHitWorkerBase
                 bool doPrefitEE_;
 		double prefitMaxChiSqEB_;
 		double prefitMaxChiSqEE_;
-                bool dynamicPedestalsEB_;
-                bool dynamicPedestalsEE_;
-                bool mitigateBadSamplesEB_;
-                bool mitigateBadSamplesEE_;
-                bool gainSwitchUseMaxSampleEB_;
-                bool gainSwitchUseMaxSampleEE_;
-                bool selectiveBadSampleCriteriaEB_;
-                bool selectiveBadSampleCriteriaEE_;
-                double addPedestalUncertaintyEB_;
-                double addPedestalUncertaintyEE_;
-                bool simplifiedNoiseModelForGainSwitch_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 

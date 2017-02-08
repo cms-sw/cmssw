@@ -16,11 +16,11 @@ class cscmap
   /**
    * Constructor for cscmap
    */
-  cscmap () noexcept(false);
+  cscmap () throw (oracle::occi::SQLException);
   /**
    * Destructor for cscmap
    */
-  ~cscmap () noexcept(false);
+  ~cscmap () throw (oracle::occi::SQLException);
 
 /*  Method 'crate0_chamber' returns for a given logical crate
 |   number 'crate0' (values 0-59) and DMB number 'dmb' 

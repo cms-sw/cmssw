@@ -1,14 +1,12 @@
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
-#include <iostream>
+
+
 
 EcalTriggerPrimitiveDigi::EcalTriggerPrimitiveDigi() : size_(0), data_(MAXSAMPLES) {
 }
-
 EcalTriggerPrimitiveDigi::EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id) : id_(id),
-size_(0), data_(MAXSAMPLES) {
+										   size_(0), data_(MAXSAMPLES) {
 }
-
-
 
 int EcalTriggerPrimitiveDigi::sampleOfInterest() const
 {

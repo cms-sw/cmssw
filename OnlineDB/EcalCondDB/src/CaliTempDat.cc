@@ -30,7 +30,7 @@ CaliTempDat::~CaliTempDat()
 
 
 void CaliTempDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -48,7 +48,7 @@ void CaliTempDat::prepareWrite()
 
 
 void CaliTempDat::writeDB(const EcalLogicID* ecid, const CaliTempDat* item, CaliIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -77,7 +77,7 @@ void CaliTempDat::writeDB(const EcalLogicID* ecid, const CaliTempDat* item, Cali
 
 
 void CaliTempDat::fetchData(std::map< EcalLogicID, CaliTempDat >* fillMap, CaliIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -123,7 +123,7 @@ void CaliTempDat::fetchData(std::map< EcalLogicID, CaliTempDat >* fillMap, CaliI
 }
 
 void CaliTempDat::writeArrayDB(const std::map< EcalLogicID, CaliTempDat >* data, CaliIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

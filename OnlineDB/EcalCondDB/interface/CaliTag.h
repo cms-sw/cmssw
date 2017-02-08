@@ -36,8 +36,8 @@ class CaliTag : public ITag {
 
 
   // Methods using ID
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
 
   // Operators
   inline bool operator==(const CaliTag &t) const 
@@ -57,11 +57,11 @@ class CaliTag : public ITag {
   std::string m_dataType;
 
   // Methods from ITag
-  int writeDB() noexcept(false);
-  void fetchParentIDs(int* locId) noexcept(false);
+  int writeDB() throw(std::runtime_error);
+  void fetchParentIDs(int* locId) throw(std::runtime_error);
 
   // Public access methods
-  void fetchAllTags( std::vector<CaliTag>* fillVec) noexcept(false);
+  void fetchAllTags( std::vector<CaliTag>* fillVec) throw(std::runtime_error);
 
 };
 

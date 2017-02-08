@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
@@ -10,7 +11,7 @@ ckfOutInTracksFromConversions = cms.EDProducer("TrackProducerWithSCAssociation",
     producer = cms.string('conversionTrackCandidates'),
     Fitter = cms.string('KFFitterForOutIn'),
     trackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
-    TrajectoryInEvent = cms.bool(False),
+    TrajectoryInEvent = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     #string AlgorithmName = "ecalSeededConv"
     AlgorithmName = cms.string('outInEcalSeededConv'),

@@ -31,7 +31,7 @@ FEConfigBadStripDat::~FEConfigBadStripDat()
 
 
 void FEConfigBadStripDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void FEConfigBadStripDat::prepareWrite()
 
 
 void FEConfigBadStripDat::writeDB(const FEConfigBadStripDat* item, FEConfigBadStripInfo* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -68,7 +68,7 @@ void FEConfigBadStripDat::writeDB(const FEConfigBadStripDat* item, FEConfigBadSt
 
 
 void FEConfigBadStripDat::fetchData(std::vector< FEConfigBadStripDat >* p, FEConfigBadStripInfo* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -105,7 +105,7 @@ void FEConfigBadStripDat::fetchData(std::vector< FEConfigBadStripDat >* p, FECon
 //  ************************************************************************   // 
 
 void FEConfigBadStripDat::writeArrayDB(const std::vector< FEConfigBadStripDat >& data, FEConfigBadStripInfo* iov)
-    noexcept(false)
+    throw(std::runtime_error)
 {
   this->checkConnection();
 

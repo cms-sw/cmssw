@@ -23,7 +23,3 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionProducer, "HITr
 
 #include "HITrackingRegionForPrimaryVtxProducer.h"
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionForPrimaryVtxProducer, "HITrackingRegionForPrimaryVtxProducer");
-
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
-using HITrackingRegionForPrimaryVtxEDProducer = TrackingRegionEDProducerT<HITrackingRegionForPrimaryVtxProducer>;
-DEFINE_FWK_MODULE(HITrackingRegionForPrimaryVtxEDProducer);

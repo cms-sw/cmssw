@@ -38,7 +38,7 @@ ODSRPConfig::~ODSRPConfig()
 {
 }
 
-int ODSRPConfig::fetchNextId()  noexcept(false) {
+int ODSRPConfig::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -114,7 +114,7 @@ void ODSRPConfig::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODSRPConfig::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -164,7 +164,7 @@ void ODSRPConfig::prepareWrite()
 
 
 void ODSRPConfig::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   std::cout<<"updating the clob 2"<<std::endl;
@@ -201,7 +201,7 @@ void ODSRPConfig::writeDB()
 
 
 void ODSRPConfig::fetchData(ODSRPConfig * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   //  result->clear();
@@ -262,7 +262,7 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
 
 
 
-int ODSRPConfig::fetchID()    noexcept(false)
+int ODSRPConfig::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

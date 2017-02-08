@@ -9,7 +9,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableMap.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/TrackerAlignment/interface/TrackerNameSpace.h"
 
 class TrackerGeometry;
 class TrackerTopology;
@@ -34,31 +33,27 @@ public:
 
   /// Return TOB half barrels
   Alignables& outerHalfBarrels() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TOBHalfBarrel));
+    return this->subStructures(AlignableObjectId::typeToName(align::TOBHalfBarrel));
   }
   /// Return TIB half barrels
   Alignables& innerHalfBarrels() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIBHalfBarrel));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIBHalfBarrel));
   }
   /// Return Pixel half barrels
   Alignables& pixelHalfBarrels() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPBHalfBarrel));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPBHalfBarrel));
   }
   /// Return TECs
   Alignables& endCaps() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TECEndcap));
+    return this->subStructures(AlignableObjectId::typeToName(align::TECEndcap));
   }
   /// Return TPEs
   Alignables& pixelEndCaps() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPEEndcap));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPEEndcap));
   }
   /// Return TIDs
   Alignables& TIDs() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIDEndcap));
-  }
-  /// Return pixel endcap half cylinders
-  Alignables& pixelEndcapHalfCylinders() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPEHalfCylinder));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIDEndcap));
   }
 
   /// Return inner and outer barrel GeomDets together 
@@ -70,54 +65,54 @@ public:
   }
   /// Return inner barrel GeomDets 
   Alignables& innerBarrelGeomDets() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIBModule));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIBModule));
   }
   /// Return outer barrel GeomDets
   Alignables& outerBarrelGeomDets() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TOBModule));
+    return this->subStructures(AlignableObjectId::typeToName(align::TOBModule));
   }
   /// Return pixel barrel GeomDets
   Alignables& pixelHalfBarrelGeomDets() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPBModule));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPBModule));
   }
   /// Return endcap  GeomDets
   Alignables& endcapGeomDets() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TECModule));
+    return this->subStructures(AlignableObjectId::typeToName(align::TECModule));
   }
   /// Return TID  GeomDets  
   Alignables& TIDGeomDets() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIDModule));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIDModule));
   }
   /// Return pixel endcap GeomDets
   Alignables& pixelEndcapGeomDets() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPEModule));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPEModule));
   }
   
   /// Return inner and outer barrel rods
   Alignables barrelRods() { return this->merge(this->innerBarrelRods(), this->outerBarrelRods());}
   /// Return inner barrel rods
   Alignables& innerBarrelRods() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIBString));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIBString));
   }
   /// Return outer barrel rods
   Alignables& outerBarrelRods() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TOBRod));
+    return this->subStructures(AlignableObjectId::typeToName(align::TOBRod));
   }
   /// Return pixel half barrel ladders (implemented as AlignableRods)
   Alignables& pixelHalfBarrelLadders() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPBLadder));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPBLadder));
   }
   /// Return encap petals
   Alignables& endcapPetals() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TECPetal));
+    return this->subStructures(AlignableObjectId::typeToName(align::TECPetal));
   }
   /// Return TID rings
   Alignables& TIDRings() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIDRing));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIDRing));
   }
   /// Return pixel endcap petals
   Alignables& pixelEndcapPetals() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPEPanel));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPEPanel));
   }
 		     
   /// Return inner and outer barrel layers
@@ -126,27 +121,27 @@ public:
   }
   /// Return inner barrel layers
   Alignables& innerBarrelLayers() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIBLayer));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIBLayer));
   }
   /// Return outer barrel layers
   Alignables& outerBarrelLayers() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TOBLayer));
+    return this->subStructures(AlignableObjectId::typeToName(align::TOBLayer));
   }
   /// Return pixel half barrel layers
   Alignables& pixelHalfBarrelLayers() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPBLayer));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPBLayer));
   }
   /// Return endcap layers
   Alignables& endcapLayers() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TECDisk));
+    return this->subStructures(AlignableObjectId::typeToName(align::TECDisk));
   }
   /// Return TID layers
   Alignables& TIDLayers() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TIDDisk));
+    return this->subStructures(AlignableObjectId::typeToName(align::TIDDisk));
   }
   /// Return pixel endcap layers
   Alignables& pixelEndcapLayers() {
-    return this->subStructures(alignableObjectId_.typeToName(align::TPEHalfDisk));
+    return this->subStructures(AlignableObjectId::typeToName(align::TPEHalfDisk));
   }
 
 
@@ -160,17 +155,10 @@ public:
   /// Return tracker topology used to build AlignableTracker
   const TrackerTopology* trackerTopology() const { return tTopo_;}
 
-  /// Return tracker name space derived from the tracker's topology
-  const align::TrackerNameSpace& trackerNameSpace() const { return trackerNameSpace_; }
-
-  /// Return tracker alignable object ID provider derived from the tracker's geometry
-  const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 private:
   Alignables merge( const Alignables& list1, const Alignables& list2 ) const;
 
   const TrackerTopology* tTopo_;
-  align::TrackerNameSpace trackerNameSpace_;
-  AlignableObjectId alignableObjectId_;
   AlignableMap alignableMap;
 
 };

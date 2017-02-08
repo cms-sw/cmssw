@@ -2,14 +2,12 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
 
 /*** system includes ***/
-#include <cmath>                // include floating-point std::abs functions
+#include <cmath>		// include floating-point std::abs functions
 #include <fstream>
 
 /*** core framework functionality ***/
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-/*** Alignment ***/
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 
 //=============================================================================
@@ -17,9 +15,7 @@
 //=============================================================================
 
 MillePedeFileReader
-::MillePedeFileReader(const edm::ParameterSet& config,
-                      const std::shared_ptr<const PedeLabelerBase>& pedeLabeler) :
-  pedeLabeler_(pedeLabeler),
+::MillePedeFileReader(const edm::ParameterSet& config) :
   millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
   millePedeResFile_(config.getParameter<std::string>("millePedeResFile")),
 
@@ -43,7 +39,7 @@ void MillePedeFileReader
 
 bool MillePedeFileReader
 ::storeAlignments() {
-  return updateDB_;
+  return updateDB;
 }
 
 
@@ -68,10 +64,10 @@ void MillePedeFileReader
       if (line.find(Nrec_string) != std::string::npos) {
         std::istringstream iss(line);
         std::string trash;
-        iss >> trash >> trash >> Nrec_;
+        iss >> trash >> trash >> Nrec;
 
-        if (Nrec_ < 25000) {
-          updateDB_   = false;
+        if (Nrec < 25000) {
+          updateDB   = false;
         }
       }
     }
@@ -79,20 +75,21 @@ void MillePedeFileReader
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede log-file.";
 
-    updateDB_   = false;
-    Nrec_ = 0;
+    updateDB   = false;
+    Nrec = 0;
   }
 }
 
 void MillePedeFileReader
 ::readMillePedeResultFile()
 {
-  updateDB_ = false;
+  updateDB = false;	
   std::ifstream resFile;
   resFile.open(millePedeResFile_.c_str());
 
   if (resFile.is_open()) {
     edm::LogInfo("MillePedeFileReader") << "Reading millepede result-file";
+    double Multiplier[6] = {10000.,10000.,10000.,1000000.,1000000.,1000000.};
 
     std::string line;
     getline(resFile, line); // drop first line
@@ -108,123 +105,72 @@ void MillePedeFileReader
 
       if (tokens.size() > 4 /*3*/) {
 
-        auto alignableLabel = std::stoul(tokens[0]);
-        auto alignableIndex = alignableLabel % 10 - 1;
-        const auto alignable = pedeLabeler_->alignableFromLabel(alignableLabel);
+        int alignable      = std::stoi(tokens[0]);
+        int alignableIndex = alignable % 10 - 1;
 
-        double ObsMove = std::stof(tokens[3]) * multiplier_[alignableIndex];
-        double ObsErr  = std::stof(tokens[4]) * multiplier_[alignableIndex];
+        double ObsMove = std::stof(tokens[3]) * Multiplier[alignableIndex];
+        double ObsErr  = std::stof(tokens[4]) * Multiplier[alignableIndex];
 
-        auto det = getHLS(alignable);
+        int det = -1;
 
-        if (det != PclHLS::NotInPCL) {
-          switch (alignableIndex) {
-          case 0:
-            Xobs_[static_cast<int>(det)] = ObsMove;
-            XobsErr_[static_cast<int>(det)] = ObsErr;
-            break;
-          case 1:
-            Yobs_[static_cast<int>(det)] = ObsMove;
-            YobsErr_[static_cast<int>(det)] = ObsErr;
-            break;
-          case 2:
-            Zobs_[static_cast<int>(det)] = ObsMove;
-            ZobsErr_[static_cast<int>(det)] = ObsErr;
-            break;
-          case 3:
-            tXobs_[static_cast<int>(det)] = ObsMove;
-            tXobsErr_[static_cast<int>(det)] = ObsErr;
-            break;
-          case 4:
-            tYobs_[static_cast<int>(det)] = ObsMove;
-            tYobsErr_[static_cast<int>(det)] = ObsErr;
-            break;
-          case 5:
-            tZobs_[static_cast<int>(det)] = ObsMove;
-            tZobsErr_[static_cast<int>(det)] = ObsErr;
-            break;
-          }
+        if (alignable >= 60 && alignable <= 69) {
+          det = 2; // TPBHalfBarrel (x+)
+        } else if (alignable >= 8780 && alignable <= 8789) {
+          det = 3; // TPBHalfBarrel (x-)
+        } else if (alignable >= 17520 && alignable <= 17529) {
+          det = 4; // TPEHalfCylinder (x+,z+)
+        } else if (alignable >= 22380 && alignable <= 22389) {
+          det = 5; // TPEHalfCylinder (x-,z+)
+        } else if (alignable >= 27260 && alignable <= 27269) {
+          det = 0; // TPEHalfCylinder (x+,z-)
+        } else if (alignable >= 32120 && alignable <= 32129) {
+          det = 1; //TPEHalfCylinder (x-,z-)
         } else {
           continue;
         }
 
-        if (std::abs(ObsMove) > maxMoveCut_) {
-          updateDB_    = false;
+        if (alignableIndex == 0 && det >= 0 && det <= 5) {
+          Xobs[det] = ObsMove;
+          XobsErr[det] = ObsErr;
+        } else if (alignableIndex == 1 && det >= 0 && det <= 5) {
+          Yobs[det] = ObsMove;
+          YobsErr[det] = ObsErr;
+        } else if (alignableIndex == 2 && det >= 0 && det <= 5) {
+          Zobs[det] = ObsMove;
+          ZobsErr[det] = ObsErr;
+        } else if (alignableIndex == 3 && det >= 0 && det <= 5) {
+          tXobs[det] = ObsMove;
+          tXobsErr[det] = ObsErr;
+        } else if (alignableIndex == 4 && det >= 0 && det <= 5) {
+          tYobs[det] = ObsMove;
+          tYobsErr[det] = ObsErr;
+        } else if (alignableIndex == 5 && det >= 0 && det <= 5) {
+          tZobs[det] = ObsMove;
+          tZobsErr[det] = ObsErr;
+        }
+
+	if (std::abs(ObsMove) > maxMoveCut_) {
+          updateDB    = false;
           break;
 
-        } else if (std::abs(ObsMove) > cutoffs_[alignableIndex]) {
-
-          if (std::abs(ObsErr) > maxErrorCut_) {
-            updateDB_    = false;
+        } else if (std::abs(ObsMove) > Cutoffs[alignableIndex]) {
+	  
+	  if (std::abs(ObsErr) > maxErrorCut_) {
+            updateDB    = false;
             break;
           } else {
-            if (std::abs(ObsMove/ObsErr) < sigCut_) {
-              continue;
-            }
+  	    if (std::abs(ObsMove/ObsErr) < sigCut_) {
+	      continue;
+            } 
           }
-          updateDB_ = true;
+	  updateDB = true;
         }
       }
     }
   } else {
     edm::LogError("MillePedeFileReader") << "Could not read millepede result-file.";
 
-    updateDB_   = false;
-    Nrec_ = 0;
+    updateDB   = false;
+    Nrec = 0;
   }
 }
-
-
-MillePedeFileReader::PclHLS MillePedeFileReader
-::getHLS(const Alignable* alignable) {
-  if (!alignable) return PclHLS::NotInPCL;
-
-  const auto& tns = pedeLabeler_->alignableTracker()->trackerNameSpace();
-
-  switch (alignable->alignableObjectId()) {
-  case align::TPBHalfBarrel:
-    switch (tns.tpb().halfBarrelNumber(alignable->id())) {
-    case 1: return PclHLS::TPBHalfBarrelXminus;
-    case 2: return PclHLS::TPBHalfBarrelXplus;
-    default:
-      throw cms::Exception("LogicError")
-        << "@SUB=MillePedeFileReader::getHLS\n"
-        << "Found a pixel half-barrel number that should not exist: "
-        << tns.tpb().halfBarrelNumber(alignable->id());
-    }
-  case align::TPEHalfCylinder:
-    switch (tns.tpe().endcapNumber(alignable->id())) {
-    case 1:
-      switch (tns.tpe().halfCylinderNumber(alignable->id())) {
-      case 1: return PclHLS::TPEHalfCylinderXminusZminus;
-      case 2: return PclHLS::TPEHalfCylinderXplusZminus;
-      default:
-        throw cms::Exception("LogicError")
-          << "@SUB=MillePedeFileReader::getHLS\n"
-          << "Found a pixel half-cylinder number that should not exist: "
-          << tns.tpe().halfCylinderNumber(alignable->id());
-      }
-    case 2:
-      switch (tns.tpe().halfCylinderNumber(alignable->id())) {
-      case 1: return PclHLS::TPEHalfCylinderXminusZplus;
-      case 2: return PclHLS::TPEHalfCylinderXplusZplus;
-      default:
-        throw cms::Exception("LogicError")
-          << "@SUB=MillePedeFileReader::getHLS\n"
-          << "Found a pixel half-cylinder number that should not exist: "
-          << tns.tpe().halfCylinderNumber(alignable->id());
-      }
-    default:
-      throw cms::Exception("LogicError")
-        << "@SUB=MillePedeFileReader::getHLS\n"
-        << "Found a pixel endcap number that should not exist: "
-        << tns.tpe().endcapNumber(alignable->id());
-    }
-  default: return PclHLS::NotInPCL;
-  }
-}
-
-//=============================================================================
-//===   STATIC CONST MEMBER DEFINITION                                      ===
-//=============================================================================
-constexpr std::array<double, 6> MillePedeFileReader::multiplier_;

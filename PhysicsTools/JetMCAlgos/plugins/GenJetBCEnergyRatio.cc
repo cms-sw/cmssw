@@ -7,7 +7,7 @@
 //=======================================================================
 
 // user include files
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -48,7 +48,7 @@ using namespace ROOT::Math::VectorUtil;
 using namespace JetMCTagUtils;
 using namespace CandMCTagUtils;
 
-class GenJetBCEnergyRatio : public edm::global::EDProducer<>
+class GenJetBCEnergyRatio : public edm::EDProducer
 {
   public:
     GenJetBCEnergyRatio( const edm::ParameterSet & );
@@ -57,7 +57,8 @@ class GenJetBCEnergyRatio : public edm::global::EDProducer<>
     typedef reco::JetFloatAssociation::Container JetBCEnergyRatioCollection;
 
   private:
-    virtual void produce(StreamID, edm::Event&, const edm::EventSetup& ) const override;
+    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+    Handle< View <Jet> > genjets;
     edm::EDGetTokenT< View <Jet> > m_genjetsSrcToken;
 
 };
@@ -79,9 +80,8 @@ GenJetBCEnergyRatio::~GenJetBCEnergyRatio()
 
 // ------------ method called to produce the data  ------------
 
-void GenJetBCEnergyRatio::produce( StreamID, Event& iEvent, const EventSetup& iEs )const
+void GenJetBCEnergyRatio::produce( Event& iEvent, const EventSetup& iEs )
 {
-  Handle< View <Jet> > genjets;
   iEvent.getByToken(m_genjetsSrcToken, genjets);
 
   typedef edm::RefToBase<reco::Jet> JetRef;

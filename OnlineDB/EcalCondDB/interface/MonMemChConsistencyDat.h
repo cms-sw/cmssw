@@ -38,17 +38,17 @@ class MonMemChConsistencyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MonMemChConsistencyDat* item, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MonMemChConsistencyDat >* data, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::map< EcalLogicID, MonMemChConsistencyDat >* fillVec, MonRunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_processedEvents;

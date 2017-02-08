@@ -40,13 +40,13 @@ using namespace std;
 //----------------
 BPHKx0ToKPiBuilder::BPHKx0ToKPiBuilder(
                const edm::EventSetup& es,
-               const BPHRecoBuilder::BPHGenericCollection* posCollection,
-               const BPHRecoBuilder::BPHGenericCollection* negCollection ):
+               const BPHRecoBuilder::BPHGenericCollection* kaonCollection,
+               const BPHRecoBuilder::BPHGenericCollection* pionCollection ):
   kaonName( "Kaon" ),
   pionName( "Pion" ),
   evSetup( &es ),
-  pCollection( posCollection ),
-  nCollection( negCollection ) {
+  kCollection( kaonCollection ),
+  pCollection( pionCollection ) {
     ptSel = new BPHParticlePtSelect (  0.7 );
    etaSel = new BPHParticleEtaSelect( 10.0 );
   massSel = new BPHMassSelect( 0.75, 1.05 );
@@ -72,9 +72,9 @@ vector<BPHPlusMinusConstCandPtr> BPHKx0ToKPiBuilder::build() {
   if ( updated ) return kx0List;
 
   BPHRecoBuilder bKx0( *evSetup );
-  bKx0.add( kaonName, pCollection, BPHParticleMasses::kaonMass,
+  bKx0.add( kaonName, kCollection, BPHParticleMasses::kaonMass,
                                    BPHParticleMasses::kaonMSigma );
-  bKx0.add( pionName, nCollection, BPHParticleMasses::pionMass,
+  bKx0.add( pionName, pCollection, BPHParticleMasses::pionMass,
                                    BPHParticleMasses::pionMSigma );
   bKx0.filter( kaonName, *ptSel );
   bKx0.filter( pionName, *ptSel );

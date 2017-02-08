@@ -35,7 +35,7 @@ DCUCCSDat::~DCUCCSDat()
 }
 
 void DCUCCSDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -59,7 +59,7 @@ void DCUCCSDat::prepareWrite()
 
 void DCUCCSDat::writeDB(const EcalLogicID* ecid, const DCUCCSDat* item, 
 			DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -99,7 +99,7 @@ void DCUCCSDat::writeDB(const EcalLogicID* ecid, const DCUCCSDat* item,
 
 void DCUCCSDat::fetchData(std::map< EcalLogicID, DCUCCSDat >* fillMap, 
 			  DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -151,7 +151,7 @@ void DCUCCSDat::fetchData(std::map< EcalLogicID, DCUCCSDat >* fillMap,
 }
 
 void DCUCCSDat::writeArrayDB(const std::map< EcalLogicID, DCUCCSDat >* data, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

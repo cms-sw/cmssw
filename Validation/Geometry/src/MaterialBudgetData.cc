@@ -204,7 +204,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 
   // FIXME: Both volume ID and material ID are zeros, so this part is not executed leaving all
   // values as zeros. 
-  if(myMaterialBudgetCategorizer->x0fraction(materialName).size() > 0)
+  if( volumeID != 0 )
     {
       theSupportFractionMB     = myMaterialBudgetCategorizer->x0fraction(materialName).at(0);
       theSensitiveFractionMB   = myMaterialBudgetCategorizer->x0fraction(materialName).at(1);
@@ -226,11 +226,6 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
       if(theOtherFractionIL!=0) std::cout << " material found with no category " << materialName 
 					  << " in volume " << volumeName << std::endl;
     }
-   else
-   {
-     theOtherFractionMB = 1;
-     theOtherFractionIL = 1;
-   }
   //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << name 
   //				 << " in volume " << lv->GetName();
   // rr  

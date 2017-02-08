@@ -34,9 +34,9 @@ class FEConfigTimingInfo : public  IODConfig {
 
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  int fetchNextId() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() throw(std::runtime_error);
+  int fetchNextId() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
 
   // operators
@@ -49,11 +49,11 @@ class FEConfigTimingInfo : public  IODConfig {
   Tm m_db_time;
   int m_version;
 
-  void prepareWrite() noexcept(false);
-  void writeDB() noexcept(false);
+  void prepareWrite()  throw(std::runtime_error);
+  void writeDB() throw(std::runtime_error);
   void clear();
-  void fetchData(FEConfigTimingInfo * result) noexcept(false);
-  void fetchLastData(FEConfigTimingInfo * result) noexcept(false);
+  void fetchData(FEConfigTimingInfo * result)     throw(std::runtime_error);
+  void fetchLastData(FEConfigTimingInfo * result)     throw(std::runtime_error);
 
 
 };

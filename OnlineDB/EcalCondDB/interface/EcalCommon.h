@@ -18,7 +18,7 @@ class EcalCommon {
    *  Convert a supermodule crystal number to a trigger tower number
    */
   static int crystalToTriggerTower( int xtal )
-    noexcept(false);
+    throw(std::runtime_error);
 
 };
 

@@ -26,7 +26,9 @@ public:
   ~CorrectECALIsolation();
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
 
   edm::ParameterSet conf_;
 
@@ -81,6 +83,12 @@ void CorrectECALIsolation::analyze(const edm::Event& iEvent, const edm::EventSet
     }
   }
 }
+
+void CorrectECALIsolation::beginJob(const edm::EventSetup&)
+{}
+
+void CorrectECALIsolation::endJob()
+{}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CorrectECALIsolation);

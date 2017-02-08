@@ -7,8 +7,8 @@
  Description: Harvestes LogError messages and puts them into the Event
 
  Implementation:
-   This simple implementation writes the std::vector<ErrorSummaryEntry> in the event,
-   without any fancy attempt of encoding the strings or mapping them to ints
+     This simple implementation writes the std::vector<ErrorSummaryEntry> in the event,
+     without any fancy attempt of encoding the strings or mapping them to ints
 */
 //
 // Original Author:  Giovanni Petrucciani
@@ -16,9 +16,9 @@
 //
 
 // user include files
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 #include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -32,24 +32,28 @@
 //
 
 namespace edm {
-  class LogErrorHarvester : public global::EDProducer<> {
-  public:
-    explicit LogErrorHarvester(ParameterSet const&);
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  class LogErrorHarvester : public EDProducer {
+    public:
+      explicit LogErrorHarvester(ParameterSet const&);
+      ~LogErrorHarvester();
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  private:
-    void beginJob() override;
-    void produce(StreamID, Event&, EventSetup const&) const override;
-    void endJob() override;
+    private:
+      virtual void beginJob() override;
+      virtual void produce(Event&, EventSetup const&) override;
+      virtual void endJob() override ;
   };
 
   LogErrorHarvester::LogErrorHarvester(ParameterSet const&) {
-    produces<std::vector<ErrorSummaryEntry>>();
+     produces<std::vector<ErrorSummaryEntry> >();
+  }
+
+  LogErrorHarvester::~LogErrorHarvester() {
   }
 
   void
-  LogErrorHarvester::produce(StreamID const sid, Event& iEvent, EventSetup const&) const {
-    const auto index = sid.value();
+  LogErrorHarvester::produce(Event& iEvent, EventSetup const&) {
+    const auto index = iEvent.streamID().value();
     if(!FreshErrorsExist(index)) {
       iEvent.put(std::make_unique<std::vector<ErrorSummaryEntry>>());
     } else {

@@ -7,7 +7,6 @@ matplotlib.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
 from root_numpy.tmva import add_regression_events, evaluate_reader
-from root_numpy import ROOT_VERSION
 from ROOT import TMVA, TFile, TCut
 from array import array
 
@@ -25,28 +24,18 @@ output = TFile('tmva_output.root', 'recreate')
 factory = TMVA.Factory('regressor', output,
                        'AnalysisType=Regression:'
                        '!V:Silent:!DrawProgressBar')
+factory.AddVariable('x', 'F')
+factory.AddTarget('y', 'F')
 
-if ROOT_VERSION >= '6.07/04':
-    data = TMVA.DataLoader('.')
-else:
-    data = factory
-data.AddVariable('x', 'F')
-data.AddTarget('y', 'F')
-
-add_regression_events(data, X, y)
-add_regression_events(data, X, y, test=True)
+add_regression_events(factory, X, y)
+add_regression_events(factory, X, y, test=True)
 # The following line is necessary if events have been added individually:
-data.PrepareTrainingAndTestTree(TCut('1'), '')
+factory.PrepareTrainingAndTestTree(TCut('1'), '')
 
-
-if ROOT_VERSION >= '6.07/04':
-    BookMethod = factory.BookMethod
-else:
-    BookMethod = TMVA.Factory.BookMethod
-BookMethod(data, 'BDT', 'BDT1',
+factory.BookMethod('BDT', 'BDT1',
                    'nCuts=20:NTrees=1:MaxDepth=4:BoostType=AdaBoostR2:'
                    'SeparationType=RegressionVariance')
-BookMethod(data, 'BDT', 'BDT2',
+factory.BookMethod('BDT', 'BDT2',
                    'nCuts=20:NTrees=300:MaxDepth=4:BoostType=AdaBoostR2:'
                    'SeparationType=RegressionVariance')
 factory.TrainAllMethods()

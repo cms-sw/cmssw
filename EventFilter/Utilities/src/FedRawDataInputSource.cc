@@ -295,7 +295,7 @@ bool FedRawDataInputSource::checkNextEvent()
           maybeOpenNewLumiSection( event_->lumi() );
 	}
       }
-      if (fileListMode_ || fileListLoopMode_)
+      if (fileListLoopMode_)
         eventRunNumber_=runNumber_;
       else 
         eventRunNumber_=event_->run();

@@ -16,10 +16,8 @@ public:
   DetId relabel(const uint32_t testId) const;
 
 private:
-  double energyWt(const uint32_t testId) const;
 
-  const CaloGeometry*        theGeometry;
+  const CaloGeometry* theGeometry;
   const HcalDDDRecConstants* theRecNumber;
-  bool                       neutralDensity_;
 };
 #endif

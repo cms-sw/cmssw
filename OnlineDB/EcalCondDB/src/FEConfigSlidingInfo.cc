@@ -35,7 +35,7 @@ FEConfigSlidingInfo::~FEConfigSlidingInfo()
 
 
 
-int FEConfigSlidingInfo::fetchNextId()  noexcept(false) {
+int FEConfigSlidingInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int FEConfigSlidingInfo::fetchNextId()  noexcept(false) {
 }
 
 void FEConfigSlidingInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -98,7 +98,7 @@ void FEConfigSlidingInfo::setParameters(const std::map<string,string>& my_keys_m
 }
 
 void FEConfigSlidingInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -126,7 +126,7 @@ void FEConfigSlidingInfo::writeDB()
 
 
 void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -161,7 +161,7 @@ void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
 }
 
 void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -186,7 +186,7 @@ void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
   }
 }
 
-int FEConfigSlidingInfo::fetchID()    noexcept(false)
+int FEConfigSlidingInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -221,7 +221,7 @@ int FEConfigSlidingInfo::fetchID()    noexcept(false)
 
 
 void FEConfigSlidingInfo::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 

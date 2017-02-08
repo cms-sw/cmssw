@@ -12,9 +12,11 @@
 class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
-class RegionsSeedingHitSets;
+class OrderedHitsGenerator;
+class TrackingRegionProducer;
+class QuadrupletSeedMerger;
 
-namespace edm { class Event; class EventSetup; class Run; class ParameterSetDescription;}
+namespace edm { class Event; class EventSetup; class Run; }
 
 class PixelTrackReconstruction {
 public:
@@ -23,15 +25,17 @@ public:
 	   edm::ConsumesCollector && iC);
   ~PixelTrackReconstruction(); 
 
-  static void fillDescriptions(edm::ParameterSetDescription& desc);
-
   void run(pixeltrackfitting::TracksWithTTRHs& tah, edm::Event& ev, const edm::EventSetup& es);
 
+  void init(const edm::EventSetup& es);
+
 private:
-  edm::EDGetTokenT<RegionsSeedingHitSets> theHitSetsToken;
   edm::EDGetTokenT<PixelFitter> theFitterToken;
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
   std::string theCleanerName;
+  std::unique_ptr<OrderedHitsGenerator> theGenerator;
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
+  std::unique_ptr<QuadrupletSeedMerger> theMerger_;
 };
 #endif
 

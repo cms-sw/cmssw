@@ -56,8 +56,7 @@ PixelQuadrupletMergerEDProducer::PixelQuadrupletMergerEDProducer(const edm::Para
 
   edm::ParameterSet creatorPSet = iConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
-  if(creatorName != "none") // pixel tracking does not use seed creator
-    seedCreator_.reset(SeedCreatorFactory::get()->create( creatorName, creatorPSet));
+  seedCreator_.reset(SeedCreatorFactory::get()->create( creatorName, creatorPSet));
 
   produces<RegionsSeedingHitSets>();
   produces<TrajectorySeedCollection>(); // need to keep these in memory because TrajectorySeed owns its RecHits
@@ -84,7 +83,6 @@ void PixelQuadrupletMergerEDProducer::fillDescriptions(edm::ConfigurationDescrip
   descComparitor.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("SeedComparitorPSet", descComparitor);
   edm::ParameterSetDescription descCreator;
-  descCreator.add<std::string>("ComponentName", "none");
   descCreator.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("SeedCreatorPSet", descCreator);
 
@@ -124,30 +122,23 @@ void PixelQuadrupletMergerEDProducer::produce(edm::Event& iEvent, const edm::Eve
 
 
     // Keeping same resuls has been made really difficult...
-    // Especially when supporting both pixel tracking and seeding
     // Following is from SeedGeneratorFromRegionHits
-    if(seedCreator_) {
-      seedCreator_->init(region, iSetup, comparitor_.get());
-      for(const auto& hits: regionSeedingHitSets) {
-        if(!comparitor_ || comparitor_->compatible(hits)) {
-          seedCreator_->makeSeed(*tmpSeedCollection, hits);
-        }
+    seedCreator_->init(region, iSetup, comparitor_.get());
+    for(const auto& hits: regionSeedingHitSets) {
+      if(!comparitor_ || comparitor_->compatible(hits)) {
+        seedCreator_->makeSeed(*tmpSeedCollection, hits);
       }
 
-      // then convert seeds back to hits
-      // awful, but hopefully only temporary to preserve old results
-    for(const auto& seed: *tmpSeedCollection) {
-        auto hitRange = seed.recHits();
-        assert(std::distance(hitRange.first, hitRange.second) == 3);
-        tripletsPerRegion.emplace_back(static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first)),
-                                       static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first+1)),
-                                       static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first+2)));
-      }
     }
-    else {
-      for(const auto& hits: regionSeedingHitSets) {
-        tripletsPerRegion.emplace_back(hits[0], hits[1], hits[2]);
-      }
+
+    // then convert seeds back to hits
+    // awful, but hopefully only temporary to preserve old results
+    for(const auto& seed: *tmpSeedCollection) {
+      auto hitRange = seed.recHits();
+      assert(std::distance(hitRange.first, hitRange.second) == 3);
+      tripletsPerRegion.emplace_back(static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first)),
+                                     static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first+1)),
+                                     static_cast<SeedingHitSet::ConstRecHitPointer>(&*(hitRange.first+2)));
     }
 
     LogTrace("PixelQuadrupletEDProducer") << " starting region, number of triplets " << tripletsPerRegion.size();

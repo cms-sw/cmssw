@@ -33,7 +33,7 @@ ODBadTTInfo::~ODBadTTInfo()
 
 
 
-int ODBadTTInfo::fetchNextId()  noexcept(false) {
+int ODBadTTInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int ODBadTTInfo::fetchNextId()  noexcept(false) {
 }
 
 void ODBadTTInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -95,7 +95,7 @@ void ODBadTTInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODBadTTInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -128,7 +128,7 @@ void ODBadTTInfo::writeDB()
 
 
 void ODBadTTInfo::fetchData(ODBadTTInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -169,7 +169,7 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
   }
 }
 
-int ODBadTTInfo::fetchID()    noexcept(false)
+int ODBadTTInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

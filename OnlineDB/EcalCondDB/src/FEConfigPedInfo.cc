@@ -35,7 +35,7 @@ FEConfigPedInfo::~FEConfigPedInfo()
 
 
 
-int FEConfigPedInfo::fetchNextId()  noexcept(false) {
+int FEConfigPedInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int FEConfigPedInfo::fetchNextId()  noexcept(false) {
 }
 
 void FEConfigPedInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -98,7 +98,7 @@ void FEConfigPedInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void FEConfigPedInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -126,7 +126,7 @@ void FEConfigPedInfo::writeDB()
 
 
 void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -161,7 +161,7 @@ void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
 }
 
 void FEConfigPedInfo::fetchLastData(FEConfigPedInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -186,7 +186,7 @@ void FEConfigPedInfo::fetchLastData(FEConfigPedInfo * result)
   }
 }
 
-int FEConfigPedInfo::fetchID()    noexcept(false)
+int FEConfigPedInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -221,7 +221,7 @@ int FEConfigPedInfo::fetchID()    noexcept(false)
 
 
 void FEConfigPedInfo::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 

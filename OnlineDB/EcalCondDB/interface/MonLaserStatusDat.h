@@ -30,16 +30,16 @@ class MonLaserStatusDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MonLaserStatusDat* item, MonRunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MonLaserStatusDat >* data, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   void fetchData(std::map< EcalLogicID, MonLaserStatusDat >* fillMap, MonRunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   float m_laserPower;

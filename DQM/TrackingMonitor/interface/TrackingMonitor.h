@@ -81,8 +81,8 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
 	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
-	edm::EDGetTokenT<edm::View<reco::Track> > allTrackToken_;
-	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
+	edm::EDGetTokenT<reco::TrackCollection> allTrackToken_;
+	edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 
@@ -151,8 +151,6 @@ class TrackingMonitor : public DQMEDAnalyzer
 	MonitorElement* GoodTracksFractionVsGoodPVtx;
 	MonitorElement* NumberOfRecHitsPerTrackVsGoodPVtx;
 	MonitorElement* NumberOfPVtxVsGoodPVtx;
-	MonitorElement* NumberOfPixelClustersVsGoodPVtx;
-	MonitorElement* NumberOfStripClustersVsGoodPVtx;
 
 	// Monitoring vs lumi
 	MonitorElement* NumberEventsOfVsLUMI;
@@ -161,8 +159,6 @@ class TrackingMonitor : public DQMEDAnalyzer
 	MonitorElement* NumberOfRecHitsPerTrackVsLUMI;
 	MonitorElement* NumberOfGoodPVtxVsLUMI;
 	MonitorElement* NumberOfGoodPVtxWO0VsLUMI;
-	MonitorElement* NumberOfPixelClustersVsLUMI;
-	MonitorElement* NumberOfStripClustersVsLUMI;
 
 	// add in order to deal with LS transitions
         MonitorElement * NumberOfTracks_lumiFlag;

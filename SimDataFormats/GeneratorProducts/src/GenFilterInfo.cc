@@ -86,7 +86,7 @@ double GenFilterInfo::filterEfficiency(int idwtup) const {
     eff = numEventsTotal() > 0 ? (double) numEventsPassed() / (double) numEventsTotal(): -1;
     break;
   default:
-    eff = sumWeights() > 0? sumPassWeights()/sumWeights(): -1;
+    eff = sumWeights() > 1e-6? sumPassWeights()/sumWeights(): -1;
     break;
   }
   return eff;
@@ -99,14 +99,14 @@ double GenFilterInfo::filterEfficiencyError(int idwtup) const {
   switch(idwtup) {
   case 3: case -3:
     {
-      double effp  = numTotalPositiveEvents() > 0? 
+      double effp  = numTotalPositiveEvents() > 1e-6? 
 	(double)numPassPositiveEvents()/(double)numTotalPositiveEvents():0;
-      double effp_err2 = numTotalPositiveEvents() > 0?
+      double effp_err2 = numTotalPositiveEvents() > 1e-6?
 	(1-effp)*effp/(double)numTotalPositiveEvents(): 0;
 
-      double effn  = numTotalNegativeEvents() > 0? 
+      double effn  = numTotalNegativeEvents() > 1e-6? 
 	(double)numPassNegativeEvents()/(double)numTotalNegativeEvents():0;
-      double effn_err2 = numTotalNegativeEvents() > 0? 
+      double effn_err2 = numTotalNegativeEvents() > 1e-6? 
 	(1-effn)*effn/(double)numTotalNegativeEvents(): 0;
 
       efferr = numEventsTotal() > 0 ? sqrt ( 
@@ -122,7 +122,7 @@ double GenFilterInfo::filterEfficiencyError(int idwtup) const {
       double numerator =
 	sumPassWeights2() * sumFailWeights()* sumFailWeights() +
 	sumFailWeights2() * sumPassWeights()* sumPassWeights();
-      efferr = denominator>0? 
+      efferr = denominator>1e-6? 
 	sqrt(numerator/denominator):-1;
       break;
     }

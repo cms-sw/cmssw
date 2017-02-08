@@ -63,19 +63,19 @@ class ODCCSConfig : public IODConfig {
   inline void setTEDelay(int x) { m_te_delay = x; }
 
 
-  int fetchNextId() noexcept(false);
+  int fetchNextId() throw(std::runtime_error);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  throw(std::runtime_error);
 
-  void writeDB()       noexcept(false);
+  void writeDB()       throw(std::runtime_error);
 
   void clear();
 
-  void fetchData(ODCCSConfig * result)     noexcept(false);
+  void fetchData(ODCCSConfig * result)     throw(std::runtime_error);
 
-  int fetchID()  noexcept(false);
+  int fetchID()  throw(std::runtime_error);
 
 
   // User data

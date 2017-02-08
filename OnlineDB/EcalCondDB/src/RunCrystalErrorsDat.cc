@@ -26,7 +26,7 @@ RunCrystalErrorsDat::~RunCrystalErrorsDat()
 
 
 void RunCrystalErrorsDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void RunCrystalErrorsDat::prepareWrite()
 
 
 void RunCrystalErrorsDat::writeDB(const EcalLogicID* ecid, const RunCrystalErrorsDat* item, RunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void RunCrystalErrorsDat::writeDB(const EcalLogicID* ecid, const RunCrystalError
 
 
 void RunCrystalErrorsDat::fetchData(map< EcalLogicID, RunCrystalErrorsDat >* fillMap, RunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();

@@ -22,9 +22,7 @@
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h" 
 
 //__________________________________________________________________________________________________
-MuonScenarioBuilder::MuonScenarioBuilder( Alignable* alignable ) :
-  // muon alignable IDs are (currently) independent of the geometry
-  MisalignmentScenarioBuilder(AlignableObjectId::Geometry::General)
+MuonScenarioBuilder::MuonScenarioBuilder( Alignable* alignable )
 {
 
   theAlignableMuon = dynamic_cast<AlignableMuon*>( alignable );

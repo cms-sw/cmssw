@@ -21,15 +21,19 @@ class FEConfigSpikeDat : public IDataItem {
   inline int getSpikeThreshold() const { return m_thr; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() 
+    throw(std::runtime_error);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* item, FEConfigSpikeInfo* iconf) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* item, FEConfigSpikeInfo* iconf)
+    throw(std::runtime_error);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDat>* data, FEConfigSpikeInfo* iconf) noexcept(false);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDat>* data, FEConfigSpikeInfo* iconf)
+  throw(std::runtime_error);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigSpikeDat >* fillMap, FEConfigSpikeInfo* iconf) noexcept(false);
+  void fetchData(std::map< EcalLogicID, FEConfigSpikeDat >* fillMap, FEConfigSpikeInfo* iconf)
+     throw(std::runtime_error);
 
   // User data
   int m_thr;

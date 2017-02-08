@@ -21,15 +21,19 @@ class FEConfigFgrDat : public IDataItem {
   inline int getFgrGroupId() const { return m_group_id; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() 
+    throw(std::runtime_error);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigFgrDat* item, FEConfigFgrInfo* iconf) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const FEConfigFgrDat* item, FEConfigFgrInfo* iconf)
+    throw(std::runtime_error);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigFgrDat>* data, FEConfigFgrInfo* iconf) noexcept(false);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigFgrDat>* data, FEConfigFgrInfo* iconf)
+  throw(std::runtime_error);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigFgrDat >* fillMap, FEConfigFgrInfo* iconf) noexcept(false);
+  void fetchData(std::map< EcalLogicID, FEConfigFgrDat >* fillMap, FEConfigFgrInfo* iconf)
+     throw(std::runtime_error);
 
   // User data
   int m_group_id;

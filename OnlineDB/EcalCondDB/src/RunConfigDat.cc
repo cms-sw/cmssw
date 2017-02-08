@@ -28,7 +28,7 @@ RunConfigDat::~RunConfigDat()
 
 
 void RunConfigDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void RunConfigDat::prepareWrite()
 
 
 void RunConfigDat::writeDB(const EcalLogicID* ecid, const RunConfigDat* item, RunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void RunConfigDat::writeDB(const EcalLogicID* ecid, const RunConfigDat* item, Ru
 
 
 void RunConfigDat::fetchData(map< EcalLogicID, RunConfigDat >* fillMap, RunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();

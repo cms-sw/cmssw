@@ -10,7 +10,6 @@
 
 class L1TMuonEndcapParamsOnlineProxy : public edm::ESProducer {
 private:
-    unsigned int PtAssignVersion, firmwareVersion, changeDate;
 public:
     std::shared_ptr<L1TMuonEndCapParams> produce(const L1TMuonEndcapParamsO2ORcd& record);
 
@@ -20,9 +19,6 @@ public:
 
 L1TMuonEndcapParamsOnlineProxy::L1TMuonEndcapParamsOnlineProxy(const edm::ParameterSet& iConfig) : edm::ESProducer() {
     setWhatProduced(this);
-    PtAssignVersion = iConfig.getUntrackedParameter<unsigned int>("PtAssignVersion", 1);
-    firmwareVersion = iConfig.getUntrackedParameter<unsigned int>("firmwareVersion", 1);
-    changeDate      = iConfig.getUntrackedParameter<unsigned int>("changeDate",      1);
 }
 
 std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(const L1TMuonEndcapParamsO2ORcd& record) {
@@ -34,10 +30,6 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProxy::produce(con
     return boost::shared_ptr< L1TMuonEndcapParams > ( new L1TMuonEndcapParams( *(baseSettings.product()) ) );
 */
     std::shared_ptr< L1TMuonEndCapParams > retval = std::make_shared< L1TMuonEndCapParams>();
-
-    retval->PtAssignVersion_ = PtAssignVersion;
-    retval->firmwareVersion_ = firmwareVersion; 
-    retval->PhiMatchWindowSt1_ = changeDate;
     return retval;
 }
 

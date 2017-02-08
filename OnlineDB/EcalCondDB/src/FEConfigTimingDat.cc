@@ -29,7 +29,7 @@ FEConfigTimingDat::~FEConfigTimingDat()
 
 
 void FEConfigTimingDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -44,7 +44,7 @@ void FEConfigTimingDat::prepareWrite()
 
 
 void FEConfigTimingDat::writeDB(const EcalLogicID* ecid, const FEConfigTimingDat* item, FEConfigTimingInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void FEConfigTimingDat::writeDB(const EcalLogicID* ecid, const FEConfigTimingDat
 
 
 void FEConfigTimingDat::fetchData(map< EcalLogicID, FEConfigTimingDat >* fillMap, FEConfigTimingInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -112,7 +112,7 @@ void FEConfigTimingDat::fetchData(map< EcalLogicID, FEConfigTimingDat >* fillMap
 }
 
 void FEConfigTimingDat::writeArrayDB(const std::map< EcalLogicID, FEConfigTimingDat >* data, FEConfigTimingInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

@@ -89,13 +89,13 @@ using namespace edm;
     edm::ESHandle<TrackerGeometry> pDD;
     es.get<TrackerDigiGeometryRecord> ().get (pDD);
     
-    //construct the associator object
-    TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
-
     // loop over detunits
     for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
       uint32_t myid=((*it)->geographicalId()).rawId();       
       DetId detid = ((*it)->geographicalId());
+      
+      //construct the associator object
+      TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
       
       if(myid!=999999999){ //if is valid detector
 
@@ -115,7 +115,7 @@ using namespace edm;
 	  for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
 	    pixelcounter++;
 	    if(pixeldebug) {
-	      cout << pixelcounter <<") Pixel RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << pixeliter->localPosition() << endl;
+	      	      cout << pixelcounter <<") Pixel RecHit DetId " << detid.rawId() << " Pos = " << pixeliter->localPosition() << endl;
 	    }
 	    matched.clear();
 	    matched = associate.associateHit(*pixeliter);
@@ -123,8 +123,7 @@ using namespace edm;
 	      cout << " PIX detector =  " << myid << " PIX Rechit = " << pixeliter->localPosition() << endl; 
 	      cout << " PIX matched = " << matched.size() << endl;
 	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-	      cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition()
-		   << ", |diff| = " << (pixeliter->localPosition() - (*m).localPosition()).mag() << endl;
+	      cout << " PIX hit  ID = " << (*m).trackId() << " PIX Simhit x = " << (*m).localPosition() << endl;
 	    }
 	    }  
 	  }
@@ -141,7 +140,7 @@ using namespace edm;
 	    SiStripRecHit2D const rechit=*iterrphi;
 	    int i=0;
 	    stripcounter++;
-	    cout << stripcounter <<") Strip RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
+	    cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
 	    float mindist = 999999;
 	    float dist;
 	    PSimHit closest;
@@ -158,7 +157,7 @@ using namespace edm;
 		  closest = (*m);
 		}
 	      }  
-	      cout << " Closest Simhit = " << closest.localPosition() << ", |diff| = " << mindist << endl;
+	      cout << " Closest Simhit = " << closest.localPosition() << endl;
 	    }
 	    i++;
 	  }
@@ -172,7 +171,7 @@ using namespace edm;
 	    SiStripRecHit2D const rechit=*iterster;
 	    int i=0;
 	    stripcounter++;
-	    cout << stripcounter <<") Strip RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
+	    cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
 	    float mindist = 999999;
 	    float dist;
 	    PSimHit closest;
@@ -189,7 +188,7 @@ using namespace edm;
 		  closest = (*m);
 		}
 	      }  
-	      cout << " Closest Simhit = " << closest.localPosition() << ", |diff| = " << mindist << endl;
+	      cout << " Closest Simhit = " << closest.localPosition() << endl;
 	    }
 	    i++;
 	  } 
@@ -203,7 +202,7 @@ using namespace edm;
 	    SiStripMatchedRecHit2D const rechit=*itermatch;
 	    int i=0;
 	    stripcounter++;
-	    cout << stripcounter <<") Strip RecHit subDet, DetId " << detid.subdetId() << ", " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
+	    cout << stripcounter <<") Strip RecHit DetId " << detid.rawId() << " Pos = " << rechit.localPosition() << endl;
 	    float mindist = 999999;
 	    float distx = 9999999;
 	    float disty = 9999999;
@@ -225,7 +224,7 @@ using namespace edm;
 		  closest = (*m);
 		}
 	      }  
-	      cout << " Closest Simhit = " << closest.localPosition() << ", |diff| = " << mindist << endl;
+	      cout << " Closest Simhit = " << closest.localPosition() << endl;
 	    }
 	    i++;
 	  } 

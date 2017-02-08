@@ -23,8 +23,8 @@ class MonRunOutcomeDef : public IDef {
   std::string getLongDesc() const;
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
 
   // Operators
   inline bool operator==(const MonRunOutcomeDef &d) const { return m_shortDesc == d.m_shortDesc; }
@@ -35,7 +35,7 @@ class MonRunOutcomeDef : public IDef {
   std::string m_shortDesc;
   std::string m_longDesc;
 
-  void fetchAllDefs( std::vector<MonRunOutcomeDef>* fillVec) noexcept(false);
+  void fetchAllDefs( std::vector<MonRunOutcomeDef>* fillVec) throw(std::runtime_error);
 };
 
 #endif

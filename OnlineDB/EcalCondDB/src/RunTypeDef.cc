@@ -48,7 +48,7 @@ string RunTypeDef::getDescription() const
 
   
 int RunTypeDef::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -82,7 +82,7 @@ int RunTypeDef::fetchID()
 
 
 void RunTypeDef::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -109,7 +109,7 @@ void RunTypeDef::setByID(int id)
 
 
 void RunTypeDef::fetchAllDefs( std::vector<RunTypeDef>* fillVec) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {

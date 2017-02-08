@@ -52,7 +52,7 @@ class LMFCorrCoefDatComponent: public LMFDat {
   std::string foreignKeyName() const;
   std::string getTableName() const;
   std::string getIovIdFieldName() const;
-  int writeDB() noexcept(false);
+  int writeDB() throw(std::runtime_error);
 
  private:
   void init();

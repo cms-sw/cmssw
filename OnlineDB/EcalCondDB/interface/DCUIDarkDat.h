@@ -23,17 +23,17 @@ class DCUIDarkDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat>* data, DCUIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillVec, DCUIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   float m_apdIDark;

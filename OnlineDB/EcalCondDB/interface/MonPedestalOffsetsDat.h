@@ -32,17 +32,17 @@ class MonPedestalOffsetsDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MonPedestalOffsetsDat* item, MonRunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MonPedestalOffsetsDat >* data, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov, std::string mappa=" cv.maps_to " )
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_dacG1;

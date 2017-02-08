@@ -26,6 +26,7 @@ TrackRefitterSkim.src = "generalTracksSkim"
 from RecoTracker.DeDx.dedxEstimators_cff import dedxHarmonic2
 dedxSkimNPHarm2 = dedxHarmonic2.clone()
 dedxSkimNPHarm2.tracks                     = cms.InputTag("TrackRefitterSkim")
+dedxSkimNPHarm2.trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim")
 dedxSkimNPHarm2.UsePixel                   = cms.bool(False)
 
 DedxFilter = cms.EDFilter("HSCPFilter",

@@ -296,12 +296,8 @@ template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<T
 	{
 		const TrackingParticle* pTrackingParticle=getTrackingParticleAt( trackingParticles, i );
 
-		// Historically there was a requirement that pTrackingParticle->numberOfHits() > 0
-		// However, in TrackingTruthAccumulator, the numberOfHits is calculated from a subset
-		// of the SimHits of the SimTracks of a TrackingParticle (essentially limiting the
-		// processType and particleType to those of the "first" hit, and particleType to the pdgId of the SimTrack).
-		// But, here the association between tracks and TrackingParticles is done with *all* the hits of
-		// TrackingParticle, so we should not rely on the numberOfHits() calculated with a subset of SimHits.
+		// Ignore TrackingParticles with no hits
+		if( pTrackingParticle->numberOfHits()==0 ) continue;
 
 		double numberOfAssociatedHits=0;
 		// Loop over all of the sim track identifiers and see if any of them are part of this TrackingParticle. If they are, add
@@ -360,12 +356,8 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
                                 if(trackingParticleKeys && trackingParticleKeys->find(trackingParticle.key()) == trackingParticleKeys->end())
                                   continue;
 
-				// Historically there was a requirement that pTrackingParticle->numberOfHits() > 0
-				// However, in TrackingTruthAccumulator, the numberOfHits is calculated from a subset
-				// of the SimHits of the SimTracks of a TrackingParticle (essentially limiting the
-				// processType and particleType to those of the "first" hit, and particleType to the pdgId of the SimTrack).
-				// But, here the association between tracks and TrackingParticles is done with *all* the hits of
-				// TrackingParticle, so we should not rely on the numberOfHits() calculated with a subset of SimHits.
+				// Ignore TrackingParticles with no hits
+				if( trackingParticle->numberOfHits() == 0 ) continue;
 
 				/* Alternative implementation to avoid the use of lmap... memory slightly improved but slightly slower...
 				 std::pair<edm::Ref<TrackingParticleCollection>,size_t> tpIntPair(trackingParticle, 1);

@@ -31,13 +31,13 @@ class RunH4TablePositionDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const RunH4TablePositionDat* item, RunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void fetchData(std::map< EcalLogicID, RunH4TablePositionDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_table_x ;

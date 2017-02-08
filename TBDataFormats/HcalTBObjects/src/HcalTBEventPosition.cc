@@ -75,8 +75,15 @@ using namespace std;
   }
 
   ostream& operator<<(ostream& s, const HcalTBEventPosition& htbep) {
-    s << "HF Table (X,Y,V) = (" << htbep.hfTableX() << "," << htbep.hfTableY() << "," << htbep.hfTableV() << ")" << std::endl;
-    s << "HB/HE Table (eta,phi) = (" << htbep.hbheTableEta() << "," << htbep.hbheTablePhi() << ")" << std::endl;
+    char str[180];
+
+    snprintf (str,180, "HF Table (X,Y,V) = (%f,%f,%f)\n",
+	     htbep.hfTableX(),htbep.hfTableY(),htbep.hfTableV());
+    s << str;
+
+    snprintf (str, 180, "HB/HE Table (eta,phi) = (%f,%f)\n",
+	     htbep.hbheTableEta(),htbep.hbheTablePhi());
+    s << str;
 
     vector<double> xvec, yvec;
     vector<double>::const_iterator j;

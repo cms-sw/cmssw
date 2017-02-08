@@ -38,7 +38,7 @@ void ODJBH4Config::clear(){
 }
 
 
-int ODJBH4Config::fetchNextId()  noexcept(false) {
+int ODJBH4Config::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -60,7 +60,7 @@ int ODJBH4Config::fetchNextId()  noexcept(false) {
 }
 
 void ODJBH4Config::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -82,7 +82,7 @@ void ODJBH4Config::prepareWrite()
 
 
 void ODJBH4Config::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -116,7 +116,7 @@ void ODJBH4Config::writeDB()
 
 
 void ODJBH4Config::fetchData(ODJBH4Config * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -151,7 +151,7 @@ void ODJBH4Config::fetchData(ODJBH4Config * result)
   }
 }
 
-int ODJBH4Config::fetchID()    noexcept(false)
+int ODJBH4Config::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

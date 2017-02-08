@@ -31,7 +31,7 @@ MonPulseShapeDat::~MonPulseShapeDat()
 
 
 void MonPulseShapeDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -55,7 +55,7 @@ void MonPulseShapeDat::prepareWrite()
 
 
 void MonPulseShapeDat::writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* item, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -90,7 +90,7 @@ void MonPulseShapeDat::writeDB(const EcalLogicID* ecid, const MonPulseShapeDat* 
 
 
 void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fillMap, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();

@@ -7,7 +7,6 @@
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="RecoEgamma/EgammaTools"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="PhysicsTools/SelectorUtils"/>
 
 <export>

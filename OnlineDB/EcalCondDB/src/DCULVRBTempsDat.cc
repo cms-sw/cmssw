@@ -30,7 +30,7 @@ DCULVRBTempsDat::~DCULVRBTempsDat()
 
 
 void DCULVRBTempsDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void DCULVRBTempsDat::prepareWrite()
 
 
 void DCULVRBTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRBTempsDat* item, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -76,7 +76,7 @@ void DCULVRBTempsDat::writeDB(const EcalLogicID* ecid, const DCULVRBTempsDat* it
 
 
 void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMap, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -121,7 +121,7 @@ void DCULVRBTempsDat::fetchData(std::map< EcalLogicID, DCULVRBTempsDat >* fillMa
 }
 
 void DCULVRBTempsDat::writeArrayDB(const std::map< EcalLogicID, DCULVRBTempsDat >* data, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

@@ -191,7 +191,7 @@ void Tm::setToGMTime(time_t t)
 }
 
 void Tm::setToString(const string s)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   sscanf(s.c_str(), "%04d-%02d-%02d %02d:%02d:%02d", 
 	 &m_tm.tm_year, &m_tm.tm_mon, &m_tm.tm_mday,

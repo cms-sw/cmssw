@@ -24,7 +24,7 @@ ODJBH4Cycle::~ODJBH4Cycle()
 
 
 void ODJBH4Cycle::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODJBH4Cycle::prepareWrite()
 }
 
 
-void ODJBH4Cycle::writeDB()  noexcept(false)
+void ODJBH4Cycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODJBH4Cycle::clear(){
 
 
 int ODJBH4Cycle::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODJBH4Cycle::fetchID()
 
 
 void ODJBH4Cycle::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODJBH4Cycle::setByID(int id)
 
 
 void ODJBH4Cycle::fetchData(ODJBH4Cycle * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODJBH4Cycle::fetchData(ODJBH4Cycle * result)
 }
 
  void ODJBH4Cycle::insertConfig()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   try {
 

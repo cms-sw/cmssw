@@ -31,27 +31,27 @@ namespace hcaldqm
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsVME),
 			new quantity::ElectronicsQuantity(quantity::fSpigot),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		_cBcnMsm_ElectronicsVME.initialize(_name, "BcnMsm",
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsVME),
 			new quantity::ElectronicsQuantity(quantity::fSpigot),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		_cEvnMsm_ElectronicsuTCA.initialize(_name, "EvnMsm",
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsuTCA),
 			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		_cBcnMsm_ElectronicsuTCA.initialize(_name, "BcnMsm",
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsuTCA),
 			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		_cBadQuality_depth.initialize(_name, "BadQuality",
 			 hashfunctions::fdepth,
 			 new quantity::DetectorQuantity(quantity::fieta),
 			 new quantity::DetectorQuantity(quantity::fiphi),
-			 new quantity::ValueQuantity(quantity::fN),0);
+			 new quantity::ValueQuantity(quantity::fN));
 
 		_xEvn.initialize(hashfunctions::fFED);
 		_xBcn.initialize(hashfunctions::fFED);
@@ -92,27 +92,27 @@ namespace hcaldqm
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsVME),
 			new quantity::ElectronicsQuantity(quantity::fSpigot),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		cBcnMsm_ElectronicsVME.initialize(_taskname, "BcnMsm",
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsVME),
 			new quantity::ElectronicsQuantity(quantity::fSpigot),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		cEvnMsm_ElectronicsuTCA.initialize(_taskname, "EvnMsm",
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsuTCA),
 			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		cBcnMsm_ElectronicsuTCA.initialize(_taskname, "BcnMsm",
 			hashfunctions::fElectronics,
 			new quantity::FEDQuantity(_vFEDsuTCA),
 			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		cBadQuality_depth.initialize(_taskname, "BadQuality",
 			 hashfunctions::fdepth,
 			 new quantity::DetectorQuantity(quantity::fieta),
 			 new quantity::DetectorQuantity(quantity::fiphi),
-			 new quantity::ValueQuantity(quantity::fN),0);
+			 new quantity::ValueQuantity(quantity::fN));
 
 		//	LOAD LUMI BASED HISTOGRAMS
 		cEvnMsm_ElectronicsVME.load(ig, _emap, _filter_uTCA, _subsystem);
@@ -259,12 +259,12 @@ namespace hcaldqm
 		cSummaryvsLS.initialize(_name, "SummaryvsLS",
 			new quantity::LumiSection(_maxProcessedLS),
 			new quantity::FEDQuantity(_vFEDs),
-			new quantity::ValueQuantity(quantity::fState),0);
+			new quantity::ValueQuantity(quantity::fState));
 		cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
 			hashfunctions::fFED,
 			new quantity::LumiSection(_maxProcessedLS),
 			new quantity::FlagQuantity(vflagsLS),
-			new quantity::ValueQuantity(quantity::fState),0);
+			new quantity::ValueQuantity(quantity::fState));
 		cSummaryvsLS_FED.book(ib, _emap, _subsystem);
 		cSummaryvsLS.book(ib, _subsystem);
 

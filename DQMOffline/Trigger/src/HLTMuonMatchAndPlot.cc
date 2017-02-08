@@ -14,7 +14,6 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 
 #include <iostream>
-#include <string>
 
 //////////////////////////////////////////////////////////////////////////////
 //////// Namespaces and Typedefs /////////////////////////////////////////////
@@ -66,7 +65,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   //  size_t nModules = moduleLabels_.size();
   TObjArray * levelArray = levelRegexp.MatchS(moduleLabel_);
   if (levelArray->GetEntriesFast() > 0) {
-    triggerLevel_ = static_cast<std::string>(((TObjString *)levelArray->At(0))->GetString());
+    triggerLevel_ = ((TObjString *)levelArray->At(0))->GetString();
   }
   delete levelArray;
 

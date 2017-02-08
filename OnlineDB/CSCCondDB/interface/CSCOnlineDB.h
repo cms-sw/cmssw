@@ -26,11 +26,11 @@ class condbon
   /**
    * Constructor for condbon
    */
-  condbon () noexcept(false);
+  condbon () throw (oracle::occi::SQLException);
   /**
    * Destructor for condbon
    */
-  ~condbon () noexcept(false);
+  ~condbon () throw (oracle::occi::SQLException);
 /* time should be given in format like "Fri May 26 16:55:51 2006" */
   void cdbon_write (CSCobject *obj, std::string obj_name, int record,
                     int global_run, std::string time);

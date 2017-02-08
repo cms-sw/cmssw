@@ -12,77 +12,92 @@
  *
  *   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
  *
+ *
  */
 
-#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+
+#include "FWCore/Framework/interface/EDFilter.h"
+
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-template <class T, typename C = std::vector<typename T::ConstituentTypeFwdPtr>>
-class JetConstituentSelector : public edm::stream::EDProducer<> {
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "FWCore/Framework/interface/Event.h"
+
+template < class T, typename C = std::vector<typename T::ConstituentTypeFwdPtr> >
+class JetConstituentSelector : public edm::EDFilter {
+
 public:
 
-  using JetsOutput = std::vector<T>;
-  using ConstituentsOutput = C;
+  typedef std::vector<T> JetsOutput;
+  typedef C ConstituentsOutput;
 
-  JetConstituentSelector(edm::ParameterSet const& params) :
-    srcToken_{consumes<edm::View<T>>(params.getParameter<edm::InputTag>("src"))},
-    selector_{params.getParameter<std::string>("cut")}
+  JetConstituentSelector ( edm::ParameterSet const & params ) :
+      srcToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>("src") ) ),
+      cut_( params.getParameter<std::string>("cut") ),
+      filter_(false),
+      selector_( cut_ )
   {
-    produces<JetsOutput>();
-    produces<ConstituentsOutput>("constituents");
+	produces< JetsOutput >();
+	produces< ConstituentsOutput > ("constituents");
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-  {
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("src")->setComment("InputTag used for retrieving jets in event.");
-    desc.add<std::string>("cut")->setComment("Cut used by which to select jets.  For example:\n"
-                                             "  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
-    descriptions.add("JetConsituentSelector", desc);
-  }
+  virtual ~JetConstituentSelector() {}
 
-  void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override
-  {
-    auto jets = std::make_unique<JetsOutput>();
-    auto candsOut = std::make_unique<ConstituentsOutput>();
+    virtual void beginJob() override {}
+    virtual void endJob() override {}
 
-    edm::Handle<edm::View<T>> h_jets;
-    iEvent.getByToken(srcToken_, h_jets);
+    virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
-    // Now set the Ptrs with the orphan handles.
-    for (auto const& jet : *h_jets) {
-      // Check the selection
-      if (selector_(jet)) {
-        // Add the jets that pass to the output collection
-        jets->push_back(jet);
-        for (unsigned int ida {}; ida < jet.numberOfDaughters(); ++ida) {
-          candsOut->emplace_back(jet.daughterPtr(ida), jet.daughterPtr(ida));
-        }
+      std::unique_ptr< JetsOutput > jets ( new std::vector<T>() );
+      std::unique_ptr< ConstituentsOutput > candsOut( new ConstituentsOutput  );
+
+      edm::Handle< typename edm::View<T> > h_jets;
+      iEvent.getByToken( srcToken_, h_jets );
+
+      // Now set the Ptrs with the orphan handles.
+      for ( typename edm::View<T>::const_iterator ibegin = h_jets->begin(),
+	      iend = h_jets->end(), ijet = ibegin;
+	    ijet != iend; ++ijet ) {
+
+	// Check the selection
+	if ( selector_(*ijet) ) {
+	  // Add the jets that pass to the output collection
+	  jets->push_back( *ijet );
+	  for ( unsigned int ida = 0; ida < ijet->numberOfDaughters(); ++ida ) {
+	    candsOut->push_back( typename ConstituentsOutput::value_type( ijet->daughterPtr(ida), ijet->daughterPtr(ida) ) );
+	  }
+	}
       }
+
+      // put  in Event
+      bool pass = jets->size() > 0;
+      iEvent.put(std::move(jets));
+      iEvent.put(std::move(candsOut), "constituents");
+
+      if ( filter_ )
+	return pass;
+      else
+	return true;
+
     }
 
-    iEvent.put(std::move(jets));
-    iEvent.put(std::move(candsOut), "constituents");
-  }
+  protected:
+    edm::EDGetTokenT< typename edm::View<T> >                  srcToken_;
+    std::string                    cut_;
+    bool                           filter_;
+    StringCutObjectSelector<T>   selector_;
 
-private:
-  edm::EDGetTokenT<edm::View<T>> const srcToken_;
-  StringCutObjectSelector<T> const selector_;
 };
 
-using PFJetConstituentSelector = JetConstituentSelector<reco::PFJet>;
-using PatJetConstituentSelector = JetConstituentSelector<pat::Jet, std::vector<edm::FwdPtr<pat::PackedCandidate>>>;
-using MiniAODJetConstituentSelector = JetConstituentSelector<reco::PFJet, std::vector<edm::FwdPtr<pat::PackedCandidate>>>;
+typedef JetConstituentSelector<reco::PFJet> PFJetConstituentSelector;
+typedef JetConstituentSelector<pat::Jet, std::vector< edm::FwdPtr<pat::PackedCandidate> > > PatJetConstituentSelector;
+typedef JetConstituentSelector<reco::PFJet, std::vector< edm::FwdPtr<pat::PackedCandidate> > > MiniAODJetConstituentSelector;
 
-DEFINE_FWK_MODULE(PFJetConstituentSelector);
-DEFINE_FWK_MODULE(PatJetConstituentSelector);
-DEFINE_FWK_MODULE(MiniAODJetConstituentSelector);
+DEFINE_FWK_MODULE( PFJetConstituentSelector );
+DEFINE_FWK_MODULE( PatJetConstituentSelector );
+DEFINE_FWK_MODULE( MiniAODJetConstituentSelector );

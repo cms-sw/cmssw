@@ -15,7 +15,6 @@
 //         Created:  10/8/07
 // $Id: AlignmentMonitorSurvey.h,v 1.4 2008/02/22 01:21:45 cklae Exp $
 
-#include <string>
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
 class AlignmentMonitorSurvey:
@@ -32,7 +31,6 @@ class AlignmentMonitorSurvey:
 		     const ConstTrajTrackPairCollection&) {}
 
   private:
-  std::vector<std::string> levelNames_;
 
   std::vector<align::StructureType> theLevels;
 };

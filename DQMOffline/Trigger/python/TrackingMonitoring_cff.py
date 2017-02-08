@@ -12,11 +12,7 @@ trackingMonHLT.pvNDOF                  = cms.int32(1)
 trackingMonHLT.doProfilesVsLS          = cms.bool(True)
 trackingMonHLT.doPlotsVsGoodPVtx       = cms.bool(True)
 trackingMonHLT.doEffFromHitPatternVsPU = cms.bool(True)
-trackingMonHLT.doEffFromHitPatternVsBX = cms.bool(True)
-trackingMonHLT.doEffFromHitPatternVsLUMI = cms.bool(True)
-trackingMonHLT.doPlotsVsGoodPVtx       = cms.bool(True)
-trackingMonHLT.doPlotsVsLUMI           = cms.bool(True)
-trackingMonHLT.doPlotsVsBX             = cms.bool(True)
+
 
 pixelTracksMonitoringHLT = trackingMonHLT.clone()
 pixelTracksMonitoringHLT.FolderName       = 'HLT/Tracking/pixelTracks'

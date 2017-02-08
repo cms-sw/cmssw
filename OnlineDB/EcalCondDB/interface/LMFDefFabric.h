@@ -46,7 +46,7 @@ class LMFDefFabric: public IDBObject {
   std::list<LMFTrigType> getTriggerTypes() const;
   std::list<LMFRunTag>   getRunTags() const;
 
-  void initialize() noexcept(false);
+  void initialize() throw(std::runtime_error);
   void debug();
   void noDebug();
 

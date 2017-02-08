@@ -3,7 +3,6 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Riostream.h"
@@ -71,7 +70,6 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   int  fillEventwiseTree(const char *filename, int iter, int ierr);
   // private data members
 
-  std::unique_ptr<AlignableObjectId> alignableObjectId_;
   AlignmentParameterStore* theAlignmentParameterStore;
   std::vector<Alignable*> theAlignables;
   AlignableNavigator* theAlignableDetAccessor;
@@ -110,7 +108,6 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool theFillTrackMonitoring;
   std::vector<double> SetScanDet;
 
-  const std::vector<std::string> surveyResiduals_;
   std::vector<align::StructureType> theLevels; // for survey residuals
 
   // root tree variables

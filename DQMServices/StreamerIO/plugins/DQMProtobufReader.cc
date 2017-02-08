@@ -4,7 +4,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 // #include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 using namespace dqmservices;
@@ -33,11 +32,6 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
   for (;;) {
     fiterator_.update_state();
 
-    if (edm::shutdown_flag.load()) {
-      fiterator_.logFileAction("Shutdown flag was set, shutting down.");
-      return InputSource::IsStop;
-    }
-
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
       return InputSource::IsStop;
@@ -57,8 +51,8 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
     fiterator_.delay();
     // BUG: for an unknown reason it fails after a certain time if we use
     // IsSynchronize state
-    //
     // comment out in order to block at this level
+    // the only downside is that we cannot Ctrl+C :)
     // return InputSource::IsSynchronize;
   }
 

@@ -24,11 +24,14 @@ class RunTPGConfigDat : public IDataItem {
 
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() 
+    throw(std::runtime_error);
 
-  void writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov ) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov )
+    throw(std::runtime_error);
 
-  void fetchData(std::map< EcalLogicID, RunTPGConfigDat >* fillMap, RunIOV* iov) noexcept(false);
+  void fetchData(std::map< EcalLogicID, RunTPGConfigDat >* fillMap, RunIOV* iov)
+     throw(std::runtime_error);
 
   // User data
   int m_version;

@@ -33,15 +33,20 @@ class ODDelaysDat : public IODConfig {
   inline int getTimeOffset() const { return m_t1; }
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() 
+    throw(std::runtime_error);
 
-  void writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov ) noexcept(false);
+  void writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
+    throw(std::runtime_error);
 
-  void writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelaysInfo* iov) noexcept(false);
+  void writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelaysInfo* iov)
+    throw(std::runtime_error);
 
 
-  void fetchData(std::vector< ODDelaysDat >* fillMap, int id) noexcept(false);
-  void fetchData(std::vector< ODDelaysDat >* fillMap, ODFEDelaysInfo* iov) noexcept(false);
+  void fetchData(std::vector< ODDelaysDat >* fillMap, int id)
+     throw(std::runtime_error);
+  void fetchData(std::vector< ODDelaysDat >* fillMap, ODFEDelaysInfo* iov)
+     throw(std::runtime_error);
 
   // User data
   int m_sm;

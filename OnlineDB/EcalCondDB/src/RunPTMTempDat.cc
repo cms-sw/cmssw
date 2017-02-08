@@ -27,7 +27,7 @@ RunPTMTempDat::~RunPTMTempDat()
 
 
 void RunPTMTempDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void RunPTMTempDat::prepareWrite()
 
 
 void RunPTMTempDat::writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, RunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void RunPTMTempDat::writeDB(const EcalLogicID* ecid, const RunPTMTempDat* item, 
 
 
 void RunPTMTempDat::fetchData(map< EcalLogicID, RunPTMTempDat >* fillMap, RunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();

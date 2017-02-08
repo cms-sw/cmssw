@@ -432,7 +432,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
           throw cms::Exception("BadConfig")
             << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
             << "Run dependence configured for alignable of type "
-            << objectIdProvider().idToString((*iAli)->alignableObjectId())
+            << AlignableObjectId::idToString((*iAli)->alignableObjectId())
             << " at (" << (*iAli)->globalPosition().x() << ","<< (*iAli)->globalPosition().y() << "," << (*iAli)->globalPosition().z()<< "), "
             << "but that has no parameters. Please check that all run "
             << "dependent parameters are also selected for alignment.\n"; 

@@ -101,9 +101,7 @@ namespace {
     concatenate(os, t...);
   }
 
-  enum class step : char { preSourceEvent = 'S',
-                           postSourceEvent = 's',
-                           preEvent = 'E',
+  enum class step : char { preEvent = 'E',
                            postModuleEventPrefetching = 'p',
                            preModuleEvent = 'M',
                            preEventReadFromSource = 'R',
@@ -141,8 +139,6 @@ namespace edm {
 
       void preModuleConstruction(edm::ModuleDescription const&);
       void postBeginJob();
-      void preSourceEvent(StreamID);
-      void postSourceEvent(StreamID);
       void preEvent(StreamContext const&);
       void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postModuleEventPrefetching(StreamContext const&, ModuleCallingContext const&);
@@ -185,7 +181,7 @@ using namespace std::chrono;
 StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   : file_{iPS.getUntrackedParameter<std::string>("fileName", filename_default)}
   , validFile_{file_}
-  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold")*1000)}
+  , stallThreshold_{static_cast<long int>(iPS.getUntrackedParameter<double>("stallThreshold", threshold_default)*1000)}
 {
   iRegistry.watchPreModuleConstruction(this, &StallMonitor::preModuleConstruction);
   iRegistry.watchPostBeginJob(this, &StallMonitor::postBeginJob);
@@ -195,8 +191,6 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
 
   if (validFile_) {
     // Only enable the following callbacks if writing to a file.
-    iRegistry.watchPreSourceEvent(this, &StallMonitor::preSourceEvent);
-    iRegistry.watchPostSourceEvent(this, &StallMonitor::postSourceEvent);
     iRegistry.watchPreEvent(this, &StallMonitor::preEvent);
     iRegistry.watchPreEventReadFromSource(this, &StallMonitor::preEventReadFromSource);
     iRegistry.watchPostEventReadFromSource(this, &StallMonitor::postEventReadFromSource);
@@ -206,8 +200,6 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     std::ostringstream oss;
     oss << "# Step                       Symbol Entries\n"
         << "# -------------------------- ------ ------------------------------------------\n"
-        << "# preSourceEvent                " << step::preSourceEvent             << "   <Stream ID> <Time since beginJob (ms)>\n"
-        << "# postSourceEvent               " << step::postSourceEvent            << "   <Stream ID> <Time since beginJob (ms)>\n"
         << "# preEvent                      " << step::preEvent                   << "   <Stream ID> <Run#> <LumiBlock#> <Event#> <Time since beginJob (ms)>\n"
         << "# postModuleEventPrefetching    " << step::postModuleEventPrefetching << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
         << "# preModuleEvent                " << step::preModuleEvent             << "   <Stream ID> <Module ID> <Time since beginJob (ms)>\n"
@@ -290,20 +282,6 @@ void StallMonitor::postBeginJob()
   moduleLabels_.clear();
 
   beginTime_ = now();
-}
-
-void StallMonitor::preSourceEvent(StreamID const sid)
-{
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
-  auto msg = assembleMessage<step::preSourceEvent>(sid.value(), t);
-  file_.write(std::move(msg));
-}
-
-void StallMonitor::postSourceEvent(StreamID const sid)
-{
-  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
-  auto msg = assembleMessage<step::postSourceEvent>(sid.value(), t);
-  file_.write(std::move(msg));
 }
 
 void StallMonitor::preEvent(StreamContext const& sc)

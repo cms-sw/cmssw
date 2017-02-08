@@ -48,7 +48,6 @@
 #include "G4FieldManagerStore.hh"
 #include "SimG4Core/Physics/interface/G4Monopole.hh"
 #include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
-#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 
 class G4VSensitiveDetector;
 
@@ -130,10 +129,11 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
                                              G4double& currentSafety,
                                              G4GPILSelection* selection )
 {
+  
+  //magSetup->SetStepperAndChordFinder(1); 
   // change to monopole equation
-  G4FieldManager* fieldMgr = fFieldPropagator->FindAndSetFieldManager(track.GetVolume()); 
-  CMSFieldManager* fieldMgrCMS = static_cast<CMSFieldManager*>(fieldMgr);
-  if(fieldMgrCMS) { fieldMgrCMS->SetMonopoleTracking(true); }
+  G4FieldManager* fieldMgrX=fFieldPropagator->FindAndSetFieldManager(track.GetVolume()); 
+  fChordFinderSetter->setStepperAndChordFinder (fieldMgrX, 1);
   
   G4double geometryStepLength, newSafety ; 
   fParticleIsLooping = false ;
@@ -186,19 +186,21 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
 
   // Check whether the particle have an (EM) field force exerting upon it
   //
+  G4FieldManager* fieldMgr=0;
   G4bool          fieldExertsForce = false ;
     
   if( (particleMagneticCharge != 0.0) )
   {      
-     if (fieldMgr) {
-       // Message the field Manager, to configure it for this track
-       fieldMgr->ConfigureForTrack( &track );
-       // Moved here, in order to allow a transition
-       //   from a zero-field  status (with fieldMgr->(field)0
-       //   to a finite field  status
+     fieldMgr= fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
+     if (fieldMgr != 0) {
+  // Message the field Manager, to configure it for this track
+  fieldMgr->ConfigureForTrack( &track );
+  // Moved here, in order to allow a transition
+  //   from a zero-field  status (with fieldMgr->(field)0
+  //   to a finite field  status
 
-       // If the field manager has no field, there is no field !
-       fieldExertsForce = (fieldMgr->GetDetectorField() != 0);
+        // If the field manager has no field, there is no field !
+        fieldExertsForce = (fieldMgr->GetDetectorField() != 0);
      }      
   }
 
@@ -611,10 +613,10 @@ PostStepGetPhysicalInteractionLength( const G4Track& track,
                                             G4double, // previousStepSize
                                             G4ForceCondition* pForceCond )
 {  
+  //magSetup->SetStepperAndChordFinder(0);
   // change back to usual equation
   G4FieldManager* fieldMgr=fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
-  CMSFieldManager* fieldMgrCMS = static_cast<CMSFieldManager*>(fieldMgr);
-  if(fieldMgrCMS) { fieldMgrCMS->SetMonopoleTracking(true); }
+  fChordFinderSetter->setStepperAndChordFinder (fieldMgr, 0);
   
   *pForceCond = Forced ; 
   return DBL_MAX ;  // was kInfinity ; but convention now is DBL_MAX

@@ -81,7 +81,9 @@ void TrackCollectionFilterCloner::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("originalMVAVals", edm::InputTag());
   desc.add<edm::InputTag>("originalQualVals",edm::InputTag());
   desc.add<std::string>  ("minQuality",      "loose");
-  TrackCollectionCloner::fill(desc);
+  edm::ParameterSetDescription clonerDesc;
+  TrackCollectionCloner::fill(clonerDesc);
+  desc.addUntracked<edm::ParameterSetDescription>("cloner",clonerDesc);
   descriptions.add("TrackCollectionFilterCloner", desc);  
 }
 

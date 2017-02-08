@@ -42,7 +42,7 @@ ODEcalCycle::~ODEcalCycle()
 
 
 void ODEcalCycle::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   std::cout<< "ODEcalCycle::prepareWrite(): this is a view writing specific tables  "<< endl;
@@ -52,7 +52,7 @@ void ODEcalCycle::prepareWrite()
 
 
 void ODEcalCycle::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   ODRunConfigCycleInfo cyc;
@@ -200,7 +200,7 @@ void ODEcalCycle::clear(){
 }
 
 int ODEcalCycle::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -234,7 +234,7 @@ int ODEcalCycle::fetchID()
 }
 
 void ODEcalCycle::setByID(int id)
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -306,7 +306,7 @@ void ODEcalCycle::printout(){
 
 
 void ODEcalCycle::fetchData(ODEcalCycle * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   //  result->clear();

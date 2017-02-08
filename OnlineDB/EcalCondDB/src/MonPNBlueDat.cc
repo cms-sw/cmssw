@@ -36,7 +36,7 @@ MonPNBlueDat::~MonPNBlueDat()
 
 
 void MonPNBlueDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -54,7 +54,7 @@ void MonPNBlueDat::prepareWrite()
 
 
 void MonPNBlueDat::writeDB(const EcalLogicID* ecid, const MonPNBlueDat* item, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -88,7 +88,7 @@ void MonPNBlueDat::writeDB(const EcalLogicID* ecid, const MonPNBlueDat* item, Mo
 
 
 void MonPNBlueDat::fetchData(std::map< EcalLogicID, MonPNBlueDat >* fillMap, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -138,7 +138,7 @@ void MonPNBlueDat::fetchData(std::map< EcalLogicID, MonPNBlueDat >* fillMap, Mon
 }
 
 void MonPNBlueDat::writeArrayDB(const std::map< EcalLogicID, MonPNBlueDat >* data, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

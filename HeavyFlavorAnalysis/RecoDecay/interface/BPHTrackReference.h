@@ -66,13 +66,10 @@ class BPHTrackReference {
   /// s :   pat ::            Muon ::      standAloneMuon ()
   /// e :   pat ::        Electron ::     pfCandidateRef  ()
   static const reco::Track* getTrack( const reco::Candidate& rc,
-                            const char* modeList = "cfhbpmnigse",
-                                  char* modeFlag = 0 ) {
+                            const char* modeList = "cfhbpmnigse" ) {
     if ( rc.charge() == 0 ) return 0;
     const char* mptr = modeList;
-    char c;
-    if ( modeFlag == 0 ) modeFlag = &c;
-    char& mode = *modeFlag;
+    char mode;
     const reco::Track* tkp = 0;
     while ( ( mode = *mptr++ ) ) {
       switch ( mode ) {

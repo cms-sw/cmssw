@@ -32,7 +32,7 @@ ODVfeToRejectDat::~ODVfeToRejectDat()
 
 
 void ODVfeToRejectDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void ODVfeToRejectDat::prepareWrite()
 
 
 void ODVfeToRejectDat::writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -69,7 +69,7 @@ void ODVfeToRejectDat::writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* 
 
 
 void ODVfeToRejectDat::fetchData(std::vector< ODVfeToRejectDat >* p, ODVfeToRejectInfo* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -108,7 +108,7 @@ void ODVfeToRejectDat::fetchData(std::vector< ODVfeToRejectDat >* p, ODVfeToReje
 //  ************************************************************************   // 
 
 void ODVfeToRejectDat::writeArrayDB(const std::vector< ODVfeToRejectDat >& data, ODVfeToRejectInfo* iov)
-    noexcept(false)
+    throw(std::runtime_error)
 {
   this->checkConnection();
 

@@ -345,7 +345,7 @@ void TestBPHSpecificDecay::analyze( const edm::Event& ev,
     const reco::Candidate* mNeg = bu->originalReco(
                                   bu->getDaug( "JPsi/MuNeg" ) );
     const reco::Candidate* kaon = bu->originalReco(
-                                  bu->getDaug( "Kaon"       ) );
+                                  bu->getDaug( "kaon"       ) );
     BPHRecoCandidatePtr njp( new BPHPlusMinusCandidate( &es ) );
     njp->add( "MuPos", mPos,
               BPHParticleMasses::muonMass,

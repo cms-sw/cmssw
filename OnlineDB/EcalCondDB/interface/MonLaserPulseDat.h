@@ -31,16 +31,16 @@ class MonLaserPulseDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MonLaserPulseDat* item, MonRunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MonLaserPulseDat >* data, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   void fetchData(std::map< EcalLogicID, MonLaserPulseDat >* fillMap, MonRunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   float m_pulseHeightMean;

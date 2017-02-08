@@ -61,7 +61,7 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
     
     // Taken from Daniele (his mail from the 30/11)    
     // training of the 7/12 with Nvtx added
-    tmvaReader.BookMVA("BDT",weightsfiles[i]);
+    std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA("BDT",weightsfiles[i]) );
     gbr[i].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA("BDT") ) ) );
   }
 }

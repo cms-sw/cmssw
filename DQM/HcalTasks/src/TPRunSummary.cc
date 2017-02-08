@@ -54,35 +54,35 @@ namespace hcaldqm
 		cOccupancyData_depthlike.initialize(_taskname, "OccupancyData",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fN, true),0);
+			new quantity::ValueQuantity(quantity::fN, true));
 		cOccupancyEmul_depthlike.initialize(_taskname, "OccupancyEmul",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fN, true),0);
+			new quantity::ValueQuantity(quantity::fN, true));
 		cEtMsm_depthlike.initialize(_taskname, "EtMsm",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		cFGMsm_depthlike.initialize(_taskname, "FGMsm",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fN),0);
+			new quantity::ValueQuantity(quantity::fN));
 		cEtCorrRatio_depthlike.initialize(_taskname, "EtCorrRatio",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fRatio_0to2),0);
+			new quantity::ValueQuantity(quantity::fRatio_0to2));
 		_cEtMsmFraction_depthlike.initialize(_taskname, "EtMsmFraction",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fRatio_0to2),0);
+			new quantity::ValueQuantity(quantity::fRatio_0to2));
 		_cFGMsmFraction_depthlike.initialize(_taskname, "FGMsmFraction",
 			new quantity::TrigTowerQuantity(quantity::fTTieta),
 			new quantity::TrigTowerQuantity(quantity::fTTiphi),
-			new quantity::ValueQuantity(quantity::fRatio_0to2),0);
+			new quantity::ValueQuantity(quantity::fRatio_0to2));
 		cSummary.initialize(_name, "Summary",
 			new quantity::FEDQuantity(_vFEDs),
 			new quantity::FlagQuantity(vflags),
-			new quantity::ValueQuantity(quantity::fState),0);
+			new quantity::ValueQuantity(quantity::fState));
 
 		//	BOOK
 		xDeadD.book(_emap); xDeadE.book(_emap); xEtMsm.book(_emap); 

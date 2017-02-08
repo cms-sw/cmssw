@@ -47,8 +47,7 @@ namespace edm {
 
             bool isChirpSupported();
             template<typename T> bool updateChirp(const std::string &key_suffix, const T &value);
-            bool updateChirpQuoted(const std::string &key_suffix, const std::string &value);
-            bool updateChirpImpl(std::string const &key, std::string const &value);
+            bool updateChirp(std::string const &key, std::string const &value);
             inline void update();
             void firstUpdate();
             void lastUpdate();
@@ -260,7 +259,7 @@ CondorStatusService::firstUpdate()
     std::string models;
     double avgSpeed;
     if (cpusvc.isAvailable() && cpusvc->cpuInfo(models, avgSpeed)) {
-        updateChirpQuoted("CPUModels", models);
+        updateChirp("CPUModels", models);
         updateChirp("CPUSpeed", avgSpeed);
     }
 }
@@ -391,23 +390,12 @@ template<typename T> bool
 CondorStatusService::updateChirp(const std::string &key_suffix, const T &value)
 {
     std::stringstream ss; ss << value;
-    return updateChirpImpl(key_suffix, ss.str());
-}
-
-bool
-CondorStatusService::updateChirpQuoted(const std::string &key_suffix, const std::string &value)
-{
-    std::string value_copy = value;
-    // Remove double-quotes or the \ character (as it has special escaping semantics in ClassAds).
-    // Make sure we have ASCII characters.
-    // Otherwise, remainder is allowed (including tabs, newlines, single-quotes).
-    value_copy.erase(remove_if(value_copy.begin(), value_copy.end(), [](const char &c) {return !isascii(c) || (c == '"') || (c == '\\');}), value_copy.end());
-    return updateChirpImpl(key_suffix, "\"" + value_copy + "\"");
+    return updateChirp(key_suffix, ss.str());
 }
 
 
 bool
-CondorStatusService::updateChirpImpl(const std::string &key_suffix, const std::string &value)
+CondorStatusService::updateChirp(const std::string &key_suffix, const std::string &value)
 {
     std::stringstream ss; ss << "ChirpCMSSW" << m_tag << key_suffix;
     std::string key = ss.str();

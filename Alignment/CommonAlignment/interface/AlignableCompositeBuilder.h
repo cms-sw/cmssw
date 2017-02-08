@@ -18,9 +18,8 @@ class AlignableCompositeBuilder {
   //========================== PUBLIC METHODS =================================
   public: //===================================================================
 
-    AlignableCompositeBuilder(const TrackerTopology*, const TrackerGeometry*,
-                              const AlignableIndexer&);
-    virtual ~AlignableCompositeBuilder() = default;
+    AlignableCompositeBuilder(const TrackerTopology*, AlignableIndexer&);
+    virtual ~AlignableCompositeBuilder() {};
 
     /// Add all desired AlignmentLevels for a sub-detector to the builder before
     /// calling buildAll(), the order matters!
@@ -40,9 +39,6 @@ class AlignableCompositeBuilder {
     /// - TPBBarrel     (with TPBHalfBarrel as children)
     /// Returns the number of composite Alignables which were built.
     unsigned int buildAll(AlignableMap&);
-
-    /// Return tracker alignable object ID provider derived from the tracker's geometry
-    const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 
   //========================= PRIVATE METHODS =================================
   private: //==================================================================
@@ -68,7 +64,6 @@ class AlignableCompositeBuilder {
     //       alignables one has to add/implement something more general than
     //       the TrackerTopology
     const TrackerTopology* trackerTopology_;
-    const AlignableObjectId alignableObjectId_;
 
     AlignableIndexer alignableIndexer_;
 

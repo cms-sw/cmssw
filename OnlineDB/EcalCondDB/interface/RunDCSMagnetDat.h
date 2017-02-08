@@ -37,16 +37,16 @@ class RunDCSMagnetDat : public IDataItem {
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSMagnetDat >* );
 
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const RunDCSMagnetDat* item, RunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void fetchData(std::map< EcalLogicID, RunDCSMagnetDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   void fetchLastData(std::map< EcalLogicID, RunDCSMagnetDat >* fillMap)
-     noexcept(false);
+     throw(std::runtime_error);
 
 
   // User data

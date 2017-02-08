@@ -21,7 +21,6 @@ These products should be informational products about the filter decision.
 
 #include <string>
 #include <vector>
-#include <array>
 
 namespace edm {
   namespace maker {

@@ -89,7 +89,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    * Destructor
    */
   virtual ~EcalCondDBInterface()
-    noexcept(false)
+    throw(std::runtime_error)
     {
       // call the parent destructor
       
@@ -120,7 +120,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 			      int id2 = EcalLogicID::NULLID,
 			      int id3 = EcalLogicID::NULLID,
 			      std::string mapsTo = "" )
-    noexcept(false);
+    throw(std::runtime_error);
 
   /**
    *  Build various reverse maps
@@ -142,7 +142,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  logicID:  DB logic_id
    */
   EcalLogicID getEcalLogicID( int logicID )
-    noexcept(false);
+    throw(std::runtime_error);
 
   /**
    *  Get a set of EcalLogicID in one transaction
@@ -158,56 +158,56 @@ class EcalCondDBInterface : public EcalDBConnection {
 					      int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
 					      int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
 					      std::string mapsTo = "" )
-    noexcept(false);
+    throw(std::runtime_error);
 
   std::map<int, int> getEcalLogicID2LmrMap();
   std::vector<EcalLogicID> getEcalLogicIDSetOrdered( std::string name,
 						     int fromId1, int toId1,
 						     int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
 						     int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
-						     std::string mapsTo = "", int orderedBy= EcalLogicID::NULLID ) noexcept(false);
+						     std::string mapsTo = "", int orderedBy= EcalLogicID::NULLID ) throw(std::runtime_error);
 
 
   /**
    *  Insert a run IOV object.  Nothing is committed in the event of an exception
    */
   void insertRunIOV(RunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   // updates the end time of an iov
   void updateRunIOV(RunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   void updateRunIOVStartTime(RunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   void updateRunIOVEndTime(RunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
-  void updateRunConfig(ODRunConfigInfo* od) noexcept(false);
+  void updateRunConfig(ODRunConfigInfo* od) throw(std::runtime_error);
 
   void insertLmfIOV(LMFIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   void insertLmfLmrSubIOV(LMFLmrSubIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   void insertLmfSeq(LMFSeqDat* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   void insertLmfRunIOV(LMFRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   void insertLmfDat(LMFDat* dat)
-    noexcept(false);
+    throw(std::runtime_error);
   void insertLmfDat(std::list<LMFDat*> dat)
-    noexcept(false);
+    throw(std::runtime_error);
 
   /**
    *  Return run Fe Config Dat objects for a given run
    */
 
   std::list<ODDelaysDat> fetchFEDelaysForRun(RunIOV *iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   /**
    *  Return a run IOV object for a given tag
    */
   RunIOV fetchRunIOV(RunTag* tag, run_t run)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
 
@@ -217,10 +217,10 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  so an exception is thrown if more than one result exists.
    */
   RunIOV fetchRunIOV(std::string location, run_t run)
-    noexcept(false);
+    throw(std::runtime_error);
 
   RunIOV fetchRunIOV(std::string location, const Tm &t)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
 
@@ -228,28 +228,28 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Insert a monitoring run object.  Nothing is committed in the event of an exception
    */
   void insertMonRunIOV(MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   /**
    *  Insert a DCU IOV object.  Nothing is committed in the event of an exception
    */
   void insertDCUIOV(DCUIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   /**
    *  Return a monitoring run object
    */
   MonRunIOV fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t monrun)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   /**
    *   Return a DCU IOV object
    */
   DCUIOV fetchDCUIOV(DCUTag* tag, const Tm& evenTm)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
 
@@ -257,7 +257,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Return a laser monitoring farm run object
    */
   LMFRunIOV fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t lmfrun)
-    noexcept(false);
+    throw(std::runtime_error);
   bool fetchLMFRunIOV(const LMFSeqDat&, LMFRunIOV&, int lmr, int type, 
 		      int color) const;
   RunIOV fetchLMFLastRun() const; 
@@ -266,30 +266,30 @@ class EcalCondDBInterface : public EcalDBConnection {
    *   Return a Calibration IOV object
    */
   CaliIOV fetchCaliIOV(CaliTag* tag, const Tm& evenTm)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
  /**
    *   Return a Run List
    */
-  RunList fetchRunList(const RunTag& tag) noexcept(false);
-  RunList fetchRunList(const RunTag& tag, int min_run, int max_run) noexcept(false);
-  RunList fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) noexcept(false);
-  RunList fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) noexcept(false);
-  RunList fetchRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) noexcept(false);
-  RunList fetchGlobalRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) noexcept(false);
-  RunList fetchRunListLastNRuns(const RunTag& tag, int max_run, int n_runs) noexcept(false);
+  RunList fetchRunList(const RunTag& tag) throw(std::runtime_error);
+  RunList fetchRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) throw(std::runtime_error);
+  RunList fetchRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) throw(std::runtime_error);
+  RunList fetchGlobalRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) throw(std::runtime_error);
+  RunList fetchRunListLastNRuns(const RunTag& tag, int max_run, int n_runs) throw(std::runtime_error);
 
  /**
    *   Return a PTM Temp List
    */
 
-  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid)  noexcept(false);
-  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid, const Tm& start, const Tm& end) noexcept(false);
+  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid)  throw(std::runtime_error);
+  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid, const Tm& start, const Tm& end) throw(std::runtime_error);
 
-  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag) noexcept(false);
-  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag,int min_run, int max_run) noexcept(false);
-  MonRunList fetchMonRunListLastNRuns(const RunTag& tag, const MonRunTag& monruntag, int max_run, int n_runs) noexcept(false);
+  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag) throw(std::runtime_error);
+  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag,int min_run, int max_run) throw(std::runtime_error);
+  MonRunList fetchMonRunListLastNRuns(const RunTag& tag, const MonRunTag& monruntag, int max_run, int n_runs) throw(std::runtime_error);
 
 
 
@@ -305,7 +305,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   template<class DATT, class IOVT>
   void insertDataSet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    noexcept(false)
+    throw(std::runtime_error)
   {
     try {
       iov->setConnection(env, conn);
@@ -345,7 +345,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   //test for DB Array insertion
   template<class DATT, class IOVT>
   void insertDataArraySet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    noexcept(false)
+    throw(std::runtime_error)
   {
     try {
       iov->setConnection(env, conn);
@@ -380,7 +380,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
  template<class DATT, class IOVT>
   void insertDataSetVector( const std::vector<EcalLogicID>& ecid, const std::vector<IOVT>& run_iov, const std::vector<DATT>& data )
-    noexcept(false)
+    throw(std::runtime_error)
   {
    
     int nruns= run_iov.size();
@@ -422,7 +422,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
  template<class ICONF >
    void insertConfigSet( ICONF* iconf)
-   noexcept(false)
+   throw(std::runtime_error)
    {
      try {
        iconf->setConnection(env, conn);
@@ -446,7 +446,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class ICONF>
   void fetchConfigSet( ICONF* iconf)
-    noexcept(false)
+    throw(std::runtime_error)
   {
 
     iconf->clear();
@@ -462,7 +462,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class ICONF>
   void fetchLastConfigSet( ICONF* iconf)
-    noexcept(false)
+    throw(std::runtime_error)
   {
 
     iconf->clear();
@@ -480,7 +480,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT, class ICONF>
   void insertConfigDataSet(const std::vector< DATT > data, ICONF* iconf)
-    noexcept(false)
+    throw(std::runtime_error)
   {
     try {
       iconf->setConnection(env, conn);
@@ -519,7 +519,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT, class ICONF>
   void insertConfigDataArraySet(const std::vector< DATT >& data, ICONF* iconf)
-    noexcept(false)
+    throw(std::runtime_error)
   {
     try {
       iconf->setConnection(env, conn);
@@ -555,7 +555,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT, class ICONF>
   void fetchConfigDataSet(std::vector< DATT >* fillMap, ICONF* iconf)
-    noexcept(false)
+    throw(std::runtime_error)
   {
 
     DATT datiface;
@@ -578,7 +578,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT, class IOVT>
   void fetchDataSet(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov)
-    noexcept(false)
+    throw(std::runtime_error)
   {
     fillMap->clear();
 
@@ -599,7 +599,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT>
   void fetchDCSDataSet(std::list< std::pair< Tm, std::map<  EcalLogicID, DATT > > >* fillMap, const Tm& t)
-    noexcept(false)
+    throw(std::runtime_error)
   {
     fillMap->clear();
     
@@ -622,7 +622,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   template<class DATT, class IOVT>
   void fetchDataSetWithMap(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov, std::string mapping_name )
-    noexcept(false)
+    throw(std::runtime_error)
   {
     fillMap->clear();
 
@@ -646,7 +646,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap, 
 			 IOVT* fillIOV, 
 			 RunTag* tag, run_t run = (unsigned int)-1)
-  noexcept(false)
+  throw(std::runtime_error)
   {
     fillMap->clear();
     DATT datiface;
@@ -670,7 +670,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap,
                          IOVT* fillIOV,
                          std::string location, run_t run = (unsigned int)-1)
-  noexcept(false)
+  throw(std::runtime_error)
   {
     fillMap->clear();
     DATT datiface;

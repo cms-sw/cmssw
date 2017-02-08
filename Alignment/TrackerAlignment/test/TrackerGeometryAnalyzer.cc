@@ -14,6 +14,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // tracker-alignables aka AlignableTracker
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
 
@@ -39,9 +40,7 @@ TrackerGeometryAnalyzer
   analyzeTEC_     (config.getParameter<bool>("analyzeTEC")),
 
   trackerTopology(0),
-  trackerGeometry(0),
-  // will be reset once the geometry is known:
-  alignableObjectId_{AlignableObjectId::Geometry::General}
+  trackerGeometry(0)
 {
 }
 
@@ -92,7 +91,6 @@ void TrackerGeometryAnalyzer
                       *trackerParams,
                       trackerTopology
                     );
-  alignableObjectId_ = AlignableObjectId{trackerGeometry, nullptr, nullptr};
 }
 
 
@@ -271,7 +269,7 @@ void TrackerGeometryAnalyzer
     if (alignable->components().size()) {
       for (int i = 0; i < (3*indent); ++i) ss << " ";
 
-      auto type = alignableObjectId_.idToString(alignable->alignableObjectId());
+      auto type = AlignableObjectId::idToString(alignable->alignableObjectId());
       ss << type;
 
       int len = (6 * maxPrintDepth_) - (3 * indent) - strlen(type);

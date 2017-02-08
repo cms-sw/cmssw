@@ -31,7 +31,7 @@ ODLTCConfig::~ODLTCConfig()
   //  delete [] m_ltc_clob;
 }
 
-int ODLTCConfig::fetchNextId()  noexcept(false) {
+int ODLTCConfig::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int ODLTCConfig::fetchNextId()  noexcept(false) {
 
 
 void ODLTCConfig::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -146,7 +146,7 @@ void ODLTCConfig::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODLTCConfig::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   std::cout<<"updating the clob "<<std::endl;
@@ -197,7 +197,7 @@ void ODLTCConfig::clear(){
 
 
 void ODLTCConfig::fetchData(ODLTCConfig * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -245,7 +245,7 @@ void ODLTCConfig::fetchData(ODLTCConfig * result)
 
 
 
-int ODLTCConfig::fetchID()    noexcept(false)
+int ODLTCConfig::fetchID()    throw(std::runtime_error)
 {
   if (m_ID!=0) {
     return m_ID;

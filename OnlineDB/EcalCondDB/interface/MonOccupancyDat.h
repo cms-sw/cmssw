@@ -29,17 +29,17 @@ class MonOccupancyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MonOccupancyDat* item, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat >* data, MonRunIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillVec, MonRunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_eventsOverLowThreshold;

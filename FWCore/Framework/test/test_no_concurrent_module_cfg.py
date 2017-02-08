@@ -28,6 +28,4 @@ process.c2 = cms.EDAnalyzer("ConsumingOneSharedResourceAnalyzer",
 
 process.p = cms.Path(process.c1+process.c2)
 
-process.add_(cms.Service("ConcurrentModuleTimer",
-                         modulesToExclude = cms.untracked.vstring("TriggerResults"),
-                         excludeSource = cms.untracked.bool(True)))
+process.add_(cms.Service("ConcurrentModuleTimer"))

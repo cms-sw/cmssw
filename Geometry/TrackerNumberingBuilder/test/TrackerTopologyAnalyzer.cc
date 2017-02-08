@@ -58,6 +58,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
       std::string DetIdPrint;
 
       if (subdet == PixelSubdetector::PixelBarrel) {
+        std::cout << "PixelSubdetector::PixelBarrel " << std::endl;
 	DetIdPrint = tTopo->print(*id);
 	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->pxbLayer(*id);
@@ -67,6 +68,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[2] = tTopo->pxbLadder(*id);
       }
       else if (subdet == PixelSubdetector::PixelEndcap) {
+        std::cout << "PixelSubdetector::PixelEndcap " << std::endl;
 	DetIdPrint = tTopo->print(*id);
 	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->pxfDisk(*id);
@@ -82,6 +84,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[6] = tTopo->pxfPanel(*id);
       }
       else if (subdet == StripSubdetector::TIB) {
+        std::cout << "StripSubdetector::TIB " << std::endl;
 	DetIdPrint = tTopo->print(*id);
 	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tibLayer(*id);
@@ -111,6 +114,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 
       }
       else if (subdet == StripSubdetector::TID) {
+        std::cout << "StripSubdetector::TID " << std::endl;
 	DetIdPrint = tTopo->print(*id);
 	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tidWheel(*id);
@@ -138,6 +142,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[12] = tTopo->tidIsFrontRing(*id);
       }
       else if (subdet == StripSubdetector::TOB) {
+        std::cout << "StripSubdetector::TOB " << std::endl;
 	DetIdPrint = tTopo->print(*id);
 	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tobLayer(*id);
@@ -160,6 +165,7 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	resultsOld[10] = tTopo->tobIsZMinusSide(*id);
       }
       else if (subdet == StripSubdetector::TEC) {
+        std::cout << "StripSubdetector::TEC " << std::endl;
 	DetIdPrint = tTopo->print(*id);
 	std::cout << DetIdPrint << std::endl;
 	resultsOld[0] = tTopo->tecWheel(*id);
@@ -196,13 +202,6 @@ void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::Even
 	for ( unsigned int i=0; i<nComp; i++)
 	  std::cout << "["<<resultsOld[i]<<","<<resultsNew[i]<< "] " <<std::endl;
       }
-
-      const GeomDet* geom = geo->idToDet(*id);
-      std::cout << "  (phi, z, r) : ("
-                << geom->surface().position().phi()  << " , "
-                << geom->surface().position().z()    << " , "
-                << geom->surface().position().perp() << ")" << std::endl;
-
     }
   }
   std::cout << "Good: " << nOk << std::endl;

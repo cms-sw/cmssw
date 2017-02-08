@@ -48,7 +48,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
 // data in edm::event
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -106,7 +105,6 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
-  bool testNumber;
 
   bool validHepMCevt;
   bool validG4VtxContainer;
@@ -181,7 +179,6 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   MonitorElement *meCaloHcalEta;  
   edm::InputTag HCalSrc_;
   edm::EDGetTokenT<edm::PCaloHitContainer>  HCalSrc_Token_;
-  const HcalDDDRecConstants *hcons;
 
   // Tracker info
   // Pixel info

@@ -23,11 +23,12 @@ class MisalignmentScenarioBuilder
 
 public:
  
-  /// Constructor
-  MisalignmentScenarioBuilder(AlignableObjectId::Geometry);
+  /// Default constructor
+  MisalignmentScenarioBuilder( ) :
+    theModifierCounter(0) {};
 
   /// Destructor
-  virtual ~MisalignmentScenarioBuilder() = default;
+  virtual ~MisalignmentScenarioBuilder() {};
 
   /// Apply misalignment scenario to the tracker (sub-system specific)
   virtual void applyScenario( const edm::ParameterSet& scenario ) = 0;
@@ -84,12 +85,9 @@ protected: // Members
   edm::ParameterSet theScenario;           ///< Misalignment scenario to apply (from config file)
   AlignableModifier theModifier;           ///< Helper class for random movements
   
-  int theModifierCounter{0};                  ///< Counter for applied modification
+  int theModifierCounter;                  ///< Counter for applied modification
 
   mutable std::string indent_;             ///< Depth in hierarchy
-
-private:
-  const AlignableObjectId alignableObjectId_;
 };
 
 

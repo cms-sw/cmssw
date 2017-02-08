@@ -8,11 +8,9 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   xlabel = "Charge (electrons)",
   
   specs = VPSet(
-    #StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
+    StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    StandardSpecifications1D,
-    StandardSpecificationTrend2D
+    StandardSpecifications1D
   )
 )
 
@@ -22,42 +20,11 @@ SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   range_min = 0, range_max = 30, range_nbins = 30,
   xlabel = "size[pixels]",
   specs = VPSet(
-    #StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
+    StandardSpecification2DProfile,
     StandardSpecificationTrend,
-    StandardSpecifications1D,
-    StandardSpecificationTrend2D
+    StandardSpecifications1D
   )
 )
-
-SiPixelPhase1ClustersSizeX = DefaultHistoDigiCluster.clone(
-  name = "sizeX",
-  title = "Cluster Size in X",
-  range_min = 0, range_max = 30, range_nbins = 30,
-  xlabel = "size[pixels]",
-  specs = VPSet(
-    #StandardSpecification2DProfile,
-    #StandardSpecificationPixelmapProfile,
-    #StandardSpecificationTrend,
-    StandardSpecifications1D,
-    #StandardSpecificationTrend2D
-  )
-)
-
-SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
-  name = "sizeY",
-  title = "Cluster Size in Y",
-  range_min = 0, range_max = 30, range_nbins = 30,
-  xlabel = "size[pixels]",
-  specs = VPSet(
-    #StandardSpecification2DProfile,
-    #StandardSpecificationPixelmapProfile,
-    #StandardSpecificationTrend,
-    StandardSpecifications1D,
-    #StandardSpecificationTrend2D
-  )
-)
-
 
 SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   name = "clusters",
@@ -66,40 +33,23 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(
-    StandardSpecificationOccupancy,
     StandardSpecification2DProfile_Num,
     StandardSpecificationTrend_Num,
-    StandardSpecifications1D_Num,
+    StandardSpecifications1D_Num
   )
 )
-
-
-SiPixelPhase1ClustersNClustersInclusive = DefaultHistoDigiCluster.clone(
-  name = "clusters",
-  title = "Clusters",
-  range_min = 0, range_max = 2000, range_nbins = 200,
-  xlabel = "clusters",
-  dimensions = 0,
-  specs = VPSet(
-    StandardSpecificationInclusive_Num
-  )
-)
-
 
 SiPixelPhase1ClustersEventrate = DefaultHistoDigiCluster.clone(
-  name = "clustereventrate",
-  title = "Number of Events with clusters",
+  name = "bigfpixclustereventrate",
+  title = "Number of Events with > 180 FPIX clusters",
+  xlabel = "Lumisection",
   ylabel = "#Events",
   dimensions = 0,
   specs = VPSet(
     Specification().groupBy("Lumisection")
-                   .groupBy("", "EXTEND_X").save(),
-    Specification().groupBy("BX")
                    .groupBy("", "EXTEND_X").save()
-    )
-
+  )
 )
-
 
 SiPixelPhase1ClustersPositionB = DefaultHistoDigiCluster.clone(
   name = "clusterposition_zphi",
@@ -165,58 +115,16 @@ SiPixelPhase1ClustersSizeVsEta = DefaultHistoDigiCluster.clone(
   )
 )
 
-SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
-  name = "charge",
-  title = "Cluster Charge",
-  range_min = 0, range_max = 200e3, range_nbins = 200,
-  xlabel = "Charge (electrons)",
-  specs = VPSet(
-    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder").save(),
-
-    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/OnlineBlock")
-                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_Y").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder/OnlineBlock")
-                             .groupBy("PXForward/HalfCylinder", "EXTEND_Y").save(),
-  )
-)
-
-SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
-  name = "clusters",
-  title = "Clusters",
-  range_min = 0, range_max = 10, range_nbins = 10,
-  xlabel = "clusters",
-  dimensions = 0,
-  specs = VPSet(
-    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
-                             .groupBy("PXBarrel/Shell/Sector").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
-                             .groupBy("PXForward/HalfCylinder").save(),
-
-    Specification(PerReadout).groupBy("PXBarrel/Shell/Sector/DetId/Event").reduce("COUNT")
-                             .groupBy("PXBarrel/Shell/Sector/Lumisection").reduce("MEAN")
-                             .groupBy("PXBarrel/Shell/Sector", "EXTEND_X").save(),
-    Specification(PerReadout).groupBy("PXForward/HalfCylinder/DetId/Event").reduce("COUNT")
-                             .groupBy("PXForward/HalfCylinder/Lumisection").reduce("MEAN")
-                             .groupBy("PXForward/HalfCylinder", "EXTEND_X").save(),
-  )
-)
-
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
   SiPixelPhase1ClustersSize,
-  SiPixelPhase1ClustersSizeX,
-  SiPixelPhase1ClustersSizeY,
   SiPixelPhase1ClustersNClusters,
-  SiPixelPhase1ClustersNClustersInclusive,
   SiPixelPhase1ClustersEventrate,
   SiPixelPhase1ClustersPositionB,
   SiPixelPhase1ClustersPositionF,
   SiPixelPhase1ClustersPositionXZ,
   SiPixelPhase1ClustersPositionYZ,
-  SiPixelPhase1ClustersSizeVsEta,
-  SiPixelPhase1ClustersReadoutCharge,
-  SiPixelPhase1ClustersReadoutNClusters
+  SiPixelPhase1ClustersSizeVsEta
 )
 
 

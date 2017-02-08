@@ -1,0 +1,9 @@
+<use   name="boost"/>
+<use   name="CoralCommon"/>
+<use   name="CoralKernel"/>
+<use   name="RelationalAccess"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<export>
+  <lib   name="1"/>
+</export>

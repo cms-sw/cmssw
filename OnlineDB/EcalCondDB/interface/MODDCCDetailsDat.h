@@ -55,18 +55,18 @@ class MODDCCDetailsDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* item, MODRunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MODDCCDetailsDat >* data, MODRunIOV* iov)
-  noexcept(false);
+  throw(std::runtime_error);
 
 
 
   void fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fillMap, MODRunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_qpll;

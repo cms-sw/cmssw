@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,17 +35,15 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
-#include<iostream>
-// #define COUT(x) edm::LogVerbatim(x)
-#define COUT(x) std::cout<<x<<' '
 
+using namespace std;
 
 //
 // class decleration
 //
 
 
-class TrajectoryAnalyzer : public edm::stream::EDAnalyzer<> {
+class TrajectoryAnalyzer : public edm::EDAnalyzer {
    public:
       explicit TrajectoryAnalyzer(const edm::ParameterSet&);
       ~TrajectoryAnalyzer();
@@ -55,7 +53,7 @@ class TrajectoryAnalyzer : public edm::stream::EDAnalyzer<> {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-   edm::EDGetTokenT<std::vector<Trajectory>> trajTag;
+  edm::ParameterSet param_;
 };
 
 //
@@ -69,8 +67,13 @@ class TrajectoryAnalyzer : public edm::stream::EDAnalyzer<> {
 //
 // constructors and destructor
 //
-TrajectoryAnalyzer::TrajectoryAnalyzer(const edm::ParameterSet& iConfig) :
-  trajTag(consumes<std::vector<Trajectory>>(iConfig.getParameter<edm::InputTag>("trajectoryInput"))){}
+TrajectoryAnalyzer::TrajectoryAnalyzer(const edm::ParameterSet& iConfig)
+{
+  param_ = iConfig;
+
+   //now do what ever initialization is needed
+
+}
 
 
 TrajectoryAnalyzer::~TrajectoryAnalyzer()
@@ -92,22 +95,23 @@ TrajectoryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
    using namespace edm;
   
-   Handle<std::vector<Trajectory> > trajCollectionHandle;
-   iEvent.getByToken(trajTag,trajCollectionHandle);
+   Handle<vector<Trajectory> > trajCollectionHandle;
+   iEvent.getByLabel(param_.getParameter<string>("trajectoryInput"),trajCollectionHandle);
+   //iEvent.getByType(trajCollection);
    
-   COUT("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() << std::endl;
-   for(auto it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
-     COUT("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
-					    << "isValid: " << it->isValid() << std::endl;
+   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;
+   for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
+     edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
+					    << "isValid: " << it->isValid() ;
 
-     auto const & tmColl = it->measurements();
-     for(auto itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
+     vector<TrajectoryMeasurement> tmColl = it->measurements();
+     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
        if(! itTraj->updatedState().isValid()) continue;
-       COUT("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
+       edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
 					      << "tm.backwardState.pt: " << itTraj->backwardPredictedState().globalMomentum().perp() << " , "
 					      << "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() << " , "
 					      << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp()  << " , "
-					      << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp() << std::endl;       
+					      << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp() ;       
      }
    }
 

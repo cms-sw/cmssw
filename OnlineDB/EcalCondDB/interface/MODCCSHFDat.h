@@ -40,16 +40,16 @@ class MODCCSHFDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODRunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data, MODRunIOV* iov)
-  noexcept(false);
+  throw(std::runtime_error);
 
   void fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   unsigned char* m_clob;
@@ -57,9 +57,9 @@ class MODCCSHFDat : public IDataItem {
   std::string m_file;
   int testing;
   unsigned char* readClob (Clob &clob, int size)
-    noexcept(false);
+    throw (std::runtime_error);
   void populateClob (Clob &clob, std::string fname, unsigned int clob_size)
-    noexcept(false);
+    throw (std::runtime_error);
 
 
 

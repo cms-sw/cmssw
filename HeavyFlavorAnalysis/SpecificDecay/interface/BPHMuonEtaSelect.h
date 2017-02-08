@@ -44,7 +44,7 @@ class BPHMuonEtaSelect: public BPHParticleEtaSelect {
    */
   /// select muon
   virtual bool accept( const reco::Candidate& cand ) const {
-    if ( dynamic_cast<const pat::Muon*>( &cand ) == 0 ) return false;
+    if ( reinterpret_cast<const pat::Muon*>( &cand ) == 0 ) return false;
     return BPHParticleEtaSelect::accept( cand );
   }
 

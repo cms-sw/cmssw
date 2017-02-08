@@ -22,13 +22,13 @@ class RunDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const EcalLogicID* ecid, const RunDat* item, RunIOV* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void fetchData(std::map< EcalLogicID, RunDat >* fillMap, RunIOV* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_numEvents;

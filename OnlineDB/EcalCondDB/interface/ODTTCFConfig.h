@@ -40,19 +40,19 @@ class ODTTCFConfig : public IODConfig {
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  noexcept(false);
+  void prepareWrite()  throw(std::runtime_error);
 
-  void writeDB()       noexcept(false);
+  void writeDB()       throw(std::runtime_error);
 
   void clear();
 
-  void fetchData(ODTTCFConfig * result)     noexcept(false);
+  void fetchData(ODTTCFConfig * result)     throw(std::runtime_error);
 
-  int fetchID()  noexcept(false);
+  int fetchID()  throw(std::runtime_error);
 
 
 
-  int fetchNextId() noexcept(false);
+  int fetchNextId() throw(std::runtime_error);
 
   // User data
   int m_ID;

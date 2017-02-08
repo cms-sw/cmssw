@@ -34,7 +34,7 @@ ODFEWeightsInfo::~ODFEWeightsInfo()
 
 
 
-int ODFEWeightsInfo::fetchNextId()  noexcept(false) {
+int ODFEWeightsInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -57,7 +57,7 @@ int ODFEWeightsInfo::fetchNextId()  noexcept(false) {
 }
 
 void ODFEWeightsInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -96,7 +96,7 @@ void ODFEWeightsInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODFEWeightsInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -129,7 +129,7 @@ void ODFEWeightsInfo::writeDB()
 
 
 void ODFEWeightsInfo::fetchData(ODFEWeightsInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -168,7 +168,7 @@ void ODFEWeightsInfo::fetchData(ODFEWeightsInfo * result)
   }
 }
 
-int ODFEWeightsInfo::fetchID()    noexcept(false)
+int ODFEWeightsInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

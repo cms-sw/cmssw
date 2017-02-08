@@ -49,7 +49,5 @@ operator()(const reco::GsfElectronPtr& cand) const{
 double GsfEleFull5x5E2x5OverE5x5Cut::
 value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);  
-  //btw we broke somebodies nice model of assuming every cut is 1D....
-  //what this is returning is fairly meaningless...
-  return ele->full5x5_e1x5() ? ele->full5x5_e2x5Max()/ele->full5x5_e1x5() : 0.;
+  return ele->full5x5_e2x5Max()/ele->full5x5_e1x5();
 }

@@ -44,17 +44,17 @@ class ODPedestalOffsetsDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::vector< ODPedestalOffsetsDat >& data, ODFEPedestalOffsetInfo* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::vector< ODPedestalOffsetsDat >* fillMap, ODFEPedestalOffsetInfo* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_sm;

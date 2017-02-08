@@ -41,17 +41,17 @@ class ODGolBiasCurrentDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::vector< ODGolBiasCurrentDat >& data, ODGolBiasCurrentInfo* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::vector< ODGolBiasCurrentDat >* fillMap, ODGolBiasCurrentInfo* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
   int m_gol;

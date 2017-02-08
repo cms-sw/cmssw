@@ -31,7 +31,7 @@ ODBadXTDat::~ODBadXTDat()
 
 
 void ODBadXTDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -47,7 +47,7 @@ void ODBadXTDat::prepareWrite()
 
 
 void ODBadXTDat::writeDB(const ODBadXTDat* item, ODBadXTInfo* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -68,7 +68,7 @@ void ODBadXTDat::writeDB(const ODBadXTDat* item, ODBadXTInfo* iov )
 
 
 void ODBadXTDat::fetchData(std::vector< ODBadXTDat >* p, ODBadXTInfo* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -105,7 +105,7 @@ void ODBadXTDat::fetchData(std::vector< ODBadXTDat >* p, ODBadXTInfo* iov)
 //  ************************************************************************   // 
 
 void ODBadXTDat::writeArrayDB(const std::vector< ODBadXTDat >& data, ODBadXTInfo* iov)
-    noexcept(false)
+    throw(std::runtime_error)
 {
   this->checkConnection();
 

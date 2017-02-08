@@ -26,15 +26,19 @@ class FEConfigLUTGroupDat : public IDataItem {
 
 
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite() 
+    throw(std::runtime_error);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigLUTGroupDat* item, FEConfigLUTInfo* iconf) noexcept(false);
+  void writeDB(const EcalLogicID* ecid, const FEConfigLUTGroupDat* item, FEConfigLUTInfo* iconf)
+    throw(std::runtime_error);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigLUTGroupDat>* data, FEConfigLUTInfo* iconf) noexcept(false);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigLUTGroupDat>* data, FEConfigLUTInfo* iconf)
+  throw(std::runtime_error);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigLUTGroupDat >* fillMap, FEConfigLUTInfo* iconf) noexcept(false);
+  void fetchData(std::map< EcalLogicID, FEConfigLUTGroupDat >* fillMap, FEConfigLUTInfo* iconf)
+     throw(std::runtime_error);
 
   // User data
   int m_group_id;

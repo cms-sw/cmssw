@@ -24,14 +24,16 @@ public:
 private:
 
   struct HBHOCellParameters {
-    HBHOCellParameters (int f_eta, int f_depth, int f_phi, double f_phi0, double f_dPhi, double f_rMin, double f_rMax, double f_etaMin, double f_etaMax)
-    : ieta(f_eta), depth(f_depth), iphi(f_phi), phi(f_phi0), dphi(f_dPhi), rMin(f_rMin), rMax(f_rMax), etaMin(f_etaMin), etaMax(f_etaMax)
+    HBHOCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_nphi, int f_phiStep, double f_phiStart, double f_dPhi, double f_rMin, double f_rMax, double f_etaMin, double f_etaMax)
+    : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), nPhi(f_nphi), phiStep(f_phiStep), phiStart(f_phiStart), dphi(f_dPhi), rMin(f_rMin), rMax(f_rMax), etaMin(f_etaMin), etaMax(f_etaMax)
     {}
  
-    int ieta;
+    int eta;
     int depth;
-    int iphi;
-    double phi;
+    int phiFirst;
+    int nPhi;
+    int phiStep;
+    double phiStart;
     double dphi;
     double rMin;
     double rMax;
@@ -40,14 +42,16 @@ private:
   };
 
   struct HECellParameters {
-    HECellParameters (int f_eta, int f_depth, int f_phi, double f_phi0, double f_dPhi, double f_zMin, double f_zMax, double f_etaMin, double f_etaMax)
-    : ieta(f_eta), depth(f_depth), iphi(f_phi), phi(f_phi0), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), etaMin(f_etaMin), etaMax(f_etaMax)
+    HECellParameters (int f_eta, int f_depth, int f_phiFirst, int f_nphi, int f_phiStep, double f_phiStart, double f_dPhi, double f_zMin, double f_zMax, double f_etaMin, double f_etaMax)
+    : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), nPhi(f_nphi), phiStep(f_phiStep), phiStart(f_phiStart), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), etaMin(f_etaMin), etaMax(f_etaMax)
     {}
  
-    int ieta;
+    int eta;
     int depth;
-    int iphi;
-    double phi;
+    int phiFirst;
+    int nPhi;
+    int phiStep;
+    double phiStart;
     double dphi;
     double zMin;
     double zMax;

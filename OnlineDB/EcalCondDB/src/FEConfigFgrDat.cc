@@ -28,7 +28,7 @@ FEConfigFgrDat::~FEConfigFgrDat()
 
 
 void FEConfigFgrDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void FEConfigFgrDat::prepareWrite()
 
 
 void FEConfigFgrDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrDat* item, FEConfigFgrInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void FEConfigFgrDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrDat* item
 
 
 void FEConfigFgrDat::fetchData(map< EcalLogicID, FEConfigFgrDat >* fillMap, FEConfigFgrInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -113,7 +113,7 @@ void FEConfigFgrDat::fetchData(map< EcalLogicID, FEConfigFgrDat >* fillMap, FECo
 }
 
 void FEConfigFgrDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrDat >* data, FEConfigFgrInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

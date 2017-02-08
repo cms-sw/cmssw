@@ -35,7 +35,7 @@ void ODScanConfig::clear(){
 
 }
 
-int ODScanConfig::fetchNextId()  noexcept(false) {
+int ODScanConfig::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -77,7 +77,7 @@ void ODScanConfig::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODScanConfig::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -96,7 +96,7 @@ void ODScanConfig::prepareWrite()
 }
 
 void ODScanConfig::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -129,7 +129,7 @@ void ODScanConfig::writeDB()
 
 
 void ODScanConfig::fetchData(ODScanConfig * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -163,7 +163,7 @@ void ODScanConfig::fetchData(ODScanConfig * result)
   }
 }
 
-int ODScanConfig::fetchID()    noexcept(false)
+int ODScanConfig::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

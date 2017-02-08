@@ -57,7 +57,7 @@ void MonRunTag::setMonVersionDef(const MonVersionDef& ver)
 
 
 int MonRunTag::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -98,7 +98,7 @@ int MonRunTag::fetchID()
 
 
 void MonRunTag::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -126,7 +126,7 @@ void MonRunTag::setByID(int id)
 
 
 int MonRunTag::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -167,7 +167,7 @@ int MonRunTag::writeDB()
 
 
 void MonRunTag::fetchAllTags( std::vector<MonRunTag>* fillVec)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -190,7 +190,7 @@ void MonRunTag::fetchAllTags( std::vector<MonRunTag>* fillVec)
 
 
 void MonRunTag::fetchParentIDs(int* verID)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // get the monitoring version
   m_monVersionDef.setConnection(m_env, m_conn);

@@ -3,7 +3,6 @@
 
 MCMultiParticleFilter::MCMultiParticleFilter(const edm::ParameterSet& iConfig) :
   src_(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag(std::string("generator"),"unsmeared"))),
-  token_(consumes<edm::HepMCProduct>(src_)),
   numRequired_(iConfig.getParameter<int>("NumRequired")),
   acceptMore_(iConfig.getParameter<bool>("AcceptMore")),
   particleID_(iConfig.getParameter< std::vector<int> >("ParticleID")),
@@ -55,7 +54,7 @@ MCMultiParticleFilter::~MCMultiParticleFilter()
 bool MCMultiParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByToken(token_, evt);
+  iEvent.getByLabel(src_, evt);
   
   totalEvents_++;
   int nFound = 0;

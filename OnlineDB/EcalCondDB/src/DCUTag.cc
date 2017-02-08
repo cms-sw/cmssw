@@ -60,7 +60,7 @@ void DCUTag::setLocationDef(const LocationDef& locDef)
 
 
 int DCUTag::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -100,7 +100,7 @@ int DCUTag::fetchID()
 
 
 void DCUTag::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -131,7 +131,7 @@ void DCUTag::setByID(int id)
 
 
 int DCUTag::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -172,7 +172,7 @@ int DCUTag::writeDB()
 
 
 void DCUTag::fetchAllTags( std::vector<DCUTag>* fillVec)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -195,7 +195,7 @@ void DCUTag::fetchAllTags( std::vector<DCUTag>* fillVec)
 
 
 void DCUTag::fetchParentIDs(int* locID)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // get the location
   m_locDef.setConnection(m_env, m_conn);

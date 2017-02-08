@@ -246,7 +246,6 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::stream
    if( m_apdSeparateDigi )
    {
      m_APDCoder.reset( new EcalCoder( false            , 
-                                      m_PreMix1        ,
                                       m_EBCorrNoise[0].get() ,
                                       m_EECorrNoise[0].get() ,
                                       m_EBCorrNoise[1].get() ,

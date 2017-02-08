@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <functional>
+#include <ext/functional>
 using namespace std;
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -320,12 +321,13 @@ TaggingValue TaggingVariableList::get( TaggingVariableName tag, TaggingValue def
 }
 
 std::vector<TaggingValue> TaggingVariableList::getList( TaggingVariableName tag, bool throwOnEmptyList ) const {
+  using namespace __gnu_cxx;
   range r = getRange( tag );
   if ( throwOnEmptyList && r.first == r.second )
     throw edm::Exception( edm::errors::InvalidReference )
                   << "TaggingVariable " << tag << " is not present in the collection";
   std::vector<TaggingValue> list( r.second - r.first );
-  transform( r.first, r.second, list.begin(), [](TaggingVariable const& x) { return x.second;} );
+  transform( r.first, r.second, list.begin(), select2nd< TaggingVariable >() );
   return list;
 }
 

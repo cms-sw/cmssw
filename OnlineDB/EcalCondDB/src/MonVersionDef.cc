@@ -47,7 +47,7 @@ string MonVersionDef::getDescription() const
 
   
 int MonVersionDef::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -81,7 +81,7 @@ int MonVersionDef::fetchID()
 
 
 void MonVersionDef::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -108,7 +108,7 @@ void MonVersionDef::setByID(int id)
 
 
 void MonVersionDef::fetchAllDefs( std::vector<MonVersionDef>* fillVec) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {

@@ -30,7 +30,7 @@ CaliCrystalIntercalDat::~CaliCrystalIntercalDat()
 
 
 void CaliCrystalIntercalDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   
@@ -48,7 +48,7 @@ void CaliCrystalIntercalDat::prepareWrite()
 
 
 void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalIntercalDat* item, CaliIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -77,7 +77,7 @@ void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalI
 
 
 void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalIntercalDat >* fillMap, CaliIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -123,7 +123,7 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
 }
 
 void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCrystalIntercalDat >* data, CaliIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

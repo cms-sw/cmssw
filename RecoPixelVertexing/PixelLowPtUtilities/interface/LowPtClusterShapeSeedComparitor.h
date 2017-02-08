@@ -32,7 +32,6 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
    edm::ESHandle<TrackerTopology> theTTopo;
    edm::EDGetTokenT<SiPixelClusterShapeCache> thePixelClusterShapeCacheToken;
    edm::Handle<SiPixelClusterShapeCache> thePixelClusterShapeCache;
-   std::string theShapeFilterLabel_;
 };
 
 #endif

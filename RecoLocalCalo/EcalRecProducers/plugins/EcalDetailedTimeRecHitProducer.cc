@@ -56,14 +56,9 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
    
   correctForVertexZPosition_ = ps.getParameter<bool>("correctForVertexZPosition");
   useMCTruthVertex_ = ps.getParameter<bool>("useMCTruthVertex");
-  if(correctForVertexZPosition_) {
-    if(not useMCTruthVertex_) {
-      recoVertex_       = consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>("recoVertex") );
-    } else {
-      simVertex_       = consumes<edm::SimVertexContainer>( ps.getParameter<edm::InputTag>("simVertex") );
-    }
-  }
-
+  recoVertex_       = consumes<reco::VertexCollection>( ps.getParameter<edm::InputTag>("recoVertex") );
+  simVertex_       = consumes<edm::SimVertexContainer>( ps.getParameter<edm::InputTag>("simVertex") );
+  
   ebTimeLayer_ = ps.getParameter<int>("EBTimeLayer");
   eeTimeLayer_ = ps.getParameter<int>("EETimeLayer");
 

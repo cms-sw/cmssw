@@ -31,7 +31,7 @@ ODTTCFConfig::~ODTTCFConfig()
 {
 }
 
-int ODTTCFConfig::fetchNextId()  noexcept(false) {
+int ODTTCFConfig::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int ODTTCFConfig::fetchNextId()  noexcept(false) {
 
 
 void ODTTCFConfig::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -102,7 +102,7 @@ void ODTTCFConfig::prepareWrite()
 }
 
 void ODTTCFConfig::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   std::cout<<"updating the clob 2"<<std::endl;
@@ -137,7 +137,7 @@ void ODTTCFConfig::writeDB()
 
 
 void ODTTCFConfig::fetchData(ODTTCFConfig * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -177,7 +177,7 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
 
 
 
-int ODTTCFConfig::fetchID()    noexcept(false)
+int ODTTCFConfig::fetchID()    throw(std::runtime_error)
 {
   if (m_ID!=0) {
     return m_ID;

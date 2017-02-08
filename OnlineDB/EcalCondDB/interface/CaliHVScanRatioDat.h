@@ -29,13 +29,13 @@ class CaliHVScanRatioDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
   
   void writeDB(const EcalLogicID* ecid, const CaliHVScanRatioDat* item, CaliIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   
   void fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* fillVec, CaliIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   
   // User data
   float m_hvratio;

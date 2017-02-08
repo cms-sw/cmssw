@@ -33,16 +33,16 @@ class ODLaserCycle :  public IODConfig  {
   // User data 
   int m_ID;
   int  m_laser_config_id;
-  void writeDB() noexcept(false);
-  void prepareWrite() noexcept(false);
+  void writeDB() throw(std::runtime_error);
+  void prepareWrite()  throw(std::runtime_error);
   void clear();
-  void fetchData(ODLaserCycle * result) noexcept(false);
-  void insertConfig() noexcept(false);
+  void fetchData(ODLaserCycle * result)     throw(std::runtime_error);
+   void insertConfig() throw(std::runtime_error);
 
 
   // Methods from IUniqueDBObject
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
 
 
 };

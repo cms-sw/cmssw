@@ -186,19 +186,19 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
 }
 
 void LMFDat::getPrevious(LMFDat *dat)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   getNeighbour(dat, -1);
 }
 
 void LMFDat::getNext(LMFDat *dat)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   getNeighbour(dat, +1);
 }
 
 void LMFDat::getNeighbour(LMFDat *dat, int which)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // there should be just one record in this case
   if (m_data.size() == 1) {
@@ -216,38 +216,38 @@ void LMFDat::getNeighbour(LMFDat *dat, int which)
 }
 
 void LMFDat::fetch(const EcalLogicID &id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetch(id.getLogicID());
 }
 
 void LMFDat::fetch(const EcalLogicID &id, const Tm &tm) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetch(id.getLogicID(), &tm, 1);
 }
 
 void LMFDat::fetch(const EcalLogicID &id, const Tm &tm, int direction) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   setInt(foreignKeyName(), 0); /* set the LMF_IOV_ID to undefined */
   fetch(id.getLogicID(), &tm, direction);
 }
 
 void LMFDat::fetch() 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetch(0);
 }
 
 void LMFDat::fetch(int logic_id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetch(logic_id, NULL, 0);
 }
 
 void LMFDat::fetch(int logic_id, const Tm &tm) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetch(logic_id, &tm, 1);
 }
@@ -279,7 +279,7 @@ void LMFDat::adjustParameters(int count, std::string &sql,
 }
 
 void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   bool ok = check();
   if ((timestamp == NULL) && (getLMFRunIOVID() == 0)) {
@@ -350,7 +350,7 @@ bool LMFDat::isValid() {
 }
 
 std::map<int, std::vector<float> > LMFDat::fetchData() 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // see if any of the data is already in the database
   std::map<int, std::vector<float> > s = m_data;
@@ -396,7 +396,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
 }
 
 int LMFDat::writeDB() 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // first of all check if data already present
   if (m_debug) {
@@ -540,7 +540,7 @@ int LMFDat::writeDB()
 }
 
 void LMFDat::getKeyTypes() 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   m_type.reserve(m_keys.size());
   for (unsigned int i = 0; i < m_keys.size(); i++) {

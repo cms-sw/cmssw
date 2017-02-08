@@ -59,14 +59,12 @@ namespace edm
     virtual void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
     virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
-    virtual void preallocThreads(unsigned int iThreads) override;
 
   private:
     Hadronizer            hadronizer_;
     //gen::ExternalDecayDriver* decayer_;
     Decayer*              decayer_;
     unsigned int          nEventsInLumiBlock_;
-    unsigned int          nThreads_{1};
   };
 
   //------------------------------------------------------------------------
@@ -123,12 +121,6 @@ namespace edm
   template <class HAD, class DEC>
   GeneratorFilter<HAD, DEC>::~GeneratorFilter()
   { if ( decayer_ ) delete decayer_;}
-
-  template <class HAD, class DEC>
-  void
-  GeneratorFilter<HAD, DEC>::preallocThreads(unsigned int iThreads) {
-    nThreads_ = iThreads;
-  }
 
   template <class HAD, class DEC>
   bool
@@ -244,7 +236,7 @@ namespace edm
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
     hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
-    hadronizer_.generateLHE(lumi,randomEngineSentry.randomEngine(), nThreads_);
+    hadronizer_.generateLHE(lumi,randomEngineSentry.randomEngine());
     
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 

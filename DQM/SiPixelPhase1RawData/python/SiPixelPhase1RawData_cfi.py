@@ -13,18 +13,13 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
     Specification().groupBy("FED/FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED/FED").save(),
-    Specification().groupBy("FED/FED/LinkInFed")
+    Specification().groupBy("FED/FED/FEDChannel")
                    .groupBy("FED/FED", "EXTEND_X")
                    .save(),
-    Specification().groupBy("FED/LinkInFed")
+    Specification().groupBy("FED/FEDChannel")
                    .groupBy("FED", "EXTEND_X")
                    .groupBy("", "EXTEND_Y")
-                   .save(),
-    Specification().groupBy("FED/FED/Lumisection")
-    .groupBy("FED/FED","EXTEND_X")
-    .save()
-    .groupBy("")
-    .save()
+                   .save()
   )
 )
 
@@ -75,13 +70,8 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
     Specification().groupBy("FED/FED").save(),
     Specification().groupBy("FED")
                    .groupBy("", "EXTEND_Y").save(),
-    Specification().groupBy("FED/FED/LinkInFed")
-                   .groupBy("FED/FED","EXTEND_Y").save()                  
-
   )
 )
-
-
 
 SiPixelPhase1RawDataConf = cms.VPSet(
   SiPixelPhase1RawDataNErrors,

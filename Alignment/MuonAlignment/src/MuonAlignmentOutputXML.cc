@@ -141,25 +141,21 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
       align::Alignables ideal_barrels = ideal_alignableMuon.DTBarrel();
       align::Alignables ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
 
-      writeComponents(barrels, ideal_barrels, errors, outputFile, true, alignableMuon->objectIdProvider());
-      writeComponents(endcaps, ideal_endcaps, errors, outputFile, false, alignableMuon->objectIdProvider());
+      writeComponents(barrels, ideal_barrels, errors, outputFile, true);
+      writeComponents(endcaps, ideal_endcaps, errors, outputFile, false);
    }
    else {
       align::Alignables empty1, empty2;
 
-      writeComponents(barrels, empty1, errors, outputFile, true, alignableMuon->objectIdProvider());
-      writeComponents(endcaps, empty2, errors, outputFile, false, alignableMuon->objectIdProvider());
+      writeComponents(barrels, empty1, errors, outputFile, true);
+      writeComponents(endcaps, empty2, errors, outputFile, false);
    }
 
    outputFile << "</MuonAlignment>" << std::endl;
 }
 
-void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
-                                             align::Alignables &ideals,
-                                             std::map<align::ID, CLHEP::HepSymMatrix>& errors,
-                                             std::ofstream &outputFile,
-                                             bool DT,
-                                             const AlignableObjectId& objectIdProvider) const {
+void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, align::Alignables &ideals,
+					     std::map<align::ID, CLHEP::HepSymMatrix>& errors, std::ofstream &outputFile, bool DT) const {
    align::Alignables::const_iterator ideal = ideals.begin();
    for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       if (m_survey  &&  (*alignable)->survey() == NULL) {
@@ -185,7 +181,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
 	 if (DT) {
 	    if (m_rawIds  &&  rawId != 0) {
-	       std::string typeName = objectIdProvider.idToString(alignableObjectId);
+	       std::string typeName = AlignableObjectId::idToString(alignableObjectId);
 	       if (alignableObjectId == align::AlignableDTSuperLayer) typeName = std::string("DTSuperLayer");
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("DTLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
@@ -223,7 +219,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 
 	 else { // CSC
 	    if (m_rawIds  &&  rawId != 0) {
-	       std::string typeName = objectIdProvider.idToString(alignableObjectId);
+	       std::string typeName = AlignableObjectId::idToString(alignableObjectId);
 	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("CSCLayer");
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
@@ -364,13 +360,13 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
       if (ideal != ideals.end()) {
 	 align::Alignables components = (*alignable)->components();
 	 align::Alignables ideal_components = (*ideal)->components();
-	 writeComponents(components, ideal_components, errors, outputFile, DT, objectIdProvider);
+	 writeComponents(components, ideal_components, errors, outputFile, DT);
 	 ++ideal; // important for synchronization in the "for" loop!
       }
       else {
 	 align::Alignables components = (*alignable)->components();
 	 align::Alignables dummy;
-	 writeComponents(components, dummy, errors, outputFile, DT, objectIdProvider);
+	 writeComponents(components, dummy, errors, outputFile, DT);
       }
 
    } // end loop over alignables

@@ -124,7 +124,7 @@ HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTow
 
   if (sample >= getOutputLUTSize(id))
     throw cms::Exception("Out of Range")
-       << "LUT has " << getOutputLUTSize(id) << " entries for " << id << " but " << sample << " was requested.";
+       << "LUT has " << getOutputLUTSize(id) << " entries for " << itower << " but " << sample << " was requested.";
 
   if(itower >= outputLUT_.size())
     throw cms::Exception("Out of Range") << "No decompression LUT found for " << id;

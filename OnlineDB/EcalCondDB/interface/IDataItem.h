@@ -28,14 +28,16 @@ class IDataItem : public IDBObject {
   oracle::occi::Statement* m_writeStmt;
   oracle::occi::Statement* m_readStmt;
 
-  inline void checkPrepare() noexcept(false)
+  inline void checkPrepare() 
+    throw(std::runtime_error) 
     {
       if (m_writeStmt == NULL) {
 	throw(std::runtime_error("Write statement not prepared"));
       }
     }
 
-  inline void terminateWriteStatement() noexcept(false)
+  inline void terminateWriteStatement()
+    throw(std::runtime_error)
   {
     if (m_writeStmt != NULL) {
       m_conn->terminateStatement(m_writeStmt);
@@ -45,17 +47,20 @@ class IDataItem : public IDBObject {
   }
 
 
-  inline void createReadStatement() noexcept(false)
+  inline void createReadStatement()
+    throw(std::runtime_error)
   {
       m_readStmt=m_conn->createStatement();
   }
 
-  inline void setPrefetchRowCount(int ncount) noexcept(false)
+  inline void setPrefetchRowCount(int ncount)
+    throw(std::runtime_error)
   {
     m_readStmt->setPrefetchRowCount(ncount);
   }
 
-  inline void terminateReadStatement() noexcept(false)
+  inline void terminateReadStatement()
+    throw(std::runtime_error)
   {
     if (m_readStmt != NULL) {
       m_conn->terminateStatement(m_readStmt);
@@ -67,7 +72,8 @@ class IDataItem : public IDBObject {
 
 
   // Prepare a statement for writing operations
-  virtual void prepareWrite() noexcept(false) = 0;
+  virtual void prepareWrite() 
+    throw(std::runtime_error) =0;
 
 
 };

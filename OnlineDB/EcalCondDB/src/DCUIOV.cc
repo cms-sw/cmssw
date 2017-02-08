@@ -77,7 +77,7 @@ DCUTag DCUIOV::getDCUTag() const
 
 
 int DCUIOV::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -125,7 +125,7 @@ int DCUIOV::fetchID()
 
 
 void DCUIOV::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -162,7 +162,7 @@ void DCUIOV::setByID(int id)
 
 
 int DCUIOV::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -212,7 +212,7 @@ int DCUIOV::writeDB()
 
 
 void DCUIOV::setByTm(DCUTag* tag, const Tm& eventTm)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   

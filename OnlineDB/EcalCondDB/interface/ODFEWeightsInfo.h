@@ -23,18 +23,18 @@ class ODFEWeightsInfo : public IODConfig {
   inline void setVersion(int id) { m_version = id; }
   inline int getVersion() const { return m_version; }
 
-  int fetchNextId() noexcept(false);
+  int fetchNextId() throw(std::runtime_error);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
-  int fetchID() noexcept(false);
+  int fetchID()  throw(std::runtime_error);
   
  private:
-  void prepareWrite() noexcept(false);
+  void prepareWrite()  throw(std::runtime_error);
 
-  void writeDB() noexcept(false);
+  void writeDB()       throw(std::runtime_error);
 
   void clear();
 
-  void fetchData(ODFEWeightsInfo * result) noexcept(false);
+  void fetchData(ODFEWeightsInfo * result)     throw(std::runtime_error);
 
 
 

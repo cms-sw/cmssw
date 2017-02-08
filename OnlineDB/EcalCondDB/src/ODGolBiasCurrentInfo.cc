@@ -33,7 +33,7 @@ ODGolBiasCurrentInfo::~ODGolBiasCurrentInfo()
 
 
 
-int ODGolBiasCurrentInfo::fetchNextId()  noexcept(false) {
+int ODGolBiasCurrentInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int ODGolBiasCurrentInfo::fetchNextId()  noexcept(false) {
 }
 
 void ODGolBiasCurrentInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -95,7 +95,7 @@ void ODGolBiasCurrentInfo::setParameters(const std::map<string,string>& my_keys_
 }
 
 void ODGolBiasCurrentInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -128,7 +128,7 @@ void ODGolBiasCurrentInfo::writeDB()
 
 
 void ODGolBiasCurrentInfo::fetchData(ODGolBiasCurrentInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -180,7 +180,7 @@ void ODGolBiasCurrentInfo::fetchData(ODGolBiasCurrentInfo * result)
   }
 }
 
-int ODGolBiasCurrentInfo::fetchID()    noexcept(false)
+int ODGolBiasCurrentInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

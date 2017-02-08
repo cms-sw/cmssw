@@ -15,7 +15,6 @@
 // system include files
 #include <sstream>
 #include <iomanip>
-#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -57,7 +56,6 @@ private:
   std::string leaders_, blank_, filled_;
 
   const bool dumpAlignments_;
-  std::unique_ptr<AlignableTracker> alignableTracker_;
 };
 
 
@@ -72,7 +70,7 @@ TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
   edm::LogInfo("TrackerHierarchy") << "Starting!";
   edm::ESHandle<TrackerGeometry> trackerGeometry;	 
   setup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-  alignableTracker_ = std::make_unique<AlignableTracker>(&(*trackerGeometry), tTopo);
+  AlignableTracker theAlignableTracker(&(*trackerGeometry), tTopo);
 
   leaders_ = "";
   blank_ = "   ";  // These two...
@@ -80,13 +78,13 @@ TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 
   // Now dump mother of each alignable
   //const Alignable* alignable = (&(*theAlignableTracker))->pixelHalfBarrels()[0];
-  this->dumpAlignable(alignableTracker_.get(), 1, 1);
+  this->dumpAlignable(&theAlignableTracker, 1, 1);
   
   
   edm::LogInfo("TrackerHierarchy") << "Done!";
 
   if (dumpAlignments_) {
-    this->dumpAlignments(setup, alignableTracker_.get());
+    this->dumpAlignments(setup, &theAlignableTracker);
   }
 
 }
@@ -124,7 +122,7 @@ void TestTrackerHierarchy::printInfo( const Alignable* alignable,
 
   std::ostringstream name,pos,rot;
 
-  name << alignableTracker_->objectIdProvider().idToString(alignable->alignableObjectId()) << idau;
+  name << AlignableObjectId::idToString( alignable->alignableObjectId() ) << idau;
 
   // Position
   pos.setf(std::ios::fixed);

@@ -28,7 +28,7 @@ DCUIDarkDat::~DCUIDarkDat()
 
 
 void DCUIDarkDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void DCUIDarkDat::prepareWrite()
 
 
 void DCUIDarkDat::writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void DCUIDarkDat::writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUI
 
 
 void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -114,7 +114,7 @@ void DCUIDarkDat::fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillMap, DCUIO
   }
 }
 void DCUIDarkDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat >* data, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

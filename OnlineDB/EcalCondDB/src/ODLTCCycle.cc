@@ -24,7 +24,7 @@ ODLTCCycle::~ODLTCCycle()
 
 
 void ODLTCCycle::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODLTCCycle::prepareWrite()
 }
 
 
-void ODLTCCycle::writeDB()  noexcept(false)
+void ODLTCCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODLTCCycle::clear(){
 
 
 int ODLTCCycle::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODLTCCycle::fetchID()
 
 
 void ODLTCCycle::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODLTCCycle::setByID(int id)
 
 
 void ODLTCCycle::fetchData(ODLTCCycle * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODLTCCycle::fetchData(ODLTCCycle * result)
 }
 
 void ODLTCCycle::insertConfig()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   try {
 

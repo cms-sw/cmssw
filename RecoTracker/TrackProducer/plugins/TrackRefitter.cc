@@ -19,7 +19,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>( "src" )), 
+  setSrc( consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
@@ -80,7 +80,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   switch(constraint_){
   case none :
     {
-      edm::Handle<edm::View<reco::Track>> theTCollection;
+      edm::Handle<reco::TrackCollection> theTCollection;
       getFromEvt(theEvent,theTCollection,bs);
 
       LogDebug("TrackRefitter") << "TrackRefitter::produce(none):Number of Trajectories:" << (*theTCollection).size();
@@ -89,9 +89,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 	edm::LogError("TrackRefitter") << " BeamSpot is (0,0,0), it is probably because is not valid in the event"; break; }
 
       if (theTCollection.failedToGet()){
-        edm::EDConsumerBase::Labels labels;
-        labelsForToken(src_, labels);
-	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection." << labels.module; break;}
+	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection."; break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
 
       try {

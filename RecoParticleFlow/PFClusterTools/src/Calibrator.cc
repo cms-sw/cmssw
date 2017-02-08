@@ -18,7 +18,8 @@ void Calibrator::addParticleDeposit(ParticleDepositPtr pd) {
 	myParticleDeposits.push_back(pd);
 }
 
-std::map<DetectorElementPtr, double> Calibrator::getCalibrationCoefficientsCore() noexcept(false) {
+std::map<DetectorElementPtr, double> Calibrator::getCalibrationCoefficientsCore() throw(
+		PFToolsException&) {
 
 	std::cout << __PRETTY_FUNCTION__
 			<< ": Not implemented in default Calibrator class!\n";

@@ -20,8 +20,7 @@
  */
 #include <map>
 #include <vector>
-#include <functional>
-
+#include <ext/functional>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -78,6 +77,7 @@ namespace edm {
     /// to use only comparators provided with CMSSW release.
     template<typename CMP> 
     range get(ID id, CMP comparator) const {
+      using namespace __gnu_cxx;
       std::pair<typename mapType::const_iterator,
 	typename mapType::const_iterator> r =
         std::equal_range(map_.begin(), map_.end(), id, comp<CMP>(comparator));

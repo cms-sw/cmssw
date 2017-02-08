@@ -42,7 +42,7 @@ void RunSeqDef::setRunTypeDef(const RunTypeDef& runTypeDef)
 
   
 int RunSeqDef::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -84,7 +84,7 @@ int RunSeqDef::fetchID()
 
 
 void RunSeqDef::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -116,7 +116,7 @@ void RunSeqDef::setByID(int id)
 
 
 void RunSeqDef::fetchAllDefs( std::vector<RunSeqDef>* fillVec) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -137,7 +137,7 @@ void RunSeqDef::fetchAllDefs( std::vector<RunSeqDef>* fillVec)
 }
 
 int RunSeqDef::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   try {

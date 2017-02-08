@@ -4,7 +4,12 @@
 
 class GsfEleEcalDrivenCut : public CutApplicatorBase {
 public:
-  GsfEleEcalDrivenCut(const edm::ParameterSet& c);
+  GsfEleEcalDrivenCut(const edm::ParameterSet& c) :
+    CutApplicatorBase(c),
+    ecalDrivenEB_(c.getParameter<int>("ecalDrivenEB")),
+    ecalDrivenEE_(c.getParameter<int>("ecalDrivenEE")),
+    barrelCutOff_(c.getParameter<double>("barrelCutOff")){
+  }
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
 
@@ -15,59 +20,25 @@ public:
   }
 
 private:
-  static bool isValidCutVal(int val);
-
-private:
-  enum EcalDrivenCode{IGNORE=-1,FAIL=0,PASS=1};
-  const int ecalDrivenEB_, ecalDrivenEE_;
+  const int ecalDrivenEB_, ecalDrivenEE_;// -1 ignore, 0 = fail ecalDriven, 1 =pass ecalDriven
   const double barrelCutOff_;
-  
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
 		  GsfEleEcalDrivenCut,
 		  "GsfEleEcalDrivenCut");
 
-
- 
-GsfEleEcalDrivenCut::GsfEleEcalDrivenCut(const edm::ParameterSet& c) :
-  CutApplicatorBase(c),
-  ecalDrivenEB_(static_cast<EcalDrivenCode>(c.getParameter<int>("ecalDrivenEB"))),
-  ecalDrivenEE_(static_cast<EcalDrivenCode>(c.getParameter<int>("ecalDrivenEE"))),
-  barrelCutOff_(c.getParameter<double>("barrelCutOff"))
-{
-  if(!isValidCutVal(ecalDrivenEB_) || !isValidCutVal(ecalDrivenEE_)){
-    throw edm::Exception(edm::errors::Configuration)
-      <<"error in constructing GsfEleEcalDrivenCut"<<std::endl
-      <<"values of ecalDrivenEB: "<<ecalDrivenEB_<<" and/or ecalDrivenEE: "<<ecalDrivenEE_<<" are invalid "<<std::endl
-      <<"allowed values are IGNORE:"<<IGNORE<<" FAIL:"<<FAIL<<" PASS:"<<PASS;
-  }
-}
-
 CutApplicatorBase::result_type 
 GsfEleEcalDrivenCut::
 operator()(const reco::GsfElectronPtr& cand) const{ 
-  const auto ecalDrivenRequirement =  std::abs(cand->superCluster()->position().eta()) < barrelCutOff_ ? 
+  const bool ecalDriven =  std::abs(cand->superCluster()->position().eta()) < barrelCutOff_ ? 
     ecalDrivenEB_ : ecalDrivenEE_;
-  if(ecalDrivenRequirement==IGNORE) return true;
-  else if(ecalDrivenRequirement==FAIL) return !cand->ecalDriven();
-  else if(ecalDrivenRequirement==PASS) return cand->ecalDriven();
-  else{  
-    throw edm::Exception(edm::errors::LogicError)
-      <<"error in "<<__FILE__<<" line "<<__LINE__<<std::endl
-      <<"default option should not be reached, code has been updated without changing the logic, this needs to be fixed";
-  }
+  if(ecalDriven<0) return true;
+  else if(ecalDriven==0) return !cand->ecalDriven();
+  else return cand->ecalDriven();
 }
 
 double GsfEleEcalDrivenCut::value(const reco::CandidatePtr& cand) const {
   reco::GsfElectronPtr ele(cand);
   return ele->ecalDriven();
-}
-
-bool GsfEleEcalDrivenCut::isValidCutVal(int val)
-{
-  if(val==IGNORE) return true;
-  if(val==FAIL) return true;
-  if(val==PASS) return true;
-  return false;
 }

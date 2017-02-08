@@ -47,56 +47,56 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 			hashfunctions::fSubdet,
 			new quantity::ValueQuantity(quantity::fADCCorr_128),
 			new quantity::ValueQuantity(quantity::fADCCorr_128),
-			new quantity::ValueQuantity(quantity::fN, true),0);
+			new quantity::ValueQuantity(quantity::fN, true));
 	}
 	_cADCall_Subdet.initialize(_name, "ADC",
 		hashfunctions::fSubdet,
 		new quantity::ValueQuantity(quantity::fADCCorr_128),
 		new quantity::ValueQuantity(quantity::fADCCorr_128),
-		new quantity::ValueQuantity(quantity::fN, true),0);
+		new quantity::ValueQuantity(quantity::fN, true));
 	_cADCMsnuTCA_Subdet.initialize(_name, "ADCMsnuTCA",
 		hashfunctions::fSubdet,
 		new quantity::ValueQuantity(quantity::fADC_128),
-		new quantity::ValueQuantity(quantity::fN, true),0);
+		new quantity::ValueQuantity(quantity::fN, true));
 	_cADCMsnVME_Subdet.initialize(_name, "ADCMsnVME",
 		hashfunctions::fSubdet,
 		new quantity::ValueQuantity(quantity::fADC_128),
-		new quantity::ValueQuantity(quantity::fN, true),0);
+		new quantity::ValueQuantity(quantity::fN, true));
 	_cMsm_depth.initialize(_name, "Mismatched",
 		hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 	_cMsm_FEDVME.initialize(_name, "Mismatched",
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSpigot),
 		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 	_cMsm_FEDuTCA.initialize(_name, "Mismatched",
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 	_cMsnVME_depth.initialize(_name, "Missing",
 		hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 	_cMsnuTCA_depth.initialize(_name, "Missing",
 		hashfunctions::fdepth,
 		new quantity::DetectorQuantity(quantity::fieta),
 		new quantity::DetectorQuantity(quantity::fiphi),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 	_cMsn_FEDVME.initialize(_name, "Missing",
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSpigot),
 		new quantity::ElectronicsQuantity(quantity::fFiberVMEFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 	_cMsn_FEDuTCA.initialize(_name, "Missing",
 		hashfunctions::fFED,
 		new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
 		new quantity::ElectronicsQuantity(quantity::fFiberuTCAFiberCh),
-		new quantity::ValueQuantity(quantity::fN),0);
+		new quantity::ValueQuantity(quantity::fN));
 
 	//	BOOK
 	char aux[20];

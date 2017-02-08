@@ -24,7 +24,7 @@ ODCCSCycle::~ODCCSCycle()
 
 
 void ODCCSCycle::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODCCSCycle::prepareWrite()
 }
 
 
-void ODCCSCycle::writeDB()  noexcept(false)
+void ODCCSCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODCCSCycle::clear(){
 
 
 int ODCCSCycle::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODCCSCycle::fetchID()
 
 
 void ODCCSCycle::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODCCSCycle::setByID(int id)
 
 
 void ODCCSCycle::fetchData(ODCCSCycle * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODCCSCycle::fetchData(ODCCSCycle * result)
 }
 
 void ODCCSCycle::insertConfig()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   try {
 

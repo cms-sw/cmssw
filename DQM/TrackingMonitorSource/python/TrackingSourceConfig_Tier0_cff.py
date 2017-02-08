@@ -296,6 +296,9 @@ trackingDQMgoodOfflinePrimaryVertices.src=cms.InputTag('offlinePrimaryVertices')
 trackingDQMgoodOfflinePrimaryVertices.filter = cms.bool(False)
 
 
+# import v0 monitoring
+from DQM.TrackingMonitor.V0Monitor_cff import *
+
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence()
 # dEdx monitoring
@@ -323,7 +326,6 @@ for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0 += locals()[label]
 TrackingDQMSourceTier0 += voMonitoringSequence
-TrackingDQMSourceTier0 += voWcutMonitoringSequence
 TrackingDQMSourceTier0 += dqmInfoTracking
 
 
@@ -343,7 +345,6 @@ for module in selectedModules :
     label = str(module)+'LogMessageMonCommon'
     TrackingDQMSourceTier0Common += locals()[label]
 TrackingDQMSourceTier0Common += voMonitoringCommonSequence
-TrackingDQMSourceTier0Common += voWcutMonitoringCommonSequence
 TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence()
@@ -370,10 +371,6 @@ TrackingDQMSourceTier0MinBias += voMonitoringMBSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBnoHIPnoOOTSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBHIPnoOOTSequence
 TrackingDQMSourceTier0MinBias += voMonitoringZBHIPOOTSequence
-TrackingDQMSourceTier0MinBias += voWcutMonitoringMBSequence
-TrackingDQMSourceTier0MinBias += voWcutMonitoringZBnoHIPnoOOTSequence
-TrackingDQMSourceTier0MinBias += voWcutMonitoringZBHIPnoOOTSequence
-TrackingDQMSourceTier0MinBias += voWcutMonitoringZBHIPOOTSequence
 
 TrackingDQMSourceTier0MinBias += dqmInfoTracking
 

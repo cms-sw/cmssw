@@ -17,9 +17,9 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/SiPixelObjects/interface/PixelDCSObject.h"
 
-template struct PixelDCSObject<bool>;
-template struct PixelDCSObject<float>;
-template struct PixelDCSObject<CaenChannel>;
+template class PixelDCSObject<bool>;
+template class PixelDCSObject<float>;
+template class PixelDCSObject<CaenChannel>;
 
 namespace CondFormats_SiPixelObjects {
   struct dictionary {

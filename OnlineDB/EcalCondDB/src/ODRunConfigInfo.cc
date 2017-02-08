@@ -51,7 +51,7 @@ void ODRunConfigInfo::setRunModeDef(const RunModeDef& runModeDef)
 }
 //
 
-int ODRunConfigInfo::fetchNextId()  noexcept(false) {
+int ODRunConfigInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -73,7 +73,7 @@ int ODRunConfigInfo::fetchNextId()  noexcept(false) {
 }
 
 int ODRunConfigInfo::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -110,7 +110,7 @@ int ODRunConfigInfo::fetchID()
 
 
 int ODRunConfigInfo::fetchIDLast()
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -138,7 +138,7 @@ int ODRunConfigInfo::fetchIDLast()
 
 //
 int ODRunConfigInfo::fetchIDFromTagAndVersion()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchID();
   return m_ID;
@@ -147,7 +147,7 @@ int ODRunConfigInfo::fetchIDFromTagAndVersion()
 
 
 void ODRunConfigInfo::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -190,7 +190,7 @@ void ODRunConfigInfo::setByID(int id)
 }
 
 void ODRunConfigInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -215,7 +215,7 @@ void ODRunConfigInfo::prepareWrite()
 
 
 void ODRunConfigInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -263,7 +263,7 @@ void ODRunConfigInfo::writeDB()
 
 
 int ODRunConfigInfo::updateDefaultCycle()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -301,7 +301,7 @@ void ODRunConfigInfo::clear(){
 }
 
 void ODRunConfigInfo::fetchData(ODRunConfigInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   DateHandler dh(m_env, m_conn);

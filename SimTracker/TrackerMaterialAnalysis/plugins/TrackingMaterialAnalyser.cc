@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <cstdlib>
+#include <boost/tuple/tuple.hpp>
 #include <boost/format.hpp>
 
 #include "FWCore/Framework/interface/Event.h"

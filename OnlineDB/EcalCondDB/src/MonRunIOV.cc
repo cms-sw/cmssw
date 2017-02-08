@@ -116,7 +116,7 @@ Tm MonRunIOV::getSubRunEnd() const
 
 
 int MonRunIOV::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -171,7 +171,7 @@ int MonRunIOV::fetchID()
 
 
 void MonRunIOV::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -214,7 +214,7 @@ void MonRunIOV::setByID(int id)
 
 
 int MonRunIOV::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -271,7 +271,7 @@ int MonRunIOV::writeDB()
 
 
 void MonRunIOV::fetchParentIDs(int* monRunTagID, int* runIOVID)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // get the MonRunTag
   m_monRunTag.setConnection(m_env, m_conn);
@@ -290,7 +290,7 @@ void MonRunIOV::fetchParentIDs(int* monRunTagID, int* runIOVID)
 
 
 void MonRunIOV::setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   

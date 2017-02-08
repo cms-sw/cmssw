@@ -32,7 +32,7 @@ ODPedestalOffsetsDat::~ODPedestalOffsetsDat()
 
 
 void ODPedestalOffsetsDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void ODPedestalOffsetsDat::prepareWrite()
 
 
 void ODPedestalOffsetsDat::writeDB(const ODPedestalOffsetsDat* item, ODFEPedestalOffsetInfo* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -71,7 +71,7 @@ void ODPedestalOffsetsDat::writeDB(const ODPedestalOffsetsDat* item, ODFEPedesta
 
 
 void ODPedestalOffsetsDat::fetchData(std::vector< ODPedestalOffsetsDat >* p, ODFEPedestalOffsetInfo* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -112,7 +112,7 @@ void ODPedestalOffsetsDat::fetchData(std::vector< ODPedestalOffsetsDat >* p, ODF
 //  ************************************************************************   // 
 
 void ODPedestalOffsetsDat::writeArrayDB(const std::vector< ODPedestalOffsetsDat >& data, ODFEPedestalOffsetInfo* iov)
-    noexcept(false)
+    throw(std::runtime_error)
 {
   this->checkConnection();
 

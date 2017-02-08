@@ -98,7 +98,6 @@ private:
 	const SurveyErrors* theSurveyErrors;
 	
 	// configurables
-        const std::vector<std::string> _levelStrings;
 	std::string _inputFilename1;
 	std::string _inputFilename2;
 	std::string _inputTreename;

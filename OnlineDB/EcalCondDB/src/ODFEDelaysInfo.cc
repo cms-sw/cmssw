@@ -34,7 +34,7 @@ ODFEDelaysInfo::~ODFEDelaysInfo()
 
 
 
-int ODFEDelaysInfo::fetchNextId()  noexcept(false) {
+int ODFEDelaysInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int ODFEDelaysInfo::fetchNextId()  noexcept(false) {
 }
 
 void ODFEDelaysInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -97,7 +97,7 @@ void ODFEDelaysInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODFEDelaysInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -129,7 +129,7 @@ void ODFEDelaysInfo::writeDB()
 
 
 void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -168,7 +168,7 @@ void ODFEDelaysInfo::fetchData(ODFEDelaysInfo * result)
   }
 }
 
-int ODFEDelaysInfo::fetchID()    noexcept(false)
+int ODFEDelaysInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

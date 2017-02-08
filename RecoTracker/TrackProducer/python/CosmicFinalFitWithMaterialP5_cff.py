@@ -33,5 +33,4 @@ cosmictrackfinderCosmics.src = 'cosmicCandidateFinderP5'
 cosmictrackfinderCosmics.TTRHBuilder = 'WithTrackAngle'
 cosmictrackfinderCosmics.AlgorithmName = 'cosmic'
 cosmictrackfinderCosmics.Fitter = 'RKFittingSmoother'
-cosmictrackfinderCosmics.TrajectoryInEvent = True
 

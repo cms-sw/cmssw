@@ -28,7 +28,7 @@ MonOccupancyDat::~MonOccupancyDat()
 
 
 void MonOccupancyDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void MonOccupancyDat::prepareWrite()
 
 
 void MonOccupancyDat::writeDB(const EcalLogicID* ecid, const MonOccupancyDat* item, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -74,7 +74,7 @@ void MonOccupancyDat::writeDB(const EcalLogicID* ecid, const MonOccupancyDat* it
 
 
 void MonOccupancyDat::fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillMap, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -119,7 +119,7 @@ void MonOccupancyDat::fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillMa
 }
 
 void MonOccupancyDat::writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat >* data, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

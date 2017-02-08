@@ -44,7 +44,7 @@ void RunModeDef::setRunMode(string runmode)
 
   
 int RunModeDef::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -78,7 +78,7 @@ int RunModeDef::fetchID()
 
 
 void RunModeDef::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -104,7 +104,7 @@ void RunModeDef::setByID(int id)
 
 
 void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {

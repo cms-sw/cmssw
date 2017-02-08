@@ -39,7 +39,6 @@ class RPCSimModelTiming : public RPCSim
   void simulateNoise(const RPCRoll*,
                      CLHEP::HepRandomEngine*) override;
   int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
-  int LeftRightNeighbour(const RPCRoll& roll, const LocalPoint & hit_pos, int strip);
 
  protected:
   void init() override{};
@@ -59,8 +58,6 @@ class RPCSimModelTiming : public RPCSim
   double rate;
   double gate;
   double frate;
-  bool do_Y;
-  double sigmaY;
 
   std::map< int, std::vector<double> > clsMap;
   std::vector<double> sum_clsize;

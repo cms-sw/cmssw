@@ -4,7 +4,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Alignment.ReferenceTrajectories.TrajectoryFactories_cff import *
-from Alignment.MillePedeAlignmentAlgorithm.MillePedeFileReader_cfi import *
 
 MillePedeAlignmentAlgorithm = cms.PSet(
     algoName = cms.string('MillePedeAlignmentAlgorithm'),
@@ -115,9 +114,6 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 					cms.PSet(name = cms.string('u'),     mean = cms.double(0.), sigma = cms.double(0.175)),
 					cms.PSet(name = cms.string('v'),     mean = cms.double(0.), sigma = cms.double(0.175))
 					)
-	),
-
-    #parameters used to read the pede files back for DQM and check on parameters
-    MillePedeFileReader = cms.PSet(MillePedeFileReader),
+	)
 )
 

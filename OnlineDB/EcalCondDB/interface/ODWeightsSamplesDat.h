@@ -35,19 +35,19 @@ class ODWeightsSamplesDat : public IODConfig {
  private:
   void clear();
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const ODWeightsSamplesDat* item, ODFEWeightsInfo* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::vector< ODWeightsSamplesDat >& data, ODFEWeightsInfo* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::vector< ODWeightsSamplesDat >* fillMap, ODFEWeightsInfo* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
-  void fetchData(ODWeightsSamplesDat * p)     noexcept(false);
+  void fetchData(ODWeightsSamplesDat * p)     throw(std::runtime_error);
 
   // User data
 

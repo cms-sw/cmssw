@@ -32,7 +32,7 @@ ODTowersToByPassDat::~ODTowersToByPassDat()
 
 
 void ODTowersToByPassDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void ODTowersToByPassDat::prepareWrite()
 
 
 void ODTowersToByPassDat::writeDB(const ODTowersToByPassDat* item, ODTowersToByPassInfo* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -69,7 +69,7 @@ void ODTowersToByPassDat::writeDB(const ODTowersToByPassDat* item, ODTowersToByP
 
 
 void ODTowersToByPassDat::fetchData(std::vector< ODTowersToByPassDat >* p, ODTowersToByPassInfo* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -108,7 +108,7 @@ void ODTowersToByPassDat::fetchData(std::vector< ODTowersToByPassDat >* p, ODTow
 //  ************************************************************************   // 
 
 void ODTowersToByPassDat::writeArrayDB(const std::vector< ODTowersToByPassDat >& data, ODTowersToByPassInfo* iov)
-    noexcept(false)
+    throw(std::runtime_error)
 {
   this->checkConnection();
 

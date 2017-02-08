@@ -30,7 +30,7 @@ ODDelaysDat::~ODDelaysDat()
 
 
 void ODDelaysDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void ODDelaysDat::prepareWrite()
 
 
 void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -64,14 +64,14 @@ void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
 }
 
 void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, ODFEDelaysInfo* iov)
-  noexcept(false) {
+  throw(std::runtime_error) {
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   fetchData(p, iovID);
 }
 
 void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -106,7 +106,7 @@ void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
 //  ************************************************************************   // 
 
 void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelaysInfo* iov)
-    noexcept(false)
+    throw(std::runtime_error)
 {
   this->checkConnection();
 

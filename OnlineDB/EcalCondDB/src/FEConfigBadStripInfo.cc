@@ -33,7 +33,7 @@ FEConfigBadStripInfo::~FEConfigBadStripInfo()
 
 
 
-int FEConfigBadStripInfo::fetchNextId()  noexcept(false) {
+int FEConfigBadStripInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int FEConfigBadStripInfo::fetchNextId()  noexcept(false) {
 }
 
 void FEConfigBadStripInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -95,7 +95,7 @@ void FEConfigBadStripInfo::setParameters(const std::map<string,string>& my_keys_
 }
 
 void FEConfigBadStripInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -128,7 +128,7 @@ void FEConfigBadStripInfo::writeDB()
 
 
 void FEConfigBadStripInfo::fetchData(FEConfigBadStripInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -169,7 +169,7 @@ void FEConfigBadStripInfo::fetchData(FEConfigBadStripInfo * result)
   }
 }
 
-int FEConfigBadStripInfo::fetchID()    noexcept(false)
+int FEConfigBadStripInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

@@ -5,8 +5,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -32,13 +30,9 @@ PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
 
 PixelTrackProducer::~PixelTrackProducer() { }
 
-void PixelTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-
-  desc.add<std::string>("passLabel", "pixelTracks"); // What is this? It is not used anywhere in this code.
-  PixelTrackReconstruction::fillDescriptions(desc);
-
-  descriptions.add("pixelTracksDefault", desc);
+void PixelTrackProducer::beginRun(const edm::Run &run, const edm::EventSetup& es)
+{
+  theReconstruction.init(es);
 }
 
 void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)

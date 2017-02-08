@@ -33,7 +33,7 @@ ODVfeToRejectInfo::~ODVfeToRejectInfo()
 
 
 
-int ODVfeToRejectInfo::fetchNextId()  noexcept(false) {
+int ODVfeToRejectInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int ODVfeToRejectInfo::fetchNextId()  noexcept(false) {
 }
 
 void ODVfeToRejectInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -95,7 +95,7 @@ void ODVfeToRejectInfo::setParameters(const std::map<string,string>& my_keys_map
 }
 
 void ODVfeToRejectInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -128,7 +128,7 @@ void ODVfeToRejectInfo::writeDB()
 
 
 void ODVfeToRejectInfo::fetchData(ODVfeToRejectInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -180,7 +180,7 @@ void ODVfeToRejectInfo::fetchData(ODVfeToRejectInfo * result)
   }
 }
 
-int ODVfeToRejectInfo::fetchID()    noexcept(false)
+int ODVfeToRejectInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {

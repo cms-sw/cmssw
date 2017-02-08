@@ -17,7 +17,7 @@ EcalDBConnection::EcalDBConnection( string host,
 				    string user,
 				    string pass,
 				    int port )
-  noexcept(false)
+  throw(std::runtime_error)
 {
     stringstream ss;
   try {    
@@ -41,7 +41,7 @@ EcalDBConnection::EcalDBConnection( string host,
 EcalDBConnection::EcalDBConnection( string sid,
 				    string user,
 				    string pass )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   try {    
     env = Environment::createEnvironment(Environment::OBJECT);
@@ -58,7 +58,7 @@ EcalDBConnection::EcalDBConnection( string sid,
   this->port = port;
 }
 
-EcalDBConnection::~EcalDBConnection()  noexcept(false) {
+EcalDBConnection::~EcalDBConnection()  throw(std::runtime_error) {
   //Close database conection and terminate environment
   try {
     conn->terminateStatement(stmt);

@@ -161,7 +161,6 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
     }
     
     // sort the final result
-    LogDebug("LayerMeasurements")<<"Sorting " << tmpVec.size() << " measurements in this grp.";
     sort( tmpVec.begin(), tmpVec.end(), TrajMeasLessEstim());
     addInvalidMeas( tmpVec, grp,layer); 
     result.emplace_back(std::move(tmpVec), std::move(grp));

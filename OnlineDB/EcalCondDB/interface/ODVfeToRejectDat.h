@@ -38,17 +38,17 @@ class ODVfeToRejectDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* iov )
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::vector< ODVfeToRejectDat >& data, ODVfeToRejectInfo* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   void fetchData(std::vector< ODVfeToRejectDat >* fillMap, ODVfeToRejectInfo* iov)
-     noexcept(false);
+     throw(std::runtime_error);
 
   // User data
 

@@ -35,7 +35,7 @@ FEConfigFgrInfo::~FEConfigFgrInfo()
 
 
 
-int FEConfigFgrInfo::fetchNextId()  noexcept(false) {
+int FEConfigFgrInfo::fetchNextId()  throw(std::runtime_error) {
 
   int result=0;
   try {
@@ -58,7 +58,7 @@ int FEConfigFgrInfo::fetchNextId()  noexcept(false) {
 }
 
 void FEConfigFgrInfo::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -98,7 +98,7 @@ void FEConfigFgrInfo::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void FEConfigFgrInfo::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -126,7 +126,7 @@ void FEConfigFgrInfo::writeDB()
 
 
 void FEConfigFgrInfo::fetchData(FEConfigFgrInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -161,7 +161,7 @@ void FEConfigFgrInfo::fetchData(FEConfigFgrInfo * result)
 }
 
 void FEConfigFgrInfo::fetchLastData(FEConfigFgrInfo * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -186,7 +186,7 @@ void FEConfigFgrInfo::fetchLastData(FEConfigFgrInfo * result)
   }
 }
 
-int FEConfigFgrInfo::fetchID()    noexcept(false)
+int FEConfigFgrInfo::fetchID()    throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -221,7 +221,7 @@ int FEConfigFgrInfo::fetchID()    noexcept(false)
 
 
 void FEConfigFgrInfo::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 

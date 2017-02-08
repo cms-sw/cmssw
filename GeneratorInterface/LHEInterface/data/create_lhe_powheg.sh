@@ -33,8 +33,6 @@ echo "%MSG-POWHEG number of events requested = $nevt"
 rnum=${6}
 echo "%MSG-POWHEG random seed used for the run = $rnum"
 
-ncpu=${7}
-echo "%MSG-POWHEG thread count requested = $ncpu (ignored)"
 
 seed=$rnum
 file="events"

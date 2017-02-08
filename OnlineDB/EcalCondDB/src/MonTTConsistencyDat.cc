@@ -32,7 +32,7 @@ MonTTConsistencyDat::~MonTTConsistencyDat()
 
 
 void MonTTConsistencyDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -50,7 +50,7 @@ void MonTTConsistencyDat::prepareWrite()
 
 
 void MonTTConsistencyDat::writeDB(const EcalLogicID* ecid, const MonTTConsistencyDat* item, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -81,7 +81,7 @@ void MonTTConsistencyDat::writeDB(const EcalLogicID* ecid, const MonTTConsistenc
 
 
 void MonTTConsistencyDat::fetchData(std::map< EcalLogicID, MonTTConsistencyDat >* fillMap, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -130,7 +130,7 @@ void MonTTConsistencyDat::fetchData(std::map< EcalLogicID, MonTTConsistencyDat >
 }
 
 void MonTTConsistencyDat::writeArrayDB(const std::map< EcalLogicID, MonTTConsistencyDat >* data, MonRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

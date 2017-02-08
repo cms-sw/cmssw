@@ -59,7 +59,7 @@ LinearCalibrator* LinearCalibrator::create() const {
 }
 
 std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficientsCore()
-		noexcept(false) {
+		throw(PFToolsException&) {
 //	std::cout << __PRETTY_FUNCTION__
 //			<< ": determining linear calibration coefficients...\n";
 	if (!hasParticles()) {

@@ -112,7 +112,7 @@ void CaliTag::setDataType(string dataType)
 
 
 int CaliTag::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -158,7 +158,7 @@ int CaliTag::fetchID()
 
 
 void CaliTag::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -192,7 +192,7 @@ void CaliTag::setByID(int id)
 
 
 int CaliTag::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -236,7 +236,7 @@ int CaliTag::writeDB()
 
 
 void CaliTag::fetchAllTags( std::vector<CaliTag>* fillVec)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   try {
@@ -259,7 +259,7 @@ void CaliTag::fetchAllTags( std::vector<CaliTag>* fillVec)
 
 
 void CaliTag::fetchParentIDs(int* locID)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // get the location
   m_locDef.setConnection(m_env, m_conn);

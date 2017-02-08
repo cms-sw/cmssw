@@ -101,7 +101,7 @@ RunTag RunIOV::getRunTag() const
 
 
 int RunIOV::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -150,7 +150,7 @@ int RunIOV::fetchID()
 
 
 void RunIOV::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -188,7 +188,7 @@ void RunIOV::setByID(int id)
 
 
 int RunIOV::writeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -238,7 +238,7 @@ int RunIOV::writeDB()
 
 
 int RunIOV::updateEndTimeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -282,7 +282,7 @@ int RunIOV::updateEndTimeDB()
 }
 
 int RunIOV::fetchIDByRunAndTag()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -328,7 +328,7 @@ int RunIOV::fetchIDByRunAndTag()
 
 
 int RunIOV::updateStartTimeDB()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -374,7 +374,7 @@ int RunIOV::updateStartTimeDB()
 
 
 void RunIOV::setByRun(RunTag* tag, run_t run) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -415,7 +415,7 @@ void RunIOV::setByRun(RunTag* tag, run_t run)
 }
 
 void RunIOV::setByTime(std::string location, const Tm &t) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
    
@@ -456,7 +456,7 @@ void RunIOV::setByTime(std::string location, const Tm &t)
 }
 
 void RunIOV::setByRun(std::string location, run_t run) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
    
@@ -494,7 +494,7 @@ void RunIOV::setByRun(std::string location, run_t run)
 
 
 void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -544,7 +544,7 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run)
 
 
 void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t run) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
    

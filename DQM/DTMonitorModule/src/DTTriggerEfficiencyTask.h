@@ -83,7 +83,7 @@ class DTTriggerEfficiencyTask: public DQMEDAnalyzer{
 
   std::string SegmArbitration;
 
-  bool processTM, processDDU, detailedPlots, checkRPCtriggers;
+  bool processTM, processDDU, detailedPlots;
   std::vector<std::string> processTags;
   int minBXDDU, maxBXDDU;
 

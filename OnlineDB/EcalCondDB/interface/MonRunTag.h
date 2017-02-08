@@ -27,8 +27,8 @@ class MonRunTag : public ITag {
   void setMonVersionDef(const MonVersionDef& ver);
 
   // Methods using ID
-  int fetchID() noexcept(false);
-  void setByID(int id) noexcept(false);
+  int fetchID() throw(std::runtime_error);
+  void setByID(int id) throw(std::runtime_error);
 
   // Operators
   inline bool operator==(const MonRunTag &t) const
@@ -45,12 +45,12 @@ class MonRunTag : public ITag {
   MonVersionDef m_monVersionDef;
 
   // Methods from ITag
-  int writeDB() noexcept(false);
+  int writeDB() throw(std::runtime_error);
 
   // Access methods
-  void fetchAllTags( std::vector<MonRunTag>* fillVec) noexcept(false);
+  void fetchAllTags( std::vector<MonRunTag>* fillVec) throw(std::runtime_error);
 
-  void fetchParentIDs(int* verID) noexcept(false);
+  void fetchParentIDs(int* verID) throw(std::runtime_error);
 
 };
 

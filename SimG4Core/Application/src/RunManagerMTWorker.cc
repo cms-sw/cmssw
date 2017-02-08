@@ -33,8 +33,6 @@
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
-#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -120,6 +118,7 @@ struct RunManagerMTWorker::TLSData {
   std::vector<SensitiveCaloDetector*> sensCaloDets;
   std::vector<std::shared_ptr<SimWatcher> > watchers;
   std::vector<std::shared_ptr<SimProducer> > producers;
+  std::unique_ptr<sim::FieldBuilder> fieldBuilder;
   std::unique_ptr<G4Run> currentRun;
   std::unique_ptr<G4Event> currentEvent;
   edm::RunNumber_t currentRunNumber = 0;
@@ -234,13 +233,14 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
       edm::ESHandle<MagneticField> pMF;
       es.get<IdealMagneticFieldRecord>().get(pMF);
 
-      sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
-      CMSFieldManager* fieldManager = new CMSFieldManager();
+      m_tls->fieldBuilder.reset(new sim::FieldBuilder(pMF.product(), m_pField));
       G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
-      tM->SetFieldManager(fieldManager);
-      fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
+      m_tls->fieldBuilder->build( tM->GetFieldManager(),
+                                  tM->GetPropagatorInField(),
+                                  runManagerMaster.chordFinderSetterForWorker());
     }
+
 
   // attach sensitive detector
   AttachSD attach;

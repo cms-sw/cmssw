@@ -66,7 +66,7 @@ namespace edm {
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
-      void doPreallocate(PreallocationConfiguration const&);
+      void doPreallocate(PreallocationConfiguration const&) {}
       void doBeginJob();
       void doEndJob();
       
@@ -103,7 +103,6 @@ namespace edm {
 
       virtual void preForkReleaseResources() {}
       virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
-      virtual void preallocThreads(unsigned int) {}
 
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doEndRun_(Run const& rp, EventSetup const& c);

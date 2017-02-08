@@ -980,7 +980,7 @@ StripTrackingRecHitsValid = cms.EDAnalyzer("SiStripTrackingRecHitsValid",
         layerswitchon  = cms.bool(False)
     ),
 
-    tracksInput = cms.InputTag("generalTracks"),
+    trajectoryInput = cms.InputTag("generalTracks"),
     associatePixel = cms.bool(False),
     ROUList = cms.vstring('g4SimHitsTrackerHitsTIBLowTof', 
 			'g4SimHitsTrackerHitsTIBHighTof', 

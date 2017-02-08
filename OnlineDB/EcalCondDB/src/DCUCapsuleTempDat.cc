@@ -28,7 +28,7 @@ DCUCapsuleTempDat::~DCUCapsuleTempDat()
 
 
 void DCUCapsuleTempDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void DCUCapsuleTempDat::prepareWrite()
 
 
 void DCUCapsuleTempDat::writeDB(const EcalLogicID* ecid, const DCUCapsuleTempDat* item, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void DCUCapsuleTempDat::writeDB(const EcalLogicID* ecid, const DCUCapsuleTempDat
 
 
 void DCUCapsuleTempDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempDat >* fillMap, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -114,7 +114,7 @@ void DCUCapsuleTempDat::fetchData(std::map< EcalLogicID, DCUCapsuleTempDat >* fi
   }
 }
 void DCUCapsuleTempDat::writeArrayDB(const std::map< EcalLogicID, DCUCapsuleTempDat >* data, DCUIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

@@ -27,7 +27,7 @@ MODDCCOperationDat::~MODDCCOperationDat()
 
 
 void MODDCCOperationDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void MODDCCOperationDat::prepareWrite()
 
 
 void MODDCCOperationDat::writeDB(const EcalLogicID* ecid, const MODDCCOperationDat* item, MODRunIOV* iov )
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,7 +70,7 @@ void MODDCCOperationDat::writeDB(const EcalLogicID* ecid, const MODDCCOperationD
 
 
 void MODDCCOperationDat::fetchData(std::map< EcalLogicID, MODDCCOperationDat >* fillMap, MODRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -113,7 +113,7 @@ void MODDCCOperationDat::fetchData(std::map< EcalLogicID, MODDCCOperationDat >* 
 }
 
 void MODDCCOperationDat::writeArrayDB(const std::map< EcalLogicID, MODDCCOperationDat >* data, MODRunIOV* iov)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

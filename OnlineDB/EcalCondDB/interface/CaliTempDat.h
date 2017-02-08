@@ -32,16 +32,16 @@ class CaliTempDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    noexcept(false);
+    throw(std::runtime_error);
   
   void writeDB(const EcalLogicID* ecid, const CaliTempDat* item, CaliIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
   
   void fetchData(std::map< EcalLogicID, CaliTempDat >* fillVec, CaliIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
   void writeArrayDB(const std::map< EcalLogicID, CaliTempDat >* data, CaliIOV* iov)
-    noexcept(false);
+    throw(std::runtime_error);
 
 
   

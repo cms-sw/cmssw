@@ -24,7 +24,7 @@ ODScanCycle::~ODScanCycle()
 
 
 void ODScanCycle::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODScanCycle::prepareWrite()
 }
 
 
-void ODScanCycle::writeDB()  noexcept(false)
+void ODScanCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODScanCycle::clear(){
 
 
 int ODScanCycle::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODScanCycle::fetchID()
 
 
 void ODScanCycle::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODScanCycle::setByID(int id)
 
 
 void ODScanCycle::fetchData(ODScanCycle * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODScanCycle::fetchData(ODScanCycle * result)
 }
 
 void ODScanCycle::insertConfig()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   try {
 

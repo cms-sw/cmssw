@@ -40,7 +40,6 @@ if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM.root ; then
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
 --beamspot NoSmear \
---nThreads=4 \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM.root \
 --python_filename SingleMuPt10_pythia8_cfi_GEN_SIM.py > SingleMuPt10_pythia8_cfi_GEN_SIM.log 2>&1
 
@@ -60,7 +59,6 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root ; then
 --era Run2_2016 \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW \
---nThreads=4 \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root \
 --python_filename SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.py > SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.log 2>&1
@@ -80,10 +78,10 @@ if checkFile SingleMuPt10_step3_RECO_DQM.root ; then
 --era Run2_2016 \
 --eventcontent RECOSIM,DQM \
 --datatier GEN-SIM-RECO,DQMIO \
---nThreads=4 \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM.root \
---python_filename SingleMuPt10_step2_RECO_DQM.py > SingleMuPt10_step3_RECO_DQM.log 2>&1
+--python_filename SingleMuPt10_step2_RECO_DQM.py \
+--customise Validation/Geometry/customiseForDumpMaterialAnalyser.customiseForMaterialAnalyser > SingleMuPt10_step3_RECO_DQM.log 2>&1
 
     if [ $? -ne 0 ]; then
       echo "Error executing the RECO step, aborting."
@@ -143,7 +141,4 @@ for t in BeamPipe Tracker PixBar PixFwdMinus PixFwdPlus TIB TOB TIDB TIDF TEC Tk
   fi
 done
 
-if [ ! -e Images ]; then
-  mkdir Figures
-fi
 root -b -q 'MaterialBudget_Simul_vs_Reco.C("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", "Run2Detector")'

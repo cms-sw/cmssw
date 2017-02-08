@@ -106,13 +106,12 @@ namespace {
 
 /*****************************************************************************/
 LowPtClusterShapeSeedComparitor::LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps, edm::ConsumesCollector& iC):
-  thePixelClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
-  theShapeFilterLabel_(ps.getParameter<std::string>("clusterShapeHitFilter"))
+  thePixelClusterShapeCacheToken(iC.consumes<SiPixelClusterShapeCache>(ps.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
 {}
 
 /*****************************************************************************/
 void LowPtClusterShapeSeedComparitor::init(const edm::Event& e, const edm::EventSetup& es) {
-  es.get<CkfComponentsRecord>().get(theShapeFilterLabel_, theShapeFilter);
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theShapeFilter);
   es.get<TrackerTopologyRcd>().get(theTTopo);
 
   e.getByToken(thePixelClusterShapeCacheToken, thePixelClusterShapeCache);
@@ -124,8 +123,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits) cons
   assert(hits.size()==3);
 
   const ClusterShapeHitFilter * filter = theShapeFilter.product();
-  if(filter == 0)
-    throw cms::Exception("LogicError") << "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called";
+  assert(filter != 0 && "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called");
 
    // Get global positions
    GlobalPoint  globalPoss[3];

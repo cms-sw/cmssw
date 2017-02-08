@@ -59,7 +59,6 @@ namespace hcaldqm
 				hashfunctions::HashType,  Quantity*,
 				Quantity *qy = new ValueQuantity(quantity::fN), 
 				int debug=0);
- 			using Container::initialize;
 
 			//	filling by hash
 			virtual void fill(uint32_t);

@@ -69,8 +69,7 @@ class BPHOniaToMuMuBuilder {
   std::vector<BPHPlusMinusConstCandPtr> getList( oniaType type,
                                         BPHRecoSelect    * dSel = 0,
                                         BPHMomentumSelect* mSel = 0,
-                                        BPHVertexSelect  * vSel = 0,
-                                        BPHFitSelect     * kSel = 0 );
+                                        BPHVertexSelect  * vSel = 0 );
 
   /// retrieve original candidate from a copy with the same daughters
   /// obtained through "getList"

@@ -113,10 +113,6 @@ namespace edm {
     replaceString(demangledName, ", ", ",");
     // No space before opening square bracket
     replaceString(demangledName, " [", "[");
-    // clang libc++ uses __1:: namespace
-    replaceString(demangledName, "std::__1::", "std::");
-    // new gcc abi uses __cxx11:: namespace
-    replaceString(demangledName, "std::__cxx11::", "std::");
     // Strip default allocator
     std::string const allocator(",std::allocator<");
     removeParameter(demangledName, allocator);

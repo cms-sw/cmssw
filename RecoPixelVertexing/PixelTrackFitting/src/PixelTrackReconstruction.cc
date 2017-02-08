@@ -2,12 +2,14 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 
@@ -20,7 +22,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
-#include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
 
 #include <vector>
 
@@ -30,32 +32,52 @@ using edm::ParameterSet;
 
 PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
 	   edm::ConsumesCollector && iC)
-  : theHitSetsToken(iC.consumes<RegionsSeedingHitSets>(cfg.getParameter<edm::InputTag>("SeedingHitSets"))),
-    theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
+  : theFitterToken(iC.consumes<PixelFitter>(cfg.getParameter<edm::InputTag>("Fitter"))),
     theCleanerName(cfg.getParameter<std::string>("Cleaner"))
 {
+  if ( cfg.exists("SeedMergerPSet") ) {
+    edm::ParameterSet mergerPSet = cfg.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
+    std::string seedmergerTTRHBuilderLabel = mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" );
+    edm::ParameterSet seedmergerLayerList = mergerPSet.getParameter<edm::ParameterSet>( "layerList" );
+    bool seedmergerAddTriplets = mergerPSet.getParameter<bool>( "addRemainingTriplets" );
+    bool seedmergerMergeTriplets = mergerPSet.getParameter<bool>( "mergeTriplets" );
+    theMerger_.reset(new QuadrupletSeedMerger(seedmergerLayerList, iC));
+    theMerger_->setMergeTriplets( seedmergerMergeTriplets );
+    theMerger_->setAddRemainingTriplets( seedmergerAddTriplets );
+    theMerger_->setTTRHBuilderLabel( seedmergerTTRHBuilderLabel );
+  }
+
   edm::InputTag filterTag = cfg.getParameter<edm::InputTag>("Filter");
   if(filterTag.label() != "") {
     theFilterToken = iC.consumes<PixelTrackFilter>(filterTag);
   }
+
+  ParameterSet orderedPSet =
+      cfg.getParameter<ParameterSet>("OrderedHitsFactoryPSet");
+  std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
+  theGenerator.reset(OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC));
+
+  ParameterSet regfactoryPSet = cfg.getParameter<ParameterSet>("RegionFactoryPSet");
+  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, std::move(iC)));
 }
   
 PixelTrackReconstruction::~PixelTrackReconstruction() 
 {
 }
 
-void PixelTrackReconstruction::fillDescriptions(edm::ParameterSetDescription& desc) {
-  desc.add<edm::InputTag>("SeedingHitSets", edm::InputTag("pixelTracksHitTriplets"));
-  desc.add<edm::InputTag>("Fitter", edm::InputTag("pixelFitterByHelixProjections"));
-  desc.add<edm::InputTag>("Filter", edm::InputTag("pixelTrackFilterByKinematics"));
-  desc.add<std::string>("Cleaner", "pixelTrackCleanerBySharedHits");
+void PixelTrackReconstruction::init(const edm::EventSetup& es)
+{
+  if (theMerger_) {
+    theMerger_->update( es );
+  }
 }
 
 void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, const edm::EventSetup& es)
 {
-  edm::Handle<RegionsSeedingHitSets> hhitSets;
-  ev.getByToken(theHitSetsToken, hhitSets);
-  const auto& hitSets = *hhitSets;
+  typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
+  typedef Regions::const_iterator IR;
+  Regions regions = theRegionProducer->regions(ev,es);
 
   edm::Handle<PixelFitter> hfitter;
   ev.getByToken(theFitterToken, hfitter);
@@ -69,10 +91,18 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
   
   std::vector<const TrackingRecHit *> hits;hits.reserve(4); 
-  for(const auto& regionHitSets: hitSets) {
-    const TrackingRegion& region = regionHitSets.region();
+  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
+    const TrackingRegion & region = **ir;
 
-    for(const SeedingHitSet& tuplet: regionHitSets) {
+    const OrderedSeedingHits & triplets =  theGenerator->run(region,ev,es);
+    const OrderedSeedingHits &tuplets= (theMerger_==0)? triplets : theMerger_->mergeTriplets( triplets, es );
+
+    unsigned int nTuplets = tuplets.size();
+    tracks.reserve(tracks.size()+nTuplets);
+    // producing tracks
+    for (unsigned int iTuplet = 0; iTuplet < nTuplets; ++iTuplet) {
+      const SeedingHitSet & tuplet = tuplets[iTuplet];
+
       /// FIXME at some point we need to migrate the fitter...
       auto nHits = tuplet.size(); hits.resize(nHits);
       for (unsigned int iHit = 0; iHit < nHits; ++iHit) hits[iHit] = tuplet[iHit];
@@ -90,6 +120,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
       // add tracks
       tracks.emplace_back(track.release(), tuplet);
     }
+    theGenerator->clear();
   }
 
   // skip ovelrapped tracks

@@ -11,7 +11,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 
 #include <memory>
 #include <vector>
@@ -25,6 +24,8 @@
 */
 class Trajectory;
 
+
+class PFTrackTransformer;
 class PFTrackProducer : public edm::stream::EDProducer<> {
 public:
   

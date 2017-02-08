@@ -38,7 +38,7 @@ public:
 protected:
 	
 	virtual std::map<DetectorElementPtr, double>
-			getCalibrationCoefficientsCore() noexcept(false);
+			getCalibrationCoefficientsCore() throw(PFToolsException&);
 
 
 	LinearCalibrator(const LinearCalibrator& lc);

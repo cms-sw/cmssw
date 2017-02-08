@@ -24,7 +24,7 @@ ODLaserCycle::~ODLaserCycle()
 
 
 void ODLaserCycle::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -38,7 +38,7 @@ void ODLaserCycle::prepareWrite()
 }
 
 
-void ODLaserCycle::writeDB()  noexcept(false)
+void ODLaserCycle::writeDB()  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -69,7 +69,7 @@ void ODLaserCycle::clear(){
 
 
 int ODLaserCycle::fetchID()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   // Return from memory if available
   if (m_ID) {
@@ -102,7 +102,7 @@ int ODLaserCycle::fetchID()
 
 
 void ODLaserCycle::setByID(int id) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
    this->checkConnection();
 
@@ -129,7 +129,7 @@ void ODLaserCycle::setByID(int id)
 
 
 void ODLaserCycle::fetchData(ODLaserCycle * result)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   result->clear();
@@ -156,7 +156,7 @@ void ODLaserCycle::fetchData(ODLaserCycle * result)
 }
 
  void ODLaserCycle::insertConfig()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   try {
 

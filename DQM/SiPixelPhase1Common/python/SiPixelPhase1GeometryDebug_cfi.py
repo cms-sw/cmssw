@@ -1,59 +1,44 @@
 import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-DefaultHistoDebug = DefaultHisto.clone(
-  topFolderName = "PixelPhase1/Debug"
-)
-
-SiPixelPhase1GeometryDebugDetId = DefaultHistoDebug.clone(
+SiPixelPhase1GeometryDebugDetId = DefaultHisto.clone(
   name = "debug_detid",
   title = "Location of DetIds",
   xlabel = "DetId",
   dimensions = 1,
-  specs = VPSet(
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
+  specs = cms.VPSet(
+    StandardSpecification2DProfile
   )
 )
 
-SiPixelPhase1GeometryDebugLadderBlade = DefaultHistoDebug.clone(
+SiPixelPhase1GeometryDebugLadderBlade = DefaultHisto.clone(
   name = "debug_ladderblade",
   title = "Location of Ladders/Blades",
   xlabel = "offline Ladder/Blade #",
   dimensions = 1,
-  specs = VPSet(
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
+  specs = cms.VPSet(
+    StandardSpecification2DProfile
   )
 )
 
-SiPixelPhase1GeometryDebugROC = DefaultHistoDebug.clone(
+SiPixelPhase1GeometryDebugROC = DefaultHisto.clone(
   name = "debug_roc",
   title = "Location of ROCs",
   xlabel = "ROC#",
   dimensions = 1,
-  specs = VPSet(
+  specs = cms.VPSet(
     # TODO: make this per ROC!
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
-    Specification()
-          .groupBy("PXBarrel/PXLayer/PXModuleName/SignedLadderCoord/SignedModuleCoord")
-          .groupBy("PXBarrel/PXLayer/PXModuleName/SignedLadderCoord", "EXTEND_X")
-          .groupBy("PXBarrel/PXLayer/PXModuleName/", "EXTEND_Y")
-          .reduce("MEAN")
-          .save(),
-
+    StandardSpecification2DProfile
   )
 )
 
-SiPixelPhase1GeometryDebugFED = DefaultHistoDebug.clone(
+SiPixelPhase1GeometryDebugFED = DefaultHisto.clone(
   name = "debug_fed",
   title = "Location of FEDs",
   xlabel = "FED#",
   dimensions = 1,
-  specs = VPSet(
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
+  specs = cms.VPSet(
+    StandardSpecification2DProfile
   )
 )
 

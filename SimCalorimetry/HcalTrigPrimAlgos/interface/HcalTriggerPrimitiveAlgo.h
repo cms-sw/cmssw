@@ -245,31 +245,28 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
 
    // VME produces additional bits on the front used by lumi but not the
    // trigger, this shift corrects those out by right shifting over them.
-   for (auto& item: theSumMap) {
-      result.push_back(HcalTriggerPrimitiveDigi(item.first));
-      HcalTrigTowerDetId detId(item.second.id());
+   for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
+      result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
+      HcalTrigTowerDetId detId(mapItr->second.id());
       if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
          if (detId.version() == 0) {
-            analyzeHF(item.second, result.back(), RCTScaleShift);
+            analyzeHF(mapItr->second, result.back(), RCTScaleShift);
          } else if (detId.version() == 1) {
             if (upgrade_hf_)
-               analyzeHF2017(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
+               analyzeHF2017(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
             else
-               analyzeHF2016(item.second, result.back(), NCTScaleShift, LongvrsShortCut);
+               analyzeHF2016(mapItr->second, result.back(), NCTScaleShift, LongvrsShortCut);
          } else {
             // Things are going to go poorly
          }
       }
       else {
-         // Determine which energy reconstruction path to take based on the
-         // fine-grain availability:
-         //  * QIE8 TP add entries into fgMap_
-         //  * QIE11 TP add entries into fgUpgradeMap_
-         //    (not for tower 16 unless HB is upgraded, too)
-         if (fgMap_.find(item.first) != fgMap_.end()) {
-            analyze(item.second, result.back());
-         } else if (fgUpgradeMap_.find(item.first) != fgUpgradeMap_.end()) {
-            analyze2017(item.second, result.back(), fg_algo);
+         if (upgrade_he_ and abs(detId.ieta()) > HBHE_OVERLAP_TOWER) {
+            analyze2017(mapItr->second, result.back(), fg_algo);
+         } else if (upgrade_hb_ and detId.subdet() <= HBHE_OVERLAP_TOWER) {
+            analyze2017(mapItr->second, result.back(), fg_algo);
+         } else {
+            analyze(mapItr->second, result.back());
          }
       }
    }

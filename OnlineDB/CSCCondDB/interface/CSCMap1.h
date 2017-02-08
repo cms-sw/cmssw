@@ -17,11 +17,11 @@ class cscmap1
   /**
    * Constructor for cscmap1
    */
-  cscmap1 () noexcept(false);
+  cscmap1 () throw (oracle::occi::SQLException);
   /**
    * Destructor for cscmap1
    */
-  ~cscmap1 () noexcept(false);
+  ~cscmap1 () throw (oracle::occi::SQLException);
 
   /* 'chamberid' is a decimal chamber identifier like 122090 */
   void chamber (int chamberid, CSCMapItem::MapItem *item);

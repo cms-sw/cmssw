@@ -169,7 +169,7 @@ void SpaceManager::createCalibrators(const Calibrator& toClone,
 		const unsigned nEta, const double etaMin, const double etaMax,
 		const unsigned nPhi, const double phiMin, const double phiMax,
 		const unsigned nEnergy, const double energyMin, const double energyMax)
-		noexcept(false) {
+		throw(PFToolsException&) {
 	clear();
 
 	if (nEta == 0|| nPhi ==0|| nEnergy == 0) {

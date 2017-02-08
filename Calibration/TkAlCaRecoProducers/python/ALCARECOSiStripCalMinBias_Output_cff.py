@@ -12,8 +12,6 @@ OutALCARECOSiStripCalMinBias_noDrop = cms.PSet(
         'keep DetIdedmEDCollection_siStripDigis_*_*',
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
-        'keep LumiScalerss_scalersRawToDigi_*_*',
-        'keep DcsStatuss_scalersRawToDigi_*_*',
         'keep *_TriggerResults_*_*')
 )
 

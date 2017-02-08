@@ -2,7 +2,6 @@
 #define DataFormats_Provenance_Hash_h
 
 #include <string>
-#include <functional>
 
 /*----------------------------------------------------------------------
   

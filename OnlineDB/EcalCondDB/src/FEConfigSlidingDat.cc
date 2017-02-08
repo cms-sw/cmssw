@@ -28,7 +28,7 @@ FEConfigSlidingDat::~FEConfigSlidingDat()
 
 
 void FEConfigSlidingDat::prepareWrite()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void FEConfigSlidingDat::prepareWrite()
 
 
 void FEConfigSlidingDat::writeDB(const EcalLogicID* ecid, const FEConfigSlidingDat* item, FEConfigSlidingInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -71,7 +71,7 @@ void FEConfigSlidingDat::writeDB(const EcalLogicID* ecid, const FEConfigSlidingD
 
 
 void FEConfigSlidingDat::fetchData(map< EcalLogicID, FEConfigSlidingDat >* fillMap, FEConfigSlidingInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   fillMap->clear();
@@ -114,7 +114,7 @@ void FEConfigSlidingDat::fetchData(map< EcalLogicID, FEConfigSlidingDat >* fillM
 }
 
 void FEConfigSlidingDat::writeArrayDB(const std::map< EcalLogicID, FEConfigSlidingDat >* data, FEConfigSlidingInfo* iconf)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   this->checkConnection();
   this->checkPrepare();

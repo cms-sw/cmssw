@@ -78,7 +78,6 @@ class TrackerValidationVariables
   ~TrackerValidationVariables();
 
   void fillHitQuantities(const Trajectory* trajectory, std::vector<AVHitStruct> & v_avhitout);
-  void fillHitQuantities(reco::Track const & track, std::vector<AVHitStruct> & v_avhitout);
   void fillTrackQuantities(const edm::Event&,
                            const edm::EventSetup&,
                            std::vector<AVTrackStruct> & v_avtrackout);
@@ -90,8 +89,8 @@ class TrackerValidationVariables
   
  private:
 
-  edm::EDGetTokenT<std::vector<Trajectory>> trajCollectionToken_;
-  edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
+  edm::EDGetTokenT<std::vector<Trajectory> > trajCollectionToken_;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> trajTracksToken_;
 };
 
 #endif

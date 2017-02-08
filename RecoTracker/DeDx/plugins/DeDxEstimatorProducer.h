@@ -60,8 +60,10 @@ private:
   // ----------member data ---------------------------
   BaseDeDxEstimator*                m_estimator;
 
+  edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
+  bool useTrajectory;
   bool usePixel;
   bool useStrip;
   float meVperADCPixel;

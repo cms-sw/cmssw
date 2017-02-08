@@ -4,7 +4,7 @@
   /**
    * Constructor for csccableread
    */
-  csccableread::csccableread () noexcept(false)
+  csccableread::csccableread () throw (oracle::occi::SQLException)
   {
     std::string db_user;
     std::string db_pass;
@@ -19,7 +19,7 @@
   /**
    * Destructor for csccableread.
    */
-  csccableread::~csccableread () noexcept(false)
+  csccableread::~csccableread () throw (oracle::occi::SQLException)
   {
     env->terminateConnection (con);
     oracle::occi::Environment::terminateEnvironment (env);

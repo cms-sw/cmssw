@@ -1,14 +1,15 @@
 #ifndef EventFilter_DTDigiToRawModule_h
 #define EventFilter_DTDigiToRawModule_h
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 
 class DTDigiToRaw;
 
-class DTDigiToRawModule : public edm::stream::EDProducer<> {
+class DTDigiToRawModule : public edm::EDProducer {
 public:
   /// Constructor
   DTDigiToRawModule(const edm::ParameterSet& pset);
@@ -17,7 +18,7 @@ public:
   virtual ~DTDigiToRawModule();
 
   // Operations
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  virtual void produce( edm::Event&, const edm::EventSetup& );
 
 private:
   DTDigiToRaw * packer;

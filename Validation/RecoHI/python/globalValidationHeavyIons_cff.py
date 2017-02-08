@@ -8,7 +8,7 @@ from Validation.RecoHI.muonValidationHeavyIons_cff import *
 # change track label for rechits
 hiTracks = 'hiGeneralTracks'
 PixelTrackingRecHitsValid.src = hiTracks
-StripTrackingRecHitsValid.tracksInput = hiTracks
+StripTrackingRecHitsValid.trajectoryInput = hiTracks
 
 # change ecal labels for basic clusters and super-clusters
 egammaBasicClusterAnalyzer.barrelBasicClusterCollection = cms.InputTag("islandBasicClusters","islandBarrelBasicClusters")

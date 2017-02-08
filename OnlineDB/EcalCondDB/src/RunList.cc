@@ -38,44 +38,44 @@ RunTag RunList::getRunTag() const
 }
 
 void RunList::fetchNonEmptyRuns() 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchRuns(-1, -1, true, false); 
 }
 
 void RunList::fetchNonEmptyGlobalRuns() 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchRuns(-1, -1, false, true); 
 }
 
 void RunList::fetchNonEmptyRuns(int min_run, int max_run) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchRuns(min_run, max_run, true, false); 
 }
 
 void RunList::fetchNonEmptyGlobalRuns(int min_run, int max_run) 
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchRuns(min_run, max_run, false, true); 
 }
 
 void RunList::fetchRuns()
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchRuns(-1, -1);
 }
 
 void RunList::fetchRuns(int min_run, int max_run)
-  noexcept(false)
+  throw(std::runtime_error)
 {
   fetchRuns(min_run, max_run, false, false);
 }
 
 void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
 			bool withGlobalTriggers)
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   /*
@@ -189,7 +189,7 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
 }
 
 void RunList::fetchLastNRuns( int max_run, int n_runs  )
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)
@@ -263,7 +263,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
 
 void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();
@@ -352,7 +352,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
 }
 
 void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const LocationDef& locDef )
-  noexcept(false)
+  throw(std::runtime_error)
 {
 
   this->checkConnection();

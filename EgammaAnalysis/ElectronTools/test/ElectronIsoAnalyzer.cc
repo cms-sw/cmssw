@@ -52,9 +52,9 @@ class ElectronIsoAnalyzer : public edm::EDAnalyzer {
   //
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
 
   edm::ParameterSet conf_;
@@ -243,7 +243,7 @@ ElectronIsoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 }
 // ------------ method called once each job just before starting event loop  ------------
 void
-ElectronIsoAnalyzer::beginJob()
+ElectronIsoAnalyzer::beginJob(const edm::EventSetup&)
 {
 
   ev = 0;

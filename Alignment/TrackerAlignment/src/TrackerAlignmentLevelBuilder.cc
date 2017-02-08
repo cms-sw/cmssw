@@ -4,9 +4,16 @@
 // Original Author:  Max Stark
 //         Created:  Wed, 10 Feb 2016 13:48:41 CET
 
-// topology and geometry
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+
+// these extern defined fields (see files TPBNameSpace.h etc.) hold some
+// geometry-dependent values -> they will be set in this class
+namespace align
+{
+  namespace tpb { extern std::vector<unsigned int> lpqc; }
+  namespace tpe { extern unsigned int bpqd; }
+  namespace tib { extern std::vector<unsigned int> sphs; }
+}
 
 
 
@@ -16,11 +23,8 @@
 
 //_____________________________________________________________________________
 TrackerAlignmentLevelBuilder
-::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology,
-			       const TrackerGeometry* trackerGeometry) :
-  trackerTopology_(trackerTopology),
-  alignableObjectId_(trackerGeometry, nullptr, nullptr),
-  trackerNameSpace_(trackerTopology)
+::TrackerAlignmentLevelBuilder(const TrackerTopology* trackerTopology) :
+  trackerTopology_(trackerTopology)
 {
 }
 
@@ -57,22 +61,7 @@ std::vector<align::AlignmentLevels> TrackerAlignmentLevelBuilder
   levels.push_back(buildTIDAlignmentLevels());
   levels.push_back(buildTOBAlignmentLevels());
   levels.push_back(buildTECAlignmentLevels());
-  levelsBuilt_ = true;
   return levels;
-}
-
-
-//______________________________________________________________________________
-const align::TrackerNameSpace& TrackerAlignmentLevelBuilder
-::trackerNameSpace() const {
-  if (levelsBuilt_) {
-    return trackerNameSpace_;
-  } else {
-    throw cms::Exception("LogicError")
-      << "@SUB=TrackerAlignmentLevelBuilder::trackerNameSpace\n"
-      << "trying to get the name space before it has been properly initialized;"
-      << " please call TrackerAlignmentLevelBuilder::build() first";
-  }
 }
 
 
@@ -202,13 +191,13 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   std::ostringstream ss;
   ss << "determined following numbers for "
-     << alignableObjectId_.idToString(align::TPBBarrel) << " geometry:" << "\n"
+     << AlignableObjectId::idToString(align::TPBBarrel) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of ladders: " << maxNumLadders                  << "\n";
 
   for (size_t layer = 0; layer < pxbLaddersPerLayer_.size(); ++layer) {
     // divide by 4, because we need the ladders per quarter cylinder
-    trackerNameSpace_.tpb_.lpqc_.push_back(pxbLaddersPerLayer_[layer] / 4);
+    align::tpb::lpqc.push_back(pxbLaddersPerLayer_[layer] / 4);
     ss << "      ladders in layer-" << layer << ": "
        << pxbLaddersPerLayer_[layer] << "\n";
   }
@@ -239,14 +228,14 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   std::ostringstream ss;
   ss << "determined following numbers for "
-     << alignableObjectId_.idToString(align::TPEEndcap) << " geometry:" << "\n"
+     << AlignableObjectId::idToString(align::TPEEndcap) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of panels:  " << maxNumPanels                   << "\n"
      << "   max. number of blades:  " << maxNumBlades                   << "\n";
 
-  trackerNameSpace_.tpe_.bpqd_ = maxNumBlades / 2;
+  align::tpe::bpqd = maxNumBlades / 2;
 
-  ss << "      blades per quarter disk: " << trackerNameSpace_.tpe_.bpqd_ << "\n"
+  ss << "      blades per quarter disk: " << align::tpe::bpqd << "\n"
      << "   max. number of disks:   " << maxNumDisks                    << "\n"
      << "   max. number of sides:   " << maxNumSides;
   edm::LogInfo("AlignableBuildProcess")
@@ -274,14 +263,14 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
 
   std::ostringstream ss;
   ss << "determined following numbers for "
-     << alignableObjectId_.idToString(align::TIBBarrel) << " geometry:" << "\n"
+     << AlignableObjectId::idToString(align::TIBBarrel) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of strings: " << maxNumStrings                  << "\n";
 
   for (size_t layer = 0; layer < tidStringsInnerLayer_.size(); ++layer) {
     // divide by 2, because we have HalfShells
-    trackerNameSpace_.tib_.sphs_.push_back(tidStringsInnerLayer_[layer] / 2);
-    trackerNameSpace_.tib_.sphs_.push_back(tidStringsOuterLayer_[layer] / 2);
+    align::tib::sphs.push_back(tidStringsInnerLayer_[layer] / 2);
+    align::tib::sphs.push_back(tidStringsOuterLayer_[layer] / 2);
 
     ss << "      strings in layer-" << layer << " (inside):  "
        << tidStringsInnerLayer_[layer] << "\n"
@@ -320,7 +309,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTIDAlignmentLevels"
      << "determined following numbers for "
-     << alignableObjectId_.idToString(align::TIDEndcap) << " geometry:" << "\n"
+     << AlignableObjectId::idToString(align::TIDEndcap) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of rings:   " << maxNumRings                    << "\n"
      << "   max. number of wheels:  " << maxNumWheels                   << "\n"
@@ -347,7 +336,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTOBAlignmentLevels"
      << "determined following numbers for "
-     << alignableObjectId_.idToString(align::TOBBarrel) << " geometry:" << "\n"
+     << AlignableObjectId::idToString(align::TOBBarrel) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of rods:    " << maxNumRods                     << "\n"
      << "   max. number of sides:   " << maxNumSides                    << "\n"
@@ -375,7 +364,7 @@ align::AlignmentLevels TrackerAlignmentLevelBuilder
   edm::LogInfo("AlignableBuildProcess")
      << "@SUB=TrackerAlignmentLevelBuilder::buildTECAlignmentLevels"
      << "determined following numbers for "
-     << alignableObjectId_.idToString(align::TECEndcap) << " geometry:" << "\n"
+     << AlignableObjectId::idToString(align::TECEndcap) << " geometry:" << "\n"
      << "   max. number of modules: " << maxNumModules                  << "\n"
      << "   max. number of rings:   " << maxNumRings                    << "\n"
      << "   max. number of petals:  " << maxNumPetals                   << "\n"
