@@ -55,7 +55,7 @@ process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 # local tracks fitter
-process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTrackFitter_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi')
 process.ctppsDiamondLocalTrack.trackingAlgorithmParams.threshold = cms.double(1.5)
 process.ctppsDiamondLocalTrack.trackingAlgorithmParams.sigma = cms.double(0.0)
 process.ctppsDiamondLocalTrack.trackingAlgorithmParams.resolution = cms.double(0.1) # in mm
@@ -71,8 +71,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 # execution configuration
 process.p = cms.Path(
     process.ctppsDiamondRawToDigi *
-    process.ctppsDiamondRecHit *
-    process.ctppsDiamondLocalTrack
+    process.ctppsDiamondRecHits *
+    process.ctppsDiamondLocalTracks
 )
 
 process.outpath = cms.EndPath(process.output) 
