@@ -52,9 +52,9 @@ class CTPPSDiamondRecHit
     inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdc_err_; }
 
   private:
-    double x_, x_width_;
-    double y_, y_width_;
-    double t_, tot_;
+    float x_, x_width_;
+    float y_, y_width_;
+    float t_, tot_;
     /// Time slice index
     int ts_index_;
     HPTDCErrorFlags hptdc_err_;
