@@ -8,7 +8,7 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   dimensions = 0,
   specs = VPSet(
     StandardSpecifications1D_Num,
-    StandardSpecificationOccupancy,
+    StandardSpecification2DOccupancy,
   )
 )
 
@@ -19,7 +19,7 @@ SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
   dimensions = 0,
   specs = VPSet(
     StandardSpecifications1D_Num,
-    StandardSpecificationOccupancy,
+    StandardSpecification2DOccupancy,
   )
 )
 
@@ -30,15 +30,7 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
   dimensions = 1,
   specs = VPSet(
     StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
-    Specification().groupBy("PXBarrel/PXLayer/ROC")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .reduce("MEAN")
-                   .save(),
-    Specification().groupBy("PXForward/PXRing/ROC")
-                   .groupBy("PXForward/PXRing", "EXTEND_X")
-                   .reduce("MEAN")
-                   .save()
+    StandardSpecificationPixelmapProfile    
   )
 )
 

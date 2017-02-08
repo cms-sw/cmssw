@@ -424,7 +424,7 @@ int SiPixelCoordinates::roc(const DetId& detid, const std::pair<int, int>& pixel
     // Time consuming part is over, so let's save the channel number too
     channel_[pseudo_roc_num] = cabling.link;
     const sipixelobjects::PixelROC *theRoc = converter.toRoc(cabling.link, cabling.roc);
-    int roc = theRoc->idInDetUnit();
+    roc = theRoc->idInDetUnit();
     if (detid.subdetId() == PixelSubdetector::PixelBarrel && side(detid)==1 && half(detid)) roc += 8;
     //printf ("Online FED, LNK, LNKID, ROC: %2d %2d %2d %2d - Offline RAWID, ROW, COL: %9d [%3d,%3d] [%3d,%3d]\n",
     //        fedId, cabling.link, cabling.roc, roc, detid.rawId(),
