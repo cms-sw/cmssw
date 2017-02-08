@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -22,12 +22,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class TrackFromPVSelector : public edm::EDProducer {
+class TrackFromPVSelector : public edm::global::EDProducer<> {
 public:
 
-  explicit TrackFromPVSelector(const edm::ParameterSet& iConfig);
+  explicit TrackFromPVSelector(edm::ParameterSet const& iConfig);
 
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
+  void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const& iSetup) const override;
 
 private:
 
@@ -43,7 +43,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-TrackFromPVSelector::TrackFromPVSelector(const edm::ParameterSet& iConfig)
+TrackFromPVSelector::TrackFromPVSelector(edm::ParameterSet const& iConfig)
   : max_dxy_{iConfig.getParameter<double>("max_dxy")}
   , max_dz_{iConfig.getParameter<double>("max_dz")}
   , v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))}
@@ -57,7 +57,7 @@ TrackFromPVSelector::TrackFromPVSelector(const edm::ParameterSet& iConfig)
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void TrackFromPVSelector::produce(edm::Event& iEvent, edm::EventSetup const&)
+void TrackFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   auto goodTracks = std::make_unique<std::vector<reco::Track>>();
 
