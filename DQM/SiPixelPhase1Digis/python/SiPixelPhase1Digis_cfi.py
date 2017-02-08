@@ -103,25 +103,25 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
   ylabel = "#digis",
   dimensions = 0,
   specs = VPSet(
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row/col")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/col")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/row")
+                   .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row/col")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/col")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row")
+                   .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_X")
                    .save(),
     StandardSpecificationOccupancy,
   )
@@ -132,15 +132,15 @@ SiPixelPhase1DigisOccupancy = DefaultHistoReadout.clone(
   title = "Digi Occupancy",
   dimensions = 0,
   specs = VPSet(
-    Specification(PerReadout).groupBy("PXBarrel/FED/LinkInFed")
+    Specification(PerReadout).groupBy("PXBarrel/FED/Channel")
                              .groupBy("PXBarrel/FED", "EXTEND_X").save(),
-    Specification(PerReadout).groupBy("PXBarrel/FED/LinkInFed/RocInLink")
-                             .groupBy("PXBarrel/FED/LinkInFed", "EXTEND_Y")
+    Specification(PerReadout).groupBy("PXBarrel/FED/Channel/RocInLink")
+                             .groupBy("PXBarrel/FED/Channel", "EXTEND_Y")
                              .groupBy("PXBarrel/FED", "EXTEND_X").save(),
-    Specification(PerReadout).groupBy("PXForward/FED/LinkInFed")
+    Specification(PerReadout).groupBy("PXForward/FED/Channel")
                              .groupBy("PXForward/FED", "EXTEND_X").save(),
-    Specification(PerReadout).groupBy("PXForward/FED/LinkInFed/RocInLink")
-                             .groupBy("PXForward/FED/LinkInFed", "EXTEND_Y")
+    Specification(PerReadout).groupBy("PXForward/FED/Channel/RocInLink")
+                             .groupBy("PXForward/FED/Channel", "EXTEND_Y")
                              .groupBy("PXForward/FED", "EXTEND_X").save(),
     Specification(PerReadout).groupBy("PXBarrel/FED")
                              .groupBy("PXBarrel", "EXTEND_X").save(),
