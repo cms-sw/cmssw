@@ -34,7 +34,7 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 #local reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
-from RecoCTPPS.TotemRPLocal.ctppsLocalReconstruction_cff import *
+from RecoCTPPS.Configuration.recoCTPPS_cff import *
 #
 # new tau configuration
 #
@@ -51,12 +51,12 @@ localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+cal
 localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 _ctpps_2016_localreco = localreco.copy()
-_ctpps_2016_localreco += ctppsLocalReconstruction
+_ctpps_2016_localreco += recoCTPPS
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
 _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
-_ctpps_2016_localreco_HcalNZS += ctppsLocalReconstruction
+_ctpps_2016_localreco_HcalNZS += recoCTPPS
 ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
