@@ -34,8 +34,7 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 #local reconstruction
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
-from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_cff import *
-from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_cff import *
+from RecoCTPPS.TotemRPLocal.ctppsLocalReconstruction_cff import *
 #
 # new tau configuration
 #
@@ -52,12 +51,13 @@ localreco = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+cal
 localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 _ctpps_2016_localreco = localreco.copy()
-_ctpps_2016_localreco += totemRPLocalReconstruction+ctppsDiamondLocalReconstruction
-eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+_ctpps_2016_localreco += ctppsLocalReconstruction
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
 _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
-_ctpps_2016_localreco_HcalNZS += totemRPLocalReconstruction+ctppsDiamondLocalReconstruction
-eras.ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
+_ctpps_2016_localreco_HcalNZS += ctppsLocalReconstruction
+ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence

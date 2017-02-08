@@ -4,12 +4,12 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.VeryForwardGeometry.geometryRP_cfi import *
 
 # reco hit production
-from RecoCTPPS.TotemRPLocal.ctppsDiamondRecHitProducer_cfi import ctppsDiamondRecHit
+from RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi import ctppsDiamondRecHits
 
 # local track fitting
-#from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTrackFitter_cfi import ctppsDiamondLocalTrack
+#from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi import ctppsDiamondLocalTracks
 
 ctppsDiamondLocalReconstruction = cms.Sequence(
-    ctppsDiamondRecHit
-    #* totemRPLocalTrackFitter
+    ctppsDiamondRecHits
+    #* ctppsDiamondLocalTracks
 )
