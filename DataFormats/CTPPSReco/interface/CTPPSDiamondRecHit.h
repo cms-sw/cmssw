@@ -21,29 +21,29 @@ class CTPPSDiamondRecHit
       t_( 0. ), tot_( 0. ),
       ts_index_( 0 ), hptdc_err_( 0 )
     {}
-    CTPPSDiamondRecHit( double x, double x_width, double y, double y_width, double t, double tot, int oot_idx, const HPTDCErrorFlags& hptdc_err ) :
+    CTPPSDiamondRecHit( float x, float x_width, float y, float y_width, float t, float tot, int oot_idx, const HPTDCErrorFlags& hptdc_err ) :
       x_( x ), x_width_( x_width ), y_( y ), y_width_( y_width ),
       t_( t ), tot_( tot ),
       ts_index_( oot_idx ), hptdc_err_( hptdc_err )
     {}
 
-    inline void setX( const double& x ) { x_ = x; }
-    inline double getX() const { return x_; }
+    inline void setX( const float& x ) { x_ = x; }
+    inline float getX() const { return x_; }
 
-    inline void setY( const double& y ) { y_ = y; }
-    inline double getY() const { return y_; }
+    inline void setY( const float& y ) { y_ = y; }
+    inline float getY() const { return y_; }
 
-    inline void setXWidth( const double& xwidth ) { x_width_ = xwidth; }
-    inline double getXWidth() const { return x_width_; }
+    inline void setXWidth( const float& xwidth ) { x_width_ = xwidth; }
+    inline float getXWidth() const { return x_width_; }
 
-    inline void setYWidth( const double& ywidth ) { y_width_ = ywidth; }
-    inline double getYWidth() const { return y_width_; }
+    inline void setYWidth( const float& ywidth ) { y_width_ = ywidth; }
+    inline float getYWidth() const { return y_width_; }
 
-    inline void setT( const double& t ) { t_ = t; }
-    inline double getT() const { return t_; }
+    inline void setT( const float& t ) { t_ = t; }
+    inline float getT() const { return t_; }
 
-    inline void setToT( const double& tot ) { tot_ = tot;  }
-    inline double getToT() const { return tot_; }
+    inline void setToT( const float& tot ) { tot_ = tot;  }
+    inline float getToT() const { return tot_; }
 
     inline void setOOTIndex( const int& i ) { ts_index_ = i; }
     inline int getOOTIndex() const { return ts_index_; }
