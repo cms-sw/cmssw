@@ -7,9 +7,9 @@ from Geometry.VeryForwardGeometry.geometryRP_cfi import *
 from RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi import ctppsDiamondRecHits
 
 # local track fitting
-from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTrackFitter_cfi import ctppsDiamondLocalTrack
+from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi import ctppsDiamondLocalTracks
 
 ctppsDiamondLocalReconstruction = cms.Sequence(
     ctppsDiamondRecHits
-    * ctppsDiamondLocalTrack
+    * ctppsDiamondLocalTracks
 )
