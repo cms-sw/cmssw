@@ -10,8 +10,8 @@
 double PI = 3.2;
 int NPI = 64;
 MEbinning phi_binning_{
-  64, -3.2, 3.2
-    };
+  NPI, -PI, PI
+};
 // -----------------------------
 //  constructors and destructor
 // -----------------------------
@@ -90,7 +90,6 @@ void METMonitor::bookME(DQMStore::IBooker &ibooker, METME& me, std::string& hist
   int nbins = binning.size()-1;
   std::vector<float> fbinning(binning.begin(),binning.end());
   float* arr = &fbinning[0];
-  //  std::copy(binning.begin(), binning.end(), arr);
   me.numerator   = ibooker.book1D(histname+"_numerator",   histtitle+" (numerator)",   nbins, arr);
   me.denominator = ibooker.book1D(histname+"_denominator", histtitle+" (denominator)", nbins, arr);
 }
@@ -169,7 +168,8 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::PFJetCollection> jetHandle;
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
-  for ( auto j : *jetHandle ) {
+  if ( int(jetHandle->size()) < njets_ ) return;
+  for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) jets.push_back(j);
   }
   if ( int(jets.size()) < njets_ ) return;
@@ -177,15 +177,17 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  for ( auto e : *eleHandle ) {
+  if ( int(eleHandle->size()) < nelectrons_ ) return;
+  for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
   }
   if ( int(electrons.size()) < nelectrons_ ) return;
   
   edm::Handle<reco::MuonCollection> muoHandle;
   iEvent.getByToken( muoToken_, muoHandle );
+  if ( int(muoHandle->size()) < nmuons_ ) return;
   std::vector<reco::Muon> muons;
-  for ( auto m : *muoHandle ) {
+  for ( auto const & m : *muoHandle ) {
     if ( muoSelection_( m ) ) muons.push_back(m);
   }
   if ( int(muons.size()) < nmuons_ ) return;
