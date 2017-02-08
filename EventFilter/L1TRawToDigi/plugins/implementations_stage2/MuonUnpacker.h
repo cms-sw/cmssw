@@ -11,10 +11,15 @@ namespace l1t {
             ~MuonUnpacker() {};
 
             virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+
             unsigned int getAlgoVersion();
+            int getFedNumber();
+
             void setAlgoVersion(unsigned int version);
+            void setFedNumber(int fed);
          private:
             unsigned int algoVersion_;
+            int fed_;
 
       };
    }
