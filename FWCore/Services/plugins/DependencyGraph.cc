@@ -35,10 +35,11 @@ using namespace edm::service;
 
 class DependencyGraph {
 public:
-  DependencyGraph(const ParameterSet&,ActivityRegistry&);
+  DependencyGraph(const ParameterSet&, ActivityRegistry&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
+  void preSourceConstruction(ModuleDescription const &);
   void preBeginJob(PathsAndConsumesOfModulesBase const &, ProcessContext const &);
   void postBeginJob();
 
@@ -172,6 +173,7 @@ DependencyGraph::DependencyGraph(ParameterSet const & config, ActivityRegistry &
   m_initialized( false ),
   m_showPathDependencies( config.getUntrackedParameter<bool>("showPathDependencies") )
 {
+  registry.watchPreSourceConstruction(this, &DependencyGraph::preSourceConstruction);
   registry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
   registry.watchPostBeginJob(this, &DependencyGraph::postBeginJob);
 }
@@ -196,6 +198,20 @@ iterator_pair_as_a_range<I> make_range(std::pair<I, I> p)
 
 
 void
+DependencyGraph::preSourceConstruction(ModuleDescription const & module) {
+  // create graph vertex for the source module and fill its attributes
+  boost::add_vertex(m_graph);
+  m_graph.m_graph[module.id()] = node{ module.moduleLabel(), module.id(), EDMModuleType::Source, true };
+  auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), 0);
+  attributes["label"] = module.moduleLabel();
+  attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(EDMModuleType::Source)];
+  attributes["style"] = "filled";
+  attributes["color"] = "black";
+  attributes["fillcolor"] = "white";
+}
+
+
+void
 DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsumes, ProcessContext const & context) {
 
   // if the Service is not in the main Process do not do anything
@@ -211,16 +227,6 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
     boost::get_property(m_graph, boost::graph_name) = context.processName();
     boost::get_property(m_graph, boost::graph_graph_attribute)["label"] = "process " + context.processName();
     boost::get_property(m_graph, boost::graph_graph_attribute)["labelloc"] = "top";
-
-    // create graph vertex for the source module and fill its attributes
-    boost::add_vertex(m_graph);
-    m_graph.m_graph[0] = node{ "source", 0, EDMModuleType::Source, true };
-    auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), 0);
-    attributes["label"] = "source";
-    attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(EDMModuleType::Source)];
-    attributes["style"] = "filled";
-    attributes["color"] = "black";
-    attributes["fillcolor"] = "white";
 
     // create graph vertices associated to all modules in the process
     auto size = pathsAndConsumes.allModules().size();
