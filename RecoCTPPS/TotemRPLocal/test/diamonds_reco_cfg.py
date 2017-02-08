@@ -52,7 +52,7 @@ process.ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # rechits production
 process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
-process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHitProducer_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:AOD.root"),
@@ -65,7 +65,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # execution configuration
 process.p = cms.Path(
     process.ctppsDiamondRawToDigi *
-    process.ctppsDiamondRecHit
+    process.ctppsDiamondRecHits
 )
 
 process.outpath = cms.EndPath(process.output) 
