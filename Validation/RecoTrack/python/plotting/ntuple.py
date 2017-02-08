@@ -630,10 +630,7 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
 
     return diff
 
-
 def _formatHitDiffForTwiki(diffHits, prefix):
-    #line_re = re.compile("(?P<sign>[\+- ])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)")
-    #line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(?P<missing>inactive)?")
     line_re = re.compile("(?P<sign>[ \-+])\s+(?P<det>[a-zA-Z]+)(?P<lay>\d+)\D*?(\((?P<missing>missing|inactive)\))?\s+\d+")
 
     summary = []
@@ -641,12 +638,21 @@ def _formatHitDiffForTwiki(diffHits, prefix):
     prevsign = " "
     diffLines = diffHits.lines()
 
-    # skip header
+    # skip anything before the first line with "hits"
     for line in diffLines:
         if "hits" in line:
             break
 
+    header = True
     for line in diffLines:
+        # skip multiple occurrances of "hits" line, but only until
+        # first line without "hits" is encountered
+        if header:
+            if "hits" in line:
+                continue
+            else:
+                header = False
+
         m = line_re.search(line)
         if not m:
             break
@@ -707,6 +713,24 @@ def _formatHitDiffForTwiki(diffHits, prefix):
     return ["?"+prefix+line]
 
 # Common detailed printout helpers
+def _hitPatternSummary(hits):
+    summary = ""
+
+    prevdet = 0
+    for hit in hits:
+        det = hit.det()
+        lay = hit.lay()
+
+        if det != prevdet:
+            summary += " "+SubDet.toString(det)
+            prevdet = det
+
+        summary += str(lay)
+        if isinstance(hit, InvalidHit):
+            summary += "(%s)"%InvalidHit.Type.toString(hit.type())[0]
+
+    return summary
+
 class _RecHitPrinter(object):
     def __init__(self, indent=0):
         self._prefix = " "*indent
@@ -754,7 +778,7 @@ class SeedPrinter(_RecHitPrinter):
     def __init__(self, *args, **kwargs):
         super(SeedPrinter, self).__init__(*args, **kwargs)
 
-    def printSeed(self, seed):
+    def printHeader(self, seed):
         lst = []
         track = seed.track()
         madeTrack = "did not make a track"
@@ -763,11 +787,22 @@ class SeedPrinter(_RecHitPrinter):
 
         lst.append(self._prefix+"Seed %d algo %s %s" % (seed.indexWithinAlgo(), Algo.toString(seed.algo()), madeTrack))
         lst.append(self._prefix+" starting state: pT %f local pos x,y %f,%f mom x,y,z %f,%f,%f" % (seed.statePt(), seed.stateTrajX(), seed.stateTrajY(), seed.stateTrajPx(), seed.stateTrajPy(), seed.stateTrajPz()))
-        lst.append(self._prefix+" hits")
+        return lst
+
+    def printHits(self, seed):
+        lst = []
+        lst.append(self._prefix+" hits"+_hitPatternSummary(seed.hits()))
         self.indent(2)
         lst.extend(self._printHits(seed.hits()))
         self.restoreIndent()
         return lst
+
+    def printSeed(self, seed):
+        lst = []
+        lst.extend(self.printHeader(seed))
+        lst.extend(self.printHits(seed))
+        return lst
+
 
     def __call__(self, seed, out=sys.stdout):
         if isinstance(out, list):
@@ -781,6 +816,20 @@ class SeedPrinter(_RecHitPrinter):
             for line in lst:
                 out.write(line),
                 out.write("\n")
+
+    def diff(self, seed1, seed2, diffForTwiki=False):
+        if seed1 is None:
+            return _makediff([], self.printSeed(seed2))
+        if seed2 is None:
+            return _makediff(self.printSeed(seed1), [])
+
+        ret = _DiffResult()
+        ret.extend(_mapdiff(self.printHeader, seed1, seed2))
+        diffHits = _mapdiff(self.printHits, seed1, seed2)
+        ret.extend(diffHits)
+        if diffForTwiki:
+            ret.extend(_formatHitDiffForTwiki(diffHits, self._prefix))
+        return ret
 
 class TrackPrinter(_RecHitPrinter):
     def __init__(self, indent=0, hits=True, seedPrinter=SeedPrinter(), trackingParticles=True, trackingParticlePrinter=None, bestMatchingTrackingParticle=True, diffForTwiki=False):
@@ -821,7 +870,7 @@ class TrackPrinter(_RecHitPrinter):
     def printHits(self, track):
         lst = []
         if self._hits:
-            lst.append(self._prefix+" hits")
+            lst.append(self._prefix+" hits"+_hitPatternSummary(track.hits()))
             self.indent(2)
             lst.extend(self._printHits(track.hits()))
             self.restoreIndent()
@@ -839,10 +888,7 @@ class TrackPrinter(_RecHitPrinter):
         ret = _DiffResult()
         if self._seedPrinter:
             self._seedPrinter.setIndentFrom(self, adjust=1)
-            diffSeed = _makediff(self._seedPrinter.printSeed(track1.seed()), self._seedPrinter.printSeed(track2.seed()))
-            ret.extend(diffSeed)
-            if self._diffForTwiki and diffSeed.hasDifference():
-                ret.extend(_formatHitDiffForTwiki(diffSeed, self._prefix+" "))
+            ret.extend(self._seedPrinter.diff(track1.seed(), track2.seed(), self._diffForTwiki))
             self._seedPrinter.restoreIndent()
         return ret
 
@@ -997,7 +1043,7 @@ class TrackingParticlePrinter:
     def printHits(self, tp):
         lst = []
         if self._hits:
-            lst.append(self._prefix+" sim hits")
+            lst.append(self._prefix+" sim hits"+_hitPatternSummary(tp.simHits()))
             for simhit in tp.simHits():
                 detId = parseDetId(simhit.detId())
                 tmp = []
@@ -1804,20 +1850,13 @@ class GluedHits(_Collection):
 ##########
 class InvalidHit(_Object):
     # repeating TrackingRecHit::Type
-    class Type:
-        missing = 1
-        inactive = 2
-        bad = 3
-        missing_inner = 4
+    Type = _Enum(
+        missing = 1,
+        inactive = 2,
+        bad = 3,
+        missing_inner = 4,
         missing_outer = 5
-
-        _toString = {
-            missing: "missing",
-            inactive: "inactive",
-            bad: "bad",
-            missing_inner: "missing_inner",
-            missing_outer: "missing_outer",
-        }
+    )
 
     """Class representing an invalid hit."""
     def __init__(self, tree, index):
@@ -1836,7 +1875,7 @@ class InvalidHit(_Object):
         """Returns a string describing the layer of the hit."""
         det = self._tree.inv_det[self._index]
         invalid_type = self._tree.inv_type[self._index]
-        return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type._toString[invalid_type])
+        return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type.toString(invalid_type))
 
 ##########
 class Phase2OTHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
