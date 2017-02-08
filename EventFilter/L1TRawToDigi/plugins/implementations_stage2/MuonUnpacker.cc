@@ -67,10 +67,22 @@ namespace l1t {
         return algoVersion_;
       }
 
+      int
+      MuonUnpacker::getFedNumber()
+      {
+        return fed_;
+      }
+
       void
       MuonUnpacker::setAlgoVersion(unsigned int version)
       {
         algoVersion_ = version;
+      }
+
+      void
+      MuonUnpacker::setFedNumber(int fed)
+      {
+        fed_ = fed;
       }
    }
 }

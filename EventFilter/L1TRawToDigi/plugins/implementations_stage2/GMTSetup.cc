@@ -75,6 +75,7 @@ namespace l1t {
          auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
 
          gmt_out_unp->setAlgoVersion(fw);
+         gmt_out_unp->setFedNumber(fed);
 
          // input muons
          for (int iLink = 72; iLink < 144; iLink += 2)
