@@ -21,7 +21,6 @@
 #include <map>
 #include <vector>
 #include <functional>
-
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/traits.h"
