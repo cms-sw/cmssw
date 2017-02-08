@@ -24,15 +24,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 class TrackFromPVSelector : public edm::EDProducer {
 public:
-  // construction/destruction
-  TrackFromPVSelector(const edm::ParameterSet& iConfig);
-  virtual ~TrackFromPVSelector();
 
-  // member functions
+  explicit TrackFromPVSelector(const edm::ParameterSet& iConfig);
+
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
 
 private:
-  // member data
+
   double max_dxy_;
   double max_dz_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
@@ -54,10 +52,6 @@ TrackFromPVSelector::TrackFromPVSelector(const edm::ParameterSet& iConfig)
 {
   produces<std::vector<reco::Track>>();
 }
-
-
-//______________________________________________________________________________
-TrackFromPVSelector::~TrackFromPVSelector(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
