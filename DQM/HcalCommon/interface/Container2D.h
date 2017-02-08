@@ -40,7 +40,8 @@ namespace hcaldqm
 				hashfunctions::HashType, Quantity*, Quantity*,
 				Quantity *qz = new ValueQuantity(quantity::fN),
 				int debug=0);
-
+ 			using Container::initialize;
+ 			using Container1D::initialize;
 			//	redeclare what to override
 			virtual void fill(HcalDetId const&) override ;
 			virtual void fill(HcalDetId const&, int) override;

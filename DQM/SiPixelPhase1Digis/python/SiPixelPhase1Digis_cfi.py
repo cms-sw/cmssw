@@ -12,7 +12,9 @@ SiPixelPhase1DigisADC = DefaultHistoDigiCluster.clone(
   range_nbins = 300,
   specs = VPSet(
     StandardSpecificationTrend,
-    StandardSpecification2DProfile,
+    StandardSpecificationTrend2D,
+    StandardSpecificationPixelmapProfile,# ROC level map
+    #StandardSpecification2DProfile, # module level map
     StandardSpecifications1D
   )
 )
@@ -32,6 +34,19 @@ SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
   )
 )
 
+
+SiPixelPhase1ClustersNdigisInclusive = DefaultHistoDigiCluster.clone(
+  name = "digis",
+  title = "Digis",
+  range_min = 0, range_max = 2000, range_nbins = 200,
+  xlabel = "digis",
+  dimensions = 0,
+  specs = VPSet(
+    StandardSpecificationInclusive_Num
+  )
+)
+
+
 SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   name = "feddigis", # This is the same as above up to the ranges. maybe we 
   title = "Digis",   # should allow setting the range per spec, but OTOH a 
@@ -41,9 +56,7 @@ SiPixelPhase1DigisNdigisPerFED = DefaultHisto.clone( #to be removed?
   range_nbins = 200,
   dimensions = 0, 
   specs = VPSet(
-    # the double "FED" here is due to a "bug", caused by how the specs are
-    # translated for step1. Interpret as "count by FED, extend by FED".
-    Specification().groupBy("FED/FED/Event")
+    Specification().groupBy("FED/Event")
                    .reduce("COUNT")
                    .groupBy("FED")
                    .groupBy("", "EXTEND_Y")
@@ -67,12 +80,10 @@ SiPixelPhase1DigisNdigisPerFEDtrend = DefaultHisto.clone(
                    .groupBy("Lumisection", "EXTEND_Y")
                    .groupBy("", "EXTEND_X")
                    .save()
-                   .custom("ratio_to_average")
-                   .save()
   )
 )
 
-SiPixelPhase1DigisEvents = DefaultHisto.clone(
+SiPixelPhase1DigisEvents = DefaultHistoDigiCluster.clone(
   name = "eventrate",
   title = "Rate of Pixel Events",
   xlabel = "Lumisection",
@@ -87,32 +98,54 @@ SiPixelPhase1DigisEvents = DefaultHisto.clone(
 )
 
 SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
-  name = "hitmap",
-  title = "Position of digis on module",
+  name = "digi_occupancy",
+  title = "Digi Occupancy",
   ylabel = "#digis",
   dimensions = 0,
   specs = VPSet(
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/row/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row/col")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/col")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/col")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/row")
-                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName", "EXTEND_X")
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName/row")
+                   .groupBy("PXBarrel/Shell/PXLayer/PXLadder/PXModuleName", "EXTEND_X")
                    .save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row/col")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row", "EXTEND_Y")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
+                   .save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/col")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
+                   .save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName/row")
+                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/PXModuleName", "EXTEND_X")
+                   .save(),
+    StandardSpecificationOccupancy,
+  )
+)
 
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/row/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/row", "EXTEND_Y")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName", "EXTEND_X")
-                   .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/col")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName", "EXTEND_X")
-                   .save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/row")
-                   .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName", "EXTEND_X")
-                   .save()
+SiPixelPhase1DigisOccupancy = DefaultHistoReadout.clone(
+  name = "occupancy",
+  title = "Digi Occupancy",
+  dimensions = 0,
+  specs = VPSet(
+    Specification(PerReadout).groupBy("PXBarrel/FED/LinkInFed")
+                             .groupBy("PXBarrel/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXBarrel/FED/LinkInFed/RocInLink")
+                             .groupBy("PXBarrel/FED/LinkInFed", "EXTEND_Y")
+                             .groupBy("PXBarrel/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/FED/LinkInFed")
+                             .groupBy("PXForward/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/FED/LinkInFed/RocInLink")
+                             .groupBy("PXForward/FED/LinkInFed", "EXTEND_Y")
+                             .groupBy("PXForward/FED", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXBarrel/FED")
+                             .groupBy("PXBarrel", "EXTEND_X").save(),
+    Specification(PerReadout).groupBy("PXForward/FED")
+                             .groupBy("PXForward", "EXTEND_X").save(),
 
   )
 )
@@ -121,10 +154,12 @@ SiPixelPhase1DigisHitmap = DefaultHistoDigiCluster.clone(
 SiPixelPhase1DigisConf = cms.VPSet(
   SiPixelPhase1DigisADC,
   SiPixelPhase1DigisNdigis,
+  SiPixelPhase1ClustersNdigisInclusive,
   SiPixelPhase1DigisNdigisPerFED,
   SiPixelPhase1DigisNdigisPerFEDtrend,
   SiPixelPhase1DigisEvents,
   SiPixelPhase1DigisHitmap,
+  SiPixelPhase1DigisOccupancy,
 )
 
 SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
@@ -133,7 +168,7 @@ SiPixelPhase1DigisAnalyzer = cms.EDAnalyzer("SiPixelPhase1Digis",
         geometry = SiPixelPhase1Geometry
 )
 
-SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1DigisHarvester",
+SiPixelPhase1DigisHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1DigisConf,
         geometry = SiPixelPhase1Geometry
 )

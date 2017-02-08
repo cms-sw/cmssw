@@ -52,7 +52,7 @@ import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cf
 lowPtQuadStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets = "lowPtQuadStepHitDoublets",
     produceIntermediateHitTriplets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 )
 from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
 lowPtQuadStepHitQuadruplets = _pixelQuadrupletEDProducer.clone(

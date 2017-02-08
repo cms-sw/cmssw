@@ -7,7 +7,7 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
     InnerPixelDigiSource   = cms.InputTag("simSiPixelDigis","Pixel"),
     OuterTrackerDigiSource = cms.InputTag("mix", "Tracker"),
     GeometryType = cms.string('idealForDigi'),
-    NumbeOfDigisH = cms.PSet(
+    NumberOfDigisPerDetH = cms.PSet(
            Nbins = cms.int32(200),
            xmin = cms.double(-0.5),
            xmax = cms.double(200.5)
@@ -36,19 +36,19 @@ digiMon = cms.EDAnalyzer("Phase2TrackerMonitorDigi",
       xmax   = cms.double(260.5)
     ), 
     TotalNumberOfDigisPerLayerH = cms.PSet(
-      Nbins = cms.int32(1000),
-      xmin   = cms.double(-0.5),
-      xmax   = cms.double(999.5)
+      Nbins = cms.int32(100),
+      xmin   = cms.double(0.0),
+      xmax   = cms.double(50000.0)
     ),
     NumberOfHitDetsPerLayerH = cms.PSet(
-      Nbins = cms.int32(200),
+      Nbins = cms.int32(2000),
       xmin   = cms.double(-0.5),
-      xmax   = cms.double(199.5)
+      xmax   = cms.double(2000.5)
     ),
-    NumberOfClustersH = cms.PSet(
-           Nbins = cms.int32(51),
+    NumberOfClustersPerDetH = cms.PSet(
+           Nbins = cms.int32(200),
            xmin = cms.double(-0.5),
-           xmax = cms.double(50.5)
+           xmax = cms.double(200.5)
     ),
     ClusterWidthH = cms.PSet(
            Nbins = cms.int32(16),

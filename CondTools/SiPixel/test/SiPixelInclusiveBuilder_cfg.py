@@ -169,7 +169,7 @@ print '\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTe
 process.TemplateUploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
                                           siPixelTemplateCalibrations = files_to_upload,
                                           theTemplateBaseString = cms.string(template_base),
-                                          Version = cms.double("3.0"),
+                                          Version = cms.double(3.0),
                                           MagField = cms.double(MagFieldValue),
                                           detIds = theDetIds,
                                           templateIds = theTemplateIds

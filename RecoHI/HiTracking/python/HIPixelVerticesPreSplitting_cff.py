@@ -8,11 +8,22 @@ hiProtoTrackFilterPreSplitting = hiProtoTrackFilter.clone(
     siPixelRecHits = "siPixelRecHitsPreSplitting"
 )
 
-hiPixel3ProtoTracksPreSplitting = hiPixel3ProtoTracks.clone()
-hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.siPixelRecHits = cms.InputTag( "siPixelRecHitsPreSplitting" )
-hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.VertexCollection = cms.InputTag( "hiPixelClusterVertexPreSplitting" )
-hiPixel3ProtoTracksPreSplitting.Filter = "hiProtoTrackFilterPreSplitting"
-hiPixel3ProtoTracksPreSplitting.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag( "PixelLayerTripletsPreSplitting" )
+hiPixel3ProtoTracksTrackingRegionsPreSplitting = hiTrackingRegionFromClusterVtx.clone(RegionPSet=dict(
+    siPixelRecHits = "siPixelRecHitsPreSplitting",
+    VertexCollection = "hiPixelClusterVertexPreSplitting"
+))
+hiPixel3PRotoTracksHitDoubletsPreSplitting = hiPixel3ProtoTracksHitDoublets.clone(
+    seedingLayers = "PixelLayerTripletsPreSplitting",
+    trackingRegions = "hiPixel3ProtoTracksTrackingRegionsPreSplitting",
+)
+hiPixel3ProtoTracksHitTripletsPreSplitting = hiPixel3ProtoTracksHitTriplets.clone(
+    doublets = "hiPixel3PRotoTracksHitDoubletsPreSplitting"
+)
+
+hiPixel3ProtoTracksPreSplitting = hiPixel3ProtoTracks.clone(
+    SeedingHitSets = "hiPixel3ProtoTracksHitTripletsPreSplitting",
+    Filter = "hiProtoTrackFilterPreSplitting",
+)
 
 hiPixelMedianVertexPreSplitting = hiPixelMedianVertex.clone( TrackCollection = cms.InputTag('hiPixel3ProtoTracksPreSplitting') )
 hiSelectedProtoTracksPreSplitting = hiSelectedProtoTracks.clone(
@@ -35,6 +46,9 @@ PixelLayerTripletsPreSplitting.BPix.HitProducer = 'siPixelRecHitsPreSplitting'
 
 hiPixelVerticesPreSplitting = cms.Sequence(hiPixelClusterVertexPreSplitting
                                 * PixelLayerTripletsPreSplitting
+                                * hiPixel3ProtoTracksTrackingRegionsPreSplitting
+                                * hiPixel3PRotoTracksHitDoubletsPreSplitting
+                                * hiPixel3ProtoTracksHitTripletsPreSplitting
                                 * hiProtoTrackFilterPreSplitting
                                 * pixelFitterByHelixProjections
                                 * hiPixel3ProtoTracksPreSplitting

@@ -6,7 +6,7 @@ FTLUncalibratedRecHit::FTLUncalibratedRecHit() :
   amplitude_(-1.f), time_(-1.f), timeError_(-1.f), id_(DetId()), flags_(std::numeric_limits<unsigned char>::max()) { }
 
 FTLUncalibratedRecHit::FTLUncalibratedRecHit(const DetId& id, float ampl, float time, float timeError, unsigned char flags) :
-  amplitude_(ampl), time_(time), id_(id), flags_(flags) { }
+  amplitude_(ampl), time_(time), timeError_(timeError), id_(id), flags_(flags) { }
 
 FTLUncalibratedRecHit::~FTLUncalibratedRecHit() {
 }

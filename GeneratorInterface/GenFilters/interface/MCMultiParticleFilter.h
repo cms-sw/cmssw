@@ -30,6 +30,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
 //
 // class declaration
@@ -47,6 +50,7 @@ class MCMultiParticleFilter : public edm::EDFilter {
   // ----------member data ---------------------------
   
   edm::InputTag src_;              // input tag
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   int numRequired_;                // number of particles required to pass filter
   bool acceptMore_;                // if true (default), accept numRequired or more.
                                    // if false, accept events with exactly equal to numRequired.

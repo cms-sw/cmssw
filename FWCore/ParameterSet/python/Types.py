@@ -101,11 +101,7 @@ class uint64(_SimpleParameterTypeBase):
 class double(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        try:
-            tmp = float(value)
-            return True
-        except:
-            return False
+        return isinstance(value, (int, long, float))
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
@@ -1523,5 +1519,44 @@ if __name__ == "__main__":
             self.assertEqual(v[0].a,convert.pset.v[0].a)
             self.assertEqual(v[1].b,convert.pset.v[1].b)
             self.assertEqual(v[1].p.a, convert.pset.v[1].p.a)
+
+    class testInequalities(unittest.TestCase):
+        def testnumbers(self):
+            self.assertGreater(int32(5), int32(-1))
+            self.assertGreater(int64(100), 99)
+            self.assertLess(3, uint32(4))
+            self.assertLess(6.999999999, uint64(7))
+            self.assertLessEqual(-5, int32(-5))
+            self.assertLessEqual(int32(-5), uint32(1))
+            self.assertGreaterEqual(double(5.3), uint32(5))
+            self.assertGreater(double(5.3), uint64(5))
+            self.assertGreater(double(5.3), uint64(5))
+            self.assertGreater(6, double(5))
+            self.assertLess(uint64(0xFFFFFFFFFFFFFFFF), 0xFFFFFFFFFFFFFFFF+1)
+            self.assertEqual(double(5.0), double(5))
+        def teststring(self):
+            self.assertGreater(string("I am a string"), "I am a strinf")
+            self.assertGreaterEqual("I am a string", string("I am a string"))
+            self.assertLess(5, string("I am a string"))
+        def testincompatibletypes(self):
+            import sys
+            if sys.version_info < (3, 0): #python 2, comparing incompatible types compares the class name
+                self.assertLess(double(3), "I am a string")
+                self.assertLess(3, string("I am a string"))
+                self.assertLess(double(5), "4")
+            else:                         #python 3, comparing incompatible types fails
+                with self.assertRaises(TypeError):
+                    double(3) < "I am a string"
+                with self.assertRaises(TypeError):
+                    3 < string("I am a string")
+        def testinfinity(self):
+            self.assertLess(1e99, double(float("inf")))
+            self.assertLess(double(1e99), float("inf"))
+            self.assertGreater(1e99, double(float("-inf")))
+            self.assertEqual(double(float("inf")), float("inf"))
+        def testnan(self):
+            nan = double(float("nan"))
+            self.assertNotEqual(nan, nan)
+            self.assertFalse(nan > 3 or nan < 3 or nan == 3)
 
     unittest.main()

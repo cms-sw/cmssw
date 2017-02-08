@@ -131,6 +131,8 @@ class GeometryInterface {
   // edm::ParameterSet& iConfig);
   void loadFromTopology(edm::EventSetup const& iSetup,
                         const edm::ParameterSet& iConfig);
+  void loadFromSiPixelCoordinates(edm::EventSetup const& iSetup,
+                        const edm::ParameterSet& iConfig);
   void loadTimebased(edm::EventSetup const& iSetup,
                      const edm::ParameterSet& iConfig);
   void loadModuleLevel(edm::EventSetup const& iSetup,

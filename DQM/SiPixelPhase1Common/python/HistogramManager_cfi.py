@@ -3,12 +3,13 @@ import FWCore.ParameterSet.Config as cms
 from DQM.SiPixelPhase1Common.SpecificationBuilder_cfi import Specification, parent
 
 SiPixelPhase1Geometry = cms.PSet(
-  # Blades are numbered from 1 to n_inner_ring_blades for the inner ring, and 
-  # from n_inner_ring_blades+1 to <max_blade> for the outer ring
-  n_inner_ring_blades = cms.int32(22), 
+  # SPixel*Name and friends use the isUpgrade flag, so we also have it as a setting here.
+  upgradePhase = cms.int32(1),
 
   # module geometry. The phase1 detector has only one sort, so this is easy.
   # the values are assumed to be 0-based, unlike most others.
+  # TODO: maybe we can use the SiPixelFrameReverter and friends to do these
+  # conversions without these parameters here.
   module_rows = cms.int32(160),
   module_cols = cms.int32(416),
   roc_rows = cms.int32(80),
@@ -22,7 +23,7 @@ SiPixelPhase1Geometry = cms.PSet(
   # to select a different cabling map (for pilotBlade)
   CablingMapLabel = cms.string(""),
 
-  # online-secific things
+  # online-specific things
   onlineblock = cms.int32(20),    # #LS after which histograms are reset
   n_onlineblocks = cms.int32(100),  # #blocks to keep for histograms with history
 
@@ -35,7 +36,7 @@ PerModule = cms.PSet(enabled = cms.bool(True)) # normal histos per module
 PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
-PerLumisection = cms.PSet(enabled = cms.bool(True)) # trend profiles
+PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
 
 # Default histogram configuration. This is _not_ used automatically, but you 
 # can import and pass this (or clones of it) in the plugin config.
@@ -100,26 +101,44 @@ DefaultHistoSummary.topFolderName= cms.string("PixelPhase1/Summary")
 DefaultHistoTrack=DefaultHisto.clone()
 DefaultHistoTrack.topFolderName= cms.string("PixelPhase1/Tracks")
 
+DefaultHistoReadout=DefaultHisto.clone()
+DefaultHistoReadout.topFolderName= cms.string("PixelPhase1/FED/Readout")
+
 # Commonly used specifications. 
 StandardSpecifications1D = [
     # The column names are either defined in the GeometryInterface.cc or read from TrackerTopology.
     # Endcap names side by side. The "/" separates columns and also defines how the output folders are nested.
 
     # per-ladder and profiles
-    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder")
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder")
                             .save()
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer", "EXTEND_X")
-                            .saveAll(),
-    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade")
+                            .save(),                         
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade")
                             .save()
                             .reduce("MEAN")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing", "EXTEND_X")
-                            .saveAll(),
+                            .save()
+                            .groupBy("PXForward/HalfCylinder/PXDisk/", "EXTEND_X")
+                            .save(),
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
     Specification(PerLayer1D).groupBy("PXBarrel/Shell/PXLayer").save(),
     Specification(PerLayer1D).groupBy("PXForward/HalfCylinder/PXDisk/PXRing").save(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName").save(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName").save(),
+
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName").save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName").save(),
+
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXPanel")
+                            .reduce("MEAN")
+                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade","EXTEND_X")
+                            .save(),
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule")
+                            .reduce("MEAN")
+                            .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
+                            .save(),    
+
 ]
 
 StandardSpecificationTrend = [
@@ -130,57 +149,139 @@ StandardSpecificationTrend = [
     Specification().groupBy("PXForward/Lumisection")
                    .reduce("MEAN") 
                    .groupBy("PXForward", "EXTEND_X")
-                   .save(),
+                   .save()
 ]
 
+StandardSpecificationTrend2D = [
+    Specification().groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save()
+]
 
 StandardSpecification2DProfile = [
     Specification(PerLayer2D)
-       .groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule")
+       .groupBy("PXBarrel/PXLayer/SignedLadder", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
        .reduce("MEAN")
-       .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
+       .save(),
+    Specification(PerLayer2D)
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
+       .groupBy("PXForward/PXRing", "EXTEND_Y")
+       .reduce("MEAN")
+       .save(),
+]
+
+StandardSpecificationPixelmapProfile = [#produces pixel map with the mean (TProfile)
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
+       .reduce("MEAN")
+       .save(),
+    Specification(PerLayer2D)
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
+       .groupBy("PXForward/PXRing", "EXTEND_Y")
+       .reduce("MEAN")
+       .save(),
+]
+
+StandardSpecificationOccupancy = [ #this produces pixel maps with counting
+    Specification(PerLayer2D)
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord/SignedModuleCoord")
+       .groupBy("PXBarrel/PXLayer/SignedLadderCoord", "EXTEND_X")
        .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
        .save(),
     Specification(PerLayer2D)
-       .groupBy("PXForward/PXDisk/PXBlade/PXPanel")
-       .reduce("MEAN")
-       .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
-       .groupBy("PXForward/PXDisk", "EXTEND_Y")
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord/SignedDiskCoord")
+       .groupBy("PXForward/PXRing/SignedBladePanelCoord", "EXTEND_X")
+       .groupBy("PXForward/PXRing", "EXTEND_Y")
        .save(),
 ]
 
 # the same for NDigis and friends. Needed due to technical limitations...
 StandardSpecifications1D_Num = [
-    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/PXLadder/DetId/Event") 
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/DetId/Event") 
                             .reduce("COUNT") # per-event counting
-                            .groupBy("PXBarrel/Shell/PXLayer/PXLadder").save()
+                            .groupBy("PXBarrel/Shell/PXLayer/SignedLadder").save()
                             .reduce("MEAN")
                             .groupBy("PXBarrel/Shell/PXLayer", "EXTEND_X")
-                            .saveAll(),
-    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName/Event")
-                            .reduce("COUNT")
-                            .groupBy("PXBarrel/Shell/PXLayer/PXLadder/P1PXModuleName")
                             .save(),
-    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/DetId/Event") 
+    Specification(PerModule).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName/Event")
+                            .reduce("COUNT")
+                            .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXModuleName")
+                            .save(),
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/DetId/Event") 
                             .reduce("COUNT") # per-event counting
-                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade").save()
+                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade").save()
                             .reduce("MEAN")
                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing", "EXTEND_X")
-                            .saveAll(),
-    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName/Event")
-                            .reduce("COUNT")
-                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/PXBlade/P1PXModuleName")
+                            .save()
+                            .groupBy("PXForward/HalfCylinder/PXDisk/", "EXTEND_X")
                             .save(),
+    Specification(PerModule).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName/Event")
+                            .reduce("COUNT")
+                            .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXModuleName")
+                            .save(),
+
+    Specification(PerLadder).groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXPanel/Event")
+                             .reduce("COUNT")
+                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade/PXPanel")
+                             .reduce("MEAN")
+                             .groupBy("PXForward/HalfCylinder/PXDisk/PXRing/SignedBlade","EXTEND_X")
+                             .save(),
+    Specification(PerLadder).groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule/Event")
+                             .reduce("COUNT")
+                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder/PXBModule")
+                             .reduce("MEAN")
+                             .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
+                             .save()
+]
+
+
+StandardSpecificationInclusive_Num = [#to count inclusively objects in substructures (BPix, FPix)
+    Specification().groupBy("PXBarrel/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel")
+                   .save(),
+    Specification().groupBy("PXForward/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward")
+                   .save()
 ]
 
 StandardSpecificationTrend_Num = [
-    Specification().groupBy("PXBarrel/Lumisection/PXLayer/Event")
+
+    Specification().groupBy("PXBarrel/PXLayer/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXBarrel/PXLayer/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXBarrel/PXLayer","EXTEND_X")
+                   .groupBy("PXBarrel", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXBarrel/PXLayer/Event")
                    .reduce("COUNT")
                    .groupBy("PXBarrel/Lumisection")
                    .reduce("MEAN")
                    .groupBy("PXBarrel", "EXTEND_X")
                    .save(),
-    Specification().groupBy("PXForward/Lumisection/PXDisk/Event")
+    Specification().groupBy("PXForward/PXDisk/Event")
+                   .reduce("COUNT")
+                   .groupBy("PXForward/PXDisk/Lumisection")
+                   .reduce("MEAN") 
+                   .groupBy("PXForward/PXDisk","EXTEND_X")
+                   .groupBy("PXForward", "EXTEND_Y")
+                   .save(),
+    Specification().groupBy("PXForward/PXDisk/Event")
                    .reduce("COUNT")
                    .groupBy("PXForward/Lumisection")
                    .reduce("MEAN")
@@ -191,20 +292,20 @@ StandardSpecificationTrend_Num = [
 
 StandardSpecification2DProfile_Num = [
     Specification(PerLayer2D)
-       .groupBy("PXBarrel/PXLayer/signedLadder/signedModule" + "/DetId/Event")
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule" + "/DetId/Event")
        .reduce("COUNT")
-       .groupBy("PXBarrel/PXLayer/signedLadder/signedModule")
+       .groupBy("PXBarrel/PXLayer/SignedLadder/SignedModule")
        .reduce("MEAN") 
-       .groupBy("PXBarrel/PXLayer/signedLadder", "EXTEND_X")
+       .groupBy("PXBarrel/PXLayer/SignedLadder", "EXTEND_X")
        .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
        .save(),
     Specification(PerLayer2D)
-       .groupBy("PXForward/PXDisk/PXBlade/PXPanel" + "/DetId/Event")
+       .groupBy("DetId/Event")
        .reduce("COUNT")
-       .groupBy("PXForward/PXDisk/PXBlade/PXPanel")
-       .reduce("MEAN") 
-       .groupBy("PXForward/PXDisk/PXBlade", "EXTEND_X")
-       .groupBy("PXForward/PXDisk", "EXTEND_Y")
+       .groupBy("PXForward/PXRing/PXDisk/SignedBladePanel")
+       .reduce("MEAN")
+       .groupBy("PXForward/PXRing/PXDisk", "EXTEND_Y")
+       .groupBy("PXForward/PXRing", "EXTEND_X")
        .save(),
 ]
 

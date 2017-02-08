@@ -27,8 +27,8 @@ SiPixelPhase1TrackClustersOnTrackSize = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
-  name = "clusters",
-  title = "Clusters",
+  name = "clusters_ontrack",
+  title = "Clusters_onTrack",
   range_min = 0, range_max = 10, range_nbins = 10,
   xlabel = "clusters",
   dimensions = 0,
@@ -41,12 +41,14 @@ SiPixelPhase1TrackClustersOnTrackNClusters = DefaultHistoTrack.clone(
                    .reduce("COUNT") 
                    .groupBy("PXForward/PXDisk")
                    .saveAll(),
+    StandardSpecificationInclusive_Num,
+    StandardSpecificationTrend_Num
   )
 )
 
 SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHistoTrack.clone(
-  name = "clusterposition_zphi",
-  title = "Cluster Positions",
+  name = "clusterposition_zphi_ontrack",
+  title = "Cluster_onTrack Positions",
   range_min   =  -60, range_max   =  60, range_nbins   = 600,
   range_y_min = -3.2, range_y_max = 3.2, range_y_nbins = 200,
   xlabel = "Global Z", ylabel = "Global \phi",
@@ -58,8 +60,8 @@ SiPixelPhase1TrackClustersOnTrackPositionB = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1TrackClustersOnTrackPositionF = DefaultHistoTrack.clone(
-  name = "clusterposition_xy",
-  title = "Cluster Positions",
+  name = "clusterposition_xy_ontrack",
+  title = "Cluster_onTrack Positions",
   xlabel = "Global X", ylabel = "Global Y",
   range_min   = -20, range_max   = 20, range_nbins   = 200,
   range_y_min = -20, range_y_max = 20, range_y_nbins = 200,
@@ -132,7 +134,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
 
 SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
         clusters = cms.InputTag("siPixelClusters"),
-        trajectories = cms.InputTag("generalTracks"),
+        tracks = cms.InputTag("generalTracks"),
         histograms = SiPixelPhase1TrackClustersConf,
         geometry = SiPixelPhase1Geometry
 )

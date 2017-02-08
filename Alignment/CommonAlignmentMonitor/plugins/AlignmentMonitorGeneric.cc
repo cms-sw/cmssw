@@ -22,6 +22,10 @@ void AlignmentMonitorGeneric::book()
   residNames.push_back("y hit residuals pos track");
   residNames.push_back("y hit residuals neg track");
 
+
+  auto alignableObjectId =
+    AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
+
   const std::vector<Alignable*>& alignables = pStore()->alignables();
 
   unsigned int nAlignable = alignables.size();
@@ -43,12 +47,12 @@ void AlignmentMonitorGeneric::book()
       const std::string& name = residNames[n];
 
       TString histName(name.c_str());
-      histName += Form("_%s_%d", AlignableObjectId::idToString(type), id);
+      histName += Form("_%s_%d", alignableObjectId.idToString(type), id);
       histName.ReplaceAll(" ", "");
 
       TString histTitle(name.c_str());
       histTitle += Form(" for %s with ID %d (subdet %d)",
-			AlignableObjectId::idToString(type),
+			alignableObjectId.idToString(type),
 			id, DetId(id).subdetId());
 
       hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName), std::string(histTitle), nBin_, -5., 5.);

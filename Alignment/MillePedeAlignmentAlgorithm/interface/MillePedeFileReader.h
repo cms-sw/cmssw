@@ -8,75 +8,103 @@
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+/*** Alignment ***/
+#include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
+
 
 class MillePedeFileReader {
 
   //========================== PUBLIC METHODS ==================================
   public: //====================================================================
 
-    explicit MillePedeFileReader(const edm::ParameterSet&);
-    ~MillePedeFileReader() {}
+    explicit MillePedeFileReader(const edm::ParameterSet&,
+                                 const std::shared_ptr<const PedeLabelerBase>&);
+    virtual ~MillePedeFileReader() = default;
 
     void read();
     bool storeAlignments();
 
-    std::array<double, 6> const& getXobs()     const { return Xobs;     }
-    std::array<double, 6> const& getXobsErr()  const { return XobsErr;  }
-    std::array<double, 6> const& getTXobs()    const { return tXobs;    }
-    std::array<double, 6> const& getTXobsErr() const { return tXobsErr; }
+    const std::array<double, 6>& getXobs()     const { return Xobs_;     }
+    const std::array<double, 6>& getXobsErr()  const { return XobsErr_;  }
+    const std::array<double, 6>& getTXobs()    const { return tXobs_;    }
+    const std::array<double, 6>& getTXobsErr() const { return tXobsErr_; }
 
-    std::array<double, 6> const& getYobs()     const { return Yobs;     }
-    std::array<double, 6> const& getYobsErr()  const { return YobsErr;  }
-    std::array<double, 6> const& getTYobs()    const { return tYobs;    }
-    std::array<double, 6> const& getTYobsErr() const { return tYobsErr; }
+    const std::array<double, 6>& getYobs()     const { return Yobs_;     }
+    const std::array<double, 6>& getYobsErr()  const { return YobsErr_;  }
+    const std::array<double, 6>& getTYobs()    const { return tYobs_;    }
+    const std::array<double, 6>& getTYobsErr() const { return tYobsErr_; }
 
-    std::array<double, 6> const& getZobs()     const { return Zobs;     }
-    std::array<double, 6> const& getZobsErr()  const { return ZobsErr;  }
-    std::array<double, 6> const& getTZobs()    const { return tZobs;    }
-    std::array<double, 6> const& getTZobsErr() const { return tZobsErr; }
+    const std::array<double, 6>& getZobs()     const { return Zobs_;     }
+    const std::array<double, 6>& getZobsErr()  const { return ZobsErr_;  }
+    const std::array<double, 6>& getTZobs()    const { return tZobs_;    }
+    const std::array<double, 6>& getTZobsErr() const { return tZobsErr_; }
+
+  private:
+  //========================= PRIVATE ENUMS ====================================
+  //============================================================================
+
+  enum class PclHLS : int { NotInPCL = -1,
+                            TPBHalfBarrelXplus = 2,
+                            TPBHalfBarrelXminus = 3,
+                            TPEHalfCylinderXplusZplus = 4,
+                            TPEHalfCylinderXminusZplus = 5,
+                            TPEHalfCylinderXplusZminus = 0,
+                            TPEHalfCylinderXminusZminus = 1};
 
   //========================= PRIVATE METHODS ==================================
-  private: //===================================================================
+  //============================================================================
 
     void readMillePedeLogFile();
     void readMillePedeResultFile();
+    PclHLS getHLS(const Alignable*);
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
 
+    // pede labeler plugin
+    const std::shared_ptr<const PedeLabelerBase> pedeLabeler_;
+
     // file-names
-    std::string millePedeLogFile_;
-    std::string millePedeResFile_;
+    const std::string millePedeLogFile_;
+    const std::string millePedeResFile_;
 
     // signifiance of movement must be above
-    double sigCut_;
+    const double sigCut_;
     // cutoff in micro-meter & micro-rad
-    double Xcut_, tXcut_;
-    double Ycut_, tYcut_;
-    double Zcut_, tZcut_;
+    const double Xcut_, tXcut_;
+    const double Ycut_, tYcut_;
+    const double Zcut_, tZcut_;
     // maximum movement in micro-meter/rad
-    double maxMoveCut_, maxErrorCut_;
+    const double maxMoveCut_, maxErrorCut_;
 
-    double Cutoffs[6] = {  Xcut_,  Ycut_,  Zcut_,
-                          tXcut_, tYcut_, tZcut_};
+    // conversion factors: cm to um & rad to urad
+    static constexpr std::array<double, 6> multiplier_ = {{ 10000.,      // X
+                                                            10000.,      // Y
+                                                            10000.,      // Z
+                                                            1000000.,    // tX
+                                                            1000000.,    // tY
+                                                            1000000. }}; // tZ
 
-    bool updateDB    = false;
-    int Nrec = 0;
+    const std::array<double, 6> cutoffs_ = {{ Xcut_,  Ycut_,  Zcut_,
+                                              tXcut_, tYcut_, tZcut_}};
 
-    std::array<double, 6> Xobs     = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> XobsErr  = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> tXobs    = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> tXobsErr = {{0.,0.,0.,0.,0.,0.}};
+    bool updateDB_{false};
+    int Nrec_{0};
 
-    std::array<double, 6> Yobs     = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> YobsErr  = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> tYobs    = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> tYobsErr = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> Xobs_     = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> XobsErr_  = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> tXobs_    = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> tXobsErr_ = {{0.,0.,0.,0.,0.,0.}};
 
-    std::array<double, 6> Zobs     = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> ZobsErr  = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> tZobs    = {{0.,0.,0.,0.,0.,0.}};
-    std::array<double, 6> tZobsErr = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> Yobs_     = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> YobsErr_  = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> tYobs_    = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> tYobsErr_ = {{0.,0.,0.,0.,0.,0.}};
+
+    std::array<double, 6> Zobs_     = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> ZobsErr_  = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> tZobs_    = {{0.,0.,0.,0.,0.,0.}};
+    std::array<double, 6> tZobsErr_ = {{0.,0.,0.,0.,0.,0.}};
 
 };
 

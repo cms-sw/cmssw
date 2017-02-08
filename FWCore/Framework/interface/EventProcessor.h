@@ -82,7 +82,7 @@ namespace edm {
                    std::vector<std::string> const& defaultServices,
                    std::vector<std::string> const& forcedServices = std::vector<std::string>());
 
-    EventProcessor(std::shared_ptr<ProcessDesc>& processDesc,
+    EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 

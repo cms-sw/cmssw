@@ -92,7 +92,7 @@ class Tm {
   /*
    *  Set to string of format YYYY-MM-DD HH:MM:SS
    */
-  void setToString(const std::string s) throw(std::runtime_error);
+  void setToString(const std::string s) noexcept(false);
 
   void dumpTm();
 

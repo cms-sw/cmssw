@@ -2,6 +2,8 @@
 #include "OnlineDB/EcalCondDB/interface/LMFDefFabric.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
+#include <ctime>
+
 using namespace std;
 using namespace oracle::occi;
 
@@ -175,6 +177,7 @@ Tm LMFRunIOV::getSubRunEnd() const {
   return t;
 }
 
+// XXX: This method is not used within CMSSW
 Tm LMFRunIOV::getDBInsertionTime() const {
   Tm t;
   t.setToString(getString("db_timestamp"));
@@ -245,7 +248,7 @@ std::string LMFRunIOV::setByIDSql(Statement *stmt, int id)
    return sql;  
 }
 
-void LMFRunIOV::getParameters(ResultSet *rset) {
+void LMFRunIOV::getParameters(ResultSet *rset) noexcept(false) {
   DateHandler dh(m_env, m_conn);
   setLMFRunTag(rset->getInt(1));
   LMFSeqDat *seq;
@@ -267,7 +270,34 @@ void LMFRunIOV::getParameters(ResultSet *rset) {
   Date stop = rset->getDate(7);
   setString("subrun_end", dh.dateToTm(stop).str());
   setString("subrun_type", rset->getString(8));
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
   setString("db_timestamp", rset->getTimestamp(9).toText("YYYY-MM-DD HH24:MI:SS", 0));
+#else
+  int year = 0;
+  unsigned int month = 0;
+  unsigned int day = 0;
+  unsigned int hour = 0;
+  unsigned int minute = 0;
+  unsigned int second = 0;
+  unsigned int fs = 0;
+  rset->getTimestamp(9).getDate(year, month, day);
+  rset->getTimestamp(9).getTime(hour, minute, second, fs);
+  const std::tm tt = {
+// Different max(second) is defined by C99 and Oracle Timestamp.
+    .tm_sec = static_cast<int>(second),
+    .tm_min = static_cast<int>(minute),
+    .tm_hour = static_cast<int>(hour),
+    .tm_mday = static_cast<int>(day),
+    .tm_mon = static_cast<int>(month),
+    .tm_year = year - 1900
+  };
+  char tt_str[30] = { 0 };
+  if (std::strftime(tt_str, sizeof(tt_str), "%F %T", &tt)) {
+    setString("db_timestamp", std::string(tt_str));
+  } else {
+    throw std::runtime_error("LMFRunIOV::getParameters: failed to generate the date string for 'db_timestamp' parameter");
+  }
+#endif
 }
 
 bool LMFRunIOV::isValid() {
@@ -318,7 +348,7 @@ std::string LMFRunIOV::writeDBSql(Statement *stmt)
 std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const vector<int>& par, 
 						const std::string &sql,
 						const std::string &method) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::list<LMFRunIOV> l;
   this->checkConnection();

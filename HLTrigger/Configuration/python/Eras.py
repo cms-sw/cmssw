@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# import the relevant eras from Configuration.Eras.*
-from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
-
 def modifyHLTforEras(fragment):
     """load all Eras-based customisations for the HLT configuration"""
 
@@ -13,3 +10,12 @@ def modifyHLTforEras(fragment):
     # modify the HLT configuration to run the Phase I tracking in the particle flow sequence
     from HLTrigger.Configuration.customizeHLTTrackingForPhaseI2017 import modifyHLTForPFTrackingPhaseI2017
     modifyHLTForPFTrackingPhaseI2017(fragment)
+
+    # modify the HLT configuration for the Phase I HE upgrade
+    from HLTrigger.Configuration.customizeHLTforHCALPhaseI import modifyHLTforHEforPhaseI
+    modifyHLTforHEforPhaseI(fragment)
+
+    # modify the HLT configuration for the Phase I HF upgrade
+    from HLTrigger.Configuration.customizeHLTforHCALPhaseI import modifyHLTforHFforPhaseI
+    modifyHLTforHFforPhaseI(fragment)
+

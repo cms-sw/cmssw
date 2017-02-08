@@ -38,22 +38,22 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) :
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
 	_cOccupancy_depth.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cOccupancyCut_depth.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	_cBadQuality_depth.initialize(_name, "BadQuality",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cTimingCut_depth.book(ib, _emap, _subsystem);
 	_cOccupancy_depth.book(ib, _emap, _subsystem);

@@ -299,6 +299,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
    fillAliToIdeal(alitoideal, alignableMuon->DTBarrel(), ideal_alignableMuon->DTBarrel());
    fillAliToIdeal(alitoideal, alignableMuon->CSCEndcaps(), ideal_alignableMuon->CSCEndcaps());
 
+   const auto& alignableObjectId = alignableMuon->objectIdProvider();
    std::map<std::string, std::map<Alignable*, bool> > alicollections;
    for (unsigned int i = 0;  i < collections->getLength();  i++) {
       DOMElement *collection = (DOMElement*)(collections->item(i));
@@ -318,7 +319,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 	    DOMNode *node = children->item(j);
 
 	    if (node->getNodeType() == DOMNode::ELEMENT_NODE) {
-	       Alignable *ali = getNode(alignableNavigator, (DOMElement*)(node));
+               Alignable *ali = getNode(alignableNavigator, (DOMElement*)(node), alignableObjectId);
 	       if (ali == NULL) {
 		  throw cms::Exception("XMLException") << "<collection> must contain only alignables" << std::endl;
 	       }
@@ -345,7 +346,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 	 DOMNode *node = children->item(j);
 
 	 if (node->getNodeType() == DOMNode::ELEMENT_NODE) {
-	    Alignable *ali = getNode(alignableNavigator, (DOMElement*)(node));
+	    Alignable *ali = getNode(alignableNavigator, (DOMElement*)(node), alignableObjectId);
 	    if (ali != NULL) {
 	       aliset[ali] = true;
 	       nodesToRemove.push_back(node);
@@ -439,22 +440,26 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
    return alignableMuon;
 }
 
-Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const {
-   if (XMLString::equals(node->getNodeName(), str_DTBarrel)) return getDTnode(align::AlignableDTBarrel, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_DTWheel)) return getDTnode(align::AlignableDTWheel, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_DTStation)) return getDTnode(align::AlignableDTStation, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_DTChamber)) return getDTnode(align::AlignableDTChamber, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_DTSuperLayer)) return getDTnode(align::AlignableDTSuperLayer, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_DTLayer)) return getDTnode(align::AlignableDetUnit, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_CSCEndcap)) return getCSCnode(align::AlignableCSCEndcap, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_CSCStation)) return getCSCnode(align::AlignableCSCStation, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_CSCRing)) return getCSCnode(align::AlignableCSCRing, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_CSCChamber)) return getCSCnode(align::AlignableCSCChamber, alignableNavigator, node);
-   else if (XMLString::equals(node->getNodeName(), str_CSCLayer)) return getCSCnode(align::AlignableDetUnit, alignableNavigator, node);
+Alignable *MuonAlignmentInputXML::getNode(std::map<unsigned int, Alignable*> &alignableNavigator,
+                                          const XERCES_CPP_NAMESPACE::DOMElement *node,
+                                          const AlignableObjectId& alignableObjectId) const {
+   if (XMLString::equals(node->getNodeName(), str_DTBarrel)) return getDTnode(align::AlignableDTBarrel, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_DTWheel)) return getDTnode(align::AlignableDTWheel, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_DTStation)) return getDTnode(align::AlignableDTStation, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_DTChamber)) return getDTnode(align::AlignableDTChamber, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_DTSuperLayer)) return getDTnode(align::AlignableDTSuperLayer, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_DTLayer)) return getDTnode(align::AlignableDetUnit, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_CSCEndcap)) return getCSCnode(align::AlignableCSCEndcap, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_CSCStation)) return getCSCnode(align::AlignableCSCStation, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_CSCRing)) return getCSCnode(align::AlignableCSCRing, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_CSCChamber)) return getCSCnode(align::AlignableCSCChamber, alignableNavigator, node, alignableObjectId);
+   else if (XMLString::equals(node->getNodeName(), str_CSCLayer)) return getCSCnode(align::AlignableDetUnit, alignableNavigator, node, alignableObjectId);
    else return NULL;
 }
 
-Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const {
+Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType,
+                                            std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node,
+                                            const AlignableObjectId& alignableObjectId) const {
    unsigned int rawId = 0;
 
    DOMAttr *node_rawId = node->getAttributeNode(str_rawId);
@@ -539,13 +544,15 @@ Alignable *MuonAlignmentInputXML::getDTnode(align::StructureType structureType, 
       if (ali == NULL) {
         throw cms::Exception("XMLException")
           << "rawId \"" << rawId << "\" is not a "
-          << AlignableObjectId::idToString(structureType) << std::endl;
+          << alignableObjectId.idToString(structureType) << std::endl;
       }
    }
    return ali;
 }
 
-Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType, std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node) const {
+Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
+                                             std::map<unsigned int, Alignable*> &alignableNavigator, const XERCES_CPP_NAMESPACE::DOMElement *node,
+                                             const AlignableObjectId& alignableObjectId) const {
    unsigned int rawId;
 
    DOMAttr *node_rawId = node->getAttributeNode(str_rawId);
@@ -629,7 +636,7 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
       if (ali == NULL) {
         throw cms::Exception("XMLException")
           << "rawId \"" << rawId << "\" is not a "
-          << AlignableObjectId::idToString(structureType) << std::endl;
+          << alignableObjectId.idToString(structureType) << std::endl;
       }
    }
    return ali;

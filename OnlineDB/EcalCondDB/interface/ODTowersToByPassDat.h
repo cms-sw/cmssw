@@ -38,17 +38,17 @@ class ODTowersToByPassDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const ODTowersToByPassDat* item, ODTowersToByPassInfo* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::vector< ODTowersToByPassDat >& data, ODTowersToByPassInfo* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::vector< ODTowersToByPassDat >* fillMap, ODTowersToByPassInfo* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_tr;

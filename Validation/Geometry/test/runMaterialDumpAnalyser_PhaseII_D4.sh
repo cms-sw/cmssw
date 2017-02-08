@@ -40,7 +40,6 @@ if checkFile SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root ; then
 --eventcontent FEVTDEBUG \
 --datatier GEN-SIM \
 --beamspot NoSmear \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021 \
 --customise Validation/Geometry/customiseForDumpMaterialAnalyser_ForPhaseII.customiseForMaterialAnalyser_ForPhaseII \
 --geometry Extended2023D4 \
 --fileout file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root \
@@ -61,7 +60,7 @@ if checkFile SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root ; then
 --era Phase2C2  \
 --eventcontent FEVTDEBUGHLT \
 --datatier GEN-SIM-DIGI-RAW  \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021  \
+--nThreads=6 \
 --geometry Extended2023D4  \
 --filein file:SingleMuPt10_pythia8_cfi_GEN_SIM_PhaseII_D4.root  \
 --fileout file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root \
@@ -83,12 +82,11 @@ if checkFile SingleMuPt10_step3_RECO_DQM_PhaseII_D4.root ; then
 --era Phase2C2  \
 --eventcontent RECOSIM,DQM  \
 --datatier GEN-SIM-RECO,DQMIO  \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021  \
+--nThreads=6 \
 --geometry Extended2023D4  \
 --filein file:SingleMuPt10_step2_DIGI_L1_DIGI2RAW_HLT_PhaseII_D4.root  \
 --fileout file:SingleMuPt10_step3_RECO_DQM_PhaseII_D4.root \
---python_filename SingleMuPt10_step2_RECO_DQM_PhaseII_D4.py \
---customise Validation/Geometry/customiseForDumpMaterialAnalyser.customiseForMaterialAnalyser > SingleMuPt10_step3_RECO_DQM_PhaseII_D4.log 2>&1
+--python_filename SingleMuPt10_step2_RECO_DQM_PhaseII_D4.py > SingleMuPt10_step3_RECO_DQM_PhaseII_D4.log 2>&1
 
   if [ $? -ne 0 ]; then
     echo "Error executing the RECO step, aborting."
@@ -105,7 +103,6 @@ if checkFile DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root ; then
 --era Phase2C2  \
 --scenario pp  \
 --filetype DQM  \
---customise SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023tilted4021  \
 --geometry Extended2023D4  \
 --mc  \
 --filein file:SingleMuPt10_step3_RECO_DQM_PhaseII_D4_inDQM.root  \

@@ -23,8 +23,8 @@ _phase1_hcalLocalRecoSequence.insert(0,hfprereco)
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 run2_HF_2017.toReplaceWith( hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence )
 run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
-from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
-run2_HE_2017.toReplaceWith( hbheprereco, _phase1_hbheprereco )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toReplaceWith( hbheprereco, _phase1_hbheprereco )
 
 _phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase2_hcalLocalRecoSequence.remove(hbheprereco)

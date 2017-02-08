@@ -30,16 +30,16 @@ class MonDelaysTTDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillVec, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >* data, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   // User data

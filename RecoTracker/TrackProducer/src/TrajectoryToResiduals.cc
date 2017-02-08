@@ -4,10 +4,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory,
-					    enum reco::TrackResiduals::ResidualType type) 
+reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory)
 {
-     reco::TrackResiduals residuals(type);
+     reco::TrackResiduals residuals;
+     residuals.resize(trajectory.measurements().size());
      int i_residual = 0;
      Trajectory::DataContainer::const_iterator i_fwd = 
 	  trajectory.measurements().begin(); 
@@ -43,27 +43,17 @@ reco::TrackResiduals trajectoryToResiduals (const Trajectory &trajectory,
 	  LocalPoint && dethit_localpos = i->recHit()->localPosition();     
 	  LocalError && dethit_localerr = i->recHit()->localPositionError();
 	  auto const &  error_including_alignment = dethit_localerr; // align error nwo is included 
-	  switch (type) {
-	  case reco::TrackResiduals::X_Y_RESIDUALS: 
-	  {
-	       auto x = (dethit_localpos.x() - combo_localpos.x()) / 
-		    std::sqrt(error_including_alignment.xx());
-	       auto y = (dethit_localpos.y() - combo_localpos.y()) / 
-		    std::sqrt(error_including_alignment.yy());
+          {
+	       auto x = (dethit_localpos.x() - combo_localpos.x());
+	       auto y = (dethit_localpos.y() - combo_localpos.y()); 
 	       residuals.setResidualXY(i_residual, x, y);
-	       break;
-	  }
-	  case reco::TrackResiduals::X_Y_PULLS:
-	  {
+          }
+          {
 	       auto x = (dethit_localpos.x() - combo_localpos.x()) / 
 		    std::sqrt(error_including_alignment.xx() + combo_localerr.xx());
 	       auto y = (dethit_localpos.y() - combo_localpos.y()) / 
 		    std::sqrt(error_including_alignment.yy() + combo_localerr.yy());
 	       residuals.setPullXY(i_residual, x, y);
-	       break;
-	  }
-	  default:
-	       assert(0);
 	  }
      }
      return residuals;

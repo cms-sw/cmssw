@@ -51,51 +51,51 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 	_cShapeCut_EChannel.initialize(_name,
 		"ShapeCut", hcaldqm::hashfunctions::fEChannel,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000),0);
 	_cShapeCut.initialize(_name,
 		"ShapeCut", 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_300000),0);
 	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cTETDCvsADC.initialize(_name, "TETDCvsADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cLETDC.initialize(_name, "LETDC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cADC.initialize(_name, "ADC",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cOccupancy_depth.initialize(_name, hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	//	QIE8 vs 10 and 10 vs 10
 	_cADCCorrelation10vs8.initialize(_name, "ADCCorrelation10vs8TS2",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cADCCorrelation10vs10.initialize(_name, "ADCCorrelation10vs10",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cfCCorrelation10vs8.initialize(_name, "fCorrelation10vs8TS2",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE8fC_1000_50),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cfCCorrelation10vs10.initialize(_name, "fCCorrelation10vs10",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cLETDCCorrelation10vs10.initialize(_name, "LETDCCorrelation",
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	unsigned int nTS = _ptype==fLocal ? 10 : 6;
 	for (unsigned int j=0; j<nTS; j++)
@@ -104,60 +104,60 @@ QIE10Task::QIE10Task(edm::ParameterSet const& ps):
 			"LETDCvsADC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cTETDCvsADC_EChannel[j].initialize(_name,
 			"TETDCvsADC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cADC_EChannel[j].initialize(_name,
 			"ADC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cLETDC_EChannel[j].initialize(_name,
 			"LETDC", hcaldqm::hashfunctions::fEChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 		_cADCCorrelation10vs8_DChannel[j].initialize(_name, "ADCCorrelation10vs8TS2",
 			hcaldqm::hashfunctions::fDChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cfCCorrelation10vs8_DChannel[j].initialize(_name, "fCCorrelation10vs8TS2",
 			hcaldqm::hashfunctions::fDChannel,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE8fC_1000_50),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 		_cADCCorrelation10vs10_ieta30[j].initialize(_name, 
 			"ADCCorrelation10vs10_ieta30",
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cADCCorrelation10vs10_ieta34[j].initialize(_name, 
 			"ADCCorrelation10vs10_ieta34",
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cfCCorrelation10vs10_ieta30[j].initialize(_name, 
 			"fCCorrelation10vs10_ieta30",
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cfCCorrelation10vs10_ieta34[j].initialize(_name, 
 			"fCCorrelation10vs10_ieta34",
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_2000),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cLETDCCorrelation10vs10_ieta30[j].initialize(_name, "LETDCCorrelation_ieta30",
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cLETDCCorrelation10vs10_ieta34[j].initialize(_name, "LETDCCorrelation_ieta34",
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
 	_cShapeCut_EChannel.book(ib, _emap, _filter_C36, _subsystem);

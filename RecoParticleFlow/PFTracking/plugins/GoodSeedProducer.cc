@@ -167,6 +167,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // clear temporary maps
   refMap_.clear();
 
+  //Magnetic Field
+  ESHandle<MagneticField> magneticField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+
   //Handle input collections
   //ECAL clusters	      
   Handle<PFClusterCollection> theECPfClustCollection;
@@ -194,14 +198,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     iEvent.getByToken(tracksContainers_[istr], tkRefCollection);
     const TrackCollection&  Tk=*(tkRefCollection.product());
     
-    //Trajectory collection
-    Handle<vector<Trajectory> > tjCollection;
-    iEvent.getByToken(trajContainers_[istr], tjCollection);
-    auto const & Tj=*(tjCollection.product());
-    
     LogDebug("GoodSeedProducer")<<"Number of tracks in collection "
                                 <<"tracksContainers_[" << istr << "] to be analyzed "
-                                <<Tj.size();
+                                <<Tk.size();
 
     //loop over the track collection
     for(unsigned int i=0;i<Tk.size();++i){		
@@ -212,7 +211,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       bool GoodPreId=false;
 
       TrackRef trackRef(tkRefCollection, i);
-      // TrajectorySeed Seed=Tj[i].seed();
       math::XYZVectorF tkmom(Tk[i].momentum());
       auto tketa= tkmom.eta();
       auto tkpt = std::sqrt(tkmom.perp2());
@@ -222,11 +220,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
 	  int ibin=ipteta*9;
 	  
-	  float oPTOB=1.f/Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
+	  float oPTOB=1.f/std::sqrt(Tk[i].innerMomentum().mag2()); // FIXME the original code was buggy should be outerMomentum...
 	  //  float chikfred=Tk[i].normalizedChi2();
 	  float nchi=Tk[i].normalizedChi2();
 
-	  int nhitpi=Tj[i].foundHits();
+	  int nhitpi=Tk[i].found();
 	  float EP=0;
       
 	  // set track info
@@ -372,9 +370,16 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    trk_ecalDphi = trk_ecalDphi_;
       
 	    Trajectory::ConstRecHitContainer tmp;
-	    Trajectory::ConstRecHitContainer && hits=Tj[i].recHits();
-	    for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
-	    Trajectory  && FitTjs= fitter_->fitOne(Seed,tmp,Tj[i].lastMeasurement().updatedState());
+            auto hb = Tk[i].recHitsBegin();
+            for(unsigned int h=0;h<Tk[i].recHitsSize();h++){
+              auto recHit = *(hb+h); tmp.push_back(recHit->cloneSH());
+            }
+            auto const & theTrack = Tk[i]; 
+            GlobalVector gv(theTrack.innerMomentum().x(),theTrack.innerMomentum().y(),theTrack.innerMomentum().z());
+            GlobalPoint  gp(theTrack.innerPosition().x(),theTrack.innerPosition().y(),theTrack.innerPosition().z());
+            GlobalTrajectoryParameters gtps(gp,gv,theTrack.charge(),&*magneticField);
+            TrajectoryStateOnSurface tsos(gtps,theTrack.innerStateCovariance(),*tmp[0]->surface());
+	    Trajectory  && FitTjs= fitter_->fitOne(Seed,tmp,tsos);
 	
 	      if(FitTjs.isValid()){
 		Trajectory && SmooTjs= smoother_->trajectory(FitTjs);
@@ -388,7 +393,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		      updatedState().globalMomentum().perp();
 		    dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
 		    // the following is simply the number of degrees of freedom
-		    chiRatio=SmooTjs.chiSquared()/Tj[i].chiSquared();
+		    chiRatio=SmooTjs.chiSquared()/Tk[i].chi2();
 		    chired=chiRatio*chikfred;
 
 		  }
@@ -510,7 +515,7 @@ namespace goodseedhelpers {
         reader.AddVariable("pt", &pt);
         reader.AddVariable("eta", &eta);
         
-        std::unique_ptr<TMVA::IMethod> temp( reader.BookMVA(method_, weights[j].fullPath().c_str()) );
+        reader.BookMVA(method_, weights[j].fullPath().c_str());
         
         gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA(method_) ) ) );
       }    

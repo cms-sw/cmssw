@@ -23,13 +23,13 @@ class RunMemChErrorsDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const RunMemChErrorsDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunMemChErrorsDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   uint64_t m_errorBits;

@@ -79,6 +79,7 @@ void ME0ReDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSe
       << "ME0DetId " << detId << " central TOF " << centralTOF << std::endl;
   }
   nPartitions_ = centralTOF_.size()/6;
+  LogDebug("ME0ReDigiProducer")<<" Number of partitions "<<nPartitions_<<std::endl;
 }
 
 
@@ -147,7 +148,6 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       // arrival time in ns
       //const float t0(centralTOF_[ nPartitions_ * (detId.layer() -1) + detId.roll() - 1 ]);
       int index = nPartitions_ * (detId.layer() -1) + detId.roll() - 1;
-      if(detId.roll() == 0) index = nPartitions_ * (detId.layer() -1) + detId.roll();
       edm::LogVerbatim("ME0ReDigiProducer")
 	<<"size "<<centralTOF_.size()<<" nPartitions "<<nPartitions_<<" layer "<<detId.layer()<<" roll "<<detId.roll()<<" index "<<index<<std::endl;
       
@@ -182,7 +182,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       const float oldR(oldGP.perp());
 
       float newR = oldR;
-      if (me0Digi.prompt() and smearRadial_  and detId.roll() > 0)
+      if (me0Digi.prompt() and smearRadial_  and nPartitions_  > 1)
 	newR = CLHEP::RandGaussQ::shoot(engine, oldR, radialResolution_);
       
       // calculate the new position in local coordinates
@@ -240,7 +240,7 @@ void ME0ReDigiProducer::buildDigis(const ME0DigiPreRecoCollection & input_digis,
       
       float newY(newLP.y());
       // new hit has y coordinate in the center of the roll when using discretizeY
-      if (discretizeY_ and detId.roll() > 0) newY = 0;
+      if (discretizeY_ and nPartitions_ > 1) newY = 0;
       edm::LogVerbatim("ME0ReDigiProducer")
 	<< "\tnew Y " << newY << std::endl;
 

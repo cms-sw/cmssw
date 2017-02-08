@@ -10,11 +10,11 @@
 
 std::vector<const char * > DETECTORS{"TIB", "TIDF", "TIDB",
       "InnerServices", "TOB",
-      "TEC", "TkStrct", "PixBar",
+      "TEC", "PixBar",
       "PixFwdPlus", "PixFwdMinus",
       "Phase1PixelBarrel", "Phase2OTBarrel",
       "Phase2OTForward", "Phase2PixelEndcap",
-      "BeamPipe"};//,
+      "BeamPipe"/*, "TkStrct"*/};//,
       // "Tracker", "TrackerSum",
       // "Pixel", "Strip",
       // "InnerTracker"};
@@ -252,7 +252,7 @@ void createPlotsReco(const char * reco_file, const char * label, TH1D ** cumulat
     return;
   }
   TFile * file = new TFile(reco_file);
-  char prefix[100] = "/DQMData/Run 1/RecoMaterialFromRecoTracks/Run summary/";
+  char prefix[100] = "/DQMData/Run 1/Tracking/Run summary/RecoMaterial/";
   file->cd(prefix);
   file->ls();
   THStack *hs = new THStack("hs","");

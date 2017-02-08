@@ -9,6 +9,9 @@
 
 #include "DQM/SiPixelPhase1Common/interface/GeometryInterface.h"
 
+// general plotting helpers
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
+
 // edm stuff
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,6 +24,7 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 
 // Pixel names
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
@@ -31,6 +35,7 @@
 #include <cstdint>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 const GeometryInterface::Value GeometryInterface::UNDEFINED = 999999999.9f;
 
@@ -40,6 +45,7 @@ void GeometryInterface::load(edm::EventSetup const& iSetup) {
   loadTimebased(iSetup, iConfig);
   loadModuleLevel(iSetup, iConfig);
   loadFEDCabling(iSetup, iConfig);
+  loadFromSiPixelCoordinates(iSetup, iConfig);
   edm::LogInfo log("GeometryInterface");
   log << "Known colum names:\n";
   for (auto e : ids) log << "+++ column: " << e.first
@@ -114,7 +120,9 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   // these are just aliases with special handling in formatting
   // the names are created with PixelBarrelName et. al. later
   addExtractor(intern("PXModuleName"), detid, 0, 0);
-  addExtractor(intern("P1PXModuleName"), detid, 0, 0);
+
+  int phase = iConfig.getParameter<int>("upgradePhase");
+  bool isUpgrade = phase == 1;
 
   // Get a Geometry
   edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
@@ -125,136 +133,165 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
   auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
 
-  // We need to track some extra stuff here for the Shells later.
-  auto pxlayer  = extractors[intern("PXLayer")];
-  auto pxladder = extractors[intern("PXLadder")];
-  auto pxmodule = extractors[intern("PXBModule")];
-  auto pxblade  = extractors[intern("PXBlade")];
-  std::vector<Value> maxladders;
-  Value maxmodule = 0;
-  Value innerring = iConfig.getParameter<int>("n_inner_ring_blades");
-  Value outerring = 0;
-
   // Now traverse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
     if (id.subdetId() != PixelSubdetector::PixelBarrel && id.subdetId() != PixelSubdetector::PixelEndcap) continue;
     auto iq = InterestingQuantities{nullptr, id, 0, 0};
-    auto layer = pxlayer(iq);
-    if (layer != UNDEFINED) {
-      if (layer >= Value(maxladders.size())) maxladders.resize(layer+1);
-      auto ladder = pxladder(iq);
-      if (ladder > maxladders[layer]) maxladders[layer] = ladder;
-    }
-    auto module = pxmodule(iq);
-    if (module != UNDEFINED && module > maxmodule) maxmodule = module;
-    auto blade = pxblade(iq);
-    if (blade != UNDEFINED && blade > outerring) outerring = blade;
 
     // prepare pretty names
-    // We try Phase0 and Phase1 here, since we only later know which to use...
-    std::string name_P0 = "", name_P1 = "";
-    if (layer != UNDEFINED) { // Barrel
-      PixelBarrelName mod_P0(id, tt, false);
-      PixelBarrelName mod_P1(id, tt, true);
-      name_P0 = mod_P0.name();
-      name_P1 = mod_P1.name();
+    std::string name = "";
+    if (id.subdetId() == PixelSubdetector::PixelBarrel) { // Barrel
+      PixelBarrelName mod(id, tt, isUpgrade);
+      name = mod.name();
     } else { // assume Endcap
-      PixelEndcapName mod_P0(id, tt, false);
-      PixelEndcapName mod_P1(id, tt, true);
-      name_P0 = mod_P0.name();
-      name_P1 = mod_P1.name();
+      PixelEndcapName mod(id, tt, isUpgrade);
+      name = mod.name();
     }
-    format_value[std::make_pair(intern("PXModuleName"), Value(id.rawId()))] = name_P0;
-    format_value[std::make_pair(intern("P1PXModuleName"), Value(id.rawId()))] = name_P1;
+    format_value[std::make_pair(intern("PXModuleName"), Value(id.rawId()))] = name;
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    iq.row = 0; iq.col = 0;
+    // TODO: add all ROCs?
+    // TODO: Things are more complicated for phase2, and we support that via 
+    // SiPixelCoordinates, so we should support it here too.
+    iq.row = 1; iq.col = 1;
     all_modules.push_back(iq);
-    iq.row = module_rows; iq.col = 0;
+    iq.row = module_rows-1; iq.col = 1;
     all_modules.push_back(iq);
-    iq.row = 0; iq.col = module_cols;
+    iq.row = 1; iq.col = module_cols-1;
     all_modules.push_back(iq);
-    iq.row = module_rows; iq.col = module_cols;
+    iq.row = module_rows-1; iq.col = module_cols-1;
     all_modules.push_back(iq);
   }
+}
 
-  outerring = outerring - innerring;
+void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
+  // TODO: SiPixelCoordinates has a large overlap with theis GeometryInterface 
+  // in general.
+  // Rough convention is to use own code for things that are easy and fast to
+  // determine, and use SiPixelCoordinates for complicated things.
+  // SiPixelCoordinates uses lookup maps for everything, so it is faster than
+  // most other code, but still slow on DQM scales. 
+  int phase = iConfig.getParameter<int>("upgradePhase");
 
-  // Shells are a concept that cannot be derived from bitmasks. 
-  // Use hardcoded logic here.
-  // This contains a lot more assumptions about general geometry than the rest
-  // of the code, but it might work for Phase0 as well.
+  // this shared pointer is kept alive by the references in the lambdas that follow.
+  // That is a bit less obvious than keeping it as a member but more correct.
+  auto coord = std::make_shared<SiPixelCoordinates>(phase);
+
+  // note that we should reeinit for each event. But this probably won't explode
+  // thanks to the massive memoization in SiPixelCoordinates which is completely
+  // initialized while booking.
+  coord->init(iSetup); 
+
+  // SiPixelCoordinates uses a different convention for UNDEFINED:
+  auto from_coord = [](double in) { return (in == -9999.0) ? UNDEFINED : Value(in); };
+
+  // Rings are a concept that cannot be derived from bitmasks. 
   addExtractor(intern("PXRing"), 
-    [pxblade, innerring] (InterestingQuantities const& iq) {
-      auto blade = pxblade(iq);
-      if (blade == UNDEFINED) return UNDEFINED;
-      if (blade <= innerring) return Value(1);
-      else return Value(2);
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->ring(iq.sourceModule));
     }
   );
 
+  // Quadrant names.
+  auto pxbarrel = extractors[intern("PXBarrel")];
   addExtractor(intern("HalfCylinder"),
-    [pxendcap, pxblade, innerring, outerring] (InterestingQuantities const& iq) {
-      auto ec = pxendcap(iq);
-      if (ec == UNDEFINED) return UNDEFINED;
-      auto blade = pxblade(iq);
-      // blade 1 and 56 are at 3 o'clock. This is a mess.
-      auto inring  = blade > innerring ? (innerring+outerring+1) - blade : blade;
-      auto perring = blade > innerring ? outerring : innerring;
-      // inring is now 1-based, 1 at 3 o'clock, upto perring.
-      int frac = (int) ((inring-1) / float(perring) * 4); // floor semantics here
-      if (frac == 0 || frac == 3) return 10*ec + 1; // inner half
-      if (frac == 1 || frac == 2) return 10*ec + 2; // outer half
-      assert(!"HalfCylinder logic problem");
-      return UNDEFINED;
+    [coord, pxbarrel] (InterestingQuantities const& iq) {
+      if (pxbarrel(iq) != UNDEFINED) return UNDEFINED;
+      int quadrant = coord->quadrant(iq.sourceModule);
+      switch (quadrant) {
+        case 1: return Value(12); // mO
+        case 2: return Value(11); // mI
+        case 3: return Value(22); // pO
+        case 4: return Value(21); // pI
+        default: return UNDEFINED;
+      }
     }, 0, 0 // N/A
   );
-
-  // For the '+-shape' (ladder vs. module) plots, we need signed numbers with
-  // (unused) 0-ladder/module at x=0/z=0. This means a lot of messing with the
-  // ladder/shell numbering...
-  addExtractor(intern("signedLadder"),
-    [pxbarrel, pxladder, pxlayer, maxladders, maxmodule] (InterestingQuantities const& iq) {
-      if(pxbarrel(iq) == UNDEFINED) return UNDEFINED;
-      auto layer  = pxlayer(iq);
-      auto ladder = pxladder(iq);
-      int frac = (int) ((ladder-1) / float(maxladders[layer]) * 4); // floor semantics
-      Value quarter = maxladders[layer] / 4;
-      if (frac == 0) return -ladder + quarter + 1; // top right - +1 for gap
-      if (frac == 1) return -ladder + quarter; // top left -
-      if (frac == 2) return -ladder + quarter; // bot left - same
-      if (frac == 3) return -ladder  + 4*quarter + quarter + 1; // bot right - like top right but wrap around
-      assert(!"Shell logic problem");
-      return UNDEFINED;
-    }
-  );
-
-  addExtractor(intern("signedModule"),
-    [pxmodule, maxmodule] (InterestingQuantities const& iq) {
-      Value mod = pxmodule(iq);  // range 1..maxmodule
-      if (mod == UNDEFINED) return UNDEFINED;
-      mod -= (maxmodule/2 + 1); // range -(max_module/2)..-1, 0..
-      if (mod >= 0) mod += 1;    // range -(max_module/2)..-1, 1..
-      return mod;
-    }
-  );
-
-  auto signedladder = extractors[intern("signedLadder")];
-  auto signedmodule = extractors[intern("signedModule")];
   addExtractor(intern("Shell"),
-    [signedladder, signedmodule] (InterestingQuantities const& iq) {
-      auto sl = signedladder(iq);
-      auto sm = signedmodule(iq);
-      if (sl == UNDEFINED) return UNDEFINED;
-      return Value((sm < 0 ? 10 : 20) + (sl < 0 ? 2 : 1)); // negative means outer shell!?
+    [coord, pxbarrel] (InterestingQuantities const& iq) {
+      if (pxbarrel(iq) == UNDEFINED) return UNDEFINED;
+      int quadrant = coord->quadrant(iq.sourceModule);
+      switch (quadrant) {
+        case 1: return Value(12); // mO
+        case 2: return Value(11); // mI
+        case 3: return Value(22); // pO
+        case 4: return Value(21); // pI
+        default: return UNDEFINED;
+      }
     }, 0, 0 // N/A
   );
 
-  addExtractor(intern(""), // A dummy column. Not much special handling required.
-    [] (InterestingQuantities const& iq) { return 0; },
-    0, 0
+  // Online Numbering.
+  addExtractor(intern("SignedLadder"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_ladder(iq.sourceModule()));
+    }
+  );
+  addExtractor(intern("SignedModule"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_module(iq.sourceModule()));
+    }
+  );
+  addExtractor(intern("SignedBlade"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_blade(iq.sourceModule()));
+    }
+  );
+
+  // Pixel Map axis. 
+  // TODO: binning should be phase-dependent. Or maybe even per-plot configurable.
+  addExtractor(intern("SignedModuleCoord"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_module_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/8.0
+  );
+  addExtractor(intern("SignedLadderCoord"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_ladder_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/2.0
+  );
+  addExtractor(intern("SignedDiskCoord"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_disk_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/8.0
+  );
+  addExtractor(intern("SignedBladePanelCoord"),
+    [coord, from_coord, phase] (InterestingQuantities const& iq) {
+      if (phase == 0) {
+        return from_coord(coord->signed_blade_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else if (phase == 1) {
+        return from_coord(coord->signed_blade_panel_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else {
+        // TODO: phase2
+        return UNDEFINED;
+      }
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
+  );
+
+  addExtractor(intern("SignedBladePanel"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_blade_panel_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/2.0
+  );
+
+  // more readout-related things.
+  addExtractor(intern("ROC"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->roc(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
+    }
+  );
+  addExtractor(intern("Sector"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->sector(iq.sourceModule()));
+    }
   );
 
 }
@@ -304,79 +341,47 @@ void GeometryInterface::loadModuleLevel(edm::EventSetup const& iSetup, const edm
     0, iConfig.getParameter<int>("module_cols") - 1
   );
 
-  int   n_rocs     = iConfig.getParameter<int>("n_rocs");
-  float roc_cols   = iConfig.getParameter<int>("roc_cols");
-  float roc_rows   = iConfig.getParameter<int>("roc_rows");
-  auto  pxmodule   = extractors[intern("PXBModule")];
-  auto  pxpanel    = extractors[intern("PXPanel")];
-  addExtractor(intern("ROC"),
-    [n_rocs, roc_cols, roc_rows] (InterestingQuantities const& iq) {
-      int fedrow = int(iq.row / roc_rows);
-      int fedcol = int(iq.col / roc_cols);
-      if (fedrow == 0) return Value(fedcol);
-      if (fedrow == 1) return Value(n_rocs - 1 - fedcol);
-      return UNDEFINED;
-    }
-  );
-
-  // arbitrary per-ladder numbering (for inefficiencies)
-  auto roc = extractors[intern("ROC")];
-  addExtractor(intern("ROCinLadder"),
-    [pxmodule, roc, n_rocs] (InterestingQuantities const& iq) {
-      auto mod = pxmodule(iq);
-      if (mod == UNDEFINED) return UNDEFINED;
-      return Value(roc(iq) + n_rocs * (mod-1));
-    }
-  );
-  addExtractor(intern("ROCinBlade"),
-    [pxmodule, pxpanel, roc, n_rocs] (InterestingQuantities const& iq) {
-      auto mod = pxpanel(iq);
-      if (mod == UNDEFINED) return UNDEFINED;
-      return Value(roc(iq) + n_rocs * (mod-1));
-    }
-  );
-
 }
 
 void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
   auto cablingMapLabel = iConfig.getParameter<std::string>("CablingMapLabel");
   edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
   iSetup.get<SiPixelFedCablingMapRcd>().get(cablingMapLabel, theCablingMap);
-  std::map<DetId, Value> fedmap;
-  std::map<DetId, Value> chanmap;
 
-  if (theCablingMap.isValid()) {
-    auto map = theCablingMap.product();
-
-    for(auto iq : all_modules) {
-      std::vector<sipixelobjects::CablingPathToDetUnit> paths = map->pathToDetUnit(iq.sourceModule.rawId());
-      for (auto p : paths) {
-        //std::cout << "+++ cabling " << iq.sourceModule.rawId() << " " << p.fed << " " << p.link << " " << p.roc << "\n";
-        fedmap[iq.sourceModule] = Value(p.fed);
-        // TODO: this might not be correct, since channels are assigned per ROC.
-        chanmap[iq.sourceModule] = Value(p.link);
-      }
-    }
-  } else {
-    edm::LogError("GeometryInterface") << "+++ No cabling map. Cannot extract FEDs.\n";
-  }
+  std::shared_ptr<SiPixelFrameReverter> siPixelFrameReverter =
+      // I think passing the bare pointer here is safe, but who knows...
+      std::make_shared<SiPixelFrameReverter>(iSetup, theCablingMap.operator->());
 
   addExtractor(intern("FED"),
-    [fedmap] (InterestingQuantities const& iq) {
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
         return Value(iq.col); // hijacked for the raw data plugin
-      auto it = fedmap.find(iq.sourceModule);
-      if (it == fedmap.end()) return GeometryInterface::UNDEFINED;
-      return it->second;
+      return Value(siPixelFrameReverter->findFedId(iq.sourceModule.rawId()));
     }
   );
-  addExtractor(intern("FEDChannel"),
-    [chanmap] (InterestingQuantities const& iq) {
+
+  // TODO: ranges should be set manually below, since booking probably cannot
+  // infer them correctly (no ROC-level granularity)
+  addExtractor(intern("LinkInFed"),
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
         return Value(iq.row); // hijacked for the raw data plugin
-      auto it = chanmap.find(iq.sourceModule);
-      if (it == chanmap.end()) return GeometryInterface::UNDEFINED;
-      return it->second;
+      sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
+      return Value(siPixelFrameReverter->findLinkInFed(iq.sourceModule.rawId(), gp));
+    }
+  );
+  // not sure if this is useful anywhere.
+  addExtractor(intern("RocInLink"),
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
+      sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
+      return Value(siPixelFrameReverter->findRocInLink(iq.sourceModule.rawId(), gp));
+    }
+  );
+  // This might be equivalent to our ROC numbering.
+  addExtractor(intern("RocInDet"),
+    [siPixelFrameReverter] (InterestingQuantities const& iq) {
+      sipixelobjects::GlobalPixel gp = {iq.row, iq.col};
+      return Value(siPixelFrameReverter->findRocInDet(iq.sourceModule.rawId(), gp));
     }
   );
 }

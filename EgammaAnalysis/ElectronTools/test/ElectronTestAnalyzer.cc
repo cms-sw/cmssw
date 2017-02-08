@@ -71,9 +71,9 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   virtual void myBindVariables();
   virtual void myVar(const reco::GsfElectron& ele,
 		     const reco::Vertex& vertex,
@@ -680,7 +680,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
   return myTrigPresel;
 }
 void
-ElectronTestAnalyzer::beginJob(const edm::EventSetup&)
+ElectronTestAnalyzer::beginJob()
 {
 
   ev = 0;

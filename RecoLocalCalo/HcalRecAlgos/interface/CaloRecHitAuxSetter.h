@@ -17,6 +17,12 @@ namespace CaloRecHitAuxSetter
     inline void setBit(uint32_t* u, const unsigned bitnum, const bool b)
         {if (b) {*u |= (1U << bitnum);} else {*u &= ~(1U << bitnum);}}
 
+    inline void orBit(uint32_t* u, const unsigned bitnum, const bool b)
+        {if (b) {*u |= (1U << bitnum);}}
+
+    inline void andBit(uint32_t* u, const unsigned bitnum, const bool b)
+        {if (!b) {*u &= ~(1U << bitnum);}}
+
     inline bool getBit(const uint32_t u, const unsigned bitnum)
         {return u & (1U << bitnum);}
 }

@@ -10,7 +10,7 @@ Phase2EndcapLayer* Phase2EndcapLayerBuilder::build(const GeometricDet* aPhase2En
 {
   LogTrace("TkDetLayers") << "Phase2EndcapLayerBuilder::build";
   vector<const GeometricDet*>  theGeometricRings = aPhase2EndcapLayer->components();
-  edm::LogInfo("TkDetLayers") << "theGeometricRings.size(): " << theGeometricRings.size() ;
+  LogTrace("TkDetLayers") << "theGeometricRings.size(): " << theGeometricRings.size() ;
 
   Phase2EndcapRingBuilder myBuilder;
   vector<const Phase2EndcapRing*> thePhase2EndcapRings;
