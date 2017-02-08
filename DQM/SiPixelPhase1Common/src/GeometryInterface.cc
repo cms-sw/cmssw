@@ -20,6 +20,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
@@ -129,10 +131,6 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
   assert(trackerGeometryHandle.isValid());
 
-  // some parameters to record the ROCs here
-  auto module_rows = iConfig.getParameter<int>("module_rows") - 1;
-  auto module_cols = iConfig.getParameter<int>("module_cols") - 1;
-
   // Now traverse the detector and collect whatever we need.
   auto detids = trackerGeometryHandle->detIds();
   for (DetId id : detids) {
@@ -152,16 +150,16 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    // TODO: add all ROCs?
-    // TODO: Things are more complicated for phase2, and we support that via 
-    // SiPixelCoordinates, so we should support it here too.
-    iq.row = 1; iq.col = 1;
+    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometryHandle->idToDetUnit(id));
+    assert(detUnit);
+    const PixelTopology* topo = &detUnit->specificTopology();
+    iq.row = 0; iq.col = 0;
     all_modules.push_back(iq);
-    iq.row = module_rows-1; iq.col = 1;
+    iq.row = topo->nrows()-1; iq.col = 0;
     all_modules.push_back(iq);
-    iq.row = 1; iq.col = module_cols-1;
+    iq.row = 0; iq.col = topo->ncolumns()-1;
     all_modules.push_back(iq);
-    iq.row = module_rows-1; iq.col = module_cols-1;
+    iq.row = topo->nrows()-1; iq.col = topo->ncolumns()-1;
     all_modules.push_back(iq);
   }
 }
@@ -241,26 +239,33 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   );
 
   // Pixel Map axis. 
-  // TODO: binning should be phase-dependent. Or maybe even per-plot configurable.
-  addExtractor(intern("SignedModuleCoord"),
+  // TODO: automatic range and binning for phase0 are incorrect.
+  // Should be set manually here.
+  addExtractor(intern("SignedModuleCoord"), // BPIX x
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_module_coord(iq.sourceModule(),
         std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/8.0
   );
-  addExtractor(intern("SignedLadderCoord"),
+  addExtractor(intern("SignedLadderCoord"), // BPIX y
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_ladder_coord(iq.sourceModule(),
         std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/2.0
   );
-  addExtractor(intern("SignedDiskCoord"),
+  addExtractor(intern("SignedDiskCoord"), // FPIX x (per-ring)
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->signed_disk_coord(iq.sourceModule(),
         std::make_pair(int(iq.row), int(iq.col))));
     }, UNDEFINED, UNDEFINED, 1.0/8.0
   );
-  addExtractor(intern("SignedBladePanelCoord"),
+  addExtractor(intern("SignedDiskRingCoord"), // FPIX x (FPIX-as-one-plot)
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_disk_ring_coord(iq.sourceModule(),
+        std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/16.0
+  );
+  addExtractor(intern("SignedBladePanelCoord"), // FPIX y
     [coord, from_coord, phase] (InterestingQuantities const& iq) {
       if (phase == 0) {
         return from_coord(coord->signed_blade_coord(
@@ -269,10 +274,27 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
         return from_coord(coord->signed_blade_panel_coord(
           iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
       } else {
-        // TODO: phase2
-        return UNDEFINED;
+        return UNDEFINED; // TODO: phase2
       }
-    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2 
+  );
+  addExtractor(intern("SignedShiftedBladePanelCoord"), // FPIX-as-one y
+    [coord, from_coord, phase] (InterestingQuantities const& iq) {
+      if (phase == 0) {
+        return from_coord(coord->signed_blade_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else if (phase == 1) {
+        return from_coord(coord->signed_shifted_blade_panel_coord(
+          iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+      } else {
+        return UNDEFINED; // TODO: phase2
+      }
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.1 // half-roc for phase0
+  );
+  addExtractor(intern("SignedBladePanel"), // per-module FPIX y
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->signed_blade_panel_coord(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
+    }, UNDEFINED, UNDEFINED, 1.0/2.0
   );
 
   addExtractor(intern("SignedBladePanel"),
@@ -291,6 +313,11 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   addExtractor(intern("Sector"),
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->sector(iq.sourceModule()));
+    }
+  );
+  addExtractor(intern("Channel"),
+    [coord, from_coord] (InterestingQuantities const& iq) {
+      return from_coord(coord->channel(iq.sourceModule(), std::make_pair(int(iq.row), int(iq.col))));
     }
   );
 
@@ -362,6 +389,7 @@ void GeometryInterface::loadFEDCabling(edm::EventSetup const& iSetup, const edm:
 
   // TODO: ranges should be set manually below, since booking probably cannot
   // infer them correctly (no ROC-level granularity)
+  // PERF: this is slow. Prefer SiPixelCordinates versions here.
   addExtractor(intern("LinkInFed"),
     [siPixelFrameReverter] (InterestingQuantities const& iq) {
       if (iq.sourceModule == 0xFFFFFFFF)
