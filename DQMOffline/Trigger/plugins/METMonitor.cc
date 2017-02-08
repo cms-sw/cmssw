@@ -7,10 +7,10 @@
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 
-double PI = 3.2;
-int NPI = 64;
+double MAX_PHI = 3.2;
+int N_PHI = 64;
 MEbinning phi_binning_{
-  NPI, -PI, PI
+  N_PHI, -MAX_PHI, MAX_PHI
 };
 // -----------------------------
 //  constructors and destructor
