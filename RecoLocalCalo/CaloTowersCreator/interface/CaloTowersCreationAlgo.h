@@ -353,7 +353,9 @@ private:
   edm::Handle<EcalRecHitCollection> theEeHandle;
 
   //store merged depths for tower 28/29
-  std::vector<int> mergedDepths;
+  std::vector<int> mergedDepths, mergedDepthsOne;
+  int              subdetOne;
+  std::vector<std::pair<int,int>> phizOne;
   
   int theHcalPhase;
 

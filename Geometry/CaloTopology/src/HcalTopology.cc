@@ -14,8 +14,9 @@ static const int IPHI_MAX=72;
 
 //#define EDM_ML_DEBUG
 
-HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
-  hcons_(hcons),
+HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
+			   const bool mergePosition) :
+  hcons_(hcons), mergePosition_(mergePosition),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
   firstHBRing_(1),
   firstHERing_(999), lastHERing_(0),
@@ -109,10 +110,19 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
   }
   int nEta = hcons_->getNEta();
   for (int ring=1; ring<=nEta; ++ring) {
-    std::vector<int> segmentation = hcons_->getDepth(ring-1);
-    setDepthSegmentation(ring,segmentation);
+    std::vector<int> segmentation = hcons_->getDepth(ring-1,false);
+    setDepthSegmentation(ring,segmentation,false);
 #ifdef EDM_ML_DEBUG
     std::cout << "Set segmentation for ring " << ring << " with " 
+              << segmentation.size() << " elements:";
+    for (unsigned int k=0; k<segmentation.size(); ++k) 
+      std::cout << " " << segmentation[k];
+    std::cout << std::endl;
+#endif
+    segmentation = hcons_->getDepth(ring-1,true);
+    setDepthSegmentation(ring,segmentation,true);
+#ifdef EDM_ML_DEBUG
+    std::cout << "Set Plan-1 segmentation for ring " << ring << " with " 
               << segmentation.size() << " elements:";
     for (unsigned int k=0; k<segmentation.size(); ++k) 
       std::cout << " " << segmentation[k];
@@ -133,7 +143,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
 }
 
 HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode) :
-  hcons_(0),
+  hcons_(0), mergePosition_(false),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
   mode_(mode), triggerMode_(tmode),
   firstHBRing_(1),   lastHBRing_(16),
@@ -859,25 +869,43 @@ int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
   return iphi;
 }
 
-void HcalTopology::getDepthSegmentation(unsigned ring, std::vector<int> & readoutDepths) const {
+void HcalTopology::getDepthSegmentation(const unsigned ring, 
+					std::vector<int> & readoutDepths,
+					const bool one) const {
   // if it doesn't exist, return the first entry with a lower index.  So if we only
   // have entries for 1 and 17, any input from 1-16 should return the entry for ring 1
-  SegmentationMap::const_iterator pos = depthSegmentation_.upper_bound(ring);
-  if (pos == depthSegmentation_.begin()) {
-    throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+  SegmentationMap::const_iterator pos;
+  if (!one) {
+    pos = depthSegmentation_.upper_bound(ring);
+    if (pos == depthSegmentation_.begin()) {
+      throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+    }
+  } else {
+    pos = depthSegmentationOne_.upper_bound(ring);
+    if (pos == depthSegmentationOne_.begin()) {
+      throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+    }
   }
   --pos;
   // pos now refers to the last element with key <= ring.
   readoutDepths = pos->second;
 }
 
-void HcalTopology::setDepthSegmentation(unsigned ring, const std::vector<int> & readoutDepths) {
-  depthSegmentation_[ring] = readoutDepths;
+void HcalTopology::setDepthSegmentation(const unsigned ring, 
+					const std::vector<int> & readoutDepths,
+					const bool one) {
+  if (one) {
+    depthSegmentationOne_[ring] = readoutDepths;
+  } else {
+    depthSegmentation_[ring] = readoutDepths;
+  }
 }
 
-std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned depth) const {
+std::pair<int, int> HcalTopology::segmentBoundaries(const unsigned ring, 
+						    const unsigned depth,
+						    const bool one) const {
   std::vector<int> readoutDepths;
-  getDepthSegmentation(ring, readoutDepths);
+  getDepthSegmentation(ring, readoutDepths, one);
   int d1 = std::lower_bound(readoutDepths.begin(), readoutDepths.end(), depth) - readoutDepths.begin();
   int d2 = std::upper_bound(readoutDepths.begin(), readoutDepths.end(), depth) - readoutDepths.begin();
   return std::pair<int, int>(d1, d2);

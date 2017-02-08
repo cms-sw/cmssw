@@ -61,8 +61,11 @@ public:
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
-  const std::vector<int> &  getDepth(const unsigned int i) const;
-  int                       getDepthEta16(int det, int iphi, int zside) const {return hcons.getDepthEta16(det,iphi,zside);}
+  std::vector<int>          getDepth(const int det, const int phi, 
+				     const int zside, const unsigned int eta) const;
+  std::vector<int>          getDepth(const unsigned int eta, const bool extra) const;
+  int                       getDepthEta16(const int det, const int iphi, 
+					  const int zside) const {return hcons.getDepthEta16(det,iphi,zside);}
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
@@ -90,6 +93,7 @@ public:
   std::vector<std::pair<int,double> > getPhis(int subdet, int ieta) const;
   const std::vector<double> &      getPhiTable()   const {return phibin;}
   const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
+  int                       getPhiZOne(std::vector<std::pair<int,int> >& phiz) const;
   double                    getRZ(int subdet, int ieta, int depth) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
