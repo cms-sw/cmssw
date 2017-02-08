@@ -221,6 +221,15 @@ mixPCFHepMCProducts = cms.PSet(
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer
 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toModify( theMixObjects,
+    mixSH = dict(
+        input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
+        subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
+        crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+    )
+)
+
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( theMixObjects,
     mixSH = dict(
@@ -229,6 +238,7 @@ run3_GEM.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
     )
 )
+
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( theMixObjects,
     mixSH = dict(

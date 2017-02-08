@@ -46,6 +46,8 @@ _run3_muonlocalreco += gemLocalReco
 _phase2_muonlocalreco = _run3_muonlocalreco.copy()
 _phase2_muonlocalreco += me0LocalReco
 
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith( muonlocalreco , _run3_muonlocalreco )
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith( muonlocalreco , _run3_muonlocalreco )
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
