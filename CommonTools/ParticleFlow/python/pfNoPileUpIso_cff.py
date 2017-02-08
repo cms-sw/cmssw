@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.pfPileUp_cfi  import *
-from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import *
+from CommonTools.ParticleFlow.pfPileUp_cfi  import pfPileUp as _pfPileUp
+from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import pfNoPileUp as _pfNoPileUp
 
-pfPileUpIso = pfPileUp.clone()
-pfNoPileUpIso = pfNoPileUp.clone( topCollection = 'pfPileUpIso')
+pfPileUpIso = _pfPileUp.clone()
+pfNoPileUpIso = _pfNoPileUp.clone( topCollection = 'pfPileUpIso')
 
-pfNoPileUpIsoSequence = cms.Sequence(
-    pfPileUpIso +
+pfNoPileUpIsoTask = cms.Task(
+    pfPileUpIso,
     pfNoPileUpIso
     )
+pfNoPileUpIsoSequence = cms.Sequence(pfNoPileUpIsoTask)
