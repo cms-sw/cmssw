@@ -45,7 +45,7 @@ class CondRegressionTester(object):
       @print_timing
       def __init__(self):
 
-          self.topDir = '/tmp/cmsCondRegTst-2015-08-13-16-14' # +time.strftime('%Y-%m-%d-%H-%M')
+          self.topDir = '/tmp/cmsCondRegTst-'+time.strftime('%Y-%m-%d-%H-%M')
           if not os.path.exists(self.topDir): os.makedirs(self.topDir)
           
           self.dbDir = os.path.join( self.topDir, 'dbDir' )
@@ -119,14 +119,16 @@ class CondRegressionTester(object):
              res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
           
           # check out the package and build the tests
+          sourceDir = '/cvmfs/cms.cern.ch/%s/cms/cmssw/%s/src/CondCore/CondDB/test' %(arch,rel)
+
           print "going to build the test for %s/%s " % (rel, arch)
           cmd = 'cd %s/%s/src; eval `scram run -sh`; ' % (self.topDir, rel, )
           cmd += 'git cms-addpkg CondCore/CondDB 2>&1; cd CondCore/CondDB/test; '
 	  if not os.path.exists( os.path.join( self.topDir, rel, 'src', 'CondCore/CondDB/test/testReadWritePayloads.cpp') ):
              print "copying over test source and BuildFile from devArea/IB ... "
-	     cmd += 'cp %s/BuildFile.xml .;' % (self.regTestSrcDir,)
-             cmd += 'cp %s/MyTestData.h .;' % (self.regTestSrcDir,)
-             cmd += 'cp %s/testReadWritePayloads.cpp .;' % (self.regTestSrcDir,)
+	     cmd += 'cp %s/BuildFile.xml .;' % (sourceDir,)
+             cmd += 'cp %s/MyTestData.h .;' % (sourceDir,)
+             cmd += 'cp %s/testReadWritePayloads.cpp .;' % (sourceDir,)
           cmd += 'scram b -j 10 2>&1 ;'
           res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
@@ -178,12 +180,17 @@ class CondRegressionTester(object):
       @print_timing
       def runAll(self):
 
-          map = { 'CMSSW_7_6_0_pre2'   : [ 'slc6_amd64_gcc493', 'ref760pre2-s6493.db'],
-                  'CMSSW_7_5_1'        : [ 'slc6_amd64_gcc491', 'ref751-s6491.db'],
-                  'CMSSW_7_4_9'        : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
-                  'CMSSW_7_3_6_patch1' : [ 'slc6_amd64_gcc491', 'ref736p1-s6491.db'],
-		  'CMSSW_7_2_5'       : [ 'slc6_amd64_gcc481', 'ref729-s6481.db'],
-		  'CMSSW_7_1_19'       : [ 'slc6_amd64_gcc481', 'ref7119-s6481.db'],
+#          map = { 'CMSSW_7_6_0_pre2'   : [ 'slc6_amd64_gcc493', 'ref760pre2-s6493.db'],
+#                  'CMSSW_7_5_1'        : [ 'slc6_amd64_gcc491', 'ref751-s6491.db'],
+#                  'CMSSW_7_4_9'        : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
+#                  'CMSSW_7_3_6_patch1' : [ 'slc6_amd64_gcc491', 'ref736p1-s6491.db'],
+#		  'CMSSW_7_2_5'       : [ 'slc6_amd64_gcc481', 'ref729-s6481.db'],
+#		  'CMSSW_7_1_19'       : [ 'slc6_amd64_gcc481', 'ref7119-s6481.db'],
+#          }
+          map = { 'CMSSW_9_0_0_pre3'   : [ 'slc6_amd64_gcc530', 'ref900p3-s6530.db'],
+                  'CMSSW_8_1_0'        : [ 'slc6_amd64_gcc530', 'ref810-s6530.db'],
+		  'CMSSW_8_0_26'       : [ 'slc6_amd64_gcc530', 'ref8026-s6530.db'],
+		  'CMSSW_7_6_6'        : [ 'slc6_amd64_gcc493', 'ref766-s6493.db'],
           }
 
           # set up the devel areas for the various reference releases
@@ -228,7 +235,8 @@ class CondRegressionTester(object):
 crt = CondRegressionTester()
 crt.runAll()
 status = crt.summary(verbose=True)
-print "\n==> overall status (ignoring results from 7.1.X): ", status
+#print "\n==> overall status (ignoring results from 7.1.X): ", status
+print "\n==> overall status: ", status
 
 # return the overall result to the caller:
 if status: 
