@@ -32,13 +32,12 @@ hltassociation = cms.Sequence(
     +hltMultiPVValidation
     +egammaSelectors
     +ExoticaValidationProdSeq
-    +hltGsfTracksPreValidation
+    +hltMultiTrackValidationGsfTracks
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 hltvalidation = cms.Sequence(
     HLTMuonVal
-    +hltMultiTrackValidationGsfTracks
     +HLTTauVal
     +egammaValidationSequence
     +topHLTriggerOfflineDQM
