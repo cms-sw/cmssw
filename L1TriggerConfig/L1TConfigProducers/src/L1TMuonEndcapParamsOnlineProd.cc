@@ -9,8 +9,8 @@
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsO2ORcd.h"
 #include "L1Trigger/L1TMuonEndCap/interface/EndCapParamsHelper.h"
-#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
-#include "L1Trigger/L1TCommon/interface/TrigSystem.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
 
 class L1TMuonEndcapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams> {
 private:
@@ -32,9 +32,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
 
 
     if (objectKey.empty()) {
-        edm::LogInfo( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonEndcapParams";
+        edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonEndcapParams";
         throw std::runtime_error("Empty objectKey");
-//        return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -65,7 +64,6 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O" ) << "Cannot get EMTF_KEYS.{ALGO,HW}" ;
             throw std::runtime_error("Broken key");
-            //return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
         }
 
         if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
@@ -107,7 +105,6 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Cannot get EMTF_HW.CONF for ID="<<hw_key;
             throw std::runtime_error("Broken key");
-            //return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
         }
 
         if( !queryResult.fillVariable( "CONF", xmlHWpayload ) ) xmlHWpayload = "";
@@ -124,7 +121,6 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
             edm::LogError( "L1-O2O: L1TMuonEndcapParamsOnlineProd" ) << "Cannot get EMTF_ALGO.CONF for ID="<<algo_key;
             throw std::runtime_error("Broken key");
-            //return std::shared_ptr< L1TMuonEndCapParams >( new L1TMuonEndCapParams( *(baseSettings.product()) ) );
         }
 
         std::string xmlALGOpayload;
@@ -132,8 +128,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         if( !queryResult.fillVariable( "CONF", xmlALGOpayload ) ) xmlALGOpayload = "";
 
 
-        l1t::XmlConfigReader xmlRdr;
-        l1t::TrigSystem trgSys;
+        l1t::XmlConfigParser xmlRdr;
+        l1t::TriggerSystem trgSys;
 
         xmlRdr.readDOMFromString( xmlHWpayload );
         xmlRdr.readRootElement  ( trgSys       );
@@ -144,7 +140,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         trgSys.setConfigured();
 
 
-        std::map<std::string, l1t::Setting> conf = trgSys.getSettings("EMTF-1"); // any processor
+        std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor
 
         std::string core_fwv = conf["core_firmware_version"].getValueAsStr();
         tm brokenTime;
@@ -156,7 +152,7 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndcapParamsOnlineProd::newObject(co
         data.SetFirmwareVersion( sinceEpoch );
         data.SetPtAssignVersion( conf["pt_lut_version"].getValue<unsigned int>() );
 
-        std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() );
+        std::shared_ptr< L1TMuonEndCapParams > retval( data.getWriteInstance() ); 
 
     return retval;
 }
