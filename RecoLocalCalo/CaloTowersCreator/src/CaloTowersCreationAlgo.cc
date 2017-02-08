@@ -264,8 +264,11 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo, const 
   if(theHcalPhase==0 || theHcalPhase==1){
     std::vector<int> tower28depths;
     int ndepths, startdepth;
-    theHcalTopology->getDepthSegmentation(theHcalTopology->lastHERing()-1,tower28depths);
-    theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,1,1,ndepths,startdepth);
+    subdetOne = theHcalTopology->getPhiZOne(phizOne);
+    int zside = (subdetOne > 0) ? -phizOne[0].second : 1;
+    int iphi  = (subdetOne > 0) ? phizOne[0].first : 1;
+    theHcalTopology->getDepthSegmentation(theHcalTopology->lastHERing()-1,tower28depths,false);
+    theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,iphi,zside,ndepths,startdepth);
     
     //keep track of which depths are merged
     //layer 5 = index 6 (layers start at -1)
@@ -278,7 +281,23 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo, const 
     for(int i = 0; i < ndepths; i++){
       if(isMergedDepth[i]) mergedDepths.push_back(i+startdepth);
     }
-	
+
+    //Now for the one RBX
+    if (subdetOne > 0) {
+      zside = phizOne[0].second;
+      std::vector<int> tower28depthsOne;
+      theHcalTopology->getDepthSegmentation(theHcalTopology->lastHERing()-1,tower28depthsOne,true);
+      theHcalTopology->depthBinInformation(HcalEndcap,theHcalTopology->lastHERing()-1,iphi,zside,ndepths,startdepth);
+    
+      std::vector<bool> isMergedDepthOne(ndepths,true);
+      for(int i = 0; i < std::min(6,(int)(tower28depthsOne.size())); i++){
+	isMergedDepthOne[tower28depthsOne[i]-startdepth] = false;
+      }
+    
+      for(int i = 0; i < ndepths; i++){
+	if(isMergedDepthOne[i]) mergedDepthsOne.push_back(i+startdepth);
+      }
+    }
   }
   
 }
@@ -472,72 +491,75 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
   // SPECIAL handling of tower 28 merged depths --> half into tower 28 and half into tower 29
   if (detId.det()==DetId::Hcal && 
       HcalDetId(detId).subdet()==HcalEndcap &&
-	  (theHcalPhase==0 || theHcalPhase==1) &&
-	  std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detId).depth())!=mergedDepths.end() &&
-      //HcalDetId(detId).depth()==3 &&
+      (theHcalPhase==0 || theHcalPhase==1) &&
       HcalDetId(detId).ietaAbs()==theHcalTopology->lastHERing()-1) {
+    bool merge = (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) == phizOne.end())) ? 
+      (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detId).depth())!=mergedDepthsOne.end()) :
+      (std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detId).depth())!=mergedDepths.end());
+    //HcalDetId(detId).depth()==3 &&
+    if (merge) {
 
-    //////////////////////////////    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
+      //////////////////////////////    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
       
-    // bad channels are counted regardless of energy threshold
+      // bad channels are counted regardless of energy threshold
 
-    if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
-      CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-      if (towerDetId.null()) return;
-      MetaTower & tower28 = find(towerDetId);
-      CaloTowerDetId towerDetId29(towerDetId.ieta()+towerDetId.zside(),
-                                  towerDetId.iphi());
-      MetaTower & tower29 = find(towerDetId29);
-      tower28.numBadHcalCells += 1;
-      tower29.numBadHcalCells += 1;
+      if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
+	CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+	if (towerDetId.null()) return;
+	MetaTower & tower28 = find(towerDetId);
+	CaloTowerDetId towerDetId29(towerDetId.ieta()+towerDetId.zside(),
+				    towerDetId.iphi());
+	MetaTower & tower29 = find(towerDetId29);
+	tower28.numBadHcalCells += 1;
+	tower29.numBadHcalCells += 1;
+      }
+
+      else if (0.5*energy >= threshold) {  // not bad channel: use energy if above threshold
+      
+	CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+	if (towerDetId.null()) return;
+	MetaTower & tower28 = find(towerDetId);
+	CaloTowerDetId towerDetId29(towerDetId.ieta()+towerDetId.zside(),
+				    towerDetId.iphi());
+	MetaTower & tower29 = find(towerDetId29);
+	
+	if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
+	  tower28.numRecHcalCells += 1;
+	  tower29.numRecHcalCells += 1;	  
+	}
+	else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
+	  tower28.numProbHcalCells += 1;
+	  tower29.numProbHcalCells += 1;
+	}
+
+	// NOTE DIVIDE BY 2!!!
+	double e28 = 0.5 * e;
+	double e29 = 0.5 * e;
+	
+	tower28.E_had += e28;
+	tower28.E += e28;
+	std::pair<DetId,float> mc(detId,e28);
+	tower28.metaConstituents.push_back(mc);
+	
+	tower29.E_had += e29;
+	tower29.E += e29;
+	tower29.metaConstituents.push_back(mc);
+      
+	// time info: do not use in averaging if timing error is found: need 
+	// full set of status info to implement: use only "good" channels for now
+
+	if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
+	  tower28.hadSumTimeTimesE += ( e28 * recHit->time() );
+	  tower28.hadSumEForTime   += e28;
+	  tower29.hadSumTimeTimesE += ( e29 * recHit->time() );
+	  tower29.hadSumEForTime   += e29;
+	}
+	
+	// store the energy in layer 3 also in E_outer
+	tower28.E_outer += e28;
+	tower29.E_outer += e29;
+      } // not a "bad" hit
     }
-
-    else if (0.5*energy >= threshold) {  // not bad channel: use energy if above threshold
-      
-      CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-      if (towerDetId.null()) return;
-      MetaTower & tower28 = find(towerDetId);
-      CaloTowerDetId towerDetId29(towerDetId.ieta()+towerDetId.zside(),
-                                  towerDetId.iphi());
-      MetaTower & tower29 = find(towerDetId29);
-
-      if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
-        tower28.numRecHcalCells += 1;
-        tower29.numRecHcalCells += 1;	  
-      }
-      else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
-        tower28.numProbHcalCells += 1;
-        tower29.numProbHcalCells += 1;
-      }
-
-      // NOTE DIVIDE BY 2!!!
-      double e28 = 0.5 * e;
-      double e29 = 0.5 * e;
-
-      tower28.E_had += e28;
-      tower28.E += e28;
-      std::pair<DetId,float> mc(detId,e28);
-      tower28.metaConstituents.push_back(mc);
-      
-      tower29.E_had += e29;
-      tower29.E += e29;
-      tower29.metaConstituents.push_back(mc);
-      
-      // time info: do not use in averaging if timing error is found: need 
-      // full set of status info to implement: use only "good" channels for now
-
-      if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
-	tower28.hadSumTimeTimesE += ( e28 * recHit->time() );
-	tower28.hadSumEForTime   += e28;
-	tower29.hadSumTimeTimesE += ( e29 * recHit->time() );
-	tower29.hadSumEForTime   += e29;
-      }
-
-      // store the energy in layer 3 also in E_outer
-      tower28.E_outer += e28;
-      tower29.E_outer += e29;
-    } // not a "bad" hit
-      
   }  // end of special case 
   
   else {
