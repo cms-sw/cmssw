@@ -20,8 +20,6 @@ hltGsfTrackValidator = hltMultiTrackValidator.clone(
     ),
     maxRapidityTP =  3.0,
     minRapidityTP = -3.0,
-    maxEta =  3.0,
-    minEta = -3.0
 )
 
 from Validation.RecoTrack.TrackValidation_cff import trackingParticlesElectron
