@@ -29,6 +29,5 @@ hltMultiTrackValidationGsfTracks = cms.Sequence(
     hltTPClusterProducer
     + hltTrackAssociatorByHits
     + cms.ignore(trackingParticlesElectron)    
-    + hltGsfTracksPreValidation
     + hltGsfTrackValidator
 )    
