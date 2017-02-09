@@ -64,8 +64,8 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstant
    	    << "iphi: " << phi << " "
    	    << "layer: " << layer << std::endl;
 #endif
-  HcalDDDRecConstants::HcalID id = theRecNumber->getHCID(det,eta,phi,layer,depth);
   sign=(z==0)?(-1):(1);
+  HcalDDDRecConstants::HcalID id = theRecNumber->getHCID(det,sign*eta,phi,layer,depth);
 
   if (id.subdet==int(HcalBarrel)) {
     hid=HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth);        
