@@ -169,6 +169,7 @@ namespace edm {
     unsigned int numberOfDigitsInIndex_;
     BranchParents branchParents_;
     BranchChildren branchChildren_;
+    std::vector<BranchID> branchChildrenReadFromInput_;
     bool overrideInputFileSplitLevels_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
