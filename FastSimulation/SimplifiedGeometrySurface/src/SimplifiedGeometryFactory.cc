@@ -1,9 +1,9 @@
-#include "FastSimulation/Layer/interface/LayerFactory.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometryFactory.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -11,7 +11,7 @@
 #include "ctype.h"
 
 
-fastsim::LayerFactory::LayerFactory(const GeometricSearchTracker * geometricSearchTracker,
+fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(const GeometricSearchTracker * geometricSearchTracker,
 				    const MagneticField & magneticField,
 				    const std::map<std::string,fastsim::InteractionModel *> & interactionModelMap,
 				    double magneticFieldHistMaxR,
@@ -36,24 +36,24 @@ fastsim::LayerFactory::LayerFactory(const GeometricSearchTracker * geometricSear
     forwardDetLayersMap_["posTEC"] = &geometricSearchTracker_->posTecLayers();
 }
 
-std::unique_ptr<fastsim::BarrelLayer> fastsim::LayerFactory::createBarrelLayer(const edm::ParameterSet & cfg) const
+std::unique_ptr<fastsim::BarrelSimplifiedGeometry> fastsim::SimplifiedGeometryFactory::createBarrelSimplifiedGeometry(const edm::ParameterSet & cfg) const
 {
-    std::unique_ptr<fastsim::Layer> layer = createLayer(BARREL,cfg);
-    return std::unique_ptr<fastsim::BarrelLayer>(static_cast<fastsim::BarrelLayer *>(layer.release()));
+    std::unique_ptr<fastsim::SimplifiedGeometry> layer = createSimplifiedGeometry(BARREL,cfg);
+    return std::unique_ptr<fastsim::BarrelSimplifiedGeometry>(static_cast<fastsim::BarrelSimplifiedGeometry *>(layer.release()));
 }
 
-std::unique_ptr<fastsim::ForwardLayer> fastsim::LayerFactory::createForwardLayer(const fastsim::LayerFactory::LayerType layerType,
+std::unique_ptr<fastsim::ForwardSimplifiedGeometry> fastsim::SimplifiedGeometryFactory::createForwardSimplifiedGeometry(const fastsim::SimplifiedGeometryFactory::LayerType layerType,
 							      const edm::ParameterSet & cfg) const
 {
     if(layerType != NEGFWD && layerType != POSFWD)
     {
-	throw cms::Exception("fastsim::LayerFactory::createForwardLayer") << " called with forbidden layerType. Allowed layerTypes are NEGFWD and POSFWD";
+	throw cms::Exception("fastsim::SimplifiedGeometry::createForwardLayer") << " called with forbidden layerType. Allowed layerTypes are NEGFWD and POSFWD";
     }
-    std::unique_ptr<fastsim::Layer> layer = createLayer(layerType,cfg);
-    return std::unique_ptr<fastsim::ForwardLayer>(static_cast<fastsim::ForwardLayer *>(layer.release()));
+    std::unique_ptr<fastsim::SimplifiedGeometry> layer = createSimplifiedGeometry(layerType,cfg);
+    return std::unique_ptr<fastsim::ForwardSimplifiedGeometry>(static_cast<fastsim::ForwardSimplifiedGeometry *>(layer.release()));
 }
 
-std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim::LayerFactory::LayerType layerType,
+std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory::createSimplifiedGeometry(const fastsim::SimplifiedGeometryFactory::LayerType layerType,
 								   const edm::ParameterSet & cfg) const
 {
 
@@ -117,7 +117,7 @@ std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim
     {
     	std::string cfgString;
     	cfg.allToString(cfgString);
-    	throw cms::Exception("fastsim::LayerFactory") << "Cannot extract a " 
+    	throw cms::Exception("fastsim::SimplifiedGeometry") << "Cannot extract a " 
     						      << (isForward ? "position" : "radius") << " for this " 
     						      << (isForward ? "forward" : "barrel") << " layer:\n"
     						      << cfgString;
@@ -127,14 +127,14 @@ std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim
     // create the layers
     // -----------------------------
 
-    std::unique_ptr<fastsim::Layer> layer;
+    std::unique_ptr<fastsim::SimplifiedGeometry> layer;
     if(isForward)
     {
-	layer.reset(new fastsim::ForwardLayer(position));
+	layer.reset(new fastsim::ForwardSimplifiedGeometry(position));
     }
     else
     {
-	layer.reset(new fastsim::BarrelLayer(position));
+	layer.reset(new fastsim::BarrelSimplifiedGeometry(position));
     }
     layer->detLayer_ = detLayer;
 
@@ -151,7 +151,7 @@ std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim
 	{
 	    std::string cfgString;
 	    cfg.allToString(cfgString);
-	    throw cms::Exception("fastsim::LayerFactory") 
+	    throw cms::Exception("fastsim::SimplifiedGeometryFactory") 
 		<< "limits must be provided in increasing order. error in:\n"
 		<< cfgString;
 	}
@@ -163,7 +163,7 @@ std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim
     {
 	std::string cfgString;
 	cfg.allToString(cfgString);
-	throw cms::Exception("fastim::LayerFactory") 
+	throw cms::Exception("fastim::SimplifiedGeometryFactory") 
 	    << "layer thickness and limits not configured properly! error in:"
 	    << cfgString;
     }
@@ -204,7 +204,7 @@ std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim
     	std::map<std::string,fastsim::InteractionModel *>::const_iterator interactionModel = interactionModelMap_->find(label);
     	if(interactionModel == interactionModelMap_->end())
     	{
-    	    throw cms::Exception("fastsim::LayerFactory") << "unknown interaction model '" << label << "'";
+    	    throw cms::Exception("fastsim::SimplifiedGeometryFactory") << "unknown interaction model '" << label << "'";
     	}
     	layer->interactionModels_.push_back(interactionModel->second);
     }
@@ -217,7 +217,7 @@ std::unique_ptr<fastsim::Layer> fastsim::LayerFactory::createLayer(const fastsim
 } 
 
 const DetLayer *
-fastsim::LayerFactory::getDetLayer(const std::string & detLayerName, const GeometricSearchTracker & geometricSearchTracker) const
+fastsim::SimplifiedGeometryFactory::getDetLayer(const std::string & detLayerName, const GeometricSearchTracker & geometricSearchTracker) const
 {
     if(detLayerName.empty())
     {
@@ -232,7 +232,7 @@ fastsim::LayerFactory::getDetLayer(const std::string & detLayerName, const Geome
     }
     if(pos == detLayerName.size())
     {
-	throw cms::Exception("fastsim::LayerFactory::getDetLayer") << "last part of detLayerName must be index of DetLayer in list. Error in detLayerName" << detLayerName << std::endl;
+	throw cms::Exception("fastsim::SimplifiedGeometry::getDetLayer") << "last part of detLayerName must be index of DetLayer in list. Error in detLayerName" << detLayerName << std::endl;
     }
     int index = atoi(detLayerName.substr(pos).c_str());
     std::string detLayerListName = detLayerName.substr(0,pos);
@@ -255,12 +255,12 @@ fastsim::LayerFactory::getDetLayer(const std::string & detLayerName, const Geome
 	// throw an error
 	else
 	{
-	    throw cms::Exception("fastsim::LayerFactory::getDetLayer") << " could not find list of detLayers corresponding to detLayerName " << detLayerName << std::endl;
+	    throw cms::Exception("fastsim::SimplifiedGeometry::getDetLayer") << " could not find list of detLayers corresponding to detLayerName " << detLayerName << std::endl;
 	}
     }
     catch (const std::out_of_range& error)
     {
-	throw cms::Exception("fastsim::LayerFactory::getDetLayer") << " index out of range for detLayerName: " << detLayerName << " " << error.what() << std::endl;
+	throw cms::Exception("fastsim::SimplifiedGeometry::getDetLayer") << " index out of range for detLayerName: " << detLayerName << " " << error.what() << std::endl;
     }
 }
 

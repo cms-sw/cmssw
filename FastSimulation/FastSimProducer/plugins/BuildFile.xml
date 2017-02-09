@@ -16,7 +16,7 @@
 <use name="FastSimulation/TrajectoryManager"/>
 <use name="MagneticField/UniformEngine"/>
 <use name="DataFormats/Math"/>
-<use name="FastSimulation/Layer"/>
+<use name="FastSimulation/SimplifiedGeometrySurface"/>
 <use name="FastSimulation/Particle"/>
 <use name="hepmc"/>
 <use name="clhep"/>

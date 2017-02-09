@@ -1,6 +1,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -20,7 +20,7 @@ namespace fastsim
     {
     public:
 	Bremsstrahlung(const std::string & name,const edm::ParameterSet & cfg);
-	void interact(Particle & particle,const Layer & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random);
+	void interact(Particle & particle,const SimplifiedGeometry & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random);
     private:
 	math::XYZTLorentzVector brem(Particle & particle , double xmin,const RandomEngineAndDistribution & random) const;
 	double gbteth(const double ener,
@@ -43,7 +43,7 @@ fastsim::Bremsstrahlung::Bremsstrahlung(const std::string & name,const edm::Para
 }
 
 
-void fastsim::Bremsstrahlung::interact(fastsim::Particle & particle, const Layer & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random)
+void fastsim::Bremsstrahlung::interact(fastsim::Particle & particle, const SimplifiedGeometry & layer,std::vector<std::unique_ptr<fastsim::Particle> > & secondaries,const RandomEngineAndDistribution & random)
 {
     // only consider electrons and positrons
     if(abs(particle.pdgId())!=11)

@@ -2,8 +2,8 @@
 #define FASTSIM_GEOMETRY_H
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
 
 class GeometricSearchTracker;
 class MagneticField;
@@ -31,8 +31,8 @@ namespace fastsim{
 	// Returns the magnetic field
 	double getMagneticFieldZ(const math::XYZTLorentzVector & position) const;
 
-	const std::vector<std::unique_ptr<BarrelLayer> >& barrelLayers() const { return barrelLayers_; }
-	const std::vector<std::unique_ptr<ForwardLayer> >& forwardLayers() const { return forwardLayers_; }
+	const std::vector<std::unique_ptr<BarrelSimplifiedGeometry> >& barrelLayers() const { return barrelLayers_; }
+	const std::vector<std::unique_ptr<ForwardSimplifiedGeometry> >& forwardLayers() const { return forwardLayers_; }
 	
 	double getMaxRadius() { return maxRadius_;}
 	double getMaxZ() { return maxZ_;}
@@ -41,7 +41,7 @@ namespace fastsim{
 	friend std::ostream& operator << (std::ostream& o , const fastsim::Geometry & geometry); 
 	
 	// help to nagigate through layers
-	const BarrelLayer * nextLayer(const BarrelLayer * layer) const
+	const BarrelSimplifiedGeometry * nextLayer(const BarrelSimplifiedGeometry * layer) const
 	{
 	    if(layer == 0)
 	    {
@@ -51,7 +51,7 @@ namespace fastsim{
 	    return nextLayerIndex < barrelLayers_.size() ? barrelLayers_[nextLayerIndex].get() : 0;
 	}
 
-	const ForwardLayer * nextLayer(const ForwardLayer * layer) const
+	const ForwardSimplifiedGeometry * nextLayer(const ForwardSimplifiedGeometry * layer) const
 	{
 	    if(layer == 0)
 	    {
@@ -61,7 +61,7 @@ namespace fastsim{
 	    return nextLayerIndex < forwardLayers_.size() ? forwardLayers_[nextLayerIndex].get() : 0;
 	}
 
-	const BarrelLayer * previousLayer(const BarrelLayer * layer) const
+	const BarrelSimplifiedGeometry * previousLayer(const BarrelSimplifiedGeometry * layer) const
 	{
 	    if(layer == 0)
 	    {
@@ -70,7 +70,7 @@ namespace fastsim{
 	    return layer->index() > 0 ? barrelLayers_[layer->index() -1].get() : 0;
 	}
 
-	const ForwardLayer * previousLayer(const ForwardLayer * layer) const
+	const ForwardSimplifiedGeometry * previousLayer(const ForwardSimplifiedGeometry * layer) const
 	{
 	    if(layer == 0)
 	    {
@@ -81,8 +81,8 @@ namespace fastsim{
 
     private:
 
-	std::vector<std::unique_ptr<BarrelLayer> >barrelLayers_;
-	std::vector<std::unique_ptr<ForwardLayer> > forwardLayers_;
+	std::vector<std::unique_ptr<BarrelSimplifiedGeometry> >barrelLayers_;
+	std::vector<std::unique_ptr<ForwardSimplifiedGeometry> > forwardLayers_;
 	std::unique_ptr<MagneticField> ownedMagneticField_;
 
 	const MagneticField * magneticField_;

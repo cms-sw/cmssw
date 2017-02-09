@@ -1,5 +1,5 @@
-#ifndef FASTSIM_LAYER_H
-#define FASTSIM_LAYER_H
+#ifndef FASTSIM_SIMPLIFIEDGEOMETRY_H
+#define FASTSIM_SIMPLIFIEDGEOMETRY_H
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -19,13 +19,13 @@ namespace edm
 namespace fastsim
 {
     class InteractionModel;
-    class LayerFactory;
-    class Layer
+    class SimplifiedGeometryFactory;
+    class SimplifiedGeometry
     {
     public:
-	~Layer();
+	~SimplifiedGeometry();
 
-	Layer(double position);
+	SimplifiedGeometry(double position);
 	
 	// Setters
 	void setIndex(int index)
@@ -49,11 +49,14 @@ namespace fastsim
 	}
 
 	// friends
-	friend std::ostream& operator << (std::ostream& os , const Layer & layer);
-	friend class fastsim::LayerFactory;
+	friend std::ostream& operator << (std::ostream& os , const SimplifiedGeometry & layer);
+	friend class fastsim::SimplifiedGeometryFactory;
 
     protected:
 	
+	// The position depends on which kind of layer is actually created
+   	// BarrelSimplifiedGeometry: radius
+    // ForwardSimplifiedGeometry: z
 	double position_;
 	double position2_;
 	int index_;
@@ -67,7 +70,7 @@ namespace fastsim
 	static constexpr double epsilonDistanceR_ = 1.0e-3;
     };
 
-    std::ostream& operator << (std::ostream& os , const Layer & layer);
+    std::ostream& operator << (std::ostream& os , const SimplifiedGeometry & layer);
 
 }
 

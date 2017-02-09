@@ -1,6 +1,7 @@
 #include "FastSimulation/FastSimProducer/interface/ParticleFilter.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "vdt/vdtMath.h"
 
 fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet & cfg)
 {
@@ -13,10 +14,14 @@ fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet & cfg)
     
     // Allow *ALL* protons with energy > protonEMin
     protonEMin_   = cfg.getParameter<double>("protonEMin");
+
+    // List of invisible particles if extension needed
+    // Predefined: Neutrinos, Neutralino_1
+    skipParticles_   = cfg.getParameter<std::vector<int>>("invisibleParticles");
     
     // Particles must have abs(eta) < etaMax (if close enough to 0,0,0)
     double etaMax = cfg.getParameter<double>("etaMax");
-    cos2ThetaMax_ = (std::exp(2.*etaMax)-1.) / (std::exp(2.*etaMax)+1.);
+    cos2ThetaMax_ = (vdt::fast_exp(2.*etaMax)-1.) / (vdt::fast_exp(2.*etaMax)+1.);
     cos2ThetaMax_ *= cos2ThetaMax_;
 
     // Particles must have vertex inside the volume enclosed by ECAL
@@ -32,12 +37,10 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
     if(absPdgId == 12 || absPdgId == 14 || absPdgId == 16 || absPdgId == 1000022)
     {
 	return false;
-    }
-    
-    // keep all high-energy protons
+    }    // keep all high-energy protons
     else if(absPdgId == 2212 && particle.momentum().E() >= protonEMin_)
     {
-	return true;
+    return true;
     }
     
     // cut on the energy
@@ -58,7 +61,15 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle & particle) const
 	return false;
     }
 
-    // particles must have vertex in volume enclosed by ECAL
+    // possible to extend list of invisible particles
+    for(unsigned InvIdx = 0; InvIdx < skipParticles_.size(); InvIdx++){
+        if(absPdgId == abs(skipParticles_.at(InvIdx)))
+        {
+        return false;
+        }
+    }
+
+    // particles must have vertex in volume of tracker
     return accepts(particle.position());
 } 
 

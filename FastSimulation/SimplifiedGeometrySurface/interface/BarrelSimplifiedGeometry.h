@@ -1,22 +1,22 @@
-#ifndef FASTSIM_BARRELLAYER_H
-#define FASTSIM_BARRELLAYER_H
+#ifndef FASTSIM_BARRELSIMPLIFIEDGEOMETRY_H
+#define FASTSIM_BARRELSIMPLIFIEDGEOMETRY_H
 
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "TH1F.h"
 
 namespace fastsim{
 
-    class BarrelLayer : public Layer
+    class BarrelSimplifiedGeometry : public SimplifiedGeometry
     {
     public:
-	~BarrelLayer(){};
+	~BarrelSimplifiedGeometry(){};
 	
-	BarrelLayer(double radius) :
-	    Layer(radius) {}
+	BarrelSimplifiedGeometry(double radius) :
+	    SimplifiedGeometry(radius) {}
 	
-	BarrelLayer(BarrelLayer &&) = default;
+	BarrelSimplifiedGeometry(BarrelSimplifiedGeometry &&) = default;
 	
 	const double getRadius() const { return position_; }
 	
@@ -24,7 +24,7 @@ namespace fastsim{
 	{
 	    if(!this->isOnSurface(position))
 	    {
-		throw cms::Exception("fastsim::BarrelLayer::getThickness") << "position is not on layer's surface";
+		throw cms::Exception("fastsim::BarrelSimplifiedGeometry::getThickness") << "position is not on layer's surface";
 	    }
 	    double fabsCosTheta = fabs(momentum.Vect().Dot(position.Vect())) / momentum.Rho() / position.Rho();
 	    return thicknessHist_->GetBinContent(thicknessHist_->GetXaxis()->FindBin(fabs(position.Z()))) / fabsCosTheta;
@@ -34,7 +34,7 @@ namespace fastsim{
 	{
 	    if(!this->isOnSurface(position))
 	    {
-		throw cms::Exception("fastsim::BarrelLayer::getMagneticFieldZ") << "position is not on layer's surface";
+		throw cms::Exception("fastsim::BarrelSimplifiedGeometry::getMagneticFieldZ") << "position is not on layer's surface";
 	    }
 	    return magneticFieldHist_->GetBinContent(magneticFieldHist_->GetXaxis()->FindBin(fabs(position.z())));
 	}

@@ -5,8 +5,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FastSimulation/Geometry/interface/Geometry.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
 #include "FastSimulation/Propagation/interface/LayerNavigator.h"
 #include "FastSimulation/Propagation/interface/Trajectory.h"      // new class, to be defined, based on ParticlePropagator
 #include "FastSimulation/NewParticle/interface/Particle.h"
@@ -66,7 +66,7 @@ fastsim::LayerNavigator::LayerNavigator(const fastsim::Geometry & geometry)
     , previousForwardLayer_(0)
 {;}
 
-bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & particle,const fastsim::Layer * & layer)
+bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & particle,const fastsim::SimplifiedGeometry * & layer)
 {
     LogDebug(MESSAGECATEGORY) << "   moveToNextLayer called";
 
@@ -203,7 +203,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     std::unique_ptr<fastsim::Trajectory> trajectory = Trajectory::createTrajectory(particle,magneticFieldZ);
     
     // now let's try to move the particle to one of the enclosing layers
-    std::vector<const fastsim::Layer*> layers;
+    std::vector<const fastsim::SimplifiedGeometry*> layers;
     if(nextBarrelLayer_) 
     {
 		layers.push_back(nextBarrelLayer_);

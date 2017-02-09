@@ -1,10 +1,10 @@
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "iostream"
 #include "TH1F.h"
 
-std::ostream& fastsim::operator << (std::ostream& os , const Layer & layer)
+std::ostream& fastsim::operator << (std::ostream& os , const SimplifiedGeometry & layer)
 {
-    os << (layer.isForward() ? "ForwardLayer" : "BarrelLayer")
+    os << (layer.isForward() ? "ForwardSimplifiedGeometry" : "BarrelSimplifiedGeometry")
        << " index=" << layer.index_
        << (layer.isForward() ? " z=" : " radius=") << layer.position_;
     return os;
@@ -13,10 +13,10 @@ std::ostream& fastsim::operator << (std::ostream& os , const Layer & layer)
 // note: define destructor and constructor in .cc file,
 //       otherwise one cannot forward declare TH1F in the header file
 //       w/o compilation issues
-fastsim::Layer::~Layer()
+fastsim::SimplifiedGeometry::~SimplifiedGeometry()
 {}
 
-fastsim::Layer::Layer(double position)
+fastsim::SimplifiedGeometry::SimplifiedGeometry(double position)
     : position_(position)
     , position2_(position_*position_)
     , index_(-1)
