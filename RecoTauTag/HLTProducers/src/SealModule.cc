@@ -29,6 +29,8 @@ using TauRegionalPixelSeedTrackingRegionEDProducer = TrackingRegionEDProducerT<T
 DEFINE_FWK_MODULE(TauRegionalPixelSeedTrackingRegionEDProducer);
 using CandidateSeededTrackingRegionsEDProducer = TrackingRegionEDProducerT<CandidateSeededTrackingRegionsProducer>;
 DEFINE_FWK_MODULE(CandidateSeededTrackingRegionsEDProducer);
+using TrackingRegionsFromBeamSpotAndL2TauEDProducer = TrackingRegionEDProducerT<TrackingRegionsFromBeamSpotAndL2Tau>;
+DEFINE_FWK_MODULE(TrackingRegionsFromBeamSpotAndL2TauEDProducer);
 
 DEFINE_FWK_MODULE(L2TauJetsMerger);
 DEFINE_FWK_MODULE(L1HLTJetsMatching);
