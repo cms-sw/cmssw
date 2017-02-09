@@ -81,12 +81,19 @@ hfprereco = _hcalLocalReco_cff.hfprereco.clone(
     sumAllTimeSlices = cms.bool(True)
 )
 
+hbheplan1 = _hcalLocalReco_cff.hbheplan1.clone()
+
 # redefine hcal sequence
 hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 
 _phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase1_hcalLocalRecoSequence.insert(0,hfprereco)
 run2_HF_2017.toReplaceWith(hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence)
+
+_plan1_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy() 
+_plan1_hcalLocalRecoSequence += hbheplan1
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSequence)
 
 calolocalrecoCosmics = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence)
 
