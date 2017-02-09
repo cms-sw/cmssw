@@ -290,7 +290,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         UsePMTHits                = cms.bool(False),
         UseFibreBundleHits        = cms.bool(False),
         TestNumberingScheme       = cms.bool(False),
-        doNeutralDensityFilter    = cms.bool(True),
+        doNeutralDensityFilter    = cms.bool(False),
         EminHitHB                 = cms.double(0.0),
         EminHitHE                 = cms.double(0.0),
         EminHitHO                 = cms.double(0.0),
@@ -473,4 +473,5 @@ from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify( g4SimHits.ECalSD,
                              StoreLayerTimeSim = cms.untracked.bool(True),
                              TimeSliceUnit = cms.double(0.001) )
-
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(g4SimHits.HCalSD, doNeutralDensityFilter = cms.bool(True))
