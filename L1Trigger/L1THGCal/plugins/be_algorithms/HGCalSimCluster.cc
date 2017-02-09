@@ -100,11 +100,16 @@ namespace HGCalTriggerBackend{
                 p4.SetM  ( iterator -> second . second . mass() ) ;
                 math::PtEtaPhiMLorentzVectorD pp4; 
                 float t = std::exp (- eta);
-                pp4.SetPt ( energy * (1-t*t)/(1+t*t)  ) ;
+                //pp4.SetPt ( energy * (1-t*t)/(1+t*t)  ) ;
+                pp4.SetPt ( energy * (2*t)/(1+t*t)  ) ;
                 pp4.SetEta( eta ) ;
                 pp4.SetPhi( phi ) ;
                 pp4.SetM  (  0  ) ;
+                //cout<<" - Adding to Cluster "<<pid<<": old "<<p4.pt()<<":"<<p4.eta()<<":"<<p4.phi()
+                //    <<" new "<<pp4.pt()<<":"<<pp4.eta()<<":"<<pp4.phi() //DEBUG
+                //    << " energy="<<energy<<" eta="<<eta<<" t="<<t;
                 p4 += pp4;
+                //cout <<" res "<<p4.pt()<<":"<<p4.eta()<<":"<<p4.phi()<<endl; //DEBUG
                 iterator -> second . second . setP4(p4);
                 //iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
                 return ;
@@ -208,21 +213,54 @@ namespace HGCalTriggerBackend{
 #endif
                 std::unordered_map<uint64_t, double> hgc_simhit_energy;
 
+                edm::ESHandle<HGCalTopology> topo_ee, topo_fh;
+                es.get<IdealGeometryRecord>().get("HGCalEESensitive",topo_ee);
+                es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",topo_fh);
+
+                //cout <<"--- SIM HITS ----" <<endl;
                 if (ee_simhits_h.isValid()) 
                 {
+                    int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
+                    ForwardSubdetector mysubdet;
                     for (const auto& simhit : *ee_simhits_h)
-                        hgc_simhit_energy[simhit.id()] = simhit.energy();
+                    {
+                        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+                        mysubdet = (ForwardSubdetector)(subdet);
+                        std::pair<int,int> recoLayerCell = topo_ee->dddConstants().simToReco(cell,layer,sec,topo_ee->detectorType());
+                        cell  = recoLayerCell.first;
+                        layer = recoLayerCell.second;
+                        if (layer<0 || cell<0) {
+                          continue;
+                        }
+                        unsigned recoCell = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
+
+                        //cout <<"* Adding ee sim hit "<<recoCell<<" with energy "<<simhit.energy()<<endl;
+                        hgc_simhit_energy[recoCell] += simhit.energy();
+                    }
                 }
                 if (fh_simhits_h.isValid())
                 {
+                    int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
+                    ForwardSubdetector mysubdet;
                     for (const auto& simhit : *fh_simhits_h)
-                        hgc_simhit_energy[simhit.id()] = simhit.energy();
+                    {
+                        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+                        mysubdet = (ForwardSubdetector)(subdet);
+                        std::pair<int,int> recoLayerCell = topo_fh->dddConstants().simToReco(cell,layer,sec,topo_fh->detectorType());
+                        cell  = recoLayerCell.first;
+                        layer = recoLayerCell.second;
+                        if (layer<0 || cell<0) {
+                          continue;
+                        }
+                        unsigned recoCell = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
+                        //cout <<"* Adding fh sim hit "<<recoCell<<" with energy "<<simhit.energy()<<endl;
+                        hgc_simhit_energy[recoCell] += simhit.energy();
+                    }
                 }
-                if (bh_simhits_h.isValid())
+                if (bh_simhits_h.isValid() and false) /// FIXME TODO
                 {
-                    for (const auto& simhit : *bh_simhits_h)
-                        hgc_simhit_energy[simhit.id()] = simhit.energy();
                 }
+                //cout <<"-----------------" <<endl;
 
                 
                 //1. construct a cluster container that hosts the cluster per truth-particle
@@ -235,22 +273,33 @@ namespace HGCalTriggerBackend{
                 // calibration
                 es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
                 es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive_, hgchefTopoHandle_);
+                // GET HGCAl Geometry --DEBUG
+                //edm::ESHandle<HGCalGeometry> geom_ee, geom_fh; //DEBUG
+                //es.get<IdealGeometryRecord>().get("HGCalEESensitive", geom_ee);
+                //es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", geom_fh);
 
                 // 1.5. pre-process the sim cluster to have easy accessible information
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::[run] processing sim clusters"<<endl;
 #endif
                 // I want a map cell-> [ (pid, fraction),  ... 
+                //cout <<"[HGCalTriggerSimCluster]::[run] ---- SIM HITS"<<endl;
                 std::unordered_map<uint32_t, std::vector<std::pair< uint64_t, float > > > simclusters;
                 for (auto& cluster : *sim_handle_)
                 {
                     auto pid= cluster.particleId(); // not pdgId
+                    //cout <<"* Find PID="<<pid<<endl;//TODO PRINT ETA/PHI
                     const auto& hf = cluster.hits_and_fractions();
                     for (const auto & p : hf ) 
                     {
+                        ////DEBU
+                        //GlobalPoint cellpos = geom_ee->getPosition(p.first);
+                        //cout <<"  - HIT: "<< cellpos.eta()<<":"<< cellpos.phi()<<endl;
+                        //
                         simclusters[p.first].push_back( std::pair<uint64_t, float>( pid,p.second) ) ;
                     }
                 }
+                cout <<"--------------------------"<<endl;
                 
 #ifdef HGCAL_DEBUG
                 cout<<"[HGCalTriggerSimCluster]::[run] Run on digis"<<endl;
@@ -305,9 +354,10 @@ namespace HGCalTriggerBackend{
                                 HGCalDetId cellId(cell);
 
                                 //2.C0 find energy of the hgc cell
-                                double hgc_energy=1.0; // 1 ->  average if not found / bh
+                                double hgc_energy=1.0e-10; // 1 ->  average if not found / bh
                                 const auto &it = hgc_simhit_energy.find(cell);
                                 if (it != hgc_simhit_energy.end()) {  hgc_energy = it->second; }
+                                //else { cout <<"SIM HIT ENERGY NOT FOUND: id="<< cell<<endl;;}
 
                                 //2.C get the particleId and energy fractions
                                 const auto & iterator= simclusters.find(cellId);
@@ -327,9 +377,19 @@ namespace HGCalTriggerBackend{
                             {
                                 HGCalDetId cellId(cell);
                                 //
-                                double hgc_energy=1.0; // 1 ->  average if not found / bh
+                                double hgc_energy=1.0e-10; // 1 ->  average if not found / bh
                                 const auto &it = hgc_simhit_energy.find(cell);
                                 if (it != hgc_simhit_energy.end()) {  hgc_energy = it->second; }
+                                /*
+                                cout <<"considering cellId in layer: "<<cellId.layer()
+                                    <<"side:" <<cellId.zside()
+                                    <<"wafer: "<<cellId.wafer()
+                                    <<"sim energy: "<<  hgc_energy
+                                    <<"calib energy: "<< calibratedDigiEnergy
+                                    <<"tc id: "<<triggercell.detId()
+                                    <<endl;
+                                */
+
                                 //2.C get the particleId and energy fractions
                                 const auto & iterator= simclusters.find(cellId);
                                 if (iterator == simclusters.end() )  continue;
@@ -339,9 +399,10 @@ namespace HGCalTriggerBackend{
                                 {
                                     const auto & pid= p.first;
                                     const auto & fraction=p.second;
-                                    //auto energy = fraction*digiEnergy/ncells;
                                     //auto energy = fraction * calibratedDigiEnergy/norm;
-                                    auto energy = fraction * hgc_energy* calibratedDigiEnergy/norm;
+                                    auto energy = fraction * hgc_energy* calibratedDigiEnergy/norm; // THIS IS WHAT I WANT
+                                    //#warning FIXME_ENERGY
+                                    //auto energy = fraction * hgc_energy* hgc_energy/norm;
 
                                     //2.D add to the corresponding cluster
                                     //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
