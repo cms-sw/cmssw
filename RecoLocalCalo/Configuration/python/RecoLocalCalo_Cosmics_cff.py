@@ -51,7 +51,7 @@ zdcreco = _hcalLocalReco_cff.zdcreco.clone(
 )
 
 # 2017 customs
-from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 
 _phase1_hbheprereco = _hcalLocalReco_cff._phase1_hbheprereco.clone(
@@ -74,7 +74,7 @@ _phase1_hfreco = _hcalLocalReco_cff._phase1_hfreco.clone(
 )
 
 
-run2_HE_2017.toReplaceWith(hbheprereco, _phase1_hbheprereco )
+run2_HCAL_2017.toReplaceWith(hbheprereco, _phase1_hbheprereco )
 run2_HF_2017.toReplaceWith(hfreco, _phase1_hfreco )
 
 hfprereco = _hcalLocalReco_cff.hfprereco.clone(
