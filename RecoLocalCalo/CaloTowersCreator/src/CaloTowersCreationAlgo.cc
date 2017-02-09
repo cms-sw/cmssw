@@ -513,7 +513,7 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
       //HcalDetId(detId).depth()==3 &&
       HcalDetId(detId).ietaAbs()==theHcalTopology->lastHERing()-1) {
     bool merge(false);
-    if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) == phizOne.end())) {
+    if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) != phizOne.end())) {
       merge = (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detId).depth())!=mergedDepthsOne.end());
 #ifdef EDM_ML_DEBUG
       std::cout << "Special cell ";
