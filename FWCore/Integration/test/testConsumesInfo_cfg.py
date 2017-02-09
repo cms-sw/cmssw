@@ -24,6 +24,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(True),
     numberOfStreams = cms.untracked.uint32(1),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
@@ -109,10 +110,7 @@ process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3 
 process.p2 = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 process.p11 = cms.Path()
 
-process.t = cms.Task(process.intProducerU, process.intProducerA, process.intVectorProducer)
-
-process.e = cms.EndPath(process.testManyConsumingProducer+process.out, process.t)
-
+process.e = cms.EndPath(process.testManyConsumingProducer+process.out)
 process.p1ep2 = cms.EndPath()
 
 copyProcess = cms.Process("COPY")

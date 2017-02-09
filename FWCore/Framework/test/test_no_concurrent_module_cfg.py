@@ -4,7 +4,7 @@ process = cms.Process("NOCONCURRENT")
 
 process.source = cms.Source("EmptySource")
 
-process.options = cms.untracked.PSet(
+process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True),
                             numberOfStreams = cms.untracked.uint32(4),
                             numberOfThreads = cms.untracked.uint32(4)                            
 )
@@ -26,9 +26,7 @@ process.c2 = cms.EDAnalyzer("ConsumingOneSharedResourceAnalyzer",
                             moduleLabel = cms.untracked.InputTag("i2"),
                             resourceName = cms.untracked.string("foo"))
 
-process.t = cms.Task(process.i1, process.i2)
-
-process.p = cms.Path(process.c1+process.c2, process.t)
+process.p = cms.Path(process.c1+process.c2)
 
 process.add_(cms.Service("ConcurrentModuleTimer",
                          modulesToExclude = cms.untracked.vstring("TriggerResults"),

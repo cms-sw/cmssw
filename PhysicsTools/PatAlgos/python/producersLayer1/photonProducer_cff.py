@@ -31,10 +31,9 @@ patPhotons.isolationValues = cms.PSet(
     )
 
 ## for scheduled mode
-makePatPhotonsTask = cms.Task(
-    pfParticleSelectionForIsoTask,
-    pfPhotonIsolationPATTask,
-    photonMatch,
+makePatPhotons = cms.Sequence(
+    pfParticleSelectionForIsoSequence *
+    pfPhotonIsolationPATSequence *
+    photonMatch *
     patPhotons
     )
-makePatPhotons = cms.Sequence(makePatPhotonsTask)

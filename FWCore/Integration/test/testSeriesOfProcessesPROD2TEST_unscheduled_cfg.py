@@ -19,6 +19,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(True),
     Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
@@ -53,9 +54,7 @@ process.a = cms.EDAnalyzer("TestFindProduct",
   expectedSum = cms.untracked.int32(15300)
 )
 
-process.t = cms.Task(process.fakeRaw)
-
-process.test1 = cms.Path(process.a, process.t)
+process.test1 = cms.Path(process.a)
 
 process.out = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string('testSeriesOfProcessesPROD2TEST_u.root'),

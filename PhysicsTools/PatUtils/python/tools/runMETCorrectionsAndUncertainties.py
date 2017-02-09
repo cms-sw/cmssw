@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.GuiBrowsers.ConfigToolBase import *
 import PhysicsTools.PatAlgos.tools.helpers as configtools
-from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 
@@ -438,19 +437,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     
 #====================================================================================================
     def produceMET(self, process,  metType, metModuleSequence, postfix):
-
-        task = getPatAlgosToolsTask(process)
-
         if metType == "PF" and not hasattr(process, 'pat'+metType+'Met'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
-            task.add(process.producePatPFMETCorrectionsTask)
-            task.add(process.patPFMetT2SmearCorrTask)
-            task.add(process.patPFMetTxyCorrTask)
-            task.add(process.jetCorrectorsTask)
+            
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
-            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
-            addToProcessAndTask('pat'+metType+'Met'+postfix,  getattr(process,'patPFMet' ).clone(), process, task)
+            configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp)
+            setattr(process, 'pat'+metType+'Met'+postfix, getattr(process,'patPFMet' ).clone() )
             getattr(process, "patPFMet"+postfix).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, "patPFMet"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
         
@@ -462,11 +455,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if metType == "MVA": # and not hasattr(process, 'pat'+metType+'Met'):
            # process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
             mvaMetProducer = self.createMVAMETModule(process)
-            addToProcessAndTask('pfMVAMet'+postfix, mvaMetProducer, process, task)
-            addToProcessAndTask('pat'+metType+'Met'+postfix,
-                                getattr(process,'patPFMet' ).clone(metSource = cms.InputTag('pfMVAMet')),
-                                process, task)
-
+            setattr(process, 'pfMVAMet'+postfix, mvaMetProducer )
+            setattr(process, 'pat'+metType+'Met'+postfix, getattr(process,'patPFMet' ).clone(
+                    metSource = cms.InputTag('pfMVAMet'),
+                    
+                    ) ) 
+            
         metModuleSequence += getattr(process, 'pat'+metType+'Met'+postfix )
 
 #====================================================================================================
@@ -508,17 +502,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if postfix != "":
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             if not hasattr(process, "patPFMetT0CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrSequence"), postfix, noClones = noClonesTmp, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT0CorrSequence"), postfix, noClones = noClonesTmp)
             if not hasattr(process, "patPFMetT1T2CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrSequence"), postfix, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT1T2CorrSequence"), postfix)
             if not hasattr(process, "patPFMetT2CorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2CorrSequence"), postfix, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2CorrSequence"), postfix)
             if not hasattr(process, "patPFMetTxyCorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetTxyCorrSequence"), postfix, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetTxyCorrSequence"), postfix)
             if not hasattr(process, "patPFMetSmearCorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetSmearCorrSequence"), postfix, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetSmearCorrSequence"), postfix)
             if not hasattr(process, "patPFMetT2SmearCorrSequence"+postfix):
-                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrSequence"), postfix, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrSequence"), postfix)
            
         corModules = {}
         for mod in corModNames.keys():
@@ -586,11 +580,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
 
-        task = getPatAlgosToolsTask(process)
-
         #T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
-            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, task)
+            setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector")
@@ -598,7 +590,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "basicJetsForMet"+postfix).offsetCorrLabel = cms.InputTag("ak4PFL1FastjetCorrector")
         
         if "T1" in correctionLevel and self._parameters["Puppi"].value:  
-            addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, task)
+            setattr(process, "corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone() )
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabel = cms.InputTag("ak4PFPuppiL1FastL2L3Corrector")
             getattr(process, "corrPfMetType1"+postfix).jetCorrLabelRes = cms.InputTag("ak4PFPuppiL1FastL2L3ResidualCorrector")
@@ -626,8 +618,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #    corMetProducer = self.createMVAMETModule(process)
         #    sequenceName="pfMVAMEtSequence"
             
-        addToProcessAndTask(metModName, corMetProducer, process, task)
-
+        setattr(process,metModName, corMetProducer)
+        
         # adding the full sequence only if it does not exist
         if not hasattr(process, sequenceName+postfix):
             
@@ -652,7 +644,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if produceIntermediateCorrections:
             interMets = self.addIntermediateMETs(process, metType, correctionLevel, corScheme, corTags,corNames, postfix)
             for met in interMets.keys():
-                addToProcessAndTask(met, interMets[met], process, task)
+                setattr(process,met, interMets[met] )
                 patMetCorrectionSequence += getattr(process, met)
 
         return patMetCorrectionSequence, metModName
@@ -723,8 +715,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         metUncSequence = cms.Sequence()
         shiftedModuleSequence = cms.Sequence()
 
-        task = getPatAlgosToolsTask(process)
-
         #===================================================================================
         # jet energy resolution shifts
         #===================================================================================
@@ -738,7 +728,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             metJERUncModules = self.getVariations(process, metModName, "Jet",preId, jetCollection, "Res", metUncSequence, postfix=postfix )
             
             for mod in metJERUncModules.keys():
-                addToProcessAndTask(mod, metJERUncModules[mod], process, task)
+                setattr(process, mod, metJERUncModules[mod] )
                 shiftedModuleSequence += getattr(process, mod)
 
         #===================================================================================
@@ -751,7 +741,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                            src = pfCandCollection, 
                                            veto = jetCollection
                                            )
-            addToProcessAndTask("pfCandsNoJets"+postfix, pfCandsNoJets, process, task)
+            setattr(process, "pfCandsNoJets"+postfix, pfCandsNoJets)
             metUncSequence += getattr(process, "pfCandsNoJets"+postfix)
                 
             #electron projection ==
@@ -759,7 +749,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                 src = cms.InputTag("pfCandsNoJets"+postfix),
                                                 veto = electronCollection
                                                 )
-            addToProcessAndTask("pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle, process, task)
+            setattr(process, "pfCandsNoJetsNoEle"+postfix, pfCandsNoJetsNoEle)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEle"+postfix)
         
             #muon projection ==
@@ -767,7 +757,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               src = cms.InputTag("pfCandsNoJetsNoEle"+postfix),
                                               veto = muonCollection
                                               )
-            addToProcessAndTask("pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu, process, task)
+            setattr(process, "pfCandsNoJetsNoEleNoMu"+postfix, pfCandsNoJetsNoEleNoMu)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMu"+postfix)
 
             #tau projection ==
@@ -775,7 +765,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMu"+postfix),
                                               veto = tauCollection
                                               )
-            addToProcessAndTask("pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau, process, task)
+            setattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix, pfCandsNoJetsNoEleNoMuNoTau)
             metUncSequence += getattr(process, "pfCandsNoJetsNoEleNoMuNoTau"+postfix)
 
             #photon projection ==
@@ -783,7 +773,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                               src = cms.InputTag("pfCandsNoJetsNoEleNoMuNoTau"+postfix),
                                               veto = photonCollection
                                               )
-            addToProcessAndTask("pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc, process, task)
+            setattr(process, "pfCandsForUnclusteredUnc"+postfix, pfCandsForUnclusteredUnc)
             metUncSequence += getattr(process, "pfCandsForUnclusteredUnc"+postfix)
 
         #===================================================================================
@@ -805,7 +795,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 
                 #adding the shifted MET produced to the proper patMetModuleSequence
                 for mod in metObjUncModules.keys():
-                    addToProcessAndTask(mod, metObjUncModules[mod], process, task)
+                    setattr(process, mod, metObjUncModules[mod] )
                     shiftedModuleSequence += getattr(process, mod)
                     
         #return the sequence containing the shifted collections producers
@@ -1035,8 +1025,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         shiftedMetProducers = {}
 
-        task = getPatAlgosToolsTask(process)
-
         # remove the postfix to put it at the end
         baseName = self.removePostfix(metModName, postfix)
        
@@ -1047,7 +1035,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix
             #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
             if not hasattr(process, modName):
-                addToProcessAndTask(modName, shiftedCollModules[mod], process, task)
+                setattr(process, modName, shiftedCollModules[mod])
                 metUncSequence += getattr(process, modName)
             
             #removing the uncorrected
@@ -1059,7 +1047,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 shiftedMETCorrModule = self.createShiftedMETModule(process, objectCollection, modName)
                 modMETShiftName = "shiftedPatMETCorr"+preId+identifier+varType+mod+postfix
                 if not hasattr(process, modMETShiftName):
-                    addToProcessAndTask(modMETShiftName, shiftedMETCorrModule, process, task)
+                    setattr(process, modMETShiftName, shiftedMETCorrModule)
                     metUncSequence += getattr(process, modMETShiftName)
                 
                 #and finally prepare the shifted MET producers
@@ -1118,11 +1106,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 #========================================================================================
     def createMVAMETModule(self, process, identifier="", shiftedCollection="", isShifted=False, postfix="" ):
 
-        task = getPatAlgosToolsTask(process)
-
         if not hasattr(process, "pfMVAMEt"):
             process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-
+ 
         #retrieve collections
         electronCollection = self._parameters["electronCollection"].value
         muonCollection = self._parameters["electronCollection"].value
@@ -1168,7 +1154,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             srcPFCandidates = pfCandCollection,
             srcLeptons = leptons,
             )
-
+        
         return mvaMetProducer
 
 #========================================================================================
@@ -1302,23 +1288,19 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def recomputeRawMetFromPfcs(self, process, pfCandCollection, onMiniAOD, patMetModuleSequence,  postfix):
-
-        task = getPatAlgosToolsTask(process)
-
         #RECO MET
         if not hasattr(process, "pfMet"+postfix) and self._parameters["metType"].value == "PF":
             #common to AOD/mAOD processing
             #raw MET
             from RecoMET.METProducers.PFMET_cfi import pfMet
-            addToProcessAndTask("pfMet"+postfix, pfMet.clone(), process, task)
+            setattr(process, "pfMet"+postfix, pfMet.clone() )
             getattr(process, "pfMet"+postfix).src = pfCandCollection
             getattr(process, "pfMet"+postfix).calculateSignificance = False
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
             
             #PAT METs
             process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
-            task.add(process.makePatMETsTask)
-            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix, addToTask = True)
+            configtools.cloneProcessingSnippet(process, getattr(process,"patMETCorrections"), postfix)
                   
             #T1 pfMet for AOD to mAOD only
             if not onMiniAOD: #or self._parameters["Puppi"].value:
@@ -1326,7 +1308,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "pfMetT1"+postfix).src = cms.InputTag("pfMet"+postfix)
                 patMetModuleSequence += getattr(process, "pfMetT1"+postfix)
 
-                addToProcessAndTask('patMETs'+postfix, getattr(process,'patMETs' ).clone(), process, task)
+                setattr(process, 'patMETs'+postfix, getattr(process,'patMETs' ).clone() )
                 getattr(process, "patMETs"+postfix).metSource = cms.InputTag("pfMetT1"+postfix)
                 getattr(process, "patMETs"+postfix).computeMETSignificance = cms.bool(True)
                 if postfix=="NoHF":
@@ -1341,25 +1323,22 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def extractMET(self, process, correctionLevel, patMetModuleSequence, postfix):
-
-        task = getPatAlgosToolsTask(process)
-
         pfMet = cms.EDProducer("RecoMETExtractor",
                                metSource= cms.InputTag("slimmedMETs" if not self._parameters["Puppi"].value else "slimmedMETsPuppi",processName=cms.InputTag.skipCurrentProcess()),
                                correctionLevel = cms.string(correctionLevel)
                                )
         if(correctionLevel=="raw"):
-            addToProcessAndTask("pfMet"+postfix, pfMet, process, task)
+            setattr(process,"pfMet"+postfix ,pfMet)
             patMetModuleSequence += getattr(process, "pfMet"+postfix)
         else:
-            addToProcessAndTask("met"+correctionLevel+postfix, pfMet, process, task)
+            setattr(process,"met"+correctionLevel+postfix ,pfMet)
             patMetModuleSequence += getattr(process, "met"+correctionLevel+postfix)
    
         if not hasattr(process, "genMetExtractor"+postfix) and not self._parameters["runOnData"].value:
             genMetExtractor = cms.EDProducer("GenMETExtractor",
                                              metSource= cms.InputTag("slimmedMETs",processName=cms.InputTag.skipCurrentProcess())
                                              )
-            addToProcessAndTask("genMetExtractor"+postfix, genMetExtractor, process, task)
+            setattr(process, "genMetExtractor"+postfix ,genMetExtractor)
             patMetModuleSequence += getattr(process, "genMetExtractor"+postfix)
                                              
         
@@ -1382,20 +1361,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"+postfix))
             )
 
-        task = getPatAlgosToolsTask(process)
-        addToProcessAndTask("patJetCorrFactorsReapplyJEC"+postfix, patJetCorrFactorsReapplyJEC, process, task)
-        addToProcessAndTask("patJetsReapplyJEC"+postfix, patJetsReapplyJEC.clone(), process, task)
-
+        setattr(process,"patJetCorrFactorsReapplyJEC"+postfix,patJetCorrFactorsReapplyJEC)
+        setattr(process,"patJetsReapplyJEC"+postfix,patJetsReapplyJEC.clone())
         patMetModuleSequence += getattr(process,"patJetCorrFactorsReapplyJEC"+postfix)
         patMetModuleSequence += getattr(process,"patJetsReapplyJEC"+postfix)
-
+        
         return  cms.InputTag("patJetsReapplyJEC"+postfix)
 
 
     def getJetCollectionForCorsAndUncs(self, process, jetCollectionUnskimmed, 
                                        jetSelection, autoJetCleaning,patMetModuleSequence, postfix):
-
-        task = getPatAlgosToolsTask(process)
 
         basicJetsForMet = cms.EDProducer("PATJetCleanerForType1MET",
                                          src = jetCollectionUnskimmed,
@@ -1409,7 +1384,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                          skipMuons = cms.bool(True),
                                          type1JetPtThreshold = cms.double(15.0)
                                          )
-        addToProcessAndTask("basicJetsForMet"+postfix, basicJetsForMet, process, task)
+        setattr(process, "basicJetsForMet"+postfix, basicJetsForMet)
         patMetModuleSequence += getattr(process, "basicJetsForMet"+postfix)
         
         from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
@@ -1417,7 +1392,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             src = cms.InputTag("basicJetsForMet"+postfix),
             cut = cms.string(jetSelection)
             )
-        addToProcessAndTask("jetSelectorForMet"+postfix, jetSelector, process, task)
+        setattr(process, "jetSelectorForMet"+postfix, jetSelector)
         patMetModuleSequence += getattr(process, "jetSelectorForMet"+postfix)
         
         jetCollection = self.jetCleaning(process, "jetSelectorForMet"+postfix, autoJetCleaning, patMetModuleSequence, postfix)
@@ -1427,8 +1402,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def ak4JetReclustering(self,process, pfCandCollection, patMetModuleSequence, postfix):
         
-        task = getPatAlgosToolsTask(process)
-
         chs = self._parameters["CHS"].value
         jetColName="ak4PFJets"
         CHSname=""
@@ -1441,18 +1414,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if self._parameters["onMiniAOD"].value: 
                 pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
             else:
-                addToProcessAndTask("tmpPFCandCollPtr",
-                                    cms.EDProducer("PFCandidateFwdPtrProducer",
-                                                   src = pfCandCollection ),
-                                    process, task)
+                setattr( process, "tmpPFCandCollPtr", cms.EDProducer("PFCandidateFwdPtrProducer",
+                                                                     src = pfCandCollection ) )
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
-                task.add(process.pfNoPileUpJMETask)
-                configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix, addToTask = True)
+                configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix )
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr")
                 pfCHS = getattr(process, "pfNoPileUpJME").clone( bottomCollection = cms.InputTag("tmpPFCandCollPtr") )
             
             if not hasattr(process, "pfCHS"+postfix):
-                addToProcessAndTask("pfCHS"+postfix, pfCHS, process, task)
+                setattr(process,"pfCHS"+postfix,pfCHS)
                 patMetModuleSequence += getattr(process, "pfCHS"+postfix)
             pfCandColl = cms.InputTag("pfCHS"+postfix)
                    
@@ -1460,10 +1430,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         jetColName+=postfix
         if not hasattr(process, jetColName):
             process.load("RecoJets.JetProducers.ak4PFJets_cfi")
-            task.add(process.ak4PFJets)
             
             #if chs:
-            addToProcessAndTask(jetColName, getattr(process,"ak4PFJets").clone(), process, task)
+            setattr(process, jetColName, getattr(process,"ak4PFJets").clone() )
             getattr(process, jetColName).src = pfCandColl 
             getattr(process, jetColName).doAreaFastjet = True
             
@@ -1548,10 +1517,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if not hasattr(process, "slimmedMETs"+postfix) and self._parameters["metType"].value == "PF":
 
-            task = getPatAlgosToolsTask(process)
-
             from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
-            addToProcessAndTask("slimmedMETs"+postfix, slimmedMETs.clone(), process, task)
+            setattr(process, "slimmedMETs"+postfix, slimmedMETs.clone() )
             getattr(process,"slimmedMETs"+postfix).src = cms.InputTag("patPFMetT1"+postfix)
             getattr(process,"slimmedMETs"+postfix).rawVariation = cms.InputTag("patPFMet"+postfix)
             getattr(process,"slimmedMETs"+postfix).t1Uncertainties = cms.InputTag("patPFMetT1%s"+postfix)
@@ -1621,29 +1588,26 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         photonCollection = self._parameters["photonCollection"].value
         tauCollection = self._parameters["tauCollection"].value
         
-        task = getPatAlgosToolsTask(process)
 
         if autoJetCleaning == "Full" : # auto clean taus, photons and jets
             if isValidInputTag(tauCollection): 
                 process.load("PhysicsTools.PatAlgos.cleaningLayer1.tauCleaner_cfi")
-                task.add(process.cleanPatTaus)
                 cleanPatTauProducer = getattr(process, "cleanPatTaus").clone( 
                     src = tauCollection
                     )
                 cleanPatTauProducer.checkOverlaps.electrons.src = electronCollection
                 cleanPatTauProducer.checkOverlaps.muons.src = muonCollection
-                addToProcessAndTask("cleanedPatTaus"+postfix, cleanPatTauProducer, process, task)
+                setattr(process, "cleanedPatTaus"+postfix, cleanPatTauProducer)
                 jetProductionSequence += getattr(process, "cleanedPatTaus"+postfix)
                 tauCollection = cms.InputTag("cleanedPatTaus"+postfix)
             
             if isValidInputTag(photonCollection): 
                 process.load("PhysicsTools.PatAlgos.cleaningLayer1.photonCleaner_cfi")
-                task.add(process.cleanPatPhotons)
                 cleanPatPhotonProducer = getattr(process, "cleanPatPhotons").clone( 
                     src = photonCollection
                     )
                 cleanPatPhotonProducer.checkOverlaps.electrons.src = electronCollection
-                addToProcessAndTask("cleanedPatPhotons"+postfix, cleanPatPhotonProducer, process, task)
+                setattr(process, "cleanedPatPhotons"+postfix, cleanPatPhotonProducer)
                 jetProductionSequence += getattr(process, "cleanedPatPhotons"+postfix)
                 photonCollection = cms.InputTag("cleanedPatPhotons"+postfix)
 
@@ -1671,7 +1635,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # not used at all and electrons are already cleaned
         del cleanPatJetProducer.checkOverlaps.tkIsoElectrons
 
-        addToProcessAndTask("cleanedPatJets"+postfix, cleanPatJetProducer, process, task)
+        setattr(process, "cleanedPatJets"+postfix, cleanPatJetProducer)
         jetProductionSequence += getattr(process, "cleanedPatJets"+postfix)
         return cms.InputTag("cleanedPatJets"+postfix)
 

@@ -1,7 +1,5 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
-
 class AddMETCollection(ConfigToolBase):
     """
     Tool to add alternative MET collection(s) to your PAT Tuple
@@ -53,9 +51,7 @@ class AddMETCollection(ConfigToolBase):
         ## do necessary imports
         from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
         ## add module to the process
-        task = getPatAlgosToolsTask(process)
-        addToProcessAndTask(labelName, patMETs.clone(metSource = metSource, addMuonCorrections=False), process, task)
-
+        setattr(process, labelName, patMETs.clone(metSource = metSource, addMuonCorrections=False))
         ## add module to output
         if hasattr(process, "out"):
             process.out.outputCommands+=["keep *_{LABEL_NAME}_*_*".format(LABEL_NAME=labelName)]

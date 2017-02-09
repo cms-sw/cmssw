@@ -8,8 +8,8 @@ from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 pfNoPileUpCandidates = pfAllChargedHadrons.clone()
 pfNoPileUpCandidates.pdgId.extend(pfAllNeutralHadronsAndPhotons.pdgId)
 
-muonIsolationTask = cms.Task(pfParticleSelectionTask,
-                             pfNoPileUpCandidates,
-                             muonPFNoPileUpIsolation,
-                             muonPFPileUpIsolation)
-muonIsolationSequence = cms.Sequence(muonIsolationTask)
+muonIsolationSequence = cms.Sequence( pfParticleSelectionSequence +
+                                     pfNoPileUpCandidates +
+                                     muonPFNoPileUpIsolation +
+                                     muonPFPileUpIsolation )
+

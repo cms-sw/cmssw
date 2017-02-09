@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD3")
 
+process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testGetBy2.root'
@@ -174,7 +176,6 @@ process.p1004 = cms.Path(process.a1004)
 
 process.p1005 = cms.Path(process.a1005)
 
-process.t = cms.Task(process.intProducerU, process.intProducerA, process.nonProducer,
-                     process.intVectorSetProducer, process.intVectorProducer)
+process.e = cms.EndPath(process.out)
 
-process.e = cms.EndPath(process.out, process.t)
+

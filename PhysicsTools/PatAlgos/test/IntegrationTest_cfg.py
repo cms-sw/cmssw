@@ -9,11 +9,9 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## to run in un-scheduled mode uncomment the following lines
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-patAlgosToolsTask.add(process.patCandidatesTask)
-
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
-patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
+process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
     process.selectedPatCandidates

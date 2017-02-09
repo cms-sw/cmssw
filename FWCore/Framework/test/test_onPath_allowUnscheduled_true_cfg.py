@@ -4,10 +4,8 @@ process = cms.Process("TEST")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
-    Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow,
-    numberOfStreams = cms.untracked.uint32(1),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
+    allowUnscheduled = cms.untracked.bool(True),
+    Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -19,23 +17,6 @@ process.source = cms.Source("EmptySource",
 )
 
 process.Tracer = cms.Service("Tracer")
-
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations   = cms.untracked.vstring('cout',
-                                           'cerr'
-    ),
-    categories = cms.untracked.vstring(
-        'Tracer'
-    ),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet (
-            limit = cms.untracked.int32(0)
-        ),
-        Tracer = cms.untracked.PSet(
-            limit=cms.untracked.int32(100000000)
-        )
-    )
-)
 
 process.one = cms.EDProducer("IntProducer",
     ivalue = cms.int32(1)

@@ -12,11 +12,10 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtHypotheses_cff imp
 from TopQuarkAnalysis.TopEventProducers.producers.TtFullLepEvtBuilder_cfi import *
 
 ### make ttFullLepEvent
-makeTtFullLepEventTask = cms.Task(
-    makeTtFullLepHypothesesTask,
-    ttFullLepEvent
-)
-#makeTtFullLepEvent = cms.Sequence(makeTtFullLepEventTask)
+#makeTtFullLepEvent = cms.Sequence(makeTtFullLepHypotheses *
+                                  #ttFullLepEvent
+                                  #)
+
 
 ################################################################################
 ## helper functions

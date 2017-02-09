@@ -3,7 +3,8 @@
 
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
 ## uncomment the following line to update different jet collections
@@ -17,7 +18,6 @@ from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSSoftDropMass
 process.oldJetMass = ak8PFJetsCHSSoftDropMass.clone(
   src = cms.InputTag("slimmedJets"),
   matched = cms.InputTag("slimmedJets") )
-patAlgosToolsTask.add(process.oldJetMass)
 
 updateJetCollection(
    process,

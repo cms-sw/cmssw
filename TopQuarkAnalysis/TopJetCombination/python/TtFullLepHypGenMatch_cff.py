@@ -12,8 +12,6 @@ from TopQuarkAnalysis.TopTools.TtFullLepJetPartonMatch_cfi import *
 from TopQuarkAnalysis.TopJetCombination.TtFullLepHypGenMatch_cfi import *
 
 ## make hypothesis
-makeHypothesis_genMatchTask = cms.Task(
-    ttFullLepJetPartonMatch,
-    ttFullLepHypGenMatch
-)
-makeHypothesis_genMatch = cms.Sequence(makeHypothesis_genMatchTask)
+makeHypothesis_genMatch = cms.Sequence(ttFullLepJetPartonMatch *
+                                       ttFullLepHypGenMatch)
+

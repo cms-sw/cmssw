@@ -27,8 +27,3 @@ ttFullLeptonicFilter.allowedTopDecays.decayBranchA.muon     = True
 ttFullLeptonicFilter.allowedTopDecays.decayBranchB.electron = True
 ttFullLeptonicFilter.allowedTopDecays.decayBranchB.muon     = True
 
-ttDecayChannelFiltersTask = cms.Task(
-    ttFullHadronicFilter,
-    ttSemiLeptonicFilter,
-    ttFullLeptonicFilter
-)

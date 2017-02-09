@@ -8,13 +8,11 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import *
 
 ## for scheduled mode
-makePatJetsTask = cms.Task(
-    patJetCorrectionsTask,
-    patJetCharge,
-    patJetPartonMatch,
-    patJetGenJetMatch,
-    patJetFlavourIdLegacyTask,
-    patJetFlavourIdTask,
+makePatJets = cms.Sequence(
+    patJetCorrections *
+    patJetCharge *
+    patJetPartonMatch *
+    patJetGenJetMatch *
+    (patJetFlavourIdLegacy + patJetFlavourId) *
     patJets
     )
-makePatJets = cms.Sequence(makePatJetsTask)

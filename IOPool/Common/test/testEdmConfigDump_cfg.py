@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD1")
 
+process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
+
 process.source = cms.Source("IntSource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(3)
@@ -53,8 +55,6 @@ process.intVectorProducer = cms.EDProducer("IntVectorProducer",
   ivalue = cms.int32(11)
 )
 
-process.t = cms.Task(process.intProducerU, process.intProducerA, process.intVectorProducer)
-
-process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3, process.t)
+process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
 
 process.e = cms.EndPath(process.out)

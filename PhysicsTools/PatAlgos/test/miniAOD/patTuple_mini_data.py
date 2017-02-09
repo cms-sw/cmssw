@@ -1,12 +1,11 @@
 ## import skeleton process
-from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process, patAlgosToolsTask
+from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-patAlgosToolsTask.add(process.patCandidatesTask)
-
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
-patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -27,12 +26,7 @@ process.maxEvents.input = 10000
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
-patAlgosToolsTask.add(process.slimmingTask)
-
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
-patAlgosToolsTask.add(process.inclusiveVertexingTask)
-patAlgosToolsTask.add(process.inclusiveCandidateVertexingTask)
-patAlgosToolsTask.add(process.inclusiveCandidateVertexingCvsLTask)
 
 process.GlobalTag.globaltag = "GR_R_70_V1::All"
 
