@@ -6,7 +6,7 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
