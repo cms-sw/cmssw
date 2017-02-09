@@ -12,8 +12,11 @@ const char* const TaggingVariableDescription[] = {
   /* [jetPt]                                    = */ "jet transverse momentum",
   /* [trackJetPt]                               = */ "track-based jet transverse momentum",
   /* [jetEta]                                   = */ "jet pseudorapidity",
+  /* [jetAbsEta]                                = */ "jet absolute pseudorapidity",
   /* [jetPhi]                                   = */ "jet polar angle",
   /* [jetNTracks]                               = */ "tracks associated to jet",
+  /* [jetNSelectedTracks]                       = */ "selected tracks in the jet",
+  /* [jetNTracksEtaRel]                         = */ "number of tracks for which etaRel is computed",
 
   /* [trackMomentum]                            = */ "track momentum",
   /* [trackEta]                                 = */ "track pseudorapidity",
@@ -129,6 +132,10 @@ const char* const TaggingVariableDescription[] = {
   /* [tau2_flightDistance2dSig]                 = */ "transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis",
   /* [tau2_vertexDeltaR]                        = */ "pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction",
   /* [z_ratio]                                  = */ "z ratio",
+  /* [Jet_SoftMu]                               = */ "SoftMu Tagger discriminator",
+  /* [Jet_SoftEl]                               = */ "SoftEl Tagger discriminator",
+  /* [Jet_JBP]                                  = */ "JBP Tagger discriminator",
+  /* [Jet_JP]                                   = */ "JP Tagger discriminator",
 
   /* [algoDiscriminator]                        = */ "discriminator output of an algorithm",
 
@@ -140,8 +147,11 @@ const char* const TaggingVariableTokens[] = {
   /* [jetPt]                                    = */ "jetPt",
   /* [trackJetPt]                               = */ "trackJetPt",
   /* [jetEta]                                   = */ "jetEta",
+  /* [jetAbsEta]                                = */ "jetAbsEta",
   /* [jetPhi]                                   = */ "jetPhi",
   /* [jetNTracks]                               = */ "jetNTracks",
+  /* [jetNSelectedTracks]                       = */ "jetNSelectedTracks",
+  /* [jetNTracksEtaRel]                         = */ "jetNTracksEtaRel",
 
   /* [trackMomentum]                            = */ "trackMomentum",
   /* [trackEta]                                 = */ "trackEta",
@@ -258,6 +268,10 @@ const char* const TaggingVariableTokens[] = {
   /* [tau2_flightDistance2dSig]                 = */ "tau2_flightDistance2dSig",
   /* [tau2_vertexDeltaR]                        = */ "tau2_vertexDeltaR",
   /* [z_ratio]                                  = */ "z_ratio",
+  /* [Jet_SoftMu]                               = */ "Jet_SoftMu",
+  /* [Jet_SoftEl]                               = */ "Jet_SoftEl",
+  /* [Jet_JBP]                                  = */ "Jet_JBP",
+  /* [Jet_JP]                                   = */ "Jet_JP",
 
   /* [algoDiscriminator]                        = */ "algoDiscriminator",
 
