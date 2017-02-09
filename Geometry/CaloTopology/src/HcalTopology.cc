@@ -202,9 +202,9 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
   if (id.depth() != 0)                              return false;
   if (id.version()==0) {
-    if ((triggerMode_==HcalTopologyMode::TriggerMode_2017 && id.ietaAbs()>28) ||
+    if ((triggerMode_>=HcalTopologyMode::TriggerMode_2017 && id.ietaAbs()>28) ||
 	(id.ietaAbs()>32))                          return false;
-    int ietaMax = (triggerMode_==HcalTopologyMode::TriggerMode_2017) ? 29 : 28;
+    int ietaMax = (triggerMode_>=HcalTopologyMode::TriggerMode_2017) ? 29 : 28;
     if (id.ietaAbs()>ietaMax && ((id.iphi()%4)!=1)) return false;
   } else {
     if (triggerMode_==HcalTopologyMode::TriggerMode_2009) return false;

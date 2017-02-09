@@ -202,11 +202,18 @@ CaloTPGTranscoderULUT::getOutputLUTSize(const HcalTrigTowerDetId& id) const
    switch (theTopology->triggerMode()) {
       case HcalTopologyMode::TriggerMode_2009:
       case HcalTopologyMode::TriggerMode_2016:
-         return QIE8_OUTPUT_LUT_SIZE;
       case HcalTopologyMode::TriggerMode_2017:
+         return QIE8_OUTPUT_LUT_SIZE;
+      case HcalTopologyMode::TriggerMode_2017plan1:
+      case HcalTopologyMode::TriggerMode_2018:
          if (id.ietaAbs() <= theTopology->lastHBRing())
             return QIE8_OUTPUT_LUT_SIZE;
          else if (id.ietaAbs() <= theTopology->lastHERing())
+            return QIE11_OUTPUT_LUT_SIZE;
+         else
+            return QIE10_OUTPUT_LUT_SIZE;
+      case HcalTopologyMode::TriggerMode_2019:
+         if (id.ietaAbs() <= theTopology->lastHERing())
             return QIE11_OUTPUT_LUT_SIZE;
          else
             return QIE10_OUTPUT_LUT_SIZE;
