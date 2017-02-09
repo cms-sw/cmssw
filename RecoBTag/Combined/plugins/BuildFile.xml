@@ -1,5 +1,14 @@
-<use   name="FWCore/Framework"/>
-<library   file="CombinedMVAV2JetTagESProducer.cc ChargeTagESProducer.cc" name="RecoBTagCombinedPlugins">
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<library file="*.cc" name="RecoBTagCombinedPlugins">
+  <use   name="lwtnn"/>
+  <use   name="boost"/>
+  <use   name="classlib"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="RecoBTag/SecondaryVertex"/>
+  <use   name="FWCore/Utilities"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/TrackReco"/>
