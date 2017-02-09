@@ -1,6 +1,6 @@
 #include "Validation/HcalHits/interface/HcalSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -240,20 +240,14 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
     double time      = hits[i].time();
     unsigned int id_ = hits[i].id();
     int det, subdet, depth, eta, phi;
-    if (testNumber_) {
-      int z, lay;
-      HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth, eta, phi, lay);
-      int sign = (z==0) ? (-1):(1);
-      eta     *= sign;
-      det      = 4;
-    } else {
-      HcalDetId id = HcalDetId(id_);
-      det          = id.det();
-      subdet       = id.subdet();
-      depth        = id.depth();
-      eta          = id.ieta();
-      phi          = id.iphi();
-    }
+    HcalDetId hid;
+    if (testNumber_) hid = HcalHitRelabeller::relabel(id_,hcons);
+    else hid = HcalDetId(id_);
+    det      = hid.det();
+    subdet   = hid.subdet();
+    depth    = hid.depth();
+    eta      = hid.ieta();
+    phi      = hid.iphi();
 
     LogDebug("HcalSim") << "Hit[" << i << "] ID " << std::hex << id_ 
 			<< std::dec << " Det " << det << " Sub " 

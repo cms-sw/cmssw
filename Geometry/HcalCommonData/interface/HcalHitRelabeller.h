@@ -2,7 +2,6 @@
 #define SimCalorimetry_HcalSimProducers_HcalHitRelabeller_h 1
 
 #include <vector>
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -10,15 +9,15 @@
 
 class HcalHitRelabeller {
 public:
-  HcalHitRelabeller(const edm::ParameterSet& ps);
+  HcalHitRelabeller(bool nd=false);
   void process(std::vector<PCaloHit> & hcalHits);
-  void setGeometry(const CaloGeometry *&, const HcalDDDRecConstants *&);
+  void setGeometry(const HcalDDDRecConstants *&);
   DetId relabel(const uint32_t testId) const;
+  static DetId relabel(const uint32_t testId, const HcalDDDRecConstants * theRecNumber);
 
 private:
   double energyWt(const uint32_t testId) const;
 
-  const CaloGeometry*        theGeometry;
   const HcalDDDRecConstants* theRecNumber;
   bool                       neutralDensity_;
 };

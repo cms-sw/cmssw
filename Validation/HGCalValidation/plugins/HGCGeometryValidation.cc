@@ -28,7 +28,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/ValidationFormats/interface/PHGCalValidInfo.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
 #include "PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h"

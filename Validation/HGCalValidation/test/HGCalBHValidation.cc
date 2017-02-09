@@ -25,7 +25,7 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 
 // Root objects
 #include "TROOT.h"
