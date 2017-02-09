@@ -15,12 +15,6 @@
 #include <sstream>
 #include <memory>
 
-#define HGCAL_DEBUG
-
-#ifdef HGCAL_DEBUG
-	#include <iostream>
-	using namespace std;
-#endif
 
 class HGCalTriggerDigiProducer : public edm::EDProducer {  
  public:    
@@ -49,9 +43,6 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
   backEndProcessor_(new HGCalTriggerBackendProcessor(conf.getParameterSet("BEConfiguration"),consumesCollector()) )
 {
-  #ifdef HGCAL_DEBUG
-	cout<<"[HGCalTriggerDigiProducer]::["<< __FUNCTION__ <<"] constructor: file " <<__FILE__<<":"<<__LINE__<<endl;
-  #endif
   //setup FE codec
   const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
   const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
@@ -65,30 +56,18 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   // register backend processor products
   backEndProcessor_->setProduces(*this);
 
-  #ifdef HGCAL_DEBUG
-	cout<<"[HGCalTriggerDigiProducer]::["<< __FUNCTION__ <<"] end: file " <<__FILE__<<":"<<__LINE__<<endl;
-  #endif
 }
 
 void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/, 
                                           const edm::EventSetup& es) {
-  #ifdef HGCAL_DEBUG
-	cout<<"[HGCalTriggerDigiProducer]::["<< __FUNCTION__ <<"] start: file " <<__FILE__<<":"<<__LINE__<<endl;
-  #endif
   es.get<IdealGeometryRecord>().get(triggerGeometry_);
   codec_->setGeometry(triggerGeometry_.product());
   backEndProcessor_->setGeometry(triggerGeometry_.product());
 
-  #ifdef HGCAL_DEBUG
-	cout<<"[HGCalTriggerDigiProducer]::["<< __FUNCTION__ <<"] end" <<endl;
-  #endif
 }
 
 void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
-  #ifdef HGCAL_DEBUG
-	cout<<"[HGCalTriggerDigiProducer]::["<< __FUNCTION__ <<"] start: file " <<__FILE__<<":"<<__LINE__<<endl;
-  #endif
   std::unique_ptr<l1t::HGCFETriggerDigiCollection> 
     fe_output( new l1t::HGCFETriggerDigiCollection );
   
@@ -157,7 +136,4 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   backEndProcessor_->run(fe_digis_coll,es,e);
   backEndProcessor_->putInEvent(e);
   //backEndProcessor_->reset();  
-  #ifdef HGCAL_DEBUG
-	cout<<"[HGCalTriggerDigiProducer]::["<< __FUNCTION__ <<"] end. file " <<__FILE__<<":"<<__LINE__<<endl;
-  #endif
 }
