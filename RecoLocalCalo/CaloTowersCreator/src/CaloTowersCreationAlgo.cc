@@ -515,9 +515,21 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
     bool merge(false);
     if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) == phizOne.end())) {
       merge = (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detId).depth())!=mergedDepthsOne.end());
+#ifdef EDM_ML_DEBUG
+      std::cout << "Special cell ";
+#endif
     } else {
       merge = (std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detId).depth())!=mergedDepths.end());
+#ifdef EDM_ML_DEBUG
+      std::cout << "Normal cell ";
+#endif
     }
+#ifdef EDM_ML_DEBUG
+    std::cout << "Merge " << HcalDetId(detId).subdet() << ":"
+	      << HcalDetId(detId).ieta() << ":" << HcalDetId(detId).iphi()
+	      << ":" << HcalDetId(detId).depth() << ":" << merge
+	      << std::endl;
+#endif
     if (merge) {
 
       //////////////////////////////    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
