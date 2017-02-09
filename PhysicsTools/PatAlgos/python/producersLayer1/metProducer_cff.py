@@ -4,8 +4,7 @@ from PhysicsTools.PatAlgos.recoLayer0.metCorrections_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import *
 
 ## for scheduled mode
-makePatMETsTask = cms.Task(
-    patMETCorrectionsTask,
+makePatMETs = cms.Sequence(
+    patMETCorrections *
     patMETs
     )
-makePatMETs = cms.Sequence(makePatMETsTask)

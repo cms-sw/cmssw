@@ -4,7 +4,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
-from PhysicsTools.PatAlgos.tools.helpers import listModules, applyPostfix, getPatAlgosToolsTask, addToProcessAndTask
+from PhysicsTools.PatAlgos.tools.helpers import listModules, applyPostfix
 
 from copy import deepcopy
 
@@ -139,7 +139,7 @@ def reconfigurePF2PATTaus(process,
            plugin = cms.string('RecoTauTagInfoWorkaroundModifer')
            )
        from PhysicsTools.PatAlgos.tools.helpers import cloneProcessingSnippet
-       #cloneProcessingSnippet(process, process.produceHPSPFTaus, postfix, addToTask = True)
+       #cloneProcessingSnippet(process, process.produceHPSPFTaus, postfix)
        setattr(process,'produceHPSPFTaus'+postfix,cms.Sequence(applyPostfix(process,'hpsSelectionDiscriminator',postfix)+applyPostfix(process,'hpsPFTauProducerSansRefs',postfix)+applyPostfix(process,'hpsPFTauProducer',postfix)))
        massSearchReplaceParam(getattr(process,"produceHPSPFTaus"+postfix),
                               "PFTauProducer",
@@ -157,10 +157,9 @@ def reconfigurePF2PATTaus(process,
    #newTau.jetRegionSrc = cms.InputTag("pfTauPFJets08Region" + postfix)
    #newTau.jetSrc = cms.InputTag("pfJetsPFBRECO" + postfix)
    # replace old tau producer by new one put it into baseSequence
-   task = getPatAlgosToolsTask(process)
-   addToProcessAndTask("pfTausBase"+postfix, newTau, process, task)
+   setattr(process,"pfTausBase"+postfix,newTau)
    if tauType=='shrinkingConePFTau':
-       addToProcessAndTask("pfTausBaseSansRefs"+postfix, newTauSansRefs, process, task)
+       setattr(process,"pfTausBaseSansRefs"+postfix,newTauSansRefs)
        getattr(process,"pfTausBase"+postfix).src = "pfTausBaseSansRefs"+postfix
        baseSequence += getattr(process,"pfTausBaseSansRefs"+postfix)
 
@@ -177,7 +176,7 @@ def reconfigurePF2PATTaus(process,
       originalName = tauType+predisc # i.e. fixedConePFTauProducerDiscriminationByLeadingTrackFinding
       clonedName = "pfTausBase"+predisc+postfix
       clonedDisc = getattr(process, originalName).clone()
-      addToProcessAndTask(clonedName, clonedDisc, process, task)
+      setattr(process, clonedName, clonedDisc)
 
       tauCollectionToSelect = None
       if tauType != 'hpsPFTau' :
@@ -199,7 +198,7 @@ def reconfigurePF2PATTaus(process,
       originalName = tauType+selection
       clonedName = "pfTausBase"+selection+postfix
       clonedDisc = getattr(process, originalName).clone()
-      addToProcessAndTask(clonedName, clonedDisc, process, task)
+      setattr(process, clonedName, clonedDisc)
 
       tauCollectionToSelect = None
 
@@ -285,10 +284,9 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
                     maxNumber = cms.uint32(999999),
                     src       = cms.InputTag("pat" + patLabel))
     # add modules to process
-    task = getPatAlgosToolsTask(process)
-    addToProcessAndTask("pat" + patLabel, producer, process, task)
-    addToProcessAndTask("selectedPat" + patLabel, filter, process, task)
-    addToProcessAndTask("countPat" + patLabel, counter, process, task)
+    setattr(process, "pat"         + patLabel, producer)
+    setattr(process, "selectedPat" + patLabel, filter)
+    setattr(process, "countPat"    + patLabel, counter)
 
     # summary tables
     applyPostfix(process, "patCandidateSummary", postfix).candidates.append(cms.InputTag('pat' + patLabel))
@@ -347,7 +345,6 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
 
     # check whether L1FastJet is in the list of correction levels or not
     applyPostfix(process, "patJetCorrFactors", postfix).useRho = False
-    task = getPatAlgosToolsTask(process)
     for corr in inputJetCorrLabel[1]:
         if corr == 'L1FastJet':
             applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
@@ -365,8 +362,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
                         for essource in process.es_sources_().keys():
                             if essource == prefix+'L1FastJet':
                                 setattr(process,essource+postfix,getattr(process,essource).clone(srcRho=cms.InputTag(mod,'rho')))
-                                addToProcessAndTask(prefix+'CombinedCorrector'+postfix,
-                                                    getattr(process,prefix+'CombinedCorrector').clone(), process, task)
+                                setattr(process,prefix+'CombinedCorrector'+postfix,getattr(process,prefix+'CombinedCorrector').clone())
                                 getattr(process,prefix+'CorMet'+postfix).corrector = prefix+'CombinedCorrector'+postfix
                                 for cor in getattr(process,prefix+'CombinedCorrector'+postfix).correctors:
                                     if cor == essource:
@@ -413,13 +409,11 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
 
     # -------- CORE ---------------
     from PhysicsTools.PatAlgos.tools.helpers import loadWithPostfix
-    patAlgosToolsTask = getPatAlgosToolsTask(process)
-    taskLabel = patAlgosToolsTask.label()
     if runPF2PAT:
-	loadWithPostfix(process,'PhysicsTools.PatAlgos.patSequences_cff',postfix, loadedProducersAndFilters=taskLabel)
-	loadWithPostfix(process,"CommonTools.ParticleFlow.PFBRECO_cff",postfix, loadedProducersAndFilters=taskLabel)
+	loadWithPostfix(process,'PhysicsTools.PatAlgos.patSequences_cff',postfix)
+	loadWithPostfix(process,"CommonTools.ParticleFlow.PFBRECO_cff",postfix)
     else:
-	loadWithPostfix(process,'PhysicsTools.PatAlgos.patSequences_cff',postfix, loadedProducersAndFilters=taskLabel)
+	loadWithPostfix(process,'PhysicsTools.PatAlgos.patSequences_cff',postfix)
 
 
 

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # load modules for producing Type 1 / Type 1 + 2 corrections for reco::PFMET objects
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 #from PhysicsTools.PatAlgos.producerLayer1.jetProducer_cfi import patJets
 
@@ -46,61 +47,57 @@ patPFMetT1T2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     skipMuons = cms.bool(True),
     skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
 )
-patPFMetT1T2CorrTask = cms.Task(selectedPatJetsForMetT1T2Corr,
-                                patPFMetT1T2Corr)
-patPFMetT1T2CorrSequence = cms.Sequence(patPFMetT1T2CorrTask)
+patPFMetT1T2CorrSequence = cms.Sequence(selectedPatJetsForMetT1T2Corr*
+                                        patPFMetT1T2Corr)
 
 patPFMetT2Corr = patPFMetT1T2Corr.clone(
     src = cms.InputTag('selectedPatJetsForMetT2Corr')
 )
-patPFMetT2CorrTask = cms.Task(patPFMetT2Corr)
-patPFMetT2CorrSequence = cms.Sequence(patPFMetT2CorrTask)
+patPFMetT2CorrSequence = cms.Sequence(patPFMetT2Corr)
 
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # produce Type 0 MET corrections
-from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
+from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
 patPFMetT0Corr = pfMETcorrType0.clone()
-patPFMetT0CorrTask = cms.Task(type0PFMEtCorrectionPFCandToVertexAssociationTask, patPFMetT0Corr)
-patPFMetT0CorrSequence = cms.Sequence(patPFMetT0CorrTask)
+patPFMetT0CorrSequence = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociation*patPFMetT0Corr)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # produce Type xy MET corrections
-import JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi as _shiftMod
+from JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi import *
 #dummy module
 
-patPFMetTxyCorr = _shiftMod.pfMEtMultShiftCorr.clone()
+patPFMetTxyCorr = pfMEtMultShiftCorr.clone()
 
-patMultPhiCorrParams_Txy_50ns         = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_Txy_50ns])
-patMultPhiCorrParams_T0pcTxy_50ns     = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcTxy_50ns])
-patMultPhiCorrParams_T0pcT1Txy_50ns   = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1Txy_50ns])
-patMultPhiCorrParams_T0pcT1T2Txy_50ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1T2Txy_50ns])
-patMultPhiCorrParams_T1Txy_50ns       = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1Txy_50ns])
-patMultPhiCorrParams_T1T2Txy_50ns     = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1T2Txy_50ns])
-patMultPhiCorrParams_T1SmearTxy_50ns  = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1Txy_50ns])
-patMultPhiCorrParams_T1T2SmearTxy_50ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1T2Txy_50ns])
-patMultPhiCorrParams_T0pcT1SmearTxy_50ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1Txy_50ns])
-patMultPhiCorrParams_T0pcT1T2SmearTxy_50ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1T2Txy_50ns])
+patMultPhiCorrParams_Txy_50ns         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy_50ns])
+patMultPhiCorrParams_T0pcTxy_50ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy_50ns])
+patMultPhiCorrParams_T0pcT1Txy_50ns   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_50ns])
+patMultPhiCorrParams_T0pcT1T2Txy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_50ns])
+patMultPhiCorrParams_T1Txy_50ns       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_50ns])
+patMultPhiCorrParams_T1T2Txy_50ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_50ns])
+patMultPhiCorrParams_T1SmearTxy_50ns  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_50ns])
+patMultPhiCorrParams_T1T2SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_50ns])
+patMultPhiCorrParams_T0pcT1SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_50ns])
+patMultPhiCorrParams_T0pcT1T2SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_50ns])
 
-patMultPhiCorrParams_Txy_25ns         = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_Txy_25ns])
-patMultPhiCorrParams_T0pcTxy_25ns     = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcTxy_25ns])
-patMultPhiCorrParams_T0pcT1Txy_25ns   = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1Txy_25ns])
-patMultPhiCorrParams_T0pcT1T2Txy_25ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1T2Txy_25ns])
-patMultPhiCorrParams_T1Txy_25ns       = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1Txy_25ns])
-patMultPhiCorrParams_T1T2Txy_25ns     = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1T2Txy_25ns])
-patMultPhiCorrParams_T1SmearTxy_25ns  = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1Txy_25ns])
-patMultPhiCorrParams_T1T2SmearTxy_25ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T1T2Txy_25ns])
-patMultPhiCorrParams_T0pcT1SmearTxy_25ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1Txy_25ns])
-patMultPhiCorrParams_T0pcT1T2SmearTxy_25ns = cms.VPSet( [pset for pset in _shiftMod.multPhiCorrParams_T0pcT1T2Txy_25ns])
+patMultPhiCorrParams_Txy_25ns         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy_25ns])
+patMultPhiCorrParams_T0pcTxy_25ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy_25ns])
+patMultPhiCorrParams_T0pcT1Txy_25ns   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_25ns])
+patMultPhiCorrParams_T0pcT1T2Txy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_25ns])
+patMultPhiCorrParams_T1Txy_25ns       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_25ns])
+patMultPhiCorrParams_T1T2Txy_25ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_25ns])
+patMultPhiCorrParams_T1SmearTxy_25ns  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_25ns])
+patMultPhiCorrParams_T1T2SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_25ns])
+patMultPhiCorrParams_T0pcT1SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_25ns])
+patMultPhiCorrParams_T0pcT1T2SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_25ns])
 
 #from Configuration.StandardSequences.Eras import eras
 #eras.run2_50ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_50ns )
 #eras.run2_25ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_25ns )
 
-patPFMetTxyCorrTask = cms.Task(patPFMetTxyCorr)
-patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorrTask)
+patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorr)
 
 #--------------------------------------------------------------------------------
 from RecoMET.METProducers.METSigParams_cfi import *
@@ -162,18 +159,16 @@ patPFMetT2SmearCorr = patPFMetT2Corr.clone(
     src = cms.InputTag('selectedPatJetsForMetT2SmearCorr')
 )
 
-patPFMetSmearCorrTask = cms.Task(patSmearedJets,
-                                 selectedPatJetsForMetT1T2SmearCorr,
-                                 patPFMetT1T2SmearCorr)
-patPFMetSmearCorrSequence = cms.Sequence(patPFMetSmearCorrTask)
+patPFMetSmearCorrSequence = cms.Sequence(patSmearedJets*
+                                         selectedPatJetsForMetT1T2SmearCorr*
+                                         patPFMetT1T2SmearCorr)
 
 #specific sequence for handling type2 correction with smeared jets
-patPFMetT2SmearCorrTask = cms.Task(patSmearedJets,
-                                   selectedPatJetsForMetT1T2SmearCorr,
-                                   selectedPatJetsForMetT2SmearCorr,
-                                   patPFMetT1T2SmearCorr,
-                                   patPFMetT2SmearCorr)
-patPFMetT2SmearCorrSequence = cms.Sequence(patPFMetT2SmearCorrTask)
+patPFMetT2SmearCorrSequence = cms.Sequence(patSmearedJets*
+                                           selectedPatJetsForMetT1T2SmearCorr*
+                                           selectedPatJetsForMetT2SmearCorr*
+                                           patPFMetT1T2SmearCorr*
+                                           patPFMetT2SmearCorr)
 
 #--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
@@ -235,37 +230,35 @@ patPFMetT0pcT1T2TxySmear.srcCorrections.append( cms.InputTag('patPFMetTxyCorr') 
 
 #--------------------------------------------------------------------------------
 # define sequence to run all modules
-producePatPFMETCorrectionsTask = cms.Task(
-    patPFMet,
-    pfCandsNotInJetsForMetCorr,
-    selectedPatJetsForMetT1T2Corr,
-    selectedPatJetsForMetT2Corr,
-    patPFMetT1T2Corr,
-    patPFMetT2Corr,
-    type0PFMEtCorrectionPFCandToVertexAssociationTask,
-    patPFMetT0Corr,
-    pfCandMETcorr,
-    patPFMetT1,
-    patPFMetT1T2,
-    patPFMetT0pcT1,
-    patPFMetT0pcT1T2
+producePatPFMETCorrections = cms.Sequence(
+    patPFMet
+   * pfCandsNotInJetsForMetCorr
+   * selectedPatJetsForMetT1T2Corr
+   * selectedPatJetsForMetT2Corr
+   * patPFMetT1T2Corr
+   * patPFMetT2Corr
+   * type0PFMEtCorrectionPFCandToVertexAssociation
+   * patPFMetT0Corr
+   * pfCandMETcorr
+   * patPFMetT1
+   * patPFMetT1T2
+   * patPFMetT0pcT1
+   * patPFMetT0pcT1T2
 )
-producePatPFMETCorrections = cms.Sequence(producePatPFMETCorrectionsTask)
 #--------------------------------------------------------------------------------
 
 #
 # define special sequence for PAT runType1uncertainty tool
 # only preliminary modules processed
 # pat met producer modules cloned accordingly to what is needed
-producePatPFMETCorrectionsUncTask = cms.Task(
-    patPFMet,
-    pfCandsNotInJetsForMetCorr,
-    selectedPatJetsForMetT1T2Corr,
-    selectedPatJetsForMetT2Corr,
-    patPFMetT1T2Corr,
-    patPFMetT2Corr,
-    type0PFMEtCorrectionPFCandToVertexAssociationTask,
-    patPFMetT0Corr,
-    pfCandMETcorr
+producePatPFMETCorrectionsUnc = cms.Sequence(
+    patPFMet
+   * pfCandsNotInJetsForMetCorr
+   * selectedPatJetsForMetT1T2Corr
+   * selectedPatJetsForMetT2Corr
+   * patPFMetT1T2Corr
+   * patPFMetT2Corr
+   * type0PFMEtCorrectionPFCandToVertexAssociation
+   * patPFMetT0Corr
+   * pfCandMETcorr
 )
-producePatPFMETCorrectionsUnc = cms.Sequence(producePatPFMETCorrectionsUncTask)

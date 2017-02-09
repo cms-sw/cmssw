@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.PFBRECO_cff import particleFlowPtrs
-from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECOSequence, pfNoPileUpIsoPFBRECOTask
-from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpPFBRECO, pfNoPileUpPFBRECO, pfNoPileUpPFBRECOSequence, pfNoPileUpPFBRECOTask
-from CommonTools.ParticleFlow.PFBRECO_cff import pfAllNeutralHadronsPFBRECO, pfAllChargedHadronsPFBRECO, pfAllPhotonsPFBRECO, pfAllChargedParticlesPFBRECO, pfPileUpAllChargedParticlesPFBRECO, pfAllNeutralHadronsAndPhotonsPFBRECO, pfSortByTypePFBRECOSequence, pfSortByTypePFBRECOTask
-from CommonTools.ParticleFlow.PFBRECO_cff import pfParticleSelectionPFBRECOSequence, pfParticleSelectionPFBRECOTask
+from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECO, pfNoPileUpIsoPFBRECOSequence
+from CommonTools.ParticleFlow.PFBRECO_cff import pfPileUpPFBRECO, pfNoPileUpPFBRECO, pfNoPileUpPFBRECOSequence
+from CommonTools.ParticleFlow.PFBRECO_cff import pfAllNeutralHadronsPFBRECO, pfAllChargedHadronsPFBRECO, pfAllPhotonsPFBRECO, pfAllChargedParticlesPFBRECO, pfPileUpAllChargedParticlesPFBRECO, pfAllNeutralHadronsAndPhotonsPFBRECO, pfSortByTypePFBRECOSequence
+from CommonTools.ParticleFlow.PFBRECO_cff import pfParticleSelectionPFBRECOSequence
 
-pfParticleSelectionForIsoTask = cms.Task(
-    particleFlowPtrs,
-    pfParticleSelectionPFBRECOTask
+pfParticleSelectionForIsoSequence = cms.Sequence(
+    particleFlowPtrs +
+    pfParticleSelectionPFBRECOSequence
     )
-pfParticleSelectionForIsoSequence = cms.Sequence(pfParticleSelectionForIsoTask)

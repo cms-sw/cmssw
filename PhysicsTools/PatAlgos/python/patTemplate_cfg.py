@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 process = cms.Process("PAT")
 
@@ -34,5 +33,4 @@ process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('drop *', *patEventContentNoCleaning )
                                )
 
-patAlgosToolsTask = getPatAlgosToolsTask(process)
-process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
+process.outpath = cms.EndPath(process.out)

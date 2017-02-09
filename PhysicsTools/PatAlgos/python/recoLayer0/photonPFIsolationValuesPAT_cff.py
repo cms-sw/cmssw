@@ -32,18 +32,16 @@ phPFIsoValueNeutral04PFIdPAT.deposits[0].src = 'phPFIsoDepositNeutralPAT'
 phPFIsoValuePU04PFIdPAT = _m.phPFIsoValuePU04PFIdPFBRECO.clone()
 phPFIsoValuePU04PFIdPAT.deposits[0].src = 'phPFIsoDepositPUPAT'
 
-photonPFIsolationValuesPATTask = cms.Task(
-    phPFIsoValueCharged03PFIdPAT,
-    phPFIsoValueChargedAll03PFIdPAT,
-    phPFIsoValueGamma03PFIdPAT,
-    phPFIsoValueNeutral03PFIdPAT,
-    phPFIsoValuePU03PFIdPAT,
+photonPFIsolationValuesPATSequence = (
+    phPFIsoValueCharged03PFIdPAT+
+    phPFIsoValueChargedAll03PFIdPAT+
+    phPFIsoValueGamma03PFIdPAT+
+    phPFIsoValueNeutral03PFIdPAT+
+    phPFIsoValuePU03PFIdPAT+
     ##############################
-    phPFIsoValueCharged04PFIdPAT,
-    phPFIsoValueChargedAll04PFIdPAT,
-    phPFIsoValueGamma04PFIdPAT,
-    phPFIsoValueNeutral04PFIdPAT,
+    phPFIsoValueCharged04PFIdPAT+
+    phPFIsoValueChargedAll04PFIdPAT+
+    phPFIsoValueGamma04PFIdPAT+
+    phPFIsoValueNeutral04PFIdPAT+
     phPFIsoValuePU04PFIdPAT
     )
-
-photonPFIsolationValuesPATSequence = cms.Sequence(photonPFIsolationValuesPATTask)

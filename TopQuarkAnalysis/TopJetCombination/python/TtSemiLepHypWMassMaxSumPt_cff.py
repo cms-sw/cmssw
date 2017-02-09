@@ -10,8 +10,5 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombWMassMaxSumPt_cfi import
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypWMassMaxSumPt_cfi import *
 
 ## make hypothesis
-makeHypothesis_wMassMaxSumPtTask = cms.Task(
-    findTtSemiLepJetCombWMassMaxSumPt,
-    ttSemiLepHypWMassMaxSumPt
-)
-makeHypothesis_wMassMaxSumPt = cms.Sequence(makeHypothesis_wMassMaxSumPtTask)
+makeHypothesis_wMassMaxSumPt = cms.Sequence(findTtSemiLepJetCombWMassMaxSumPt *
+                                            ttSemiLepHypWMassMaxSumPt)

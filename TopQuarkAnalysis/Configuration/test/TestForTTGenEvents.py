@@ -4,12 +4,10 @@ import sys
 import os
 
 process = cms.Process("Analyzer")
-
-process.task = cms.Task()
-
 ## enabling unscheduled mode for modules
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(True),
+    allowUnscheduled = cms.untracked.bool(True),
 )
 options = VarParsing.VarParsing ('standard')
 options.register('runOnPythia8', True, 
@@ -65,7 +63,6 @@ process.maxEvents = cms.untracked.PSet(
 genParticleCollection = 'genParticles'
 
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.task.add(process.makeGenEvtTask)
 process.initSubset.src = genParticleCollection
 process.decaySubset.src = genParticleCollection
 process.decaySubset.fillMode = "kME" # Status3, use kStable for Status2
@@ -88,4 +85,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(output_file),
     outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_Analyzer')
 )
-process.outpath = cms.EndPath(process.out, process.task)
+process.outpath = cms.EndPath(process.out)

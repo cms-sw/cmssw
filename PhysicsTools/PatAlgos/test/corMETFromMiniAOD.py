@@ -3,12 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # Define the CMSSW process
 process = cms.Process("RERUN")
 
-import PhysicsTools.PatAlgos.tools.helpers as configtools
-patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
-
 # Load the standard set of configuration modules
 process.load('Configuration.StandardSequences.Services_cff')
-patAlgosToolsTask.add(process.randomEngineStateProducer)
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -20,6 +16,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet( 
+    allowUnscheduled = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(False) 
 )
 
@@ -99,7 +96,6 @@ if not useHFCandidates:
                                      src=cms.InputTag("packedPFCandidates"),
                                      cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
                                      )
-    patAlgosToolsTask.add(process.noHFCands)
 
 #jets are rebuilt from those candidates by the tools, no need to do anything else
 ### =================================================================================
@@ -163,4 +159,4 @@ process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 
-process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput, patAlgosToolsTask)
+process.MINIAODSIMoutput_step = cms.EndPath(process.MINIAODSIMoutput)

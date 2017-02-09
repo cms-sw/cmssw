@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 import sys
 
 process = cms.Process("Analyzer")
-
-patAlgosToolsTask = getPatAlgosToolsTask(process)
 
 ## defining command line options
 options = VarParsing.VarParsing ('standard')
@@ -22,7 +19,8 @@ if( hasattr(sys, "argv") ):
 
 ## enabling unscheduled mode for modules
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(False),
+    allowUnscheduled = cms.untracked.bool(True),
 )
 
 ## configure message logger
@@ -71,7 +69,6 @@ if options.runOnAOD:
     process.genParticlesForJetsCustom = genParticlesForJetsNoNu.clone(
         src = genParticleCollection
     )
-    patAlgosToolsTask.add(process.genParticlesForJetsCustom)
     # Producing own jets for testing purposes
     from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
     process.ak4GenJetsCustom = ak4GenJets.clone(
@@ -79,7 +76,6 @@ if options.runOnAOD:
         rParam = cms.double(0.4),
         jetAlgorithm = cms.string("AntiKt")
     )
-    patAlgosToolsTask.add(process.ak4GenJetsCustom)
 else:
     genParticleCollection = 'prunedGenParticles'
     genJetCollection = 'slimmedGenJets'
@@ -93,7 +89,6 @@ from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsA
 process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(
     particles = genParticleCollection
 )
-patAlgosToolsTask.add(process.selectedHadronsAndPartons)
 
 # Input particle collection for matching to gen jets (partons + leptons) 
 # MUST use use proper input jet collection: the jets to which hadrons should be associated
@@ -103,7 +98,6 @@ from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInf
 process.genJetFlavourInfos = ak4JetFlavourInfos.clone(
     jets = genJetCollection,
 )
-patAlgosToolsTask.add(process.genJetFlavourInfos)
 
 # Plugin for analysing B hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
@@ -112,7 +106,6 @@ process.matchGenBHadron = matchGenBHadron.clone(
     genParticles = genParticleCollection,
     jetFlavourInfos = "genJetFlavourInfos"
 )
-patAlgosToolsTask.add(process.matchGenBHadron)
 
 # Plugin for analysing C hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
@@ -121,7 +114,7 @@ process.matchGenCHadron = matchGenCHadron.clone(
     genParticles = genParticleCollection,
     jetFlavourInfos = "genJetFlavourInfos"
 )
-patAlgosToolsTask.add(process.matchGenCHadron)
+
 
 ## configuring the testing analyzer that produces output tree
 process.matchGenHFHadrons = cms.EDAnalyzer("matchGenHFHadrons",
@@ -166,4 +159,4 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('matchGenHFHadrons_out.root'),
     outputCommands = cms.untracked.vstring('drop *', 'keep *_matchGen*_*_*')
     )
-process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
+process.outpath = cms.EndPath(process.out)

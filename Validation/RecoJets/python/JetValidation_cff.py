@@ -40,16 +40,9 @@ newAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
     newAk4PFCHSL1FastL2L3Corrector
 )
 
-jetPreValidSeqTask = cms.Task(ak4CaloL2RelativeCorrector,
-                              ak4CaloL3AbsoluteCorrector,
-                              ak4PFL1FastjetCorrector,
-                              ak4PFL2RelativeCorrector,
-                              ak4PFL3AbsoluteCorrector,
-                              ak4PFCHSL1FastjetCorrector,
-                              ak4PFCHSL2RelativeCorrector,
-                              ak4PFCHSL3AbsoluteCorrector
-)
-jetPreValidSeq=cms.Sequence(jetPreValidSeqTask)
+jetPreValidSeq=cms.Sequence(ak4CaloL2RelativeCorrector * ak4CaloL3AbsoluteCorrector 
+                            * ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector
+                            * ak4PFCHSL1FastjetCorrector * ak4PFCHSL2RelativeCorrector * ak4PFCHSL3AbsoluteCorrector)
 
 JetValidation = cms.Sequence(
 #    JetAnalyzerKt6PF*

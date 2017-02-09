@@ -28,12 +28,7 @@ newAK4PFCHSL1FastL2L3ResidualCorrectorChain = cms.Sequence(
     newAK4PFCHSL1FastL2L3ResidualCorrector
     )
 
-metPreValidSeqTask = cms.Task(ak4PFCHSL1FastjetCorrector,
-                              ak4PFCHSL2RelativeCorrector,
-                              ak4PFCHSL3AbsoluteCorrector,
-                              ak4PFCHSResidualCorrector
-)
-metPreValidSeq = cms.Sequence(metPreValidSeqTask)
+metPreValidSeq=cms.Sequence(ak4PFCHSL1FastjetCorrector * ak4PFCHSL2RelativeCorrector * ak4PFCHSL3AbsoluteCorrector * ak4PFCHSResidualCorrector)
 
 valCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('newAK4PFCHSL1FastL2L3Corrector'),
                                        jetCorrLabelRes = cms.InputTag('newAK4PFCHSL1FastL2L3ResidualCorrector')

@@ -58,16 +58,9 @@ dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
     dqmAk4PFCHSL1FastL2L3Corrector
 )
 
-jetPreDQMTask = cms.Task(ak4CaloL2RelativeCorrector,
-                         ak4CaloL3AbsoluteCorrector,
-                         ak4PFL1FastjetCorrector,
-                         ak4PFL2RelativeCorrector,
-                         ak4PFL3AbsoluteCorrector,
-                         ak4PFCHSL1FastjetCorrector,
-                         ak4PFCHSL2RelativeCorrector,
-                         ak4PFCHSL3AbsoluteCorrector
-)
-jetPreDQMSeq = cms.Sequence(jetPreDQMTask)
+jetPreDQMSeq=cms.Sequence(ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*
+                          ak4PFL1FastjetCorrector*ak4PFL2RelativeCorrector*ak4PFL3AbsoluteCorrector*
+                          ak4PFCHSL1FastjetCorrector*ak4PFCHSL2RelativeCorrector*ak4PFCHSL3AbsoluteCorrector)
 
 from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *

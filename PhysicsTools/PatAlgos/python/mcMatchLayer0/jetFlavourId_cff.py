@@ -35,8 +35,5 @@ patJetFlavourAssociation = cms.EDProducer("JetFlavourClustering",
 )
 
 # default PAT sequence for jet flavour identification
-patJetFlavourIdLegacyTask = cms.Task(patJetPartonsLegacy, patJetPartonAssociationLegacy, patJetFlavourAssociationLegacy)
-patJetFlavourIdLegacy = cms.Sequence(patJetFlavourIdLegacyTask)
-
-patJetFlavourIdTask = cms.Task(patJetPartons, patJetFlavourAssociation)
-patJetFlavourId = cms.Sequence(patJetFlavourIdTask)
+patJetFlavourIdLegacy = cms.Sequence(patJetPartonsLegacy * patJetPartonAssociationLegacy * patJetFlavourAssociationLegacy)
+patJetFlavourId = cms.Sequence(patJetPartons * patJetFlavourAssociation)

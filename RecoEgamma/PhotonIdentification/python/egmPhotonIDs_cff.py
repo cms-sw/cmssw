@@ -13,10 +13,4 @@ from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import
 # The sequence below is important. The MVA ValueMapProducer
 # needs to be downstream from the ID ValueMapProducer because it relies 
 # on some of its products
-egmPhotonIDTask = cms.Task(
-    photonIDValueMapProducer,
-    photonMVAValueMapProducer,
-    egmPhotonIDs,
-    photonRegressionValueMapProducer
-)
-egmPhotonIDSequence = cms.Sequence(egmPhotonIDTask)
+egmPhotonIDSequence = cms.Sequence(photonIDValueMapProducer * photonMVAValueMapProducer * egmPhotonIDs * photonRegressionValueMapProducer )

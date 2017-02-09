@@ -12,11 +12,10 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtHypotheses_cff imp
 from TopQuarkAnalysis.TopEventProducers.producers.TtSemiLepEvtBuilder_cfi import *
 
 ### make ttSemiLepEvent
-makeTtSemiLepEventTask = cms.Task(
-    makeTtSemiLepHypothesesTask,
-    ttSemiLepEvent
-)
-#makeTtSemiLepEvent = cms.Sequence(makeTtSemiLepEventTask)
+#makeTtSemiLepEvent = cms.Sequence(makeTtSemiLepHypotheses *
+                                  #ttSemiLepEvent
+                                  #)
+
 
 ################################################################################
 ## helper functions

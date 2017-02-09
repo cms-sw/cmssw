@@ -11,8 +11,7 @@ from TopQuarkAnalysis.TopJetCombination.TtFullLepHypGenMatch_cff import *
 from TopQuarkAnalysis.TopJetCombination.TtFullLepHypKinSolution_cff import *
 
 ## make all considered event hypotheses
-makeTtFullLepHypothesesTask = cms.Task(
-    makeHypothesis_genMatchTask,
-    makeHypothesis_kinSolutionTask
-)
-makeTtFullLepHypotheses  = cms.Sequence(makeTtFullLepHypothesesTask)
+makeTtFullLepHypotheses  = cms.Sequence(makeHypothesis_genMatch *
+                                        makeHypothesis_kinSolution
+                                       )
+

@@ -9,6 +9,4 @@ from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1, caloMetT1T2, 
 #from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
 
 ## for scheduled mode
-patMETCorrectionsTask = cms.Task(correctionTermsCaloMetTask, caloMetT1, caloMetT1T2, correctionTermsPfMetType1Type2Task, pfMetT1, pfMetT1T2)
-
-patMETCorrections = cms.Sequence(patMETCorrectionsTask)
+patMETCorrections = cms.Sequence(correctionTermsCaloMet+caloMetT1+caloMetT1T2+correctionTermsPfMetType1Type2+pfMetT1+pfMetT1T2)

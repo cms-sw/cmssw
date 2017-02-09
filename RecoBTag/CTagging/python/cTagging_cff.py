@@ -7,12 +7,3 @@ from RecoBTag.CTagging.pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos_cfi 
 
 from RecoBTag.CTagging.charmTagJetTags_cfi import * #EDProducer
 from RecoBTag.CTagging.CombinedCharmTagJetTags_cff import *
-
-cTaggingTask = cms.Task(
-    pfSecondaryVertexTagInfos,
-    pfInclusiveSecondaryVertexFinderCvsLTagInfos,
-    pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos,
-    pfCombinedCvsLJetTags,
-    pfCombinedCvsBJetTags,
-    CombinedCharmTagJetTagsTask
-)

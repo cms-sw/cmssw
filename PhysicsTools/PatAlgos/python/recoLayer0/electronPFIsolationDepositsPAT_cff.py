@@ -10,12 +10,10 @@ elPFIsoDepositPUPAT         = _m.elPFIsoDepositPUPFBRECO.clone()
 #elPFIsoDepositGammaPAT      = #_m.elPFIsoDepositGammaPFBRECO.clone()
 elPFIsoDepositGammaPAT      = _m.elPFIsoDepositGammaPFBRECO.clone()
 
-electronPFIsolationDepositsPATTask = cms.Task(
-    elPFIsoDepositChargedPAT,
-    elPFIsoDepositChargedAllPAT,
-    elPFIsoDepositGammaPAT,
-    elPFIsoDepositNeutralPAT,
+electronPFIsolationDepositsPATSequence = cms.Sequence(
+    elPFIsoDepositChargedPAT+
+    elPFIsoDepositChargedAllPAT+
+    elPFIsoDepositGammaPAT+
+    elPFIsoDepositNeutralPAT+
     elPFIsoDepositPUPAT
     )
-
-electronPFIsolationDepositsPATSequence = cms.Sequence(electronPFIsolationDepositsPATTask)

@@ -10,10 +10,3 @@ pfNegativeCombinedCvsBJetTags = pfNegativeCombinedCvsLJetTags.clone(
 pfPositiveCombinedCvsBJetTags = pfPositiveCombinedCvsLJetTags.clone(
    jetTagComputer = cms.string('charmTagsPositiveComputerCvsB')
    )
-
-CombinedCharmTagJetTagsTask = cms.Task(
-   pfNegativeCombinedCvsLJetTags,
-   pfPositiveCombinedCvsLJetTags,
-   pfNegativeCombinedCvsBJetTags,
-   pfPositiveCombinedCvsBJetTags
-   )

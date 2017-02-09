@@ -25,6 +25,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(True),
     numberOfStreams = cms.untracked.uint32(1),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
@@ -49,8 +50,6 @@ process.intVectorProducer = cms.EDProducer("IntVectorProducer",
   ivalue = cms.int32(21)
 )
 
-process.t = cms.Task(process.intProducerU, process.intVectorProducer)
-
-process.p = cms.Path(process.intProducer, process.t)
+process.p = cms.Path(process.intProducer)
 
 process.e = cms.EndPath(process.out)

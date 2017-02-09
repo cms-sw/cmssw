@@ -2,6 +2,7 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # verbose flags for the PF2PAT modules
+process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
 runOnMC = True
@@ -16,10 +17,7 @@ else:
 
 # load the PAT config (for the PAT only part)
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-patAlgosToolsTask.add(process.patCandidatesTask)
-
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
-patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 # An empty postfix means that only PF2PAT is run,
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT

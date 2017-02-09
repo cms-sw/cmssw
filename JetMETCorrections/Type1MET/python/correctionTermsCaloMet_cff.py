@@ -1,7 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectors_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3CorrectorChain, \
+                                                              ak4CaloL2RelativeCorrector, \
+                                                              ak4CaloL3AbsoluteCorrector, \
+                                                              ak4CaloL2L3Corrector, \
+                                                              ak4CaloL2L3ResidualCorrectorChain, \
+                                                              ak4CaloResidualCorrector, \
+                                                              ak4CaloL2L3ResidualCorrector
 
 corrCaloMetType1 = cms.EDProducer(
     "CaloJetMETcorrInputProducer",
@@ -36,12 +42,11 @@ corrCaloMetType2 = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-correctionTermsCaloMetTask = cms.Task(
-    ak4CaloL2L3CorrectorTask, # NOTE: use "ak4CaloL2L3CorrectorTask" for MC / "ak4CaloL2L3ResidualCorrectorTask" for Data
-    ak4CaloL2L3ResidualCorrectorTask,
-    corrCaloMetType1,
-    muCaloMetCorr,
+correctionTermsCaloMet = cms.Sequence(
+    ak4CaloL2L3CorrectorChain + # NOTE: use "ak4CaloL2L3CorrectorChain" for MC / "ak4CaloL2L3ResidualCorrectorChain" for Data
+    corrCaloMetType1 +
+    muCaloMetCorr +
     corrCaloMetType2
     )
 
-correctionTermsCaloMet = cms.Sequence(correctionTermsCaloMetTask)
+##____________________________________________________________________________||

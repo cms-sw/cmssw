@@ -18,25 +18,3 @@ from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import *
 from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
-
-slimmingTask = cms.Task(
-    packedPFCandidatesTask,
-    lostTracks,
-    offlineSlimmedPrimaryVertices,
-    primaryVertexAssociation,
-    genParticlesTask,
-    selectedPatTrigger,
-    slimmedJets,
-    slimmedJetsAK8,
-    slimmedGenJets,
-    slimmedGenJetsAK8,
-    slimmedElectrons,
-    slimmedMuons,
-    slimmedPhotons,
-    slimmedTaus,
-    slimmedSecondaryVertices,
-    slimmedMETs,
-    metFilterPathsTask,
-    reducedEgamma,
-    bunchSpacingProducer
-)

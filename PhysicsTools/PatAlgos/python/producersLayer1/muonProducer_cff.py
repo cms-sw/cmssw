@@ -32,10 +32,9 @@ patMuons.isolationValues = cms.PSet(
     )
 
 ## for scheduled mode
-makePatMuonsTask = cms.Task(
-    pfParticleSelectionForIsoTask,
-    muonPFIsolationPATTask,
-    muonMatch,
+makePatMuons = cms.Sequence(
+    pfParticleSelectionForIsoSequence *
+    muonPFIsolationPATSequence *
+    muonMatch *
     patMuons
     )
-makePatMuons = cms.Sequence(makePatMuonsTask)
