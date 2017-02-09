@@ -42,6 +42,7 @@
  *
  * This backend algorithm is supposed to use the sim cluster information to handle an
  * optimal clustering algorithm, benchmark the performances of the enconding ...
+ * as well as performing benchmarks on cluster shapes
  */
 
 #define HGCAL_DEBUG
@@ -84,15 +85,6 @@ namespace HGCalTriggerBackend{
 
                 auto pair = cluster_container.emplace(pid, std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster() ) ) ;
                 auto iterator = pair.first;
-                //auto iterator = cluster_container.find (pid);
-                //if (iterator == cluster_container.end())
-                //    {
-                //        //create an empty cluster
-                //        cluster_container[pid] = std::pair<int,l1t::HGCalCluster>(0,l1t::HGCalCluster());
-                //        iterator = cluster_container.find (pid);
-                //        iterator -> second . second . setPdgId(pdgid);
-                //    }
-                // p4 += p4' 
                 math::PtEtaPhiMLorentzVectorD p4;
                 p4.SetPt ( iterator -> second . second . pt()   ) ;
                 p4.SetEta( iterator -> second . second . eta()  ) ;
@@ -100,16 +92,11 @@ namespace HGCalTriggerBackend{
                 p4.SetM  ( iterator -> second . second . mass() ) ;
                 math::PtEtaPhiMLorentzVectorD pp4; 
                 float t = std::exp (- eta);
-                //pp4.SetPt ( energy * (1-t*t)/(1+t*t)  ) ;
                 pp4.SetPt ( energy * (2*t)/(1+t*t)  ) ;
                 pp4.SetEta( eta ) ;
                 pp4.SetPhi( phi ) ;
                 pp4.SetM  (  0  ) ;
-                //cout<<" - Adding to Cluster "<<pid<<": old "<<p4.pt()<<":"<<p4.eta()<<":"<<p4.phi()
-                //    <<" new "<<pp4.pt()<<":"<<pp4.eta()<<":"<<pp4.phi() //DEBUG
-                //    << " energy="<<energy<<" eta="<<eta<<" t="<<t;
                 p4 += pp4;
-                //cout <<" res "<<p4.pt()<<":"<<p4.eta()<<":"<<p4.phi()<<endl; //DEBUG
                 iterator -> second . second . setP4(p4);
                 //iterator -> second . second . shapes.Add( energy,eta,phi,r); // last is r, for 3d clusters
                 return ;
@@ -136,48 +123,29 @@ namespace HGCalTriggerBackend{
                             HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
                             calibration_(conf.getParameterSet("calib_parameters"))
             { 
-                // I need to consumes the PF Cluster Collection with the sim clustering, TODO: make it configurable (?)
-                // vector<SimCluster>                    "mix"                       "MergedCaloTruth"   "HLT/DIGI"
-                // pf clusters cannot be safely cast to SimCluster
-                //sim_token_ = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","DIGI")); 
-                sim_token_ = cc.consumes< std::vector< SimCluster > >(edm::InputTag("mix","MergedCaloTruth","")); 
-                inputee_ = cc.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HGCHitsEE",""));
-                inputfh_ = cc.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HGCHitsHEfront",""));
+                sim_token_ = cc.consumes< std::vector< SimCluster > >(conf.getParameter<edm::InputTag>("simcollection")); 
+                inputee_ = cc.consumes<edm::PCaloHitContainer>( conf.getParameter<edm::InputTag>("simhitsee"));
+                inputfh_ = cc.consumes<edm::PCaloHitContainer>( conf.getParameter<edm::InputTag>("simhitsfh"));
                 // inputbh_ = cc.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("g4SimHits:HGCHitsHEback")); 
+                edm::LogWarning("HGCalTriggerSimCluster") <<"WARNING: BH simhits not loaded";
             }
 
             // setProduces
             virtual void setProduces(edm::EDProducer& prod) const override final
             {
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start: Setting producer to produce:"<<name()<<endl;
-#endif
                 prod.produces<l1t::HGCalClusterBxCollection>(name());
             }
 
             // putInEvent
             virtual void putInEvent(edm::Event& evt) override final
             {
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start"<<endl;
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product_.get()<<endl;
-#endif
                 evt.put(std::move(cluster_product_),name());
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] DONE"<<endl;
-#endif
             }
 
             //reset
             virtual void reset() override final 
             {
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] start"<<endl;
-#endif
                 cluster_product_.reset( new l1t::HGCalClusterBxCollection );
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] DONE"<<endl;
-#endif
             }
 
             // run, actual algorithm
@@ -186,9 +154,6 @@ namespace HGCalTriggerBackend{
 		            const edm::Event&evt
                     )
             {
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::[run] Start"<<endl;
-#endif
                 //0.5. Get Digis, construct a map, detid -> energy
                 
                 edm::Handle<edm::PCaloHitContainer> ee_simhits_h;
@@ -200,7 +165,6 @@ namespace HGCalTriggerBackend{
                 edm::Handle<edm::PCaloHitContainer> bh_simhits_h;
                 //evt.getByToken(inputbh_,bh_simhits_h);
 
-
                 
                 if (not ee_simhits_h.isValid()){
                        throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] EE Digis from HGC not available"; 
@@ -208,16 +172,13 @@ namespace HGCalTriggerBackend{
                 if (not fh_simhits_h.isValid()){
                        throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] FH Digis from HGC not available"; 
                 }
-#ifdef HCAL_DEBUG
-                std::cout <<"[HGCalTriggerSimCluster]::[run]::[INFO] BH simhits not loaded"<<std::endl;
-#endif
+
                 std::unordered_map<uint64_t, double> hgc_simhit_energy;
 
                 edm::ESHandle<HGCalTopology> topo_ee, topo_fh;
                 es.get<IdealGeometryRecord>().get("HGCalEESensitive",topo_ee);
                 es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",topo_fh);
 
-                //cout <<"--- SIM HITS ----" <<endl;
                 if (ee_simhits_h.isValid()) 
                 {
                     int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
@@ -234,7 +195,6 @@ namespace HGCalTriggerBackend{
                         }
                         unsigned recoCell = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
 
-                        //cout <<"* Adding ee sim hit "<<recoCell<<" with energy "<<simhit.energy()<<endl;
                         hgc_simhit_energy[recoCell] += simhit.energy();
                     }
                 }
@@ -253,58 +213,40 @@ namespace HGCalTriggerBackend{
                           continue;
                         }
                         unsigned recoCell = HGCalDetId(mysubdet,zp,layer,subsec,sec,cell);
-                        //cout <<"* Adding fh sim hit "<<recoCell<<" with energy "<<simhit.energy()<<endl;
                         hgc_simhit_energy[recoCell] += simhit.energy();
                     }
                 }
-                if (bh_simhits_h.isValid() and false) /// FIXME TODO
-                {
-                }
-                //cout <<"-----------------" <<endl;
 
+                if (bh_simhits_h.isValid() ) /// FIXME TODO
+                {
+                       throw cms::Exception("Not Implemented")<<"HGCalTriggerSimCluster: BH simhits not implemnted"; 
+
+                }
                 
                 //1. construct a cluster container that hosts the cluster per truth-particle
                 std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> > cluster_container;// PID-> bx,cluster
                 evt.getByToken(sim_token_,sim_handle_);
 
                 if (not sim_handle_.isValid()){
-                       throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] PFCluster collection for HGC sim clustering not available"; 
+                       throw cms::Exception("ContentError")<<"[HGCalTriggerSimCluster]::[run]::[ERROR] Sim Cluster collection for HGC sim clustering not available"; 
                 }
                 // calibration
                 es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
                 es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive_, hgchefTopoHandle_);
-                // GET HGCAl Geometry --DEBUG
-                //edm::ESHandle<HGCalGeometry> geom_ee, geom_fh; //DEBUG
-                //es.get<IdealGeometryRecord>().get("HGCalEESensitive", geom_ee);
-                //es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", geom_fh);
 
                 // 1.5. pre-process the sim cluster to have easy accessible information
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::[run] processing sim clusters"<<endl;
-#endif
                 // I want a map cell-> [ (pid, fraction),  ... 
-                //cout <<"[HGCalTriggerSimCluster]::[run] ---- SIM HITS"<<endl;
                 std::unordered_map<uint32_t, std::vector<std::pair< uint64_t, float > > > simclusters;
                 for (auto& cluster : *sim_handle_)
                 {
                     auto pid= cluster.particleId(); // not pdgId
-                    //cout <<"* Find PID="<<pid<<endl;//TODO PRINT ETA/PHI
                     const auto& hf = cluster.hits_and_fractions();
                     for (const auto & p : hf ) 
                     {
-                        ////DEBU
-                        //GlobalPoint cellpos = geom_ee->getPosition(p.first);
-                        //cout <<"  - HIT: "<< cellpos.eta()<<":"<< cellpos.phi()<<endl;
-                        //
                         simclusters[p.first].push_back( std::pair<uint64_t, float>( pid,p.second) ) ;
                     }
                 }
-                cout <<"--------------------------"<<endl;
                 
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::[run] Run on digis"<<endl;
-#endif
-
                 //2. run on the digits,
                 for( const auto& digi : coll ) 
                 {
@@ -332,20 +274,19 @@ namespace HGCalTriggerBackend{
                             }else if( subdet == HGCHEB ){
                                 edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
                             }
+
                             l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
                             calibration_.calibrate(calibratedtriggercell, cellThickness); 
-                            //uint32_t digiEnergy = data.payload; i
+                            //uint32_t digiEnergy = data.payload; 
                             //auto digiEnergy=triggercell.p4().E();  
+                            // using calibrated energy instead
                             auto calibratedDigiEnergy=calibratedtriggercell.p4().E();  
                             double eta=triggercell.p4().Eta();
                             double phi=triggercell.p4().Phi();
                             double z = triggercell.position().z(); // may be useful for cluster shapes
                             //2.B get the HGCAL-base-cell associated to it / geometry
-                            //const auto& tc=geom->triggerCells()[ tcellId() ] ;//HGCalTriggerGeometry::TriggerCell&
-                            //for(const auto& cell : tc.components() )  // HGcell -- unsigned
-                            unsigned ncells = geometry_->getCellsFromTriggerCell( tcellId()).size();
                             
-                            // normalization loop -- this loop is fast ~4 elem
+                            // normalization loop 
                             double norm=0.0;
                             map<unsigned, double> energy_for_cluster_shapes;
                             
@@ -353,47 +294,34 @@ namespace HGCalTriggerBackend{
                             {
                                 HGCalDetId cellId(cell);
 
-                                //2.C0 find energy of the hgc cell
-                                double hgc_energy=1.0e-10; // 1 ->  average if not found / bh
+                                //2.C0 find energy of the hgc cell. default is very small value
+                                double hgc_energy=1.0e-10; //average if not found / bh
                                 const auto &it = hgc_simhit_energy.find(cell);
                                 if (it != hgc_simhit_energy.end()) {  hgc_energy = it->second; }
-                                //else { cout <<"SIM HIT ENERGY NOT FOUND: id="<< cell<<endl;;}
 
                                 //2.C get the particleId and energy fractions
                                 const auto & iterator= simclusters.find(cellId);
                                 if (iterator == simclusters.end() )  continue;
-                                //const auto& particles =  simclusters[cellId]; // vector pid fractions
                                 const auto & particles = iterator->second;
                                 for ( const auto& p: particles ) 
                                 {
                                     const auto & pid= p.first;
                                     const auto & fraction=p.second;
                                     norm += fraction * hgc_energy;
-                                    energy_for_cluster_shapes[pid] += calibratedDigiEnergy *fraction *hgc_energy; // norm will be done later, with the above function
+                                    energy_for_cluster_shapes[pid] += calibratedDigiEnergy *fraction *hgc_energy; // norm will be done later, with the above norm
                                 }
                             }
-                            // 
+                            
+                            // second loop counting the energy
                             for(const auto& cell : geometry_->getCellsFromTriggerCell( tcellId()) )  // HGCcell -- unsigned
                             {
                                 HGCalDetId cellId(cell);
-                                //
                                 double hgc_energy=1.0e-10; // 1 ->  average if not found / bh
                                 const auto &it = hgc_simhit_energy.find(cell);
                                 if (it != hgc_simhit_energy.end()) {  hgc_energy = it->second; }
-                                /*
-                                cout <<"considering cellId in layer: "<<cellId.layer()
-                                    <<"side:" <<cellId.zside()
-                                    <<"wafer: "<<cellId.wafer()
-                                    <<"sim energy: "<<  hgc_energy
-                                    <<"calib energy: "<< calibratedDigiEnergy
-                                    <<"tc id: "<<triggercell.detId()
-                                    <<endl;
-                                */
-
                                 //2.C get the particleId and energy fractions
                                 const auto & iterator= simclusters.find(cellId);
                                 if (iterator == simclusters.end() )  continue;
-                                //const auto& particles =  simclusters[cellId]; // vector pid fractions
                                 const auto & particles = iterator->second;
                                 for ( const auto& p: particles ) 
                                 {
@@ -405,11 +333,12 @@ namespace HGCalTriggerBackend{
                                     //auto energy = fraction * hgc_energy* hgc_energy/norm;
 
                                     //2.D add to the corresponding cluster
-                                    //void addToCluster(std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >& cluster_container, uint64_t pid,int pdgid,float & energy,float & eta, float &phi)
-                                    //addToCluster(cluster_container, pid, 0 energy,ETA/PHI?  ) ;
-                                    addToCluster(cluster_container, pid, 0,energy,eta,phi  ) ; // how do I get eta, phi w/o the hgcal geometry?
+                                    //eta/phi are the position of the trigger cell, to consider degradation 
+                                    addToCluster(cluster_container, pid, 0,energy,eta,phi  ) ;
                                 }
                             }
+
+                            // third loop, cluster shapes to ensure the correct counts 
                             for(const auto& iterator :energy_for_cluster_shapes)
                             {
                                 double energy = iterator.second / norm;
@@ -419,35 +348,13 @@ namespace HGCalTriggerBackend{
                     } //end of for-loop
                 }
 
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::[run] Push clusters in cluster products"<<endl;
-#endif
-
                 //3. Push the clusters in the cluster_product_
-                //uint32_t clusterEnergyHw=0;
-                //uint32_t clusterEtaHw = 0 ;//tcellId();
-                //const GlobalPoint& tcellPosition = geom->getTriggerCellPosition( tcellId());
-
-                // construct it from *both* physical and integer values
-                //l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
-                //        clusterEnergyHw, clusterEtaHw, 0);
-                //
                 for (auto&  p : cluster_container) 
                 {
                     //std::unordered_map<uint64_t,std::pair<int,l1t::HGCalCluster> >
-                    #ifdef HGCAL_DEBUG
-                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: pid="<< p.first<<endl;
-                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t pt"<< p.second.second.pt() <<endl;
-                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t eta"<< p.second.second.eta() <<endl;
-                    cout<<"[HGCalTriggerSimCluster]::[run] Cluster: ----------- l1t phi"<< p.second.second.phi() <<endl;
-                    #endif
                     cluster_product_->push_back(p.second.first,p.second.second); // bx,cluster
                 }
 
-#ifdef HGCAL_DEBUG
-                cout<<"[HGCalTriggerSimCluster]::["<<__FUNCTION__<<"] cluster product (!=NULL) "<<cluster_product_.get()<<endl;
-                cout<<"[HGCalTriggerSimCluster]::[run] END"<<endl;
-#endif
             } // end run
 
 
@@ -457,11 +364,9 @@ namespace HGCalTriggerBackend{
 
 
 // define plugins, template needs to be spelled out here, in order to allow the compiler to compile, and the factory to be populated
-//typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalBestChoiceCodec,HGCalBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
-//DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
+//
 typedef HGCalTriggerBackend::HGCalTriggerSimCluster<HGCalTriggerCellBestChoiceCodec,HGCalTriggerCellBestChoiceDataPayload> HGCalTriggerSimClusterBestChoice;
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimClusterBestChoice,"HGCalTriggerSimClusterBestChoice");
-//DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, HGCalTriggerSimCluster,"HGCalTriggerSimCluster");
 
 // Local Variables:
 // mode:c++
