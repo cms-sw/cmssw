@@ -173,31 +173,13 @@ def L1TReEmulFromRAWLegacyMuon(process):
 ## - Legacy to upgrade format muon converter
     process.load('L1Trigger.L1TCommon.muonLegacyInStage2FormatDigis_cfi')
     process.muonLegacyInStage2FormatDigis.muonSource = cms.InputTag('simGmtDigis')  
-
-## - DT TP emulator
-    from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import dtTriggerPrimitiveDigis
-    process.simDtTriggerPrimitiveDigis = dtTriggerPrimitiveDigis.clone()
-    process.simDtTriggerPrimitiveDigis.digiTag = cms.InputTag('muonDTDigis')
-
-## - TwinMux
-    from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import simTwinMuxDigis
-    process.simTwinMuxDigisForDttf = simTwinMuxDigis.clone()
-    process.simTwinMuxDigisForDttf.RPC_Source         = cms.InputTag('muonRPCDigis')
-    process.simTwinMuxDigisForDttf.DTDigi_Source      = cms.InputTag('bmtfDigis')
-    process.simTwinMuxDigisForDttf.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
-
-## - CSC TP emulator 
-    from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTriggerPrimitiveDigis
-    process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigis.clone()
-    process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi' )
-    process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )
 #
 # - CSC Track Finder emulator
 #
     from L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi import csctfTrackDigis
     process.simCsctfTrackDigis = csctfTrackDigis.clone()
     process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'csctfDigis' ) 
-    process.simCsctfTrackDigis.DTproducer = 'simDtTriggerPrimitiveDigis'
+    process.simCsctfTrackDigis.DTproducer = 'twinMuxStage2Digis:PhIn'
     from L1Trigger.CSCTrackFinder.csctfDigis_cfi import csctfDigis
     process.simCsctfDigis = csctfDigis.clone()
     process.simCsctfDigis.CSCTrackProducer = 'simCsctfTrackDigis'
@@ -206,7 +188,8 @@ def L1TReEmulFromRAWLegacyMuon(process):
 ## 
     from L1Trigger.DTTrackFinder.dttfDigis_cfi import dttfDigis
     process.simDttfDigis = dttfDigis.clone()
-    process.simDttfDigis.DTDigi_Source  = 'simTwinMuxDigisForDttf'
+    process.simDttfDigis.DTDigi_Source  = cms.InputTag('twinMuxStage2Digis','PhIn')
+    process.simDttfDigis.DTDigi_Source_Th = cms.InputTag('twinMuxStage2Digis','ThIn')
     process.simDttfDigis.CSCStub_Source = 'simCsctfTrackDigis'
 ##
 ## - RPC PAC Trigger emulator
@@ -251,9 +234,7 @@ def L1TReEmulFromRAWLegacyMuon(process):
    
 
 # - Sequences 
-    process.L1TMuonTriggerPrimitives = cms.Sequence(process.simCscTriggerPrimitiveDigis + process.simDtTriggerPrimitiveDigis + process.simTwinMuxDigisForDttf)
-
-    process.L1TReEmul = cms.Sequence(process.L1TMuonTriggerPrimitives + process.simCsctfTrackDigis + process.simCsctfDigis + process.simDttfDigis + process.simRpcTriggerDigis + process.simGmtDigis + process.muonLegacyInStage2FormatDigis)
+    process.L1TReEmul = cms.Sequence(process.simCsctfTrackDigis + process.simCsctfDigis + process.simDttfDigis + process.simRpcTriggerDigis + process.simGmtDigis + process.muonLegacyInStage2FormatDigis)
     
     process.load('L1Trigger.L1TMuon.simMuonQualityAdjusterDigis_cfi')
 
