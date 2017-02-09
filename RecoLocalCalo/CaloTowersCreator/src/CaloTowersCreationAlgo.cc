@@ -9,6 +9,8 @@
 #include "Math/Interpolator.h"
 #include <cmath>
 
+//#define EDM_ML_DEBUG
+
 CaloTowersCreationAlgo::CaloTowersCreationAlgo()
  : theEBthreshold(-1000.),
    theEEthreshold(-1000.),
@@ -67,7 +69,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theMomHEDepth(0.),
    theMomEBDepth(0.),
    theMomEEDepth(0.),
-   theHcalPhase(0)
+   theHcalPhase(0),
+   subdetOne(-1)
 {
 }
 
@@ -149,7 +152,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theMomHEDepth(momHEDepth),
     theMomEBDepth(momEBDepth),
     theMomEEDepth(momEEDepth),
-    theHcalPhase(hcalPhase)
+    theHcalPhase(hcalPhase),
+    subdetOne(-1)
 {
 }
 
@@ -238,8 +242,8 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theMomHEDepth(momHEDepth),
     theMomEBDepth(momEBDepth),
     theMomEEDepth(momEEDepth),
-    theHcalPhase(hcalPhase)
-
+    theHcalPhase(hcalPhase),
+    subdetOne(-1)
 {
   // static int N = 0;
   // std::cout << "VI Algo " << ++N << std::endl; 
@@ -261,6 +265,7 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo, const 
   
   //which depths of tower 28/29 are merged?
   //the merging starts at layer 5 in phase 0 or phase 1 configurations
+  mergedDepths.clear();  mergedDepthsOne.clear();
   if(theHcalPhase==0 || theHcalPhase==1){
     std::vector<int> tower28depths;
     int ndepths, startdepth;
@@ -299,7 +304,20 @@ void CaloTowersCreationAlgo::setGeometry(const CaloTowerTopology* cttopo, const 
       }
     }
   }
-  
+#ifdef EDM_ML_DEBUG
+  std::cout << "mergedDepths with " << mergedDepths.size() << " entries:";
+  for (unsigned int k=0; k<mergedDepths.size(); ++k)
+    std::cout << " " << k << ":" << mergedDepths[k];
+  std::cout << std::endl << "Special subdetector " << subdetOne << " with "
+	    << phizOne.size() << " phis" << std::endl;
+  for (unsigned int k=0; k<phizOne.size(); ++k)
+    std::cout << "PhiZOne[" << k << "] " << phizOne[k].first << ":" 
+	      << phizOne[k].second << std::endl;
+  std::cout << "mergedDeptshOne with " << mergedDepthsOne.size() <<" entries:";
+  for (unsigned int k=0; k<mergedDepthsOne.size(); ++k)
+    std::cout << " " << k << ":" << mergedDepthsOne[k];
+  std::cout << std::endl;
+#endif
 }
 
 void CaloTowersCreationAlgo::begin() {
@@ -492,11 +510,14 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
   if (detId.det()==DetId::Hcal && 
       HcalDetId(detId).subdet()==HcalEndcap &&
       (theHcalPhase==0 || theHcalPhase==1) &&
+      //HcalDetId(detId).depth()==3 &&
       HcalDetId(detId).ietaAbs()==theHcalTopology->lastHERing()-1) {
-    bool merge = (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) == phizOne.end())) ? 
-      (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detId).depth())!=mergedDepthsOne.end()) :
-      (std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detId).depth())!=mergedDepths.end());
-    //HcalDetId(detId).depth()==3 &&
+    bool merge(false);
+    if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) == phizOne.end())) {
+      merge = (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detId).depth())!=mergedDepthsOne.end());
+    } else {
+      merge = (std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detId).depth())!=mergedDepths.end());
+    }
     if (merge) {
 
       //////////////////////////////    unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
