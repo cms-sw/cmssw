@@ -1,16 +1,14 @@
-#include "SimCalorimetry/HcalSimProducers/interface/HcalHitRelabeller.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
 
-HcalHitRelabeller::HcalHitRelabeller(const edm::ParameterSet& ps) : 
-  theGeometry(0), theRecNumber(0),
-  neutralDensity_(ps.getParameter<bool>("doNeutralDensityFilter")) { }
+HcalHitRelabeller::HcalHitRelabeller(bool nd) : 
+  theRecNumber(0),
+  neutralDensity_(nd) { }
 
 void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 
@@ -42,14 +40,15 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
   
 }
 
-
-void HcalHitRelabeller::setGeometry(const CaloGeometry*& geom, 
-				    const HcalDDDRecConstants *& recNum) {
-  theGeometry  = geom;
+void HcalHitRelabeller::setGeometry(const HcalDDDRecConstants *& recNum) {
   theRecNumber = recNum;
 }
 
 DetId HcalHitRelabeller::relabel(const uint32_t testId) const {
+  return HcalHitRelabeller::relabel(testId, theRecNumber);
+}
+
+DetId HcalHitRelabeller::relabel(const uint32_t testId, const HcalDDDRecConstants * theRecNumber) {
 
 #ifdef EDM_ML_DEBUG
   std::cout << "Enter HcalHitRelabeller::relabel " << std::endl;
@@ -65,8 +64,8 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId) const {
    	    << "iphi: " << phi << " "
    	    << "layer: " << layer << std::endl;
 #endif
-  HcalDDDRecConstants::HcalID id = theRecNumber->getHCID(det,eta,phi,layer,depth);
   sign=(z==0)?(-1):(1);
+  HcalDDDRecConstants::HcalID id = theRecNumber->getHCID(det,sign*eta,phi,layer,depth);
 
   if (id.subdet==int(HcalBarrel)) {
     hid=HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth);        

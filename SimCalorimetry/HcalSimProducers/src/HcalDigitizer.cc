@@ -29,7 +29,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <boost/foreach.hpp>
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 
@@ -177,7 +177,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
 //  std::cout << "Flag to see if Hit Relabeller to be initiated " << testNumbering_ << std::endl;
-  if (testNumbering_) theRelabeller=new HcalHitRelabeller(ps);
+  if (testNumbering_) theRelabeller=new HcalHitRelabeller(ps.getParameter<bool>("doNeutralDensityFilter"));
 
   if(ps.getParameter<bool>("doIonFeedback") && theHBHEResponse) {
     theIonFeedback = new HPDIonFeedbackSim(ps, theShapes);
@@ -557,7 +557,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   theHFResponse->setGeometry(theGeometry);
   theHFQIE10Response->setGeometry(theGeometry);
   theZDCResponse->setGeometry(theGeometry);
-  if(theRelabeller) theRelabeller->setGeometry(theGeometry,theRecNumber);
+  if(theRelabeller) theRelabeller->setGeometry(theRecNumber);
 
   const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);

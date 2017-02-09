@@ -4,7 +4,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/ValidationFormats"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="SimDataFormats/CaloTest"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Common"/>
