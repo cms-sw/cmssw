@@ -60,6 +60,7 @@ L1MuDTTFConfig::~L1MuDTTFConfig() {}
 void L1MuDTTFConfig::setDefaults() {
 
   m_DTDigiInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Source");
+  m_DTDigiThInputTag = m_ps->getParameter<edm::InputTag>("DTDigi_Source_Th");
   m_CSCTrSInputTag = m_ps->getParameter<edm::InputTag>("CSCStub_Source");
 
   m_debug = true;
@@ -174,6 +175,7 @@ void L1MuDTTFConfig::setDefaults() {
 
 // static data members
 
+edm::InputTag L1MuDTTFConfig::m_DTDigiThInputTag = edm::InputTag();
 edm::InputTag L1MuDTTFConfig::m_DTDigiInputTag = edm::InputTag();
 edm::InputTag L1MuDTTFConfig::m_CSCTrSInputTag = edm::InputTag();
 
