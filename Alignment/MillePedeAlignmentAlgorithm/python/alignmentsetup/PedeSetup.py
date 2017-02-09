@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 
 
 def setup(process, binary_files, tree_files, run_start_geometry):
@@ -58,16 +59,8 @@ def setup(process, binary_files, tree_files, run_start_geometry):
 
     # Set a new source and path.
     # --------------------------------------------------------------------------
-    if (hasattr(process.AlignmentProducer, "RunRangeSelection") and
-        len(process.AlignmentProducer.RunRangeSelection) > 0):
-        iovs = set([int(iov)
-                    for sel in process.AlignmentProducer.RunRangeSelection
-                    for iov in sel.RunRanges
-                    ])
-        iovs = sorted(iovs)
-        number_of_events = iovs[-1] - iovs[0] + 1
-    else:
-        number_of_events = 1
+    iovs = mps_tools.make_unique_runranges(process.AlignmentProducer)
+    number_of_events = iovs[-1] - iovs[0] + 1
 
     process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(number_of_events))

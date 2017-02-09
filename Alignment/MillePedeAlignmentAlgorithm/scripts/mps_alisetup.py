@@ -6,7 +6,7 @@
 ##  Then calls mps_setup.pl for all datasets.
 ##
 ##  Usage:
-##     mps_alisetup.py [-h] [-v] myconfig.ini
+##     mps_alisetup.py [-h] [-v] [-w] myconfig.ini
 ##
 
 import argparse
@@ -91,24 +91,10 @@ def create_input_db(cms_process, run_number):
         print "'FirstRunForStartGeometry' must be positive, but is", run_number
         sys.exit(1)
 
-    # return if IOVs are defined; if not continue to create single IOV input
-    if len(cms_process.AlignmentProducer.RunRangeSelection) > 0:
-        iovs_are_defined = False
-        for pset in cms_process.AlignmentProducer.RunRangeSelection:
-            if len(pset.RunRanges) > 0:
-                iovs_are_defined = True
-                break
-        if iovs_are_defined:
-            os.remove(cfg+"c")
-            return ""
-
-
-    global_tag = cms_process.GlobalTag.globaltag.value()
     input_db_name = os.path.abspath("alignment_input.db")
-    tags = mps_tools.create_single_iov_db(global_tag, run_number, input_db_name)
-
-    for condition in cms_process.GlobalTag.toGet.value():
-        if condition.record.value() in tags: del tags[condition.record.value()]
+    tags = mps_tools.create_single_iov_db(
+        check_iov_definition(cms_process, run_number),
+        run_number, input_db_name)
 
     result = ""
     for record,tag in tags.iteritems():
@@ -121,9 +107,113 @@ def create_input_db(cms_process, run_number):
                    "       record = \""+record+"\",\n"
                    "       tag = \""+tag["tag"]+"\")\n")
 
-    os.remove(cfg+"c")
     return result
 
+
+def check_iov_definition(cms_process, first_run):
+    """
+    Check consistency of input alignment payloads and IOV definition.
+    Returns a dictionary with the information needed to override possibly
+    problematic input taken from the global tag.
+
+    Arguments:
+    - `cms_process`: cms.Process object containing the CMSSW configuration
+    - `first_run`: first run for start geometry
+    """
+
+    print "Checking consistency of IOV definition..."
+    iovs = mps_tools.make_unique_runranges(cms_process.AlignmentProducer)
+
+    if first_run != iovs[0]:     # simple consistency check
+        print "Value of 'FirstRunForStartGeometry' has to match first defined",
+        print "output IOV:",
+        print first_run, "!=", iovs[0]
+        sys.exit(1)
+
+
+    inputs = {
+        "TrackerAlignmentRcd": None,
+        "TrackerSurfaceDeformationRcd": None,
+        "TrackerAlignmentErrorExtendedRcd": None,
+    }
+
+    for condition in cms_process.GlobalTag.toGet.value():
+        if condition.record.value() in inputs:
+            inputs[condition.record.value()] = {
+                "tag": condition.tag.value(),
+                "connect": ("pro"
+                            if not condition.hasParameter("connect")
+                            else condition.connect.value())
+            }
+
+    inputs_from_gt = [record for record in inputs if inputs[record] is None]
+    inputs.update(mps_tools.get_tags(cms_process.GlobalTag.globaltag.value(),
+                                     inputs_from_gt))
+
+    for inp in inputs.itervalues():
+        inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
+
+    # check consistency of input with output
+    problematic_gt_inputs = {}
+    input_indices = {key: len(value["iovs"]) -1
+                     for key,value in inputs.iteritems()}
+    for iov in reversed(iovs):
+        for inp in inputs:
+            if inp in problematic_gt_inputs: continue
+            if input_indices[inp] < 0:
+                print "First output IOV boundary at run", iov,
+                print "is before the first input IOV boundary at",
+                print inputs[inp]["iovs"][0], "for '"+inp+"'."
+                print "Please check your run range selection."
+                sys.exit(1)
+            input_iov = inputs[inp]["iovs"][input_indices[inp]]
+            if iov < input_iov:
+                if inp in inputs_from_gt:
+                    problematic_gt_inputs[inp] = inputs[inp]
+                    print "Found problematic input taken from global tag."
+                    print "Input IOV boundary at run",input_iov,
+                    print "for '"+inp+"' is within output IOV starting with",
+                    print "run", str(iov)+"."
+                    print "Deriving an alignment with coarse IOV granularity",
+                    print "starting from finer granularity leads to wrong",
+                    print "results."
+                    print "A single IOV input using the IOV of",
+                    print "'FirstRunForStartGeometry' ("+str(first_run)+") is",
+                    print "automatically created and used."
+                    continue
+                print "Found input IOV boundary at run",input_iov,
+                print "for '"+inp+"' which is within output IOV starting with",
+                print "run", str(iov)+"."
+                print "Deriving an alignment with coarse IOV granularity",
+                print "starting from finer granularity leads to wrong results."
+                print "Please check your run range selection."
+                sys.exit(1)
+            elif iov == input_iov:
+                input_indices[inp] -= 1
+
+    # check consistency of 'TrackerAlignmentRcd' with other inputs
+    input_indices = {key: len(value["iovs"]) -1
+                     for key,value in inputs.iteritems()
+                     if (key != "TrackerAlignmentRcd")
+                     and (inp not in problematic_gt_inputs)}
+    for iov in reversed(inputs["TrackerAlignmentRcd"]["iovs"]):
+        for inp in input_indices:
+            input_iov = inputs[inp]["iovs"][input_indices[inp]]
+            if iov < input_iov:
+                print "Found input IOV boundary at run",input_iov,
+                print "for '"+inp+"' which is within 'TrackerAlignmentRcd'",
+                print "IOV starting with run", str(iov)+"."
+                print "Deriving an alignment with inconsistent IOV boundaries",
+                print "leads to wrong results."
+                print "Please check your input IOVs."
+                sys.exit(1)
+            elif iov == input_iov:
+                input_indices[inp] -= 1
+
+    print "IOV consistency check successful."
+    print "-"*60
+
+    return problematic_gt_inputs
 
 
 # ------------------------------------------------------------------------------
