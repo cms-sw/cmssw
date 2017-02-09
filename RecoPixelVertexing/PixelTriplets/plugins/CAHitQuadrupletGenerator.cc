@@ -375,56 +375,50 @@ void CAHitQuadrupletGenerator::hitNtuplets(const IntermediateHitDoublets& region
     		// TODO: Do we have any use case to not use bending correction?
     		if (useBendingCorrection)
    		{
-      		// Following PixelFitterByConformalMappingAndLine
-      		const float simpleCot = ( gps.back().z() - gps.front().z() ) / (gps.back().perp() - gps.front().perp() );
-     		const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, es);
-      		for (int i=0; i < 4; ++i)
-      		{
-        		const GlobalPoint & point = gps[i];
-        		const GlobalError & error = ges[i];
-        		bc_r[i] = sqrt( sqr(point.x() - region.origin().x()) + sqr(point.y() - region.origin().y()) );
-        		bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt, es)(bc_r[i]);
-        		bc_z[i] = point.z() - region.origin().z();
-        		bc_errZ2[i] =  (barrels[i]) ? error.czz() : error.rerr(point)*sqr(simpleCot);
-      		}
-      		RZLine rzLine(bc_r, bc_z, bc_errZ2, RZLine::ErrZ2_tag());
-      		chi2 = rzLine.chi2();
+      			// Following PixelFitterByConformalMappingAndLine
+      			const float simpleCot = ( gps.back().z() - gps.front().z() ) / (gps.back().perp() - gps.front().perp() );
+     			const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, es);
+      			for (int i=0; i < 4; ++i)
+      			{
+        			const GlobalPoint & point = gps[i];
+        			const GlobalError & error = ges[i];
+        			bc_r[i] = sqrt( sqr(point.x() - region.origin().x()) + sqr(point.y() - region.origin().y()) );
+        			bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt, es)(bc_r[i]);
+        			bc_z[i] = point.z() - region.origin().z();
+        			bc_errZ2[i] =  (barrels[i]) ? error.czz() : error.rerr(point)*sqr(simpleCot);
+      			}
+      			RZLine rzLine(bc_r, bc_z, bc_errZ2, RZLine::ErrZ2_tag());
+      			chi2 = rzLine.chi2();
     		}
 		else
     		{
-      		RZLine rzLine(gps, ges, barrels);
-      		chi2 = rzLine.chi2();
+      			RZLine rzLine(gps, ges, barrels);
+      			chi2 = rzLine.chi2();
     		}
     		if (edm::isNotFinite(chi2) || chi2 > thisMaxChi2)
     		{
-      		continue;
-              
+      			continue;
     		}
     		// TODO: Do we have any use case to not use circle fit? Maybe
     		// HLT where low-pT inefficiency is not a problem?
     		if (fitFastCircle)
     		{
-      		FastCircleFit c(gps, ges);
-      		chi2 += c.chi2();
-      		if (edm::isNotFinite(chi2))
-        		continue;
-      		if (fitFastCircleChi2Cut && chi2 > thisMaxChi2)
-        		continue;
+      			FastCircleFit c(gps, ges);
+      			chi2 += c.chi2();
+      			if (edm::isNotFinite(chi2)) continue;
+      			if (fitFastCircleChi2Cut && chi2 > thisMaxChi2) continue;
     		}
     		if(caOnlyOneLastHitPerLayerFilter)
     		{
     			if (chi2 < selectedChi2)
    			{
     				selectedChi2 = chi2;
-
     				if(hasAlreadyPushedACandidate)
     				{
     					result[index].pop_back();
-
     				}
 	    			result[index].emplace_back(foundQuadruplets[quadId][0]->getInnerHit(), foundQuadruplets[quadId][1]->getInnerHit(),foundQuadruplets[quadId][2]->getInnerHit(), foundQuadruplets[quadId][2]->getOuterHit());
 	    			hasAlreadyPushedACandidate = true;
-
     			}
    		}
     		else
