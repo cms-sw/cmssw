@@ -15,7 +15,7 @@ class RandomEngineAndDistribution;
 
 namespace fastsim
 {
-    class Layer;
+    class SimplifiedGeometry;
     class Particle;
     class InteractionModel 
     {
@@ -23,7 +23,7 @@ namespace fastsim
 	InteractionModel(std::string name)
 	    : name_(name){}
 	virtual ~InteractionModel(){;}
-	virtual void interact(Particle & particle,const Layer & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) = 0;
+	virtual void interact(Particle & particle,const SimplifiedGeometry & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) = 0;
 	virtual void registerProducts(edm::ProducerBase & producer) const{;}
 	virtual void storeProducts(edm::Event & iEvent) {;}
 	const std::string getName(){return name_;}

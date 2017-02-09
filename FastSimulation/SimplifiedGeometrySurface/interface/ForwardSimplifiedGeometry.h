@@ -1,7 +1,7 @@
-#ifndef FASTSIM_FORWARDLAYER_H
-#define FASTSIM_FORWARDLAYER_H
+#ifndef FASTSIM_FORWARDSIMPLIFIEDGEOMETRY_H
+#define FASTSIM_FORWARDSIMPLIFIEDGEOMETRY_H
 
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TH1F.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -9,13 +9,13 @@
 
 namespace fastsim{
 
-    class ForwardLayer : public Layer
+    class ForwardSimplifiedGeometry : public SimplifiedGeometry
     {
     public:
-	~ForwardLayer(){};
+	~ForwardSimplifiedGeometry(){};
 
-	ForwardLayer(double z) :
-	    Layer(z) {}
+	ForwardSimplifiedGeometry(double z) :
+	    SimplifiedGeometry(z) {}
 
 	const double getZ() const { return position_; }
 
@@ -32,7 +32,7 @@ namespace fastsim{
 	{
 	    if(!this->isOnSurface(position))
 	    {
-		throw cms::Exception("fastsim::BarrelLayer::getMagneticFieldZ") << "position is not on layer's surface";
+		throw cms::Exception("fastsim::BarrelSimplifiedGeometry::getMagneticFieldZ") << "position is not on layer's surface";
 	    }
 	    return magneticFieldHist_->GetBinContent(magneticFieldHist_->GetXaxis()->FindBin(position.Pt()));
 	}

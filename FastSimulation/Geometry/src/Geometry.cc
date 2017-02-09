@@ -4,9 +4,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
-#include "FastSimulation/Layer/interface/LayerFactory.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometryFactory.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
 
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
@@ -66,7 +66,7 @@ void Geometry::update(const edm::EventSetup & iSetup,const std::map<std::string,
     //---------------
     // layer factory
     //---------------
-    fastsim::LayerFactory layerFactory(geometricSearchTracker
+    SimplifiedGeometryFactory simplifiedGeometryFactory(geometricSearchTracker
 				       ,*magneticField_
 				       ,interactionModelMap
 				       ,maxRadius_
@@ -77,7 +77,7 @@ void Geometry::update(const edm::EventSetup & iSetup,const std::map<std::string,
     barrelLayers_.clear();
     for(const edm::ParameterSet & layerCfg : barrelLayerCfg_)
     {
-	barrelLayers_.push_back(layerFactory.createBarrelLayer(layerCfg));
+	barrelLayers_.push_back(simplifiedGeometryFactory.createBarrelSimplifiedGeometry(layerCfg));
     }
     for(unsigned index = 0;index < barrelLayers_.size();index++)
     {
@@ -103,8 +103,8 @@ void Geometry::update(const edm::EventSetup & iSetup,const std::map<std::string,
     forwardLayers_.clear();
     for(const edm::ParameterSet & layerCfg : forwardLayerCfg_)
     {
-	forwardLayers_.push_back(layerFactory.createForwardLayer(fastsim::LayerFactory::POSFWD,layerCfg));
-	forwardLayers_.insert(forwardLayers_.begin(),layerFactory.createForwardLayer(fastsim::LayerFactory::NEGFWD,layerCfg));
+	forwardLayers_.push_back(simplifiedGeometryFactory.createForwardSimplifiedGeometry(fastsim::SimplifiedGeometryFactory::POSFWD,layerCfg));
+	forwardLayers_.insert(forwardLayers_.begin(),simplifiedGeometryFactory.createForwardSimplifiedGeometry(fastsim::SimplifiedGeometryFactory::NEGFWD,layerCfg));
     }
     for(unsigned index = 0;index < forwardLayers_.size();index++)
     {

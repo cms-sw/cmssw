@@ -16,7 +16,7 @@
 // fastsim
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h" //TODO move this
 #include "FastSimulation/NewParticle/interface/Particle.h"
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "FastSimulation/InteractionModel/interface/InteractionModel.h"
 #include "FastSimulation/InteractionModel/interface/InteractionModelFactory.h"
 
@@ -48,7 +48,7 @@ namespace fastsim
     public:
 	TrackerSimHitProducer(const std::string & name,const edm::ParameterSet & cfg);
 	~TrackerSimHitProducer(){;}
-	void interact(Particle & particle,const Layer & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
+	void interact(Particle & particle,const SimplifiedGeometry & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
 	virtual void registerProducts(edm::ProducerBase & producer) const override;
 	virtual void storeProducts(edm::Event & iEvent) override;
 	std::pair<double, PSimHit*> createHitOnDetector(const TrajectoryStateOnSurface & particle,int pdgId,int simTrackId,const GeomDet & detector, GlobalPoint & refPos);
@@ -81,7 +81,7 @@ void fastsim::TrackerSimHitProducer::storeProducts(edm::Event & iEvent)
     simHitContainer_.reset(new edm::PSimHitContainer);
 }
 
-void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Layer & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random)
+void fastsim::TrackerSimHitProducer::interact(Particle & particle,const SimplifiedGeometry & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random)
 {
     //
     // check that layer has tracker modules

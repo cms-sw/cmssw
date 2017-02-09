@@ -1,8 +1,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FastSimulation/Propagation/interface/StraightTrajectory.h"
 #include "FastSimulation/Propagation/interface/HelixTrajectory.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FastSimulation/Constants/interface/Constants.h"
@@ -33,20 +33,20 @@ std::unique_ptr<fastsim::Trajectory> fastsim::Trajectory::createTrajectory(const
 }
 
 
-double fastsim::Trajectory::nextCrossingTimeC(const fastsim::Layer & layer) const
+double fastsim::Trajectory::nextCrossingTimeC(const fastsim::SimplifiedGeometry & layer) const
 {
     if(layer.isForward())
     {
-	return this->nextCrossingTimeC(static_cast<const fastsim::ForwardLayer &>(layer));
+	return this->nextCrossingTimeC(static_cast<const fastsim::ForwardSimplifiedGeometry &>(layer));
     }
     else
     {
-	return this->nextCrossingTimeC(static_cast<const fastsim::BarrelLayer &>(layer));
+	return this->nextCrossingTimeC(static_cast<const fastsim::BarrelSimplifiedGeometry &>(layer));
     }
 }
 
 
-double fastsim::Trajectory::nextCrossingTimeC(const fastsim::ForwardLayer & layer) const
+double fastsim::Trajectory::nextCrossingTimeC(const fastsim::ForwardSimplifiedGeometry & layer) const
 {
     if(layer.isOnSurface(position_))
     {

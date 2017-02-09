@@ -1,11 +1,11 @@
 #include "FastSimulation/Propagation/interface/StraightTrajectory.h"
 #include "FastSimulation/Constants/interface/Constants.h"
 
-#include "FastSimulation/Layer/interface/Layer.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
 
-double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelLayer & layer) const
+double fastsim::StraightTrajectory::nextCrossingTimeC(const fastsim::BarrelSimplifiedGeometry & layer) const
 {
     if(layer.isOnSurface(position_))
     {

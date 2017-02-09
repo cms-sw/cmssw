@@ -1,5 +1,5 @@
-#ifndef FASTSIM_LAYERFACTORY
-#define FASTSIM_LAYERFACTORY
+#ifndef FASTSIM_SIMPLIFIEDGEOMETRYFACTORY
+#define FASTSIM_SIMPLIFIEDGEOMETRYFACTORY
 
 class GeometricSearchTracker;
 class MagneticField;
@@ -19,15 +19,15 @@ namespace edm
 
 namespace fastsim
 {
-    class Layer;
-    class BarrelLayer;
-    class ForwardLayer;
+    class SimplifiedGeometry;
+    class BarrelSimplifiedGeometry;
+    class ForwardSimplifiedGeometry;
     class InteractionModel;
-    class LayerFactory
+    class SimplifiedGeometryFactory
     {
     public:
 
-	LayerFactory(const GeometricSearchTracker * geometricSearchTracker,
+	SimplifiedGeometryFactory(const GeometricSearchTracker * geometricSearchTracker,
 		     const MagneticField & magneticField,
 		     const std::map<std::string,fastsim::InteractionModel *> & interactionModelMap,
 		     double magneticFieldHistMaxR,
@@ -35,13 +35,13 @@ namespace fastsim
 	
 	enum LayerType {BARREL,POSFWD,NEGFWD};
 
-	std::unique_ptr<Layer> createLayer(LayerType type,
+	std::unique_ptr<SimplifiedGeometry> createSimplifiedGeometry(LayerType type,
 					   const edm::ParameterSet & cfg) const;
 
-	std::unique_ptr<ForwardLayer> createForwardLayer(LayerType type,
+	std::unique_ptr<ForwardSimplifiedGeometry> createForwardSimplifiedGeometry(LayerType type,
 							 const edm::ParameterSet & cfg) const;
 
-	std::unique_ptr<BarrelLayer> createBarrelLayer(const edm::ParameterSet & cfg) const;
+	std::unique_ptr<BarrelSimplifiedGeometry> createBarrelSimplifiedGeometry(const edm::ParameterSet & cfg) const;
 	
     private:
 	const DetLayer * getDetLayer(const std::string & detLayerName,const GeometricSearchTracker & geometricSearchTracker) const;

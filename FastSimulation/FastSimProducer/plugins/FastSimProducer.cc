@@ -25,7 +25,7 @@
 // fastsim
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Geometry/interface/Geometry.h"
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "FastSimulation/Decayer/interface/Decayer.h"
 #include "FastSimulation/Propagation/interface/LayerNavigator.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
@@ -45,12 +45,15 @@ public:
 
 private:
 
+	virtual void beginStream(edm::StreamID id);
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endStream();
 
     edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_;
     fastsim::Geometry geometry_;
     double beamPipeRadius_;
     fastsim::ParticleFilter particleFilter_;
+    std::unique_ptr<RandomEngineAndDistribution> _randomEngine;
     fastsim::Decayer decayer_;
     std::vector<std::unique_ptr<fastsim::InteractionModel> > interactionModels_;
     std::map<std::string,fastsim::InteractionModel *> interactionModelMap_;
@@ -65,6 +68,7 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     , geometry_(iConfig.getParameter<edm::ParameterSet>("detectorDefinition"))
     , beamPipeRadius_(iConfig.getParameter<double>("beamPipeRadius"))
     , particleFilter_(iConfig.getParameter<edm::ParameterSet>("particleFilter"))
+    , _randomEngine(nullptr)
 {
 
     //----------------
@@ -76,6 +80,9 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
 		const edm::ParameterSet & modelCfg = modelCfgs.getParameter<edm::ParameterSet>(modelName);
 		std::string modelClassName(modelCfg.getParameter<std::string>("className"));
 		std::unique_ptr<fastsim::InteractionModel> interactionModel(fastsim::InteractionModelFactory::get()->create(modelClassName,modelName,modelCfg));
+		if(!interactionModel.get()){
+			throw cms::Exception("FastSimProducer") << "InteractionModel " << modelName << " could not be created" << std::endl;
+		}
 		interactionModels_.push_back(std::move(interactionModel));
 		interactionModelMap_[modelName] = interactionModels_.back().get();
     }
@@ -91,6 +98,11 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
     }
 }
 
+void
+FastSimProducer::beginStream(const edm::StreamID id)
+{
+    _randomEngine = std::make_unique<RandomEngineAndDistribution>(id);
+}
 
 void
 FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -98,7 +110,6 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     LogDebug(MESSAGECATEGORY) << "   produce";
 
     // do the iov thing
-    // TODO: check me
     if(iovSyncValue_!=iSetup.iovSyncValue())
     {
 		LogDebug(MESSAGECATEGORY) << "   triggering update of event setup" << std::endl;
@@ -117,9 +128,6 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<edm::HepMCProduct> genParticles;
     iEvent.getByToken(genParticlesToken_,genParticles);
 
-    // ?? is this the right place ??
-    RandomEngineAndDistribution random(iEvent.streamID());
-
     fastsim::ParticleLooper particleLooper(
 	*genParticles->GetEvent()
 	,*pdt
@@ -132,29 +140,38 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     LogDebug(MESSAGECATEGORY) << "################################"
 			      << "\n###############################";    
 
-    for(std::unique_ptr<fastsim::Particle> particle = particleLooper.nextParticle(random); particle != 0;particle=particleLooper.nextParticle(random)) 
+    for(std::unique_ptr<fastsim::Particle> particle = particleLooper.nextParticle(*_randomEngine); particle != 0;particle=particleLooper.nextParticle(*_randomEngine)) 
     {
     	LogDebug(MESSAGECATEGORY) << "\n   moving NEXT particle: " << *particle;
 
 		// move the particle through the layers
 		fastsim::LayerNavigator layerNavigator(geometry_);
-		const fastsim::Layer * layer = 0;
+		const fastsim::SimplifiedGeometry * layer = 0;
 		while(layerNavigator.moveParticleToNextLayer(*particle,layer))
 		{
 		    LogDebug(MESSAGECATEGORY) << "   moved to next layer: " << *layer
 					      << "\n   new state: " << *particle;
 
-			//std::cout << *particle << std::endl;
-			//if(layer) std::cout << layer->getMagneticFieldZ(particle->position()) << std::endl;
 		    
 		    // perform interaction between layer and particle
 		    for(fastsim::InteractionModel * interactionModel : layer->getInteractionModels())
 		    {
 				LogDebug(MESSAGECATEGORY) << "   interact with " << *interactionModel;
 				std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-				interactionModel->interact(*particle,*layer,secondaries,random);
+				interactionModel->interact(*particle,*layer,secondaries,*_randomEngine);
 				particleLooper.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
 		    }
+
+		    // do decays
+			if(!particle->isStable() && particle->remainingProperLifeTime() < 1E-20)
+			{
+			    LogDebug(MESSAGECATEGORY) << "Decaying particle...";
+			    std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
+			    decayer_.decay(*particle,secondaries,_randomEngine->theEngine());
+			    LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
+			    particleLooper.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
+			    continue;
+			}
 
 		    // kinematic cuts
 		    // temporary: break after 100 ns
@@ -166,16 +183,6 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    LogDebug(MESSAGECATEGORY) << "--------------------------------"
 					      << "\n-------------------------------";
 
-		}
-
-		// do decays
-		if(!particle->isStable() && particle->remainingProperLifeTime() < 1E-20)
-		{
-		    LogDebug(MESSAGECATEGORY) << "Decaying particle...";
-		    std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-		    decayer_.decay(*particle,secondaries,random.theEngine());
-		    LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
-		    particleLooper.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
 		}
 		
 		LogDebug(MESSAGECATEGORY) << "################################"
@@ -192,33 +199,10 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 }
 
-// TODO: this should actually become a member function of FSimEvent
-//       to be used by decays as well
-/*
-void FastSimProducer::addSecondaries(const fastsim::Particle parent,int parentIndex,std::vector<fastsim::Particle> secondaries)
+void
+FastSimProducer::endStream()
 {
-    // add secondaries to the event
-    if(secondaries.size() > 0)
-    {
-	// TODO: probably want to get rid of the TLorentzVector in Particle etc.
-	//    see https://root.cern.ch/root/html/MATH_GENVECTOR_Index.html
-	//    it got all kinds of methods to do transformations
-	int vertexIndex = simEvent_.addSimVertex(math::XYZTLorentzVector(parent.position().X(),
-									 parent.position().Y(),
-									 parent.position().Z(),
-									 parent.position().T())
-						 simTrackIndex);
-	// TODO: deal with closest charged daughter
-	for(const auto & secondary : secondaries)
-	{
-	    RawParticle _secondary(secondary.pdgId(),
-				   math::XYZTLorentzVector(secondary.momentum.X(),
-							   secondary.momentum.Y()
-							   secondary.momentum.Z()
-							   secondary.momentum.E()));
-	    simEvent_.addSimTrack(_secondary,vertexIndex);
-	}
-    }
+	_randomEngine.reset();
 }
-*/
+
 DEFINE_FWK_MODULE(FastSimProducer);

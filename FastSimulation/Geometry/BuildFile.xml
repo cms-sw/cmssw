@@ -1,7 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="FastSimulation/Layer"/>
+<use name="FastSimulation/SimplifiedGeometrySurface"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/UniformEngine"/>
 <use name="MagneticField/Records"/>

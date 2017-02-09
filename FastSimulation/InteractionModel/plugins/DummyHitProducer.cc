@@ -3,7 +3,7 @@
 #include "FastSimulation/InteractionModel/interface/InteractionModel.h"
 #include "FastSimulation/InteractionModel/interface/InteractionModelFactory.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
-#include "FastSimulation/Layer/interface/Layer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
@@ -18,7 +18,7 @@ namespace fastsim
     {
     public:
 	DummyHitProducer(const std::string & name,const edm::ParameterSet & cfg);
-	void interact(Particle & particle,const Layer & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
+	void interact(Particle & particle,const SimplifiedGeometry & layer,std::vector<std::unique_ptr<Particle> > & secondaries,const RandomEngineAndDistribution & random) override;
 	void registerProducts(edm::ProducerBase & producer) const override;
 	void storeProducts(edm::Event & iEvent) override;
     };
@@ -42,7 +42,7 @@ void fastsim::DummyHitProducer::registerProducts(edm::ProducerBase & producer) c
 }
 
 void fastsim::DummyHitProducer::interact(Particle & particle,
-					       const fastsim::Layer & layer,
+					       const fastsim::SimplifiedGeometry & layer,
 					       std::vector<std::unique_ptr<Particle> > & secondaries,
 					       const RandomEngineAndDistribution & random)
 {

@@ -5,23 +5,22 @@
 
 namespace fastsim
 {
-    class Layer;
-    class ForwardLayer;
-    class BarrelLayer;
+    class SimplifiedGeometry;
+    class ForwardSimplifiedGeometry;
+    class BarrelSimplifiedGeometry;
     class Geometry;
     class Particle;
     class LayerNavigator
     {
     public:
 	LayerNavigator(const Geometry & geometry);
-	// TODO: make the layer const
-	bool moveParticleToNextLayer(Particle & particle,const Layer * & layer);
+	bool moveParticleToNextLayer(Particle & particle,const SimplifiedGeometry * & layer);
     private:
 	const Geometry * const geometry_;
-    const BarrelLayer * nextBarrelLayer_;
-	const BarrelLayer * previousBarrelLayer_;
-    const ForwardLayer * nextForwardLayer_;
-	const ForwardLayer * previousForwardLayer_;
+    const BarrelSimplifiedGeometry * nextBarrelLayer_;
+	const BarrelSimplifiedGeometry * previousBarrelLayer_;
+    const ForwardSimplifiedGeometry * nextForwardLayer_;
+	const ForwardSimplifiedGeometry * previousForwardLayer_;
 	static const std::string MESSAGECATEGORY;
     };
 }

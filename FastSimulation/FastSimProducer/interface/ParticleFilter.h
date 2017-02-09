@@ -2,6 +2,7 @@
 #define FASTSIM_PARTICLEFILTER
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include <vector>
 
 namespace edm
 {
@@ -23,6 +24,7 @@ namespace fastsim
 	double chargedPtMin2_, EMin_, protonEMin_;
 	double cos2ThetaMax_;
 	double vertexRMax2_,vertexZMax_;
+	std::vector<int> skipParticles_;
     };
 }
 

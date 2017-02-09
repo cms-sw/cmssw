@@ -1,6 +1,6 @@
 #include "FastSimulation/Propagation/interface/HelixTrajectory.h"
-#include "FastSimulation/Layer/interface/BarrelLayer.h"
-#include "FastSimulation/Layer/interface/ForwardLayer.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/BarrelSimplifiedGeometry.h"
+#include "FastSimulation/SimplifiedGeometrySurface/interface/ForwardSimplifiedGeometry.h"
 #include "FastSimulation/NewParticle/interface/Particle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FastSimulation/Constants/interface/Constants.h"
@@ -39,12 +39,12 @@ fastsim::HelixTrajectory::HelixTrajectory(const fastsim::Particle & particle,dou
     , phiSpeed_(-particle.charge() * magneticFieldZ * fastsim::Constants::speedOfLight * fastsim::Constants::speedOfLight * 1e-4 / momentum_.E())
 {;}
 
-bool fastsim::HelixTrajectory::crosses(const BarrelLayer & layer) const
+bool fastsim::HelixTrajectory::crosses(const BarrelSimplifiedGeometry & layer) const
 {
     return (minR_ < layer.getRadius() && maxR_ > layer.getRadius());
 }
 
-double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelLayer & layer) const
+double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometry & layer) const
 {
 	if(!crosses(layer)) return -1;
 
