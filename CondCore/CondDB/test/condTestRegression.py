@@ -75,7 +75,7 @@ class CondRegressionTester(object):
 
       def summary(self, verbose=False, jsonOut=False):
           if verbose: 
-              radRe = re.compile('^(CMSSW_.*?)-(slc6_amd64_gcc\d\d\d)-(.*)$')
+              radRe = re.compile('^(CMSSW_.*?)-(slc\d_amd64_gcc\d\d\d)-(.*)$')
               relArches = []
               dbNames = []
               for rad in self.status.keys():
@@ -112,17 +112,19 @@ class CondRegressionTester(object):
           if readOrWrite == 'write':
               self.dbNameList.append( dbName )
 
-          releaseDir = '/cvmfs/cms.cern.ch/%s/cms/cmssw/%s/' %(arch,rel)
+          cmsPath = os.environ['CMS_PATH']
+          releaseDir = '%s/%s/cms/cmssw/%s' %(cmsPath,arch,rel)
 
-          cmd =  'export SCRAM_ARCH=%s; cd %s/src ; eval `scram run -sh`; cd - ; ' %(arch,releaseDir)
-          cmd += 'echo $CMSSW_BASE; echo $RELEASE_BASE; echo $PATH; echo $LD_LIBRARY_PATH;'
+          cmd =  'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src ; eval `scram runtime -sh`; cd - ; ' %(cmsPath,arch,releaseDir)
+          cmd += "echo 'CMSSW_BASE='$CMSSW_BASE; echo 'RELEASE_BASE='$RELEASE_BASE; echo 'PATH='$PATH; echo 'LD_LIBRARY_PATH='$LD_LIBRARY_PATH;"
           cmd += '%s/test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (releaseDir,arch, readOrWrite, self.dbDir, dbName)
           
 	  try:
-             res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+              #opening a process with a clean environment ( to avoid to inherit scram variables )
+              res = check_output(cmd, shell=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
           except Exception as e:
-             self.log( rel, arch, readOrWrite, str(e) )
-             raise e
+              self.log( rel, arch, readOrWrite, str(e) )
+              raise e
 
           self.log( rel, arch, readOrWrite, ''.join(res) )
 
@@ -131,14 +133,15 @@ class CondRegressionTester(object):
 
           dbName = self.dbName # set the default
           if dbNameIn : dbName = dbNameIn
-
+          
+          cmsPath = os.environ['CMS_PATH']
           # we run in the local environment, but need to make sure that we start "top-level" of the devel area
           # and we assume that the test was already built 
-          cmd = 'cd %s/src; eval `scram run -sh 2>/dev/null` ; ' % (os.environ['CMSSW_BASE'], )
+          cmd = 'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src; eval `scram runtime -sh 2>/dev/null` ; ' % (cmsPath,os.environ['SCRAM_ARCH'],os.environ['CMSSW_BASE'], )
           cmd += '../test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (self.arch, readOrWrite, self.dbDir, dbName)
           
           try:
-             res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+             res = check_output(cmd, shell=True, env={}, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
           except Exception as e:
              self.log( self.rel, self.arch, readOrWrite, str(e) )
              raise e
@@ -154,7 +157,7 @@ class CondRegressionTester(object):
       @print_timing
       def runAll(self):
 
-          map = { 'CMSSW_9_0_0_pre3'   : [ 'slc6_amd64_gcc530', 'ref900p3-s6530.db'],
+          map = { 'CMSSW_9_0_0_pre4'   : [ 'slc6_amd64_gcc620', 'ref900p4-s6620.db'],
                   'CMSSW_8_1_0'        : [ 'slc6_amd64_gcc530', 'ref810-s6530.db'],
 		  'CMSSW_8_0_26'       : [ 'slc6_amd64_gcc530', 'ref8026-s6530.db'],
 		  'CMSSW_7_6_6'        : [ 'slc6_amd64_gcc493', 'ref766-s6493.db'],
