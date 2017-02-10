@@ -8,6 +8,7 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 #include <iostream>
+#include <string>
 
 #include "TClonesArray.h"
 
@@ -128,7 +129,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPosition2D( AliDaqPos
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "SENSOR2D";
-  meas.name_ = pos2D->GetID();
+  meas.name_ = std::string(pos2D->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 2; jj++ ){
@@ -160,7 +161,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPositionCOPS( AliDaqP
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "COPS";
-  meas.name_ = posCOPS->GetID();
+  meas.name_ = std::string(posCOPS->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 4; jj++ ){
@@ -205,7 +206,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromTilt( AliDaqTilt* til
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "TILTMETER";
-  meas.name_ = tilt->GetID();
+  meas.name_ = std::string(tilt->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 2; jj++ ){
@@ -232,7 +233,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist( AliDaqDistance*
   OpticalAlignMeasurementInfo meas;
   
   meas.type_ = "DISTANCEMETER";
-  meas.name_ = dist->GetID();
+  meas.name_ = std::string(dist->GetID().Data());
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
   for( size_t jj = 0; jj < 2; jj++ ){
