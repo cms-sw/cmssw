@@ -11,29 +11,28 @@ import Validation.RecoMuon.NewMuonTrackValidator_cfi
 from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
 from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
-from Validation.RecoMuon.RecoMuonValidator_cff import *
+from Validation.RecoMuon.NewRecoMuonValidator_cff import *
 
-#
+# quickTrackAssociatorByHits on probeTracks used as monitor wrt MuonAssociatorByHits
+
+NEWtrkMuonTrackVTrackAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
+NEWtrkMuonTrackVTrackAssoc.associatormap = 'NEWtpToTkmuTrackAssociation'
+NEWtrkMuonTrackVTrackAssoc.associators = ('NEWtrackAssociatorByHits',)
+#NEWtrkMuonTrackVTrackAssoc.label = ('generalTracks',)
+NEWtrkMuonTrackVTrackAssoc.label = ('NEWprobeTracks',)
+NEWtrkMuonTrackVTrackAssoc.muonHistoParameters = trkMuonHistoParameters
+
 # MuonAssociatorByHits used for all track collections
-#
+
 NEWtrkProbeTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWtrkProbeTrackVMuonAssoc.associatormap = 'NEWtpToTkMuonAssociation'
 #trkProbeTrackVMuonAssoc.label = ('generalTracks',)
-NEWtrkProbeTrackVMuonAssoc.label = ('probeTracks',)
+NEWtrkProbeTrackVMuonAssoc.label = ('NEWprobeTracks',)
 NEWtrkProbeTrackVMuonAssoc.muonHistoParameters = trkMuonHistoParameters
-
-# quickTrackAssociatorByHits on probeTracks used as monitor wrt MuonAssociatorByHits
-#
-NEWtrkMuonTrackVTrackAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
-NEWtrkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociation'
-NEWtrkMuonTrackVTrackAssoc.associators = ('trackAssociatorByHits',)
-#trkMuonTrackVTrackAssoc.label = ('generalTracks',)
-NEWtrkMuonTrackVTrackAssoc.label = ('probeTracks',)
-NEWtrkMuonTrackVTrackAssoc.muonHistoParameters = trkMuonHistoParameters
 
 NEWstaSeedTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWstaSeedTrackVMuonAssoc.associatormap = 'NEWtpToStaSeedAssociation'
-NEWstaSeedTrackVMuonAssoc.label = ('seedsOfSTAmuons',)
+NEWstaSeedTrackVMuonAssoc.label = ('NEWseedsOfSTAmuons',)
 NEWstaSeedTrackVMuonAssoc.muonHistoParameters = staSeedMuonHistoParameters
 
 NEWstaMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
@@ -69,7 +68,7 @@ NEWdisplacedTrackVMuonAssoc.muonHistoParameters = displacedTrkMuonHistoParameter
 
 NEWdisplacedStaSeedTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWdisplacedStaSeedTrackVMuonAssoc.associatormap = 'NEWtpToDisplacedStaSeedAssociation'
-NEWdisplacedStaSeedTrackVMuonAssoc.label = ('seedsOfDisplacedSTAmuons',)
+NEWdisplacedStaSeedTrackVMuonAssoc.label = ('NEWseedsOfDisplacedSTAmuons',)
 NEWdisplacedStaSeedTrackVMuonAssoc.muonTPSelector = NewDisplacedMuonTPSet
 NEWdisplacedStaSeedTrackVMuonAssoc.muonHistoParameters = displacedStaSeedMuonHistoParameters
 
@@ -102,12 +101,12 @@ NEWtevMuonDytTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
 
 NEWgemMuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWgemMuonTrackVMuonAssoc.associatormap = 'NEWtpToGEMMuonMuonAssociation'
-NEWgemMuonTrackVMuonAssoc.label = ('extractGemMuons',)
+NEWgemMuonTrackVMuonAssoc.label = ('NEWextractGemMuons',)
 NEWgemMuonTrackVMuonAssoc.muonHistoParameters = gemMuonHistoParameters
 
 NEWme0MuonTrackVMuonAssoc = Validation.RecoMuon.NewMuonTrackValidator_cfi.NewMuonTrackValidator.clone()
 NEWme0MuonTrackVMuonAssoc.associatormap = 'NEWtpToME0MuonMuonAssociation'
-NEWme0MuonTrackVMuonAssoc.label = ('extractMe0Muons',)
+NEWme0MuonTrackVMuonAssoc.label = ('NEWextractMe0Muons',)
 NEWme0MuonTrackVMuonAssoc.muonTPSelector = NewMe0MuonTPSet
 NEWme0MuonTrackVMuonAssoc.muonHistoParameters = me0MuonHistoParameters
 
@@ -162,16 +161,16 @@ NEWglbCosmic1LegMuonTrackVSelMuonAssoc.muonHistoParameters = glbCosmic1LegMuonHi
 # Muon validation sequences using MuonTrackValidator
 #
 NEWmuonValidation_seq = cms.Sequence(
-    probeTracks_seq + NEWtpToTkMuonAssociation + NEWtrkProbeTrackVMuonAssoc
-    +cms.SequencePlaceholder("muonTkAssociation_seq") + NEWtrkMuonTrackVTrackAssoc
-    +seedsOfSTAmuons_seq + NEWtpToStaSeedAssociation + NEWstaSeedTrackVMuonAssoc
+    NEWprobeTracks_seq + NEWtpToTkMuonAssociation + NEWtrkProbeTrackVMuonAssoc
+    +NEWtrackAssociatorByHits + NEWtpToTkmuTrackAssociation + NEWtrkMuonTrackVTrackAssoc
+    +NEWseedsOfSTAmuons_seq + NEWtpToStaSeedAssociation + NEWstaSeedTrackVMuonAssoc
     +NEWtpToStaMuonAssociation + NEWstaMuonTrackVMuonAssoc
     +NEWtpToStaUpdMuonAssociation + NEWstaUpdMuonTrackVMuonAssoc
     +NEWtpToGlbMuonAssociation + NEWglbMuonTrackVMuonAssoc
 )
 
 NEWmuonValidation_reduced_seq = cms.Sequence(
-    probeTracks_seq + NEWtpToTkMuonAssociation + NEWtrkProbeTrackVMuonAssoc
+    NEWprobeTracks_seq + NEWtpToTkMuonAssociation + NEWtrkProbeTrackVMuonAssoc
     +NEWtpToStaUpdMuonAssociation + NEWstaUpdMuonTrackVMuonAssoc
     +NEWtpToGlbMuonAssociation + NEWglbMuonTrackVMuonAssoc
 )
@@ -188,7 +187,7 @@ NEWmuonValidationRefit_seq = cms.Sequence(
 )
 
 NEWmuonValidationDisplaced_seq = cms.Sequence(
-    seedsOfDisplacedSTAmuons_seq + NEWtpToDisplacedStaSeedAssociation + NEWdisplacedStaSeedTrackVMuonAssoc
+    NEWseedsOfDisplacedSTAmuons_seq + NEWtpToDisplacedStaSeedAssociation + NEWdisplacedStaSeedTrackVMuonAssoc
     +NEWtpToDisplacedStaMuonAssociation + NEWdisplacedStaMuonTrackVMuonAssoc
     +NEWtpToDisplacedTrkMuonAssociation + NEWdisplacedTrackVMuonAssoc
     +NEWtpToDisplacedGlbMuonAssociation + NEWdisplacedGlbMuonTrackVMuonAssoc
@@ -203,14 +202,14 @@ NEWmuonValidationCosmic_seq = cms.Sequence(
     +NEWtpToGlbCosmic1LegSelMuonAssociation + NEWglbCosmic1LegMuonTrackVSelMuonAssoc
 )
 
-NEWgemMuonValidation = cms.Sequence(extractGemMuonsTracks_seq + NEWtpToGEMMuonMuonAssociation + NEWgemMuonTrackVMuonAssoc)
-NEWme0MuonValidation = cms.Sequence(extractMe0MuonsTracks_seq + NEWtpToME0MuonMuonAssociation + NEWme0MuonTrackVMuonAssoc)
+NEWgemMuonValidation = cms.Sequence(NEWextractGemMuonsTracks_seq + NEWtpToGEMMuonMuonAssociation + NEWgemMuonTrackVMuonAssoc)
+NEWme0MuonValidation = cms.Sequence(NEWextractMe0MuonsTracks_seq + NEWtpToME0MuonMuonAssociation + NEWme0MuonTrackVMuonAssoc)
 
 ##########################################################################
 # The full offline muon validation sequence
 #
 NEWrecoMuonValidation = cms.Sequence(
-    NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq + NEWmuonValidationDisplaced_seq + muonValidationRMV_seq
+    NEWmuonValidation_seq + NEWmuonValidationTEV_seq + NEWmuonValidationRefit_seq + NEWmuonValidationDisplaced_seq + NEWmuonValidationRMV_seq
     )
 
 # no displaced muons in fastsim
