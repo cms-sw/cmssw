@@ -13,7 +13,11 @@
 
 #include "vdt/vdtMath.h"
 
+#include <iostream>
+
 using namespace hgcal;
+ClusterTools::ClusterTools(){
+}
 
 ClusterTools::ClusterTools(const edm::ParameterSet& conf, 
                            edm::ConsumesCollector& sumes):
@@ -78,28 +82,101 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
 
 math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiCluster& clu, double vz) const {
   if( clu.clusters().size() == 0 ) return math::XYZPoint();
-  double acc_rho = 0.0;
-  double acc_eta = 0.0;
-  double acc_phi = 0.0;
+  /// *******ALL CRAP*********
+  // double acc_rho = 0.0;
+  // double acc_eta = 0.0;
+  // double acc_phi = 0.0;
+  // double totweight = 0.;
+  // for( const auto& ptr : clu.clusters() ) {   
+  //   const double x = ptr->x();    
+  //   const double y = ptr->y();
+  //   const double point_r2 = (x*x + y*y);    
+  //   const double point_z = ptr->z()-vz;
+  //   const double point_h = std::sqrt(point_r2 + point_z*point_z);
+  //   const double weight = ptr->energy() * ptr->size();
+  //   assert((y != 0. || x != 0.) && "Cluster position somehow in beampipe.");
+  //   assert(point_z != 0.f && "Layer-cluster position given as reference point.");
+  //   const double point_r = std::sqrt(point_r2);
+  //   acc_rho += point_r * weight;
+  //   acc_phi += vdt::fast_atan2(y,x) * weight;
+  //   acc_eta += -1. * vdt::fast_log(point_r/(point_z + point_h)) * weight;
+  //   totweight += weight;
+  // }
+  // const double invweight = 1.0/totweight;
+  // reco::PFCluster::REPPoint temp(acc_rho*invweight,acc_eta*invweight,acc_phi*invweight);
+
+  double acc_x = 0.0;
+  double acc_y = 0.0;
+  double acc_z = 0.0;
   double totweight = 0.;
   for( const auto& ptr : clu.clusters() ) {   
-    const double x = ptr->x();    
-    const double y = ptr->y();
-    const double point_r2 = (x*x + y*y);    
-    const double point_z = ptr->z()-vz;
-    const double point_h = std::sqrt(point_r2 + point_z*point_z);
     const double weight = ptr->energy() * ptr->size();
-    assert((y != 0. || x != 0.) && "Cluster position somehow in beampipe.");
-    assert(point_z != 0.f && "Layer-cluster position given as reference point.");
-    const double point_r = std::sqrt(point_r2);
-    acc_rho += point_r * weight;
-    acc_phi += vdt::fast_atan2(y,x) * weight;
-    acc_eta += -1. * vdt::fast_log(point_r/(point_z + point_h)) * weight;
+    acc_x += ptr->x()*weight;    
+    acc_y += ptr->y()*weight;    
+    acc_z += ptr->z()*weight; 
+    totweight += weight;   
+  }
+  acc_x /= totweight;
+  acc_y /= totweight;
+  acc_z /= totweight;
+  float slope = sqrt(acc_x*acc_x+acc_y*acc_y)/acc_z;
+  acc_x = 0.;
+  acc_y = 0.;
+  acc_z = 0.;
+  double mcenergy = getMultiClusterEnergy(clu);
+  std::vector<size_t> es = sort_by_z(clu); //sorted by increasing absolute z
+  //  std::cout << " multicluster with " << es.size() << " clusters" << std::endl;
+  for(unsigned int i = 0; i < es.size(); i++ ) {   
+    if(clu.clusters()[es[i]]->energy()/mcenergy<.01) continue; //cutoff < 5% layer contribution
+    //    std::cout << "here 0" << std::endl;
+    const double weight = clu.clusters()[es[i]]->energy() * clu.clusters()[es[i]]->size();
+    acc_x += clu.clusters()[es[i]]->x()*weight;    
+    acc_y += clu.clusters()[es[i]]->y()*weight;    
+    //    std::cout << "here 1" << std::endl;
+    if(i>0)
+      {
+	// std::cout << " energy cluster " << i << " " << es[i] << " " << clu.clusters()[es[i]]->energy() << std::endl; 
+	// std::cout << " energy cluster " << i-1 << " " << es[i-1] << " " << clu.clusters()[es[i-1]]->energy() << std::endl; 
+	// std::cout << "z sum " << (clu.clusters()[es[i]]->z()*clu.clusters()[es[i]]->energy()
+	// 	   +
+	// 	   clu.clusters()[es[i-1]]->z()*clu.clusters()[es[i-1]]->energy())
+	// 	  << std::endl;
+	// std::cout << "energy sum " << (clu.clusters()[es[i]]->energy()+clu.clusters()[es[i-1]]->energy()) << std::endl;
+ 	// std::cout << "z weighted average cluster " << es[i] << " " 
+	// 	  << (clu.clusters()[es[i]]->z()*clu.clusters()[es[i]]->energy()+
+	// 	      clu.clusters()[es[i-1]]->z()*clu.clusters()[es[i-1]]->energy())/
+	//   (clu.clusters()[es[i]]->energy()+clu.clusters()[es[i-1]]->energy())
+	// 	  << std::endl;
+	// std::cout << "z corrected average cluster " << es[i]  << " "
+	// 	  << clu.clusters()[es[i]]->z()-
+	//   (clu.clusters()[es[i]]->z()- clu.clusters()[es[i-1]]->z())*slope 
+	// 	  << std::endl; 
+	  
+	acc_z += (
+		  // (clu.clusters()[es[i]]->z()*clu.clusters()[es[i]]->energy()
+		  //  +
+		  //  clu.clusters()[es[i-1]]->z()*clu.clusters()[es[i-1]]->energy())
+		  // /(clu.clusters()[es[i]]->energy()+clu.clusters()[es[i-1]]->energy())
+		  clu.clusters()[es[i]]->z()-
+		  (clu.clusters()[es[i]]->z()- clu.clusters()[es[i-1]]->z())*slope
+		  -
+		  vz
+		  )*
+	  weight;
+	//	std::cout <<" here 1.5 " << std::endl;
+      }    
+    else
+      acc_z += (clu.clusters()[es[i]]->z()-vz-0.5*slope)*weight;    
+    //    std::cout << "here 2" << std::endl;
     totweight += weight;
   }
-  const double invweight = 1.0/totweight;
-  reco::PFCluster::REPPoint temp(acc_rho*invweight,acc_eta*invweight,acc_phi*invweight);
-  return math::XYZPoint(temp.x(),temp.y(),temp.z());
+  //  std::cout << "here 3" << std::endl;
+  acc_x /= totweight;
+  acc_y /= totweight;
+  acc_z /= totweight;
+
+  //  acc_z -= 0.5*sqrt(acc_x*acc_x+acc_y*acc_y)/acc_z;
+  return math::XYZPoint(acc_x,acc_y,acc_z);
 }
 
 double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) const {
