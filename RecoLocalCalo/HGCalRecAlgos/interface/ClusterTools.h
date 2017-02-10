@@ -25,6 +25,7 @@ namespace edm {
 namespace hgcal {
   class ClusterTools {    
   public:
+    ClusterTools();
     ClusterTools(const edm::ParameterSet&, edm::ConsumesCollector&);
     ~ClusterTools() {}
 
@@ -39,6 +40,15 @@ namespace hgcal {
     double getMultiClusterEnergy(const reco::HGCalMultiCluster&) const;
 
   private:
+
+    std::vector<size_t> sort_by_z(const reco::HGCalMultiCluster&v) const {
+      std::vector<size_t> idx(v.size());
+      for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+      sort(idx.begin(), idx.end(),
+	   [&v](size_t i1, size_t i2) {return v.clusters()[i1]->z() < v.clusters()[i2]->z();});
+      return idx;
+    }
+
     RecHitTools rhtools_;
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;
     const HGCRecHitCollection *eerh_, *fhrh_, *bhrh_;
