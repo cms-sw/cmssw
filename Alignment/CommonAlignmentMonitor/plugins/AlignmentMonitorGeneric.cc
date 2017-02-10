@@ -55,7 +55,7 @@ void AlignmentMonitorGeneric::book()
 			alignableObjectId.idToString(type),
 			id, DetId(id).subdetId());
 
-      hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName), std::string(histTitle), nBin_, -5., 5.);
+      hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName.Data()), std::string(histTitle.Data()), nBin_, -5., 5.);
     }
   }
 
