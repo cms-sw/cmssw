@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.PostProcessor_cff import *
-# add new muon validation
-#from Validation.RecoMuon.NewPostProcessor_cff import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 from Validation.MuonIsolation.PostProcessor_cff import *
 from Validation.CaloTowers.CaloTowersPostProcessor_cff import *
@@ -25,7 +23,6 @@ postValidationTracking = cms.Sequence(
       postProcessorTrackSequence
     + postProcessorVertexSequence
 )
-
 postValidation = cms.Sequence(
       recoMuonPostProcessors
     + postValidationTracking
