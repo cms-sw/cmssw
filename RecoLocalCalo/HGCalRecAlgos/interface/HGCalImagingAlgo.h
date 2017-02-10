@@ -75,7 +75,12 @@ class HGCalImagingAlgo
                                                             fcPerEle(fcPerEle_in),
                                                             nonAgedNoises(nonAgedNoises_in),
                                                             noiseMip(noiseMip_in),
-							    verbosity(the_verbosity){
+							    verbosity(the_verbosity),
+							    points(2*(maxlayer+1)),
+							    minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
+							    maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
+							    zees(2*(maxlayer+1),0.)
+  {
   }
 
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
@@ -101,7 +106,12 @@ class HGCalImagingAlgo
                                                             fcPerEle(fcPerEle_in),
                                                             nonAgedNoises(nonAgedNoises_in),
                                                             noiseMip(noiseMip_in),
-							    verbosity(the_verbosity){
+							    verbosity(the_verbosity),
+							    points(2*(maxlayer+1)),
+							    minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
+							    maxpos(2*(maxlayer+1),{ {0.0f,0.0f} }),
+							    zees(2*(maxlayer+1),0.)
+  {
   }
 
   virtual ~HGCalImagingAlgo()
@@ -113,9 +123,10 @@ class HGCalImagingAlgo
       verbosity = the_verbosity;
     }
 
+  void populate(const HGCRecHitCollection &hits);
   // this is the method that will start the clusterisation (it is possible to invoke this method more than once - but make sure it is with 
   // different hit collections (or else use reset)
-  void makeClusters(const HGCRecHitCollection &hits);
+  void makeClusters();
   // this is the method to get the cluster collection out 
   std::vector<reco::BasicCluster> getClusters(bool);
   // needed to switch between EE and HE with the same algorithm object (to get a single cluster collection)
@@ -125,6 +136,17 @@ class HGCalImagingAlgo
     current_v.clear();
     clusters_v.clear();
     cluster_offset = 0;
+    for( std::vector< std::vector<KDNode> >::iterator it = points.begin(); it != points.end(); it++)
+      {
+        // for( std::vector<KDNode>::iterator jt = it->begin(); jt != it->end(); jt++)
+        //   delete jt->data;
+        it->clear();
+      }
+    for(unsigned int i = 0; i < minpos.size(); i++)
+      {
+	minpos[i][0]=0.;minpos[i][1]=0.;
+	maxpos[i][0]=0.;maxpos[i][1]=0.;
+      }
   }
   /// point in the space
   typedef math::XYZPoint Point;
@@ -183,13 +205,16 @@ class HGCalImagingAlgo
     bool isBorder;
     bool isHalo;
     int clusterIndex;
+    float sigmaNoise;
+    float thickness;
     const hgcal::RecHitTools *tools;
 
-  Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, const hgcal::RecHitTools *tools_in) : 
+  Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, float sigmaNoise_in, float thickness_in, const hgcal::RecHitTools *tools_in) : 
       x(0.),y(0.),z(0.),isHalfCell(isHalf),
       weight(0.), fraction(1.0), detid(id_in), rho(0.), delta(0.),
       nearestHigher(-1), isBorder(false), isHalo(false), 
-      clusterIndex(-1), tools(tools_in)
+	clusterIndex(-1), sigmaNoise(sigmaNoise_in), thickness(thickness_in), 
+	tools(tools_in)
     {
       const GlobalPoint position( std::move( tools->getPosition( detid ) ) );
       
@@ -204,6 +229,8 @@ class HGCalImagingAlgo
       weight(0.), fraction(1.0), detid(), rho(0.), delta(0.),
       nearestHigher(-1), isBorder(false), isHalo(false), 
       clusterIndex(-1),
+      sigmaNoise(0.),
+      thickness(0.),
       tools(0)
     {}
     bool operator > (const Hexel& rhs) const { 
@@ -227,8 +254,13 @@ class HGCalImagingAlgo
     return idx;
   }
 
-  std::vector<std::vector<Hexel> > points; //a vector of vectors of hexels, one for each layer
+  std::vector<std::vector<KDNode> > points; //a vector of vectors of hexels, one for each layer
   //@@EM todo: the number of layers should be obtained programmatically - the range is 1-n instead of 0-n-1...
+
+  std::vector<std::array<float,2> > minpos;
+  std::vector<std::array<float,2> > maxpos;
+  std::vector<float> zees;
+
 
   //these functions should be in a helper class.
   inline double distance2(const Hexel &pt1, const Hexel &pt2) { //distance squared
