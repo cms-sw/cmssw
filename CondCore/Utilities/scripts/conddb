@@ -1481,7 +1481,6 @@ def edit(args):
                     since, insertion_date, insertion_time, payload = splitted
                     insertion_timestamp = '%s %s' % (insertion_date, insertion_time)
                 else:
-                    print len(splitted)
                     raise Exception('Each line must contain the since, timestamp and payload fields in the required format.')
 
                 # If they payload length is equal, assume it exists --
