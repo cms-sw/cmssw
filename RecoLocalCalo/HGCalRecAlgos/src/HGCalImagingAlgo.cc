@@ -10,16 +10,64 @@
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 
+void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
+  //loop over all hits and create the Hexel structure, skip energies below ecut
+  for (unsigned int i=0;i<hits.size();++i) {
+    const HGCRecHit& hgrh = hits[i];
+    DetId detid = hgrh.detid();
+    int layer = rhtools_.getLayerWithOffset(detid);
+    float thickness = -9999.;
+    unsigned thickIndex = -1;
+    float sigmaNoise = -9999.;
+    if(dependSensor){
+      if( layer <= 40 ) {
+	thickness = rhtools_.getSiThickness(detid);
+	if( thickness>99. && thickness<101.) thickIndex=0;
+	else if( thickness>199. && thickness<201. ) thickIndex=1;
+	else if( thickness>299. && thickness<301. ) thickIndex=2;
+	else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
+      }
+      if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
+      else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
+      if(hgrh.energy() < ecut*sigmaNoise) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
+    }
+    if(!dependSensor && hgrh.energy() < ecut) continue; 
+
+
+    layer += int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
+    
+    // determine whether this is a half-hexagon
+    bool isHalf = rhtools_.isHalfCell(detid);    
+    const GlobalPoint position( std::move( rhtools_.getPosition( detid ) ) );
+    if(zees[layer]==0) {
+      zees[layer] = position.z();
+    }
+    //here's were the KDNode is passed its dims arguments - note that these are *copied* from the Hexel
+    if(thickness<0.)thickness = 0.;
+    points[layer].emplace_back(Hexel(hgrh,detid,isHalf,sigmaNoise,thickness,&rhtools_),position.x(),position.y());
+    if(points[layer].size()==0){
+      minpos[layer][0] = position.x(); minpos[layer][1] = position.y();
+      maxpos[layer][0] = position.x(); maxpos[layer][1] = position.y();
+    }else{
+      minpos[layer][0] = std::min((float)position.x(),minpos[layer][0]);
+      minpos[layer][1] = std::min((float)position.y(),minpos[layer][1]);
+      maxpos[layer][0] = std::max((float)position.x(),maxpos[layer][0]);
+      maxpos[layer][1] = std::max((float)position.y(),maxpos[layer][1]);
+      
+    }
+  }
+
+}
 // Create a vector of Hexels associated to one cluster from a collection of HGCalRecHits - this can be used 
 // directly to make the final cluster list - this method can be invoked multiple times for the same event 
 // with different input (reset should be called between events)
-void HGCalImagingAlgo::makeClusters(const HGCRecHitCollection& hits)
+void HGCalImagingAlgo::makeClusters()
 {
   //used for speedy search 
-  std::vector<std::vector<KDNode> >points(2*(maxlayer+1));
+
   std::vector<KDTree> hit_kdtree(2*(maxlayer+1));
 
-  std::vector<std::array<float,2> > minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),maxpos(2*(maxlayer+1),{ {0.0f,0.0f} });
+  //  std::vector<std::array<float,2> > minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),maxpos(2*(maxlayer+1),{ {0.0f,0.0f} });
 
   //  std::vector<std::vector<Hexel> > points(2*(maxlayer+1)); //a vector of vectors of hexels, one for each layer
   //@@EM todo: the number of layers should be obtained programmatically - the range is 1-n instead of 0-n-1...
@@ -34,44 +82,6 @@ void HGCalImagingAlgo::makeClusters(const HGCRecHitCollection& hits)
       std::cout << std::endl;
     }
 
-  //loop over all hits and create the Hexel structure, skip energies below ecut
-  for (unsigned int i=0;i<hits.size();++i) {
-    const HGCRecHit& hgrh = hits[i];
-    DetId detid = hgrh.detid();
-    int layer = rhtools_.getLayerWithOffset(detid);
-    float thickness = -9999.;
-    unsigned thickIndex = -1;
-    if( layer <= 40 ) {
-      thickness = rhtools_.getSiThickness(detid);
-      if( thickness>99. && thickness<101.) thickIndex=0;
-      else if( thickness>199. && thickness<201. ) thickIndex=1;
-      else if( thickness>299. && thickness<301. ) thickIndex=2;
-      else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
-    }
-    float sigmaNoise = -9999.;
-    if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
-    else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
-    if(!dependSensor && hgrh.energy() < ecut) continue; 
-    if(dependSensor && hgrh.energy() < ecut*sigmaNoise) continue; //this sets the ZS threshold at ecut times the sigma noise for the sensor
-
-    layer += int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
-    
-    // determine whether this is a half-hexagon
-    bool isHalf = rhtools_.isHalfCell(detid);    
-    const GlobalPoint position( std::move( rhtools_.getPosition( detid ) ) );
-    //here's were the KDNode is passed its dims arguments - note that these are *copied* from the Hexel
-    points[layer].emplace_back(Hexel(hgrh,detid,isHalf,&rhtools_),position.x(),position.y());
-    if(points[layer].size()==0){
-      minpos[layer][0] = position.x(); minpos[layer][1] = position.y();
-      maxpos[layer][0] = position.x(); maxpos[layer][1] = position.y();
-    }else{
-      minpos[layer][0] = std::min((float)position.x(),minpos[layer][0]);
-      minpos[layer][1] = std::min((float)position.y(),minpos[layer][1]);
-      maxpos[layer][0] = std::max((float)position.x(),maxpos[layer][0]);
-      maxpos[layer][1] = std::max((float)position.y(),maxpos[layer][1]);
-      
-    }
-  }
 
   //assign all hits in each layer to a cluster core or halo
   for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
@@ -268,22 +278,16 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
 
     //    std::cout << " delta " << lp[ds[i]].delta << " rho " << lp[ds[i]].rho << std::endl;
     if(nd[ds[i]].data.delta < delta_c) break; // no more cluster centers to be looked at 
-    unsigned layer = rhtools_.getLayerWithOffset(nd[ds[i]].data.detid);
-    float thickness  = -9999.;
-    unsigned thickIndex = -1;
-    if( layer <= 40 ) {
-      thickness = rhtools_.getSiThickness(nd[ds[i]].data.detid);
-      if( thickness>99. && thickness<101.) thickIndex=0;
-      else if( thickness>199. && thickness<201. ) thickIndex=1;
-      else if( thickness>299. && thickness<301. ) thickIndex=2;
-      else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
+    if(dependSensor){
+
+      //float rho_c = std::min(kappa*nd[ds[i]].data.sigmaNoise,maxdensity/10.);
+      float rho_c = kappa*nd[ds[i]].data.sigmaNoise;
+
+      if(nd[ds[i]].data.rho < rho_c ) continue; // set equal to kappa times noise threshold
     }
-    float sigmaNoise = -9999.;
-    if( layer <= 40 ) sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
-    else if( layer <=52 ) sigmaNoise = 0.001 * noiseMip * dEdXweights[layer];
-    //skip this as a potential cluster center because it fails the density cut
-    if(!dependSensor && nd[ds[i]].data.rho < maxdensity/kappa  /* || lp[ds[i]].rho<0.001*/) continue; 
-    if(dependSensor && nd[ds[i]].data.rho < kappa*sigmaNoise ) continue; // set equal to kappa times noise threshold
+    else if(nd[ds[i]].data.rho < maxdensity/kappa  /* || lp[ds[i]].rho<0.001*/)
+      continue; 
+    
 
     nd[ds[i]].data.clusterIndex = clusterIndex;
     if (verbosity < pINFO)
