@@ -34,7 +34,6 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
       DetId lowerDetid = detid;
       DetId upperDetid = tTopo->partnerDetId(detid);
-      //DetId stackDetid = tTopo->stack(detid);
 
       /// Temp vectors containing the vectors of the                                                                                                        
       /// hits used to build each cluster                                                                                                                  

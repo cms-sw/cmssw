@@ -83,9 +83,4 @@ OuterTrackerMonitorTTTrack = cms.EDAnalyzer('OuterTrackerMonitorTTTrack',
         ymin = cms.double(0)
         ),
 
-
-
 )
-
-
-
