@@ -245,6 +245,7 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     const bool   saveToDB_, saveApeToDB_, saveDeformationsToDB_;
     const bool   doTracker_, doMuon_, useExtras_;
     const bool   useSurvey_;
+    const bool   enableAlignableUpdates_;
 
     /// Map with tracks/trajectories
     const edm::InputTag tjTkAssociationMapTag_;

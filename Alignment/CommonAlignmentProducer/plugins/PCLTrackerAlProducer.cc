@@ -81,6 +81,7 @@ PCLTrackerAlProducer
   doMuon_                  (config.getUntrackedParameter<bool>("doMuon") ),
   useExtras_               (config.getUntrackedParameter<bool>("useExtras")),
   useSurvey_               (config.getParameter<bool>         ("useSurvey")),
+  enableAlignableUpdates_  (config.getParameter<bool>         ("enableAlignableUpdates")),
 
   /* Event input tags */
   tjTkAssociationMapTag_   (config.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
@@ -320,8 +321,11 @@ void PCLTrackerAlProducer
   edm::ParameterSet algoConfig    = config.getParameter<edm::ParameterSet>("algoConfig");
   edm::VParameterSet iovSelection = config.getParameter<edm::VParameterSet>("RunRangeSelection");
   algoConfig.addUntrackedParameter<edm::VParameterSet>("RunRangeSelection", iovSelection);
-  // provide required parameter while keeping current functionality for PCL:
+
+  // provide required parameters while keeping current functionality for PCL:
   algoConfig.addUntrackedParameter<align::RunNumber>("firstIOV", 1);
+  algoConfig.addUntrackedParameter<bool>("enableAlignableUpdates",
+                                         enableAlignableUpdates_);
 
   std::string algoName = algoConfig.getParameter<std::string>("algoName");
   theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
