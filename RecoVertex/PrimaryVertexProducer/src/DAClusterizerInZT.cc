@@ -110,8 +110,11 @@ double DAClusterizerInZT::update( double beta,
     if (tks[i].zi>0){
       // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-	k->se += tks[i].pi* k->ei / Zi;
-	double w = k->pk * tks[i].pi * k->ei /( Zi * ( tks[i].dz2 * tks[i].dt2 ) );
+        double zratio = k->pk*k->ei/Zi;
+        
+	k->se += tks[i].pi*zratio/k->pk;
+	double w = tks[i].pi * zratio /( tks[i].dz2 * tks[i].dt2 );        
+        
 	k->sw  += w;
 	k->swz += w * tks[i].z;
         k->swt += w * tks[i].t;
