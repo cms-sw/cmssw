@@ -10,8 +10,6 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.Configuration.globalValidationCosmics_cff import *
 
-prevalidationCosmics = cms.Sequence(globalPrevalidationCosmics)
+prevalidationCosmics = cms.Sequence(globalPrevalidationCosmics * cms.SequencePlaceholder("mix"))
 
-validationCosmics = cms.Sequence(cms.SequencePlaceholder("mix")
-                          *globalValidationCosmics
-                          )
+validationCosmics = cms.Sequence(globalValidationCosmics)
