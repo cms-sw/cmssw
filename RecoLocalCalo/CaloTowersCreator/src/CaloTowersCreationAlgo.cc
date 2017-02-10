@@ -1564,18 +1564,23 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
       
       hcalDropChMap[twrId] +=1;
       
-	  HcalDetId hid(*it);
+      HcalDetId hid(*it);
 	  
       // special case for tower 29: if HCAL hit is in depth 3 add to twr 29 as well
       if (hid.subdet()==HcalEndcap &&
-          (theHcalPhase==0 || theHcalPhase==1) && 
-          std::find(mergedDepths.begin(), mergedDepths.end(), hid.depth())!=mergedDepths.end() &&
-          hid.ietaAbs()==theHcalTopology->lastHERing()-1) {
-	
+	  (theHcalPhase==0 || theHcalPhase==1) &&
+	  hid.ietaAbs()==theHcalTopology->lastHERing()-1) {
+	bool merge(false);
+	if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(hid.iphi(),hid.zside())) != phizOne.end())) {
+	  merge = (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), hid.depth())!=mergedDepthsOne.end());
+	} else {
+	  merge = (std::find(mergedDepths.begin(), mergedDepths.end(), hid.depth())!=mergedDepths.end());
+	}
+	if (merge) {
           CaloTowerDetId twrId29(twrId.ieta()+twrId.zside(), twrId.iphi());
           hcalDropChMap[twrId29] +=1;
+	}
       }
-
     }
 
   }
