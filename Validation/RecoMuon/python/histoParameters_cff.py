@@ -111,10 +111,10 @@ gemMuonHistoParameters.usemuon = False
 gemMuonHistoParameters.minEta = -2.4
 gemMuonHistoParameters.maxEta = +2.4
 gemMuonHistoParameters.nintEta = 48
-#gemMuonHistoParameters.nintNHit = 41  default del tracker ok ?
+#gemMuonHistoParameters.nintNHit = 41   # this is the tracker default
 #gemMuonHistoParameters.maxNHit = 40.5
 gemMuonHistoParameters.do_TRKhitsPlots = True
-gemMuonHistoParameters.do_MUOhitsPlots = True  # ??? it seems they are not done with the current code 
+gemMuonHistoParameters.do_MUOhitsPlots = True  # is this used in the current code ?
 #####################################################################################
 # ME0muon tracks
 me0MuonHistoParameters =  trkMuonHistoParameters.clone()
@@ -123,10 +123,10 @@ me0MuonHistoParameters.usemuon = False
 me0MuonHistoParameters.minEta = -2.8
 me0MuonHistoParameters.maxEta = +2.8
 me0MuonHistoParameters.nintEta = 56
-#me0MuonHistoParameters.nintNHit = 41  default del tracker ok ?
+#me0MuonHistoParameters.nintNHit = 41   # this is the tracker default
 #me0MuonHistoParameters.maxNHit = 40.5
 me0MuonHistoParameters.do_TRKhitsPlots = True
-me0MuonHistoParameters.do_MUOhitsPlots = True  # ??? it seems they are not done with the current code
+me0MuonHistoParameters.do_MUOhitsPlots = True  # is this used in the current code ?
 #####################################################################################
 # STA tracks
 staMuonHistoParameters = defaultMuonHistoParameters.clone()
