@@ -11,8 +11,6 @@ def enableNewMuonVal(process):
     
         print "[enableNewMuonVal] : pp RECO"
     
-        process.probeTracks.quality = cms.vstring('loose')
-    
         process.load("Validation.RecoMuon.NewMuonValidation_cff")
     
         if hasattr(process,"validation") :
@@ -37,17 +35,15 @@ def enableNewMuonVal(process):
 
 
     if hasattr(process,"globalValidationCosmics") and \
-       hasattr(process,"recoMuonValidationCosmics") :
+       hasattr(process,"recoCosmicMuonValidation") :
 
         print "[enableNewMuonVal] : Cosmic RECO"
-
-        probeTracks.quality = cms.vstring('loose')
 
         process.load("Validation.RecoMuon.NewMuonValidation_cff")
 
         if hasattr(process,"validationCosmics") :
-            process.validation.replace(process.recoMuonValidationCosmics, \
-                                       process.NEWrecoMuonValidationCosmics)
+            process.validation.replace(process.recoCosmicMuonValidation, \
+                                       process.NEWrecoCosmicMuonValidation)
 
 
     if hasattr(process,"validation") and \
@@ -56,8 +52,6 @@ def enableNewMuonVal(process):
        hasattr(process,"hiRecoMuonValidation") :
 
         print "[enableNewMuonVal] : HI RECO"
-
-        process.probeTracks.quality = cms.vstring('loose')
 
         process.load("Validation.RecoHI.NewMuonValidationHeavyIons_cff")
 
@@ -85,7 +79,7 @@ def enableNewMuonVal(process):
     if hasattr(process,"postValidationHI") and \
        hasattr(process,"recoMuonPostProcessors") :
 
-        print "[enableNewMuonVal] : pp RECO Harvesting"
+        print "[enableNewMuonVal] : HI RECO Harvesting"
 
         process.load("Validation.RecoMuon.NewPostProcessor_cff")
 
@@ -120,7 +114,7 @@ def enableNewMuonVal(process):
     if hasattr(process,"postValidationCosmics") and \
        hasattr(process,"postProcessorMuonMultiTrack") :
 
-        print "[enableNewMuonVal] : pp RECO Harvesting"
+        print "[enableNewMuonVal] : cosmic RECO Harvesting"
 
         process.load("Validation.RecoMuon.NewPostProcessor_cff")
 
@@ -163,6 +157,8 @@ def runMuonValForTesting(process):
         print "[runMuonValForTesting] : customising validation"
         process.validation_step = cms.Path(process.validationForTesting)
 
+        print "process.validationForTesting = ", process.validationForTesting
+
     # CB what to do with this?
     #if hasattr(process,"output_step") :
     #    print "[runMuonValForTesting] : customising output"
@@ -182,6 +178,8 @@ def runMuonHarvestingForTesting(process):
 
     process.validationHarvestingForTesting = cms.Path(process.recoMuonPostProcessors
                                                       + process.recoMuonPostProcessorsHLT)
+
+    print "process.validationHarvestingForTesting = ", process.validationHarvestingForTesting
 
     process.schedule = cms.Schedule(process.validationHarvestingForTesting,process.dqmsave_step)
 
