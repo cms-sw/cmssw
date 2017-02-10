@@ -27,6 +27,9 @@ l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t
       // set the coordiantes at vertex to be the same as the coordinates at the muon system
       mu.setHwEtaAtVtx(mu.hwEtaAtVtx());
       mu.setHwPhiAtVtx(mu.hwPhiAtVtx());
+      // deltas are 0
+      mu.setHwDEtaExtra(0);
+      mu.setHwDPhiExtra(0);
     } else {
       // coordinates at the muon system
       mu.setHwEta(calcHwEta(raw_data_32_63, absEtaShift_, etaSignShift_));
@@ -35,6 +38,15 @@ l1t::MuonRawDigiTranslator::fillMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t
       // coordinates at the vertex
       mu.setHwEtaAtVtx(calcHwEta(raw_data_00_31, absEtaAtVtxShift_, etaAtVtxSignShift_));
       mu.setHwPhiAtVtx((raw_data_00_31 >> phiAtVtxShift_) & phiMask_);
+      // deltas
+      mu.setHwDEtaExtra(mu.hwEtaAtVtx() - mu.hwEta());
+      int dPhi = mu.hwPhiAtVtx() - mu.hwPhi();
+      if (mu.hwCharge() == 1 && dPhi > 0) {
+        dPhi -= 576;
+      } else if (mu.hwCharge() == 0 && dPhi < 0) {
+        dPhi += 576;
+      }
+      mu.setHwDPhiExtra(dPhi);
     }
 
     math::PtEtaPhiMLorentzVector vec{(mu.hwPt()-1)*0.5, mu.hwEta()*0.010875, mu.hwPhi()*0.010908, 0.0};
