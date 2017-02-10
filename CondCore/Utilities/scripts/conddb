@@ -1458,6 +1458,8 @@ def edit(args):
 # replaced with the actual insertion times. The format must be
 # one of the following: '2013-01-20', '2013-01-20 10:11:12' or
 # '2013-01-20 10:11:12.123123'.
+# If the insertion time desired is the one of the command execution, 
+# you can simply write a '-' in the corresponding column
 #
 # Suggestion: open another terminal to copy the payloads you need.
 ''' % name)
