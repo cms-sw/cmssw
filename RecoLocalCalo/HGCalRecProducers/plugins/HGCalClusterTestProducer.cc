@@ -16,9 +16,12 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
 #include <memory>
+#include <sys/time.h>
+#include <iostream>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -42,7 +45,8 @@ class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
   reco::CaloCluster::AlgoId algoId;
 
   std::unique_ptr<HGCalImagingAlgo> algo;
-  std::unique_ptr<HGCalDepthPreClusterer> multicluster_algo;
+  //  std::unique_ptr<HGCalDepthPreClusterer> multicluster_algo;
+  std::unique_ptr<HGCal3DClustering> multicluster_algo;
   bool doSharing;
   std::string detector;
 
@@ -62,7 +66,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   double kappa = ps.getParameter<double>("kappa");
   double multicluster_radius = ps.getParameter<double>("multiclusterRadius");
   double minClusters = ps.getParameter<unsigned>("minClusters");
-  bool realSpaceCone = ps.getParameter<bool>("realSpaceCone");
+  //  bool realSpaceCone = ps.getParameter<bool>("realSpaceCone");
   std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
   std::vector<double> thicknessCorrection = ps.getParameter<std::vector<double> >("thicknessCorrection");
   std::vector<double> fcPerMip = ps.getParameter<std::vector<double> >("fcPerMip");
@@ -98,7 +102,8 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
 
   auto sumes = consumesCollector();
 
-  multicluster_algo = std::make_unique<HGCalDepthPreClusterer>(ps, sumes, multicluster_radius, minClusters, realSpaceCone);
+  //  multicluster_algo = std::make_unique<HGCalDepthPreClusterer>(ps, sumes, multicluster_radius, minClusters, realSpaceCone);
+  multicluster_algo = std::make_unique<HGCal3DClustering>(ps, sumes, multicluster_radius, minClusters);
 
   // hydraTokens[0] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterGen") );
   // hydraTokens[1] = consumes<std::vector<reco::PFCluster> >( edm::InputTag("FakeClusterCaloFace") );
@@ -133,28 +138,29 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
     evt.getByToken(hits_ee_token,ee_hits);
-    algo->makeClusters(*ee_hits);
+    algo->populate(*ee_hits);
     break;
   case  reco::CaloCluster::hgcal_had:    
     evt.getByToken(hits_fh_token,fh_hits);
     evt.getByToken(hits_bh_token,bh_hits);
     if( fh_hits.isValid() ) {
-      algo->makeClusters(*fh_hits);
+      algo->populate(*fh_hits);
     } else if ( bh_hits.isValid() ) {
-      algo->makeClusters(*bh_hits);
+      algo->populate(*bh_hits);
     }
     break;
   case reco::CaloCluster::hgcal_mixed:
     evt.getByToken(hits_ee_token,ee_hits);
-    algo->makeClusters(*ee_hits);
+    algo->populate(*ee_hits);
     evt.getByToken(hits_fh_token,fh_hits);
-    algo->makeClusters(*fh_hits);
+    algo->populate(*fh_hits);
     evt.getByToken(hits_bh_token,bh_hits);
-    algo->makeClusters(*bh_hits);
+    algo->populate(*bh_hits);
     break;
   default:
     break;
   }
+  algo->makeClusters();
   *clusters = algo->getClusters(false);
   if(doSharing)
     *clusters_sharing = algo->getClusters(true);
@@ -182,22 +188,31 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
     edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
     clusterPtrs.push_back(ptr);
   }
-  
-  for( unsigned i = 0; i < clusterHandleSharing->size(); ++i ) {
-    edm::Ptr<reco::BasicCluster> ptr(clusterHandleSharing,i);
-    clusterPtrsSharing.push_back(ptr);
+
+  if(doSharing){
+    for( unsigned i = 0; i < clusterHandleSharing->size(); ++i ) {
+      edm::Ptr<reco::BasicCluster> ptr(clusterHandleSharing,i);
+      clusterPtrsSharing.push_back(ptr);
+    }
   }
 
   std::unique_ptr<std::vector<reco::HGCalMultiCluster> > 
     multiclusters( new std::vector<reco::HGCalMultiCluster> ), 
     multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
 
-  *multiclusters = std::move(multicluster_algo->makePreClusters(clusterPtrs));
-  *multiclusters_sharing = std::move(multicluster_algo->makePreClusters(clusterPtrsSharing));
-  
+  struct timeval now;
+  struct timeval then;
+  gettimeofday(&then,0);
+  *multiclusters = multicluster_algo->makeClusters(clusterPtrs);
+  if(doSharing)
+    *multiclusters_sharing = multicluster_algo->makeClusters(clusterPtrsSharing);
   evt.put(std::move(multiclusters));
-  evt.put(std::move(multiclusters_sharing),"sharing");
-
+  if(doSharing)
+    evt.put(std::move(multiclusters_sharing),"sharing");
+  gettimeofday(&now,0);
+  float delta = (now.tv_sec - then.tv_sec)*1000.;
+  delta += float (now.tv_usec - then.tv_usec)/1000.;
+  std::cout << "Time taken by multiclustering " << delta << " ms" << std::endl;
 }
 
 #endif
