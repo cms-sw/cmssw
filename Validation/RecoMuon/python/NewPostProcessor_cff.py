@@ -2,7 +2,7 @@
 #
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoMuon.PostProcessor_RecoMuonValidator_cff import *
+from Validation.RecoMuon.NewPostProcessor_RecoMuonValidator_cff import *
 
 NEWpostProcessorMuonTrack = cms.EDAnalyzer("DQMGenericClient",
     subDirs = cms.untracked.vstring("Muons/RecoMuonV/MuonTrack/*"),
@@ -91,5 +91,5 @@ NEWpostProcessorMuonTrackComp = cms.EDAnalyzer("DQMGenericClient",
 )
 
 NEWrecoMuonPostProcessors = cms.Sequence( NEWpostProcessorMuonTrack 
-                                          * postProcessorsRecoMuonValidator_seq 
-                                          * NEWpostProcessorMuonTrackComp )
+                                          * NEWpostProcessorMuonTrackComp 
+                                          * NEWpostProcessorsRecoMuonValidator_seq )

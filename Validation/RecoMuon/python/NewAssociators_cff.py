@@ -1,8 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-# Track selector
+# TrackingParticle selectors
 from Validation.RecoMuon.NewSelectors_cff import *
+# reco::Track selectors 
 from Validation.RecoMuon.track_selectors_cff import *
+
+# quickTrackAssociatorByHits on probeTracks used as monitor wrt MuonAssociatorByHits
+import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
+NEWtrackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
+
+NEWtpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.InputTag('NEWtrackAssociatorByHits'),
+    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
+#    label_tr = cms.InputTag('generalTracks')
+    label_tr = cms.InputTag('NEWprobeTracks')
+)
 
 #
 # MuonAssociatorByHits used for all track collections
@@ -31,12 +43,12 @@ MABHhlt.ignoreMissingTrackCollection = True
 
 NEWtpToTkMuonAssociation = MABH.clone()
 #tpToTkMuonAssociation.tracksTag = 'generalTracks'
-NEWtpToTkMuonAssociation.tracksTag ='probeTracks'
+NEWtpToTkMuonAssociation.tracksTag ='NEWprobeTracks'
 NEWtpToTkMuonAssociation.UseTracker = True
 NEWtpToTkMuonAssociation.UseMuon = False
 
 NEWtpToStaSeedAssociation = MABH.clone()
-NEWtpToStaSeedAssociation.tracksTag = 'seedsOfSTAmuons'
+NEWtpToStaSeedAssociation.tracksTag = 'NEWseedsOfSTAmuons'
 NEWtpToStaSeedAssociation.UseTracker = False
 NEWtpToStaSeedAssociation.UseMuon = True
 
@@ -71,7 +83,7 @@ NEWtpToDisplacedTrkMuonAssociation.UseTracker = True
 NEWtpToDisplacedTrkMuonAssociation.UseMuon = False
 
 NEWtpToDisplacedStaSeedAssociation = MABH.clone()
-NEWtpToDisplacedStaSeedAssociation.tracksTag = 'seedsOfDisplacedSTAmuons'
+NEWtpToDisplacedStaSeedAssociation.tracksTag = 'NEWseedsOfDisplacedSTAmuons'
 NEWtpToDisplacedStaSeedAssociation.UseTracker = False
 NEWtpToDisplacedStaSeedAssociation.UseMuon = True
 
@@ -101,12 +113,12 @@ NEWtpToTevDytMuonAssociation.UseTracker = True
 NEWtpToTevDytMuonAssociation.UseMuon = True
 
 NEWtpToME0MuonMuonAssociation = MABH.clone()
-NEWtpToME0MuonMuonAssociation.tracksTag = 'extractMe0Muons'
+NEWtpToME0MuonMuonAssociation.tracksTag = 'NEWextractMe0Muons'
 NEWtpToME0MuonMuonAssociation.UseTracker = True
 NEWtpToME0MuonMuonAssociation.UseMuon = False
 
 NEWtpToGEMMuonMuonAssociation = MABH.clone()
-NEWtpToGEMMuonMuonAssociation.tracksTag = 'extractGemMuons'
+NEWtpToGEMMuonMuonAssociation.tracksTag = 'NEWextractGemMuons'
 NEWtpToGEMMuonMuonAssociation.UseTracker = True
 NEWtpToGEMMuonMuonAssociation.UseMuon = False
 
@@ -177,9 +189,9 @@ NEWtpToGlbCosmic1LegSelMuonAssociation.UseMuon = True
 #
 
 NewMuonAssociation_seq = cms.Sequence(
-    probeTracks_seq+NEWtpToTkMuonAssociation
-    +cms.SequencePlaceholder("muonTkAssociation_seq")
-    +seedsOfSTAmuons_seq+NEWtpToStaSeedAssociation+NEWtpToStaMuonAssociation+NEWtpToStaUpdMuonAssociation
+    NEWprobeTracks_seq+NEWtpToTkMuonAssociation
+    +NEWtrackAssociatorByHits+NEWtpToTkmuTrackAssociation
+    +NEWseedsOfSTAmuons_seq+NEWtpToStaSeedAssociation+NEWtpToStaMuonAssociation+NEWtpToStaUpdMuonAssociation
     +NEWtpToGlbMuonAssociation
     )
 
@@ -188,7 +200,7 @@ NewMuonAssociationTEV_seq = cms.Sequence(
     )
 
 NewMuonAssociationDisplaced_seq = cms.Sequence(
-    seedsOfDisplacedSTAmuons_seq+NEWtpToDisplacedStaSeedAssociation+NEWtpToDisplacedStaMuonAssociation
+    NEWseedsOfDisplacedSTAmuons_seq+NEWtpToDisplacedStaSeedAssociation+NEWtpToDisplacedStaMuonAssociation
     +NEWtpToDisplacedTrkMuonAssociation+NEWtpToDisplacedGlbMuonAssociation
     )
 
