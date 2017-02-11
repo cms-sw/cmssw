@@ -358,15 +358,14 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isBarrel ) {
 
     e.getByToken( crossingFramePCaloHitEBToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    const MixCollection<PCaloHit> &barrelHits = crossingFrame.product();
     
     MapType ebSignalSimMap;
 
     double ebSimThreshold = 0.5*theGunEnergy;
 
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
-         hitItr != barrelHits->end () ;
+    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits.begin () ;
+         hitItr != barrelHits.end () ;
          ++hitItr) {
       
       EBDetId ebid = EBDetId(hitItr->id()) ;
@@ -448,7 +447,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     } 
     
     EcalSubdetector thisDet = EcalBarrel;
-    computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold, randomEngine(e.streamID()));
+    computeSDBunchDigi(c, barrelHits, ebSignalSimMap, thisDet, ebSimThreshold, randomEngine(e.streamID()));
   }
   
   
@@ -459,15 +458,13 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isEndcap ) {
 
     e.getByToken( crossingFramePCaloHitEEToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
+    const MixCollection<PCaloHit> &endcapHits = crossingFrame.product();
     MapType eeSignalSimMap;
 
     double eeSimThreshold = 0.4*theGunEnergy;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin () ;
-         hitItr != endcapHits->end () ;
+    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits.begin () ;
+         hitItr != endcapHits.end () ;
          ++hitItr) {
       
       EEDetId eeid = EEDetId(hitItr->id()) ;
@@ -548,19 +545,18 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalEndcap;
-    computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold, randomEngine(e.streamID()));
+    computeSDBunchDigi(c, endcapHits, eeSignalSimMap, thisDet, eeSimThreshold, randomEngine(e.streamID()));
   }
 
   if ( isPreshower) {
 
     e.getByToken(crossingFramePCaloHitESToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
+    const MixCollection<PCaloHit> &preshowerHits = crossingFrame.product();
+
     MapType esSignalSimMap;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin () ;
-         hitItr != preshowerHits->end () ;
+    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits.begin () ;
+         hitItr != preshowerHits.end () ;
          ++hitItr) {
       
       ESDetId esid = ESDetId(hitItr->id()) ;
@@ -625,7 +621,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalPreshower;
-    computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_, randomEngine(e.streamID()));
+    computeSDBunchDigi(c, preshowerHits, esSignalSimMap, thisDet, esThreshold_, randomEngine(e.streamID()));
     
   }
   
@@ -724,7 +720,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, d
   }
 }
 
-void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine* engine)
+void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, const MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine* engine)
 {
 
   if ( thisDet != EcalBarrel && thisDet != EcalEndcap && thisDet != EcalPreshower ) {
