@@ -23,7 +23,7 @@ from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi impor
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits
-from RecoPixelVertexing.PixelTrackFitting.pixelTracksDefault_cfi import pixelTracksDefault as _pixelTracksDefault
+from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks
 from RecoTracker.TkTrackingRegions.globalTrackingRegionFromBeamSpot_cfi import globalTrackingRegionFromBeamSpot as _globalTrackingRegionFromBeamSpot
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
@@ -68,12 +68,6 @@ pixelTracksHitQuadruplets = _pixelQuadrupletMergerEDProducer.clone(
     triplets = "pixelTracksHitTriplets",
     layerList = dict(refToPSet_ = cms.string("PixelSeedMergerQuadruplets")),
 )
-
-# Pixel tracks
-pixelTracks = _pixelTracksDefault.clone()
-_SeedingHitSets = dict(SeedingHitSets = "pixelTracksHitQuadruplets")
-trackingPhase1PU70.toModify(pixelTracks, **_SeedingHitSets)
-trackingPhase2PU140.toModify(pixelTracks, **_SeedingHitSets)
 
 pixelTracksSequence = cms.Sequence(
     pixelTracksTrackingRegions +
