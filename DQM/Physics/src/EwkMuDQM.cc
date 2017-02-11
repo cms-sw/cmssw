@@ -330,14 +330,14 @@ void EwkMuDQM::analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup
     using namespace edm;
     Handle < View < Muon > >muonCollection;
     if (!iEvent.getByToken(muonTag_, muonCollection)) {
-        std::cout << ">>> Muon collection does not exist !!!" << std::endl;
+      LogWarning("") << ">>> Muon collection does not exist !!!" ;
         return;
     }
 
     unsigned int muonCollectionSize = muonCollection->size();
     Handle < reco::BeamSpot > beamSpotHandle;
     if (!iEvent.getByToken(beamSpotTag_, beamSpotHandle)) {
-        std::cout << ">>> No beam spot found !!!" << std::endl;
+    LogWarning("") <<  ">>> No beam spot found !!!" ;
         return;
     }
 
