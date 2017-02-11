@@ -87,6 +87,7 @@ private:
 
   struct node {
     std::string   label;
+    std::string   class_;
     unsigned int  id;
     EDMModuleType type;
     bool          scheduled;
@@ -201,9 +202,10 @@ void
 DependencyGraph::preSourceConstruction(ModuleDescription const & module) {
   // create graph vertex for the source module and fill its attributes
   boost::add_vertex(m_graph);
-  m_graph.m_graph[module.id()] = node{ module.moduleLabel(), module.id(), EDMModuleType::Source, true };
+  m_graph.m_graph[module.id()] = node{ module.moduleLabel(), module.moduleName(), module.id(), EDMModuleType::Source, true };
   auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), 0);
   attributes["label"] = module.moduleLabel();
+  attributes["tooltip"] = module.moduleName();
   attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(EDMModuleType::Source)];
   attributes["style"] = "filled";
   attributes["color"] = "black";
@@ -251,10 +253,11 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
 
   // set the vertices properties (use the module id as the global index into the graph)
   for (edm::ModuleDescription const * module: pathsAndConsumes.allModules()) {
-    m_graph.m_graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
+    m_graph.m_graph[module->id()] = { module->moduleLabel(), module->moduleName(), module->id(), edmModuleTypeEnum(*module), false };
 
     auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
     attributes["label"] = module->moduleLabel();
+    attributes["tooltip"] = module->moduleName();
     attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(edmModuleTypeEnum(*module))];
     attributes["style"] = "filled";
     attributes["color"] = "black";
