@@ -359,8 +359,8 @@ void EwkElecDQM::analyze(const edm::Event & iEvent, const edm::EventSetup & iSet
     // Beam spot
     Handle < reco::BeamSpot > beamSpotHandle;
     if (!iEvent.getByToken(beamSpotTag_, beamSpotHandle)) {
-        std::cout << ">>> No beam spot found !!!";
-        return;
+LogWarning ("")<< ">>> No beam spot found !!!";
+     return;
     }
     // MET
     double met_px = 0.;
@@ -591,10 +591,10 @@ void EwkElecDQM::analyze(const edm::Event & iEvent, const edm::EventSetup & iSet
         int out2 = 0;
         if (out2 == 1) {
             if (isBarrel) {
-                std::cout << "\t... detain value " << detain << " (barrel), pass? " << electron_sel[3];
+               LogTrace("") << "\t... detain value " << detain << " (barrel), pass? " << electron_sel[3];
             } else if (isEndcap) {
-                std::cout << "\t... sieie value " << sieie << " (endcap), pass? " << electron_sel[2];
-                std::cout << "\t... detain value " << detain << " (endcap), pass? " << electron_sel[2];
+             LogTrace("") << "\t... sieie value " << sieie << " (endcap), pass? " << electron_sel[2];
+              LogTrace("") << "\t... detain value " << detain << " (endcap), pass? " << electron_sel[2];
             }
         }
         if (isBarrel) {
