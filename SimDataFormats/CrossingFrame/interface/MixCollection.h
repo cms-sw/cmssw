@@ -65,7 +65,7 @@ class MixCollection {
     /** constructors */
     MixItr():first_(true), internalCtr_(0) {;}
     MixItr(typename std::vector<const T *>::const_iterator it) : pMixItr_(it),nrDets_(0),first_(true),internalCtr_(0) {;}
-       MixItr(MixCollection *shc, int nrDets) :     
+       MixItr(const MixCollection *shc, int nrDets) :     
        mixCol_(shc),nrDets_(nrDets),first_(true),iSignal_(0),iPileup_(0),internalCtr_(0) {;}
 
 
@@ -76,8 +76,8 @@ class MixCollection {
     // default version valid for HepMCProduct
     const T* operator->() const { return *(pMixItr_.operator->()); }
     const T& operator*() const {return *(pMixItr_.operator*()); }
-    MixItr operator++ () {return next();}
-    MixItr operator++ (int) {return next();}
+    const MixItr operator++ () {return next();}
+    const MixItr operator++ (int) {return next();}
     bool operator!= (const MixItr& itr){return pMixItr_!=itr.pMixItr_;}
 
     /**getters*/
@@ -98,14 +98,14 @@ class MixCollection {
     typename std::vector<const T *>::const_iterator pMixItrEnd_;
 
     const CrossingFrame<T> *    myCF_;
-    MixCollection *mixCol_;
+    const MixCollection *mixCol_;
     int nrDets_;
     bool first_;
     int iSignal_, iPileup_;
     bool trigger_;
     unsigned int internalCtr_;  //this is the internal counter pointing into the vector of piled up objects
     
-    MixItr next();
+    const MixItr next();
     void reset() {;}
     bool getNewSignal(typename std::vector<const T *>::const_iterator &first,typename std::vector<const T *>::const_iterator &last);
 
@@ -113,8 +113,8 @@ class MixCollection {
   };
 
   typedef MixItr iterator;
-  iterator begin();
-  iterator end() ;
+  iterator begin() const;
+  iterator end() const;
 
  private:
   void init( const range bunchRange);
@@ -235,7 +235,7 @@ bool  MixCollection<T>::MixItr::getNewPileups(typename std::vector<const T*>::co
 }
 
 template <class T>
-typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
+const typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 
   // initialisation
   if (first_) {
@@ -268,12 +268,12 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 }
 
 template <class T>
-typename MixCollection<T>::MixItr MixCollection<T>::begin() {
+typename MixCollection<T>::MixItr MixCollection<T>::begin() const {
   return MixItr(this,nrDets_)++;
 }
 
 template <class T>
-typename  MixCollection<T>::MixItr MixCollection<T >::end() {
+typename  MixCollection<T>::MixItr MixCollection<T >::end() const {
   typename std::vector<const T *>::const_iterator first;
   typename std::vector<const T*>::const_iterator last;
   crossingFrames_[nrDets_-1]->getPileups(first, last);

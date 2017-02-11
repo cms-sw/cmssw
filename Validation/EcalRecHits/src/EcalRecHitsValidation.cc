@@ -344,8 +344,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
     // 1) loop over simHits  
     e.getByToken(EBHits_Token_,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    const MixCollection<PCaloHit> &barrelHits = crossingFrame.product();
     
     MapType ebSimMap;
     MapType ebRecMap;
@@ -355,7 +354,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<ebcSize; i++ ) { ebcontr[i] = 0.0; ebcontr25[i] = 0.0; } 
     double ebtotal = 0.;
 
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin (); hitItr != barrelHits->end (); ++hitItr)  {   
+    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits.begin (); hitItr != barrelHits.end (); ++hitItr)  {   
       EBDetId ebid = EBDetId(hitItr->id());
       
       LogDebug("SimHitInfo, barrel") 
@@ -494,8 +493,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
     // 1) loop over simHits
     e.getByToken(EEHits_Token_,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    const MixCollection<PCaloHit> &endcapHits=crossingFrame.product();
   
     MapType eeSimMap;
     MapType eeRecMap;
@@ -505,7 +503,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<eecSize; i++ ) { eecontr[i] = 0.0; eecontr25[i] = 0.0; } 
     double eetotal = 0.;
  
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin(); hitItr != endcapHits->end(); ++hitItr) {   
+    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits.begin(); hitItr != endcapHits.end(); ++hitItr) {   
       EEDetId eeid = EEDetId(hitItr->id()) ;
       
       LogDebug("Endcap, HitInfo")
@@ -633,8 +631,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
     // 1) loop over simHits
     e.getByToken(ESHits_Token_,crossingFrame);
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    const MixCollection<PCaloHit> & preshowerHits = crossingFrame.product();
 
     MapType esSimMap;
     const int escSize = 90;
@@ -643,7 +640,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     double estotal = 0.;
 
   
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin(); hitItr != preshowerHits->end(); ++hitItr) {   
+    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits.begin(); hitItr != preshowerHits.end(); ++hitItr) {   
       ESDetId esid = ESDetId(hitItr->id()) ;
 
       LogDebug("Preshower, HitInfo")
