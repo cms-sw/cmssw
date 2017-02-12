@@ -36,6 +36,7 @@
 #include "TH2.h"
 #include "TH3.h"
 #include <vector>
+#include <string>
 
 using namespace edm;
 using namespace std;
@@ -157,50 +158,50 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
     // muon plus
     double range0 = etaRange[i];
     double range1= etaRange[i+1];
-    char ap[30], bp[50];
-    sprintf(ap,"zmumu2HLTplus_etaRange%d",i);
-    sprintf(bp,"zmumu2HLT plus mass eta Range %f to %f",range0,range1);
+    std::string ap, bp;
+    ap = "zmumu2HLTplus_etaRange" + std::to_string(i);
+    bp = "zmumu2HLT plus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap << "   " << bp << endl;
-    hmumu2HLTplus_eta.push_back(etaDirectory.make<TH1D>(ap,bp,200,0.,200.));
-    sprintf(ap,"zmumu1HLTplus_etaRange%d",i);
-    sprintf(bp,"zmumu1HLT plus mass eta Range %f to %f",range0,range1);
+    hmumu2HLTplus_eta.push_back(etaDirectory.make<TH1D>(ap.c_str(), bp.c_str(), 200, 0., 200.));
+    ap = "zmumu1HLTplus_etaRange" + std::to_string(i);
+    bp = "zmumu1HLT plus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap << "   " << bp << endl;
-    hmumu1HLTplus_eta.push_back(etaDirectory.make<TH1D>(ap,bp,200,0.,200.));
-    sprintf(ap,"zmustaplus_etaRange%d",i);
-    sprintf(bp,"zmusta plus mass eta Range %f to %f",range0,range1);
+    hmumu1HLTplus_eta.push_back(etaDirectory.make<TH1D>(ap.c_str(), bp.c_str(), 200, 0., 200.));
+    ap = "zmustaplus_etaRange" + std::to_string(i);
+    bp = "zmusta plus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap << "   " << bp << endl;
-    hmustaplus_eta.push_back(etaDirectory.make<TH1D>(ap,bp,50,0.,200.));
-    sprintf(ap,"zmutrackplus_etaRange%d",i);
-    sprintf(bp,"zmutrack plus mass eta Range %f to %f",range0,range1);
+    hmustaplus_eta.push_back(etaDirectory.make<TH1D>(ap.c_str(), bp.c_str(), 50, 0., 200.));
+    ap = "zmutrackplus_etaRange" + std::to_string(i);
+    bp = "zmutrack plus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap << "   " << bp << endl;
-    hmutrackplus_eta.push_back(etaDirectory.make<TH1D>(ap,bp,100,0.,200.));
-    sprintf(ap,"zmumuNotIsoplus_etaRange%d",i);
-    sprintf(bp,"zmumuNotIso plus mass eta Range %f to %f",range0,range1);
+    hmutrackplus_eta.push_back(etaDirectory.make<TH1D>(ap.c_str(), bp.c_str(), 100, 0., 200.));
+    ap = "zmumuNotIsoplus_etaRange" + std::to_string(i);
+    bp = "zmumuNotIso plus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap << "   " << bp << endl;
-    hmumuNotIsoplus_eta.push_back(etaDirectory.make<TH1D>(ap,bp,100,0.,200.));
+    hmumuNotIsoplus_eta.push_back(etaDirectory.make<TH1D>(ap.c_str(), bp.c_str(), 100, 0., 200.));
     // muon minus
     cout << " bin eta minus  " << i << endl;
-    char am[30], bm[50];
-    sprintf(am,"zmumu2HLTminus_etaRange%d",i);
-    sprintf(bm,"zmumu2HLT minus mass eta Range %f to %f",range0,range1);
+    std::string  am, bm;
+    am = "zmumu2HLTminus_etaRange" + std::to_string(i);
+    bm = "zmumu2HLT minus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am << "   " << bm << endl;
-    hmumu2HLTminus_eta.push_back(etaDirectory.make<TH1D>(am,bm,200,0.,200.));
-    sprintf(am,"zmumu1HLTminus_etaRange%d",i);
-    sprintf(bm,"zmumu1HLT minus mass eta Range %f to %f",range0,range1);
+    hmumu2HLTminus_eta.push_back(etaDirectory.make<TH1D>(am.c_str(), bm.c_str(), 200, 0., 200.));
+    am = "zmumu1HLTminus_etaRange" + std::to_string(i);
+    bm = "zmumu1HLT minus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am << "   " << bm << endl;
-    hmumu1HLTminus_eta.push_back(etaDirectory.make<TH1D>(am,bm,200,0.,200.));
-    sprintf(am,"zmustaminus_etaRange%d",i);
-    sprintf(bm,"zmusta minus mass eta Range %f to %f",range0,range1);
+    hmumu1HLTminus_eta.push_back(etaDirectory.make<TH1D>(am.c_str(), bm.c_str(), 200, 0., 200.));
+    am = "zmustaminus_etaRange" + std::to_string(i);
+    bm = "zmusta minus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am << "   " << bm << endl;
-    hmustaminus_eta.push_back(etaDirectory.make<TH1D>(am,bm,50,0.,200.));
-    sprintf(am,"zmutrackminus_etaRange%d",i);
-    sprintf(bm,"zmutrack minus mass eta Range %f to %f",range0,range1);
+    hmustaminus_eta.push_back(etaDirectory.make<TH1D>(am.c_str(), bm.c_str(), 50, 0., 200.));
+    am = "zmutrackminus_etaRange" + std::to_string(i);
+    bm = "zmutrack minus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am << "   " << bm << endl;
-    hmutrackminus_eta.push_back(etaDirectory.make<TH1D>(am,bm,100,0.,200.));
-    sprintf(am,"zmumuNotIsominus_etaRange%d",i);
-    sprintf(bm,"zmumuNotIso minus mass eta Range %f to %f",range0,range1);
+    hmutrackminus_eta.push_back(etaDirectory.make<TH1D>(am.c_str(), bm.c_str(), 100, 0., 200.));
+    am = "zmumuNotIsominus_etaRange" + std::to_string(i);
+    bm = "zmumuNotIso minus mass eta Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am << "   " << bm << endl;
-    hmumuNotIsominus_eta.push_back(etaDirectory.make<TH1D>(am,bm,100,0.,200.));
+    hmumuNotIsominus_eta.push_back(etaDirectory.make<TH1D>(am.c_str(), bm.c_str(), 100, 0., 200.));
   }
 
   // pt histograms creation
@@ -211,50 +212,50 @@ ZMuMu_efficiencyAnalyzer::ZMuMu_efficiencyAnalyzer(const ParameterSet& pset) :
     double range1= ptRange[i+1];
     // muon plus
     cout << " bin pt plus  " << i << endl;
-    char ap1[30], bp1[50];
-    sprintf(ap1,"zmumu2HLTplus_ptRange%d",i);
-    sprintf(bp1,"zmumu2HLT plus mass pt Range %f to %f",range0,range1);
+    std::string ap1, bp1;
+    ap1 = "zmumu2HLTplus_ptRange" + std::to_string(i);
+    bp1 = "zmumu2HLT plus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap1 << "   " << bp1 << endl;
-    hmumu2HLTplus_pt.push_back(ptDirectory.make<TH1D>(ap1,bp1,200,0.,200.));
-    sprintf(ap1,"zmumu1HLTplus_ptRange%d",i);
-    sprintf(bp1,"zmumu1HLT plus mass pt Range %f to %f",range0,range1);
+    hmumu2HLTplus_pt.push_back(ptDirectory.make<TH1D>(ap1.c_str(), bp1.c_str(), 200, 0., 200.));
+    ap1 = "zmumu1HLTplus_ptRange" + std::to_string(i);
+    bp1 = "zmumu1HLT plus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap1 << "   " << bp1 << endl;
-    hmumu1HLTplus_pt.push_back(ptDirectory.make<TH1D>(ap1,bp1,200,0.,200.));
-    sprintf(ap1,"zmustaplus_ptRange%d",i);
-    sprintf(bp1,"zmusta plus mass pt Range %f to %f",range0,range1);
+    hmumu1HLTplus_pt.push_back(ptDirectory.make<TH1D>(ap1.c_str(), bp1.c_str(), 200, 0., 200.));
+    ap1 = "zmustaplus_ptRange" + std::to_string(i);
+    bp1 = "zmusta plus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap1 << "   " << bp1 << endl;
-    hmustaplus_pt.push_back(ptDirectory.make<TH1D>(ap1,bp1,50,0.,200.));
-    sprintf(ap1,"zmutrackplus_ptRange%d",i);
-    sprintf(bp1,"zmutrack plus mass pt Range %f to %f",range0,range1);
+    hmustaplus_pt.push_back(ptDirectory.make<TH1D>(ap1.c_str(), bp1.c_str(), 50, 0., 200.));
+    ap1 = "zmutrackplus_ptRange" + std::to_string(i);
+    bp1 = "zmutrack plus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap1 << "   " << bp1 << endl;
-    hmutrackplus_pt.push_back(ptDirectory.make<TH1D>(ap1,bp1,100,0.,200.));
-    sprintf(ap1,"zmumuNotIsoplus_ptRange%d",i);
-    sprintf(bp1,"zmumuNotIso plus mass pt Range %f to %f",range0,range1);
+    hmutrackplus_pt.push_back(ptDirectory.make<TH1D>(ap1.c_str(), bp1.c_str(), 100, 0., 200.));
+    ap1 = "zmumuNotIsoplus_ptRange" + std::to_string(i);
+    bp1 = "zmumuNotIso plus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << ap1 << "   " << bp1 << endl;
-    hmumuNotIsoplus_pt.push_back(ptDirectory.make<TH1D>(ap1,bp1,100,0.,200.));
+    hmumuNotIsoplus_pt.push_back(ptDirectory.make<TH1D>(ap1.c_str(), bp1.c_str(), 100, 0., 200.));
     // muon minus
     cout << " bin pt minus  " << i << endl;
-    char am1[30], bm1[50];
-    sprintf(am1,"zmumu2HLTminus_ptRange%d",i);
-    sprintf(bm1,"zmumu2HLT minus mass pt Range %f to %f",range0,range1);
+    std::string am1, bm1;
+    am1 = "zmumu2HLTminus_ptRange" + std::to_string(i);
+    bm1 = "zmumu2HLT minus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am1 << "   " << bm1 << endl;
-    hmumu2HLTminus_pt.push_back(ptDirectory.make<TH1D>(am1,bm1,200,0.,200.));
-    sprintf(am1,"zmumu1HLTminus_ptRange%d",i);
-    sprintf(bm1,"zmumu1HLT minus mass pt Range %f to %f",range0,range1);
+    hmumu2HLTminus_pt.push_back(ptDirectory.make<TH1D>(am1.c_str(), bm1.c_str(), 200, 0., 200.));
+    am1 = "zmumu1HLTminus_ptRange" + std::to_string(i);
+    bm1 = "zmumu1HLT minus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am1 << "   " << bm1 << endl;
-    hmumu1HLTminus_pt.push_back(ptDirectory.make<TH1D>(am1,bm1,200,0.,200.));
-    sprintf(am1,"zmustaminus_ptRange%d",i);
-    sprintf(bm1,"zmusta minus mass pt Range %f to %f",range0,range1);
+    hmumu1HLTminus_pt.push_back(ptDirectory.make<TH1D>(am1.c_str(), bm1.c_str(), 200, 0., 200.));
+    am1 = "zmustaminus_ptRange" + std::to_string(i);
+    bm1 = "zmusta minus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am1 << "   " << bm1 << endl;
-    hmustaminus_pt.push_back(ptDirectory.make<TH1D>(am1,bm1,50,0.,200.));
-    sprintf(am1,"zmutrackminus_ptRange%d",i);
-    sprintf(bm1,"zmutrack minus mass pt Range %f to %f",range0,range1);
+    hmustaminus_pt.push_back(ptDirectory.make<TH1D>(am1.c_str(), bm1.c_str(), 50, 0., 200.));
+    am1 = "zmutrackminus_ptRange" + std::to_string(i);
+    bm1 = "zmutrack minus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am1 << "   " << bm1 << endl;
-    hmutrackminus_pt.push_back(ptDirectory.make<TH1D>(am1,bm1,100,0.,200.));
-    sprintf(am1,"zmumuNotIsominus_ptRange%d",i);
-    sprintf(bm1,"zmumuNotIso minus mass pt Range %f to %f",range0,range1);
+    hmutrackminus_pt.push_back(ptDirectory.make<TH1D>(am1.c_str(), bm1.c_str(), 100, 0., 200.));
+    am1 = "zmumuNotIsominus_ptRange" + std::to_string(i);
+    bm1 = "zmumuNotIso minus mass pt Range " + std::to_string(range0) + " to " + std::to_string(range1);
     cout << am1 << "   " << bm1 << endl;
-    hmumuNotIsominus_pt.push_back(ptDirectory.make<TH1D>(am1,bm1,100,0.,200.));
+    hmumuNotIsominus_pt.push_back(ptDirectory.make<TH1D>(am1.c_str(), bm1.c_str(), 100, 0., 200.));
   }
 
   // clear global counters
