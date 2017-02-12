@@ -73,7 +73,7 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
    edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
    event.getByToken(pfCandidates_,pfCandidateHandle);
    // value maps
-   std::vector< edm::Handle< edm::ValueMap<double> > > isolationValueMaps(nDeps_);
+   std::vector< edm::Handle< edm::ValueMap<float> > > isolationValueMaps(nDeps_);
 
    for(unsigned i=0; i < nDeps_ ; ++i) {
      event.getByToken(tokenElectronIsoVals_[i],isolationValueMaps[i]);
