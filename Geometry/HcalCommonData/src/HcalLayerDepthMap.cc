@@ -17,8 +17,9 @@ HcalLayerDepthMap::HcalLayerDepthMap() {
 
 HcalLayerDepthMap::~HcalLayerDepthMap() {}
 
-void HcalLayerDepthMap::initialize(int subdet, int ietaMax, int dep16C,
-				   int dep29C, double wtl0C, 
+void HcalLayerDepthMap::initialize(const int subdet, const int ietaMax, 
+				   const int dep16C, const int dep29C, 
+				   const double wtl0C, 
 				   std::vector<int> const& iphi,
 				   std::vector<int> const& ieta,
 				   std::vector<int> const& layer,
@@ -102,8 +103,9 @@ void HcalLayerDepthMap::initialize(int subdet, int ietaMax, int dep16C,
 #endif
 }
 
-int HcalLayerDepthMap::getDepth(int subdet, int ieta, int iphi, int zside,
-				int layer) const {
+int HcalLayerDepthMap::getDepth(const int subdet, const int ieta, 
+				const int iphi, const int zside,
+				const int layer) const {
   int depth(-1);
   if (isValid(subdet,iphi,zside)) {
     std::map<std::pair<int,int>,int>::const_iterator itr = layer2Depth_.find(std::pair<int,int>(ieta,layer));
@@ -116,7 +118,8 @@ int HcalLayerDepthMap::getDepth(int subdet, int ieta, int iphi, int zside,
   return depth;
 }
 
-int HcalLayerDepthMap::getDepth16(int subdet, int iphi, int zside) const {
+int HcalLayerDepthMap::getDepth16(const int subdet, const int iphi, 
+				  const int zside) const {
   int depth(-1);
   if (isValid(subdet,iphi,zside)) depth = dep16C_;
 #ifdef EDM_ML_DEBUG
@@ -126,7 +129,8 @@ int HcalLayerDepthMap::getDepth16(int subdet, int iphi, int zside) const {
   return depth;
 }
 
-int HcalLayerDepthMap::getDepthMin(int subdet, int iphi, int zside) const {
+int HcalLayerDepthMap::getDepthMin(const int subdet, const int iphi,
+				   const int zside) const {
   int depth = (isValid(subdet,iphi,zside)) ? depthMin_ : -1;
 #ifdef EDM_ML_DEBUG
   std::cout << "getDepthMin::Input " << subdet << ":" << iphi << ":" << zside
@@ -135,7 +139,8 @@ int HcalLayerDepthMap::getDepthMin(int subdet, int iphi, int zside) const {
   return depth;
 }
 
-int HcalLayerDepthMap::getDepthMax(int subdet, int iphi, int zside) const {
+int HcalLayerDepthMap::getDepthMax(const int subdet, const int iphi,
+				   const int zside) const {
   int depth = (isValid(subdet,iphi,zside)) ? depthMax_ : -1;
 #ifdef EDM_ML_DEBUG
   std::cout << "getDepthMax::Input " << subdet << ":" << iphi << ":" << zside
@@ -144,8 +149,8 @@ int HcalLayerDepthMap::getDepthMax(int subdet, int iphi, int zside) const {
   return depth;
 }
 
-int HcalLayerDepthMap::getDepthMax(int subdet, int ieta, int iphi, 
-				   int zside) const {
+int HcalLayerDepthMap::getDepthMax(const int subdet, const int ieta,
+				   const int iphi, const int zside) const {
   int depth = (isValid(subdet,iphi,zside)) ? getDepth(subdet,ieta,iphi,zside,maxLayers_) : -1;
 #ifdef EDM_ML_DEBUG
   std::cout << "getDepthMax::Input " << subdet << ":" << iphi << ":" << zside
@@ -154,15 +159,16 @@ int HcalLayerDepthMap::getDepthMax(int subdet, int ieta, int iphi,
   return depth;
 }
 
-std::pair<int,int> HcalLayerDepthMap::getDepths(int eta) const {
+std::pair<int,int> HcalLayerDepthMap::getDepths(const int eta) const {
 
   std::map<int,std::pair<int,int> >::const_iterator itr = depthsEta_.find(eta);
   if (itr == depthsEta_.end()) return std::pair<int,int>(0,0);
   else                         return itr->second;
 }
 
-int HcalLayerDepthMap::getLayerFront(int subdet, int ieta, int iphi, int zside,
-				     int depth) const {
+int HcalLayerDepthMap::getLayerFront(const int subdet, const int ieta,
+				     const int iphi, const int zside,
+				     const int depth) const {
   int layer(-1);
   if (isValid(subdet,iphi,zside)) {
     std::map<std::pair<int,int>,int>::const_iterator itr = depth2LayerF_.find(std::pair<int,int>(ieta,depth));
@@ -175,8 +181,9 @@ int HcalLayerDepthMap::getLayerFront(int subdet, int ieta, int iphi, int zside,
   return layer;
 }
 
-int HcalLayerDepthMap::getLayerBack(int subdet, int ieta, int iphi, int zside,
-				    int depth) const {
+int HcalLayerDepthMap::getLayerBack(const int subdet, const int ieta, 
+				    const int iphi, const int zside,
+				    const int depth) const {
   int layer(-1);
   if (isValid(subdet,iphi,zside)) {
     std::map<std::pair<int,int>,int>::const_iterator itr = depth2LayerB_.find(std::pair<int,int>(ieta,depth));
@@ -189,7 +196,8 @@ int HcalLayerDepthMap::getLayerBack(int subdet, int ieta, int iphi, int zside,
   return layer;
 }
 
-void HcalLayerDepthMap::getLayerDepth(int subdet, int eta, int phi, int zside,
+void HcalLayerDepthMap::getLayerDepth(const int subdet, const int eta, 
+				      const int phi, const int zside,
 				      std::map<int,int>& layers) const {
   layers.clear();
   if (isValid(subdet,phi,zside)) {
@@ -209,7 +217,28 @@ void HcalLayerDepthMap::getLayerDepth(int subdet, int eta, int phi, int zside,
 #endif
 }
 
-int HcalLayerDepthMap::getMaxDepthLastHE(int subdet, int iphi, int zside) const {
+void HcalLayerDepthMap::getLayerDepth(const int eta, 
+				      std::map<int,int>& layers) const {
+  layers.clear();
+  if (subdet_ > 0) {
+    for (std::map<std::pair<int,int>,int>::const_iterator itr=layer2Depth_.begin();
+	 itr != layer2Depth_.end(); ++itr) {
+      if ((itr->first).first == eta) {
+	layers[((itr->first).second)+1] = (itr->second);
+      }
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  std::cout << "getLayerDepth::Input " << eta << " Output " << layers.size()
+	    << " entries\n";
+  for (std::map<int,int>::iterator itr=layers.begin(); itr != layers.end();
+       ++itr) std::cout << " [" << itr->first << "] " << itr->second;
+  std::cout << std::endl;
+#endif
+}
+
+int HcalLayerDepthMap::getMaxDepthLastHE(const int subdet, const int iphi,
+					 const int zside) const {
   int depth = isValid(subdet,iphi,zside) ? dep29C_ : -1;
 #ifdef EDM_ML_DEBUG
   std::cout << "getMaxDepthLastHE::Input " << subdet << ":" << iphi << ":"
@@ -218,7 +247,8 @@ int HcalLayerDepthMap::getMaxDepthLastHE(int subdet, int iphi, int zside) const 
   return depth;
 }
 
-double HcalLayerDepthMap::getLayer0Wt(int subdet, int iphi, int zside) const {
+double HcalLayerDepthMap::getLayer0Wt(const int subdet, const int iphi,
+				      const int zside) const {
   double wt = isValid(subdet,iphi,zside) ? wtl0C_ : -1.0;
 #ifdef EDM_ML_DEBUG
   std::cout << "getLayer0Wt::Input " << subdet << ":" << iphi << ":" << zside 
@@ -227,7 +257,8 @@ double HcalLayerDepthMap::getLayer0Wt(int subdet, int iphi, int zside) const {
   return wt;
 }
 
-bool HcalLayerDepthMap::isValid(int subdet, int iphi, int zside) const {
+bool HcalLayerDepthMap::isValid(const int subdet, const int iphi,
+				const int zside) const {
   bool flag(false);
   int  kphi = (zside > 0) ? iphi : -iphi;
   if (subdet == subdet_)
