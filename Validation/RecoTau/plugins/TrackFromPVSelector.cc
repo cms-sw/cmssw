@@ -15,6 +15,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <algorithm>
+#include <numeric>
 #include <memory>
 #include <vector>
 
@@ -59,19 +60,20 @@ TrackFromPVSelector::TrackFromPVSelector(edm::ParameterSet const& iConfig)
 //______________________________________________________________________________
 void TrackFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
-  auto goodTracks = std::make_unique<std::vector<reco::Track>>();
-
   edm::Handle<std::vector<reco::Vertex>> vertices;
+  iEvent.getByToken(v_recoVertexToken_, vertices);
+
   edm::Handle<std::vector<reco::Track>> tracks;
-  if (iEvent.getByToken(v_recoVertexToken_, vertices) && !vertices->empty() &&
-      iEvent.getByToken(v_recoTrackToken_, tracks) && !tracks->empty())
-    {
-      auto const& vtxPos = vertices->front().position();
-      std::copy_if(std::cbegin(*tracks), std::cend(*tracks), std::back_inserter(*goodTracks),
-                   [this, &vtxPos](auto const& track) {
-                     return fabs(track.dxy(vtxPos)) < max_dxy_ && fabs(track.dz(vtxPos)) < max_dz_;
-                   });
-    }
+  iEvent.getByToken(v_recoTrackToken_, tracks);
+
+  auto goodTracks = std::make_unique<std::vector<reco::Track>>();
+  if (!vertices->empty() && !tracks->empty()) {
+    auto const& vtxPos = vertices->front().position();
+    std::copy_if(std::cbegin(*tracks), std::cend(*tracks), std::back_inserter(*goodTracks),
+                 [this, &vtxPos](auto const& track) {
+                   return std::abs(track.dxy(vtxPos)) < max_dxy_ && std::abs(track.dz(vtxPos)) < max_dz_;
+                 });
+  }
   iEvent.put(std::move(goodTracks));
 }
 
