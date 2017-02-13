@@ -22,22 +22,18 @@
 template<typename T1>
 class bestPVselector : public edm::EDProducer {
 public:
-  // construction/destruction
-  bestPVselector(const edm::ParameterSet& iConfig);
-  virtual ~bestPVselector();
 
-  // member functions
+  bestPVselector(const edm::ParameterSet& iConfig);
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:
-  // member data
+
   edm::EDGetTokenT<std::vector<T1>> src_;
 };
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// construction/destruction
+// construction
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
@@ -47,11 +43,6 @@ bestPVselector<T1>::bestPVselector(const edm::ParameterSet& iConfig)
 {
   produces<std::vector<T1>>();
 }
-
-
-//______________________________________________________________________________
-template<typename T1>
-bestPVselector<T1>::~bestPVselector(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
@@ -87,11 +78,6 @@ void bestPVselector<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
 
   theBestPV->push_back(*bestPV);
   iEvent.put(std::move(theBestPV));
-}
-
-template<typename T1>
-void bestPVselector<T1>::endJob()
-{
 }
 
 typedef bestPVselector<reco::Vertex>      HighestSumP4PrimaryVertexSelector;
