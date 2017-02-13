@@ -33,7 +33,7 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
   edm::LogInfo("CustomPhysics")<<"Path for custom particle definition file: "
-			       <<particleDefFilePath;
+			       <<particleDefFilePath<< "\n" << "      dark_factor= " << dfactor;
   myHelper = 0;  
 }
 

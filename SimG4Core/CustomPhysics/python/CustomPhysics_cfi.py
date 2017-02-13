@@ -16,7 +16,9 @@ customPhysicsSetup = cms.PSet(
     gamma = cms.double(0.1),
     reggeModel = cms.bool(False),
     hadronLifeTime = cms.double(-1.),
-    mixing = cms.double(1.)
+    mixing = cms.double(1.),
 
+    # dark photon
+    dark_factor = cms.double(1.0)
 )
 
