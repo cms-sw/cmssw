@@ -99,19 +99,6 @@ class GsfElectron : public RecoCandidate
       const FiducialFlags &,
       const ShowerShape &,
       const ShowerShape &,
-      const ConversionRejection &
-     ) ;
-     GsfElectron
-     (
-      int charge,
-      const ChargeInfo &,
-      const GsfElectronCoreRef &,
-      const TrackClusterMatching &,
-      const TrackExtrapolations &,
-      const ClosestCtfTrack &,
-      const FiducialFlags &,
-      const ShowerShape &,
-      const ShowerShape &,
       const ConversionRejection &,
       const SaturationInfo &
      ) ;
@@ -373,7 +360,15 @@ class GsfElectron : public RecoCandidate
     bool isEEDeeGap() const { return fiducialFlags_.isEEDeeGap ; }
     bool isEERingGap() const { return fiducialFlags_.isEERingGap ; }
     const FiducialFlags & fiducialFlags() const { return fiducialFlags_ ; }
-
+    // setters... not necessary in regular situations
+    // but handy for late stage modifications of electron objects
+    void setFFlagIsEB(const bool &b)        { fiducialFlags_.isEB = b; }
+    void setFFlagIsEE(const bool &b)        { fiducialFlags_.isEE = b; }
+    void setFFlagIsEBEEGap(const bool &b)   { fiducialFlags_.isEBEEGap = b; }
+    void setFFlagIsEBEtaGap(const bool &b)  { fiducialFlags_.isEBEtaGap = b; }
+    void setFFlagIsEBPhiGap(const bool &b)  { fiducialFlags_.isEBPhiGap = b; }
+    void setFFlagIsEEDeeGap(const bool &b)  { fiducialFlags_.isEEDeeGap = b; }
+    void setFFlagIsEERingGap(const bool &b) { fiducialFlags_.isEERingGap = b; }
 
   private:
 
