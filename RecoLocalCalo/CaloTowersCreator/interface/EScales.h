@@ -2,20 +2,20 @@
 #define EScales_h
 
 struct EScales{
-  double HBPiOvere=50.0;
-  double HESPiOvere=50.0;
-  double HEDPiOvere=50.0;
-  double HOPiOvere=50.0;
-  double HF1PiOvere=50.0;
-  double HF2PiOvere=50.0;
-  double EBScale=50.0;
-  double EEScale=50.0;
-  double HBScale=50.0;
-  double HESScale=50.0;
-  double HEDScale=50.0;
-  double HOScale=50.0;
-  double HF1Scale=50.0;
-  double HF2Scale=50.0;
+  double HBPiOvere=0;
+  double HESPiOvere=0;
+  double HEDPiOvere=0;
+  double HOPiOvere=0;
+  double HF1PiOvere=0;
+  double HF2PiOvere=0;
+  double EBScale=0;
+  double EEScale=0;
+  double HBScale=0;
+  double HESScale=0;
+  double HEDScale=0;
+  double HOScale=0;
+  double HF1Scale=0;
+  double HF2Scale=0;
   std::string instanceLabel;
 };
 
