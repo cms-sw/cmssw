@@ -265,7 +265,7 @@ class IOV:
     columns             = { 'tag_name':(DbRef(Tag,'name'),_Col.pk),    
                             'since':(sqlalchemy.BIGINT,_Col.pk),
                             'insertion_time':(sqlalchemy.TIMESTAMP,_Col.pk),
-                            'payload_hash':(DbRef(Payload,'hash'),_Col.pk) }
+                            'payload_hash':(DbRef(Payload,'hash'),_Col.notNull) }
 
 
 class GlobalTag:
