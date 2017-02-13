@@ -2,9 +2,9 @@
 // Includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -16,11 +16,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class bestPVselector : public edm::EDProducer {
+class bestPVselector : public edm::global::EDProducer<> {
 public:
 
   explicit bestPVselector(edm::ParameterSet const& iConfig);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> src_;
@@ -43,7 +43,7 @@ bestPVselector::bestPVselector(edm::ParameterSet const& iConfig)
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void bestPVselector::produce(edm::Event& iEvent, edm::EventSetup const&)
+void bestPVselector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   edm::Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(src_,vertices);
