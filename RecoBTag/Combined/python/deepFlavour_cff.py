@@ -50,10 +50,10 @@ pfPositiveDeepCMVAJetTags = pfDeepCMVAJetTags.clone(
 ##
 ## Deep Flavour sequence, not complete as it would need the IP and SV tag infos
 ##
-pfDeepFlavour = cms.Sequence(
-	pfDeepCSVTagInfos 
-	##* pfDeepCMVATagInfos * #SKIP for the moment
-	* pfDeepCSVJetTags 
-	##* pfDeepCMVAJetTags
+pfDeepFlavourTask = cms.Task(
+    pfDeepCSVTagInfos,
+    ## pfDeepCMVATagInfos, #SKIP for the moment
+    pfDeepCSVJetTags
+    ## , pfDeepCMVAJetTags
 )
-
+pfDeepFlavour = cms.Sequence(pfDeepFlavourTask)

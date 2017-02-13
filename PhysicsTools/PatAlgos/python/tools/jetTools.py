@@ -358,27 +358,54 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     _btagInfo.trackSelection.pixelHitsMin = cms.uint32(2)
                     _btagInfo.trackSelection.totalHitsMin = cms.uint32(8)
             if btagInfo == 'pfDeepCSVTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCSVTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepCSVTagInfos.clone(
+                                        svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)),
+                                    process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCSVNegativeTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCSVNegativeTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)))
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepCSVNegativeTagInfos.clone(
+                                        svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderNegativeTagInfos'+labelName+postfix)),
+                                    process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCSVPositiveTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCSVPositiveTagInfos.clone(svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)))
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepCSVPositiveTagInfos.clone(
+                                        svTagInfos = cms.InputTag(btagPrefix+'pfInclusiveSecondaryVertexFinderTagInfos'+labelName+postfix)),
+                                    process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCMVATagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCMVATagInfos.clone(pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepCMVATagInfos.clone(
+                                        pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix),
+                                        ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix),
+                                        muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix),
+                                        elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)),
+                                    process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCMVANegativeTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCMVATagInfos.clone(pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepCMVATagInfos.clone(
+                                        pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix),
+                                        ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix),
+                                        muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix),
+                                        elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)),
+                                    process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)
             if btagInfo == 'pfDeepCMVAPositiveTagInfos':
-                setattr(process, btagPrefix+btagInfo+labelName+postfix, btag.pfDeepCMVATagInfos.clone(pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix), ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix), muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix), elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)))
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfDeepCMVATagInfos.clone(
+                                        pfDeepCSVTagInfos = cms.InputTag(btagPrefix+'pfDeepCSVTagInfos'+labelName+postfix),
+                                        ipInfoSrc = cms.InputTag(btagPrefix+"pfImpactParameterTagInfos"+labelName+postfix),
+                                        muInfoSrc = cms.InputTag(btagPrefix+"softPFMuonsTagInfos"+labelName+postfix),
+                                        elInfoSrc = cms.InputTag(btagPrefix+"softPFElectronsTagInfos"+labelName+postfix)),
+                                    process, task)
                 if svClustering or fatJets != cms.InputTag(''):
                     setupSVClustering(getattr(process, btagPrefix+btagInfo+labelName+postfix), svClustering, algo, rParam, fatJets, groomedFatJets)     
             if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
@@ -525,22 +552,26 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 print 'skipping %s as it has already been loaded in the process' % newDiscr #check that we did not create this producer before, if so skip
                 pass 
             elif hasattr(getattr(btag, btagDiscr), 'tagInfos'):
-                setattr(
-                  process, newDiscr, 
-                  getattr(btag, btagDiscr).clone(
-                    tagInfos = cms.VInputTag( 
-                      *[ cms.InputTag(btagPrefix+x+labelName+postfix) \
-                           for x in supportedBtagDiscr[discriminator_name][0] ] 
-                       )
-                    )
-                  )
+                addToProcessAndTask(
+                    newDiscr,
+                    getattr(btag, btagDiscr).clone(
+                        tagInfos = cms.VInputTag(
+                            *[ cms.InputTag(btagPrefix+x+labelName+postfix) \
+                            for x in supportedBtagDiscr[discriminator_name][0] ]
+                        )
+                    ),
+                    process,
+                    task
+                )
             elif hasattr(getattr(btag, btagDiscr), 'src'):
-                setattr(
-                  process, newDiscr,
-                  getattr(btag, btagDiscr).clone(
-                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix) 
-                    )
-                  )
+                addToProcessAndTask(
+                    newDiscr,
+                    getattr(btag, btagDiscr).clone(
+                        src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                    ),
+                    process,
+                    task
+                )
             else:
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
