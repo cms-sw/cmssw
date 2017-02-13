@@ -413,7 +413,8 @@ def customiseFor17393(process):
     for producer in producers_by_type(process,"PixelTripletHLTEDProducer"):
          if hasattr(producer,'SeedComparitorPSet'):
              if (producer.SeedComparitorPSet.ComponentName.value() == 'LowPtClusterShapeSeedComparitor'):
-                  producer.SeedComparitorPSet.clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
+                  if not hasattr(producer.SeedComparitorPSet,'clusterShapeHitFilter'):
+                      producer.SeedComparitorPSet.clusterShapeHitFilter = cms.string('ClusterShapeHitFilter')
     return process
 
 #
