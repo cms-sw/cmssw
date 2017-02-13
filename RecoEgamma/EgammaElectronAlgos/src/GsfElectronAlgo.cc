@@ -540,6 +540,35 @@ Candidate::LorentzVector GsfElectronAlgo::ElectronData::calculateMomentum()
      superClusterRef->energy() ) ;
  }
 
+void GsfElectronAlgo::calculateSaturationInfo(const reco::SuperClusterRef& theClus,
+					      reco::GsfElectron::SaturationInfo& si) {
+
+  const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
+  DetId seedXtalId = seedCluster.seed();
+  int detector = seedXtalId.subdetId();
+  const EcalRecHitCollection* ecalRecHits = 0 ;
+  if (detector==EcalBarrel)
+    ecalRecHits = eventData_->barrelRecHits.product() ;
+  else
+    ecalRecHits = eventData_->endcapRecHits.product() ;
+  
+  int nSaturatedXtals = 0;
+  bool isSeedSaturated = false;
+  const auto hitsAndFractions = theClus->hitsAndFractions();
+  for (auto&& hitFractionPair : hitsAndFractions) {    
+    auto&& ecalRecHit = ecalRecHits->find(hitFractionPair.first);
+    if (ecalRecHit == ecalRecHits->end()) continue;
+    if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) {
+      nSaturatedXtals++;
+      if (seedXtalId == ecalRecHit->detid())
+	isSeedSaturated = true;
+    }
+  }
+  si.nSaturatedXtals = nSaturatedXtals;
+  si.isSeedSaturated = isSeedSaturated;
+
+}
+
 void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClus, bool pflow, 
                                             reco::GsfElectron::ShowerShape & showerShape )
  {
@@ -608,6 +637,11 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   showerShape.eLeft         = EcalClusterTools::eLeft(seedCluster,recHits,topology);
   showerShape.eRight        = EcalClusterTools::eRight(seedCluster,recHits,topology);
   showerShape.eBottom       = EcalClusterTools::eBottom(seedCluster,recHits,topology);
+
+  showerShape.e2x5Left = EcalClusterTools::e2x5Left(seedCluster,recHits,topology);
+  showerShape.e2x5Right = EcalClusterTools::e2x5Right(seedCluster,recHits,topology);
+  showerShape.e2x5Top = EcalClusterTools::e2x5Top(seedCluster,recHits,topology);
+  showerShape.e2x5Bottom = EcalClusterTools::e2x5Bottom(seedCluster,recHits,topology);
  }
 
 void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef & theClus, bool pflow, 
@@ -678,6 +712,12 @@ void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef 
   showerShape.eLeft         = noZS::EcalClusterTools::eLeft(seedCluster,recHits,topology);
   showerShape.eRight        = noZS::EcalClusterTools::eRight(seedCluster,recHits,topology);
   showerShape.eBottom       = noZS::EcalClusterTools::eBottom(seedCluster,recHits,topology);
+
+  showerShape.e2x5Left = noZS::EcalClusterTools::e2x5Left(seedCluster,recHits,topology);
+  showerShape.e2x5Right = noZS::EcalClusterTools::e2x5Right(seedCluster,recHits,topology);
+  showerShape.e2x5Top = noZS::EcalClusterTools::e2x5Top(seedCluster,recHits,topology);
+  showerShape.e2x5Bottom = noZS::EcalClusterTools::e2x5Bottom(seedCluster,recHits,topology);
+
  }
 
 
@@ -1366,6 +1406,13 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
 
 
   //====================================================
+  // SaturationInfo
+  //====================================================
+
+  reco::GsfElectron::SaturationInfo saturationInfo;
+  calculateSaturationInfo(electronData_->superClusterRef, saturationInfo);
+
+  //====================================================
   // ShowerShape
   //====================================================
 
@@ -1416,7 +1463,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
      ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape, full5x5_showerShape,
-       conversionVars ) ;
+       conversionVars, saturationInfo ) ;
   // Will be overwritten later in the case of the regression
   ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
