@@ -112,7 +112,8 @@ class CondRegressionTester(object):
           if readOrWrite == 'write':
               self.dbNameList.append( dbName )
 
-          cmsPath = os.environ['CMS_PATH']
+          #cmsPath = os.environ['CMS_PATH']
+          cmsPath = '/cvmfs/cms.cern.ch'
           releaseDir = '%s/%s/cms/cmssw/%s' %(cmsPath,arch,rel)
 
           cmd =  'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src ; eval `scram runtime -sh`; cd - ; ' %(cmsPath,arch,releaseDir)
@@ -134,7 +135,8 @@ class CondRegressionTester(object):
           dbName = self.dbName # set the default
           if dbNameIn : dbName = dbNameIn
           
-          cmsPath = os.environ['CMS_PATH']
+          #cmsPath = os.environ['CMS_PATH']
+          cmsPath = '/cvmfs/cms.cern.ch'
           # we run in the local environment, but need to make sure that we start "top-level" of the devel area
           # and we assume that the test was already built 
           cmd = 'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src; eval `scram runtime -sh 2>/dev/null` ; ' % (cmsPath,os.environ['SCRAM_ARCH'],os.environ['CMSSW_BASE'], )
