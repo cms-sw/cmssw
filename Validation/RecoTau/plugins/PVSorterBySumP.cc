@@ -20,22 +20,20 @@
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
 template<typename T1>
-class bestPVselector : public edm::EDProducer
-{
+class bestPVselector : public edm::EDProducer {
 public:
   // construction/destruction
   bestPVselector(const edm::ParameterSet& iConfig);
   virtual ~bestPVselector();
-  
+
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
   void endJob() override;
 
-private:  
+private:
   // member data
-  edm::EDGetTokenT<std::vector<T1> >               src_;  
+  edm::EDGetTokenT<std::vector<T1>> src_;
 };
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,9 +43,9 @@ private:
 //______________________________________________________________________________
 template<typename T1>
 bestPVselector<T1>::bestPVselector(const edm::ParameterSet& iConfig)
-  : src_(consumes<std::vector<T1> >(iConfig.getParameter<edm::InputTag>("src")))
+  : src_(consumes<std::vector<T1>>(iConfig.getParameter<edm::InputTag>("src")))
 {
-  produces<std::vector<T1> >();
+  produces<std::vector<T1>>();
 }
 
 
@@ -62,35 +60,33 @@ bestPVselector<T1>::~bestPVselector(){}
 //______________________________________________________________________________
 template<typename T1>
 void bestPVselector<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
-{  
-  std::unique_ptr<std::vector<T1> > theBestPV(new std::vector<T1 >);
-  
-  edm::Handle< std::vector<T1> > VertexHandle;
+{
+  std::unique_ptr<std::vector<T1>> theBestPV(new std::vector<T1>);
+
+  edm::Handle<std::vector<T1>> VertexHandle;
   iEvent.getByToken(src_,VertexHandle);
-  
-  if( VertexHandle->size() == 0 ) 
-  {
+
+  if(VertexHandle->size() == 0) {
     iEvent.put(std::move(theBestPV));
-    return ;
+    return;
   }
-  
+
   typename std::vector<T1>::const_iterator PVit   ;
   typename std::vector<T1>::const_iterator bestPV ;
-  
-  double bestP4      = 0 ;
-  double sumSquarePt = 0 ;
+
+  double bestP4 = 0;
+  double sumSquarePt = 0;
 
   for (PVit = VertexHandle->begin(); PVit != VertexHandle->end(); ++PVit) {
     sumSquarePt = (PVit -> p4().pt())*(PVit -> p4().pt()) ;
-	if( sumSquarePt > bestP4 ){
-	  bestP4 = sumSquarePt ;
-	  bestPV = PVit        ; 
-	}
+    if (sumSquarePt > bestP4){
+      bestP4 = sumSquarePt;
+      bestPV = PVit;
+    }
   }
 
-  theBestPV->push_back( *bestPV );  
+  theBestPV->push_back(*bestPV);
   iEvent.put(std::move(theBestPV));
-  
 }
 
 template<typename T1>
