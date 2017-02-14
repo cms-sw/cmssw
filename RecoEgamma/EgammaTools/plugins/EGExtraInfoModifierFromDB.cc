@@ -358,6 +358,10 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
 
   const reco::SuperClusterRef& the_sc = ele.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
+
+  // skip HGCAL for now
+  if( theseed->seed().det() == DetId::Forward ) return;
+
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
@@ -440,7 +444,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
 
   
   size_t coridx = 0;
-  float raw_pt = raw_energy/cosh(the_sc->eta());
+  float raw_pt = raw_energy*the_sc->position().perp()/the_sc->position().r();
 
   if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
     coridx = 0;
@@ -507,8 +511,10 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
     eval[6] = fbrem;
     eval[7] = trkEta; 
     eval[8] = trkPhi; 
-    
-    float rawcomb = ( ecor*trkMomentumError*trkMomentumError + trkMomentum*(raw_energy+raw_es_energy)*(raw_energy+raw_es_energy)*sigma*sigma ) / ( trkMomentumError*trkMomentumError + (raw_energy + raw_es_energy)*(raw_energy + raw_es_energy)*sigma*sigma );
+
+    float ecalEnergyVar = (raw_energy + raw_es_energy)*sigma; 
+    float rawcombNormalization = (trkMomentumError*trkMomentumError + ecalEnergyVar*ecalEnergyVar);
+    float rawcomb = ( ecor*trkMomentumError*trkMomentumError + trkMomentum*ecalEnergyVar*ecalEnergyVar ) / rawcombNormalization;
 
     //these are the actual BDT responses
     double rawmean_trk = e_forestH_mean_[coridx]->GetResponse(eval.data());
@@ -544,9 +550,12 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
 void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   // regression calculation needs no additional valuemaps
   
-
   const reco::SuperClusterRef& the_sc = pho.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();  
+
+  // skip HGCAL for now
+  if( theseed->seed().det() == DetId::Forward ) return;
+
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
@@ -579,11 +588,11 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   eval[16]  = full5x5_pss.eBottom*e5x5Inverse;
   eval[17]  = full5x5_pss.eLeft*e5x5Inverse;
   eval[18]  = full5x5_pss.eRight*e5x5Inverse;
-  eval[19]  = full5x5_pss.e2x5Max/full5x5_pss.e5x5;
-  eval[20]  = full5x5_pss.e2x5Left/full5x5_pss.e5x5;
-  eval[21]  = full5x5_pss.e2x5Right/full5x5_pss.e5x5;
-  eval[22]  = full5x5_pss.e2x5Top/full5x5_pss.e5x5;
-  eval[23]  = full5x5_pss.e2x5Bottom/full5x5_pss.e5x5;
+  eval[19]  = full5x5_pss.e2x5Max*e5x5Inverse;
+  eval[20]  = full5x5_pss.e2x5Left*e5x5Inverse;
+  eval[21]  = full5x5_pss.e2x5Right*e5x5Inverse;
+  eval[22]  = full5x5_pss.e2x5Top*e5x5Inverse;
+  eval[23]  = full5x5_pss.e2x5Bottom*e5x5Inverse;
   eval[24]  = pho.nSaturatedXtals();
   eval[25]  = std::max(0,numberOfClusters);
       
@@ -629,7 +638,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
   
   size_t coridx = 0;
-  float raw_pt = raw_energy/cosh(the_sc->eta());
+  float raw_pt = raw_energy*the_sc->position().perp()/the_sc->position().r();
 
   if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
     coridx = 0;
