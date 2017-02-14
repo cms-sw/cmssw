@@ -459,7 +459,11 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
 
-  // Correct the energy
+  // Correct the energy. A negative energy means that the correction went
+  // outside the boundaries of the training. In this case uses raw.
+  // The resolution estimation, on the other hand should be ok.
+  if (mean < 0.) mean = 1.0;
+
   const double ecor = mean*(raw_energy + raw_es_energy);
   const double sigmacor = sigma*ecor;
   
@@ -515,6 +519,11 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
     double sigma_trk = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma_trk);
     
     // Final correction
+    // A negative energy means that the correction went
+    // outside the boundaries of the training. In this case uses raw.
+    // The resolution estimation, on the other hand should be ok.
+    if (mean_trk < 0.) mean_trk = 1.0;
+
     combinedEnergy = mean_trk*rawcomb;
     combinedEnergyError = sigma_trk*rawcomb;
   }
@@ -639,7 +648,11 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
   
-  // Correct the energy
+  // Correct the energy. A negative energy means that the correction went
+  // outside the boundaries of the training. In this case uses raw.
+  // The resolution estimation, on the other hand should be ok.
+  if (mean < 0.) mean = 1.0;
+
   const double ecor = mean*(raw_energy + raw_es_energy);
   const double sigmacor = sigma*ecor;
   
