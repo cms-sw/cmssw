@@ -45,6 +45,7 @@ PuppiPhoton::PuppiPhoton(const edm::ParameterSet& iConfig) {
   eta_                   = iConfig.getParameter<double>("eta");
   dRMatch_               = iConfig.getParameter<std::vector<double> > ("dRMatch");
   pdgIds_                = iConfig.getParameter<std::vector<int32_t> >("pdgids");
+  runOnMiniAOD_          = iConfig.getParameter<bool>("runOnMiniAOD");
   usePFRef_              = iConfig.getParameter<bool>("useRefs");
   weight_                = iConfig.getParameter<double>("weight");
   produces<PFOutputCollection>();
