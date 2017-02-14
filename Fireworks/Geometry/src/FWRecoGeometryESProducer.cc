@@ -41,14 +41,11 @@ void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const Geo
       m_fwGeometry->idToName[rawid].topology[0] = pitch.first;
       m_fwGeometry->idToName[rawid].topology[1] = pitch.second;
 
-      const RectangularPixelTopology* rt = dynamic_cast<const RectangularPixelTopology*>(topo);
-      if (rt) {
-         m_fwGeometry->idToName[rawid].topology[2] = rt->xoffset();
-         m_fwGeometry->idToName[rawid].topology[3] = rt->yoffset();
-      }
-      else {
-         std::cerr << "ADD_PIXEL_TOPOLOGY can't get offsets\n";
-      }
+      m_fwGeometry->idToName[rawid].topology[2] = topo->localX(0.f); // offsetX
+      m_fwGeometry->idToName[rawid].topology[3] = topo->localY(0.f); // offsetY
+
+      // big pixels layout
+      m_fwGeometry->idToName[rawid].topology[4] = topo->isItBigPixelInX(80) ? 0 : 1;
    }
 }
 
