@@ -34,10 +34,8 @@ egmElectronIsolationPileUpCITK = _egmElectronIsolationCITKPileUp.clone()
 for iPSet in IsoConeDefinitionsPhotonsTmp:
   iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp")
 
-for iPSet in egmElectronIsolationCITK.isolationConeDefinitions:
-  iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedGsfElectronsTmp")
-
-for iPSet in egmElectronIsolationPileUpCITK.isolationConeDefinitions:
+IsoConeDefinitionsElectronsTmp = egmElectronIsolationCITK.isolationConeDefinitions.copy()
+for iPSet in IsoConeDefinitionsElectronsTmp:
   iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedGsfElectronsTmp")
 
 #photon isolation sums
@@ -50,6 +48,9 @@ egmElectronIsolationCITK.srcForIsolationCone = cms.InputTag("pfNoPileUpCandidate
 #electrons pileup isolation sum
 egmElectronIsolationPileUpCITK.srcToIsolate = cms.InputTag("gedGsfElectronsTmp")
 egmElectronIsolationPileUpCITK.srcForIsolationCone = cms.InputTag("pfPileUpAllChargedParticles")
+#set particleBasedIsolation
+egmElectronIsolationCITK.isolationConeDefinitions = IsoConeDefinitionsElectronsTmp
+egmElectronIsolationPileUpCITK.isolationConeDefinitions = IsoConeDefinitionsElectronsTmp
 
 particleFlowEGammaFull = cms.Sequence(particleFlowEGamma*gedGsfElectronSequenceTmp*gedPhotonSequenceTmp)
 particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfNoPileUpIsoSequence*pfNoPileUpCandidates*pfPileUpAllChargedParticles*\
