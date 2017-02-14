@@ -11,6 +11,7 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    dropCorrections = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropIsolations = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropShapes = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
+   dropSaturation = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropExtrapolations  = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    dropClassifications  = cms.string("pt < 5"), # you can put a cut to slim selectively, e.g. pt < 10
    linkToPackedPFCandidates = cms.bool(True),

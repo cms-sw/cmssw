@@ -7,6 +7,7 @@ slimmedPhotons = cms.EDProducer("PATPhotonSlimmer",
     dropPreshowerClusters = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
     dropSeedCluster = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
     dropRecHits = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
+    dropSaturation = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
     linkToPackedPFCandidates = cms.bool(True),
     recoToPFMap = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap"),
     packedPFCandidates = cms.InputTag("packedPFCandidates"),
