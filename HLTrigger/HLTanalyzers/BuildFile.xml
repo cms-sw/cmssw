@@ -1,5 +1,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
+<use   name="DataFormats/L1TGlobal"/>
 <use   name="DataFormats/BTauReco"/>
 <use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/CaloTowers"/>
@@ -19,6 +20,7 @@
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/METReco"/>
+<use   name="DataFormats/MuonData"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/RecoCandidate"/>
@@ -50,6 +52,7 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoHI/HiEgammaAlgos"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="RecoLuminosity/LumiProducer"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="DQMServices/Core"/>
 <use   name="rootcore"/>
