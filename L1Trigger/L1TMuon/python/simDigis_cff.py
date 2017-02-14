@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 #
 # Legacy L1 Muon modules still running in 2016 trigger:
 #
@@ -26,8 +24,9 @@ SimL1TMuonCommon = cms.Sequence(simDtTriggerPrimitiveDigis + simCscTriggerPrimit
 #
 # Legacy Trigger:
 #
-if not (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
-    print "L1TMuon Sequence configured for Legacy trigger (Run1 and Run 2015)."
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+if not (stage2L1Trigger.isChosen()):
+    print "L1TMuon Sequence configured for Legacy trigger (Run1 and Run 2015). "
 #
 # - CSC Track Finder emulator
 #
@@ -69,7 +68,7 @@ if not (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
 #
 # Stage-2 Trigger
 #
-if (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
+if stage2L1Trigger.isChosen():
     print "L1TMuon Sequence configured for Stage-2 (2016) trigger. "
     from L1Trigger.L1TMuonBarrel.simTwinMuxDigis_cfi import *
     from L1Trigger.L1TMuonBarrel.simBmtfDigis_cfi import *
