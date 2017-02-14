@@ -22,6 +22,12 @@ bool UCTTower::process() {
   if(logECALET > erMaxV) logECALET = erMaxV;
   if(ecalLUT != 0) {
     uint32_t etaAddress = region * NEtaInRegion + iEta;
+    if (negativeEta) {
+      etaAddress = 27-etaAddress;
+    }
+    else {
+      etaAddress += 28;
+    }
     uint32_t fbAddress = 0;
     if(ecalFG) fbAddress = 1;
     uint32_t value = (*ecalLUT)[etaAddress][fbAddress][ecalET];
@@ -33,6 +39,12 @@ bool UCTTower::process() {
   if(logHCALET > erMaxV) logHCALET = erMaxV;
   if(hcalLUT != 0) {
     uint32_t etaAddress = region * NEtaInRegion + iEta;
+    if (negativeEta) {
+      etaAddress = 27-etaAddress;
+    }
+    else {
+      etaAddress += 28;
+    }
     uint32_t fbAddress = 0;
     if((hcalFB & 0x1) != 0) fbAddress = 1;
     uint32_t value = (*hcalLUT)[etaAddress][fbAddress][hcalET];
@@ -92,7 +104,14 @@ bool UCTTower::process() {
 bool UCTTower::processHFTower() {
   uint32_t calibratedET = hcalET;
   if(hfLUT != 0) {
-    const std::vector< uint32_t > a = hfLUT->at((region - NRegionsInCard) * NHFEtaInRegion + iEta);
+    uint32_t etaAddress = (region - NRegionsInCard) * NHFEtaInRegion + iEta;
+    if (negativeEta) {
+      etaAdress = 11-etaAddress;
+    }
+    else {
+      etaAdress += 12;
+    }
+    const std::vector< uint32_t > a = hfLUT->at(etaAdress);
     calibratedET = a[hcalET] & 0xFF;
   }
   uint32_t absCaloEta = abs(caloEta());
