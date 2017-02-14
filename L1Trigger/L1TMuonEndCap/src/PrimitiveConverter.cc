@@ -17,6 +17,8 @@
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 int ph_offsets[6][9] = { {39,  57,  76, 39,  58,  76, 41,  60,  79},
