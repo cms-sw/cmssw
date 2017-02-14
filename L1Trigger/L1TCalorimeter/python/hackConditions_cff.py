@@ -15,6 +15,7 @@ from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 #
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 #if not (stage1L1Trigger.isChosen() or stage2L1Trigger.isChosen()):
 #    print "L1TCalorimeter conditions configured for Run1 (Legacy) trigger. "
 # 
@@ -36,7 +37,7 @@ if stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
 #
 # Stage-2 Trigger
 #
-if stage2L1Trigger.isChosen():
+if (stage2L1Trigger.isChosen() or phase2_common.isChosen()):
     if pA_2016.isChosen():
         print "L1TCalorimeter Conditions configured for Stage-2 (2016 pA) trigger. "
         from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi import *    

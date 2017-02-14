@@ -85,7 +85,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int towerEtNN = towerNN.hwPt();
       int towerEtSS = towerSS.hwPt();
 
-      if(abs(iEta)> 28 )
+      if(abs(iEta)> params_->egEtaCut() )
 	continue;
 
       // initialize egamma from cluster
@@ -120,7 +120,6 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       if(shapeBit)  qual |= (0x1<<2); // third bit = shape
       egamma.setHwQual( qual ); 
 
-
       // Isolation 
       int isoLeftExtension = params_->egIsoAreaNrTowersEta();
       int isoRightExtension = params_->egIsoAreaNrTowersEta();
@@ -142,7 +141,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
           1,72,towers,1,999,CaloTools::CALO);
       unsigned int lutAddress = isoLutIndex(egamma.hwEta(), nrTowers, egamma.hwPt());
 
-      int isolBit = (((hwEtSum-hwFootPrint) <= params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));       
+      int isolBit = (((hwEtSum-hwFootPrint) < params_->egIsolationLUT()->data(lutAddress)) || (params_->egIsolationLUT()->data(lutAddress)>255));       
       egamma.setHwIso(isolBit);
       int hwIsoEnergy = hwEtSum-hwFootPrint;
 
@@ -207,8 +206,8 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   // prepare content to be sorted -- each phi ring contains 18 elements, with Et = 0 if no candidate exists
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::EGamma tempEG (emptyP4, 0, 0, 0, 0);
-  std::vector< std::vector<l1t::EGamma> > egEtaPos( 28 , std::vector<l1t::EGamma>(18, tempEG));
-  std::vector< std::vector<l1t::EGamma> > egEtaNeg( 28 , std::vector<l1t::EGamma>(18, tempEG));
+  std::vector< std::vector<l1t::EGamma> > egEtaPos( params_->egEtaCut() , std::vector<l1t::EGamma>(18, tempEG));
+  std::vector< std::vector<l1t::EGamma> > egEtaNeg( params_->egEtaCut() , std::vector<l1t::EGamma>(18, tempEG));
   for (unsigned int iEG = 0; iEG < egammas_raw.size(); iEG++)
   {
       int fgBit     = egammas_raw.at(iEG).hwQual()    & (0x1);
@@ -228,7 +227,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   std::vector<l1t::EGamma> accumEtaPos;
   std::vector<l1t::EGamma> accumEtaNeg;
 
-  for( int ieta = 0 ; ieta < 28 ; ++ieta)
+  for( int ieta = 0 ; ieta < params_->egEtaCut() ; ++ieta)
   {
       // eta +
       std::vector<l1t::EGamma>::iterator start_, end_;
@@ -276,7 +275,8 @@ bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluste
   if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
 
   unsigned int lutAddress = idShapeLutIndex(clus.hwEta(), hwPt, shape); 
-  bool shapeBit = params_->egShapeIdLUT()->data(lutAddress);
+  bool shapeBit = ((params_->egCalibrationLUT()->data(lutAddress))>>9) & 0x1;
+
   return shapeBit;
 }
 
@@ -390,7 +390,7 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
 
   unsigned int lutAddress = calibrationLutIndex(clus.hwEta(), hwPt, shape); 
-  int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,2]. corrPt = (corr)*rawPt
+  int corr = params_->egCalibrationLUT()->data(lutAddress) & (0x1ff);// 9 bits. [0,2]. corrPt = (corr)*rawPt
   // the correction can increase or decrease the energy
   int rawPt = hwPt;
   int corrXrawPt = corr*rawPt;// 17 bits
