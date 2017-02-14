@@ -3,6 +3,9 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+
+#include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
 namespace DataFormats {
   namespace L1THGCal {
@@ -21,8 +24,12 @@ namespace DataFormats {
 
     l1t::HGCalTowerBxCollection   hgcalTowerBxColl;
     l1t::HGCalClusterBxCollection hgcalClusterBxColl;
+    l1t::HGCalTriggerCellBxCollection   hgcalTriggerCellBxColl;
 
     edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
     edm::Wrapper<l1t::HGCalClusterBxCollection> w_hgcalClusterBxColl;
+    edm::Wrapper<l1t::HGCalTriggerCellBxCollection>   w_hgcalTriggerCellBxColl;
+
+    l1t::ClusterShapes clusterShapes;
   }
 }
