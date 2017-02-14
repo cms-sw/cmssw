@@ -150,7 +150,7 @@ BadChargedCandidateFilter::filter(edm::StreamID iID, edm::Event& iEvent, const e
 
   if (debug_) cout<<"BadChargedCandidateFilter pass: "<<pass<<endl;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put( std::unique_ptr<bool>(new bool(pass)) );
 
   return taggingMode_ || pass;
 }

@@ -132,7 +132,7 @@ BadChargedCandidateSummer16Filter::filter(edm::StreamID iID, edm::Event& iEvent,
 
   if (debug_) cout<<"pass: "<<pass<<endl;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put( std::unique_ptr<bool>(new bool(pass)) );
 
   return taggingMode_ || pass;
 }
