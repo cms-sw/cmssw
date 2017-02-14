@@ -11,7 +11,7 @@ HcalTrigTowerGeometry::HcalTrigTowerGeometry( const HcalTopology* topology )
    auto tmode = theTopology->triggerMode();
    useRCT_ = tmode <= HcalTopologyMode::TriggerMode_2016;
    use1x1_ = tmode >= HcalTopologyMode::TriggerMode_2016;
-   use2017_ = tmode == HcalTopologyMode::TriggerMode_2017;
+   use2017_ = tmode >= HcalTopologyMode::TriggerMode_2017;
 }
 
 std::vector<HcalTrigTowerDetId> 
