@@ -1,19 +1,19 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/RefToBaseVector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 
-class CandPtrProjector : public edm::EDProducer {
+class CandPtrProjector : public edm::global::EDProducer<> {
 public:
 
   explicit CandPtrProjector(edm::ParameterSet const& iConfig);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> candSrcToken_;
@@ -28,7 +28,7 @@ CandPtrProjector::CandPtrProjector(edm::ParameterSet const& iConfig):
 }
 
 void
-CandPtrProjector::produce(edm::Event& iEvent, edm::EventSetup const&)
+CandPtrProjector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   using namespace edm;
   Handle<View<reco::Candidate>> vetoes;
