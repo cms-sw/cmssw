@@ -47,7 +47,7 @@ public:
   
   /// Updater using DTGeometry and CSCGeometry.
   /// The given geometries have to match the current ones.
-  virtual void update(const DTGeometry* , const CSCGeometry*);
+  void update(const DTGeometry* , const CSCGeometry*);
 
   /// Return all components
   virtual align::Alignables components() const { return theMuonComponents; }

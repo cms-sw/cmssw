@@ -38,9 +38,9 @@ public:
 
   /// Updater for a composite with given rotation.
   /// The given id and structure type have to match the current ones.
-  virtual void update(align::ID id,
-                      StructureType aType,
-                      const RotationType& rot = RotationType());
+  void update(align::ID,
+              StructureType aType,
+              const RotationType& rot = RotationType());
 
   /// Add a component and set its mother to this alignable.
   /// (Note: The component will be adopted, e.g. later deleted.)
@@ -109,7 +109,7 @@ protected:
 
   /// Updater from GeomDet, only for use in AlignableDet
   /// The given GeomDetUnit id has to match the current id.
-  virtual void update(const GeomDet* geomDet);
+  void update(const GeomDet* geomDet);
 
   // avoid implicit cast of not explicitely defined version to the defined ones
   template<class T> void update(T) = delete;

@@ -30,7 +30,7 @@ class AlignableCSCChamber: public AlignableDet {
   AlignableCSCChamber(const GeomDet *geomDet);
 
   /// Updater
-  virtual void update(const GeomDet* geomDet);
+  void update(const GeomDet* geomDet);
 };
 
 #endif  // ALIGNABLE_CSC_CHAMBER_H

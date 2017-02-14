@@ -52,7 +52,7 @@ public:
 
   /// Updater using id and surface.
   /// The given id has to match the current id.
-  virtual void update(align::ID, const AlignableSurface&);
+  void update(align::ID, const AlignableSurface&);
 
   /// Set the AlignmentParameters
   void setAlignmentParameters( AlignmentParameters* dap );

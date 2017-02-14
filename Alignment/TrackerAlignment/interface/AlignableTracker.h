@@ -34,7 +34,7 @@ public:
 
   /// Updater using TrackerGeometry and TrackerTopology.
   /// The given geometry and topology have to match the current ones.
-  virtual void update(const TrackerGeometry*, const TrackerTopology*);
+  void update(const TrackerGeometry*, const TrackerTopology*);
 
   /// Return TOB half barrels
   Alignables& outerHalfBarrels() {
