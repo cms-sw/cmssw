@@ -5,6 +5,28 @@
  *      Author: kleinwrt
  */
 
+/** \file
+ *  BorderedBandMatrix definition.
+ *
+ *  \author Claus Kleinwort, DESY, 2011 (Claus.Kleinwort@desy.de)
+ *
+ *  \copyright
+ *  Copyright (c) 2011 - 2016 Deutsches Elektronen-Synchroton,
+ *  Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY \n\n
+ *  This library is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Library General Public License as
+ *  published by the Free Software Foundation; either version 2 of the
+ *  License, or (at your option) any later version. \n\n
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Library General Public License for more details. \n\n
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this program (see the file COPYING.LIB for more
+ *  details); if not, write to the Free Software Foundation, Inc.,
+ *  675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #ifndef BORDEREDBANDMATRIX_H_
 #define BORDEREDBANDMATRIX_H_
 
@@ -12,10 +34,8 @@
 #include<vector>
 #include<math.h>
 #include<cstdlib>
-#include "TVectorD.h"
-#include "TMatrixD.h"
-#include "TMatrixDSym.h"
-#include "VMatrix.h"
+#include "Alignment/ReferenceTrajectories/interface/VMatrix.h"
+#include "Eigen/Core"
 
 //! Namespace for the general broken lines package
 namespace gbl {
@@ -64,7 +84,10 @@ public:
 	void addBlockMatrix(double aWeight,
 			const std::vector<unsigned int>* anIndex,
 			const std::vector<double>* aVector);
-	TMatrixDSym getBlockMatrix(const std::vector<unsigned int> anIndex) const;
+	void addBlockMatrix(double aWeight, unsigned int nSimple,
+			unsigned int* anIndex, double* aVector);
+	Eigen::MatrixXd getBlockMatrix(const std::vector<unsigned int> anIndex) const;
+	Eigen::MatrixXd getBlockMatrix(unsigned int aSize, unsigned int* anIndex) const;
 	void printMatrix() const;
 
 private:

@@ -5,6 +5,28 @@
  *      Author: kleinwrt
  */
 
+/** \file
+ *  MilleBinary methods.
+ *
+ *  \author Claus Kleinwort, DESY, 2011 (Claus.Kleinwort@desy.de)
+ *
+ *  \copyright
+ *  Copyright (c) 2011 - 2016 Deutsches Elektronen-Synchroton,
+ *  Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY \n\n
+ *  This library is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Library General Public License as
+ *  published by the Free Software Foundation; either version 2 of the
+ *  License, or (at your option) any later version. \n\n
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Library General Public License for more details. \n\n
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this program (see the file COPYING.LIB for more
+ *  details); if not, write to the Free Software Foundation, Inc.,
+ *  675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #include "Alignment/ReferenceTrajectories/interface/MilleBinary.h"
 
 //! Namespace for the general broken lines package
@@ -40,21 +62,22 @@ MilleBinary::~MilleBinary() {
 /**
  * \param [in] aMeas Value
  * \param [in] aErr Error
- * \param [in] indLocal List of labels of local parameters
- * \param [in] derLocal List of derivatives for local parameters
+ * \param [in] numLocal Number of local labels/derivatives
+ * \param [in] indLocal Array of labels of local parameters
+ * \param [in] derLocal Array of derivatives for local parameters
  * \param [in] labGlobal List of labels of global parameters
  * \param [in] derGlobal List of derivatives for global parameters
  */
-void MilleBinary::addData(double aMeas, double aErr,
-		const std::vector<unsigned int> &indLocal,
-		const std::vector<double> &derLocal, const std::vector<int> &labGlobal,
+void MilleBinary::addData(double aMeas, double aErr, unsigned int numLocal,
+		unsigned int* indLocal, double* derLocal,
+		const std::vector<int> &labGlobal,
 		const std::vector<double> &derGlobal) {
 
 	if (doublePrecision) {
 		// double values
 		intBuffer.push_back(0);
 		doubleBuffer.push_back(aMeas);
-		for (unsigned int i = 0; i < indLocal.size(); ++i) {
+		for (unsigned int i = 0; i < numLocal; ++i) {
 			intBuffer.push_back(indLocal[i]);
 			doubleBuffer.push_back(derLocal[i]);
 		}
@@ -70,7 +93,7 @@ void MilleBinary::addData(double aMeas, double aErr,
 		// float values
 		intBuffer.push_back(0);
 		floatBuffer.push_back(aMeas);
-		for (unsigned int i = 0; i < indLocal.size(); ++i) {
+		for (unsigned int i = 0; i < numLocal; ++i) {
 			intBuffer.push_back(indLocal[i]);
 			floatBuffer.push_back(derLocal[i]);
 		}

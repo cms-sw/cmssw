@@ -5,6 +5,28 @@
  *      Author: kleinwrt
  */
 
+/** \file
+ *  GblPoint definition.
+ *
+ *  \author Claus Kleinwort, DESY, 2011 (Claus.Kleinwort@desy.de)
+ *
+ *  \copyright
+ *  Copyright (c) 2011 - 2016 Deutsches Elektronen-Synchroton,
+ *  Member of the Helmholtz Association, (DESY), HAMBURG, GERMANY \n\n
+ *  This library is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Library General Public License as
+ *  published by the Free Software Foundation; either version 2 of the
+ *  License, or (at your option) any later version. \n\n
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Library General Public License for more details. \n\n
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this program (see the file COPYING.LIB for more
+ *  details); if not, write to the Free Software Foundation, Inc.,
+ *  675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #ifndef GBLPOINT_H_
 #define GBLPOINT_H_
 
@@ -12,22 +34,20 @@
 #include<vector>
 #include<math.h>
 #include <stdexcept>
+#ifdef GBL_EIGEN_SUPPORT_ROOT
 #include "TVectorD.h"
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
+#endif
 
-#include "Math/SMatrix.h"
-#include "Math/SVector.h"
-typedef ROOT::Math::SMatrix<double, 2> SMatrix22;
-typedef ROOT::Math::SMatrix<double, 2, 3> SMatrix23;
-typedef ROOT::Math::SMatrix<double, 2, 5> SMatrix25;
-typedef ROOT::Math::SMatrix<double, 2, 7> SMatrix27;
-typedef ROOT::Math::SMatrix<double, 3, 2> SMatrix32;
-typedef ROOT::Math::SMatrix<double, 3> SMatrix33;
-typedef ROOT::Math::SMatrix<double, 5> SMatrix55;
-typedef ROOT::Math::SVector<double, 2> SVector2;
-typedef ROOT::Math::SVector<double, 5> SVector5;
+#include "Eigen/Dense"
+typedef Eigen::Matrix<double, 5, 1> Vector5d;
+typedef Eigen::Matrix<double, 2, 3> Matrix23d;
+typedef Eigen::Matrix<double, 2, 5> Matrix25d;
+typedef Eigen::Matrix<double, 2, 7> Matrix27d;
+typedef Eigen::Matrix<double, 3, 2> Matrix32d;
+typedef Eigen::Matrix<double, 5, 5> Matrix5d;
 
 namespace gbl {
 
@@ -45,9 +65,11 @@ namespace gbl {
  */
 class GblPoint {
 public:
-	GblPoint(const TMatrixD &aJacobian);
-	GblPoint(const SMatrix55 &aJacobian);
+	GblPoint(const Matrix5d &aJacobian);
 	virtual ~GblPoint();
+#ifdef GBL_EIGEN_SUPPORT_ROOT
+	// input via ROOT
+	GblPoint(const TMatrixD &aJacobian);
 	void addMeasurement(const TMatrixD &aProjection, const TVectorD &aResiduals,
 			const TVectorD &aPrecision, double minPrecision = 0.);
 	void addMeasurement(const TMatrixD &aProjection, const TVectorD &aResiduals,
@@ -56,55 +78,70 @@ public:
 			double minPrecision = 0.);
 	void addMeasurement(const TVectorD &aResiduals,
 			const TMatrixDSym &aPrecision, double minPrecision = 0.);
-	unsigned int hasMeasurement() const;
-	void getMeasurement(SMatrix55 &aProjection, SVector5 &aResiduals,
-			SVector5 &aPrecision) const;
-	void getMeasTransformation(TMatrixD &aTransformation) const;
 	void addScatterer(const TVectorD &aResiduals, const TVectorD &aPrecision);
 	void addScatterer(const TVectorD &aResiduals,
 			const TMatrixDSym &aPrecision);
-	bool hasScatterer() const;
-	void getScatterer(SMatrix22 &aTransformation, SVector2 &aResiduals,
-			SVector2 &aPrecision) const;
-	void getScatTransformation(TMatrixD &aTransformation) const;
 	void addLocals(const TMatrixD &aDerivatives);
-	unsigned int getNumLocals() const;
-	const TMatrixD& getLocalDerivatives() const;
 	void addGlobals(const std::vector<int> &aLabels,
 			const TMatrixD &aDerivatives);
+#endif
+	// input via Eigen
+	void addMeasurement(const Eigen::MatrixXd &aProjection, const Eigen::VectorXd &aResiduals,
+			const Eigen::MatrixXd &aPrecision, double minPrecision = 0.);
+	void addMeasurement(const Eigen::VectorXd &aResiduals, const Eigen::MatrixXd &aPrecision,
+			double minPrecision = 0.);
+	void addScatterer(const Eigen::Vector2d &aResiduals, const Eigen::MatrixXd &aPrecision);
+	//
+	unsigned int hasMeasurement() const;
+	double getMeasPrecMin() const;
+	void getMeasurement(Matrix5d &aProjection, Vector5d &aResiduals,
+			Vector5d &aPrecision) const;
+	void getMeasTransformation(Eigen::MatrixXd &aTransformation) const;
+	bool hasScatterer() const;
+	void getScatterer(Eigen::Matrix2d &aTransformation, Eigen::Vector2d &aResiduals,
+			Eigen::Vector2d &aPrecision) const;
+	void getScatTransformation(Eigen::Matrix2d &aTransformation) const;
+	void addLocals(const Eigen::MatrixXd &aDerivatives);
+	unsigned int getNumLocals() const;
+	const Eigen::MatrixXd& getLocalDerivatives() const;
+	void addGlobals(const std::vector<int> &aLabels,
+			const Eigen::MatrixXd &aDerivatives);
 	unsigned int getNumGlobals() const;
-	std::vector<int> getGlobalLabels() const;
-	const TMatrixD& getGlobalDerivatives() const;
+	void getGlobalLabels(std::vector<int> &aLabels) const;
+	void getGlobalDerivatives(Eigen::MatrixXd &aDerivatives) const;
+	void getGlobalLabelsAndDerivatives(unsigned int aRow,
+			std::vector<int> &aLabels, std::vector<double> &aDerivatives) const;
 	void setLabel(unsigned int aLabel);
 	unsigned int getLabel() const;
 	void setOffset(int anOffset);
 	int getOffset() const;
-	const SMatrix55& getP2pJacobian() const;
-	void addPrevJacobian(const SMatrix55 &aJac);
-	void addNextJacobian(const SMatrix55 &aJac);
-	void getDerivatives(int aDirection, SMatrix22 &matW, SMatrix22 &matWJ,
-			SVector2 &vecWd) const;
+	const Matrix5d& getP2pJacobian() const;
+	void addPrevJacobian(const Matrix5d &aJac);
+	void addNextJacobian(const Matrix5d &aJac);
+	void getDerivatives(int aDirection, Eigen::Matrix2d &matW, Eigen::Matrix2d &matWJ,
+			Eigen::Vector2d &vecWd) const;
 	void printPoint(unsigned int level = 0) const;
 
 private:
 	unsigned int theLabel; ///< Label identifying point
 	int theOffset; ///< Offset number at point if not negative (else interpolation needed)
-	SMatrix55 p2pJacobian; ///< Point-to-point jacobian from previous point
-	SMatrix55 prevJacobian; ///< Jacobian to previous scatterer (or first measurement)
-	SMatrix55 nextJacobian; ///< Jacobian to next scatterer (or last measurement)
+	Matrix5d p2pJacobian; ///< Point-to-point jacobian from previous point
+	Matrix5d prevJacobian; ///< Jacobian to previous scatterer (or first measurement)
+	Matrix5d nextJacobian; ///< Jacobian to next scatterer (or last measurement)
 	unsigned int measDim; ///< Dimension of measurement (1-5), 0 indicates absence of measurement
-	SMatrix55 measProjection; ///< Projection from measurement to local system
-	SVector5 measResiduals; ///< Measurement residuals
-	SVector5 measPrecision; ///< Measurement precision (diagonal of inverse covariance matrix)
+	double measPrecMin; ///< Minimal measurement precision (for usage)
+	Matrix5d measProjection; ///< Projection from measurement to local system
+	Vector5d measResiduals; ///< Measurement residuals
+	Vector5d measPrecision; ///< Measurement precision (diagonal of inverse covariance matrix)
 	bool transFlag; ///< Transformation exists?
-	TMatrixD measTransformation; ///< Transformation of diagonalization (of meas. precision matrix)
+	Eigen::MatrixXd measTransformation; ///< Transformation of diagonalization (of meas. precision matrix)
 	bool scatFlag; ///< Scatterer present?
-	SMatrix22 scatTransformation; ///< Transformation of diagonalization (of scat. precision matrix)
-	SVector2 scatResiduals; ///< Scattering residuals (initial kinks if iterating)
-	SVector2 scatPrecision; ///< Scattering precision (diagonal of inverse covariance matrix)
-	TMatrixD localDerivatives; ///< Derivatives of measurement vs additional local (fit) parameters
+	Eigen::Matrix2d scatTransformation; ///< Transformation of diagonalization (of scat. precision matrix)
+	Eigen::Vector2d scatResiduals; ///< Scattering residuals (initial kinks if iterating)
+	Eigen::Vector2d scatPrecision; ///< Scattering precision (diagonal of inverse covariance matrix)
+	Eigen::MatrixXd localDerivatives; ///< Derivatives of measurement vs additional local (fit) parameters
 	std::vector<int> globalLabels; ///< Labels of global (MP-II) derivatives
-	TMatrixD globalDerivatives; ///< Derivatives of measurement vs additional global (MP-II) parameters
+	Eigen::MatrixXd globalDerivatives; ///< Derivatives of measurement vs additional global (MP-II) parameters
 };
 }
 #endif /* GBLPOINT_H_ */
