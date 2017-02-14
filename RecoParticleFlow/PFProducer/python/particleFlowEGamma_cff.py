@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+import copy
 #Geometry
 # include used for track reconstruction 
 # note that tracking is redone since we need updated hits and they 
@@ -34,7 +34,7 @@ egmElectronIsolationPileUpCITK = _egmElectronIsolationCITKPileUp.clone()
 for iPSet in IsoConeDefinitionsPhotonsTmp:
   iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedPhotonsTmp")
 
-IsoConeDefinitionsElectronsTmp = egmElectronIsolationCITK.isolationConeDefinitions.copy()
+IsoConeDefinitionsElectronsTmp = copy.deepcopy(egmElectronIsolationCITK.isolationConeDefinitions)
 for iPSet in IsoConeDefinitionsElectronsTmp:
   iPSet.particleBasedIsolation = cms.InputTag("particleBasedIsolationTmp", "gedGsfElectronsTmp")
 
