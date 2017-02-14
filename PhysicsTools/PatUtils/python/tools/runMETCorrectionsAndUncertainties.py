@@ -1420,23 +1420,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                                      src = pfCandCollection ) )
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix )
-<<<<<<< HEAD
-                getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr")
-                pfCHS = getattr(process, "pfNoPileUpJME").clone( bottomCollection = cms.InputTag("tmpPFCandCollPtr") )
-            
-            if not hasattr(process, "pfCHS"+postfix):
-                setattr(process,"pfCHS"+postfix,pfCHS)
-                patMetModuleSequence += getattr(process, "pfCHS"+postfix)
-            pfCandColl = cms.InputTag("pfCHS"+postfix)
-                   
-=======
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = cms.InputTag("tmpPFCandCollPtr"+postfix)
                 setattr(process, "pfNoPileUpJME"+postfix,
                         getattr(process, "pfNoPileUpJME"+postfix).clone( 
                         bottomCollection = cms.InputTag("tmpPFCandCollPtr"+postfix) )
                         )
                 pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
->>>>>>> f28b9de... Merged METRecipe_8020 from repository cms-met
 
         jetColName+=postfix
         if not hasattr(process, jetColName):
