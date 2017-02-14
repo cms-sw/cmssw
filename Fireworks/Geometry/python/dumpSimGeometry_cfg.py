@@ -3,7 +3,7 @@ import sys, os, operator
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
 from pprint import pprint
-from dict2023Geometry import detectorVersionDict
+from Configuration.Geometry.dict2023Geometry import detectorVersionDict
 
 varType = Enumerate ("Run1 2015 2015dev 2017 2017Muon 2019 2023")
 defaultVersion=str();
