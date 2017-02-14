@@ -1,9 +1,3 @@
-//
-//
-
-/**
- */
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -17,10 +11,7 @@
 class CandPtrProjector : public edm::EDProducer{
 public:
   explicit CandPtrProjector(const edm::ParameterSet & iConfig);
-  ~CandPtrProjector();
-
   virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-  virtual void endJob() override;
 
 private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> candSrcToken_;
@@ -32,10 +23,6 @@ CandPtrProjector::CandPtrProjector(const edm::ParameterSet& iConfig):
   vetoSrcToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("veto")))
 {
   produces<edm::PtrVector<reco::Candidate>>();
-}
-
-CandPtrProjector::~CandPtrProjector()
-{
 }
 
 void
@@ -61,10 +48,6 @@ CandPtrProjector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   iEvent.put(std::move(result));
-}
-
-void CandPtrProjector::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
