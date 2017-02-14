@@ -112,13 +112,14 @@ class CondRegressionTester(object):
           if readOrWrite == 'write':
               self.dbNameList.append( dbName )
 
-          cmd ="scram -a %s list -c %s | tail -1 | sed 's|.* ||'" %(arch,rel)
+          cmd ="scram -a %s list -c %s | grep '\\b%s\\b' | head -1 | sed 's|.* ||'" %(arch,rel,rel)
           out =check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
           ind = out.find( arch )
           if ind == -1:
-              raise Exception('Could not locate the reference release %s' %(rel))
+              raise Exception('Could not locate the reference release %s with "%s" [ got %s ]' %(rel,cmd,out))
 
           cmsPath = out[:ind-1]
+          # using wildcard to support the path for normal ( BASE/ARCH/cms/cmssw/RELEASE ) and patch releases ( BASE-PATCH/ARCH/cms/cmssw-patch/RELEASE )
           releaseDir = '%s/%s/cms/*/%s' %(cmsPath,arch,rel)
 
           cmd =  'source %s/cmsset_default.sh; export SCRAM_ARCH=%s; cd %s/src ; eval `scram runtime -sh`; cd - ; ' %(cmsPath,arch,releaseDir)
