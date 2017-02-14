@@ -3,10 +3,5 @@
 <use   name="boost"/>
 <use   name="gcc-atomic"/>
 <library   file="*.cc" name="FWCoreServicesPlugins">
-  <flags   SKIP_FILES="DependencyGraph.cc"/>
   <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="DependencyGraph.cc" name="FWCoreServicesDependencyGraphPlugin">
-  <flags   EDM_PLUGIN="1"/>
-  <flags   CXXFLAGS="-Wno-maybe-uninitialized"/>
 </library>

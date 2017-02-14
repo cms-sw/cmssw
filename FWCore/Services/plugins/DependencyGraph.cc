@@ -15,9 +15,13 @@
 #include <string>
 #include <type_traits>
 
+// boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/lookup_edge.hpp>
+#pragma GCC diagnostic pop
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
