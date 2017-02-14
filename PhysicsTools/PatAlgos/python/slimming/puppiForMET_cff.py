@@ -21,7 +21,6 @@ def makePuppies( process ):
     process.puppiMerged = cms.EDProducer("CandViewMerger",src = cms.VInputTag( 'puppiNoLep','pfLeptonsPUPPET'))
     process.load('CommonTools.PileupAlgos.PhotonPuppi_cff')
     process.puppiForMET = process.puppiPhoton.clone()
-    setupPuppiPhoton(process)
     #Line below replaces reference linking wiht delta R matching because the puppi references after merging are not consistent with those of the original PF collection
     process.puppiForMET.useRefs          = False
     #Line below points puppi MET to puppi no lepton which increases the response
