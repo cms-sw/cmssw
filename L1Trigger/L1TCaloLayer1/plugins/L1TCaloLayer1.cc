@@ -81,9 +81,9 @@ private:
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSource;
   std::string hcalTPSourceLabel;
   
-  std::vector< std::vector< std::vector < uint32_t > > > ecalLUT;
-  std::vector< std::vector< std::vector < uint32_t > > > hcalLUT;
-  std::vector< std::vector< uint32_t > > hfLUT;
+  std::vector< std::vector< std::vector< std::vector < uint32_t > > > > ecalLUT;
+  std::vector< std::vector< std::vector< std::vector < uint32_t > > > > hcalLUT;
+  std::vector< std::vector< std::vector< uint32_t > > > hfLUT;
 
   std::vector< UCTTower* > twrList;
 
@@ -117,9 +117,9 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   ecalTPSourceLabel(iConfig.getParameter<edm::InputTag>("ecalToken").label()),
   hcalTPSource(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalToken"))),
   hcalTPSourceLabel(iConfig.getParameter<edm::InputTag>("hcalToken").label()),
-  ecalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
-  hcalLUT(28, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256))),
-  hfLUT(12, std::vector < uint32_t >(256)),
+  ecalLUT(72, std::vector< std::vector< std::vector<uint32_t> > >(56, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256)))),
+  hcalLUT(72, std::vector< std::vector< std::vector<uint32_t> > >(56, std::vector< std::vector<uint32_t> >(2, std::vector<uint32_t>(256)))),
+  hfLUT(72, std::vector< std::vector<uint32_t> >(24, std::vector < uint32_t >(256))),
   useLSB(iConfig.getParameter<bool>("useLSB")),
   useCalib(iConfig.getParameter<bool>("useCalib")),
   useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
@@ -309,9 +309,10 @@ L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
   }
   for(uint32_t twr = 0; twr < twrList.size(); twr++) {
-    twrList[twr]->setECALLUT(&ecalLUT);
-    twrList[twr]->setHCALLUT(&hcalLUT);
-    twrList[twr]->setHFLUT(&hfLUT);
+    int phiBin = twrList[twr].caloPhi()-1;
+    twrList[twr]->setECALLUT(&ecalLUT[phiBin]);
+    twrList[twr]->setHCALLUT(&hcalLUT[phiBin]);
+    twrList[twr]->setHFLUT(&hfLUT[phiBin]);
   }
 }
 
