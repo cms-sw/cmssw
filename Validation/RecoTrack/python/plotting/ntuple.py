@@ -590,7 +590,7 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
                 trks1_viatp_notintrks1 = []
                 trks2_viatp = []
                 if trks2[i].nMatchedTrackingParticles() > 0 and tps1:
-                    #print "  trk2 matched to TP"
+                    #print "  trk2 matched to TPs", [tpInfo.trackingParticle().index() for tpInfo in trks2[i].matchedTrackingParticleInfos()]
                     (trks2_viatp, trks1_viatp, trks1_viatp_notintrks1) = _matchTracksByTrackingParticle(trks2[i], trks2, trks1, tps1)
                     #print " matches via TP"
                     #print "  trks2_viatp", [t.index() for t in trks2_viatp]
@@ -617,17 +617,43 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
                     continue
 
 
+                #removedTracks = False
+                #for trk2 in [trks2[i]] + trks2_viatp:
+                #    (matchedTrk1, nc1) = _matchTracksByHits(trk2, [trk1]+trks1)
+                #    if matchedTrk1 is not None:
+                #        #print "   matched by hits to trk1", matchedTrk1.index()
+                #        continue
+                #    else:
+                #        diff.extend(_makediff(trks1_viatp_notintrks1, trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
+                #        for j, t2 in enumerate(trks2):
+                #            if t2.index() == trk2.index():
+                #                #print "   removing from trks2", trk2.index()
+                #                removedTracks = True
+                #                del trks2[j]
+                #                if j < i:
+                #                    i -= 1
+                #                break
+                #if not removedTracks:
+                #    i += 1
+
+                # In principle something like the logic above would be
+                # necessary, but since the overall logic of this
+                # function is already too complicated (need to move to
+                # clustering), let's not do that for now
+
+                removedTracks = False
                 for trk2 in [trks2[i]] + trks2_viatp:
-                    (matchedTrk1, nc1) = _matchTracksByHits(trk2, [trk1]+trks1)
-                    if matchedTrk1 is not None:
-                        continue
-                    else:
-                        diff.extend(_makediff(trks1_viatp_notintrks1, trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
-                        for j, t2 in enumerate(trks2):
-                            if t2.index() == trk2.index():
-                                #print "   removing from trks2", trk2.index()
-                                del trks2[j]
-                                break
+                    diff.extend(_makediff(trks1_viatp_notintrks1, trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
+                    for j, t2 in enumerate(trks2):
+                        if t2.index() == trk2.index():
+                            #print "   removing from trks2", trk2.index()
+                            removedTracks = True
+                            del trks2[j]
+                            if j < i:
+                                i -= 1
+                            break
+                if not removedTracks:
+                    i += 1
 
 
         # if no matching tracks in trk2 via TrackingParticles, then
