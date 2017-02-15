@@ -193,6 +193,8 @@ private:
   void clhep2root(const AlgebraicMatrix& in, TMatrixD& out);
   void clhep2root(const AlgebraicSymMatrix& in, TMatrixDSym& out);
 
+  void clhep2eigen(const AlgebraicMatrix& in, MatrixXd& out);
+
   const double mass_;
   const MaterialEffects materialEffects_;
   const PropagationDirection propDir_;

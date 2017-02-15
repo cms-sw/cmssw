@@ -523,7 +523,7 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
       unsigned int iHit = 0;
       unsigned int numPointsWithMeas = 0;
       std::vector<GblPoint>::iterator itPoint;
-      std::vector<std::pair<std::vector<GblPoint>, TMatrixD> > theGblInput = refTrajPtr->gblInput();
+      auto theGblInput = refTrajPtr->gblInput();
       for (unsigned int iTraj = 0; iTraj < refTrajPtr->gblInput().size(); ++iTraj) {
         for (itPoint = refTrajPtr->gblInput()[iTraj].first.begin(); itPoint < refTrajPtr->gblInput()[iTraj].first.end(); ++itPoint) {
           if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0) return hitResultXy;
@@ -832,7 +832,7 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
   unsigned int numGlobals = theIntBuffer.size();
   if (numGlobals > 0)
   {
-    TMatrixD globalDer(2,numGlobals);
+    MatrixXd globalDer{2,numGlobals};
     for (unsigned int i = 0; i < numGlobals; ++i) {
       globalDer(0,i) = theDoubleBufferX[i];
       globalDer(1,i) = theDoubleBufferY[i];
