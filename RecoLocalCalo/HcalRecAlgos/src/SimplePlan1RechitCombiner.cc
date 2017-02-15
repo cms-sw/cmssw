@@ -125,7 +125,10 @@ void SimplePlan1RechitCombiner::combineAuxInfo(
 
     const unsigned nRecHits = rechits.size();
     assert(nRecHits);
-    assert(nRecHits <= HBHERecHitAuxSetter::MASK_NSAMPLES);
+
+    // The number of rechits should be representable by 3 bits,
+    // and 0 is excluded (so we will be subtracting 1)
+    assert(nRecHits <= 8);
 
     uint32_t flags = 0, auxPhase1 = 0;
     unsigned tripleFitCount = 0;
@@ -185,4 +188,11 @@ void SimplePlan1RechitCombiner::combineAuxInfo(
     // Copy the aux words into the rechit
     rh->setFlags(flags);
     rh->setAuxPhase1(auxPhase1);
+
+    // Pack the information about the depth of the rechits
+    // that we are combining into the "auxHBHE" word
+    uint32_t auxHBHE = nRecHits - 1;
+    for (unsigned i=0; i<nRecHits; ++i)
+        setField(&auxHBHE, 0x7, (i+1)*3, rechits[i]->id().depth());
+    rh->setAuxHBHE(auxHBHE);
 }
