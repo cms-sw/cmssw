@@ -60,7 +60,7 @@
 
 namespace fireworks {
 
-static const double MICRON = 1./1000./10.;
+static const double MICRON = 1./1000./1000.;
 
 // -- Si module names for printout
 static const std::string subdets[7] = { "UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
@@ -234,7 +234,6 @@ pixelLocalY( const double mpy, const float* par )
       // Take into account large pixels
       yoffset = -( par[1] + BIG_PIX_PER_ROC_Y * par[1] / COLS_PER_ROC ) / 2. * PITCHY;
       ypitch = PITCHY;
-      assert(0);
    }
    else
    {

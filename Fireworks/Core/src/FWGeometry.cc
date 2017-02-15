@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-FWGeometry::FWGeometry( void ):m_producerVersion(1)
+FWGeometry::FWGeometry( void ):m_producerVersion(0)
 {}
 
 FWGeometry::~FWGeometry( void )
