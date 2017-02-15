@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/HIon/V4 (CMSSW_9_0_0_pre2)
+# /dev/CMSSW_9_0_0/HIon/V5 (CMSSW_9_0_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V5')
 )
 
 fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -2020,7 +2020,7 @@ fragment.hltESPChi2ChargeTightMeasurementEstimator16 = cms.ESProducer( "Chi2Char
 )
 fragment.hltESPInitialStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  value = cms.double( 800.0 ) ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ),
   MinimalTolerance = cms.double( 0.5 ),
   MaxDisplacement = cms.double( 0.5 ),
   ComponentName = cms.string( "hltESPInitialStepChi2ChargeMeasurementEstimator30" ),

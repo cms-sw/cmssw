@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/GRun/V4 (CMSSW_9_0_0_pre2)
+# /dev/CMSSW_9_0_0/GRun/V5 (CMSSW_9_0_0_pre2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V5')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -2657,7 +2657,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
       connectionRetrialPeriod = cms.untracked.int32( 10 )
     ),
     RefreshAlways = cms.untracked.bool( False ),
-    connect = cms.string( "frontier://FrontierOnProd/CMS_CONDITIONS" ),
+    connect = cms.string( "frontier://FrontierProd/CMS_CONDITIONS" ),
     ReconnectEachRun = cms.untracked.bool( False ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     DumpStat = cms.untracked.bool( False )
@@ -2809,7 +2809,7 @@ process.hltESPChi2ChargeTightMeasurementEstimator16 = cms.ESProducer( "Chi2Charg
 )
 process.hltESPInitialStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   appendToDataLabel = cms.string( "" ),
-  clusterChargeCut = cms.PSet(  value = cms.double( 800.0 ) ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ),
   MinimalTolerance = cms.double( 0.5 ),
   MaxDisplacement = cms.double( 0.5 ),
   ComponentName = cms.string( "hltESPInitialStepChi2ChargeMeasurementEstimator30" ),
