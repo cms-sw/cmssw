@@ -21,7 +21,8 @@ Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>576</div></td><td><div align='center'>576</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>TotemTrigger</div></td><td><div align='center'>577</div></td><td><div align='center'>577</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>TotemRP</div></td><td><div align='center'>578</div></td><td><div align='center'>581</div></td></tr>
-<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>582</div></td><td><div align='center'>599</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CTPPSDiamond</div></td><td><div align='center'>582</div></td><td><div align='center'>585</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>586</div></td><td><div align='center'>599</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>ECAL</div></td><td><div align='center'>600</div></td><td><div align='center'>670</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>671</div></td><td><div align='center'>689</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>CASTOR</div></td><td><div align='center'>690</div></td><td><div align='center'>693</div></td></tr>
@@ -68,7 +69,9 @@ Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been
 <tr style='color:#000000'><td><div align='center'>TriggerUpgrade</div></td><td><div align='center'>1350</div></td><td><div align='center'>1409</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixelAMC13</div></td><td><div align='center'>1410</div></td><td><div align='center'>1449</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixelTest</div></td><td><div align='center'>1450</div></td><td><div align='center'>1461</div></td></tr>
-<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1462</div></td><td><div align='center'>1499</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CTPPSPixels</div></td><td><div align='center'>1462</div></td><td><div align='center'>1466</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>GEM</div></td><td><div align='center'>1467</div></td><td><div align='center'>1472</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1473</div></td><td><div align='center'>1499</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>SiPixel2nduTCA</div></td><td><div align='center'>1500</div></td><td><div align='center'>1649</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1650</div></td><td><div align='center'>2814</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>DAQvFED</div></td><td><div align='center'>2815</div></td><td><div align='center'>4095</div></td></tr>
