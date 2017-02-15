@@ -15,8 +15,13 @@
 #include <string>
 #include <type_traits>
 
+// boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/graph/lookup_edge.hpp>
+#pragma GCC diagnostic pop
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -33,6 +38,21 @@
 using namespace edm;
 using namespace edm::service;
 
+namespace {
+  namespace {
+
+    template<typename T>
+    std::unordered_set<T> make_unordered_set(std::vector<T> && entries) {
+      std::unordered_set<T> u;
+      for (T & entry: entries)
+        u.insert(std::move(entry));
+      return u;
+    }
+
+  } // (anonymous)
+} // (anonymous)
+
+
 class DependencyGraph {
 public:
   DependencyGraph(const ParameterSet&, ActivityRegistry&);
@@ -44,6 +64,10 @@ public:
   void postBeginJob();
 
 private:
+  bool highlighted(std::string const & module) {
+    return (m_highlightModules.find(module) != m_highlightModules.end());
+  }
+
   enum class EDMModuleType {
     Unknown,
     Source,
@@ -87,6 +111,7 @@ private:
 
   struct node {
     std::string   label;
+    std::string   class_;
     unsigned int  id;
     EDMModuleType type;
     bool          scheduled;
@@ -97,7 +122,7 @@ private:
   // directed graph, with `node` properties attached to each vertex
   boost::subgraph<boost::adjacency_list<
       // edge list
-      boost::setS,
+      boost::vecS,
       // vertex list
       boost::vecS,
       boost::directedS,
@@ -115,9 +140,10 @@ private:
   >> m_graph;
 
   std::string m_filename;
+  std::unordered_set<std::string> m_highlightModules;
 
-  bool m_initialized;
   bool m_showPathDependencies;
+  bool m_initialized;
 };
 
 constexpr
@@ -163,6 +189,7 @@ DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("fileName", "dependency.gv");
+  desc.addUntracked<std::vector<std::string>>("highlightModules", {});
   desc.addUntracked<bool>("showPathDependencies", true);
   descriptions.add("DependencyGraph", desc);
 }
@@ -170,8 +197,9 @@ DependencyGraph::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
 DependencyGraph::DependencyGraph(ParameterSet const & config, ActivityRegistry & registry) :
   m_filename( config.getUntrackedParameter<std::string>("fileName") ),
-  m_initialized( false ),
-  m_showPathDependencies( config.getUntrackedParameter<bool>("showPathDependencies") )
+  m_highlightModules( make_unordered_set(config.getUntrackedParameter<std::vector<std::string>>("highlightModules")) ),
+  m_showPathDependencies( config.getUntrackedParameter<bool>("showPathDependencies") ),
+  m_initialized( false )
 {
   registry.watchPreSourceConstruction(this, &DependencyGraph::preSourceConstruction);
   registry.watchPreBeginJob(this, &DependencyGraph::preBeginJob);
@@ -201,13 +229,14 @@ void
 DependencyGraph::preSourceConstruction(ModuleDescription const & module) {
   // create graph vertex for the source module and fill its attributes
   boost::add_vertex(m_graph);
-  m_graph.m_graph[module.id()] = node{ module.moduleLabel(), module.id(), EDMModuleType::Source, true };
+  m_graph.m_graph[module.id()] = node{ module.moduleLabel(), module.moduleName(), module.id(), EDMModuleType::Source, true };
   auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), 0);
   attributes["label"] = module.moduleLabel();
+  attributes["tooltip"] = module.moduleName();
   attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(EDMModuleType::Source)];
   attributes["style"] = "filled";
   attributes["color"] = "black";
-  attributes["fillcolor"] = "white";
+  attributes["fillcolor"] = highlighted(module.moduleLabel()) ? "lightgreen" : "white";
 }
 
 
@@ -251,14 +280,15 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
 
   // set the vertices properties (use the module id as the global index into the graph)
   for (edm::ModuleDescription const * module: pathsAndConsumes.allModules()) {
-    m_graph.m_graph[module->id()] = { module->moduleLabel(), module->id(), edmModuleTypeEnum(*module), false };
+    m_graph.m_graph[module->id()] = { module->moduleLabel(), module->moduleName(), module->id(), edmModuleTypeEnum(*module), false };
 
     auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
     attributes["label"] = module->moduleLabel();
+    attributes["tooltip"] = module->moduleName();
     attributes["shape"] = shapes[static_cast<std::underlying_type_t<EDMModuleType>>(edmModuleTypeEnum(*module))];
     attributes["style"] = "filled";
     attributes["color"] = "black";
-    attributes["fillcolor"] = "lightgrey";
+    attributes["fillcolor"] = highlighted(module->moduleLabel()) ? "green" : "lightgrey";
   }
 
   // paths and endpaths
@@ -269,7 +299,13 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
   for (edm::ModuleDescription const * consumer: pathsAndConsumes.allModules()) {
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesWhoseProductsAreConsumedBy(consumer->id())) {
       edm::LogInfo("DependencyGraph") << "module " << consumer->moduleLabel() << " depends on module " << module->moduleLabel();
-      boost::add_edge(consumer->id(), module->id(), m_graph);
+      auto edge_status = boost::add_edge(consumer->id(), module->id(), m_graph);
+      // highlight the arrow between highlighted nodes
+      if (highlighted(module->moduleLabel()) and highlighted(consumer->moduleLabel())) {
+        auto const & edge = edge_status.first;
+        auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
+        attributes["color"] = "darkgreen";
+      }
     }
   }
 
@@ -280,15 +316,19 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnPath(i)) {
       m_graph.m_graph[module->id()].scheduled = true;
       auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
-      attributes["fillcolor"] = "white";
+      attributes["fillcolor"] = highlighted(module->moduleLabel()) ? "lightgreen" : "white";
       if (previous and m_showPathDependencies) {
-        edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module " << previous->moduleLabel() << " in path " << i;
-        auto edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
-        auto edge = edge_status.first;
-        bool status = edge_status.second;
-        if (status) {
+        edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module " << previous->moduleLabel() << " in Path " << i;
+        auto edge_status = boost::lookup_edge(module->id(), previous->id(), m_graph);
+        bool found = edge_status.second;
+        if (not found) {
+          edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
+          auto const & edge = edge_status.first;
           auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           attributes["style"] = "dashed";
+          // highlight the arrow between highlighted nodes
+          if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
+            attributes["color"] = "darkgreen";
         }
       }
       previous = module;
@@ -299,15 +339,19 @@ DependencyGraph::preBeginJob(PathsAndConsumesOfModulesBase const & pathsAndConsu
     for (edm::ModuleDescription const * module: pathsAndConsumes.modulesOnEndPath(i)) {
       m_graph.m_graph[module->id()].scheduled = true;
       auto & attributes = boost::get(boost::get(boost::vertex_attribute, m_graph), module->id());
-      attributes["fillcolor"] = "white";
+      attributes["fillcolor"] = highlighted(module->moduleLabel()) ? "lightgreen" : "white";
       if (previous and m_showPathDependencies) {
-        edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module " << previous->moduleLabel() << " in endpath " << i;
-        auto edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
-        auto edge = edge_status.first;
-        bool status = edge_status.second;
-        if (status) {
+        edm::LogInfo("DependencyGraph") << "module " << module->moduleLabel() << " follows module " << previous->moduleLabel() << " in EndPath " << i;
+        auto edge_status = boost::lookup_edge(module->id(), previous->id(), m_graph);
+        bool found = edge_status.second;
+        if (not found) {
+          edge_status = boost::add_edge(module->id(), previous->id(), m_graph);
+          auto const & edge = edge_status.first;
           auto & attributes = boost::get(boost::get(boost::edge_attribute, m_graph), edge);
           attributes["style"] = "dashed";
+          // highlight the arrow between highlighted nodes
+          if (highlighted(module->moduleLabel()) and highlighted(previous->moduleLabel()))
+            attributes["color"] = "darkgreen";
         }
       }
       previous = module;
