@@ -12,6 +12,48 @@ l1tStage2uGMT = cms.EDAnalyzer(
     verbose = cms.untracked.bool(False),
 )
 
+# the uGMT intermediate muon DQM modules
+l1tStage2uGMTIntermediateBMTF = cms.EDAnalyzer(
+    "L1TStage2uGMTMuon",
+    muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsBMTF"),
+    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/BMTF"),
+    titlePrefix = cms.untracked.string("uGMT intermediate muon from BMTF "),
+    verbose = cms.untracked.bool(False),
+)
+
+l1tStage2uGMTIntermediateOMTFNeg = cms.EDAnalyzer(
+    "L1TStage2uGMTMuon",
+    muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsOMTFNeg"),
+    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/OMTF_neg"),
+    titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF neg. "),
+    verbose = cms.untracked.bool(False),
+)
+
+l1tStage2uGMTIntermediateOMTFPos = cms.EDAnalyzer(
+    "L1TStage2uGMTMuon",
+    muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsOMTFPos"),
+    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/OMTF_pos"),
+    titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF pos. "),
+    verbose = cms.untracked.bool(False),
+)
+
+l1tStage2uGMTIntermediateEMTFNeg = cms.EDAnalyzer(
+    "L1TStage2uGMTMuon",
+    muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsEMTFNeg"),
+    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/EMTF_neg"),
+    titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF neg. "),
+    verbose = cms.untracked.bool(False),
+)
+
+l1tStage2uGMTIntermediateEMTFPos = cms.EDAnalyzer(
+    "L1TStage2uGMTMuon",
+    muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsEMTFPos"),
+    monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/intermediate_muons/EMTF_pos"),
+    titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF pos. "),
+    verbose = cms.untracked.bool(False),
+)
+
+# zero suppression DQM
 l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
     "L1TMP7ZeroSupp",
     fedIds = cms.vint32(1402),
