@@ -37,9 +37,9 @@ void TriggerRatesMonitorClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore:
     std::cout << "dir: " << dir << std::endl;
     ibooker_.setCurrentFolder(m_dqm_path + "/" + dir);
 
-    std::vector<std::string> all_mes = igetter_.getMEs();
+    std::vector<std::string> const & all_mes = igetter_.getMEs();
     std::vector<std::string> mes;
-    for ( auto const & me : mes ) 
+    for ( auto const & me : all_mes ) 
       if ( me.find("accept") != std::string::npos ) mes.push_back(me); 
 
     int    nbinsY = mes.size();
