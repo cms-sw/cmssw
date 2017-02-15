@@ -123,11 +123,11 @@ EmbeddingVertexCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
    //Retrieving vertex position from input and creating vertex shift
    Handle<math::XYZTLorentzVectorD> vertex_position;
-   iEvent.getByLabel(vertexPositionLabel, vertex_position);
-   HepMC::FourVector* vertex_shift = new HepMC::FourVector(vertex_position.product()->x()*cm, vertex_position.product()->y()*cm, vertex_position.product()->z()*cm); 
-
+   iEvent.getByLabel(vertexPositionLabel, vertex_position); 
+   HepMC::FourVector vertex_shift(vertex_position.product()->x()*cm, vertex_position.product()->y()*cm, vertex_position.product()->z()*cm); 
+   
    // Apply vertex shift to all production vertices of the event
-   CorrectedGenEvent->applyVtxGen(vertex_shift);   
+   CorrectedGenEvent->applyVtxGen(&vertex_shift);   
    iEvent.put(std::move(CorrectedGenEvent));
 
 }

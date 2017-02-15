@@ -51,10 +51,22 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "CLHEP/Random/RandExponential.h"
+
+
 
 //
 // class declaration
 //
+
+namespace CLHEP{
+  class HepRandomEngine;
+}
+
+
 
 
 class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
@@ -73,8 +85,8 @@ class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
       virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
       virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
 
-      void fill_lhe_from_mumu(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton, lhef::HEPEUP &outlhe);
-      void fill_lhe_with_particle(TLorentzVector &particle, double spin, int motherindex, int pdgid, int status, lhef::HEPEUP &outlhe);
+      void fill_lhe_from_mumu(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton, lhef::HEPEUP &outlhe, CLHEP::HepRandomEngine* engine);
+      void fill_lhe_with_particle(lhef::HEPEUP &outlhe, TLorentzVector &particle, int pdgid, double spin, double ctau);     
       
       void transform_mumu_to_tautau(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
       const reco::Candidate* find_original_muon(const reco::Candidate* muon);
@@ -82,11 +94,7 @@ class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
       void mirror(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
       void rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
       
-      // ----------member data ---------------------------
-      std::shared_ptr<lhef::LHERunInfo>	runInfoLast;
-      std::shared_ptr<lhef::LHERunInfo>	runInfo;
-      std::shared_ptr<lhef::LHEEvent>	partonLevel;
-
+      LHERunInfoProduct::Header give_slha();
       
       edm::EDGetTokenT<edm::View<pat::Muon>> muonsCollection_;
       edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
@@ -126,6 +134,18 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet& iConfig)
      write_lheout=true;
      file.open(lhe_ouputfile, std::fstream::out | std::fstream::trunc);
    }
+   
+   
+   edm::Service<edm::RandomNumberGenerator> rng;
+   if ( ! rng.isAvailable()) {
+     throw cms::Exception("Configuration")
+       << "The EmbeddingLHEProducer requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file. \n" 
+          "You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+    }
+   
+   
 }
 
 
@@ -143,6 +163,9 @@ void
 EmbeddingLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
+    
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
     
     
     edm::Handle< edm::View<pat::Muon> > muonHandle;
@@ -179,7 +202,7 @@ EmbeddingLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     mirror(positiveLepton,negativeLepton); // if no mirror, function does nothing.
     rotate180(positiveLepton,negativeLepton); // if no rotate180, function does nothing
     transform_mumu_to_tautau(positiveLepton,negativeLepton); // if MuonEmbedding, function does nothing.
-    fill_lhe_from_mumu(positiveLepton,negativeLepton,hepeup);
+    fill_lhe_from_mumu(positiveLepton,negativeLepton,hepeup,engine);
     
     double originalXWGTUP_ = 1.;
     std::unique_ptr<LHEEventProduct> product( new LHEEventProduct(hepeup,originalXWGTUP_) );
@@ -240,19 +263,23 @@ EmbeddingLHEProducer::beginRunProduce(edm::Run &run, edm::EventSetup const&)
     heprup.XSECUP[0] = 1.;
     heprup.XERRUP[0] = 0;
     heprup.XMAXUP[0] = 1;
-    heprup.LPRUP[0]= 0;
-    
+    heprup.LPRUP[0]= 1;
+
+ 
     std::unique_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
-    if (write_lheout)std::copy(runInfo->begin(), runInfo->end(),std::ostream_iterator<std::string>(file));
+    runInfo->addHeader(give_slha());
+
     
+    if (write_lheout)std::copy(runInfo->begin(), runInfo->end(),std::ostream_iterator<std::string>(file));
     run.put(std::move(runInfo));
+
 
 }
 
 
 void 
 EmbeddingLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
-{  
+{
     if (write_lheout) {
       file << LHERunInfoProduct::endOfFile();
       file.close();
@@ -260,18 +287,27 @@ EmbeddingLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
 }
 
 void 
-EmbeddingLHEProducer::fill_lhe_from_mumu(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton, lhef::HEPEUP &outlhe)
+EmbeddingLHEProducer::fill_lhe_from_mumu(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton, lhef::HEPEUP &outlhe, CLHEP::HepRandomEngine* engine)
 {
+    
     TLorentzVector Z = positiveLepton + negativeLepton;
     int leptonPDGID = switchToMuonEmbedding_ ? 13 : 15;
-    fill_lhe_with_particle(Z,9.0,0,23,2,outlhe);
-    fill_lhe_with_particle(positiveLepton,1.0,1,-leptonPDGID,1,outlhe);
-    fill_lhe_with_particle(negativeLepton,-1.0,1,leptonPDGID,1,outlhe);
+    
+   // double tau_ctau = 0.00871100; //cm  
+    double tau_ctau0 = 8.71100e-02; // mm (for Pythia)
+    double tau_ctau_p = tau_ctau0 * CLHEP::RandExponential::shoot(engine); // return -std::log(HepRandom::getTheEngine()->flat());
+    // replaces tau = process[iNow].tau0() * rndmPtr->exp(); from pythia8212/src/ProcessContainer.cc which is not initialized for ProcessLevel:all = off mode (no beam particle mode)
+    double tau_ctau_n = tau_ctau0 * CLHEP::RandExponential::shoot(engine);
+    //std::cout<<"tau_ctau P: "<<tau_ctau_p<<" tau_ctau N:  "<<tau_ctau_n<<std::endl;
+
+    fill_lhe_with_particle(outlhe, Z,23,9.0, 0);
+    fill_lhe_with_particle(outlhe, positiveLepton,-leptonPDGID,1.0, tau_ctau_p);
+    fill_lhe_with_particle(outlhe, negativeLepton,leptonPDGID,-1.0, tau_ctau_n);
     
     return;
 }
 
-void EmbeddingLHEProducer::fill_lhe_with_particle(TLorentzVector &particle, double spin, int motherindex, int pdgid, int status, lhef::HEPEUP &outlhe)
+void EmbeddingLHEProducer::fill_lhe_with_particle(lhef::HEPEUP &outlhe, TLorentzVector &particle, int pdgid, double spin, double ctau)
 {
     // Pay attention to different index conventions:
     // 'particleindex' follows usual C++ index conventions starting at 0 for a list.
@@ -285,14 +321,30 @@ void EmbeddingLHEProducer::fill_lhe_with_particle(TLorentzVector &particle, doub
     outlhe.PUP[particleindex][2] = particle.Pz();
     outlhe.PUP[particleindex][3] = particle.E();
     outlhe.PUP[particleindex][4] = particle.M();
+    outlhe.IDUP[particleindex] = pdgid;
     outlhe.SPINUP[particleindex] = spin;
+    outlhe.VTIMUP[particleindex] = ctau;
+   
     outlhe.ICOLUP[particleindex].first = 0;
     outlhe.ICOLUP[particleindex].second = 0;
     
-    outlhe.MOTHUP[particleindex].first = motherindex;
-    outlhe.MOTHUP[particleindex].second = motherindex;
-    outlhe.IDUP[particleindex] = pdgid;
-    outlhe.ISTUP[particleindex] = status;
+    
+    if (std::abs(pdgid) == 23){ 
+      outlhe.MOTHUP[particleindex].first = 0; // No Mother
+      outlhe.MOTHUP[particleindex].second = 0;
+      outlhe.ISTUP[particleindex] = 2; // status
+      
+    }
+    
+    if (std::abs(pdgid) == 15){ 
+     outlhe.MOTHUP[particleindex].first = 1;  // Mother is the Z (first partile)
+     outlhe.MOTHUP[particleindex].second = 1; // Mother is the Z (first partile)
+     
+     outlhe.ISTUP[particleindex] = 1;//status 
+ 
+    }
+    
+    
     
     return;
 }
@@ -365,7 +417,7 @@ const reco::Candidate* EmbeddingLHEProducer::find_original_muon(const reco::Cand
 void EmbeddingLHEProducer::rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton)
 {
     if (!rotate180_) return;
-    edm::LogInfo("TauEmbedding") << "Applying 180° rotation" ;
+    edm::LogInfo("TauEmbedding") << "Applying 180<C2><B0> rotation" ;
     // By construction, the 3-momenta of mu-, mu+ and Z are in one plane. 
     // That means, one vector for perpendicular projection can be used for both leptons.
     TLorentzVector Z = positiveLepton + negativeLepton;
@@ -415,6 +467,101 @@ void EmbeddingLHEProducer::mirror(TLorentzVector &positiveLepton, TLorentzVector
 
     return;
 }
+
+
+LHERunInfoProduct::Header EmbeddingLHEProducer::give_slha(){
+  LHERunInfoProduct::Header slhah("slha");
+  
+  slhah.addLine("######################################################################\n");
+  slhah.addLine("## PARAM_CARD AUTOMATICALY GENERATED BY MG5 FOLLOWING UFO MODEL   ####\n");
+  slhah.addLine("######################################################################\n");
+  slhah.addLine("##                                                                  ##\n");
+  slhah.addLine("##  Width set on Auto will be computed following the information    ##\n");
+  slhah.addLine("##        present in the decay.py files of the model.               ##\n");
+  slhah.addLine("##        See  arXiv:1402.1178 for more details.                    ##\n");
+  slhah.addLine("##                                                                  ##\n");
+  slhah.addLine("######################################################################\n");
+  slhah.addLine("\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("## INFORMATION FOR MASS\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("Block mass \n");
+  slhah.addLine("    6 1.730000e+02 # MT \n");
+  slhah.addLine("   15 1.777000e+00 # MTA \n");
+  slhah.addLine("   23 9.118800e+01 # MZ \n");
+  slhah.addLine("   25 1.250000e+02 # MH \n");
+  slhah.addLine("## Dependent parameters, given by model restrictions.\n");
+  slhah.addLine("## Those values should be edited following the \n");
+  slhah.addLine("## analytical expression. MG5 ignores those values \n");
+  slhah.addLine("## but they are important for interfacing the output of MG5\n");
+  slhah.addLine("## to external program such as Pythia.\n");
+  slhah.addLine("  1 0.000000 # d : 0.0 \n");
+  slhah.addLine("  2 0.000000 # u : 0.0 \n");
+  slhah.addLine("  3 0.000000 # s : 0.0 \n");
+  slhah.addLine("  4 0.000000 # c : 0.0 \n");
+  slhah.addLine("  5 0.000000 # b : 0.0 \n");
+  slhah.addLine("  11 0.000000 # e- : 0.0 \n");
+  slhah.addLine("  12 0.000000 # ve : 0.0 \n");
+  slhah.addLine("  13 0.000000 # mu- : 0.0 \n");
+  slhah.addLine("  14 0.000000 # vm : 0.0 \n");
+  slhah.addLine("  16 0.000000 # vt : 0.0 \n");
+  slhah.addLine("  21 0.000000 # g : 0.0 \n");
+  slhah.addLine("  22 0.000000 # a : 0.0 \n");
+  slhah.addLine("  24 80.419002 # w+ : cmath.sqrt(MZ__exp__2/2. + cmath.sqrt(MZ__exp__4/4. - (aEW*cmath.pi*MZ__exp__2)/(Gf*sqrt__2))) \n");
+  slhah.addLine("\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("## INFORMATION FOR SMINPUTS\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("Block sminputs \n");
+  slhah.addLine("    1 1.325070e+02 # aEWM1 \n");
+  slhah.addLine("    2 1.166390e-05 # Gf \n");
+  slhah.addLine("    3 1.180000e-01 # aS \n");
+  slhah.addLine("\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("## INFORMATION FOR WOLFENSTEIN\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("Block wolfenstein \n");
+  slhah.addLine("    1 2.253000e-01 # lamWS \n");
+  slhah.addLine("    2 8.080000e-01 # AWS \n");
+  slhah.addLine("    3 1.320000e-01 # rhoWS \n");
+  slhah.addLine("    4 3.410000e-01 # etaWS \n");
+  slhah.addLine("\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("## INFORMATION FOR YUKAWA\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("Block yukawa \n");
+  slhah.addLine("    6 1.730000e+02 # ymt \n");
+  slhah.addLine("   15 1.777000e+00 # ymtau \n");
+  slhah.addLine("\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("## INFORMATION FOR DECAY\n");
+  slhah.addLine("###################################\n");
+  slhah.addLine("DECAY   6 1.491500e+00 # WT \n");
+  slhah.addLine("DECAY  15 2.270000e-12 # WTau \n");
+  slhah.addLine("DECAY  23 2.441404e+00 # WZ \n");
+  slhah.addLine("DECAY  24 2.047600e+00 # WW \n");
+  slhah.addLine("DECAY  25 6.382339e-03 # WH \n");
+  slhah.addLine("## Dependent parameters, given by model restrictions.\n");
+  slhah.addLine("## Those values should be edited following the \n");
+  slhah.addLine("## analytical expression. MG5 ignores those values \n");
+  slhah.addLine("## but they are important for interfacing the output of MG5\n");
+  slhah.addLine("## to external program such as Pythia.\n");
+  slhah.addLine("DECAY  1 0.000000 # d : 0.0 \n");
+  slhah.addLine("DECAY  2 0.000000 # u : 0.0 \n");
+  slhah.addLine("DECAY  3 0.000000 # s : 0.0 \n");
+  slhah.addLine("DECAY  4 0.000000 # c : 0.0 \n");
+  slhah.addLine("DECAY  5 0.000000 # b : 0.0 \n");
+  slhah.addLine("DECAY  11 0.000000 # e- : 0.0 \n");
+  slhah.addLine("DECAY  12 0.000000 # ve : 0.0 \n");
+  slhah.addLine("DECAY  13 0.000000 # mu- : 0.0 \n");
+  slhah.addLine("DECAY  14 0.000000 # vm : 0.0 \n");
+  slhah.addLine("DECAY  16 0.000000 # vt : 0.0 \n");
+  slhah.addLine("DECAY  21 0.000000 # g : 0.0 \n");
+  slhah.addLine("DECAY  22 0.000000 # a : 0.0\n");
+  
+  return slhah;
+}
+
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
