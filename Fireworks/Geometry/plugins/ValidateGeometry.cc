@@ -952,10 +952,7 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
       { 
         int nrows = rpt->nrows();
         int ncolumns = rpt->ncolumns();
-        
-        assert(parameters[0] == nrows);
-        assert(parameters[1] == ncolumns);
-        
+                
         for ( int row = 1; row <= nrows; ++row )
         {
           for ( int column = 1; column <= ncolumns; ++column )
