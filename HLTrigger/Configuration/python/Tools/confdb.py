@@ -46,7 +46,7 @@ class HLTProcess(object):
       self.labels['dict']    = 'process.__dict__'
 
     if self.config.online:
-      self.labels['connect'] = 'frontier://FrontierOnProd'
+      self.labels['connect'] = 'frontier://FrontierProd'
     else:
       self.labels['connect'] = 'frontier://FrontierProd'
 
