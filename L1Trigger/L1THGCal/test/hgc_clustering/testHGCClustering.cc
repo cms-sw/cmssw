@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    Analyzers
-// Class:      testC2d
+// Class:      testHGCCluster
 // 
-/**\class testC2d testC2d.cc HGCPFLab/Analyzers/plugins/testC2d.cc
+/**\class testHGCCluster testHGCCluster.cc HGCPFLab/Analyzers/test/hgc_clustering/testHGCCluster.cc
 
    Description: [one line class summary]
 
@@ -47,13 +47,13 @@ using namespace reco;
 using namespace HGCalTriggerBackend;
 using namespace l1t;
 
-class testC2d : public edm::EDAnalyzer {
+class testHGCClustering : public edm::EDAnalyzer {
 
 public:
  
-    explicit testC2d(const edm::ParameterSet& );
+    explicit testHGCClustering(const edm::ParameterSet& );
     
-    ~testC2d();
+    ~testHGCClustering();
   
 private:
  
@@ -83,7 +83,7 @@ private:
 
 
 // constructors and destructor
-testC2d::testC2d(const edm::ParameterSet& iConfig) : 
+testHGCClustering::testHGCClustering(const edm::ParameterSet& iConfig) : 
     //Luca tokenTrgCell_( consumes< HGCalTriggerCellBxCollection >( iConfig.getParameter<InputTag> ( "triggerCellInputTag" ) ) )
     tokenCluster_( consumes< HGCalClusterBxCollection >( iConfig.getParameter<InputTag> ( "clusterInputTag" ) ) )
 {
@@ -110,12 +110,12 @@ testC2d::testC2d(const edm::ParameterSet& iConfig) :
 
 }
 
-testC2d::~testC2d()
+testHGCClustering::~testHGCClustering()
 {
 }
 
 // ------------ method called for each event  ------------
-void testC2d::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void testHGCClustering::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace std;
     using namespace edm;
@@ -160,7 +160,7 @@ void testC2d::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(testC2d);
+DEFINE_FWK_MODULE(testHGCClustering);
 
 
 

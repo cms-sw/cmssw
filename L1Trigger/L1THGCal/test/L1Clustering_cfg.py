@@ -101,7 +101,6 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 # Remove best choice selection
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
@@ -121,7 +120,7 @@ trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgo
                            
                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                               )
-cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('C2dClusterAlgoBestChoice'),
+cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),                           
@@ -132,14 +131,11 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('C2dClusterAlgoBestChoi
                               )
 
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )
-
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-
-
 process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.HGC_clustering = cms.EDAnalyzer("testC2d",
+process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
                                         #Luca triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:C2dClusterAlgoBestChoice")
-                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:C2dClusterAlgoBestChoice")
+                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
                                         )
 
 process.test_step = cms.Path(process.HGC_clustering)

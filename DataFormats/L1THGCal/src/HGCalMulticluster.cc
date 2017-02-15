@@ -1,8 +1,8 @@
-#include "DataFormats/L1THGCal/interface/HGCalCluster3D.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 using namespace l1t;
 
-HGCalCluster3D::HGCalCluster3D( const LorentzVector p4, 
+HGCalMulticluster::HGCalMulticluster( const LorentzVector p4, 
 			     int pt,
 			     int eta,
 			     int phi)
@@ -11,12 +11,12 @@ HGCalCluster3D::HGCalCluster3D( const LorentzVector p4,
   
 }
 
-HGCalCluster3D::~HGCalCluster3D() 
+HGCalMulticluster::~HGCalMulticluster() 
 {
   
 }
 
-bool HGCalCluster3D::operator<(const HGCalCluster3D& cl) const
+bool HGCalMulticluster::operator<(const HGCalMulticluster& cl) const
 {
   bool res = false;
   // Favour high pT

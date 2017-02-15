@@ -5,12 +5,12 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-#include "DataFormats/L1THGCal/interface/HGCalCluster3D.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 using namespace HGCalTriggerBackend;
 
 template<typename FECODEC, typename DATA>
-class C2dClusterAlgo : public Algorithm<FECODEC> 
+class HGCClusterAlgo : public Algorithm<FECODEC> 
 {
     public:
         using Algorithm<FECODEC>::name;
@@ -19,10 +19,10 @@ class C2dClusterAlgo : public Algorithm<FECODEC>
         using Algorithm<FECODEC>::codec_;
 
     public:
-        C2dClusterAlgo(const edm::ParameterSet& conf):
+        HGCClusterAlgo(const edm::ParameterSet& conf):
         Algorithm<FECODEC>(conf),
         cluster_product_( new l1t::HGCalClusterBxCollection ),
-        cluster3D_product_( new l1t::HGCalCluster3DBxCollection ),
+        cluster3D_product_( new l1t::HGCalMulticlusterBxCollection ),
         HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
         HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
         calibration_(conf.getParameterSet("calib_parameters")),
@@ -35,7 +35,7 @@ class C2dClusterAlgo : public Algorithm<FECODEC>
         virtual void setProduces(edm::EDProducer& prod) const override final 
         {
             prod.produces<l1t::HGCalClusterBxCollection>(name());
-            prod.produces<l1t::HGCalCluster3DBxCollection>("cluster3D");
+            prod.produces<l1t::HGCalMulticlusterBxCollection>("cluster3D");
 
         }
     
@@ -113,50 +113,71 @@ class C2dClusterAlgo : public Algorithm<FECODEC>
             }
             //CODE THE REAL C3D-ALGORITHM HERE: using previous built C2D  + fill all information transmittable to the CORRELATOR                
             std::vector<size_t> isMerged;
-            l1t::HGCalCluster3D cluster3D( reco::LeafCandidate::LorentzVector(), 0, 0, 0);
-            double_t tmpEta = 0.;
-            double_t tmpPhi = 0.;           
-            double_t C3d_pt  = 0.;
-            double_t C3d_eta = 0.;
-            double_t C3d_phi = 0.;
-            uint32_t C3d_hwPtEm = 0;
-            uint32_t C3d_hwPtHad = 0;
             
-            for(l1t::HGCalClusterBxCollection::const_iterator c2d = cluster_product_->begin(); c2d != cluster_product_->end(); ++c2d){
-                std::cout << "looping on the c2d directly from the collection : "<< c2d->p4().pt() << " eta: " <<  c2d->p4().Eta() << " --> layer " << c2d->layer() << std::endl;                
-                
+            size_t seedx=0;
+            for(l1t::HGCalClusterBxCollection::const_iterator c2d = cluster_product_->begin(); c2d != cluster_product_->end(); ++c2d, ++seedx){
+                l1t::HGCalMulticluster cluster3D( reco::LeafCandidate::LorentzVector(), 0, 0, 0);
+                double_t tmpEta = 0.;
+                double_t tmpPhi = 0.;           
+                double_t C3d_pt  = 0.;
+                double_t C3d_eta = 0.;
+                double_t C3d_phi = 0.;
+                uint32_t C3d_hwPtEm = 0;
+                uint32_t C3d_hwPtHad = 0;
+                uint32_t totLayer = 0;
+
                 bool skip=false;
+
+                std::cout << "In the C2d collection, seed the C3d with this : " << seedx << " - "<< c2d->p4().Pt() << " eta: " <<  c2d->p4().Eta() << " --> layer " << c2d->layer() << "  skip before 2nd loop "<< skip << std::endl;                
+                
                 size_t idx=0;
                 for(l1t::HGCalClusterBxCollection::const_iterator c2d_aux = cluster_product_->begin(); c2d_aux != cluster_product_->end(); ++c2d_aux, ++idx){
+                    std::cout << "     loop over C2d again and search for match:" << "   idx: " << idx << "  eta: " << c2d_aux->p4().Eta() << std::endl;
+                    std::cout << "   before isMerged loop: " << skip<< std::endl;
                     for(size_t i(0); i<isMerged.size(); i++){
+                        std::cout <<  isMerged.at(i) << ", ";
                         if(idx==isMerged.at(i)){
                             skip=true;
                             continue;
                         }
                     }
+                    std::cout << "\n";
+                    double dR =  deltaR( c2d->p4().Eta(), c2d_aux->p4().Eta(), c2d->p4().Phi(), c2d_aux->p4().Phi() ); 
+//                    std::cout << "looping on the c2d directly from the collection : "<< c2d->p4().pt() << "  --> layer " << c2d->layer() << " dR: " << dR << "  SKIP var = " << skip << std::endl;
 
-                    if(skip) continue;
-                    //std::cout << "looping on the c2d directly from the collection : "<< c2d->p4().pt() << "  --> layer " << c2d->layer() << std::endl;
-                    if( deltaR( c2d->p4().Eta(), c2d_aux->p4().Eta(), c2d->p4().Phi(), c2d_aux->p4().Phi() ) < dR_forC3d_  ){
+                    if(skip){
+                        skip=false;
+                        //std::cout << "     the c2d considered has been already merged!!";
+                        continue;
+                    }
+                    if( dR < 0.1 ){
+                                              std::cout << "     The idx "<< idx << " C2d has been matched and kept for 3D to the " << seedx 
+                                  << " - "<< c2d_aux->p4().Pt() << " eta: " <<  c2d_aux->p4().Eta() 
+                                  << " --> layer " << c2d_aux->layer() << std::endl;             
                         isMerged.push_back(idx);
                         tmpEta+=c2d_aux->p4().Eta() * c2d_aux->p4().Pt();
                         tmpPhi+=c2d_aux->p4().Phi() * c2d_aux->p4().Pt();
                         C3d_pt+=c2d_aux->p4().Pt();
                         C3d_hwPtEm+=c2d_aux->hwPtEm();
                         C3d_hwPtHad+=c2d_aux->hwPtHad();
-                        
+                        totLayer++;
                     }
                 }
                 
-                if((cluster3D.hwPtEm()+cluster3D.hwPtHad()) > 0){
+                std::cout <<"STO PER ENTRARE NEL MULTICLUSTERING" << std::endl;
+                if( totLayer > 2){
+                    cluster3D.setNtotLayer(totLayer);
                     cluster3D.setHwPtEm(C3d_hwPtEm);
                     cluster3D.setHwPtHad(C3d_hwPtHad);
                     C3d_eta=tmpEta/C3d_pt;
                     C3d_phi=tmpPhi/C3d_pt;                
                     math::PtEtaPhiMLorentzVector calib3dP4(C3d_pt, C3d_eta, C3d_phi, 0 );
                     cluster3D.setP4(calib3dP4);                    
+                    std::cout << "  A MULTICLUSTER has been built with pt, eta, phi = " << C3d_pt << ", " << C3d_eta << ", "<< C3d_phi <<  std::endl;
                     cluster3D_product_->push_back(0,cluster3D);
                 }
+
+                
             }
         }
     
@@ -169,13 +190,13 @@ class C2dClusterAlgo : public Algorithm<FECODEC>
         virtual void reset() override final 
         {
             cluster_product_.reset( new l1t::HGCalClusterBxCollection );            
-            cluster3D_product_.reset( new l1t::HGCalCluster3DBxCollection );            
+            cluster3D_product_.reset( new l1t::HGCalMulticlusterBxCollection );            
         }
 
     private:
 
         std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
-        std::unique_ptr<l1t::HGCalCluster3DBxCollection> cluster3D_product_;
+        std::unique_ptr<l1t::HGCalMulticlusterBxCollection> cluster3D_product_;
         std::string HGCalEESensitive_;
         std::string HGCalHESiliconSensitive_;
 
@@ -210,13 +231,13 @@ class C2dClusterAlgo : public Algorithm<FECODEC>
 
 };
 
-typedef C2dClusterAlgo<HGCalTriggerCellBestChoiceCodec, HGCalTriggerCellBestChoiceCodec::data_type> C2dClusterAlgoBestChoice;
-typedef C2dClusterAlgo<HGCalTriggerCellThresholdCodec, HGCalTriggerCellThresholdCodec::data_type> C2dClusterAlgoThreshold;
+typedef HGCClusterAlgo<HGCalTriggerCellBestChoiceCodec, HGCalTriggerCellBestChoiceCodec::data_type> HGCClusterAlgoBestChoice;
+typedef HGCClusterAlgo<HGCalTriggerCellThresholdCodec, HGCalTriggerCellThresholdCodec::data_type> HGCClusterAlgoThreshold;
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-        C2dClusterAlgoBestChoice,
-        "C2dClusterAlgoBestChoice");
+        HGCClusterAlgoBestChoice,
+        "HGCClusterAlgoBestChoice");
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-        C2dClusterAlgoThreshold,
-        "C2dClusterAlgoThreshold");
+        HGCClusterAlgoThreshold,
+        "HGCClusterAlgoThreshold");
