@@ -9,7 +9,10 @@ RecoCTPPSFEVT = cms.PSet(
     'keep TotemRPClusteredmDetSetVector_totemRPClusterProducer_*_*',
     'keep TotemRPRecHitedmDetSetVector_totemRPRecHitProducer_*_*',
     'keep TotemRPUVPatternedmDetSetVector_totemRPUVPatternFinder_*_*',
-    'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*'
+    'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*',
+
+    # CTPPS common
+    'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
   )
 )
 
@@ -23,7 +26,10 @@ RecoCTPPSRECO = cms.PSet(
     'keep TotemRPClusteredmDetSetVector_totemRPClusterProducer_*_*',
     'keep TotemRPRecHitedmDetSetVector_totemRPRecHitProducer_*_*',
     'keep TotemRPUVPatternedmDetSetVector_totemRPUVPatternFinder_*_*',
-    'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*'
+    'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*',
+
+    # CTPPS common
+    'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
   )
 )
 
@@ -37,6 +43,9 @@ RecoCTPPSAOD = cms.PSet(
     'keep TotemRPClusteredmDetSetVector_totemRPClusterProducer_*_*',
     'keep TotemRPRecHitedmDetSetVector_totemRPRecHitProducer_*_*',
     'keep TotemRPUVPatternedmDetSetVector_totemRPUVPatternFinder_*_*',
-    'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*'
+    'keep TotemRPLocalTrackedmDetSetVector_totemRPLocalTrackFitter_*_*',
+
+    # CTPPS common
+    'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*'
   )
 )
