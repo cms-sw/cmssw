@@ -50,13 +50,14 @@ void HBHERecHit::getMergedIds(std::vector<HcalDetId>* ids) const
         ids->clear();
         if (auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED))
         {
-            const unsigned nMerged = (auxHBHE_ & 0x7) + 1;
+            const unsigned nMerged = CaloRecHitAuxSetter::getField(
+                auxPhase1_, HBHERecHitAuxSetter::MASK_NSAMPLES,
+                HBHERecHitAuxSetter::OFF_NSAMPLES);
             ids->reserve(nMerged);
             const HcalDetId myId(id());
             for (unsigned i=0; i<nMerged; ++i)
             {
-                const unsigned depth = CaloRecHitAuxSetter::getField(
-                    auxHBHE_, 0x7, (i+1)*3);
+                const unsigned depth = CaloRecHitAuxSetter::getField(auxHBHE_, 0xf, i*4);
                 ids->emplace_back(myId.subdet(), myId.ieta(), myId.iphi(), depth);
             }
         }
