@@ -2,7 +2,7 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-#include "DataFormats/L1THGCal/interface/HGCalCluster3D.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
@@ -25,13 +25,13 @@ namespace DataFormats {
 
     l1t::HGCalTowerBxCollection   hgcalTowerBxColl;
     l1t::HGCalClusterBxCollection hgcalClusterBxColl;
-    l1t::HGCalCluster3DBxCollection hgcalCluster3DBxColl;
+    l1t::HGCalMulticlusterBxCollection hgcalMulticlusterBxColl;
 
     l1t::HGCalTriggerCellBxCollection   hgcalTriggerCellBxColl;
 
     edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
     edm::Wrapper<l1t::HGCalClusterBxCollection> w_hgcalClusterBxColl;
-    edm::Wrapper<l1t::HGCalCluster3DBxCollection> w_hgcalCluster3DBxColl;
+    edm::Wrapper<l1t::HGCalMulticlusterBxCollection> w_hgcalMulticlusterBxColl;
     edm::Wrapper<l1t::HGCalTriggerCellBxCollection>   w_hgcalTriggerCellBxColl;
 
     l1t::ClusterShapes clusterShapes;

@@ -1,21 +1,21 @@
-#ifndef DataFormats_L1Trigger_HGCalCluster3D_h
-#define DataFormats_L1Trigger_HGCalCluster3D_h
+#ifndef DataFormats_L1Trigger_HGCalMulticluster_h
+#define DataFormats_L1Trigger_HGCalMulticluster_h
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 namespace l1t {
   
-  class HGCalCluster3D : public L1Candidate {
+  class HGCalMulticluster : public L1Candidate {
     public:
-      HGCalCluster3D(){}
-      HGCalCluster3D( const LorentzVector p4,
+      HGCalMulticluster(){}
+      HGCalMulticluster( const LorentzVector p4,
           int pt=0,
           int eta=0,
           int phi=0
           );
 
-      ~HGCalCluster3D();
+      ~HGCalMulticluster();
 
       void setHwPtEm  (uint32_t pt)    {hwPtEm_= pt;}
       void setHwPtHad (uint32_t pt)    {hwPtHad_ = pt;}
@@ -34,10 +34,10 @@ namespace l1t {
 
       uint32_t hOverE() const {return hOverE_;}
 
-      bool operator<(const HGCalCluster3D& cl) const;
-      bool operator>(const HGCalCluster3D& cl) const {return  cl<*this;};
-      bool operator<=(const HGCalCluster3D& cl) const {return !(cl>*this);};
-      bool operator>=(const HGCalCluster3D& cl) const {return !(cl<*this);};
+      bool operator<(const HGCalMulticluster& cl) const;
+      bool operator>(const HGCalMulticluster& cl) const {return  cl<*this;};
+      bool operator<=(const HGCalMulticluster& cl) const {return !(cl>*this);};
+      bool operator>=(const HGCalMulticluster& cl) const {return !(cl<*this);};
 
     private:
       // Energies
@@ -53,7 +53,7 @@ namespace l1t {
       uint32_t hOverE_; 
   };
 
-  typedef BXVector<HGCalCluster3D> HGCalCluster3DBxCollection;
+  typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;
 
   
 }

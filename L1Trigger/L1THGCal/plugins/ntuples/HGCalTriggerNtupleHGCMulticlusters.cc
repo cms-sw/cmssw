@@ -1,17 +1,17 @@
 
-#include "DataFormats/L1THGCal/interface/HGCalCluster3D.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
 
 
 
-class HGCalTriggerNtupleHGCClusters3D : public HGCalTriggerNtupleBase
+class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
 {
 
   public:
-    HGCalTriggerNtupleHGCClusters3D(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCClusters3D(){};
+    HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf);
+    ~HGCalTriggerNtupleHGCMulticlusters(){};
     virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
     virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
 
@@ -19,7 +19,7 @@ class HGCalTriggerNtupleHGCClusters3D : public HGCalTriggerNtupleBase
     virtual void clear() override final;
 
 
-    edm::EDGetToken clusters3D_token_;
+    edm::EDGetToken multiclusters_token_;
 
     int cl3d_n_ ;
     std::vector<float> cl3d_pt_;
@@ -30,20 +30,20 @@ class HGCalTriggerNtupleHGCClusters3D : public HGCalTriggerNtupleBase
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
-    HGCalTriggerNtupleHGCClusters3D,
-    "HGCalTriggerNtupleHGCClusters3D" );
+    HGCalTriggerNtupleHGCMulticlusters,
+    "HGCalTriggerNtupleHGCMulticlusters" );
 
 
-HGCalTriggerNtupleHGCClusters3D::
-HGCalTriggerNtupleHGCClusters3D(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
+HGCalTriggerNtupleHGCMulticlusters::
+HGCalTriggerNtupleHGCMulticlusters(const edm::ParameterSet& conf):HGCalTriggerNtupleBase(conf)
 {
 }
 
 void
-HGCalTriggerNtupleHGCClusters3D::
+HGCalTriggerNtupleHGCMulticlusters::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
-  clusters3D_token_ = collector.consumes<l1t::HGCalCluster3DBxCollection>(conf.getParameter<edm::InputTag>("Clusters3D"));
+  multiclusters_token_ = collector.consumes<l1t::HGCalMulticlusterBxCollection>(conf.getParameter<edm::InputTag>("Multiclusters"));
 
   tree.Branch("cl3d_n", &cl3d_n_, "cl3d_n/I");
   tree.Branch("cl3d_pt", &cl3d_pt_);
@@ -54,21 +54,21 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
 }
 
 void
-HGCalTriggerNtupleHGCClusters3D::
+HGCalTriggerNtupleHGCMulticlusters::
 fill(const edm::Event& e, const edm::EventSetup& es)
 {
 
   // retrieve clusters 3D
-  edm::Handle<l1t::HGCalCluster3DBxCollection> clusters3D_h;
-  e.getByToken(clusters3D_token_, clusters3D_h);
-  const l1t::HGCalCluster3DBxCollection& clusters3D = *clusters3D_h;
+  edm::Handle<l1t::HGCalMulticlusterBxCollection> multiclusters_h;
+  e.getByToken(multiclusters_token_, multiclusters_h);
+  const l1t::HGCalMulticlusterBxCollection& multiclusters = *multiclusters_h;
 
   // retrieve geometry
   edm::ESHandle<HGCalTriggerGeometryBase> geometry;
   es.get<IdealGeometryRecord>().get(geometry);
 
   clear();
-  for(auto cl3d_itr=clusters3D.begin(0); cl3d_itr!=clusters3D.end(0); cl3d_itr++)
+  for(auto cl3d_itr=multiclusters.begin(0); cl3d_itr!=multiclusters.end(0); cl3d_itr++)
   {
     cl3d_n_++;
     // physical values 
@@ -81,7 +81,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
 
 void
-HGCalTriggerNtupleHGCClusters3D::
+HGCalTriggerNtupleHGCMulticlusters::
 clear()
 {
   cl3d_n_ = 0;

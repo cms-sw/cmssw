@@ -33,7 +33,7 @@ C2d_parValues = cms.PSet( seeding_threshold = cms.double(6),
 C3d_parValues = cms.PSet( dR_searchNeighbour = cms.double(0.01) )
 
 #cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgoBestChoice'),
-cluster_algo =  cms.PSet( AlgorithmName = cms.string('C2dClusterAlgoBestChoice'),
+cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                           FECodec = fe_codec,
                           HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                           HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
