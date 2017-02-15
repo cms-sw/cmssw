@@ -900,6 +900,9 @@ class TrackPrinter(_RecHitPrinter):
         lst.append(self._prefix+" pixel hits %d strip hits %d chi2/ndof %f" % (track.nPixel(), track.nStrip(), track.nChi2()))
         lst.append(self._prefix+" is %s algo %s originalAlgo %s%s stopReason %s" % (hp, Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), algoMaskStr, StopReason.toString(track.stopReason())))
         lst.append(self._prefix+" px %f py %f pz %f p %f" % (track.px(), track.py(), track.pz(), math.sqrt(track.px()**2+track.py()**2+track.pz()**2)))
+        ptPull = track.ptPull()
+        if ptPull is not None:
+            lst.append(self._prefix+" pulls pt %f dxy %f dz %f" % (ptPull, track.dxyPull(), track.dzPull()))
         return lst
 
     def printHits(self, track):
@@ -999,15 +1002,48 @@ class TrackPrinter(_RecHitPrinter):
         ret = _DiffResult()
         ret.extend(_mapdiff(self.printHeader, track1, track2))
         if self._diffForTwiki:
+            trk1TPs = [tpInfo.trackingParticle() for tpInfo in track1.matchedTrackingParticleInfos()]
+            trk2TPs = [tpInfo.trackingParticle() for tpInfo in track2.matchedTrackingParticleInfos()]
+
+            pt_pull1 = "None"
+            pt_pull2 = "None"
+            dxy_pull1 = "None"
+            dxy_pull2 = "None"
+            dz_pull1 = "None"
+            dz_pull2 = "None"
+
+            ptPull1 = track1.ptPull()
+            ptPull2 = track2.ptPull()
+            if ptPull1 is not None and ptPull2 is not None:
+                fmt = "{pull:.3g}"
+                pt_pull1 = fmt.format(pull=ptPull1)
+                pt_pull2 = fmt.format(pull=ptPull2)
+                dxy_pull1 = fmt.format(pull=track1.dxyPull())
+                dxy_pull2 = fmt.format(pull=track2.dxyPull())
+                dz_pull1 = fmt.format(pull=track1.dzPull())
+                dz_pull2 = fmt.format(pull=track2.dzPull())
+
             lst = [
                 self._prefix+" parameters",
                 self._prefix+"  pt %RED%{pt1:.3g}%ENDCOLOR% %GREEN%{pt2:.3g}%ENDCOLOR%".format(pt1=track1.pt(), pt2=track2.pt()),
+            ]
+            if pt_pull1 != "None":
+                lst.append(self._prefix+"   pull %RED%{pull1}%ENDCOLOR% %GREEN%{pull2}%ENDCOLOR%".format(pull1=pt_pull1, pull2=pt_pull2))
+            lst.extend([
                 self._prefix+"  eta %RED%{eta1:.3g}%ENDCOLOR% %GREEN%{eta2:.3g}%ENDCOLOR%".format(eta1=track1.eta(), eta2=track2.eta()),
                 self._prefix+"  phi %RED%{phi1:.3g}%ENDCOLOR% %GREEN%{phi2:.3g}%ENDCOLOR%".format(phi1=track1.phi(), phi2=track2.phi()),
                 self._prefix+"  dxy %RED%{dxy1:.3g}%ENDCOLOR% %GREEN%{dxy2:.3g}%ENDCOLOR% ({dxy1rel:.2f}*err1, {dxy2rel:.2f}*err2)".format(dxy1=track1.dxy(), dxy2=track2.dxy(), dxy1rel=(track2.dxy()-track1.dxy())/track1.dxyErr(), dxy2rel=(track2.dxy()-track1.dxy())/track2.dxyErr()),
+            ])
+            if dxy_pull1 != "None":
+                lst.append(self._prefix+"   pull %RED%{pull1}%ENDCOLOR% %GREEN%{pull2}%ENDCOLOR%".format(pull1=dxy_pull1, pull2=dxy_pull2))
+            lst.extend([
                 self._prefix+"  dz %RED%{dz1:.3g}%ENDCOLOR% %GREEN%{dz2:.3g}%ENDCOLOR% ({dz1rel:.2f}*err1, {dz2rel:.2f}*err2)".format(dz1=track1.dz(), dz2=track2.dz(), dz1rel=(track2.dz()-track1.dz())/track1.dzErr(), dz2rel=(track2.dz()-track1.dz())/track2.dzErr()),
+            ])
+            if dz_pull1 != "None":
+                lst.append(self._prefix+"   pull %RED%{pull1}%ENDCOLOR% %GREEN%{pull2}%ENDCOLOR%".format(pull1=dz_pull1, pull2=dz_pull2))
+            lst.extend([
                 self._prefix+"  chi2/ndof %RED%{chi1:.3g}%ENDCOLOR% %GREEN%{chi2:.3g}%ENDCOLOR%".format(chi1=track1.nChi2(), chi2=track2.nChi2()),
-            ]
+            ])
             ret.extend(_makediff(lst, lst, equalPrefix="?"))
 
         diffHits = _mapdiff(self.printHits, track1, track2)
@@ -1809,6 +1845,36 @@ class Track(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
         """Returns Vertex that used this track in its fit."""
         self._checkIsValid()
         return Vertex(self._tree, self._tree.trk_vtxIdx[self._index])
+
+    def ptPull(self):
+        tp = self.bestMatchingTrackingParticle()
+        if tp is None:
+            return None
+        return (self.pt() - tp.pca_pt())/self.ptErr()
+
+    def thetaPull(self):
+        tp = self.bestMatchingTrackingParticle()
+        if tp is None:
+            return None
+        return (getattr(self, "lambda")() - tp.pca_lambda())/self.lambdaErr() # as in MTV
+
+    def phiPull(self):
+        tp = self.bestMatchingTrackingParticle()
+        if tp is None:
+            return None
+        return (self.phi() - tp.pca_phi())/self.phiErr()
+
+    def dxyPull(self):
+        tp = self.bestMatchingTrackingParticle()
+        if tp is None:
+            return None
+        return (self.dxy() - tp.pca_dxy())/self.dxyErr()
+
+    def dzPull(self):
+        tp = self.bestMatchingTrackingParticle()
+        if tp is None:
+            return None
+        return (self.dz() - tp.pca_dz())/self.dzErr()
 
 class Tracks(_Collection):
     """Class presenting a collection of tracks."""
