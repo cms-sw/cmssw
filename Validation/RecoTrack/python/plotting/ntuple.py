@@ -760,14 +760,14 @@ class _RecHitPrinter(object):
             matched = ""
             coord = ""
             if hit.isValidHit():
-                if isinstance(hit, _SimHitAdaptor):
+                if isinstance(hit, _SimHitMatchAdaptor):
                     #matched = "matched to TP:SimHit " + ",".join(["%d:%d"%(sh.trackingParticle().index(), sh.index()) for sh in hit.simHits()])
                     matched = "from %s " % HitSimType.toString(hit.simType())
-                    matches = ["%d:%d"%(sh.trackingParticle().index(), sh.index()) for sh in hit.simHits()]
+                    matches = ["%d:%d(%.1f)"%(shInfo.simHit().trackingParticle().index(), shInfo.simHit().index(), shInfo.chargeFraction()*100) for shInfo in hit.matchedSimHitInfos()]
                     if len(matches) == 0:
                         matched += "not matched to any TP/SimHit"
                     else:
-                        matched += "matched to TP:SimHit "+",".join(matches)
+                        matched += "matched to TP:SimHit(%) "+",".join(matches)
 
                 coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
             detId = parseDetId(hit.detId())
@@ -1382,20 +1382,28 @@ class _RecoHitAdaptor(object):
                 continue
             yield Phase2OTHit(self._tree, ihit)
 
-class _SimHitAdaptor(object):
-    """Adaptor class for objects containing or matched to SimHits (e.g. TrackingParticles, reco hits)."""
+class _SimHitMatchAdaptor(object):
+    """Adaptor class for objects containing or matched to SimHits (e.g. reco hits)."""
     def __init__(self):
-        super(_SimHitAdaptor, self).__init__()
+        super(_SimHitMatchAdaptor, self).__init__()
 
-    def nSimHits(self):
-        self._checkIsValid()
-        return self.simHitIdx().size()
+    def _nMatchedSimHits(self):
+        """Internal method to get the number of matched SimHits."""
+        return getattr(self._tree, self._prefix+"_simHitIdx")[self._index].size()
 
-    def simHits(self):
-        """Returns generator for SimHits."""
+    def nMatchedSimHits(self):
+        """Returns the number of matched SimHits."""
         self._checkIsValid()
-        for ihit in self.simHitIdx():
-            yield SimHit(self._tree, ihit)
+        return self._nMatchedSimHits()
+
+    def matchedSimHitInfos(self):
+        """Returns a generator for matched SimHits.
+
+        The generator returns SimHitMatchInfo objects.
+        """
+        self._checkIsValid()
+        for imatch in xrange(self._nMatchedSimHits()):
+            yield SimHitMatchInfo(self._tree, self._index, imatch, self._prefix)
 
 class _LayerStrAdaptor(object):
     """Adaptor class for layerStr() method."""
@@ -1457,10 +1465,10 @@ class _TrackingParticleMatchAdaptor(object):
 
         tps = collections.OrderedDict()
         for hit in self.hits():
-            if not isinstance(hit, _SimHitAdaptor):
+            if not isinstance(hit, _SimHitMatchAdaptor):
                 continue
-            for simHit in hit.simHits():
-                tp = simHit.trackingParticle()
+            for shInfo in hit.matchedSimHitInfos():
+                tp = shInfo.simHit().trackingParticle()
                 if tp.index() in tps:
                     tps[tp.index()] += 1
                 else:
@@ -1641,21 +1649,50 @@ class BeamSpot(object):
         return lambda: getattr(self._tree, self._prefix+"_"+attr)
 
 ##########
+class SimHitMatchInfo(_Object):
+    """Class representing a match to a SimHit.
+
+    The point of this class is to provide, in addition to the matched
+    SimHit, also other information about the match (e.g. fraction of
+    charge from this SimHit).
+    """
+    def __init__(self, tree, index, shindex, prefix):
+        """Constructor.
+
+        Arguments:
+        tree    -- TTree object
+        index   -- Index of the hit matched to SimHit
+        shindex -- Index of the SimHit match (second index in _simHitIdx branch)
+        prefix  -- String for prefix of the object (track/seed/hit) matched to TrackingParticle
+        """
+        super(SimHitMatchInfo, self).__init__(tree, index, prefix)
+        self._shindex = shindex
+
+    def __getattr__(self, attr):
+        """Custom __getattr__ because of the second index needed to access the branch."""
+        return lambda: super(SimHitMatchInfo, self).__getattr__(attr)()[self._shindex]
+
+    def simHit(self):
+        """Returns matched SimHit."""
+        self._checkIsValid()
+        return SimHit(self._tree, getattr(self._tree, self._prefix+"_simHitIdx")[self._index][self._shindex])
+
 class TrackingParticleMatchInfo(_Object):
+
     """Class representing a match to a TrackingParticle.
 
     The point of this class is to provide, in addition to the matched
     TrackingParticle, also other information about the match (e.g.
-    shared hit fraction for tracks/seeds or SimHit information for hits.
+    shared hit fraction for tracks/seeds).
     """
     def __init__(self, tree, index, tpindex, prefix):
         """Constructor.
 
         Arguments:
         tree    -- TTree object
-        index   -- Index of the object (track/seed/hit) matched to TrackingParticle
+        index   -- Index of the object (track/seed) matched to TrackingParticle
         tpindex -- Index of the TrackingParticle match (second index in _simTrkIdx branch)
-        prefix  -- String for prefix of the object (track/seed/hit) matched to TrackingParticle
+        prefix  -- String for prefix of the object (track/seed) matched to TrackingParticle
         """
         super(TrackingParticleMatchInfo, self).__init__(tree, index, prefix)
         self._tpindex = tpindex
@@ -1749,7 +1786,7 @@ class Tracks(_Collection):
         super(Tracks, self).__init__(tree, "trk_pt", Track)
 
 ##########
-class PixelHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
+class PixelHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
     """Class representing a pixel hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -1774,7 +1811,7 @@ class PixelHits(_Collection):
         super(PixelHits, self).__init__(tree, "pix_isBarrel", PixelHit)
 
 ##########
-class StripHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
+class StripHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
     """Class representing a strip hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -1878,7 +1915,7 @@ class InvalidHit(_Object):
         return "%s%d (%s)" % (SubDet.toString(det), self._tree.inv_lay[self._index], InvalidHit.Type.toString(invalid_type))
 
 ##########
-class Phase2OTHit(_HitObject, _LayerStrAdaptor, _SimHitAdaptor):
+class Phase2OTHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
     """Class representing a phase2 OT hit."""
     def __init__(self, tree, index):
         """Constructor.
@@ -1984,7 +2021,7 @@ class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor):
         return TrackingParticle(self._tree, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index])
 
 ##########
-class TrackingParticle(_Object, _SimHitAdaptor):
+class TrackingParticle(_Object):
     """Class representing a TrackingParticle."""
     def __init__(self, tree, index):
         """Constructor.
@@ -2042,8 +2079,6 @@ class TrackingParticle(_Object, _SimHitAdaptor):
             return None
         return Tracks(self._tree)[best[0]]
 
-
-
     def _nMatchedSeeds(self):
         """Internal function to get the number of matched seeds."""
         return self._tree.sim_seedIdx[self._index].size()
@@ -2061,6 +2096,16 @@ class TrackingParticle(_Object, _SimHitAdaptor):
         self._checkIsValid()
         for imatch in xrange(self._nMatchedSeeds()):
             yield SeedMatchInfo(self._tree, self._index, imatch, self._prefix)
+
+    def nSimHits(self):
+        self._checkIsValid()
+        return self.simHitIdx().size()
+
+    def simHits(self):
+        """Returns generator for SimHits."""
+        self._checkIsValid()
+        for ihit in self.simHitIdx():
+            yield SimHit(self._tree, ihit)
 
     def parentVertex(self):
         """Returns the parent TrackingVertex."""
