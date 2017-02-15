@@ -273,7 +273,7 @@ def _commonHits(trk1, trk2):
 
 def _matchTracksByHits(reftrk, trklist):
     if len(trklist) == 0:
-        return None
+        return (None, 0)
 
     hits1 = set()
     for hit in reftrk.hits():
@@ -303,9 +303,12 @@ def _matchTracksByTrackingParticle(reftrk, trklist, othertrklist, othertplist):
     if reftrk.nMatchedTrackingParticles() == 0:
         return (ref_viatp, other_viatp, other_viatp_notinother)
 
+    #print "begin _matchTracksByTrackingParticle"
+
     for tpInfo1 in reftrk.matchedTrackingParticleInfos():
         tp1 = tpInfo1.trackingParticle()
 
+        #print " TP", tp1.index()
         for trkInfo1 in tp1.matchedTrackInfos():
             # Is there any way to avoid the linear search?
             # I tried to create a map from track.index()
@@ -313,6 +316,7 @@ def _matchTracksByTrackingParticle(reftrk, trklist, othertrklist, othertplist):
             # I remove items in both
             # Hmm, maybe if I add boolean lists to mark if a trk1/2 is already used?
             t1Index = trkInfo1.track().index()
+            #print "  reftrk, t1Index, trklist", reftrk.index(), t1Index, [t.index() for t in trklist]
             if t1Index != reftrk.index():
                 t1 = next(t for t in trklist if t.index() == t1Index)
                 ref_viatp.append(t1)
@@ -326,6 +330,7 @@ def _matchTracksByTrackingParticle(reftrk, trklist, othertrklist, othertplist):
             except StopIteration:
                 other_viatp_notinother.append(trkInfo2.track())
 
+    #print "end _matchTracksByTrackingParticle"
     return (ref_viatp, other_viatp, other_viatp_notinother)
 
 
@@ -527,16 +532,23 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
     while len(trks1) > 0:
         trk1 = trks1.pop(0)
 
-        #print trk1.index(), [t.index() for t in trks2]
+        #print "trk1, trks2", trk1.index(), [t.index() for t in trks2]
 
         # first try via TrackingParticles
         if trk1.nMatchedTrackingParticles() > 0 and tps2:
             (trks1_viatp, trks2_viatp, trks2_viatp_notintrks2) = _matchTracksByTrackingParticle(trk1, trks1, trks2, tps2)
 
+            #print " matches via TP"
+            #print "  trks1_viatp", [t.index() for t in trks1_viatp]
+            #print "  trks2_viatp", [t.index() for t in trks2_viatp]
+            #print "  trks2_viatp_notintrks2", [t.index() for t in trks2_viatp_notintrks2]
+
             if len(trks2_viatp) > 0 or len(trks2_viatp_notintrks2) > 0:
                 for t1 in trks1_viatp:
+                    #print "   removing from trks1", t1.index()
                     trks1.remove(t1)
                 for t2 in trks2_viatp:
+                    #print "   removing from trks2", t2.index()
                     trks2.remove(t2)
 
                 #if debug:
@@ -571,29 +583,52 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
         if len(trks2) > 0:
             i = 0
             while i < len(trks2) and trks2[i].eta() < trk1.eta():
+                #print " trks2 eta check, trk1.eta, trk2, trk2.eta", trk1.eta(), trks2[i].index(), trks2[i].eta()
+
                 # is there any way to speed these up?
                 trks1_viatp = []
                 trks1_viatp_notintrks1 = []
                 trks2_viatp = []
                 if trks2[i].nMatchedTrackingParticles() > 0 and tps1:
+                    #print "  trk2 matched to TP"
                     (trks2_viatp, trks1_viatp, trks1_viatp_notintrks1) = _matchTracksByTrackingParticle(trks2[i], trks2, trks1, tps1)
+                    #print " matches via TP"
+                    #print "  trks2_viatp", [t.index() for t in trks2_viatp]
+                    #print "  trks1_viatp", [t.index() for t in trks1_viatp]
+                    #print "  trks1_viatp_notintrks1", [t.index() for t in trks1_viatp_notintrks1]
+
                     if len(trks1_viatp) > 0:
                         i += 1
                         continue
 
-                (matchedTrk1, nc1) = _matchTracksByHits(trks2[i], [trk1]+trks1)
-                if matchedTrk1 is not None:
-                    i += 1
-                    continue
-                else:
-                    if len(trks1_viatp_notintrks1) > 0:
-                        if len(trks2_viatp) > 0: raise Exception("%d elements in trks2_viatp, I don't understand what is going on" % len(trks2_viatp))
-                        tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [], [trks2[i]], lst1extra=trks1_viatp_notintrks1, diffByHitsOnly=True)
-                        if tmp.hasDifference():
-                            diff.extend(tmp)
-                    else:
-                        diff.extend(_makediff([], trackPrinter.printTrackAndMatchedTrackingParticles(trks2[i])))
+                if len(trks2_viatp) == 0:
+                    (matchedTrk1, nc1) = _matchTracksByHits(trks2[i], [trk1]+trks1)
+                    if matchedTrk1 is not None:
+                        i += 1
+                        continue
+
+                if len(trks1_viatp_notintrks1) > 0:
+                    if len(trks2_viatp) > 0: raise Exception("%d elements in trks2_viatp, I don't understand what is going on" % len(trks2_viatp))
+                    tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [], [trks2[i]], lst1extra=trks1_viatp_notintrks1, diffByHitsOnly=True)
+                    if tmp.hasDifference():
+                        diff.extend(tmp)
+                    #print "   removing from trks2", trks2[i].index()
                     del trks2[i]
+                    continue
+
+
+                for trk2 in [trks2[i]] + trks2_viatp:
+                    (matchedTrk1, nc1) = _matchTracksByHits(trk2, [trk1]+trks1)
+                    if matchedTrk1 is not None:
+                        continue
+                    else:
+                        diff.extend(_makediff(trks1_viatp_notintrks1, trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
+                        for j, t2 in enumerate(trks2):
+                            if t2.index() == trk2.index():
+                                #print "   removing from trks2", trk2.index()
+                                del trks2[j]
+                                break
+
 
         # if no matching tracks in trk2 via TrackingParticles, then
         # proceed finding the best match via hits
