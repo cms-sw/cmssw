@@ -188,9 +188,9 @@ int HcalDDDSimConstants::getDepthEta29(const int phi, const int zside,
   return depth;
 }
 
-int HcalDDDSimConstants::getDepthEta29M(const int i) const {
+int HcalDDDSimConstants::getDepthEta29M(const int i, const bool flag) const {
   int depth = (i == 1) ? depthEta29[1] : depthEta29[0];
-  if (i == 0) {
+  if (i == 0 && flag) {
     std::vector<int> phis;
     int detsp = ldmap_.validDet(phis);
     if (detsp == 2) {
@@ -371,11 +371,12 @@ int HcalDDDSimConstants::getMaxDepth(const int det, const int eta,
 
   int dmax(-1);
   if (partialDetOnly) {
-    if (ldmap_.isValid(det,phi,zside))
-      dmax = ldmap_.getDepthMax(det,eta,phi,zside);
+    if (ldmap_.isValid(det,phi,zside)) {
+      dmax = ldmap_.getDepths(eta).second;
+    }
   } else if (det == 1 || det == 2) {
     if (ldmap_.isValid(det,phi,zside))
-      dmax = ldmap_.getDepthMax(det,eta,phi,zside);
+      dmax = ldmap_.getDepths(eta).second;
     else if (det == 2)               
       dmax = layerGroup(eta-1,maxLayer_);
     else if (eta == hpar->etaMax[0]) 
@@ -399,20 +400,16 @@ int HcalDDDSimConstants::getMinDepth(const int det, const int eta,
   int lmin(-1);
   if (partialDetOnly) {
     if (ldmap_.isValid(det,phi,zside)) {
-      if (layerGroupSize(eta-1) > 0) {
-	unsigned int type  = (det == 1) ? 0 : 1;
-	if (type == 1 && eta == hpar->etaMin[1]) 
-	  lmin = getDepthEta16(det, phi, zside);
-	else
-	  lmin = (int)(layerGroup(eta-1, 0));
-      }
+      lmin = ldmap_.getDepths(eta).first;
     }
   } else if (det == 3) { // HF
     lmin = 1;
   } else if (det == 4) { // HO
     lmin = maxDepth[3];
   } else {
-    if (layerGroupSize(eta-1) > 0) {
+    if (ldmap_.isValid(det,phi,zside)) {
+      lmin = ldmap_.getDepths(eta).first;
+    } else if (layerGroupSize(eta-1) > 0) {
       lmin = (int)(layerGroup(eta-1, 0));
       unsigned int type  = (det == 1) ? 0 : 1;
       if (type == 1 && eta == hpar->etaMin[1]) 
