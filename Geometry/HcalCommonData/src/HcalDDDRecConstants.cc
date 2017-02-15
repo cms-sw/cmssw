@@ -85,7 +85,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       } else {
 	phiUse.insert(phiUse.end(),phis.begin(),phis.end());
       }
-      getOneEtaBin(subdet,ieta,zside,phiUse,layers,bins);
+      getOneEtaBin(subdet,ieta,zside,phiUse,layers,false,bins);
     }
   }
   if (subdetSp == subdet) {
@@ -104,7 +104,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
 	}
 	if (phiUse.size() > 0) {
 	  hcons.ldMap()->getLayerDepth(subdet,ieta,phiUse[0].first,zside,layers);
-	  getOneEtaBin(subdet,ieta,zside,phiUse,layers,bins);
+	  getOneEtaBin(subdet,ieta,zside,phiUse,layers,true,bins);
 	}
       }
     }
@@ -298,7 +298,7 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta,
       if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
       lmax = (int)(layerGroup(ieta-1, lymax-1));
       if (type == 0 && ieta == iEtaMax[type]) lmax = hcons.getDepthEta16M(1);
-      if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29M(0);
+      if (type == 1 && ieta >= hpar->noff[1]) lmax = hcons.getDepthEta29M(0,false);
     }
   }
   return lmax;
@@ -320,7 +320,6 @@ int HcalDDDRecConstants::getMinDepth (const int itype, const int ieta,
 	  lmin = hcons.getDepthEta16M(2);
 	else
 	  lmin = (int)(layerGroup(ieta-1, 0));
-
       }
     }
   }
@@ -546,11 +545,26 @@ unsigned int HcalDDDRecConstants::nCells() const {
   return (nCells(HcalBarrel)+nCells(HcalEndcap)+nCells(HcalOuter)+nCells(HcalForward));
 }
 
-HcalDetId HcalDDDRecConstants::mergedDepthDetId(HcalDetId& id) const {
+HcalDetId HcalDDDRecConstants::mergedDepthDetId(const HcalDetId& id) const {
 
   std::map<HcalDetId,HcalDetId>::const_iterator itr = detIdSp_.find(id);
   if (itr == detIdSp_.end()) return id;
   else                       return itr->second;
+}
+
+void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id,
+					    std::vector<HcalDetId>& ids) const {
+
+  ids.clear();
+  std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  if (itr == detIdSpR_.end()) {
+    ids.push_back(id);
+  } else {
+    for (unsigned k=0; k<itr->second.size(); ++k) {
+      HcalDetId hid(id.subdet(),id.ieta(),id.iphi(),(itr->second)[k].depth());
+      ids.push_back(hid);
+    }
+  }
 }
 
 void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
@@ -565,7 +579,7 @@ void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
 
 void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 				       std::vector<std::pair<int,double> >& phis,
-				       std::map<int,int>& layers,
+				       std::map<int,int>& layers, bool flag,
 				       std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const {
 
   unsigned int lymax = (subdet == 1) ? 17 : 19;
@@ -616,7 +630,7 @@ void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 	if (subdet == 1 && ieta == iEtaMax[subdet-1] 
 	    && dep > hcons.getDepthEta16M(1)) break;
 	if (subdet == 2 && ieta == hpar->noff[1] &&  
-	    dep > hcons.getDepthEta29M(0)) {
+	    dep > hcons.getDepthEta29M(0,flag)) {
 	  lmax = lymx0;
 	  break;
 	}
@@ -823,6 +837,7 @@ void HcalDDDRecConstants::initialize(void) {
   //Map of special DetId's
   std::vector<int> phis;
   int              subdet0 = hcons.ldMap()->validDet(phis);
+  detIdSp_.clear(); detIdSpR_.clear();
   if ((subdet0 == static_cast<int>(HcalBarrel)) ||
       (subdet0 == static_cast<int>(HcalEndcap))) {
     int             phi    = (phis[0] > 0) ? phis[0] : -phis[0];
@@ -874,9 +889,16 @@ void HcalDDDRecConstants::initialize(void) {
 	  for (unsigned int k=0; k<phis.size(); ++k) {
 	    zside  = (phis[k] > 0) ? 1 : -1;
 	    phi    = (phis[k] > 0) ? phis[k] : -phis[k];
+	    if (subdet == 2 && eta == hpar->noff[1] &&  
+		ndepth > hcons.getDepthEta29M(0,true)) break;
 	    HcalDetId newId(subdet,zside*eta,phi,ndepth);
 	    HcalDetId oldId(subdet,zside*eta,phi,odepth);
 	    detIdSp_[newId] = oldId;
+	    std::vector<HcalDetId> ids;
+	    std::map<HcalDetId,std::vector<HcalDetId>>::iterator itr = detIdSpR_.find(oldId);
+	    if (itr != detIdSpR_.end()) ids = itr->second;
+	    ids.push_back(newId);
+	    detIdSpR_[oldId] = ids;
 	  }
 	}
       }
@@ -886,9 +908,20 @@ void HcalDDDRecConstants::initialize(void) {
 	      << detIdSp_.size() << " entries" << std::endl;
     int l(0);
     for (std::map<HcalDetId,HcalDetId>::const_iterator itr=detIdSp_.begin();
-	 itr != detIdSp_.end(); ++itr,++l)
+	 itr != detIdSp_.end(); ++itr,++l) {
       std::cout << "[" << l << "] Special " << itr->first << " Standard "
 		<< itr->second << std::endl;
+    }
+    std::cout << "Reverse Map for mapping old to new IDs with "
+	      << detIdSpR_.size() << " entries" << std::endl;
+    l = 0;
+    for (std::map<HcalDetId,std::vector<HcalDetId> >::const_iterator itr=detIdSpR_.begin();
+	 itr != detIdSpR_.end(); ++itr,++l) {
+      std::cout << "[" << l << "] Standard " << itr->first << " Special";
+      for (unsigned int k=0; k < itr->second.size(); ++k)
+	std::cout << " " << (itr->second)[k];
+      std::cout << std::endl;
+    }
 #endif
   }
 

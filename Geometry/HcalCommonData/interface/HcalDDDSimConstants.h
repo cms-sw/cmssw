@@ -40,7 +40,7 @@ public:
 					  const int zside) const;
   int                       getDepthEta16M(const int det) const;
   int                       getDepthEta29(const int phi, int zside, int i) const;
-  int                       getDepthEta29M(const int i) const;
+  int                       getDepthEta29M(const int i, const bool flag) const;
   std::pair<int,double>     getDetEta(const double eta, const int depth);
   int                       getEta(const int det, const int lay, const double hetaR);
   std::pair<int,int>        getEtaDepth(const int det, int etaR, int phi,
