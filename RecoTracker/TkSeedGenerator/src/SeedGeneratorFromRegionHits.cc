@@ -21,8 +21,11 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
   unsigned int nHitss =  hitss.size();
-  if (seedCollection.empty()) seedCollection.reserve(nHitss); // don't do multiple reserves in the case of multiple regions: it would make things even worse
-                                                              // as it will cause N re-allocations instead of the normal log(N)/log(2)
+  // Modified 10/Jun/2014 Mark Grimes - At 140 pileup this reserve massively overestimates
+  // the amount of memory required. Removing it doesn't appear to slow down the algorithm
+  // noticeably.
+  //if (seedCollection.empty()) seedCollection.reserve(nHitss); // don't do multiple reserves in the case of multiple regions: it would make things even worse
+  //                                                            // as it will cause N re-allocations instead of the normal log(N)/log(2)
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
     if (!theComparitor || theComparitor->compatible(hits, region) ) {
