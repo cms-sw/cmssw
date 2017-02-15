@@ -593,7 +593,7 @@ private:
   std::vector<unsigned short> str_lay    ;
   std::vector<unsigned int> str_detId    ;
   std::vector<std::vector<int> > str_trkIdx;    // second index runs through tracks containing this hit
-  std::vector<std::vector<int> > str_seeIdx;    // second index runs through seeds containing this hitw
+  std::vector<std::vector<int> > str_seeIdx;    // second index runs through seeds containing this hit
   std::vector<std::vector<int> > str_simHitIdx; // second index runs through SimHits inducing this hit
   std::vector<std::vector<float> > str_chargeFraction; // second index runs through SimHits inducing this hit
   std::vector<unsigned short> str_simType;
