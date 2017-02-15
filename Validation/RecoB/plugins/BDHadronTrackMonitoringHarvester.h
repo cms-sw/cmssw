@@ -4,6 +4,17 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include "Validation/RecoB/plugins/BDHadronTrackMonitoringAnalyzer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMOffline/RecoB/interface/Tools.h"
+#include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+using namespace edm;
+using namespace std;
+using namespace RecoBTag;
+
 /** \class BDHadronTrackMonitoringHarvester
  *
  *  Top level steering routine for b tag performance harvesting.

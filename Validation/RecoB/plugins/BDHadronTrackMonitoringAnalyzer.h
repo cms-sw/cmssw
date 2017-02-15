@@ -22,6 +22,39 @@
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
+
+#include "DQMOffline/RecoB/interface/Tools.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+
+#include <iostream>
+#include <fstream>
+
+using namespace reco;
+using namespace edm;
+using namespace std;
+
+typedef std::pair<unsigned int, std::string> intstrpair;
+const intstrpair map_start_values[] = {
+  intstrpair(0, "BCWeakDecay"),
+  intstrpair(1, "BWeakDecay"),
+  intstrpair(2, "CWeakDecay"),
+  intstrpair(3, "PU"),
+  intstrpair(4, "Other"),
+  intstrpair(5, "Fake") 
+};
+const int map_start_values_size = sizeof(map_start_values) / sizeof(map_start_values[0]);
+
+extern std::map<unsigned int, std::string> TrkHistCat;
+
+
 
 
 
@@ -31,6 +64,8 @@
  *  Top level steering routine for B + D hadron track monitoring tool from RECODEBUG samples.
  *
  */
+
+
 
 class BDHadronTrackMonitoringAnalyzer : public DQMEDAnalyzer {
    public:

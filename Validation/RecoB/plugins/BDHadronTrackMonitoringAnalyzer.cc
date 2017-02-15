@@ -1,32 +1,8 @@
 #include "Validation/RecoB/plugins/BDHadronTrackMonitoringAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
-#include "DQMOffline/RecoB/interface/Tools.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+// intialize category map
+std::map<unsigned int, std::string> TrkHistCat(map_start_values, map_start_values + map_start_values_size);
 
-#include <iostream>
-#include <fstream>
-
-using namespace reco;
-using namespace edm;
-using namespace std;
-
-
-std::map<unsigned int, std::string> TrkHistCat{
-    {0, "BCWeakDecay"},
-    {1, "BWeakDecay"},
-    {2, "CWeakDecay"},
-    {3, "PU"},
-    {4, "Other"},
-    {5, "Fake"} 
-};
 
 const reco::TrackBaseRef toTrackRef(const edm::Ptr<reco::Candidate> & cnd)
 {
@@ -173,10 +149,9 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
   }
   // -----------------------
 
-
   // -------- Loop Over Jets ----------
   for ( pat::JetCollection::const_iterator jet = patJetsColl->begin(); jet != patJetsColl->end(); ++jet ) {
-    if ( ( jet->pt() < minJetPt_ || std::fabs( jet->eta() ) > maxJetEta_ ) ) continue;
+    if ( jet->pt() < minJetPt_ || std::fabs(jet->eta()) > maxJetEta_ ) continue;
 
     unsigned int flav = abs(jet->hadronFlavour());
 
@@ -187,9 +162,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
 
 
     unsigned int nseltracks = 0;
-    int nseltracksCat[6] = {0,0,0,0,0,0}; // following the order of TrkHistCat
-    //int nseltracksTruthCat[6] = {0,0,0,0,0,0}; // following the order of TrkHistCat
-    //unsigned int nseltracksTruth = 0;
+    std::vector<int> nseltracksCat(TrkHistCat.size(),0); // following the order of TrkHistCat
 
     unsigned int nTrackSize = selectedTracks.size(); // number of tracks from IPInfos to loop over
     // -------- Loop Over (selected) Tracks ----------
@@ -249,7 +222,6 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
         std::sort(clusterTPmap.begin(), clusterTPmap.end(), compare);
         auto clusterRange = std::equal_range(clusterTPmap.begin(), clusterTPmap.end(),std::make_pair(OmniClusterRef(), tpr), compare);
         if (quality_tpr != 0) {
-            //nseltracksTruth +=1;
         
             TrkTruthPt = tpr->pt();
             TrkTruthEta = tpr->eta();
@@ -273,21 +245,11 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
             }
             TrkTruthnHitAll = TrkTruthnHitPixel + TrkTruthnHitStrip;
         
-            /*
-            if ( theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::BWeakDecay] && theFlag[TrackCategories::CWeakDecay] ) {nseltracksTruthCat[0] += 1;}
-            else if ( theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::BWeakDecay] && !theFlag[TrackCategories::CWeakDecay] ) {nseltracksTruthCat[1] += 1;}
-            else if ( theFlag[TrackCategories::SignalEvent] && !theFlag[TrackCategories::BWeakDecay] && theFlag[TrackCategories::CWeakDecay] ) {nseltracksTruthCat[2] += 1;}
-            else if ( !theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::Fake] ) {nseltracksTruthCat[3] += 1;}
-            else if ( !theFlag[TrackCategories::SignalEvent] && !theFlag[TrackCategories::Fake] ) {nseltracksTruthCat[4] += 1;}
-            else{ nseltracksTruthCat[5] += 1; }
-            */
-        
         }
     
     
     
         // ----------- Filling the correct histograms based on jet flavour and Track history Category --------
-    
     
         //BCWeakDecay
         if ( theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::BWeakDecay] && theFlag[TrackCategories::CWeakDecay] ) {
@@ -417,35 +379,30 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
 
     }
     // -------- END Loop Over (selected) Tracks ----------
-
     // Still have to fill some jet-flavour specific variables
     if (flav == 5){
         nTrkAll_bjet->Fill(nseltracks);
-        //nTrkTruthAll_bjet->Fill(nseltracksTruth);
         for (unsigned int i = 0; i < TrkHistCat.size(); i++){
             nTrk_bjet[i]->Fill(nseltracksCat[i]);
-            //nTrkTruth_bjet[i]->Fill(nseltracksTruthCat[i]);
         }
     }
     else if (flav == 4){
         nTrkAll_cjet->Fill(nseltracks);
-        //nTrkTruthAll_cjet->Fill(nseltracksTruth);
         for (unsigned int i = 0; i < TrkHistCat.size(); i++){
             nTrk_cjet[i]->Fill(nseltracksCat[i]);
-            //nTrkTruth_cjet[i]->Fill(nseltracksTruthCat[i]);
         }
     }
     else {
         nTrkAll_dusgjet->Fill(nseltracks);
-        //nTrkTruthAll_dusgjet->Fill(nseltracksTruth);
         for (unsigned int i = 0; i < TrkHistCat.size(); i++){
             nTrk_dusgjet[i]->Fill(nseltracksCat[i]);
-            //nTrkTruth_dusgjet[i]->Fill(nseltracksTruthCat[i]);
         }
     }
 
   }
   // -------- END Loop Over Jets ----------
+  
+  if (!pvFound){delete pv;}
 
 
 }
