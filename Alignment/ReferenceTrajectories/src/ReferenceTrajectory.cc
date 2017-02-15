@@ -952,8 +952,9 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
 
   // GBL uses ROOT matrices as interface
   TMatrixDSym covariance(2), measPrecision(2), scatPrecision(2);
-  TMatrixD jacPointToPoint(5,5), identity(5,5), proLocalToMeas(2,2);
-  identity.UnitMatrix();
+  // TMatrixD jacPointToPoint(5,5), identity(5,5), proLocalToMeas(2,2);
+  TMatrixD jacPointToPoint(5,5), proLocalToMeas(2,2);
+  auto identity = MatrixXd::Identity(5, 5);
   TVectorD measurement(2), scatterer(2), measPrecDiag(2);
   scatterer.Zero();
   //bool initialKinks = (allCurvlinKinks.size()>0);
@@ -1041,7 +1042,9 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
 
   // GBL uses ROOT matrices as interface
   TMatrixDSym covariance(2), measPrecision(2);
-  TMatrixD jacPointToPoint(5,5), firstLocalToCurv(5,5), proLocalToMeas(2,2);
+  // TMatrixD jacPointToPoint(5,5), firstLocalToCurv(5,5), proLocalToMeas(2,2);
+  TMatrixD jacPointToPoint(5,5), proLocalToMeas(2,2);
+  MatrixXd firstLocalToCurv{5,5};
   TVectorD measurement(2), scatterer(2), measPrecDiag(2), scatPrecDiag(2);
   scatterer.Zero();
 
@@ -1115,7 +1118,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     GblPointList.push_back( aGblPoint );
   }
   // add list of points and transformation local to fit (=curvilinear) system at first hit
-  clhep2root(allLocalToCurv[0], firstLocalToCurv);
+  clhep2eigen(allLocalToCurv[0], firstLocalToCurv);
   theGblInput.push_back(std::make_pair(GblPointList, firstLocalToCurv));
 
   return true;
@@ -1147,7 +1150,19 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     }
   }
 }
-   
+
+//______________________________________________________________________________
+
+void ReferenceTrajectory::clhep2eigen(const AlgebraicMatrix& in, MatrixXd& out) {
+  // convert from CLHEP to ROOT matrix
+  for (int row = 0; row < in.num_row(); ++row) {
+    for (int col = 0; col < in.num_col(); ++col) {
+      std::cout << "here clhep2eigen" << std::endl;
+      out(row, col) = in[row][col];
+    }
+  }
+}
+
 //__________________________________________________________________________________
 
 AlgebraicMatrix
