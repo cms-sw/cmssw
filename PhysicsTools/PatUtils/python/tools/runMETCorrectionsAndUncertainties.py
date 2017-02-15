@@ -1416,7 +1416,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if self._parameters["onMiniAOD"].value: 
                 pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
             else:
-                setattr( process, "tmpPFCandCollPtr", cms.EDProducer("PFCandidateFwdPtrProducer",
+                setattr( process, "tmpPFCandCollPtr"+postfix, cms.EDProducer("PFCandidateFwdPtrProducer",
                                                                      src = pfCandCollection ) )
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 configtools.cloneProcessingSnippet(process, getattr(process,"pfNoPileUpJMESequence"), postfix )
