@@ -144,6 +144,11 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2Emtf +
     l1tdeStage2EmtfComp +
     l1tStage2uGMTEmul +
+    l1tStage2uGMTIntermediateBMTFEmul +
+    l1tStage2uGMTIntermediateOMTFNegEmul +
+    l1tStage2uGMTIntermediateOMTFPosEmul +
+    l1tStage2uGMTIntermediateEMTFNegEmul +
+    l1tStage2uGMTIntermediateEMTFPosEmul +
     l1tdeStage2uGMT +
     l1tStage2uGtEmul
 )
