@@ -444,7 +444,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
 
   
   size_t coridx = 0;
-  float raw_pt = raw_energy*the_sc->position().perp()/the_sc->position().r();
+  float raw_pt = raw_energy*the_sc->position().rho()/the_sc->position().r();
 
   if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
     coridx = 0;
@@ -638,7 +638,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
   
   size_t coridx = 0;
-  float raw_pt = raw_energy*the_sc->position().perp()/the_sc->position().r();
+  float raw_pt = raw_energy*the_sc->position().rho()/the_sc->position().r();
 
   if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
     coridx = 0;
