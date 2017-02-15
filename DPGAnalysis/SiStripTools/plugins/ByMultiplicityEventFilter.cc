@@ -54,10 +54,8 @@ class ByMultiplicityEventFilter : public edm::stream::EDFilter<> {
 
 
    private:
-      virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
   T m_multiplicities;
@@ -121,21 +119,6 @@ ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& 
    return value;
 
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-template <class T>
-void 
-ByMultiplicityEventFilter<T>::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-template <class T>
-void 
-ByMultiplicityEventFilter<T>::endJob() {
-}
-
-
 
 //define this as a plug-in
 /*
