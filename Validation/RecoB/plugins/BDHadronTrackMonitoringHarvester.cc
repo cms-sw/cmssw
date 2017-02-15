@@ -1,22 +1,8 @@
 #include "Validation/RecoB/plugins/BDHadronTrackMonitoringHarvester.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DQMOffline/RecoB/interface/Tools.h"
-#include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
-using namespace edm;
-using namespace std;
-using namespace RecoBTag;
+// intialize category map
+//std::map<unsigned int, std::string> TrkHistCat(map_start_values, map_start_values + map_start_values_size);
 
-std::map<unsigned int, std::string> TrkHistCategories{
-    {0, "BCWeakDecay"},
-    {1, "BWeakDecay"},
-    {2, "CWeakDecay"},
-    {3, "PU"},
-    {4, "Other"},
-    {5, "Fake"}    
-};
 
 typedef std::map<unsigned int, std::string>::iterator it_type;
 
@@ -45,7 +31,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     // b jets
     // absolute average number of tracks
     nTrk_absolute_bjet = ibook.book1D("nTrk_absolute_bjet","absolute average number of tracks in b jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_absolute_bjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_absolute_bjet->setAxisRange(0, 5, 2);
@@ -53,7 +39,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
 
     // relative (in percent) average number of tracks
     nTrk_relative_bjet = ibook.book1D("nTrk_relative_bjet","relative average number of tracks in b jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_relative_bjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_relative_bjet->setAxisRange(0, 1, 2);
@@ -61,7 +47,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
 
     // standard deviation of number of tracks
     nTrk_std_bjet = ibook.book1D("nTrk_std_bjet","RMS of number of tracks in b jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_std_bjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_std_bjet->setAxisRange(0, 3, 2);
@@ -72,21 +58,21 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
 
     // c jets
     nTrk_absolute_cjet = ibook.book1D("nTrk_absolute_cjet","absolute average number of tracks in c jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_absolute_cjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_absolute_cjet->setAxisRange(0, 5, 2);
     nTrk_absolute_cjet->setAxisTitle("average number of tracks",2);
 
     nTrk_relative_cjet = ibook.book1D("nTrk_relative_cjet","relative average number of tracks in c jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_relative_cjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_relative_cjet->setAxisRange(0, 1, 2);
     nTrk_relative_cjet->setAxisTitle("average fraction of tracks",2);
 
     nTrk_std_cjet = ibook.book1D("nTrk_std_cjet","RMS of number of tracks in c jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_std_cjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_std_cjet->setAxisRange(0, 3, 2);
@@ -96,21 +82,21 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
 
     // udsg jets
     nTrk_absolute_dusgjet = ibook.book1D("nTrk_absolute_dusgjet","absolute average number of tracks in dusg jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_absolute_dusgjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_absolute_dusgjet->setAxisRange(0, 5, 2);
     nTrk_absolute_dusgjet->setAxisTitle("average number of tracks",2);
 
     nTrk_relative_dusgjet = ibook.book1D("nTrk_relative_dusgjet","relative average number of tracks in dusg jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_relative_dusgjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_relative_dusgjet->setAxisRange(0, 1, 2);
     nTrk_relative_dusgjet->setAxisTitle("average fraction of tracks",2);
 
     nTrk_std_dusgjet = ibook.book1D("nTrk_std_dusgjet","RMS of number of tracks in dusg jets",6,-0.5,5.5);
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_std_dusgjet->setBinLabel(iterator->first+1,iterator->second,1);
     }
     nTrk_std_dusgjet->setAxisRange(0, 3, 2);
@@ -125,21 +111,21 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
 
     // b jets
     MonitorElement *nTrk_bjet[6];
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_bjet[iterator->first] = iget.get("nTrk_bjet_"+iterator->second);
     }
     MonitorElement *nTrkAll_bjet = iget.get("nTrkAll_bjet");
 
     // c jets
     MonitorElement *nTrk_cjet[6];
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_cjet[iterator->first] = iget.get("nTrk_cjet_"+iterator->second);
     }
     MonitorElement *nTrkAll_cjet = iget.get("nTrkAll_cjet");
 
     // dusg jets
     MonitorElement *nTrk_dusgjet[6];
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         nTrk_dusgjet[iterator->first] = iget.get("nTrk_dusgjet_"+iterator->second);
     }
     MonitorElement *nTrkAll_dusgjet = iget.get("nTrkAll_dusgjet");
@@ -157,7 +143,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     float std_bjets[6];
     float meanAll_bjets;
     meanAll_bjets = nTrkAll_bjet->getMean(1);
-    for (unsigned int i = 0; i< TrkHistCategories.size(); i++){
+    for (unsigned int i = 0; i< TrkHistCat.size(); i++){
         mean_bjets[i] = nTrk_bjet[i]->getMean(1); // mean number of tracks per category
         std_bjets[i] = nTrk_bjet[i]->getRMS(1);
         nTrk_absolute_bjet->setBinContent(i+1,mean_bjets[i]);
@@ -170,7 +156,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     float std_cjets[6];
     float meanAll_cjets;
     meanAll_cjets = nTrkAll_cjet->getMean(1);
-    for (unsigned int i = 0; i< TrkHistCategories.size(); i++){
+    for (unsigned int i = 0; i< TrkHistCat.size(); i++){
         mean_cjets[i] = nTrk_cjet[i]->getMean(1); // mean number of tracks per category
         std_cjets[i] = nTrk_cjet[i]->getRMS(1);
         nTrk_absolute_cjet->setBinContent(i+1,mean_cjets[i]);
@@ -184,7 +170,7 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     float std_dusgjets[6];
     float meanAll_dusgjets;
     meanAll_dusgjets = nTrkAll_dusgjet->getMean(1);
-    for (unsigned int i = 0; i< TrkHistCategories.size(); i++){
+    for (unsigned int i = 0; i< TrkHistCat.size(); i++){
         mean_dusgjets[i] = nTrk_dusgjet[i]->getMean(1); // mean number of tracks per category
         std_dusgjets[i] = nTrk_dusgjet[i]->getRMS(1);
         nTrk_absolute_dusgjet->setBinContent(i+1,mean_dusgjets[i]);
@@ -200,19 +186,19 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     // ***********************
 
     // b jets
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         iget.removeElement("nTrk_bjet_"+iterator->second);
     }
     iget.removeElement("nTrkAll_bjet");
 
     // c jets
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         iget.removeElement("nTrk_cjet_"+iterator->second);
     }
     iget.removeElement("nTrkAll_cjet");
 
     // dusg jets
-    for(it_type iterator = TrkHistCategories.begin(); iterator != TrkHistCategories.end(); iterator++) {
+    for(it_type iterator = TrkHistCat.begin(); iterator != TrkHistCat.end(); iterator++) {
         iget.removeElement("nTrk_dusgjet_"+iterator->second);
     }
     iget.removeElement("nTrkAll_dusgjet");
