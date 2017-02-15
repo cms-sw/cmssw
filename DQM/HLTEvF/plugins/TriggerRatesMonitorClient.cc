@@ -34,7 +34,7 @@ void TriggerRatesMonitorClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore:
 
   int i = 0;
   for ( auto const & dir : directories) {
-    std::cout << "dir: " << dir << std::endl;
+    //    std::cout << "dir: " << dir << std::endl;
     ibooker_.setCurrentFolder(m_dqm_path + "/" + dir);
 
     std::vector<std::string> const & all_mes = igetter_.getMEs();
@@ -48,7 +48,7 @@ void TriggerRatesMonitorClient::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore:
     int    nbinsX = 0;
     int ibinY = 1;
     for ( auto const & me : mes ) {
-      std::cout << "me: " << me << std::endl;
+      //      std::cout << "me: " << me << std::endl;
       ibooker_.setCurrentFolder(m_dqm_path + "/" + dir);
       TH1F* histo = igetter_.get( me )->getTH1F();
 
