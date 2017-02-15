@@ -135,7 +135,6 @@ private:
   std::vector<TH1F *>           m_l1t_counts;
 
   // HLT triggers
-  std::vector<HLTRatesPlots>    m_hlt_counts;
   std::vector<std::vector<HLTRatesPlots> > m_hlt_by_dataset_counts;
 
   // datasets
@@ -179,7 +178,6 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   // L1T triggers
   m_l1t_counts(),
   // HLT triggers
-  m_hlt_counts(),
   m_hlt_by_dataset_counts(),
   // datasets
   m_dataset_counts(),
@@ -212,8 +210,6 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
   edm::EDConsumerBase::Labels labels;
   labelsForToken(m_hlt_results, labels);
   if (m_hltConfig.init(run, setup, labels.process, changed)) {
-    m_hlt_counts.clear();
-    m_hlt_counts.resize( m_hltConfig.size(), HLTRatesPlots() );
     m_hltIndices.resize( m_hltConfig.size(), HLTIndices() );
 
     unsigned int datasets = m_hltConfig.datasetNames().size();
@@ -297,12 +293,6 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
 
       //      booker.setCurrentFolder( m_dqm_path + "/HLT/" + datasets[d]);
       for (unsigned int i: m_datasets[d]) {
-//	std::string const & name = m_hltConfig.triggerName(i) + "_old";
-//	m_hlt_counts[i].pass_l1_seed  = booker.book1D(name + "_pass_L1_seed",     name + " pass L1 seed, vs. lumisection",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-//	m_hlt_counts[i].pass_prescale = booker.book1D(name + "_pass_prescaler",   name + " pass prescaler, vs. lumisection",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-//	m_hlt_counts[i].accept        = booker.book1D(name + "_accept",           name + " accept, vs. lumisection",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-//	m_hlt_counts[i].reject        = booker.book1D(name + "_reject",           name + " reject, vs. lumisection",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-//	m_hlt_counts[i].error         = booker.book1D(name + "_error",            name + " error, vs. lumisection",            m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
 
 	// look for the index of the (last) L1 seed and prescale module in each path
 	m_hltIndices[i].index_l1_seed  = m_hltConfig.size(i);
@@ -362,24 +352,7 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
   // monitor the HLT triggers and datsets rates
   if (m_hltConfig.inited()) {
     edm::TriggerResults const & hltResults = get<edm::TriggerResults>(event, m_hlt_results);
-    if (hltResults.size() == m_hlt_counts.size()) {
-//      for (unsigned int i = 0; i < m_hlt_counts.size(); ++i) {
-//        edm::HLTPathStatus const & path = hltResults.at(i);
-//
-//	std::string const & name = m_hltConfig.triggerName(i);
-//	if ( name == "HLTriggerFirstPath" ) continue;
-//	if ( name == "HLTriggerFinalPath" ) continue;
-//        if (path.index() > m_hltIndices[i].index_l1_seed)
-//          m_hlt_counts[i].pass_l1_seed->Fill(lumisection);
-//        if  (path.index() > m_hltIndices[i].index_prescale)
-//          m_hlt_counts[i].pass_prescale->Fill(lumisection);
-//        if (path.accept())
-//          m_hlt_counts[i].accept->Fill(lumisection);
-//        else if (path.error())
-//          m_hlt_counts[i].error ->Fill(lumisection);
-//        else
-//          m_hlt_counts[i].reject->Fill(lumisection);
-//      }
+    if (hltResults.size() == m_hltIndices.size()) {
     } else {
       edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the number of HLT paths has changed since the beginning of the run";
     }
