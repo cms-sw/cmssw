@@ -64,16 +64,12 @@ namespace {
 ///
 ///
 ///
-namespace {
-  SeedCreator *createSeedCreator(const edm::ParameterSet& cfg) {
-    edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-    return SeedCreatorFactory::get()->create(creatorPSet.getParameter<std::string>("ComponentName") , creatorPSet);
-  }
-}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
   QuadrupletSeedMerger(iConfig, nullptr, iC) {}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC):
-  QuadrupletSeedMerger(iConfig, createSeedCreator(seedCreatorConfig), iC) {}
+  QuadrupletSeedMerger(iConfig,
+                       SeedCreatorFactory::get()->create(seedCreatorConfig.getParameter<std::string>("ComponentName") , seedCreatorConfig), 
+                       iC) {}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, SeedCreator *seedCreator, edm::ConsumesCollector& iC):
   theLayerBuilder_(iConfig, iC),
   theSeedCreator_(seedCreator)

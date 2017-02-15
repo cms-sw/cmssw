@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.CSCGeometry.cscGeometry_cfi import *
 from Geometry.RPCGeometry.rpcGeometry_cfi import *
 from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumbering2017Geometry_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerSLHCGeometry_cfi import *
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 

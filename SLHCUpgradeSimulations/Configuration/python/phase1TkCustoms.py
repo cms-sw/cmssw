@@ -28,7 +28,7 @@ def customise(process):
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-        process=customise_Validation(process,float(n))
+        process=customise_Validation(process)
     process=customise_condOverRides(process)
     
     return process
@@ -69,16 +69,8 @@ def customise_Digi(process):
 # DQM steps change
 def customise_DQM(process,pileup):
     # We cut down the number of iterative tracking steps
-#    process.dqmoffline_step.remove(process.TrackMonStep3)
-#    process.dqmoffline_step.remove(process.TrackMonStep4)
-#    process.dqmoffline_step.remove(process.TrackMonStep5)
-#    process.dqmoffline_step.remove(process.TrackMonStep6)
-    #
     process.dqmoffline_step.remove(process.muonAnalyzer)
-    process.dqmoffline_step.remove(process.jetMETAnalyzer)
-#    process.dqmoffline_step.remove(process.TrackMonStep9)
-#    process.dqmoffline_step.remove(process.TrackMonStep10)
-#    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
+    #process.dqmoffline_step.remove(process.jetMETAnalyzer)
 
     #put isUpgrade flag==true
     process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
@@ -97,43 +89,56 @@ def customise_DQM(process,pileup):
         process=customise_trackMon_IterativeTracking_PHASE1PU70(process)
     return process
 
-def customise_Validation(process,pileup):
+def customise_Validation(process):
     process.validation_step.remove(process.PixelTrackingRecHitsValid)
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
     process.validation_step.remove(process.relvalMuonBits)
-    if pileup>30:
-        process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
-        process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
-        process.globalValidation.remove(process.recoMuonValidation)
-        process.validation.remove(process.recoMuonValidation)
-        process.validation_preprod.remove(process.recoMuonValidation)
-        process.validation_step.remove(process.recoMuonValidation)
-        process.validation.remove(process.globalrechitsanalyze)
-        process.validation_prod.remove(process.globalrechitsanalyze)
-        process.validation_step.remove(process.globalrechitsanalyze)
-        process.validation.remove(process.stripRecHitsValid)
-        process.validation_step.remove(process.stripRecHitsValid)
-        process.validation_step.remove(process.StripTrackingRecHitsValid)
-        process.globalValidation.remove(process.vertexValidation)
-        process.validation.remove(process.vertexValidation)
-        process.validation_step.remove(process.vertexValidation)
-        process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
-        process.mix.minBunch = cms.int32(0)
-        process.mix.maxBunch = cms.int32(0)
+    return process
 
+def customise_Validation_Trackingonly(process):
+
+    #To allow Tracking to perform special tracking only validation 
+    process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
+    process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
+    process.globalValidation.remove(process.recoMuonValidation)
+    process.validation.remove(process.recoMuonValidation)
+    process.validation_preprod.remove(process.recoMuonValidation)
+    process.validation_step.remove(process.recoMuonValidation)
+    process.validation.remove(process.globalrechitsanalyze)
+    process.validation_prod.remove(process.globalrechitsanalyze)
+    process.validation_step.remove(process.globalrechitsanalyze)
+    process.validation.remove(process.stripRecHitsValid)
+    process.validation_step.remove(process.stripRecHitsValid)
+    process.validation_step.remove(process.StripTrackingRecHitsValid)
+    process.globalValidation.remove(process.vertexValidation)
+    process.validation.remove(process.vertexValidation)
+    process.validation_step.remove(process.vertexValidation)
+    process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
+    process.mix.minBunch = cms.int32(0)
+    process.mix.maxBunch = cms.int32(0)
     return process
 
 def customise_harvesting(process):
+    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
-    ###process.dqmHarvesting.remove(process.sipixelEDAClient)
+    #######process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.sipixelEDAClient.isUpgrade = cms.untracked.bool(True)
     process.dqmHarvesting.remove(process.sipixelCertification)
     return (process)        
 
 def customise_condOverRides(process):
-#    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
+#    process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
+#    process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
+#    process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
+#    process.trackerTopologyConstants.pxb_layerMask = cms.uint32(15)
+#    process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(255)
+#    process.trackerTopologyConstants.pxb_moduleMask = cms.uint32(1023)
+#    process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
+#    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
+#    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
+#    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
     return process
 
 def add_detailed_pixel_dqm(process):
@@ -194,6 +199,47 @@ def customise_Reco(process,pileup):
     process.globalreco.remove(process.iterTracking)
     process.globalreco.remove(process.electronSeedsSeq)
     process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
+    process.reconstruction_fromRECO.remove(process.electronSeedsSeq)
+    process.reconstruction_fromRECO.remove(process.initialStepSeedLayers)
+    process.reconstruction_fromRECO.remove(process.initialStepSeeds)
+    process.reconstruction_fromRECO.remove(process.initialStepSelector)
+    process.reconstruction_fromRECO.remove(initialStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(initialStepTracks)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepClusters)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSeedLayers)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepSelector)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(lowPtTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(mixedTripletStep)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClusters)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedLayersA)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedLayersB)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeeds)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedsA)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSeedsB)
+    process.reconstruction_fromRECO.remove(mixedTripletStepSelector)
+    process.reconstruction_fromRECO.remove(mixedTripletStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(mixedTripletStepTracks)
+
+    process.reconstruction_fromRECO.remove(pixelPairStepClusters)
+    process.reconstruction_fromRECO.remove(pixelPairStepSeeds)
+    process.reconstruction_fromRECO.remove(pixelPairStepSeedLayers)
+    process.reconstruction_fromRECO.remove(pixelPairStepSelector)
+    process.reconstruction_fromRECO.remove(pixelPairStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(pixelPairStepTracks)
+    
+    process.reconstruction_fromRECO.remove(tobTecStepClusters)
+    process.reconstruction_fromRECO.remove(tobTecStepSeeds)
+    #process.reconstruction_fromRECO.remove(tobTecStepSeedLayers)
+    process.reconstruction_fromRECO.remove(tobTecStepSelector)
+    process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
+    process.reconstruction_fromRECO.remove(tobTecStepTracks)
+
+    # Needed to make the loading of recoFromSimDigis_cff below to work
+    process.InitialStepPreSplitting.remove(siPixelClusters)
+
     del process.iterTracking
     del process.ckftracks
     del process.ckftracks_woBH
@@ -222,16 +268,15 @@ def customise_Reco(process,pileup):
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
-    process.reconstruction.remove(process.ak7CastorJets)
-    process.reconstruction.remove(process.ak7CastorJetID)
+    #process.reconstruction.remove(process.ak7BasicJets)
+    #process.reconstruction.remove(process.ak7CastorJetID)
 
     #the quadruplet merger configuration     
-    # from this PSet the quadruplet merger uses only the layer list so these could probably be removed
-    from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
-    PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
-    PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )
+    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
+    process.PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    process.PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    process.PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )    
     
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
@@ -254,10 +299,40 @@ def customise_Reco(process,pileup):
     process.regionalCosmicTracks.TTRHBuilder=cms.string('WithTrackAngle')
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
     # End of pixel template needed section
+
+    # Remove, for now, the pre-cluster-splitting clustering step
+    # To be enabled later together with or after the jet core step is enabled
+    # This snippet must be after the loading of recoFromSimDigis_cff
+    process.pixeltrackerlocalreco = cms.Sequence(
+        process.siPixelClusters +
+        process.siPixelRecHits
+    )
+    process.clusterSummaryProducer.pixelClusters = "siPixelClusters"
+    process.reconstruction.replace(process.MeasurementTrackerEventPreSplitting, process.MeasurementTrackerEvent)
+    process.reconstruction.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
+
+    # Enable, for now, pixel tracks and vertices
+    # To be removed later together with the cluster splitting
+    process.reconstruction.replace(process.standalonemuontracking,
+                                   process.standalonemuontracking+process.recopixelvertexing)
+    process.initialStepSelector.vertices = "pixelVertices"
+    process.highPtTripletStepSelector.vertices = "pixelVertices"
+    process.lowPtQuadStepSelector.vertices = "pixelVertices"
+    process.lowPtTripletStepSelector.vertices = "pixelVertices"
+    process.detachedQuadStepSelector.vertices = "pixelVertices"
+    process.mixedTripletStepSelector.vertices = "pixelVertices"
+    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
+    process.pixelPairStepSelector.vertices = "pixelVertices"
+    process.tobTecStepSelector.vertices = "pixelVertices"
+    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
+    process.duplicateTrackSelector.vertices = "pixelVertices"
+    process.convStepSelector.vertices = "pixelVertices"
+    process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
     
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerList = PixelSeedMergerQuadruplets,
+        layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
         addRemainingTriplets = cms.bool(False),
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')

@@ -49,7 +49,6 @@ void
 TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription descTrackerGeometryConstants;
-  descTrackerGeometryConstants.add<bool>( "upgradeGeometry", false );
   descTrackerGeometryConstants.add<int>( "ROWS_PER_ROC", 80 );
   descTrackerGeometryConstants.add<int>( "COLS_PER_ROC", 52 );
   descTrackerGeometryConstants.add<int>( "BIG_PIX_PER_ROC_X", 1 );
@@ -58,7 +57,6 @@ TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & d
   descTrackerGeometryConstants.add<int>( "ROCS_Y", 0 );
 
   edm::ParameterSetDescription descTrackerSLHCGeometryConstants;
-  descTrackerSLHCGeometryConstants.add<bool>( "upgradeGeometry", true );
   descTrackerSLHCGeometryConstants.add<int>( "ROWS_PER_ROC", 80 );
   descTrackerSLHCGeometryConstants.add<int>( "COLS_PER_ROC", 52 );
   descTrackerSLHCGeometryConstants.add<int>( "BIG_PIX_PER_ROC_X", 0 );
