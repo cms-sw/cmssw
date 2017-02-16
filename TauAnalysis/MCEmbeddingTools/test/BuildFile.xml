@@ -1,0 +1,4 @@
+<bin name="testTauEmbeddingProducers" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS=" /bin/bash TauAnalysis/MCEmbeddingTools/test runtests.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
