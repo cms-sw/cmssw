@@ -262,7 +262,7 @@ protected:
   Eigen::VectorXd     theGblExtMeasurements;
   Eigen::VectorXd     theGblExtPrecisions;
     
-  static const unsigned int nMeasPerHit = 2;
+  static constexpr unsigned int nMeasPerHit{2};
 };
 
 #endif // REFERENCE_TRAJECTORY_BASE_H
