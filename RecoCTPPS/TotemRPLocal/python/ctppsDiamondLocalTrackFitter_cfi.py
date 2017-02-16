@@ -5,12 +5,12 @@ ctppsDiamondLocalTrack = cms.EDProducer("CTPPSDiamondLocalTrackFitter",
     recHitsTag = cms.InputTag("ctppsDiamondRecHits"),
     trackingAlgorithmParams = cms.PSet(
         threshold = cms.double(1.5),
-        threshold_from_maximum = cms.double(0.5),
+        thresholdFromMaximum = cms.double(0.5),
         resolution = cms.double(0.05), # in mm
         sigma = cms.double(0.1), # see below
-        start_from_x_mm = cms.double(-0.5), # in mm
-	stop_at_x_mm = cms.double(19.5), # in mm
-	pixel_efficiency_function = cms.string("(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4"),
+        startFromX = cms.double(-0.5), # in mm
+	stopAtX = cms.double(19.5), # in mm
+	pixelEfficiencyFunction = cms.string("(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4"),
     ),
 )
 

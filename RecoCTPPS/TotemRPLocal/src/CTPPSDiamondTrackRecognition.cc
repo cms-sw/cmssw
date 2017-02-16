@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <algorithm>
 
-#define PAD_DEFAULT_FUNCTION "(1/(1+exp(-(x-[0]+0.5*[1])/[2])))*(1/(1+exp((x-[0]-0.5*[1])/[2])))"
+#define PAD_DEFAULT_FUNCTION "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])"
 
 using namespace std;
 using namespace edm;
@@ -22,19 +22,19 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition() :
-  threshold_( 1.5 ), threshold_from_maximum_(0.5), resolution_mm_( 0.025), sigma_( 0.0 ), start_from_x_mm_(-2), stop_at_x_mm_(38), pixel_efficiency_function_(PAD_DEFAULT_FUNCTION)
+  threshold_( 1.5 ), thresholdFromMaximum_(0.5), resolution_( 0.025), sigma_( 0.0 ), startFromX_(-2), stopAtX_(38), pixelEfficiencyFunction_(PAD_DEFAULT_FUNCTION)
 {}
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
   threshold_( iConfig.getParameter<double>( "threshold" ) ),
-  threshold_from_maximum_( iConfig.getParameter<double>( "threshold_from_maximum" ) ),
-  resolution_mm_( iConfig.getParameter<double>( "resolution" ) ),
+  thresholdFromMaximum_( iConfig.getParameter<double>( "thresholdFromMaximum" ) ),
+  resolution_( iConfig.getParameter<double>( "resolution" ) ),
   sigma_( iConfig.getParameter<double>( "sigma" ) ),
-  start_from_x_mm_( iConfig.getParameter<double>( "start_from_x_mm" ) ),
-  stop_at_x_mm_( iConfig.getParameter<double>( "stop_at_x_mm" ) ),
-  pixel_efficiency_function_( iConfig.getParameter<std::string>( "pixel_efficiency_function" ) )
+  startFromX_( iConfig.getParameter<double>( "startFromX" ) ),
+  stopAtX_( iConfig.getParameter<double>( "stopAtX" ) ),
+  pixelEfficiencyFunction_( iConfig.getParameter<std::string>( "pixelEfficiencyFunction" ) )
 {
-    if (sigma_==.0) pixel_efficiency_function_="(x>[0]-0.5*[1])*(x<[0]+0.5*[1])";	// Simple step function
+    if (sigma_==.0) pixelEfficiencyFunction_="(x>[0]-0.5*[1])*(x<[0]+0.5*[1])";	// Simple step function
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void CTPPSDiamondTrackRecognition::clear() {
 void CTPPSDiamondTrackRecognition::addHit(const CTPPSDiamondRecHit recHit) {
   string f_name("hit_f_");
   f_name.append(to_string(hit_function_v.size() + 1));
-  TF1 hit_f(f_name.c_str(), pixel_efficiency_function_.c_str(), start_from_x_mm_, stop_at_x_mm_);
+  TF1 hit_f(f_name.c_str(), pixelEfficiencyFunction_.c_str(), startFromX_, stopAtX_);
   
   hit_f.SetParameters(recHit.getX(), recHit.getXWidth(), sigma_);
   
@@ -63,10 +63,10 @@ void CTPPSDiamondTrackRecognition::addHit(const CTPPSDiamondRecHit recHit) {
 //----------------------------------------------------------------------------------------------------
 
 int CTPPSDiamondTrackRecognition::produceTracks(DetSet<CTPPSDiamondLocalTrack> &tracks) {
-  vector<double> hit_profile((stop_at_x_mm_ - start_from_x_mm_) / resolution_mm_, .0);
+  vector<double> hit_profile((stopAtX_ - startFromX_) / resolution_, .0);
   for (unsigned int i=0; i<hit_profile.size(); ++i) {
     for (vector<TF1>::const_iterator fun_it=hit_function_v.begin(); fun_it!=hit_function_v.end(); ++fun_it) { 
-      hit_profile[i] += fun_it->Eval(start_from_x_mm_ + i*resolution_mm_);
+      hit_profile[i] += fun_it->Eval(startFromX_ + i*resolution_);
     }
   }
   
@@ -86,7 +86,7 @@ int CTPPSDiamondTrackRecognition::produceTracks(DetSet<CTPPSDiamondLocalTrack> &
 	below = true;
 	
 	//go back and use new threshold
-	double threshold = maximum - threshold_from_maximum_;
+	double threshold = maximum - thresholdFromMaximum_;
 	for (unsigned int j=track_start_n; j<=i; ++j) {
 	  if (below && hit_profile[j] >= threshold) {	// going above the threshold
 	    track_start_n = j;
@@ -96,8 +96,8 @@ int CTPPSDiamondTrackRecognition::produceTracks(DetSet<CTPPSDiamondLocalTrack> &
 	    below = true;
 	    //store track
 	    CTPPSDiamondLocalTrack track;
-	    track.setX0Sigma( (j-track_start_n)*resolution_mm_ );
-	    track.setX0( start_from_x_mm_ + track_start_n*resolution_mm_ + track.getX0Sigma()/2);
+	    track.setX0Sigma( (j-track_start_n)*resolution_ );
+	    track.setX0( startFromX_ + track_start_n*resolution_ + track.getX0Sigma()/2);
 	    tracks.push_back(track);
 	    ++number_of_tracks;
 	  }
