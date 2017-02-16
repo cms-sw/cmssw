@@ -37,12 +37,16 @@ class CTPPSDiamondTrackRecognition
 
     void addHit(const CTPPSDiamondRecHit recHit);
     
-    void produceTracks(edm::DetSet<CTPPSDiamondLocalTrack> &tracks);
+    int produceTracks(edm::DetSet<CTPPSDiamondLocalTrack> &tracks);
     
   protected:
     const double threshold_;
+    const double threshold_from_maximum_;
     const double resolution_mm_;
-    double sigma_;
+    const double sigma_;
+    const double start_from_x_mm_;
+    const double stop_at_x_mm_;
+    std::string pixel_efficiency_function_;
 
     /// Function for pad efficiency
     std::vector<TF1> hit_function_v;
