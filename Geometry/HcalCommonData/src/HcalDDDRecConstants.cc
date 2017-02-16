@@ -579,7 +579,7 @@ void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld,
 
 void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 				       std::vector<std::pair<int,double> >& phis,
-				       std::map<int,int>& layers, bool flag,
+				       std::map<int,int>& layers, bool planOne,
 				       std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const {
 
   unsigned int lymax = (subdet == 1) ? 17 : 19;
@@ -630,7 +630,7 @@ void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 	if (subdet == 1 && ieta == iEtaMax[subdet-1] 
 	    && dep > hcons.getDepthEta16M(1)) break;
 	if (subdet == 2 && ieta == hpar->noff[1] &&  
-	    dep > hcons.getDepthEta29M(0,flag)) {
+	    dep > hcons.getDepthEta29M(0,planOne)) {
 	  lmax = lymx0;
 	  break;
 	}

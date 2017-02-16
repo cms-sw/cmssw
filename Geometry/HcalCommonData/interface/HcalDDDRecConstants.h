@@ -114,7 +114,7 @@ public:
 private:
   void                      getOneEtaBin(int subdet, int ieta, int zside,
 					 std::vector<std::pair<int,double>>& phis,
-					 std::map<int,int>& layers, bool flag,
+					 std::map<int,int>& layers, bool planOne,
 					 std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const;
   void                      initialize(void);
   unsigned int              layerGroupSize(int eta) const;
