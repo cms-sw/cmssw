@@ -1,7 +1,6 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHERecHitAuxSetter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/CaloRecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 
 HBHERecHit::HBHERecHit()
     : CaloRecHit(),

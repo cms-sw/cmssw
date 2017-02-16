@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HcalRecAlgos_CaloRecHitAuxSetter_h_
-#define RecoLocalCalo_HcalRecAlgos_CaloRecHitAuxSetter_h_
+#ifndef DataFormats_HcalRecHit_CaloRecHitAuxSetter_h_
+#define DataFormats_HcalRecHit_CaloRecHitAuxSetter_h_
 
 #include <cstdint>
 
@@ -27,4 +27,4 @@ namespace CaloRecHitAuxSetter
         {return u & (1U << bitnum);}
 }
 
-#endif // RecoLocalCalo_HcalRecAlgos_CaloRecHitAuxSetter_h_
+#endif // DataFormats_HcalRecHit_CaloRecHitAuxSetter_h_
