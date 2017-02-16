@@ -11,11 +11,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.hga = cms.EDAnalyzer("HcalGeometryDump",
+process.hga = cms.EDAnalyzer("HcalDetIdTester",
                              GeometryFromDB = cms.bool(False))
 
 process.Timing = cms.Service("Timing")
-
-process.hcalTopologyIdeal.MergePosition = True
 
 process.p1 = cms.Path(process.hga)
