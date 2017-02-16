@@ -196,7 +196,6 @@ namespace edm {
   }
   
   void setMaxLoggedErrorsSummaryIndicies(unsigned int iMax) {
-    assert(0==errorSummaryMaps.size());
     errorSummaryMaps.resize(iMax);
   }
 

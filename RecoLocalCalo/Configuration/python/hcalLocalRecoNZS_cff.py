@@ -46,5 +46,5 @@ _phase1_hcalLocalRecoSequenceNZS.insert(0,hfprerecoMB)
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 run2_HF_2017.toReplaceWith( hcalLocalRecoSequenceNZS, _phase1_hcalLocalRecoSequenceNZS )
 run2_HF_2017.toReplaceWith( hfrecoMB, _phase1_hfrecoMB )
-from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
-run2_HE_2017.toReplaceWith( hbherecoMB, _phase1_hbherecoMB )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toReplaceWith( hbherecoMB, _phase1_hbherecoMB )

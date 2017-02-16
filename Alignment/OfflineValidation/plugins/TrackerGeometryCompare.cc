@@ -65,6 +65,8 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
   theSurveyIndex(0),
   theSurveyValues(0),
   theSurveyErrors(0),
+  _levelStrings(cfg.getUntrackedParameter< std::vector<std::string> >("levels")),
+  _writeToDB(cfg.getUntrackedParameter<bool>("writeToDB")),
   _commonTrackerLevel(align::invalid),
   _moduleListFile(0),
   _moduleList(0),
@@ -91,9 +93,6 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	//output file
 	_filename = cfg.getUntrackedParameter< std::string > ("outputFile");
 	
-	_writeToDB = cfg.getUntrackedParameter< bool > ("writeToDB" );
-	
-	const std::vector<std::string>& levels = cfg.getUntrackedParameter< std::vector<std::string> > ("levels");
 	
 	_weightBy = cfg.getUntrackedParameter< std::string > ("weightBy");
 	_setCommonTrackerSystem = cfg.getUntrackedParameter< std::string > ("setCommonTrackerSystem");
@@ -101,17 +100,6 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	_detIdFlagFile = cfg.getUntrackedParameter< std::string > ("detIdFlagFile");
 	_weightById  = cfg.getUntrackedParameter< bool > ("weightById");
 	_weightByIdFile = cfg.getUntrackedParameter< std::string > ("weightByIdFile");
-	
-	//setting the levels being used in the geometry comparator
-	//DM_534?? AlignableObjectId dummy; 
-	edm::LogInfo("TrackerGeometryCompare") << "levels: " << levels.size();
-	for (unsigned int l = 0; l < levels.size(); ++l){
-		m_theLevels.push_back(AlignableObjectId::stringToId(levels[l])) ; //DM_61X?? 
-		//DM_534?? m_theLevels.push_back( dummy.nameToType(levels[l])); 
-		edm::LogInfo("TrackerGeometryCompare") << "level: " << levels[l];
-		edm::LogInfo("TrackerGeometryCompare") << "structure type: " << AlignableObjectId::stringToId(levels[l]) ; 
-		//DM_534?? edm::LogInfo("TrackerGeometryCompare") << "structure type: " << dummy.typeToName(m_theLevels.at(l)); 
-	}
 	
 		
 	// if want to use, make id cut list
@@ -246,6 +234,17 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 
 	//upload the ROOT geometries
 	createROOTGeometry(iSetup);
+
+        //setting the levels being used in the geometry comparator
+        edm::LogInfo("TrackerGeometryCompare") << "levels: " << _levelStrings.size();
+        for (const auto& level: _levelStrings){
+          m_theLevels.push_back(currentTracker->objectIdProvider().stringToId(level));
+          edm::LogInfo("TrackerGeometryCompare") << "level: " << level;
+          edm::LogInfo("TrackerGeometryCompare")
+            << "structure type: "
+            << currentTracker->objectIdProvider().stringToId(level);
+        }
+
 
 	//set common tracker system first
 	// if setting the tracker common system
@@ -688,7 +687,7 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 	
 	// DM_534??AlignableObjectId dummy;
 	// DM_534??_commonTrackerLevel = dummy.nameToType(_setCommonTrackerSystem);
-	_commonTrackerLevel = AlignableObjectId::stringToId(_setCommonTrackerSystem); // DM_61X?? 
+	_commonTrackerLevel = currentTracker->objectIdProvider().stringToId(_setCommonTrackerSystem);
 		
 	diffCommonTrackerSystem(referenceTracker, currentTracker);
 	

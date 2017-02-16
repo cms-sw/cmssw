@@ -8,8 +8,11 @@ SiPixelPhase1RecHitsNRecHits = DefaultHistoTrack.clone(
   xlabel = "rechits",
   dimensions = 0,
   specs = VPSet(
-    StandardSpecificationTrend_Num,
-    StandardSpecification2DProfile_Num
+   StandardSpecificationInclusive_Num,
+   StandardSpecificationTrend_Num
+   # StandardSpecification2DProfile_Num,
+   # StandardSpecificationInclusive_Num,
+   # StandardSpecifications1D_Num
   )
 )
 
@@ -31,6 +34,7 @@ SiPixelPhase1RecHitsClustY = SiPixelPhase1RecHitsClustX.clone(
 )
 
 SiPixelPhase1RecHitsErrorX = DefaultHistoTrack.clone(
+  enabled=False,
   name = "rechiterror_x",
   title = "RecHit Error in X-direction",
   range_min = 0, range_max = 0.02, range_nbins = 100,
@@ -42,6 +46,7 @@ SiPixelPhase1RecHitsErrorX = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1RecHitsErrorY = SiPixelPhase1RecHitsErrorX.clone(
+  enabled=False,
   name = "rechiterror_y",
   title = "RecHit Error in Y-direction",
   xlabel = "Y error"

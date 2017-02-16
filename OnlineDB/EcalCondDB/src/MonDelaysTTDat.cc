@@ -30,7 +30,7 @@ MonDelaysTTDat::~MonDelaysTTDat()
 
 
 void MonDelaysTTDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -48,7 +48,7 @@ void MonDelaysTTDat::prepareWrite()
 
 
 void MonDelaysTTDat::writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -76,7 +76,7 @@ void MonDelaysTTDat::writeDB(const EcalLogicID* ecid, const MonDelaysTTDat* item
 
 
 void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -122,7 +122,7 @@ void MonDelaysTTDat::fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillMap,
 }
 
 void MonDelaysTTDat::writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

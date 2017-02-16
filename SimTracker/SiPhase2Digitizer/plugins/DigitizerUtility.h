@@ -1,4 +1,3 @@
-
 #ifndef __SimTracker_SiPhase2Digitizer_DigitizerUtility_h
 #define __SimTracker_SiPhase2Digitizer_DigitizerUtility_h
 
@@ -18,21 +17,21 @@ namespace DigitizerUtility {
     Amplitude( float amp, const PSimHit* hitp, float frac=0, size_t hitIndex=0, unsigned int tofBin=0) :
       _amp(amp) {
       if (frac > 0) {
-	if (hitp != nullptr) _simInfoList.push_back({frac,new SimHitInfoForLinks(hitp,hitIndex,tofBin)});
-        else _simInfoList.push_back({frac,0});
+	if (hitp != nullptr) _simInfoList.push_back({frac, std::make_unique<SimHitInfoForLinks>(hitp,hitIndex,tofBin)});
+        else _simInfoList.push_back({frac, nullptr});
       }
     }
 
     // can be used as a float by convers.
     operator float() const {return _amp;}
     float ampl() const {return _amp;}
-    const std::vector<std::pair<float,SimHitInfoForLinks*> >& simInfoList() const {return _simInfoList;}
+    const std::vector<std::pair<float, std::unique_ptr<SimHitInfoForLinks> > >& simInfoList() const {return _simInfoList;}
 
     void operator+= (const Amplitude& other) {
       _amp += other._amp;
       // in case of digi from the noise, the MC information need not be there
-      for (auto const & ic : other.simInfoList()) {
-	if (ic.first > -0.5) _simInfoList.push_back({ic.first, ic.second});
+      for (auto const& ic : other.simInfoList()) {
+	if (ic.first > -0.5) _simInfoList.push_back({ic.first, std::make_unique<SimHitInfoForLinks>(*ic.second)});
       }
     }
     void operator+= (const float& amp) {
@@ -47,7 +46,7 @@ namespace DigitizerUtility {
 
   private:
     float _amp;
-    std::vector<std::pair<float,SimHitInfoForLinks*> > _simInfoList;
+    std::vector<std::pair<float, std::unique_ptr<SimHitInfoForLinks> > > _simInfoList;
   };
 
   //*********************************************************

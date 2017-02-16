@@ -42,7 +42,7 @@ DCULVRVoltagesDat::~DCULVRVoltagesDat()
 
 
 void DCULVRVoltagesDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -60,7 +60,7 @@ void DCULVRVoltagesDat::prepareWrite()
 
 
 void DCULVRVoltagesDat::writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -100,7 +100,7 @@ void DCULVRVoltagesDat::writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat
 
 
 void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fillMap, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -156,7 +156,7 @@ void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fi
   }
 }
 void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltagesDat >* data, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

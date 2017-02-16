@@ -121,10 +121,7 @@ MuonsGrabber::~MuonsGrabber()
   delete theSerializer;
   delete myFormTarget;
   m_doc->release();
-      
-
-       
-
+  cms::concurrency::xercesTerminate();
 }
 
 void MuonsGrabber::startNewEvent(int event, int bx) {

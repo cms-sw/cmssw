@@ -29,7 +29,7 @@ class EcalDBConnection {
 		    std::string user,
 		    std::string pass,
 		    int port = 1521 )
-    throw(std::runtime_error);
+    noexcept(false);
 
 
 
@@ -40,14 +40,14 @@ class EcalDBConnection {
   EcalDBConnection( std::string sid,
 		    std::string user,
 		    std::string pass )
-    throw(std::runtime_error);
+    noexcept(false);
   
 
 
   /**
    *  Destructor
    */
-  virtual ~EcalDBConnection() throw(std::runtime_error);
+  virtual ~EcalDBConnection() noexcept(false);
 
   /**
    *  Get a new Statement

@@ -229,7 +229,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
       string tmpDir_ = subDir_ + "/All_" + varName->first;
       dbe_->cd(monitorName_+tmpDir_);
       TString histTitle(varName->first);
-      string tmpName;
+      TString tmpName;
       if (prefix_ != "") tmpName = prefix_ + "_" + varName->first;
       if (suffix_ != "") tmpName = tmpName + "_" + suffix_;
       tmpName = tmpName + "_" + ss.str();
@@ -286,7 +286,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	break;
       }
       // check if already exist
-      if (dbe_->get(monitorName_+tmpDir_+"/"+string(histName))) continue;
+      if (dbe_->get(monitorName_+tmpDir_+"/"+string(histName.Data()))) continue;
 
       if (createHisto) {
 	edm::LogInfo("BX|BeamMonitorBx") << "histName = " << histName << "; histTitle = " << histTitle << std::endl;

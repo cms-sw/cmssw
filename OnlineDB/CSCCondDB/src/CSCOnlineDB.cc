@@ -3,7 +3,7 @@
   /**
    * Constructor for condbon
    */
-  condbon::condbon () throw (oracle::occi::SQLException)
+  condbon::condbon () noexcept(false)
   {
     std::string db_user;
     std::string db_pass;
@@ -18,7 +18,7 @@
   /**
    * Destructor for condbon.
    */
-  condbon::~condbon () throw (oracle::occi::SQLException)
+  condbon::~condbon () noexcept(false)
   {
     env->terminateConnection (con);
     oracle::occi::Environment::terminateEnvironment (env);
@@ -110,7 +110,9 @@
    {
     std::cout<<"Exception thrown for insertBind"<<std::endl;
     std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
+#if defined(_GLIBCXX_USE_CXX11_ABI) && (_GLIBCXX_USE_CXX11_ABI == 0)
     std::cout<<ex.getMessage() << std::endl;
+#endif
    }
   }
 

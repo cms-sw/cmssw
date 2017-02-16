@@ -5,31 +5,76 @@ ME0DigisValidation::ME0DigisValidation(const edm::ParameterSet& cfg):  ME0BaseVa
 {
   InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
   InputTagToken_Digi = consumes<ME0DigiPreRecoCollection>(cfg.getParameter<edm::InputTag>("digiInputLabel"));
+  sigma_x_ = cfg.getParameter<double>("sigma_x");
+  sigma_y_ = cfg.getParameter<double>("sigma_y");
 }
 
 void ME0DigisValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
 
-  LogDebug("MuonME0DigisValidation")<<"Info : Loading Geometry information\n";
+  LogDebug("MuonME0DigisValidation")<<"Info: Loading Geometry information\n";
   ibooker.setCurrentFolder("MuonME0DigisV/ME0DigisTask");
 
-  unsigned int nregion  = 2;
+  unsigned int nregion = 2;
 
-  edm::LogInfo("MuonME0DigisValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
+  edm::LogInfo("MuonME0DigisValidation")<<"+++ Info : # of region: "<<nregion<<std::endl;
 
   LogDebug("MuonME0DigisValidation")<<"+++ Info : finish to get geometry information from ES.\n";
-
+    
+  num_evts = ibooker.book1D( "num_evts", "Number of events; ; Number of events", 1, 0, 2);
+    
+  me0_strip_dg_x_local_tot = ibooker.book1D( "me0_strip_dg_x_local_tot", "Local X; X_{local} [cm]; Entries", 60, -30.0, +30.0);
+  me0_strip_dg_y_local_tot = ibooker.book1D( "me0_strip_dg_y_local_tot", "Local Y; Y_{local} [cm]; Entries", 100, -50.0, +50.0);
+  me0_strip_dg_time_tot = ibooker.book1D( "me0_strip_dg_time_tot", "ToF; ToF [ns]; Entries", 400, -200, +200);
+    
+  me0_strip_dg_dx_local_tot_Muon = ibooker.book1D( "me0_strip_dg_dx_local_tot", "Local DeltaX; #Delta X_{local} [cm]; Entries", 50, -0.1, +0.1);
+  me0_strip_dg_dy_local_tot_Muon = ibooker.book1D( "me0_strip_dg_dy_local_tot", "Local DeltaY; #Delta Y_{local} [cm]; Entries", 500, -10.0, +10.0);
+  me0_strip_dg_dphi_global_tot_Muon = ibooker.book1D( "me0_strip_dg_dphi_global_tot", "Global DeltaPhi; #Delta #phi_{global} [rad]; Entries", 50, -0.01, +0.01);
+  me0_strip_dg_dtime_tot_Muon = ibooker.book1D( "me0_strip_dg_dtime_tot", "DeltaToF; #Delta ToF [ns]; Entries", 50, -5, +5);
+    
+  me0_strip_dg_dphi_vs_phi_global_tot_Muon = ibooker.book2D( "me0_strip_dg_dphi_vs_phi_global_tot", "Global DeltaPhi vs. Phi; #phi_{global} [rad]; #Delta #phi_{global} [rad]", 72,-M_PI,+M_PI,50,-0.01,+0.01);
+    
+  me0_strip_dg_den_eta_tot = ibooker.book1D( "me0_strip_dg_den_eta_tot", "Denominator; #eta; Entries", 12, 1.8, 3.0);
+  me0_strip_dg_num_eta_tot = ibooker.book1D( "me0_strip_dg_num_eta_tot", "Numerator; #eta; Entries", 12, 1.8, 3.0);
+    
+  float bins[] = {62.3, 68.2, 74.1, 81.1, 88.2, 96.6, 104.9, 115.1, 125.2, 137.3, 149.5};
+  int binnum = sizeof(bins)/sizeof(float) - 1;
+    
+  me0_strip_dg_bkg_rad_tot = ibooker.book1D( "me0_strip_dg_bkg_radius_tot", "Total neutron background; Radius; Entries", binnum, bins);
+  me0_strip_dg_bkgElePos_rad = ibooker.book1D( "me0_strip_dg_bkgElePos_radius", "Neutron background: electrons+positrons; Radius; Entries", binnum, bins);
+  me0_strip_dg_bkgNeutral_rad = ibooker.book1D( "me0_strip_dg_bkgNeutral_radius", "Neutron background: gammas+neutrons; Radius; Entries", binnum, bins);
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
       me0_strip_dg_zr_tot[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi",region_num);
-      me0_strip_dg_zr_tot_Muon[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi Muon",region_num);
+      me0_strip_dg_zr_tot_Muon[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot_Muon","Digi Muon",region_num);
       for( unsigned int layer_num = 0 ; layer_num < 6 ; layer_num++) {
+          
+          std::string hist_name_for_dx_local  = std::string("me0_strip_dg_dx_local")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
+          std::string hist_name_for_dy_local  = std::string("me0_strip_dg_dy_local")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
+          std::string hist_name_for_dphi_global  = std::string("me0_strip_dg_dphi_global")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
+          
+          std::string hist_name_for_den_eta  = std::string("me0_strip_dg_den_eta")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
+          std::string hist_name_for_num_eta  = std::string("me0_strip_dg_num_eta")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
+
+          std::string hist_label_for_dx_local = "Local DeltaX: region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" ; #Delta X_{local} [cm]; Entries";
+          std::string hist_label_for_dy_local = "Local DeltaY: region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" ; #Delta Y_{local} [cm]; Entries";
+          std::string hist_label_for_dphi_global = "Global DeltaPhi: region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" ; #Delta #phi_{global} [rad]; Entries";
+          
+          std::string hist_label_for_den_eta = "Denominator: region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" ; #eta; Entries";
+          std::string hist_label_for_num_eta = "Numerator: region"+regionLabel[region_num]+" layer "+layerLabel[layer_num]+" ; #eta; Entries";
 
           me0_strip_dg_xy[region_num][layer_num] = BookHistXY(ibooker,"me0_strip_dg","Digi",region_num,layer_num);
-          me0_strip_dg_xy_Muon[region_num][layer_num] = BookHistXY(ibooker,"me0_strip_dg","Digi Muon",region_num,layer_num);
+          me0_strip_dg_xy_Muon[region_num][layer_num] = BookHistXY(ibooker,"me0_strip_dg_Muon","Digi Muon",region_num,layer_num);
+          
+          me0_strip_dg_dx_local_Muon[region_num][layer_num] = ibooker.book1D( hist_name_for_dx_local.c_str(), hist_label_for_dx_local.c_str(), 50, -0.1, +0.1);
+          me0_strip_dg_dy_local_Muon[region_num][layer_num] = ibooker.book1D( hist_name_for_dy_local.c_str(), hist_label_for_dy_local.c_str(), 500, -10.0, +10.0);
+          me0_strip_dg_dphi_global_Muon[region_num][layer_num] = ibooker.book1D( hist_name_for_dphi_global.c_str(), hist_label_for_dphi_global.c_str(), 50, -0.01, +0.01);
+          
+          me0_strip_dg_den_eta[region_num][layer_num] = ibooker.book1D( hist_name_for_den_eta, hist_label_for_den_eta, 12, 1.8, 3.0);
+          me0_strip_dg_num_eta[region_num][layer_num] = ibooker.book1D( hist_name_for_num_eta, hist_label_for_num_eta, 12, 1.8, 3.0);
+
       }
   }
 }
-
 
 ME0DigisValidation::~ME0DigisValidation() {
 }
@@ -41,6 +86,7 @@ void ME0DigisValidation::analyze(const edm::Event& e,
  edm::ESHandle<ME0Geometry> hGeom;
  iSetup.get<MuonGeometryRecord>().get(hGeom);
  const ME0Geometry* ME0Geometry_ =( &*hGeom);
+    
   edm::Handle<edm::PSimHitContainer> ME0Hits;
   e.getByToken(InputTagToken_, ME0Hits);
 
@@ -51,47 +97,141 @@ void ME0DigisValidation::analyze(const edm::Event& e,
     edm::LogError("ME0DigisValidation") << "Cannot get ME0Hits/ME0Digis by Token simInputTagToken";
     return ;
   }
+    
+  num_evts->Fill(1);
+  bool toBeCounted1 = true;
 
   for (ME0DigiPreRecoCollection::DigiRangeIterator cItr=ME0Digis->begin(); cItr!=ME0Digis->end(); cItr++) {
     ME0DetId id = (*cItr).first;
 
     const GeomDet* gdet = ME0Geometry_->idToDet(id);
     if ( gdet == nullptr) {
-      std::cout<<"Getting DetId failed. Discard this gem strip hit.Maybe it comes from unmatched geometry."<<std::endl;
+      edm::LogWarning("ME0DigisValidation")<<"Getting DetId failed. Discard this gem strip hit. Maybe it comes from unmatched geometry.";
       continue;
     }
     const BoundPlane & surface = gdet->surface();
 
-    Short_t region = (Short_t) id.region();
-    Short_t layer = (Short_t) id.layer();
+    int region = (int) id.region();
+    int layer = (int) id.layer();
+    int chamber = (int) id.chamber();
+//    int roll = (int) id.roll();
 
     ME0DigiPreRecoCollection::const_iterator digiItr;
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-      Short_t particleType = digiItr->pdgid();
+
       LocalPoint lp(digiItr->x(), digiItr->y(), 0);
 
       GlobalPoint gp = surface.toGlobal(lp);
 
-      Float_t g_r = (Float_t) gp.perp();
-      Float_t g_x = (Float_t) gp.x();
-      Float_t g_y = (Float_t) gp.y();
-      Float_t g_z = (Float_t) gp.z();
-      // fill hist
-      int region_num=0 ;
-      if ( region ==-1 ) region_num = 0 ;
-      else if ( region==1) region_num = 1;
-      int layer_num = layer-1;
+      float g_r = (float) gp.perp();
+      float g_x = (float) gp.x();
+      float g_y = (float) gp.y();
+      float g_z = (float) gp.z();
+        
+      int particleType = digiItr->pdgid();
+      int isPrompt = digiItr->prompt();
+    
+      float timeOfFlight = digiItr->tof();
+        
+      me0_strip_dg_x_local_tot->Fill(lp.x());
+      me0_strip_dg_y_local_tot->Fill(lp.y());
+      me0_strip_dg_time_tot->Fill(timeOfFlight);
 
-      if ( abs(particleType) == 13) {
+      // fill hist
+      int region_num = 0 ;
+      if ( region == -1 ) region_num = 0 ;
+      else if ( region == 1) region_num = 1;
+      int layer_num = layer-1;
+        
+      bool toBeCounted2 = true;
+
+      if (isPrompt == 1 && abs(particleType) == 13) {
+          
         me0_strip_dg_zr_tot_Muon[region_num]->Fill(g_z,g_r);
         me0_strip_dg_xy_Muon[region_num][layer_num]->Fill(g_x,g_y);
+
+        for (auto hits=ME0Hits->begin(); hits!=ME0Hits->end(); hits++) {
+            
+            int particleType_sh = hits->particleType();
+            int evtId_sh = hits->eventId().event();
+            int bx_sh = hits->eventId().bunchCrossing();
+            int procType_sh = hits->processType();
+
+            if(!(abs(particleType_sh) == 13 && evtId_sh == 0 && bx_sh == 0 && procType_sh == 0)) continue;
+            
+            const ME0DetId id(hits->detUnitId());
+            int region_sh = id.region();
+            int layer_sh = id.layer();
+            int chamber_sh = id.chamber();
+//            int roll_sh = id.roll();
+            
+            int region_sh_num = 0 ;
+            if ( region_sh == -1 ) region_sh_num = 0 ;
+            else if ( region_sh == 1) region_sh_num = 1;
+            int layer_sh_num = layer_sh - 1;
+            
+            LocalPoint lp_sh = hits->localPosition();
+            GlobalPoint gp_sh = ME0Geometry_->idToDet(id)->surface().toGlobal(lp_sh);
+            
+            if(toBeCounted1){
+                
+                me0_strip_dg_den_eta[region_sh_num][layer_sh_num]->Fill(fabs(gp_sh.eta()));
+                me0_strip_dg_den_eta_tot->Fill(fabs(gp_sh.eta()));
+            }
+            
+            if(!(region == region_sh && layer == layer_sh && chamber == chamber_sh /*&& roll == roll_sh*/)) continue;
+            
+            float dx_loc = lp_sh.x()-lp.x();
+            float dy_loc = lp_sh.y()-lp.y();
+            
+            if(!(fabs(dx_loc) < 3*sigma_x_ && fabs(dy_loc) < 3*sigma_y_)) continue;
+            
+            float timeOfFlight_sh = hits->tof();
+            const LocalPoint centralLP(0., 0., 0.);
+            const GlobalPoint centralGP(ME0Geometry_->idToDet(id)->surface().toGlobal(centralLP));
+            float centralTOF(centralGP.mag() / 29.98); //speed of light
+            float timeOfFlight_sh_corr = timeOfFlight_sh - centralTOF;
+            
+            float dphi_glob = gp_sh.phi()-gp.phi();
+        
+            me0_strip_dg_dx_local_Muon[region_num][layer_num]->Fill(dx_loc);
+            me0_strip_dg_dy_local_Muon[region_num][layer_num]->Fill(dy_loc);
+            me0_strip_dg_dphi_global_Muon[region_num][layer_num]->Fill(dphi_glob);
+            
+            me0_strip_dg_dx_local_tot_Muon->Fill(dx_loc);
+            me0_strip_dg_dy_local_tot_Muon->Fill(dy_loc);
+            me0_strip_dg_dphi_global_tot_Muon->Fill(dphi_glob);
+            
+            me0_strip_dg_dphi_vs_phi_global_tot_Muon->Fill(gp_sh.phi(),dphi_glob);
+            me0_strip_dg_dtime_tot_Muon->Fill(timeOfFlight - timeOfFlight_sh_corr);
+                
+            if(toBeCounted2){
+                    
+                me0_strip_dg_num_eta[region_num][layer_num]->Fill(fabs(gp_sh.eta()));
+                me0_strip_dg_num_eta_tot->Fill(fabs(gp_sh.eta()));
+                
+            }
+            toBeCounted2 = false;
+            
+        }//loop SH
+          
+      toBeCounted1 = false;
+          
       }
       else {
         me0_strip_dg_zr_tot[region_num]->Fill(g_z,g_r);
         me0_strip_dg_xy[region_num][layer_num]->Fill(g_x,g_y);
       }
-    }
-}
+        
+      if ((abs(particleType) == 11 || abs(particleType) == 22 || abs(particleType) == 2112) && isPrompt == 0)
+          me0_strip_dg_bkg_rad_tot->Fill(fabs(gp.perp()));
+      if ((abs(particleType) == 11) && isPrompt == 0)
+          me0_strip_dg_bkgElePos_rad->Fill(fabs(gp.perp()));
+      if ((abs(particleType) == 22 || abs(particleType) == 2112) && isPrompt == 0)
+          me0_strip_dg_bkgNeutral_rad->Fill(fabs(gp.perp()));
+        
+    }//loop DG
+  }
 
 }

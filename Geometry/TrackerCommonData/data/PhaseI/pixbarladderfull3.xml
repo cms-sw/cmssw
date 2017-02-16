@@ -116,7 +116,7 @@
 -->
  <LogicalPart name="PixelBarrelCFStripFull" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCFStripFull"/>
-  <rMaterial name="materials:CFK"/>
+  <rMaterial name="pixbarmaterial:CFK_Layer4"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelCableBoxFull" category="unspecified">
   <rSolid name="pixbarladderfull3:PixelBarrelCableBoxFull"/>

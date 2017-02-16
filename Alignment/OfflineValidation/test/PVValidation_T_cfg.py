@@ -148,14 +148,14 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-process.load("Alignment.CommonAligment.filterOutLowPt_cfi")
+process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
 process.filterOutLowPt.applyfilter = True
 process.filterOutLowPt.src = "TRACKTYPETEMPLATE"
 process.filterOutLowPt.numtrack = 0
 process.filterOutLowPt.thresh = 1
 process.filterOutLowPt.ptmin  = PTCUTTEMPLATE
 process.filterOutLowPt.runControl = RUNCONTROLTEMPLATE
-process.filterOutLowPt.runControlNumber = int(runboundary)
+process.filterOutLowPt.runControlNumber = [runboundary]
 
 if isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping+process.filterOutLowPt)
@@ -189,6 +189,8 @@ else:
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process,'TRACKTYPETEMPLATE')
 process.HighPurityTrackSelector.trackQualities = cms.vstring()
+process.HighPurityTrackSelector.pMin     = cms.double(0.)
+process.AlignmentTrackSelector.pMin      = cms.double(0.)
 process.AlignmentTrackSelector.ptMin     = cms.double(0.)
 process.AlignmentTrackSelector.nHitMin2D = cms.uint32(0)
 process.AlignmentTrackSelector.nHitMin   = cms.double(0.)
@@ -219,7 +221,7 @@ if isDA:
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.uint32(int(runboundary)),
+                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                           
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 5                  
@@ -255,7 +257,7 @@ else:
                                            askFirstLayerHit = cms.bool(False),
                                            probePt = cms.untracked.double(PTCUTTEMPLATE),
                                            runControl = cms.untracked.bool(RUNCONTROLTEMPLATE),
-                                           runControlNumber = cms.untracked.uint32(int(runboundary)),
+                                           runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                            
                                            TkFilterParameters = cms.PSet(algorithm=cms.string('filter'),                             
                                                                          maxNormalizedChi2 = cms.double(5.0),                        # chi2ndof < 20                  

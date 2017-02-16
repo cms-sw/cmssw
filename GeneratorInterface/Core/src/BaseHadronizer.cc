@@ -100,10 +100,10 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     
     std::ostringstream randomStream;
     randomStream << seedval;
-
    
     edm::FileInPath script("GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh");
     const char *outfilename = "cmsgrid_final.lhe";
+
 
     
     std::array<std::string,5> argStrs;

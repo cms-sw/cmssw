@@ -5,6 +5,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <ctime>
+#include <iostream>
 
 /*
  * This service is very similar to the FastMonitoringService in the HLT,

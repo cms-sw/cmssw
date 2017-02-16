@@ -42,13 +42,14 @@ HGCalRecHitValidation(const edm::ParameterSet& iConfig) :
   nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
   verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) {
   auto temp = iConfig.getParameter<edm::InputTag>("RecHitSource");
+  ifHCAL_   = iConfig.getParameter<bool>("ifHCAL");
   if( nameDetector_ == "HGCalEESensitive" || 
       nameDetector_ == "HGCalHESiliconSensitive" ||
       nameDetector_ == "HGCalHEScintillatorSensitive" ) {
     recHitSource_    = consumes<HGCRecHitCollection>(temp);
   } else if ( nameDetector_ == "HCal" ) {
-    recHitSource_    = 
-      consumes<HBHERecHitCollection>(temp);
+    if (ifHCAL_) recHitSource_ = consumes<HBHERecHitCollection>(temp);
+    else         recHitSource_ = consumes<HGChebRecHitCollection>(temp);
   } else {
     throw cms::Exception("BadHGCRecHitSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
@@ -73,25 +74,45 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent,
     if (!geom.isValid()) edm::LogWarning("HGCalValidation") << "Cannot get valid HGCalGeometry Object for " << nameDetector_;
     const CaloGeometry* geom0 = geom.product();
 
-    edm::Handle<HBHERecHitCollection> hbhecoll;
-    iEvent.getByToken(recHitSource_, hbhecoll);
-    if (hbhecoll.isValid()) {
-      if (verbosity_>0) 
-	edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
-					<< hbhecoll->size() << " element(s)";
-      for (HBHERecHitCollection::const_iterator it=hbhecoll->begin(); 
-	   it != hbhecoll->end(); ++it) {
-	DetId detId = it->id();
-	ntot++;
-	if (detId.subdetId() == HcalEndcap) {
-	  nused++;
+    if (ifHCAL_) {
+      edm::Handle<HBHERecHitCollection> hbhecoll;
+      iEvent.getByToken(recHitSource_, hbhecoll);
+      if (hbhecoll.isValid()) {
+	if (verbosity_>0) 
+	  edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					  << hbhecoll->size() << " element(s)";
+	for (HBHERecHitCollection::const_iterator it=hbhecoll->begin(); 
+	     it != hbhecoll->end(); ++it) {
+	  DetId detId = it->id();
+	  ntot++;
+	  if (detId.subdetId() == HcalEndcap) {
+	    nused++;
+	    int   layer = HcalDetId(detId).depth();
+	    recHitValidation(detId, layer, geom0, it);
+	  }
+	}
+      } else {
+	ok = false;
+	edm::LogWarning("HGCalValidation") << "HBHERecHitCollection Handle does not exist !!!";
+      }
+    } else {
+      edm::Handle<HGChebRecHitCollection> hbhecoll;
+      iEvent.getByToken(recHitSource_, hbhecoll);
+      if (hbhecoll.isValid()) {
+	if (verbosity_>0) 
+	  edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
+					  << hbhecoll->size() << " element(s)";
+	for (HGChebRecHitCollection::const_iterator it=hbhecoll->begin(); 
+	     it != hbhecoll->end(); ++it) {
+	  DetId detId = it->id();
+	  ntot++; nused++;
 	  int   layer = HcalDetId(detId).depth();
 	  recHitValidation(detId, layer, geom0, it);
 	}
+      } else {
+	ok = false;
+	edm::LogWarning("HGCalValidation") << "HGChebRecHitCollection Handle does not exist !!!";
       }
-    } else {
-      ok = false;
-      edm::LogWarning("HGCalValidation") << "HBHERecHitCollection Handle does not exist !!!";
     }
   } else {
     edm::ESHandle<HGCalGeometry> geom;

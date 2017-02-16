@@ -115,19 +115,33 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Config
     #----------------------------
-    from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
-    process.RegionPSetBlock.RegionPSet.originRadius = cms.double(0.4)
-
     process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-    process.PixelTrackReconstructionBlock.RegionFactoryPSet = cms.PSet(RegionPSetBlock, ComponentName = cms.string("GlobalTrackingRegion"))
-    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
+    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    from RecoTracker.TkTrackingRegions.globalTrackingRegion_cfi import *
+    new = globalTrackingRegion.clone()
+    def _copy(old, new, skip=[]):
+        skipSet = set(skip)
+        for key in old.parameterNames_():
+            if key not in skipSet:
+                setattr(new, key, getattr(old, key))
+    _copy(process.pixelTracksTrackingRegions, new, skip=["nSigmaZ", "beamSpot"])
+    new.RegionPSet.originRadius = 0.4
+    # Bit of a hack to replace a module with another, but works
+    #
+    # With the naive
+    # process.pixelTracksTrackingRegions = glovalTrackingRegion.clone()
+    # the configuration system complains that pixelTracksTrackingRegions is already being used in recopixelvertexing sequence
+    modifier = cms.Modifier()
+    modifier._setChosen()
+    modifier.toReplaceWith(process.pixelTracksTrackingRegions, new)
+
+    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
     process.PixelLayerTriplets.FPix.HitProducer = cms.string("siPixelRecHitsPreSplitting")
 
-    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+    process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting"
 
 
     #----------------------------

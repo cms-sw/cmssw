@@ -94,11 +94,6 @@ void TTStubBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& i
 {
   /// Get the stub finding algorithm
   iSetup.get< TTStubAlgorithmRecord >().get( theStubFindingAlgoHandle );
-  /// Print some information when loaded
-  std::cout << std::endl;
-  std::cout << "TTStubBuilder< " << templateNameFinder< T >() << " > loaded modules:"
-            << "\n\tTTStubAlgorithm:\t" << theStubFindingAlgoHandle->AlgorithmName()
-            << std::endl;
 }
 
 /// End run

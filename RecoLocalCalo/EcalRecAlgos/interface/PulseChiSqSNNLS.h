@@ -16,7 +16,7 @@ class PulseChiSqSNNLS {
     ~PulseChiSqSNNLS();
     
     
-    bool DoFit(const SampleVector &samples, const SampleMatrix &samplecor, double pederr, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov);
+    bool DoFit(const SampleVector &samples, const SampleMatrix &samplecov, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const SampleGainVector &gains = -1*SampleGainVector::Ones(), const SampleGainVector &badSamples = SampleGainVector::Zero());
     
     const SamplePulseMatrix &pulsemat() const { return _pulsemat; }
     const SampleMatrix &invcov() const { return _invcov; }
@@ -32,10 +32,12 @@ class PulseChiSqSNNLS {
 
   protected:
     
-    bool Minimize(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
+    bool Minimize(const SampleMatrix &samplecov, const FullSampleMatrix &fullpulsecov);
     bool NNLS();
+    void NNLSUnconstrainParameter(Index idxp);
+    void NNLSConstrainParameter(Index minratioidx);
     bool OnePulseMinimize();
-    bool updateCov(const SampleMatrix &samplecor, double pederr, const FullSampleMatrix &fullpulsecov);
+    bool updateCov(const SampleMatrix &samplecov, const FullSampleMatrix &fullpulsecov);
     double ComputeChiSq();
     double ComputeApproxUncertainty(unsigned int ipulse);
     
@@ -60,7 +62,6 @@ class PulseChiSqSNNLS {
     SamplePulseMatrix invcovp;
     PulseMatrix aTamat;
     PulseVector aTbvec;
-    PulseVector wvec;
     PulseVector updatework;
     
     PulseVector ampvecpermtest;

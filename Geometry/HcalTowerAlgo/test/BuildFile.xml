@@ -17,3 +17,6 @@
 <library   file="HcalGeometryDetIdAnalyzer.cc" name="testHcalGeometryDetIdESProducer">
  <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="HcalGeometryDump.cc" name="testHcalGeometryDumpESProducer">
+ <flags   EDM_PLUGIN="1"/>
+</library>

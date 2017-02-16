@@ -82,18 +82,14 @@ def customise_Hcal2017(process):
     if hasattr(process,'RawToDigi'):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction_step'):
-        process.hbheprereco.digiLabel = cms.InputTag("simHcalDigis")
-        process.hbheprereco.setNoiseFlags = cms.bool(False)
+        process.hbheprereco.digiLabelQIE8 = cms.InputTag("simHcalDigis")
+        process.hbheprereco.digiLabelQIE11 = cms.InputTag("simHcalDigis","HBHEQIE11DigiCollection")
         # process.hbheprereco.puCorrMethod = cms.int32(0)
         process.horeco.digiLabel = cms.InputTag("simHcalDigis")
         process.zdcreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
         process.zdcreco.digiLabelhcal = cms.InputTag("simHcalUnsuppressedDigis")
         process.hcalnoise.digiCollName = cms.string('simHcalDigis')
-        process.load("RecoLocalCalo.HcalRecProducers.hfprereco_cfi")
         process.hfprereco.digiLabel = cms.InputTag("simHcalDigis", "HFQIE10DigiCollection")
-        process.localreco += process.hfprereco
-        from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco
-        process.globalReplace("hfreco", hfreco)
     if hasattr(process,'datamixing_step'):
         process=customise_mixing(process)
     if hasattr(process,'simHcalTriggerPrimitiveDigis'):

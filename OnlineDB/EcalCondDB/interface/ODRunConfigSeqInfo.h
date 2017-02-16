@@ -55,15 +55,15 @@ class ODRunConfigSeqInfo : public IODConfig {
   std::string m_description;
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error); // fetches the sequence by the ecal_config_id and seq_num
-  int fetchIDLast() throw(std::runtime_error); // fetches the sequence by the ecal_config_id and seq_num
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false); // fetches the sequence by the ecal_config_id and seq_num
+  int fetchIDLast() noexcept(false); // fetches the sequence by the ecal_config_id and seq_num
+  void setByID(int id) noexcept(false);
 
-  void  writeDB()throw(std::runtime_error);
+  void  writeDB()noexcept(false);
 
-  void prepareWrite()  throw(std::runtime_error);
+  void prepareWrite()  noexcept(false);
 
-  void fetchData(ODRunConfigSeqInfo * result)     throw(std::runtime_error);
+  void fetchData(ODRunConfigSeqInfo * result)     noexcept(false);
   void clear();
 
 

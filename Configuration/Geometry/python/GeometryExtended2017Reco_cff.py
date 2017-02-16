@@ -6,7 +6,6 @@ from Configuration.Geometry.GeometryExtended2017_cff import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
-#bah - well, this is not a cfi!
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 
 #Tracker
@@ -16,6 +15,7 @@ from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 #Muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *

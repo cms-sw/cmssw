@@ -36,8 +36,8 @@ public:
   ~ConversionHitChecker() {}
 
 
-  std::pair<uint8_t,Measurement1DFloat> nHitsBeforeVtx(const Trajectory &traj, const reco::Vertex &vtx,
-                   double sigmaTolerance = 3.0) const;
+  std::pair<uint8_t,Measurement1DFloat> nHitsBeforeVtx(const reco::TrackExtra & track, const reco::Vertex &vtx,
+                   float sigmaTolerance = 3.0) const;
                    
   uint8_t nSharedHits(const reco::Track &trk1, const reco::Track &trk2) const;
 

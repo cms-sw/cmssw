@@ -12,5 +12,5 @@ hcalSimHitStudy = cms.EDAnalyzer("HcalSimHitStudy",
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( hcalSimHitStudy, ModuleLabel = cms.untracked.string('famosSimHits') )
     
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( hcalSimHitStudy, TestNumber = cms.bool(True) )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalSimHitStudy, TestNumber = cms.bool(True) )

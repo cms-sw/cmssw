@@ -65,45 +65,51 @@ void HistogramManager::addSpec(SummationSpecification spec) {
 void HistogramManager::fill(double x, double y, DetId sourceModule,
                             const edm::Event* sourceEvent, int col, int row) {
   if (!enabled) return;
-  bool cached = true;
-  // We could be smarter on row/col and only check if they appear in the spec
-  // but that just asks for bugs.
-  if (col != this->iq.col || row != this->iq.row ||
-      sourceModule != this->iq.sourceModule ||
-      sourceEvent != this->iq.sourceEvent ||
-      sourceModule == 0xFFFFFFFF ||
-      sourceModule == DetId(0)  // Hack for eventrate-like things, since the
-                                // sourceEvent ptr might not change.
-      ) {
-    cached = false;
-    iq = GeometryInterface::InterestingQuantities{sourceEvent, sourceModule, 
-                                                  int16_t(col), int16_t(row)};
+
+  // We only need to check the module here, since the fastpath is only used to
+  // determine which plot is filled (not which bin inside) and fillInternal
+  // re-extracts whatever it needs for the axis. 
+  // Since do not support booking based on ROC or time, the plot can only depend
+  // on the module.
+  // The sourceEvent check is not really effective (pointer is always the same)
+  // but needed for initialisation.
+  // NOTE that this might change if we want to support per-ROC booking 
+  // NOTE that we could even cache the bin to fill if iq and spec are identical,
+  // also across HistogramManagers.
+  bool cached = false;
+  if (sourceModule == this->iq.sourceModule
+    && sourceEvent == this->iq.sourceEvent) {
+    cached = true;
   }
+  iq = GeometryInterface::InterestingQuantities{sourceEvent, sourceModule, 
+                                                int16_t(col), int16_t(row)};
   for (unsigned int i = 0; i < specs.size(); i++) {
     auto& s = specs[i];
     auto& t = s.steps[0].type == SummationStep::COUNT ? counters[i] : tables[i];
-    if (!cached) {
+    if (!cached) { // recompute ME to fill (aka fastpath)
       significantvalues[i].clear();
       geometryInterface.extractColumns(s.steps[0].columns, iq,
                                        significantvalues[i]);
-      fastpath[i] = nullptr;
-    }
-    
-    if (!fastpath[i]) {
       auto histo = t.find(significantvalues[i]);
       if (histo == t.end()) {
-        if (!bookUndefined) continue;
-        edm::LogError("HistogramManager") << "Missing Histogram!\n"
-          << "name " << tables[i].begin()->second.th1->GetName() << "\n";
-        assert(!"Histogram not booked! Probably inconsistent geometry description.");
+        if (bookUndefined) {
+          edm::LogError("HistogramManager") << "Missing Histogram!\n"
+            << "name " << tables[i].begin()->second.th1->GetName() << "\n";
+          assert(!"Histogram not booked! Probably inconsistent geometry description.");
+        }
+        fastpath[i] = nullptr;
+      } else {
+        fastpath[i] = &(histo->second);
       }
-
-      fastpath[i] = &(histo->second);
     }
-    if (s.steps[0].type == SummationStep::COUNT) {
-      fastpath[i]->count++;
-    } else {
-      fillInternal(x, y, this->dimensions, iq, s.steps.begin()+1, s.steps.end(), *(fastpath[i]));
+    // A fastpath of nullptr means there is no ME for this iq, which can be 
+    // a valid cached result.
+    if (fastpath[i]) {
+      if (s.steps[0].type == SummationStep::COUNT) {
+        fastpath[i]->count++;
+      } else {
+        fillInternal(x, y, this->dimensions, iq, s.steps.begin()+1, s.steps.end(), *(fastpath[i]));
+      }
     }
   }
 }
@@ -425,14 +431,28 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
 
       // determine nbins for geometry derived quantities
       // due to how we counted above, we need to include lower and upper bound
+      // For Coord-values, which are not precisely aligned with the bins, we force
+      // alignment.
       if (mei.binwidth_x != 0) {
-        mei.range_x_min -= mei.binwidth_x/2;
-        mei.range_x_max += mei.binwidth_x/2;
+        double range = (mei.range_x_max - mei.range_x_min)/mei.binwidth_x;
+        if ((range - int(range)) == 0.0) {
+          mei.range_x_min -= mei.binwidth_x/2;
+          mei.range_x_max += mei.binwidth_x/2;
+        } else {
+          mei.range_x_min = std::floor(mei.range_x_min/mei.binwidth_x)*mei.binwidth_x;
+          mei.range_x_max = std::ceil(mei.range_x_max/mei.binwidth_x)*mei.binwidth_x;
+        }
         mei.range_x_nbins = int((mei.range_x_max - mei.range_x_min)/mei.binwidth_x);
       }
       if (mei.binwidth_y != 0) {
-        mei.range_y_min -= mei.binwidth_y/2;
-        mei.range_y_max += mei.binwidth_y/2;
+        double range = (mei.range_y_max - mei.range_y_min)/mei.binwidth_y;
+        if ((range - int(range)) == 0.0) {
+          mei.range_y_min -= mei.binwidth_y/2;
+          mei.range_y_max += mei.binwidth_y/2;
+        } else {
+          mei.range_y_min = std::floor(mei.range_y_min/mei.binwidth_y)*mei.binwidth_y;
+          mei.range_y_max = std::ceil(mei.range_y_max/mei.binwidth_y)*mei.binwidth_y;
+        }
         mei.range_y_nbins = int((mei.range_y_max - mei.range_y_min)/mei.binwidth_y);
       }
 
@@ -445,7 +465,7 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
                        mei.range_y_nbins, mei.range_y_min, mei.range_y_max);
       } else if (mei.dimensions == 2 && mei.do_profile) {
         h.me = iBooker.bookProfile(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
-                       mei.range_x_nbins, mei.range_x_min, mei.range_x_max, 0.0, 0.0);
+                       mei.range_x_nbins, mei.range_x_min, mei.range_x_max, 0.0, 0.0, "");
       } else if (mei.dimensions == 3 && mei.do_profile) {
         h.me = iBooker.bookProfile2D(name.second, (mei.title + ";" + mei.xlabel + ";" + mei.ylabel).c_str(),
                        mei.range_x_nbins, mei.range_x_min, mei.range_x_max,
@@ -576,7 +596,6 @@ void HistogramManager::executeExtend(SummationStep const& step, Table& t,
 
     AbstractHistogram& new_histo = out[significantvalues];
     if (!new_histo.me) {
-      // TODO: this might be incorrect, but it is only for the title.
       // we put the name of the actual, last column of a input histo there.
       std::string colname = geometryInterface.pretty((e.first.end()-1)->first);
 
@@ -660,9 +679,6 @@ void HistogramManager::executeHarvesting(DQMStore::IBooker& iBooker,
             break;
           case SummationStep::EXTEND_Y:
             assert(!"EXTEND_Y currently not supported in harvesting.");
-            break;
-          case SummationStep::CUSTOM:
-            if (customHandler) customHandler(step, t, iBooker, iGetter);
             break;
           default:
             assert(!"Operation not supported in harvesting.");

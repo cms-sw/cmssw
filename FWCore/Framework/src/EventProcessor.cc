@@ -311,7 +311,7 @@ namespace edm {
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
 
-  EventProcessor::EventProcessor(std::shared_ptr<ProcessDesc>& processDesc,
+  EventProcessor::EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
                                  ServiceToken const& token,
                                  serviceregistry::ServiceLegacy legacy) :
     actReg_(),

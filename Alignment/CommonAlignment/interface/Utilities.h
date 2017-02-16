@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "CondFormats/Alignment/interface/Definitions.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class Alignable;
 class AlignmentParameters;

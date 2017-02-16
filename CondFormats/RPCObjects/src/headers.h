@@ -34,3 +34,11 @@
 #include "CondFormats/RPCObjects/interface/RPCObUXC.h"
 #include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
 #include "CondFormats/RPCObjects/interface/RPCObGasHum.h"
+
+#include "CondFormats/RPCObjects/interface/RPCFebConnector.h"
+#include "CondFormats/RPCObjects/interface/RPCLBLink.h"
+#include "CondFormats/RPCObjects/interface/RPCLBLinkMap.h"
+#include "CondFormats/RPCObjects/interface/RPCDCCLink.h"
+#include "CondFormats/RPCObjects/interface/RPCDCCLinkMap.h"
+#include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
+#include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"

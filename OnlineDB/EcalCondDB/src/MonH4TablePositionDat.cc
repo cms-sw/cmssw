@@ -27,7 +27,7 @@ MonH4TablePositionDat::~MonH4TablePositionDat()
 
 
 void MonH4TablePositionDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -45,7 +45,7 @@ void MonH4TablePositionDat::prepareWrite()
 
 
 void MonH4TablePositionDat::writeDB(const EcalLogicID* ecid, const MonH4TablePositionDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,7 +72,7 @@ void MonH4TablePositionDat::writeDB(const EcalLogicID* ecid, const MonH4TablePos
 
 
 void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -116,7 +116,7 @@ void MonH4TablePositionDat::fetchData(std::map< EcalLogicID, MonH4TablePositionD
 }
 
 void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4TablePositionDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();

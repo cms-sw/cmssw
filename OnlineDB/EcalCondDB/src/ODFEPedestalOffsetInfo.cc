@@ -34,7 +34,7 @@ ODFEPedestalOffsetInfo::~ODFEPedestalOffsetInfo()
 
 
 
-int ODFEPedestalOffsetInfo::fetchNextId()  throw(std::runtime_error) {
+int ODFEPedestalOffsetInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -57,7 +57,7 @@ int ODFEPedestalOffsetInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void ODFEPedestalOffsetInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -96,7 +96,7 @@ void ODFEPedestalOffsetInfo::setParameters(const std::map<string,string>& my_key
 }
 
 void ODFEPedestalOffsetInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -132,7 +132,7 @@ void ODFEPedestalOffsetInfo::writeDB()
 
 
 void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -171,7 +171,7 @@ void ODFEPedestalOffsetInfo::fetchData(ODFEPedestalOffsetInfo * result)
 }
 
 void ODFEPedestalOffsetInfo::fetchLastData(ODFEPedestalOffsetInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -192,7 +192,7 @@ void ODFEPedestalOffsetInfo::fetchLastData(ODFEPedestalOffsetInfo * result)
   }
 }
 
-int ODFEPedestalOffsetInfo::fetchID()    throw(std::runtime_error)
+int ODFEPedestalOffsetInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

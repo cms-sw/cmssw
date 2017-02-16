@@ -92,8 +92,8 @@ private:
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
   void trackStudyFromTrack(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
-  void trackStudyFromTrajectory(edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection, const edm::EventSetup& es);
-  void trajectoryStudy(const edm::Ref<std::vector<Trajectory> > traj, const edm::EventSetup& es, bool track_ok);
+  void trackStudyFromTrajectory(edm::Handle<reco::TrackCollection > trackCollectionHandle, const edm::EventSetup& es);
+  void trajectoryStudy(const reco::Track& track, const edm::EventSetup& es, bool track_ok);
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   bool trackFilter(const reco::Track& track);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
@@ -214,8 +214,6 @@ private:
   
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
-  //  edm::EDGetTokenT<std::vector<Trajectory> > trajectoryToken_;
-  edm::EDGetTokenT<TrajTrackAssociationCollection> trackTrajToken_;
 
   bool Mod_On_;
   bool Trend_On_;

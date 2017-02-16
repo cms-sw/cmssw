@@ -8,8 +8,6 @@
 
 using namespace sim;
 
-G4Mag_UsualEqRhs * Field::fieldEquation() { return theFieldEquation; }
-
 Field::Field(const MagneticField * f, double d) 
   : G4MagneticField(), theCMSMagneticField(f), theDelta(d)
 {
@@ -44,6 +42,4 @@ void Field::GetFieldValue(const G4double xyz[4], G4double bfield[3]) const
   bfield[1] = oldb[1]; 
   bfield[2] = oldb[2];
 }
-
-void Field::fieldEquation(G4Mag_UsualEqRhs* e) { theFieldEquation = e; }
 

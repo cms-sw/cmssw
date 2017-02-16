@@ -4,7 +4,7 @@ SimpleElectron::SimpleElectron(const reco::GsfElectron &in, unsigned int runNumb
         run_(runNumber),
         eClass_(int(in.classification())), 
         r9_(in.full5x5_r9()),
-        scEnergy_(in.superCluster()->rawEnergy() + in.isEB() ? 0 : in.superCluster()->preshowerEnergy()), 
+        scEnergy_(in.superCluster()->rawEnergy() + (in.isEB() ? 0 : in.superCluster()->preshowerEnergy())), 
         scEnergyError_(-999.),  // FIXME???
         trackMomentum_(in.trackMomentumAtVtx().R()), 
         trackMomentumError_(in.trackMomentumError()), 

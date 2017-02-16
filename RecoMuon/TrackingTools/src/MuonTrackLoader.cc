@@ -1,4 +1,3 @@
-
 /** \class MuonTrackLoader
  *  Class to load the product in the event
  *
@@ -38,6 +37,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
 
 
 using namespace edm;
@@ -243,22 +243,18 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       iTjRef++;
     }    
     
-    // get the transient rechit from the trajectory
-    Trajectory::RecHitContainer transHits = trajectory.recHits();
-    
-    if ( trajectory.direction() == oppositeToMomentum)
-      reverse(transHits.begin(),transHits.end());
-    
+
     // build the "bare" track from the trajectory.
     // This track has the parameters defined at PCA (no update)
     pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory, *beamSpot);
-    
-    // Check if the extrapolation went well    
+
+    // Check if the extrapolation went well
     if(!resultOfTrackExtrapAtPCA.first) {
       delete *rawTrajectory;
       continue;
     }
-    
+
+
     // take the "bare" track at PCA
     reco::Track &track = resultOfTrackExtrapAtPCA.second;
     
@@ -290,31 +286,34 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       }
     }
     
-    // Fill the track extra with the rec hit (persistent-)reference
-    unsigned int nHitsAdded = 0;
-    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin(); recHit != transHits.end(); ++recHit) {
-      TrackingRecHit *singleHit = (**recHit).hit()->clone();
-      std::vector<const TrackingRecHit*> hits = MuonTrackLoader::unpackHit(*singleHit);
-      for (std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it) {
-          if unlikely(!track.appendHitPattern(**it, ttopo)){
-              break;
-          }
-      }
-      
-      if(theUpdatingAtVtx && updateResult.first){
-          std::vector<const TrackingRecHit*> hits = MuonTrackLoader::unpackHit(*singleHit);
-          for (std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it) {
-              if unlikely(!updateResult.second.appendHitPattern(**it, ttopo)){
-                  break;
-              }
-          }
-      }
-      recHitCollection->push_back( singleHit );  
-      ++nHitsAdded;
-    }
+
+    // get the transient rechit and co from the trajectory
+    reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s;
+    Traj2TrackHits t2t;
+    auto ih = recHitCollection->size();
+    t2t(trajectory,*recHitCollection,trajParams,chi2s);
+    auto ie = recHitCollection->size();
     // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
-    trackExtra.setHits(recHitCollectionRefProd, recHitsIndex, nHitsAdded);
-    recHitsIndex +=nHitsAdded;
+    trackExtra.setHits(recHitCollectionRefProd,ih,ie-ih);
+    trackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
+    assert(trackExtra.trajParams().size()==trackExtra.recHitsSize());
+
+
+    // Fill the hit pattern
+    for (;ih<ie; ++ih) {
+      auto const & hit = (*recHitCollection)[ih];
+      auto hits = MuonTrackLoader::unpackHit(hit);
+      for (auto hh : hits) {
+          if unlikely(!track.appendHitPattern(*hh, ttopo)) break;
+      }
+ 
+      if(theUpdatingAtVtx && updateResult.first){
+        for (auto hh : hits) {
+              if unlikely(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+        }
+      }
+    }
 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
@@ -588,19 +587,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       iTjRef++;
     }    
     
-    // get the transient rechit from the trajectory
-    Trajectory::RecHitContainer transHits = trajectory.recHits();
-    
-    if ( trajectory.direction() == oppositeToMomentum)
-      reverse(transHits.begin(),transHits.end());
-    
     // build the "bare" track from the trajectory.
     // This track has the parameters defined at PCA (no update)
     pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory, *beamSpot);
     
     // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) {
-      //      ++trackIndex;//ADAM
       delete *rawTrajectory;
       continue;
     }
@@ -624,33 +616,32 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // build the updated-at-vertex track, starting from the previous track
     pair<bool,reco::Track> updateResult(false,reco::Track());
             
-    // Fill the track extra with the rec hit (persistent-)reference
-    unsigned int nHitsAdded = 0;
-    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
-	 recHit != transHits.end(); ++recHit) {
-	TrackingRecHit *singleHit = (**recHit).hit()->clone();
-    
-    std::vector<const TrackingRecHit*> hits = MuonTrackLoader::unpackHit(*singleHit);
-    for (std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it) {
-        if unlikely(!track.appendHitPattern(**it, ttopo)){
-            break;
-        }
-    }
-    
-    if(theUpdatingAtVtx && updateResult.first){
-        std::vector<const TrackingRecHit*> hits = MuonTrackLoader::unpackHit(*singleHit);
-        for (std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it) {
-            if unlikely(!updateResult.second.appendHitPattern(**it, ttopo)){
-                break;
-            }
-        }
-    }
-    recHitCollection->push_back( singleHit );
-    ++nHitsAdded;
-    }
+    // get the transient rechit and co from the trajectory
+    reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s;
+    Traj2TrackHits t2t;
+    auto ih = recHitCollection->size();
+    t2t(trajectory,*recHitCollection,trajParams,chi2s);
+    auto ie = recHitCollection->size();
     // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
-    trackExtra.setHits(recHitCollectionRefProd, recHitsIndex, nHitsAdded);
-    recHitsIndex += nHitsAdded;
+    trackExtra.setHits(recHitCollectionRefProd,ih,ie-ih);
+    trackExtra.setTrajParams(std::move(trajParams),std::move(chi2s));
+    assert(trackExtra.trajParams().size()==trackExtra.recHitsSize());
+
+    // Fill the hit pattern
+    for (;ih<ie; ++ih) {
+      auto const & hit = (*recHitCollection)[ih];
+      auto hits = MuonTrackLoader::unpackHit(hit);
+      for (auto hh : hits) {
+          if unlikely(!track.appendHitPattern(*hh, ttopo)) break;
+      }
+ 
+      if(theUpdatingAtVtx && updateResult.first){
+        for (auto hh : hits) {
+              if unlikely(!updateResult.second.appendHitPattern(*hh, ttopo)) break;
+        }
+      }
+    }
 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
