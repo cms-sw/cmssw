@@ -40,6 +40,7 @@ template <class T>
 class TrackProducerBase : public AlgoProductTraits<T> {
 public:
   using Base = AlgoProductTraits<T>;
+  using TrackView = typename Base::TrackView;
   using TrackCollection = typename Base::TrackCollection;
   using AlgoProductCollection = typename Base::AlgoProductCollection;
 public:
@@ -64,7 +65,7 @@ public:
   /// Get TrackCandidateCollection from the Event (needed by TrackProducer)
   virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&, reco::BeamSpot&);
   /// Get TrackCollection from the Event (needed by TrackRefitter)
-  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCollection>&, reco::BeamSpot&);
+  virtual void getFromEvt(edm::Event&, edm::Handle<TrackView>&, reco::BeamSpot&);
 
   /// Method where the procduction take place. To be implemented in concrete classes
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
@@ -94,7 +95,7 @@ public:
                            const TrackerTopology* ttopo);
 
   const edm::ParameterSet& getConf() const {return conf_;}
- private:
+ protected:
   edm::ParameterSet conf_;
   edm::EDGetToken src_;
  protected:

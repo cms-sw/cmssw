@@ -26,7 +26,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -85,19 +85,8 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
     if (heRebuild_ && testNumber_) {
       for (unsigned int i=0; i<caloHits.size(); ++i) {
 	unsigned int id_ = caloHits[i].id();
-	int subdet, z, depth0, eta0, phi0, lay;
-	HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth0, eta0, phi0, lay);
-	int sign = (z==0) ? (-1):(1);
-	if (verbosity_>0)
-	  edm::LogInfo("HGCalValidation") << "Hit[" << i << "] subdet "
-					  << subdet << " z " << z << " depth "
-					  << depth0 << " eta " << eta0 
-					  << " phi " << phi0 << " lay " << lay
-					  << std::endl;
-	HcalDDDRecConstants::HcalID id = hcons_->getHCID(subdet, eta0, phi0, lay, depth0);
-	HcalDetId hid = ((subdet==int(HcalEndcap)) ? 
-			 HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth) :
-			 HcalDetId(HcalEmpty,sign*id.eta,id.phi,id.depth));
+    HcalDetId hid = HcalHitRelabeller::relabel(id_,hcons_);
+    if(hid.subdet()!=int(HcalEndcap)) hid = HcalDetId(HcalEmpty,hid.ieta(),hid.iphi(),hid.depth());
 	caloHits[i].setID(hid.rawId());
 	if (verbosity_>0)
 	  edm::LogInfo("HGCalValidation") << "Hit[" << i << "] " << hid <<"\n";

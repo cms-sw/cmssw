@@ -19,10 +19,14 @@ AlignableTracker
                    const TrackerTopology* trackerTopology) :
   // id not yet known, will be set by builder
   AlignableComposite(0, align::Tracker, RotationType()),
-  tTopo_(trackerTopology)
+  tTopo_(trackerTopology),
+  trackerNameSpace_(trackerTopology),
+  alignableObjectId_(trackerGeometry, nullptr, nullptr)
 {
   AlignableTrackerBuilder builder(trackerGeometry, trackerTopology);
   builder.buildAlignables(this);
+  trackerNameSpace_ = builder.trackerNameSpace();
+  alignableObjectId_ = builder.objectIdProvider();
 }
 
 //_____________________________________________________________________________

@@ -1,15 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <memory>
 #include <vector>
@@ -19,86 +16,50 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-template<typename T1>
-class bestPVselector : public edm::EDProducer
-{
+class bestPVselector : public edm::global::EDProducer<> {
 public:
-  // construction/destruction
-  bestPVselector(const edm::ParameterSet& iConfig);
-  virtual ~bestPVselector();
-  
-  // member functions
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
-private:  
-  // member data
-  edm::EDGetTokenT<std::vector<T1> >               src_;  
+  explicit bestPVselector(edm::ParameterSet const& iConfig);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+  edm::EDGetTokenT<std::vector<reco::Vertex>> src_;
 };
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
-// construction/destruction
+// construction
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-template<typename T1>
-bestPVselector<T1>::bestPVselector(const edm::ParameterSet& iConfig)
-  : src_(consumes<std::vector<T1> >(iConfig.getParameter<edm::InputTag>("src")))
+bestPVselector::bestPVselector(edm::ParameterSet const& iConfig)
+  : src_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("src"))}
 {
-  produces<std::vector<T1> >();
+  produces<std::vector<reco::Vertex>>();
 }
-
-
-//______________________________________________________________________________
-template<typename T1>
-bestPVselector<T1>::~bestPVselector(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-template<typename T1>
-void bestPVselector<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
-{  
-  std::unique_ptr<std::vector<T1> > theBestPV(new std::vector<T1 >);
-  
-  edm::Handle< std::vector<T1> > VertexHandle;
-  iEvent.getByToken(src_,VertexHandle);
-  
-  if( VertexHandle->size() == 0 ) 
-  {
-    iEvent.put(std::move(theBestPV));
-    return ;
-  }
-  
-  typename std::vector<T1>::const_iterator PVit   ;
-  typename std::vector<T1>::const_iterator bestPV ;
-  
-  double bestP4      = 0 ;
-  double sumSquarePt = 0 ;
-
-  for (PVit = VertexHandle->begin(); PVit != VertexHandle->end(); ++PVit) {
-    sumSquarePt = (PVit -> p4().pt())*(PVit -> p4().pt()) ;
-	if( sumSquarePt > bestP4 ){
-	  bestP4 = sumSquarePt ;
-	  bestPV = PVit        ; 
-	}
-  }
-
-  theBestPV->push_back( *bestPV );  
-  iEvent.put(std::move(theBestPV));
-  
-}
-
-template<typename T1>
-void bestPVselector<T1>::endJob()
+void bestPVselector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
+  edm::Handle<std::vector<reco::Vertex>> vertices;
+  iEvent.getByToken(src_,vertices);
+
+  auto theBestPV = std::make_unique<std::vector<reco::Vertex>>();
+
+  if (!vertices->empty()) {
+    auto sumSquarePt = [](auto const& pv) { return pv.p4().pt()*pv.p4().pt(); };
+    auto bestPV = std::max_element(std::cbegin(*vertices), std::cend(*vertices),
+                                   [sumSquarePt](auto const& v1, auto const& v2) {
+                                     return sumSquarePt(v1) < sumSquarePt(v2);
+                                   });
+    theBestPV->push_back(*bestPV);
+  }
+  iEvent.put(std::move(theBestPV));
 }
 
-typedef bestPVselector<reco::Vertex>      HighestSumP4PrimaryVertexSelector;
-
-#include "FWCore/Framework/interface/MakerMacros.h"
+using HighestSumP4PrimaryVertexSelector = bestPVselector;
 DEFINE_FWK_MODULE(HighestSumP4PrimaryVertexSelector);

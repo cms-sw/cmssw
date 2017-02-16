@@ -2,7 +2,7 @@
   <use name="SimCalorimetry/HcalSimAlgos"/>
   <use name="SimDataFormats/CrossingFrame"/>
   <use name="CommonTools/UtilAlgos"/>
-  <use name="SimDataFormats/CaloTest"/>
+  <use name="DataFormats/HcalDetId"/>
   <bin file="HPDIonFeedbackTest.cpp"/>
   <bin file="HcalShapeIntegratorTest.cpp"/>
   <bin file="HcalTimeSlewTest.cpp"/>

@@ -6,10 +6,7 @@
 // Class:      GeometryInterface
 //
 // The histogram manager uses this class to gather information about a sample.
-// All geometry dependence goes here. This is a singleton, (ed::Service) but
-// only for performance reasons.
-// At some point we might need to switch to sth. more complicated (if we want
-// to deal with more than one geometry per process).
+// All geometry dependence goes here. 
 //
 // Original Author: Marcel Schneider
 //
@@ -43,8 +40,6 @@ class GeometryInterface {
   bool loaded() { return is_loaded; };
 
   // The hard work happens here.
-  // this is _not_ thread save, but it should only be called in
-  // booking/harvesting.
   void load(edm::EventSetup const& iSetup);
 
   struct InterestingQuantities {
@@ -79,7 +74,7 @@ class GeometryInterface {
     } else {
       auto val = ex(iq);
       if (val != UNDEFINED) {
-        return std::make_pair(Column{id}, val);  // double braces for g++
+        return std::make_pair(Column{id}, val);
       }
     }
     return std::make_pair(col, UNDEFINED);
@@ -91,6 +86,8 @@ class GeometryInterface {
     return extractors[id](iq);
   }
 
+  // TODO: for Phase0 (and maybe also Phase2) this should include the 4 corners
+  // of each ROC (or the *correct* corners of the respective modules).
   std::vector<InterestingQuantities> const& allModules() {
     return all_modules;
   }
@@ -100,8 +97,6 @@ class GeometryInterface {
   Value binWidth(ID id) { return bin_width[id]; };
 
   // turn string into an ID, adding it if needed.
-  // needs the lock since this will be called from the spec builder, which will
-  // run in the constructor and this is parallel.
   ID intern(std::string const& id) {
     auto it = ids.find(id);
     if (it == ids.end()) {
@@ -113,7 +108,7 @@ class GeometryInterface {
 
   // turn an ID back into a string. Only for pretty output (including histo
   // labels), so it can be slow (though intern() does not have to be fast
-  // either). Also locks, might not be needed but better save than sorry.
+  // either).
   std::string unintern(ID id) {
     for (auto& e : ids)
       if (e.second == id) return e.first;
@@ -127,9 +122,9 @@ class GeometryInterface {
   std::string formatValue(Column, Value);
 
  private:
-  // void loadFromAlignment(edm::EventSetup const& iSetup, const
-  // edm::ParameterSet& iConfig);
   void loadFromTopology(edm::EventSetup const& iSetup,
+                        const edm::ParameterSet& iConfig);
+  void loadFromSiPixelCoordinates(edm::EventSetup const& iSetup,
                         const edm::ParameterSet& iConfig);
   void loadTimebased(edm::EventSetup const& iSetup,
                      const edm::ParameterSet& iConfig);
@@ -146,13 +141,12 @@ class GeometryInterface {
   // can be a Vector since ids are dense.
   std::vector<std::function<Value(InterestingQuantities const& iq)>> extractors;
   // quantity range if it is known. Can be UNDEFINED, in this case booking will
-  // determine the range.
-  // map for ease of use.
+  // determine the range. Map for ease of use.
   std::map<ID, Value> max_value;
   std::map<ID, Value> min_value;
   std::map<ID, Value> bin_width;
 
-  // cache of pre-formatted values. Can be pre-populated whhile loading
+  // cache of pre-formatted values. Can be pre-populated while loading
   // (used for Pixel*Name)
   std::map<std::pair<Column, Value>, std::string> format_value;
 

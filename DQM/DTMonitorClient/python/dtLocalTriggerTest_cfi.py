@@ -6,7 +6,7 @@ triggerTest = cms.EDAnalyzer("DTLocalTriggerTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('TM','DDU','COM'),
+    hwSources = cms.untracked.vstring('TM','DDU'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),                         
     # root folder for booking of histograms
@@ -25,4 +25,6 @@ triggerTest = cms.EDAnalyzer("DTLocalTriggerTest",
 
 )
 
+from Configuration.Eras.Modifier_run2_25ns_specific_cff import run2_25ns_specific
+run2_25ns_specific.toModify( triggerTest,hwSources = cms.untracked.vstring('TM') )
 

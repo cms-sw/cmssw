@@ -115,8 +115,9 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
   } else {
 
     //Now do depth if required
-    int dbin = 1;
-    double pointrz=0, drz=99999.;
+    int zside = (r.z() > 0) ? 1 : -1;
+    int dbin  = m_topology.dddConstants()->getMinDepth(((int)(bc)-1),etaring,phibin,zside);
+    double pointrz(0), drz(99999.);
     HcalDetId currentId(bc, etabin, phibin, dbin);
     if (bc == HcalBarrel) pointrz = r.mag();
     else                  pointrz = std::abs(r.z());

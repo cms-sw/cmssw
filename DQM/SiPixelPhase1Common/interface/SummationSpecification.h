@@ -29,7 +29,6 @@ struct SummationStep {
               COUNT    = 4, 
               REDUCE   = 5, 
               SAVE     = 6, 
-              CUSTOM   = 7,
               USE_X    = 8, 
               USE_Y    = 9,
               USE_Z    = 10, 

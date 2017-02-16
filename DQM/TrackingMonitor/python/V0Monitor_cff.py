@@ -25,7 +25,6 @@ voMonitoringSequence = cms.Sequence(
     + LambdaMonitoring
 )
 
-
 from DQM.TrackingMonitorSource.pset4GenericTriggerEventFlag_cfi import *
 
 # tracker ON
@@ -107,3 +106,90 @@ voMonitoringZBHIPOOTSequence = cms.Sequence(
     + LambdaMonitoringZBHIPOOT
 )
 
+
+
+from CommonTools.RecoAlgos.vertexCompositeCandidateCollectionSelector_cfi import *
+KshortWlxy16 = vertexCompositeCandidateCollectionSelector.clone()
+KshortWlxy16.v0 = cms.InputTag('generalV0Candidates:Kshort')
+
+LambdaWlxy16 = vertexCompositeCandidateCollectionSelector.clone()
+LambdaWlxy16.v0 = cms.InputTag('generalV0Candidates:Lambda')
+
+KshortWlxy16Monitoring = KshortMonitoring.clone()
+KshortWlxy16Monitoring.v0 = cms.InputTag('KshortWlxy16')
+KshortWlxy16Monitoring.FolderName = cms.string("Tracking/V0Monitoring/Ks/Lxy16")
+
+LambdaWlxy16Monitoring = LambdaMonitoring.clone()
+LambdaWlxy16Monitoring.v0 = cms.InputTag('LambdaWlxy16')
+LambdaWlxy16Monitoring.FolderName = cms.string("Tracking/V0Monitoring/Lambda/Lxy16")
+
+voWcutMonitoringSequence = cms.Sequence(
+    KshortWlxy16*KshortWlxy16Monitoring
+    + LambdaWlxy16*LambdaWlxy16Monitoring
+)
+
+KshortWlxy16MonitoringCommon = KshortMonitoringCommon.clone()
+KshortWlxy16MonitoringCommon.v0 = cms.InputTag('KshortWlxy16')
+KshortWlxy16MonitoringCommon.FolderName = cms.string("Tracking/V0Monitoring/Ks/Lxy16")
+
+LambdaWlxy16MonitoringCommon = LambdaMonitoringCommon.clone()
+LambdaWlxy16MonitoringCommon.v0 = cms.InputTag('LambdaWlxy16')
+LambdaWlxy16MonitoringCommon.FolderName = cms.string("Tracking/V0Monitoring/Lambda/Lxy16")
+
+voWcutMonitoringCommonSequence = cms.Sequence(
+    KshortWlxy16*KshortWlxy16MonitoringCommon
+    +LambdaWlxy16*LambdaWlxy16MonitoringCommon
+)
+
+KshortWlxy16MonitoringMB = KshortMonitoringMB.clone()
+KshortWlxy16MonitoringMB.v0 = cms.InputTag('KshortWlxy16')
+KshortWlxy16MonitoringMB.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_INpu/Ks/Lxy16")
+
+LambdaWlxy16MonitoringMB = LambdaMonitoringMB.clone()
+LambdaWlxy16MonitoringMB.v0 = cms.InputTag('LambdaWlxy16')
+LambdaWlxy16MonitoringMB.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_INpu/Lambda/Lxy16")
+
+voWcutMonitoringMBSequence = cms.Sequence(
+    KshortWlxy16*KshortWlxy16MonitoringMB
+    +LambdaWlxy16*LambdaWlxy16MonitoringMB
+)
+
+KshortWlxy16MonitoringZBnoHIPnoOOT = KshortMonitoringZBnoHIPnoOOT.clone()
+KshortWlxy16MonitoringZBnoHIPnoOOT.v0 = cms.InputTag('KshortWlxy16')
+KshortWlxy16MonitoringZBnoHIPnoOOT.FolderName = cms.string("Tracking/V0Monitoring/noHIP_noOOTpu_INpu/Ks/Lxy16")
+
+LambdaWlxy16MonitoringZBnoHIPnoOOT = LambdaMonitoringZBnoHIPnoOOT.clone()
+LambdaWlxy16MonitoringZBnoHIPnoOOT.v0 = cms.InputTag('LambdaWlxy16')
+LambdaWlxy16MonitoringZBnoHIPnoOOT.FolderName = cms.string("Tracking/V0Monitoring/noHIP_noOOTpu_INpu/Lambda/Lxy16")
+
+
+voWcutMonitoringZBnoHIPnoOOTSequence = cms.Sequence(
+    KshortWlxy16*KshortWlxy16MonitoringZBnoHIPnoOOT
+    +LambdaWlxy16*LambdaWlxy16MonitoringZBnoHIPnoOOT    
+)
+
+KshortWlxy16MonitoringZBHIPnoOOT = KshortMonitoringZBHIPnoOOT.clone()
+KshortWlxy16MonitoringZBHIPnoOOT.v0 = cms.InputTag('KshortWlxy16')
+KshortWlxy16MonitoringZBHIPnoOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_noOOTpu_INpu/Ks/Lxy16")
+
+LambdaWlxy16MonitoringZBHIPnoOOT = LambdaMonitoringZBHIPnoOOT.clone()
+LambdaWlxy16MonitoringZBHIPnoOOT.v0 = cms.InputTag('LambdaWlxy16')
+LambdaWlxy16MonitoringZBHIPnoOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_noOOTpu_INpu/Lambda/Lxy16")
+
+voWcutMonitoringZBHIPnoOOTSequence = cms.Sequence(
+    KshortWlxy16*KshortWlxy16MonitoringZBHIPnoOOT
+    +LambdaWlxy16*LambdaWlxy16MonitoringZBHIPnoOOT
+)
+
+KshortWlxy16MonitoringZBHIPOOT = KshortMonitoringZBHIPOOT.clone()
+KshortWlxy16MonitoringZBHIPOOT.v0 = cms.InputTag('KshortWlxy16')
+KshortWlxy16MonitoringZBHIPOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_noINpu/Ks/Lxy16")
+
+LambdaWlxy16MonitoringZBHIPOOT = LambdaMonitoringZBHIPOOT.clone()
+LambdaWlxy16MonitoringZBHIPOOT.v0 = cms.InputTag('LambdaWlxy16')
+LambdaWlxy16MonitoringZBHIPOOT.FolderName = cms.string("Tracking/V0Monitoring/HIP_OOTpu_noINpu/Lambda/Lxy16")
+
+voWcutMonitoringZBHIPOOTSequence = cms.Sequence(
+    KshortWlxy16*KshortWlxy16MonitoringZBHIPOOT
+    +LambdaWlxy16*LambdaWlxy16MonitoringZBHIPOOT
+)

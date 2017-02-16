@@ -15,14 +15,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Alignment
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 
 //__________________________________________________________________________________________________
-TrackerScenarioBuilder::TrackerScenarioBuilder(AlignableTracker* alignable) 
-  : theAlignableTracker(alignable)
+TrackerScenarioBuilder::TrackerScenarioBuilder(AlignableTracker* alignable) :
+  MisalignmentScenarioBuilder(alignable->objectIdProvider().geometry()),
+  theAlignableTracker(alignable)
 {
 
   if (!theAlignableTracker) {
@@ -112,7 +112,7 @@ bool TrackerScenarioBuilder::possiblyPartOf(const std::string &subStruct, const 
 //__________________________________________________________________________________________________
 std::string TrackerScenarioBuilder::stripOffModule(const align::StructureType& type) const {
   const std::string module{"Module"};
-  std::string name{AlignableObjectId::typeToName(type)};
+  std::string name{theAlignableTracker->objectIdProvider().typeToName(type)};
   auto start = name.find(module);
   if (start == std::string::npos) {
     throw cms::Exception("LogicError")

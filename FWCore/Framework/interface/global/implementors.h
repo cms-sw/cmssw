@@ -91,6 +91,7 @@ namespace edm {
         RunCacheHolder() = default;
         RunCacheHolder( RunCacheHolder<T,C> const&) = delete;
         RunCacheHolder<T,C>& operator=(RunCacheHolder<T,C> const&) = delete;
+        ~RunCacheHolder() noexcept(false) {};
       protected:
         C const* runCache(edm::RunIndex iID) const { return cache_.get(); }
       private:
@@ -114,6 +115,7 @@ namespace edm {
         LuminosityBlockCacheHolder() = default;
         LuminosityBlockCacheHolder( LuminosityBlockCacheHolder<T,C> const&) = delete;
         LuminosityBlockCacheHolder<T,C>& operator=(LuminosityBlockCacheHolder<T,C> const&) = delete;
+        ~LuminosityBlockCacheHolder() noexcept(false) {};
       protected:
         C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return cache_.get(); }
       private:
@@ -139,6 +141,7 @@ namespace edm {
         RunSummaryCacheHolder() = default;
         RunSummaryCacheHolder( RunSummaryCacheHolder<T,C> const&) = delete;
         RunSummaryCacheHolder<T,C>& operator=(RunSummaryCacheHolder<T,C> const&) = delete;
+        ~RunSummaryCacheHolder() noexcept(false) {};
       private:
         friend class EndRunSummaryProducer<T,C>;
         void doBeginRunSummary_(edm::Run const& rp, EventSetup const& c) override final {
@@ -170,6 +173,7 @@ namespace edm {
         LuminosityBlockSummaryCacheHolder() = default;
         LuminosityBlockSummaryCacheHolder( LuminosityBlockSummaryCacheHolder<T,C> const&) = delete;
         LuminosityBlockSummaryCacheHolder<T,C>& operator=(LuminosityBlockSummaryCacheHolder<T,C> const&) = delete;
+        ~LuminosityBlockSummaryCacheHolder() noexcept(false) {};
       private:
         friend class EndLuminosityBlockSummaryProducer<T,C>;
         
@@ -201,6 +205,7 @@ namespace edm {
         BeginRunProducer() = default;
         BeginRunProducer( BeginRunProducer const&) = delete;
         BeginRunProducer& operator=(BeginRunProducer const&) = delete;
+        ~BeginRunProducer() noexcept(false) {};
         
       private:
         void doBeginRunProduce_(Run& rp, EventSetup const& c) override final;
@@ -214,6 +219,7 @@ namespace edm {
         EndRunProducer() = default;
         EndRunProducer( EndRunProducer const&) = delete;
         EndRunProducer& operator=(EndRunProducer const&) = delete;
+        ~EndRunProducer() noexcept(false) {};
         
       private:
         
@@ -228,6 +234,7 @@ namespace edm {
         EndRunSummaryProducer() = default;
         EndRunSummaryProducer( EndRunSummaryProducer const&) = delete;
         EndRunSummaryProducer& operator=(EndRunSummaryProducer const&) = delete;
+        ~EndRunSummaryProducer() noexcept(false) {};
         
       private:
         
@@ -244,6 +251,7 @@ namespace edm {
         BeginLuminosityBlockProducer() = default;
         BeginLuminosityBlockProducer( BeginLuminosityBlockProducer const&) = delete;
         BeginLuminosityBlockProducer& operator=(BeginLuminosityBlockProducer const&) = delete;
+        ~BeginLuminosityBlockProducer() noexcept(false) {};
         
       private:
         void doBeginLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final;
@@ -256,6 +264,7 @@ namespace edm {
         EndLuminosityBlockProducer() = default;
         EndLuminosityBlockProducer( EndLuminosityBlockProducer const&) = delete;
         EndLuminosityBlockProducer& operator=(EndLuminosityBlockProducer const&) = delete;
+        ~EndLuminosityBlockProducer() noexcept(false) {};
         
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final;
@@ -268,6 +277,7 @@ namespace edm {
         EndLuminosityBlockSummaryProducer() = default;
         EndLuminosityBlockSummaryProducer( EndLuminosityBlockSummaryProducer const&) = delete;
         EndLuminosityBlockSummaryProducer& operator=(EndLuminosityBlockSummaryProducer const&) = delete;
+        ~EndLuminosityBlockSummaryProducer() noexcept(false) {};
         
       private:
         void doEndLuminosityBlockProduce_(LuminosityBlock& lb, EventSetup const& c) override final {

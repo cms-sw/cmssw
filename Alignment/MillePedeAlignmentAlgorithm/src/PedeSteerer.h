@@ -21,6 +21,7 @@
 #include <iosfwd> 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 class Alignable;
 class AlignableTracker;
@@ -114,8 +115,9 @@ class PedeSteerer
   // data members
   const AlignmentParameterStore *myParameterStore; /// not the owner!
   const PedeLabelerBase         *myLabels; /// pointer to labeler (not the owner)
+  const AlignableObjectId alignableObjectId_;
 
-  edm::ParameterSet myConfig;
+  const edm::ParameterSet myConfig;
   std::string myDirectory; /// directory of all files
   bool myNoSteerFiles; /// flag to write steering files to /dev/null
   bool myIsSteerFileDebug; /// whether or not to fill pede steering files with debug info

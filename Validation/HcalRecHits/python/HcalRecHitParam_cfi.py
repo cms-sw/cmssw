@@ -22,5 +22,5 @@ hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
     noiselabel   = cms.InputTag('hcalnoise')
 )
 
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( hcalRecoAnalyzer, TestNumber = cms.bool(True) )
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hcalRecoAnalyzer, TestNumber = cms.bool(True) )

@@ -41,7 +41,7 @@ void ODRunConfigSeqInfo::setRunSeqDef(const RunSeqDef& run_seq)
 
 
 int ODRunConfigSeqInfo::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -79,7 +79,7 @@ int ODRunConfigSeqInfo::fetchID()
 
 
 int ODRunConfigSeqInfo::fetchIDLast()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -107,7 +107,7 @@ int ODRunConfigSeqInfo::fetchIDLast()
 
 
 void ODRunConfigSeqInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -141,7 +141,7 @@ void ODRunConfigSeqInfo::setByID(int id)
 }
 
 void ODRunConfigSeqInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -155,7 +155,7 @@ void ODRunConfigSeqInfo::prepareWrite()
   }
 }
 void ODRunConfigSeqInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -205,7 +205,7 @@ void ODRunConfigSeqInfo::clear(){
 
 
 void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   //  result->clear();

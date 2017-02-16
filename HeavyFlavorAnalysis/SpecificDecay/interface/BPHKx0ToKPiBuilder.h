@@ -45,8 +45,8 @@ class BPHKx0ToKPiBuilder {
   /** Constructor
    */
   BPHKx0ToKPiBuilder( const edm::EventSetup& es,
-       const BPHRecoBuilder::BPHGenericCollection* kaonCollection,
-       const BPHRecoBuilder::BPHGenericCollection* pionCollection );
+       const BPHRecoBuilder::BPHGenericCollection* posCollection,
+       const BPHRecoBuilder::BPHGenericCollection* negCollection );
 
   /** Destructor
    */
@@ -84,8 +84,8 @@ class BPHKx0ToKPiBuilder {
   std::string pionName;
 
   const edm::EventSetup* evSetup;
-  const BPHRecoBuilder::BPHGenericCollection* kCollection;
   const BPHRecoBuilder::BPHGenericCollection* pCollection;
+  const BPHRecoBuilder::BPHGenericCollection* nCollection;
 
   BPHParticlePtSelect *  ptSel;
   BPHParticleEtaSelect* etaSel;

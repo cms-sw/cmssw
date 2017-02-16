@@ -26,7 +26,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
        xmin = cms.double(0.5),
        xmax = cms.double(256.5),
        subdetswitchon = cms.bool(False),
-       globalswitchon = cms.bool(False)
+       globalswitchon = cms.bool(True)
     ),
 
    TH1NStripsApvShots = cms.PSet(

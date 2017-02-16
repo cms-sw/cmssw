@@ -115,28 +115,29 @@ namespace edm {
                          std::string const& id,
                          PathContext const& pathContext) {
     std::ostringstream ost;
-    if (isEvent) {
-      ost << "Calling event method";
+    if (not isEvent) {
+      //For the event case, the Worker has already
+      // added the necessary module context to the exception
+      if (begin && branchType == InRun) {
+        ost << "Calling beginRun";
+      }
+      else if (begin && branchType == InLumi) {
+        ost << "Calling beginLuminosityBlock";
+      }
+      else if (!begin && branchType == InLumi) {
+        ost << "Calling endLuminosityBlock";
+      }
+      else if (!begin && branchType == InRun) {
+        ost << "Calling endRun";
+      }
+      else {
+        // It should be impossible to get here ...
+        ost << "Calling unknown function";
+      }
+      ost << " for module " << desc.moduleName() << "/'" << desc.moduleLabel() << "'";
+      ex.addContext(ost.str());
+      ost.str("");
     }
-    else if (begin && branchType == InRun) {
-      ost << "Calling beginRun";
-    }
-    else if (begin && branchType == InLumi) {
-      ost << "Calling beginLuminosityBlock";
-    }
-    else if (!begin && branchType == InLumi) {
-      ost << "Calling endLuminosityBlock";
-    }
-    else if (!begin && branchType == InRun) {
-      ost << "Calling endRun";
-    }
-    else {
-      // It should be impossible to get here ...
-      ost << "Calling unknown function";
-    }
-    ost << " for module " << desc.moduleName() << "/'" << desc.moduleLabel() << "'";
-    ex.addContext(ost.str());
-    ost.str("");
     ost << "Running path '" << pathContext.pathName() << "'";
     ex.addContext(ost.str());
     ost.str("");

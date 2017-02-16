@@ -21,8 +21,8 @@ class LocationDef : public IDef {
   void setLocation(std::string loc);
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
   inline bool operator==(const LocationDef& l) const { return m_loc == l.m_loc; }
   inline bool operator!=(const LocationDef& l) const { return m_loc != l.m_loc; }
@@ -31,7 +31,7 @@ class LocationDef : public IDef {
   // User data for this def
   std::string m_loc;
 
-  void fetchAllDefs( std::vector<LocationDef>* fillVec) throw(std::runtime_error);
+  void fetchAllDefs( std::vector<LocationDef>* fillVec) noexcept(false);
 };
 
 #endif

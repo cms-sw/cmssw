@@ -1880,16 +1880,16 @@ int main(int argc, char ** argv) {
       }
     }
     
-    char value[10] ; 
+    char value[330] ; 
     sumfile << "Average path times are as follows (all in msec): " << std::endl ;
     for (int i=1; i<=pathTimeSummary->GetNbinsX(); i++) {
-      snprintf(value, 10, "%9.4f",pathTimeSummary->GetBinContent(i)) ; 
+      snprintf(value, sizeof(value), "%9.4f",pathTimeSummary->GetBinContent(i)) ; 
       sumfile << value << " (path " << pathTimeSummary->GetXaxis()->GetBinLabel(i) << ")" ;
       sumfile << std::endl ; 
     }
     sumfile << std::endl ; 
         
-    snprintf(value, 10, "%9.4f",(1000.*longestEventTime)) ; 
+    snprintf(value, sizeof(value), "%9.4f",(1000.*longestEventTime)) ; 
     sumfile << "The slowest event (" << longestEvent
 	    << ") took " << value << " msec" << std::endl ;
     sumfile << std::endl ; 
@@ -1906,7 +1906,7 @@ int main(int argc, char ** argv) {
       
     for (unsigned int i=0; i<3; i++) {
       if (slowTime.at(i) > 0) {
-	snprintf(value, 10, "%9.4f", slowTime.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f", slowTime.at(i)) ; 
 	sumfile << "Module " << slowMinP.at(i) 
 		<< ", with average per event time: " << value << " msec" << std::endl ;
       }
@@ -1921,7 +1921,7 @@ int main(int argc, char ** argv) {
       
     for (unsigned int i=0; i<3; i++) {
       if (slowTime.at(i) > 0) {
-	snprintf(value, 10, "%9.4f", slowTime.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f", slowTime.at(i)) ; 
 	sumfile << "Module " << slowMinP.at(i) << " in path " << slowPath.at(i)
 		<< ", with average per event time: " << value << " msec" << std::endl ;
       }
@@ -1939,7 +1939,7 @@ int main(int argc, char ** argv) {
 
     for (unsigned int i=0; i<3; i++) {
       if (slowTime.at(i) > 0) {
-	snprintf(value, 10, "%9.4f", slowTime.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f", slowTime.at(i)) ; 
 	sumfile << "Module " << slowMinP.at(i) << " in path " << slowPath.at(i)
 		<< ", with average running time: " << value << " msec" << std::endl ;
       }
@@ -1949,7 +1949,7 @@ int main(int argc, char ** argv) {
     sumfile << "A given module took the longest time to run in the following events:" << std::endl ;
     for (unsigned int i=0; i<unsigned(numberOfModules); i++) {
       if (longestEventTimeByModule.at(i) > 0) {
-	snprintf(value, 10, "%9.4f",longestEventTimeByModule.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f",longestEventTimeByModule.at(i)) ; 
 	sumfile << "Module " << moduleNames.at(i)
 		<< " was slowest in event " << longestEventByModule.at(i)
 		<< ", with time: " << value << " msec" << std::endl ;

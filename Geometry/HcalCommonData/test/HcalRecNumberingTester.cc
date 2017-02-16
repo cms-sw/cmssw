@@ -70,7 +70,7 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
     for (int i=0; i<neta; ++i) {
       std::pair<double,double> etas   = hdc.getEtaLimit(i);
       double                   fbin   = hdc.getPhiBin(i);
-      std::vector<int>         depths = hdc.getDepth(i);
+      std::vector<int>         depths = hdc.getDepth(i,false);
       std::cout << "EtaBin[" << i << "]: EtaLimit = (" << etas.first << ":"
 		<< etas.second << ")  phiBin = " << fbin << " depths = (";
       for (unsigned int k=0; k<depths.size(); ++k) {
@@ -84,9 +84,15 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
       std::cout << "Detector type: " << type << " with eta ranges "
 		<< etar.first << ":" << etar.second << std::endl;
       for (int eta=etar.first; eta<=etar.second; ++eta) {
-	std::cout << "Type:Eta " << type << ":" << eta << " Depth range "
-		  << hdc.getMinDepth(type,eta) << ":" 
-		  << hdc.getMaxDepth(type,eta) << std::endl;
+	std::vector<std::pair<int,double> > phis = hdc.getPhis(type+1, eta);
+	for (unsigned int k=0; k < phis.size(); ++k) {
+	  std::cout << "Type:Eta:phi " << type << ":" << eta << ":" 
+		    << phis[k].first << " Depth range (+z) "
+		    << hdc.getMinDepth(type,eta,phis[k].first,1) << ":" 
+		    << hdc.getMaxDepth(type,eta,phis[k].first,1) << " (-z) "
+		    << hdc.getMinDepth(type,eta,phis[k].first,-1) << ":" 
+		    << hdc.getMaxDepth(type,eta,phis[k].first,-1) << std::endl;
+	}
       }
     }
     std::vector<HcalDDDRecConstants::HcalEtaBin> hbar = hdc.getEtaBins(0);
@@ -95,11 +101,10 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 	      << " HB with " << hbar.size() << " eta sectors and HE with "
 	      << hcap.size() << " eta sectors" << std::endl;
     std::vector<HcalCellType> hbcell = hdc.HcalCellTypes(HcalBarrel);
-    std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
     std::cout << "HB with " << hbcell.size() << " cells" << std::endl;
     for (unsigned int i=0; i<hbcell.size(); ++i)
-      std::cout << "HB[" << i << "] det " << hbcell[i].detType() << " halves "
-		<< hbcell[i].nHalves() << ":" << hbcell[i].halfSize()
+      std::cout << "HB[" << i << "] det " << hbcell[i].detType() << " zside "
+		<< hbcell[i].zside() << ":" << hbcell[i].halfSize()
 		<< " RO " << hbcell[i].actualReadoutDirection()
 		<< " eta " << hbcell[i].etaBin() << ":" << hbcell[i].etaMin()
 		<< ":" << hbcell[i].etaMax() << " phi " << hbcell[i].nPhiBins()
@@ -109,10 +114,11 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 		<< ":" << hbcell[i].depth() << ":" << hbcell[i].depthMin()
 		<< ":" << hbcell[i].depthMax() << ":" << hbcell[i].depthType()
 		<< std::endl;
+    std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
     std::cout << "HE with " << hecell.size() << " cells" << std::endl;
     for (unsigned int i=0; i<hecell.size(); ++i)
-      std::cout << "HE[" << i << "] det " << hecell[i].detType() << " halves "
-		<< hecell[i].nHalves() << ":" << hecell[i].halfSize()
+      std::cout << "HE[" << i << "] det " << hecell[i].detType() << " zside "
+		<< hecell[i].zside() << ":" << hecell[i].halfSize()
 		<< " RO " << hecell[i].actualReadoutDirection()
 		<< " eta " << hecell[i].etaBin() << ":" << hecell[i].etaMin()
 		<< ":" << hecell[i].etaMax() << " phi " << hecell[i].nPhiBins()
@@ -121,6 +127,34 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 		<< " depth " << hecell[i].depthSegment()
 		<< ":" << hecell[i].depth() << ":" << hecell[i].depthMin()
 		<< ":" << hecell[i].depthMax() << ":" << hecell[i].depthType()
+		<< std::endl;
+    std::vector<HcalCellType> hfcell = hdc.HcalCellTypes(HcalForward);
+    std::cout << "HF with " << hfcell.size() << " cells" << std::endl;
+    for (unsigned int i=0; i<hfcell.size(); ++i)
+      std::cout << "HF[" << i << "] det " << hfcell[i].detType() << " zside "
+		<< hfcell[i].zside() << ":" << hfcell[i].halfSize()
+		<< " RO " << hfcell[i].actualReadoutDirection()
+		<< " eta " << hfcell[i].etaBin() << ":" << hfcell[i].etaMin()
+		<< ":" << hfcell[i].etaMax() << " phi " << hfcell[i].nPhiBins()
+		<< ":" << hfcell[i].nPhiModule() << ":" << hfcell[i].phiOffset()
+		<< ":" << hfcell[i].phiBinWidth() << ":" << hfcell[i].unitPhi()
+		<< " depth " << hfcell[i].depthSegment()
+		<< ":" << hfcell[i].depth() << ":" << hfcell[i].depthMin()
+		<< ":" << hfcell[i].depthMax() << ":" << hfcell[i].depthType()
+		<< std::endl;
+    std::vector<HcalCellType> hocell = hdc.HcalCellTypes(HcalOuter);
+    std::cout << "HO with " << hocell.size() << " cells" << std::endl;
+    for (unsigned int i=0; i<hocell.size(); ++i)
+      std::cout << "HO[" << i << "] det " << hocell[i].detType() << " zside "
+		<< hocell[i].zside() << ":" << hocell[i].halfSize()
+		<< " RO " << hocell[i].actualReadoutDirection()
+		<< " eta " << hocell[i].etaBin() << ":" << hocell[i].etaMin()
+		<< ":" << hocell[i].etaMax() << " phi " << hocell[i].nPhiBins()
+		<< ":" << hocell[i].nPhiModule() << ":" << hocell[i].phiOffset()
+		<< ":" << hocell[i].phiBinWidth() << ":" << hocell[i].unitPhi()
+		<< " depth " << hocell[i].depthSegment()
+		<< ":" << hocell[i].depth() << ":" << hocell[i].depthMin()
+		<< ":" << hocell[i].depthMax() << ":" << hocell[i].depthType()
 		<< std::endl;
     for (int type=0; type <= 1; ++type ) {
       std::vector<HcalDDDRecConstants::HcalActiveLength> act = hdc.getThickActive(type);

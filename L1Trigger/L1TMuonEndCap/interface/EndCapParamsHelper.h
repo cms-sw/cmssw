@@ -50,12 +50,14 @@ namespace l1t {
     static EndCapParamsHelper * readAndWriteFromEventSetup(const L1TMuonEndCapParams * es);
 
     void SetPtAssignVersion(unsigned version){write_->PtAssignVersion_ = version;};
+    void SetFirmwareVersion(unsigned version){write_->firmwareVersion_ = version;}
     void SetSt1PhiMatchWindow(int window){write_->PhiMatchWindowSt1_ = window;};
     void SetSt2PhiMatchWindow(int window){write_->PhiMatchWindowSt2_ = window;};
     void SetSt3PhiMatchWindow(int window){write_->PhiMatchWindowSt3_ = window;};
     void SetSt4PhiMatchWindow(int window){write_->PhiMatchWindowSt4_ = window;};
     
     unsigned GetPtAssignVersion() const {return read_->PtAssignVersion_;};
+    unsigned GetFirmwareVersion() const {return read_->firmwareVersion_;}
     int GetSt1PhiMatchWindow() const {return read_->PhiMatchWindowSt1_;};
     int GetSt2PhiMatchWindow() const {return read_->PhiMatchWindowSt2_;};
     int GetSt3PhiMatchWindow() const {return read_->PhiMatchWindowSt3_;};

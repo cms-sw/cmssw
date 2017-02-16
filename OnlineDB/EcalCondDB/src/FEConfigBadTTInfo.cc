@@ -33,7 +33,7 @@ FEConfigBadTTInfo::~FEConfigBadTTInfo()
 
 
 
-int FEConfigBadTTInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigBadTTInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -56,7 +56,7 @@ int FEConfigBadTTInfo::fetchNextId()  throw(std::runtime_error) {
 }
 
 void FEConfigBadTTInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -95,7 +95,7 @@ void FEConfigBadTTInfo::setParameters(const std::map<string,string>& my_keys_map
 }
 
 void FEConfigBadTTInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -128,7 +128,7 @@ void FEConfigBadTTInfo::writeDB()
 
 
 void FEConfigBadTTInfo::fetchData(FEConfigBadTTInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -169,7 +169,7 @@ void FEConfigBadTTInfo::fetchData(FEConfigBadTTInfo * result)
   }
 }
 
-int FEConfigBadTTInfo::fetchID()    throw(std::runtime_error)
+int FEConfigBadTTInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {

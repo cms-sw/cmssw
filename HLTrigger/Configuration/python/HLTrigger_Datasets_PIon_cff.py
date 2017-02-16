@@ -1,4 +1,4 @@
-# /dev/CMSSW_8_0_0/PIon
+# /dev/CMSSW_9_0_0/PIon
 
 import FWCore.ParameterSet.Config as cms
 

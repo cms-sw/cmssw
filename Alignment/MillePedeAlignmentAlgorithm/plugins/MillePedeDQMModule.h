@@ -15,19 +15,25 @@
 
 /*** system includes ***/
 #include <array>
+#include <memory>
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*** DQM ***/
-
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+/*** Records for ESWatcher ***/
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /*** MillePede ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
@@ -46,12 +52,13 @@ class MillePedeDQMModule : public DQMEDHarvester {
 
 
 
-    
+
     virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &)  override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
   //========================= PRIVATE METHODS ==================================
   private: //===================================================================
+
+    virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
     void bookHistograms(DQMStore::IBooker&);
 
@@ -65,11 +72,18 @@ class MillePedeDQMModule : public DQMEDHarvester {
                          std::array<double, 6> obs,
                          std::array<double, 6> obsErr);
 
+    bool setupChanged(const edm::EventSetup&);
+
   //========================== PRIVATE DATA ====================================
   //============================================================================
 
     const edm::ParameterSet mpReaderConfig_;
-    MillePedeFileReader mpReader;
+    std::unique_ptr<AlignableTracker> tracker_;
+    std::unique_ptr<MillePedeFileReader> mpReader_;
+
+    edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
+    edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
+    edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
 
     // Signifiance of movement must be above
     double sigCut_;

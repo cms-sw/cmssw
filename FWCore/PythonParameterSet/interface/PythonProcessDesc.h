@@ -30,14 +30,16 @@ public:
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
+  PythonParameterSet& pset() { return theProcessPSet;}
+  
   std::string dump() const;
 
   // makes a new (copy) of the ParameterSet
-  std::shared_ptr<edm::ParameterSet> parameterSet();
+  std::shared_ptr<edm::ParameterSet> parameterSet() const;
 
   // makes a new (copy) of a ProcessDesc
   // For backward compatibility only.  Remove when no longer needed.
-  std::shared_ptr<edm::ProcessDesc> processDesc();
+  std::shared_ptr<edm::ProcessDesc> processDesc() const;
 
 private:
   void prepareToRead();

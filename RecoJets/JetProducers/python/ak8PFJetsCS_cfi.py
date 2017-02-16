@@ -20,9 +20,9 @@ ak8PFJetsCS = ak4PFJets.clone(
 
 
 
-ak8PFJetsCSConstituents = cms.EDFilter("PFJetConstituentSelector",
-                                        src = cms.InputTag("ak8PFJetsCS"),
-                                        cut = cms.string("pt > 100.0")
+ak8PFJetsCSConstituents = cms.EDProducer("PFJetConstituentSelector",
+                                         src = cms.InputTag("ak8PFJetsCS"),
+                                         cut = cms.string("pt > 100.0")
                                         )
 
 

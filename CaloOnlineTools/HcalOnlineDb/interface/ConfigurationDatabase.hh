@@ -28,7 +28,7 @@ namespace hcal {
     ConfigurationDatabase(log4cplus::Logger logger);
 
     /** \brief Open the database, using the given accessor */
-    void open(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException);
+    void open(const std::string& accessor) noexcept(false);
 
     typedef xercesc::DOMDocument* ApplicationConfig;
 
@@ -36,16 +36,16 @@ namespace hcal {
     /** \brief Get the application configuration for the given item
         \note User must release all DOMDocuments
      */
-    ApplicationConfig getApplicationConfig(const std::string& tag, const std::string& classname, int instance) throw (hcal::exception::ConfigurationDatabaseException);
+    ApplicationConfig getApplicationConfig(const std::string& tag, const std::string& classname, int instance) noexcept(false);
 
     // Get the configuration document (whole)
-    std::string getConfigurationDocument(const std::string& tag) throw (hcal::exception::ConfigurationDatabaseException);
+    std::string getConfigurationDocument(const std::string& tag) noexcept(false);
 
     // Firmware-related
     /** \brief Retrieve the checksum for a given firmware version */
-    unsigned int getFirmwareChecksum(const std::string& board, unsigned int version) throw (hcal::exception::ConfigurationDatabaseException);
+    unsigned int getFirmwareChecksum(const std::string& board, unsigned int version) noexcept(false);
     /** \brief Retrieve the MCS file lines for a given firmware version */
-    void getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) throw (hcal::exception::ConfigurationDatabaseException);
+    void getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) noexcept(false);
 
     typedef enum FPGASelectionEnum {Bottom=0, Top=1} FPGASelection;
 
@@ -77,7 +77,7 @@ namespace hcal {
 	\param slot Slot number
 	\param LUTs Return map of the LUTs
      */
-    void getLUTs(const std::string& tag, int crate, int slot, std::map<LUTId, LUT>& LUTs) throw (hcal::exception::ConfigurationDatabaseException);
+    void getLUTs(const std::string& tag, int crate, int slot, std::map<LUTId, LUT>& LUTs) noexcept(false);
 
     typedef std::vector<unsigned char> MD5Fingerprint;
 
@@ -85,7 +85,7 @@ namespace hcal {
 	\param tag Tag name for this LUT setup
 	\param checksums Checksums (MD5)
     */
-    void getLUTChecksums(const std::string& tag, std::map<LUTId, MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException);
+    void getLUTChecksums(const std::string& tag, std::map<LUTId, MD5Fingerprint>& checksums) noexcept(false);
 
     struct PatternId : public FPGAId {
       bool operator<(const PatternId& a) const;
@@ -100,7 +100,7 @@ namespace hcal {
 	\param slot Slot number
 	\param patterns Return map of the patterns
     */
-    void getPatterns(const std::string& tag, int crate, int slot, std::map<PatternId, HTRPattern>& patterns) throw (hcal::exception::ConfigurationDatabaseException);
+    void getPatterns(const std::string& tag, int crate, int slot, std::map<PatternId, HTRPattern>& patterns) noexcept(false);
 
     // ZS-related
     struct ZSChannelId : public FPGAId {
@@ -117,7 +117,7 @@ namespace hcal {
 	\param slot Slot number
 	\param patterns Return map of the thresholds
     */
-    void getZSThresholds(const std::string& tag, int crate, int slot, std::map<ZSChannelId, int>& thresholds) throw (hcal::exception::ConfigurationDatabaseException);
+    void getZSThresholds(const std::string& tag, int crate, int slot, std::map<ZSChannelId, int>& thresholds) noexcept(false);
 
     struct HLXMasks{
       uint32_t occMask;
@@ -131,7 +131,7 @@ namespace hcal {
 	\param slot Slot number
 	\param patterns Return map of the masks
     */
-    void getHLXMasks(const std::string& tag, int crate, int slot, std::map<FPGAId, HLXMasks>& masks) throw (hcal::exception::ConfigurationDatabaseException);
+    void getHLXMasks(const std::string& tag, int crate, int slot, std::map<FPGAId, HLXMasks>& masks) noexcept(false);
 
 
     typedef enum RBXdatumTypeEnum {
@@ -176,7 +176,7 @@ namespace hcal {
     void getRBXdata(const std::string& tag,
 		    const std::string& rbx,
 		    RBXdatumType dtype,
-		    std::map<RBXdatumId, RBXdatum>& RBXdata) throw (hcal::exception::ConfigurationDatabaseException);
+		    std::map<RBXdatumId, RBXdatum>& RBXdata) noexcept(false);
 
     typedef std::vector<unsigned char> RBXpattern;
 
@@ -187,7 +187,7 @@ namespace hcal {
      */
     void getRBXpatterns(const std::string& tag,
 			const std::string& rbx,
-			std::map<RBXdatumId, RBXpattern>& patterns) throw (hcal::exception::ConfigurationDatabaseException);
+			std::map<RBXdatumId, RBXpattern>& patterns) noexcept(false);
 
     /** \brief Close the database */
     void close();

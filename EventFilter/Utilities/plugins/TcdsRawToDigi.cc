@@ -66,6 +66,7 @@ TcdsRawToDigi::TcdsRawToDigi(const edm::ParameterSet& iConfig)
     edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("InputLabel");
     dataToken_=consumes<FEDRawDataCollection>(dataLabel);
     produces<int>( "nibble" ).setBranchAlias( "nibble");
+    produces<int64_t>( "triggerCount" ).setBranchAlias( "triggerCount");
 }
 
 
@@ -87,20 +88,25 @@ void TcdsRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(dataToken_,rawdata);
 
     int nibble=-99;
+    int triggerCount = -99;
     if( rawdata.isValid() ) {
         const FEDRawData& tcdsData = rawdata->FEDData(FEDNumbering::MINTCDSuTCAFEDID);
         if(tcdsData.size()>0){
             evf::evtn::TCDSRecord tcdsRecord(tcdsData.data());
             nibble = (int)tcdsRecord.getHeader().getData().header.nibble;
+            triggerCount = (int64_t)tcdsRecord.getHeader().getData().header.triggerCount;
         } else {
             nibble=-2;
+            triggerCount=-2;
         }
     } else {
         nibble=-1;
+        triggerCount=-1;
     }
     //std::cout<<"nibble is "<<nibble<<std::endl;
 
     iEvent.put(std::make_unique<int>(nibble), "nibble");
+    iEvent.put(std::make_unique<int64_t>(triggerCount), "triggerCount");
 }
 
  

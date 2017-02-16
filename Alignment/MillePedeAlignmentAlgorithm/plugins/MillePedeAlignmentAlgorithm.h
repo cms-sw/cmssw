@@ -79,6 +79,10 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Returns whether MP should process events in the current configuration
   virtual bool processesEvents() override;
+
+  /// Returns whether MP produced results to be stored
+  virtual bool storeAlignments() override;
+
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
@@ -246,7 +250,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::unique_ptr<AlignableNavigator>    theAlignableNavigator;
   std::unique_ptr<MillePedeMonitor>      theMonitor;
   std::unique_ptr<Mille>                 theMille;
-  std::unique_ptr<PedeLabelerBase>       thePedeLabels;
+  std::shared_ptr<PedeLabelerBase>       thePedeLabels;
   std::unique_ptr<PedeSteerer>           thePedeSteer;
   std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
   std::vector<IntegratedCalibrationBase*> theCalibrations;

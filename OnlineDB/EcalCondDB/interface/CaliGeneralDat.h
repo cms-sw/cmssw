@@ -26,13 +26,13 @@ class CaliGeneralDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
   
   void writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item, CaliIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
   
   void fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillVec, CaliIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
   
   // User data
   int m_numEvents;

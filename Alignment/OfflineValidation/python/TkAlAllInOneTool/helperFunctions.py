@@ -127,8 +127,15 @@ def parsecolor(color):
     raise AllInOneError("color has to be an integer, a ROOT constant (kRed, kBlue, ...), or a two-term sum or difference (kGreen-5)!")
 
 def parsestyle(style):
-    try:
-        int(style)
-        return style
+    try: #simplest case: it's an int
+        return int(style)
     except ValueError:
-        raise AllInOneError("style has to be an integer!")
+        pass
+
+    try: #kStar, kDot, ...
+        style = str(getattr(ROOT,style))
+        return int(style)
+    except (AttributeError, ValueError):
+        pass
+
+    raise AllInOneError("style has to be an integer, a ROOT constant (kDashed, kStar, ...)!")

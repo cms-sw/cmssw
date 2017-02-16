@@ -75,6 +75,7 @@ ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << " GeomDetUnit       \t"           <<pDD->detUnits().size() << endl;
   ofos << " GeomDet           \t"           <<pDD->dets().size() << endl;
   ofos << " GeomDetUnit DetIds\t"           <<pDD->detUnitIds().size() << endl;
+  ofos << " layers         \t"              <<pDD->layers().size() << endl;
   ofos << " eta partitions \t"              <<pDD->etaPartitions().size() << endl;
 
   // checking uniqueness of roll detIds 
@@ -109,86 +110,92 @@ ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
    *   sum of all dx + gap = chamber height
    */      
 	    
-  for (auto roll : pDD->etaPartitions()){
-    ME0DetId rId(roll->id());
-    ofos<<"\tME0EtaPartition , ME0DetId = " << rId.rawId() << ", " << rId << endl;
-	      
-    const BoundPlane& bSurface(roll->surface());
-    const StripTopology* topology(&(roll->specificTopology()));
+  // for (auto roll : pDD->etaPartitions()){
+  for (auto layer : pDD->layers()){
+    ME0DetId lId(layer->id());
+    ofos<<"\tME0Layer      , ME0DetId = " << lId.rawId() << ", " << lId << endl;
+    for (auto roll : layer->etaPartitions()){
+      ME0DetId rId(roll->id());
+      ofos<<"\tME0EtaPartition , ME0DetId = " << rId.rawId() << ", " << rId << endl;
+      
+      const BoundPlane& bSurface(roll->surface());
+      const StripTopology* topology(&(roll->specificTopology()));
     
-    // base_bottom, base_top, height, strips, pads (all half length)
-    auto& parameters(roll->specs()->parameters());
-    float bottomEdge(parameters[0]);
-    float topEdge(parameters[1]);
-    float height(parameters[2]);
-    //    float nStrips(parameters[3]);
-    //float nPads(parameters[4]);
-    
-    LocalPoint  lCentre( 0., 0., 0. );
-    GlobalPoint gCentre(bSurface.toGlobal(lCentre));
-    
-    LocalPoint  lTop( 0., height, 0.);
-    GlobalPoint gTop(bSurface.toGlobal(lTop));
-    
-    LocalPoint  lBottom( 0., -height, 0.);
-    GlobalPoint gBottom(bSurface.toGlobal(lBottom));
-    
-    //   gx, gy, gz, geta, gphi (center)
-    double cx(gCentre.x());
-    double cy(gCentre.y());
-    double cz(gCentre.z());
-    double ceta(gCentre.eta());
-    int cphi(static_cast<int>(gCentre.phi().degrees()));
-    if (cphi < 0) cphi += 360;
-    
-    double tx(gTop.x());
-    double ty(gTop.y());
-    double tz(gTop.z());
-    double teta(gTop.eta());
-    int tphi(static_cast<int>(gTop.phi().degrees()));
-    if (tphi < 0) tphi += 360;
-	      
-    double bx(gBottom.x());
-    double by(gBottom.y());
-    double bz(gBottom.z());
-    double beta(gBottom.eta());
-    int bphi(static_cast<int>(gBottom.phi().degrees()));
-    if (bphi < 0) bphi += 360;
-    
-    /*
-    // pitch bottom, pitch top, pitch centre
-    float pitch(roll->pitch());
-    float topPitch(roll->localPitch(lTop));
-    float bottomPitch(roll->localPitch(lBottom));
-    */
-    // Type - should be ME0 Somethng
-    string type(roll->type().name());
-    
-    // print info about edges
-    LocalPoint lEdge1(topology->localPosition(0.));
-    /*
-    LocalPoint lEdgeN(topology->localPosition((float)nStrips));
-    
-    double cstrip1(roll->toGlobal(lEdge1).phi().degrees());
-    double cstripN(roll->toGlobal(lEdgeN).phi().degrees());
-    double dphi(cstripN - cstrip1);
-    if (dphi < 0.) dphi += 360.;
-    */
-    double deta(abs(beta - teta));
-    const bool printDetails(true);
-    if (printDetails)
-      ofos << "\t\tType: " << type << endl
-	   << "\t\tDimensions[cm]: b = " << bottomEdge*2 << ", B = " << topEdge*2 << ", H  = " << height*2 << endl
-	//	   << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
-	   << "\t\ttop(x,y,z)[cm] = (" << tx << ", " << ty << ", " << tz << "), top (eta,phi) = (" << teta << ", " << tphi << ")" << endl
-	   << "\t\tcenter(x,y,z) = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = (" << ceta << ", " << cphi << ")" << endl
-	   << "\t\tbottom(x,y,z) = (" << bx << ", " << by << ", " << bz << "), bottom(eta,phi) = (" << beta << ", " << bphi << ")" << endl
-	   << "\t\tdeta = " << deta << " local position at 0 " << lEdge1 
-	//<< "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta 
-	//<< ", dPhi = " << dphi 
-	   << endl;
+      // base_bottom, base_top, height, strips, pads (all half length)
+      auto& parameters(roll->specs()->parameters());
+      float bottomEdge(parameters[0]);
+      float topEdge(parameters[1]);
+      float height(parameters[2]);
+      //    float nStrips(parameters[3]);
+      //float nPads(parameters[4]);
+      
+      LocalPoint  lCentre( 0., 0., 0. );
+      GlobalPoint gCentre(bSurface.toGlobal(lCentre));
+      
+      LocalPoint  lTop( 0., height, 0.);
+      GlobalPoint gTop(bSurface.toGlobal(lTop));
+      
+      LocalPoint  lBottom( 0., -height, 0.);
+      GlobalPoint gBottom(bSurface.toGlobal(lBottom));
+      
+      //   gx, gy, gz, geta, gphi (center)
+      double cx(gCentre.x());
+      double cy(gCentre.y());
+      double cz(gCentre.z());
+      double ceta(gCentre.eta());
+      int cphi(static_cast<int>(gCentre.phi().degrees()));
+      if (cphi < 0) cphi += 360;
+      
+      double tx(gTop.x());
+      double ty(gTop.y());
+      double tz(gTop.z());
+      double teta(gTop.eta());
+      int tphi(static_cast<int>(gTop.phi().degrees()));
+      if (tphi < 0) tphi += 360;
+      
+      double bx(gBottom.x());
+      double by(gBottom.y());
+      double bz(gBottom.z());
+      double beta(gBottom.eta());
+      int bphi(static_cast<int>(gBottom.phi().degrees()));
+      if (bphi < 0) bphi += 360;
+      
+      /*
+      // pitch bottom, pitch top, pitch centre
+      float pitch(roll->pitch());
+      float topPitch(roll->localPitch(lTop));
+      float bottomPitch(roll->localPitch(lBottom));
+      */
+      // Type - should be ME0 Somethng
+      string type(roll->type().name());
+      
+      // print info about edges
+      LocalPoint lEdge1(topology->localPosition(0.));
+      /*
+	LocalPoint lEdgeN(topology->localPosition((float)nStrips));
+	
+	double cstrip1(roll->toGlobal(lEdge1).phi().degrees());
+	double cstripN(roll->toGlobal(lEdgeN).phi().degrees());
+	double dphi(cstripN - cstrip1);
+	if (dphi < 0.) dphi += 360.;
+      */
+      double deta(abs(beta - teta));
+      const bool printDetails(true);
+      if (printDetails)
+	ofos << "\t\tType: " << type << endl
+	     << "\t\tDimensions[cm]: b = " << bottomEdge*2 << ", B = " << topEdge*2 << ", H  = " << height*2 << endl
+	  //	   << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+	     << "\t\ttop(x,y,z)[cm] = (" << tx << ", " << ty << ", " << tz << "), top (eta,phi) = (" << teta << ", " << tphi << ")" << endl
+	     << "\t\tcenter(x,y,z) = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = (" << ceta << ", " << cphi << ")" << endl
+	     << "\t\tbottom(x,y,z) = (" << bx << ", " << by << ", " << bz << "), bottom(eta,phi) = (" << beta << ", " << bphi << ")" << endl
+	     << "\t\tdeta = " << deta << " local position at 0 " << lEdge1 
+	  //<< "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta 
+	  //<< ", dPhi = " << dphi 
+	     << endl;
+    }
+    ofos << dashedLine_ << " end" << endl;
   }
-  ofos << dashedLine_ << " end" << endl;
+  
 }
 
 //define this as a plug-in

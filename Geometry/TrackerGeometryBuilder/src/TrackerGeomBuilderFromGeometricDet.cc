@@ -91,7 +91,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelPhase1Barrel) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXB,
-		 true,
+		 false,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelEndCap)
@@ -101,7 +101,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelPhase1EndCap)
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P1PXEC,
-		 true,
+		 false,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::PixelPhase2EndCap)

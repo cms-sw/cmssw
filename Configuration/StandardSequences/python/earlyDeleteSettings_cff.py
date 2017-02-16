@@ -5,6 +5,7 @@ import collections
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding
+from CommonTools.ParticleFlow.Isolation.customiseEarlyDeleteForCandIsoDeposits import customiseEarlyDeleteForCandIsoDeposits
 
 def _hasInputTagModuleLabel(process, pset, moduleLabel):
     for name in pset.parameterNames_():
@@ -36,6 +37,8 @@ def customiseEarlyDelete(process):
     products = collections.defaultdict(list)
 
     products = customiseEarlyDeleteForSeeding(process, products)
+
+    products = customiseEarlyDeleteForCandIsoDeposits(process, products)
 
     # Set process.options.canDeleteEarly
     if not hasattr(process.options, "canDeleteEarly"):
