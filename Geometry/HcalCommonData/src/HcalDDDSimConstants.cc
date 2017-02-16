@@ -188,9 +188,10 @@ int HcalDDDSimConstants::getDepthEta29(const int phi, const int zside,
   return depth;
 }
 
-int HcalDDDSimConstants::getDepthEta29M(const int i, const bool flag) const {
+int HcalDDDSimConstants::getDepthEta29M(const int i, 
+					const bool planOne) const {
   int depth = (i == 1) ? depthEta29[1] : depthEta29[0];
-  if (i == 0 && flag) {
+  if (i == 0 && planOne) {
     std::vector<int> phis;
     int detsp = ldmap_.validDet(phis);
     if (detsp == 2) {
