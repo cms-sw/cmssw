@@ -313,6 +313,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
    double chargeArr[HcalConst::maxSamples]={}, pedArr[HcalConst::maxSamples]={}, gainArr[HcalConst::maxSamples]={};
    double energyArr[HcalConst::maxSamples]={}, pedenArr[HcalConst::maxSamples]={};
    double noiseADCArr[HcalConst::maxSamples]={};
+   double noisePHArr[HcalConst::maxSamples]={};
    double noiseArrSq[HcalConst::maxSamples]={};
 
    double tsTOT = 0, tstrig = 0; // in fC
@@ -330,8 +331,14 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs,
       chargeArr[ip] = charge; pedArr[ip] = ped; gainArr[ip] = gain;
       energyArr[ip] = energy; pedenArr[ip] = peden;
 
+      // HPD fcByPE from
+      // https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_0/SimCalorimetry/HcalSimProducers/python/hcalSimParameters_cfi.py#L62
+      if((charge-ped)>noise_) {
+	noisePHArr[ip] = sqrt((charge-ped)*0.3305); // Add photostatistics uncertainty
+      }
+
       noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]); // Add Greg's channel discretization
-      noiseArrSq[ip] = noise_ * noise_ + noiseADCArr[ip] * noiseADCArr[ip];
+      noiseArrSq[ip] = noise_ * noise_ + noiseADCArr[ip] * noiseADCArr[ip] + noisePHArr[ip] * noisePHArr[ip];
 
       tsTOT += charge - ped;
       tsTOTen += energy - peden;
@@ -557,23 +564,15 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 
     // Photo statistics uncertainties
     //      sigmaFC/FC = 1/sqrt(Ne);
+    // Note2. (from kPedro): the output number of photoelectrons after smearing is treated very differently for SiPMs: *each* pe is assigned a different time based on a random generation from the Y11 pulse plus the SimHit time. In HPDs, the overall pulse is shaped all at once using just the SimHit time.
+
     noisePHArr[ip] = 0;
     if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
       noisePHArr[ip] = sqrt((charge-ped)*channelData.fcByPE());
     }
-
-    /*
-    // FIXME: in the future switch the photostatistics on also for the HPD
-    if(!channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
-
-      // Note1. the fcByPE is not in the DB, but is hard coded in python
-      // https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_0/SimCalorimetry/HcalSimProducers/python/hcalSimParameters_cfi.py#L62
-
-      // Note2. (from kPedro): the output number of photoelectrons after smearing is treated very differently for SiPMs: *each* pe is assigned a different time based on a random generation from the Y11 pulse plus the SimHit time. In HPDs, the overall pulse is shaped all at once using just the SimHit time.
-
-      noisePHArr[ip] = sqrt((charge-ped)*0.3305);
+    if(!channelData.hasTimeInfo() && (charge-ped)>noise_) {
+      noisePHArr[ip] = sqrt((charge-ped)*channelData.fcByPE());
     }
-    */
 
     // sum all in quadrature
     if(channelData.hasTimeInfo()) {
