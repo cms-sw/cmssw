@@ -104,11 +104,13 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     edm::FileInPath script("GeneratorInterface/LHEInterface/data/run_generic_tarball_cvmfs.sh");
     const char *outfilename = "cmsgrid_final.lhe";
     
-    args[0] = strdup(script.fullPath().c_str());
-    args[1] = strdup(gridpackPath().c_str());
-    args[2] = strdup(nevStream.str().c_str());
-    args[3] = strdup(randomStream.str().c_str());
-    args[4] = NULL;
+    std::array<std::string,4> argStrs;
+    argStrs[0]=script.fullPath();
+    argStrs[1]=gridpackPath();
+    argStrs[2]=nevStream.str();
+    argStrs[3]=randomStream.str();
+    std::array<char*,5>args{ { &argStrs[0][0], &argStrs[1][0],&argStrs[2][0],&argStrs[3][0], NULL } };
+    
     
     pid_t pid = fork();
 
@@ -118,7 +120,7 @@ const std::vector<std::string> BaseHadronizer::theSharedResources;
     } 
     else if (pid==0) {
       //child
-      execvp(args[0],args);
+      execvp(args[0],std::begin(args));
       _exit(1);   // exec never returns
     }
     else {
