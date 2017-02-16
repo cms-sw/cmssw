@@ -27,8 +27,9 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHERecHitAuxSetter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/CaloRecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/parsePlan1RechitCombiner.h"
 
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"

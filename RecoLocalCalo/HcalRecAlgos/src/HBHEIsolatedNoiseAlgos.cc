@@ -21,6 +21,8 @@ Original Author: John Paul Chou (Brown University)
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -31,8 +33,6 @@ Original Author: John Paul Chou (Brown University)
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHERecHitAuxSetter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/CaloRecHitAuxSetter.h"
 
 ////////////////////////////////////////////////////////////
 //
