@@ -11,7 +11,6 @@
 #define DataFormats_CTPPSReco_CTPPSDiamondLocalTrack
 
 #include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -20,89 +19,64 @@ class CTPPSDiamondLocalTrack
 {
   public:
     CTPPSDiamondLocalTrack() :
-      tx_( 0. ), tx_sigma_( 0. ),
-      ty_( 0. ), ty_sigma_( 0. ),
-      chi_squared_( 0. ),
-      valid_( false ) {;}
-    virtual ~CTPPSDiamondLocalTrack() {;}
+      chi_squared_( 0. ), valid_( true ) {}
+    virtual ~CTPPSDiamondLocalTrack() {}
 
     //--- spatial get'ters
 
-    inline double getX0() const { return pos0_.x(); }
-    inline double getX0Sigma() const { return x0_sigma_; }
+    inline float getX0() const { return pos0_.x(); }
+    inline float getX0Sigma() const { return pos0_sigma_.x(); }
 
-    inline double getY0() const { return pos0_.y(); }
-    inline double getY0Sigma() const { return y0_sigma_; }
+    inline float getY0() const { return pos0_.y(); }
+    inline float getY0Sigma() const { return pos0_sigma_.y(); }
 
-    inline double getZ0() const { return pos0_.z(); }
+    inline float getZ0() const { return pos0_.z(); }
 
-    inline double getTx() const { return tx_; }
-    inline double getTxSigma() const { return tx_sigma_; }
-
-    inline double getTy() const { return ty_; }
-    inline double getTySigma() const { return ty_sigma_; }
-
-    inline double getChiSquared() const { return chi_squared_; }
+    inline float getChiSquared() const { return chi_squared_; }
     
     //--- spatial set'ters
 
-    inline void setX0(const double& x0) { pos0_.SetX(x0); }
-    inline void setX0Sigma(const double& x0_sigma) { x0_sigma_=x0_sigma; }
+    inline void setX0( const float& x0 ) { pos0_.SetX( x0 ); }
+    inline void setX0Sigma( const float& x0_sigma ) { pos0_sigma_.SetX( x0_sigma ); }
 
-    inline void setY0(const double& y0) { pos0_.SetY(y0); }
-    inline void setY0Sigma(const double& y0_sigma) { y0_sigma_=y0_sigma; }
+    inline void setY0( const float& y0 ) { pos0_.SetY( y0 ); }
+    inline void setY0Sigma( const float& y0_sigma ) { pos0_sigma_.SetY( y0_sigma ); }
 
-    inline void setZ0(const double& z) { pos0_.SetZ(z); }
+    inline void setZ0( const float& z ) { pos0_.SetZ(z); }
 
-    inline void setTx(const double& tx) { tx_=tx; }
-    inline void setTxSigma(const double& tx_sigma) { tx_sigma_=tx_sigma; }
+    inline void setChiSquared( const float& chisq ) { chi_squared_ = chisq; }
 
-    inline void setTy(const double& ty) { ty_=ty; }
-    inline void setTySigma(const double& ty_sigma) { ty_sigma_=ty_sigma; }
-
-    inline void setChiSquared( const double& chisq ) { chi_squared_ = chisq; }
-
-    //inline double getChiSquaredOverNDF() const { return chiSquared_ / (track_hits_vector_.size() - 4); }
-
-    //FIXME include timing validity checks too?
     inline bool isValid() const { return valid_; }
-    inline void setValid(bool valid) { valid_ = valid; }
+    inline void setValid( bool valid ) { valid_ = valid; }
 
     //--- temporal get'ters
 
-    inline double getT() const { return t_; }
-    inline double getTSigma() const { return t_sigma_; }
+    inline float getT() const { return t_; }
+    inline float getTSigma() const { return t_sigma_; }
     
     //--- temporal set'ters
 
-    inline void setT( const double& t) { t_=t; }
-    inline void setTSigma( const double& t_sigma) { t_sigma_=t_sigma; }
+    inline void setT( const float& t) { t_ = t; }
+    inline void setTSigma( const float& t_sigma ) { t_sigma_ = t_sigma; }
 
     friend bool operator<( const CTPPSDiamondLocalTrack&, const CTPPSDiamondLocalTrack& );
 
   private:
-    //FIXME placeholder variables only!
-    // replace us with values computed from tracking algorithm
-
     //--- spatial information
 
     math::XYZPoint pos0_;
-
-    double x0_sigma_, y0_sigma_;
-    // track angular information (FIXME: move to a momentum_ 3-vector?)
-    double tx_, tx_sigma_;
-    double ty_, ty_sigma_;
+    math::XYZPoint pos0_sigma_;
 
     /// fit chi^2
-    double chi_squared_;
+    float chi_squared_;
 
     /// fit valid?
     bool valid_;
 
     //--- timing information
 
-    double t_;
-    double t_sigma_;
+    float t_;
+    float t_sigma_;
 
 };
 
