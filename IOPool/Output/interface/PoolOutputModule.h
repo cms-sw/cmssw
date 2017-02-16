@@ -114,6 +114,8 @@ namespace edm {
     virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile();
     virtual void doExtrasAfterCloseFile();
   private:
+    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override;
+
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;
     virtual void respondToCloseInputFile(FileBlock const& fb) override;
