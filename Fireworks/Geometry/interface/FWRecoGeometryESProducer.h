@@ -45,8 +45,14 @@ private:
   void addTIDGeometry( void );
   void addTECGeometry( void );
   void addCaloGeometry( void );
+
   void addFTLGeometry( void );
   
+
+   
+  void ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit );
+   
+
   unsigned int insert_id( unsigned int id );
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   void fillShapeAndPlacement( unsigned int id, const GeomDet *det );
