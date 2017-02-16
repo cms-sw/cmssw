@@ -98,6 +98,9 @@
 
 #include <vector>
 
+#ifndef GBL_EIGEN_SUPPORT_ROOT
+#define GBL_EIGEN_SUPPORT_ROOT	// turned-on for the transition from ROOT to Eigen matrices
+#endif
 #include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
 
 
