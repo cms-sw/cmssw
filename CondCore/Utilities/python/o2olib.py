@@ -139,6 +139,9 @@ class O2OJobMgr(O2OMgr):
 
     def __init__( self ):
         O2OMgr.__init__(self)
+        self.db_connection = None
+        self.conf_dict = {}
+
 
     def readConfiguration( self, config_filename ):
         config = ''
@@ -156,12 +159,17 @@ class O2OJobMgr(O2OMgr):
             O2OMgr.logger( self).error( 'The file %s contains an invalid json string.', config_filename )
         return config
 
-    def connect( self, service, auth ):
-        self.session = O2OMgr.getSession( self, service, auth )
+    def connect( self, service, args ):
+        self.session = O2OMgr.getSession( self,service, args.auth )
+        self.verbose = args.verbose
         if self.session is None:
             return False
         else:
+            self.db_connection = coral_tpl %(service[0],schema_name)
+            self.conf_dict['db']=self.db_connection
             return True
+    def runManager( self ):
+        return O2ORunMgr( self.db_connection, self.session, O2OMgr.logger( self ) )
 
     def add( self, job_name, config_filename, int_val, en_flag ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
@@ -214,7 +222,7 @@ class O2OJobMgr(O2OMgr):
         self.session.commit()
         O2OMgr.logger( self).info( "New configuration inserted for job '%s'", job_name )
 
-    def setInterval( self, job_name, interval ):
+    def setInterval( self, job_name, int_val ):
         res = self.session.query(O2OJob.enabled).filter_by(name=job_name)
         enabled = None
         for r in res:
@@ -270,41 +278,60 @@ class O2OJobMgr(O2OMgr):
         if enabled is None:
             O2OMgr.logger( self).error( "A job called '%s' does not exist.", jname )
             return
-        res = self.session.query( O2OJobConf.configuration, O2OJobConf.insertion_time  ).filter_by(job_name=jname).order_by(sqlalchemy.desc(O2OJobConf.insertion_time))
-        found = False
+        res = self.session.query( O2OJobConf.configuration, O2OJobConf.insertion_time  ).filter_by(job_name=jname).order_by(O2OJobConf.insertion_time)
+        configs = []
         for r in res:
-            if not found:
-                print "Configuration for job '%s'" %jname
-                found = True
-            print '* Since %s   *' %r[1]
-            #print '---------------------------------------'
-            print str(r[0])
-            #print '---------------------------------------'
-        if not found:
-            print "No configuration found for job '%s'" %jname
-            
-class O2ORunMgr(O2OMgr):
+            configs.append((str(r[0]),r[1]))
+        ind = len(configs)
+        if ind:
+            print "Configurations for job '%s'" %jname
+            for cf in reversed(configs):
+                print '#%2d  since: %s' %(ind,cf[1])
+                print cf[0]
+                ind -= 1
+        else:
+            O2OMgr.logger( self ).info("No configuration found for job '%s'" %jname )
 
-    def __init__( self ):
-        O2OMgr.__init__(self)
+    def dumpConfig( self, jname, versionIndex, configFile ):
+        versionIndex = int(versionIndex)
+        res = self.session.query(O2OJob.enabled).filter_by(name=jname)
+        enabled = None
+        for r in res:
+            enabled = r
+        if enabled is None:
+            O2OMgr.logger( self).error( "A job called '%s' does not exist.", jname )
+            return
+        res = self.session.query( O2OJobConf.configuration, O2OJobConf.insertion_time  ).filter_by(job_name=jname).order_by(O2OJobConf.insertion_time)
+        configs = []
+        for r in res:
+            configs.append((str(r[0]),r[1]))
+        ind = len(configs)
+        if versionIndex>ind or versionIndex==0:
+            O2OMgr.logger( self ).error("Configuration for job %s with index %s has not been found." %(jname,versionIndex))
+            return
+        print "Configuration #%2d for job '%s'" %(versionIndex,jname)
+        config = configs[versionIndex-1]
+        print '#%2d  since %s' %(versionIndex,config[1])
+        print config[0]
+        if configFile is None or configFile == '':
+            configFile = '%s_%s.json' %(jname,versionIndex)
+        with open(configFile,'w') as json_file:
+            json_file.write(config[0])
+
+            
+class O2ORunMgr(object):
+
+    def __init__( self, db_connection, session, logger ):
         self.job_name = None
         self.start = None
         self.end = None
         self.conf_dict = {}
-        self.db_connection = None
-
-    def connect( self, service, args ):
-        self.session = O2OMgr.getSession( self,service, args.auth )
-        self.verbose = args.verbose
-        if self.session is None:
-            return False
-        else:
-            self.db_connection = coral_tpl %(service[0],schema_name)
-            self.conf_dict['db']=self.db_connection
-            return True
+        self.conf_dict['db'] = db_connection
+        self.session = session
+        self.logger = logger
 
     def startJob( self, job_name ):
-        O2OMgr.logger( self ).info('Checking job %s', job_name)
+        self.logger.info('Checking job %s', job_name)
         exists = None
         enabled = None
         try:
@@ -314,7 +341,7 @@ class O2ORunMgr(O2OMgr):
                 enabled = int(r[0])
                 self.tag_name = str(r[1]) 
             if exists is None:
-                O2OMgr.logger( self).error( 'The job %s is unknown.', job_name )
+                self.logger.error( 'The job %s is unknown.', job_name )
                 return 2
             if enabled:
                 res = self.session.query(O2OJobConf.configuration).filter_by(job_name=job_name).order_by(sqlalchemy.desc(O2OJobConf.insertion_time)).first()
@@ -322,13 +349,13 @@ class O2ORunMgr(O2OMgr):
                 for r in res:
                     conf = str(r)
                 if conf is None:
-                    O2OMgr.logger( self ).warning("No configuration found for job '%s'" %job_name )
+                    self.logger.warning("No configuration found for job '%s'" %job_name )
                 else:
                     try:
                         self.conf_dict.update( json.loads(conf) )
-                        O2OMgr.logger( self ).info('Using configuration: %s ' %conf)
+                        self.logger.info('Using configuration: %s ' %conf)
                     except Exception as e:
-                        O2OMgr.logger( self ).error( str(e) )
+                        self.logger.error( str(e) )
                         return 6
                 self.job_name = job_name
                 self.start = datetime.now()
@@ -337,10 +364,10 @@ class O2ORunMgr(O2OMgr):
                 self.session.commit()
                 return 0
             else:
-                O2OMgr.logger( self).info( 'The job %s has been disabled.', job_name )
+                self.logger.info( 'The job %s has been disabled.', job_name )
                 return 5
         except sqlalchemy.exc.SQLAlchemyError as dberror:
-                O2OMgr.logger( self ).error( str(dberror) )
+                self.logger.error( str(dberror) )
                 return 7
         return -1
 
@@ -351,10 +378,10 @@ class O2ORunMgr(O2OMgr):
             run = O2ORun(job_name=self.job_name,start_time=self.start,end_time=self.end,status_code=status,log=log)
             self.session.merge(run)
             self.session.commit()
-            O2OMgr.logger( self ).info( 'Job %s ended.', self.job_name )
+            self.logger.info( 'Job %s ended.', self.job_name )
             return 0
         except sqlalchemy.exc.SQLAlchemyError as dberror:
-            O2OMgr.logger( self ).error( str(dberror) )
+            self.logger.error( str(dberror) )
             return 8
 
     def executeJob( self, args ):
@@ -376,23 +403,23 @@ class O2ORunMgr(O2OMgr):
             #replacing {[key]} placeholders
             command = command.format(**self.conf_dict )
         except KeyError as exc:
-            O2OMgr.logger( self).error( "Unresolved template key %s in the command." %str(exc) )
+            self.logger.error( "Unresolved template key %s in the command." %str(exc) )
             return 3
-        O2OMgr.logger( self ).info('Command: "%s"', command )
+        self.logger.info('Command: "%s"', command )
         try:
-            O2OMgr.logger( self ).info('Executing command...' )
+            self.logger.info('Executing command...' )
             pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
             out = ''
             for line in iter(pipe.stdout.readline, ''):
-                if self.verbose:
+                if args.verbose>=1:
                     sys.stdout.write(line)
                     sys.stdout.flush()
                 out += line
             pipe.communicate()
-            O2OMgr.logger( self ).info( 'Command returned code: %s' %pipe.returncode )
+            self.logger.info( 'Command returned code: %s' %pipe.returncode )
             ret = pipe.returncode
         except Exception as e:
-            O2OMgr.logger( self ).error( str(e) )
+            self.logger.error( str(e) )
             return 4
         ended = self.endJob( pipe.returncode, out )
         if ended != 0:
@@ -400,5 +427,106 @@ class O2ORunMgr(O2OMgr):
         with open(logFile,'a') as logF:
             logF.write(out)
         return ret
-
     
+import optparse
+import argparse
+
+class O2OTool():
+
+    def execute(self):
+        parser = argparse.ArgumentParser(description='CMS o2o command-line tool. For general help (manual page), use the help subcommand.')
+        parser.add_argument('--db', type=str, help='The target database: pro ( for prod ) or dev ( for prep ). default=pro')
+        parser.add_argument("--auth","-a", type=str,  help="The path of the authentication file")
+        parser.add_argument('--verbose', '-v', action='count', help='The verbosity level')
+        parser_subparsers = parser.add_subparsers(title='Available subcommands')
+        parser_create = parser_subparsers.add_parser('create', description='Create a new O2O job')
+        parser_create.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_create.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
+        parser_create.add_argument('--interval', '-i', type=int, help='the chron job interval',default=0)
+        parser_create.set_defaults(func=self.create)
+        parser_setConfig = parser_subparsers.add_parser('setConfig', description='Set a new configuration for the specified job')
+        parser_setConfig.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_setConfig.add_argument('--configFile', '-c', type=str, help='the JSON configuration file path',required=True)
+        parser_setConfig.set_defaults(func=self.setConfig)
+        parser_setInterval = parser_subparsers.add_parser('setInterval',description='Set a new execution interval for the specified job')
+        parser_setInterval.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_setInterval.add_argument('--interval', '-i', type=int, help='the chron job interval',required=True)
+        parser_setInterval.set_defaults(func=self.setInterval)
+        parser_enable = parser_subparsers.add_parser('enable',description='enable the O2O job')
+        parser_enable.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_enable.set_defaults(func=self.enable)
+        parser_disable = parser_subparsers.add_parser('disable',description='disable the O2O job')
+        parser_disable.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_disable.set_defaults(func=self.disable)
+        parser_migrateConf = parser_subparsers.add_parser('migrateConfig',description='migrate the tag info for the jobs in configuration entries')
+        parser_migrateConf.set_defaults(func=self.migrate)
+        parser_listJobs = parser_subparsers.add_parser('listJobs', description='list the registered jobs')
+        parser_listJobs.set_defaults(func=self.listJobs)
+        parser_listConf = parser_subparsers.add_parser('listConf', description='shows the configurations for the specified job')
+        parser_listConf.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_listConf.add_argument('--dump', type=int, help='Dump the specified config.',default=0)
+        parser_listConf.set_defaults(func=self.listConf)
+        parser_dumpConf = parser_subparsers.add_parser('dumpConf', description='dumps a specific job configuration version')
+        parser_dumpConf.add_argument('versionIndex', type=str,help='the version to dump')
+        parser_dumpConf.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_dumpConf.add_argument('--configFile', '-c', type=str, help='the JSON configuration file name - default:[jobname]_[version].json')
+        parser_dumpConf.set_defaults(func=self.dumpConf)
+        parser_run = parser_subparsers.add_parser('run', description='wrapper for O2O jobs')
+        parser_run.add_argument('executable', type=str,help='command to execute')
+        parser_run.add_argument('--name', '-n', type=str, help='The o2o job name',required=True)
+        parser_run.set_defaults(func=self.run)
+
+        args = parser.parse_args()
+
+        self.setup(args)
+        if args.verbose >=1:
+            return args.func()
+        else:
+            try:
+                return args.func()
+            except Exception as e:
+                print str(e)
+                return 1
+
+    def setup(self, args):
+        self.args = args
+        db_service = prod_db_service
+        if args.db is not None:
+            if args.db == 'dev' or args.db == 'oradev' :
+                db_service = dev_db_service
+            elif args.db != 'orapro' and args.db != 'onlineorapro' and args.db != 'pro':
+                raise Exception("Database '%s' is not known." %args.db )
+        
+        self.mgr = O2OJobMgr()
+        return self.mgr.connect( db_service, args )
+        
+    def create(self):
+        self.mgr.add( self.args.name, self.args.configFile, self.args.interval, True )
+
+    def setConfig(self):
+        self.mgr.setConfig( self.args.name, self.args.configFile )
+
+    def setInterval(self):
+        self.mgr.setInterval( self.args.name, self.args.interval )
+
+    def enable(self):
+        self.mgr.set( self.args.name, True )
+    
+    def disable(self):
+        self.mgr.set( self.args.name, False )
+
+    def migrate(self):
+        self.mgr.migrateConfig()
+
+    def listJobs(self):
+        self.mgr.listJobs()
+
+    def listConf(self):
+        self.mgr.listConfig( self.args.name )
+
+    def dumpConf(self):
+        self.mgr.dumpConfig( self.args.name, self.args.versionIndex, self.args.configFile )
+
+    def run(self):
+        rmgr = self.mgr.runManager()
+        return rmgr.executeJob( self.args )
