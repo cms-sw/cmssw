@@ -24,9 +24,9 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
 
     const DetGeomDesc* det = geom->GetDetector( detid );
     const float x_pos = det->translation().x(),
-                x_width = det->params().at( 0 ),
+                x_width = 2.0 * det->params().at( 0 ), // parameters stand for half the size
                 y_pos = det->translation().y(),
-                y_width = det->params().at( 1 );
+                y_width = 2.0 * det->params().at( 1 );
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
