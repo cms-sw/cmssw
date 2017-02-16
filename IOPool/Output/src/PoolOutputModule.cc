@@ -378,6 +378,20 @@ namespace edm {
   }
 
   void
+  PoolOutputModule::preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {
+    if(DropAll != dropMetaData_ ) {
+      auto const* ep = dynamic_cast<EventPrincipal const*>(&iPrincipal);
+      if(ep)
+      {
+        auto pr = ep->productProvenanceRetrieverPtr();
+        if(pr) {
+          pr->readProvenanceAsync(iTask,&iModuleCallingContext);
+        }
+      }
+    }
+  }
+
+  void
   PoolOutputModule::fillDependencyGraph() {
     for(auto const& branchParent : branchParents_) {
       BranchID const& child = branchParent.first;
