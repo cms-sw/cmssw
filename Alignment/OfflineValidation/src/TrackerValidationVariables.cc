@@ -127,6 +127,7 @@ void TrackerValidationVariables::fillHitQuantities(reco::Track const & track, st
                     gVDirection = surface.toGlobal(lVDirection);
 
         if (IntSubDetID == PixelSubdetector::PixelBarrel ||
+          IntSubDetID == PixelSubdetector::PixelEndcap ||
           IntSubDetID == StripSubdetector::TIB ||
           IntSubDetID == StripSubdetector::TOB) {
 
