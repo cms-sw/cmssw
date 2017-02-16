@@ -9,6 +9,7 @@
 #include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
 #include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
 #include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
+#include "OnlineDBqueryHelper.h"
 
 class L1TGlobalPrescalesVetosOnlineProd : public L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos> {
 private:
@@ -24,113 +25,36 @@ L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::
 std::shared_ptr<L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd::newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) {
     using namespace edm::es;
 
-    edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TGlobalPrescalesVetos with RS key =" << objectKey ;
+    edm::LogInfo( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Producing L1TGlobalPrescalesVetos with RS key = " << objectKey ;
 
     if( objectKey.empty() ){
         edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Key is empty";
         throw std::runtime_error("Empty objecKey");
     }
 
-    std::string stage2Schema = "CMS_TRG_L1_CONF" ;
-
-    std::vector< std::string > queryStrings ;
-    queryStrings.push_back( "MP7"             ) ;
-    queryStrings.push_back( "AMC502_EXTCOND"  ) ;
-    queryStrings.push_back( "AMC502_FINOR"    ) ;
-    queryStrings.push_back( "ALGOBX_MASK"     ) ;
-    queryStrings.push_back( "ALGO_FINOR_MASK" ) ;
-    queryStrings.push_back( "ALGO_FINOR_VETO" ) ;
-    queryStrings.push_back( "ALGO_PRESCALE"   ) ;
+    std::vector< std::string > queryColumns ;
+    queryColumns.push_back( "ALGOBX_MASK"     ) ;
+    queryColumns.push_back( "ALGO_FINOR_MASK" ) ;
+    queryColumns.push_back( "ALGO_FINOR_VETO" ) ;
+    queryColumns.push_back( "ALGO_PRESCALE"   ) ;
 
     std::string prescale_key, bxmask_key, mask_key, vetomask_key;
-
-    // select MP7, AMC502_EXTCOND, AMC502_FINOR, ALGOBX_MASK, ALGO_FINOR_MASK, ALGO_FINOR_VETO, ALGO_PRESCALE from CMS_TRG_L1_CONF.UGT_RS_KEYS where ID = objectKey ;
-    l1t::OMDSReader::QueryResults queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "UGT_RS_KEYS",
-                                     "UGT_RS_KEYS.ID",
-                                     m_omdsReader.singleAttribute(objectKey)
-                                   ) ;
-
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O" ) << "Cannot get UGT_RS_KEYS.{MP7,AMC502_EXTCOND,AMC502_FINOR,ALGOBX_MASK,ALGO_FINOR_MASK,ALGO_FINOR_VETO,ALGO_PRESCALE} for ID = " << objectKey;
-        throw std::runtime_error("Broken key");
-    }
-
-    if( !queryResult.fillVariable( "ALGO_PRESCALE",   prescale_key) ) prescale_key = "";
-    if( !queryResult.fillVariable( "ALGOBX_MASK",       bxmask_key) )   bxmask_key = "";
-    if( !queryResult.fillVariable( "ALGO_FINOR_MASK",     mask_key) )     mask_key = "";
-    if( !queryResult.fillVariable( "ALGO_FINOR_VETO", vetomask_key) ) vetomask_key = "";
-
-    queryStrings.clear();
-    queryStrings.push_back( "CONF" ) ;
-
-
     std::string xmlPayload_prescale, xmlPayload_mask_algobx, xmlPayload_mask_finor, xmlPayload_mask_veto;
-
-    queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "UGT_RS",
-                                     "UGT_RS.ID",
-                                     m_omdsReader.singleAttribute(prescale_key)
-                                   ) ;
-
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for prescale_key = "<<prescale_key ;
+    try {
+        std::map<std::string,std::string> subKeys = l1t::OnlineDBqueryHelper::fetch( queryColumns, "UGT_RS_KEYS", objectKey, m_omdsReader );
+        prescale_key = subKeys["ALGO_PRESCALE"];
+        bxmask_key   = subKeys["ALGOBX_MASK"];
+        mask_key     = subKeys["ALGO_FINOR_MASK"];
+        vetomask_key = subKeys["ALGO_FINOR_VETO"];
+        xmlPayload_prescale    = l1t::OnlineDBqueryHelper::fetch( {"CONF"}, "UGT_RS_CLOBS", prescale_key, m_omdsReader )["CONF"];
+        xmlPayload_mask_algobx = l1t::OnlineDBqueryHelper::fetch( {"CONF"}, "UGT_RS_CLOBS", bxmask_key,   m_omdsReader )["CONF"];
+        xmlPayload_mask_finor  = l1t::OnlineDBqueryHelper::fetch( {"CONF"}, "UGT_RS_CLOBS", mask_key,     m_omdsReader )["CONF"];
+        xmlPayload_mask_veto   = l1t::OnlineDBqueryHelper::fetch( {"CONF"}, "UGT_RS_CLOBS", vetomask_key, m_omdsReader )["CONF"];
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << e.what();
         throw std::runtime_error("Broken key");
     }
 
-    if( !queryResult.fillVariable( "CONF", xmlPayload_prescale ) ) xmlPayload_prescale = "";
-
-
-    queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "UGT_RS",
-                                     "UGT_RS.ID",
-                                     m_omdsReader.singleAttribute(mask_key)
-                                   ) ;
-
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for mask_key = "<<mask_key ;
-        throw std::runtime_error("Broken key");
-    }
-
-    if( !queryResult.fillVariable( "CONF", xmlPayload_mask_finor ) ) xmlPayload_mask_finor = "";
-
-
-    queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "UGT_RS",
-                                     "UGT_RS.ID",
-                                     m_omdsReader.singleAttribute(bxmask_key)
-                                   ) ;
-
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for bxmask_key = "<<bxmask_key ;
-        throw std::runtime_error("Broken key");
-    }
-
-    if( !queryResult.fillVariable( "CONF", xmlPayload_mask_algobx ) ) xmlPayload_mask_algobx = "";
-
-
-    queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "UGT_RS",
-                                     "UGT_RS.ID",
-                                     m_omdsReader.singleAttribute(vetomask_key)
-                                   ) ;
-
-    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-        edm::LogError( "L1-O2O: L1TGlobalPrescalesVetosOnlineProd" ) << "Cannot get UGT_RS.CONF for vetomask_key = "<<vetomask_key ;
-        throw std::runtime_error("Broken key");
-    }
-
-    if( !queryResult.fillVariable( "CONF", xmlPayload_mask_veto ) ) xmlPayload_mask_veto = "";
 
     // for debugging purposes dump the payloads to /tmp
     std::ofstream output1(std::string("/tmp/").append(prescale_key.substr(0,prescale_key.find("/"))).append(".xml"));
