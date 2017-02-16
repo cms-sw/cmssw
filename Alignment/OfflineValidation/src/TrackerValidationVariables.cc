@@ -131,8 +131,14 @@ void TrackerValidationVariables::fillHitQuantities(reco::Track const & track, st
           IntSubDetID == StripSubdetector::TIB ||
           IntSubDetID == StripSubdetector::TOB) {
 
-          uOrientation = deltaPhi(gUDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
-          vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
+          if (IntSubDetID == PixelSubdetector::PixelEndcap) {
+	   uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
+	   vOrientation = deltaPhi(gVDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
+          } else {
+            uOrientation = deltaPhi(gUDirection.barePhi(),gPModule.barePhi()) >= 0. ? +1.F : -1.F;
+            vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;  
+          }
+
           resXTopol = hitStruct.resX;
           resXatTrkYTopol = hitStruct.resX;
           resYTopol = hitStruct.resY;
