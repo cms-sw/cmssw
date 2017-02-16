@@ -7,6 +7,8 @@ import difflib
 import itertools
 import collections
 
+from operator import itemgetter, methodcaller
+
 class Detector:
 #    class Phase0: pass # not supported yet
     class Phase1: pass
@@ -292,47 +294,35 @@ def _matchTracksByHits(reftrk, trklist):
 
     return best
 
-def _matchTracksByTrackingParticle(reftrk, trklist, othertrklist, othertplist):
-    """
-    reftrk and trklist must come from same ntuple
-    othertrklist and othertplist must come from the same ntuple, can be different from above
-    """
-    ref_viatp = []
-    other_viatp = []
-    other_viatp_notinother = []
-    if reftrk.nMatchedTrackingParticles() == 0:
-        return (ref_viatp, other_viatp, other_viatp_notinother)
+class _TracksByHitsMatcher(object):
+    def __init__(self, trklist):
+        super(_TracksByHitsMatcher, self).__init__()
+        self._hitsToTracks = collections.defaultdict(list)
+        for trk in trklist:
+            for hit in trk.hits():
+                if hit.isValidHit():
+                    self._hitsToTracks[ (type(hit), hit.index()) ].append(trk)
 
-    #print "begin _matchTracksByTrackingParticle"
+    def match(self, trk):
+        tracks = collections.defaultdict(int)
 
-    for tpInfo1 in reftrk.matchedTrackingParticleInfos():
-        tp1 = tpInfo1.trackingParticle()
+        for hit in trk.hits():
+            if not hit.isValidHit(): continue
 
-        #print " TP", tp1.index()
-        for trkInfo1 in tp1.matchedTrackInfos():
-            # Is there any way to avoid the linear search?
-            # I tried to create a map from track.index()
-            # to index in trks1/2, but that fails because
-            # I remove items in both
-            # Hmm, maybe if I add boolean lists to mark if a trk1/2 is already used?
-            t1Index = trkInfo1.track().index()
-            #print "  reftrk, t1Index, trklist", reftrk.index(), t1Index, [t.index() for t in trklist]
-            if t1Index != reftrk.index():
-                t1 = next(t for t in trklist if t.index() == t1Index)
-                ref_viatp.append(t1)
-
-        tp2 = othertplist[tp1.index()]
-        for trkInfo2 in tp2.matchedTrackInfos():
-            t2Index = trkInfo2.track().index()
+            idx = (type(hit), hit.index())
             try:
-                t2 = next(t for t in othertrklist if t.index() == t2Index)
-                other_viatp.append(t2)
-            except StopIteration:
-                other_viatp_notinother.append(trkInfo2.track())
+                otherTracks = self._hitsToTracks[idx]
+            except KeyError:
+                continue
 
-    #print "end _matchTracksByTrackingParticle"
-    return (ref_viatp, other_viatp, other_viatp_notinother)
+            for ot in otherTracks:
+                tracks[ot] += 1
 
+        best = (None, 0)
+        for t, ncommon in tracks.iteritems():
+            if ncommon > best[1]:
+                best = (t, ncommon)
+        return best
 
 
 # Common diff helpers, used in the printout helpers
@@ -512,14 +502,102 @@ def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, lst1extra=[
 
     return diff
 
-def diffTrackListsGeneric(trackPrinter, lst1, lst2):
-    diff = _DiffResult()
-    trks1 = list(lst1)
-    trks2 = list(lst2) # make copy because it is modified
+class _TrackAssociation(object):
+    def __init__(self):
+        super(_TrackAssociation, self).__init__()
+        self._trks1 = []
+        self._trks2 = []
+        self._trks1OutsideList = []
+        self._trks2OutsideList = []
 
-    # sort in eta
-    trks1.sort(key=lambda t: t.eta())
-    trks2.sort(key=lambda t: t.eta())
+        self._trks1Ind = set()
+        self._trks2Ind = set()
+        self._trks1OutsideListInd = set()
+        self._trks2OutsideListInd = set()
+
+    def _extend(self, trks, name):
+        lst = getattr(self, name)
+        ind = getattr(self, name+"Ind")
+        for t in trks:
+            if not t.index() in ind:
+                lst.append(t)
+                ind.add(t.index())
+
+    def extend(self, trks1=[], trks2=[], trks1OutsideList=[], trks2OutsideList=[]):
+        self.extendTrks1(trks1)
+        self.extendTrks2(trks2)
+        self.extendTrks1OutsideList(trks1OutsideList)
+        self.extendTrks2OutsideList(trks2OutsideList)
+
+    def extendTrks1(self, trks):
+        self._extend(trks, "_trks1")
+
+    def extendTrks2(self, trks):
+        self._extend(trks, "_trks2")
+
+    def extendTrks1OutsideList(self, trks):
+        self._extend(trks, "_trks1OutsideList")
+
+    def extendTrks2OutsideList(self, trks):
+        self._extend(trks, "_trks2OutsideList")
+
+    def trks1(self): return self._trks1
+    def trks2(self): return self._trks2
+    def trks1OutsideList(self): return self._trks1OutsideList
+    def trks2OutsideList(self): return self._trks2OutsideList
+
+    def hasCommonTrackingParticle(self):
+        trkGen = itertools.chain(self._trks1, self._trks2)
+        try:
+            first = next(trkGen)
+        except StopIteration:
+            return False
+        if first.nMatchedTrackingParticles() != 1:
+            return False
+
+        tpIndex = next(first.matchedTrackingParticleInfos()).trackingParticle().index()
+
+        for t in trkGen:
+            if t.nMatchedTrackingParticles() != 1:
+                return False
+            if next(t.matchedTrackingParticleInfos()).trackingParticle().index() != tpIndex:
+                return False
+        return True
+
+
+    def merge(self, other):
+        self.extendTrks1(other._trks1)
+        self.extendTrks2(other._trks2)
+        self.extendTrks1OutsideList(other._trks1OutsideList)
+        self.extendTrks2OutsideList(other._trks2OutsideList)
+
+    def minEta(self):
+        _min = lambda lst: min([t.eta() for t in lst])
+
+        if len(self._trks1) > 0:
+            return _min(self._trks1)
+        if len(self._trks1OutsideList) > 0:
+            return _min(self._trks1OutsideList)
+        if len(self._trks2) > 0:
+            return _min(self._trks2)
+        if len(self._trks2_outsideList) > 0:
+            return _min(self._trks2OutsideList)
+        raise Exception("This _TrackAssociation is empty, minEta() makes no sense")
+
+    def __str__(self):
+        s = lambda l: str([t.index() for t in l])
+        return s(self._trks1)+" "+s(self._trks2)+" "+s(self._trks1OutsideList)+" "+s(self._trks2OutsideList)
+
+def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
+    trks1 = list(lst1)
+    trks2 = list(lst2)
+
+    trks1Matcher = _TracksByHitsMatcher(trks1)
+    trks2Matcher = _TracksByHitsMatcher(trks2)
+
+    # Used to have exactly the same Track objects for the same index
+    trks1Dict = {t.index(): t for t in trks1}
+    trks2Dict = {t.index(): t for t in trks2}
 
     # Bit of a hack...
     tps1 = None
@@ -529,154 +607,197 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
     if len(trks2) > 0:
         tps2 = TrackingParticles(trks2[0]._tree)
 
+    trkAssoc1 = {}
+    trkAssoc2 = {}
+
+    def _getOrCreateAssoc(trk, d, **kwargs):
+        if trk.index() in d:
+            a = d[trk.index()]
+        else:
+            a = _TrackAssociation()
+            d[trk.index()] = a
+        a.extend(**kwargs)
+        return a
+
     while len(trks1) > 0:
         trk1 = trks1.pop(0)
+        assoc1 = _getOrCreateAssoc(trk1, trkAssoc1, trks1=[trk1])
 
-        #print "trk1, trks2", trk1.index(), [t.index() for t in trks2]
-
-        # first try via TrackingParticles
+        # First associate via TP
         if trk1.nMatchedTrackingParticles() > 0 and tps2:
-            (trks1_viatp, trks2_viatp, trks2_viatp_notintrks2) = _matchTracksByTrackingParticle(trk1, trks1, trks2, tps2)
+            matched = False
 
-            #print " matches via TP"
-            #print "  trks1_viatp", [t.index() for t in trks1_viatp]
-            #print "  trks2_viatp", [t.index() for t in trks2_viatp]
-            #print "  trks2_viatp_notintrks2", [t.index() for t in trks2_viatp_notintrks2]
+            for tpInfo1 in trk1.matchedTrackingParticleInfos():
+                tp1 = tpInfo1.trackingParticle()
 
-            if len(trks2_viatp) > 0 or len(trks2_viatp_notintrks2) > 0:
-                for t1 in trks1_viatp:
-                    #print "   removing from trks1", t1.index()
-                    trks1.remove(t1)
-                for t2 in trks2_viatp:
-                    #print "   removing from trks2", t2.index()
-                    trks2.remove(t2)
+                # Find possible duplicates within trks1
+                for trkInfo1 in tp1.matchedTrackInfos():
+                    t1 = trkInfo1.track()
+                    t1Index = t1.index()
+                    if t1Index != trk1.index():
+                        if t1Index in trks1Dict:
+                            assoc1.extend(trks1=[t1]) # trk1 -> t1
+                            _getOrCreateAssoc(t1, trkAssoc1, trks1=[t1, trk1]) # t1 -> trk1
+                            #print "trk1 %d <-> t1 %d (TP)" % (trk1.index(), t1.index())
+                            trks1.remove(trks1Dict[t1Index])
+                        else:
+                            #print "trk1 %d -> t1 %d (TP, not in list)" % (trk1.index(), t1.index())
+                            assoc1.extend(trks1OutsideList=[t1]) # trk1 -> t1, if t1 is not in trks1
 
-                #if debug:
-                #    print trk1.index()
-                #    print [t.index() for t in trks1_viatp]
-                #    print [t.index() for t in trks2_viatp]
-                #    print [t.index() for t in trks2_viatp_notintrks2]
+                # Then look for the same tp in trks2
+                tp2 = tps2[tp1.index()]
+                for trkInfo2 in tp2.matchedTrackInfos():
+                    matched = True
+                    t2 = trkInfo2.track()
+                    t2Index = t2.index()
+                    if t2Index in trks2Dict:
+                        assoc1.extend(trks2=[t2]) # trk1 -> t2
+                        _getOrCreateAssoc(t2, trkAssoc2, trks1=[trk1], trks2=[t2]) # t2 -> trk1
+                        #print "trk1 %d <-> t2 %d (TP)" % (trk1.index(), t2.index())
+                        try:
+                            trks2.remove(trks2Dict[t2Index]) # can fail if t2 has already been matched via hits
+                        except ValueError:
+                            pass
+                    else:
+                        #print "trk1 %d -> t2 %d (TP, not in list)" % (trk1.index(), t2.index())
+                        assoc1.extend(trks2OutsideList=[t2]) # trk1 -> t2, if t2 is not in trks2
 
-                tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [trk1]+trks1_viatp, trks2_viatp, lst2extra=trks2_viatp_notintrks2, diffByHitsOnly=True)
-
-                #if debug:
-                #    print str(tmp)
-
-                #print "##########"
-                #s = str(tmp)
-                #if len(s) > 0:
-                #    print s
-                #print "%%%%%"
-                #print tmp._diff
-                #print tmp.hasDifference()
-                #print "----------"
-
-                if tmp.hasDifference():
-                    diff.extend(tmp)
+            if matched:
                 continue
 
-        # If there is a trk2 having smaller eta than trk1, check first
-        # if there is a matching track in trks1. If yes, do
-        # nothing (as the pair will be printed later, in the order
-        # of trk1s). If no, print the trk2 here so that tracks are
-        # printed in eta order.
-        if len(trks2) > 0:
-            i = 0
-            while i < len(trks2) and trks2[i].eta() < trk1.eta():
-                #print " trks2 eta check, trk1.eta, trk2, trk2.eta", trk1.eta(), trks2[i].index(), trks2[i].eta()
-
-                # is there any way to speed these up?
-                trks1_viatp = []
-                trks1_viatp_notintrks1 = []
-                trks2_viatp = []
-                if trks2[i].nMatchedTrackingParticles() > 0 and tps1:
-                    #print "  trk2 matched to TPs", [tpInfo.trackingParticle().index() for tpInfo in trks2[i].matchedTrackingParticleInfos()]
-                    (trks2_viatp, trks1_viatp, trks1_viatp_notintrks1) = _matchTracksByTrackingParticle(trks2[i], trks2, trks1, tps1)
-                    #print " matches via TP"
-                    #print "  trks2_viatp", [t.index() for t in trks2_viatp]
-                    #print "  trks1_viatp", [t.index() for t in trks1_viatp]
-                    #print "  trks1_viatp_notintrks1", [t.index() for t in trks1_viatp_notintrks1]
-
-                    if len(trks1_viatp) > 0:
-                        i += 1
-                        continue
-
-                if len(trks2_viatp) == 0:
-                    (matchedTrk1, nc1) = _matchTracksByHits(trks2[i], [trk1]+trks1)
-                    if matchedTrk1 is not None:
-                        i += 1
-                        continue
-
-                if len(trks1_viatp_notintrks1) > 0:
-                    if len(trks2_viatp) > 0: raise Exception("%d elements in trks2_viatp, I don't understand what is going on" % len(trks2_viatp))
-                    tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, [], [trks2[i]], lst1extra=trks1_viatp_notintrks1, diffByHitsOnly=True)
-                    if tmp.hasDifference():
-                        diff.extend(tmp)
-                    #print "   removing from trks2", trks2[i].index()
-                    del trks2[i]
-                    continue
-
-
-                #removedTracks = False
-                #for trk2 in [trks2[i]] + trks2_viatp:
-                #    (matchedTrk1, nc1) = _matchTracksByHits(trk2, [trk1]+trks1)
-                #    if matchedTrk1 is not None:
-                #        #print "   matched by hits to trk1", matchedTrk1.index()
-                #        continue
-                #    else:
-                #        diff.extend(_makediff(trks1_viatp_notintrks1, trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
-                #        for j, t2 in enumerate(trks2):
-                #            if t2.index() == trk2.index():
-                #                #print "   removing from trks2", trk2.index()
-                #                removedTracks = True
-                #                del trks2[j]
-                #                if j < i:
-                #                    i -= 1
-                #                break
-                #if not removedTracks:
-                #    i += 1
-
-                # In principle something like the logic above would be
-                # necessary, but since the overall logic of this
-                # function is already too complicated (need to move to
-                # clustering), let's not do that for now
-
-                removedTracks = False
-                for trk2 in [trks2[i]] + trks2_viatp:
-                    diff.extend(_makediff(trks1_viatp_notintrks1, trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
-                    for j, t2 in enumerate(trks2):
-                        if t2.index() == trk2.index():
-                            #print "   removing from trks2", trk2.index()
-                            removedTracks = True
-                            del trks2[j]
-                            if j < i:
-                                i -= 1
-                            break
-                if not removedTracks:
-                    i += 1
-
-
-        # if no matching tracks in trk2 via TrackingParticles, then
+        # If no matching tracks in trks2 via TrackingParticles, then
         # proceed finding the best match via hits
-        (matchedTrk2, ncommon) = _matchTracksByHits(trk1, trks2)
+        (matchedTrk2, ncommon) = trks2Matcher.match(trk1)
+        if matchedTrk2 is not None and ncommon >= 3:
+            assoc1.extend(trks2=[matchedTrk2])
+            assoc2 = _getOrCreateAssoc(matchedTrk2, trkAssoc2, trks1=[trk1], trks2=[matchedTrk2])
+            #print "trk1 %d <-> t2 %d (hits)" % (trk1.index(), matchedTrk2.index())
+            try:
+                trks2.remove(matchedTrk2) # can fail if matchedTrk2 has already been matched via TP
+            except ValueError:
+                pass
 
-        # no match, more tracks in tp2, or too few common hits
-        if matchedTrk2 is None or ncommon < 3:
-            diff.extend(_makediff(trackPrinter.printTrackAndMatchedTrackingParticles(trk1), []))
-        else: # diff trk1 to best-matching track from trks2
-            trks2.remove(matchedTrk2)
+            (matchedTrk1, ncommon1) = trks1Matcher.match(matchedTrk2)
+            # if matchedTrk1 has TP, the link from matchedTrk1 -> matchedTrk2 will be created later
+            if (matchedTrk1.nMatchedTrackingParticles() == 0 or not tps2) and matchedTrk1.index() != trk1.index():
+                assoc2.extend(trks1=[matchedTrk1])
+                _getOrCreateAssoc(matchedTrk1, trkAssoc1, trks1=[matchedTrk1], trks2=[matchedTrk2])
+                #print "trk1 %d <-> t2 %d (hits, via t2)" % (matchedTrk1.index(), matchedTrk2.index())
+
+        # no match
+
+    # remaining tracks in trks2
+    for trk2 in trks2:
+        assoc2 = _getOrCreateAssoc(trk2, trkAssoc2, trks2=[trk2])
+        # collect duplicates
+        if trk2.nMatchedTrackingParticles() > 0:
+            for tpInfo2 in trk2.matchedTrackingParticleInfos():
+                tp2 = tpInfo2.trackingParticle()
+                for trkInfo2 in tp2.matchedTrackInfos():
+                    t2 = trkInfo2.track()
+                    t2Index = t2.index()
+                    if t2Index in trks2Dict:
+                        assoc2.extend(trks2=[t2])
+                        #print "trk2 %d -> t2 %d (TP)" % (trk2.index(), t2.index())
+                    else:
+                        assoc2.extend(trks2OutsideList=[t2])
+                        #print "trk2 %d -> t2 %d (TP, not in list)" % (trk2.index(), t2.index())
+
+    # merge results
+    # any good way to avoid copy-past?
+    for ind, assoc in trkAssoc1.iteritems():
+        for t1 in assoc.trks1():
+            a = trkAssoc1[t1.index()]
+            assoc.merge(a)
+            a.merge(assoc)
+        for t2 in assoc.trks2():
+            a = trkAssoc2[t2.index()]
+            assoc.merge(a)
+            a.merge(assoc)
+    for ind, assoc in trkAssoc2.iteritems():
+        for t2 in assoc.trks2():
+            a = trkAssoc2[t2.index()]
+            assoc.merge(a)
+            a.merge(assoc)
+        for t1 in assoc.trks1():
+            a = trkAssoc1[t1.index()]
+            assoc.merge(a)
+            a.merge(assoc)
+
+    for ind, assoc in itertools.chain(trkAssoc1.iteritems(), trkAssoc2.iteritems()):
+        #if ind in [437, 1101]:
+        #    print "----"
+        #    print ind, [t.index() for t in assoc.trks1()], [t.index() for t in assoc.trks2()]
+        for t1 in assoc.trks1():
+            a = trkAssoc1[t1.index()]
+            assoc.merge(a)
+            a.merge(assoc)
+
+        #if ind in [437, 1101]:
+        #    print ind, [t.index() for t in assoc.trks1()], [t.index() for t in assoc.trks2()]
+
+        for t2 in assoc.trks2():
+            a = trkAssoc2[t2.index()]
+            assoc.merge(a)
+            a.merge(assoc)
+        #if ind in [437, 1101]:
+        #    print ind, [t.index() for t in assoc.trks1()], [t.index() for t in assoc.trks2()]
+        #    print "####"
+
+    # collapse to a single collection of associations
+    allAssocs = []
+    while len(trkAssoc1) > 0:
+        (t1Index, assoc) = trkAssoc1.popitem()
+
+        #if t1Index == 1299:
+        #    print t1Index, [t.index() for t in assoc.trks2()]
+        for t1 in assoc.trks1():
+            if t1.index() == t1Index: continue
+            trkAssoc1.pop(t1.index())
+        for t2 in assoc.trks2():
+            trkAssoc2.pop(t2.index())
+        allAssocs.append(assoc)
+    while len(trkAssoc2) > 0:
+        (t2Index, assoc) = trkAssoc2.popitem()
+        if len(assoc.trks1()) > 0:
+            raise Exception("len(assoc.trks1()) %d != 0 !!! %s for t2 %d" % (len(assoc.trks1()), str([t.index() for t in assoc.trks1()]), t2Index))
+        for t2 in assoc.trks2():
+            if t2.index() == t2Index: continue
+            trkAssoc2.pop(t2.index())
+        allAssocs.append(assoc)
+
+    return allAssocs
+
+def diffTrackListsGeneric(trackPrinter, lst1, lst2):
+    associations = _associateTracksByTrackingParticlesAndHits(lst1, lst2)
+
+    # sort in eta
+    associations.sort(key=methodcaller("minEta"))
+
+    diff = _DiffResult()
+    for assoc in associations:
+        if assoc.hasCommonTrackingParticle():
+            tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, assoc.trks1(), assoc.trks2(), lst1extra=assoc.trks1OutsideList(), lst2extra=assoc.trks2OutsideList(), diffByHitsOnly=True)
+            if tmp.hasDifference():
+                diff.extend(tmp)
+                diff.extend([" "])
+        elif len(assoc.trks1()) == 1 and len(assoc.trks2()) == 1:
+            trk1 = assoc.trks1()[0]
+            trk2 = assoc.trks2()[0]
+
+            ncommon = _commonHits(trk1, trk2)
 
             # if tracks have same hits, consider their reco as identical
-            areSame = (ncommon == trk1.nValid() and ncommon == matchedTrk2.nValid())
+            areSame = (ncommon == trk1.nValid() and ncommon == trk2.nValid())
             # although if there is any change in their iterations, mark them different
             if areSame:
-                areSame = (trk1.algoMask() == matchedTrk2.algoMask() and trk1.algo() == matchedTrk2.algo() and trk1.originalAlgo() == matchedTrk2.originalAlgo())
+                areSame = (trk1.algoMask() == trk2.algoMask() and trk1.algo() == trk2.algo() and trk1.originalAlgo() == trk2.originalAlgo())
             # if reco is the same, check if they are matched to the
             # same TPs (in case the track-TP matching is modified
             # between ntuples)
             if areSame:
-                if trk1.nMatchedTrackingParticles() == matchedTrk2.nMatchedTrackingParticles():
-                    for tpInfo1, tpInfo2 in itertools.izip(trk1.matchedTrackingParticleInfos(), matchedTrk2.matchedTrackingParticleInfos()):
+                if trk1.nMatchedTrackingParticles() == trk2.nMatchedTrackingParticles():
+                    for tpInfo1, tpInfo2 in itertools.izip(trk1.matchedTrackingParticleInfos(), trk2.matchedTrackingParticleInfos()):
                         if tpInfo1.trackingParticle().index() != tpInfo2.trackingParticle().index():
                             areSame = False
                             break
@@ -684,10 +805,48 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
                     areSame = False
 
             if not areSame:
-                diff.extend(trackPrinter.diff(trk1, matchedTrk2))
+                diff.extend(trackPrinter.diff(trk1, trk2))
+                diff.extend([" "])
+        elif len(assoc.trks2()) == 0:
+            for t in assoc.trks1():
+                diff.extend(trackPrinter.diff(t, None))
+                diff.extend([" "])
+        elif len(assoc.trks1()) == 0:
+            for t in assoc.trks1():
+                diff.extend(trackPrinter.diff(None, t))
+                diff.extend([" "])
+        else:
+            # needs to be rather generic, let's start by sorting by the innermost hit
+            trks1 = list(assoc.trks1())
+            trks2 = list(assoc.trks2())
+            trks1.sort(key=lambda t: next(t.hits()).r())
+            trks2.sort(key=lambda t: next(t.hits()).r())
 
-    for trk2 in trks2: # remaining tracks in trks2
-        diff.extend(_makediff([], trackPrinter.printTrackAndMatchedTrackingParticles(trk2)))
+            # then calculate number of shared hits for each pair
+            ncommon = []
+            for i1, t1 in enumerate(trks1):
+                for i2, t2 in enumerate(trks2):
+                    ncommon.append( (i1, i2, _commonHits(t1, t2)) )
+
+            # sort that by number of common hits, descending order
+            ncommon.sort(key=itemgetter(2), reverse=True)
+
+            # then make the diffs starting from the pair with largest number of common hits
+            pairs = [None]*len(trks1)
+            usedT2 = [False]*len(trks2)
+            for i1, i2, ncom in ncommon:
+                if pairs[i1] is None:
+                    pairs[i1] = i2
+                    usedT2[i2] = True
+
+            for i1, i2 in enumerate(pairs):
+                t1 = trks1[i1]
+                t2 = trks2[i2]
+                diff.extend(trackPrinter.diff(t1, t2))
+            for i2, used in enumerate(usedT2):
+                if not used:
+                    diff.extend(trackPrinter.diff(None, trks2[i2]))
+            diff.extend([" "])
 
     return diff
 
@@ -1407,6 +1566,11 @@ class _HitObject(_Object):
         for iseed in getattr(self._tree, self._prefix+"_seeIdx")[self._index]:
             yield Seed(self._tree, iseed)
 
+    def r(self):
+        return math.sqrt(self.x()**2 + self.y()**2)
+
+    def r3D(self):
+        return math.sqrt(self.x()**2 + self.y()**2 + self.z()**2)
 
 class _RecoHitAdaptor(object):
     """Adaptor class for objects containing hits (e.g. tracks)"""
