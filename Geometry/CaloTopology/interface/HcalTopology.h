@@ -156,8 +156,12 @@ public:
 
   const HcalDDDRecConstants* dddConstants () const {return hcons_;}
   bool  withSpecialRBXHBHE() const {return hcons_->withSpecialRBXHBHE();}
-  HcalDetId mergedDepthDetId(HcalDetId& id) const {return hcons_->mergedDepthDetId(id); }
+  HcalDetId mergedDepthDetId(const HcalDetId& id) const {return hcons_->mergedDepthDetId(id); }
   bool  getMergePositionFlag() const {return mergePosition_;}
+  void  unmergeDepthDetId(const HcalDetId& id,
+			  std::vector<HcalDetId>& ids) const {
+    hcons_->unmergeDepthDetId(id, ids);
+  }
 
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
