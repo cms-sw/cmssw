@@ -14,9 +14,7 @@
 #include <cstdio>
 #include <algorithm>
 
-#define LOWER_HIT_LIMIT_MM -1e3
-#define HIGHER_HIT_LIMIT_MM 1e3
-#define PAD_FUNCTION "(1/(1+exp(-(x-[0])/[2])))*(1/(1+exp((x-[0]-[1])/[2])))"
+#define PAD_DEFAULT_FUNCTION "(1/(1+exp(-(x-[0]+0.5*[1])/[2])))*(1/(1+exp((x-[0]-0.5*[1])/[2])))"
 
 using namespace std;
 using namespace edm;
@@ -24,15 +22,19 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition() :
-  threshold_( 2.0 ), resolution_mm_( 0.01 ), sigma_( 0.0 )
+  threshold_( 1.5 ), threshold_from_maximum_(0.5), resolution_mm_( 0.025), sigma_( 0.0 ), start_from_x_mm_(-2), stop_at_x_mm_(38), pixel_efficiency_function_(PAD_DEFAULT_FUNCTION)
 {}
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
   threshold_( iConfig.getParameter<double>( "threshold" ) ),
+  threshold_from_maximum_( iConfig.getParameter<double>( "threshold_from_maximum" ) ),
   resolution_mm_( iConfig.getParameter<double>( "resolution" ) ),
-  sigma_( iConfig.getParameter<double>( "sigma" ) )
+  sigma_( iConfig.getParameter<double>( "sigma" ) ),
+  start_from_x_mm_( iConfig.getParameter<double>( "start_from_x_mm" ) ),
+  stop_at_x_mm_( iConfig.getParameter<double>( "stop_at_x_mm" ) ),
+  pixel_efficiency_function_( iConfig.getParameter<std::string>( "pixel_efficiency_function" ) )
 {
-    if (sigma_==.0) sigma_=1.0e-10;
+    if (sigma_==.0) pixel_efficiency_function_="(x>[0]-0.5*[1])*(x<[0]+0.5*[1])";	// Simple step function
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -51,41 +53,59 @@ void CTPPSDiamondTrackRecognition::clear() {
 void CTPPSDiamondTrackRecognition::addHit(const CTPPSDiamondRecHit recHit) {
   string f_name("hit_f_");
   f_name.append(to_string(hit_function_v.size() + 1));
-  TF1 hit_f(f_name.c_str(), PAD_FUNCTION, LOWER_HIT_LIMIT_MM, HIGHER_HIT_LIMIT_MM);
+  TF1 hit_f(f_name.c_str(), pixel_efficiency_function_.c_str(), start_from_x_mm_, stop_at_x_mm_);
   
-  double center = recHit.getX();
-  double width = recHit.getXWidth();
-  hit_f.SetParameters(center, width, sigma_);
+  hit_f.SetParameters(recHit.getX(), recHit.getXWidth(), sigma_);
   
   hit_function_v.push_back(hit_f);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSDiamondTrackRecognition::produceTracks(DetSet<CTPPSDiamondLocalTrack> &tracks) {
-  vector<double> hit_profile((HIGHER_HIT_LIMIT_MM - LOWER_HIT_LIMIT_MM) / resolution_mm_, .0);
+int CTPPSDiamondTrackRecognition::produceTracks(DetSet<CTPPSDiamondLocalTrack> &tracks) {
+  vector<double> hit_profile((stop_at_x_mm_ - start_from_x_mm_) / resolution_mm_, .0);
   for (unsigned int i=0; i<hit_profile.size(); ++i) {
     for (vector<TF1>::const_iterator fun_it=hit_function_v.begin(); fun_it!=hit_function_v.end(); ++fun_it) { 
-      hit_profile[i] += fun_it->Eval(LOWER_HIT_LIMIT_MM + i*resolution_mm_);
+      hit_profile[i] += fun_it->Eval(start_from_x_mm_ + i*resolution_mm_);
     }
   }
   
-  bool below = true;	// below the threhold
+  int number_of_tracks=0;
+  double maximum=0;
+  bool below = true;	// below the threshold
   int track_start_n = 0;
   for (unsigned int i=0; i<hit_profile.size(); ++i) {
-    if (below && hit_profile[i] >= threshold_) {	// going above the threhold
+    if (below && hit_profile[i] >= threshold_) {	// going above the threshold
       track_start_n = i;
+      maximum=0;
       below = false;
     }
-    if (!below && hit_profile[i] < threshold_) {	// going back below the threhold
-      below = true;
-      //store track
-      CTPPSDiamondLocalTrack track;
-      track.setX0Sigma( (i-track_start_n)*resolution_mm_ );
-      track.setX0( LOWER_HIT_LIMIT_MM + track_start_n*resolution_mm_ + track.getX0Sigma()/2);
-      tracks.push_back(track);
+    if (!below) {
+      if (hit_profile[i] > maximum) maximum = hit_profile[i];
+      if (hit_profile[i] < threshold_) {		// going back below the threshold
+	below = true;
+	
+	//go back and use new threshold
+	double threshold = maximum - threshold_from_maximum_;
+	for (unsigned int j=track_start_n; j<=i; ++j) {
+	  if (below && hit_profile[j] >= threshold) {	// going above the threshold
+	    track_start_n = j;
+	    below = false;
+	  }
+	  if (!below && hit_profile[j] < threshold) {	// going back below the threshold
+	    below = true;
+	    //store track
+	    CTPPSDiamondLocalTrack track;
+	    track.setX0Sigma( (j-track_start_n)*resolution_mm_ );
+	    track.setX0( start_from_x_mm_ + track_start_n*resolution_mm_ + track.getX0Sigma()/2);
+	    tracks.push_back(track);
+	    ++number_of_tracks;
+	  }
+	}
+      }
     }
   }
   
+  return number_of_tracks;
 }
 

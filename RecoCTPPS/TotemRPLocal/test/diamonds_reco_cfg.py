@@ -55,10 +55,11 @@ process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 # local tracks fitter
-process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTrackFitter_cfi')
 process.ctppsDiamondLocalTrack.trackingAlgorithmParams.threshold = cms.double(1.5)
-process.ctppsDiamondLocalTrack.trackingAlgorithmParams.sigma = cms.double(0.0)
-process.ctppsDiamondLocalTrack.trackingAlgorithmParams.resolution = cms.double(0.1) # in mm
+process.ctppsDiamondLocalTrack.trackingAlgorithmParams.sigma = cms.double(0)
+process.ctppsDiamondLocalTrack.trackingAlgorithmParams.resolution = cms.double(0.025) # in mm
+#process.ctppsDiamondLocalTrack.trackingAlgorithmParams.pixel_efficiency_function = cms.string("(TMath::Erf((x-[0]+0.5*[1])/([2]/4)+2)+1)*TMath::Erfc((x-[0]-0.5*[1])/([2]/4)-2)/4")
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:AOD.root"),
@@ -72,7 +73,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(
     process.ctppsDiamondRawToDigi *
     process.ctppsDiamondRecHits *
-    process.ctppsDiamondLocalTracks
+    process.ctppsDiamondLocalTrack
 )
 
 process.outpath = cms.EndPath(process.output) 
