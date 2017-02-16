@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
   <ConstantsSection label="CTPPS_Diamond_X_Distance.xml">
-    <Constant name="CTPPS_Diamond_Detector_X_distance" value="0*mm"/>
+    <Constant name="CTPPS_Diamond_Detector_X_distance" value="0.45*mm"/>
   </ConstantsSection>
 
 </DDDefinition>

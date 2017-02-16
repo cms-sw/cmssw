@@ -46,12 +46,12 @@
     <PosPart copyNumber="1">
       <rParent name="Primary_Vacuum"/>
       <rChild name="External_Wall"/>
-      <Translation x="0*cm" y="0*mm" z="-[bottom_wall_thickness]+[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]"/>
+      <Translation x="0*cm" y="0*mm" z="-[bottom_wall_thickness]"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="Primary_Vacuum"/>
       <rChild name="Bottom_Wall"/>
-      <Translation x="0*cm" y="0*mm" z="-[plane_length]/2-[bottom_wall_thickness]/2+[CTPPS_Diamond_X_Distance:CTPPS_Diamond_Detector_X_distance]"/>
+      <Translation x="0*cm" y="0*mm" z="-[plane_length]/2-[bottom_wall_thickness]/2"/>
     </PosPart>
   </PosPartSection>
 
