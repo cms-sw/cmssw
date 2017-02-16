@@ -377,12 +377,13 @@ baseDataSetRelease=[
     'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1-v1',    # 5 - fullSim PU 25ns premix 
     'CMSSW_8_1_0_pre15-PU50ns_81X_mcRun2_startup_v12-v1',        # 6 - fullSim PU 50ns premix 
     'CMSSW_9_0_0_pre4-90X_mcRun2_asymptotic_v1_FastSim-v1',    # 7 - fastSim MinBias for mixing 
-    'CMSSW_9_0_0_pre4-90X_mcRun2_asymptotic_v1_FastSim-v1',# 8 - fastSim premixed MinBias 
+    'CMSSW_9_0_0_pre4-PU25ns_90X_mcRun2_asymptotic_v1_FastSim-v1',# 8 - fastSim premixed MinBias 
     'CMSSW_7_6_0_pre6-76X_mcRun2_HeavyIon_v4-v1', 	           # 9 - Run2 HI GEN-SIM
     'CMSSW_7_6_0-76X_mcRun2_asymptotic_v11-v1',                    # 10 - 13 TeV High Stats GEN-SIM
     'CMSSW_7_6_0_pre7-76X_mcRun2_asymptotic_v9_realBS-v1',         # 11 - 13 TeV High Stats MiniBias for mixing GEN-SIM
     'CMSSW_8_1_0_pre9_Geant4102-81X_mcRun2cosmics_startup_peak_v2-v1', # 12 - GEN-SIM input for 1307 cosmics wf from 810_p2
     ]
+
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')} #was [0] 
