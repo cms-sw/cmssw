@@ -217,6 +217,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
         self.setParameter('reclusterJets',reclusterJets),
         self.setParameter('reapplyJEC',reapplyJEC),
+        self.setParameter('CHS',CHS),
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('postfix',postfix),
@@ -1415,6 +1416,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCHS=None
             if self._parameters["onMiniAOD"].value: 
                 pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
+                setattr(process,"pfNoPileUpJME"+postfix,pfCHS)
+                pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
             else:
                 setattr( process, "tmpPFCandCollPtr"+postfix, cms.EDProducer("PFCandidateFwdPtrProducer",
                                                                      src = pfCandCollection ) )
