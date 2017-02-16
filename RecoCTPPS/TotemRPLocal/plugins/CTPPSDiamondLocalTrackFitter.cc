@@ -37,19 +37,22 @@ class CTPPSDiamondLocalTrackFitter : public edm::stream::EDProducer<>
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > recHitsToken_;
-    CTPPSDiamondTrackRecognition* trk_algo_;
+    CTPPSDiamondTrackRecognition* trk_algo_45_;
+    CTPPSDiamondTrackRecognition* trk_algo_56_;
 };
 
 CTPPSDiamondLocalTrackFitter::CTPPSDiamondLocalTrackFitter( const edm::ParameterSet& iConfig ) :
   recHitsToken_( consumes< edm::DetSetVector<CTPPSDiamondRecHit> >( iConfig.getParameter<edm::InputTag>( "recHitsTag" ) ) ),
-  trk_algo_ ( new CTPPSDiamondTrackRecognition( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) ) )
+  trk_algo_45_ ( new CTPPSDiamondTrackRecognition( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) ) ),
+  trk_algo_56_ ( new CTPPSDiamondTrackRecognition( iConfig.getParameter<edm::ParameterSet>( "trackingAlgorithmParams" ) ) )
 {
   produces< edm::DetSetVector<CTPPSDiamondLocalTrack> >();
 }
 
 CTPPSDiamondLocalTrackFitter::~CTPPSDiamondLocalTrackFitter()
 {
-  if ( trk_algo_ ) delete trk_algo_;
+  if ( trk_algo_45_ ) delete trk_algo_45_;
+  if ( trk_algo_56_ ) delete trk_algo_56_;
 }
 
 void
@@ -60,20 +63,37 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
   edm::Handle< edm::DetSetVector<CTPPSDiamondRecHit> > recHits;
   iEvent.getByToken( recHitsToken_, recHits );
 
-  trk_algo_->clear();
+  CTPPSDiamondDetId tempid_45(0,1,6,0,0);
+  pOut->find_or_insert( tempid_45 );
+  CTPPSDiamondDetId tempid_56(1,1,6,0,0);
+  edm::DetSet<CTPPSDiamondLocalTrack>& tracks56 =pOut->find_or_insert( tempid_56 );
+  edm::DetSet<CTPPSDiamondLocalTrack>& tracks45 = pOut->operator[]( tempid_45 );
+  
+  trk_algo_45_->clear();
+  trk_algo_56_->clear();
+
   for ( edm::DetSetVector<CTPPSDiamondRecHit>::const_iterator vec = recHits->begin(); vec != recHits->end(); ++vec )
   {
     const CTPPSDiamondDetId detid( vec->detId() );
 
-    edm::DetSet<CTPPSDiamondLocalTrack>& tracks = pOut->find_or_insert( detid );
-
-    for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
+    if (detid.arm()==0) 
     {
-      trk_algo_->addHit( *hit );
+      for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
+      {
+	trk_algo_45_->addHit( *hit );
+      }
+    } else 
+    {
+      for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
+      {
+	trk_algo_56_->addHit( *hit );
+      }
     }
-    trk_algo_->produceTracks( tracks );
   }
 
+  trk_algo_45_->produceTracks( tracks45 );
+  trk_algo_56_->produceTracks( tracks56 );
+  
   iEvent.put( std::move( pOut ) );
 }
 
