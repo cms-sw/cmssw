@@ -104,7 +104,9 @@ public:
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
   unsigned int              nCells() const;
-  HcalDetId                 mergedDepthDetId(HcalDetId& id) const;
+  HcalDetId                 mergedDepthDetId(const HcalDetId& id) const;
+  void                      unmergeDepthDetId(const HcalDetId& id,
+					      std::vector<HcalDetId>& ids) const;
   void                      specialRBXHBHE(const std::vector<HcalDetId>&,
 					   std::vector<HcalDetId> &) const;
   bool                      withSpecialRBXHBHE() const {return (hcons.ldMap()->getSubdet() != 0);}
@@ -112,7 +114,7 @@ public:
 private:
   void                      getOneEtaBin(int subdet, int ieta, int zside,
 					 std::vector<std::pair<int,double>>& phis,
-					 std::map<int,int>& layers,
+					 std::map<int,int>& layers, bool planOne,
 					 std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const;
   void                      initialize(void);
   unsigned int              layerGroupSize(int eta) const;
@@ -133,6 +135,7 @@ private:
   int                 nModule[2], nHalves[2];     // Modules, Halves for HB/HE
   std::pair<int,int>  depthMaxDf_, depthMaxSp_; // (subdet,maximum depth) default,special
   std::map<HcalDetId,HcalDetId> detIdSp_;       // Map of Id's for special RBX
+  std::map<HcalDetId,std::vector<HcalDetId>> detIdSpR_; // Reverse map for RBX
 };
 
 #endif

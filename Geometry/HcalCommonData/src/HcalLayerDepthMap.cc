@@ -68,6 +68,10 @@ void HcalLayerDepthMap::initialize(const int subdet, const int ietaMax,
 	if ((itr->second) > dmax) dmax = (itr->second);
       }
     }
+    if (subdet == 2) {
+      if      (eta == ietaMin_) dmin = dep16C_;
+      else if (eta == ietaMax_) dmax = dep29C_;
+    }
     depthsEta_[eta] = std::pair<int,int>(dmin,dmax);
   }
 #ifdef EDM_ML_DEBUG
@@ -162,7 +166,7 @@ int HcalLayerDepthMap::getDepthMax(const int subdet, const int ieta,
 std::pair<int,int> HcalLayerDepthMap::getDepths(const int eta) const {
 
   std::map<int,std::pair<int,int> >::const_iterator itr = depthsEta_.find(eta);
-  if (itr == depthsEta_.end()) return std::pair<int,int>(0,0);
+  if (itr == depthsEta_.end()) return std::pair<int,int>(-1,-1);
   else                         return itr->second;
 }
 

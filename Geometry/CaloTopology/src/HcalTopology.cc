@@ -466,7 +466,7 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
               break;
             }
           }
-        }
+	}
       } else {
 	if (depth>hcons_->getMaxDepth(1,aieta,iphi,zside) || 
 	    aieta<firstHERing() || aieta>lastHERing() || 
