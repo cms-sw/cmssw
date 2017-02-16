@@ -2,14 +2,14 @@
 #include <algorithm>
 
 #include "DataFormats/HcalRecHit/interface/HcalSpecialTimes.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimplePlan1RechitCombiner.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HBHERecHitAuxSetter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/CaloRecHitAuxSetter.h"
 
 SimplePlan1RechitCombiner::SimplePlan1RechitCombiner()
     : topo_(nullptr)

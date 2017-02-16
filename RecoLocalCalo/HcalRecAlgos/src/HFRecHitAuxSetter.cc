@@ -1,9 +1,10 @@
 #include <algorithm>
 #include <type_traits>
 
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFAnodeStatus.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFRecHitAuxSetter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/CaloRecHitAuxSetter.h"
 
 
 void HFRecHitAuxSetter::setAux(const HFPreRecHit& prehit,

@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HcalRecAlgos_HBHERecHitAuxSetter_h_
-#define RecoLocalCalo_HcalRecAlgos_HBHERecHitAuxSetter_h_
+#ifndef DataFormats_HcalRecHit_HBHERecHitAuxSetter_h_
+#define DataFormats_HcalRecHit_HBHERecHitAuxSetter_h_
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
@@ -45,4 +45,4 @@ struct HBHERecHitAuxSetter
                        HBHERecHit* rechit);
 };
 
-#endif // RecoLocalCalo_HcalRecAlgos_HBHERecHitAuxSetter_h_
+#endif // DataFormats_HcalRecHit_HBHERecHitAuxSetter_h_
