@@ -27,8 +27,6 @@
 
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
-#include "CondFormats/AlignmentRecord/interface/RPMeasuredAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
 #include "CondFormats/AlignmentRecord/interface/RPMisalignedAlignmentRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
@@ -37,7 +35,6 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/DDDTotemRPConstruction.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/MeasuredGeometryProducer.h"
 
 #include <TMatrixD.h>
 
@@ -58,10 +55,7 @@ class  TotemRPGeometryESModule : public edm::ESProducer
     TotemRPGeometryESModule(const edm::ParameterSet &p);
     virtual ~TotemRPGeometryESModule(); 
 
-    std::unique_ptr<DDCompactView> produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &);
-
-    std::unique_ptr<DetGeomDesc> produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &);
-    std::unique_ptr<TotemRPGeometry> produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &);
+    std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 
     std::unique_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord &);
     std::unique_ptr<TotemRPGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
@@ -72,8 +66,8 @@ class  TotemRPGeometryESModule : public edm::ESProducer
   protected:
     unsigned int verbosity;
 
-    void ApplyAlignments(const edm::ESHandle<DetGeomDesc> &measuredGD, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DetGeomDesc* &newGD);
-    void ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DDCompactView *&measured_ddcv);
+    void ApplyAlignments(const edm::ESHandle<DetGeomDesc> &idealGD, const edm::ESHandle<RPAlignmentCorrectionsData> &alignments,
+      DetGeomDesc* &newGD);
 };
 
 
@@ -87,9 +81,7 @@ TotemRPGeometryESModule::TotemRPGeometryESModule(const edm::ParameterSet &p)
 {
   verbosity = p.getUntrackedParameter<unsigned int>("verbosity", 1);  
 
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMeasuredDDCV);
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMeasuredGD);
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMeasuredTG);
+  setWhatProduced(this, &TotemRPGeometryESModule::produceIdealGD);
 
   setWhatProduced(this, &TotemRPGeometryESModule::produceRealGD);
   setWhatProduced(this, &TotemRPGeometryESModule::produceRealTG);
@@ -162,55 +154,13 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
   }
 }
 
-void TotemRPGeometryESModule::ApplyAlignments(const edm::ESHandle<DDCompactView> &ideal_ddcv,
-        const edm::ESHandle<RPAlignmentCorrectionsData> &alignments, DDCompactView *&measured_ddcv)
-{
-    MeasuredGeometryProducer producer(ideal_ddcv, alignments);
-    measured_ddcv = producer.produce(); 
-    return;
-}
-
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DDCompactView> TotemRPGeometryESModule::produceMeasuredDDCV(const VeryForwardMeasuredGeometryRecord &iRecord)
-{
-  // get the ideal DDCompactView from EventSetup
-  edm::ESHandle<DDCompactView> idealCV;
-  iRecord.getRecord<IdealGeometryRecord>().get("XMLIdealGeometryESSource_CTPPS", idealCV);
-
-  // load alignments
-  edm::ESHandle<RPAlignmentCorrectionsData> alignments;
-  try {
-    iRecord.getRecord<RPMeasuredAlignmentRecord>().get(alignments);
-  } catch (...) {}
-
-  if (alignments.isValid())
-  {
-    if (verbosity)
-    {
-      LogVerbatim("TotemRPGeometryESModule::produceMeasuredDDCV")
-        << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: "
-        << alignments->GetRPMap().size() << " RP and "
-        << alignments->GetSensorMap().size() << " sensor alignments applied.";
-    }
-  } else {
-    if (verbosity)
-      LogVerbatim("TotemRPGeometryESModule::produceMeasuredDDCV")
-        << ">> TotemRPGeometryESModule::produceMeasuredDDCV > Measured geometry: No alignments applied.";
-  }
-
-  DDCompactView *measuredCV = NULL;
-  ApplyAlignments(idealCV, alignments, measuredCV);
-  return std::unique_ptr<DDCompactView>(measuredCV);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const VeryForwardMeasuredGeometryRecord &iRecord)
+std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const IdealGeometryRecord &iRecord)
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
-  iRecord.get(cpv);
+  iRecord.get("XMLIdealGeometryESSource_CTPPS", cpv);
   
   // construct the tree of DetGeomDesc
   DDDTotemRPContruction worker;
@@ -221,9 +171,9 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMeasuredGD(const Ve
 
 std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord &iRecord)
 {
-  // get the input (= measured) GeometricalDet
-  edm::ESHandle<DetGeomDesc> measuredGD;
-  iRecord.getRecord<VeryForwardMeasuredGeometryRecord>().get(measuredGD);
+  // get the input GeometricalDet
+  edm::ESHandle<DetGeomDesc> idealGD;
+  iRecord.getRecord<IdealGeometryRecord>().get(idealGD);
 
   // load alignments
   edm::ESHandle<RPAlignmentCorrectionsData> alignments;
@@ -234,7 +184,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
   {
     if (verbosity)
       LogVerbatim("TotemRPGeometryESModule::produceRealGD")
-        << ">> TotemRPGeometryESModule::produceRealGD > Measured geometry: "
+        << ">> TotemRPGeometryESModule::produceRealGD > Real geometry: "
         << alignments->GetRPMap().size() << " RP and "
         << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
@@ -244,7 +194,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
   }
 
   DetGeomDesc* newGD = NULL;
-  ApplyAlignments(measuredGD, alignments, newGD);
+  ApplyAlignments(idealGD, alignments, newGD);
   return std::unique_ptr<DetGeomDesc>(newGD);
 }
 
@@ -252,9 +202,9 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
 
 std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
-  // get the input (= measured) GeometricalDet
-  edm::ESHandle<DetGeomDesc> measuredGD;
-  iRecord.getRecord<VeryForwardMeasuredGeometryRecord>().get(measuredGD);
+  // get the input GeometricalDet
+  edm::ESHandle<DetGeomDesc> idealGD;
+  iRecord.getRecord<IdealGeometryRecord>().get(idealGD);
 
   // load alignments
   edm::ESHandle<RPAlignmentCorrectionsData> alignments;
@@ -265,7 +215,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
   {
     if (verbosity)
       LogVerbatim("TotemRPGeometryESModule::produceMisalignedGD")
-        << ">> TotemRPGeometryESModule::produceMisalignedGD > Measured geometry: "
+        << ">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: "
         << alignments->GetRPMap().size() << " RP and "
         << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
@@ -275,18 +225,8 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
   }
 
   DetGeomDesc* newGD = NULL;
-  ApplyAlignments(measuredGD, alignments, newGD);
+  ApplyAlignments(idealGD, alignments, newGD);
   return std::unique_ptr<DetGeomDesc>(newGD);
-}
-
-//----------------------------------------------------------------------------------------------------
-
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMeasuredTG(const VeryForwardMeasuredGeometryRecord &iRecord)
-{
-  edm::ESHandle<DetGeomDesc> gD;
-  iRecord.get(gD);
-  
-  return std::make_unique<TotemRPGeometry>( gD.product() );
 }
 
 //----------------------------------------------------------------------------------------------------
