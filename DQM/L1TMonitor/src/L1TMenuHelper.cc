@@ -12,8 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-#include "HLTrigger/HLTanalyzers/test/RateEff/L1GtLogicParser.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 // L1Gt - Trigger Menu
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
