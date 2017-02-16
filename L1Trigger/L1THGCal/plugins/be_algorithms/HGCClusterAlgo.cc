@@ -19,17 +19,17 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         using Algorithm<FECODEC>::codec_;
 
     public:
-        HGCClusterAlgo(const edm::ParameterSet& conf):
-        Algorithm<FECODEC>(conf),
-        cluster_product_( new l1t::HGCalClusterBxCollection ),
-        cluster3D_product_( new l1t::HGCalMulticlusterBxCollection ),
-        HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
-        HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
-        calibration_(conf.getParameterSet("calib_parameters")),
-        seed_CUT_(conf.getParameter<double>("seeding_threshold")), 
-        tc_CUT_(conf.getParameter<double>("clustering_threshold")),
-        dR_forC3d_(conf.getParameter<double>("dR_searchNeighbour")){}
-
+        HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc):
+            Algorithm<FECODEC>(conf,cc),
+            cluster_product_( new l1t::HGCalClusterBxCollection ),
+            cluster3D_product_( new l1t::HGCalMulticlusterBxCollection ),
+            HGCalEESensitive_(conf.getParameter<std::string>("HGCalEESensitive_tag")),
+            HGCalHESiliconSensitive_(conf.getParameter<std::string>("HGCalHESiliconSensitive_tag")),
+            calibration_(conf.getParameterSet("calib_parameters")),
+            seed_CUT_(conf.getParameter<double>("seeding_threshold")), 
+            tc_CUT_(conf.getParameter<double>("clustering_threshold")),
+            dR_forC3d_(conf.getParameter<double>("dR_searchNeighbour")){}
+           
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 
         virtual void setProduces(edm::EDProducer& prod) const override final 
@@ -38,9 +38,68 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
             prod.produces<l1t::HGCalMulticlusterBxCollection>("cluster3D");
 
         }
-    
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es) override final
+
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, const edm::Event&evt ) override final;
+        virtual void putInEvent(edm::Event& evt) override final 
         {
+            evt.put(std::move(cluster_product_),name());
+            evt.put(std::move(cluster3D_product_),"cluster3D");
+        }
+
+        virtual void reset() override final 
+        {
+            cluster_product_.reset( new l1t::HGCalClusterBxCollection );            
+            cluster3D_product_.reset( new l1t::HGCalMulticlusterBxCollection );            
+        }
+
+    private:
+
+        std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
+        std::unique_ptr<l1t::HGCalMulticlusterBxCollection> cluster3D_product_;
+        std::string HGCalEESensitive_;
+        std::string HGCalHESiliconSensitive_;
+
+        edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
+        edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
+        HGCalTriggerCellCalibration calibration_;    
+        double seed_CUT_;
+        double tc_CUT_;
+        double dR_forC3d_;
+
+        double deltaPhi( double phi1, double phi2) {
+        
+           double dPhi(phi1-phi2);
+           double pi(acos(-1.0));
+           if     (dPhi<=-pi) dPhi+=2.0*pi;
+           else if(dPhi> pi) dPhi-=2.0*pi;
+        
+           return dPhi;
+        }
+    
+
+        double deltaEta(double eta1, double eta2){
+           double dEta = (eta1-eta2);
+           return dEta;
+        }
+
+        double deltaR(double eta1, double eta2, double phi1, double phi2) {
+           double dEta = deltaEta(eta1, eta2);
+           double dPhi = deltaPhi(phi1, phi2);
+           return sqrt(dEta*dEta+dPhi*dPhi);
+        }
+};
+
+
+/*****************************************************************/
+template<typename FECODEC, typename DATA>
+void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection& coll, 
+                                       const edm::EventSetup& es,
+                                       const edm::Event&evt
+    ) 
+/*****************************************************************/
+{
+    //virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, const edm::Event&evt) override final
+    //   {
             es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
             es.get<IdealGeometryRecord>().get(HGCalHESiliconSensitive_, hgchefTopoHandle_);
             std::cout << "CLUSTERING PARAMETERS: "<< std::endl;
@@ -179,57 +238,10 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
                 
             }
-        }
-    
-        virtual void putInEvent(edm::Event& evt) override final 
-        {
-            evt.put(std::move(cluster_product_),name());
-            evt.put(std::move(cluster3D_product_),"cluster3D");
-        }
-
-        virtual void reset() override final 
-        {
-            cluster_product_.reset( new l1t::HGCalClusterBxCollection );            
-            cluster3D_product_.reset( new l1t::HGCalMulticlusterBxCollection );            
-        }
-
-    private:
-
-        std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
-        std::unique_ptr<l1t::HGCalMulticlusterBxCollection> cluster3D_product_;
-        std::string HGCalEESensitive_;
-        std::string HGCalHESiliconSensitive_;
-
-        edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
-        edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
-        HGCalTriggerCellCalibration calibration_;    
-        double seed_CUT_;
-        double tc_CUT_;
-        double dR_forC3d_;
-
-        double deltaPhi( double phi1, double phi2) {
-        
-           double dPhi(phi1-phi2);
-           double pi(acos(-1.0));
-           if     (dPhi<=-pi) dPhi+=2.0*pi;
-           else if(dPhi> pi) dPhi-=2.0*pi;
-        
-           return dPhi;
-        }
+}
     
 
-        double deltaEta(double eta1, double eta2){
-           double dEta = (eta1-eta2);
-           return dEta;
-        }
 
-        double deltaR(double eta1, double eta2, double phi1, double phi2) {
-           double dEta = deltaEta(eta1, eta2);
-           double dPhi = deltaPhi(phi1, phi2);
-           return sqrt(dEta*dEta+dPhi*dPhi);
-        }
-
-};
 
 typedef HGCClusterAlgo<HGCalTriggerCellBestChoiceCodec, HGCalTriggerCellBestChoiceCodec::data_type> HGCClusterAlgoBestChoice;
 typedef HGCClusterAlgo<HGCalTriggerCellThresholdCodec, HGCalTriggerCellThresholdCodec::data_type> HGCClusterAlgoThreshold;
