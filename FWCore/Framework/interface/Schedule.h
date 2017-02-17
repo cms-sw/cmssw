@@ -107,6 +107,7 @@ namespace edm {
   struct TriggerTimingReport;
   class ModuleRegistry;
   class ThinnedAssociationsHelper;
+  class SubProcessParentageHelper;
   class TriggerResultInserter;
   class WaitingTaskHolder;
 
@@ -124,6 +125,7 @@ namespace edm {
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
              ThinnedAssociationsHelper& thinnedAssociationsHelper,
+             SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -271,7 +273,9 @@ namespace edm {
 
   private:
 
-    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
+    void limitOutput(ParameterSet const& proc_pset,
+                     BranchIDLists const& branchIDLists,
+                     SubProcessParentageHelper const* subProcessParentageHelper);
 
     std::shared_ptr<TriggerResultInserter const> resultsInserter() const {return get_underlying_safe(resultsInserter_);}
     std::shared_ptr<TriggerResultInserter>& resultsInserter() {return get_underlying_safe(resultsInserter_);}

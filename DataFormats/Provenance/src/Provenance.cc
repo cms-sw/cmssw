@@ -32,7 +32,7 @@ namespace edm {
     if(!store_) {
       return nullptr;
     }
-    return store_->branchIDToProvenance(branchID());
+    return store_->branchIDToProvenance(originalBranchID());
   }
 
   void

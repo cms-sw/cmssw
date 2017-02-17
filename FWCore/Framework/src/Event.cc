@@ -199,7 +199,7 @@ namespace edm {
 
   void
   Event::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
+    gotBranchIDs_.insert(prov.originalBranchID());
   }
 
   ProcessHistory const&

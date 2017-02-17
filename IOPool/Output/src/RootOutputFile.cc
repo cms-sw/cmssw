@@ -744,7 +744,7 @@ namespace edm {
         item.product_ = product;
       }
       if (keepProvenance && productProvenance == nullptr) {
-        productProvenance = provRetriever->branchIDToProvenance(id);
+        productProvenance = provRetriever->branchIDToProvenance(item.branchDescription_->originalBranchID());
       }
       if(productProvenance) {
         insertProductProvenance(*productProvenance,provenanceToKeep);
