@@ -103,7 +103,42 @@ trackerDict = {
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
-    }   
+    },
+    "T5" : {
+        1 : [
+            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
+            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixfwd.xml', 
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixbar.xml', 
+            'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/tracker.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixel.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerbar.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerfwd.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/trackerStructureTopology.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker4025/pixelStructureTopology.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/trackersens.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/pixelsens.xml',
+            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker4025/trackerRecoMaterial.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/trackerProdCuts.xml',
+            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker4025/pixelProdCuts.xml',
+            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
+        ],
+        "sim" : [
+            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted4021_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
+            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
+            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
+            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
+            'trackerGeometry.applyAlignment = cms.bool(False)',
+        ],
+        "era" : "phase2_tracker, trackingPhase2PU140",
+    }
+       
 }
 
 caloDict = {
@@ -480,6 +515,7 @@ detectorVersionDict = {
     ("O1","T3","C2","M1","F1","I1") : "D4",
     ("O1","T3","C2","M1","F1","I2") : "D8",
     ("O1","T3","C1","M2","F1","I1") : "D9",
+    ("O1","T5","C1","M2","F1","I1") : "D11",    
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]
