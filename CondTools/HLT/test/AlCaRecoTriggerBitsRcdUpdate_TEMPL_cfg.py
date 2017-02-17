@@ -12,11 +12,8 @@
 #
 # See also further comments below, especially the WARNING.
 #
-#  Author    : Gero Flucke
-#  Date      : February 2009
-#  $Revision: 1.3 $
-#  $Date: 2009/04/21 14:42:50 $
-#  (last update by $Author: flucke $)
+#  Author    : Marco Musich
+#  Date      : Feb 2016
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing 

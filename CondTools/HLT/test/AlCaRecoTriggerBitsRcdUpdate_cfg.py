@@ -65,34 +65,37 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 # EmptySource above!
 # Either a global tag...
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.globaltag = "DESIGN_3X_V13::All" # may choose non-default tag
+# process.GlobalTag.globaltag = "90X_dataRun2_Express_v0" # may choose non-default tag
 # ...or (recommended since simpler) directly from DB/sqlite
-import CondCore.DBCommon.CondDBSetup_cfi
+
+process.load("CondCore.CondDB.CondDB_cfi")
+
+# from local sqlite file
+#process.CondDB.connect = 'sqlite_file:AlCaRecoTriggerBits.db'
+# from conditons Database
+process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+ 
 process.dbInput = cms.ESSource(
     "PoolDBESSource",
-    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
-    #    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('AlCaRecoTriggerBitsRcd'),
-        #        tag = cms.string('TestTag') # choose tag to update
-        tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v7_hlt')
-        )
+    process.CondDB,
+    toGet = cms.VPSet(cms.PSet(record = cms.string('AlCaRecoTriggerBitsRcd'),
+                               # tag = cms.string('TestTag') # choose tag to update
+                               tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v7_hlt')
+                               )
                       )
     )
 
 # DB output service:
-import CondCore.DBCommon.CondDBSetup_cfi
+process.CondDB.connect = 'sqlite_file:AlCaRecoTriggerBits.db'
+#process.CondDB.connect = 'sqlite_file:AlCaRecoTriggerBitsUpdate.db'
+
 process.PoolDBOutputService = cms.Service(
     "PoolDBOutputService",
-    CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-    #    connect = cms.string('sqlite_file:AlCaRecoTriggerBitsUpdate.db'),
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('AlCaRecoTriggerBitsRcd'),
-        tag = cms.string('TestTag') # choose output tag you want
-        )
+    toPut = cms.VPSet(cms.PSet(record = cms.string('AlCaRecoTriggerBitsRcd'),
+                               tag = cms.string('TestTag') # choose output tag you want
+                               )
                       )
     )
 
