@@ -198,6 +198,7 @@ upgradeProperties[2023]['2023D8PU'] = deepcopy(upgradeProperties[2023]['2023D8']
 upgradeProperties[2023]['2023D8PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D9PU'] = deepcopy(upgradeProperties[2023]['2023D9'])
 upgradeProperties[2023]['2023D9PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D11PU'] = deepcopy(upgradeProperties[2023]['2023D11'])
 upgradeProperties[2023]['2023D11PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
