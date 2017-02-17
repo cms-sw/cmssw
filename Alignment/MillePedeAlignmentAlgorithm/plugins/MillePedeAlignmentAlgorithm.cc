@@ -831,7 +831,7 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
   unsigned int numGlobals = theIntBuffer.size();
   if (numGlobals > 0)
   {
-    MatrixXd globalDer{2,numGlobals};
+    Eigen::Matrix<double, 2, Eigen::Dynamic> globalDer{2, numGlobals};
     for (unsigned int i = 0; i < numGlobals; ++i) {
       globalDer(0,i) = theDoubleBufferX[i];
       globalDer(1,i) = theDoubleBufferY[i];
@@ -1254,10 +1254,14 @@ bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
 }
 
 //__________________________________________________________________________________________________
+template <typename GlobalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
                                                       const std::vector<float> &globalDerivativesy,
-                                                      MatrixXf &aGlobalDerivativesM)
+                                                      Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM)
 {
+  static_assert(GlobalDerivativeMatrix::RowsAtCompileTime == 2,
+                "global derivative matrix must have two rows");
+
   for (size_t i = 0; i < globalDerivativesx.size(); ++i) {
     aGlobalDerivativesM(0,i) = globalDerivativesx[i];
     aGlobalDerivativesM(1,i) = globalDerivativesy[i];
@@ -1265,13 +1269,29 @@ void MillePedeAlignmentAlgorithm::makeGlobDerivMatrix(const std::vector<float> &
 }
 
 //__________________________________________________________________________________________________
+template <typename CovarianceMatrix,
+          typename LocalDerivativeMatrix,
+          typename ResidualMatrix,
+          typename GlobalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm::diagonalize
-(MatrixXd &aHitCovarianceM, MatrixXf &aLocalDerivativesM, MatrixXf &aHitResidualsM,
- MatrixXf &aGlobalDerivativesM) const
+(Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+ Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM,
+ Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+ Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM) const
 {
-  SelfAdjointEigenSolver<MatrixXd> myDiag{aHitCovarianceM};
+  static_assert(std::is_same<typename LocalDerivativeMatrix::Scalar,
+                             typename ResidualMatrix::Scalar>::value,
+                "'aLocalDerivativesM' and 'aHitResidualsM' must have the "
+                "same underlying scalar type");
+  static_assert(std::is_same<typename LocalDerivativeMatrix::Scalar,
+                             typename GlobalDerivativeMatrix::Scalar>::value,
+                "'aLocalDerivativesM' and 'aGlobalDerivativesM' must have the "
+                "same underlying scalar type");
+
+  Eigen::SelfAdjointEigenSolver<typename CovarianceMatrix::PlainObject> myDiag{aHitCovarianceM};
   // eigenvectors of real symmetric matrices are orthogonal, i.e. invert == transpose
-  auto aTranfoToDiagonalSystemInv = myDiag.eigenvectors().transpose().cast<float>();
+  auto aTranfoToDiagonalSystemInv =
+    myDiag.eigenvectors().transpose().template cast<typename LocalDerivativeMatrix::Scalar>();
 
   aHitCovarianceM    = myDiag.eigenvalues().asDiagonal();
   aLocalDerivativesM = aTranfoToDiagonalSystemInv * aLocalDerivativesM;
@@ -1283,10 +1303,15 @@ void MillePedeAlignmentAlgorithm::diagonalize
 }
 
 //__________________________________________________________________________________________________
+template <typename CovarianceMatrix,
+          typename ResidualMatrix,
+          typename LocalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm
 ::addRefTrackVirtualMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                           unsigned int iVirtualMeas, MatrixXd &aHitCovarianceM,
-                           MatrixXf &aHitResidualsM, MatrixXf &aLocalDerivativesM)
+                           unsigned int iVirtualMeas,
+                           Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                           Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                           Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM)
 {
   // This Method is valid for 1D measurements only
 
@@ -1302,10 +1327,15 @@ void MillePedeAlignmentAlgorithm
 }
 
 //__________________________________________________________________________________________________
+template <typename CovarianceMatrix,
+          typename ResidualMatrix,
+          typename LocalDerivativeMatrix>
 void MillePedeAlignmentAlgorithm
 ::addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                    unsigned int iTrajHit, MatrixXd &aHitCovarianceM,
-                    MatrixXf &aHitResidualsM, MatrixXf &aLocalDerivativesM)
+                    unsigned int iTrajHit,
+                    Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                    Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                    Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM)
 {
   // This Method is valid for 2D measurements only
 
@@ -1401,12 +1431,14 @@ int MillePedeAlignmentAlgorithm
     return -1;
   }
 
-  MatrixXd aHitCovarianceM{2, 2}; // FIXME: fixed type
-  MatrixXf aHitResidualsM{2,1};   // FIXME: fixed type
-  MatrixXf aLocalDerivativesM{2, refTrajPtr->derivatives().num_col()}; // FIXME: partial fixed type
+  Eigen::Matrix<double, 2, 2> aHitCovarianceM;
+  Eigen::Matrix<float, 2, 1> aHitResidualsM;
+  Eigen::Matrix<float, 2, Eigen::Dynamic>
+    aLocalDerivativesM{2, refTrajPtr->derivatives().num_col()};
   // below method fills above 3 matrices
   this->addRefTrackData2D(refTrajPtr, iTrajHit, aHitCovarianceM,aHitResidualsM,aLocalDerivativesM);
-  MatrixXf aGlobalDerivativesM{2,globalDerivativesx.size()}; // FIXME: partial fixed type
+  Eigen::Matrix<float, 2, Eigen::Dynamic>
+    aGlobalDerivativesM{2, globalDerivativesx.size()};
   this->makeGlobDerivMatrix(globalDerivativesx, globalDerivativesy, aGlobalDerivativesM);
 
   // calculates correlation between Hit measurements
@@ -1431,16 +1463,20 @@ int MillePedeAlignmentAlgorithm
   float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
   float newHitErrY = TMath::Sqrt(aHitCovarianceM(1,1));
 
+  // change from column major (Eigen default) to row major to have row entries
+  // in continuous memory
   std::vector<float> newLocalDerivs(aLocalDerivativesM.size());
-  Map<Matrix<float, Dynamic, Dynamic, RowMajor> >
+  Eigen::Map<Eigen::Matrix<float, 2, Eigen::Dynamic, Eigen::RowMajor> >
     (newLocalDerivs.data(),
      aLocalDerivativesM.rows(),
      aLocalDerivativesM.cols()) = aLocalDerivativesM;
   float* newLocalDerivsX = &(newLocalDerivs[0]);
   float* newLocalDerivsY = &(newLocalDerivs[aLocalDerivativesM.cols()]);
 
+  // change from column major (Eigen default) to row major to have row entries
+  // in continuous memory
   std::vector<float> newGlobDerivs(aGlobalDerivativesM.size());
-  Map<Matrix<float, Dynamic, Dynamic, RowMajor> >
+  Eigen::Map<Eigen::Matrix<float, 2, Eigen::Dynamic, Eigen::RowMajor> >
     (newGlobDerivs.data(),
      aGlobalDerivativesM.rows(),
      aGlobalDerivativesM.cols()) = aGlobalDerivativesM;
@@ -1465,7 +1501,7 @@ int MillePedeAlignmentAlgorithm
 
   if (theMonitor) {
     theMonitor->fillDerivatives(aRecHit, newLocalDerivsX, nLocal, newGlobDerivsX,
-				nGlobal, &(globalLabels[0]));
+                                nGlobal, &(globalLabels[0]));
     theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
                               iTrajHit, newResidX, newHitErrX, false);
   }
@@ -1475,7 +1511,7 @@ int MillePedeAlignmentAlgorithm
                     &(globalLabels[0]), newResidY, newHitErrY);
     if (theMonitor) {
       theMonitor->fillDerivatives(aRecHit, newLocalDerivsY, nLocal, newGlobDerivsY,
-				  nGlobal, &(globalLabels[0]));
+                                  nGlobal, &(globalLabels[0]));
       theMonitor->fillResiduals(aRecHit, refTrajPtr->trajectoryStates()[iTrajHit],
                                 iTrajHit, newResidY, newHitErrY, true);// true: y
     }
@@ -1488,15 +1524,15 @@ int MillePedeAlignmentAlgorithm
 void MillePedeAlignmentAlgorithm
 ::addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iVirtualMeas)
 {
-  MatrixXd aHitCovarianceM{1, 1}; // FIXME: fixed type
-  MatrixXf aHitResidualsM{1, 1}; // FIXME: fixed type
-  MatrixXf aLocalDerivativesM{1, refTrajPtr->derivatives().num_col()}; // FIXME: partial fixed type
+  Eigen::Matrix<double, 1, 1> aHitCovarianceM;
+  Eigen::Matrix<float, 1, 1> aHitResidualsM;
+  Eigen::Matrix<float, 1, Eigen::Dynamic>
+    aLocalDerivativesM{1, refTrajPtr->derivatives().num_col()};
   // below method fills above 3 'matrices'
   this->addRefTrackVirtualMeas1D(refTrajPtr, iVirtualMeas, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
 
   // no global parameters (use dummy 0)
-  MatrixXf aGlobalDerivativesM{1,1}; // FIXME: fixed type
-  aGlobalDerivativesM(0,0) = 0;
+  auto aGlobalDerivativesM = Eigen::Matrix<float, 1, 1>::Zero();
 
   float newResidX = aHitResidualsM(0,0);
   float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
