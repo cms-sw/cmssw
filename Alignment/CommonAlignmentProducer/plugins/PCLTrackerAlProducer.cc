@@ -182,8 +182,7 @@ void PCLTrackerAlProducer
     initAlignmentAlgorithm(setup);
   }
 
-  // Do not forward edm::Run
-  theAlignmentAlgo->beginRun(setup);
+  theAlignmentAlgo->beginRun(run, setup);
 
   if (setupChanged(setup)) {
     initAlignmentAlgorithm(setup);
@@ -321,6 +320,8 @@ void PCLTrackerAlProducer
   edm::ParameterSet algoConfig    = config.getParameter<edm::ParameterSet>("algoConfig");
   edm::VParameterSet iovSelection = config.getParameter<edm::VParameterSet>("RunRangeSelection");
   algoConfig.addUntrackedParameter<edm::VParameterSet>("RunRangeSelection", iovSelection);
+  // provide required parameter while keeping current functionality for PCL:
+  algoConfig.addUntrackedParameter<RunNumber>("firstIOV", 1);
 
   std::string algoName = algoConfig.getParameter<std::string>("algoName");
   theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);

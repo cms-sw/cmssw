@@ -23,6 +23,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     monitorFile = cms.untracked.string('millePedeMonitor.root'), ## if empty: no monitoring...
 
     runAtPCL = cms.bool(False), # at the PCL the mille binaries are reset at lumi-section boundaries
+    ignoreFirstIOVCheck = cms.untracked.bool(False), # flag to ignore check if data is prior to first IOV
     ignoreHitsWithoutGlobalDerivatives = cms.bool(False), # - if all alignables and calibration for a
                                                           #   hit are set to '0', the hit is ignored
                                                           # - has only an effect with non-GBL

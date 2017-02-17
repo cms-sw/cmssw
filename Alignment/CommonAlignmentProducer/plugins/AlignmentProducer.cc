@@ -81,6 +81,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theAlignmentAlgo(0), theAlignmentParameterStore(0),
   theAlignableExtras(0), theAlignableTracker(0), theAlignableMuon(0), 
   globalPositions_(0),
+  uniqueRunRanges_(makeUniqueRunRanges(iConfig)),
   nevent_(0), theParameterSet(iConfig),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops") ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
@@ -116,6 +117,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
   edm::VParameterSet iovSelection = iConfig.getParameter<edm::VParameterSet>( "RunRangeSelection" );
   algoConfig.addUntrackedParameter<edm::VParameterSet>( "RunRangeSelection", iovSelection );
+  algoConfig.addUntrackedParameter<RunNumber>("firstIOV", uniqueRunRanges_.front().first);
   std::string algoName = algoConfig.getParameter<std::string>( "algoName" );
   theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get( )->create( algoName, algoConfig  );
 
@@ -333,35 +335,23 @@ void AlignmentProducer::endOfJob()
     edm::LogError("Alignment") << "@SUB=AlignmentProducer::endOfJob" << "Did not process any "
                                << "events in last loop, do not dare to store to DB.";
   } else {
-    
-    // Expand run ranges and make them unique
-    edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
-    RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
-    if (uniqueRunRanges.empty()) { // create dummy IOV
-      const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-			      cond::timeTypeSpecs[cond::runnumber].endValue);
-      uniqueRunRanges.push_back(runRange);
-    }
-
     std::vector<AlgebraicVector> beamSpotParameters;
 
-    for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-	 iRunRange != uniqueRunRanges.end();
-	 ++iRunRange) {
+    for (const auto& iRunRange: uniqueRunRanges_) {
 
-      theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+      theAlignmentAlgo->setParametersForRunRange(iRunRange);
 
       // Save alignments to database
       if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_)
-        this->writeForRunRange((*iRunRange).first);
+        this->writeForRunRange(iRunRange.first);
       
       // Deal with extra alignables, e.g. beam spot
       if (theAlignableExtras) {
-	Alignables &alis = theAlignableExtras->beamSpot();
-	if (!alis.empty()) {
-	  BeamSpotAlignmentParameters *beamSpotAliPars = dynamic_cast<BeamSpotAlignmentParameters*>(alis[0]->alignmentParameters());
-	  beamSpotParameters.push_back(beamSpotAliPars->parameters());
-	}
+        Alignables &alis = theAlignableExtras->beamSpot();
+        if (!alis.empty()) {
+          BeamSpotAlignmentParameters *beamSpotAliPars = dynamic_cast<BeamSpotAlignmentParameters*>(alis[0]->alignmentParameters());
+          beamSpotParameters.push_back(beamSpotAliPars->parameters());
+        }
       }
     }
     
@@ -369,17 +359,17 @@ void AlignmentProducer::endOfJob()
       std::ostringstream bsOutput;
       
       std::vector<AlgebraicVector>::const_iterator itPar = beamSpotParameters.begin();
-      for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-	   iRunRange != uniqueRunRanges.end();
-	   ++iRunRange, ++itPar) {
-	bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
-	bsOutput << "  Displacement: x=" << (*itPar)[0] << ", y=" << (*itPar)[1] << "\n"; 
-	bsOutput << "  Slope: dx/dz=" << (*itPar)[2] << ", dy/dz=" << (*itPar)[3] << "\n"; 
+      for (auto iRunRange = uniqueRunRanges_.cbegin();
+           iRunRange != uniqueRunRanges_.cend();
+           ++iRunRange, ++itPar) {
+        bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
+        bsOutput << "  Displacement: x=" << (*itPar)[0] << ", y=" << (*itPar)[1] << "\n";
+        bsOutput << "  Slope: dx/dz=" << (*itPar)[2] << ", dy/dz=" << (*itPar)[3] << "\n";
       }
       
       edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob"
-				<< "Parameters for alignable beamspot:\n"
-				<< bsOutput.str();
+                                << "Parameters for alignable beamspot:\n"
+                                << bsOutput.str();
     }
 
     for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
@@ -536,7 +526,7 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 // ----------------------------------------------------------------------------
 void AlignmentProducer::beginRun(const edm::Run &run, const edm::EventSetup &setup)
 {
-  theAlignmentAlgo->beginRun(setup); // do not forward edm::Run...
+  theAlignmentAlgo->beginRun(run, setup);
 }
 
 // ----------------------------------------------------------------------------
@@ -1031,5 +1021,20 @@ AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRang
   
   return uniqueRunRanges;
 }
+
+
+AlignmentProducer::RunRanges
+AlignmentProducer::makeUniqueRunRanges(const edm::ParameterSet& cfg) {
+  const auto runRangeSelectionVPSet =
+    cfg.getParameter<edm::VParameterSet>("RunRangeSelection");
+  auto uniqueRunRanges = makeNonOverlappingRunRanges(runRangeSelectionVPSet);
+  if (uniqueRunRanges.empty()) { // create dummy IOV
+    const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
+			    cond::timeTypeSpecs[cond::runnumber].endValue);
+    uniqueRunRanges.push_back(runRange);
+  }
+  return uniqueRunRanges;
+}
+
 
 DEFINE_FWK_LOOPER( AlignmentProducer );
