@@ -139,18 +139,28 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
                            const std::vector<bool> &validHitVecY) const;
 
   /// adds data from reference trajectory from a specific Hit
+  template <typename CovarianceMatrix,
+            typename ResidualMatrix,
+            typename LocalDerivativeMatrix>
   void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                         unsigned int iTrajHit, MatrixXd &aHitCovarianceM,
-                         MatrixXf &aHitResidualsM, MatrixXf &aLocalDerivativesM);
+                         unsigned int iTrajHit,
+                         Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                         Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                         Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM);
 
   /// adds data for virtual measurements from reference trajectory
   void addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
                       unsigned int iVirtualMeas);
 
   /// adds data for a specific virtual measurement from reference trajectory
+  template <typename CovarianceMatrix,
+            typename ResidualMatrix,
+            typename LocalDerivativeMatrix>
   void addRefTrackVirtualMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                                unsigned int iVirtualMeas,MatrixXd &aHitCovarianceM,
-                                MatrixXf &aHitResidualsM, MatrixXf &aLocalDerivativesM);
+                                unsigned int iVirtualMeas,
+                                Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                                Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                                Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM);
 
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const EventInfo &eventInfo,
@@ -196,12 +206,21 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
                     unsigned int iTrajHit, const std::vector<int> &globalLabels,
                     const std::vector<float> &globalDerivativesx,
                     const std::vector<float> &globalDerivativesy);
-  void  diagonalize(MatrixXd &aHitCovarianceM, MatrixXf &aLocalDerivativesM,
-                    MatrixXf &aHitResidualsM, MatrixXf &theGlobalDerivativesM) const;
+
+  template <typename CovarianceMatrix,
+            typename LocalDerivativeMatrix,
+            typename ResidualMatrix,
+            typename GlobalDerivativeMatrix>
+  void diagonalize(Eigen::MatrixBase<CovarianceMatrix>& aHitCovarianceM,
+                   Eigen::MatrixBase<LocalDerivativeMatrix>& aLocalDerivativesM,
+                   Eigen::MatrixBase<ResidualMatrix>& aHitResidualsM,
+                   Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM) const;
+
   // deals with the non matrix format of theFloatBufferX ...
+  template <typename GlobalDerivativeMatrix>
   void makeGlobDerivMatrix(const std::vector<float> &globalDerivativesx,
                            const std::vector<float> &globalDerivativesy,
-                           MatrixXf &aGlobalDerivativesM);
+                           Eigen::MatrixBase<GlobalDerivativeMatrix>& aGlobalDerivativesM);
 
 //   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 //               unsigned int iTrajHit, MeasurementDirection xOrY,
