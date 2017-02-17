@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+import itertools
+
 # customisation functions for the HLT configuration
 from HLTrigger.Configuration.common import *
 
@@ -40,8 +42,9 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         'BPix1+FPix1_pos+FPix2_pos',
         'BPix1+FPix1_neg+FPix2_neg',
         'FPix1_pos+FPix2_pos+FPix3_pos',
-        'FPix1_neg+FPix2_neg+FPix3_neg' 
+        'FPix1_neg+FPix2_neg+FPix3_neg'
     )
+
     process.hltPixelLayerQuadruplets = cms.EDProducer("SeedingLayersEDProducer",
          BPix = cms.PSet(
             useErrorsFromParam = cms.bool( True ),
@@ -66,12 +69,12 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         TID = cms.PSet( ),
         TOB = cms.PSet( ),
         layerList = cms.vstring(
-            'BPix1+BPix2+BPix3+BPix4', 
-            'BPix1+BPix2+BPix3+FPix1_pos', 
-            'BPix1+BPix2+BPix3+FPix1_neg', 
-            'BPix1+BPix2+FPix1_pos+FPix2_pos', 
-            'BPix1+BPix2+FPix1_neg+FPix2_neg', 
-            'BPix1+FPix1_pos+FPix2_pos+FPix3_pos', 
+            'BPix1+BPix2+BPix3+BPix4',
+            'BPix1+BPix2+BPix3+FPix1_pos',
+            'BPix1+BPix2+BPix3+FPix1_neg',
+            'BPix1+BPix2+FPix1_pos+FPix2_pos',
+            'BPix1+BPix2+FPix1_neg+FPix2_neg',
+            'BPix1+FPix1_pos+FPix2_pos+FPix3_pos',
             'BPix1+FPix1_neg+FPix2_neg+FPix3_neg'
         )
     )
@@ -106,7 +109,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         CAThetaCut = cms.double(0.002),
         CAPhiCut = cms.double(0.2),
         CAHardPtCut = cms.double(0),
-        SeedComparitorPSet = cms.PSet( 
+        SeedComparitorPSet = cms.PSet(
             ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
             clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
         )
@@ -281,66 +284,66 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	    strictSeedExtension = cms.bool(True)
     )
 
-    process.HLTIter1PSetTrajectoryFilterInOutIT = cms.PSet(
-	    ComponentType = cms.string('CkfBaseTrajectoryFilter'),
-	    chargeSignificance = cms.double(-1.0),
-	    constantValueForLostHitsFractionFilter = cms.double(2.0),
-	    extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
-	    maxCCCLostHits = cms.int32(0),
-	    maxConsecLostHits = cms.int32(1),
-	    maxLostHits = cms.int32(1),  
-	    maxLostHitsFraction = cms.double(0.1),
-	    maxNumberOfHits = cms.int32(100),
-	    minGoodStripCharge = cms.PSet( refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
-	    minHitsMinPt = cms.int32(3),
-	    minNumberOfHitsForLoopers = cms.int32(13),
-	    minNumberOfHitsPerLoop = cms.int32(4),
-	    minPt = cms.double(0.2),
-	    minimumNumberOfHits = cms.int32(4),
-	    nSigmaMinPt = cms.double(5.0),
-	    pixelSeedExtension = cms.bool(True),
-	    seedExtension = cms.int32(1),
-	    seedPairPenalty = cms.int32(0),
-	    strictSeedExtension = cms.bool(True)
+    process.HLTIter1PSetTrajectoryFilterInOutIT = cms.PSet
+	ComponentType = cms.string('CkfBaseTrajectoryFilter'),
+	chargeSignificance = cms.double(-1.0),
+	constantValueForLostHitsFractionFilter = cms.double(2.0),
+	extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
+	maxCCCLostHits = cms.int32(0),
+	maxConsecLostHits = cms.int32(1),
+	maxLostHits = cms.int32(1),  
+	maxLostHitsFraction = cms.double(0.1),
+	maxNumberOfHits = cms.int32(100),
+	minGoodStripCharge = cms.PSet( refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+	minHitsMinPt = cms.int32(3),
+	minNumberOfHitsForLoopers = cms.int32(13),
+	minNumberOfHitsPerLoop = cms.int32(4),
+	minPt = cms.double(0.2),
+	minimumNumberOfHits = cms.int32(4),
+	nSigmaMinPt = cms.double(5.0),
+	pixelSeedExtension = cms.bool(True),
+	seedExtension = cms.int32(1),
+	seedPairPenalty = cms.int32(0),
+	strictSeedExtension = cms.bool(True)
     )
 
     process.HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
-	  inOutTrajectoryFilter = cms.PSet( refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT') ),
-	  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
-	  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
-	  maxCand = cms.int32( 2 ),
-	  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-	  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
-	  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTracker" ),
-	  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
-	  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-	  updator = cms.string( "hltESPKFUpdator" ),
-	  alwaysUseInvalidHits = cms.bool( False ),
-	  intermediateCleaning = cms.bool( True ),
-	  lostHitPenalty = cms.double( 30.0 ),
-	  useSameTrajFilter = cms.bool(False) 
+	inOutTrajectoryFilter = cms.PSet( refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT') ),
+	propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+	trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
+	maxCand = cms.int32( 2 ),
+	ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+	propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+	MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTracker" ),
+	estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
+	TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+	updator = cms.string( "hltESPKFUpdator" ),
+	alwaysUseInvalidHits = cms.bool( False ),
+	intermediateCleaning = cms.bool( True ),
+	lostHitPenalty = cms.double( 30.0 ),
+	useSameTrajFilter = cms.bool(False) 
     )
     process.HLTIter1GroupedCkfTrajectoryBuilderIT = cms.PSet(
-        	ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-	        bestHitOnly = cms.bool(True),
-	        propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
-	        trajectoryFilter = cms.PSet(refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterIT')),
-	        inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT')),
-	        useSameTrajFilter = cms.bool(False),
-	        maxCand = cms.int32(2),
-	        intermediateCleaning = cms.bool(True),
-	        lostHitPenalty = cms.double(30.0),
-	        MeasurementTrackerName = cms.string('hltIter1ESPMeasurementTracker'),
-	        lockHits = cms.bool(True),
-	        TTRHBuilder = cms.string('hltESPTTRHBWithTrackAngle'),
-	        foundHitBonus = cms.double(5.0),
-	        updator = cms.string('hltESPKFUpdator'),
-	        alwaysUseInvalidHits = cms.bool(False),
-	        requireSeedHitsInRebuild = cms.bool(True),
-	        keepOriginalIfRebuildFails = cms.bool(False),
-	        estimator = cms.string('hltESPChi2ChargeMeasurementEstimator16'),
-	        propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
-	        minNrOfHitsForRebuild = cms.int32(5)
+	ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
+	bestHitOnly = cms.bool(True),
+	propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
+	trajectoryFilter = cms.PSet(refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterIT')),
+	inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT')),
+	useSameTrajFilter = cms.bool(False),
+	maxCand = cms.int32(2),
+	intermediateCleaning = cms.bool(True),
+	lostHitPenalty = cms.double(30.0),
+	MeasurementTrackerName = cms.string('hltIter1ESPMeasurementTracker'),
+	lockHits = cms.bool(True),
+	TTRHBuilder = cms.string('hltESPTTRHBWithTrackAngle'),
+	foundHitBonus = cms.double(5.0),
+	updator = cms.string('hltESPKFUpdator'),
+	alwaysUseInvalidHits = cms.bool(False),
+	requireSeedHitsInRebuild = cms.bool(True),
+	keepOriginalIfRebuildFails = cms.bool(False),
+	estimator = cms.string('hltESPChi2ChargeMeasurementEstimator16'),
+	propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
+	minNrOfHitsForRebuild = cms.int32(5)
     )
 
     process.hltIter1PFlowCkfTrackCandidates.TrajectoryBuilder = cms.string('HLTIter1GroupedCkfTrajectoryBuilderIT')
@@ -369,7 +372,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         MTOB = cms.PSet( ),
         TEC = cms.PSet( ),
         MTID = cms.PSet( ),
-        FPix = cms.PSet( 
+        FPix = cms.PSet(
             HitProducer = cms.string( "hltSiPixelRecHits" ),
             hitErrorRZ = cms.double( 0.0036 ),
             useErrorsFromParam = cms.bool( True ),
@@ -381,7 +384,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
         MTIB = cms.PSet( ),
         TID = cms.PSet( ),
         TOB = cms.PSet( ),
-        BPix = cms.PSet( 
+        BPix = cms.PSet(
             HitProducer = cms.string( "hltSiPixelRecHits" ),
             hitErrorRZ = cms.double( 0.006 ),
             useErrorsFromParam = cms.bool( True ),
