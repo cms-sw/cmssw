@@ -440,6 +440,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
         pass
 
     if cmsswVersion >= "CMSSW_9_0":
+      if menuType == "25ns15e33_v4":
         print "# Applying 90X customization for ",menuType
         process = customiseFor16792(process)
         process = customiseFor17094(process)
