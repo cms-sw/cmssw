@@ -62,3 +62,22 @@ void HBHERecHit::getMergedIds(std::vector<HcalDetId>* ids) const
         }
     }
 }
+
+
+HcalDetId HBHERecHit::idFront() const {
+  if (isMerged()) {
+    HcalDetId myId(id());
+    if (auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED)) {
+      const unsigned nMerged = CaloRecHitAuxSetter::getField(auxPhase1_,
+							     HBHERecHitAuxSetter::MASK_NSAMPLES,
+							     HBHERecHitAuxSetter::OFF_NSAMPLES);
+      if (nMerged > 0) {
+	const unsigned depth = CaloRecHitAuxSetter::getField(auxHBHE_, 0xf, 0);
+	myId = HcalDetId(myId.subdet(), myId.ieta(), myId.iphi(), depth);
+      }
+    }
+    return myId;
+  } else {
+    return id();
+  }
+}
