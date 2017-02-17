@@ -379,6 +379,8 @@ namespace edm {
 
   void
   PoolOutputModule::preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {
+    /* For the moment, there appears to be a race condition when 
+      using this code.
     if(DropAll != dropMetaData_ ) {
       auto const* ep = dynamic_cast<EventPrincipal const*>(&iPrincipal);
       if(ep)
@@ -389,6 +391,7 @@ namespace edm {
         }
       }
     }
+     */
   }
 
   void
