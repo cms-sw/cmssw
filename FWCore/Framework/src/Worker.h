@@ -211,6 +211,8 @@ namespace edm {
 
     virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
+    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& moduleCallingContext, Principal const& iPrincipal) const = 0;
+    
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
 
