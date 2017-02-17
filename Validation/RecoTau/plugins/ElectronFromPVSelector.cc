@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -27,11 +27,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class GsfElectronFromPVSelector : public edm::EDProducer {
+class GsfElectronFromPVSelector : public edm::global::EDProducer<> {
 public:
 
   explicit GsfElectronFromPVSelector(edm::ParameterSet const&);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
   double max_dxy_;
@@ -58,7 +58,7 @@ GsfElectronFromPVSelector::GsfElectronFromPVSelector(edm::ParameterSet const& iC
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-void GsfElectronFromPVSelector::produce(edm::Event& iEvent, edm::EventSetup const&)
+void GsfElectronFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   edm::Handle<std::vector<reco::Vertex>> vertices;
   iEvent.getByToken(v_recoVertexToken_, vertices);
