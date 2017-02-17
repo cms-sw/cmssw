@@ -45,10 +45,6 @@
 #endif
 #include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
 
-#include <TMatrixDSym.h>
-#include <TMatrixD.h>
-#include <TVectorD.h>
-
 class TrajectoryStateOnSurface;
 class MagneticField;
 class MaterialEffectsUpdator;
@@ -189,11 +185,12 @@ protected:
     AlgebraicMatrix
     getHitProjectionMatrixT(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 private:
-  void clhep2root(const AlgebraicVector& in, TVectorD& out);
-  void clhep2root(const AlgebraicMatrix& in, TMatrixD& out);
-  void clhep2root(const AlgebraicSymMatrix& in, TMatrixDSym& out);
-
-  void clhep2eigen(const AlgebraicMatrix& in, MatrixXd& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicVector& in, Eigen::MatrixBase<Derived>& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicMatrix& in, Eigen::MatrixBase<Derived>& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicSymMatrix& in, Eigen::MatrixBase<Derived>& out);
 
   const double mass_;
   const MaterialEffects materialEffects_;

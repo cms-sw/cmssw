@@ -4,6 +4,8 @@
 //  by         : $Author: innocent $
 
 #include <memory>
+#include <limits>
+#include <cmath>
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
@@ -950,13 +952,13 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
   SlopeToLocal[1][0] = 1.;
   SlopeToLocal[2][1] = 1.;
 
-  // GBL uses ROOT matrices as interface
-  TMatrixDSym covariance(2), measPrecision(2), scatPrecision(2);
-  // TMatrixD jacPointToPoint(5,5), identity(5,5), proLocalToMeas(2,2);
-  TMatrixD jacPointToPoint(5,5), proLocalToMeas(2,2);
-  auto identity = MatrixXd::Identity(5, 5);
-  TVectorD measurement(2), scatterer(2), measPrecDiag(2);
-  scatterer.Zero();
+  // GBL uses Eigen matrices as interface
+  Eigen::Matrix2d covariance, measPrecision, scatPrecision, proLocalToMeas;
+  Matrix5d jacPointToPoint;
+  auto identity = Matrix5d::Identity();
+  Eigen::Vector2d measurement, measPrecDiag;
+  auto scatterer = Eigen::Vector2d::Zero();
+
   //bool initialKinks = (allCurvlinKinks.size()>0);
 
 // measurements and scatterers from hits
@@ -966,22 +968,22 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
   for (unsigned int k = 0; k < numHits; ++k) {
 
     // GBL point to point jacobian
-    clhep2root(allJacobians[k] * allCurvatureChanges[k], jacPointToPoint);
+    clhep2eigen(allJacobians[k] * allCurvatureChanges[k], jacPointToPoint);
 
     // GBL point
     GblPoint aGblPoint( jacPointToPoint );
 
     // GBL projection from local to measurement system
-    clhep2root(allProjections[k] * OffsetToLocal, proLocalToMeas);
+    clhep2eigen(allProjections[k] * OffsetToLocal, proLocalToMeas);
 
     // GBL measurement (residuum to initial trajectory)
-    clhep2root(theMeasurements.sub(2*k+1,2*k+2) - theTrajectoryPositions.sub(2*k+1,2*k+2), measurement);
+    clhep2eigen(theMeasurements.sub(2*k+1,2*k+2) - theTrajectoryPositions.sub(2*k+1,2*k+2), measurement);
 
     // GBL measurement covariance matrix
-    clhep2root(theMeasurementsCov.sub(2*k+1,2*k+2), covariance);
+    clhep2eigen(theMeasurementsCov.sub(2*k+1,2*k+2), covariance);
 
     // GBL add measurement to point
-    if (covariance(0,1) == 0.) {
+    if (covariance(0,1) < std::numeric_limits<double>::epsilon()) {
       // covariance matrix is diagonal, independent measurements
       for (unsigned int row = 0; row < 2; ++row) {
         measPrecDiag(row) = ( 0. < covariance(row,row) ? 1.0/covariance(row,row) : 0. );
@@ -990,27 +992,23 @@ bool ReferenceTrajectory::addMaterialEffectsLocalGbl(const std::vector<Algebraic
     } else
     {
     // covariance matrix needs diagonalization
-      measPrecision = covariance; measPrecision.InvertFast();
+      measPrecision = covariance.inverse();
       aGblPoint.addMeasurement(proLocalToMeas, measurement, measPrecision, minPrec);
     }
 
     // GBL multiple scattering (full matrix in local system)
-    clhep2root(allDeltaParameterCovs[k].similarityT(SlopeToLocal), scatPrecision);
-    try {
-      scatPrecision.InvertFast();
-
-      // GBL add scatterer to point
-      aGblPoint.addScatterer(scatterer, scatPrecision);
-    } catch (const edm::Exception& e) {
-      if (e.categoryCode() == edm::errors::FatalRootError &&
-	  e.explainSelf().find("matrix is singular") != std::string::npos &&
-	  allowZeroMaterial_) {
-	// allow for modules without material and do nothing
-      } else {
-	throw;
+    clhep2eigen(allDeltaParameterCovs[k].similarityT(SlopeToLocal), scatPrecision);
+    if (!(scatPrecision.colPivHouseholderQr().isInvertible())) {
+      if (!allowZeroMaterial_) {
+        throw cms::Exception("Alignment")
+          << "@SUB=ReferenceTrajectory::addMaterialEffectsLocalGbl"
+          << "\nEncountered singular scatter covariance-matrix without allowing "
+          << "for zero material.";
       }
+    } else {
+      // GBL add scatterer to point
+      aGblPoint.addScatterer(scatterer, scatPrecision.inverse());
     }
-
     // add point to list
     GblPointList.push_back( aGblPoint );
   }
@@ -1040,13 +1038,11 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
 
   AlgebraicMatrix JacOffsetToMeas, tempMSCov;
 
-  // GBL uses ROOT matrices as interface
-  TMatrixDSym covariance(2), measPrecision(2);
-  // TMatrixD jacPointToPoint(5,5), firstLocalToCurv(5,5), proLocalToMeas(2,2);
-  TMatrixD jacPointToPoint(5,5), proLocalToMeas(2,2);
-  MatrixXd firstLocalToCurv{5,5};
-  TVectorD measurement(2), scatterer(2), measPrecDiag(2), scatPrecDiag(2);
-  scatterer.Zero();
+  // GBL uses Eigen matrices as interface
+  Eigen::Matrix2d covariance, measPrecision, proLocalToMeas;
+  Matrix5d jacPointToPoint, firstLocalToCurv;
+  Eigen::Vector2d measurement, measPrecDiag, scatPrecDiag;
+  auto scatterer = Eigen::Vector2d::Zero();
 
 // measurements and scatterers from hits
   unsigned int numHits = allCurvlinJacobians.size();
@@ -1062,19 +1058,19 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
     }
 
     // GBL point to point jacobian
-    clhep2root(allCurvlinJacobians[k] * allCurvatureChanges[k], jacPointToPoint);
+    clhep2eigen(allCurvlinJacobians[k] * allCurvatureChanges[k], jacPointToPoint);
 
     // GBL point
     GblPoint aGblPoint( jacPointToPoint );
 
     // GBL projection from local to measurement system
-    clhep2root(JacOffsetToMeas, proLocalToMeas);
+    clhep2eigen(JacOffsetToMeas, proLocalToMeas);
 
     // GBL measurement (residuum to initial trajectory)
-    clhep2root(theMeasurements.sub(2*k+1,2*k+2) - theTrajectoryPositions.sub(2*k+1,2*k+2), measurement);
+    clhep2eigen(theMeasurements.sub(2*k+1,2*k+2) - theTrajectoryPositions.sub(2*k+1,2*k+2), measurement);
 
     // GBL measurement covariance matrix
-    clhep2root(theMeasurementsCov.sub(2*k+1,2*k+2), covariance);
+    clhep2eigen(theMeasurementsCov.sub(2*k+1,2*k+2), covariance);
 
     // GBL add measurement to point
     if (covariance(0,1) == 0.) {
@@ -1085,8 +1081,8 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
       aGblPoint.addMeasurement(proLocalToMeas, measurement, measPrecDiag, minPrec);
     } else
     {
-    // covariance matrix needs diagonalization
-      measPrecision = covariance; measPrecision.InvertFast();
+      // covariance matrix needs diagonalization
+      measPrecision = covariance.inverse();
       aGblPoint.addMeasurement(proLocalToMeas, measurement, measPrecision, minPrec);
     }
 
@@ -1098,7 +1094,7 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
 
     // check for singularity
     bool singularCovariance{false};
-    for (int row = 0; row < scatPrecDiag.GetNrows(); ++row) {
+    for (int row = 0; row < scatPrecDiag.rows(); ++row) {
       if (!(scatPrecDiag[row] < std::numeric_limits<double>::infinity())) {
 	singularCovariance = true;
 	break;
@@ -1125,39 +1121,31 @@ bool ReferenceTrajectory::addMaterialEffectsCurvlinGbl(const std::vector<Algebra
 }
 
 //__________________________________________________________________________________
-
-  void ReferenceTrajectory::clhep2root(const AlgebraicVector& in, TVectorD& out) {
-  // convert from CLHEP to ROOT matrix
+template <typename Derived>
+void ReferenceTrajectory::clhep2eigen(const AlgebraicVector& in,
+                                      Eigen::MatrixBase<Derived>& out) {
+  static_assert(Derived::ColsAtCompileTime == 1,
+                "clhep2eigen: 'out' must be of vector type");
   for (int row = 0; row < in.num_row(); ++row) {
-    out[row] = in[row];
+    out(row) = in[row];
   }
 }
 
-  void ReferenceTrajectory::clhep2root(const AlgebraicMatrix& in, TMatrixD& out) {
-  // convert from CLHEP to ROOT matrix
+template <typename Derived>
+void ReferenceTrajectory::clhep2eigen(const AlgebraicMatrix& in,
+                                      Eigen::MatrixBase<Derived>& out) {
   for (int row = 0; row < in.num_row(); ++row) {
     for (int col = 0; col < in.num_col(); ++col) {
-      out[row][col] = in[row][col];
+      out(row, col) = in[row][col];
     }
   }
 }
 
-  void ReferenceTrajectory::clhep2root(const AlgebraicSymMatrix& in, TMatrixDSym& out) {
-  // convert from CLHEP to ROOT matrix
+template <typename Derived>
+void ReferenceTrajectory::clhep2eigen(const AlgebraicSymMatrix& in,
+                                      Eigen::MatrixBase<Derived>& out) {
   for (int row = 0; row < in.num_row(); ++row) {
     for (int col = 0; col < in.num_col(); ++col) {
-      out[row][col] = in[row][col];
-    }
-  }
-}
-
-//______________________________________________________________________________
-
-void ReferenceTrajectory::clhep2eigen(const AlgebraicMatrix& in, MatrixXd& out) {
-  // convert from CLHEP to ROOT matrix
-  for (int row = 0; row < in.num_row(); ++row) {
-    for (int col = 0; col < in.num_col(); ++col) {
-      std::cout << "here clhep2eigen" << std::endl;
       out(row, col) = in[row][col];
     }
   }
