@@ -28,24 +28,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class GsfElectronFromPVSelector : public edm::EDProducer
-{
+class GsfElectronFromPVSelector : public edm::EDProducer {
 public:
-  // construction/destruction
+
   GsfElectronFromPVSelector(const edm::ParameterSet& iConfig);
   virtual ~GsfElectronFromPVSelector();
-  
-  // member functions
+
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
 
-private:  
-  // member data
-  double                                               max_dxy_               ;
-  double                                               max_dz_                ;
-  edm::EDGetTokenT< std::vector<reco::Vertex> >        v_recoVertexToken_     ;
-  edm::EDGetTokenT< std::vector<reco::GsfElectron> >   v_recoGsfElectronToken_;
+private:
+  double max_dxy_;
+  double max_dz_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
+  edm::EDGetTokenT<std::vector<reco::GsfElectron>> v_recoGsfElectronToken_;
 };
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,12 +50,12 @@ private:
 
 //______________________________________________________________________________
 GsfElectronFromPVSelector::GsfElectronFromPVSelector(const edm::ParameterSet& iConfig)
-  : max_dxy_               ( iConfig.getParameter<double>( "max_dxy" ) )
-  , max_dz_                ( iConfig.getParameter<double>( "max_dz" ) )
-  , v_recoVertexToken_     ( consumes< std::vector<reco::Vertex> >( iConfig.getParameter<edm::InputTag>( "srcVertex" ) ) )
-  , v_recoGsfElectronToken_( consumes< std::vector<reco::GsfElectron> >( iConfig.getParameter<edm::InputTag>( "srcElectron" ) ) )
+  : max_dxy_(iConfig.getParameter<double>("max_dxy"))
+  , max_dz_(iConfig.getParameter<double>("max_dz"))
+  , v_recoVertexToken_(consumes< std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex")))
+  , v_recoGsfElectronToken_(consumes< std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("srcElectron")))
 {
-  produces<std::vector<reco::GsfElectron> >();
+  produces<std::vector<reco::GsfElectron>>();
 }
 
 
@@ -71,39 +67,32 @@ GsfElectronFromPVSelector::~GsfElectronFromPVSelector(){}
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void GsfElectronFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
-{  
-  std::unique_ptr<std::vector<reco::GsfElectron> > goodGsfElectrons(new std::vector<reco::GsfElectron >);
-  
-  edm::Handle< std::vector<reco::Vertex> > VertexHandle;
-  iEvent.getByToken( v_recoVertexToken_, VertexHandle );
+void GsfElectronFromPVSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  std::unique_ptr<std::vector<reco::GsfElectron>> goodGsfElectrons(new std::vector<reco::GsfElectron>);
 
-  edm::Handle< std::vector<reco::GsfElectron> > GsfElectronHandle;
-  iEvent.getByToken( v_recoGsfElectronToken_, GsfElectronHandle );
-  
-  if( (VertexHandle->size() == 0) || (GsfElectronHandle->size() == 0) ) 
+  edm::Handle<std::vector<reco::Vertex>> VertexHandle;
+  iEvent.getByToken(v_recoVertexToken_, VertexHandle);
+
+  edm::Handle<std::vector<reco::GsfElectron>> GsfElectronHandle;
+  iEvent.getByToken(v_recoGsfElectronToken_, GsfElectronHandle);
+
+  if ((VertexHandle->size() == 0) || (GsfElectronHandle->size() == 0))
   {
     iEvent.put(std::move(goodGsfElectrons));
     return ;
   }
-  
-  
-  reco::Vertex PV = VertexHandle->front();   
-  std::vector<reco::GsfElectron>::const_iterator GsfElectronIt ;
-//  typename std::vector<reco::GsfElectron>::const_iterator GsfElectronIt ;
 
+  reco::Vertex PV = VertexHandle->front();
+  std::vector<reco::GsfElectron>::const_iterator GsfElectronIt;
   for (GsfElectronIt = GsfElectronHandle->begin(); GsfElectronIt != GsfElectronHandle->end(); ++GsfElectronIt) {
-    
-    //int q = GsfElectronIt->gsfTrack()->charge() ;
-    
-    if ( fabs(GsfElectronIt->gsfTrack()->dxy(PV.position())) < max_dxy_ && 
-         fabs(GsfElectronIt->gsfTrack()->dz(PV.position()))  < max_dz_  ) {
-    	goodGsfElectrons -> push_back(*GsfElectronIt) ;
+    if (fabs(GsfElectronIt->gsfTrack()->dxy(PV.position())) < max_dxy_ &&
+        fabs(GsfElectronIt->gsfTrack()->dz(PV.position()))  < max_dz_) {
+      goodGsfElectrons -> push_back(*GsfElectronIt) ;
     }
-  }  
-  
+  }
+
   iEvent.put(std::move(goodGsfElectrons));
-  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
