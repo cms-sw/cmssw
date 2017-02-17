@@ -43,6 +43,17 @@ namespace edm {
     }
   }
 
+  void
+  ProductProvenanceRetriever::readProvenanceAsync(WaitingTask* task, ModuleCallingContext const* moduleCallingContext) const {
+    if(provenanceReader_ and nullptr == readEntryInfoSet_.load() ) {
+      provenanceReader_->readProvenanceAsync(task, moduleCallingContext,transitionIndex_,readEntryInfoSet_);
+    }
+    if(nextRetriever_) {
+      nextRetriever_->readProvenanceAsync(task,moduleCallingContext);
+    }
+  }
+
+  
   void ProductProvenanceRetriever::deepCopy(ProductProvenanceRetriever const& iFrom)
   {
     if(iFrom.readEntryInfoSet_) {

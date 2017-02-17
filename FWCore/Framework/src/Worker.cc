@@ -212,6 +212,9 @@ private:
         iPrincipal.prefetchAsync(iTask,productResolverIndex, skipCurrentProcess, &moduleCallingContext_);
       }
     }
+    
+    preActionBeforeRunEventAsync(iTask,moduleCallingContext_,iPrincipal);
+    
     if(0 == iTask->decrement_ref_count()) {
       //if everything finishes before we leave this routine, we need to launch the task
       tbb::task::spawn(*iTask);
