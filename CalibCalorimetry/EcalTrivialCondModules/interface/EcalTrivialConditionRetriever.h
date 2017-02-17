@@ -226,6 +226,11 @@ private:
   // laser
   double laserAlphaMean_;  
   double laserAlphaSigma_;  
+  double laserAlphaMeanEBR_; 
+  double laserAlphaMeanEBC_;  
+  double laserAlphaMeanEER_;  
+  double laserAlphaMeanEEC_;  
+
   double laserAPDPNRefMean_;  
   double laserAPDPNRefSigma_;  
   double laserAPDPNMean_;  
@@ -341,7 +346,11 @@ private:
   bool getEBAlignmentFromFile_;
   bool getEEAlignmentFromFile_;
   bool getESAlignmentFromFile_;
-  bool getLaserAlphaFromFile_;
+
+  bool getLaserAlphaFromFileEB_;
+  bool getLaserAlphaFromFileEE_;
+  bool getLaserAlphaFromTypeEB_;
+  bool getLaserAlphaFromTypeEE_;
   bool producedEcalSampleMask_;
   bool producedEcalTimeBiasCorrections_;
   bool producedEcalSamplesCorrelation_;
