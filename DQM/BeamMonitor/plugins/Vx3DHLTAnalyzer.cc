@@ -1040,7 +1040,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	  if (goodData == -2) histTitle << "Ongoing: not enough evts (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  else                histTitle << "Ongoing: temporary problems (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  
-	  if (lumiCounter > maxLumiIntegration)
+	  if (lumiCounter >= maxLumiIntegration)
 	    {
 	      statusCounter->getTH1()->SetBinContent(lastLumiOfFit, -5);
 	      statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
