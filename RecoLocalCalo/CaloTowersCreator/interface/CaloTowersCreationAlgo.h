@@ -360,7 +360,7 @@ private:
   int              subdetOne;
   std::vector<std::pair<int,int>> phizOne;
 
-
+  std::vector<HcalDetId>          ids_;
 };
 
 #endif
