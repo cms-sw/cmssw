@@ -48,6 +48,9 @@ process.AlCaRecoTriggerBitsRcdUpdate.triggerListsAdd = [
              hltPaths = cms.vstring())
     ]
 
+# Here specify the 'keys' to be replaced 
+process.AlCaRecoTriggerBitsRcdUpdate.alcarecoToReplace = []
+
 # No data, but have to specify run number if you do not want 1, see below:
 process.source = cms.Source("EmptySource",
                             #numberEventsInRun = cms.untracked.uint32(1),
@@ -68,11 +71,11 @@ import CondCore.DBCommon.CondDBSetup_cfi
 process.dbInput = cms.ESSource(
     "PoolDBESSource",
     CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
-#    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
+    #    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
     connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('AlCaRecoTriggerBitsRcd'),
-#        tag = cms.string('TestTag') # choose tag to update
+        #        tag = cms.string('TestTag') # choose tag to update
         tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v7_hlt')
         )
                       )
@@ -85,14 +88,13 @@ process.PoolDBOutputService = cms.Service(
     CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-#    connect = cms.string('sqlite_file:AlCaRecoTriggerBitsUpdate.db'),
+    #    connect = cms.string('sqlite_file:AlCaRecoTriggerBitsUpdate.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('AlCaRecoTriggerBitsRcd'),
         tag = cms.string('TestTag') # choose output tag you want
         )
                       )
     )
-
 
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdUpdate)
