@@ -115,8 +115,13 @@ namespace edm {
   }
 
   DelayedReader*
-  RootTree::rootDelayedReader() const {
+  RootTree::resetAndGetRootDelayedReader() const {
     rootDelayedReader_->reset();
+    return rootDelayedReader_.get();
+  }
+
+  DelayedReader*
+  RootTree::rootDelayedReader() const {
     return rootDelayedReader_.get();
   }  
 
