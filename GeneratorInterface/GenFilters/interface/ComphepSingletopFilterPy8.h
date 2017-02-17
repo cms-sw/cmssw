@@ -12,7 +12,9 @@
 //
 // class declaration
 //
-
+namespace edm {
+  class HepMCProduct;
+}
 
 class ComphepSingletopFilterPy8 : public edm::EDFilter {
 public:
@@ -22,6 +24,7 @@ private:
     virtual void beginJob() ;
     virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
+    edm::EDGetTokenT<edm::HepMCProduct> token_;
 private:
 //     edm::InputTag hepMCProductTag;
     double ptsep;
