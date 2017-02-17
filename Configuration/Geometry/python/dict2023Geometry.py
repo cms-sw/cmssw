@@ -126,7 +126,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted4021_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted4025_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
