@@ -1,27 +1,18 @@
-<library   name="TauAnalysisMCEmbeddingToolsPlugins" file="*.cc">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="CommonTools/UtilAlgos"/>
-  <use   name="CommonTools/Utils"/>   
-  <use   name="DataFormats/CSCRecHit"/>  
-  <use   name="DataFormats/DTRecHit"/>  
-  <use   name="DataFormats/EcalRecHit"/>
-  <use   name="DataFormats/HepMCCandidate"/>
-  <use   name="DataFormats/HcalRecHit"/>
-  <use   name="DataFormats/METReco"/>
-  <use   name="DataFormats/MuonDetId"/>
-  <use   name="DataFormats/MuonReco"/>
-  <use   name="DataFormats/ParticleFlowCandidate"/>
-  <use   name="DataFormats/PatCandidates"/>
-  <use   name="DataFormats/RPCRecHit"/>  
-  <use   name="PhysicsTools/JetMCUtils"/>
-  <use   name="RecoEcal/EgammaCoreTools"/>
-  <use   name="RecoMuon/MuonIsolation"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="TrackingTools/TransientTrack"/>
-  <use   name="DQMServices/Core"/>
-  <use   name="rootmath"/>
-  <use   name="TauAnalysis/MCEmbeddingTools"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="pythia8"/> 
+<use name="GeneratorInterface/Pythia8Interface"/>
+<use name="GeneratorInterface/ExternalDecays"/>
+<use name="GeneratorInterface/Herwig6Interface"/>
+<use name="IOMC/EventVertexGenerators"/>
+<use name="DataFormats/RPCRecHit"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="TrackingTools/TrackAssociator"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="DataFormats/TrackReco"/>
+<flags EDM_PLUGIN="1"/>
+
