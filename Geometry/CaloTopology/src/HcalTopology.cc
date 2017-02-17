@@ -214,6 +214,7 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
   if (id.version()==0) {
     if (id.ietaAbs() > 28) {
        if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017) return false;
+       if (triggerMode_ == HcalTopologyMode::TriggerMode_2018legacy) return false;
        if ((id.iphi() % 4) != 1)                               return false;
        if (id.ietaAbs() > 32)                                  return false;
     }

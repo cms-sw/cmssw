@@ -254,7 +254,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
      unsigned int mipMax = 0;
      unsigned int mipMin = 0;
 
-     if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or topo_->dddConstants()->isPlan1(cell)) {
+     if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
+           topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy or
+           topo_->dddConstants()->isPlan1(cell)) {
         const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
         mipMax = channelParameters->getFGBitInfo() >> 16;
         mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
