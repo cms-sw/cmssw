@@ -849,11 +849,11 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     
     for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
       HcalDetId cell(j->id());
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double eta  = cellGeometry->getPosition().eta () ;
-      double phi  = cellGeometry->getPosition().phi () ;
-      double zc   = cellGeometry->getPosition().z ();
+      const HcalGeometry* cellGeometry = 
+	(HcalGeometry*)(geometry->getSubdetectorGeometry(cell));
+      double eta  = cellGeometry->getPosition(cell).eta () ;
+      double phi  = cellGeometry->getPosition(cell).phi () ;
+      double zc   = cellGeometry->getPosition(cell).z ();
       int sub     = cell.subdet();
       int depth   = cell.depth();
       int inteta  = cell.ieta();
