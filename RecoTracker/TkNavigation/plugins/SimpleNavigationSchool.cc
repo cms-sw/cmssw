@@ -314,8 +314,8 @@ SimpleNavigationSchool::splitForwardLayers()
   FDLI begin = myRightLayers.begin();
   FDLI end   = myRightLayers.end();
 
-  // sort according to inner radius
-  sort ( begin, end, DiskLessInnerRadius()); 
+  // sort according to inner radius, but keeping the ordering in z!
+  stable_sort ( begin, end, DiskLessInnerRadius());
 
   // partition in cylinders
   vector<FDLC> result;
