@@ -284,7 +284,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	    strictSeedExtension = cms.bool(True)
     )
 
-    process.HLTIter1PSetTrajectoryFilterInOutIT = cms.PSet
+    process.HLTIter1PSetTrajectoryFilterInOutIT = cms.PSet(
 	ComponentType = cms.string('CkfBaseTrajectoryFilter'),
 	chargeSignificance = cms.double(-1.0),
 	constantValueForLostHitsFractionFilter = cms.double(2.0),
