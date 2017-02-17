@@ -101,8 +101,8 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
 
   if (materialEffects_ >= localGBL) {
     // GBL trajectory inputs
-    // convert to TMatrix
-    MatrixXd tbdToLocal1{nLocal, nTbd};
+    // convert to Eigen::MatrixXd
+    Eigen::MatrixXd tbdToLocal1{nLocal, nTbd};
     for (unsigned int row = 0; row < nLocal; ++row) {
       for (unsigned int col = 0; col < nTbd; ++col) {
         tbdToLocal1(row,col) = deriv.first[row][col];
@@ -111,8 +111,8 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
     // add first body
     theGblInput.push_back(std::make_pair(trajectory1.gblInput().front().first, 
                                          trajectory1.gblInput().front().second*tbdToLocal1));
-    // convert to TMatrix
-    MatrixXd tbdToLocal2{nLocal, nTbd};
+    // convert to Eigen::MatrixXd
+    Eigen::MatrixXd tbdToLocal2{nLocal, nTbd};
     for (unsigned int row = 0; row < nLocal; ++row) {
       for (unsigned int col = 0; col < nTbd; ++col) {
         tbdToLocal2(row,col) = deriv.second[row][col];
