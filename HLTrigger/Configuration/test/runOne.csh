@@ -44,10 +44,6 @@ foreach gtag ( $1 )
 
     set base = ( $base OnLine_HLT RelVal_HLT RelVal_HLT2 )
 
-    if ( $gtag == MC ) then
-      set base = ( $base FastSim_GenToHLT )
-    endif
-
     foreach task ( $base )
 
       echo
