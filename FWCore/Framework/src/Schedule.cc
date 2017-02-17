@@ -374,6 +374,7 @@ namespace edm {
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
+                     SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -460,7 +461,7 @@ namespace edm {
       }
     });
     // Now that the output workers are filled in, set any output limits or information.
-    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists(), subProcessParentageHelper);
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
@@ -549,7 +550,9 @@ namespace edm {
 
 
   void
-  Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
+  Schedule::limitOutput(ParameterSet const& proc_pset,
+                        BranchIDLists const& branchIDLists,
+                        SubProcessParentageHelper const* subProcessParentageHelper) {
     std::string const output("output");
 
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
@@ -574,7 +577,7 @@ namespace edm {
     }
 
     for (auto& c : all_output_communicators_) {
-      OutputModuleDescription desc(branchIDLists, maxEventsOut);
+      OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
       if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {

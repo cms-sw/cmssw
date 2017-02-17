@@ -45,6 +45,7 @@ namespace edm {
 
     ProductProvenance const* productProvenance() const;
     BranchID const& branchID() const {return stable().branchID();}
+    BranchID const& originalBranchID() const {return stable().originalBranchID();}
     std::string const& branchName() const {return stable().branchName();}
     std::string const& className() const {return stable().className();}
     std::string const& moduleLabel() const {return stable().moduleLabel();}
