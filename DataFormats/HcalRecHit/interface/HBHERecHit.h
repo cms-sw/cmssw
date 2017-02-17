@@ -47,6 +47,8 @@ public:
   // For normal (i.e., not merged) rechits the vector will be cleared.
   void getMergedIds(std::vector<HcalDetId>* ids) const;
 
+  // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
+  HcalDetId idFront() const;
 private:
   float timeFalling_;
   float chiSquared_;
