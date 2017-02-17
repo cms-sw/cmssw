@@ -86,6 +86,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// Run the algorithm on trajectories and tracks
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo) override;
 
+  /// called at begin of run
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+
   // TODO: This method does NOT match endRun() in base class! Nobody is
   //       calling this?
   /// Run on run products, e.g. TkLAS
@@ -257,6 +260,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
+  const AlignmentAlgorithmBase::RunNumber firstIOV_;
+  const bool ignoreFirstIOVCheck_;
   int                       theLastWrittenIov; // keeping track for output trees...
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;
