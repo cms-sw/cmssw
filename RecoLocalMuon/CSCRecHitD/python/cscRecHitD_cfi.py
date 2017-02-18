@@ -29,8 +29,8 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #
     #    wire time window used for reconstruction
     CSCUseReducedWireTimeWindow = cms.bool(True),
-    CSCWireTimeWindowLow = cms.int32(0),
-    CSCWireTimeWindowHigh = cms.int32(15),
+    CSCWireTimeWindowLow = cms.int32(6),
+    CSCWireTimeWindowHigh = cms.int32(10),
     #
     #    Calibration info:
     CSCUseCalibrations = cms.bool(True),
