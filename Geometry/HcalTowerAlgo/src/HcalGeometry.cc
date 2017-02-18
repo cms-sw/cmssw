@@ -172,9 +172,9 @@ CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
     CaloCellGeometry::CornersVec mcorners;
     CaloCellGeometry::CornersVec mcf = getGeometry(ids_.front())->getCorners();
     CaloCellGeometry::CornersVec mcb = getGeometry(ids_.back())->getCorners();
-    for (unsigned int k=0; k<8; ++k) {
+    for (unsigned int k=0; k<4; ++k) {
       mcorners[k]   = mcf[k];
-      mcorners[k+4] = mcb[k];
+      mcorners[k+4] = mcb[k+4];
     }
     return mcorners;
   }
