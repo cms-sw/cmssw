@@ -14,5 +14,6 @@
 <use name="TrackingTools/TrackAssociator"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="DataFormats/TrackReco"/>
+<use name="CondFormats/BeamSpotObjects"/>
 <flags EDM_PLUGIN="1"/>
 
