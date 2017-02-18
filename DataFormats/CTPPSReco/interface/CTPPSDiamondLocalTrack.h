@@ -19,7 +19,7 @@ class CTPPSDiamondLocalTrack
 {
   public:
     CTPPSDiamondLocalTrack() :
-      chi_squared_( 0. ), valid_( true ) {}
+      chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ) {}
     virtual ~CTPPSDiamondLocalTrack() {}
 
     //--- spatial get'ters
