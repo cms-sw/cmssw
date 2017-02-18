@@ -10,6 +10,6 @@ from RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi import ctppsDiamondRecHits
 from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalTracks_cfi import ctppsDiamondLocalTracks
 
 ctppsDiamondLocalReconstruction = cms.Sequence(
-    ctppsDiamondRecHits
-    * ctppsDiamondLocalTracks
+    ctppsDiamondRecHits *
+    ctppsDiamondLocalTracks
 )
