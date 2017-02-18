@@ -64,7 +64,9 @@ class CTPPSDiamondLocalTrack
   private:
     //--- spatial information
 
+    /// initial track position
     math::XYZPoint pos0_;
+    /// error on the initial track position
     math::XYZPoint pos0_sigma_;
 
     /// fit chi^2

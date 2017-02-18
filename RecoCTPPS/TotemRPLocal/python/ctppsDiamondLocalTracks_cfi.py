@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ctppsDiamondLocalTrack = cms.EDProducer("CTPPSDiamondLocalTrackFitter",
+ctppsDiamondLocalTracks = cms.EDProducer("CTPPSDiamondLocalTrackFitter",
     verbosity = cms.int32(0),
     recHitsTag = cms.InputTag("ctppsDiamondRecHits"),
     trackingAlgorithmParams = cms.PSet(
