@@ -49,7 +49,7 @@ class CTPPSDiamondTrackRecognition
     std::string pixelEfficiencyFunction_;
 
     /// Function for pad efficiency
-    std::vector<TF1> hit_function_v;
+    std::vector<TF1> hit_function_vec_;
 
 };
 
