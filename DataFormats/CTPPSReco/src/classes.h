@@ -54,8 +54,8 @@ namespace DataFormats_CTPPSReco {
     edm::Ptr<CTPPSDiamondRecHit> ptr_ctd_rh;
     edm::Wrapper<CTPPSDiamondRecHit> wrp_ctd_rh;
     std::vector<CTPPSDiamondRecHit> vec_ctd_rh;
-    std::vector< edm::DetSet<CTPPSDiamondRecHit> > vec_ds_rh;
-    edm::DetSet<CTPPSDiamondRecHit> ds_rh;
+    std::vector< edm::DetSet<CTPPSDiamondRecHit> > vec_ds_ctd_rh;
+    edm::DetSet<CTPPSDiamondRecHit> ds_ctd_rh;
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
     edm::Wrapper< std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;

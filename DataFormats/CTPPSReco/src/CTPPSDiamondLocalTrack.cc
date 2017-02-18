@@ -14,6 +14,6 @@
 bool
 operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLocalTrack& rhs )
 {
-  //FIXME also sort by space coordinate?
+  // as for now, only sort by space coordinate
   return ( lhs.getT() < rhs.getT() );
 }
