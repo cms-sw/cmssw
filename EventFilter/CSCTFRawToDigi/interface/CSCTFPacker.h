@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,7 +15,7 @@
 
 #include <string>
 
-class CSCTFPacker : public edm::EDProducer {
+class CSCTFPacker : public edm::one::EDProducer<> {
 private:
 	edm::InputTag lctProducer, mbProducer, trackProducer;
 
@@ -35,7 +35,7 @@ private:
 	edm::EDGetTokenT<L1CSCTrackCollection> L1CSCTr_Tok;
 
 public:
-	virtual void produce(edm::Event& e, const edm::EventSetup& c);
+	virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 	explicit CSCTFPacker(const edm::ParameterSet &conf);
 	~CSCTFPacker(void);
