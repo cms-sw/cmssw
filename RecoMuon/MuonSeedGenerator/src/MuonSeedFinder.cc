@@ -10,6 +10,9 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//temp
+#include <DataFormats/MuonDetId/interface/GEMDetId.h>
+
 using namespace std;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
@@ -60,9 +63,8 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
 
   unsigned int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
-    if ( (*iter)->isCSC() )
+    if ( (*iter)->isCSC() || (*iter)->isGEM()  )
     {
-//std::cout << **iter << std::endl;
       theEndcap.add(*iter);
       theOverlap.add(*iter);
       ++num_endcap;
