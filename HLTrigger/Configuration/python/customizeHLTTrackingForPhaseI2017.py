@@ -153,7 +153,6 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	        doSeedingRegionRebuilding = cms.bool( False )
     )
 
-    process.hltIter0PFlowCkfTrackCandidates.TrajectoryBuilder = cms.string('')
     process.hltIter0PFlowCkfTrackCandidates.TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('HLTIter0GroupedCkfTrajectoryBuilderIT'))
 
 
@@ -261,31 +260,9 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	  seedPairPenalty = cms.int32( 0 ),
 	  pixelSeedExtension = cms.bool( False )
     )
-    process.HLTIter1PSetTrajectoryFilterInOutIT = cms.PSet(
-	ComponentType = cms.string('CkfBaseTrajectoryFilter'),
-	chargeSignificance = cms.double(-1.0),
-	constantValueForLostHitsFractionFilter = cms.double(2.0),
-	extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4),
-	maxCCCLostHits = cms.int32(0),
-	maxConsecLostHits = cms.int32(1),
-	maxLostHits = cms.int32(1),  
-	maxLostHitsFraction = cms.double(999),
-	maxNumberOfHits = cms.int32(100),
-	minGoodStripCharge = cms.PSet( refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
-	minHitsMinPt = cms.int32(3),
-	minNumberOfHitsForLoopers = cms.int32(13),
-	minNumberOfHitsPerLoop = cms.int32(4),
-	minPt = cms.double(0.2),
-	minimumNumberOfHits = cms.int32(4),
-	nSigmaMinPt = cms.double(5.0),
-	pixelSeedExtension = cms.bool(False),
-	seedExtension = cms.int32(0),
-	seedPairPenalty = cms.int32(0),
-	strictSeedExtension = cms.bool(False)
-    )
+   
 
     process.HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
-	inOutTrajectoryFilter = cms.PSet( refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT') ),
 	propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
 	trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
 	maxCand = cms.int32( 2 ),
@@ -298,15 +275,14 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	alwaysUseInvalidHits = cms.bool( False ),
 	intermediateCleaning = cms.bool( True ),
 	lostHitPenalty = cms.double( 30.0 ),
-	useSameTrajFilter = cms.bool(False) 
+	useSameTrajFilter = cms.bool(True) 
     )
     process.HLTIter1GroupedCkfTrajectoryBuilderIT = cms.PSet(
 	ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
 	bestHitOnly = cms.bool(True),
 	propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
 	trajectoryFilter = cms.PSet(refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterIT')),
-	inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('HLTIter1PSetTrajectoryFilterInOutIT')),
-	useSameTrajFilter = cms.bool(False),
+	useSameTrajFilter = cms.bool(True),
 	maxCand = cms.int32(2),
 	intermediateCleaning = cms.bool(True),
 	lostHitPenalty = cms.double(30.0),
@@ -323,7 +299,6 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	minNrOfHitsForRebuild = cms.int32(5)
     )
 
-    process.hltIter1PFlowCkfTrackCandidates.TrajectoryBuilder = cms.string('')
     process.hltIter1PFlowCkfTrackCandidates.TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('HLTIter1GroupedCkfTrajectoryBuilderIT'))
 
 
@@ -404,7 +379,7 @@ def customizeHLTForPFTrackingPhaseI2017(process):
             if key not in skipSet:
                 setattr(new, key, getattr(old, key))
     from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cfi import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-    process.hltIter2PFlowPixelSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(seedingHitSets="hltIter2PFlowPixelHitTriplets")
+    replace_with(process.hltIter2PFlowPixelSeeds, _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(seedingHitSets="hltIter2PFlowPixelHitTriplets"))
     _copy(process.HLTSeedFromConsecutiveHitsTripletOnlyCreator, process.hltIter2PFlowPixelSeeds, skip=["ComponentName"])
 
     process.HLTIter2GroupedCkfTrajectoryBuilderIT = cms.PSet(
@@ -436,7 +411,6 @@ def customizeHLTForPFTrackingPhaseI2017(process):
 	        doSeedingRegionRebuilding = cms.bool( False )
     )	
 
-    process.hltIter2PFlowCkfTrackCandidates.TrajectoryBuilder = cms.string('')
     process.hltIter2PFlowCkfTrackCandidates.TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('HLTIter2GroupedCkfTrajectoryBuilderIT'))
 
 
