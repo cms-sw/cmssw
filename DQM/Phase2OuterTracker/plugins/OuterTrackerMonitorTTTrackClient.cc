@@ -26,7 +26,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTTrackClient.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
