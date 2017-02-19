@@ -333,7 +333,7 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
         histosEta_[sDETS[current_det.subdetId()]+to_string(trk_topology->layer(current_det))]->Fill(current_tsos.globalPosition().eta(), radLen);
         histo_RZ_Ori_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), ori_radLen);
         histo_RZ_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), radLen);
-        std::cout <<  "Eta: " << track.eta() << " "
+        LogInfo("TrackingRecoMaterialAnalyser") <<  "Eta: " << track.eta() << " "
              << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
              << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi
              << " and has radLen: " << radLen << "  and xi: " << xi << endl;
