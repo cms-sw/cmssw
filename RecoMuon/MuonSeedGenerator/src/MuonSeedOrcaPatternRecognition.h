@@ -22,7 +22,8 @@ private:
   void endcapPatterns(
     const MuonRecHitContainer & me11, const MuonRecHitContainer & me12,
     const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
-    const MuonRecHitContainer & me4,  const  MuonRecHitContainer & mb1,
+    const MuonRecHitContainer & me4,  const MuonRecHitContainer & ge21,
+    const MuonRecHitContainer & ge11, const  MuonRecHitContainer & mb1,
     const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
     bool * MB1, bool * MB2, bool * MB3,
     std::vector<MuonRecHitContainer> & result);
