@@ -1868,13 +1868,18 @@ private:
                                  SignalType const* pre,
                                  SignalType const* post) {
       if(nullptr == writeTo.load()) {
-        WaitingTaskHolder holder(task);
+        //need to be sure the task isn't run until after the read
+        task->increment_ref_count();
         auto pWriteTo = &writeTo;
         
         auto serviceToken = ServiceRegistry::instance().presentToken();
 
-        chain.push([holder,pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() {
-          auto nonConstHolder = holder;
+        chain.push([task,pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() {
+          WaitingTaskHolder holder(task);
+          //the holder is now responsible for the task
+          // and has already incremented the count
+          task->decrement_ref_count();
+          
           ServiceRegistry::Operate operate(serviceToken);
 
           if(nullptr == pWriteTo->load()) {
@@ -1887,7 +1892,7 @@ private:
             }catch(...) {
               if(post) {post->emit(*(iContext->getStreamContext()),*iContext);}
 
-              nonConstHolder.doneWaiting(std::current_exception());
+              holder.doneWaiting(std::current_exception());
               return;
             }
             const std::set<ProductProvenance>* expected = nullptr;
@@ -1896,7 +1901,7 @@ private:
               prov.release();
             }
           }
-          nonConstHolder.doneWaiting(std::exception_ptr());
+          holder.doneWaiting(std::exception_ptr());
         });
       }
     }
