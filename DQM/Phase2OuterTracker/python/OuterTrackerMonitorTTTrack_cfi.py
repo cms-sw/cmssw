@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import math
 
 OuterTrackerMonitorTTTrack = cms.EDAnalyzer('OuterTrackerMonitorTTTrack',
 
@@ -31,8 +32,8 @@ OuterTrackerMonitorTTTrack = cms.EDAnalyzer('OuterTrackerMonitorTTTrack',
 #Phi of the track
     TH1_Track_Phi = cms.PSet(
         Nbinsx = cms.int32(45),
-        xmax = cms.double(3.1416),
-        xmin = cms.double(-3.1416)
+        xmax = cms.double(math.pi),
+        xmin = cms.double(-math.pi)
         ),
 
 #Eta of the track

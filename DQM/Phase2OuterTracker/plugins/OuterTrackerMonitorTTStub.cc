@@ -28,7 +28,6 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -163,10 +162,6 @@ OuterTrackerMonitorTTStub::analyze(const edm::Event& iEvent, const edm::EventSet
 void 
 OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
 {
-   //Make subdivision in the rootfile
-  SiStripFolderOrganizer folder_organizer;
-  folder_organizer.setSiStripFolderName(topFolderName_);
-  folder_organizer.setSiStripFolder();
   std::string HistoName;    
 
   dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Position");
@@ -270,7 +265,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub eta 
   edm::ParameterSet psTTStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Eta"; 
-  Stub_Eta = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Eta = dqmStore_ ->book1D(HistoName,HistoName,
       psTTStub_Eta.getParameter<int32_t>("Nbinsx"), 
       psTTStub_Eta.getParameter<double>("xmin"), 
       psTTStub_Eta.getParameter<double>("xmax"));
@@ -282,7 +277,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Layers");
   HistoName = "NStubs_Barrel"; 
-  Stub_Barrel = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Barrel = dqmStore_ ->book1D(HistoName,HistoName,
       psTTStub_Barrel.getParameter<int32_t>("Nbinsx"), 
       psTTStub_Barrel.getParameter<double>("xmin"), 
       psTTStub_Barrel.getParameter<double>("xmax"));
@@ -292,7 +287,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_ECDisc =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Discs");
   HistoName = "NStubs_Endcap_Disc"; 
-  Stub_Endcap_Disc = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap_Disc = dqmStore_ ->book1D(HistoName,HistoName,
       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECDisc.getParameter<double>("xmin"), 
       psTTStub_ECDisc.getParameter<double>("xmax"));
@@ -301,7 +296,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   //TTStub Endcap stack
   HistoName = "NStubs_Endcap_Disc_Fw"; 
-  Stub_Endcap_Disc_Fw = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap_Disc_Fw = dqmStore_ ->book1D(HistoName,HistoName,
       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECDisc.getParameter<double>("xmin"), 
       psTTStub_ECDisc.getParameter<double>("xmax"));
@@ -310,7 +305,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   //TTStub Endcap stack
   HistoName = "NStubs_Endcap_Disc_Bw"; 
-  Stub_Endcap_Disc_Bw = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap_Disc_Bw = dqmStore_ ->book1D(HistoName,HistoName,
       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECDisc.getParameter<double>("xmin"), 
       psTTStub_ECDisc.getParameter<double>("xmax"));
@@ -320,18 +315,18 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   edm::ParameterSet psTTStub_ECRing =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Rings");
   
   HistoName = "NStubs_Endcap_Ring"; 
-  Stub_Endcap_Ring = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap_Ring = dqmStore_ ->book1D(HistoName,HistoName,
       psTTStub_ECRing.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECRing.getParameter<double>("xmin"), 
       psTTStub_ECRing.getParameter<double>("xmax"));
   Stub_Endcap_Ring->setAxisTitle("Endcap Ring",1); 
   Stub_Endcap_Ring->setAxisTitle("# L1 Stubs ",2);
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NStubs_Disc+%d", i+1);  
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "NStubs_Disc+"+std::to_string(i+1);
     //TTStub Endcap stack
-    Stub_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(histo, histo, 
+    Stub_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(HistoName, HistoName,
         psTTStub_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTStub_ECRing.getParameter<double>("xmin"), 
         psTTStub_ECRing.getParameter<double>("xmax")); 
@@ -339,11 +334,11 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Stubs ",2);
   }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NStubs_Disc-%d", i+1);  
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "NStubs_Disc-"+std::to_string(i+1);
     //TTStub Endcap stack
-    Stub_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(histo, histo, 
+    Stub_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(HistoName, HistoName,
         psTTStub_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTStub_ECRing.getParameter<double>("xmin"), 
         psTTStub_ECRing.getParameter<double>("xmax")); 
@@ -391,10 +386,10 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Endcap_Ring_W->setAxisTitle("Endcap Ring",1); 
   Stub_Endcap_Ring_W->setAxisTitle("Trigger Offset",2);
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "Stub_Width_Disc+%d", i+1);
-    Stub_Endcap_Ring_W_Fw[i] = dqmStore_->book2D(histo, histo,
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "Stub_Width_Disc+"+std::to_string(i+1);
+    Stub_Endcap_Ring_W_Fw[i] = dqmStore_->book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -405,10 +400,10 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_W_Fw[i]->setAxisTitle("Displacement - Offset",2);
   }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "Stub_Width_Disc-%d", i+1);
-    Stub_Endcap_Ring_W_Bw[i] = dqmStore_->book2D(histo, histo,
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "Stub_Width_Disc-"+std::to_string(i+1);
+    Stub_Endcap_Ring_W_Bw[i] = dqmStore_->book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -454,10 +449,10 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Endcap_Ring_O->setAxisTitle("Endcap Ring",1); 
   Stub_Endcap_Ring_O->setAxisTitle("Trigger Offset",2);
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "Stub_Offset_Disc+%d", i+1);
-    Stub_Endcap_Ring_O_Fw[i] = dqmStore_->book2D(histo, histo,
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "Stub_Offset_Disc+"+std::to_string(i+1);
+    Stub_Endcap_Ring_O_Fw[i] = dqmStore_->book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -468,10 +463,10 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_O_Fw[i]->setAxisTitle("Trigger Offset",2);
   }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "Stub_Offset_Disc-%d", i+1);
-    Stub_Endcap_Ring_O_Bw[i] = dqmStore_->book2D(histo, histo,
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "Stub_Offset_Disc-"+std::to_string(i+1);
+    Stub_Endcap_Ring_O_Bw[i] = dqmStore_->book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),

@@ -25,7 +25,6 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -149,9 +148,6 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event& iEvent, const edm::
 void
 OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
-  SiStripFolderOrganizer folder_organizer;
-  folder_organizer.setSiStripFolderName(topFolderName_);
-  folder_organizer.setSiStripFolder();	
   std::string HistoName;
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/NClusters");
@@ -208,10 +204,10 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
   Cluster_OMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
   Cluster_OMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_IMem_Disc+%d", i+1);  
-    Cluster_IMem_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(histo, histo, 
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "NClusters_IMem_Disc+"+std::to_string(i+1);
+    Cluster_IMem_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTCluster_ECRing.getParameter<double>("xmin"), 
         psTTCluster_ECRing.getParameter<double>("xmax")); 
@@ -219,10 +215,10 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
     Cluster_IMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
   }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_IMem_Disc-%d", i+1);  
-    Cluster_IMem_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(histo, histo, 
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "NClusters_IMem_Disc-"+std::to_string(i+1);
+    Cluster_IMem_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTCluster_ECRing.getParameter<double>("xmin"), 
         psTTCluster_ECRing.getParameter<double>("xmax")); 
@@ -230,10 +226,10 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
     Cluster_IMem_Endcap_Ring_Bw[i]->setAxisTitle("# L1 Clusters ",2);
   }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_OMem_Disc+%d", i+1);  
-    Cluster_OMem_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(histo, histo, 
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "NClusters_OMem_Disc+"+std::to_string(i+1);
+    Cluster_OMem_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTCluster_ECRing.getParameter<double>("xmin"), 
         psTTCluster_ECRing.getParameter<double>("xmax")); 
@@ -241,10 +237,10 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
     Cluster_OMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
   }
   
-  for(int i=0;i<5;i++){
-    Char_t histo[200];
-    sprintf(histo, "NClusters_OMem_Disc-%d", i+1);  
-    Cluster_OMem_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(histo, histo, 
+  for (int i = 0; i < 5; i++)
+  {
+    HistoName = "NClusters_OMem_Disc-"+std::to_string(i+1);
+    Cluster_OMem_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTCluster_ECRing.getParameter<double>("xmin"), 
         psTTCluster_ECRing.getParameter<double>("xmax")); 
@@ -271,7 +267,7 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
   //Cluster eta distribution
   edm::ParameterSet psTTClusterEta = conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Eta";
-  Cluster_Eta = dqmStore_->book1D(HistoName, HistoName, 
+  Cluster_Eta = dqmStore_->book1D(HistoName, HistoName,
       psTTClusterEta.getParameter<int32_t>("Nbinsx"),
       psTTClusterEta.getParameter<double>("xmin"),
       psTTClusterEta.getParameter<double>("xmax"));

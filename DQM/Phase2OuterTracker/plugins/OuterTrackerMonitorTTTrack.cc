@@ -25,7 +25,6 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTTrack.h"
 //#include "DataFormats/L1TrackTrigger/interface/TTTrack.h" // does not exist yet in 81X
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -133,9 +132,6 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
 void
 OuterTrackerMonitorTTTrack::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
-  SiStripFolderOrganizer folder_organizer;
-  folder_organizer.setSiStripFolderName(topFolderName_);
-  folder_organizer.setSiStripFolder();	
   std::string HistoName;
   
   dqmStore_->setCurrentFolder(topFolderName_+"/Tracks/");
