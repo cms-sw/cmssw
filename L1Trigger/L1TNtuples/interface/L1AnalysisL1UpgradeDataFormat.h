@@ -50,6 +50,7 @@ namespace L1Analysis
       egFootprintEt.clear();
       egNTT.clear();
       egShape.clear();
+      egTowerHoE.clear();
 
       nTaus = 0;
       tauEt.clear();
@@ -130,6 +131,7 @@ namespace L1Analysis
     std::vector<short int> egFootprintEt;
     std::vector<short int> egNTT;
     std::vector<short int> egShape;
+    std::vector<short int> egTowerHoE;
  
     unsigned short int nTaus;
     std::vector<float> tauEt;
