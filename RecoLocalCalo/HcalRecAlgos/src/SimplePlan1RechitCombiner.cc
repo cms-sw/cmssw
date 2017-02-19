@@ -123,12 +123,13 @@ void SimplePlan1RechitCombiner::combineAuxInfo(
     using namespace CaloRecHitAuxSetter;
     using namespace HcalPhase1FlagLabels;
 
-    const unsigned nRecHits = rechits.size();
-    assert(nRecHits);
-
     // The number of rechits should be not larger than the
     // number of half-bytes in a 32-bit word
-    assert(nRecHits <= 8);
+    constexpr unsigned MAXLEN = 8U;
+
+    const unsigned nRecHits = rechits.size();
+    assert(nRecHits);
+    assert(nRecHits <= MAXLEN);
 
     uint32_t flags = 0, auxPhase1 = 0;
     unsigned tripleFitCount = 0;
@@ -189,10 +190,18 @@ void SimplePlan1RechitCombiner::combineAuxInfo(
     rh->setFlags(flags);
     rh->setAuxPhase1(auxPhase1);
 
+    // Sort the depth values of the combined rechits
+    // in the increasing order
+    unsigned depthValues[MAXLEN];
+    for (unsigned i=0; i<nRecHits; ++i)
+        depthValues[i] = rechits[i]->id().depth();
+    if (nRecHits > 1U)
+        std::sort(depthValues, depthValues+nRecHits);
+
     // Pack the information about the depth of the rechits
     // that we are combining into the "auxHBHE" word
     uint32_t auxHBHE = 0;
     for (unsigned i=0; i<nRecHits; ++i)
-        setField(&auxHBHE, 0xf, i*4, rechits[i]->id().depth());
+        setField(&auxHBHE, 0xf, i*4, depthValues[i]);
     rh->setAuxHBHE(auxHBHE);
 }
