@@ -46,6 +46,7 @@ def _layers(suffix, quant, histoPostfix):
 trackingEffFromHitPattern = cms.EDAnalyzer("DQMGenericClient",
                                            subDirs = cms.untracked.vstring(
         "Tracking/TrackParameters/generalTracks/HitEffFromHitPattern*",
+        "Tracking/TrackParameters/highPurityTracks/pt_1/HitEffFromHitPattern*",
         "Tracking/TrackParameters/highPurityTracks/dzPV0p1/HitEffFromHitPattern*",
                                            ),
                                            efficiency = cms.vstring(
