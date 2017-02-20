@@ -52,6 +52,7 @@ public:
 
   GlobalPoint                   getPosition(const DetId& id) const;
   GlobalPoint                   getBackPosition(const DetId& id) const;
+  CaloCellGeometry::CornersVec  getCorners(const DetId& id) const;
 
   static std::string producerTag() { return "HCAL" ; }
   

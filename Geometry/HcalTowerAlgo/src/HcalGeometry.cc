@@ -163,6 +163,23 @@ GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
   }
 }
 
+CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
+  if (!m_mergePosition) {
+    return (getGeometry(id)->getCorners());
+  } else {
+    std::vector<HcalDetId> ids;
+    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
+    CaloCellGeometry::CornersVec mcorners;
+    CaloCellGeometry::CornersVec mcf = getGeometry(ids.front())->getCorners();
+    CaloCellGeometry::CornersVec mcb = getGeometry(ids.back())->getCorners();
+    for (unsigned int k=0; k<4; ++k) {
+      mcorners[k]   = mcf[k];
+      mcorners[k+4] = mcb[k+4];
+    }
+    return mcorners;
+  }
+}
+
 int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const {
   return m_topology.etaRing(bc, abseta);
 }
