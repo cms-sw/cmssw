@@ -26,6 +26,7 @@ protected:
   edm::InputTag theCSCRecSegmentLabel;
 
   edm::InputTag theGEMRecSegmentLabel;
+  edm::InputTag theGEMRecHitLabel;
   edm::InputTag theME0RecSegmentLabel;
   
   ///Enable the DT measurement

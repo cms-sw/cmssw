@@ -43,6 +43,7 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   theRPCRecHits(),
   theGEMSegments(),
   theGEMRecHits(),
+  theME0Segments(),
   theDTEventCacheID(0),
   theCSCEventCacheID(0),
   theRPCEventCacheID(0),
@@ -189,9 +190,9 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
     
 	// Get the ME0-Segment which relies on this chamber
 	// Getting rechits right now, not segments - maybe it should be segments?
-	ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
+	ME0SegmentCollection::range range = theME0Segments->get(chamberId);
 
-	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0Segments->size()
 							   <<", from chamber: "<< chamberId<<std::endl;
 
 	// Create the MuonTransientTrackingRecHit
@@ -294,10 +295,10 @@ void MuonDetLayerMeasurements::checkME0RecHits()
   if (cacheID == theME0EventCacheID) return;
 
   {
-    theEvent->getByToken(me0Token_, theME0RecHits);
+    theEvent->getByToken(me0Token_, theME0Segments);
     theME0EventCacheID = cacheID;
   }
-  if(!theME0RecHits.isValid())
+  if(!theME0Segments.isValid())
   {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
