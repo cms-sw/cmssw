@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
@@ -32,7 +31,6 @@ C2d_parValues = cms.PSet( seeding_threshold = cms.double(6),
 
 C3d_parValues = cms.PSet( dR_searchNeighbour = cms.double(0.01) )
 
-#cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgoBestChoice'),
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                           FECodec = fe_codec,
                           HGCalEESensitive_tag = cms.string('HGCalEESensitive'),

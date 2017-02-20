@@ -3,13 +3,20 @@
 using namespace l1t;
 
 HGCalMulticluster::HGCalMulticluster( const LorentzVector p4, 
-			     int pt,
-			     int eta,
-			     int phi)
-  : L1Candidate(p4, pt, eta, phi)
-{
-  
-}
+                                      int pt,
+                                      int eta,
+                                      int phi,
+                                      ClusterCollection &basic_clusters
+    ) :
+    L1Candidate(p4, pt, eta, phi),
+    myclusters(basic_clusters){
+    //assert(myclusters.size() > 0 && "Invalid cluster collection, zero length.");
+    } 
+
+
+//{
+    
+//}
 
 HGCalMulticluster::~HGCalMulticluster() 
 {
