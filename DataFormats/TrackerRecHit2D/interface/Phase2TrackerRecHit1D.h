@@ -5,6 +5,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 
+#include "TkCloner.h"
+
+
 class Phase2TrackerRecHit1D final : public TrackerSingleRecHit {
 
 public:
@@ -31,9 +34,15 @@ public:
   //FIXME::check dimension of this!!
   virtual int dimension() const override {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
-
+  virtual bool canImproveWithTrack() const override {return true;}
 private:
-
+  // double dispatch
+  virtual Phase2TrackerRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this,tsos).release();
+  }
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner.makeShared(*this,tsos);
+  }
 };
 
 typedef edmNew::DetSetVector< Phase2TrackerRecHit1D > Phase2TrackerRecHit1DCollectionNew;
