@@ -54,6 +54,10 @@ public:
   bool validHcal(const HcalDetId& id) const;
   bool validDetId(HcalSubdetector subdet, int ieta, int iphi, int depth) const;
   bool validHT(const HcalTrigTowerDetId& id) const;
+  /** Is this a valid cell in context of Plan1 */
+  bool validHcal(const HcalDetId& id, const unsigned int flag) const;
+  /** Flag=0 for unmerged Id's; =1 for for merged Id's; =2 for either */
+
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const;
   /** Get the neighbors of the given cell in west direction*/
@@ -162,6 +166,8 @@ public:
 			  std::vector<HcalDetId>& ids) const {
     hcons_->unmergeDepthDetId(id, ids);
   }
+  // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
+  HcalDetId idFront(const HcalDetId& id) const {return hcons_->idFront(id);}
 
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */

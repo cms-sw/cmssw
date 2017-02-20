@@ -552,6 +552,15 @@ HcalDetId HcalDDDRecConstants::mergedDepthDetId(const HcalDetId& id) const {
   else                       return itr->second;
 }
 
+HcalDetId HcalDDDRecConstants::idFront(const HcalDetId& id) const {
+
+  HcalDetId hid(id);
+  std::map<HcalDetId,std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  if (itr != detIdSpR_.end())
+    hid = HcalDetId(id.subdet(),id.ieta(),id.iphi(),(itr->second)[0].depth());
+  return hid;
+}
+
 void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id,
 					    std::vector<HcalDetId>& ids) const {
 
