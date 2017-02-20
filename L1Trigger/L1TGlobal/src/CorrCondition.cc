@@ -422,7 +422,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		int ssize = m_gtScales->getMUScales().etBins.size();
 		if (etBin0 >= ssize){ 
 		  etBin0 = ssize-1; 			  
-		  edm::LogWarning("L1TGlobal") 
+		  LogTrace("L1TGlobal") 
 		    << "muon0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
 		} 
 		
@@ -456,7 +456,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    int ssize = m_gtScales->getEGScales().etBins.size();
 		    if (etBin0 >= ssize){ 
 		      etBin0 = ssize-1; 			  
-		      edm::LogWarning("L1TGlobal") 
+		      LogTrace("L1TGlobal") 
 			<< "EG0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
 		    } 
 	    
@@ -509,7 +509,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		    int ssize = m_gtScales->getTAUScales().etBins.size();
 		    if (etBin0 >= ssize){ 		      
 		      etBin0 = ssize-1; 			  
-		      edm::LogWarning("L1TGlobal") 
+		      LogTrace("L1TGlobal") 
 			<< "tau0 hw et" << etBin0 << " out of scale range.  Setting to maximum.";
 		    } 
 
@@ -716,7 +716,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		   etBin1 = etIndex1;
 		   int ssize = m_gtScales->getMUScales().etBins.size();
 		   if (etBin1 >= ssize){ 
-		     edm::LogWarning("L1TGlobal") 
+		     LogTrace("L1TGlobal") 
 		       << "muon2 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
 		     etBin1 = ssize-1;   
 		   } 
@@ -744,7 +744,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etBin1 = etIndex1;
 			int ssize = m_gtScales->getEGScales().etBins.size();
 			if (etBin1 >= ssize){ 
-			  edm::LogWarning("L1TGlobal") 
+			  LogTrace("L1TGlobal") 
 			    << "EG1 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
 			  etBin1 = ssize-1; 			  
 			} 
@@ -798,7 +798,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			etBin1 = etIndex1;
 			int ssize = m_gtScales->getTAUScales().etBins.size();
 			if (etBin1 >= ssize){ 
-			  edm::LogWarning("L1TGlobal") 
+			  LogTrace("L1TGlobal") 
 			    << "tau2 hw et" << etBin1 << " out of scale range.  Setting to maximum.";
 			  etBin1 = ssize-1; 			  
 			} 
