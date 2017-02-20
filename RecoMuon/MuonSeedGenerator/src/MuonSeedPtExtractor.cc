@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "TMath.h"
 #include <sstream>
@@ -257,8 +258,16 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       GEMDetId gemId(detId_inner);
       std::ostringstream os;
       int ring = gemId.ring();
-      if(ring == 4) ring = 1;
+      //if(ring == 4) ring = 1;
       os << gemId.station() << ring;
+      combination = "SME_"+os.str();
+    }
+    else if(innerHit->isME0())
+    {
+      ME0DetId me0Id(detId_inner);
+      std::ostringstream os;
+      int ring = 1;//me0Id.ring();
+      os << me0Id.station() << ring;
       combination = "SME_"+os.str();
     }
     else

@@ -16,5 +16,7 @@ MuonSeedVPatternRecognition::MuonSeedVPatternRecognition(const edm::ParameterSet
 
   if(enableGEMMeasurement)
     theGEMRecSegmentLabel = pset.getParameter<edm::InputTag>("GEMRecSegmentLabel");
+  if(enableME0Measurement)
+    theME0RecSegmentLabel = pset.getParameter<edm::InputTag>("ME0RecSegmentLabel");
 }
 
