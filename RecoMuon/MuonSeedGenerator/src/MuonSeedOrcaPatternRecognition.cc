@@ -38,11 +38,10 @@
 
 // GEM
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include <Geometry/GEMGeometry/interface/GEMEtaPartition.h>
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
-#include <DataFormats/GEMRecHit/interface/GEMSegmentCollection.h>
-#include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
-#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 // C++
 #include <vector>
@@ -62,7 +61,7 @@ theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow") ? pset.ge
 {
 
   muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
-						   theGEMRecSegmentLabel,edm::InputTag(),theME0RecSegmentLabel,
+						   theGEMRecSegmentLabel,theGEMRecHitLabel,theME0RecSegmentLabel,
 						   iC,
 						   enableDTMeasurement,enableCSCMeasurement,false,enableGEMMeasurement,enableME0Measurement);
 }

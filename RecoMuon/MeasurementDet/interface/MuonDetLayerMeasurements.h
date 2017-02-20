@@ -154,7 +154,7 @@ class MuonDetLayerMeasurements {
   edm::Handle<RPCRecHitCollection>      theRPCRecHits;
   edm::Handle<GEMSegmentCollection>     theGEMSegments;
   edm::Handle<GEMRecHitCollection>      theGEMRecHits;
-  edm::Handle<ME0SegmentCollection>     theME0RecHits;
+  edm::Handle<ME0SegmentCollection>     theME0Segments;
 
   void checkDTRecHits();
   void checkCSCRecHits();
