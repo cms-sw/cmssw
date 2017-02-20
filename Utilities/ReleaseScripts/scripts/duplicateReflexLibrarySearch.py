@@ -32,6 +32,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+	 {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['TTClusterAssociationMap','TTStubAssociationMap', '(TTStub|TTCluster).*edm::refhelper::FindForDetSetVector.*Phase2TrackerDigi.*']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
