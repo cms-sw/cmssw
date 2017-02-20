@@ -225,6 +225,19 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
   return true;
 }
 
+bool HcalTopology::validHcal(const HcalDetId& id, const unsigned int flag) const {
+  // check the raw rules
+  bool ok = validHcal(id);
+  if (flag == 0) { // This is all what is needed
+  } else if (flag == 1) { // See if it is in the to be merged list and merged list
+    if (hcons_->isPlan1MergedId(id))          ok = true;
+    else if (hcons_->isPlan1ToBeMergedId(id)) ok = false;
+  } else if (!ok) {
+    ok = hcons_->isPlan1MergedId(id);
+  }
+  return ok;
+}
+
 bool HcalTopology::isExcluded(const HcalDetId& id) const {
   bool exed=false;
   // first, check the full detector exclusions...  (fast)

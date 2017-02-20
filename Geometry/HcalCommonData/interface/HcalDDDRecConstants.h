@@ -105,11 +105,14 @@ public:
   unsigned int              nCells(HcalSubdetector) const;
   unsigned int              nCells() const;
   HcalDetId                 mergedDepthDetId(const HcalDetId& id) const;
+  HcalDetId                 idFront(const HcalDetId& id) const;
   void                      unmergeDepthDetId(const HcalDetId& id,
 					      std::vector<HcalDetId>& ids) const;
   void                      specialRBXHBHE(const std::vector<HcalDetId>&,
 					   std::vector<HcalDetId> &) const;
   bool                      withSpecialRBXHBHE() const {return (hcons.ldMap()->getSubdet() != 0);}
+  bool                      isPlan1ToBeMergedId(const HcalDetId& id) const { return detIdSp_.find(id) != detIdSp_.end(); };
+  bool                      isPlan1MergedId(const HcalDetId& id) const { return detIdSpR_.find(id) != detIdSpR_.end(); };
        
 private:
   void                      getOneEtaBin(int subdet, int ieta, int zside,
