@@ -23,9 +23,7 @@ public:
 		         CluRef const&  clus) : TrackerSingleRecHit(pos,err,idet,clus){}
 
   virtual Phase2TrackerRecHit1D * clone() const override { return new Phase2TrackerRecHit1D( * this); }
-#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const override { return std::make_shared<Phase2TrackerRecHit1D>(*this);}
-#endif
 
   CluRef cluster()  const { return cluster_phase2OT(); }
   void setClusterRef(CluRef const & ref)  {setClusterPhase2Ref(ref);}
@@ -34,7 +32,9 @@ public:
   //FIXME::check dimension of this!!
   virtual int dimension() const override {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
+
   virtual bool canImproveWithTrack() const override {return true;}
+
 private:
   // double dispatch
   virtual Phase2TrackerRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
