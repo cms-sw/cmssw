@@ -217,8 +217,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
 	int itrig = index;
  	algoBitToName[itrig] = TString( trigName );
 	
-	TString l1trigName= std::string (algoBitToName[itrig]); 
-	std::string l1triggername= std::string (algoBitToName[itrig]); 
+	TString l1trigName = static_cast<const char *>(algoBitToName[itrig]);
+	std::string l1triggername = static_cast<const char *>(algoBitToName[itrig]);
 
 	HltTree->Branch(l1trigName,l1flag+itrig,l1trigName+"/I");                    
         HltTree->Branch(l1trigName+"_Prescl",l1Prescl+itrig,l1trigName+"_Prescl/I"); 
@@ -238,7 +238,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       if (myflag ) { l1flag[itrig] = 1; }
       else {l1flag[itrig] =0 ; }
 
-      std::string l1triggername= std::string (algoBitToName[itrig]);
+      std::string l1triggername = static_cast<const char *>(algoBitToName[itrig]);
       l1Prescl[itrig] = l1GtUtils.prescaleFactor(iEvent, 
 						 l1triggername, 
 						 iErrorCode);      
