@@ -33,7 +33,10 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
     "layer1HFScaleFactors",
     "layer1ECalScaleETBins",
     "layer1HCalScaleETBins",
-    "layer1HFScaleETBins"
+    "layer1HFScaleETBins",
+    "layer1ECalScalePhiBins",
+    "layer1HCalScalePhiBins",
+    "layer1HFScalePhiBins"
   };
   for (const auto param : expectedParams) {
     if ( conf.find(param) == conf.end() ) {
@@ -48,6 +51,9 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   paramsHelper.setLayer1ECalScaleETBins(conf["layer1ECalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HFScaleETBins  (conf["layer1HFScaleETBins"]  .getVector<int>());
+  paramsHelper.setLayer1ECalScalePhiBins(conf["layer1ECalScalePhiBins"].getVector<unsigned int>());
+  paramsHelper.setLayer1HCalScalePhiBins(conf["layer1HCalScalePhiBins"].getVector<unsigned int>());
+  paramsHelper.setLayer1HFScalePhiBins  (conf["layer1HFScalePhiBins"]  .getVector<unsigned int>());
 
   return true;
 }
