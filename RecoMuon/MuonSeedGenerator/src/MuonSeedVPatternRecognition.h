@@ -26,7 +26,8 @@ protected:
   edm::InputTag theCSCRecSegmentLabel;
 
   edm::InputTag theGEMRecSegmentLabel;
-
+  edm::InputTag theME0RecSegmentLabel;
+  
   ///Enable the DT measurement
   bool enableDTMeasurement;
 
@@ -34,6 +35,7 @@ protected:
   bool enableCSCMeasurement;
 
   bool enableGEMMeasurement;
+  bool enableME0Measurement;
 
 };
 
