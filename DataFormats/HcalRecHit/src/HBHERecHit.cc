@@ -62,3 +62,13 @@ void HBHERecHit::getMergedIds(std::vector<HcalDetId>* ids) const
         }
     }
 }
+
+
+HcalDetId HBHERecHit::idFront() const {
+  if (auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED)) {
+    const HcalDetId myId(id());
+    return HcalDetId(myId.subdet(), myId.ieta(), myId.iphi(), auxHBHE_ & 0xf);
+  } else {
+    return id();
+  }
+}
