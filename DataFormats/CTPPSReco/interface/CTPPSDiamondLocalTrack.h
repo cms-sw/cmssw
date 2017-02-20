@@ -58,6 +58,9 @@ class CTPPSDiamondLocalTrack
 
     inline void setT( const float& t) { t_ = t; }
     inline void setTSigma( const float& t_sigma ) { t_sigma_ = t_sigma; }
+    
+    inline void setOOTIndex( const int& i ) { ts_index_ = i; }
+    inline int getOOTIndex() const { return ts_index_; }
 
     friend bool operator<( const CTPPSDiamondLocalTrack&, const CTPPSDiamondLocalTrack& );
 
@@ -79,6 +82,8 @@ class CTPPSDiamondLocalTrack
 
     float t_;
     float t_sigma_;
+    /// Time slice index
+    int ts_index_;
 
 };
 

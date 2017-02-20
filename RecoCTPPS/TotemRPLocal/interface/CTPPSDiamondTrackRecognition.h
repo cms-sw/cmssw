@@ -20,6 +20,7 @@
 
 #include "TF1.h"
 #include <vector>
+#include <map>
 
 /**
  * \brief Class performing smart reconstruction for CTPPS Diamond Detectors.
@@ -40,16 +41,23 @@ class CTPPSDiamondTrackRecognition
     int produceTracks(edm::DetSet<CTPPSDiamondLocalTrack> &tracks);
     
   protected:
-    const double threshold_;
-    const double thresholdFromMaximum_;
-    const double resolution_;
-    const double sigma_;
-    const double startFromX_;
-    const double stopAtX_;
+    typedef std::vector<TF1> hitFunctionVector_t;
+    typedef std::map<int,hitFunctionVector_t> hitFunctionVectorMap_t;
+    
+    const float threshold_;
+    const float thresholdFromMaximum_;
+    const float resolution_;
+    const float sigma_;
+    const float startFromX_;
+    const float stopAtX_;
     std::string pixelEfficiencyFunction_;
+    
+    float yPosition;
+    float yWidth;
+    int nameCounter;
 
     /// Function for pad efficiency
-    std::vector<TF1> hit_function_vec_;
+    hitFunctionVectorMap_t hitFunctionVectorMap_;
 
 };
 

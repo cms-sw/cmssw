@@ -57,8 +57,8 @@
   <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
   <class name="edm::Wrapper< std::vector<CTPPSDiamondRecHit> >"/>
 
-  <class name="CTPPSDiamondLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="654395128"/>
+  <class name="CTPPSDiamondLocalTrack" ClassVersion="4">
+    <version ClassVersion="4" checksum="339577902"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
   <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
