@@ -202,7 +202,6 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
 	}
 	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits = " << result.size()<<std::endl;
-	std::cout << "Number of ME0 rechits = " << result.size()<<", from chamber: "<< chamberId<<std::endl;	
       }
   }
   else {
