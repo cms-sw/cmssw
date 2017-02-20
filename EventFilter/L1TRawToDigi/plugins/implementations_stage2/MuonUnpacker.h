@@ -7,7 +7,20 @@ namespace l1t {
    namespace stage2 {
       class MuonUnpacker : public Unpacker {
          public:
+            MuonUnpacker();
+            ~MuonUnpacker() {};
+
             virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+
+            unsigned int getAlgoVersion();
+            int getFedNumber();
+
+            void setAlgoVersion(unsigned int version);
+            void setFedNumber(int fed);
+         private:
+            unsigned int algoVersion_;
+            int fed_;
+
       };
    }
 }
