@@ -147,9 +147,9 @@ GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometry(id)->getPosition());
   } else {
-    std::vector<HcalDetId> ids_;
-    m_topology.unmergeDepthDetId(HcalDetId(id),ids_);
-    return (getGeometry(ids_.front())->getPosition());
+    std::vector<HcalDetId> ids;
+    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
+    return (getGeometry(ids.front())->getPosition());
   }
 }
 
@@ -157,9 +157,9 @@ GlobalPoint HcalGeometry::getBackPosition(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometry(id)->getBackPoint());
   } else {
-    std::vector<HcalDetId> ids_;
-    m_topology.unmergeDepthDetId(HcalDetId(id),ids_);
-    return (getGeometry(ids_.back())->getBackPoint());
+    std::vector<HcalDetId> ids;
+    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
+    return (getGeometry(ids.back())->getBackPoint());
   }
 }
 
@@ -167,11 +167,11 @@ CaloCellGeometry::CornersVec HcalGeometry::getCorners(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometry(id)->getCorners());
   } else {
-    std::vector<HcalDetId> ids_;
-    m_topology.unmergeDepthDetId(HcalDetId(id),ids_);
+    std::vector<HcalDetId> ids;
+    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
     CaloCellGeometry::CornersVec mcorners;
-    CaloCellGeometry::CornersVec mcf = getGeometry(ids_.front())->getCorners();
-    CaloCellGeometry::CornersVec mcb = getGeometry(ids_.back())->getCorners();
+    CaloCellGeometry::CornersVec mcf = getGeometry(ids.front())->getCorners();
+    CaloCellGeometry::CornersVec mcb = getGeometry(ids.back())->getCorners();
     for (unsigned int k=0; k<4; ++k) {
       mcorners[k]   = mcf[k];
       mcorners[k+4] = mcb[k+4];
