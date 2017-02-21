@@ -17,13 +17,12 @@ process.EcalTrivialConditionRetriever.laserAlphaMeanEEC = cms.untracked.double(1
 
 process.EcalTrivialConditionRetriever.getLaserAlphaFromFileEB =  cms.untracked.bool(True)
 process.EcalTrivialConditionRetriever.getLaserAlphaFromFileEE =  cms.untracked.bool(True)
-process.EcalTrivialConditionRetriever.EBLaserAlphaFile = cms.untracked.FileInPath('CalibCalorimetry/EcalTrivialCondModules/data/EBLaserAlpha_fromFile.txt')
-process.EcalTrivialConditionRetriever.EELaserAlphaFile = cms.untracked.FileInPath('CalibCalorimetry/EcalTrivialCondModules/data/EELaserAlpha_fromFile.txt')
+process.EcalTrivialConditionRetriever.EBLaserAlphaFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/EBLaserAlpha_fromFile.txt')
+process.EcalTrivialConditionRetriever.EELaserAlphaFile = cms.untracked.string('CalibCalorimetry/EcalTrivialCondModules/data/EELaserAlpha_fromFile.txt')
 # ieta, iphi, alpha for EB
 # iz, ix, iy, alpha for EE
 
 process.load("CondCore.CondDB.CondDB_cfi")
-# process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
 process.CondDB.connect = 'sqlite_file:EcalLaserAlphas_fromFILE.db'
 # process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 
