@@ -105,6 +105,8 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   int iz;
   int imc;
 
+  //Hcal topology
+  const HcalTopology* theHcalTopology;
   // for checking the status of ECAL and HCAL channels stored in the DB 
   const HcalChannelQuality* theHcalChStatus;
   // calculator of severety level for HCAL

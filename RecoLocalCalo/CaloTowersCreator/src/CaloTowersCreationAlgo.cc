@@ -546,8 +546,7 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
   if (detId.det() == DetId::Hcal && theHcalTopology->withSpecialRBXHBHE()) {
     HcalDetId hid(detId);
-    theHcalTopology->unmergeDepthDetId(hid, ids_);
-    if (ids_.size() > 0) detId = DetId(ids_[0]);
+    detId = theHcalTopology->idFront(hid);
 #ifdef EDM_ML_DEBUG
     std::cout << "AssignHitHcal change " << hid << " to " << HcalDetId(detId)
 	      << std::endl;
@@ -1526,13 +1525,11 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 
   HcalDetId hid1(frontCellId), hid2(backCellId);
   if (theHcalTopology->withSpecialRBXHBHE()) {
-    theHcalTopology->unmergeDepthDetId(hid1, ids_);
-    if (ids_.size() > 0) hid1 = ids_[0];
+    hid1 = theHcalTopology->idFront(frontCellId);
 #ifdef EDM_ML_DEBUG
     std::cout << "Front " << HcalDetId(frontCellId) << " " << hid1 << "\n";
 #endif
-    theHcalTopology->unmergeDepthDetId(hid2, ids_);
-    if (ids_.size() > 0) hid2 = ids_[0];
+    hid2 = theHcalTopology->idFront(backCellId);
 #ifdef EDM_ML_DEBUG
     std::cout << "Back  " << HcalDetId(backCellId) << " " << hid2 << "\n";
 #endif
@@ -1647,10 +1644,12 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
   hcalDropChMap.clear();
   std::vector<DetId> allChanInStatusCont = theHcalChStatus->getAllChannels();
 
+#ifdef EDM_ML_DEBUG
+  std::cout << "DropChMap with " << allChanInStatusCont.size() << " channels"
+	    << std::endl;
+#endif
   for (std::vector<DetId>::iterator it = allChanInStatusCont.begin(); it!=allChanInStatusCont.end(); ++it) {
-
     const uint32_t dbStatusFlag = theHcalChStatus->getValues(*it)->getValue();
-
     if (theHcalSevLvlComputer->dropChannel(dbStatusFlag)) {
 
       CaloTowerDetId twrId = theTowerConstituentsMap->towerOf(*it);
@@ -1677,7 +1676,6 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
     }
 
   }
-  
 }
 
 
@@ -1732,8 +1730,13 @@ void CaloTowersCreationAlgo::makeEcalBadChs() {
 
 unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit* hit) {
 
-  const DetId id = hit->detid();
-
+  DetId id = hit->detid();
+  HcalDetId hid(id);
+  id = theHcalTopology->idFront(hid);
+#ifdef EDM_ML_DEBUG
+  std::cout << "ChanStatusForCaloTower for " << hid << " to " << HcalDetId(id) 
+	    << std::endl;
+#endif
   const uint32_t recHitFlag = hit->flags();
   const uint32_t dbStatusFlag = theHcalChStatus->getValues(id)->getValue();
   
