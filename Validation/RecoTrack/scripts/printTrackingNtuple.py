@@ -18,7 +18,7 @@ def findEvent(ntpl, event):
     raise Exception("Did not find event %s from file %s" % (eventId, ntpl.file().GetPath()))
 
 def main(opts):
-    if opts.track is None and opts.trackingParticle is None and opts.seed is None:
+    if opts.track is None and opts.trackingParticle is None and opts.seed is None and opts.pixelHit is None and opts.stripHit is None:
         return
 
     ntpl = ntuple.TrackingNtuple(opts.file)
@@ -37,9 +37,11 @@ def main(opts):
     if opts.track is not None:
         trk = event.tracks()[opts.track]
         printTrack(trk)
+
     if opts.trackingParticle is not None:
         tp = event.trackingParticles()[opts.trackingParticle]
         printTrackingParticle(tp)
+
     if opts.seed is not None:
         seeds = event.seeds()
         if opts.seedIteration is not None:
@@ -47,6 +49,24 @@ def main(opts):
         else:
             seed = seeds[opts.seed]
         printSeed(seed)
+
+    if opts.pixelHit is not None:
+        hit = event.pixelHits()[opts.pixelHit]
+        print "Pixel hit %d tracks" % opts.pixelHit
+        for t in hit.tracks():
+            printTrack(t)
+        print "Pixel hit %d seeds" % opts.pixelHit
+        for t in hit.seeds():
+            printSeed(s)
+
+    if opts.stripHit is not None:
+        hit = event.stripHits()[opts.stripHit]
+        print "Strip hit %d tracks" % opts.stripHit
+        for t in hit.tracks():
+            printTrack(t)
+        print "Strip hit %d seeds" % opts.stripHit
+        for t in hit.seeds():
+            printSeed(s)
 
 
 if __name__ == "__main__":
@@ -67,6 +87,10 @@ if __name__ == "__main__":
                         help="Index of a seed to print information for. If --seedIteration is specified, the index is within the iteration. Without --seedIteration it is used as a global index.")
     parser.add_argument("--seedIteration", type=str,
                         help="Seed iteration, used optionally with --seed")
+    parser.add_argument("--pixelHit", type=int,
+                        help="Index of a pixel hit")
+    parser.add_argument("--stripHit", type=int,
+                        help="Index of a strip hit")
 
     opts = parser.parse_args()
 
