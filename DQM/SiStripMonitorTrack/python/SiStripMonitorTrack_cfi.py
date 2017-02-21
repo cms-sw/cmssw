@@ -43,10 +43,10 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                              xmin  = cms.double(-0.5),
                              xmax  = cms.double(19999.5)
                              ),
-                             
+
     TH1ClusterGain = cms.PSet(
         layerView = cms.bool(True),
-        ringView  = cms.bool(False),
+        ringView  = cms.bool(True),
         Nbinx = cms.int32(100),
         xmin  = cms.double(-0.5),
         xmax  = cms.double(3.5)
@@ -62,7 +62,7 @@ SiStripMonitorTrack = cms.EDAnalyzer(
 
     TH1ClusterChargeRaw = cms.PSet(
         layerView = cms.bool(True),
-        ringView  = cms.bool(False),
+        ringView  = cms.bool(True),
         Nbinx = cms.int32(100),
         xmin  = cms.double(-0.5),
         xmax  = cms.double(999.5)
