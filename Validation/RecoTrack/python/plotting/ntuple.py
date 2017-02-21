@@ -113,6 +113,18 @@ StopReason = _Enum(
   NOT_STOPPED = 255
 )
 
+# Need to be kept consistent with
+# DataFormats/TrackReco/interface/SeedStopReason.h
+SeedStopReason = _Enum(
+  UNINITIALIZED = 0,
+  NOT_STOPPED = 1,
+  SEED_CLEANING = 2,
+  NO_TRAJECTORY = 3,
+  FINAL_CLEAN = 4,
+  SMOOTHING_FAILED = 5,
+  SIZE = 6
+)
+
 # to be kept is synch with enum HitSimType in TrackingNtuple.py
 HitSimType = _Enum(
     Signal = 0,
@@ -1001,9 +1013,12 @@ class SeedPrinter(_RecHitPrinter):
     def printHeader(self, seed):
         lst = []
         track = seed.track()
-        madeTrack = "did not make a track"
         if track.isValid():
             madeTrack = "made track %d" % track.index()
+        else:
+            madeTrack = "did not make a track, stopReason %s" % SeedStopReason.toString(seed.stopReason())
+            if seed.stopReason() == SeedStopReason.NOT_STOPPED:
+                madeTrack += " (usually this means that the track was reconstructed, but rejected by the track selection)"
 
         lst.append(self._prefix+"Seed %d algo %s %s" % (seed.indexWithinAlgo(), Algo.toString(seed.algo()), madeTrack))
         lst.append(self._prefix+" starting state: pT %f local pos x,y %f,%f mom x,y,z %f,%f,%f" % (seed.statePt(), seed.stateTrajX(), seed.stateTrajY(), seed.stateTrajPx(), seed.stateTrajPy(), seed.stateTrajPz()))
