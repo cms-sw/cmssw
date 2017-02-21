@@ -33,7 +33,8 @@ typedefsDict = \
 equivDict = \
      [
 	 {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
-         {'TrackTriggerAssociation' : ['TTClusterAssociationMap','TTStubAssociationMap', '(TTStub|TTCluster).*edm::refhelper::FindForDetSetVector.*Phase2TrackerDigi.*']},
+         {'TrackTriggerAssociation' : ['TTClusterAssociationMap','TTStubAssociationMap', '(TTStub|TTCluster).*edm::refhelper::FindForDetSetVector.*Phase2TrackerDigi.*'
+				       'TTTrackAssociationMap.*Phase2TrackerDigi.*', 'TTTrack< *edm::Ref< *edm::DetSetVector< *Phase2TrackerDigi']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
