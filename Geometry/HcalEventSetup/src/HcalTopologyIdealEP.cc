@@ -59,7 +59,7 @@ void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & des
 
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "Exclude", "" );
-  desc.addUntracked<bool>("MergePosition", false);
+  desc.addUntracked<bool>("MergePosition", true);
   descriptions.add( "hcalTopologyIdeal", desc );
 }
 

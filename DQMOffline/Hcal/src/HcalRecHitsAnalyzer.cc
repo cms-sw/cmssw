@@ -1,5 +1,6 @@
 #include "DQMOffline/Hcal/interface/HcalRecHitsAnalyzer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 HcalRecHitsAnalyzer::HcalRecHitsAnalyzer(edm::ParameterSet const& conf) {
@@ -474,6 +475,11 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
   //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
   c.get<CaloGeometryRecord>().get (geometry);
+
+  // HCAL Topology **************************************************
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+  theHcalTopology = topo.product();
 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
@@ -1037,7 +1043,10 @@ double HcalRecHitsAnalyzer::dPhiWsign(double phi1, double phi2) {
 
 int HcalRecHitsAnalyzer::hcalSevLvl(const CaloRecHit* hit){
 
-   const DetId id = hit->detid();
+   HcalDetId id = hit->detid();
+   if (theHcalTopology->withSpecialRBXHBHE() && id.subdet() == HcalEndcap) {
+     id = theHcalTopology->idFront(id);
+   }
 
    const uint32_t recHitFlag = hit->flags();
    const uint32_t dbStatusFlag = theHcalChStatus->getValues(id)->getValue();
