@@ -7,6 +7,7 @@ Tracker:
 * T2: Phase2 flat tracker (v2016-04-12) w/ phase 1 (extended) pixel- DEPRECATED, superseded by T4
 * T3: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.6)
 * T4: Phase2 flat tracker (v2016-04-12) w/ phase 2 pixel (v4.0.2.6)
+* T5: Phase2 tilted tracker (v3.6.5) w/ phase 2 pixel (v4.0.2.5)
 
 Calorimeters:
 * C1: Run2 calorimeters
@@ -29,6 +30,7 @@ Several detector combinations have been generated:
 * D8 = T3+C2+M1+I2
 * D9 = T3+C1+M2+I1
 * D10 = T4+C1+M1+I1
+* D11 = T5+C2+M1+I1
 
 Currently, D4 is considered to be the baseline for the Phase 2 Tracker TDR.
 

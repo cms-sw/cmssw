@@ -31,7 +31,10 @@ upgradeKeys[2023] = [
     '2023D8',
     '2023D8PU',
     '2023D9',
-    '2023D9PU'
+    '2023D9PU',
+    '2023D11',
+    '2023D11PU'
+    
 ]
 
 # pre-generation of WF numbers
@@ -163,6 +166,13 @@ upgradeProperties[2023] = {
         'HLTmenu': '@fake',
         'Era' : 'Phase2C1',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
+    '2023D11' : {
+        'Geom' : 'Extended2023D11',
+        'HLTmenu': '@fake',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C2',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     }
 
 }
@@ -188,6 +198,8 @@ upgradeProperties[2023]['2023D8PU'] = deepcopy(upgradeProperties[2023]['2023D8']
 upgradeProperties[2023]['2023D8PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D9PU'] = deepcopy(upgradeProperties[2023]['2023D9'])
 upgradeProperties[2023]['2023D9PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D11PU'] = deepcopy(upgradeProperties[2023]['2023D11'])
+upgradeProperties[2023]['2023D11PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 #Timing PU (for now copy ScenToRun of standard PU)
