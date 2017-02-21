@@ -12,7 +12,7 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 import html
 
 verbose=False
-ratioYTitle = "Ratio"
+_ratioYTitle = "Ratio"
 
 def _setStyle():
     _absoluteSize = True
@@ -1115,7 +1115,7 @@ class Frame:
 
 class FrameRatio:
     """Class for creating and managing a frame for a ratio plot with two subpads"""
-    def __init__(self, pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None):
+    def __init__(self, pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ratioYTitle=_ratioYTitle):
         self._parentPad = pad
         self._pad = pad.cd(1)
         if xbinlabels is not None:
