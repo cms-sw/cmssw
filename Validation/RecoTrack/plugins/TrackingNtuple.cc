@@ -441,6 +441,7 @@ private:
 
   // ----------member data ---------------------------
   std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > seedTokens_;
+  std::vector<edm::EDGetTokenT<std::vector<short> > > seedStopReasonTokens_;
   edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
   edm::EDGetTokenT<TrackingParticleRefVector> trackingParticleRefToken_;
@@ -519,7 +520,7 @@ private:
   std::vector<unsigned int> trk_algo    ;
   std::vector<unsigned int> trk_originalAlgo;
   std::vector<decltype(reco::TrackBase().algoMaskUL())> trk_algoMask;
-  std::vector<unsigned int> trk_stopReason;
+  std::vector<unsigned short> trk_stopReason;
   std::vector<short> trk_isHP    ;
   std::vector<int> trk_seedIdx ;
   std::vector<int> trk_vtxIdx;
@@ -717,6 +718,7 @@ private:
   std::vector<unsigned int> see_nStrip  ;
   std::vector<unsigned int> see_nPhase2OT;
   std::vector<unsigned int> see_algo    ;
+  std::vector<unsigned short> see_stopReason;
   std::vector<int> see_trkIdx;
   std::vector<std::vector<float> > see_shareFrac; // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > see_simTrkIdx;   // second index runs through matched TrackingParticles
@@ -759,9 +761,6 @@ private:
 // constructors and destructor
 //
 TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
-  seedTokens_(edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("seedTracks"), [&](const edm::InputTag& tag) {
-        return consumes<edm::View<reco::Track> >(tag);
-      })),
   trackToken_(consumes<edm::View<reco::Track> >(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
   clusterTPMapToken_(consumes<ClusterTPAssociation>(iConfig.getUntrackedParameter<edm::InputTag>("clusterTPMap"))),
   simHitTPMapToken_(consumes<SimHitTPAssociationProducer::SimHitTPAssociationList>(iConfig.getUntrackedParameter<edm::InputTag>("simHitTPMap"))),
@@ -787,6 +786,18 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
   includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits"))
 {
+  if(includeSeeds_) {
+    seedTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("seedTracks"), [&](const edm::InputTag& tag) {
+        return consumes<edm::View<reco::Track> >(tag);
+      });
+    seedStopReasonTokens_ = edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag> >("trackCandidates"), [&](const edm::InputTag& tag) {
+        return consumes<std::vector<short> >(tag);
+      });
+    if(seedTokens_.size() != seedStopReasonTokens_.size()) {
+      throw cms::Exception("Configuration") << "Got " << seedTokens_.size() << " seed collections, but " << seedStopReasonTokens_.size() << " track candidate collections";
+    }
+  }
+
   const bool tpRef = iConfig.getUntrackedParameter<bool>("trackingParticlesRef");
   const auto tpTag = iConfig.getUntrackedParameter<edm::InputTag>("trackingParticles");
   if(tpRef) {
@@ -1052,6 +1063,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
     t->Branch("see_nStrip"   , &see_nStrip  );
     t->Branch("see_nPhase2OT", &see_nPhase2OT);
     t->Branch("see_algo"     , &see_algo    );
+    t->Branch("see_stopReason", &see_stopReason);
     t->Branch("see_trkIdx"   , &see_trkIdx  );
     t->Branch("see_shareFrac", &see_shareFrac);
     t->Branch("see_simTrkIdx", &see_simTrkIdx  );
@@ -1328,6 +1340,7 @@ void TrackingNtuple::clearVariables() {
   see_nStrip  .clear();
   see_nPhase2OT.clear();
   see_algo    .clear();
+  see_stopReason.clear();
   see_trkIdx  .clear();
   see_shareFrac.clear();
   see_simTrkIdx.clear();
@@ -2035,13 +2048,29 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                std::map<edm::ProductID, size_t>& seedCollToOffset
                                ) {
   TSCBLBuilderNoMaterial tscblBuilder;
-  for(const auto& seedToken: seedTokens_) {
+  for(size_t iColl=0; iColl < seedTokens_.size(); ++iColl) {
+    const auto& seedToken = seedTokens_[iColl];
+
     edm::Handle<edm::View<reco::Track> > seedTracksHandle;
     iEvent.getByToken(seedToken, seedTracksHandle);
     const auto& seedTracks = *seedTracksHandle;
 
     if(seedTracks.empty())
       continue;
+
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(seedToken, labels);
+
+    const auto& seedStopReasonToken = seedStopReasonTokens_[iColl];
+    edm::Handle<std::vector<short> > seedStopReasonHandle;
+    iEvent.getByToken(seedStopReasonToken, seedStopReasonHandle);
+    const auto& seedStopReasons = *seedStopReasonHandle;
+    if(seedTracks.size() != seedStopReasons.size()) {
+      edm::EDConsumerBase::Labels labels2;
+      labelsForToken(seedStopReasonToken, labels2);
+      
+      throw cms::Exception("LogicError") << "Got " << seedTracks.size() << " seeds, but " << seedStopReasons.size() << " seed stopping reasons for collections " << labels.module << ", " << labels2.module;
+    }
 
     // The associator interfaces really need to be fixed...
     edm::RefToBaseVector<reco::Track> seedTrackRefs;
@@ -2051,8 +2080,6 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     reco::RecoToSimCollection recSimColl = associatorByHits.associateRecoToSim(seedTrackRefs, tpCollection);
     reco::SimToRecoCollection simRecColl = associatorByHits.associateSimToReco(seedTrackRefs, tpCollection);
 
-    edm::EDConsumerBase::Labels labels;
-    labelsForToken(seedToken, labels);
     TString label = labels.module;
     //format label to match algoName
     label.ReplaceAll("seedTracks", "");
@@ -2070,11 +2097,13 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
     LogTrace("TrackingNtuple") << "NEW SEED LABEL: " << label << " size: " << seedTracks.size() << " algo=" << algo
                                << " ProductID " << id;
 
-    for(const auto& seedTrackRef: seedTrackRefs) {
-
+    for(size_t iSeed=0; iSeed < seedTrackRefs.size(); ++iSeed) {
+      const auto& seedTrackRef = seedTrackRefs[iSeed];
       const auto& seedTrack = *seedTrackRef;
       const auto& seedRef = seedTrack.seedRef();
       const auto& seed = *seedRef;
+
+      const auto seedStopReason = seedStopReasons[iSeed];
 
       if(seedRef.id() != id)
         throw cms::Exception("LogicError") << "All tracks in 'TracksFromSeeds' collection should point to seeds in the same collection. Now the element 0 had ProductID " << id << " while the element " << seedTrackRef.key() << " had " << seedTrackRef.id() << ". The source collection is " << labels.module << ".";
@@ -2118,6 +2147,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_dxyErr  .push_back( seedFitOk ? seedTrack.dxyError() : 0);
       see_dzErr   .push_back( seedFitOk ? seedTrack.dzError() : 0);
       see_algo    .push_back( algo );
+      see_stopReason.push_back( seedStopReason );
 
       const auto& state = seedTrack.seedRef()->startingState();
       const auto& pos = state.parameters().position();
@@ -2713,6 +2743,18 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
       edm::InputTag("seedTracksmuonSeededSeedsInOut"),
       edm::InputTag("seedTracksmuonSeededSeedsOutIn")
   });
+  desc.addUntracked<std::vector<edm::InputTag> >("trackCandidates", std::vector<edm::InputTag>{
+      edm::InputTag("initialStepTrackCandidates"),
+      edm::InputTag("detachedTripletStepTrackCandidates"),
+      edm::InputTag("pixelPairStepTrackCandidates"),
+      edm::InputTag("lowPtTripletStepTrackCandidates"),
+      edm::InputTag("mixedTripletStepTrackCandidates"),
+      edm::InputTag("pixelLessStepTrackCandidates"),
+      edm::InputTag("tobTecStepTrackCandidates"),
+      edm::InputTag("jetCoreRegionalStepTrackCandidates"),
+      edm::InputTag("muonSeededTrackCandidatesInOut"),
+      edm::InputTag("muonSeededTrackCandidatesOutIn")
+    });
   desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.addUntracked<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
   desc.addUntracked<bool>("trackingParticlesRef", false);
