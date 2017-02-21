@@ -1,5 +1,5 @@
-#ifndef TOTWINMUXDIGICOLLECTION_H
-#define TOTWINMUXDIGICOLLECTION_H
+#ifndef DataFormats_L1Trigger_HOTwinMuxDigiCollection_h
+#define DataFormats_L1Trigger_HOTwinMuxDigiCollection_h
 
 #include <vector>
 #include "DataFormats/Common/interface/SortedCollection.h"
