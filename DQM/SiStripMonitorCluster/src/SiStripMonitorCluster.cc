@@ -806,6 +806,18 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	  ClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
 	}
 	  
+       
+       if (subdetswitchtotclusprofon) {
+	 std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
+	 std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
+	  if(iSubdet != SubDetMEsMap.end()) iSubdet->second.SubDetNumberOfClusterPerLayerTrend->Fill(trendVar,abs(det_layer_pair.second));
+	}
+
+	if (subdetswitchtotclusprofon && (subdet_label.find("TID")!=std::string::npos || subdet_label.find("TEC")!=std::string::npos)){
+	 std::pair<std::string,int32_t> det_ring_pair = folder_organizer.GetSubDetAndLayer(detid,tTopo,true);
+	  fillME(layer_single.LayerNumberOfClusterPerRingTrend, trendVar, abs(det_ring_pair.second));
+	}
+
 	  } // end loop over clusters
 
       short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; // get correct # of avp pairs
@@ -825,6 +837,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	  fillME(layer_single.LayerLocalOccupancyTrend,trendVar,local_occupancy);
       }
     }
+    
+    if (subdetswitchtotclusprofon)
+      fillME(layer_single.LayerNumberOfClusterTrend,trendVar,ncluster_layer);	 
+
     std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
     if(iSubdet != SubDetMEsMap.end()) iSubdet->second.totNClusters += ncluster_layer;
   }
@@ -1095,6 +1111,8 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets , DQMSto
   layerMEs.LayerLocalOccupancy = 0;
   layerMEs.LayerLocalOccupancyTrend = 0;
   layerMEs.LayerNumberOfClusterProfile = 0;
+  layerMEs.LayerNumberOfClusterTrend = 0;
+  layerMEs.LayerNumberOfClusterPerRingTrend = 0;  
   layerMEs.LayerClusterWidthProfile = 0;
   layerMEs.LayerClusWidthVsAmpTH2 = 0;
   layerMEs.LayerClusterPosition = 0;
@@ -1132,6 +1150,16 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets , DQMSto
     layerMEs.LayerLocalOccupancy=bookME1D("TH1ModuleLocalOccupancy", hidmanager.createHistoLayer("Summary_ClusterLocalOccupancy","layer",label,"").c_str() , ibooker );
     if (createTrendMEs)
       layerMEs.LayerLocalOccupancyTrend=bookMETrend(hidmanager.createHistoLayer("Trend_ClusterLocalOccupancy","layer",label,"").c_str(),ibooker);
+  }
+
+  // # of Cluster Trend
+  if (subdetswitchtotclusprofon){
+    layerMEs.LayerNumberOfClusterTrend = bookMETrend(hidmanager.createHistoLayer("NumberOfClusterTrend","layer",label,"").c_str(),ibooker);
+
+    if (label.find("TID")!=std::string::npos || label.find("TEC")!=std::string::npos){
+      edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("NumberOfClusterPerRingVsTrendVarTH2");
+      layerMEs.LayerNumberOfClusterPerRingTrend = bookME2D("NumberOfClusterPerRingVsTrendVarTH2", hidmanager.createHistoLayer("NumberOfClusterPerRing_vs_TrendVar","layer",label,"").c_str() , ibooker );
+    }
   }
 
   // # of Cluster Profile
@@ -1174,6 +1202,8 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
   subdetMEs.SubDetClusterChargeTH1    = 0;
   subdetMEs.SubDetClusterWidthTH1     = 0;
   subdetMEs.SubDetClusWidthVsAmpTH2	  = 0;
+  subdetMEs.SubDetNumberOfClusterPerLayerTrend    = 0;
+
 
   std::string HistoName;
   // cluster charge
@@ -1208,6 +1238,12 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
 							 0 , 0 , "" );
     subdetMEs.SubDetTotClusterProf->setAxisTitle(Parameters.getParameter<std::string>("xaxis"),1);
     if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotClusterProf->getTH1()->SetCanExtend(TH1::kAllAxes);
+
+    HistoName = "TotalNumberOfClusterPerLayer__" + label;
+    subdetMEs.SubDetNumberOfClusterPerLayerTrend = bookME2D("NumberOfClusterPerLayerTrendVarTH2", HistoName.c_str() , ibooker );
+    subdetMEs.SubDetNumberOfClusterPerLayerTrend->setAxisTitle("Lumisection",1);
+    subdetMEs.SubDetNumberOfClusterPerLayerTrend->setAxisTitle("Layer Number",2);
+    
   }
 
   // Total Number of Cluster vs APV cycle - Profile
