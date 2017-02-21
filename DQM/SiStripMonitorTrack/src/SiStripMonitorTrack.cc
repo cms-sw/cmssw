@@ -900,26 +900,18 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-  // trajectory input
-  edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
-  ev.getByToken(trackTrajToken_, TItkAssociatorCollection);
-  if( TItkAssociatorCollection.isValid()){
-    trackStudyFromTrajectory(TItkAssociatorCollection,es);
+
+  //    edm::Handle<std::vector<Trajectory> > trajectories;
+  //    ev.getByToken(trajectoryToken_, trajectories);
+
+  // track input
+  edm::Handle<reco::TrackCollection > trackCollectionHandle;
+  ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
+  if (trackCollectionHandle.isValid()){
+    trackStudyFromTrack(trackCollectionHandle,es);
   } else {
-    edm::LogError("SiStripMonitorTrack")<<"Association not found ... try w/ track collection"<<std::endl;
-
-    //    edm::Handle<std::vector<Trajectory> > trajectories;
-    //    ev.getByToken(trajectoryToken_, trajectories);
-
-    // track input
-    edm::Handle<reco::TrackCollection > trackCollectionHandle;
-    ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
-    if (trackCollectionHandle.isValid()){
-      trackStudyFromTrack(trackCollectionHandle,es);
-    } else {
-      edm::LogError("SiStripMonitorTrack")<<"also Track Collection is not valid !! " << TrackLabel_<<std::endl;
-      return;
-    }
+    edm::LogError("SiStripMonitorTrack")<<"also Track Collection is not valid !! " << TrackLabel_<<std::endl;
+    return;
   }
 }
 
