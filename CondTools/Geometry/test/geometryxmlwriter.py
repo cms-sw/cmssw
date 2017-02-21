@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryXMLWriter")
+
 process.load('Configuration.Geometry.GeometryExtended_cff')
 
 process.source = cms.Source("EmptyIOVSource",
@@ -12,7 +13,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.BigXMLWriter = cms.EDAnalyzer("OutputDDToDDL",
                               rotNumSeed = cms.int32(0),
-                              fileName = cms.untracked.string("geTagXX.xml")
+                              fileName = cms.untracked.string("./geSingleBigFile.xml")
                               )
 
 
@@ -21,3 +22,4 @@ process.maxEvents = cms.untracked.PSet(
     )
 
 process.p1 = cms.Path(process.BigXMLWriter)
+
