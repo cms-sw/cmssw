@@ -173,6 +173,11 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   a_mipR_                             = iConfig.getParameter<double>("ConeRadiusMIP");
   pTrackMin_                          = iConfig.getParameter<double>("MinimumTrackP");
   eEcalMax_                           = iConfig.getParameter<double>("MaximumEcalEnergy");
+  // Different isolation cuts are described in DN-2016/029
+  // Tight cut uses 2 GeV; Loose cut uses 10 GeV
+  // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
+  // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
+  // maxRestrictionP_ = 8 GeV as came from a study
   maxRestrictionP_                    = iConfig.getParameter<double>("MaxTrackP");
   slopeRestrictionP_                  = iConfig.getParameter<double>("SlopeTrackP");
   eIsolate1_                          = iConfig.getParameter<double>("IsolationEnergyStr");
