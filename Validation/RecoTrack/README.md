@@ -69,7 +69,7 @@ the C++ code for a missing SimHit.
 Use `--help` to check out the parameters.
 
 * [`diffTrackingNtuple.py`](scripts/diffTrackingNtuple.py) Prints unified-style diff of tracks in all or individual events of two files. The files must have the same TrackingParticles and hits, tracks and track-TP matching can be different. The tracks between the files are primarily associated via the matched TrackingParticles, and secondarily via hits the track share. The final list of tracks is sorted in eta in ascending order.
-* [`printTrackingNtuple.py`](scripts/printTrackingNtuple.py) Prints information on individual tracks/TrackingParticles in individual events
+* [`printTrackingNtuple.py`](scripts/printTrackingNtuple.py) Prints information on individual tracks/seeds/TrackingParticles in individual events
 
 ### Example scripts
 

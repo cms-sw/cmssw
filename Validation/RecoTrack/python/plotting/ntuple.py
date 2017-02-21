@@ -501,7 +501,7 @@ def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, lst1extra=[
 
     # finally add information of the trackingParticle
     # easiest is to pass a track matched to the TP
-    tmp = _mapdiff(trackPrinter.printTrackingParticles, someTrk1, someTrk2)
+    tmp = _mapdiff(trackPrinter.printMatchedTrackingParticles, someTrk1, someTrk2)
     tmp.setDifference(False) # we know the TP is the same, even if the "track match" information will differ
     def _makere(lst):
         r = []
@@ -963,7 +963,7 @@ def _hitPatternSummary(hits):
 
     return summary
 
-class _RecHitPrinter(object):
+class _IndentPrinter(object):
     def __init__(self, indent=0):
         self._prefix = " "*indent
         self._backup = []
@@ -986,6 +986,10 @@ class _RecHitPrinter(object):
     def restoreIndent(self):
         self._prefix = self._backup.pop()
 
+class _RecHitPrinter(_IndentPrinter):
+    def __init__(self, indent=0):
+        super(_RecHitPrinter, self).__init__(indent)
+
     def _printHits(self, hits):
         lst = []
         for hit in hits:
@@ -1006,9 +1010,54 @@ class _RecHitPrinter(object):
             lst.append(self._prefix+"%s %d detid %d %s %s %s" % (hit.layerStr(), hit.index(), detId.detid, str(detId), coord, matched))
         return lst
 
+class _TrackingParticleMatchPrinter(object):
+    def __init__(self, trackingParticles, trackingParticlePrinter, bestMatchingTrackingParticle):
+        self._trackingParticles = trackingParticles
+        self._trackingParticlePrinter = trackingParticlePrinter
+        self._bestMatchingTrackingParticle = bestMatchingTrackingParticle
+
+    def _printTrackingParticles(self, prefix, tps, header):
+        lst = []
+        if self._trackingParticlePrinter is None:
+            lst.append(prefix+header+" "+",".join([str(tp.index()) for tp in tps]))
+        else:
+            lst.append(prefix+header)
+            for tp in tps:
+                lst.extend(self._trackingParticlePrinter.printTrackingParticle(tp))
+                lst.extend(self._trackingParticlePrinter.printHits(tp))
+                lst.extend(self._trackingParticlePrinter.printMatchedTracks(tp, useTrackPrinter=False))
+        return lst
+
+    def printMatchedTrackingParticles(self, prefix, track):
+        lst = []
+        if not self._trackingParticles:
+            return lst
+
+        pfx = prefix+" "
+        if self._trackingParticlePrinter is not None:
+            self._trackingParticlePrinter.indent(len(pfx)+1)
+
+        if track.nMatchedTrackingParticles() == 0:
+            if self._bestMatchingTrackingParticle:
+                bestTP = track.bestMatchingTrackingParticle()
+                if bestTP is not None:
+                    lst.extend(self._printTrackingParticles(pfx, [bestTP], "not matched to any TP, but a following TP with >= 3 matched hits is found"))
+                else:
+                    lst.append(prefix+"not matched to any TP")
+            else:
+                lst.append(prefix+"not matched to any TP")
+        else:
+            lst.extend(self._printTrackingParticles(pfx, [tpInfo.trackingParticle() for tpInfo in track.matchedTrackingParticleInfos()], "matched to TPs"))
+
+        if self._trackingParticlePrinter is not None:
+            self._trackingParticlePrinter.restoreIndent()
+
+        return lst
+
 class SeedPrinter(_RecHitPrinter):
-    def __init__(self, *args, **kwargs):
-        super(SeedPrinter, self).__init__(*args, **kwargs)
+    def __init__(self, indent=0, trackingParticles=False, trackingParticlePrinter=None, bestMatchingTrackingParticle=True):
+        super(SeedPrinter, self).__init__(indent)
+        self._trackingParticleMatchPrinter = _TrackingParticleMatchPrinter(trackingParticles, trackingParticlePrinter, bestMatchingTrackingParticle)
 
     def printHeader(self, seed):
         lst = []
@@ -1032,12 +1081,15 @@ class SeedPrinter(_RecHitPrinter):
         self.restoreIndent()
         return lst
 
+    def printMatchedTrackingParticles(self, seed):
+        return self._trackingParticleMatchPrinter.printMatchedTrackingParticles(self._prefix, seed)
+
     def printSeed(self, seed):
         lst = []
         lst.extend(self.printHeader(seed))
         lst.extend(self.printHits(seed))
+        lst.extend(self.printMatchedTrackingParticles(seed))
         return lst
-
 
     def __call__(self, seed, out=sys.stdout):
         if isinstance(out, list):
@@ -1052,7 +1104,7 @@ class SeedPrinter(_RecHitPrinter):
                 out.write(line),
                 out.write("\n")
 
-    def diff(self, seed1, seed2, diffForTwiki=False):
+    def diff(self, seed1, seed2, diffForTwiki=False, diffTrackingParticles=False):
         if seed1 is None:
             return _makediff([], self.printSeed(seed2))
         if seed2 is None:
@@ -1064,6 +1116,8 @@ class SeedPrinter(_RecHitPrinter):
         ret.extend(diffHits)
         if diffForTwiki:
             ret.extend(_formatHitDiffForTwiki(diffHits, self._prefix))
+        if diffTrackingParticles:
+            ret.extend(_mapdiff(self.printMatchedTrackingParticles, seed1, seed2))
         return ret
 
 class TrackPrinter(_RecHitPrinter):
@@ -1071,9 +1125,7 @@ class TrackPrinter(_RecHitPrinter):
         super(TrackPrinter, self).__init__(indent)
         self._hits = hits
         self._seedPrinter = seedPrinter
-        self._trackingParticles = trackingParticles
-        self._trackingParticlePrinter = trackingParticlePrinter
-        self._bestMatchingTrackingParticle = bestMatchingTrackingParticle
+        self._trackingParticleMatchPrinter = _TrackingParticleMatchPrinter(trackingParticles, trackingParticlePrinter, bestMatchingTrackingParticle)
         self._diffForTwiki = diffForTwiki
 
     def printHeader(self, track):
@@ -1130,47 +1182,14 @@ class TrackPrinter(_RecHitPrinter):
             self._seedPrinter.restoreIndent()
         return ret
 
-    def _printTrackingParticles(self, tps, header):
-        lst = []
-        if self._trackingParticlePrinter is None:
-            lst.append(self._prefix+" "+header+" "+",".join([str(tp.index()) for tp in tps]))
-        else:
-            lst.append(self._prefix+" "+header)
-            self._trackingParticlePrinter.indent(2)
-            for tp in tps:
-                lst.extend(self._trackingParticlePrinter.printTrackingParticle(tp))
-                lst.extend(self._trackingParticlePrinter.printHits(tp))
-                lst.extend(self._trackingParticlePrinter.printMatchedTracks(tp, useTrackPrinter=False))
-            self._trackingParticlePrinter.indent(-2)
-        return lst
-
-    def printTrackingParticles(self, track):
-        lst = []
-        if track.nMatchedTrackingParticles() == 0:
-            if self._bestMatchingTrackingParticle:
-                bestTP = track.bestMatchingTrackingParticle()
-                if bestTP is not None:
-                    lst.extend(self._printTrackingParticles([bestTP], "not matched to any TP, but a following TP with >= 3 matched hits is found"))
-                else:
-                    lst.append(self._prefix+" not matched to any TP")
-            else:
-                lst.append(self._prefix+" not matched to any TP")
-        else:
-            lst.extend(self._printTrackingParticles([tpInfo.trackingParticle() for tpInfo in track.matchedTrackingParticleInfos()], "matched to TPs"))
-        return lst
-
     def printTrack(self, track):
         lst = self.printHeader(track)
         lst.extend(self.printHits(track))
         lst.extend(self.printSeed(track))
         return lst
 
-
     def printMatchedTrackingParticles(self, track):
-        lst = []
-        if self._trackingParticles:
-            lst.extend(self.printTrackingParticles(track))
-        return lst
+        return self._trackingParticleMatchPrinter.printMatchedTrackingParticles(self._prefix, track)
 
     def printTrackAndMatchedTrackingParticles(self, track):
         lst = []
@@ -1193,10 +1212,10 @@ class TrackPrinter(_RecHitPrinter):
 
     def diff(self, track1, track2, diffTrackingParticles=True):
         if track1 is None:
-            lst = self.printTrack(track2) + self.printTrackingParticles(track2)
+            lst = self.printTrack(track2) + self.printMatchedTrackingParticles(track2)
             return _makediff([], lst)
         if track2 is None:
-            lst = self.printTrack(track1) + self.printTrackingParticles(track1)
+            lst = self.printTrack(track1) + self.printMatchedTrackingParticles(track1)
             return _makediff(lst, [])
 
         ret = _DiffResult()
@@ -1253,24 +1272,18 @@ class TrackPrinter(_RecHitPrinter):
 
         ret.extend(self.diffSeeds(track1, track2))
         if diffTrackingParticles:
-            ret.extend(_mapdiff(self.printTrackingParticles, track1, track2))
+            ret.extend(_mapdiff(self.printMatchedTrackingParticles, track1, track2))
         return ret
 
-class TrackingParticlePrinter:
+class TrackingParticlePrinter(_IndentPrinter):
     def __init__(self, indent=0, parentage=True, hits=True, tracks=True, trackPrinter=None, bestMatchingTrack=True, seedPrinter=SeedPrinter()):
-        self._prefix = " "*indent
+        super(TrackingParticlePrinter, self).__init__(indent)
         self._parentage = parentage
         self._hits = hits
         self._tracks = tracks
         self._trackPrinter = trackPrinter
         self._bestMatchingTrack = bestMatchingTrack
         self._seedPrinter = seedPrinter
-
-    def indent(self, num):
-        if num > 0:
-            self._prefix += " "*num
-        elif num < 0:
-            self._prefix = self._prefix[:num]
 
     def _printTP(self, tp):
         genIds = ""
@@ -2298,13 +2311,20 @@ class Seeds(_Collection):
         return next_offset - offset
 
     def seedsForAlgo(self, algo):
-        """Returns gnerator iterating over the seeds of a given 'algo'.
+        """Returns generator iterating over the seeds of a given 'algo'.
 
         Generator returns Seed object.
         """
         (offset, next_offset) = _seedOffsetForAlgo(self._tree, algo)
         for isee in xrange(offset, next_offset):
             yield Seed(self._tree, isee)
+
+    def seedForAlgo(self, algo, iseed):
+        """Returns Seed of index 'iseed' for 'algo'."""
+        (offset, next_offset) = _seedOffsetForAlgo(self._tree, algo)
+        if iseed >= (next_offset-offset):
+            raise Exception("Seed index %d is larger than the number of seeds %d for algo %d (%s)" % (iseed, next_offset-offset, algo, Algo.toString(algo)))
+        return Seed(self._tree, offset+iseed)
 
 ##########
 class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor):

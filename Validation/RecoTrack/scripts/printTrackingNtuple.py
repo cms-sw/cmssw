@@ -18,7 +18,7 @@ def findEvent(ntpl, event):
     raise Exception("Did not find event %s from file %s" % (eventId, ntpl.file().GetPath()))
 
 def main(opts):
-    if opts.track is None and opts.trackingParticle is None:
+    if opts.track is None and opts.trackingParticle is None and opts.seed is None:
         return
 
     ntpl = ntuple.TrackingNtuple(opts.file)
@@ -30,6 +30,7 @@ def main(opts):
         event = findEvent(ntpl, opts.event)
         print "Entry %d" % event.entry()
 
+    printSeed = ntuple.SeedPrinter(trackingParticles=True, trackingParticlePrinter=ntuple.TrackingParticlePrinter())
     printTrack = ntuple.TrackPrinter(trackingParticlePrinter=ntuple.TrackingParticlePrinter())
     printTrackingParticle = ntuple.TrackingParticlePrinter(trackPrinter=ntuple.TrackPrinter())
 
@@ -39,6 +40,13 @@ def main(opts):
     if opts.trackingParticle is not None:
         tp = event.trackingParticles()[opts.trackingParticle]
         printTrackingParticle(tp)
+    if opts.seed is not None:
+        seeds = event.seeds()
+        if opts.seedIteration is not None:
+            seed = seeds.seedForAlgo(getattr(ntuple.Algo, opts.seedIteration), opts.seed)
+        else:
+            seed = seeds[opts.seed]
+        printSeed(seed)
 
 
 if __name__ == "__main__":
@@ -55,6 +63,10 @@ if __name__ == "__main__":
                         help="Index of a track to print information for")
     parser.add_argument("--trackingParticle", type=int,
                         help="Index of a TrackingParticle to print information for")
+    parser.add_argument("--seed", type=int,
+                        help="Index of a seed to print information for. If --seedIteration is specified, the index is within the iteration. Without --seedIteration it is used as a global index.")
+    parser.add_argument("--seedIteration", type=str,
+                        help="Seed iteration, used optionally with --seed")
 
     opts = parser.parse_args()
 
