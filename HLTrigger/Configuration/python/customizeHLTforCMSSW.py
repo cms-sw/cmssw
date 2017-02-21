@@ -22,14 +22,12 @@ from HLTrigger.Configuration.common import *
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
-#   only for non-development frozen menus
-
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
     if cmsswVersion >= "CMSSW_9_0":
-        print "# Applying 90X customization for ",menuType
 #       add call to action function in proper order: newest last!
+#       print "# Applying 90X customization for ",menuType
 #       process = customiseFor12718(process)
         pass
 
