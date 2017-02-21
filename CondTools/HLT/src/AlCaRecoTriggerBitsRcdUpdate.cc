@@ -141,7 +141,8 @@ bool AlCaRecoTriggerBitsRcdUpdate::replaceKeysFromMap(const std::vector<edm::Par
 {
   
   std::vector<std::pair<std::string,std::string> > keyPairs;
-  
+  keyPairs.reserve(alcarecoReplace.size());
+
   for(auto &iSet : alcarecoReplace ){
     const std::string oldKey(iSet.getParameter<std::string>("oldKey"));
     const std::string newKey(iSet.getParameter<std::string>("newKey"));
