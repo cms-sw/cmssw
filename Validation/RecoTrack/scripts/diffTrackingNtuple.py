@@ -6,10 +6,17 @@ import collections
 
 import Validation.RecoTrack.plotting.ntuple as ntuple
 
-def body(ev1, ev2, printTrack):
+def body(opts, ev1, ev2, printTrack):
     print ev1.eventIdStr()
 
-    diff = ntuple.diffTrackListsGeneric(printTrack, ev1.tracks(), ev2.tracks())
+    tracks1 = ev1.tracks()
+    tracks2 = ev2.tracks()
+
+    singleTrack = (opts.track is not None)
+    if singleTrack:
+        tracks1 = [tracks1[opts.track]]
+
+    diff = ntuple.diffTrackListsGeneric(printTrack, tracks1, tracks2, ignoreAdditionalLst2=singleTrack)
     if diff.hasDifference():
         print str(diff)
         print
@@ -22,7 +29,7 @@ def inOrder(opts, ntpl1, ntpl2, *args, **kwargs):
         if ev1.eventId() != ev2.eventId():
             raise Exception("Events are out of order, entry %d file1 has %s and file %s. Use --outOfOrder option instead." % (ev1.entry(), ev1.eventIdStr(), ev2.eventIdStr()))
 
-        body(ev1, ev2, *args, **kwargs)
+        body(opts, ev1, ev2, *args, **kwargs)
         return
 
     for i, (ev1, ev2) in enumerate(itertools.izip(ntpl1, ntpl2)):
@@ -32,7 +39,7 @@ def inOrder(opts, ntpl1, ntpl2, *args, **kwargs):
         if ev1.eventId() != ev2.eventId():
             raise Exception("Events are out of order, entry %d file1 has %s and file %s. Use --outOfOrder option instead." % (ev1.entry(), ev1.eventIdStr(), ev2.eventIdStr()))
 
-        body(ev1, ev2, *args, **kwargs)
+        body(opts, ev1, ev2, *args, **kwargs)
 
 
 def outOfOrder(opts, ntpl1, ntpl2, *args, **kwargs):
@@ -54,7 +61,7 @@ def outOfOrder(opts, ntpl1, ntpl2, *args, **kwargs):
         ev2 = ntpl2.getEvent(events2[ev1.eventIdStr()])
         events2.remove(ev1.eventId())
 
-        body(ev1, ev2, *args, **kwargs)
+        body(opts, ev1, ev2, *args, **kwargs)
 
 
     for eventIdStr in events2.iterkeys():
@@ -88,6 +95,11 @@ if __name__ == "__main__":
                         help="Maximum number of events to process (default: -1 for all events)")
     parser.add_argument("--entry", type=int, default=None,
                         help="Make diff only for this entry")
+    parser.add_argument("--track", type=int,
+                        help="Make diff only for this track (indexing from FILE1; only if --entry is given)")
 
     opts = parser.parse_args()
+
+    if opts.track is not None and opts.entry is None:
+        parser.error("With --track need --entry, which was not given")
     main(opts)

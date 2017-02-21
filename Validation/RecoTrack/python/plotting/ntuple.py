@@ -780,7 +780,7 @@ def _associateTracksByTrackingParticlesAndHits(lst1, lst2):
 
     return allAssocs
 
-def diffTrackListsGeneric(trackPrinter, lst1, lst2):
+def diffTrackListsGeneric(trackPrinter, lst1, lst2, ignoreAdditionalLst2=False):
     associations = _associateTracksByTrackingParticlesAndHits(lst1, lst2)
 
     # sort in eta
@@ -789,6 +789,9 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
     diff = _DiffResult()
     for assoc in associations:
         if assoc.hasCommonTrackingParticle():
+            if len(assoc.trks1()) == 0 and ignoreAdditionalLst2:
+                continue
+
             tmp = diffTrackListsFromSameTrackingParticle(trackPrinter, assoc.trks1(), assoc.trks2(), lst1extra=assoc.trks1OutsideList(), lst2extra=assoc.trks2OutsideList(), diffByHitsOnly=True)
             if tmp.hasDifference():
                 diff.extend(tmp)
@@ -824,6 +827,8 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2):
                 diff.extend(trackPrinter.diff(t, None))
                 diff.extend([" "])
         elif len(assoc.trks1()) == 0:
+            if ignoreAdditionalLst2:
+                continue
             for t in assoc.trks1():
                 diff.extend(trackPrinter.diff(None, t))
                 diff.extend([" "])
