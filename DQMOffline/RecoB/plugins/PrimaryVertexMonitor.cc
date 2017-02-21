@@ -197,9 +197,9 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   chi2prob = iBooker.book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
 
   dxy      = iBooker.book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum)",       DxyBin, DxyMin, DxyMax);
-  dxy2	   = iBooker.book1D("dxyzoom", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin/5., DxyMax/5.);
-  dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (#mum)",        DzBin,  DzMin,  DzMax );
+  dxy2	   = iBooker.book1D("dxyzoom", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum)",       DxyBin, DxyMin/5., DxyMax/5.);
   dxyErr   = iBooker.book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (#mum)", 100, 0.,   2000. );
+  dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (#mum)",        DzBin,  DzMin,  DzMax );
   dzErr    = iBooker.book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(#mum)",   100, 0.,   10000. );
 
   dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
