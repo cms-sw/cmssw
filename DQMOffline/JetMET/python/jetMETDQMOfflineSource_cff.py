@@ -105,14 +105,14 @@ jetMETDQMOfflineSource = cms.Sequence(AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       jetPreDQMSeq*
                                       dqmAk4CaloL2L3ResidualCorrectorChain*dqmAk4PFL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3ResidualCorrectorChain*dqmAk4PFCHSL1FastL2L3CorrectorChain*
-                                      goodOfflinePrimaryVerticesDQM*                                                                            
+                                      cms.ignore(goodOfflinePrimaryVerticesDQM)*                                                                            
                                       dqmCorrPfMetType1*pfMETT1*jetDQMAnalyzerSequence*HBHENoiseFilterResultProducer*
-                                      CSCTightHaloFilterDQM*CSCTightHalo2015FilterDQM*eeBadScFilterDQM*EcalDeadCellTriggerPrimitiveFilterDQM*EcalDeadCellBoundaryEnergyFilterDQM*HcalStripHaloFilterDQM                                      
+                                      cms.ignore(CSCTightHaloFilterDQM)*cms.ignore(CSCTightHalo2015FilterDQM)*cms.ignore(eeBadScFilterDQM)*cms.ignore(EcalDeadCellTriggerPrimitiveFilterDQM)*cms.ignore(EcalDeadCellBoundaryEnergyFilterDQM)*cms.ignore(HcalStripHaloFilterDQM)                                      
                                       *METDQMAnalyzerSequence
                                       *pfCandidateDQMAnalyzer)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
-jetMETDQMOfflineRedoProductsMiniAOD = cms.Sequence(goodOfflinePrimaryVerticesDQMforMiniAOD)
+jetMETDQMOfflineRedoProductsMiniAOD = cms.Sequence(cms.ignore(goodOfflinePrimaryVerticesDQMforMiniAOD))
 
 jetMETDQMOfflineSourceMiniAOD = cms.Sequence(jetDQMAnalyzerSequenceMiniAOD*METDQMAnalyzerSequenceMiniAOD*packedCandidateDQMAnalyzerMiniAOD)
