@@ -16,5 +16,5 @@ Options available:
 
 ## TO READ BACK
 ```
-cmsRun AlCaRecoTriggerBitsRcdRead_TEMPL_cfg.py inputDB=AlCaRecoHLTpaths_TEST.db inputTag=AlCaRecoHLTpaths_TEST
+cmsRun AlCaRecoTriggerBitsRcdRead_TEMPL_cfg.py inputDB=sqlite_file:AlCaRecoHLTpaths_TEST.db inputTag=AlCaRecoHLTpaths_TEST
 ```
