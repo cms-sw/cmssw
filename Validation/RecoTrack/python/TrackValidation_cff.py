@@ -477,13 +477,11 @@ tracksPreValidation = cms.Sequence(
     tracksValidationTruth +
     cms.ignore(trackingParticlesSignal) +
     cms.ignore(trackingParticlesElectron) +
-    trackingParticlesConversion +
-    trackingParticlesBHadron
+    trackingParticlesConversion
 )
 fastSim.toReplaceWith(tracksPreValidation, tracksPreValidation.copyAndExclude([
     trackingParticlesElectron,
     trackingParticlesConversion,
-    trackingParticlesBHadron
 ]))
 
 tracksValidation = cms.Sequence(
@@ -493,13 +491,11 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic +
     trackValidatorConversion +
-    trackValidatorGsfTracks +
-    trackValidatorBHadron
+    trackValidatorGsfTracks
 )
 fastSim.toReplaceWith(tracksValidation, tracksValidation.copyAndExclude([
     trackValidatorConversion,
     trackValidatorGsfTracks,
-    trackValidatorBHadron,
 ]))
 
 ### Then define stuff for standalone mode (i.e. MTV with RECO+DIGI input)
@@ -550,6 +546,10 @@ trackValidatorConversionStandalone = trackValidatorConversion.clone( label = [x 
 trackValidatorBHadronStandalone = trackValidatorBHadron.clone(label = [x for x in trackValidatorStandalone.label if "Pt09" not in x])
 
 # sequences
+tracksPreValidationStandalone = tracksPreValidation.copy()
+tracksPreValidationStandalone += trackingParticlesBHadron
+fastSim.toReplaceWith(tracksPreValidationStandalone, tracksPreValidation)
+
 tracksValidationSelectorsStandalone = cms.Sequence(
     tracksValidationSelectorsByOriginalAlgoStandalone +
     tracksValidationSelectorsByAlgoMaskStandalone +
@@ -574,7 +574,7 @@ fastSim.toModify(trackValidatorsStandalone, lambda x: x.remove(trackValidatorCon
 
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain +
-    tracksPreValidation +
+    tracksPreValidationStandalone +
     tracksValidationSelectorsStandalone +
     trackValidatorsStandalone
 )
@@ -619,7 +619,7 @@ trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x
 trackValidatorBHadronTrackingOnly = trackValidatorBHadron.clone(label = [x for x in trackValidatorTrackingOnly.label if "Pt09" not in x])
 
 # sequences
-tracksPreValidationTrackingOnly = tracksPreValidation.copy()
+tracksPreValidationTrackingOnly = tracksPreValidationStandalone.copy()
 tracksPreValidationTrackingOnly.replace(tracksValidationSelectors, tracksValidationSelectorsTrackingOnly)
 
 trackValidatorsTrackingOnly = _trackValidatorsBase.copy()
