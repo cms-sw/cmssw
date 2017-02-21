@@ -41,7 +41,8 @@ process.options = cms.untracked.PSet()
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '90X_dataRun2_v0', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '90X_dataRun2_v0', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_v19', '')
 
 ##### needed until prescales go into GlobalTag ########################
 ## from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
