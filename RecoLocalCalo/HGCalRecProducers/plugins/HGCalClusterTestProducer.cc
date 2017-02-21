@@ -62,7 +62,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   detector(ps.getParameter<std::string >("detector")),              //one of EE, EF or "both"
   verbosity((HGCalImagingAlgo::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity",3)){
   double ecut = ps.getParameter<double>("ecut");
-  double delta_c = ps.getParameter<double>("deltac");
+  std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
   double kappa = ps.getParameter<double>("kappa");
   double multicluster_radius = ps.getParameter<double>("multiclusterRadius");
   double minClusters = ps.getParameter<unsigned>("minClusters");
@@ -95,9 +95,9 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
 
   if(doSharing){
     double showerSigma =  ps.getParameter<double>("showerSigma");
-    algo = std::make_unique<HGCalImagingAlgo>(delta_c, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
+    algo = std::make_unique<HGCalImagingAlgo>(vecDeltas, kappa, ecut, showerSigma, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }else{
-    algo = std::make_unique<HGCalImagingAlgo>(delta_c, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
+    algo = std::make_unique<HGCalImagingAlgo>(vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }
 
   auto sumes = consumesCollector();
