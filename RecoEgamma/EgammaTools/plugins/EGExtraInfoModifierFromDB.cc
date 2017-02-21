@@ -3,18 +3,13 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
 #include "CondFormats/EgammaObjects/interface/GBRForestD.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
 #include <vdt/vdtMath.h>
@@ -38,12 +33,10 @@ public:
     std::unordered_map<std::string, ValMapFloatTagTokenPair> tag_float_token_map;
     std::unordered_map<std::string, ValMapIntTagTokenPair> tag_int_token_map;
 
-    std::vector<std::string> condnames_mean_50ns;
-    std::vector<std::string> condnames_sigma_50ns;
-    std::vector<std::string> condnames_mean_25ns;
-    std::vector<std::string> condnames_sigma_25ns;
-    std::string condnames_weight_50ns;
-    std::string condnames_weight_25ns;
+    std::vector<std::string> condnames_ecalonly_mean;
+    std::vector<std::string> condnames_ecalonly_sigma;
+    std::vector<std::string> condnames_ecaltrk_mean;
+    std::vector<std::string> condnames_ecaltrk_sigma;
   };
 
   struct photon_config {
@@ -52,14 +45,12 @@ public:
     std::unordered_map<std::string, ValMapFloatTagTokenPair> tag_float_token_map;
     std::unordered_map<std::string, ValMapIntTagTokenPair> tag_int_token_map;
 
-    std::vector<std::string> condnames_mean_50ns;
-    std::vector<std::string> condnames_sigma_50ns;
-    std::vector<std::string> condnames_mean_25ns;
-    std::vector<std::string> condnames_sigma_25ns;
+    std::vector<std::string> condnames_ecalonly_mean;
+    std::vector<std::string> condnames_ecalonly_sigma;
   };
 
   EGExtraInfoModifierFromDB(const edm::ParameterSet& conf);
-  ~EGExtraInfoModifierFromDB() {};
+  ~EGExtraInfoModifierFromDB();
     
   void setEvent(const edm::Event&) override final;
   void setEventContent(const edm::EventSetup&) override final;
@@ -81,27 +72,26 @@ private:
   std::unordered_map<unsigned,edm::Ptr<reco::Photon> > phos_by_oop;
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > pho_vmaps;
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<int> > > pho_int_vmaps;
-
-  bool autoDetectBunchSpacing_;
-  int bunchspacing_;
-  edm::InputTag bunchspacingTag_;
-  edm::EDGetTokenT<unsigned int> bunchSpacingToken_;
+  
   float rhoValue_;
   edm::InputTag rhoTag_;
   edm::EDGetTokenT<double> rhoToken_;
-  int nVtx_;
-  edm::InputTag vtxTag_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-  edm::Handle<reco::VertexCollection> vtxH_;
-  bool applyExtraHighEnergyProtection_;
 
   const edm::EventSetup* iSetup_;
 
   std::vector<const GBRForestD*> ph_forestH_mean_;
   std::vector<const GBRForestD*> ph_forestH_sigma_; 
   std::vector<const GBRForestD*> e_forestH_mean_;
-  std::vector<const GBRForestD*> e_forestH_sigma_; 
-  const GBRForest* ep_forestH_weight_;
+  std::vector<const GBRForestD*> e_forestH_sigma_;
+
+  double lowEnergy_ECALonlyThr_; // 300
+  double lowEnergy_ECALTRKThr_;  // 50
+  double highEnergy_ECALTRKThr_; // 200
+  double eOverP_ECALTRKThr_;     // 0.025
+  double epDiffSig_ECALTRKThr_;  // 15
+  double epSig_ECALTRKThr_;      // 10
+  
+  
 };
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
@@ -111,22 +101,18 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& conf) :
   ModifyObjectValueBase(conf) {
 
-  bunchspacing_ = 450;
-  autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
-  applyExtraHighEnergyProtection_ = conf.getParameter<bool>("applyExtraHighEnergyProtection");
+  lowEnergy_ECALonlyThr_ = conf.getParameter<double>("lowEnergy_ECALonlyThr");
+  lowEnergy_ECALTRKThr_ = conf.getParameter<double>("lowEnergy_ECALTRKThr");
+  highEnergy_ECALTRKThr_ = conf.getParameter<double>("highEnergy_ECALTRKThr");
+  eOverP_ECALTRKThr_ = conf.getParameter<double>("eOverP_ECALTRKThr");
+  epDiffSig_ECALTRKThr_ = conf.getParameter<double>("epDiffSig_ECALTRKThr");
+  epSig_ECALTRKThr_ = conf.getParameter<double>("epSig_ECALTRKThr");
 
   rhoTag_ = conf.getParameter<edm::InputTag>("rhoCollection");
-  vtxTag_ = conf.getParameter<edm::InputTag>("vertexCollection");
-  
-  if (autoDetectBunchSpacing_) {
-    bunchspacingTag_ = conf.getParameter<edm::InputTag>("bunchSpacingTag");
-  } else {
-    bunchspacing_ = conf.getParameter<int>("manualBunchSpacing");
-  }
 
   constexpr char electronSrc[] =  "electronSrc";
   constexpr char photonSrc[] =  "photonSrc";
-
+    
   if(conf.exists("electron_config")) {
     const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
     if( electrons.exists(electronSrc) ) 
@@ -151,12 +137,15 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
       }
     }
     
-    e_conf.condnames_mean_50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns");
-    e_conf.condnames_sigma_50ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_50ns");
-    e_conf.condnames_mean_25ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_25ns");
-    e_conf.condnames_sigma_25ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_25ns");
-    e_conf.condnames_weight_50ns  = electrons.getParameter<std::string>("combinationKey_50ns");
-    e_conf.condnames_weight_25ns  = electrons.getParameter<std::string>("combinationKey_25ns");
+    e_conf.condnames_ecalonly_mean  = electrons.getParameter<std::vector<std::string> >("regressionKey_ecalonly");
+    e_conf.condnames_ecalonly_sigma = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecalonly");
+    e_conf.condnames_ecaltrk_mean   = electrons.getParameter<std::vector<std::string> >("regressionKey_ecaltrk");
+    e_conf.condnames_ecaltrk_sigma  = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_ecaltrk");
+
+    unsigned int encor = e_conf.condnames_ecalonly_mean.size();
+    e_forestH_mean_.reserve(2*encor);
+    e_forestH_sigma_.reserve(2*encor);
+
   }
   
   if( conf.exists("photon_config") ) { 
@@ -184,11 +173,16 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
       }
     }
 
-    ph_conf.condnames_mean_50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns");
-    ph_conf.condnames_sigma_50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns");
-    ph_conf.condnames_mean_25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns");
-    ph_conf.condnames_sigma_25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns");
+    ph_conf.condnames_ecalonly_mean  = photons.getParameter<std::vector<std::string>>("regressionKey_ecalonly");
+    ph_conf.condnames_ecalonly_sigma = photons.getParameter<std::vector<std::string>>("uncertaintyKey_ecalonly");
+
+    unsigned int ncor = ph_conf.condnames_ecalonly_mean.size();
+    ph_forestH_mean_.reserve(ncor);
+    ph_forestH_sigma_.reserve(ncor);
+
   }
+
+
 }
 
 namespace {
@@ -200,7 +194,10 @@ namespace {
   }
 }
 
+EGExtraInfoModifierFromDB::~EGExtraInfoModifierFromDB() {}
+
 void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
+
   eles_by_oop.clear();
   phos_by_oop.clear();  
   ele_vmaps.clear();
@@ -253,18 +250,10 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
     get_product(evt, imap->second.second, pho_int_vmaps);
   }
   
-  if (autoDetectBunchSpacing_) {
-      edm::Handle<unsigned int> bunchSpacingH;
-      evt.getByToken(bunchSpacingToken_,bunchSpacingH);
-      bunchspacing_ = *bunchSpacingH;
-  }
-
   edm::Handle<double> rhoH;
   evt.getByToken(rhoToken_, rhoH);
   rhoValue_ = *rhoH;
-  
-  evt.getByToken(vtxToken_, vtxH_);
-  nVtx_ = vtxH_->size();
+   
 }
 
 void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
@@ -272,33 +261,37 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   iSetup_ = &evs;
 
   edm::ESHandle<GBRForestD> forestDEH;
-  edm::ESHandle<GBRForest> forestEH;
+  
+  const std::vector<std::string> ph_condnames_ecalonly_mean  = ph_conf.condnames_ecalonly_mean;
+  const std::vector<std::string> ph_condnames_ecalonly_sigma = ph_conf.condnames_ecalonly_sigma;
 
-  const std::vector<std::string> ph_condnames_mean  = (bunchspacing_ == 25) ? ph_conf.condnames_mean_25ns  : ph_conf.condnames_mean_50ns;
-  const std::vector<std::string> ph_condnames_sigma = (bunchspacing_ == 25) ? ph_conf.condnames_sigma_25ns : ph_conf.condnames_sigma_50ns;
-
-  unsigned int ncor = ph_condnames_mean.size();
+  unsigned int ncor = ph_condnames_ecalonly_mean.size();
   for (unsigned int icor=0; icor<ncor; ++icor) {
-    evs.get<GBRDWrapperRcd>().get(ph_condnames_mean[icor], forestDEH);
-    ph_forestH_mean_.push_back(forestDEH.product());
-    evs.get<GBRDWrapperRcd>().get(ph_condnames_sigma[icor], forestDEH);
-    ph_forestH_sigma_.push_back(forestDEH.product());
-  } 
-
-  const std::vector<std::string> e_condnames_mean  = (bunchspacing_ == 25) ? e_conf.condnames_mean_25ns  : e_conf.condnames_mean_50ns;
-  const std::vector<std::string> e_condnames_sigma = (bunchspacing_ == 25) ? e_conf.condnames_sigma_25ns : e_conf.condnames_sigma_50ns;
-  const std::string ep_condnames_weight  = (bunchspacing_ == 25) ? e_conf.condnames_weight_25ns  : e_conf.condnames_weight_50ns;
-
-  unsigned int encor = e_condnames_mean.size();
-  evs.get<GBRWrapperRcd>().get(ep_condnames_weight, forestEH);
-  ep_forestH_weight_ = forestEH.product(); 
-    
-  for (unsigned int icor=0; icor<encor; ++icor) {
-    evs.get<GBRDWrapperRcd>().get(e_condnames_mean[icor], forestDEH);
-    e_forestH_mean_.push_back(forestDEH.product());
-    evs.get<GBRDWrapperRcd>().get(e_condnames_sigma[icor], forestDEH);
-    e_forestH_sigma_.push_back(forestDEH.product());
+    evs.get<GBRDWrapperRcd>().get(ph_condnames_ecalonly_mean[icor], forestDEH);
+    ph_forestH_mean_[icor] = forestDEH.product();
+    evs.get<GBRDWrapperRcd>().get(ph_condnames_ecalonly_sigma[icor], forestDEH);
+    ph_forestH_sigma_[icor] = forestDEH.product();
   }
+
+  const std::vector<std::string> e_condnames_ecalonly_mean  = e_conf.condnames_ecalonly_mean;
+  const std::vector<std::string> e_condnames_ecalonly_sigma = e_conf.condnames_ecalonly_sigma;
+  const std::vector<std::string> e_condnames_ecaltrk_mean  = e_conf.condnames_ecaltrk_mean;
+  const std::vector<std::string> e_condnames_ecaltrk_sigma = e_conf.condnames_ecaltrk_sigma;
+
+  unsigned int encor = e_condnames_ecalonly_mean.size();  
+  for (unsigned int icor=0; icor<encor; ++icor) {
+    evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_mean[icor], forestDEH);
+    e_forestH_mean_[icor] = forestDEH.product();
+    evs.get<GBRDWrapperRcd>().get(e_condnames_ecalonly_sigma[icor], forestDEH);
+    e_forestH_sigma_[icor] = forestDEH.product();
+  } 
+  for (unsigned int icor=0; icor<encor; ++icor) {
+    evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_mean[icor], forestDEH);
+    e_forestH_mean_[icor+encor] = forestDEH.product();
+    evs.get<GBRDWrapperRcd>().get(e_condnames_ecaltrk_sigma[icor], forestDEH);
+    e_forestH_sigma_[icor+encor] = forestDEH.product();
+  }
+    
 }
 
 namespace {
@@ -318,10 +311,6 @@ namespace {
 void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
  
   rhoToken_ = sumes.consumes<double>(rhoTag_);
-  vtxToken_ = sumes.consumes<reco::VertexCollection>(vtxTag_);
-
-  if (autoDetectBunchSpacing_)
-    bunchSpacingToken_ = sumes.consumes<unsigned int>(bunchspacingTag_);
 
   //setup electrons
   if(!(empty_tag == e_conf.electron_src))
@@ -364,118 +353,87 @@ namespace {
 }
 
 void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
+
   // regression calculation needs no additional valuemaps
 
   const reco::SuperClusterRef& the_sc = ele.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
+
+  // skip HGCAL for now
+  if( theseed->seed().det() == DetId::Forward ) return;
+
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
-
-
-  //skip HGCal for now
-  if( theseed->seed().det() == DetId::Forward ) return;
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
-  
-  std::array<float, 33> eval;  
-  const double raw_energy = the_sc->rawEnergy(); 
-  const auto& ess = ele.showerShape();
 
-  // SET INPUTS
-  eval[0]  = nVtx_;  
-  eval[1]  = raw_energy;
-  eval[2]  = the_sc->eta();
-  eval[3]  = the_sc->phi();
-  eval[4]  = the_sc->etaWidth();
-  eval[5]  = the_sc->phiWidth(); 
-  eval[6]  = ess.r9;
-  eval[7]  = theseed->energy()/raw_energy;
-  eval[8]  = ess.eMax/raw_energy;
-  eval[9]  = ess.e2nd/raw_energy;
-  eval[10] = (ess.eLeft + ess.eRight != 0.f  ? (ess.eLeft-ess.eRight)/(ess.eLeft+ess.eRight) : 0.f);
-  eval[11] = (ess.eTop  + ess.eBottom != 0.f ? (ess.eTop-ess.eBottom)/(ess.eTop+ess.eBottom) : 0.f);
-  eval[12] = ess.sigmaIetaIeta;
-  eval[13] = ess.sigmaIetaIphi;
-  eval[14] = ess.sigmaIphiIphi;
-  eval[15] = std::max(0,numberOfClusters-1);
-  
-  // calculate sub-cluster variables
-  std::vector<float> clusterRawEnergy;
-  clusterRawEnergy.resize(std::max(3, numberOfClusters), 0);
-  std::vector<float> clusterDEtaToSeed;
-  clusterDEtaToSeed.resize(std::max(3, numberOfClusters), 0);
-  std::vector<float> clusterDPhiToSeed;
-  clusterDPhiToSeed.resize(std::max(3, numberOfClusters), 0);
-  float clusterMaxDR     = 999.;
-  float clusterMaxDRDPhi = 999.;
-  float clusterMaxDRDEta = 999.;
-  float clusterMaxDRRawEnergy = 0.;
-  
-  size_t iclus = 0;
-  float maxDR = 0;
-  edm::Ptr<reco::CaloCluster> pclus;
-  // loop over all clusters that aren't the seed  
-  auto clusend = the_sc->clustersEnd();
-  for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {
-    pclus = *clus;
-    
-    if(theseed == pclus ) 
-      continue;
-    clusterRawEnergy[iclus]  = pclus->energy();
-    clusterDPhiToSeed[iclus] = reco::deltaPhi(pclus->phi(),theseed->phi());
-    clusterDEtaToSeed[iclus] = pclus->eta() - theseed->eta();
-    
-    // find cluster with max dR
-    const auto the_dr = reco::deltaR(*pclus, *theseed);
-    if(the_dr > maxDR) {
-      maxDR = the_dr;
-      clusterMaxDR = maxDR;
-      clusterMaxDRDPhi = clusterDPhiToSeed[iclus];
-      clusterMaxDRDEta = clusterDEtaToSeed[iclus];
-      clusterMaxDRRawEnergy = clusterRawEnergy[iclus];
-    }      
-    ++iclus;
-  }
-  
-  eval[16] = clusterMaxDR;
-  eval[17] = clusterMaxDRDPhi;
-  eval[18] = clusterMaxDRDEta;
-  eval[19] = clusterMaxDRRawEnergy/raw_energy;
-  eval[20] = clusterRawEnergy[0]/raw_energy;
-  eval[21] = clusterRawEnergy[1]/raw_energy;
-  eval[22] = clusterRawEnergy[2]/raw_energy;
-  eval[23] = clusterDPhiToSeed[0];
-  eval[24] = clusterDPhiToSeed[1];
-  eval[25] = clusterDPhiToSeed[2];
-  eval[26] = clusterDEtaToSeed[0];
-  eval[27] = clusterDEtaToSeed[1];
-  eval[28] = clusterDEtaToSeed[2];
-  
-  // calculate coordinate variables
   const bool iseb = ele.isEB();  
-  float dummy;
-  int iPhi;
-  int iEta;
-  float cryPhi;
-  float cryEta;
-  EcalClusterLocal _ecalLocal;
-  if (ele.isEB()) 
-    _ecalLocal.localCoordsEB(*theseed, *iSetup_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
-  else 
-    _ecalLocal.localCoordsEE(*theseed, *iSetup_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
 
+  std::array<float, 32> eval;  
+  const double raw_energy = the_sc->rawEnergy(); 
+  const double raw_es_energy = the_sc->preshowerEnergy();
+  const auto& full5x5_ess = ele.full5x5_showerShape();
+
+  float e5x5Inverse = full5x5_ess.e5x5 != 0. ? vdt::fast_inv(full5x5_ess.e5x5) : 0.;
+
+  eval[0]  = raw_energy;
+  eval[1]  = the_sc->etaWidth();
+  eval[2]  = the_sc->phiWidth(); 
+  eval[3]  = the_sc->seed()->energy()/raw_energy;
+  eval[4]  = full5x5_ess.e5x5/raw_energy;
+  eval[5]  = ele.hcalOverEcalBc();
+  eval[6]  = rhoValue_;
+  eval[7]  = theseed->eta() - the_sc->position().Eta();
+  eval[8]  = reco::deltaPhi( theseed->phi(),the_sc->position().Phi());
+  eval[9]  = full5x5_ess.r9;
+  eval[10]  = full5x5_ess.sigmaIetaIeta;
+  eval[11]  = full5x5_ess.sigmaIetaIphi;
+  eval[12]  = full5x5_ess.sigmaIphiIphi;
+  eval[13]  = full5x5_ess.eMax*e5x5Inverse;
+  eval[14]  = full5x5_ess.e2nd*e5x5Inverse;
+  eval[15]  = full5x5_ess.eTop*e5x5Inverse;
+  eval[16]  = full5x5_ess.eBottom*e5x5Inverse;
+  eval[17]  = full5x5_ess.eLeft*e5x5Inverse;
+  eval[18]  = full5x5_ess.eRight*e5x5Inverse;
+  eval[19]  = full5x5_ess.e2x5Max*e5x5Inverse;
+  eval[20]  = full5x5_ess.e2x5Left*e5x5Inverse;
+  eval[21]  = full5x5_ess.e2x5Right*e5x5Inverse;
+  eval[22]  = full5x5_ess.e2x5Top*e5x5Inverse;
+  eval[23]  = full5x5_ess.e2x5Bottom*e5x5Inverse;
+  eval[24]  = ele.nSaturatedXtals();
+  eval[25]  = std::max(0,numberOfClusters);
+      
+  // calculate coordinate variables
+  EcalClusterLocal _ecalLocal;
   if (iseb) {
-    eval[29] = cryEta;
-    eval[30] = cryPhi;
-    eval[31] = iEta;
-    eval[32] = iPhi;
+
+    float dummy;
+    int ieta;
+    int iphi;
+    _ecalLocal.localCoordsEB(*theseed, *iSetup_, dummy, dummy, ieta, iphi, dummy, dummy);
+    eval[26] = ieta;
+    eval[27] = iphi;
+    int signieta = ieta > 0 ? +1 : -1;
+    eval[28] = (ieta-signieta)%5;
+    eval[29] = (iphi-1)%2;
+    eval[30] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);  
+    eval[31] = (iphi-1)%20;
+
   } else {
-    eval[29] = the_sc->preshowerEnergy()/the_sc->rawEnergy();
+
+    float dummy;
+    int ix;
+    int iy;
+    _ecalLocal.localCoordsEE(*theseed, *iSetup_, dummy, dummy, ix, iy, dummy, dummy);
+    eval[26] = ix;
+    eval[27] = iy;
+    eval[28] = raw_es_energy/raw_energy;
+
   }
 
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
-  constexpr double meanlimlow  = 0.2;
-  constexpr double meanlimhigh = 2.0;
+  constexpr double meanlimlow  = -1.0;
+  constexpr double meanlimhigh = 3.0;
   constexpr double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
   constexpr double meanscale   = 0.5*(meanlimhigh-meanlimlow);
   
@@ -483,11 +441,20 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   constexpr double sigmalimhigh = 0.5;
   constexpr double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
   constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
+
   
-  int coridx = 0;
-  if (!iseb)
+  size_t coridx = 0;
+  float raw_pt = raw_energy*the_sc->position().rho()/the_sc->position().r();
+
+  if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
+    coridx = 0;
+  else if (iseb && raw_pt >= lowEnergy_ECALonlyThr_)
     coridx = 1;
-    
+  else if (!iseb && raw_pt < lowEnergy_ECALonlyThr_)
+    coridx = 2;
+  else if (!iseb && raw_pt >= lowEnergy_ECALonlyThr_)
+    coridx = 3;
+  
   //these are the actual BDT responses
   double rawmean = e_forestH_mean_[coridx]->GetResponse(eval.data());
   double rawsigma = e_forestH_sigma_[coridx]->GetResponse(eval.data());
@@ -495,69 +462,85 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   //apply transformation to limited output range (matching the training)
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
-  
-  //regression target is ln(Etrue/Eraw)
-  //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
-  double ecor = mean*(eval[1]);
-  if (!iseb)  
-    ecor = mean*(eval[1]+the_sc->preshowerEnergy());
+
+  // Correct the energy. A negative energy means that the correction went
+  // outside the boundaries of the training. In this case uses raw.
+  // The resolution estimation, on the other hand should be ok.
+  if (mean < 0.) mean = 1.0;
+
+  const double ecor = mean*(raw_energy + raw_es_energy);
   const double sigmacor = sigma*ecor;
   
   ele.setCorrectedEcalEnergy(ecor);
   ele.setCorrectedEcalEnergyError(sigmacor);
-    
-  // E-p combination 
-  //std::array<float, 11> eval_ep;
-  float eval_ep[11];
 
-  const float ep = ele.trackMomentumAtVtx().R();
-  const float tot_energy = the_sc->rawEnergy()+the_sc->preshowerEnergy();
-  const float momentumError = ele.trackMomentumError();
-  const float trkMomentumRelError = ele.trackMomentumError()/ep;
-  const float eOverP = tot_energy*mean/ep;
-  eval_ep[0] = tot_energy*mean;
-  eval_ep[1] = sigma/mean;
-  eval_ep[2] = ep; 
-  eval_ep[3] = trkMomentumRelError;
-  eval_ep[4] = sigma/mean/trkMomentumRelError;
-  eval_ep[5] = tot_energy*mean/ep;
-  eval_ep[6] = tot_energy*mean/ep*sqrt(sigma/mean*sigma/mean+trkMomentumRelError*trkMomentumRelError);
-  eval_ep[7] = ele.ecalDriven();
-  eval_ep[8] = ele.trackerDrivenSeed();
-  eval_ep[9] = int(ele.classification());//eleClass;
-  eval_ep[10] = iseb;
+  double combinedEnergy = ecor;
+  double combinedEnergyError = sigmacor;
+
+  auto el_track = ele.gsfTrack();
+  const float trkMomentum = el_track->pMode();
+  const float trkEta      = el_track->etaMode();
+  const float trkPhi      = el_track->phiMode();  
+  const float trkMomentumError = std::abs(el_track->qoverpModeError())*trkMomentum*trkMomentum;  
+
+  const float eOverP = (raw_energy+raw_es_energy)*mean/trkMomentum;
+  const float fbrem = ele.fbrem();
+
+  // E-p combination
+  if (ecor < highEnergy_ECALTRKThr_ &&
+      eOverP > eOverP_ECALTRKThr_ && 
+      std::abs(ecor - trkMomentum) < epDiffSig_ECALTRKThr_*std::sqrt(trkMomentumError*trkMomentumError+sigmacor*sigmacor) && 
+      trkMomentumError < epSig_ECALTRKThr_*trkMomentum) { 
+
+    raw_pt = ecor/cosh(trkEta);
+    if (iseb && raw_pt < lowEnergy_ECALTRKThr_)
+      coridx = 4;
+    else if (iseb && raw_pt >= lowEnergy_ECALTRKThr_)
+      coridx = 5;
+    else if (!iseb && raw_pt < lowEnergy_ECALTRKThr_)
+      coridx = 6;
+    else if (!iseb && raw_pt >= lowEnergy_ECALTRKThr_)
+      coridx = 7;
   
-  // CODE FOR FUTURE SEMI_PARAMETRIC
-  //double rawweight = ep_forestH_mean_[coridx]->GetResponse(eval_ep.data());
-  ////rawsigma = ep_forestH_sigma_[coridx]->GetResponse(eval.data());
-  //double weight = meanoffset + meanscale*vdt::fast_sin(rawweight);
-  ////sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+    eval[0] = ecor;
+    eval[1] = sigma/mean;
+    eval[2] = trkMomentumError/trkMomentum;
+    eval[3] = eOverP;
+    eval[4] = ele.ecalDrivenSeed();
+    eval[5] = full5x5_ess.r9;
+    eval[6] = fbrem;
+    eval[7] = trkEta; 
+    eval[8] = trkPhi; 
 
-  // CODE FOR STANDARD BDT
-  double weight = 0.;
-  if ( eOverP > 0.025 && 
-       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) &&
-       (!applyExtraHighEnergyProtection_ || ((momentumError < 10.*ep) || (ecor < 200.)))
-       ) {
-    // protection against crazy track measurement
-    weight = ep_forestH_weight_->GetResponse(eval_ep);
-    if(weight>1.) 
-      weight = 1.;
-    else if(weight<0.) 
-      weight = 0.;
+    float ecalEnergyVar = (raw_energy + raw_es_energy)*sigma; 
+    float rawcombNormalization = (trkMomentumError*trkMomentumError + ecalEnergyVar*ecalEnergyVar);
+    float rawcomb = ( ecor*trkMomentumError*trkMomentumError + trkMomentum*ecalEnergyVar*ecalEnergyVar ) / rawcombNormalization;
+
+    //these are the actual BDT responses
+    double rawmean_trk = e_forestH_mean_[coridx]->GetResponse(eval.data());
+    double rawsigma_trk = e_forestH_sigma_[coridx]->GetResponse(eval.data());
+    
+    //apply transformation to limited output range (matching the training)
+    double mean_trk = meanoffset + meanscale*vdt::fast_sin(rawmean_trk);
+    double sigma_trk = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma_trk);
+    
+    // Final correction
+    // A negative energy means that the correction went
+    // outside the boundaries of the training. In this case uses raw.
+    // The resolution estimation, on the other hand should be ok.
+    if (mean_trk < 0.) mean_trk = 1.0;
+
+    combinedEnergy = mean_trk*rawcomb;
+    combinedEnergyError = sigma_trk*rawcomb;
   }
 
-  double combinedMomentum = weight*ele.trackMomentumAtVtx().R() + (1.-weight)*ecor;
-  double combinedMomentumError = sqrt(weight*weight*ele.trackMomentumError()*ele.trackMomentumError() + (1.-weight)*(1.-weight)*sigmacor*sigmacor);
-
-  math::XYZTLorentzVector oldMomentum = ele.p4();
-  math::XYZTLorentzVector newMomentum = math::XYZTLorentzVector(oldMomentum.x()*combinedMomentum/oldMomentum.t(),
-								oldMomentum.y()*combinedMomentum/oldMomentum.t(),
-								oldMomentum.z()*combinedMomentum/oldMomentum.t(),
-								combinedMomentum);
+  math::XYZTLorentzVector oldFourMomentum = ele.p4();
+  math::XYZTLorentzVector newFourMomentum = math::XYZTLorentzVector(oldFourMomentum.x()*combinedEnergy/oldFourMomentum.t(),
+								    oldFourMomentum.y()*combinedEnergy/oldFourMomentum.t(),
+								    oldFourMomentum.z()*combinedEnergy/oldFourMomentum.t(),
+								    combinedEnergy);
  
-  //ele.correctEcalEnergy(combinedMomentum, combinedMomentumError);
-  ele.correctMomentum(newMomentum, ele.trackMomentumError(), combinedMomentumError);
+  ele.correctMomentum(newFourMomentum, ele.trackMomentumError(), combinedEnergyError);
 }
 
 void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
@@ -567,103 +550,121 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
 void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   // regression calculation needs no additional valuemaps
   
-  std::array<float, 35> eval;
   const reco::SuperClusterRef& the_sc = pho.superCluster();
-  const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
-  
+  const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();  
+
+  // skip HGCAL for now
+  if( theseed->seed().det() == DetId::Forward ) return;
+
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
-
-  // skip HGCal for now
-  if( theseed->seed().det() == DetId::Forward ) return;
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
 
+  const bool iseb = pho.isEB();  
+  
+  std::array<float, 32> eval;  
   const double raw_energy = the_sc->rawEnergy(); 
-  const auto& ess = pho.showerShapeVariables();
+  const double raw_es_energy = the_sc->preshowerEnergy();
+  const auto& full5x5_pss = pho.full5x5_showerShapeVariables();
 
-  // SET INPUTS
+  float e5x5Inverse = full5x5_pss.e5x5 != 0. ? vdt::fast_inv(full5x5_pss.e5x5) : 0.;
+
   eval[0]  = raw_energy;
-  eval[1]  = pho.r9();
-  eval[2]  = the_sc->etaWidth();
-  eval[3]  = the_sc->phiWidth(); 
-  eval[4]  = std::max(0,numberOfClusters - 1);
+  eval[1]  = the_sc->etaWidth();
+  eval[2]  = the_sc->phiWidth(); 
+  eval[3]  = the_sc->seed()->energy()/raw_energy;
+  eval[4]  = full5x5_pss.e5x5/raw_energy;
   eval[5]  = pho.hadronicOverEm();
   eval[6]  = rhoValue_;
-  eval[7]  = nVtx_;  
-  eval[8] = theseed->eta()-the_sc->position().Eta();
-  eval[9] = reco::deltaPhi(theseed->phi(),the_sc->position().Phi());
-  eval[10] = theseed->energy()/raw_energy;
-  eval[11] = ess.e3x3/ess.e5x5;
-  eval[12] = ess.sigmaIetaIeta;  
-  eval[13] = ess.sigmaIphiIphi;
-  eval[14] = ess.sigmaIetaIphi/(ess.sigmaIphiIphi*ess.sigmaIetaIeta);
-  eval[15] = ess.maxEnergyXtal/ess.e5x5;
-  eval[16] = ess.e2nd/ess.e5x5;
-  eval[17] = ess.eTop/ess.e5x5;
-  eval[18] = ess.eBottom/ess.e5x5;
-  eval[19] = ess.eLeft/ess.e5x5;
-  eval[20] = ess.eRight/ess.e5x5;  
-  eval[21] = ess.e2x5Max/ess.e5x5;
-  eval[22] = ess.e2x5Left/ess.e5x5;
-  eval[23] = ess.e2x5Right/ess.e5x5;
-  eval[24] = ess.e2x5Top/ess.e5x5;
-  eval[25] = ess.e2x5Bottom/ess.e5x5;
+  eval[7]  = theseed->eta() - the_sc->position().Eta();
+  eval[8]  = reco::deltaPhi( theseed->phi(),the_sc->position().Phi());
+  eval[9]  = pho.full5x5_r9();
+  eval[10]  = full5x5_pss.sigmaIetaIeta;
+  eval[11]  = full5x5_pss.sigmaIetaIphi;
+  eval[12]  = full5x5_pss.sigmaIphiIphi;
+  eval[13]  = full5x5_pss.maxEnergyXtal*e5x5Inverse;
+  eval[14]  = full5x5_pss.e2nd*e5x5Inverse;
+  eval[15]  = full5x5_pss.eTop*e5x5Inverse;
+  eval[16]  = full5x5_pss.eBottom*e5x5Inverse;
+  eval[17]  = full5x5_pss.eLeft*e5x5Inverse;
+  eval[18]  = full5x5_pss.eRight*e5x5Inverse;
+  eval[19]  = full5x5_pss.e2x5Max*e5x5Inverse;
+  eval[20]  = full5x5_pss.e2x5Left*e5x5Inverse;
+  eval[21]  = full5x5_pss.e2x5Right*e5x5Inverse;
+  eval[22]  = full5x5_pss.e2x5Top*e5x5Inverse;
+  eval[23]  = full5x5_pss.e2x5Bottom*e5x5Inverse;
+  eval[24]  = pho.nSaturatedXtals();
+  eval[25]  = std::max(0,numberOfClusters);
+      
+  // calculate coordinate variables
+  EcalClusterLocal _ecalLocal;
 
-  const bool iseb = pho.isEB();
   if (iseb) {
-    EBDetId ebseedid(theseed->seed());
-    eval[26] = pho.e5x5()/theseed->energy();
-    int ieta = ebseedid.ieta();
-    int iphi = ebseedid.iphi();
-    eval[27] = ieta;
-    eval[28] = iphi;
-    int signieta = ieta > 0 ? +1 : -1; /// this is 1*abs(ieta)/ieta in original training
-    eval[29] = (ieta-signieta)%5;
-    eval[30] = (iphi-1)%2;
-    //    eval[31] = (abs(ieta)<=25)*((ieta-signieta)%25) + (abs(ieta)>25)*((ieta-26*signieta)%20); //%25 is unnescessary in this formula
-    eval[31] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);  
-    eval[32] = (iphi-1)%20;
-    eval[33] = ieta;  /// duplicated variables but this was trained like that
-    eval[34] = iphi;  /// duplicated variables but this was trained like that
+
+    float dummy;
+    int ieta;
+    int iphi;
+    _ecalLocal.localCoordsEB(*theseed, *iSetup_, dummy, dummy, ieta, iphi, dummy, dummy);
+    eval[26] = ieta;
+    eval[27] = iphi;
+    int signieta = ieta > 0 ? +1 : -1;
+    eval[28] = (ieta-signieta)%5;
+    eval[29] = (iphi-1)%2;
+    eval[30] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);  
+    eval[31] = (iphi-1)%20;
+
   } else {
-    EEDetId eeseedid(theseed->seed());
-    eval[26] = the_sc->preshowerEnergy()/raw_energy;
-    eval[27] = the_sc->preshowerEnergyPlane1()/raw_energy;
-    eval[28] = the_sc->preshowerEnergyPlane2()/raw_energy;
-    eval[29] = eeseedid.ix();
-    eval[30] = eeseedid.iy();
+
+    float dummy;
+    int ix;
+    int iy;
+    _ecalLocal.localCoordsEE(*theseed, *iSetup_, dummy, dummy, ix, iy, dummy, dummy);
+    eval[26] = ix;
+    eval[27] = iy;
+    eval[28] = raw_es_energy/raw_energy;
+
   }
 
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
-  const double meanlimlow  = 0.2;
-  const double meanlimhigh = 2.0;
-  const double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-  const double meanscale   = 0.5*(meanlimhigh-meanlimlow);
+  constexpr double meanlimlow  = -1.0;
+  constexpr double meanlimhigh = 3.0;
+  constexpr double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
+  constexpr double meanscale   = 0.5*(meanlimhigh-meanlimlow);
   
-  const double sigmalimlow  = 0.0002;
-  const double sigmalimhigh = 0.5;
-  const double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  const double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
- 
-  int coridx = 0;
-  if (!iseb)
-    coridx = 1;
+  constexpr double sigmalimlow  = 0.0002;
+  constexpr double sigmalimhigh = 0.5;
+  constexpr double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
+  constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
+  
+  size_t coridx = 0;
+  float raw_pt = raw_energy*the_sc->position().rho()/the_sc->position().r();
 
+  if (iseb && raw_pt < lowEnergy_ECALonlyThr_)
+    coridx = 0;
+  else if (iseb && raw_pt >= lowEnergy_ECALonlyThr_)
+    coridx = 1;
+  else if (!iseb && raw_pt < lowEnergy_ECALonlyThr_)
+    coridx = 2;
+  else if (!iseb && raw_pt >= lowEnergy_ECALonlyThr_)
+    coridx = 3;
+  
   //these are the actual BDT responses
   double rawmean = ph_forestH_mean_[coridx]->GetResponse(eval.data());
   double rawsigma = ph_forestH_sigma_[coridx]->GetResponse(eval.data());
+  
   //apply transformation to limited output range (matching the training)
   double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
   double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+  
+  // Correct the energy. A negative energy means that the correction went
+  // outside the boundaries of the training. In this case uses raw.
+  // The resolution estimation, on the other hand should be ok.
+  if (mean < 0.) mean = 1.0;
 
-  //regression target is ln(Etrue/Eraw)
-  //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
-  double ecor = mean*eval[0];
-  if (!iseb) 
-    ecor = mean*(eval[0]+the_sc->preshowerEnergy());
-
-  double sigmacor = sigma*ecor;
+  const double ecor = mean*(raw_energy + raw_es_energy);
+  const double sigmacor = sigma*ecor;
+  
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, ecor, sigmacor, true);     
 }
 
