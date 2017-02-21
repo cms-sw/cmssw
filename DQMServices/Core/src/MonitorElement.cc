@@ -934,7 +934,7 @@ MonitorElement::setBinLabel(int bin, const std::string &label, int axis /* = 1 *
 #if WITHOUT_CMS_FRAMEWORK
     std::cout
 #else
-    edm::LogInfo("MonitorElement")
+    edm::LogWarning("MonitorElement")
 #endif
       << "*** MonitorElement: WARNING:"
       <<"setBinLabel: attempting to set label of non-existent bin number for ME: "<< getFullname() << " \n";
