@@ -10,9 +10,6 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//temp
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
-
 using namespace std;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
