@@ -22,9 +22,14 @@ namespace {
     return reco::deltaR2(*a,*b);
   }  
 
-  float distReal2(const edm::Ptr<reco::BasicCluster> &a, 
+  //get distance between cluster and multicluster axis (defined by remaning cluster with highest energy)
+  // N.B. the order of the clusters matters
+  float distAxisCluster2(const edm::Ptr<reco::BasicCluster> &a, 
              const edm::Ptr<reco::BasicCluster> &b) {
-    return (a->x()-b->x())*(a->x()-b->x()) + (a->y()-b->y())*(a->y()-b->y());
+    float tanTheta = tan(2*atan(exp(-1*a->eta())));
+    float ax = b->z()*tanTheta*cos(a->phi());
+    float ay = b->z()*tanTheta*sin(a->phi());
+    return (ax-b->x())*(ax-b->x()) + (ay-b->y())*(ay-b->y());
   }
 }
 
@@ -45,7 +50,7 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(con
       for(unsigned int j = i+1; j < es.size(); ++j) {
 	if(vused[j]==0) {
           float distanceCheck = 9999.;
-          if( realSpaceCone ) distanceCheck = distReal2(thecls[es[i]],thecls[es[j]]);
+          if( realSpaceCone ) distanceCheck = distAxisCluster2(thecls[es[i]],thecls[es[j]]);
           else distanceCheck = dist2(thecls[es[i]],thecls[es[j]]);
 	  if( distanceCheck<radius2 && int(thecls[es[i]]->z()*vused[i])>0 ) {
 	    temp.push_back(thecls[es[j]]);
