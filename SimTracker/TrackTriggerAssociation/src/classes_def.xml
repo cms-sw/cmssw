@@ -1,8 +1,5 @@
 <lcgdict>
     
-    <class name="edm::Ptr<TrackingParticle>" />
-    <class name="std::vector<edm::Ptr<TrackingParticle>>" />
-    
     <class name="edm::RefProd<TTClusterAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />
         
     <class name="edm::RefProd<TTStubAssociationMap<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi, edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >" />

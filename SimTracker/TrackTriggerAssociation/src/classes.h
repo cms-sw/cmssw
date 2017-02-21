@@ -17,9 +17,6 @@ namespace
 {
   namespace
   {
-    edm::Ptr< TrackingParticle >                  TP;
-    std::vector< edm::Ptr< TrackingParticle > > V_TP;
-
     TTClusterAssociationMap< Ref_Phase2TrackerDigi_ >                   CAM_PD;
     edm::Wrapper< TTClusterAssociationMap< Ref_Phase2TrackerDigi_ > > W_CAM_PD;
 
