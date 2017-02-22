@@ -70,7 +70,8 @@ class _Object(object):
         'attr' is translated as a branch in the TTree (<prefix>_<attr>).
         """
         self._checkIsValid()
-        return lambda: getattr(self._tree, self._prefix+"_"+attr)[self._index]
+        val = getattr(self._tree, self._prefix+"_"+attr)[self._index]
+        return lambda: val
 
     def _checkIsValid(self):
         """Raise an exception if the object index is not valid."""
@@ -468,7 +469,8 @@ class BeamSpot(object):
 
         'attr' is translated as a branch in the TTree (bsp_<attr>).
         """
-        return lambda: getattr(self._tree, self._prefix+"_"+attr)
+        val = getattr(self._tree, self._prefix+"_"+attr)
+        return lambda: val
 
 ##########
 class SimHitMatchInfo(_Object):
@@ -492,7 +494,8 @@ class SimHitMatchInfo(_Object):
 
     def __getattr__(self, attr):
         """Custom __getattr__ because of the second index needed to access the branch."""
-        return lambda: super(SimHitMatchInfo, self).__getattr__(attr)()[self._shindex]
+        val = super(SimHitMatchInfo, self).__getattr__(attr)()[self._shindex]
+        return lambda: val
 
     def simHit(self):
         """Returns matched SimHit."""
@@ -521,7 +524,8 @@ class TrackingParticleMatchInfo(_Object):
 
     def __getattr__(self, attr):
         """Custom __getattr__ because of the second index needed to access the branch."""
-        return lambda: super(TrackingParticleMatchInfo, self).__getattr__(attr)()[self._tpindex]
+        val = super(TrackingParticleMatchInfo, self).__getattr__(attr)()[self._tpindex]
+        return lambda: val
 
     def trackingParticle(self):
         """Returns matched TrackingParticle."""

@@ -9,7 +9,6 @@ from operator import itemgetter, methodcaller
 
 from Validation.RecoTrack.plotting.ntupleDetId import *
 from Validation.RecoTrack.plotting.ntupleDataFormat import *
-from Validation.RecoTrack.plotting.ntupleDataFormat import _SimHitMatchAdaptor
 
 # Common track-track matching by hits (=clusters)
 def _commonHits(trk1, trk2):
@@ -747,8 +746,7 @@ class _RecHitPrinter(_IndentPrinter):
             matched = ""
             coord = ""
             if hit.isValidHit():
-                if isinstance(hit, _SimHitMatchAdaptor):
-                    #matched = "matched to TP:SimHit " + ",".join(["%d:%d"%(sh.trackingParticle().index(), sh.index()) for sh in hit.simHits()])
+                if hasattr(hit, "matchedSimHitInfos"):
                     matched = "from %s " % HitSimType.toString(hit.simType())
                     matches = ["%d:%d(%.1f)"%(shInfo.simHit().trackingParticle().index(), shInfo.simHit().index(), shInfo.chargeFraction()*100) for shInfo in hit.matchedSimHitInfos()]
                     if len(matches) == 0:
