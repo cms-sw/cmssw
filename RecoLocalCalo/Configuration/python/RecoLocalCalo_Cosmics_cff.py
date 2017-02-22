@@ -81,7 +81,7 @@ hfprereco = _hcalLocalReco_cff.hfprereco.clone(
     sumAllTimeSlices = cms.bool(True)
 )
 
-hbheplan1 = _hcalLocalReco_cff.hbheplan1.clone()
+from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 
 # redefine hcal sequence
 hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
