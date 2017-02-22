@@ -14,8 +14,6 @@ from SimMuon.DTDigitizer.muondtdigi_cfi import *
 from SimMuon.RPCDigitizer.muonrpcdigi_cfi import *
 muonDigi = cms.Sequence(simMuonCSCDigis+simMuonDTDigis+simMuonRPCDigis)
 
-from CondCore.DBCommon.CondDBCommon_cfi import *
-
 from SimMuon.GEMDigitizer.muonGEMDigi_cff import *
 from SimMuon.GEMDigitizer.muonME0Digi_cff import *
 
