@@ -51,7 +51,7 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
   dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgHLTOfflineSource_" + iConfig.getParameter<std::string>("@module_label");
 
  
-  offEvtHelper_.setup(iConfig);
+  offEvtHelper_.setup(iConfig,  consumesCollector());
 
 }
 

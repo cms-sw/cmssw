@@ -1,7 +1,8 @@
-<use name="DQMOffline/JetMET"/>
 <use name="DQMServices/Components"/>
 <use name="DQMServices/Core"/>
-
+<use name="FWCore/Utilities"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/Common"/>
 <library name="DQMOfflineJetMETPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

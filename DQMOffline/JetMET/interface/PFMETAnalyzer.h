@@ -26,7 +26,7 @@
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
-
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -103,15 +103,16 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   std::string metname;
   std::string _source;
 
-  edm::InputTag thePfMETCollectionLabel;
-  edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag theJetCollectionLabel;
-  edm::InputTag thePfJetCollectionLabel;
-  edm::InputTag PFCandidatesTag;
-  edm::InputTag BeamHaloSummaryTag;
-  edm::InputTag HBHENoiseFilterResultTag;
-  edm::InputTag vertexTag;
-  edm::InputTag gtTag;
+
+  edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollectionToken;
+  edm::EDGetTokenT<edm::View<reco::PFCandidate> > PFCandidatesToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> HcalNoiseRBXCollectionToken;
+  edm::EDGetTokenT<reco::BeamHaloSummary> BeamHaloSummaryToken;
+  edm::EDGetTokenT<bool> HBHENoiseFilterResultToken;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtToken;
+  edm::EDGetTokenT<std::vector<reco::PFJet> > thePfJetCollectionToken;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;

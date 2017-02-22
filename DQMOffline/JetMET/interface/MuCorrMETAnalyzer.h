@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -26,6 +27,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -37,7 +39,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
  public:
 
   /// Constructor
-  MuCorrMETAnalyzer(const edm::ParameterSet&);
+  MuCorrMETAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&&);
   
   /// Destructor
   virtual ~MuCorrMETAnalyzer();
@@ -88,11 +90,11 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   std::string metname;
   std::string _source;
 
-  edm::InputTag theMuCorrMETCollectionLabel;
-  edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HBHENoiseFilterResultTag;
-  edm::InputTag theJetCollectionLabel;
-  edm::InputTag thePfJetCollectionLabel;
+  edm::EDGetTokenT<reco::CaloMETCollection> theMuCorrMETCollectionToken;
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> HcalNoiseRBXCollectionToken;
+  edm::EDGetTokenT<bool> HBHENoiseFilterResultToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
+  edm::EDGetTokenT<std::vector<reco::PFJet> > thePfJetCollectionToken;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;

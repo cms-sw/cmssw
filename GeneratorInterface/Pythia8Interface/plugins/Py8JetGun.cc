@@ -117,9 +117,7 @@ bool Py8JetGun::generatePartonsAndHadronize()
    if ( !fMasterGen->next() ) return false;
    
    event().reset(new HepMC::GenEvent);
-   toHepMC.fill_next_event( fMasterGen->event, event().get() );
-      
-   return true;   
+   return toHepMC.fill_next_event( fMasterGen->event, event().get() );
   
 }
 

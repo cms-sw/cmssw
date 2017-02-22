@@ -70,12 +70,12 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   DQMStore * dbe_;
   std::string monitorName_;
 
-  edm::InputTag triggerResults_;
-  edm::InputTag triggerEvent_;
+  edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerEventToken;
   edm::InputTag triggerFilter_;
 
-  edm::InputTag vertex_;
-  edm::InputTag muons_;
+  edm::EDGetTokenT <reco::VertexCollection>vertexToken;
+  edm::EDGetTokenT <reco::MuonCollection>  muonToken;
 
   std::vector<std::string> hltPaths_L1_;
   std::vector<std::string> hltPaths_L3_;

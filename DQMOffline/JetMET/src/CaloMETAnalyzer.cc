@@ -57,6 +57,76 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet, ConsumesCollecto
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
 
+  // trigger information
+  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
+
+  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
+
+  //Trigger parameters
+  gtTag          = iC.consumes<L1GlobalTriggerReadoutRecord> (theCleaningParameters.getParameter<edm::InputTag>("gtLabel"));
+  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
+
+  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
+  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
+
+  _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
+  _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC);
+
+  //Vertex requirements
+  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
+  vertexTag  = iC.consumes<reco::VertexCollection> (theCleaningParameters.getParameter<edm::InputTag>("vertexLabel"));
+
+  if (_doPVCheck) {
+    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
+    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
+    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
+    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
+    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
+  }
+
+
+  // CaloMET information
+  theCaloMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
+  _source                         = parameters.getParameter<std::string>("Source");
+  theCaloMETCollectiontoken       = iC.consumes<reco::CaloMETCollection> (theCaloMETCollectionLabel);
+  
+  if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    inputBeamSpotLabel      = iC.consumes <reco::BeamSpot> (parameters.getParameter<edm::InputTag>("InputBeamSpotLabel"));
+  }
+
+  // Other data collections
+  theCaloTowersLabel               = iC.consumes<edm::View<reco::Candidate> > (parameters.getParameter<edm::InputTag>("CaloTowersLabel"));
+  theJetCollectionLabel            = iC.consumes<reco::CaloJetCollection> (parameters.getParameter<edm::InputTag>("JetCollectionLabel"));
+  HcalNoiseRBXCollectionTag        = iC.consumes<reco::HcalNoiseRBXCollection> (parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection"));
+  BeamHaloSummaryTag               = iC.consumes<reco::BeamHaloSummary> (parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
+  HBHENoiseFilterResultTag         = iC.consumes<bool> (parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel"));
+  themetNoHFtoken                  = iC.consumes<reco::CaloMETCollection> (std::string("metNoHF"));
+  theMuontoken                     = iC.consumes<reco::MuonCollection> (std::string("muons"));
+  muonMETValueMap_muCorrData_token = iC.consumes<edm::ValueMap<reco::MuonMETCorrectionData> > (edm::InputTag(std::string("muonMETValueMapProducer"),std::string("muCorrData")));
+
+  // misc
+  _verbose     = parameters.getParameter<int>("verbose");
+  _print       = parameters.getParameter<int>("printOut");
+  _etThreshold = parameters.getParameter<double>("etThreshold"); // MET threshold
+  _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
+  _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
+  _cleanupSelection= parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
+
+  _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
+  _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold"); // Low Pt Jet threshold
+  _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
+  //  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
+
+  //
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
 }
 
 // ***********************************************************
@@ -77,72 +147,6 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
 
   evtCounter = 0;
   metname = "caloMETAnalyzer";
-
-  // trigger information
-  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-
-  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
-
-  //Trigger parameters
-  gtTag          = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");
-  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
-  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
-  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
-
-  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
-  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
-
-  _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-
-  // ==========================================================
-  //DCS information
-  // ==========================================================
-  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
-
-  //Vertex requirements
-  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
-  vertexTag  = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
-
-  if (_doPVCheck) {
-    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
-    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
-    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
-    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
-    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
-  }
-
-
-  // CaloMET information
-  theCaloMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
-  _source                         = parameters.getParameter<std::string>("Source");
-
-  if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-    inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
-  }
-
-  // Other data collections
-  theCaloTowersLabel          = parameters.getParameter<edm::InputTag>("CaloTowersLabel");
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
-  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
-
-  // misc
-  _verbose     = parameters.getParameter<int>("verbose");
-  _print       = parameters.getParameter<int>("printOut");
-  _etThreshold = parameters.getParameter<double>("etThreshold"); // MET threshold
-  _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
-  _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
-  _cleanupSelection= parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
-
-  _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
-  _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold"); // Low Pt Jet threshold
-  _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
-  //  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[CaloMETAnalyzer] Parameters initialization";
@@ -618,7 +622,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // **** Get the MET container
   edm::Handle<reco::CaloMETCollection> calometcoll;
-  iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
+  iEvent.getByToken(theCaloMETCollectiontoken, calometcoll);
 
   if(!calometcoll.isValid()) {
     std::cout<<"Unable to find MET results for CaloMET collection "<<theCaloMETCollectionLabel<<std::endl;
@@ -633,7 +637,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // **** Get the MET no HF container
   edm::Handle<reco::CaloMETCollection> calometnohfcoll;
-  iEvent.getByLabel("metNoHF", calometnohfcoll);
+  iEvent.getByToken(themetNoHFtoken, calometnohfcoll);
 
   if(!calometnohfcoll.isValid()) {
     std::cout<<"Unable to find MET results for CaloMETNoHF collection metNoHF"<<std::endl;
@@ -648,10 +652,9 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   //Only for corMetGlobalMuons
   if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
-
-    iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
-    iEvent.getByLabel("muons", muon_h);
-    iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
+    iEvent.getByToken(muonMETValueMap_muCorrData_token, corMetGlobalMuons_ValueMap_Handle);
+    iEvent.getByToken(theMuontoken, muon_h);
+    iEvent.getByToken(inputBeamSpotLabel, beamSpot_h);
 
     if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
 
@@ -663,7 +666,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
   //
   edm::Handle<reco::HcalNoiseRBXCollection> HRBXCollection;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag,HRBXCollection);
+  iEvent.getByToken(HcalNoiseRBXCollectionTag,HRBXCollection);
   if (!HRBXCollection.isValid()) {
       LogDebug("") << "CaloMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
       if (_verbose) std::cout << "CaloMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
@@ -671,7 +674,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
-  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  iEvent.getByToken(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
@@ -680,14 +683,14 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionLabel, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;
   }
 
   edm::Handle<edm::View<reco::Candidate> > towers;
-  iEvent.getByLabel(theCaloTowersLabel, towers);
+  iEvent.getByToken(theCaloTowersLabel, towers);
   if (!towers.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find caltower product" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find caltower product" << std::endl;
@@ -810,7 +813,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
   // Get BeamHaloSummary
   edm::Handle<reco::BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
+  iEvent.getByToken(BeamHaloSummaryTag, TheBeamHaloSummary) ;
 
   bool bBeamHaloIDTightPass = true;
   bool bBeamHaloIDLoosePass = true;
@@ -845,7 +848,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     bPrimaryVertex = false;
     Handle<reco::VertexCollection> vertexHandle;
 
-    iEvent.getByLabel(vertexTag, vertexHandle);
+    iEvent.getByToken(vertexTag, vertexHandle);
 
     if (!vertexHandle.isValid()) {
       LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
@@ -876,7 +879,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-  iEvent.getByLabel( gtTag, gtReadoutRecord);
+  iEvent.getByToken( gtTag, gtReadoutRecord);
 
   if (!gtReadoutRecord.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
@@ -1437,7 +1440,7 @@ bool CaloMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionLabel, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;
@@ -1460,7 +1463,7 @@ bool CaloMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionLabel, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;

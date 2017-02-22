@@ -33,6 +33,8 @@ namespace SimDataFormats_GeneratorProducts {
 		std::map<int, HepMC::GenParticle*> m_particle_barcodes;
 		std::pair<const int, HepMC::GenVertex*> prgv1;
 		std::pair<const int, HepMC::GenParticle*> prgp1;
+		std::pair<int, HepMC::GenVertex*> prgv1_nc;
+		std::pair<int, HepMC::GenParticle*> prgp1_nc;
 		std::map<int, HepMC::GenVertex*, std::greater<int> > dummy777;
 		std::vector<HepMC::GenParticle*> m_particles_out;
 		std::vector<HepMC::GenParticle*> m_particles_in;

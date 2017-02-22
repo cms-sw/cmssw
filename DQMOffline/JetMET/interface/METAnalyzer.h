@@ -44,6 +44,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -108,21 +109,20 @@ class METAnalyzer : public METAnalyzerBase {
   std::string _FolderName;
 
   edm::InputTag theMETCollectionLabel;
-  edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag theJetCollectionLabel;
-  edm::InputTag thePfJetCollectionLabel;
-  edm::InputTag TcCandidatesTag;
-  edm::InputTag BeamHaloSummaryTag;
-  edm::InputTag HBHENoiseFilterResultTag;
-  edm::InputTag vertexTag;
-  edm::InputTag gtTag;
+  edm::EDGetTokenT<reco::METCollection> theMETCollectionToken;
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> HcalNoiseRBXCollectionToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
+  edm::EDGetTokenT<std::vector<reco::PFJet> > thePfJetCollectionToken;
+  edm::EDGetTokenT<reco::BeamHaloSummary > BeamHaloSummaryToken;
+  edm::EDGetTokenT<bool> HBHENoiseFilterResultToken;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtToken;
 
-  edm::InputTag inputTrackLabel;
-  edm::InputTag inputMuonLabel;
-  edm::InputTag inputElectronLabel;
-  edm::InputTag inputBeamSpotLabel;
-
-
+  edm::EDGetTokenT<reco::Track> inputTrackToken;
+  edm::EDGetTokenT<reco::MuonCollection> inputMuonToken;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron > > inputElectronToken;
+  edm::EDGetTokenT<reco::BeamSpot> inputBeamSpotToken;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonMETValueMap_muCorrData_token;
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
 

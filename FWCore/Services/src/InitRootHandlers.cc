@@ -188,6 +188,10 @@ namespace {
       }
       ::abort();
     }
+    
+    void sig_abort(int sig, siginfo_t*, void*) {
+      ::abort();
+    }
   }
 }  // end of unnamed namespace
 
@@ -218,8 +222,17 @@ namespace edm {
         gSystem->ResetSignal(kSigSegmentationViolation);
         gSystem->ResetSignal(kSigIllegalInstruction);
         installCustomHandler(SIGBUS,sig_dostack_then_abort);
+        sigBusHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGBUS,sig_abort);
+        });
         installCustomHandler(SIGSEGV,sig_dostack_then_abort);
+        sigSegvHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGSEGV,sig_abort);
+        });
         installCustomHandler(SIGILL,sig_dostack_then_abort);
+        sigIllHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGILL,sig_abort);
+        });
       }
 
       if(resetErrHandler_) {
