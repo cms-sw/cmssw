@@ -52,7 +52,7 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(con
           float distanceCheck = 9999.;
           if( realSpaceCone ) distanceCheck = distAxisCluster2(thecls[es[i]],thecls[es[j]]);
           else distanceCheck = dist2(thecls[es[i]],thecls[es[j]]);
-	  if( distanceCheck<radius2 && int(thecls[es[i]]->z()*vused[i])>0 ) {
+	  if( distanceCheck<radius2 && int(thecls[es[j]]->z()*vused[i])>0 ) {
 	    temp.push_back(thecls[es[j]]);
 	    vused[j]=vused[i];
 	    ++used;
