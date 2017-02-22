@@ -153,7 +153,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   size_t nNewJets = 0;
   for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
     // Get a ref to jet
-    const reco::PFJetRef jetRef = jets[ijet];
+    const reco::PFJetRef& jetRef = jets[ijet];
     if(jetRef->pt() - minJetPt_ < 1e-5) continue;
     if(std::abs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
     // Make an initial copy.
