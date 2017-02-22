@@ -266,7 +266,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     {
       ME0DetId me0Id(detId_inner);
       std::ostringstream os;
-      int ring = 1;//me0Id.ring();
+      int ring = 1;//me0Id.ring(); me0 only in ring 1
       os << me0Id.station() << ring;
       combination = "SME_"+os.str();
     }
