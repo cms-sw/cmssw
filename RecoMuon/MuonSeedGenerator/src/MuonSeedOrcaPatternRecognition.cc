@@ -516,8 +516,8 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
         seedSegments.push_back(list3[counter]);
         complete(seedSegments, list4, ME4);
         complete(seedSegments, list5, ME5);
-        complete(seedSegments, listg1,GE11); //Qiang
-        complete(seedSegments, listg2,GE21); //Qiang
+        complete(seedSegments, listg1,GE11); //GEM
+        complete(seedSegments, listg2,GE21); //GEM
 	complete(seedSegments, listme0,ME0); //ME0	
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
@@ -533,8 +533,8 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
         MuonRecHitContainer seedSegments;
         seedSegments.push_back(list4[counter]);
         complete(seedSegments, list5, ME5);
-        complete(seedSegments, listg1,GE11); //Qiang
-        complete(seedSegments, listg2,GE21); //Qiang
+        complete(seedSegments, listg1,GE11); //GEM
+        complete(seedSegments, listg2,GE21); //GEM
 	complete(seedSegments, listme0,ME0); //ME0	
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
@@ -789,6 +789,19 @@ MuonPatternRecoDumper theDumper;
 	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
       }
     }
+    else if((*segmentItr)->isME0())
+    {
+      std::cout<<"isGEM1 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
+      if(fabs(dtheta) < dThetaCut)
+      {
+	std::cout<<"isGEM2 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;    
+	result.push_back(*segmentItr);
+      }
+      else
+      {
+	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+      }
+    }    
   }
   filterOverlappingChambers(result);
   return result;
