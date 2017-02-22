@@ -17,10 +17,11 @@
 class TotemSymbID
 {
   public:
+    // TODO: remove ??
     /// identifies the TOTEM subsystem
     enum {RP, T1, T2} subSystem;
 
-    /// integer-encoded symbolic ID
+    /// chip ID, raw integer representation of DetId class
     unsigned int symbolicID;
 
     bool operator < (const TotemSymbID &sid) const
