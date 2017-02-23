@@ -36,7 +36,6 @@ pfTauPFJets08Region = recoTauAK4PFJets08Region.clone()
 pfTauPFJets08Region.src = cms.InputTag("ak4PFJets")
 pfTauPFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
 pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
-pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
 pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
