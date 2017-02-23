@@ -10,8 +10,6 @@ ak4PFJetsRecoTauChargedHadrons = cms.EDProducer("PFRecoTauChargedHadronProducer"
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     minJetPt = PFRecoTauPFJetInputs.minJetPt,
     maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
-    #jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
-    jetRegionSrc = cms.InputTag("unused"),
     outputSelection = cms.string('pt > %1.1f' % PFTauQualityCuts.signalQualityCuts.minTrackPt.value()), # CV: apply minimum Pt cut as sanity check
     builders = cms.VPSet(
         builders.chargedPFCandidates,
