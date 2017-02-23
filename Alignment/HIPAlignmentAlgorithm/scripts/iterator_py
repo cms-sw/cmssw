@@ -18,7 +18,7 @@ set odir = `cd $2; pwd` # get full output path
 set errfile = "$odir/ERROR"
 
 # configure all of the scripts
-scripts/configure.pl $odir $3 $4 $5 $6
+scripts/configureHippy.pl $odir $3 $4 $5 $6
 
 if ( -f $errfile ) then
    echo "$errfile exists! Please fix the errors and re-run."
