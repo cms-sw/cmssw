@@ -470,6 +470,13 @@ private:
 
   HistoryBase tracer_;
 
+  TH1 *pbVals = nullptr;
+  TH1 *pfVals = nullptr;
+  TH1 *tobVals = nullptr;
+  TH1 *tibVals = nullptr;
+  TH1 *tidVals = nullptr;
+  TH1 *tecVals = nullptr;
+
   TTree* t;
   // event
   edm::RunNumber_t ev_run;
@@ -811,6 +818,14 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
 
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
+
+  pbVals = fs->make<TH1I>("pbVals", "pbVals", 6,0,6);
+  pfVals = fs->make<TH1I>("pfVals", "pfVals", 10,0,10);
+  tobVals = fs->make<TH1I>("tobVals", "tobVals", 10,0,10);
+  tibVals = fs->make<TH1I>("tibVals", "tibVals", 12,0,12);
+  tidVals = fs->make<TH1I>("tidVals", "tidVals", 12,0,12);
+  tecVals = fs->make<TH1I>("tecVals", "tecVals", 14,0,14);
+
   t = fs->make<TTree>("tree","tree");
 
   t->Branch("event"        , &ev_event);
@@ -1400,6 +1415,98 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const reco::TrackToTrackingParticleAssociator& associatorByHits = *theAssociator;
 
   LogDebug("TrackingNtuple") << "Analyzing new event";
+
+  // In first event, dump the TrackerTopology numbers
+  if(pbVals) {
+    auto set = [&](TH1 *h, int bin, const char *name, unsigned int value) {
+      h->GetXaxis()->SetBinLabel(bin, name);
+      h->SetBinContent(bin, value);
+    };
+
+    // a bit ugly but reduces a lot of error-prone copy-paste
+#define SET(hist, bin, name) set(hist, bin, #name, tTopo.hist().name##_)
+
+    SET(pbVals, 1, layerStartBit);
+    SET(pbVals, 2, ladderStartBit);
+    SET(pbVals, 3, moduleStartBit);
+    SET(pbVals, 4, layerMask);
+    SET(pbVals, 5, ladderMask);
+    SET(pbVals, 6, moduleMask);
+
+    SET(pfVals, 1, sideStartBit);
+    SET(pfVals, 2, diskStartBit);
+    SET(pfVals, 3, bladeStartBit);
+    SET(pfVals, 4, panelStartBit);
+    SET(pfVals, 5, moduleStartBit);
+    SET(pfVals, 6, sideMask);
+    SET(pfVals, 7, diskMask);
+    SET(pfVals, 8, bladeMask);
+    SET(pfVals, 9, panelMask);
+    SET(pfVals, 10, moduleMask);
+
+    SET(tobVals, 1, layerStartBit);
+    SET(tobVals, 2, rod_fw_bwStartBit);
+    SET(tobVals, 3, rodStartBit);
+    SET(tobVals, 4, moduleStartBit);
+    SET(tobVals, 5, sterStartBit);
+    SET(tobVals, 6, layerMask);
+    SET(tobVals, 7, rod_fw_bwMask);
+    SET(tobVals, 8, rodMask);
+    SET(tobVals, 9, moduleMask);
+    SET(tobVals, 10, sterMask);
+
+    SET(tibVals, 1, layerStartBit);
+    SET(tibVals, 2, str_fw_bwStartBit);
+    SET(tibVals, 3, str_int_extStartBit);
+    SET(tibVals, 4, strStartBit);
+    SET(tibVals, 5, moduleStartBit);
+    SET(tibVals, 6, sterStartBit);
+    SET(tibVals, 7, layerMask);
+    SET(tibVals, 8, str_fw_bwMask);
+    SET(tibVals, 9, str_int_extMask);
+    SET(tibVals, 10, strMask);
+    SET(tibVals, 11, moduleMask);
+    SET(tibVals, 12, sterMask);
+
+    SET(tidVals, 1, sideStartBit);
+    SET(tidVals, 2, wheelStartBit);
+    SET(tidVals, 3, ringStartBit);
+    SET(tidVals, 4, module_fw_bwStartBit);
+    SET(tidVals, 5, moduleStartBit);
+    SET(tidVals, 6, sterStartBit);
+    SET(tidVals, 7, sideMask);
+    SET(tidVals, 8, wheelMask);
+    SET(tidVals, 9, ringMask);
+    SET(tidVals, 10, module_fw_bwMask);
+    SET(tidVals, 11, moduleMask);
+    SET(tidVals, 12, sterMask);
+
+    SET(tecVals, 1, sideStartBit);
+    SET(tecVals, 2, wheelStartBit);
+    SET(tecVals, 3, petal_fw_bwStartBit);
+    SET(tecVals, 4, petalStartBit);
+    SET(tecVals, 5, ringStartBit);
+    SET(tecVals, 6, moduleStartBit);
+    SET(tecVals, 7, sterStartBit);
+    SET(tecVals, 8, sideMask);
+    SET(tecVals, 9, wheelMask);
+    SET(tecVals, 10, petal_fw_bwMask);
+    SET(tecVals, 11, petalMask);
+    SET(tecVals, 12, ringMask);
+    SET(tecVals, 13, moduleMask);
+    SET(tecVals, 14, sterMask);
+
+#undef SET
+
+    // use null value to denote that the TrackerTopology values have been dumped
+    pbVals = nullptr;
+    pfVals = nullptr;
+    tobVals = nullptr;
+    tibVals = nullptr;
+    tidVals = nullptr;
+    tecVals = nullptr;
+
+  }
 
   //initialize tree variables
   clearVariables();

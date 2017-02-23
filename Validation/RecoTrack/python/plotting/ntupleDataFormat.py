@@ -13,16 +13,17 @@ class _Collection(object):
     Concrete collection classes should inherit from this class.
 
     """
-    def __init__(self, tree, sizeBranch, objclass):
+    def __init__(self, ntuple, sizeBranch, objclass):
         """Constructor.
 
         Arguments:
-        tree        -- TTree object
+        ntuple      -- TrackingNtuple object
         sizeBranch  -- Name of the branch to be used in size()
         objclass    -- Class to be used for the objects in __getitem__()
         """
         super(_Collection, self).__init__()
-        self._tree = tree
+        self._ntuple = ntuple
+        self._tree = ntuple.tree()
         self._sizeBranch = sizeBranch
         self._objclass = objclass
 
@@ -36,12 +37,12 @@ class _Collection(object):
 
     def __getitem__(self, index):
         """Get object 'index' in the collection."""
-        return self._objclass(self._tree, index)
+        return self._objclass(self._ntuple, index)
 
     def __iter__(self):
         """Returns generator for the objects."""
         for index in xrange(self.size()):
-            yield self._objclass(self._tree, index)
+            yield self._objclass(self._ntuple, index)
 
 class _Object(object):
     """Adaptor class representing a single object in a collection.
@@ -51,16 +52,17 @@ class _Object(object):
 
     Concrete object classes should inherit from this class.
     """
-    def __init__(self, tree, index, prefix):
+    def __init__(self, ntuple, index, prefix):
         """Constructor.
 
         Arguments:
-        tree   -- TTree object
+        ntuple -- TrackingNtuple object
         index  -- Index for this object
         prefix -- Prefix of the branchs
         """
         super(_Object, self).__init__()
-        self._tree = tree
+        self._ntuple = ntuple
+        self._tree = ntuple.tree()
         self._index = index
         self._prefix = prefix
 
@@ -86,19 +88,28 @@ class _Object(object):
         """Return object index."""
         return self._index
 
-class _HitObject(_Object):
+class _DetIdAdaptor(object):
+    """Adaptor class for objects containgin DetId (hits)."""
+    def __init__(self):
+        super(_DetIdAdaptor, self).__init__()
+
+    def detIdParsed(self):
+        """Returns a parsed DetId."""
+        return self._ntuple.parseDetId(self.detId())
+
+class _HitObject(_Object, _DetIdAdaptor):
     """Adaptor class for pixel/strip hit objects."""
-    def __init__(self, tree, index, prefix):
+    def __init__(self, ntuple, index, prefix):
         """Constructor.
 
         Arguments:
-        tree   -- TTree object
+        ntuple -- TrackingNtuple object
         index  -- Index for this object
         prefix -- Prefix of the branchs
         """
         """Constructor
         """
-        super(_HitObject, self).__init__(tree, index, prefix)
+        super(_HitObject, self).__init__(ntuple, index, prefix)
 
     def ntracks(self):
         """Returns number of tracks containing this hit."""
@@ -112,7 +123,7 @@ class _HitObject(_Object):
         """
         self._checkIsValid()
         for itrack in getattr(self._tree, self._prefix+"_trkIdx")[self._index]:
-            yield Track(self._tree, itrack)
+            yield Track(self._ntuple, itrack)
 
     def nseeds(self):
         """Returns number of seeds containing this hit."""
@@ -126,7 +137,7 @@ class _HitObject(_Object):
         """
         self._checkIsValid()
         for iseed in getattr(self._tree, self._prefix+"_seeIdx")[self._index]:
-            yield Seed(self._tree, iseed)
+            yield Seed(self._ntuple, iseed)
 
     def r(self):
         return math.sqrt(self.x()**2 + self.y()**2)
@@ -153,15 +164,15 @@ class _RecoHitAdaptor(object):
         """
         for ihit, hitType in self._hits():
             if hitType == 0:
-                yield PixelHit(self._tree, ihit)
+                yield PixelHit(self._ntuple, ihit)
             elif hitType == 1:
-                yield StripHit(self._tree, ihit)
+                yield StripHit(self._ntuple, ihit)
             elif hitType == 2:
-                yield GluedHit(self._tree, ihit)
+                yield GluedHit(self._ntuple, ihit)
             elif hitType == 3:
-                yield InvalidHit(self._tree, ihit)
+                yield InvalidHit(self._ntuple, ihit)
             elif hitType == 4:
-                yield Phase2OTHit(self._tree, ihit)
+                yield Phase2OTHit(self._ntuple, ihit)
             else:
                 raise Exception("Unknown hit type %d" % hitType)
 
@@ -171,7 +182,7 @@ class _RecoHitAdaptor(object):
         for ihit, hitType in self._hits():
             if hitType != 0:
                 continue
-            yield PixelHit(self._tree, ihit)
+            yield PixelHit(self._ntuple, ihit)
 
     def stripHits(self):
         """Returns generator for strip hits."""
@@ -179,7 +190,7 @@ class _RecoHitAdaptor(object):
         for ihit, hitType in self._hits():
             if hitType != 1:
                 continue
-            yield StripHit(self._tree, ihit)
+            yield StripHit(self._ntuple, ihit)
 
     def gluedHits(self):
         """Returns generator for matched strip hits."""
@@ -187,7 +198,7 @@ class _RecoHitAdaptor(object):
         for ihit, hitType in self._hits():
             if hitType != 2:
                 continue
-            yield GluedHit(self._tree, ihit)
+            yield GluedHit(self._ntuple, ihit)
 
     def invalidHits(self):
         """Returns generator for invalid hits."""
@@ -195,7 +206,7 @@ class _RecoHitAdaptor(object):
         for ihit, hitType in self._hits():
             if hitType != 3:
                 continue
-            yield InvalidHit(self._tree, ihit)
+            yield InvalidHit(self._ntuple, ihit)
 
     def phase2OTHits(self):
         """Returns generator for phase2 outer tracker hits."""
@@ -203,7 +214,7 @@ class _RecoHitAdaptor(object):
         for ihit, hitType in self._hits():
             if hitType != 4:
                 continue
-            yield Phase2OTHit(self._tree, ihit)
+            yield Phase2OTHit(self._ntuple, ihit)
 
 class _SimHitMatchAdaptor(object):
     """Adaptor class for objects containing or matched to SimHits (e.g. reco hits)."""
@@ -226,7 +237,7 @@ class _SimHitMatchAdaptor(object):
         """
         self._checkIsValid()
         for imatch in xrange(self._nMatchedSimHits()):
-            yield SimHitMatchInfo(self._tree, self._index, imatch, self._prefix)
+            yield SimHitMatchInfo(self._ntuple, self._index, imatch, self._prefix)
 
 class _LayerStrAdaptor(object):
     """Adaptor class for layerStr() method."""
@@ -239,7 +250,7 @@ class _LayerStrAdaptor(object):
         subdet = getattr(self._tree, self._prefix+"_det")[self._index]
         side = ""
         if subdet in [SubDet.FPix, SubDet.TID, SubDet.TEC]:
-            detid = parseDetId(getattr(self._tree, self._prefix+"_detId")[self._index])
+            detid = self._ntuple.parseDetId(getattr(self._tree, self._prefix+"_detId")[self._index])
             if detid.side == 1:
                 side = "-"
             elif detid.side == 2:
@@ -272,7 +283,7 @@ class _TrackingParticleMatchAdaptor(object):
         """
         self._checkIsValid()
         for imatch in xrange(self._nMatchedTrackingParticles()):
-            yield TrackingParticleMatchInfo(self._tree, self._index, imatch, self._prefix)
+            yield TrackingParticleMatchInfo(self._ntuple, self._index, imatch, self._prefix)
 
     def bestMatchingTrackingParticle(self):
         """Returns best-matching TrackingParticle, even for fake tracks, or None if there is no best-matching TrackingParticle.
@@ -303,7 +314,7 @@ class _TrackingParticleMatchAdaptor(object):
                 best = (tpIndex, nhits)
         if best[0] is None:
             return None
-        return TrackingParticles(self._tree)[best[0]]
+        return TrackingParticles(self._ntuple)[best[0]]
 
 ##########
 class TrackingNtuple(object):
@@ -316,7 +327,7 @@ class TrackingNtuple(object):
     Note that to iteratate over the evets with zip(), you should use
     itertools.izip() instead.
     """
-    def __init__(self, fileName, tree="trackingNtuple/tree"):
+    def __init__(self, fileName, folder="trackingNtuple"):
         """Constructor.
 
         Arguments:
@@ -325,8 +336,10 @@ class TrackingNtuple(object):
         """
         super(TrackingNtuple, self).__init__()
         self._file = ROOT.TFile.Open(fileName)
-        self._tree = self._file.Get(tree)
+        self._tree = self._file.Get(folder+"/tree")
         self._entries = self._tree.GetEntriesFast()
+
+        self._detIdParser = DetIdParser(self._file.Get(folder))
 
     def file(self):
         return self._file
@@ -359,7 +372,7 @@ class TrackingNtuple(object):
             nb = self._tree.GetEntry( jentry )
             if nb <= 0: continue
 
-            yield Event(self._tree, jentry)
+            yield Event(self, jentry)
 
     def getEvent(self, index):
         """Returns Event for a given index"""
@@ -368,7 +381,11 @@ class TrackingNtuple(object):
         nb = self._tree.GetEntry(ientry) # ientry or jentry?
         if nb <= 0: None
 
-        return Event(self._tree, ientry) # ientry of jentry?
+        return Event(self, ientry) # ientry of jentry?
+
+    def parseDetId(self, detid):
+        """Return a parsed DetId object."""
+        return self._detIdParser.parse(detid)
 
 ##########
 class Event(object):
@@ -377,15 +394,16 @@ class Event(object):
     Main benefit is to provide nice interface to get various objects
     or collections of objects.
     """
-    def __init__(self, tree, entry):
+    def __init__(self, ntuple, entry):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        entry -- Entry number in the tree
+        ntuple -- TrackingNtuple object
+        entry  -- Entry number in the tree
         """
         super(Event, self).__init__()
-        self._tree = tree
+        self._ntuple = ntuple
+        self._tree = ntuple.tree()
         self._entry = entry
 
     def entry(self):
@@ -417,39 +435,39 @@ class Event(object):
 
     def tracks(self):
         """Returns Tracks object."""
-        return Tracks(self._tree)
+        return Tracks(self._ntuple)
 
     def pixelHits(self):
         """Returns PixelHits object."""
-        return PixelHits(self._tree)
+        return PixelHits(self._ntuple)
 
     def stripHits(self):
         """Returns StripHits object."""
-        return StripHits(self._tree)
+        return StripHits(self._ntuple)
 
     def gluedHits(self):
         """Returns GluedHits object."""
-        return GluedHits(self._tree)
+        return GluedHits(self._ntuple)
 
     def phase2OTHits(self):
         """Returns Phase2OTHits object."""
-        return Phase2OTHits(self._tree)
+        return Phase2OTHits(self._ntuple)
 
     def seeds(self):
         """Returns Seeds object."""
-        return Seeds(self._tree)
+        return Seeds(self._ntuple)
 
     def trackingParticles(self):
         """Returns TrackingParticles object."""
-        return TrackingParticles(self._tree)
+        return TrackingParticles(self._ntuple)
 
     def vertices(self):
         """Returns Vertices object."""
-        return Vertices(self._tree)
+        return Vertices(self._ntuple)
 
     def trackingVertices(self):
         """Returns TrackingVertices object."""
-        return TrackingVertices(self._tree)
+        return TrackingVertices(self._ntuple)
 
 ##########
 class BeamSpot(object):
@@ -480,16 +498,16 @@ class SimHitMatchInfo(_Object):
     SimHit, also other information about the match (e.g. fraction of
     charge from this SimHit).
     """
-    def __init__(self, tree, index, shindex, prefix):
+    def __init__(self, ntuple, index, shindex, prefix):
         """Constructor.
 
         Arguments:
-        tree    -- TTree object
+        ntuple  -- TrackingNtuple object
         index   -- Index of the hit matched to SimHit
         shindex -- Index of the SimHit match (second index in _simHitIdx branch)
         prefix  -- String for prefix of the object (track/seed/hit) matched to TrackingParticle
         """
-        super(SimHitMatchInfo, self).__init__(tree, index, prefix)
+        super(SimHitMatchInfo, self).__init__(ntuple, index, prefix)
         self._shindex = shindex
 
     def __getattr__(self, attr):
@@ -500,7 +518,7 @@ class SimHitMatchInfo(_Object):
     def simHit(self):
         """Returns matched SimHit."""
         self._checkIsValid()
-        return SimHit(self._tree, getattr(self._tree, self._prefix+"_simHitIdx")[self._index][self._shindex])
+        return SimHit(self._ntuple, getattr(self._tree, self._prefix+"_simHitIdx")[self._index][self._shindex])
 
 class TrackingParticleMatchInfo(_Object):
 
@@ -510,16 +528,16 @@ class TrackingParticleMatchInfo(_Object):
     TrackingParticle, also other information about the match (e.g.
     shared hit fraction for tracks/seeds).
     """
-    def __init__(self, tree, index, tpindex, prefix):
+    def __init__(self, ntuple, index, tpindex, prefix):
         """Constructor.
 
         Arguments:
-        tree    -- TTree object
+        ntuple -- TrackingNtuple object
         index   -- Index of the object (track/seed) matched to TrackingParticle
         tpindex -- Index of the TrackingParticle match (second index in _simTrkIdx branch)
         prefix  -- String for prefix of the object (track/seed) matched to TrackingParticle
         """
-        super(TrackingParticleMatchInfo, self).__init__(tree, index, prefix)
+        super(TrackingParticleMatchInfo, self).__init__(ntuple, index, prefix)
         self._tpindex = tpindex
 
     def __getattr__(self, attr):
@@ -530,7 +548,7 @@ class TrackingParticleMatchInfo(_Object):
     def trackingParticle(self):
         """Returns matched TrackingParticle."""
         self._checkIsValid()
-        return TrackingParticle(self._tree, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index][self._tpindex])
+        return TrackingParticle(self._ntuple, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index][self._tpindex])
 
 class TrackMatchInfo(_Object):
     """Class representing a match to a Track.
@@ -538,22 +556,22 @@ class TrackMatchInfo(_Object):
     The point of this class is to provide, in addition to the matched
     Track, also other information about the match (e.g. shared hit fraction.
     """
-    def __init__(self, tree, index, trkindex, prefix):
+    def __init__(self, ntuple, index, trkindex, prefix):
         """Constructor.
 
         Arguments:
-        tree     -- TTree object
+        ntuple -- TrackingNtuple object
         index    -- Index of the object (TrackingParticle) matched to track
         trkindex -- Index of the track match (second index in _trkIdx branch)
         prefix   -- String for prefix of the object (TrackingParticle) matched to track
         """
-        super(TrackMatchInfo, self).__init__(tree, index, prefix)
+        super(TrackMatchInfo, self).__init__(ntuple, index, prefix)
         self._trkindex = trkindex
 
     def track(self):
         """Returns matched Track."""
         self._checkIsValid()
-        return Track(self._tree, getattr(self._tree, self._prefix+"_trkIdx")[self._index][self._trkindex])
+        return Track(self._ntuple, getattr(self._tree, self._prefix+"_trkIdx")[self._index][self._trkindex])
 
 class SeedMatchInfo(_Object):
     """Class representing a match to a Seed.
@@ -562,44 +580,44 @@ class SeedMatchInfo(_Object):
     all other "MatchInfo" classes
 
     """
-    def __init__(self, tree, index, seedindex, prefix):
+    def __init__(self, ntuple, index, seedindex, prefix):
         """Constructor.
 
         Arguments:
-        tree     -- TTree object
-        index    -- Index of the object (TrackingParticle) matched to seed
+        ntuple    -- TrackingNtuple object
+        index     -- Index of the object (TrackingParticle) matched to seed
         seedindex -- Index of the seed match (second index in _trkIdx branch)
-        prefix   -- String for prefix of the object (TrackingParticle) matched to seed
+        prefix    -- String for prefix of the object (TrackingParticle) matched to seed
         """
-        super(SeedMatchInfo, self).__init__(tree, index, prefix)
+        super(SeedMatchInfo, self).__init__(ntuple, index, prefix)
         self._seedindex = seedindex
 
     def seed(self):
         """Returns matched Seed."""
         self._checkIsValid()
-        return Seed(self._tree, getattr(self._tree, self._prefix+"_seedIdx")[self._index][self._seedindex])
+        return Seed(self._ntuple, getattr(self._tree, self._prefix+"_seedIdx")[self._index][self._seedindex])
 
 ##########
 class Track(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
     """Class presenting a track."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the track
+        ntuple -- TrackingNtuple object
+        index  -- Index of the track
         """
-        super(Track, self).__init__(tree, index, "trk")
+        super(Track, self).__init__(ntuple, index, "trk")
 
     def seed(self):
         """Returns Seed of the track."""
         self._checkIsValid()
-        return Seed(self._tree, self._tree.trk_seedIdx[self._index])
+        return Seed(self._ntuple, self._tree.trk_seedIdx[self._index])
 
     def vertex(self):
         """Returns Vertex that used this track in its fit."""
         self._checkIsValid()
-        return Vertex(self._tree, self._tree.trk_vtxIdx[self._index])
+        return Vertex(self._ntuple, self._tree.trk_vtxIdx[self._index])
 
     def ptPull(self):
         tp = self.bestMatchingTrackingParticle()
@@ -633,75 +651,75 @@ class Track(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
 
 class Tracks(_Collection):
     """Class presenting a collection of tracks."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(Tracks, self).__init__(tree, "trk_pt", Track)
+        super(Tracks, self).__init__(ntuple, "trk_pt", Track)
 
 ##########
 class PixelHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
     """Class representing a pixel hit."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the hit
+        ntuple -- TrackingNtuple object
+        index  -- Index of the hit
         """
-        super(PixelHit, self).__init__(tree, index, "pix")
+        super(PixelHit, self).__init__(ntuple, index, "pix")
 
     def isValidHit(self):
         return True
 
 class PixelHits(_Collection):
     """Class presenting a collection of pixel hits."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(PixelHits, self).__init__(tree, "pix_isBarrel", PixelHit)
+        super(PixelHits, self).__init__(ntuple, "pix_isBarrel", PixelHit)
 
 ##########
 class StripHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
     """Class representing a strip hit."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the hit
+        ntuple -- TrackingNtuple object
+        index  -- Index of the hit
         """
-        super(StripHit, self).__init__(tree, index, "str")
+        super(StripHit, self).__init__(ntuple, index, "str")
 
     def isValidHit(self):
         return True
 
 class StripHits(_Collection):
     """Class presenting a collection of strip hits."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(StripHits, self).__init__(tree, "str_isBarrel", StripHit)
+        super(StripHits, self).__init__(ntuple, "str_isBarrel", StripHit)
 
 ##########
 class GluedHit(_Object, _LayerStrAdaptor):
     """Class representing a matched strip hit."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the hit
+        ntuple -- TrackingNtuple object
+        index  -- Index of the hit
         """
-        super(GluedHit, self).__init__(tree, index, "glu")
+        super(GluedHit, self).__init__(ntuple, index, "glu")
 
     def isValidHit(self):
         return True
@@ -709,12 +727,12 @@ class GluedHit(_Object, _LayerStrAdaptor):
     def monoHit(self):
         """Returns a StripHit for the mono hit."""
         self._checkIsValid()
-        return StripHit(self._tree, self._tree.glu_monoIdx[self._index])
+        return StripHit(self._ntuple, self._tree.glu_monoIdx[self._index])
 
     def stereoHit(self):
         """Returns a StripHit for the stereo hit."""
         self._checkIsValid()
-        return StripHit(self._tree, self._tree.glu_stereoIdx[self._index])
+        return StripHit(self._ntuple, self._tree.glu_stereoIdx[self._index])
 
     def nseeds(self):
         """Returns the number of seeds containing this hit."""
@@ -728,17 +746,17 @@ class GluedHit(_Object, _LayerStrAdaptor):
         """
         self._checkIsValid()
         for iseed in self._tree.glu_seeIdx[self._index]:
-            yield Seed(self._tree, iseed)
+            yield Seed(self._ntuple, iseed)
 
 class GluedHits(_Collection):
     """Class presenting a collection of matched strip hits."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(GluedHits, self).__init__(tree, "glu_isBarrel", GluedHit)
+        super(GluedHits, self).__init__(ntuple, "glu_isBarrel", GluedHit)
 
 ##########
 class InvalidHit(_Object):
@@ -752,14 +770,14 @@ class InvalidHit(_Object):
     )
 
     """Class representing an invalid hit."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the hit
+        ntuple -- TrackingNtuple object
+        index  -- Index of the hit
         """
-        super(InvalidHit, self).__init__(tree, index, "inv")
+        super(InvalidHit, self).__init__(ntuple, index, "inv")
 
     def isValidHit(self):
         return False
@@ -773,27 +791,27 @@ class InvalidHit(_Object):
 ##########
 class Phase2OTHit(_HitObject, _LayerStrAdaptor, _SimHitMatchAdaptor):
     """Class representing a phase2 OT hit."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
+        ntuple -- TrackingNtuple object
         index -- Index of the hit
         """
-        super(Phase2OTHit, self).__init__(tree, index, "ph2")
+        super(Phase2OTHit, self).__init__(ntuple, index, "ph2")
 
     def isValidHit(self):
         return True
 
 class Phase2OTHits(_Collection):
     """Class presenting a collection of phase2 OT hits."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(Phase2OTHits, self).__init__(tree, "ph2_isBarrel", Phase2OTHit)
+        super(Phase2OTHits, self).__init__(ntuple, "ph2_isBarrel", Phase2OTHit)
 
 ##########
 def _seedOffsetForAlgo(tree, algo):
@@ -806,14 +824,14 @@ def _seedOffsetForAlgo(tree, algo):
 
 class Seed(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
     """Class presenting a seed."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
+        ntuple -- TrackingNtuple object
         index -- Index of the seed
         """
-        super(Seed, self).__init__(tree, index, "see")
+        super(Seed, self).__init__(ntuple, index, "see")
 
     def indexWithinAlgo(self):
         """Returns the seed index within the seeds of the same algo.
@@ -830,17 +848,17 @@ class Seed(_Object, _RecoHitAdaptor, _TrackingParticleMatchAdaptor):
     def track(self):
         """Returns Track that was made from this seed."""
         self._checkIsValid()
-        return Track(self._tree, self._tree.see_trkIdx[self._index])
+        return Track(self._ntuple, self._tree.see_trkIdx[self._index])
 
 class Seeds(_Collection):
     """Class presenting a collection of seeds."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(Seeds, self).__init__(tree, "see_pt", Seed)
+        super(Seeds, self).__init__(ntuple, "see_pt", Seed)
 
     def nSeedsForAlgo(self, algo):
         """Returns the number of seeds for a given 'algo'."""
@@ -854,26 +872,26 @@ class Seeds(_Collection):
         """
         (offset, next_offset) = _seedOffsetForAlgo(self._tree, algo)
         for isee in xrange(offset, next_offset):
-            yield Seed(self._tree, isee)
+            yield Seed(self._ntuple, isee)
 
     def seedForAlgo(self, algo, iseed):
         """Returns Seed of index 'iseed' for 'algo'."""
         (offset, next_offset) = _seedOffsetForAlgo(self._tree, algo)
         if iseed >= (next_offset-offset):
             raise Exception("Seed index %d is larger than the number of seeds %d for algo %d (%s)" % (iseed, next_offset-offset, algo, Algo.toString(algo)))
-        return Seed(self._tree, offset+iseed)
+        return Seed(self._ntuple, offset+iseed)
 
 ##########
-class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor):
+class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor, _DetIdAdaptor):
     """Class representing a SimHit which has not induced a RecHit."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the SimHit
+        ntuple -- TrackingNtuple object
+        index  -- Index of the SimHit
         """
-        super(SimHit, self).__init__(tree, index, "simhit")
+        super(SimHit, self).__init__(ntuple, index, "simhit")
 
     def nRecHits(self):
         self._checkIsValid()
@@ -881,19 +899,19 @@ class SimHit(_Object, _LayerStrAdaptor, _RecoHitAdaptor):
 
     def trackingParticle(self):
         self._checkIsValid()
-        return TrackingParticle(self._tree, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index])
+        return TrackingParticle(self._ntuple, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index])
 
 ##########
 class TrackingParticle(_Object):
     """Class representing a TrackingParticle."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the TrackingParticle
+        ntuple -- TrackingNtuple object
+        index  -- Index of the TrackingParticle
         """
-        super(TrackingParticle, self).__init__(tree, index, "sim")
+        super(TrackingParticle, self).__init__(ntuple, index, "sim")
 
     def _nMatchedTracks(self):
         """Internal function to get the number of matched tracks."""
@@ -911,7 +929,7 @@ class TrackingParticle(_Object):
         """
         self._checkIsValid()
         for imatch in xrange(self._nMatchedTracks()):
-            yield TrackMatchInfo(self._tree, self._index, imatch, self._prefix)
+            yield TrackMatchInfo(self._ntuple, self._index, imatch, self._prefix)
 
     def bestMatchingTrack(self):
         """Returns best-matching track, even for non-reconstructed TrackingParticles, or None, if there is no best-matching track.
@@ -940,7 +958,7 @@ class TrackingParticle(_Object):
                 best = (trackIndex, nhits)
         if best[0] is None:
             return None
-        return Tracks(self._tree)[best[0]]
+        return Tracks(self._ntuple)[best[0]]
 
     def _nMatchedSeeds(self):
         """Internal function to get the number of matched seeds."""
@@ -958,7 +976,7 @@ class TrackingParticle(_Object):
         """
         self._checkIsValid()
         for imatch in xrange(self._nMatchedSeeds()):
-            yield SeedMatchInfo(self._tree, self._index, imatch, self._prefix)
+            yield SeedMatchInfo(self._ntuple, self._index, imatch, self._prefix)
 
     def nSimHits(self):
         self._checkIsValid()
@@ -968,12 +986,12 @@ class TrackingParticle(_Object):
         """Returns generator for SimHits."""
         self._checkIsValid()
         for ihit in self.simHitIdx():
-            yield SimHit(self._tree, ihit)
+            yield SimHit(self._ntuple, ihit)
 
     def parentVertex(self):
         """Returns the parent TrackingVertex."""
         self._checkIsValid()
-        return TrackingVertex(self._tree, self._tree.sim_parentVtxIdx[self._index])
+        return TrackingVertex(self._ntuple, self._tree.sim_parentVtxIdx[self._index])
 
     def decayVertices(self):
         """Returns a generator for decay vertices.
@@ -982,7 +1000,7 @@ class TrackingParticle(_Object):
         """
         self._checkIsValid()
         for ivtx in self._tree.sim_decayVtxIdx[self._index]:
-            yield TrackingVertex(self._tree, ivtx)
+            yield TrackingVertex(self._ntuple, ivtx)
 
     def isLooper(self):
         """Returns True if this TrackingParticle is a looper.
@@ -1001,25 +1019,25 @@ class TrackingParticle(_Object):
 
 class TrackingParticles(_Collection):
     """Class presenting a collection of TrackingParticles."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(TrackingParticles, self).__init__(tree, "sim_pt", TrackingParticle)
+        super(TrackingParticles, self).__init__(ntuple, "sim_pt", TrackingParticle)
 
 ##########
 class Vertex(_Object):
     """Class presenting a primary vertex."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the vertex
+        ntuple -- TrackingNtuple object
+        index  -- Index of the vertex
         """
-        super(Vertex, self).__init__(tree, index, "vtx")
+        super(Vertex, self).__init__(ntuple, index, "vtx")
 
     def nTracks(self):
         """Returns the number of tracks used in the vertex fit."""
@@ -1033,29 +1051,29 @@ class Vertex(_Object):
         """
         self._checkIsValid()
         for itrk in self._tree.vtx_trkIdx[self._index]:
-            yield Track(self._tree, itrk)
+            yield Track(self._ntuple, itrk)
 
 class Vertices(_Collection):
     """Class presenting a collection of vertices."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(Vertices, self).__init__(tree, "vtx_valid", Vertex)
+        super(Vertices, self).__init__(ntuple, "vtx_valid", Vertex)
 
 ##########
 class TrackingVertex(_Object):
     """Class representing a TrackingVertex."""
-    def __init__(self, tree, index):
+    def __init__(self, ntuple, index):
         """Constructor.
 
         Arguments:
-        tree  -- TTree object
-        index -- Index of the TrackingVertex
+        ntuple -- TrackingNtuple object
+        index  -- Index of the TrackingVertex
         """
-        super(TrackingVertex, self).__init__(tree, index, "simvtx")
+        super(TrackingVertex, self).__init__(ntuple, index, "simvtx")
 
     def nSourceTrackingParticles(self):
         """Returns the number of source TrackingParticles."""
@@ -1071,20 +1089,20 @@ class TrackingVertex(_Object):
         """Returns a generator for the source TrackingParticles."""
         self._checkIsValid()
         for isim in self._tree.simvtx_sourceSimIdx[self._index]:
-            yield TrackingParticle(self._tree, isim)
+            yield TrackingParticle(self._ntuple, isim)
 
     def daughterTrackingParticles(self):
         """Returns a generator for the daughter TrackingParticles."""
         self._checkIsValid()
         for isim in self._tree.simvtx_daughterSimIdx[self._index]:
-            yield TrackingParticle(self._tree, isim)
+            yield TrackingParticle(self._ntuple, isim)
 
 class TrackingVertices(_Collection, TrackingVertex):
     """Class presenting a collection of TrackingVertices."""
-    def __init__(self, tree):
+    def __init__(self, ntuple):
         """Constructor.
 
         Arguments:
-        tree -- TTree object
+        ntuple -- TrackingNtuple object
         """
-        super(TrackingVertex, self).__init__(tree, "simvtx_x")
+        super(TrackingVertex, self).__init__(ntuple, "simvtx_x")
