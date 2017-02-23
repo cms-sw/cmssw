@@ -1,0 +1,37 @@
+<lcgdict>
+   <class name="PPSVertex"/>
+   <class name="edm::Wrapper<PPSVertex>"/>
+   <class name="PPSBaseVertex"/>
+   <class name="edm::Wrapper<PPSBaseVertex>"/>
+   <class name="PPSGenVertex"/>
+   <class name="edm::Wrapper<PPSGenVertex>"/>
+   <class name="PPSRecoVertex"/>
+   <class name="edm::Wrapper<PPSRecoVertex>"/>
+   <class name="PPSBaseData"/>
+   <class name="PPSBaseTrack"/>
+   <class name="edm::Wrapper<PPSBaseTrack>"/>
+   <class name="PPSSimTrack"/>
+   <class name="edm::Wrapper<PPSSimTrack>"/>
+   <class name="PPSSimTracks"/>
+   <class name="edm::Wrapper<PPSSimTracks>"/>
+   <class name="PPSRecoTrack"/>
+   <class name="edm::Wrapper<PPSRecoTrack>"/>
+   <class name="PPSRecoTracks"/>
+   <class name="edm::Wrapper<PPSRecoTracks>"/>
+   <class name="PPSTrackerHit"/>
+   <class name="PPSTrackerHits"/>
+   <class name="PPSToFHit"/>
+   <class name="PPSToFHits"/>
+   <class name="PPSGenData"/>
+   <class name="PPSSimData"/>
+   <class name="PPSRecoData"/>
+   <class name="edm::Wrapper<PPSGenData>"/>
+   <class name="edm::Wrapper<PPSSimData>"/>
+   <class name="edm::Wrapper<PPSRecoData>"/>
+   <class name="PPSSpectrometer<PPSGenData>"/>
+   <class name="PPSSpectrometer<PPSSimData>"/>
+   <class name="PPSSpectrometer<PPSRecoData>"/>
+   <class name="edm::Wrapper<PPSSpectrometer<PPSGenData> >"/>
+   <class name="edm::Wrapper<PPSSpectrometer<PPSSimData> >"/>
+   <class name="edm::Wrapper<PPSSpectrometer<PPSRecoData> >"/>
+</lcgdict>
