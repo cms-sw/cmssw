@@ -839,7 +839,7 @@ void HcalDDDRecConstants::initialize(void) {
 #ifdef EDM_ML_DEBUG
   std::cout << "Detector type and maximum depth for all RBX " 
 	    << depthMaxDf_.first << ":" << depthMaxDf_.second
-	    << "and for special RBX " << depthMaxSp_.first << ":" 
+	    << " and for special RBX " << depthMaxSp_.first << ":" 
 	    << depthMaxSp_.second << std::endl;
 #endif
 
@@ -867,6 +867,14 @@ void HcalDDDRecConstants::initialize(void) {
 	}
       }
       if (depth != 0) oldDep[depth] = std::pair<int,int>(lmin,lymax-1);
+#ifdef EDM_ML_DEBUG      
+      std::cout << "Eta|Phi|Zside " << eta << ":" << phi << ":" << zside
+		<< " with " << oldDep.size() << " old Depths" << std::endl;
+      unsigned int kk(0);
+      for (std::map<int,std::pair<int,int> >::const_iterator itr=oldDep.begin(); itr != oldDep.end(); ++itr,++kk)
+	std::cout << "[" << kk << "] " << itr->first << " --> " 
+		  << itr->second.first << ":" << itr->second.second << "\n";
+#endif
       std::pair<int,int> depths = hcons.ldMap()->getDepths(eta);
       for (int ndepth=depths.first; ndepth<=depths.second; ++ndepth) {
 	bool flag = ((subdet == HcalBarrel && eta == iEtaMax[0] && 
@@ -875,10 +883,10 @@ void HcalDDDRecConstants::initialize(void) {
 		      ndepth < hcons.getDepthEta16(subdet0,phi,zside)));
 	if (!flag) {
 	  std::vector<int> count(oldDep.size(),0);
-	  unsigned int l(0);
 	  int layFront = hcons.ldMap()->getLayerFront(subdet0,eta,phi,zside,ndepth);
 	  int layBack  = hcons.ldMap()->getLayerBack(subdet0,eta,phi,zside,ndepth);
 	  for (int lay=layFront; lay<=layBack; ++lay) {
+	    unsigned int l(0);
 	    for (std::map<int,std::pair<int,int> >::iterator itr=oldDep.begin();
 		 itr != oldDep.end(); ++itr,++l) {
 	      if (lay >= (itr->second).first && lay <= (itr->second).second) {
@@ -887,7 +895,7 @@ void HcalDDDRecConstants::initialize(void) {
 	    }
 	  }
 	  int odepth(0), maxlay(0);
-	  l = 0;
+	  unsigned int l(0);
 	  for (std::map<int,std::pair<int,int> >::iterator itr=oldDep.begin();
 	       itr != oldDep.end(); ++itr,++l) {
 	    if (count[l] > maxlay) {
@@ -895,6 +903,10 @@ void HcalDDDRecConstants::initialize(void) {
 	      maxlay = count[l];
 	    }
 	  }
+#ifdef EDM_ML_DEBUG      
+	  std::cout << "New Depth " << ndepth << " old Depth " << odepth 
+		    << " max " << maxlay << std::endl;
+#endif
 	  for (unsigned int k=0; k<phis.size(); ++k) {
 	    zside  = (phis[k] > 0) ? 1 : -1;
 	    phi    = (phis[k] > 0) ? phis[k] : -phis[k];
