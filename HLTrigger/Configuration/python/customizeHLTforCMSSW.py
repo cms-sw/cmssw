@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # helper fuctions
 from HLTrigger.Configuration.common import *
 
-# add one action function per PR
+# add one customisation function per PR
 # - put the PR number into the name of the function
 # - add a short comment
 
@@ -18,19 +18,13 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-#
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
-    import os
-    cmsswVersion = os.environ['CMSSW_VERSION']
+    # print "# Applying 90X customization for ",menuType
 
-    if cmsswVersion >= "CMSSW_9_0":
-#       add call to action function in proper order: newest last!
-#       print "# Applying 90X customization for ",menuType
-#       process = customiseFor12718(process)
-        pass
-
-#   all done!
+    # add call to action function in proper order: newest last!
+    # process = customiseFor12718(process)
 
     return process
