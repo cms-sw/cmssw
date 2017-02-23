@@ -137,7 +137,7 @@ combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
     jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
     chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),                                
     piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
-    buildNullTaus = cms.bool(True),
+    buildNullTaus = cms.bool(False),
     # Make maximum size from which to collect isolation cone objects, w.r.t to
     # the axis of the signal cone objects
     builders = cms.VPSet(
