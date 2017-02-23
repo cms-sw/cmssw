@@ -45,5 +45,5 @@ HcalIsoTrkAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
                                     UseRaw            = cms.untracked.bool(False),
                                     HcalScale         = cms.untracked.double(1.0),
                                     DataType          = cms.untracked.int32(0),
-                                    Mode              = cms.untracked.int32(11),
+                                    OutMode           = cms.untracked.int32(11),
 )

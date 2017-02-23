@@ -196,7 +196,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   useRaw_                             = iConfig.getUntrackedParameter<bool>("UseRaw", false);
   hcalScale_                          = iConfig.getUntrackedParameter<double>("HcalScale", 1.0);
   dataType_                           = iConfig.getUntrackedParameter<int>("DataType", 0);
-  mode_                               = iConfig.getUntrackedParameter<int>("OutMode", 0);
+  mode_                               = iConfig.getUntrackedParameter<int>("OutMode", 11);
 
   // define tokens for access
   tok_trigEvt_  = consumes<trigger::TriggerEvent>(triggerEvent_);
