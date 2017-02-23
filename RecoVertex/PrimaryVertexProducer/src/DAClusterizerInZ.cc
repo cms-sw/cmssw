@@ -260,26 +260,29 @@ bool DAClusterizerInZ::merge(vector<vertex_t> & y, double & beta)const{
 
 
 
-bool DAClusterizerInZ::purge(vector<vertex_t> & y, vector<track_t> & tks, double & rho0, const double beta)const{
+bool DAClusterizerInZ::purge(vector<vertex_t> & y, vector<track_t> & tks, double & rho0, const double beta) const {
+  constexpr int maxUnique = 2;
   // eliminate clusters with only one significant/unique track
   if(y.size()<2)  return false;
   
   unsigned int nt=tks.size();
   double sumpmin=nt;
   vector<vertex_t>::iterator k0=y.end();
-  for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ 
+  const double rho0exp = rho0*std::exp(-beta*dzCutOff_*dzCutOff_);
+  for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); ++k){ 
     int nUnique=0;
     double sump=0;
-    double pmax=k->pk/(k->pk+rho0*exp(-beta*dzCutOff_*dzCutOff_));
-    for(unsigned int i=0; i<nt; i++){
+    double pmax=k->pk/(k->pk+rho0exp);
+    for(unsigned int i=0; i<nt; ++i){
       if(tks[i].Z>0){
 	double p=k->pk * exp(-beta*Eik(tks[i],*k)) / tks[i].Z;
 	sump+=p;
-	if( (p > 0.9*pmax) && (tks[i].pi>0) ){ nUnique++; }
+	if( (p > 0.9*pmax) && (tks[i].pi>0) ) { ++nUnique; }
+	if( nUnique >= maxUnique ) { break; }
       }
     }
 
-    if((nUnique<2)&&(sump<sumpmin)){
+    if( ( nUnique < maxUnique ) && ( sump<sumpmin ) ){
       sumpmin=sump;
       k0=k;
     }

@@ -329,8 +329,8 @@ DAClusterizerInZ_vect::purge(vertex_t & y, track_t & tks, double & rho0, const d
 	//double p=pik(beta,tks[i],*k);
 	double p = y._pk[k] * local_exp(-beta * Eik(tks._z[i], y._z[k], tks._dz2[i])) / tks._Z_sum[i];
 	sump += p;
-	if((p > 0.9 * pmax) && (tks._pi[i] > 0)) { nUnique++; }
-	if(nUnique >= maxUnique) {break;}
+	if((p > 0.9 * pmax) && (tks._pi[i] > 0)) { ++nUnique; }
+	if(nUnique >= maxUnique) { break; }
       }
     }
     
