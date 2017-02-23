@@ -44,7 +44,7 @@ void HcalLayerDepthMap::initialize(const int subdet, const int ietaMax,
     int ietaMin = ieta[k1];
     int ietaMax = ietaMax_;
     int layMin  = layer[k1];
-    int layMax  = (k1+1 < ieta.size()) ? layer[k1+1] : maxLayers_;
+    int layMax  = (k1+1 < ieta.size()) ? (layer[k1+1]-1) : maxLayers_;
     for (unsigned int k2=k1+1; k2<ieta.size(); ++k2) {
       if (ieta[k2] > ieta[k1]) {
 	ietaMax = ieta[k2] - 1;
