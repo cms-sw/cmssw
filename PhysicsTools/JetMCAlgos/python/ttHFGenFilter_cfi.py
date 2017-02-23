@@ -9,6 +9,8 @@ ttHFGenFilter = cms.EDFilter("ttHFGenFilter",
     genBHadPlusMothersIndices = cms.InputTag("matchGenBHadron", "genBHadPlusMothersIndices"),
     genBHadIndex = cms.InputTag("matchGenBHadron", "genBHadIndex"),
 
-    OnlyHardProcessBHadrons = cms.bool(False)
+    OnlyHardProcessBHadrons = cms.bool(False),
+    taggingMode = cms.bool(False), # True if filter is used as EDProducer 
+    OutputName = cms.string("TTPlusBEvent")
 
 )

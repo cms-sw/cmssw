@@ -103,7 +103,8 @@ process.matchGenBHadron = matchGenBHadron.clone(
 process.load("PhysicsTools/JetMCAlgos/ttHFGenFilter_cfi")
 from PhysicsTools.JetMCAlgos.ttHFGenFilter_cfi import ttHFGenFilter
 process.ttHFGenFilter = ttHFGenFilter.clone(
-    genParticles = genParticleCollection
+    genParticles = genParticleCollection,
+    taggingMode = cms.bool(False)
 )
 
 
