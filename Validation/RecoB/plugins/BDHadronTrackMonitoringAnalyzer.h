@@ -41,22 +41,6 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-typedef std::pair<unsigned int, std::string> intstrpair;
-const intstrpair map_start_values[] = {
-  intstrpair(0, "BCWeakDecay"),
-  intstrpair(1, "BWeakDecay"),
-  intstrpair(2, "CWeakDecay"),
-  intstrpair(3, "PU"),
-  intstrpair(4, "Other"),
-  intstrpair(5, "Fake") 
-};
-const int map_start_values_size = sizeof(map_start_values) / sizeof(map_start_values[0]);
-
-extern std::map<unsigned int, std::string> TrkHistCat;
-
-
-
-
 
 
 /** \class BDHadronTrackMonitoringAnalyzer
@@ -76,6 +60,9 @@ class BDHadronTrackMonitoringAnalyzer : public DQMEDAnalyzer {
     virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;     
 
+   
+    enum HistoryClasses{ BCWeakDecay=0, BWeakDecay=1, CWeakDecay=2, PU=3, Other=4, Fake=5};
+    static const std::vector<std::string> TrkHistCat;
 
    private:
 

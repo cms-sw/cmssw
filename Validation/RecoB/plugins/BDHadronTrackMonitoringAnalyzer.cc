@@ -1,9 +1,5 @@
 #include "Validation/RecoB/plugins/BDHadronTrackMonitoringAnalyzer.h"
 
-// intialize category map
-std::map<unsigned int, std::string> TrkHistCat(map_start_values, map_start_values + map_start_values_size);
-
-
 const reco::TrackBaseRef toTrackRef(const edm::Ptr<reco::Candidate> & cnd)
 {
     const reco::PFCandidate * pfcand = dynamic_cast<const reco::PFCandidate *>(cnd.get());
@@ -17,8 +13,11 @@ const reco::TrackBaseRef toTrackRef(const edm::Ptr<reco::Candidate> & cnd)
 }
 
 
-// ---------- Constructor -----------
+// ---------- Static member declaration -----------
+const std::vector<std::string> BDHadronTrackMonitoringAnalyzer::TrkHistCat = {"BCWeakDecay", "BWeakDecay", "CWeakDecay", "PU", "Other", "Fake"};
 
+
+// ---------- Constructor -----------
 BDHadronTrackMonitoringAnalyzer::BDHadronTrackMonitoringAnalyzer(const edm::ParameterSet& pSet) :
     distJetAxis_ ( pSet.getParameter<double>("distJetAxisCut") ),
     decayLength_ ( pSet.getParameter<double>("decayLengthCut") ),
@@ -36,7 +35,9 @@ BDHadronTrackMonitoringAnalyzer::BDHadronTrackMonitoringAnalyzer(const edm::Para
     TrackCollectionTag_ = consumes<reco::TrackCollection>(TrackSrc_);
     PrimaryVertexColl_ = consumes<reco::VertexCollection>(PVSrc_);
     clusterTPMapToken_ = consumes<ClusterTPAssociation>(ClusterTPMapSrc_);
+    //TrkHistCat = {"BCWeakDecay", "BWeakDecay", "CWeakDecay", "PU", "Other", "Fake"};
 }
+
 
 
 
@@ -51,28 +52,22 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker & ibook, 
 
 
   nTrkAll_bjet = ibook.book1D("nTrkAll_bjet","Number of selected tracks in b jets;number of selected tracks;jets",16,-0.5,15.5);
-  //nTrkTruthAll_bjet = ibook.book1D("nTrkTruthAll_bjet","Number of selected TrackingParticles in b jets;number of selected truth tracks;jets",16,-0.5,15.5);
 
   nTrkAll_cjet = ibook.book1D("nTrkAll_cjet","Number of selected tracks in c jets;number of selected tracks;jets",16,-0.5,15.5);
-  //nTrkTruthAll_cjet = ibook.book1D("nTrkTruthAll_cjet","Number of selected TrackingParticles in c jets;number of selected truth tracks;jets",16,-0.5,15.5);
 
   nTrkAll_dusgjet = ibook.book1D("nTrkAll_dusgjet","Number of selected tracks in dusg jets;number of selected tracks;jets",16,-0.5,15.5);
-  //nTrkTruthAll_dusgjet = ibook.book1D("nTrkTruthAll_dusgjet","Number of selected TrackingParticles in dusg jets;number of selected truth tracks;jets",16,-0.5,15.5);
 
   // Loop over different Track History Categories
   for (unsigned int i = 0; i < TrkHistCat.size(); i++){
     // b jets
     nTrk_bjet[i] = ibook.book1D("nTrk_bjet_"+TrkHistCat[i],"Number of selected tracks in b jets ("+TrkHistCat[i]+");number of selected tracks ("+TrkHistCat[i]+");jets",16,-0.5,15.5);
-    //nTrkTruth_bjet[i] = ibook.book1D("nTrkTruth_bjet_"+TrkHistCat[i],"Number of selected trackingparticles in b jets ("+TrkHistCat[i]+" Truth);number of selected tracks ("+TrkHistCat[i]+" Truth);jets",16,-0.5,15.5);
-
+ 
     // c jets
     nTrk_cjet[i] = ibook.book1D("nTrk_cjet_"+TrkHistCat[i],"Number of selected tracks in c jets ("+TrkHistCat[i]+");number of selected tracks ("+TrkHistCat[i]+");jets",16,-0.5,15.5);
-    //nTrkTruth_cjet[i] = ibook.book1D("nTrkTruth_cjet_"+TrkHistCat[i],"Number of selected trackingparticles in c jets ("+TrkHistCat[i]+" Truth);number of selected tracks ("+TrkHistCat[i]+" Truth);jets",16,-0.5,15.5);
-
+ 
     // dusg jets
     nTrk_dusgjet[i] = ibook.book1D("nTrk_dusgjet_"+TrkHistCat[i],"Number of selected tracks in dusg jets ("+TrkHistCat[i]+");number of selected tracks ("+TrkHistCat[i]+");jets",16,-0.5,15.5);
-    //nTrkTruth_dusgjet[i] = ibook.book1D("nTrkTruth_dusgjet_"+TrkHistCat[i],"Number of selected trackingparticles in dusg jets ("+TrkHistCat[i]+" Truth);number of selected tracks ("+TrkHistCat[i]+" Truth);jets",16,-0.5,15.5);
-
+ 
 
     // track properties for all flavours combined
     TrkPt_alljets[i] = ibook.book1D("TrkPt_"+TrkHistCat[i],"Track pT ("+TrkHistCat[i]+");track p_{T} ("+TrkHistCat[i]+");tracks",30,0,100);
@@ -156,7 +151,6 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
     unsigned int flav = abs(jet->hadronFlavour());
 
 
-    //std::cout << "is there a taginfo? " << jet->hasTagInfo(ipTagInfos_.c_str()) << std::endl;
     const CandIPTagInfo *trackIpTagInfo = jet->tagInfoCandIP(ipTagInfos_.c_str());
     const std::vector<edm::Ptr<reco::Candidate> > & selectedTracks( trackIpTagInfo->selectedTracks() );
 
@@ -253,125 +247,125 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
     
         //BCWeakDecay
         if ( theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::BWeakDecay] && theFlag[TrackCategories::CWeakDecay] ) {
-            nseltracksCat[0] += 1;
-            TrkPt_alljets[0]->Fill(TrkPt);
-            TrkEta_alljets[0]->Fill(TrkEta);
-            TrkPhi_alljets[0]->Fill(TrkPhi);
-            TrkDxy_alljets[0]->Fill(TrkDxy);
-            TrkDz_alljets[0]->Fill(TrkDz);
-            TrkHitAll_alljets[0]->Fill(TrknHitAll);
-            TrkHitPixel_alljets[0]->Fill(TrknHitPixel);
-            TrkHitStrip_alljets[0]->Fill(TrknHitStrip);
+            nseltracksCat[BDHadronTrackMonitoringAnalyzer::BCWeakDecay] += 1;
+            TrkPt_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkPt);
+            TrkEta_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkEta);
+            TrkPhi_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkPhi);
+            TrkDxy_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkDxy);
+            TrkDz_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkDz);
+            TrkHitAll_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrknHitAll);
+            TrkHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrknHitPixel);
+            TrkHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrknHitStrip);
             if (quality_tpr != 0) {
-                TrkTruthPt_alljets[0]->Fill(TrkTruthPt);
-                TrkTruthEta_alljets[0]->Fill(TrkTruthEta);
-                TrkTruthPhi_alljets[0]->Fill(TrkTruthPhi);
-                TrkTruthDxy_alljets[0]->Fill(TrkTruthDxy);
-                TrkTruthDz_alljets[0]->Fill(TrkTruthDz);
-                TrkTruthHitAll_alljets[0]->Fill(TrkTruthnHitAll);
-                TrkTruthHitPixel_alljets[0]->Fill(TrkTruthnHitPixel);
-                TrkTruthHitStrip_alljets[0]->Fill(TrkTruthnHitStrip);
+                TrkTruthPt_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthPt);
+                TrkTruthEta_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthEta);
+                TrkTruthPhi_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthPhi);
+                TrkTruthDxy_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthDxy);
+                TrkTruthDz_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthDz);
+                TrkTruthHitAll_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthnHitAll);
+                TrkTruthHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthnHitPixel);
+                TrkTruthHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::BCWeakDecay]->Fill(TrkTruthnHitStrip);
             }
         }
         //BWeakDecay
         else if ( theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::BWeakDecay] && !theFlag[TrackCategories::CWeakDecay] ) {
-            nseltracksCat[1] += 1;
-            TrkPt_alljets[1]->Fill(TrkPt);
-            TrkEta_alljets[1]->Fill(TrkEta);
-            TrkPhi_alljets[1]->Fill(TrkPhi);
-            TrkDxy_alljets[1]->Fill(TrkDxy);
-            TrkDz_alljets[1]->Fill(TrkDz);
-            TrkHitAll_alljets[1]->Fill(TrknHitAll);
-            TrkHitPixel_alljets[1]->Fill(TrknHitPixel);
-            TrkHitStrip_alljets[1]->Fill(TrknHitStrip);
+            nseltracksCat[BDHadronTrackMonitoringAnalyzer::BWeakDecay] += 1;
+            TrkPt_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkPt);
+            TrkEta_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkEta);
+            TrkPhi_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkPhi);
+            TrkDxy_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkDxy);
+            TrkDz_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkDz);
+            TrkHitAll_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrknHitAll);
+            TrkHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrknHitPixel);
+            TrkHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrknHitStrip);
             if (quality_tpr != 0) {
-                TrkTruthPt_alljets[1]->Fill(TrkTruthPt);
-                TrkTruthEta_alljets[1]->Fill(TrkTruthEta);
-                TrkTruthPhi_alljets[1]->Fill(TrkTruthPhi);
-                TrkTruthDxy_alljets[1]->Fill(TrkTruthDxy);
-                TrkTruthDz_alljets[1]->Fill(TrkTruthDz);
-                TrkTruthHitAll_alljets[1]->Fill(TrkTruthnHitAll);
-                TrkTruthHitPixel_alljets[1]->Fill(TrkTruthnHitPixel);
-                TrkTruthHitStrip_alljets[1]->Fill(TrkTruthnHitStrip);
+                TrkTruthPt_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthPt);
+                TrkTruthEta_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthEta);
+                TrkTruthPhi_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthPhi);
+                TrkTruthDxy_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthDxy);
+                TrkTruthDz_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthDz);
+                TrkTruthHitAll_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthnHitAll);
+                TrkTruthHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthnHitPixel);
+                TrkTruthHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::BWeakDecay]->Fill(TrkTruthnHitStrip);
             }
         }
         //CWeakDecay
         else if ( theFlag[TrackCategories::SignalEvent] && !theFlag[TrackCategories::BWeakDecay] && theFlag[TrackCategories::CWeakDecay] ) {
-            nseltracksCat[2] += 1;
-            TrkPt_alljets[2]->Fill(TrkPt);
-            TrkEta_alljets[2]->Fill(TrkEta);
-            TrkPhi_alljets[2]->Fill(TrkPhi);
-            TrkDxy_alljets[2]->Fill(TrkDxy);
-            TrkDz_alljets[2]->Fill(TrkDz);
-            TrkHitAll_alljets[2]->Fill(TrknHitAll);
-            TrkHitPixel_alljets[2]->Fill(TrknHitPixel);
-            TrkHitStrip_alljets[2]->Fill(TrknHitStrip);
+            nseltracksCat[BDHadronTrackMonitoringAnalyzer::CWeakDecay] += 1;
+            TrkPt_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkPt);
+            TrkEta_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkEta);
+            TrkPhi_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkPhi);
+            TrkDxy_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkDxy);
+            TrkDz_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkDz);
+            TrkHitAll_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrknHitAll);
+            TrkHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrknHitPixel);
+            TrkHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrknHitStrip);
             if (quality_tpr != 0) {
-                TrkTruthPt_alljets[2]->Fill(TrkTruthPt);
-                TrkTruthEta_alljets[2]->Fill(TrkTruthEta);
-                TrkTruthPhi_alljets[2]->Fill(TrkTruthPhi);
-                TrkTruthDxy_alljets[2]->Fill(TrkTruthDxy);
-                TrkTruthDz_alljets[2]->Fill(TrkTruthDz);
-                TrkTruthHitAll_alljets[2]->Fill(TrkTruthnHitAll);
-                TrkTruthHitPixel_alljets[2]->Fill(TrkTruthnHitPixel);
-                TrkTruthHitStrip_alljets[2]->Fill(TrkTruthnHitStrip);
+                TrkTruthPt_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthPt);
+                TrkTruthEta_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthEta);
+                TrkTruthPhi_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthPhi);
+                TrkTruthDxy_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthDxy);
+                TrkTruthDz_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthDz);
+                TrkTruthHitAll_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthnHitAll);
+                TrkTruthHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthnHitPixel);
+                TrkTruthHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::CWeakDecay]->Fill(TrkTruthnHitStrip);
             }
         }
         //PU
         else if ( !theFlag[TrackCategories::SignalEvent] && !theFlag[TrackCategories::Fake] ) {
-            nseltracksCat[3] += 1;
-            TrkPt_alljets[3]->Fill(TrkPt);
-            TrkEta_alljets[3]->Fill(TrkEta);
-            TrkPhi_alljets[3]->Fill(TrkPhi);
-            TrkDxy_alljets[3]->Fill(TrkDxy);
-            TrkDz_alljets[3]->Fill(TrkDz);
-            TrkHitAll_alljets[3]->Fill(TrknHitAll);
-            TrkHitPixel_alljets[3]->Fill(TrknHitPixel);
-            TrkHitStrip_alljets[3]->Fill(TrknHitStrip);
+            nseltracksCat[BDHadronTrackMonitoringAnalyzer::PU] += 1;
+            TrkPt_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkPt);
+            TrkEta_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkEta);
+            TrkPhi_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkPhi);
+            TrkDxy_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkDxy);
+            TrkDz_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkDz);
+            TrkHitAll_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrknHitAll);
+            TrkHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrknHitPixel);
+            TrkHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrknHitStrip);
             if (quality_tpr != 0) {
-                TrkTruthPt_alljets[3]->Fill(TrkTruthPt);
-                TrkTruthEta_alljets[3]->Fill(TrkTruthEta);
-                TrkTruthPhi_alljets[3]->Fill(TrkTruthPhi);
-                TrkTruthDxy_alljets[3]->Fill(TrkTruthDxy);
-                TrkTruthDz_alljets[3]->Fill(TrkTruthDz);
-                TrkTruthHitAll_alljets[3]->Fill(TrkTruthnHitAll);
-                TrkTruthHitPixel_alljets[3]->Fill(TrkTruthnHitPixel);
-                TrkTruthHitStrip_alljets[3]->Fill(TrkTruthnHitStrip);
+                TrkTruthPt_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthPt);
+                TrkTruthEta_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthEta);
+                TrkTruthPhi_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthPhi);
+                TrkTruthDxy_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthDxy);
+                TrkTruthDz_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthDz);
+                TrkTruthHitAll_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthnHitAll);
+                TrkTruthHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthnHitPixel);
+                TrkTruthHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::PU]->Fill(TrkTruthnHitStrip);
             }
         }
         //Other
         else if ( theFlag[TrackCategories::SignalEvent] && !theFlag[TrackCategories::BWeakDecay] && !theFlag[TrackCategories::CWeakDecay] ){
-            nseltracksCat[4] += 1;
-            TrkPt_alljets[4]->Fill(TrkPt);
-            TrkEta_alljets[4]->Fill(TrkEta);
-            TrkPhi_alljets[4]->Fill(TrkPhi);
-            TrkDxy_alljets[4]->Fill(TrkDxy);
-            TrkDz_alljets[4]->Fill(TrkDz);
-            TrkHitAll_alljets[4]->Fill(TrknHitAll);
-            TrkHitPixel_alljets[4]->Fill(TrknHitPixel);
-            TrkHitStrip_alljets[4]->Fill(TrknHitStrip);
+            nseltracksCat[BDHadronTrackMonitoringAnalyzer::Other] += 1;
+            TrkPt_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkPt);
+            TrkEta_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkEta);
+            TrkPhi_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkPhi);
+            TrkDxy_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkDxy);
+            TrkDz_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkDz);
+            TrkHitAll_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrknHitAll);
+            TrkHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrknHitPixel);
+            TrkHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrknHitStrip);
             if (quality_tpr != 0) {
-                TrkTruthPt_alljets[4]->Fill(TrkTruthPt);
-                TrkTruthEta_alljets[4]->Fill(TrkTruthEta);
-                TrkTruthPhi_alljets[4]->Fill(TrkTruthPhi);
-                TrkTruthDxy_alljets[4]->Fill(TrkTruthDxy);
-                TrkTruthDz_alljets[4]->Fill(TrkTruthDz);
-                TrkTruthHitAll_alljets[4]->Fill(TrkTruthnHitAll);
-                TrkTruthHitPixel_alljets[4]->Fill(TrkTruthnHitPixel);
-                TrkTruthHitStrip_alljets[4]->Fill(TrkTruthnHitStrip);
+                TrkTruthPt_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthPt);
+                TrkTruthEta_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthEta);
+                TrkTruthPhi_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthPhi);
+                TrkTruthDxy_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthDxy);
+                TrkTruthDz_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthDz);
+                TrkTruthHitAll_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthnHitAll);
+                TrkTruthHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthnHitPixel);
+                TrkTruthHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::Other]->Fill(TrkTruthnHitStrip);
             }
         }
         //Fake
         else if ( !theFlag[TrackCategories::SignalEvent] && theFlag[TrackCategories::Fake] ) {
-            nseltracksCat[5] += 1;
-            TrkPt_alljets[5]->Fill(TrkPt);
-            TrkEta_alljets[5]->Fill(TrkEta);
-            TrkPhi_alljets[5]->Fill(TrkPhi);
-            TrkDxy_alljets[5]->Fill(TrkDxy);
-            TrkDz_alljets[5]->Fill(TrkDz);
-            TrkHitAll_alljets[5]->Fill(TrknHitAll);
-            TrkHitPixel_alljets[5]->Fill(TrknHitPixel);
-            TrkHitStrip_alljets[5]->Fill(TrknHitStrip);
+            nseltracksCat[BDHadronTrackMonitoringAnalyzer::Fake] += 1;
+            TrkPt_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrkPt);
+            TrkEta_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrkEta);
+            TrkPhi_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrkPhi);
+            TrkDxy_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrkDxy);
+            TrkDz_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrkDz);
+            TrkHitAll_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrknHitAll);
+            TrkHitPixel_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrknHitPixel);
+            TrkHitStrip_alljets[BDHadronTrackMonitoringAnalyzer::Fake]->Fill(TrknHitStrip);
             // NO TRUTH FOR FAKES!!!
         }
     
