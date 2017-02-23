@@ -156,7 +156,7 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
    const bool pass = HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
    
-   iEvent.put(std::auto_ptr<bool>(pass),OutputName_);
+   iEvent.put(std::make_unique<bool>(pass),OutputName_);
    
    return taggingMode_ || pass; //return false if no additional B Hadron could be found. always passes the event if taggingMode is true
 
