@@ -600,6 +600,13 @@ class TrackerTopology {
   bool hasField(const DetId &id, DetIdFields idx) const {
     return id.subdetId() == bits_per_field[idx].subdet;
   }
+
+  const PixelBarrelValues& pbVals() const { return pbVals_; }
+  const PixelEndcapValues& pfVals() const { return pfVals_; }
+  const TOBValues& tobVals() const { return tobVals_; }
+  const TIBValues& tibVals() const { return tibVals_; }
+  const TIDValues& tidVals() const { return tidVals_; }
+  const TECValues& tecVals() const { return tecVals_; }
  
  private:
 
