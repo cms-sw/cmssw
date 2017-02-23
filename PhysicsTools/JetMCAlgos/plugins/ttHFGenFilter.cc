@@ -54,7 +54,9 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       virtual void beginStream(edm::StreamID) override;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endStream() override;
-
+      
+      const bool taggingMode_;
+      std::string OutputName_;
       virtual bool HasAdditionalBHadron(const std::vector<int>&, const std::vector<int>&,const std::vector<reco::GenParticle>&,std::vector<const reco::Candidate*>&);
       virtual bool analyzeMothersRecursive(const reco::Candidate*,std::vector<const reco::Candidate*>& AllTopMothers);
       virtual std::vector<const reco::Candidate*> GetTops(const std::vector<reco::GenParticle> &,std::vector<const reco::Candidate*>& AllTopMothers);
@@ -72,6 +74,7 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
       const edm::EDGetTokenT<std::vector<std::vector<int> > > genBHadPlusMothersIndicesToken_;
       const edm::EDGetTokenT<std::vector<int> > genBHadIndexToken_;
       bool OnlyHardProcessBHadrons_;
+      
 
 
       // ----------member data ---------------------------
@@ -89,6 +92,8 @@ class ttHFGenFilter : public edm::stream::EDFilter<> {
 // constructors and destructor
 //
 ttHFGenFilter::ttHFGenFilter(const edm::ParameterSet& iConfig):
+taggingMode_ (iConfig.getParameter<bool>("taggingMode")),
+OutputName_ (iConfig.getParameter<std::string>("OutputName")),
 genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
 genBHadFlavourToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTag>("genBHadFlavour"))),
 genBHadFromTopWeakDecayToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTag>("genBHadFromTopWeakDecay"))),
@@ -98,6 +103,7 @@ genBHadIndexToken_(consumes<std::vector<int> >(iConfig.getParameter<edm::InputTa
 {
   //now do what ever initialization is needed
   OnlyHardProcessBHadrons_ = iConfig.getParameter<bool> ( "OnlyHardProcessBHadrons" );
+  produces<bool>(OutputName_); //when used in taggingMode_=true the filter will insert a bool into the event that classifies whether the event has an additional B hadron
 }
 
 
@@ -148,7 +154,11 @@ ttHFGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<const reco::Candidate*> AllTopMothers;
    std::vector<const reco::Candidate*> Tops = GetTops(*genParticles,AllTopMothers);
    // std::cout << "Size of AllTopMothers = " << AllTopMothers.size() << std::endl;
-   return HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
+   const bool pass = HasAdditionalBHadron(*genBHadIndex,*genBHadFlavour,*genBHadPlusMothers,AllTopMothers);
+   
+   iEvent.put(std::auto_ptr<bool>(pass),OutputName_);
+   
+   return taggingMode_ || pass; //return false if no additional B Hadron could be found. always passes the event if taggingMode is true
 
 }
 
