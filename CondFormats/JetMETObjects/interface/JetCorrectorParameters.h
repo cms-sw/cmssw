@@ -16,8 +16,11 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class JetCorrectorParametersHelper;
 
 class JetCorrectorParameters 
 {
@@ -70,13 +73,8 @@ class JetCorrectorParameters
         float parameter(unsigned fIndex)    const {return mParameters[fIndex];        }
         std::vector<float> parameters()     const {return mParameters;                }
         unsigned nParameters()              const {return mParameters.size();         }
-        //int operator< (const Record& other) const {return xMin(0) < other.xMin(0);    }
         bool operator< (const Record& other) const
         {
-          //for (unsigned i=0; i<mNvar; i++) {
-          //  if (xMin(i) < other.xMin(i)) return true;
-          //}
-          //return false;
           if (xMin(0) < other.xMin(0)) return true;
           if (xMin(0) > other.xMin(0)) return false;
           if (xMin(1) < other.xMin(1)) return true;
@@ -91,31 +89,6 @@ class JetCorrectorParameters
         std::vector<float> mParameters;
     
       COND_SERIALIZABLE;
-    };
-    //---------- JetCorrectorParametersHelper class ----------------
-    //-- The helper is used to find the correct Record to access --- 
-    template<typename T, int SIZE>
-    class JetCorrectorParametersHelper
-    {
-      public:
-        //-------- Member functions ----------
-        unsigned size()                                                                                           const {return mIndexMap.size();}
-        void initTransientMaps();
-        void init(const std::vector<JetCorrectorParameters::Record>& mRecords);
-        void binIndexChecks(unsigned N, const std::vector<float>& fX)                                             const;
-        bool binBoundChecks(unsigned dim, const float& value, const float& min, const float& max)                 const;
-        int  binIndexN(const std::vector<float>& fX, const std::vector<JetCorrectorParameters::Record>& mRecords) const;
-
-        using tuple_type = typename generate_tuple_type<T,SIZE>::type;
-        using tuple_type_Nm1 = typename generate_tuple_type<T,SIZE-1>::type;
-      private:
-        //-------- Member variables ----------
-        // Stores the lower and upper bounds of the bins for each binned dimension
-        std::vector<std::vector<float> >                                           mBinBoundaries;
-        // Maps a set of lower bounds for N binned dimensions to the index in mRecords
-        std::unordered_map<tuple_type, size_t>                                     mIndexMap;
-        // Maps a set of lower bounds for the first N-1 dimensions to the range of lower bound indices mBinBoundaries for the N dimension
-        std::unordered_map<tuple_type_Nm1, std::pair<size_t,size_t> >              mMap;
     };
      
     //-------- Constructors --------------
@@ -138,14 +111,15 @@ class JetCorrectorParameters
     bool isValid() const { return valid_; }
     void init();
 
+    static const int                                                           MAX_SIZE_DIMENSIONALITY = 3 COND_TRANSIENT;
+
   private:
     //-------- Member variables ----------
     JetCorrectorParameters::Definitions                                        mDefinitions;
     std::vector<JetCorrectorParameters::Record>                                mRecords;
     bool                                                                       valid_; /// is this a valid set?
 
-    std::tuple<JetCorrectorParametersHelper<float,1>, JetCorrectorParametersHelper<float,2>, JetCorrectorParametersHelper<float,3> > helperTuple COND_TRANSIENT; 
-    static const int MAX_SIZE_DIMENSIONALITY = 3 COND_TRANSIENT;
+    std::shared_ptr<JetCorrectorParametersHelper>                              helper                      COND_TRANSIENT; 
 
   COND_SERIALIZABLE;
 };
