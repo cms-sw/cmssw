@@ -78,7 +78,8 @@ process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElec
     minMVANoEleMatchWgWOgsfEC  = cms.double(0.0),
     minMVAWOgWgsfEC            = cms.double(0.0),
     minMVAWgWgsfEC             = cms.double(0.0),
-    srcElectrons = cms.InputTag('slimmedElectrons')
+    srcElectrons = cms.InputTag('slimmedElectrons'),
+    usePhiAtEcalEntranceExtrapolation = cms.bool(True)
 )
 
 process.rerunDiscriminationByIsolationMVArun2v1Loose = process.rerunDiscriminationByIsolationMVArun2v1VLoose.clone()
