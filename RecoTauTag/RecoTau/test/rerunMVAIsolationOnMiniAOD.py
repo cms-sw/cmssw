@@ -30,7 +30,10 @@ process.rerunDiscriminationByIsolationMVArun2v1raw = patDiscriminationByIsolatio
     PATTauProducer = cms.InputTag('slimmedTaus'),
     Prediscriminants = noPrediscriminants,
     loadMVAfromDB = cms.bool(True),
-    mvaName = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"),
+    ## run with old MVA training
+    #mvaName = cms.string("RecoTauTag_tauIdMVADBoldDMwLTv1"),
+    ## run with new MVA training
+    mvaName = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2016v1"),
     mvaOpt = cms.string("DBoldDMwLT"),
     requireDecayMode = cms.bool(True),
     verbosity = cms.int32(0)
