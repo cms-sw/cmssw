@@ -17,7 +17,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardMeasuredGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
 
 //----------------------------------------------------------------------------------------------------
@@ -67,7 +66,6 @@ class GeometryInfoModule : public edm::one::EDAnalyzer<>
     bool printRPInfo, printSensorInfo, printMeanSensorInfo;
 
     edm::ESWatcher<IdealGeometryRecord> watcherIdealGeometry;
-    edm::ESWatcher<VeryForwardMeasuredGeometryRecord> watcherMeasuredGeometry;
     edm::ESWatcher<VeryForwardRealGeometryRecord> watcherRealGeometry;
     edm::ESWatcher<VeryForwardMisalignedGeometryRecord> watcherMisalignedGeometry;
 
@@ -121,16 +119,6 @@ void GeometryInfoModule::analyze(const edm::Event& event, const edm::EventSetup&
     if (watcherIdealGeometry.check(es))
     {
       es.get<IdealGeometryRecord>().get(geometry);
-      PrintGeometry(*geometry, event);
-    }
-    return;
-  }
-
-  if (!geometryType.compare("measured"))
-  {
-    if (watcherMeasuredGeometry.check(es))
-    {
-      es.get<VeryForwardMeasuredGeometryRecord>().get(geometry);
       PrintGeometry(*geometry, event);
     }
     return;
