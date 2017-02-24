@@ -29,7 +29,7 @@ class PATTauDiscriminationAgainstElectronMVA6 : public PATTauDiscriminationProdu
       mva_(),
       category_output_()
   {
-    mva_ = new AntiElectronIDMVA6(cfg);
+    mva_ =  std::make_unique<AntiElectronIDMVA6>(cfg);
 
     srcElectrons = cfg.getParameter<edm::InputTag>("srcElectrons");
     electronToken = consumes<pat::ElectronCollection>(srcElectrons);
