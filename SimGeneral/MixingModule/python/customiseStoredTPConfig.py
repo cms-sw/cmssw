@@ -27,6 +27,15 @@ def inTimeOnlyTP(process) :
 
     return process
 
+def higherPtTP(process) :
+
+    if hasattr(process,"mix"):
+        
+        process.mix.digitizers.mergedtruth.select.ptMinTP = 1.
+
+    return process
+
+
     
     
         
