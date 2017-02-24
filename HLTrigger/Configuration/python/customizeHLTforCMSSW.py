@@ -19,9 +19,24 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 
+# Dynamic track algo priority order
+def customiseForXXXXX(process):
+    if not hasattr(process, "hltTrackAlgoPriorityOrder"):
+        from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
+        process.hltTrackAlgoPriorityOrder = trackAlgoPriorityOrder.clone(
+            ComponentName = "hltTrackAlgoPriorityOrder",
+            algoOrder = [] # HLT iteration order is correct in the hard-coded default
+        )
+
+    for producer in producers_by_type(process, "SimpleTrackListMerger", "TrackCollectionMerger", "TrackListMerger"):
+        if not hasattr(producer, "trackAlgoPriorityOrder"):
+            producer.trackAlgoPriorityOrder = cms.string("hltTrackAlgoPriorityOrder")
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+    process = customiseForXXXXX(process)
 
     return process
