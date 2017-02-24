@@ -147,9 +147,7 @@ GlobalPoint HcalGeometry::getPosition(const DetId& id) const {
   if (!m_mergePosition) {
     return (getGeometry(id)->getPosition());
   } else {
-    std::vector<HcalDetId> ids;
-    m_topology.unmergeDepthDetId(HcalDetId(id),ids);
-    return (getGeometry(ids.front())->getPosition());
+    return (getGeometry(m_topology.idFront(id))->getPosition());
   }
 }
 
