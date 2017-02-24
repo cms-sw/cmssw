@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="cavernData.xml" eval="true">
+                <Constant name="CMSR3" value="2.69*m"/>
+		<Constant name="CMSR4" value="7.99*m"/>
+		<Constant name="HFRiseZ1" value="1395*cm"/>
+		<Constant name="HFRiseZ2" value="1099*cm"/>
+		<Constant name="FloorDX" value="1250*cm"/>
+		<Constant name="FloorDY" value="360*cm"/>
+		<Constant name="FloorAirZDX" value="115*cm"/>
+		<Constant name="FloorAirZDY" value="265*cm"/>
+		<Constant name="HCDX" value="10*cm"/>
+		<Constant name="HCDY" value="80*cm"/>
+		<Constant name="H1DY" value="10*cm"/>
+		<Constant name="H3DX" value="60*cm"/>
+		<Constant name="H3DY" value="10*cm"/>
+		<Constant name="FloorToDX" value="(620*cm-[cavernData:H3DX])/2"/>
+		<Constant name="FloorToDY" value="60*cm"/>
+		<Constant name="HAirDY" value="[cavernData:FloorToDY]-[cavernData:H3DY]"/>
+		<Constant name="FloAirCDY" value="220*cm"/>
+		<Constant name="FloAirCDX" value="255*cm"/>
+		<Constant name="FloAirCDZ" value="520*cm"/>
+		<Constant name="FloAirC1DX" value="620*cm"/>
+		<Constant name="FloAirC1DZ" value="100*cm"/>
+	</ConstantsSection>
+</DDDefinition>
