@@ -22,7 +22,7 @@ protected:
     
 public:
 
-    HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
+    HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector &cc) :
         Algorithm<FECODEC>(conf, cc),
         trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
         cluster_product_( new l1t::HGCalClusterBxCollection ),
@@ -48,9 +48,10 @@ public:
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, const edm::Event&evt ) override final;
         virtual void putInEvent(edm::Event& evt) override final 
         {
+            evt.put(std::move(trgcell_product_),name());
+            evt.put(std::move(cluster_product_), name());
+            evt.put(std::move(multicluster_product_), "cluster3D");
 
-            evt.put(std::move(cluster_product_),name());
-            evt.put(std::move(multicluster_product_),"cluster3D");
         }
 
         virtual void reset() override final 
@@ -66,9 +67,9 @@ public:
         std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
         std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
 
-        //l1t::HGCalTriggerCellBxCollection trgcell_product_;
-        //l1t::HGCalClusterBxCollection cluster_product_;
-        //l1t::HGCalMulticlusterBxCollection multicluster_product_;
+//	l1t::HGCalTriggerCellBxCollection & trgcell_product_;
+//	l1t::HGCalClusterBxCollection & cluster_product_;
+//	l1t::HGCalMulticlusterBxCollection & multicluster_product_;
         std::string HGCalEESensitive_;
         std::string HGCalHESiliconSensitive_;
 
@@ -120,17 +121,15 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection& co
                 }else if( subdet == HGCHEB ){
                     edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
                 }
-                l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                calibration_.calibrate(calibratedtriggercell, cellThickness);     
-                trgcell_product_->push_back(0,calibratedtriggercell);
+                l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
+                calibration_.calibrate( calibratedtriggercell, cellThickness );     
+                trgcell_product_->push_back( 0, calibratedtriggercell );
             }
         }
     }
-
-    clustering_.clusterizeBase(*trgcell_product_, *cluster_product_);
-    multiclustering_.clusterizeMultiple(*cluster_product_, *multicluster_product_);
-}
-
+    clustering_.clusterise( *trgcell_product_,  *cluster_product_ );
+    multiclustering_.clusterise( *cluster_product_, *multicluster_product_ );
+}// end run() 
 
 
 typedef HGCClusterAlgo<HGCalTriggerCellBestChoiceCodec, HGCalTriggerCellBestChoiceCodec::data_type> HGCClusterAlgoBestChoice;

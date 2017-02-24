@@ -26,10 +26,11 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 
                              thickCorr = recocalibparam.HGCalRecHit.thicknessCorrection                     
                              )
 C2d_parValues = cms.PSet( seeding_threshold = cms.double(6),
-                          clustering_threshold = cms.double(2)
+                          clustering_threshold = cms.double(2),
+                          dR_cluster = cms.double(0.2)
                          )
 
-C3d_parValues = cms.PSet( dR_searchNeighbour = cms.double(0.01) )
+C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01) )
 
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                           FECodec = fe_codec,

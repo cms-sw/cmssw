@@ -18,7 +18,7 @@ namespace l1t
         
     public:
         
-        HGCalTriggerCell() { }//isSeed_ = false; }
+        HGCalTriggerCell() { }
         
         HGCalTriggerCell( const LorentzVector& p4,
                           int pt=0,
