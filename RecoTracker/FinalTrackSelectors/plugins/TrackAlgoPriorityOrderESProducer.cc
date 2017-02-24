@@ -38,7 +38,7 @@ void TrackAlgoPriorityOrderESProducer::fillDescriptions(edm::ConfigurationDescri
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName", "trackAlgoPriorityOrder");
   desc.add<std::vector<std::string> >("algoOrder", std::vector<std::string>());
-  descriptions.add("trackAlgoPriorityOrder", desc);
+  descriptions.add("trackAlgoPriorityOrderDefault", desc);
 }
 
 std::unique_ptr<TrackAlgoPriorityOrder> TrackAlgoPriorityOrderESProducer::produce(const CkfComponentsRecord& iRecord) {
