@@ -54,11 +54,10 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
 
 
 trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
-                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
-                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-                           
-                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                               )
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,

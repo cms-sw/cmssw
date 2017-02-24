@@ -4,25 +4,28 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 namespace l1t {
   
   class HGCalMulticluster : public L1Candidate {
     public:
         
-        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
-        typedef edm::PtrVector<l1t::HGCalCluster>  ClusterCollection;
-
+        //      typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
+        //      typedef edm::PtrVector<l1t::HGCalCluster>  ClusterCollection;
+        //typedef std::unique_ptr<l1t::HGCalClusterBxCollection> ClusterCollection;
         HGCalMulticluster(){}
         HGCalMulticluster( const LorentzVector p4,
                            int pt,
                            int eta,
-                           int phi,
-                           ClusterCollection &thecls
+                           int phi
+//                           ClusterCollection &thecls
             );
 
         ~HGCalMulticluster();
         
+
         void push_back(const edm::Ptr<l1t::HGCalCluster> &b) {
             myclusters_.push_back(b);
         }
@@ -56,6 +59,7 @@ namespace l1t {
         bool operator>=(const HGCalMulticluster& cl) const {return !(cl<*this);};
         
     private:
+
         edm::PtrVector<l1t::HGCalCluster>  myclusters_;
 
         // Energies
