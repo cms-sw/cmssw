@@ -28,7 +28,8 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
     buffer.pop_front();
 
     // check if it is RP detector
-    if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME))
+    if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME)
+       or d->name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME)==0)
       AddDetector(d->geographicalID(), d);
 
     // check if it is RP device (primary vacuum)
@@ -69,7 +70,7 @@ DetGeomDesc* TotemRPGeometry::GetDetector(unsigned int id) const
   mapType::const_iterator it = theMap.find(id);
   if (it == theMap.end())
     throw cms::Exception("TotemRPGeometry") << "Not found detector with ID " << id << ", i.e. "
-      << TotemRPDetId(id);
+      << CTPPSDetId(id);
 
   // the [] operator cannot be used as this method is const
   // and it must be const and one gets TotemRPGeometry const
@@ -158,7 +159,7 @@ void TotemRPGeometry::BuildSets()
   // build
   for (mapType::const_iterator it = theMap.begin(); it != theMap.end(); ++it)
   {
-    const TotemRPDetId detId(it->first);
+    const CTPPSDetId detId(it->first);
     const CTPPSDetId rpId = detId.getRPId();
     const CTPPSDetId stId = detId.getStationId();
     const CTPPSDetId armId = detId.getArmId();
