@@ -305,9 +305,9 @@ TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommo
 # track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
-        TrackingDQMSourceTier0 += sequenceName[tracks]
+        TrackingDQMSourceTier0 += cms.ignore(sequenceName[tracks])
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0 += locals()[label]
+    TrackingDQMSourceTier0 += cms.ignore(locals()[label])
 # seeding monitoring
 for _eraName, _postfix, _era in _cfg.allEras():
     _seq = cms.Sequence()
@@ -333,9 +333,9 @@ TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitM
 ## monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
-        TrackingDQMSourceTier0Common+=sequenceName[tracks]
+        TrackingDQMSourceTier0Common+=cms.ignore(sequenceName[tracks])
     label = 'TrackerCollisionSelectedTrackMonCommon' + str(tracks)
-    TrackingDQMSourceTier0Common += locals()[label]
+    TrackingDQMSourceTier0Common += cms.ignore(locals()[label])
 # seeding monitoring
 TrackingDQMSourceTier0Common += TrackSeedMonSequence
 # MessageLog
@@ -354,11 +354,11 @@ TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitM
 # monitor track collections
 for tracks in selectedTracks :
     if tracks != 'generalTracks':
-        TrackingDQMSourceTier0MinBias += sequenceName[tracks]
+        TrackingDQMSourceTier0MinBias += cms.ignore(sequenceName[tracks])
 
     for topology in [ 'MB', 'ZBnoHIPnoOOT', 'ZBHIPnoOOT', 'ZBHIPOOT']:
         label = 'TrackerCollisionSelectedTrackMon' + str(topology) + str(tracks)
-        TrackingDQMSourceTier0MinBias += locals()[label]
+        TrackingDQMSourceTier0MinBias += cms.ignore(locals()[label])
 # seeding monitoring
 TrackingDQMSourceTier0MinBias += TrackSeedMonSequence
 # MessageLog

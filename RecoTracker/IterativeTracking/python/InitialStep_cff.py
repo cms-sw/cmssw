@@ -196,7 +196,13 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     maxPtForLooperReconstruction = cms.double(0.7)
     )
 trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
+trackingPhase1.toModify(initialStepTrajectoryBuilder,
+    minNrOfHitsForRebuild = 1,
+    keepOriginalIfRebuildFails = True,
+)
 trackingPhase1QuadProp.toModify(initialStepTrajectoryBuilder,
+    minNrOfHitsForRebuild = 1,
+    keepOriginalIfRebuildFails = True,
     inOutTrajectoryFilter = dict(refToPSet_ = "initialStepTrajectoryFilterInOut"),
     useSameTrajFilter = False
 )

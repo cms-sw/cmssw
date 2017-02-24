@@ -30,6 +30,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
@@ -58,6 +62,7 @@ class HcalHitSelection : public edm::stream::EDProducer<> {
   std::vector<edm::EDGetTokenT<DetIdCollection> > toks_did_;
   int hoSeverityLevel;
   std::vector<edm::InputTag> interestingDetIdCollections;
+  const HcalTopology* theHcalTopology_;
   
   //hcal severity ES
   edm::ESHandle<HcalChannelQuality> theHcalChStatus;
@@ -76,7 +81,10 @@ template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<C
 
   for (;hit!=end;++hit){
     //    edm::LogError("HcalHitSelection")<<"the hit pointer is"<<&(*hit);
-    const DetId & id = hit->detid();
+    HcalDetId id = hit->detid();
+    if (theHcalTopology_->withSpecialRBXHBHE() && id.subdet() == HcalEndcap) {
+      id = theHcalTopology_->idFront(id);
+    }
     const uint32_t & recHitFlag = hit->flags();
     //    edm::LogError("HcalHitSelection")<<"the hit id and flag are "<<id.rawId()<<" "<<recHitFlag;
 	
@@ -150,6 +158,9 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   iSetup.get<HcalChannelQualityRcd>().get("withTopo", theHcalChStatus);
   iSetup.get<HcalSeverityLevelComputerRcd>().get(theHcalSevLvlComputer);
+  edm::ESHandle<HcalTopology> topo;
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  theHcalTopology_ = topo.product();
 
   edm::Handle<HBHERecHitCollection> hbhe;
   edm::Handle<HFRecHitCollection> hf;

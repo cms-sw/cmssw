@@ -911,6 +911,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
 
 
       reco::Photon::ShowerShape  showerShape;
+      reco::Photon::SaturationInfo saturationInfo;
       reco::Photon::FiducialFlags fiducialFlags;
       reco::Photon::IsolationVariables isolationVariables03;
       reco::Photon::IsolationVariables isolationVariables04;
@@ -925,7 +926,12 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
       showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
       myPhoton.setShowerShapeVariables ( showerShape ); 
-	  
+
+      
+      saturationInfo.nSaturatedXtals = egPhotonRef_[iphot]->nSaturatedXtals();
+      saturationInfo.isSeedSaturated = egPhotonRef_[iphot]->isSeedSaturated();
+      myPhoton.setSaturationInfo(saturationInfo);
+
       fiducialFlags.isEB = egPhotonRef_[iphot]->isEB();
       fiducialFlags.isEE = egPhotonRef_[iphot]->isEE();
       fiducialFlags.isEBEtaGap = egPhotonRef_[iphot]->isEBEtaGap();
