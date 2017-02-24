@@ -1,25 +1,22 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-<<<<<<< HEAD
 //class constructor
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl(const edm::ParameterSet& conf){    
     dR_forC3d_ = conf.getParameter<double>("dR_searchNeighbour");
 }
        
-void  HGCalMulticlusteringImpl::clusterizeMultiple(const l1t::HGCalClusterBxCollection& cluster_product_, l1t::HGCalMulticlusterBxCollection& multicluster_product_){
-    
+void HGCalMulticlusteringImpl::clusterise( const l1t::HGCalClusterBxCollection & clusters_, 
+                                           l1t::HGCalMulticlusterBxCollection & multiclusters_
+    ){
 
-    if(cluster_product_.size()>0){
-
+    if(clusters_.size()>0){
         std::vector<size_t> isMerged;
-
         size_t seedx=0;
  
-        for(l1t::HGCalClusterBxCollection::const_iterator cl = cluster_product_.begin(); cl != cluster_product_.end(); ++cl, ++seedx){
-            edm::PtrVector<l1t::HGCalCluster> ClusterCollection;
-        
-            l1t::HGCalMulticluster multicluster( reco::LeafCandidate::LorentzVector(), 0, 0, 0);//, ClusterCollection);
+        for(l1t::HGCalClusterBxCollection::const_iterator cl = clusters_.begin(); cl != clusters_.end(); ++cl, ++seedx){
+            
+            l1t::HGCalMulticluster multicluster( reco::LeafCandidate::LorentzVector(), 0, 0, 0, ClusterCollection);
             double_t tmpEta = 0.;
             double_t tmpPhi = 0.;           
             double_t C3d_pt  = 0.;
@@ -32,7 +29,7 @@ void  HGCalMulticlusteringImpl::clusterizeMultiple(const l1t::HGCalClusterBxColl
             bool skip=false;
             size_t idx=0;
 
-            for(l1t::HGCalClusterBxCollection::const_iterator cl_aux = cluster_product_.begin(); cl_aux != cluster_product_.end(); ++cl_aux, ++idx){
+            for(l1t::HGCalClusterBxCollection::const_iterator cl_aux = clusters_.begin(); cl_aux != clusters_.end(); ++cl_aux, ++idx){
                 for(size_t i(0); i<isMerged.size(); i++){
                     if(idx==isMerged.at(i)){
                         skip=true;
@@ -65,7 +62,7 @@ void  HGCalMulticlusteringImpl::clusterizeMultiple(const l1t::HGCalClusterBxColl
                 C3d_phi=tmpPhi/C3d_pt;                
                 math::PtEtaPhiMLorentzVector calib3dP4(C3d_pt, C3d_eta, C3d_phi, 0 );
                 multicluster.setP4(calib3dP4);                    
-                multicluster_product_.push_back(0,multicluster);
+                multiclusters_.push_back(0,multicluster);
             }                    
         }
     }
