@@ -10,9 +10,10 @@ class HGCalMulticlusteringImpl{
 
 public:
 
-    HGCalMulticlusteringImpl(const edm::ParameterSet &conf);    
-    void clusterizeMultiple(const l1t::HGCalClusterBxCollection&, l1t::HGCalMulticlusterBxCollection&);
-
+    HGCalMulticlusteringImpl( const edm::ParameterSet &conf);    
+    void clusterise( const l1t::HGCalClusterBxCollection & clusters_, 
+                     l1t::HGCalMulticlusterBxCollection & multiclusters_);
+ 
 private:
     
     double dR_forC3d_;
