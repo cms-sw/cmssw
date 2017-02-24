@@ -16,7 +16,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 #include <algorithm>
 #include <boost/foreach.hpp>
@@ -54,14 +54,11 @@ namespace {
   DetId simToReco(const HcalGeometry* geom, unsigned simid) {
     DetId result(0);
     const auto& topo     = geom->topology();
-    const auto& dddConst = topo.dddConstants();
+    const auto* dddConst = topo.dddConstants();
+    HcalDetId id = HcalHitRelabeller::relabel(simid,dddConst);
 
-    int subdet, z, depth0, eta0, phi0, lay;
-    HcalTestNumbering::unpackHcalIndex(simid, subdet, z, depth0, eta0, phi0, lay);
-    int sign = (z==0) ? (-1):(1);
-    HcalDDDRecConstants::HcalID id = dddConst->getHCID(subdet, eta0, phi0, lay, depth0);
-    if (subdet==int(HcalEndcap)) {
-      result = HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
+    if (id.subdet()==int(HcalEndcap)) {
+      result = id;    
     }
 
     return result;

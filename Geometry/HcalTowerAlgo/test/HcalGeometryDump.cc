@@ -42,15 +42,15 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
   iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
   const HcalTopology topology = (*topologyHandle);
 
-  CaloSubdetectorGeometry* caloGeom(0);
+  HcalGeometry* caloGeom(0);
   if (geomDB_) {
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry* geo = pG.product();
-    caloGeom = (CaloSubdetectorGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    caloGeom = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
   } else {
     HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
-    caloGeom = m_loader.load(topology, hcons);
+    caloGeom = (HcalGeometry*)(m_loader.load(topology, hcons));
   }
 
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();
@@ -72,7 +72,9 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 	 i != detIds.end(); ++i, ++counter)  {
       HcalDetId hid = HcalDetId(*i);
       const CaloCellGeometry * cell = caloGeom->getGeometry(*i);
-      std::cout << "[" << counter << "] " << hid << " " << *cell << std::endl;
+      std::cout << hid << "\tCaloCellGeometry " << cell->getPosition() 
+		<< "\tHcalGeometry " << caloGeom->getPosition(hid) 
+		<< std::endl;
     }
   }
 }

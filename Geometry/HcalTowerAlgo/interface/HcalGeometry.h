@@ -50,6 +50,9 @@ public:
   virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
 						      double             dR ) const ;
 
+  GlobalPoint                   getPosition(const DetId& id) const;
+  GlobalPoint                   getBackPosition(const DetId& id) const;
+  CaloCellGeometry::CornersVec  getCorners(const DetId& id) const;
 
   static std::string producerTag() { return "HCAL" ; }
   
@@ -123,8 +126,10 @@ private:
   /// helper methods for getClosestCell
   int etaRing(HcalSubdetector bc, double abseta) const;
   int phiBin(HcalSubdetector bc, int etaring, double phi) const;
+  DetId correctId(const DetId& id) const ;
 
   const HcalTopology& m_topology;
+  bool                m_mergePosition;
   
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_hbIds ;
   mutable edm::AtomicPtrCache<std::vector<DetId>> m_heIds ;

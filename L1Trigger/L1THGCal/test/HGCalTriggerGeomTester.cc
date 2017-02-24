@@ -27,11 +27,11 @@
 
 namespace 
 {  
-  template<typename T>
-  struct array_deleter
-  {
-    void operator () (T* arr) { delete [] arr; }
-  };
+    template<typename T>
+    struct array_deleter
+    {
+        void operator () (T* arr) { delete [] arr; }
+    };
 }
 
 
@@ -51,8 +51,9 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         void setTreeModuleSize(const size_t n);
         void setTreeTriggerCellSize(const size_t n);
 
-        std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
+        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         edm::Service<TFileService> fs_;
+        bool no_trigger_;
         TTree* treeModules_;
         TTree* treeTriggerCells_;
         TTree* treeCells_;
@@ -100,6 +101,8 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         int   cellLayer_  ;
         int   cellWafer_ ;
         int   cellWaferType_ ;
+        int cellWaferRow_;
+        int cellWaferColumn_;
         int   cell_       ;
         float cellX_      ;
         float cellY_      ;
@@ -117,14 +120,10 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
 
 
 /*****************************************************************/
-HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf) 
+HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf):
+    no_trigger_(false)
 /*****************************************************************/
 {
-    //setup geometry 
-    const edm::ParameterSet& geometryConfig = conf.getParameterSet("TriggerGeometry");
-    const std::string& trigGeomName = geometryConfig.getParameter<std::string>("TriggerGeometryName");
-    HGCalTriggerGeometryBase* geometry = HGCalTriggerGeometryFactory::get()->create(trigGeomName,geometryConfig);
-    triggerGeometry_.reset(geometry);
 
     // initialize output trees
     treeModules_ = fs_->make<TTree>("TreeModules","Tree of all HGC modules");
@@ -193,6 +192,8 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf)
     treeCells_->Branch("layer"          , &cellLayer_         , "layer/I");
     treeCells_->Branch("wafer"          , &cellWafer_         , "wafer/I");
     treeCells_->Branch("wafertype"      , &cellWaferType_     , "wafertype/I");
+    treeCells_->Branch("waferrow"          , &cellWaferRow_         , "waferrow/I");
+    treeCells_->Branch("wafercolumn"          , &cellWaferColumn_         , "wafercolumn/I");
     treeCells_->Branch("cell"           , &cell_              , "cell/I");
     treeCells_->Branch("x"              , &cellX_             , "x/F");
     treeCells_->Branch("y"              , &cellY_             , "y/F");
@@ -220,7 +221,9 @@ void HGCalTriggerGeomTester::beginRun(const edm::Run& /*run*/,
                                           const edm::EventSetup& es)
 /*****************************************************************/
 {
-    triggerGeometry_->reset();
+    es.get<IdealGeometryRecord>().get("", triggerGeometry_);
+
+
     HGCalTriggerGeometryBase::es_info info;
     const std::string& ee_sd_name = triggerGeometry_->eeSDName();
     const std::string& fh_sd_name = triggerGeometry_->fhSDName();
@@ -231,15 +234,26 @@ void HGCalTriggerGeomTester::beginRun(const edm::Run& /*run*/,
     es.get<IdealGeometryRecord>().get(ee_sd_name,info.topo_ee);
     es.get<IdealGeometryRecord>().get(fh_sd_name,info.topo_fh);
     es.get<IdealGeometryRecord>().get(bh_sd_name,info.topo_bh);
-    triggerGeometry_->initialize(info);
 
-    checkConsistency(info);
+    try
+    {
+        checkConsistency(info);
+    }
+    catch(const cms::Exception& e) {
+        edm::LogWarning("HGCalTriggerGeometryTester") << "Problem with the trigger geometry detected. Only the basic cells tree will be filled\n";
+        edm::LogWarning("HGCalTriggerGeometryTester") << e.message() << "\n";
+        no_trigger_ = true;
+    }
     fillTriggerGeometry(info);
 }
 
 
 void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es_info& info)
 {
+    
+
+
+
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_triggercells;
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules_to_cells;
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
@@ -367,9 +381,6 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> modules;
    std::unordered_map<uint32_t, std::unordered_set<uint32_t>> trigger_cells;
 
-
-
-
     // Loop over cells
     std::cout<<"Filling cells tree\n";
     // EE
@@ -388,6 +399,9 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             cellLayer_      = id.layer();
             cellWafer_      = id.wafer();
             cellWaferType_  = id.waferType();
+            auto row_column = info.topo_ee->dddConstants().rowColumnWafer(id.wafer());
+            cellWaferRow_  = row_column.first;
+            cellWaferColumn_ = row_column.second;
             cell_           = id.cell();
             //
             GlobalPoint center = info.geom_ee->getPosition(id);
@@ -409,9 +423,12 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             }
             treeCells_->Fill();
             // fill trigger cells
-            uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
-            auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
-            itr_insert.first->second.emplace(id);
+            if(!no_trigger_)
+            {
+                uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+                auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
+                itr_insert.first->second.emplace(id);
+            }
         }
     }
     // FH
@@ -430,6 +447,9 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             cellLayer_      = id.layer();
             cellWafer_      = id.wafer();
             cellWaferType_  = id.waferType();
+            auto row_column = info.topo_fh->dddConstants().rowColumnWafer(id.wafer());
+            cellWaferRow_  = row_column.first;
+            cellWaferColumn_ = row_column.second;
             cell_           = id.cell();
             //
             GlobalPoint center = info.geom_fh->getPosition(id);
@@ -451,11 +471,17 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             }
             treeCells_->Fill();
             // fill trigger cells
-            uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
-            auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
-            itr_insert.first->second.emplace(id);
+            if(!no_trigger_)
+            {
+                uint32_t trigger_cell = triggerGeometry_->getTriggerCellFromCell(id);
+                auto itr_insert = trigger_cells.emplace(trigger_cell, std::unordered_set<uint32_t>());
+                itr_insert.first->second.emplace(id);
+            }
         }
     }
+    // if problem detected in the trigger geometry, don't produce trigger trees
+    if(no_trigger_) return;
+
     // Loop over trigger cells
     std::cout<<"Filling trigger cells tree\n";
     for( const auto& triggercell_cells : trigger_cells )
@@ -533,12 +559,13 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         //
         treeModules_->Fill();
     }
+
 }
 
 
 /*****************************************************************/
 void HGCalTriggerGeomTester::analyze(const edm::Event& e, 
-			      const edm::EventSetup& es) 
+        const edm::EventSetup& es) 
 /*****************************************************************/
 {
 

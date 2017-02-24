@@ -34,6 +34,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCDecayingPionKaonFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
 #include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilter.h"
+#include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilterPy8.h"
 #include "GeneratorInterface/GenFilters/interface/STFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterTTBar.h"
 #include "GeneratorInterface/GenFilters/interface/LQGenFilter.h"
@@ -84,6 +85,7 @@
   DEFINE_FWK_MODULE(MCDecayingPionKaonFilter);
   DEFINE_FWK_MODULE(PythiaFilterEMJetHeep);
   DEFINE_FWK_MODULE(ComphepSingletopFilter);
+  DEFINE_FWK_MODULE(ComphepSingletopFilterPy8);
   DEFINE_FWK_MODULE(STFilter);
   DEFINE_FWK_MODULE(PythiaFilterTTBar);
   DEFINE_FWK_MODULE(XtoFFbarFilter);

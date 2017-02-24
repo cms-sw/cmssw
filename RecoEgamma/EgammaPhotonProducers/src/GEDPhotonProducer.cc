@@ -604,6 +604,27 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     const float sigmaRR =  toolsforES.eseffsirir( *scRef );
     showerShape.effSigmaRR = sigmaRR;
     newCandidate.setShowerShapeVariables ( showerShape ); 
+
+    reco::Photon::SaturationInfo saturationInfo;
+    const reco::CaloCluster& seedCluster = *(scRef->seed()) ;
+    DetId seedXtalId = seedCluster.seed();
+    int nSaturatedXtals = 0;
+    bool isSeedSaturated = false;
+    if (hits != nullptr) {
+      const auto hitsAndFractions = scRef->hitsAndFractions();
+      for (auto&& hitFractionPair : hitsAndFractions) {    
+	auto&& ecalRecHit = hits->find(hitFractionPair.first);
+	if (ecalRecHit == hits->end()) continue;
+	if (ecalRecHit->checkFlag(EcalRecHit::Flags::kSaturated)) {
+	  nSaturatedXtals++;
+	  if (seedXtalId == ecalRecHit->detid())
+	    isSeedSaturated = true;
+	}
+      }
+    }
+    saturationInfo.nSaturatedXtals = nSaturatedXtals;
+    saturationInfo.isSeedSaturated = isSeedSaturated;
+    newCandidate.setSaturationInfo(saturationInfo);
     
     /// fill full5x5 shower shape block
     reco::Photon::ShowerShape  full5x5_showerShape;

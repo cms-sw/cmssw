@@ -288,7 +288,7 @@ std::string DCCTBDataParser::index(uint32_t position){
 
   char indexBuffer[20];
   long unsigned int pos = position;
-  sprintf(indexBuffer,"W[%08lu]",pos);        //build an index string for display purposes, p.e.  W[15] 
+  snprintf(indexBuffer, sizeof(indexBuffer), "W[%08lu]",pos);        //build an index string for display purposes, p.e.  W[15] 
 
   return std::string(indexBuffer);	
 }
@@ -300,9 +300,9 @@ std::string DCCTBDataParser::index(uint32_t position){
 /*-----------------------------------------------*/
 std::string DCCTBDataParser::getDecString(uint32_t dat){
 	
-  char buffer[10];
+  char buffer[15];
   long unsigned int data = dat;
-  sprintf(buffer,"%lu",data);
+  snprintf(buffer, sizeof(buffer), "%lu",data);
 
   return std::string(buffer);	
 }
@@ -314,8 +314,8 @@ std::string DCCTBDataParser::getDecString(uint32_t dat){
 /*-------------------------------------------------*/
 std::string DCCTBDataParser::getHexString(uint32_t data){
 	
-  char buffer[10];
-  sprintf(buffer,"0x%08x",(uint16_t)(data));
+  char buffer[15];
+  snprintf(buffer, sizeof(buffer), "0x%08x",(uint16_t)(data));
 
   return std::string(buffer);	
 }

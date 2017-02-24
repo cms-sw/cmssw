@@ -1,7 +1,9 @@
 #include "Validation/HcalRecHits/interface/HcalRecHitsValidation.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
@@ -174,6 +176,10 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
   using namespace edm;
+
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  c.get<HcalRecNumberingRecord>().get( pHRNDC );
+  const HcalDDDRecConstants* hcons = &(*pHRNDC);
 
   // cuts for each subdet_ector mimiking  "Scheme B"
   //  double cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8; 
@@ -402,7 +408,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
 
   //SimHits vs. RecHits
-
+  const CaloGeometry* geo = geometry.product();
   if(subdet_ > 0 && subdet_ < 6 && imc !=0) {  // not noise 
 
     edm::Handle<PCaloHitContainer> hcalHits;
@@ -423,32 +429,20 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       int sub, depth;
       HcalDetId cell; 
 
-      if (testNumber_) {
-        int z, lay, eta, phi;
-        HcalTestNumbering::unpackHcalIndex(SimHits->id(), sub, z, depth, eta, phi, lay);
-        int sign = (z==0) ? (-1):(1);
-        eta     *= sign;
-        //The id used in testnumbering encodes the cell information, we generate a HcalDetId that we can then use to extract eta&phi (not ieta and iphi) information from.
-        // HO is handled differently, since it doesn't have a depth 1 defined.
-        if(sub == static_cast<int>(HcalOuter)){
-          cell = HcalDetId(HcalSubdetector::HcalOuter,eta,phi,4);
-        } else {
-          cell = HcalDetId(static_cast<HcalSubdetector>(sub),eta,phi,1);
-        }
+      if (testNumber_) cell = HcalHitRelabeller::relabel(SimHits->id(),hcons);
+      else cell = HcalDetId(SimHits->id());
 
-      } else {
-
-        cell         = HcalDetId(SimHits->id());
-        sub          = cell.subdet();
-        depth        = cell.depth();
-      }
+      sub          = cell.subdet();
+      depth        = cell.depth();
 
       if(sub != subdet_ && subdet_ != 5) continue; //If we are not looking at all of the subdetectors and the simhit doesn't come from the specific subdetector of interest, then we won't do any thing with it 
 
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double etaS = cellGeometry->getPosition().eta () ;
-      double phiS = cellGeometry->getPosition().phi () ;
+      const HcalGeometry* cellGeometry = 
+	(HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//      const CaloCellGeometry* cellGeometry =
+//	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double etaS = cellGeometry->getPosition(cell).eta () ;
+      double phiS = cellGeometry->getPosition(cell).phi () ;
       double en   = SimHits->energy();    
 
       double r  = dR(eta_MC, phi_MC, etaS, phiS);
@@ -519,14 +513,17 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
     //HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
     ev.getByToken(tok_hbhe_, hbhecoll);
+    const CaloGeometry* geo = geometry.product();
     
     for (HBHERecHitCollection::const_iterator j=hbhecoll->begin(); j != hbhecoll->end(); j++) {
       HcalDetId cell(j->id());
-      const CaloCellGeometry* cellGeometry =
-	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-      double eta  = cellGeometry->getPosition().eta () ;
-      double phi  = cellGeometry->getPosition().phi () ;
-      double zc   = cellGeometry->getPosition().z ();
+      const HcalGeometry* cellGeometry = 
+	(HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//      const CaloCellGeometry* cellGeometry =
+//	geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+      double eta  = cellGeometry->getPosition(cell).eta () ;
+      double phi  = cellGeometry->getPosition(cell).phi () ;
+      double zc   = cellGeometry->getPosition(cell).z ();
       int sub     = cell.subdet();
       int depth   = cell.depth();
       int inteta  = cell.ieta();

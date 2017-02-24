@@ -1,6 +1,8 @@
 #ifndef DATAFORMATS_HCALRECHIT_HBHERECHIT_H
 #define DATAFORMATS_HCALRECHIT_HBHERECHIT_H 1
 
+#include <vector>
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
@@ -37,6 +39,16 @@ public:
   inline void setAuxPhase1(const uint32_t aux) { auxPhase1_ = aux;}
   inline uint32_t auxPhase1() const {return auxPhase1_;}
 
+  // The following method returns "true" for "Plan 1" merged rechits
+  bool isMerged() const;
+
+  // The following method fills the vector with the ids of the
+  // rechits that have been merged to construct the "Plan 1" rechit.
+  // For normal (i.e., not merged) rechits the vector will be cleared.
+  void getMergedIds(std::vector<HcalDetId>* ids) const;
+
+  // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
+  HcalDetId idFront() const;
 private:
   float timeFalling_;
   float chiSquared_;

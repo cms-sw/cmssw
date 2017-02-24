@@ -38,7 +38,6 @@
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 /*TP Code*/
 #include "Geometry/CaloTopology/interface/HcalTopology.h"

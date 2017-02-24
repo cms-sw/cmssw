@@ -31,7 +31,6 @@
 // Values are not ordered randomly, but the order is taken from
 // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
 static const std::vector<std::string> sDETS{ "", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
-static const std::vector<std::string> sLAYS{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" };
 
 class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {
   public:
@@ -323,19 +322,19 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
 
         if (isDoubleSided(current_det)) {
           LogTrace("TrackingRecoMaterialAnalyser") <<  "Eta: " << track.eta() << " "
-             << sDETS[current_det.subdetId()]+sLAYS[trk_topology->layer(current_det)]
+             << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
              << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi
              << " and has radLen: " << radLen << "  and xi: " << xi << endl;
           ori_radLen *= 2.;
           radLen *= 2.;
         }
 
-        histosOriEta_[sDETS[current_det.subdetId()]+sLAYS[trk_topology->layer(current_det)]]->Fill(current_tsos.globalPosition().eta(), ori_radLen);
-        histosEta_[sDETS[current_det.subdetId()]+sLAYS[trk_topology->layer(current_det)]]->Fill(current_tsos.globalPosition().eta(), radLen);
+        histosOriEta_[sDETS[current_det.subdetId()]+to_string(trk_topology->layer(current_det))]->Fill(current_tsos.globalPosition().eta(), ori_radLen);
+        histosEta_[sDETS[current_det.subdetId()]+to_string(trk_topology->layer(current_det))]->Fill(current_tsos.globalPosition().eta(), radLen);
         histo_RZ_Ori_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), ori_radLen);
         histo_RZ_->Fill(current_tsos.globalPosition().z(), current_tsos.globalPosition().perp(), radLen);
         LogInfo("TrackingRecoMaterialAnalyser") <<  "Eta: " << track.eta() << " "
-             << sDETS[current_det.subdetId()]+sLAYS[trk_topology->layer(current_det)]
+             << sDETS[current_det.subdetId()] << trk_topology->layer(current_det)
              << " has ori_radLen: " << ori_radLen << " and ori_xi: " << xi
              << " and has radLen: " << radLen << "  and xi: " << xi << endl;
       }

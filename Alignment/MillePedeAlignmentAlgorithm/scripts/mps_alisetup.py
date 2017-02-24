@@ -247,6 +247,21 @@ if args.weight:
         raise SystemExit
 
     try:
+        first_run = config.get("general", "FirstRunForStartGeometry")
+    except ConfigParser.NoOptionError:
+        print "Missing mandatory option 'FirstRunForStartGeometry' in [general] section."
+        raise SystemExit
+
+    for section in config.sections():
+        if section.startswith("dataset:"):
+            try:
+                collection = config.get(section, "collection")
+                break
+            except ConfigParser.NoOptionError:
+                print "Missing mandatory option 'collection' in section ["+section+"]."
+                raise SystemExit
+
+    try:
         with open(configTemplate,"r") as f:
             tmpFile = f.read()
     except IOError:
@@ -256,10 +271,14 @@ if args.weight:
     tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                      'setupGlobaltag = \"'+globalTag+'\"',
                      tmpFile)
+    tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
+                     'setupCollection = \"'+collection+'\"',
+                     tmpFile)
 
     thisCfgTemplate = "tmp.py"
-    with open(thisCfgTemplate, "w") as f:
-        f.write(tmpFile)
+    with open(thisCfgTemplate, "w") as f: f.write(tmpFile)
+    overrideGT = create_input_db(thisCfgTemplate, first_run)
+    with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
 
     for setting in pedesettings:
         print
@@ -303,6 +322,15 @@ if args.weight:
 
     # remove temporary file
     os.system("rm "+thisCfgTemplate)
+    if overrideGT.strip() != "":
+        print "="*60
+        msg = ("Overriding global tag with single-IOV tags extracted from '{}' "
+               "for run number '{}'.".format(generalOptions["globaltag"],
+                                             first_run))
+        print msg
+        print "-"*60
+        print overrideGT
+
     sys.exit()
 
 

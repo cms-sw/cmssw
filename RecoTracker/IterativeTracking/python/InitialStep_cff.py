@@ -196,7 +196,13 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     maxPtForLooperReconstruction = cms.double(0.7)
     )
 trackingLowPU.toModify(initialStepTrajectoryBuilder, maxCand = 5)
+trackingPhase1.toModify(initialStepTrajectoryBuilder,
+    minNrOfHitsForRebuild = 1,
+    keepOriginalIfRebuildFails = True,
+)
 trackingPhase1QuadProp.toModify(initialStepTrajectoryBuilder,
+    minNrOfHitsForRebuild = 1,
+    keepOriginalIfRebuildFails = True,
     inOutTrajectoryFilter = dict(refToPSet_ = "initialStepTrajectoryFilterInOut"),
     useSameTrajFilter = False
 )
@@ -242,6 +248,7 @@ firstStepPrimaryVertices.vertexCollections = cms.VPSet(
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 
+
 initialStepClassifier1 = TrackMVAClassifierPrompt.clone()
 initialStepClassifier1.src = 'initialStepTracks'
 initialStepClassifier1.GBRForestLabel = 'MVASelectorIter0_13TeV'
@@ -254,11 +261,18 @@ initialStepClassifier2.src = 'initialStepTracks'
 initialStepClassifier3 = lowPtTripletStep.clone()
 initialStepClassifier3.src = 'initialStepTracks'
 
-
-
 from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 initialStep = ClassifierMerger.clone()
 initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
+
+trackingPhase1.toReplaceWith(initialStep, initialStepClassifier1.clone(
+        GBRForestLabel = 'MVASelectorInitialStep_Phase1',
+        qualityCuts = [-0.95,-0.85,-0.75],
+))
+trackingPhase1QuadProp.toReplaceWith(initialStep, initialStepClassifier1.clone(
+        GBRForestLabel = 'MVASelectorInitialStep_Phase1',
+        qualityCuts = [-0.95,-0.85,-0.75],
+))
 
 # For LowPU and Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -387,7 +401,11 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
 _InitialStep_LowPU = InitialStep.copyAndExclude([firstStepPrimaryVertices, initialStepClassifier1, initialStepClassifier2, initialStepClassifier3])
 _InitialStep_LowPU.replace(initialStep, initialStepSelector)
 trackingLowPU.toReplaceWith(InitialStep, _InitialStep_LowPU)
-_InitialStep_Phase1 = InitialStep.copy()
+_InitialStep_Phase1QuadProp = InitialStep.copy()
+_InitialStep_Phase1QuadProp.remove(initialStepClassifier2)
+_InitialStep_Phase1QuadProp.remove(initialStepClassifier3)
+trackingPhase1QuadProp.toReplaceWith(InitialStep, _InitialStep_Phase1QuadProp)
+_InitialStep_Phase1 = _InitialStep_Phase1QuadProp.copy()
 _InitialStep_Phase1.replace(initialStepHitTriplets, initialStepHitQuadruplets)
 trackingPhase1.toReplaceWith(InitialStep, _InitialStep_Phase1)
 _InitialStep_Phase1PU70 = _InitialStep_LowPU.copy()

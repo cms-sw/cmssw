@@ -22,6 +22,14 @@ AlCaRecoTriggerBitsRcdUpdate = cms.EDAnalyzer(
       cms.PSet(listName = cms.string('TkAlMinBias'),
                hltPaths = cms.vstring('path_1', 'path_3')
                )
-      )
-
+      ),
+    
+    alcarecoToReplace = cms.VPSet(
+        cms.PSet(oldKey = cms.string('TkAlZMuMu'),
+                 newKey = cms.string('testKey1')
+                 ),
+        cms.PSet(oldKey = cms.string('TkAlMinBias'),
+                 newKey = cms.string('testKey2')
+                 )
+        )
     )

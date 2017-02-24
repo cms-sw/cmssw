@@ -458,7 +458,7 @@ void CSCTriggerPrimitivesReader::bookALCTHistos() {
     for (int j = 0; j < CSC_TYPES; j++) { // station/ring
       float csc_max = NCHAMBERS[j] + 0.5;
       char asdf[256];
-      sprintf(asdf,"ALCTs_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "ALCTs_%i",i*CSC_TYPES+j);
       if (i == 0) s = "ALCTs, " + csc_type_plus[j];
       else        s = "ALCTs, " + csc_type_minus[j];
       hAlctCsc[i][j] = fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
@@ -487,7 +487,7 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   for (int i = 0; i < MAX_ENDCAPS; i++) { // endcaps
     for (int j = 0; j < CSC_TYPES; j++) { // station/ring
       char asdf[256];
-      sprintf(asdf,"CLCTs_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "CLCTs_%i",i*CSC_TYPES+j);
       float csc_max = NCHAMBERS[j] + 0.5;
       if (i == 0) s = "CLCTs, " + csc_type_plus[j];
       else        s = "CLCTs, " + csc_type_minus[j];
@@ -511,12 +511,12 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   for (int i = 0; i < CSC_TYPES; i++) {
     char asdf[256];
     string s1 = "CLCT bend, " + csc_type[i];
-    sprintf(asdf,"CLCT_bend0_%i",i+1);
+    snprintf(asdf, sizeof(asdf), "CLCT_bend0_%i",i+1);
     hClctBendCsc[i][0] = fs->make<TH1F>(asdf, s1.c_str(),  5, -0.5, 4.5);
-    sprintf(asdf,"CLCT_bend1_%i",i+1);
+    snprintf(asdf, sizeof(asdf), "CLCT_bend1_%i",i+1);
     hClctBendCsc[i][1] = fs->make<TH1F>(asdf, s1.c_str(),  5, -0.5, 4.5);
 
-    sprintf(asdf,"CLCT_keystrip_%i",i+1);
+    snprintf(asdf, sizeof(asdf), "CLCT_keystrip_%i",i+1);
     string s2 = "CLCT keystrip, " + csc_type[i];
     int max_ds = MAX_HS[i]/4;
     hClctKeyStripCsc[i]   = fs->make<TH1F>(asdf, s2.c_str(), max_ds, 0., max_ds);
@@ -545,7 +545,7 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
       float csc_max = NCHAMBERS[j] + 0.5;
       if (i == 0) s = "LCTs, " + csc_type_plus[j];
       else        s = "LCTs, " + csc_type_minus[j];
-      sprintf(asdf,"LCTs_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "LCTs_%i",i*CSC_TYPES+j);
       hLctTMBCsc[i][j] = fs->make<TH1F>(s.c_str(), s.c_str(), NCHAMBERS[j], 0.5, csc_max);
     }
   }
@@ -562,7 +562,7 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
   // LCT quantities per station
   char histname[60];
   for (int istat = 0; istat < MAX_STATIONS; istat++) {
-    sprintf(histname, "LCT_CSCId, station %d", istat+1);
+    snprintf(histname, sizeof(histname), "LCT_CSCId, station %d", istat+1);
     hLctTMBChamber[istat] = fs->make<TH1F>("", histname,  10, -0.5, 9.5);
   }
   
@@ -642,7 +642,7 @@ void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
   // LCT quantities per station
   char histname[60];
   for (int istat = 0; istat < MAX_STATIONS; istat++) {
-    sprintf(histname, "MPC_CSCId, station %d", istat+1);
+    snprintf(histname, sizeof(histname), "MPC_CSCId, station %d", istat+1);
     hLctMPCChamber[istat] = fs->make<TH1F>("", histname,  10, -0.5, 9.5);
   }
 
@@ -734,16 +734,16 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
       float csc_max = NCHAMBERS[j] + 0.5;
       if (i == 0) s = "Comp_ALCTs, " + csc_type_plus[j];
       else        s = "Comp_ALCTs, " + csc_type_minus[j];
-      sprintf(asdf,"Comp_ALCTsFound_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_ALCTsFound_%i",i*CSC_TYPES+j);
       hAlctCompFoundCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"Comp_ALCTsSame_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_ALCTsSame_%i",i*CSC_TYPES+j);
       hAlctCompSameNCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"Comp_ALCTsTotal_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_ALCTsTotal_%i",i*CSC_TYPES+j);
       hAlctCompTotalCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"Comp_ALCTsMatch_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_ALCTsMatch_%i",i*CSC_TYPES+j);
       hAlctCompMatchCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
       hAlctCompFoundCsc[i][j]->Sumw2();
@@ -760,16 +760,16 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
       char asdf[256];
       if (i == 0) s = "Comp_CLCTs, " + csc_type_plus[j];
       else        s = "Comp_CLCTs, " + csc_type_minus[j];
-      sprintf(asdf,"Comp_CLCTsFound_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_CLCTsFound_%i",i*CSC_TYPES+j);
       hClctCompFoundCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"Comp_CLCTsSame_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_CLCTsSame_%i",i*CSC_TYPES+j);
       hClctCompSameNCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"Comp_CLCTsTotal_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_CLCTsTotal_%i",i*CSC_TYPES+j);
       hClctCompTotalCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"Comp_CLCTsMatch_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "Comp_CLCTsMatch_%i",i*CSC_TYPES+j);
       hClctCompMatchCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
       hClctCompFoundCsc[i][j]->Sumw2();
@@ -786,16 +786,16 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
       char asdf[256];
       if (i == 0) s = "LCTs, " + csc_type_plus[j];
       else        s = "LCTs, " + csc_type_minus[j];
-      sprintf(asdf,"LCTs_CompFound_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "LCTs_CompFound_%i",i*CSC_TYPES+j);
       hLctCompFoundCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"LCTs_CompSame_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "LCTs_CompSame_%i",i*CSC_TYPES+j);
       hLctCompSameNCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"LCTs_CompTotal_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "LCTs_CompTotal_%i",i*CSC_TYPES+j);
       hLctCompTotalCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
-      sprintf(asdf,"LCTs_CompMatch_%i",i*CSC_TYPES+j);
+      snprintf(asdf, sizeof(asdf), "LCTs_CompMatch_%i",i*CSC_TYPES+j);
       hLctCompMatchCsc[i][j] =
 	fs->make<TH1F>(asdf, s.c_str(), NCHAMBERS[j], 0.5, csc_max);
       hLctCompFoundCsc[i][j]->Sumw2();
@@ -837,16 +837,16 @@ void CSCTriggerPrimitivesReader::bookResolHistos() {
   // LCT quantities per station
   char histname[60];
   for (int i = 0; i < MAX_STATIONS; i++) {
-    sprintf(histname, "ALCTs vs eta, station %d", i+1);
+    snprintf(histname, sizeof(histname), "ALCTs vs eta, station %d", i+1);
     hAlctVsEta[i]    = fs->make<TH1F>("", histname, 66, 0.875, 2.525);
 
-    sprintf(histname, "CLCTs vs phi, station %d", i+1);
+    snprintf(histname, sizeof(histname), "CLCTs vs phi, station %d", i+1);
     hClctVsPhi[i]    = fs->make<TH1F>("", histname, 100, 0.,   TWOPI);
 
-    sprintf(histname, "#LT#eta_rec-#eta_sim#GT, station %d", i+1);
+    snprintf(histname, sizeof(histname), "#LT#eta_rec-#eta_sim#GT, station %d", i+1);
     hEtaDiffVsEta[i] = fs->make<TH1F>("", histname, 66, 0.875, 2.525);
 
-    sprintf(histname, "#LT#phi_rec-#phi_sim#GT, station %d", i+1);
+    snprintf(histname, sizeof(histname),"#LT#phi_rec-#phi_sim#GT, station %d", i+1);
     hPhiDiffVsPhi[i] = fs->make<TH1F>("", histname, 100, 0.,   TWOPI);
   }
 
@@ -889,7 +889,7 @@ void CSCTriggerPrimitivesReader::bookResolHistos() {
   for (int i = 0; i < max_patterns; i++) {
     if (!isTMB07) phibend = ptype[i];
     else          phibend = ptype_TMB07[i];
-    sprintf(histname, "#phi_rec-#phi_sim, bend = %d", phibend);
+    snprintf(histname, sizeof(histname), "#phi_rec-#phi_sim, bend = %d", phibend);
     hPhiDiffPattern[i] = fs->make<TH1F>("", histname, 100, PDMIN, PDMAX);
   }
 
@@ -902,13 +902,13 @@ void CSCTriggerPrimitivesReader::bookEfficHistos() {
   // Efficiencies per station.
   char histname[60];
   for (int i = 0; i < MAX_STATIONS; i++) {
-    sprintf(histname, "SimHits vs eta, station %d", i+1);
+    snprintf(histname, sizeof(histname), "SimHits vs eta, station %d", i+1);
     hEfficHitsEta[i] = fs->make<TH1F>("", histname, 66, 0.875, 2.525);
 
-    sprintf(histname, "ALCTs vs eta, station %d", i+1);
+    snprintf(histname, sizeof(histname), "ALCTs vs eta, station %d", i+1);
     hEfficALCTEta[i] = fs->make<TH1F>("", histname, 66, 0.875, 2.525);
 
-    sprintf(histname, "CLCTs vs eta, station %d", i+1);
+    snprintf(histname, sizeof(histname), "CLCTs vs eta, station %d", i+1);
     hEfficCLCTEta[i] = fs->make<TH1F>("", histname, 66, 0.875, 2.525);
   }
 
@@ -2303,7 +2303,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "Number of ALCTs");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(1,3);
@@ -2319,10 +2319,10 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "ALCTs per chamber, endcap %d", endc+1);
+    snprintf(titl, sizeof(titl), "ALCTs per chamber, endcap %d", endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     gStyle->SetOptStat(10);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
@@ -2338,7 +2338,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT quantities");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,3);
@@ -2375,7 +2375,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "Number of CLCTs");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(1,3);
@@ -2402,10 +2402,10 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "CLCTs per chamber, endcap %d", endc+1);
+    snprintf(titl, sizeof(titl), "CLCTs per chamber, endcap %d", endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     gStyle->SetOptStat(10);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
@@ -2421,7 +2421,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT quantities");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   if (!isTMB07) pad[page]->Divide(2,3);
@@ -2456,7 +2456,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     c1->Clear();  c1->cd(0);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT quantities");
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     pad[page]->Draw();
     pad[page]->Divide(1,3);
     pad[page]->cd(1);  hClctStripType->Draw();
@@ -2470,7 +2470,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "CLCT bend for various chamber types, halfstrips");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(110);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
@@ -2489,7 +2489,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			   "CLCT bend for various chamber types, distrips");
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     for (int idh = 0; idh < max_idh; idh++) {
@@ -2506,7 +2506,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			   "CLCT keystrip, distrip patterns only");
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
     for (int idh = 0; idh < max_idh; idh++) {
@@ -2546,7 +2546,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "Number of LCTs");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -2567,7 +2567,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCT geometry");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(110110);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
@@ -2583,10 +2583,10 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "LCTs per chamber, endcap %d", endc+1);
+    snprintf(titl, sizeof(titl), "LCTs per chamber, endcap %d", endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     gStyle->SetOptStat(10);
     pad[page]->Draw();
     pad[page]->Divide(2,5);
@@ -2602,7 +2602,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCT quantities");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(110110);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
@@ -2641,7 +2641,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "Number of LCTs");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(1,3);
@@ -2659,7 +2659,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCT geometry");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(110110);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
@@ -2676,7 +2676,7 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCT quantities");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   pad[page]->cd(1);  hLctMPCValid->Draw(); 
@@ -2714,18 +2714,18 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TText teff;
   teff.SetTextFont(32);
   teff.SetTextSize(0.08);
-  char eff[25], titl[50];
+  char eff[25], titl[60];
 
   int max_idh = plotME42 ? CSC_TYPES : CSC_TYPES-1;
 
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) { // endcaps
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "ALCT firmware-emulator: match in number found, endcap %d",
+    snprintf(titl, sizeof(titl), "ALCT firmware-emulator: match in number found, endcap %d",
 	    endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     //gStyle->SetOptStat(110010);
     gStyle->SetOptStat(0);
     pad[page]->Draw();
@@ -2764,7 +2764,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 	ratio = numer/denom;
 	error = sqrt(ratio*(1.-ratio)/denom);
       }
-      sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
+      snprintf(eff, sizeof(eff), "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
       teff.DrawTextNDC(0.3, 0.5, eff);
     }
     page++;  c1->Update();
@@ -2773,10 +2773,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) { // endcaps
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "ALCT firmware-emulator: exact match, endcap %d", endc+1);
+    snprintf(titl, sizeof(titl), "ALCT firmware-emulator: exact match, endcap %d", endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     //gStyle->SetOptStat(110010);
     gStyle->SetOptStat(0);
     pad[page]->Draw();
@@ -2815,7 +2815,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 	ratio = numer/denom;
 	error = sqrt(ratio*(1.-ratio)/denom);
       }
-      sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
+      snprintf(eff, sizeof(eff), "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
       teff.DrawTextNDC(0.3, 0.5, eff);
     }
     page++;  c1->Update();
@@ -2824,11 +2824,11 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "CLCT firmware-emulator: match in number found, endcap %d",
+    snprintf(titl, sizeof(titl), "CLCT firmware-emulator: match in number found, endcap %d",
 	    endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     //gStyle->SetOptStat(110010);
     gStyle->SetOptStat(0);
     pad[page]->Draw();
@@ -2867,7 +2867,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 	ratio = numer/denom;
 	error = sqrt(ratio*(1.-ratio)/denom);
       }
-      sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
+      snprintf(eff, sizeof(eff), "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
       teff.DrawTextNDC(0.3, 0.5, eff);
     }
     page++;  c1->Update();
@@ -2876,10 +2876,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "CLCT firmware-emulator: exact match, endcap %d", endc+1);
+    snprintf(titl, sizeof(titl), "CLCT firmware-emulator: exact match, endcap %d", endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     //gStyle->SetOptStat(110010);
     gStyle->SetOptStat(0);
     pad[page]->Draw();
@@ -2918,7 +2918,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 	ratio = numer/denom;
 	error = sqrt(ratio*(1.-ratio)/denom);
       }
-      sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
+      snprintf(eff, sizeof(eff), "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
       teff.DrawTextNDC(0.3, 0.5, eff);
     }
     page++;  c1->Update();
@@ -2927,11 +2927,11 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "LCT firmware-emulator: match in number found, endcap %d",
+    snprintf(titl, sizeof(titl), "LCT firmware-emulator: match in number found, endcap %d",
 	    endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     //gStyle->SetOptStat(110010);
     gStyle->SetOptStat(0);
     pad[page]->Draw();
@@ -2970,7 +2970,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 	ratio = numer/denom;
 	error = sqrt(ratio*(1.-ratio)/denom);
       }
-      sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
+      snprintf(eff, sizeof(eff), "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
       teff.DrawTextNDC(0.3, 0.5, eff);
     }
     page++;  c1->Update();
@@ -2979,10 +2979,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   for (int endc = 0; endc < MAX_ENDCAPS; endc++) {
     ps->NewPage();
     c1->Clear();  c1->cd(0);
-    sprintf(titl, "LCT firmware-emulator: exact match, endcap %d", endc+1);
+    snprintf(titl, sizeof(titl), "LCT firmware-emulator: exact match, endcap %d", endc+1);
     title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, titl);
     title->SetFillColor(10);  title->Draw();
-    sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+    snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
     //gStyle->SetOptStat(110010);
     gStyle->SetOptStat(0);
     pad[page]->Draw();
@@ -3021,7 +3021,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 	ratio = numer/denom;
 	error = sqrt(ratio*(1.-ratio)/denom);
       }
-      sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
+      snprintf(eff, sizeof(eff), "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
       teff.DrawTextNDC(0.3, 0.5, eff);
     }
     page++;  c1->Update();
@@ -3054,7 +3054,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT resolution");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -3078,7 +3078,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#eta_rec-#eta_sim");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3095,7 +3095,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#eta_rec-#eta_sim, endcap1");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3112,7 +3112,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#eta_rec-#eta_sim, endcap2");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3130,7 +3130,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#LT#eta_rec-#eta_sim#GT vs #eta_rec");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   //gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -3150,7 +3150,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#eta_rec-#eta_sim vs wiregroup");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3171,7 +3171,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#phi resolution");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -3201,7 +3201,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "#phi_rec-#phi_sim (mrad)");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3264,7 +3264,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#phi_rec-#phi_sim (mrad), endcap1");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3282,7 +3282,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
   			 "#phi_rec-#phi_sim (mrad), endcap2");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3300,7 +3300,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#LT#phi_rec-#phi_sim#GT (mrad) vs #phi_rec");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -3322,7 +3322,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#phi_rec-#phi_sim (mrad) vs halfstrip #");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
@@ -3364,7 +3364,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 		     "#phi_rec-#phi_sim, halfstrips only, different patterns");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(3,3);
@@ -3391,7 +3391,7 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98,
 			 "#phi_1-#phi_6 (mrad), muon SimHits");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
   for (int idh = 0; idh < max_idh; idh++) {
@@ -3435,7 +3435,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT efficiency vs #eta");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -3447,7 +3447,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
     hALCTEffVsEta[istation]->GetXaxis()->SetTitleOffset(1.2);
     hALCTEffVsEta[istation]->GetXaxis()->SetTitle("#eta");
     hALCTEffVsEta[istation]->SetMaximum(1.05);
-    sprintf(histtitle, "ALCT efficiency vs #eta, station %d", istation+1);
+    snprintf(histtitle, sizeof(histtitle), "ALCT efficiency vs #eta, station %d", istation+1);
     hALCTEffVsEta[istation]->SetTitle(histtitle);
     pad[page]->cd(istation+1);  hALCTEffVsEta[istation]->Draw();
   }
@@ -3456,7 +3456,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCT efficiency vs #eta");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(11111);
   pad[page]->Draw();
   pad[page]->Divide(2,5);
@@ -3492,7 +3492,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT efficiency vs #eta");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,2);
@@ -3504,7 +3504,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
     hCLCTEffVsEta[istation]->GetXaxis()->SetTitleOffset(1.2);
     hCLCTEffVsEta[istation]->GetXaxis()->SetTitle("#eta");
     hCLCTEffVsEta[istation]->SetMaximum(1.05);
-    sprintf(histtitle, "CLCT efficiency vs #eta, station %d", istation+1);
+    snprintf(histtitle, sizeof(histtitle), "CLCT efficiency vs #eta, station %d", istation+1);
     hCLCTEffVsEta[istation]->SetTitle(histtitle);
     pad[page]->cd(istation+1);  hCLCTEffVsEta[istation]->Draw();
   }
@@ -3513,7 +3513,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   c1->Clear();  c1->cd(0);
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCT efficiency vs #eta");
   title->SetFillColor(10);  title->Draw();
-  sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
+  snprintf(pagenum, sizeof(pagenum), "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
   gStyle->SetOptStat(111110);
   pad[page]->Draw();
   pad[page]->Divide(2,5);

@@ -404,3 +404,8 @@ LongDCABins = cms.int32(100),
 LongDCAMin = cms.double(-8.0),
 LongDCAMax = cms.double(8.0),          
 )
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase1Pixel.toModify(TrackMon, EtaBin=30, EtaMin=-3, EtaMax=3)
+phase2_tracker.toModify(TrackMon, EtaBin=46, EtaMin=-4.5, EtaMax=4.5)

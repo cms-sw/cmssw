@@ -14,7 +14,7 @@
 		<Constant name="StiffenerR" value="0.400*cm"/>
 		<Constant name="RailTopDy" value="8.5*mm"/>
 		<Constant name="RailBottomDy" value="15*mm"/>
-		<Constant name="RailDx" value="3.75*mm"/>
+		<Constant name="RailDx" value="3.25*mm"/>
 		<Constant name="RailL" value="1.100*m"/>
 		<Constant name="RailInX" value="54.433*cm"/>
 		<Constant name="StiffenerY" value="2.700*cm"/>
@@ -735,7 +735,9 @@
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Vector name="ZPositions" type="numeric" nEntries="6">
-			-[PottingZ1],-[PottingZ2],-[PottingZ3], [PottingZ3], [PottingZ2], [PottingZ1]
+			-[PottingZ1]-2*[ConnectL23],-[PottingZ2]+2*[ConnectL23],
+			-[PottingZ3]-2*[ConnectL23], [PottingZ3]+2*[ConnectL23],
+			 [PottingZ2]-2*[ConnectL23], [PottingZ1]+2*[ConnectL23]
 		</Vector>
 		<Vector name="Rotations" type="string" nEntries="6">
 			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
@@ -747,7 +749,9 @@
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Vector name="ZPositions" type="numeric" nEntries="6">
-			-[PottingZ1],-[PottingZ2],-[PottingZ3], [PottingZ3], [PottingZ2], [PottingZ1]
+			-[PottingZ1]-2*[ConnectL56],-[PottingZ2]+2*[ConnectL56],
+			-[PottingZ3]-2*[ConnectL56], [PottingZ3]+2*[ConnectL56],
+			 [PottingZ2]-2*[ConnectL56], [PottingZ1]+2*[ConnectL56]
 		</Vector>
 		<Vector name="Rotations" type="string" nEntries="6">
 			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
@@ -805,8 +809,10 @@
 		<Numeric name="StartCopyNo" value="1"/>
 		<Numeric name="IncrCopyNo" value="1"/>
 		<Vector name="ZPositions" type="numeric" nEntries="6">
-			-[ConnectZ21]-[Connect23ZOffset],-[ConnectZ22]+[Connect23ZOffset],-[ConnectZ23]-[Connect23ZOffset], [ConnectZ23]+[Connect23ZOffset], 
-			[ConnectZ22]-[Connect23ZOffset], [ConnectZ21]+[Connect23ZOffset] </Vector>
+			-[ConnectZ21]-[Connect23ZOffset]-2*[ConnectL23],-[ConnectZ22]+[Connect23ZOffset]+2*[ConnectL23],
+			-[ConnectZ23]-[Connect23ZOffset]-2*[ConnectL23], [ConnectZ23]+[Connect23ZOffset]+2*[ConnectL23], 
+			 [ConnectZ22]-[Connect23ZOffset]-2*[ConnectL23], [ConnectZ21]+[Connect23ZOffset]+2*[ConnectL23]
+		</Vector>
 		<Vector name="Rotations" type="string" nEntries="6">
 			tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL,  tobrodpar:NULL, 
 			tobrodpar:NULL,  tobrodpar:NULL</Vector>

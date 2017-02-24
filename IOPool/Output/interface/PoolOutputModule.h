@@ -114,6 +114,8 @@ namespace edm {
     virtual std::pair<std::string, std::string> physicalAndLogicalNameForNewFile();
     virtual void doExtrasAfterCloseFile();
   private:
+    virtual void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const override;
+
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;
     virtual void respondToCloseInputFile(FileBlock const& fb) override;
@@ -169,6 +171,7 @@ namespace edm {
     unsigned int numberOfDigitsInIndex_;
     BranchParents branchParents_;
     BranchChildren branchChildren_;
+    std::vector<BranchID> branchChildrenReadFromInput_;
     bool overrideInputFileSplitLevels_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;

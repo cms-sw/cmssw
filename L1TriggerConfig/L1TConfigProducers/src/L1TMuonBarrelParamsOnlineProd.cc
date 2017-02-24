@@ -5,8 +5,10 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsO2ORcd.h"
-#include "L1Trigger/L1TCommon/interface/XmlConfigReader.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
+#include "L1Trigger/L1TCommon/interface/TriggerSystem.h"
+#include "L1Trigger/L1TCommon/interface/XmlConfigParser.h"
+#include "OnlineDBqueryHelper.h"
 
 #include "xercesc/util/PlatformUtils.hpp"
 using namespace XERCES_CPP_NAMESPACE;
@@ -31,208 +33,118 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
 
 
     if (objectKey.empty()) {
-        edm::LogInfo( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonBarrelParams";
+        edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonBarrelParams";
         throw std::runtime_error("Empty objectKey");
-///        return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
     std::string  rsKey = objectKey.substr(   objectKey.find(":")+1, std::string::npos );
 
 
-    std::string stage2Schema = "CMS_TRG_L1_CONF" ;
-    edm::LogInfo( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Producing L1TMuonBarrelParams with TSC key =" << tscKey << " and RS key = " << rsKey ;
+    edm::LogInfo( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Producing L1TMuonBarrelParams with TSC key = " << tscKey << " and RS key = " << rsKey ;
 
-        // first, find keys for the algo and RS tables
+    std::string algo_key, hw_key;
+    std::string mp7_key, amc13_key;
+    std::string hw_payload, algo_payload, mp7_payload, amc13_payload;
+    try {
+        std::map<std::string,std::string> keys =
+            l1t::OnlineDBqueryHelper::fetch( {"ALGO","HW"},
+                                             "BMTF_KEYS",
+                                             tscKey,
+                                             m_omdsReader
+                                           );
+        algo_key = keys["ALGO"];
+        hw_key   = keys["HW"];
 
-        // ALGO and HW
-        std::vector< std::string > queryStrings ;
-        queryStrings.push_back( "ALGO" ) ;
-        queryStrings.push_back( "HW"   ) ;
+        hw_payload =
+            l1t::OnlineDBqueryHelper::fetch( {"CONF"},
+                                             "BMTF_CLOBS",
+                                             hw_key,
+                                             m_omdsReader
+                                           ) ["CONF"];
 
-        std::string algo_key, hw_key;
+        algo_payload =
+            l1t::OnlineDBqueryHelper::fetch( {"CONF"},
+                                             "BMTF_CLOBS",
+                                             algo_key,
+                                             m_omdsReader
+                                           ) ["CONF"];
 
-        // select ALGO,HW from CMS_TRG_L1_CONF.BMTF_KEYS where ID = tscKey ;
-        l1t::OMDSReader::QueryResults queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "BMTF_KEYS",
-                                     "BMTF_KEYS.ID",
-                                     m_omdsReader.singleAttribute(tscKey)
-                                   ) ;
+        std::map<std::string,std::string> rsKeys =
+            l1t::OnlineDBqueryHelper::fetch( {"MP7","AMC13"},
+                                             "BMTF_RS_KEYS",
+                                             rsKey,
+                                             m_omdsReader
+                                           );
+        mp7_key   = rsKeys["MP7"];
+        amc13_key = rsKeys["AMC13"];
 
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O" ) << "Cannot get BMTF_KEYS.{ALGO,HW}" ;
-            throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
-        }
+        mp7_payload =
+            l1t::OnlineDBqueryHelper::fetch( {"CONF"},
+                                             "BMTF_CLOBS",
+                                             mp7_key,
+                                             m_omdsReader
+                                           ) ["CONF"];
+        amc13_payload =
+            l1t::OnlineDBqueryHelper::fetch( {"CONF"},
+                                             "BMTF_CLOBS",
+                                             amc13_key,
+                                             m_omdsReader
+                                           ) ["CONF"];
 
-        if( !queryResult.fillVariable( "ALGO", algo_key) ) algo_key = "";
-        if( !queryResult.fillVariable( "HW",   hw_key  ) ) hw_key   = "";
-
-
-        // RS
-        queryStrings.clear() ;
-        queryStrings.push_back( "MP7"    ) ;
-        queryStrings.push_back( "DAQTTC" ) ;
-
-        std::string rs_mp7_key, rs_amc13_key;
-
-        // select RS from CMS_TRG_L1_CONF.BMTF_RS_KEYS where ID = rsKey ;
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "BMTF_RS_KEYS",
-                                     "BMTF_RS_KEYS.ID",
-                                     m_omdsReader.singleAttribute(rsKey)
-                                   ) ;
-
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O" ) << "Cannot get BMTF_RS_KEYS.{MP7,DAQTTC}" ;
-            throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
-        }
-
-        if( !queryResult.fillVariable( "MP7",    rs_mp7_key  ) ) rs_mp7_key   = "";
-        if( !queryResult.fillVariable( "DAQTTC", rs_amc13_key) ) rs_amc13_key = "";
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << e.what();
+        throw std::runtime_error("Broken key");
+    }
 
 
-        // At this point we have four keys: one ALGO key, one HW key, and two RS keys; now query the payloads for these keys
-        // Now querry the actual payloads
-        enum {kALGO=0, kRS, kHW, NUM_TYPES};
-        std::map<std::string,std::string> payloads[NUM_TYPES];  // associates key -> XML payload for a given type of payloads
-        std::string xmlPayload;
+    // for debugging dump the configs to local files
+    {
+        std::ofstream output(std::string("/tmp/").append(hw_key.substr(0,hw_key.find("/"))).append(".xml"));
+        output << hw_payload;
+        output.close();
+    }
+    {
+        std::ofstream output(std::string("/tmp/").append(algo_key.substr(0,algo_key.find("/"))).append(".xml"));
+        output << algo_payload;
+        output.close();
+    }
+    {
+        std::ofstream output(std::string("/tmp/").append(mp7_key.substr(0,mp7_key.find("/"))).append(".xml"));
+        output << mp7_payload;
+        output.close();
+    }
+    {
+        std::ofstream output(std::string("/tmp/").append(amc13_key.substr(0,amc13_key.find("/"))).append(".xml"));
+        output << amc13_payload;
+        output.close();
+    }
 
-        queryStrings.clear();
-        queryStrings.push_back( "CONF" );
+    // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
+    l1t::XmlConfigParser xmlRdr;
+    l1t::TriggerSystem parsedXMLs;
 
-        // query ALGO configuration
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "BMTF_ALGO",
-                                     "BMTF_ALGO.ID",
-                                     m_omdsReader.singleAttribute(algo_key)
-                                   ) ;
+    // HW settings should always go first
+    xmlRdr.readDOMFromString( hw_payload );
+    xmlRdr.readRootElement  ( parsedXMLs );
 
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_ALGO.CONF for ID="<<algo_key;
-            throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
-        }
+    // now let's parse ALGO settings 
+    xmlRdr.readDOMFromString( algo_payload );
+    xmlRdr.readRootElement  ( parsedXMLs   );
 
-        if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
-        // remember ALGO configuration
-        payloads[kALGO][algo_key] = xmlPayload;
+    // remaining RS settings 
+    xmlRdr.readDOMFromString( mp7_payload );
+    xmlRdr.readRootElement  ( parsedXMLs  );
 
-        // query HW configuration
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "BMTF_HW",
-                                     "BMTF_HW.ID",
-                                     m_omdsReader.singleAttribute(hw_key)
-                                   ) ;
+    xmlRdr.readDOMFromString( amc13_payload );
+    xmlRdr.readRootElement  ( parsedXMLs    );
+    parsedXMLs.setConfigured();
 
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_HW.CONF for ID="<<hw_key;
-            throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
-        }
-
-        if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
-        // remember HW configuration
-        payloads[kHW][hw_key] = xmlPayload;
-
-        // query MP7 RS configuration
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "BMTF_RS",
-                                     "BMTF_RS.ID",
-                                     m_omdsReader.singleAttribute(rs_mp7_key)
-                                   ) ;
-
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_RS.CONF for ID="<<rs_mp7_key;
-            throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
-        }
-
-        if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
-        // remember MP7 RS configuration
-        payloads[kRS][rs_mp7_key] = xmlPayload;
-
-        // query AMC13 RS configuration
-        queryResult =
-            m_omdsReader.basicQuery( queryStrings,
-                                     stage2Schema,
-                                     "BMTF_RS",
-                                     "BMTF_RS.ID",
-                                     m_omdsReader.singleAttribute(rs_amc13_key)
-                                   ) ;
-
-        if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Cannot get BMTF_RS.CONF for ID="<<rs_amc13_key;
-            throw std::runtime_error("Broken key");
-///            return std::make_shared< L1TMuonBarrelParams > ( *(baseSettings.product()) );
-        }
-
-        if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
-        // remember AMC13 RS configuration
-        payloads[kRS][rs_amc13_key] = xmlPayload;
-
-// for debugging dump the configs to local files
-for(auto &conf : payloads[kHW]){ 
-    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
-    output<<conf.second;
-    output.close();
-}
-for(auto &conf : payloads[kALGO]){ 
-    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
-    output<<conf.second;
-    output.close();
-}
-for(auto &conf : payloads[kRS]){ 
-    std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
-    output<<conf.second;
-    output.close();
-}
-
-        // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
-        l1t::XmlConfigReader xmlRdr;
-        l1t::TrigSystem parsedXMLs;
-//        parsedXMLs.addProcRole("processors", "procMP7");
-        // HW settings should always go first
-        for(auto &conf : payloads[ kHW ]){
-            xmlRdr.readDOMFromString( conf.second );
-            xmlRdr.readRootElement  ( parsedXMLs  );
-        }
-        // now let's parse ALGO and then RS settings 
-        for(auto &conf : payloads[ kALGO ]){
-            xmlRdr.readDOMFromString( conf.second );
-            xmlRdr.readRootElement  ( parsedXMLs  );
-        }
-        for(auto &conf : payloads[ kRS ]){
-            xmlRdr.readDOMFromString( conf.second );
-            xmlRdr.readRootElement  ( parsedXMLs  );
-        }
-        parsedXMLs.setConfigured();
-
-        // for debugging also dump the configs to local files
-        for(size_t type=0; type<NUM_TYPES; type++)
-            for(auto &conf : payloads[ type ]){
-                std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
-                output<<conf.second;
-                output.close();
-            }
-
-        L1TMuonBarrelParamsHelper m_params_helper(*(baseSettings.product()) );
-        m_params_helper.configFromDB(parsedXMLs);
-        std::shared_ptr< L1TMuonBarrelParams > retval = std::make_shared< L1TMuonBarrelParams>(m_params_helper);
+    L1TMuonBarrelParamsHelper m_params_helper( *(baseSettings.product()) );
+    m_params_helper.configFromDB( parsedXMLs );
+    std::shared_ptr< L1TMuonBarrelParams > retval = std::make_shared< L1TMuonBarrelParams>( m_params_helper );
  
-        return retval;
-
+    return retval;
 }
 
 //define this as a plug-in

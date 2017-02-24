@@ -264,9 +264,9 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 }
 
 void NavigationSchoolAnalyzer::beginRun(edm::Run const & run, const edm::EventSetup& iSetup) {
-//  edm::ESHandle<TrackerTopology> tTopoHandle;
-//  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-//  tTopo = tTopoHandle.product();
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
 
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
