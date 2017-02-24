@@ -1458,6 +1458,8 @@ def edit(args):
 # replaced with the actual insertion times. The format must be
 # one of the following: '2013-01-20', '2013-01-20 10:11:12' or
 # '2013-01-20 10:11:12.123123'.
+# If the insertion time desired is the one of the command execution, 
+# you can simply write a '-' in the corresponding column
 #
 # Suggestion: open another terminal to copy the payloads you need.
 ''' % name)
@@ -1490,7 +1492,10 @@ def edit(args):
                 elif len(payload) < conddb.hash_length:
                     payload = _get_payload_full_hash(session, payload)
 
-                insertion_time = _parse_timestamp(insertion_timestamp)
+                if insertion_timestamp == '-':
+                    insertion_time = datetime.datetime.now()
+                else:
+                    insertion_time = _parse_timestamp(insertion_timestamp)
                 new_table.append((int(since), insertion_time, payload))
 
             table = set(table)
@@ -1539,7 +1544,8 @@ def edit(args):
             # Use session.delete() instead of bulk delete to let SQLAlchemy use UPDATE
             # (since we may disable DELETE in Oracle for the tables)
             for since, insertion_time, _ in deleted:
-                session.delete(session.query(IOV).get((name, since, insertion_time)))
+                session.query(IOV).filter(IOV.tag_name==name, IOV.since==since, IOV.insertion_time==insertion_time).delete()
+                #session.delete(session.query(IOV).filter(IOV.tag_name==name, IOV.since==since, IOV.insertion_time==insertion_time))
             for since, insertion_time, payload in added:
                 if connection.is_official:
                     insertion_time = datetime.datetime.now()

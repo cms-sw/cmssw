@@ -28,8 +28,12 @@ namespace HcalTopologyMode {
 
   enum TriggerMode {
     TriggerMode_2009=0,         // HF is summed in 3x2 regions
-    TriggerMode_2016=1,         // HF is summed in both 3x2 and 1x1 regions 
-    TriggerMode_2017=2          // HF is summed in 1x1 regions
+    TriggerMode_2016=1,         // HF is summed in both 3x2 and 1x1 regions
+    TriggerMode_2018legacy=2,   // For the database, before 2017 and 2017plan1 was introduced
+    TriggerMode_2017=3,         // HF upgraded to QIE10
+    TriggerMode_2017plan1=4,    // HF upgraded to QIE10, 1 RBX of HE to QIE11
+    TriggerMode_2018=5,         // HF upgraded to QIE10, HE to QIE11
+    TriggerMode_2019=6          // HF upgraded to QIE10, HBHE to QIE11
   };
 }
 

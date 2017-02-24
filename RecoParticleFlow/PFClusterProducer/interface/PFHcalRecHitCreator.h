@@ -13,6 +13,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
@@ -36,22 +37,27 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
+      edm::ESHandle<HcalTopology> hcalTopology;
+      iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
   
-      // get the ecal geometry
+      // get the hcal geometry and topology
       const CaloSubdetectorGeometry *gTmp = 
 	geoHandle->getSubdetectorGeometry(DetId::Hcal, Detector);
-
       const Geometry *hcalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const HcalTopology *theHcalTopology = hcalTopology.product();
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
-	const HcalDetId& detid = (HcalDetId)erh.detid();
+	HcalDetId detid = (HcalDetId)erh.detid();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
 	
 	//since hbhe are together kill other detector
 	if (esd !=Detector && Detector != HcalOther  ) 
 	  continue;
 
+        if (theHcalTopology->withSpecialRBXHBHE() && esd == HcalEndcap) {
+          detid = theHcalTopology->idFront(detid);
+	}
 
 	auto energy = erh.energy();
 	auto time = erh.time();

@@ -149,7 +149,7 @@ public:
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
 
   /// called at begin of run
-  virtual void beginRun(const edm::EventSetup &setup) {};
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup &setup) {};
 
   /// called at end of run - order of arguments like in EDProducer etc.
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {};

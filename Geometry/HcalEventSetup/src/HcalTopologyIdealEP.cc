@@ -39,9 +39,12 @@
 //
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
+    m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")),
     m_pSet(conf) {
 #ifdef DebugLog
-  std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP" << std::endl;
+  std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: " 
+	    << m_restrictions << " MergePosition: " << m_mergePosition
+	    << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
 #endif
   setWhatProduced(this,
@@ -56,6 +59,7 @@ void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & des
 
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "Exclude", "" );
+  desc.addUntracked<bool>("MergePosition", true);
   descriptions.add( "hcalTopologyIdeal", desc );
 }
 
@@ -76,14 +80,14 @@ HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
 
 #ifdef DebugLog
   std::cout << "mode = " << hdc->getTopoMode() << ", maxDepthHB = " 
-	    << hdc->getMaxDepth(0) << ", maxDepthHE = " << hdc->getMaxDepth(1) 
+	    << hdc->getMaxDepth(0) << ", maxDepthHE = " << hdc->getMaxDepth(1)
 	    << ", maxDepthHF = " << hdc->getMaxDepth(2) << std::endl;
-  edm::LogInfo("HCAL") << "mode = " << hdc->getTopoMode() << ", maxDepthHB = " 
+  edm::LogInfo("HCAL") << "mode = " << hdc->getTopoMode() << ", maxDepthHB = "
 		       << hdc->getMaxDepth(0) << ", maxDepthHE = " 
 		       << hdc->getMaxDepth(1) << ", maxDepthHF = " 
 		       << hdc->getMaxDepth(2);
 #endif
-  ReturnType myTopo(new HcalTopology(hdc));
+  ReturnType myTopo(new HcalTopology(hdc,m_mergePosition));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {

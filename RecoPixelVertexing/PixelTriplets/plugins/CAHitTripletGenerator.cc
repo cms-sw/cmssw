@@ -92,10 +92,7 @@ void CAHitTripletGenerator::initEvent(const edm::Event& ev, const edm::EventSetu
 }
 
 namespace {
-  template <typename T_HitDoublets, typename T_GeneratorOrPairsFunction>
-  void fillGraph(const SeedingLayerSetsHits& layers, CAGraph& g, T_HitDoublets& hitDoublets,
-                 T_GeneratorOrPairsFunction generatorOrPairsFunction) {
-
+  void createGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
 	for (unsigned int i = 0; i < layers.size(); i++)
 	{
 		for (unsigned int j = 0; j < 3; ++j)
@@ -106,7 +103,7 @@ namespace {
 			if (foundVertex == g.theLayers.end())
 			{
 				g.theLayers.emplace_back(layers[i][j].name(),
-						layers[i][j].hits().size());
+					        layers[i][j].hits().size());
 				vertexIndex = g.theLayers.size() - 1;
 			}
 			else
@@ -124,7 +121,44 @@ namespace {
 				}
 
 			}
+		}
+	}
+  }
+
+  void clearGraphStructure(const SeedingLayerSetsHits& layers, CAGraph& g) {
+	g.theLayerPairs.clear();
+	for (unsigned int i = 0; i < g.theLayers.size(); i++ ){
+		g.theLayers[i].theInnerLayers.clear();
+		g.theLayers[i].theInnerLayerPairs.clear();
+		g.theLayers[i].theOuterLayers.clear();
+		g.theLayers[i].theOuterLayerPairs.clear();
+
+	}
+
+  }
+  
+  template <typename T_HitDoublets, typename T_GeneratorOrPairsFunction>
+  void fillGraph(const SeedingLayerSetsHits& layers, CAGraph& g, T_HitDoublets& hitDoublets,
+                 T_GeneratorOrPairsFunction generatorOrPairsFunction) {
+	for (unsigned int i = 0; i < layers.size(); i++)
+	{
+		for (unsigned int j = 0; j < 3; ++j)
+		{
+			auto vertexIndex = 0;
+			auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(),
+					layers[i][j].name());
+
+			if (foundVertex == g.theLayers.end())
+			{
+				vertexIndex = g.theLayers.size() - 1;
+			}
 			else
+			{
+				vertexIndex = foundVertex - g.theLayers.begin();
+			}
+		
+			
+			if (j > 0)
 			{
 
 				auto innerVertex = std::find(g.theLayers.begin(),
@@ -137,7 +171,7 @@ namespace {
 						tmpInnerLayerPair) == g.theLayerPairs.end())
 				{
 					const bool nonEmpty = generatorOrPairsFunction(layers[i][j - 1], layers[i][j], hitDoublets);
-					if(nonEmpty) {
+                                        if(nonEmpty) {
                                           g.theLayerPairs.push_back(tmpInnerLayerPair);
                                           g.theLayers[vertexIndex].theInnerLayers.push_back(
 							innerVertex - g.theLayers.begin());
@@ -175,6 +209,7 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
 
 
 	HitPairGeneratorFromLayerPair thePairGenerator(0, 1, &theLayerCache);
+	createGraphStructure(layers,g);
         fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<HitDoublets>& hitDoublets) {
             hitDoublets.emplace_back(thePairGenerator.doublets(region, ev, es, inner, outer));
             return true;
@@ -193,8 +228,8 @@ void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
         theLayerCache.clear();
 }
 
-void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets::RegionLayerSets& regionLayerPairs,
-                                        OrderedHitTriplets& result,
+void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets& regionDoublets,
+                                        std::vector<OrderedHitSeeds>& result,
                                         const edm::EventSetup& es,
                                         const SeedingLayerSetsHits& layers) {
   CAGraph g;
@@ -205,20 +240,137 @@ void CAHitTripletGenerator::hitNtuplets(const IntermediateHitDoublets::RegionLay
                            SeedingLayerSetsHits::LayerIndex inner,
                            SeedingLayerSetsHits::LayerIndex outer) {
     return pair.innerLayerIndex() == inner && pair.outerLayerIndex() == outer;
-  };
-  fillGraph(layers, g, hitDoublets, [&](const SeedingLayerSetsHits::SeedingLayer& inner, const SeedingLayerSetsHits::SeedingLayer& outer, std::vector<const HitDoublets *>& hitDoublets) {
-      using namespace std::placeholders;
-      auto found = std::find_if(regionLayerPairs.begin(), regionLayerPairs.end(), std::bind(layerPairEqual, _1, inner.index(), outer.index()));
-      if(found != regionLayerPairs.end()) {
-        hitDoublets.emplace_back(&(found->doublets()));
-        return true;
-      }
-      return false;
-    });
+  };	
+  std::vector<CACell::CAntuplet> foundTriplets;
 
-  hitTriplets(regionLayerPairs.region(), result, hitDoublets, g, es);
+  int index =0;
+  for(const auto& regionLayerPairs: regionDoublets) {
+
+	const TrackingRegion& region = regionLayerPairs.region();
+	hitDoublets.clear(); 
+	foundTriplets.clear();
+ 
+	if (index == 0){   
+	  	createGraphStructure(layers, g);
+	}
+	else{  
+  		clearGraphStructure(layers, g);
+	}
+	fillGraph(layers, g, hitDoublets,
+	            [&](const SeedingLayerSetsHits::SeedingLayer& inner,
+	                const SeedingLayerSetsHits::SeedingLayer& outer,
+	                std::vector<const HitDoublets *>& hitDoublets) {
+	      using namespace std::placeholders;
+	      auto found = std::find_if(regionLayerPairs.begin(), regionLayerPairs.end(),
+	                                std::bind(layerPairEqual, _1, inner.index(), outer.index()));
+	      if(found != regionLayerPairs.end()) {
+	        hitDoublets.emplace_back(&(found->doublets()));
+	        return true;
+	      }
+	      return false;
+	});
+	CellularAutomaton ca(g);
+	ca.findTriplets(hitDoublets, foundTriplets, region, caThetaCut, caPhiCut,
+                        caHardPtCut);
+
+
+
+	const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
+
+ 	// re-used thoughout, need to be vectors because of RZLine interface
+	std::array<float, 3> bc_r;
+	std::array<float, 3> bc_z;
+  	std::array<float, 3> bc_errZ2;
+  	std::array<GlobalPoint, 3> gps;
+  	std::array<GlobalError, 3> ges;
+  	std::array<bool, 3> barrels;
+	
+ 	unsigned int numberOfFoundTriplets = foundTriplets.size();
+	for (unsigned int tripletId = 0; tripletId < numberOfFoundTriplets;
+			++tripletId)
+	{
+
+		OrderedHitTriplet tmpTriplet(foundTriplets[tripletId][0]->getInnerHit(),
+				foundTriplets[tripletId][0]->getOuterHit(),
+				foundTriplets[tripletId][1]->getOuterHit());
+
+		auto isBarrel = [](const unsigned id) -> bool
+		{
+			return id == PixelSubdetector::PixelBarrel;
+		};
+		for (unsigned int i = 0; i < 2; ++i)
+		{
+			auto const& ahit = foundTriplets[tripletId][i]->getInnerHit();
+			gps[i] = ahit->globalPosition();
+			ges[i] = ahit->globalPositionError();
+			barrels[i] = isBarrel(ahit->geographicalId().subdetId());
+		}
+
+		auto const& ahit = foundTriplets[tripletId][1]->getOuterHit();
+		gps[2] = ahit->globalPosition();
+		ges[2] = ahit->globalPositionError();
+		barrels[2] = isBarrel(ahit->geographicalId().subdetId());
+
+		PixelRecoLineRZ line(gps[0], gps[2]);
+		ThirdHitPredictionFromCircle predictionRPhi(gps[0], gps[2],
+				extraHitRPhitolerance);
+		const float curvature = predictionRPhi.curvature(
+				ThirdHitPredictionFromCircle::Vector2D(gps[1].x(), gps[1].y()));
+		const float abscurv = std::abs(curvature);
+		const float thisMaxChi2 = maxChi2Eval.value(abscurv);
+		float chi2 = std::numeric_limits<float>::quiet_NaN();
+		// TODO: Do we have any use case to not use bending correction?
+
+		if (useBendingCorrection)
+		{
+			// Following PixelFitterByConformalMappingAndLine
+			const float simpleCot = (gps.back().z() - gps.front().z())
+					/ (gps.back().perp() - gps.front().perp());
+			const float pt = 1.f / PixelRecoUtilities::inversePt(abscurv, es);
+			for (int i = 0; i < 3; ++i)
+			{
+				const GlobalPoint & point = gps[i];
+				const GlobalError & error = ges[i];
+				bc_r[i] = sqrt(
+						sqr(point.x() - region.origin().x())
+								+ sqr(point.y() - region.origin().y()));
+				bc_r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt,
+						es)(bc_r[i]);
+				bc_z[i] = point.z() - region.origin().z();
+				bc_errZ2[i] =
+						(barrels[i]) ?
+								error.czz() :
+								error.rerr(point) * sqr(simpleCot);
+			}
+			RZLine rzLine(bc_r, bc_z, bc_errZ2, RZLine::ErrZ2_tag());
+			chi2 = rzLine.chi2();
+		}
+		else
+		{
+			RZLine rzLine(gps, ges, barrels);
+			chi2 = rzLine.chi2();
+		}
+
+		if (edm::isNotFinite(chi2) || chi2 > thisMaxChi2)
+		{
+			continue;
+
+		}
+
+		if (theComparitor)
+		{
+			if (!theComparitor->compatible(tmpTriplet))
+			{
+
+				continue;
+			}
+		}
+   		result[index].emplace_back(tmpTriplet);
+
+	}
+	index++;
+    }
 }
-
 
 void CAHitTripletGenerator::hitTriplets(const TrackingRegion& region,
                                         OrderedHitTriplets & result,

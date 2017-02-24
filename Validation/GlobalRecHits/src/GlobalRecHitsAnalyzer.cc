@@ -8,6 +8,7 @@
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -684,6 +685,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 
   if (validHBHE) {
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
+    const CaloGeometry* geo = geometry.product();
     
     int iHB = 0;
     int iHE = 0; 
@@ -697,9 +699,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	if (cell.subdet() == sdHcalBrl) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHBEnergy ) {
 	    maxHBEnergy = jhbhe->energy();
 	    maxHBPhi = fPhi;
@@ -709,9 +713,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
       
 	if (cell.subdet() == sdHcalEC) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHEEnergy ) {
 	    maxHEEnergy = jhbhe->energy();
 	    maxHEPhi = fPhi;
@@ -728,9 +734,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHB;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHBPhi - fPhi;
 	  if (fPhi > maxHBPhi) { deltaphi = fPhi - maxHBPhi;}
@@ -744,9 +752,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHE;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHEPhi - fPhi;
 	  if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}

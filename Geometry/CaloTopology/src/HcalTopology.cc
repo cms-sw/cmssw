@@ -12,10 +12,11 @@
 
 static const int IPHI_MAX=72;
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
-HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
-  hcons_(hcons),
+HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons,
+			   const bool mergePosition) :
+  hcons_(hcons), mergePosition_(mergePosition),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
   firstHBRing_(1),
   firstHERing_(999), lastHERing_(0),
@@ -32,7 +33,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
   maxDepthHF_ = hcons_->getMaxDepth(2);
   etaBinsHB_  = hcons_->getEtaBins(0);
   etaBinsHE_  = hcons_->getEtaBins(1);
-  nEtaHB_     = (int)(etaBinsHB_.size());
+  nEtaHB_     = (hcons_->getEtaRange(0)).second-(hcons_->getEtaRange(0)).first+1;
   lastHBRing_ = firstHBRing_+nEtaHB_-1;
   if (hcons_->getNPhi(1) > maxPhiHE_) maxPhiHE_ = hcons_->getNPhi(1);
   for (int i = 0; i < (int)(etaBinsHE_.size()); ++i) {
@@ -69,7 +70,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
     HTSize_ = kHTSizePhase1;
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Topo sizes " << HBSize_ << ":" << HESize_ << ":" << HOSize_
 	    << ":" << HFSize_ << ":" << HTSize_ << " for mode " << mode_ 
 	    << ":" << triggerMode_ << std::endl;
@@ -109,10 +110,19 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
   }
   int nEta = hcons_->getNEta();
   for (int ring=1; ring<=nEta; ++ring) {
-    std::vector<int> segmentation = hcons_->getDepth(ring-1);
-    setDepthSegmentation(ring,segmentation);
-#ifdef DebugLog
+    std::vector<int> segmentation = hcons_->getDepth(ring-1,false);
+    setDepthSegmentation(ring,segmentation,false);
+#ifdef EDM_ML_DEBUG
     std::cout << "Set segmentation for ring " << ring << " with " 
+              << segmentation.size() << " elements:";
+    for (unsigned int k=0; k<segmentation.size(); ++k) 
+      std::cout << " " << segmentation[k];
+    std::cout << std::endl;
+#endif
+    segmentation = hcons_->getDepth(ring-1,true);
+    setDepthSegmentation(ring,segmentation,true);
+#ifdef EDM_ML_DEBUG
+    std::cout << "Set Plan-1 segmentation for ring " << ring << " with " 
               << segmentation.size() << " elements:";
     for (unsigned int k=0; k<segmentation.size(); ++k) 
       std::cout << " " << segmentation[k];
@@ -120,7 +130,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
 #endif
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" 
             << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" 
             << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" 
@@ -133,7 +143,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons) :
 }
 
 HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode) :
-  hcons_(0),
+  hcons_(0), mergePosition_(false),
   excludeHB_(false), excludeHE_(false), excludeHO_(false), excludeHF_(false),
   mode_(mode), triggerMode_(tmode),
   firstHBRing_(1),   lastHBRing_(16),
@@ -202,10 +212,12 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
   if (id.iphi()<1 || id.iphi()>IPHI_MAX || id.ieta()==0)  return false;
   if (id.depth() != 0)                              return false;
   if (id.version()==0) {
-    if ((triggerMode_==HcalTopologyMode::TriggerMode_2017 && id.ietaAbs()>28) ||
-	(id.ietaAbs()>32))                          return false;
-    int ietaMax = (triggerMode_==HcalTopologyMode::TriggerMode_2017) ? 29 : 28;
-    if (id.ietaAbs()>ietaMax && ((id.iphi()%4)!=1)) return false;
+    if (id.ietaAbs() > 28) {
+       if (triggerMode_ >= HcalTopologyMode::TriggerMode_2017) return false;
+       if (triggerMode_ == HcalTopologyMode::TriggerMode_2018legacy) return false;
+       if ((id.iphi() % 4) != 1)                               return false;
+       if (id.ietaAbs() > 32)                                  return false;
+    }
   } else {
     if (triggerMode_==HcalTopologyMode::TriggerMode_2009) return false;
     if (id.ietaAbs()<30 || id.ietaAbs()>41)         return false;
@@ -213,6 +225,19 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
     if (id.ietaAbs()>39 && ((id.iphi()%4)!=3))      return false;
   }
   return true;
+}
+
+bool HcalTopology::validHcal(const HcalDetId& id, const unsigned int flag) const {
+  // check the raw rules
+  bool ok = validHcal(id);
+  if (flag == 0) { // This is all what is needed
+  } else if (flag == 1) { // See if it is in the to be merged list and merged list
+    if (hcons_->isPlan1MergedId(id))          ok = true;
+    else if (hcons_->isPlan1ToBeMergedId(id)) ok = false;
+  } else if (!ok) {
+    ok = hcons_->isPlan1MergedId(id);
+  }
+  return ok;
 }
 
 bool HcalTopology::isExcluded(const HcalDetId& id) const {
@@ -423,6 +448,7 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
   int aieta=id.ietaAbs();
   int depth=id.depth();
   int iphi=id.iphi();
+  int zside=id.zside();
   HcalSubdetector subdet=id.subdet();
   int maxPhi = (subdet==HcalEndcap) ? maxPhiHE_ : IPHI_MAX;
   if ((ieta==0 || iphi<=0 || iphi>maxPhi) || aieta>maxEta_) ok = false; // outer limits
@@ -430,16 +456,17 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
   if (ok) {
     if (subdet==HcalBarrel) {
       if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
-	if ((aieta>lastHBRing()) || (depth>hcons_->getMaxDepth(0,aieta)) ||
-	    (depth<hcons_->getMinDepth(0,aieta))) ok=false;
+	if ((aieta>lastHBRing()) ||
+	    (depth>hcons_->getMaxDepth(0,aieta,iphi,zside)) ||
+	    (depth<hcons_->getMinDepth(0,aieta,iphi,zside))) ok=false;
       } else {
 	if (aieta>lastHBRing() || depth>2 || (aieta<=14 && depth>1)) ok=false;
       }
     } else if (subdet==HcalEndcap) {
       if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
-        if ((depth>hcons_->getMaxDepth(1,aieta)) || 
-	    (aieta<firstHERing()) || (aieta>lastHERing()) ||
-            (depth<hcons_->getMinDepth(1,aieta))) {
+        if ((depth>hcons_->getMaxDepth(1,aieta,iphi,zside)) || 
+            (depth<hcons_->getMinDepth(1,aieta,iphi,zside)) ||
+	    (aieta<firstHERing()) || (aieta>lastHERing())) {
           ok = false;
         } else {
           for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
@@ -454,10 +481,11 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
               break;
             }
           }
-        }
+	}
       } else {
-	if (depth>hcons_->getMaxDepth(1,aieta) || aieta<firstHERing() || aieta>lastHERing() || 
-	    (aieta==firstHERing() && depth!=hcons_->getDepthEta16(1)) || 
+	if (depth>hcons_->getMaxDepth(1,aieta,iphi,zside) || 
+	    aieta<firstHERing() || aieta>lastHERing() || 
+	    (aieta==firstHERing() && depth!=hcons_->getDepthEta16(2,iphi,zside)) || 
 	    (aieta==17 && depth!=1 && mode_!=HcalTopologyMode::H2) || // special case at H2
 	    (((aieta>=17 && aieta<firstHETripleDepthRing()) || 
 	      aieta==lastHERing()) && depth>2) ||
@@ -628,15 +656,16 @@ int HcalTopology::decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const {
 
 
 void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
-                                       int & nDepthBins, int & startingBin) const {
+				       int iphi, int zside, int & nDepthBins,
+				       int & startingBin) const {
 
   if(subdet == HcalBarrel) {
     if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
-      startingBin = hcons_->getMinDepth(0,etaRing);
+      startingBin = hcons_->getMinDepth(0,etaRing,iphi,zside);
       if (etaRing==lastHBRing()) {
-	nDepthBins = hcons_->getDepthEta16(0) - startingBin + 1;
+	nDepthBins = hcons_->getDepthEta16(1,iphi,zside)-startingBin+1;
       } else {
-	nDepthBins = hcons_->getMaxDepth(0,etaRing) - startingBin + 1;
+	nDepthBins = hcons_->getMaxDepth(0,etaRing,iphi,zside)-startingBin+1;
       }
     } else {
       if (etaRing<=14) {
@@ -650,11 +679,11 @@ void HcalTopology::depthBinInformation(HcalSubdetector subdet, int etaRing,
   } else if(subdet == HcalEndcap) {
     if (mode_==HcalTopologyMode::SLHC || mode_==HcalTopologyMode::H2HE) {
       if (etaRing==firstHERing()) {
-	startingBin = hcons_->getDepthEta16(1);
+	startingBin = hcons_->getDepthEta16(2,iphi,zside);
       } else {
-	startingBin = hcons_->getMinDepth(1,etaRing);
+	startingBin = hcons_->getMinDepth(1,etaRing,iphi,zside);
       }
-      nDepthBins  = hcons_->getMaxDepth(1,etaRing) - startingBin + 1;
+      nDepthBins  = hcons_->getMaxDepth(1,etaRing,iphi,zside)-startingBin+1;
     } else {
       if (etaRing==firstHERing()) {
 	nDepthBins  = 1;
@@ -688,7 +717,7 @@ bool HcalTopology::incrementDepth(HcalDetId & detId) const {
   int etaRing = detId.ietaAbs();
   int depth = detId.depth();
   int nDepthBins, startingBin;
-  depthBinInformation(subdet, etaRing, nDepthBins, startingBin);
+  depthBinInformation(subdet, etaRing, detId.iphi(), detId.zside(), nDepthBins, startingBin);
 
   // see if the new depth bin exists
   ++depth;
@@ -727,7 +756,7 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
   int etaRing = detId.ietaAbs();
   int depth   = detId.depth();
   int nDepthBins, startingBin;
-  depthBinInformation(subdet, etaRing, nDepthBins, startingBin);
+  depthBinInformation(subdet, etaRing, detId.iphi(), detId.zside(), nDepthBins, startingBin);
 
   // see if the new depth bin exists
   --depth;
@@ -855,25 +884,43 @@ int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
   return iphi;
 }
 
-void HcalTopology::getDepthSegmentation(unsigned ring, std::vector<int> & readoutDepths) const {
+void HcalTopology::getDepthSegmentation(const unsigned ring, 
+					std::vector<int> & readoutDepths,
+					const bool one) const {
   // if it doesn't exist, return the first entry with a lower index.  So if we only
   // have entries for 1 and 17, any input from 1-16 should return the entry for ring 1
-  SegmentationMap::const_iterator pos = depthSegmentation_.upper_bound(ring);
-  if (pos == depthSegmentation_.begin()) {
-    throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+  SegmentationMap::const_iterator pos;
+  if (!one) {
+    pos = depthSegmentation_.upper_bound(ring);
+    if (pos == depthSegmentation_.begin()) {
+      throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+    }
+  } else {
+    pos = depthSegmentationOne_.upper_bound(ring);
+    if (pos == depthSegmentationOne_.begin()) {
+      throw cms::Exception("HcalTopology") << "No depth segmentation found for ring" << ring;
+    }
   }
   --pos;
   // pos now refers to the last element with key <= ring.
   readoutDepths = pos->second;
 }
 
-void HcalTopology::setDepthSegmentation(unsigned ring, const std::vector<int> & readoutDepths) {
-  depthSegmentation_[ring] = readoutDepths;
+void HcalTopology::setDepthSegmentation(const unsigned ring, 
+					const std::vector<int> & readoutDepths,
+					const bool one) {
+  if (one) {
+    depthSegmentationOne_[ring] = readoutDepths;
+  } else {
+    depthSegmentation_[ring] = readoutDepths;
+  }
 }
 
-std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned depth) const {
+std::pair<int, int> HcalTopology::segmentBoundaries(const unsigned ring, 
+						    const unsigned depth,
+						    const bool one) const {
   std::vector<int> readoutDepths;
-  getDepthSegmentation(ring, readoutDepths);
+  getDepthSegmentation(ring, readoutDepths, one);
   int d1 = std::lower_bound(readoutDepths.begin(), readoutDepths.end(), depth) - readoutDepths.begin();
   int d2 = std::upper_bound(readoutDepths.begin(), readoutDepths.end(), depth) - readoutDepths.begin();
   return std::pair<int, int>(d1, d2);
@@ -1123,7 +1170,7 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
       return 0xFFFFFFFu;
     }
   }
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "DetId2Dense " << topoVersion_ << " ID " << std::hex 
 	    << id.rawId() << std::dec << " | " << HcalDetId(id) << " : " 
 	    << std::hex << retval << std::dec << std::endl;
@@ -1232,7 +1279,7 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
     }
   }
   HcalDetId hid(sd, iz*int(ie), ip, dp);
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid 
 	    << " : " << hid.rawId() << std::dec << " | " << hid << std::endl;
 #endif

@@ -351,13 +351,16 @@ private:
    
   edm::Handle<EcalRecHitCollection> theEbHandle;
   edm::Handle<EcalRecHitCollection> theEeHandle;
-
-  //store merged depths for tower 28/29
-  std::vector<int> mergedDepths;
   
   int theHcalPhase;
 
+  //store merged depths for tower 28/29 (for 2 types of RBX's)
+  std::vector<int> mergedDepths, mergedDepthsOne;
+  //Subdetector type and phi/depth for special RBX 
+  int              subdetOne;
+  std::vector<std::pair<int,int>> phizOne;
 
+  std::vector<HcalDetId>          ids_;
 };
 
 #endif

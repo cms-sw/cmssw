@@ -1090,7 +1090,7 @@ HIPAlignmentAlgorithm::calcAPE(double* par, int iter, double function)
 void HIPAlignmentAlgorithm::bookRoot(void)
 {
   TString tname="T1";
-  char iterString[5];
+  char iterString[15];
   snprintf(iterString, sizeof(iterString), "%i",theIteration);
   tname.Append("_");
   tname.Append(iterString);

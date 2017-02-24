@@ -148,6 +148,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   void readInSurveyRcds( const edm::EventSetup& );
 
   RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet);
+  RunRanges makeUniqueRunRanges(const edm::ParameterSet& cfg);
 
   // private data members
 
@@ -170,6 +171,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// GlobalPositions that might be read from DB, NULL otherwise
   const Alignments *globalPositions_;
 
+  const RunRanges uniqueRunRanges_;
   int nevent_;
   edm::ParameterSet theParameterSet;
 

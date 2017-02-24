@@ -197,43 +197,21 @@ trackingPhase1PU70.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fract
 trackingPhase2PU140.toModify(lowPtTripletStepTrajectoryCleanerBySharedHits, fractionShared = 0.09)
 
 # Final selection
-
-
-
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 lowPtTripletStep =  TrackMVAClassifierPrompt.clone()
 lowPtTripletStep.src = 'lowPtTripletStepTracks'
 lowPtTripletStep.GBRForestLabel = 'MVASelectorIter1_13TeV'
 lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
 
-# For Phase1
-# MVA selection to be enabled after re-training, for time being we go with cut-based selector
-from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import TrackCutClassifier as _TrackCutClassifier
-_cutClassifierForPhase1 = _TrackCutClassifier.clone(
-    src = "lowPtTripletStepTracks",
-    vertices = "firstStepPrimaryVertices",
-    mva = dict (
-        minPixelHits = [1,1,1],
-        maxChi2 = [9999.,9999.,9999.],
-        maxChi2n = [2.0,0.9,0.5],
-        minLayers = [3,3,3],
-        min3DLayers = [3,3,3],
-        maxLostLayers = [2,2,2],
-        dz_par = dict(
-            dz_par1 = [0.7,0.6,0.45],
-            dz_par2 = [0.5,0.4,0.4],
-            dz_exp = [4,4,4],
-        ),
-        dr_par = dict(
-            dr_par1 = [0.8,0.7,0.6],
-            dr_par2 = [0.5,0.4,0.3],
-            dr_exp = [4,4,4],
-            d0err_par = [0.002,0.002,0.001],
-        ),
-    )
-)
-trackingPhase1.toReplaceWith(lowPtTripletStep, _cutClassifierForPhase1)
-trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, _cutClassifierForPhase1)
+trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
+     GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1',
+     qualityCuts = [0.0,0.2,0.4],
+))
+trackingPhase1QuadProp.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
+     GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1',
+     qualityCuts = [0.0,0.2,0.4],
+))
+
 
 # For LowPU and Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -329,14 +307,17 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
             d0_par2 = ( 0.5, 4.0 ),
             dz_par2 = ( 0.5, 4.0 )
             ),
+        #FIXME: the cuts on min_nhits and minNumber*Layers are introduced to mitigate
+        #the cluster shape filter cut not working properly yet. To be remove in the future.
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'lowPtTripletStep',
             preFilterName = 'lowPtTripletStepTight',
             chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
+            min_nhits = 5,
+            minNumberLayers = 5,
             maxNumberLostLayers = 2,
-            minNumber3DLayers = 3,
+            minNumber3DLayers = 5,
             d0_par1 = ( 0.5, 4.0 ),
             dz_par1 = ( 0.4, 4.0 ),
             d0_par2 = ( 0.45, 4.0 ),

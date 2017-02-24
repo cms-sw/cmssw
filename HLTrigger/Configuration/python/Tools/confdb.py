@@ -46,7 +46,7 @@ class HLTProcess(object):
       self.labels['dict']    = 'process.__dict__'
 
     if self.config.online:
-      self.labels['connect'] = 'frontier://FrontierOnProd'
+      self.labels['connect'] = 'frontier://FrontierProd'
     else:
       self.labels['connect'] = 'frontier://FrontierProd'
 
@@ -199,6 +199,18 @@ from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
 from HLTrigger.Configuration.Eras import modifyHLTforEras
 modifyHLTforEras(%(process)s)
 """
+    # add the user-defined customization functions, if any
+    if self.config.customise:
+        self.data += "\n"
+        self.data += "#User-defined customization functions\n"
+        for customise in self.config.customise.split(","):
+            customiseValues = customise.split(".")
+            if len(customiseValues)>=3: raise Exception("--customise option cannot contain more than one dot.")
+            if len(customiseValues)==1:
+                 customiseValues.append("customise")
+            customiseValues[0] = customiseValues[0].replace("/",".")
+            self.data += "from "+customiseValues[0]+" import "+customiseValues[1]+"\n"
+            self.data += "process = "+customiseValues[1]+"(process)\n"
 
   # customize the configuration according to the options
   def customize(self):
@@ -245,6 +257,9 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
+
+      # select specific Eras 
+      self.addEras()
 
       # override the output modules to output root files
       self.overrideOutput()
@@ -468,7 +483,11 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
 )
 %(process)s.FULLOutput = cms.EndPath( %(process)s.hltOutputFULL )
 """
-
+  # select specific Eras
+  def addEras(self):
+    if self.config.eras is None:
+      return
+    self.data = re.sub(r'process = cms.Process\( *"\w+"', 'from Configuration.StandardSequences.Eras import eras\n\g<0>, '+', '.join('eras.' + era for era in self.config.eras.split(',')), self.data)
 
   # override the process name and adapt the relevant filters
   def overrideProcessName(self):

@@ -331,6 +331,17 @@ from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
 tobTecStep = ClassifierMerger.clone()
 tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
 
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
+trackingPhase1.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     qualityCuts = [-0.6,-0.45,-0.3],
+))
+trackingPhase1QuadProp.toReplaceWith(tobTecStep, tobTecStepClassifier1.clone(
+     GBRForestLabel = 'MVASelectorTobTecStep_Phase1',
+     qualityCuts = [-0.6,-0.45,-0.3],
+))
+
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src = 'tobTecStepTracks',

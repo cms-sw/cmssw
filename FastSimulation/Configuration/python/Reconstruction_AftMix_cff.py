@@ -29,6 +29,7 @@ _reco.localreco.remove(_reco.castorreco)
 _reco.globalreco.remove(_reco.CastorFullReco)
 _reco.hcalLocalRecoSequence.remove(_reco.zdcreco)
 _reco.localreco.remove(_reco.totemRPLocalReconstruction)
+_reco.localreco.remove(_reco.ctppsDiamondLocalReconstruction)
 
 ##########################################
 # Calo rechits
