@@ -1,12 +1,14 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
 
 
+
 //class constructor
 HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet& conf){    
     seed_CUT_ = conf.getParameter<double>("seeding_threshold");
     tc_CUT_ = conf.getParameter<double>("clustering_threshold");
+
 }
-       
+
 
 void  HGCalClusteringImpl::clusterizeBase(const l1t::HGCalTriggerCellBxCollection& trgcell_product_, l1t::HGCalClusterBxCollection& cluster_product_){
     
@@ -20,12 +22,11 @@ void  HGCalClusteringImpl::clusterizeBase(const l1t::HGCalTriggerCellBxCollectio
                 
         for(l1t::HGCalTriggerCellBxCollection::const_iterator tc = trgcell_product_.begin(); tc != trgcell_product_.end(); ++tc)
         {
-            if(tc->hwPt()>0)
-            {
                         
-                HGCalDetId trgdetid(tc->detId());                
-                int trgCellLayer = trgdetid.layer();               
+            HGCalDetId trgdetid(tc->detId());                
+            int trgCellLayer = trgdetid.layer();               
                         
+
                 if(trgCellLayer<28){
                     C2d_hwPtEm+=tc->hwPt();
                 }else if(trgCellLayer>=28){
@@ -36,16 +37,24 @@ void  HGCalClusteringImpl::clusterizeBase(const l1t::HGCalTriggerCellBxCollectio
                 protoClEta += tc->pt()*tc->eta();
                 protoClPhi += tc->pt()*tc->phi();
             }
+                               
+            C2d_pt += tc->pt();                        
+            protoClEta += tc->pt()*tc->eta();
+            protoClPhi += tc->pt()*tc->phi();
+            //CODE THE REAL C2D-ALGORITHM HERE: using trg-cells + neighbours info
+                
         }
+
         l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), C2d_hwPtEm + C2d_hwPtHad, 0, 0);
         cluster.setHwPtEm(C2d_hwPtEm);
         cluster.setHwPtHad(C2d_hwPtHad);
 
-        if((cluster.hwPtEm()+cluster.hwPtHad())>tc_CUT_){
+        if((cluster.hwPtEm()+cluster.hwPtHad())>tcThr_){
             C2d_eta = protoClEta/C2d_pt;
             C2d_phi = protoClPhi/C2d_pt;                
             math::PtEtaPhiMLorentzVector calibP4(C2d_pt, C2d_eta, C2d_phi, 0 );
             cluster.setP4(calibP4);
+<<<<<<< HEAD
             cluster_product_.push_back(0,cluster);
         }
     
