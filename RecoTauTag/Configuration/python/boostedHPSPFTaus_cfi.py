@@ -19,7 +19,7 @@ def addBoostedTaus(process):
     process.combinatoricRecoTausBoosted.modifiers.remove(process.combinatoricRecoTausBoosted.modifiers[3])
     #process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
     process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('particleFlow')
-    #Note JetArea is not defined for subjects and restiction to jetArea is turned to dRMatch=0.1, so better use the latter explicitely
+    #Note JetArea is not defined for subjets and restiction to jetArea is turned to dRMatch=0.1, so better use the latter explicitely
     #process.hpsPFTauDiscriminationByLooseMuonRejection3Boosted.dRmuonMatchLimitedToJetArea = cms.bool(True)
     #process.hpsPFTauDiscriminationByTightMuonRejection3Boosted.dRmuonMatchLimitedToJetArea = cms.bool(True)
     process.hpsPFTauDiscriminationByLooseMuonRejection3Boosted.dRmuonMatch = 0.1
