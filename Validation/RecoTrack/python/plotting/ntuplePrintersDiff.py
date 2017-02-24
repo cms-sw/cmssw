@@ -175,6 +175,29 @@ def _mapdiff(func, obj1, obj2):
     lst2 = func(obj2) if obj2 is not None else []
     return _makediff(lst1, lst2)
 
+def _areSameTracks(trk1, trk2):
+    ncommon = _commonHits(trk1, trk2)
+
+    # if tracks have same hits, consider their reco as identical
+    if not (ncommon == trk1.nValid() and ncommon == trk2.nValid()):
+        return False
+
+    # although if there is any change in their iterations, mark them different
+    if not (trk1.algoMask() == trk2.algoMask() and trk1.algo() == trk2.algo() and trk1.originalAlgo() == trk2.originalAlgo()):
+        return False
+
+    # if reco is the same, check if they are matched to the
+    # same TPs (in case the track-TP matching is modified
+    # between ntuples)
+    if trk1.nMatchedTrackingParticles() != trk2.nMatchedTrackingParticles():
+        return False
+
+    for tpInfo1, tpInfo2 in itertools.izip(trk1.matchedTrackingParticleInfos(), trk2.matchedTrackingParticleInfos()):
+        if tpInfo1.trackingParticle().index() != tpInfo2.trackingParticle().index():
+            return False
+
+    return True
+
 def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, lst1extra=[], lst2extra=[], diffByHitsOnly=False):
     """lst1 and lst2 are the main lists to make the diff from.
 
@@ -234,7 +257,7 @@ def diffTrackListsFromSameTrackingParticle(trackPrinter, lst1, lst2, lst1extra=[
             someTrk2 = matchedTrk2
             trks2.remove(matchedTrk2)
             tmp = trackPrinter.diff(trk1, matchedTrk2, diffTrackingParticles=False)
-            if diffByHitsOnly and ncommon == trk1.nValid() and ncommon == matchedTrk2.nValid():
+            if diffByHitsOnly and _areSameTracks(trk1, matchedTrk2):
                 tmp.setDifference(False)
             tmp.highlight(plus=(matchedTrk2.index() in trks2extra), minus=(trk1.index() in trks1extra))
             diff.extend(tmp)
@@ -545,26 +568,7 @@ def diffTrackListsGeneric(trackPrinter, lst1, lst2, ignoreAdditionalLst2=False):
             trk1 = assoc.trks1()[0]
             trk2 = assoc.trks2()[0]
 
-            ncommon = _commonHits(trk1, trk2)
-
-            # if tracks have same hits, consider their reco as identical
-            areSame = (ncommon == trk1.nValid() and ncommon == trk2.nValid())
-            # although if there is any change in their iterations, mark them different
-            if areSame:
-                areSame = (trk1.algoMask() == trk2.algoMask() and trk1.algo() == trk2.algo() and trk1.originalAlgo() == trk2.originalAlgo())
-            # if reco is the same, check if they are matched to the
-            # same TPs (in case the track-TP matching is modified
-            # between ntuples)
-            if areSame:
-                if trk1.nMatchedTrackingParticles() == trk2.nMatchedTrackingParticles():
-                    for tpInfo1, tpInfo2 in itertools.izip(trk1.matchedTrackingParticleInfos(), trk2.matchedTrackingParticleInfos()):
-                        if tpInfo1.trackingParticle().index() != tpInfo2.trackingParticle().index():
-                            areSame = False
-                            break
-                else:
-                    areSame = False
-
-            if not areSame:
+            if not _areSameTracks(trk1, trk2):
                 diff.extend(trackPrinter.diff(trk1, trk2))
                 diff.extend([" "])
         elif len(assoc.trks2()) == 0:
