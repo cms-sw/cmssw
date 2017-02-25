@@ -59,3 +59,6 @@ hbhereco = cms.EDProducer(
     MinValidTrackNHits = cms.int32(5),
 
  )
+
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toModify(hbhereco, hbheInput = cms.InputTag('hbheplan1'))
