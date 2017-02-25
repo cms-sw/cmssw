@@ -23,6 +23,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     useHFUpgrade = cms.bool(False),
     useHOUpgrade = cms.bool(True),
     testHFQIE10  = cms.bool(False),
+    testHEPlan1  = cms.bool(False),
     killHE = cms.bool(False),
     useLayer0Weight = cms.bool(False),
     hb = cms.PSet(

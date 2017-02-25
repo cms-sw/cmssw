@@ -21,7 +21,7 @@ hcalSimBlock = cms.PSet(
     hitsProducer = cms.string('g4SimHits'),
     DelivLuminosity = cms.double(0),
     TestNumbering = cms.bool(False),
-    doNeutralDensityFilter = cms.bool(False),
+    doNeutralDensityFilter = cms.bool(True),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
     minFCToDelay=cms.double(5.), # old TC model! set to 5 for the new one
@@ -50,3 +50,6 @@ run2_HCAL_2017.toModify( hcalSimBlock, TestNumbering = cms.bool(True) )
 # remove HE processing for phase 2, completely put in HGCal land
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(hcalSimBlock, killHE = cms.bool(True) )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hcalSimBlock, doNeutralDensityFilter = cms.bool(False))
