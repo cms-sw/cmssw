@@ -89,20 +89,20 @@ namespace cond {
       data[ attributeName ].data<T>() = param;
     }
 
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
-      if(init) data.extend<coral::Blob>( attributeName );
-      data[ attributeName ].bind( param.get() );
-    }
+    //template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
+    //  if(init) data.extend<coral::Blob>( attributeName );
+    //  data[ attributeName ].bind( param.get() );
+    //}
 
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const boost::posix_time::ptime& param, bool init ){
-      if(init) data.extend<coral::TimeStamp>( attributeName );
-      data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
-    }
+    //template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const boost::posix_time::ptime& param, bool init ){
+    //  if(init) data.extend<coral::TimeStamp>( attributeName );
+    //  data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
+    //}
 
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
-      if(init) data.extend<std::string>( attributeName );
-      data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
-    }
+    //template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
+    //  if(init) data.extend<std::string>( attributeName );
+    //  data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
+    //}
 
     //template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
     //  if(init) data.extend<std::string>( attributeName );
