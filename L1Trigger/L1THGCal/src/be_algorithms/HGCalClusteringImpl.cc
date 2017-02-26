@@ -53,15 +53,15 @@ void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & 
             uint minDist = 1;
             uint targetClu = 0; 
             for( std::vector<int>::const_iterator iclu = tcPertinentClusters.begin(); iclu != tcPertinentClusters.end(); ++iclu ){
-                //double d = clusters_.at(0, *iclu)->dist(tc);
-//vito                //if( d < minDist ){
-//vito                    //  minDist = d;
-//vito                    //targetClu = *iclu;
-//vito                //}
+                double d = clusters_.at(0, *iclu).dist(*tc);
+                if( d < minDist ){
+                    minDist = d;
+                    targetClu = *iclu;
+               }
             } 
-//vito
-//vito            clusters_.at(targetClu)->addTC(tc);
-//vito
+
+            clusters_.at(0,targetClu).addTC(*tc);
+
         }
        
     }
