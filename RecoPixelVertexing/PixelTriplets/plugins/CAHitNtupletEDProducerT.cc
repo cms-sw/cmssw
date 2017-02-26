@@ -15,13 +15,6 @@
 
 namespace {
   void fillNtuplets(RegionsSeedingHitSets::RegionFiller& seedingHitSetsFiller,
-                    const OrderedHitTriplets& triplets) {
-    for(const auto& triplet: triplets) {
-      seedingHitSetsFiller.emplace_back(triplet[0], triplet[1], triplet[2]);
-    }
-  }
-
-  void fillNtuplets(RegionsSeedingHitSets::RegionFiller& seedingHitSetsFiller,
                     const OrderedHitSeeds& quadruplets) {
     for(const auto& quad: quadruplets) {
       seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2], quad[3]);
