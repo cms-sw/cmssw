@@ -9,6 +9,7 @@ it into cmsRun for testing with a few input files etc from the command line
 
 import sys
 import getopt
+import pickle
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -108,9 +109,24 @@ class RunVisualizationProcessing:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
+        pklFile = open("RunVisualizationProcessingCfg.pkl", "w")
         psetFile = open("RunVisualizationProcessingCfg.py", "w")
-        psetFile.write(process.dumpPython())
-        psetFile.close()
+        try:
+            pickle.dump(process, pklFile)
+            psetFile.write("import FWCore.ParameterSet.Config as cms\n")
+            psetFile.write("import pickle\n")
+            psetFile.write("handle = open('RunVisualizationProcessingCfg.pkl')\n")
+            psetFile.write("process = pickle.load(handle)\n")
+            psetFile.write("handle.close()\n")
+            psetFile.close()
+        except Exception as ex:
+            print("Error writing out PSet:")
+            print(traceback.format_exc())
+            raise ex
+        finally:
+            psetFile.close()
+            pklFile.close()
+
         cmsRun = "cmsRun -e RunVisualizationProcessingCfg.py"
         print "Now do:\n%s" % cmsRun
 
