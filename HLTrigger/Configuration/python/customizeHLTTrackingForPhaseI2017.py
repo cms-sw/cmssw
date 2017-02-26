@@ -27,6 +27,9 @@ def modifyHLTPhaseIPixelGeom(process):
 
 # modify the HLT configuration to run the Phase I tracking in the particle flow sequence
 def customizeHLTForPFTrackingPhaseI2017(process):
+    if not hasattr(process, 'hltPixelLayerTriplets'):
+        #there could also be a message here that the call is done for non-HLT stuff
+        return process;
 
     process.hltPixelLayerTriplets.layerList = cms.vstring(
         'BPix1+BPix2+BPix3',
