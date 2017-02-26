@@ -213,13 +213,12 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if ( isBarrel ) {
 
     e.getByToken( crossingFramePCaloHitEBToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits( new MixCollection<PCaloHit>( crossingFrame.product() ) );
+    const MixCollection<PCaloHit> &barrelHits = crossingFrame.product();
     
     MapType ebSimMap;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
-         hitItr != barrelHits->end () ;
+    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits.begin () ;
+         hitItr != barrelHits.end () ;
          ++hitItr) {
       
       EBDetId ebid = EBDetId(hitItr->id()) ;
@@ -306,13 +305,12 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if ( isEndcap ) {
 
     e.getByToken( crossingFramePCaloHitEEToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits( new MixCollection<PCaloHit>( crossingFrame.product() ) );
+    const MixCollection<PCaloHit> &endcapHits = crossingFrame.product();
 
     MapType eeSimMap;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin () ;
-         hitItr != endcapHits->end () ;
+    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits.begin () ;
+         hitItr != endcapHits.end () ;
          ++hitItr) {
       
       EEDetId eeid = EEDetId(hitItr->id()) ;
@@ -393,11 +391,9 @@ void EcalDigisValidation::analyze(edm::Event const & e, edm::EventSetup const & 
   if ( isPreshower) {
 
     e.getByToken( crossingFramePCaloHitESToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin () ;
-         hitItr != preshowerHits->end () ;
+    const MixCollection<PCaloHit> &preshowerHits = crossingFrame.product();
+    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits.begin () ;
+         hitItr != preshowerHits.end () ;
          ++hitItr) {
       
       ESDetId esid = ESDetId(hitItr->id()) ;
