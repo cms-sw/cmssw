@@ -286,7 +286,8 @@ private:
     bool recoParamsFromDB_;
 
     // Parameters for turning status bit setters on/off
-    bool setNegativeFlags_;
+    bool setNegativeFlagsQIE8_;
+    bool setNegativeFlagsQIE11_;
     bool setNoiseFlagsQIE8_;
     bool setNoiseFlagsQIE11_;
     bool setPulseShapeFlagsQIE8_;
@@ -344,7 +345,8 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
       tsFromDB_(conf.getParameter<bool>("tsFromDB")),
       recoParamsFromDB_(conf.getParameter<bool>("recoParamsFromDB")),
-      setNegativeFlags_(conf.getParameter<bool>("setNegativeFlags")),
+      setNegativeFlagsQIE8_(conf.getParameter<bool>("setNegativeFlagsQIE8")),
+      setNegativeFlagsQIE11_(conf.getParameter<bool>("setNegativeFlagsQIE11")),
       setNoiseFlagsQIE8_(conf.getParameter<bool>("setNoiseFlagsQIE8")),
       setNoiseFlagsQIE11_(conf.getParameter<bool>("setNoiseFlagsQIE11")),
       setPulseShapeFlagsQIE8_(conf.getParameter<bool>("setPulseShapeFlagsQIE8")),
@@ -518,11 +520,9 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
 }
 
 void HBHEPhase1Reconstructor::setCommonStatusBits(
-    const HBHEChannelInfo& info, const HcalCalibrations& calib,
-    HBHERecHit* rh)
+    const HBHEChannelInfo& /* info */, const HcalCalibrations& /* calib */,
+    HBHERecHit* /* rh */)
 {
-    if (setNegativeFlags_)
-        runHBHENegativeEFilter(info, rh);
 }
 
 void HBHEPhase1Reconstructor::setAsicSpecificBits(
@@ -535,6 +535,9 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(
 
     if (setPulseShapeFlagsQIE8_)
         hbhePulseShapeFlagSetterQIE8_->SetPulseShapeFlags(*rh, frame, coder, calib);
+
+    if (setNegativeFlagsQIE8_)
+        runHBHENegativeEFilter(info, rh);
 }
 
 void HBHEPhase1Reconstructor::setAsicSpecificBits(
@@ -547,6 +550,9 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(
 
     if (setPulseShapeFlagsQIE11_)
         hbhePulseShapeFlagSetterQIE11_->SetPulseShapeFlags(*rh, frame, coder, calib);
+
+    if (setNegativeFlagsQIE11_)
+        runHBHENegativeEFilter(info, rh);
 }
 
 void HBHEPhase1Reconstructor::runHBHENegativeEFilter(const HBHEChannelInfo& info,
@@ -584,7 +590,7 @@ HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetu
 
     // Configure the negative energy filter
     ESHandle<HBHENegativeEFilter> negEHandle;
-    if (setNegativeFlags_)
+    if (setNegativeFlagsQIE8_ || setNegativeFlagsQIE11_)
     {
         eventSetup.get<HBHENegativeEFilterRcd>().get(negEHandle);
         negEFilter_ = negEHandle.product();
@@ -722,7 +728,8 @@ HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& descri
     desc.add<bool>("dropZSmarkedPassed");
     desc.add<bool>("tsFromDB");
     desc.add<bool>("recoParamsFromDB");
-    desc.add<bool>("setNegativeFlags");
+    desc.add<bool>("setNegativeFlagsQIE8");
+    desc.add<bool>("setNegativeFlagsQIE11");
     desc.add<bool>("setNoiseFlagsQIE8");
     desc.add<bool>("setNoiseFlagsQIE11");
     desc.add<bool>("setPulseShapeFlagsQIE8");

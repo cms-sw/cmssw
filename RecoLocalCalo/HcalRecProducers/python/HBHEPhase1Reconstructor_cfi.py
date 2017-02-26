@@ -68,7 +68,8 @@ hbheprereco = cms.EDProducer(
     algoConfigClass = cms.string(""),
 
     # Turn rechit status bit setters on/off
-    setNegativeFlags = cms.bool(False),
+    setNegativeFlagsQIE8 = cms.bool(True),
+    setNegativeFlagsQIE11 = cms.bool(False),
     setNoiseFlagsQIE8 = cms.bool(True),
     setNoiseFlagsQIE11 = cms.bool(False),
     setPulseShapeFlagsQIE8 = cms.bool(True),
