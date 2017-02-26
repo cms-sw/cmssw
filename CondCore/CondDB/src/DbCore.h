@@ -104,10 +104,10 @@ namespace cond {
       data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
     }
 
-    //template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
-    //  if(init) data.extend<std::string>( attributeName );
-    //  data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
-    //}
+    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
+      if(init) data.extend<std::string>( attributeName );
+      data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
+    }
 
     // function for adding into an AttributeList buffer data for a specified column. Performs type checking.
     template<typename Column, typename P> void f_add_column_data( coral::AttributeList& data, const P& param, bool init=true ){
