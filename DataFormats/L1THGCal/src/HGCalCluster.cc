@@ -24,7 +24,7 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double dist_eta
     return false;
 }
 
-void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc){
+void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc) const{
 
     
 
@@ -32,11 +32,11 @@ void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc){
 }
 
 
-double HGCalCluster::dist(const l1t::HGCalTriggerCell &tc){
+double HGCalCluster::dist(const l1t::HGCalTriggerCell &tc) const{
 
-    return 0.;
-//    return reco::deltaR ( tc->p4().Eta(), tc->p4().Phi(), 
-//                          this->p4().Eta(), this->p4().Phi() );
+//    return 0.;
+    return reco::deltaR ( tc.p4().Eta(), tc.p4().Phi(), 
+                          this->p4().Eta(), this->p4().Phi() );
 
 }
 

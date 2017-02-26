@@ -9,6 +9,7 @@
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 
 namespace l1t {
@@ -32,8 +33,8 @@ namespace l1t {
 
         bool isPertinent( const l1t::HGCalTriggerCell &tc, double dist_eta ) const;
         
-        void addTC(const l1t::HGCalTriggerCell &tc);
-        double dist(const l1t::HGCalTriggerCell &tc);
+        void addTC(const l1t::HGCalTriggerCell &tc) const;
+        double dist(const l1t::HGCalTriggerCell &tc) const;
 
         void setHwPtEm  (uint32_t value) { hwPtEm_   = value; }
         void setHwPtHad (uint32_t value) { hwPtHad_  = value; }
