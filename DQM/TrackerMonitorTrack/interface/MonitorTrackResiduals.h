@@ -23,6 +23,7 @@ Monitoring source for track residuals on each detector module
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 class MonitorElement;
 class DQMStore;
@@ -46,12 +47,14 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
 
   // Own methods 
   void createMEs( DQMStore::IBooker & , const edm::EventSetup&);
+  float getMedian( const TH1* hist) const;
   std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
   
   struct HistoPair {
-    HistoPair() {base = nullptr; normed = nullptr;};
+    HistoPair() {base = nullptr; normed = nullptr; dmr = nullptr;};
     MonitorElement* base;
     MonitorElement* normed;
+    MonitorElement* dmr;
   };
   struct HistoXY {
     HistoPair x;
@@ -61,6 +64,8 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
 
   HistoSet m_SubdetLayerResiduals;
   HistoSet m_ModuleResiduals;
+  TkHistoMap *tkhisto_ResidualsMean;
+  TkHistoMap *tkhisto_ResidualsRMS;
   
   edm::ParameterSet conf_;
   edm::ParameterSet Parameters;
