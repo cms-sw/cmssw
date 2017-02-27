@@ -6,6 +6,7 @@ from L1Trigger.L1TNtuples.l1CaloTowerTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTfMuonTree_cfi import *
 from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 from L1Trigger.L1TNtuples.l1uGTTree_cfi import *
+from L1Trigger.L1TNtuples.l1HOTree_cfi import *
 
 # we don't have omtfDigis yet, use unpacked input payloads of GMT
 l1UpgradeTfMuonTree.omtfMuonToken = cms.untracked.InputTag("gmtStage2Digis","OMTF") 
@@ -19,9 +20,10 @@ L1NtupleRAW = cms.Sequence(
   +l1UpgradeTfMuonTree
   +l1UpgradeTree
   +l1uGTTree
+  +l1HOTree
 )
 
 #  do not have l1t::CaloTowerBxCollection in Stage1 
 from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
-_stage1_L1NTupleRAW = L1NtupleRaw.copyAndExclude([l1CaloTowerTree,l1UpgradeTfMuonTree])
-stage1L1Trigger.toReplaceWith(L1NtupleRaw,_stage1_L1NTupleRAW)
+_stage1_L1NTupleRAW = L1NtupleRAW.copyAndExclude([l1CaloTowerTree,l1UpgradeTfMuonTree])
+stage1L1Trigger.toReplaceWith(L1NtupleRAW,_stage1_L1NTupleRAW)
