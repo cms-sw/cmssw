@@ -2,8 +2,8 @@
 // EtSumHelper:  Helper Class for Interpreting L1T EtSum output
 // 
 
-#ifndef L1T_ETSUMHELPER_H
-#define L1T_ETSUMHELPER_H
+#ifndef DataFormats_L1Trigger_EtSumHelper_h
+#define DataFormats_L1Trigger_EtSumHelper_h
 
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
