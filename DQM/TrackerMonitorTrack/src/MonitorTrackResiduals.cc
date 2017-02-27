@@ -15,7 +15,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-#include "TMath.h"
 
 template<TrackerType pixel_or_strip>
 MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet& iConfig)
@@ -274,29 +273,6 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
       }
     }
   }
-}
-
-//Copied from Alignment/OfflineValidation/plugins/TrackerOfflineValidation.cc
-template<TrackerType pixel_or_strip>
-float MonitorTrackResidualsBase<pixel_or_strip>::getMedian(const TH1* histo) const
-{
-  float median = 999;
-  int nbins = histo->GetNbinsX();
-
-  //extract median from histogram
-  double *x = new double[nbins];
-  double *y = new double[nbins];
-  for (int j = 0; j < nbins; j++) {
-    x[j] = histo->GetBinCenter(j+1);
-    y[j] = histo->GetBinContent(j+1);
-  }
-  median = TMath::Median(nbins, x, y);
-  
-  delete[] x; x = 0;
-  delete [] y; y = 0;  
-
-  return median;
-
 }
 
 
