@@ -51,6 +51,7 @@ if __name__ == '__main__':
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
+                     4.53, #run1 data + miniAOD
                      1000, #data+prompt
                      1001, #data+express
                      136.731, #2016B Photon data
