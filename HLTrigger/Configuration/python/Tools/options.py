@@ -127,6 +127,7 @@ class HLTProcessOptions(object):
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
     self.hilton     = False       #     prepare a configuration for running with hilton-like modules
+    self.setup      = None        #     if set, downlad the setup_cff from the specified configuration and load it.
 
 
   # convert HLT and L1 menus to a dedicated object representation on the fly
