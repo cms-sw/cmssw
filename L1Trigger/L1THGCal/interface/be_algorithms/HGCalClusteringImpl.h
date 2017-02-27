@@ -6,6 +6,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class HGCalClusteringImpl{
 
