@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class HGCalMulticlusteringImpl{
 
@@ -17,7 +17,8 @@ public:
 
 private:
     
-    double dR_forC3d_;
+    double dR_;
+
 };
 
 #endif

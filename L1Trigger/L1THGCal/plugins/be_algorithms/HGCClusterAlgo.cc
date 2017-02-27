@@ -67,9 +67,6 @@ public:
         std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
         std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
 
-//	l1t::HGCalTriggerCellBxCollection & trgcell_product_;
-//	l1t::HGCalClusterBxCollection & cluster_product_;
-//	l1t::HGCalMulticlusterBxCollection & multicluster_product_;
         std::string HGCalEESensitive_;
         std::string HGCalHESiliconSensitive_;
 
