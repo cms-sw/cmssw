@@ -2,6 +2,7 @@
 
 xflag=0
 CMS_OPTIONS=""
+KEY_CONTENT=""
 TAG_UPDATE=""
 
 while getopts 'xfk:t:h' OPTION
