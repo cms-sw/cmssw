@@ -499,12 +499,10 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
       if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {  
 	TProfile2D* tp = me->getTProfile2D() ;
 	float fval_prov = tp->GetBinError(xyval.ix, xyval.iy) * sqrt(tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)));
-	if(fval_prov>0.9) fval_prov = 0.9;
 	fval =  fval_prov;
       }
     } else if(name.find("ResidualsMean") != std::string::npos){
       float fval_prov = me->getBinContent(xyval.ix, xyval.iy);
-      if(fval_prov>0.6) fval_prov = 0.6;
       fval =  fval_prov;
     } else fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
