@@ -32,6 +32,10 @@ class CTPPSLocalTrackLiteProducer : public edm::stream::EDProducer<>
   
   private:
     edm::EDGetTokenT<edm::DetSetVector<TotemRPLocalTrack>> siStripTrackToken;
+
+    /// if true, this module will do nothing
+    /// needed for consistency with CTPPS-less workflows
+    bool doNothing;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -42,8 +46,12 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(edm::ParameterSet const& conf)
+CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(edm::ParameterSet const& conf) :
+  doNothing(conf.getParameter<bool>("doNothing"))
 {
+  if (doNothing)
+    return;
+
   siStripTrackToken = consumes<DetSetVector<TotemRPLocalTrack>>(conf.getParameter<edm::InputTag>("tagSiStripTrack"));
 
   produces<vector<CTPPSLocalTrackLite>>();
@@ -53,6 +61,9 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer(edm::ParameterSet const
  
 void CTPPSLocalTrackLiteProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
+  if (doNothing)
+    return;
+
   // get input from Si strips
   edm::Handle< DetSetVector<TotemRPLocalTrack> > inputSiStripTracks;
   e.getByToken(siStripTrackToken, inputSiStripTracks);
