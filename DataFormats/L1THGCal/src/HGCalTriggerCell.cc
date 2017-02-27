@@ -2,8 +2,8 @@
 
 using namespace l1t;
 
-HGCalTriggerCell::
-HGCalTriggerCell( const LorentzVector& p4,
+
+HGCalTriggerCell::HGCalTriggerCell( const LorentzVector& p4,
         int pt,
         int eta,
         int phi,
@@ -12,10 +12,11 @@ HGCalTriggerCell( const LorentzVector& p4,
     L1Candidate(p4, pt, eta, phi, qual),
     detid_(detid)
 {
-//    isSeed_ = false;
+
 }
 
-HGCalTriggerCell::
-~HGCalTriggerCell() 
+
+HGCalTriggerCell::~HGCalTriggerCell() 
 {
+
 }

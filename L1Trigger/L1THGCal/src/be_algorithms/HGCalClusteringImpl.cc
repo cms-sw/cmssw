@@ -38,7 +38,7 @@ void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & 
             l1t::HGCalCluster obj( *tc );
             clusters_.push_back( 0, obj );
         }
-        else{
+        else if ( tcPertinentClusters.size() > 0 ){
             uint minDist = 1;
             uint targetClu = 0; 
             for( std::vector<int>::const_iterator iclu = tcPertinentClusters.begin(); iclu != tcPertinentClusters.end(); ++iclu ){
