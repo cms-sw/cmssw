@@ -29,7 +29,7 @@ namespace l1t
         
         ~HGCalTriggerCell();
         
-        void setDetId(uint32_t detid) {detid_ = detid;}
+        void setDetId(uint32_t detid) { detid_ = detid; }
         void setPosition(const GlobalPoint& position) {position_ = position;}
         
         uint32_t detId() const {return detid_;}

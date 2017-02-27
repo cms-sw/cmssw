@@ -71,8 +71,8 @@ void FullModuleSumAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection&
         l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 
                 moduleSum, 0, 0);
         cluster.setModule(moduleId.wafer());
-        cluster.setLayer(moduleId.layer());
-        cluster.setSubDet(moduleId.subdetId());
+        //cluster.setLayer(moduleId.layer());
+        //cluster.setSubDet(moduleId.subdetId());
         cluster_product_->push_back(0,cluster);
     }
 }
