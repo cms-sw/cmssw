@@ -408,17 +408,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType ebSimMap;
   if (validXFrame) {
-    const MixCollection<PCaloHit> &barrelHits=crossingFrame.product();
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = barrelHits.begin();
-	 hitItr != barrelHits.end();
-	 ++hitItr) {
+    for ( auto const & hitItr : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr->id());
+      EBDetId ebid = EBDetId(hitItr.id());
       
       uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr->energy();
+      ebSimMap[crystid] += hitItr.energy();
     }
   }  
 
@@ -483,17 +480,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType eeSimMap;
   if (validXFrame) {
-    const MixCollection<PCaloHit> &endcapHits=crossingFrame.product();
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = endcapHits.begin();
-	 hitItr != endcapHits.end();
-	 ++hitItr) {
-      
-      EEDetId eeid = EEDetId(hitItr->id());
+    for ( auto const & hitItr:  endcapHits ) {
+     
+      EEDetId eeid = EEDetId(hitItr.id());
       
       uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr->energy();
+      eeSimMap[crystid] += hitItr.energy();
     }
   }    
 
@@ -549,17 +543,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType esSimMap;
   if (validXFrame) {
-    const MixCollection<PCaloHit> &preshowerHits = crossingFrame.product();
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = preshowerHits.begin();
-	 hitItr != preshowerHits.end();
-	 ++hitItr) {
+    for ( auto const & hitItr : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr->id());
+      ESDetId esid = ESDetId(hitItr.id());
       
       uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr->energy();
+      esSimMap[crystid] += hitItr.energy();
     }
   }
 
@@ -1347,12 +1338,11 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
     validXFrame = false;
   }
   if (validXFrame) {
-    const MixCollection<PSimHit> & simHits = cf.product();
+    const MixCollection<PSimHit>  simHits(cf.product());
     
     // arrange the hits by detUnit
-    for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
-	hitItr != simHits.end(); ++hitItr) {
-      theMap[hitItr->detUnitId()].push_back(*hitItr);
+    for ( auto const & hitItr : simHits ) {
+      theMap[hitItr.detUnitId()].push_back(hitItr);
     }  
   }
 

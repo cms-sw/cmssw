@@ -358,30 +358,28 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isBarrel ) {
 
     e.getByToken( crossingFramePCaloHitEBToken_, crossingFrame );
-    const MixCollection<PCaloHit> &barrelHits = crossingFrame.product();
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     
     MapType ebSignalSimMap;
 
     double ebSimThreshold = 0.5*theGunEnergy;
 
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits.begin () ;
-         hitItr != barrelHits.end () ;
-         ++hitItr) {
+    for ( auto const &hitItr : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr->id()) ;
+      EBDetId ebid = EBDetId(hitItr.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << hitItr.getName() << "\n" 
+        << " DetID = "<<hitItr.id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
+        << " Time = " << hitItr.time() << " Event id. = " << hitItr.eventId().rawId() << "\n"
+        << " Track Id = " << hitItr.geantTrackId() << "\n"
+        << " Energy = " << hitItr.energy();
 
       uint32_t crystid = ebid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) ebSignalSimMap[crystid] += hitItr->energy();
+      if ( hitItr.eventId().rawId() == 0 ) ebSignalSimMap[crystid] += hitItr.energy();
       
-      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(hitItr.eventId().bunchCrossing()); 
       
     }
     
@@ -458,29 +456,27 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isEndcap ) {
 
     e.getByToken( crossingFramePCaloHitEEToken_, crossingFrame );
-    const MixCollection<PCaloHit> &endcapHits = crossingFrame.product();
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     MapType eeSignalSimMap;
 
     double eeSimThreshold = 0.4*theGunEnergy;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits.begin () ;
-         hitItr != endcapHits.end () ;
-         ++hitItr) {
+    for ( auto const & hitItr : endcapHits ) {
       
-      EEDetId eeid = EEDetId(hitItr->id()) ;
+      EEDetId eeid = EEDetId(hitItr.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EEDetId side = " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << hitItr.getName() << "\n" 
+        << " DetID = "<<hitItr.id()<< " EEDetId side = " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy() << "\n"
+        << " Time = " << hitItr.time() << " Event id. = " << hitItr.eventId().rawId() << "\n"
+        << " Track Id = " << hitItr.geantTrackId() << "\n"
+        << " Energy = " << hitItr.energy();
       
       uint32_t crystid = eeid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) eeSignalSimMap[crystid] += hitItr->energy();
+      if ( hitItr.eventId().rawId() == 0 ) eeSignalSimMap[crystid] += hitItr.energy();
       
-      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(hitItr.eventId().bunchCrossing()); 
 
     }
     
@@ -551,28 +547,26 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isPreshower) {
 
     e.getByToken(crossingFramePCaloHitESToken_, crossingFrame );
-    const MixCollection<PCaloHit> &preshowerHits = crossingFrame.product();
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
 
     MapType esSignalSimMap;
-    
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits.begin () ;
-         hitItr != preshowerHits.end () ;
-         ++hitItr) {
+
+    for ( auto const & hitItr : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr->id()) ;
+      ESDetId esid = ESDetId(hitItr.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << hitItr.getName() << "\n" 
+        << " DetID = "<<hitItr.id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
+        << " Time = " << hitItr.time() << " Event id. = " << hitItr.eventId().rawId() << "\n"
+        << " Track Id = " << hitItr.geantTrackId() << "\n"
+        << " Energy = " << hitItr.energy();
 
       uint32_t stripid = esid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) esSignalSimMap[stripid] += hitItr->energy();
+      if ( hitItr.eventId().rawId() == 0 ) esSignalSimMap[stripid] += hitItr.energy();
       
-      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr.eventId().bunchCrossing()); 
   
       // loop over Digis
 
