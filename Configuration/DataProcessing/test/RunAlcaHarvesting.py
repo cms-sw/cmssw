@@ -9,6 +9,7 @@ testing with a few input files etc from the command line
 
 import sys
 import getopt
+import pickle
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -76,9 +77,24 @@ class RunAlcaHarvesting:
         process.source.fileNames.append(self.inputLFN)
 
 
+        pklFile = open("RunAlcaHarvestingCfg.pkl", "w")
         psetFile = open("RunAlcaHarvestingCfg.py", "w")
-        psetFile.write(process.dumpPython())
-        psetFile.close()
+        try:
+            pickle.dump(process, pklFile)
+            psetFile.write("import FWCore.ParameterSet.Config as cms\n")
+            psetFile.write("import pickle\n")
+            psetFile.write("handle = open('RunAlcaHarvestingCfg.pkl')\n")
+            psetFile.write("process = pickle.load(handle)\n")
+            psetFile.write("handle.close()\n")
+            psetFile.close()
+        except Exception as ex:
+            print("Error writing out PSet:")
+            print(traceback.format_exc())
+            raise ex
+        finally:
+            psetFile.close()
+            pklFile.close()
+
         cmsRun = "cmsRun -j FrameworkJobReport.xml RunAlcaHarvestingCfg.py"
         print "Now do:\n%s" % cmsRun
         
