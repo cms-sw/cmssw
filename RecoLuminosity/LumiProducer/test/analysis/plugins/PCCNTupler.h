@@ -100,6 +100,7 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     bool includePixels;
     bool includeJets;
     bool splitByBX;
+    bool pixelPhase2Geometry;
 
     int nPU;
     int nVtx;

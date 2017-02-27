@@ -51,7 +51,8 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     includeVertexInformation(iConfig.getUntrackedParameter<bool>("includeVertexInformation",1)),
     includePixels(iConfig.getUntrackedParameter<bool>("includePixels",1)),
     includeJets(iConfig.getUntrackedParameter<bool>("includeJets",0)),
-    splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX",1))
+    splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX",1)),
+    pixelPhase2Geometry(iConfig.getUntrackedParameter<bool>("pixelPhase2Geometry",0))
 {
     cout << "----------------------------------------------------------------------" << endl;
     cout << "--- PCCNTupler constructor" << endl;
@@ -103,13 +104,6 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
         //tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
         //tree->Branch("nClusters","map<int,int>",&nClusters);
         tree->Branch("layers","map<int,int>",&layers);
-        // dead modules from Run 1
-        //deadModules[0] = 302125076; 
-        //deadModules[1] = 302125060;
-        //deadModules[2] = 302197516;
-        //deadModules[3] = 344019460;
-        //deadModules[4] = 344019464;
-        //deadModules[5] = 344019468;  
         pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
     }
 
@@ -316,11 +310,10 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         }
     }
 
-    // nF - Feb 6th - don't use TG anymore
-    // -- Does this belong into beginJob()?
-    ESHandle<TrackerGeometry> TG;
-    iSetup.get<TrackerDigiGeometryRecord>().get(TG);
-    
+    int NumPixelBarrelLayers=3;
+    if(pixelPhase2Geometry){
+      NumPixelBarrelLayers=4;
+    }
     // -- Pixel cluster
     if(includePixels){
       edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
@@ -335,7 +328,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
 	for (edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.begin();  isearch != clustColl.end(); ++isearch){
 	  // these are sorted by modules so we pick the current one
 	  edmNew::DetSet<SiPixelCluster>  mod = *isearch;
-	  if(mod.empty()) {std::cout<<" "<<std::endl; continue; }// skip empty modules (didnt find any)
+	  if(mod.empty()) { continue; }// skip empty modules
 	  DetId detId = mod.id();
 	  
 	  bxModKey.second=detId();
@@ -363,7 +356,7 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
 	      PixelEndcapName detName = PixelEndcapName(detId);
 	      int disk = detName.diskName();
 	      if(layers.count(detId())==0){
-		layers[detId()]=disk+3;
+		layers[detId()]=disk+NumPixelBarrelLayers; 
 	      }
 	    }	    
 	    //}
