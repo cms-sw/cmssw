@@ -51,6 +51,7 @@ void
 CTPPSDiamondTrackRecognition::clear()
 {
   hitFunctionVectorMap_.clear();
+  mhMap_.clear();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -72,6 +73,13 @@ CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit recHit )
     yWidth = recHit.getYWidth();
   }
   
+  //Multiple hits in the RP
+  if ( recHit.getMultipleHits() ) {
+    if (mhMap_.find( recHit.getOOTIndex() ) == mhMap_.end())
+      mhMap_[recHit.getOOTIndex()] = 1;
+    else
+      ++(mhMap_[recHit.getOOTIndex()]);
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -122,6 +130,8 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
 	      track.setY0( yPosition );
 	      track.setY0Sigma( yWidth * 0.5 );
 	      track.setOOTIndex( ootIt->first );
+	      if ( mhMap_.find( ootIt->first ) != mhMap_.end() ) track.setMultipleHits( mhMap_[ootIt->first] );
+	      else track.setMultipleHits( 0 );
 	      tracks.push_back( track );
 	      ++number_of_tracks;
 	    }

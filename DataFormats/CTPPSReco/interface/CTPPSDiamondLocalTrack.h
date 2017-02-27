@@ -19,7 +19,7 @@ class CTPPSDiamondLocalTrack
 {
   public:
     CTPPSDiamondLocalTrack() :
-      chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ) {}
+      chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ), mh_( 0 ) {}
     virtual ~CTPPSDiamondLocalTrack() {}
 
     //--- spatial get'ters
@@ -61,6 +61,9 @@ class CTPPSDiamondLocalTrack
     
     inline void setOOTIndex( const int& i ) { ts_index_ = i; }
     inline int getOOTIndex() const { return ts_index_; }
+    
+    inline void setMultipleHits( const int& i ) { mh_ = i; }
+    inline int getMultipleHits() const { return mh_; }
 
     friend bool operator<( const CTPPSDiamondLocalTrack&, const CTPPSDiamondLocalTrack& );
 
@@ -84,6 +87,7 @@ class CTPPSDiamondLocalTrack
     float t_sigma_;
     /// Time slice index
     int ts_index_;
+    int mh_;
 
 };
 

@@ -42,7 +42,8 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
                                               ( t0 * ts_to_ns_ ),
                                               ( digi->getTrailingEdge()-t0 ) * ts_to_ns_,
                                               time_slice,
-                                              digi->getHPTDCErrorFlags() ) );
+                                              digi->getHPTDCErrorFlags(),
+                                              digi->getMultipleHit() ) );
     }
   }
 }
