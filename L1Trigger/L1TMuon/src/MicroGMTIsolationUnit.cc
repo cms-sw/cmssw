@@ -64,9 +64,11 @@ l1t::MicroGMTIsolationUnit::getCaloIndex(MicroGMTConfiguration::InterMuon& mu) c
 
 void
 l1t::MicroGMTIsolationUnit::extrapolateMuons(MicroGMTConfiguration::InterMuonList& inputmuons) const {
-  int outputShift = 3;
-  if (m_fwVersion >= 0x4000000) {
-    outputShift = 2;
+  int outputShiftPhi = 3;
+  int outputShiftEta = 3;
+  if (m_fwVersion >= 0x5000000) {
+    outputShiftPhi = 2;
+    outputShiftEta = 0;
   }
 
   for (auto &mu : inputmuons) {
@@ -90,8 +92,8 @@ l1t::MicroGMTIsolationUnit::extrapolateMuons(MicroGMTConfiguration::InterMuonLis
       if (mu->hwSign() == 1) {
         sign = -1;
       }
-      deltaPhi = (phiExtrapolationLUT->lookup(etaAbsRed, ptRed) << outputShift) * sign;
-      deltaEta = (m_etaExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed));
+      deltaPhi = (phiExtrapolationLUT->lookup(etaAbsRed, ptRed) << outputShiftPhi) * sign;
+      deltaEta = (m_etaExtrapolationLUTs.at(mu->trackFinderType())->lookup(etaAbsRed, ptRed) << outputShiftEta);
       if (mu->hwEta() > 0) {
         deltaEta *= -1;
       }
