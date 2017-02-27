@@ -47,7 +47,6 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
 
   // Own methods 
   void createMEs( DQMStore::IBooker & , const edm::EventSetup&);
-  float getMedian( const TH1* hist) const;
   std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
   
   struct HistoPair {
