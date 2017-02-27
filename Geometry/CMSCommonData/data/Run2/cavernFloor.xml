@@ -15,6 +15,13 @@
 		<Constant name="FloorToPosY"  value="([cavernData:FloorDY]-[cavernData:FloorToDY])"/>
 		<Constant name="FloAirCPosY"  value="([cavernFloor:FloorToPosY]-[cavernData:FloorToDY]-[cavernData:FloAirCDY])"/>
 		<Constant name="FloAirC1PosZ"  value="805*cm"/>
+		<Constant name="FloAirC2PosX"  value="[cavernData:FloAirCDX]+[cavernData:FloAirC2DX]"/>
+		<Constant name="FloAirC2PosZ"  value="225*cm"/>
+		<Constant name="FloAirC3DZ"  value="([cavernFloor:FloAirC1PosZ]-[cavernData:FloAirC1DZ]-[cavernData:FloAirCDZ])/2"/>
+		<Constant name="FloAirC3PosZ"  value="[cavernData:FloAirCDZ]+[cavernFloor:FloAirC3DZ]"/>
+		<Constant name="FloAirC4DZ"  value="(1350*cm-[cavernFloor:FloAirC1PosZ]-[cavernData:FloAirC1DZ])*0.5"/>
+		<Constant name="FloAirC4PosZ"  value="[cavernFloor:FloAirC1PosZ]+[cavernData:FloAirC1DZ]+[cavernFloor:FloAirC4DZ]"/>
+		<Constant name="FloAirC4PosY"  value="[cavernFloor:FloAirCPosY]+[cavernData:FloAirCDY]-[cavernData:FloAirC4DY]"/>
 	</ConstantsSection> 
 	<SolidSection label="cavernFloor.xml">
 		<Box name="FloorAirZ" dx="[cavernData:FloorAirZDX]" dy="[cavernData:FloorAirZDY]" dz="([cms:HallZ]-100*cm)"/>
@@ -25,6 +32,21 @@
 		<Box name="FloorTo" dx="[cavernData:FloorToDX]" dy="[cavernData:FloorToDY]" dz="([cms:HallZ]-100*cm)"/>
 		<Box name="FloAirC" dx="[cavernData:FloAirCDX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirCDZ]"/>
 		<Box name="FloAirC1" dx="[cavernData:FloAirC1DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
+		<Box name="FloAirC2" dx="[cavernData:FloAirC2DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
+		<Box name="FloAirC3" dx="[cavernData:FloAirC3DX]" dy="[cavernData:FloAirCDY]" dz="[cavernFloor:FloAirC3DZ]"/>
+		<Box name="FloAirC4" dx="[cavernData:FloAirC4DX]" dy="[cavernData:FloAirC4DY]" dz="[cavernFloor:FloAirC4DZ]"/>
+		<Trapezoid name="FloAirC4trapP" dz="[cavernData:FloAirC4trapDZ]+0.1*mm" alp1="0*deg" bl1="[cavernData:FloAirC4DX]+0.1*mm" tl1="[cavernData:FloAirC4DX]+0.1*mm" h1="0.1*mm" alp2="0*deg" bl2="[cavernData:FloAirC4DX]+0.1*mm" tl2="[cavernData:FloAirC4DX]" h2="2*[cavernData:FloAirC4DY]+0.1*mm" phi="0*deg" theta="0*deg"/>
+		<Trapezoid name="FloAirC4trapN" dz="[cavernData:FloAirC4trapDZ]+0.1*mm" alp1="0*deg" bl1="[cavernData:FloAirC4DX]+0.1*mm" tl1="[cavernData:FloAirC4DX]+0.1*mm" h1="2*[cavernData:FloAirC4DY]+0.1*mm" alp2="0*deg" bl2="[cavernData:FloAirC4DX]+0.1*mm" tl2="[cavernData:FloAirC4DX]" h2="0.1*mm" phi="0*deg" theta="0*deg"/>
+		<SubtractionSolid name="FloAirC4P">
+		  <rSolid name="FloAirC4"/>
+		  <rSolid name="FloAirC4trapP"/>
+		  <Translation x="0*fm" y="-[cavernData:FloAirC4DY]" z="[cavernFloor:FloAirC4DZ]-[cavernData:FloAirC4trapDZ]"/>
+		</SubtractionSolid>  
+		<SubtractionSolid name="FloAirC4N">
+		  <rSolid name="FloAirC4"/>
+		  <rSolid name="FloAirC4trapN"/>
+		  <Translation x="0*fm" y="-[cavernData:FloAirC4DY]" z="-[cavernFloor:FloAirC4DZ]+[cavernData:FloAirC4trapDZ]"/>
+		</SubtractionSolid>  
 	</SolidSection>
 	<LogicalPartSection label="cavernFloor.xml">
 		<LogicalPart name="FloorAirZ" category="unspecified">
@@ -37,6 +59,22 @@
 		</LogicalPart>
 		<LogicalPart name="FloAirC1" category="unspecified">
 			<rSolid name="FloAirC1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FloAirC2" category="unspecified">
+			<rSolid name="FloAirC2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FloAirC3" category="unspecified">
+			<rSolid name="FloAirC3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FloAirC4P" category="unspecified">
+			<rSolid name="FloAirC4P"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="FloAirC4N" category="unspecified">
+			<rSolid name="FloAirC4N"/>
 			<rMaterial name="materials:Air"/>
 		</LogicalPart>
 		<LogicalPart name="HC" category="unspecified">
@@ -57,7 +95,7 @@
 		</LogicalPart>
 		<LogicalPart name="FloorTo" category="unspecified">
 			<rSolid name="FloorTo"/>
-			<rMaterial name="materials:StainlessSteel"/>  <!--da aggiustare-->
+			<rMaterial name="cavernData:RIConc"/>  
 		</LogicalPart>
 	</LogicalPartSection>
 	<PosPartSection label="cavernFloor.xml">
@@ -78,6 +116,54 @@
 			<rChild name="cavernFloor:FloAirC1"/>    
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*fm" y="[cavernFloor:FloAirCPosY]" z="-[cavernFloor:FloAirC1PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC2"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="[cavernFloor:FloAirC2PosX]" y="[cavernFloor:FloAirCPosY]" z="[cavernFloor:FloAirC2PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC2"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="-[cavernFloor:FloAirC2PosX]" y="[cavernFloor:FloAirCPosY]" z="[cavernFloor:FloAirC2PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC2"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="[cavernFloor:FloAirC2PosX]" y="[cavernFloor:FloAirCPosY]" z="-[cavernFloor:FloAirC2PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC2"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="-[cavernFloor:FloAirC2PosX]" y="[cavernFloor:FloAirCPosY]" z="-[cavernFloor:FloAirC2PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC3"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="[cavernFloor:FloAirCPosY]" z="[cavernFloor:FloAirC3PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC3"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="[cavernFloor:FloAirCPosY]" z="-[cavernFloor:FloAirC3PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC4P"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="[cavernFloor:FloAirC4PosY]" z="[cavernFloor:FloAirC4PosZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cavern:OSFL"/>
+			<rChild name="cavernFloor:FloAirC4N"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="[cavernFloor:FloAirC4PosY]" z="-[cavernFloor:FloAirC4PosZ]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="cavern:OSFL"/>
