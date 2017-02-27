@@ -90,15 +90,15 @@ namespace hcaldqm
 		int const FIBER_VME_MIN = 1;
 		int const FIBER_VME_MAX = 8;
 		int const FIBER_VME_NUM = FIBER_VME_MAX-FIBER_VME_MIN+1;
-		int const FIBER_uTCA_MIN1 = 2;
-		int const FIBER_uTCA_MAX1 = 9;
-		int const FIBER_uTCA_MIN2 = 14;
-		int const FIBER_uTCA_MAX2 = 21;
+		int const FIBER_uTCA_MIN1 = 1;
+		int const FIBER_uTCA_MAX1 = 11;
+		int const FIBER_uTCA_MIN2 = 12;
+		int const FIBER_uTCA_MAX2 = 23;
 		int const FIBER_uTCA_NUM = FIBER_uTCA_MAX1-FIBER_uTCA_MIN1+1 + 
 			FIBER_uTCA_MAX2-FIBER_uTCA_MIN2+1;
 
 		int const FIBERCH_MIN = 0;
-		int const FIBERCH_MAX = 2;
+		int const FIBERCH_MAX = 5;
 		int const FIBERCH_NUM = FIBERCH_MAX-FIBERCH_MIN+1;
 
 		//	TP SLBs, Fibers
