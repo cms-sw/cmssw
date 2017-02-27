@@ -21,9 +21,6 @@ from HLTrigger.Configuration.common import *
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
-
-    # print "# Applying 90X customization for ",menuType
-
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
