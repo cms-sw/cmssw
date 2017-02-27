@@ -58,6 +58,7 @@ class CTPPSDiamondTrackRecognition
 
     /// Function for pad efficiency
     hitFunctionVectorMap_t hitFunctionVectorMap_;
+    std::map<int,int> mhMap_;
 
 };
 
