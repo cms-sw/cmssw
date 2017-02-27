@@ -51,10 +51,9 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
   std::pair<std::string, int32_t> findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo);
   
   struct HistoPair {
-    HistoPair() {base = nullptr; normed = nullptr; dmr = nullptr;};
+    HistoPair() {base = nullptr; normed = nullptr;};
     MonitorElement* base;
     MonitorElement* normed;
-    MonitorElement* dmr;
   };
   struct HistoXY {
     HistoPair x;
