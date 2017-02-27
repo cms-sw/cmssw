@@ -22,7 +22,7 @@ options.register('tagUpdate',
                  '', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
-                 "List of tag names to be updated")
+                 "Comma-separated list of column-separated pairs relating type to a new tagBase")
 options.register('inputDBAuth',
                  '.', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -55,6 +55,7 @@ from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
 from CondTools.L1TriggerExt.L1O2OTagsExt_cfi import initL1O2OTagsExt
 initL1O2OTagsExt()
 
+# Override the tag bases if instructed to do so
 if options.tagUpdate :
     for type2tagBase in options.tagUpdate.split(',') :
         (t,tagBase) = type2tagBase.split(':')
