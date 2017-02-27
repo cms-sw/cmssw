@@ -43,18 +43,6 @@
 #include <map>
 #include <limits>
 
-// Having this macro reduces the need to pollute the code with
-// #ifdefs. The idea is that the condition is checked only if
-// debugging is enabled. That way the condition expression may use
-// variables that are declared only if EDM_ML_DEBUG is enabled. If it
-// is disabled, rely on the fact that LogTrace should compile to
-// no-op.
-#ifdef EDM_ML_DEBUG
-#define IfLogTrace(cond, cat) if(cond) LogTrace(cat)
-#else
-#define IfLogTrace(cond, cat) LogTrace(cat)
-#endif
-
 using namespace std;
 
 typedef PixelRecoRange<float> Range;
