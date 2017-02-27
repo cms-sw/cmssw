@@ -12,6 +12,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "Math/Vector3D.h"
 
+/* temporary */
+#include "DataFormats/L1THGCal/interface/GeoTmp.h"
 
 namespace l1t {
 
@@ -29,21 +31,24 @@ namespace l1t {
         ~HGCalCluster();
 
         /* helpers */
-        bool isPertinent( const l1t::HGCalTriggerCell &tc, double dist_eta ) const;
+        bool isPertinent( const l1t::HGCalTriggerCell &tc, double dR ) const;
         void addTC( const l1t::HGCalTriggerCell &tc ) const;
         void addTCseed( const l1t::HGCalTriggerCell &tc ) const;
-        double dist( const l1t::HGCalTriggerCell &tc ) const;
 
-        /* set */
+        /* set info */
         void setModule  (uint32_t value) { module_   = value; }
 
-        /* get */
-        bool isValid()      const { return true;      }
-        uint32_t hwPt()     const { return hwPt_; } 
+        /* get info */
+        bool isValid()      const { return true;  }
+        uint32_t hwPt()     const { return hwPt_; }
+        ROOT::Math::RhoEtaPhiVector centre() const { return centre_; }
+        ROOT::Math::RhoEtaPhiVector centreNorm() const;
         //uint32_t hwSeedPt() const { return hwSeedPt_; }
+        double dist( const l1t::HGCalTriggerCell &tc ) const;
         
         uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
         uint32_t layer()     const;
+        int32_t zside()     const;
         uint32_t module()    const { return module_; }
 
         ClusterShapes shapes; /* ??? */
@@ -73,6 +78,9 @@ namespace l1t {
 
         /* identification variables */
         uint32_t hOverE_; 
+
+        /* private methods */
+        //double dist_( const l1t::HGCalTriggerCell &tc ) const;
 
     };
 
