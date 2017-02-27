@@ -38,7 +38,8 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
     HGCalDetId tcDetId( tc.detId() );
     HGCalDetId seedDetId( seedDetId_ );
     if( tcDetId.layer() != seedDetId.layer() && 
-        tcDetId.subdetId() != seedDetId.subdetId() )
+        tcDetId.subdetId() != seedDetId.subdetId() &&
+        tcDetId.zside() != seedDetId.zside() )
         return false;
 
     ROOT::Math::RhoEtaPhiVector tcPoint( 0, tc.eta(), tc.phi() );
@@ -80,6 +81,21 @@ void HGCalCluster::addTCseed(const l1t::HGCalTriggerCell &tc) const
 }
 
 
+ROOT::Math::RhoEtaPhiVector HGCalCluster::centreNorm() const
+{
+
+    tmp::GeoTmp g;
+    double norm=0;
+    if( this->subdetId() == 3 )
+        norm = g.getZ_EE( this->layer() ); 
+    else if( this->subdetId() == 4 )
+        norm = g.getZ_FH( this->layer() ); 
+        
+    return (centre_/norm);
+    
+}
+
+
 double HGCalCluster::dist(const l1t::HGCalTriggerCell &tc) const
 {
 
@@ -105,6 +121,16 @@ uint32_t HGCalCluster::layer() const
     HGCalDetId seedDetId( seedDetId_ );    
     
     return seedDetId.layer();
+
+}
+
+
+int32_t HGCalCluster::zside() const
+{
+    
+    HGCalDetId seedDetId( seedDetId_ );    
+    
+    return seedDetId.zside();
 
 }
 

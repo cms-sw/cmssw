@@ -17,7 +17,7 @@ public:
 
 private:
     
-    double dR_;
+    double dr_;
 
 };
 
