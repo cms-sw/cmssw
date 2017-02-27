@@ -142,107 +142,197 @@ namespace hcaldqm
 		typedef uint32_t (*getBinType_eid)(HcalElectronicsId const&);
 		typedef HcalElectronicsId (*getEid_eid)(int);
 		typedef std::vector<std::string> (*getLabels_eid)();
-		getValueType_eid const getValue_functions_eid[nElectronicsQuantityType]
-			= {
-			getValue_FED, getValue_FEDuTCA, getValue_FEDVME,
-			getValue_Crate, getValue_CrateuTCA, getValue_CrateVME,
-			getValue_SlotuTCA, getValue_SlotVME,
-			getValue_Spigot,
-			getValue_FiberuTCA, getValue_FiberVME, getValue_FiberCh,
-			getValue_FEDuTCASlot, getValue_FEDVMESpigot,
-			getValue_FiberuTCAFiberCh, getValue_FiberVMEFiberCh,
-			getValue_SLB, getValue_SLBCh, getValue_SLBSLBCh,
-			getValue_FiberuTCATP, getValue_FiberChuTCATP,
-			getValue_FiberuTCATPFiberChuTCATP
+		const std::map<ElectronicsQuantityType, getValueType_eid> getValue_functions_eid = {
+			{fFED,getValue_FED},
+			{fFEDuTCA,getValue_FEDuTCA},
+			{fFEDVME,getValue_FEDVME},
+			{fCrate,getValue_Crate},
+			{fCrateuTCA,getValue_CrateuTCA},
+			{fCrateVME,getValue_CrateVME},
+			{fSlotuTCA,getValue_SlotuTCA},
+			{fSlotVME,getValue_SlotVME},
+			{fSpigot,getValue_Spigot},
+			{fFiberuTCA,getValue_FiberuTCA},
+			{fFiberVME,getValue_FiberVME},
+			{fFiberCh,getValue_FiberCh},
+			{fFEDuTCASlot,getValue_FEDuTCASlot},
+			{fFEDVMESpigot,getValue_FEDVMESpigot},
+			{fFiberuTCAFiberCh,getValue_FiberuTCAFiberCh},
+			{fFiberVMEFiberCh,getValue_FiberVMEFiberCh},
+			{fSLB,getValue_SLB},
+			{fSLBCh,getValue_SLBCh},
+			{fSLBSLBCh,getValue_SLBSLBCh},
+			{fFiberuTCATP,getValue_FiberuTCATP},
+			{fFiberChuTCATP,getValue_FiberChuTCATP},
+			{fFiberuTCATPFiberChuTCATP,getValue_FiberuTCATPFiberChuTCATP},
 		};
-		getBinType_eid const getBin_functions_eid[nElectronicsQuantityType] = {
-			getBin_FED, getBin_FEDuTCA, getBin_FEDVME,
-			getBin_Crate, getBin_CrateuTCA, getBin_CrateVME,
-			getBin_SlotuTCA, getBin_SlotVME, 
-			getBin_Spigot,
-			getBin_FiberuTCA, getBin_FiberVME, getBin_FiberCh,
-			getBin_FEDuTCASlot, getBin_FEDVMESpigot,
-			getBin_FiberuTCAFiberCh, getBin_FiberVMEFiberCh,
-			getBin_SLB, getBin_SLBCh, getBin_SLBSLBCh,
-			getBin_FiberuTCATP, getBin_FiberChuTCATP,
-			getBin_FiberuTCATPFiberChuTCATP
+		const std::map<ElectronicsQuantityType, getBinType_eid> getBin_functions_eid = {
+			{fFED,getBin_FED},
+			{fFEDuTCA,getBin_FEDuTCA},
+			{fFEDVME,getBin_FEDVME},
+			{fCrate,getBin_Crate},
+			{fCrateuTCA,getBin_CrateuTCA},
+			{fCrateVME,getBin_CrateVME},
+			{fSlotuTCA,getBin_SlotuTCA},
+			{fSlotVME,getBin_SlotVME},
+			{fSpigot,getBin_Spigot},
+			{fFiberuTCA,getBin_FiberuTCA},
+			{fFiberVME,getBin_FiberVME},
+			{fFiberCh,getBin_FiberCh},
+			{fFEDuTCASlot,getBin_FEDuTCASlot},
+			{fFEDVMESpigot,getBin_FEDVMESpigot},
+			{fFiberuTCAFiberCh,getBin_FiberuTCAFiberCh},
+			{fFiberVMEFiberCh,getBin_FiberVMEFiberCh},
+			{fSLB,getBin_SLB},
+			{fSLBCh,getBin_SLBCh},
+			{fSLBSLBCh,getBin_SLBSLBCh},
+			{fFiberuTCATP,getBin_FiberuTCATP},
+			{fFiberChuTCATP,getBin_FiberChuTCATP},
+			{fFiberuTCATPFiberChuTCATP,getBin_FiberuTCATPFiberChuTCATP},
 		};
-		getEid_eid const getEid_functions_eid[nElectronicsQuantityType] = {
-			getEid_FED, getEid_FEDuTCA, getEid_FEDVME,
-			getEid_Crate, getEid_CrateuTCA, getEid_CrateVME,
-			getEid_SlotuTCA, getEid_SlotVME, 
-			getEid_Spigot,
-			getEid_FiberuTCA, getEid_FiberVME, getEid_FiberCh,
-			getEid_FEDuTCASlot, getEid_FEDVMESpigot,
-			getEid_FiberuTCAFiberCh, getEid_FiberVMEFiberCh,
-			getEid_SLB, getEid_SLBCh, getEid_SLBSLBCh,
-			getEid_FiberuTCATP, getEid_FiberChuTCATP,
-			getEid_FiberuTCATPFiberChuTCATP
+		const std::map<ElectronicsQuantityType, getEid_eid> getEid_functions_eid = {
+			{fFED,getEid_FED},
+			{fFEDuTCA,getEid_FEDuTCA},
+			{fFEDVME,getEid_FEDVME},
+			{fCrate,getEid_Crate},
+			{fCrateuTCA,getEid_CrateuTCA},
+			{fCrateVME,getEid_CrateVME},
+			{fSlotuTCA,getEid_SlotuTCA},
+			{fSlotVME,getEid_SlotVME},
+			{fSpigot,getEid_Spigot},
+			{fFiberuTCA,getEid_FiberuTCA},
+			{fFiberVME,getEid_FiberVME},
+			{fFiberCh,getEid_FiberCh},
+			{fFEDuTCASlot,getEid_FEDuTCASlot},
+			{fFEDVMESpigot,getEid_FEDVMESpigot},
+			{fFiberuTCAFiberCh,getEid_FiberuTCAFiberCh},
+			{fFiberVMEFiberCh,getEid_FiberVMEFiberCh},
+			{fSLB,getEid_SLB},
+			{fSLBCh,getEid_SLBCh},
+			{fSLBSLBCh,getEid_SLBSLBCh},
+			{fFiberuTCATP,getEid_FiberuTCATP},
+			{fFiberChuTCATP,getEid_FiberChuTCATP},
+			{fFiberuTCATPFiberChuTCATP,getEid_FiberuTCATPFiberChuTCATP},
 		};
-		getLabels_eid const getLabels_functions_eid[nElectronicsQuantityType] = 
-		{
-			getLabels_FED, getLabels_FEDuTCA, getLabels_FEDVME,
-			getLabels_Crate, getLabels_CrateuTCA, getLabels_CrateVME,
-			getLabels_SlotuTCA, getLabels_SlotVME, 
-			getLabels_Spigot,
-			getLabels_FiberuTCA, getLabels_FiberVME, getLabels_FiberCh,
-			getLabels_FEDuTCASlot, getLabels_FEDVMESpigot,
-			getLabels_FiberuTCAFiberCh, getLabels_FiberVMEFiberCh,
-			getLabels_SLB, getLabels_SLBCh, getLabels_SLBSLBCh,
-			getLabels_FiberuTCATP, getLabels_FiberChuTCATP,
-			getLabels_FiberuTCATPFiberChuTCATP
+		const std::map<ElectronicsQuantityType, getLabels_eid> getLabels_functions_eid = {
+			{fFED,getLabels_FED},
+			{fFEDuTCA,getLabels_FEDuTCA},
+			{fFEDVME,getLabels_FEDVME},
+			{fCrate,getLabels_Crate},
+			{fCrateuTCA,getLabels_CrateuTCA},
+			{fCrateVME,getLabels_CrateVME},
+			{fSlotuTCA,getLabels_SlotuTCA},
+			{fSlotVME,getLabels_SlotVME},
+			{fSpigot,getLabels_Spigot},
+			{fFiberuTCA,getLabels_FiberuTCA},
+			{fFiberVME,getLabels_FiberVME},
+			{fFiberCh,getLabels_FiberCh},
+			{fFEDuTCASlot,getLabels_FEDuTCASlot},
+			{fFEDVMESpigot,getLabels_FEDVMESpigot},
+			{fFiberuTCAFiberCh,getLabels_FiberuTCAFiberCh},
+			{fFiberVMEFiberCh,getLabels_FiberVMEFiberCh},
+			{fSLB,getLabels_SLB},
+			{fSLBCh,getLabels_SLBCh},
+			{fSLBSLBCh,getLabels_SLBSLBCh},
+			{fFiberuTCATP,getLabels_FiberuTCATP},
+			{fFiberChuTCATP,getLabels_FiberChuTCATP},
+			{fFiberuTCATPFiberChuTCATP,getLabels_FiberuTCATPFiberChuTCATP},
 		};
-		std::string const name_eid[nElectronicsQuantityType] = {
-			"FED", "FEDuTCA", "FEDVME", 
-			"Crate", "CrateuTCA", "CrateVME",
-			"SlotuTCA", "SlotVME", 
-			"Spigot",
-			"FiberuTCA", "FiberVME", 
-			"FiberCh",
-			"FEDuTCASlot", "FEDVMESpigot",
-			"FiberuTCAFiberCh", "FiberVMEFiberCh",
-			"SLB", "SLBCh", "SLB-SLBCh",
-			"TPFiber", "TPFiberCh",
-			"TPF-TPFCh"
+		const std::map<ElectronicsQuantityType, std::string> name_eid = {
+			{fFED,"FED"},
+			{fFEDuTCA,"FEDuTCA"},
+			{fFEDVME,"FEDVME"},
+			{fCrate,"Crate"},
+			{fCrateuTCA,"CrateuTCA"},
+			{fCrateVME,"CrateVME"},
+			{fSlotuTCA,"SlotuTCA"},
+			{fSlotVME,"SlotVME"},
+			{fSpigot,"Spigot"},
+			{fFiberuTCA,"FiberuTCA"},
+			{fFiberVME,"FiberVME"},
+			{fFiberCh,"FiberCh"},
+			{fFEDuTCASlot,"FEDuTCASlot"},
+			{fFEDVMESpigot,"FEDVMESpigot"},
+			{fFiberuTCAFiberCh,"FiberuTCAFiberCh"},
+			{fFiberVMEFiberCh,"FiberVMEFiberCh"},
+			{fSLB,"SLB"},
+			{fSLBCh,"SLBCh"},
+			{fSLBSLBCh,"SLB-SLBCh"},
+			{fFiberuTCATP,"TPFiber"},
+			{fFiberChuTCATP,"TPFiberCh"},
+			{fFiberuTCATPFiberChuTCATP,"TPF-TPFCh"},
 		};
-		double const min_eid[nElectronicsQuantityType] = {
-			0, 0, 0, 
-			0, 0, 0,
-			0, 0,
-			0,
-			0, 0,
-			0,
-			0, 0,
-			0, 0,
-			0, 0, 0,
-			0, 0,
-			0
+		const std::map<ElectronicsQuantityType, double> min_eid = {
+			{fFED,0.},
+			{fFEDuTCA,0.},
+			{fFEDVME,0.},
+			{fCrate,0.},
+			{fCrateuTCA,0.},
+			{fCrateVME,0.},
+			{fSlotuTCA,0.},
+			{fSlotVME,0.},
+			{fSpigot,0.},
+			{fFiberuTCA,0.},
+			{fFiberVME,0.},
+			{fFiberCh,0.},
+			{fFEDuTCASlot,0.},
+			{fFEDVMESpigot,0.},
+			{fFiberuTCAFiberCh,0.},
+			{fFiberVMEFiberCh,0.},
+			{fSLB,0.},
+			{fSLBCh,0.},
+			{fSLBSLBCh,0.},
+			{fFiberuTCATP,0.},
+			{fFiberChuTCATP,0.},
+			{fFiberuTCATPFiberChuTCATP,0.},
 		};
-		double const max_eid[nElectronicsQuantityType] = {
-			FED_TOTAL_NUM, FED_uTCA_NUM, FED_VME_NUM,
-			CRATE_TOTAL_NUM, CRATE_uTCA_NUM, CRATE_VME_NUM,
-			SLOT_uTCA_NUM, SLOT_VME_NUM,
-			SPIGOT_NUM,
-			FIBER_uTCA_NUM, FIBER_VME_NUM,
-			FIBERCH_NUM,
-			FED_uTCA_NUM*SLOT_uTCA_NUM, FED_VME_NUM*SPIGOT_NUM,
-			FIBER_uTCA_NUM*FIBERCH_NUM, FIBER_VME_NUM*FIBERCH_NUM,
-			SLB_NUM, SLBCH_NUM, SLB_NUM*SLBCH_NUM,
-			TPFIBER_NUM, TPFIBERCH_NUM,
-			TPFIBER_NUM*TPFIBERCH_NUM
+		const std::map<ElectronicsQuantityType, double> max_eid = {
+			{fFED,FED_TOTAL_NUM},
+			{fFEDuTCA,FED_uTCA_NUM},
+			{fFEDVME,FED_VME_NUM},
+			{fCrate,CRATE_TOTAL_NUM},
+			{fCrateuTCA,CRATE_uTCA_NUM},
+			{fCrateVME,CRATE_VME_NUM},
+			{fSlotuTCA,SLOT_uTCA_NUM},
+			{fSlotVME,SLOT_VME_NUM},
+			{fSpigot,SPIGOT_NUM},
+			{fFiberuTCA,FIBER_uTCA_NUM},
+			{fFiberVME,FIBER_VME_NUM},
+			{fFiberCh,FIBERCH_NUM},
+			{fFEDuTCASlot,FED_uTCA_NUM*SLOT_uTCA_NUM},
+			{fFEDVMESpigot,FED_VME_NUM*SPIGOT_NUM},
+			{fFiberuTCAFiberCh,FIBER_uTCA_NUM*FIBERCH_NUM},
+			{fFiberVMEFiberCh,FIBER_VME_NUM*FIBERCH_NUM},
+			{fSLB,SLB_NUM},
+			{fSLBCh,SLBCH_NUM},
+			{fSLBSLBCh,SLB_NUM*SLBCH_NUM},
+			{fFiberuTCATP,TPFIBER_NUM},
+			{fFiberChuTCATP,TPFIBERCH_NUM},
+			{fFiberuTCATPFiberChuTCATP,TPFIBER_NUM*TPFIBERCH_NUM},
 		};
-		int const nbins_eid[nElectronicsQuantityType] = {
-			FED_TOTAL_NUM, FED_uTCA_NUM, FED_VME_NUM,
-			CRATE_TOTAL_NUM, CRATE_uTCA_NUM, CRATE_VME_NUM,
-			SLOT_uTCA_NUM, SLOT_VME_NUM,
-			SPIGOT_NUM,
-			FIBER_uTCA_NUM, FIBER_VME_NUM,
-			FIBERCH_NUM,
-			FED_uTCA_NUM*SLOT_uTCA_NUM, FED_VME_NUM*SPIGOT_NUM,
-			FIBER_uTCA_NUM*FIBERCH_NUM, FIBER_VME_NUM*FIBERCH_NUM,
-			SLB_NUM, SLBCH_NUM, SLB_NUM*SLBCH_NUM,
-			TPFIBER_NUM, TPFIBERCH_NUM,
-			TPFIBER_NUM*TPFIBERCH_NUM
+		const std::map<ElectronicsQuantityType, double> nbins_eid = {
+			{fFED,FED_TOTAL_NUM},
+			{fFEDuTCA,FED_uTCA_NUM},
+			{fFEDVME,FED_VME_NUM},
+			{fCrate,CRATE_TOTAL_NUM},
+			{fCrateuTCA,CRATE_uTCA_NUM},
+			{fCrateVME,CRATE_VME_NUM},
+			{fSlotuTCA,SLOT_uTCA_NUM},
+			{fSlotVME,SLOT_VME_NUM},
+			{fSpigot,SPIGOT_NUM},
+			{fFiberuTCA,FIBER_uTCA_NUM},
+			{fFiberVME,FIBER_VME_NUM},
+			{fFiberCh,FIBERCH_NUM},
+			{fFEDuTCASlot,FED_uTCA_NUM*SLOT_uTCA_NUM},
+			{fFEDVMESpigot,FED_VME_NUM*SPIGOT_NUM},
+			{fFiberuTCAFiberCh,FIBER_uTCA_NUM*FIBERCH_NUM},
+			{fFiberVMEFiberCh,FIBER_VME_NUM*FIBERCH_NUM},
+			{fSLB,SLB_NUM},
+			{fSLBCh,SLBCH_NUM},
+			{fSLBSLBCh,SLB_NUM*SLBCH_NUM},
+			{fFiberuTCATP,TPFIBER_NUM},
+			{fFiberChuTCATP,TPFIBERCH_NUM},
+			{fFiberuTCATPFiberChuTCATP,TPFIBER_NUM*TPFIBERCH_NUM},
 		};
 
 		class ElectronicsQuantity : public Quantity
@@ -251,24 +341,24 @@ namespace hcaldqm
 				ElectronicsQuantity() {}
 				ElectronicsQuantity(ElectronicsQuantityType type, 
 					bool isLog=false) : 
-					Quantity(name_eid[type], isLog), _type(type)
+					Quantity(name_eid.at(type), isLog), _type(type)
 				{}
 				virtual ~ElectronicsQuantity() {}
 				virtual ElectronicsQuantity* makeCopy()
 				{return new ElectronicsQuantity(_type, _isLog);}
 
 				virtual int getValue(HcalElectronicsId const& eid)
-				{return getValue_functions_eid[_type](eid);}
+				{return getValue_functions_eid.at(_type)(eid);}
 				virtual uint32_t getBin(HcalElectronicsId const& eid)
-				{return getBin_functions_eid[_type](eid);}
+				{return getBin_functions_eid.at(_type)(eid);}
 
 				virtual QuantityType type() {return fElectronicsQuantity;}
-				virtual int nbins() {return nbins_eid[_type];}
-				virtual double min() {return min_eid[_type];}
-				virtual double max() {return max_eid[_type];}
+				virtual int nbins() {return nbins_eid.at(_type);}
+				virtual double min() {return min_eid.at(_type);}
+				virtual double max() {return max_eid.at(_type);}
 				virtual bool isCoordinate() {return true;}
 				virtual std::vector<std::string> getLabels()
-				{return getLabels_functions_eid[_type]();}
+				{return getLabels_functions_eid.at(_type)();}
 
 			protected:
 				ElectronicsQuantityType _type;
