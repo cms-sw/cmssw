@@ -15,6 +15,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "TMath.h"
 
 template<TrackerType pixel_or_strip>
 MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet& iConfig)
@@ -38,6 +39,11 @@ void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker
     m_cacheID_ = cacheID;
     this->createMEs( ibooker , iSetup);
   }
+  std::string topFolderName_ = "SiStrip";
+  SiStripFolderOrganizer folder_organizer;
+  folder_organizer.setSiStripFolderName(topFolderName_);
+  tkhisto_ResidualsMean = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_ResidualsMean", 0.0,true);
+  tkhisto_ResidualsRMS = new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_ResidualsRMS", 0.0,true);
 }
 
 template<TrackerType pixel_or_strip>
@@ -135,19 +141,25 @@ void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & i
 	  // this sounds strip specific but also works for pixel
 	  std::string hid = hidmanager.createHistoId("HitResidualsX","det",ModuleID);
 	  std::string normhid = hidmanager.createHistoId("NormalizedHitResidualsX","det",ModuleID);
+	  std::string dmrhid = hidmanager.createHistoId("DMRX","det",ModuleID);
 	  auto& histos = m_ModuleResiduals[std::make_pair("", ModuleID)];
 	  histos.x.base = ibooker.book1D(hid, hid, i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
 	  histos.x.base->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
 	  histos.x.normed = ibooker.book1D(normhid, normhid, i_normres_Nbins,d_normres_xmin,d_normres_xmax);
 	  histos.x.normed->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+	  histos.x.dmr = ibooker.book1D(dmrhid, dmrhid, i_normres_Nbins,-0.3,0.3);
+	  histos.x.dmr->setAxisTitle("DMR");
 	}{ 
 	  std::string hid = hidmanager.createHistoId("HitResidualsY","det",ModuleID);
 	  std::string normhid = hidmanager.createHistoId("NormalizedHitResidualsY","det",ModuleID);
+	  std::string dmrhid = hidmanager.createHistoId("DMRY","det",ModuleID);
 	  auto& histos = m_ModuleResiduals[std::make_pair("", ModuleID)];
 	  histos.y.base = ibooker.book1D(hid, hid, i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
 	  histos.y.base->setAxisTitle("(y_{pred} - y_{rec})' [cm]");
 	  histos.y.normed = ibooker.book1D(normhid, normhid, i_normres_Nbins,d_normres_xmin,d_normres_xmax);
 	  histos.y.normed->setAxisTitle("(y_{pred} - y_{rec})'/#sigma");
+	  histos.y.dmr = ibooker.book1D(dmrhid, dmrhid, i_normres_Nbins,-0.3,0.3);
+	  histos.y.dmr->setAxisTitle("DMR");
 	}
       }
 
@@ -195,6 +207,8 @@ void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & i
 
 	  std::string normhistoname = Form("Normalized%s", histoname.c_str());
 	  std::string normhistotitle = Form("Normalized%s", histotitle.c_str());
+	  std::string dmrhistoname = Form("DMR%s", histoname.c_str());
+	  std::string dmrhistotitle = Form("DMR%s", histotitle.c_str());
 
 	  //std::cout << "##### Booking: " << ibooker.pwd() << " title " << histoname << std::endl;
 	  
@@ -207,6 +221,11 @@ void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & i
 	    ibooker.book1D(normhistoname.c_str(),normhistotitle.c_str(),
 			   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
 	  histopair.first.normed->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+
+	  histopair.first.dmr =
+	    ibooker.book1D(dmrhistoname.c_str(),dmrhistotitle.c_str(),
+			   i_normres_Nbins,-0.3,0.3);
+	  histopair.first.dmr->setAxisTitle("DMR");
 	}
       }      
     } // end loop over activeDets
@@ -249,8 +268,10 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
 	auto& mod_histos = m_ModuleResiduals[std::make_pair("",RawId)];
 	mod_histos.x.base->Fill(it.resXprime);
 	mod_histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+	mod_histos.x.dmr->Fill(this->getMedian(mod_histos.x.base->getTH1F()));
 	mod_histos.y.base->Fill(it.resYprime);
 	mod_histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
+	mod_histos.y.dmr->Fill(this->getMedian(mod_histos.y.base->getTH1F()));
       }
 
       auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
@@ -259,13 +280,40 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
       if(it.resXprimeErr != 0 && histos.x.base) {
 	histos.x.base->Fill(it.resXprime);
 	histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+	histos.x.dmr->Fill(this->getMedian(histos.x.base->getTH1F()));
+	if(!isPixel) tkhisto_ResidualsMean->fill(RawId,it.resXprime);
+	if(!isPixel) tkhisto_ResidualsRMS->fill(RawId,it.resXprime);
       }
       if(it.resYprimeErr != 0 && histos.y.base) {
 	histos.y.base->Fill(it.resYprime);
 	histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
+	histos.y.dmr->Fill(this->getMedian(histos.y.base->getTH1F()));
       }
     }
   }
+}
+
+//Copied from Alignment/OfflineValidation/plugins/TrackerOfflineValidation.cc
+template<TrackerType pixel_or_strip>
+float MonitorTrackResidualsBase<pixel_or_strip>::getMedian(const TH1* histo) const
+{
+  float median = 999;
+  int nbins = histo->GetNbinsX();
+
+  //extract median from histogram
+  double *x = new double[nbins];
+  double *y = new double[nbins];
+  for (int j = 0; j < nbins; j++) {
+    x[j] = histo->GetBinCenter(j+1);
+    y[j] = histo->GetBinContent(j+1);
+  }
+  median = TMath::Median(nbins, x, y);
+  
+  delete[] x; x = 0;
+  delete [] y; y = 0;  
+
+  return median;
+
 }
 
 
