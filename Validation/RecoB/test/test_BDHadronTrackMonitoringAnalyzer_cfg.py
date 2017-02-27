@@ -39,8 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False),
-    allowUnscheduled = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(False)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
@@ -51,11 +50,12 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')  #for MC
 process.GlobalTag.globaltag = "80X_mcRun2_asymptotic_v4"
 
-
-
 postfix = "PFlow"
 
 from PhysicsTools.PatAlgos.tools.pfTools import *
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 
 usePF2PAT(
             process,
@@ -121,6 +121,8 @@ process.load("SimTracker.TrackHistory.TrackClassifier_cff")
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
+patAlgosToolsTask.add(process.quickTrackAssociatorByHits)
+patAlgosToolsTask.add(process.tpClusterProducer)
 
 process.BDHadronTrackMonitoringAnalyzer = cms.Path(process.BDHadronTrackMonitoringAnalyze)
 #process.dqmsave_step = cms.Path(process.DQMSaver)
@@ -131,6 +133,7 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(
     process.BDHadronTrackMonitoringAnalyzer,
-    process.DQMoutput_step
-#    process.dqmsave_step
+    process.DQMoutput_step,
+#    process.dqmsave_step,
+    tasks=[patAlgosToolsTask]
     )
