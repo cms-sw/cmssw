@@ -550,13 +550,12 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	validXFrame = false;
       }
       if (validXFrame) {
-	std::auto_ptr<MixCollection<PCaloHit> >
-	  barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));
+	const MixCollection<PCaloHit> & barrelHits = crossingFrame.product();
 	
 	// keep track of sum of simhit energy in each crystal
 	for (MixCollection<PCaloHit>::MixItr hitItr 
-	       = barrelHits->begin();
-	     hitItr != barrelHits->end();
+	       = barrelHits.begin();
+	     hitItr != barrelHits.end();
 	     ++hitItr) {
 	  
 	  EBDetId ebid = EBDetId(hitItr->id());
@@ -676,13 +675,12 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	validXFrame = false;
       }
       if (validXFrame) {
-	std::auto_ptr<MixCollection<PCaloHit> >
-	  endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));
+	const MixCollection<PCaloHit> &endcapHits = crossingFrame.product();
 	
 	// keep track of sum of simhit energy in each crystal
 	for (MixCollection<PCaloHit>::MixItr hitItr 
-	       = endcapHits->begin();
-	     hitItr != endcapHits->end();
+	       = endcapHits.begin();
+	     hitItr != endcapHits.end();
 	     ++hitItr) {
 	  
 	  EEDetId eeid = EEDetId(hitItr->id());
@@ -807,14 +805,13 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
 	validXFrame = false;
       }
       if (validXFrame) {
-	std::auto_ptr<MixCollection<PCaloHit> >
-	  preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));
+	const MixCollection<PCaloHit> & preshowerHits = crossingFrame.product();
 	
 	// keep track of sum of simhit energy in each crystal
 	MapType esSimMap;
 	for (MixCollection<PCaloHit>::MixItr hitItr 
-	       = preshowerHits->begin();
-	     hitItr != preshowerHits->end();
+	       = preshowerHits.begin();
+	     hitItr != preshowerHits.end();
 	     ++hitItr) {
 	  
 	  ESDetId esid = ESDetId(hitItr->id());
