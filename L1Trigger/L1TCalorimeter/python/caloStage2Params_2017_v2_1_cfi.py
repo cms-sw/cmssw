@@ -185,9 +185,9 @@ caloStage2Params.layer1HCalScaleFactors.extend([
 # scaleup/down
 for ieta in range(17,28):
     for ipt in range(9):
-         #pass
+         pass
          #caloStage2Params.layer1HCalScaleFactors[9*28+ipt*28+ieta] *= 0.  # zeroes
-         caloStage2Params.layer1HCalScaleFactors[9*28+ipt*28+ieta] = 1.   # ones
+         #caloStage2Params.layer1HCalScaleFactors[9*28+ipt*28+ieta] = 1.   # ones
          #caloStage2Params.layer1HCalScaleFactors[9*28+ipt*28+ieta] *= 2.  # double
          #caloStage2Params.layer1HCalScaleFactors[9*28+ipt*28+ieta] *= 0.5 # halve
 
