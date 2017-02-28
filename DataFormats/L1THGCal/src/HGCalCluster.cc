@@ -31,3 +31,4 @@ bool HGCalCluster::operator<(const HGCalCluster& cl) const
   }
   return res;
 }
+
