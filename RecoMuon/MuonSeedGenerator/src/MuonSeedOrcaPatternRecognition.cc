@@ -274,17 +274,17 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     tmp = filterSegments(muonMeasurements->recHits(ME11Bwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    if (gemBackwardLayers.size()){//  GEM
-      const DetLayer* GE11Bwd = gemBackwardLayers[0];
-      tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
-      copy(tmp.begin(),tmp.end(),back_inserter(all));
-      if (gemBackwardLayers.size() > 2){//  GEM
+    if (gemBackwardLayers.size()){
+      if (gemBackwardLayers.size() > 2){
 	const DetLayer* GE21Bwd = gemBackwardLayers[3];
 	tmp = filterSegments(muonMeasurements->recHits(GE21Bwd,event), endcapdThetaCut);
 	copy(tmp.begin(),tmp.end(),back_inserter(all));
       }
+      const DetLayer* GE11Bwd = gemBackwardLayers[0];
+      tmp = filterSegments(muonMeasurements->recHits(GE11Bwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
-    if (me0BackwardLayers.size()){// Backward (z<0) EndCap disk
+    if (me0BackwardLayers.size()){
       const DetLayer* ME0Bwd = me0BackwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Bwd,event), endcapdThetaCut);
       copy(tmp.begin(),tmp.end(),back_inserter(all));
@@ -305,17 +305,17 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
     tmp = filterSegments(muonMeasurements->recHits(ME4Fwd,event), endcapdThetaCut);
     copy(tmp.begin(),tmp.end(),back_inserter(all));
 
-    if (gemForwardLayers.size()){//  GEM
-      const DetLayer* GE11Fwd = gemForwardLayers[0];
-      tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
-      copy(tmp.begin(),tmp.end(),back_inserter(all));
-      if (gemForwardLayers.size() > 2){//  GEM      
+    if (gemForwardLayers.size()){
+      if (gemForwardLayers.size() > 2){
 	const DetLayer* GE21Fwd = gemForwardLayers[3];
 	tmp = filterSegments(muonMeasurements->recHits(GE21Fwd,event), endcapdThetaCut);
 	copy(tmp.begin(),tmp.end(),back_inserter(all));
       }
+      const DetLayer* GE11Fwd = gemForwardLayers[0];
+      tmp = filterSegments(muonMeasurements->recHits(GE11Fwd,event), endcapdThetaCut);
+      copy(tmp.begin(),tmp.end(),back_inserter(all));
     }
-    if (me0ForwardLayers.size()){// Forward (z>0) EndCap disk
+    if (me0ForwardLayers.size()){
       const DetLayer* ME0Fwd = me0ForwardLayers[0];
       tmp = filterSegments(muonMeasurements->recHits(ME0Fwd,event), endcapdThetaCut);
       copy(tmp.begin(),tmp.end(),back_inserter(all));
@@ -363,7 +363,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   const MuonRecHitContainer & me2,  const MuonRecHitContainer & me3,
   const MuonRecHitContainer & me4,  const MuonRecHitContainer & ge21,
   const MuonRecHitContainer & ge11, const MuonRecHitContainer & me0,
-  const  MuonRecHitContainer & mb1, const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
+  const MuonRecHitContainer & mb1,  const MuonRecHitContainer & mb2,  const  MuonRecHitContainer & mb3,
   bool * MB1, bool * MB2, bool * MB3,
   std::vector<MuonRecHitContainer> & result)
 {
@@ -395,9 +395,12 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   MuonRecHitContainer list23 = me3;
 
   MuonRecHitContainer list12 = me2;
+  copy(ge21.begin(),ge21.end(),back_inserter(list12));
 
   MuonRecHitContainer list22 = me12;
   MuonRecHitContainer list21 = me11;
+  copy(ge11.begin(),ge11.end(),back_inserter(list21));
+  copy(me0.begin(),me0.end(),back_inserter(list21));
 
   MuonRecHitContainer list11 = list21;
   MuonRecHitContainer list5 = list22;
@@ -459,14 +462,13 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   bool* ME4 = zero(list4.size());
   bool* ME5 = zero(list5.size());
 
-// GEM Qiang:  to add sorting later
-  MuonRecHitContainer listg1 = ge11;
-  MuonRecHitContainer listg2 = ge21;
-  bool* GE11 = zero(listg1.size());
-  bool* GE21 = zero(listg2.size());
+  // MuonRecHitContainer listg1 = ge11;
+  // MuonRecHitContainer listg2 = ge21;
+  // bool* GE11 = zero(listg1.size());
+  // bool* GE21 = zero(listg2.size());
 
-  MuonRecHitContainer listme0 = me0;
-  bool* ME0 = zero(listme0.size());
+  // MuonRecHitContainer listme0 = me0;
+  // bool* ME0 = zero(listme0.size());
 
   // creates list of compatible track segments
   for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
@@ -474,13 +476,13 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     
     MuonRecHitContainer seedSegments;
     seedSegments.push_back(*iter);
+    // complete(seedSegments, listme0,ME0); //ME0
+    // complete(seedSegments, listg1,GE11); //GEM
+    // complete(seedSegments, listg2,GE21); //GEM
     complete(seedSegments, list2, ME2);
     complete(seedSegments, list3, ME3);
     complete(seedSegments, list4, ME4);
     complete(seedSegments, list5, ME5);
-    complete(seedSegments, listg1,GE11); //GEM
-    complete(seedSegments, listg2,GE21); //GEM
-    complete(seedSegments, listme0,ME0); //ME0
     complete(seedSegments, mb3, MB3);
     complete(seedSegments, mb2, MB2);
     complete(seedSegments, mb1, MB1);
@@ -495,12 +497,12 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     if ( !ME2[counter] ) {
       MuonRecHitContainer seedSegments;
       seedSegments.push_back(list2[counter]);
+      // complete(seedSegments, listme0,ME0); //ME0      
+      // complete(seedSegments, listg1,GE11); //GEM
+      // complete(seedSegments, listg2,GE21); //GEM
       complete(seedSegments, list3, ME3);
       complete(seedSegments, list4, ME4);
       complete(seedSegments, list5, ME5);
-      complete(seedSegments, listg1,GE11); //GEM
-      complete(seedSegments, listg2,GE21); //GEM
-      complete(seedSegments, listme0,ME0); //ME0      
       complete(seedSegments, mb3, MB3);
       complete(seedSegments, mb2, MB2);
       complete(seedSegments, mb1, MB1);
@@ -514,11 +516,11 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
       if ( !ME3[counter] ) {
         MuonRecHitContainer seedSegments;
         seedSegments.push_back(list3[counter]);
+	// complete(seedSegments, listme0,ME0); //ME0	
+        // complete(seedSegments, listg1,GE11); //GEM
+        // complete(seedSegments, listg2,GE21); //GEM
         complete(seedSegments, list4, ME4);
         complete(seedSegments, list5, ME5);
-        complete(seedSegments, listg1,GE11); //GEM
-        complete(seedSegments, listg2,GE21); //GEM
-	complete(seedSegments, listme0,ME0); //ME0	
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
         complete(seedSegments, mb1, MB1);
@@ -532,10 +534,10 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
       if ( !ME4[counter] ) {
         MuonRecHitContainer seedSegments;
         seedSegments.push_back(list4[counter]);
+	// complete(seedSegments, listme0,ME0); //ME0	
+        // complete(seedSegments, listg1,GE11); //GEM
+        // complete(seedSegments, listg2,GE21); //GEM
         complete(seedSegments, list5, ME5);
-        complete(seedSegments, listg1,GE11); //GEM
-        complete(seedSegments, listg2,GE21); //GEM
-	complete(seedSegments, listme0,ME0); //ME0	
         complete(seedSegments, mb3, MB3);
         complete(seedSegments, mb2, MB2);
         complete(seedSegments, mb1, MB1);
@@ -544,15 +546,30 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
     }
   }
 
+  // // ME0 creates list of compatible track segments
+  // for (MuonRecHitContainer::iterator iter = listme0.begin(); iter!=listme0.end(); iter++ ){    
+  //   MuonRecHitContainer seedSegments;
+  //   seedSegments.push_back(*iter);
+  //   complete(seedSegments, listg1,GE11);
+  //   complete(seedSegments, list1, zero(list1.size()));
+  //   complete(seedSegments, listg2,GE21);
+  //   complete(seedSegments, list2, ME2);
+  //   complete(seedSegments, list3, ME3);
+  //   complete(seedSegments, list4, ME4);
+  //   complete(seedSegments, list5, ME5);
+  //   complete(seedSegments, mb3, MB3);
+  //   complete(seedSegments, mb2, MB2);
+  //   complete(seedSegments, mb1, MB1);
+  //   if(check(seedSegments)) patterns.push_back(seedSegments);
+  // }
+  
   if ( ME5 ) delete [] ME5;
   if ( ME4 ) delete [] ME4;
   if ( ME3 ) delete [] ME3;
   if ( ME2 ) delete [] ME2;
-
-// GEM
-  if ( GE21 ) delete [] GE21;
-  if ( GE11 ) delete [] GE11;
-  if ( ME0 ) delete [] ME0;
+  // if ( GE21 ) delete [] GE21;
+  // if ( GE11 ) delete [] GE11;
+  // if ( ME0 ) delete [] ME0;
 
   if(!patterns.empty())
   {
@@ -791,17 +808,17 @@ MuonPatternRecoDumper theDumper;
     }
     else if((*segmentItr)->isME0())
     {
-      std::cout<<"isGEM1 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
+      //std::cout<<"isME0 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
       if(fabs(dtheta) < dThetaCut)
       {
-	std::cout<<"isGEM2 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;    
+	//std::cout<<"isME0 "<<fabs(dtheta)<<" "<<dThetaCut<<std::endl;
 	result.push_back(*segmentItr);
       }
       else
       {
-	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+       	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
       }
-    }    
+    }
   }
   filterOverlappingChambers(result);
   return result;
