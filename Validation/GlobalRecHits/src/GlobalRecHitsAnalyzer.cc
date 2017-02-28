@@ -410,12 +410,12 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   if (validXFrame) {
     const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for ( auto const & hitItr : barrelHits ) {
+    for ( auto const & iHit : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr.id());
+      EBDetId ebid = EBDetId(iHit.id());
       
       uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr.energy();
+      ebSimMap[crystid] += iHit.energy();
     }
   }  
 
@@ -482,12 +482,12 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   if (validXFrame) {
     const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for ( auto const & hitItr:  endcapHits ) {
+    for ( auto const & iHit:  endcapHits ) {
      
-      EEDetId eeid = EEDetId(hitItr.id());
+      EEDetId eeid = EEDetId(iHit.id());
       
       uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr.energy();
+      eeSimMap[crystid] += iHit.energy();
     }
   }    
 
@@ -545,12 +545,12 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   if (validXFrame) {
     const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for ( auto const & hitItr : preshowerHits ) {
+    for ( auto const & iHit : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr.id());
+      ESDetId esid = ESDetId(iHit.id());
       
       uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr.energy();
+      esSimMap[crystid] += iHit.energy();
     }
   }
 
@@ -1341,8 +1341,8 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
     const MixCollection<PSimHit>  simHits(cf.product());
     
     // arrange the hits by detUnit
-    for ( auto const & hitItr : simHits ) {
-      theMap[hitItr.detUnitId()].push_back(hitItr);
+    for ( auto const & iHit : simHits ) {
+      theMap[iHit.detUnitId()].push_back(iHit);
     }  
   }
 
