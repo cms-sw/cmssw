@@ -16,15 +16,21 @@ import RecoLocalCalo.Configuration.hcalLocalReco_cff as _hcalLocalReco_cff
 #
 # sequence CaloLocalReco
 #
-hbheprereco = _hcalLocalReco_cff._default_hbheprereco.clone(
-    puCorrMethod = 0,
-    firstSample = 0,
-    samplesToAdd = 10,
-    correctForTimeslew = False,
-    correctForPhaseContainment = False,
-    tsFromDB = False,
-    recoParamsFromDB = cms.bool(False),
-)
+
+def hbheCosmic(module):
+    return module.clone(
+        tsFromDB = cms.bool(False),
+        recoParamsFromDB = cms.bool(False),
+        algorithm = dict(
+            useM2 = cms.bool(False),
+            useM3 = cms.bool(False),
+            firstSampleShift = cms.int32(-1000),
+            samplesToAdd = cms.int32(10),
+            correctForPhaseContainment = cms.bool(False),
+        )
+    )
+
+hbheprereco = hbheCosmic(_hcalLocalReco_cff.hbheprereco)
 hfreco = _hcalLocalReco_cff._default_hfreco.clone(
     firstSample = 0,
     samplesToAdd = 10, ### min(10,size) in the algo
@@ -51,20 +57,7 @@ zdcreco = _hcalLocalReco_cff.zdcreco.clone(
 )
 
 # 2017 customs
-from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
-
-_phase1_hbheprereco = _hcalLocalReco_cff._phase1_hbheprereco.clone(
-    tsFromDB = cms.bool(False),
-    recoParamsFromDB = cms.bool(False),
-    algorithm = dict(
-        useM2 = cms.bool(False),
-        useM3 = cms.bool(False),
-        firstSampleShift = cms.int32(-1000),
-        samplesToAdd = cms.int32(10),
-        correctForPhaseContainment = cms.bool(False),
-    )
-)
 
 _phase1_hfreco = _hcalLocalReco_cff._phase1_hfreco.clone(
     algorithm = dict(
@@ -74,7 +67,6 @@ _phase1_hfreco = _hcalLocalReco_cff._phase1_hfreco.clone(
 )
 
 
-run2_HCAL_2017.toReplaceWith(hbheprereco, _phase1_hbheprereco )
 run2_HF_2017.toReplaceWith(hfreco, _phase1_hfreco )
 
 hfprereco = _hcalLocalReco_cff.hfprereco.clone(
