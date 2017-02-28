@@ -29,8 +29,10 @@ namespace {
     const double maxLog10 = std::log10(max);
     const double width = (maxLog10-minLog10)/N;
     std::array<T, N+1> ret;
-    for(size_t i=0; i<= N; ++i) {
-      ret[i] = std::pow(10, minLog10 + i*width);
+    ret[0] = std::pow(10,minLog10);
+    const double mult = std::pow(10, width);
+    for(size_t i=1; i<= N; ++i) {
+      ret[i] = ret[i-1]*mult;
     }
     return ret;
   }
