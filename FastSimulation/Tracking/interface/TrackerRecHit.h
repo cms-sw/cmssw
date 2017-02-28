@@ -13,6 +13,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+
 #include <vector>
 
 class TrackerTopology;
@@ -99,13 +101,15 @@ public:
   }
 
   /// The local position
-  inline LocalPoint localPosition() const { return hit()->localPosition(); }
-
+  inline LocalPoint localPosition() const { return hit()->localPosition(); }  
   /// Check if the hit is on one of the requested detector
-    //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
+  //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
   bool isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const; 
-  bool isOnRequestedDet(const std::vector<std::string>& layerList) const; // AG
-
+  /// request check with 1, 2 and 3 seeds
+  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
+  
   /// Check if a pair is on the proper combination of detectors
   bool makesAPairWith(const TrackerRecHit& anotherHit) const;
   bool makesAPairWith3rd(const TrackerRecHit& anotherHit) const;
@@ -174,7 +178,7 @@ public:
   double theLocalError;
   double theLargerError;
   bool forward;
-  
+
 };
 
 #endif
