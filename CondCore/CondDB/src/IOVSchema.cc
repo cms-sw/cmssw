@@ -176,53 +176,6 @@ namespace cond {
       return iovs.size()-initialSize;
     }
     
-    /**
-    size_t IOV::Table::selectLatest( const std::string& tag, 
-				     std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addOrderClause<SINCE>();
-      q.addOrderClause<INSERTION_TIME>( false );
-      size_t initialSize = iovs.size();
-      for ( auto row : q ) {
-	// starting from the second iov in the array, skip the rows with older timestamp
-	if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
-	iovs.push_back( row );
-      }
-      return iovs.size()-initialSize;
-    }
-
-    size_t IOV::Table::selectSnapshot( const std::string& tag,
-                                       const boost::posix_time::ptime& snapshotTime,
-                                       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
-      q.addOrderClause<SINCE>();
-      q.addOrderClause<INSERTION_TIME>( false );
-      size_t initialSize = iovs.size();
-      for ( auto row : q ) {
-        // starting from the second iov in the array, skip the rows with older timestamp                                                                            
-        if( iovs.size()-initialSize && std::get<0>(iovs.back()) == std::get<0>(row) ) continue;
-        iovs.push_back( row );
-      }
-      return iovs.size()-initialSize;
-    }
-
-    bool IOV::Table::getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ){
-      Query< SINCE, PAYLOAD_HASH > q( m_schema );
-      q.addCondition<TAG_NAME>( tag );
-      q.addOrderClause<SINCE>( false );
-      q.addOrderClause<INSERTION_TIME>( false );
-      for ( auto row : q ) {
-	since = std::get<0>(row);
-	hash = std::get<1>(row);
-	return true;
-      }
-      return false;
-    }
-    **/
-
     bool IOV::Table::getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ){
       Query< SINCE, PAYLOAD_HASH > q( m_schema );
       q.addCondition<TAG_NAME>( tag );
