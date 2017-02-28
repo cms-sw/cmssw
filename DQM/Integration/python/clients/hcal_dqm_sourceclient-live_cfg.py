@@ -17,7 +17,7 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
 warnstr			= "### HcalDQM::cfg::WARN: "
 errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= False
+useOfflineGT	= True
 useFileInput	= False
 useMap		= False
 
@@ -27,7 +27,7 @@ useMap		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '74X_dataRun2_HLT_v1'
+	process.GlobalTag.globaltag = '90X_dataRun2_HLT_v1'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
