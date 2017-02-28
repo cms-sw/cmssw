@@ -1,7 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
-// Includes
-////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,11 +20,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class MuonFromPVSelector : public edm::EDProducer {
+class MuonFromPVSelector : public edm::global::EDProducer<> {
 public:
 
   explicit MuonFromPVSelector(edm::ParameterSet const&);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
 
@@ -36,7 +33,6 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
   edm::EDGetTokenT<std::vector<reco::Muon>> v_recoMuonToken_;
 };
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +52,7 @@ MuonFromPVSelector::MuonFromPVSelector(edm::ParameterSet const& iConfig)
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-void MuonFromPVSelector::produce(edm::Event& iEvent, edm::EventSetup const&)
+void MuonFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   auto goodMuons = std::make_unique<std::vector<reco::Muon>>();
 

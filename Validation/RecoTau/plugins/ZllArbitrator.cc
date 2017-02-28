@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,11 +24,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class ZllArbitrator : public edm::EDProducer {
+class ZllArbitrator : public edm::global::EDProducer<> {
 public:
 
   explicit ZllArbitrator(edm::ParameterSet const&);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
   edm::EDGetTokenT<std::vector<reco::CompositeCandidate>> srcZCand_;
@@ -50,7 +50,7 @@ ZllArbitrator::ZllArbitrator(edm::ParameterSet const& iConfig)
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-void ZllArbitrator::produce(edm::Event& iEvent, edm::EventSetup const&)
+void ZllArbitrator::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   edm::Handle<std::vector<reco::CompositeCandidate>> zCandidates;
   iEvent.getByToken(srcZCand_,zCandidates);

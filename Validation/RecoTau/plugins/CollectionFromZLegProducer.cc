@@ -1,7 +1,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Common/interface/View.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,12 +14,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class CollectionFromZLegProducer : public edm::EDProducer
-{
+class CollectionFromZLegProducer : public edm::global::EDProducer<> {
 public:
 
   explicit CollectionFromZLegProducer(edm::ParameterSet const& iConfig);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
   edm::EDGetTokenT<std::vector<reco::CompositeCandidate>> v_RecoCompositeCandidateToken_;
@@ -43,7 +42,7 @@ CollectionFromZLegProducer::CollectionFromZLegProducer(edm::ParameterSet const& 
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void CollectionFromZLegProducer::produce(edm::Event& iEvent, edm::EventSetup const&)
+void CollectionFromZLegProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   auto tagLegs = std::make_unique<std::vector<reco::CompositeCandidate>>();
   auto probeLegs = std::make_unique<std::vector<reco::CompositeCandidate>>();
@@ -54,8 +53,8 @@ void CollectionFromZLegProducer::produce(edm::Event& iEvent, edm::EventSetup con
   // this is specific for our 'tag and probe'
   for (auto const& z : *zs) {
     int c {};
-    for(auto const& leg : z) {
-      if (c == 0){
+    for (auto const& leg : z) {
+      if (c == 0) {
         tagLegs->emplace_back(leg);
       }
       else if (c == 1){
