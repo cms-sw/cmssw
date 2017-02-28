@@ -1,0 +1,24 @@
+Name: CMS_FSQ_12_013
+Year: 2012
+Summary: Studies of 4-jet production in proton-proton collisions at $\sqrt{s}$ = 7TeV
+Experiment: CMS
+Collider: LHC
+SpiresID: 
+Status: 
+Authors:
+ - P. Gunnellini
+References:
+ - 
+ - 
+ - 
+RunInfo: 
+   Non-single-diffractive (NSD) events only. Should include double-diffractive (DD) 
+   events and non-diffractive (ND) events but NOT single-diffractive (SD) events. Examples,
+   in Pythia6 the SD processes to be turned off are 92 and 93, and in Pythia8 the SD processes 
+   are 103 and 104 (also called SoftQCD:singleDiffractive).
+NumEvents: 500000
+Beams: [p+, p+]
+Energies: [7000]
+PtCuts: 2j: 50 GeV; 2j: 20 GeV
+Description: Measurements are presented of exclusive 4-jet production cross sections as a function of the transverse momentum $p_{T}$, pseudorapidity $\eta$, as well as of correlations in azimuthal angle and $p_{T}$ balance among the jets. The data sample was collected at a centre-of-mass energy of 7 TeV with the CMS detector at the LHC, corresponding to an integrated luminosity of 36 pb$^{-1}$. The jets are reconstructed with the anti-$k_{\rm T}$ jet algorithm in a range of $|\eta|<4.7$. The study of the angular correlations between the four jets provide a useful baseline for future studies to investigate possible contributions from double parton scattering.
+   
