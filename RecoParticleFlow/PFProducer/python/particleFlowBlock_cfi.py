@@ -143,7 +143,7 @@ def _findIndicesByModule(name):
             ret.append(i)
    return ret
 
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+# from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 # kill tracks in the HGCal
 # this is currently killing pfmuons - add fix later
 #_insertGeneralTracksImporter = {}
