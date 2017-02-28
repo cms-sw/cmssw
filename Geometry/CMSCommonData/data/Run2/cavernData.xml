@@ -11,6 +11,11 @@
  		</CompositeMaterial>
 	</MaterialSection>
 	<ConstantsSection label="cavernData.xml" eval="true">
+                <Constant name="CMSWallEDX" value="1467*cm"/>
+                <Constant name="CMSWallEDY" value="1680*cm"/>
+                <Constant name="CMSWallIDX" value="1330*cm"/>
+                <Constant name="CMSWallIDY" value="1543*cm"/>
+                <Constant name="CMSWallIDZ" value="2656*cm"/> 
                 <Constant name="CMSR3" value="2.69*m"/>
 		<Constant name="CMSR4" value="7.99*m"/>
 		<Constant name="HFRiseZ1" value="1395*cm"/>
