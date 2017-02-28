@@ -11,23 +11,39 @@
 	</ConstantsSection>
 	<SolidSection label="cavern.xml">
 		<Tubs name="OSWL" rMin="[SideWallRmin]" rMax="[cms:HallR]" dz="[cms:HallZ]" startPhi="0*deg" deltaPhi="180*deg"/>
-		<Tubs name="OZWL" rMin="0.0*fm" rMax="[SideWallRmin]" dz="[dzwall]" startPhi="0*deg" deltaPhi="180*deg"/>
+		<Tubs name="OZWL" rMin="0.0*fm" rMax="[SideWallRmin]" dz="[dzwall]" startPhi="0*deg" deltaPhi="180*deg"/> 
 		<Box name="OSFL" dx="[cavernData:FloorDX]" dy="[cavernData:FloorDY]" dz="[cms:HallZ]"/>
+		<Box name="OSFLsub" dx="[cavernData:FloorDX]" dy="1000*cm" dz="[cms:HallZ]+0.1*mm"/>
 		<Box name="OSSL" dx="0.5*m" dy="[sidewallwidth]" dz="[cms:HallZ]"/>
-		<Box name="WALL" dx="[SideWallRmin]" dy="[sidewallwidth]" dz="0.5*m"/>
+		<EllipticalTube name="CMSWall"  xSemiAxis="[cavernData:CMSWallEDX]" ySemiAxis="[cavernData:CMSWallEDY]" zHeight="[cms:HallZ]"/>
+		<EllipticalTube name="CMSWallAir"  xSemiAxis="[cavernData:CMSWallIDX]" ySemiAxis="[cavernData:CMSWallIDY]" zHeight="[cavernData:CMSWallIDZ]"/> 
 		<Box name="RackAV" dx="125*cm" dy="500*cm" dz="1080*cm"/>
 		<Box name="HFRise" dx="240*cm" dy="55*cm" dz="145*cm"/>
-		<Tubs name="WALL_HOLE" rMin="0.*fm" rMax="[cms:CMSR2]" dz="0.6*m" startPhi="0.*deg" deltaPhi="360.*deg"/> 
 		<Trapezoid name="YBFeetAir1" dz="[cavernData:YBFeetDZ]+5*cm" alp1="0*deg" bl1="0.1*mm" tl1="[cavernData:YBFeetAir1DX]+0.1*mm" h1="[cavernData:YBFeetAir1DY]+0.1*mm" alp2="0*deg" bl2="0.1*mm" tl2="[cavernData:YBFeetAir1DX]+0.1*mm" h2="[cavernData:YBFeetAir1DY]+0.1*mm" phi="0*deg" theta="0*deg"/>
 		<Trapezoid name="YBFeetAir2" dz="[cavernData:YBFeetDZ]+5*cm" alp1="0*deg" bl1="0.1*mm" tl1="[cavernData:YBFeetAir2DX]+0.1*mm" h1="[cavernData:YBFeetAir2DY]+0.1*mm" alp2="0*deg" bl2="0.1*mm" tl2="[cavernData:YBFeetAir2DX]+0.1*mm" h2="[cavernData:YBFeetAir2DY]+0.1*mm" phi="0*deg" theta="0*deg"/>
 		<Trapezoid name="YBFeetAir3" dz="[cavernData:YBFeetDZ]+5*cm" alp1="0*deg" bl1="[cavernData:YBFeetAir3DX]+0.1*mm" tl1="0.1*mm" h1="[cavernData:YBFeetAir3DY]+0.1*mm" alp2="0*deg" bl2="[cavernData:YBFeetAir3DX]+0.1*mm" tl2="0.1*mm" h2="[cavernData:YBFeetAir3DY]+0.1*mm" phi="0*deg" theta="0*deg"/>
 		<Box name="YBFeetAir4" dx="[cavernData:YBFeetAir3DX]+0.1*mm" dy="[cavernData:YBFeetAir4DY]+0.1*mm" dz="[cavernData:YBFeetDZ]+5*cm"/>
 		<Box name="YBFeet" dx="[cavernData:YBFeetDX]" dy="[cavernData:YBFeetDY]" dz="[cavernData:YBFeetDZ]"/>
-		<SubtractionSolid name="OWWL">
-		  <rSolid name="WALL"/>
-		  <rSolid name="WALL_HOLE"/>
-		  <Translation x="0.*fm" y="[sidewallwidth]-2.16*m" z="0.*fm"/>
-		</SubtractionSolid>
+		<SubtractionSolid name="Wallv1">
+		  <rSolid name="cavern:CMSWall"/>
+		  <rSolid name="cms:CMSE"/>
+		  <Translation x="0.*fm" y="0*fm" z="0.*fm"/> 
+		</SubtractionSolid> 
+		<SubtractionSolid name="Wall">
+		  <rSolid name="Wallv1"/>
+		  <rSolid name="cavern:OSFLsub"/>
+		  <Translation x="0.*fm" y="-880*cm-1000*cm" z="0.*fm"/> 
+		</SubtractionSolid> 
+		<SubtractionSolid name="WallAirv1">
+		  <rSolid name="cavern:CMSWallAir"/>
+		  <rSolid name="cms:CMSE"/>
+		  <Translation x="0.*fm" y="0*fm" z="0.*fm"/> 
+		</SubtractionSolid> 
+		<SubtractionSolid name="WallAir">
+		  <rSolid name="WallAirv1"/>
+		  <rSolid name="cavern:OSFLsub"/>
+		  <Translation x="0.*fm" y="-880*cm-1000*cm" z="0.*fm"/> 
+		</SubtractionSolid> 
 		<SubtractionSolid name="YBFeetLeftv1">
 		  <rSolid name="YBFeet"/>
 		  <rSolid name="YBFeetAir1"/>
@@ -70,13 +86,13 @@
 		</SubtractionSolid>  
 	</SolidSection>
 	<LogicalPartSection label="cavern.xml">
-		<LogicalPart name="OSWL" category="unspecified">
-			<rSolid name="OSWL"/>
+		<LogicalPart name="Wall" category="unspecified">
+			<rSolid name="Wall"/>
 			<rMaterial name="materials:Stand.Concrete"/>
 		</LogicalPart>
-		<LogicalPart name="OZWL" category="unspecified">
-			<rSolid name="OZWL"/>
-			<rMaterial name="materials:Stand.Concrete"/>
+		<LogicalPart name="WallAir" category="unspecified">
+			<rSolid name="WallAir"/>
+			<rMaterial name="materials:Air"/>
 		</LogicalPart>
 		<LogicalPart name="YBFeetLeft" category="unspecified">
 			<rSolid name="YBFeetLeft"/>
@@ -86,16 +102,8 @@
 			<rSolid name="YBFeetRight"/>
 			<rMaterial name="materials:Iron"/>
 		</LogicalPart>
-		<LogicalPart name="OWWL" category="unspecified">
-			<rSolid name="OWWL"/>
-			<rMaterial name="materials:Stand.Concrete"/>
-		</LogicalPart>
 		<LogicalPart name="OSFL" category="unspecified">
 			<rSolid name="OSFL"/>
-			<rMaterial name="materials:Stand.Concrete"/>
-		</LogicalPart>
-		<LogicalPart name="OSSL" category="unspecified">
-			<rSolid name="OSSL"/>
 			<rMaterial name="materials:Stand.Concrete"/>
 		</LogicalPart>
 		<LogicalPart name="RackAV" category="unspecified">
@@ -110,129 +118,135 @@
 	<PosPartSection label="cavern.xml">
 		<PosPart copyNumber="1">
 			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OSWL"/>
+			<rChild name="cavern:Wall"/>    
 			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="2.16*m" z="0*fm"/>
+			<Translation x="0*fm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="cavern:Wall"/>
+			<rChild name="cavern:WallAir"/>    
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="0*fm"/>
 		</PosPart>
 <!-- *********YB Feet*********** -->
 		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetLeft"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="0*fm"/>
 		</PosPart>
 		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetLeft"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="3">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetLeft"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="2*[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="4">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetLeft"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="-[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="5">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetLeft"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="-2*[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetRight"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="-[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="0*fm"/>
 		</PosPart>
 		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetRight"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="-[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="3">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetRight"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="-[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="2*[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="4">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetRight"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="-[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="-[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 		<PosPart copyNumber="5">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:YBFeetRight"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="-[cavernData:YBFeetPosX]" y="[cavernData:YBFeetPosY]" z="-2*[cavernData:YBFeetShiftZ]"/>
 		</PosPart>
 <!-- *********Electronic Racks*********** -->
 		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:RackAV"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="925*cm" y="0*fm" z="0*fm"/>
 		</PosPart>
 		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:RackAV"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="-925*cm" y="0*fm" z="0*fm"/>
 		</PosPart>
 <!-- *********HF Risers*********** -->
 		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-325*cm" z="1245*cm"/>
 		</PosPart>
 		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-485*cm" z="1245*cm"/>
 		</PosPart>	
 		<PosPart copyNumber="3">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-645*cm" z="1245*cm"/>
 		</PosPart>	
 		<PosPart copyNumber="4">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-805*cm" z="1245*cm"/>
 		</PosPart>	
 		<PosPart copyNumber="5">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-325*cm" z="-1245*cm"/>
 		</PosPart>
 		<PosPart copyNumber="6">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-485*cm" z="-1245*cm"/>
 		</PosPart>	
 		<PosPart copyNumber="7">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-645*cm" z="-1245*cm"/>
 		</PosPart>	
 		<PosPart copyNumber="8">
-			<rParent name="cms:OCMS"/>
+			<rParent name="WallAir"/>
 			<rChild name="cavern:HFRise"/>
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*cm" y="-805*cm" z="-1245*cm"/>
@@ -243,42 +257,6 @@
 			<rChild name="cavern:OSFL"/>    
 			<rRotation name="rotations:000D"/>
 			<Translation x="0*fm" y="-1240*cm" z="0*fm"/>
-		</PosPart>
-		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OSSL"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="-([SideWallRmin]+0.5*m)" y="-[sidewallwidth]+2.16*m" z="0*fm"/>
-		</PosPart>
-		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OSSL"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="([SideWallRmin]+0.5*m)" y="-[sidewallwidth]+2.16*m" z="0*fm"/>
-		</PosPart>
-		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OZWL"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="2.16*m" z="[zposwall]"/>
-		</PosPart>
-		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OZWL"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="2.16*m" z="-[zposwall]"/>
-		</PosPart>
-		<PosPart copyNumber="1">
-			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OWWL"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="-[sidewallwidth]+2.16*m" z="[zposwall]"/>
-		</PosPart>
-		<PosPart copyNumber="2">
-			<rParent name="cms:OCMS"/>
-			<rChild name="cavern:OWWL"/>
-			<rRotation name="rotations:000D"/>
-			<Translation x="0*fm" y="-[sidewallwidth]+2.16*m" z="-[zposwall]"/>
 		</PosPart>
 	</PosPartSection>
 </DDDefinition>
