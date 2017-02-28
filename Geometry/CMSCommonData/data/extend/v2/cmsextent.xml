@@ -12,7 +12,7 @@
 		<Constant name="CMSZ2" value="26.0*m"/>
 	</ConstantsSection>
 	<SolidSection label="cmsextent.xml">
-		<Tubs name="CMStoZDC" rMin="[Rmin]" rMax="[CMSR2]" dz="56*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="CMStoZDC" rMin="[Rmin]" rMax="[CMSR2]" dz="56.*m-25.*cm" startPhi="0*deg" deltaPhi="360*deg"/>
 		<Tubs name="ZDCtoFP420" rMin="[Rmin]" rMax="[CMSR2]" dz="120*m" startPhi="0*deg" deltaPhi="360*deg"/>
 	</SolidSection>
 	<LogicalPartSection label="cmsextent.xml">
@@ -29,12 +29,12 @@
 		<PosPart copyNumber="1">
 			<rParent name="cms:CMSE"/>
 			<rChild name="cmsextent:CMStoZDC"/>
-			<Translation x="0*fm" y="0*fm" z="83*m"/>
+			<Translation x="0*fm" y="0*fm" z="83*m+25.*cm"/>
 		</PosPart>
 		<PosPart copyNumber="2">
 			<rParent name="cms:CMSE"/>
 			<rChild name="cmsextent:CMStoZDC"/>
-			<Translation x="0*fm" y="0*fm" z="-83*m"/>
+			<Translation x="0*fm" y="0*fm" z="-83*m-25.*cm"/>
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="cms:CMSE"/>
