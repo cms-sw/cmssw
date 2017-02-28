@@ -28,15 +28,15 @@ autoCond = {
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '90X_dataRun2_relval_v5',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
-    'run2_data_promptlike' : '90X_dataRun2_PromptLike_v4',
+    'run2_data_promptlike' : '90X_dataRun2_PromptLike_v5',
     # GlobalTag for Run1 HLT: it points to the online GT
-    'run1_hlt'          :   '90X_dataRun2_HLT_frozen_v2',
+    'run1_hlt'          :   '90X_dataRun2_HLT_frozen_v3',
     # GlobalTag for Run2 HLT: it points to the online GT
-    'run2_hlt'          :   '90X_dataRun2_HLT_frozen_v2',
+    'run2_hlt'          :   '90X_dataRun2_HLT_frozen_v3',
     # GlobalTag for Run2 HLT RelVals: customizations to run with fixed L1 Menu
-    'run2_hlt_relval'   :   '90X_dataRun2_HLT_relval_v2',
+    'run2_hlt_relval'   :   '90X_dataRun2_HLT_relval_v3',
     # GlobalTag for Run2 HLT for HI: it points to the online GT
-    'run2_hlt_hi'       :   '90X_dataRun2_HLTHI_frozen_v2',
+    'run2_hlt_hi'       :   '90X_dataRun2_HLTHI_frozen_v3',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'   :  '90X_upgrade2017_design_IdealBS_v16',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
@@ -52,7 +52,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'   : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'     : '90X_upgrade2023_realistic_v4'
+    'phase2_realistic'     : '90X_upgrade2023_realistic_v6'
 }
 
 aliases = {
