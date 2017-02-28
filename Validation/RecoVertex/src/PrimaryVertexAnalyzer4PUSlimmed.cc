@@ -89,10 +89,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     4.0, 6.0, 8.0, 10.0, 20.0,
     40.0, 60.0, 80.0, 100.0
   };
-  float log_mergez_bins[18] = {
-    0.0, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1,
-    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
-  };
+  auto const log_mergez_bins = makeLogBins<float, 16>(1e-4, 1); // 4 bins / 10x
 
   auto const log_pt_bins = makeLogBins<float, 100>(0.1, 1e4);
   float log_pt2_bins[16] = {
@@ -470,7 +467,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  "ReconstructedAllAssoc2GenMultiMatched_ClosestDistanceZ",
-                 17, &log_mergez_bins[0]);
+                 log_mergez_bins.size()-1, &log_mergez_bins[0]);
 
     // All Reconstructed Vertices Matched to a Multi-Matched Gen
     // Vertex. Used for Duplicate rate plots done w.r.t. Reco
@@ -508,7 +505,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
-        17, &log_mergez_bins[0]);
+        log_mergez_bins.size()-1, &log_mergez_bins[0]);
 
 
     // Resolution and pull histograms
