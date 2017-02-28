@@ -8,7 +8,8 @@ from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 
 ak4PFJetsRecoTauChargedHadrons = cms.EDProducer("PFRecoTauChargedHadronProducer",
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
-    jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     outputSelection = cms.string('pt > %1.1f' % PFTauQualityCuts.signalQualityCuts.minTrackPt.value()), # CV: apply minimum Pt cut as sanity check
     builders = cms.VPSet(
         builders.chargedPFCandidates,
