@@ -24,6 +24,11 @@ options.register('outputDBConnect',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Connection string for output DB")
+options.register('DBConnect',
+                 'oracle://cms_omds_adg/CMS_TRG_R', # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "OMDS connect string")
 options.register('DBAuth',
                  '.', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -57,7 +62,8 @@ if len(options.topKey) :
     process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring('BMTF')
     # include the system-specific subkeys ESProducer (generates BMTF labeled L1TriggerKey)
     process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonBarrelObjectKeysOnline_cfi")
-    process.L1TMuonBarrelObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth )
+    process.L1TMuonBarrelObjectKeysOnline.onlineAuthentication = cms.string( options.DBAuth    )
+    process.L1TMuonBarrelObjectKeysOnline.onlineDB             = cms.string( options.DBConnect )
 else :
     # instantiate manually the system-specific L1TriggerKey using the subsystemKey option
     process.load("CondTools.L1TriggerExt.L1TriggerKeyDummyExt_cff")
@@ -72,7 +78,8 @@ else :
 
 # Online produced for the payload 
 process.load("L1TriggerConfig.L1TConfigProducers.L1TMuonBarrelParamsOnline_cfi")
-process.L1TMuonBarrelParamsOnlineProd.onlineAuthentication  = cms.string( options.DBAuth )
+process.L1TMuonBarrelParamsOnlineProd.onlineAuthentication = cms.string( options.DBAuth )
+process.L1TMuonBarrelParamsOnlineProd.onlineDB             = cms.string( options.DBConnect )
 
 
 process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
