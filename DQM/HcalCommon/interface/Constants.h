@@ -90,7 +90,7 @@ namespace hcaldqm
 		int const FIBER_VME_MIN = 1;
 		int const FIBER_VME_MAX = 8;
 		int const FIBER_VME_NUM = FIBER_VME_MAX-FIBER_VME_MIN+1;
-		int const FIBER_uTCA_MIN1 = 1;
+		int const FIBER_uTCA_MIN1 = 0;
 		int const FIBER_uTCA_MAX1 = 11;
 		int const FIBER_uTCA_MIN2 = 12;
 		int const FIBER_uTCA_MAX2 = 23;
