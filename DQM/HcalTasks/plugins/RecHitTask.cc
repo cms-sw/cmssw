@@ -55,12 +55,11 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		vuTCA);
 
 	//	push the rawIds of each fed into the vector
-	for (std::vector<int>::const_iterator it=vFEDsVME.begin();
-		it!=vFEDsVME.end(); ++it)
+	for (std::vector<int>::const_iterator it=vFEDsVME.begin(); it!=vFEDsVME.end(); ++it) {
 		_vhashFEDs.push_back(HcalElectronicsId(
 			FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
-	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin(); 
-		it!=vFEDsuTCA.end(); ++it)
+	}
+	for (std::vector<int>::const_iterator it=vFEDsuTCA.begin(); it!=vFEDsuTCA.end(); ++it)
     {
         std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
 		_vhashFEDs.push_back(HcalElectronicsId(
@@ -778,9 +777,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		if (cit==_vcdaqEids.end())
 		{
 			//	not @cDAQ
-			for (uint32_t iflag=0; iflag<_vflags.size(); iflag++)
-				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
-					int(flag::fNCDAQ));
+			for (uint32_t iflag=0; iflag<_vflags.size(); iflag++) {
+				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(flag::fNCDAQ));
+			}
 			_cSummaryvsLS.setBinContent(eid, _currentLS, int(flag::fNCDAQ));
 			continue;
 		}
