@@ -359,11 +359,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			// Note: this used to be digi.sample(i).nominal_fC() - 2.5, but this branch doesn't exist in QIE10DataFrame.
 			// Instead, use lookup table.
 		}
- 	}
-
-		for (int i=0; i<digi.size(); i++)
-			_cShapeCut_FEDSlot.fill(eid, i, 
-				digi.sample(i).nominal_fC()-2.5);
 	}
 
 	if (_ptype==fOnline && _evsTotal>0 &&
