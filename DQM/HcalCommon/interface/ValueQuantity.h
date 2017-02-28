@@ -58,7 +58,8 @@ namespace hcaldqm
 			fQIE11fC_300000 = 43,
 			fQIE11fC_2000 = 44,
 			fTime_ns_250 = 45,
-			nValueQuantityType = 46
+			fADC_256 = 46,
+			nValueQuantityType = 47
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -107,6 +108,7 @@ namespace hcaldqm
 			{fQIE11fC_300000,"fC (QIE11)"},
 			{fQIE11fC_2000,"fC (QIE11)"},
 			{fTime_ns_250,"Time (ns)"},
+			{fADC_256,"ADC"},
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -155,6 +157,7 @@ namespace hcaldqm
 			{fQIE11fC_300000,0},
 			{fQIE11fC_2000,0},
 			{fTime_ns_250,-0.5},
+			{fADC_256,-0.5},
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -203,6 +206,7 @@ namespace hcaldqm
 			{fQIE11fC_300000,300000},
 			{fQIE11fC_2000,2000},
 			{fTime_ns_250,249.5},
+			{fADC_256,255.5},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -250,7 +254,8 @@ namespace hcaldqm
 			{fQIE11TDC_16,16},
 			{fQIE11fC_300000,10000},
 			{fQIE11fC_2000,100},
-			{fTime_ns_250,250}
+			{fTime_ns_250,250},
+			{fADC_256,256},
 		};
 		class ValueQuantity : public Quantity
 		{
