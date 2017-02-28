@@ -358,31 +358,28 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isBarrel ) {
 
     e.getByToken( crossingFramePCaloHitEBToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     
     MapType ebSignalSimMap;
 
     double ebSimThreshold = 0.5*theGunEnergy;
 
-    for (MixCollection<PCaloHit>::MixItr hitItr = barrelHits->begin () ;
-         hitItr != barrelHits->end () ;
-         ++hitItr) {
+    for ( auto const &iHit : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr->id()) ;
+      EBDetId ebid = EBDetId(iHit.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << iHit.getName() << "\n" 
+        << " DetID = "<<iHit.id()<< " EBDetId = " << ebid.ieta() << " " << ebid.iphi() << "\n"	
+        << " Time = " << iHit.time() << " Event id. = " << iHit.eventId().rawId() << "\n"
+        << " Track Id = " << iHit.geantTrackId() << "\n"
+        << " Energy = " << iHit.energy();
 
       uint32_t crystid = ebid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) ebSignalSimMap[crystid] += hitItr->energy();
+      if ( iHit.eventId().rawId() == 0 ) ebSignalSimMap[crystid] += iHit.energy();
       
-      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meEBbunchCrossing_ ) meEBbunchCrossing_->Fill(iHit.eventId().bunchCrossing()); 
       
     }
     
@@ -448,7 +445,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     } 
     
     EcalSubdetector thisDet = EcalBarrel;
-    computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold, randomEngine(e.streamID()));
+    computeSDBunchDigi(c, barrelHits, ebSignalSimMap, thisDet, ebSimThreshold, randomEngine(e.streamID()));
   }
   
   
@@ -459,31 +456,27 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
   if ( isEndcap ) {
 
     e.getByToken( crossingFramePCaloHitEEToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     MapType eeSignalSimMap;
 
     double eeSimThreshold = 0.4*theGunEnergy;
     
-    for (MixCollection<PCaloHit>::MixItr hitItr = endcapHits->begin () ;
-         hitItr != endcapHits->end () ;
-         ++hitItr) {
+    for ( auto const & iHit : endcapHits ) {
       
-      EEDetId eeid = EEDetId(hitItr->id()) ;
+      EEDetId eeid = EEDetId(iHit.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< " EEDetId side = " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << iHit.getName() << "\n" 
+        << " DetID = "<<iHit.id()<< " EEDetId side = " << eeid.zside() << " = " << eeid.ix() << " " << eeid.iy() << "\n"
+        << " Time = " << iHit.time() << " Event id. = " << iHit.eventId().rawId() << "\n"
+        << " Track Id = " << iHit.geantTrackId() << "\n"
+        << " Energy = " << iHit.energy();
       
       uint32_t crystid = eeid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) eeSignalSimMap[crystid] += hitItr->energy();
+      if ( iHit.eventId().rawId() == 0 ) eeSignalSimMap[crystid] += iHit.energy();
       
-      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meEEbunchCrossing_ ) meEEbunchCrossing_->Fill(iHit.eventId().bunchCrossing()); 
 
     }
     
@@ -548,35 +541,32 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalEndcap;
-    computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold, randomEngine(e.streamID()));
+    computeSDBunchDigi(c, endcapHits, eeSignalSimMap, thisDet, eeSimThreshold, randomEngine(e.streamID()));
   }
 
   if ( isPreshower) {
 
     e.getByToken(crossingFramePCaloHitESToken_, crossingFrame );
-    std::auto_ptr<MixCollection<PCaloHit> > 
-      preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
-    
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
+
     MapType esSignalSimMap;
-    
-    for (MixCollection<PCaloHit>::MixItr hitItr = preshowerHits->begin () ;
-         hitItr != preshowerHits->end () ;
-         ++hitItr) {
+
+    for ( auto const & iHit : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr->id()) ;
+      ESDetId esid = ESDetId(iHit.id()) ;
       
       LogDebug("HitInfo") 
-        << " CaloHit " << hitItr->getName() << "\n" 
-        << " DetID = "<<hitItr->id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
-        << " Time = " << hitItr->time() << " Event id. = " << hitItr->eventId().rawId() << "\n"
-        << " Track Id = " << hitItr->geantTrackId() << "\n"
-        << " Energy = " << hitItr->energy();
+        << " CaloHit " << iHit.getName() << "\n" 
+        << " DetID = "<<iHit.id()<< "ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
+        << " Time = " << iHit.time() << " Event id. = " << iHit.eventId().rawId() << "\n"
+        << " Track Id = " << iHit.geantTrackId() << "\n"
+        << " Energy = " << iHit.energy();
 
       uint32_t stripid = esid.rawId();
 
-      if ( hitItr->eventId().rawId() == 0 ) esSignalSimMap[stripid] += hitItr->energy();
+      if ( iHit.eventId().rawId() == 0 ) esSignalSimMap[stripid] += iHit.energy();
       
-      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(hitItr->eventId().bunchCrossing()); 
+      if ( meESbunchCrossing_ ) meESbunchCrossing_->Fill(iHit.eventId().bunchCrossing()); 
   
       // loop over Digis
 
@@ -625,7 +615,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalPreshower;
-    computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_, randomEngine(e.streamID()));
+    computeSDBunchDigi(c, preshowerHits, esSignalSimMap, thisDet, esThreshold_, randomEngine(e.streamID()));
     
   }
   
@@ -724,7 +714,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, d
   }
 }
 
-void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine* engine)
+void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, const MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine* engine)
 {
 
   if ( thisDet != EcalBarrel && thisDet != EcalEndcap && thisDet != EcalPreshower ) {
