@@ -16,7 +16,7 @@ namespace TrackingParticleIP {
   template <typename T_Vertex, typename T_Momentum, typename T_Point>
   inline auto dz(const T_Vertex& vertex, const T_Momentum& momentum, const T_Point& point) {
     return vertex.z()-point.z() - ( (vertex.x()-point.x())*momentum.x() +
-                                    (vertex.y()-point.y())*momentum.y() )/std::sqrt(momentum.perp2()) * momentum.z()/std::sqrt(momentum.perp2());
+                                    (vertex.y()-point.y())*momentum.y() ) * momentum.z()/momentum.perp2();
   }
 }
 
