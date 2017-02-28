@@ -1,7 +1,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,11 +13,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class IsoTracks : public edm::EDProducer {
+class IsoTracks : public edm::global::EDProducer<> {
 public:
 
-  explicit IsoTracks(edm::ParameterSet const& iConfig);
-  void produce(edm::Event&, edm::EventSetup const&) override;
+  explicit IsoTracks(edm::ParameterSet const&);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
 
@@ -43,7 +43,7 @@ IsoTracks::IsoTracks(edm::ParameterSet const& iConfig)
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void IsoTracks::produce(edm::Event& iEvent, edm::EventSetup const&)
+void IsoTracks::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
   auto isoTracks = std::make_unique<std::vector<reco::Track>>();
 
