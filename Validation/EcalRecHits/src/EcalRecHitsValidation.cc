@@ -354,16 +354,16 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<ebcSize; i++ ) { ebcontr[i] = 0.0; ebcontr25[i] = 0.0; } 
     double ebtotal = 0.;
 
-    for ( auto const & hitItr : barrelHits ) {
-      EBDetId ebid = EBDetId(hitItr.id());
+    for ( auto const & iHit : barrelHits ) {
+      EBDetId ebid = EBDetId(iHit.id());
       
       LogDebug("SimHitInfo, barrel") 
-	<< "CaloHit "   << hitItr.getName() << " DetID = " << hitItr.id()   << "\n"	
-	<< "Energy = "  << hitItr.energy()  << " Time = "  << hitItr.time() << "\n"
+	<< "CaloHit "   << iHit.getName() << " DetID = " << iHit.id()   << "\n"	
+	<< "Energy = "  << iHit.energy()  << " Time = "  << iHit.time() << "\n"
 	<< "EBDetId = " << ebid.ieta()       << " "         << ebid.iphi();
       
       uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr.energy();
+      ebSimMap[crystid] += iHit.energy();
     }
     
     
@@ -503,16 +503,16 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<eecSize; i++ ) { eecontr[i] = 0.0; eecontr25[i] = 0.0; } 
     double eetotal = 0.;
  
-    for ( auto const & hitItr : endcapHits ) {
-      EEDetId eeid(hitItr.id());
+    for ( auto const & iHit : endcapHits ) {
+      EEDetId eeid(iHit.id());
 
       LogDebug("Endcap, HitInfo")
-	<<" CaloHit "      << hitItr.getName() << " DetID = "        << hitItr.id()   << "\n"
-	<< "Energy = "     << hitItr.energy()  << " Time = "         << hitItr.time() << "\n"
+	<<" CaloHit "      << iHit.getName() << " DetID = "        << iHit.id()   << "\n"
+	<< "Energy = "     << iHit.energy()  << " Time = "         << iHit.time() << "\n"
 	<< "EEDetId side " << eeid.zside()      << " = " << eeid.ix() << " " << eeid.iy();
       
       uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr.energy();
+      eeSimMap[crystid] += iHit.energy();
     }
 
 
@@ -639,15 +639,15 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     for( int i=0; i<escSize; i++ ) { escontr[i] = 0.0; }
     double estotal = 0.;
 
-    for ( auto const & hitItr : preshowerHits ) {
-      ESDetId esid(hitItr.id());
+    for ( auto const & iHit : preshowerHits ) {
+      ESDetId esid(iHit.id());
       LogDebug("Preshower, HitInfo")
-	<<" CaloHit "       << hitItr.getName() << " DetID = "         << hitItr.id()   << "\n"
-	<< "Energy = "      << hitItr.energy()  << " Time = "          << hitItr.time() << "\n"
+	<<" CaloHit "       << iHit.getName() << " DetID = "         << iHit.id()   << "\n"
+	<< "Energy = "      << iHit.energy()  << " Time = "          << iHit.time() << "\n"
 	<< "ESDetId strip " << esid.strip()      << " = " << esid.six() << " " << esid.siy();
       
       uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr.energy();
+      esSimMap[crystid] += iHit.energy();
     }
 
 
