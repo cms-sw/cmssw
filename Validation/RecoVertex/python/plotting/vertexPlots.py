@@ -18,7 +18,7 @@ _common = {"xtitle": "Simulated interactions", "xmin": _minPU, "xmax": _maxPU, "
 _recovsgen = PlotGroup("recovsgen", [
     Plot("RecoVtx_vs_GenVtx", ytitle="Reco vertices", **_common),
     Plot("MatchedRecoVtx_vs_GenVtx", ytitle="Matched reco vertices", **_common),
-    Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True, ymax=_maxFake),
+    Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True, xmin=1e-3, ymax=_maxFake),
     Plot("merged_vs_Z", xtitle="Z (cm)", ytitle="Merge rate", xmin=-20, xmax=20, ymax=_maxFake),
 ],
                        legendDy=-0.025
