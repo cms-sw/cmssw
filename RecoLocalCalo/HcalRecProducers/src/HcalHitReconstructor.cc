@@ -253,7 +253,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   eventSetup.get<HcalDbRecord>().get(conditions);
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();    
+  if(e.isRealData()) reco_.setForData(e.run());    
   if(useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;

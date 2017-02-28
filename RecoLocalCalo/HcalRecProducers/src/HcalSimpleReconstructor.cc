@@ -69,7 +69,7 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
   const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
 
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();
+  if(e.isRealData()) reco_.setForData(e.run());
 
   edm::Handle<DIGICOLL> digi;
 
@@ -110,7 +110,7 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
 void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();
+  if(e.isRealData()) reco_.setForData(e.run());
  
   
   if (det_==DetId::Hcal) {
