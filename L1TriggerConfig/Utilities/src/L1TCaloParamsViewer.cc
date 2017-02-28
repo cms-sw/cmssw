@@ -121,7 +121,6 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     cout<<"  egMaxHcalEt=            "<<ptr1->egMaxHcalEt()<<endl;
     cout<<"  egMaxPtHOverE=          "<<ptr1->egMaxPtHOverE()<<endl;
-    cout<<"  egMaxHcalEt=            "<<ptr1->egMaxHcalEt()<<endl;
     cout<<"  egMinPtJetIsolation=    "<<ptr1->egMinPtJetIsolation()<<endl;
     cout<<"  egMaxPtJetIsolation=    "<<ptr1->egMaxPtJetIsolation()<<endl;
     cout<<"  egMinPtHOverEIsolation= "<<ptr1->egMinPtHOverEIsolation()<<endl;
@@ -156,8 +155,13 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
         cout<<"  egShapeIdLUT=           [0]"<<endl;
     }
 
+    cout<<"  egBypassEGVetos=        "<<ptr1->egBypassEGVetos()<<endl;
+    cout<<"  egHOverEcutBarrel=      "<<ptr1->egHOverEcutBarrel()<<endl;
+    cout<<"  egHOverEcutEndcap=      "<<ptr1->egHOverEcutEndcap()<<endl;
+
     cout<<"  egPUSType=              "<<ptr1->egPUSType()<<endl;
 
+    cout<<"  egIsolationType=        "<<ptr1->egIsolationType()<<endl;
     if( !ptr1->egIsolationLUT()->empty() ){
         cout<<"  egIsoLUT=               ["<<ptr1->egIsolationLUT()->maxSize()<<"] "<<flush;
         int egIsolation[ptr1->egIsolationLUT()->maxSize()];
@@ -179,6 +183,14 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     if( ptr1->egPUSParams().size() )
        cout << hash( egPUSParams, sizeof(float)*ptr1->egPUSParams().size() ) << endl;
+    else cout<<endl;
+
+    cout<<"  egCalibrationParams=    ["<<ptr1->egCalibrationParams().size()<<"] "<<flush;
+    double egCalibrationParams[ptr1->egCalibrationParams().size()];
+    for(unsigned int i=0; i<ptr1->egCalibrationParams().size(); i++) egCalibrationParams[i] = ptr1->egCalibrationParams()[i];
+
+    if( ptr1->egCalibrationParams().size() )
+       cout << hash( egCalibrationParams, sizeof(double)*ptr1->egCalibrationParams().size() ) << endl;
     else cout<<endl;
 
     cout<<"  egCalibrationType=      "<<ptr1->egCalibrationType()<<endl;
@@ -218,13 +230,13 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     if( !ptr1->tauCalibrationLUT()->empty() ){
         cout<<"  tauCalibrationLUT=      ["<<ptr1->tauCalibrationLUT()->maxSize()<<"] "<<flush;
-        int tauCalibration[ptr1->tauCalibrationLUT()->maxSize()];
-        for(unsigned int i=0; i<ptr1->tauCalibrationLUT()->maxSize(); i++)
+        int tauCalibration[512]; //ptr1->tauCalibrationLUT()->maxSize()];
+        for(unsigned int i=0; i<512; i++)//ptr1->tauCalibrationLUT()->maxSize(); i++)
             tauCalibration[i] = ptr1->tauCalibrationLUT()->data(i);
-        cout << hash( tauCalibration, sizeof(int)*ptr1->tauCalibrationLUT()->maxSize() ) << endl;
+        cout << hash( tauCalibration, sizeof(int)*512/*ptr1->tauCalibrationLUT()->maxSize() */) << endl;
 
         if( printTauCalibLUT )
-            for(unsigned int i=0; i<ptr1->tauCalibrationLUT()->maxSize(); i++)
+            for(unsigned int i=0; i<512/*ptr1->tauCalibrationLUT()->maxSize()*/; i++)
             cout<<i<<" "<<tauCalibration[i]<<endl;
 
     } else {
