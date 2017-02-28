@@ -323,7 +323,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cADC_SubdetPM.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
 	_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
