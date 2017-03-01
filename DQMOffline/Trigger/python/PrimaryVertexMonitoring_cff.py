@@ -9,9 +9,9 @@ hltPixelVerticesMonitoring = hltVerticesMonitoring.clone()
 hltPixelVerticesMonitoring.TopFolderName = cms.string("HLT/Vertexing/hltPixelVertices")
 hltPixelVerticesMonitoring.vertexLabel   = cms.InputTag("hltPixelVertices")
 
-Monitoring = hltVerticesMonitoring.clone()
-Monitoring.TopFolderName = cms.string("HLT/Vertexing/")
-Monitoring.vertexLabel   = cms.InputTag("")
+hltTrimmedPixelVerticesMonitoring = hltVerticesMonitoring.clone()
+hltTrimmedPixelVerticesMonitoring.TopFolderName = cms.string("HLT/Vertexing/hltTrimmedPixelVertices")
+hltTrimmedPixelVerticesMonitoring.vertexLabel   = cms.InputTag("hltTrimmedPixelVertices")
 
 hltVerticesPFFilterMonitoring = hltVerticesMonitoring.clone()
 hltVerticesPFFilterMonitoring.TopFolderName = cms.string("HLT/Vertexing/hltVerticesPFFilter")
