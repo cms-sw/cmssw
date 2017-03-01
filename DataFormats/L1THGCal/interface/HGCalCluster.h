@@ -1,19 +1,17 @@
-
 #ifndef DataFormats_L1Trigger_HGCalCluster_h
 #define DataFormats_L1Trigger_HGCalCluster_h
 
-#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+//#include "DataFormats/Common/interface/PtrVector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
 #include "Math/Vector3D.h"
 
-/* temporary */
-#include "DataFormats/L1THGCal/interface/GeoTmp.h"
 
 namespace l1t {
 
@@ -26,7 +24,10 @@ namespace l1t {
                       int pt=0,
                       int eta=0,
                       int phi=0 );
-        HGCalCluster( const l1t::HGCalTriggerCell &tc );
+        HGCalCluster( const l1t::HGCalTriggerCell &tc, 
+                      //edm::PtrVector<l1t::HGCalTriggerCell> tcCollection,
+                      const edm::EventSetup & es,
+                      const edm::Event & evt );
         
         ~HGCalCluster();
 
@@ -41,11 +42,13 @@ namespace l1t {
         /* get info */
         bool isValid()      const { return true;  }
         uint32_t hwPt()     const { return hwPt_; }
-        ROOT::Math::RhoEtaPhiVector centre() const { return centre_; }
-        ROOT::Math::RhoEtaPhiVector centreNorm() const;
+        double mipPt()      const { return mipPt_; }
         //uint32_t hwSeedPt() const { return hwSeedPt_; }
-        double dist( const l1t::HGCalTriggerCell &tc ) const;
+        double dist( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
         
+        ROOT::Math::XYZVector centre() const { return centre_; }
+        ROOT::Math::XYZVector centreNorm() const { return centre_/centre_.z(); }
+
         uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
         uint32_t layer()     const;
         int32_t zside()     const;
@@ -63,14 +66,18 @@ namespace l1t {
 
     private:
         
+        /* tools for geometry */
+        hgcal::RecHitTools recHitTools_;
+        
         /* seed detId */
         mutable uint32_t seedDetId_;
 
         /* Centre weighted with energy */
-        mutable ROOT::Math::RhoEtaPhiVector centre_;
+        mutable ROOT::Math::XYZVector centre_;
 
         /* Energies */
         mutable uint32_t hwPt_;
+        mutable double mipPt_;
         uint32_t hwSeedPt_;
 
         /* HGC specific information */
@@ -78,9 +85,6 @@ namespace l1t {
 
         /* identification variables */
         uint32_t hOverE_; 
-
-        /* private methods */
-        //double dist_( const l1t::HGCalTriggerCell &tc ) const;
 
     };
 
