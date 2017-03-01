@@ -1,0 +1,113 @@
+# -*- ThePEG-repository -*-
+
+##################################################
+# Example generator based on LEP parameters
+# usage: Herwig read LEP.in
+##################################################
+
+##################################################
+# Change settings for the ee->Z->qq matrix element
+# to avoid producing top quarks
+#
+# 'set' lines like this can be omitted if the 
+# default value is already okay.
+#
+# Any repository setting can be modified here
+##################################################
+
+##################################################
+# Selected the hard process 
+##################################################
+# leading-order processes
+##################################################
+cd /Herwig/MatrixElements
+# default e+e- > q qbar (5 flavours d,u,s,c,b)
+insert SimpleEE:MatrixElements 0 MEee2gZ2qq
+# e+e- > l+l-
+# insert SimpleEE:MatrixElements[0] MEee2gZ2ll
+# e+e- > W+W- ZZ
+# insert SimpleEE:MatrixElements[0] MEee2VV
+# higgs+Z
+# insert SimpleEE:MatrixElements[0] MEee2ZH
+# higgs+e+e-/nu_enu_ebar via VBF
+# insert SimpleEE:MatrixElements[0] MEee2HiggsVBF
+##################################################
+# NLO powheg processes
+##################################################
+#set /Herwig/Shower/Evolver:HardEmissionMode POWHEG
+#read Matchbox/Powheg-Default-ShowerAlphaSTune.in
+#insert SimpleEE:MatrixElements 0 PowhegMEee2gZ2qq
+#insert SimpleEE:MatrixElements 0 PowhegMEee2gZ2ll
+
+
+##################################################
+# Technical parameters for this run
+##################################################
+cd /Herwig/Generators
+set LEPGenerator:NumberOfEvents 100000000
+set LEPGenerator:RandomNumberGenerator:Seed 31122001
+set LEPGenerator:PrintEvent 10
+set LEPGenerator:MaxErrors 10000
+
+##################################################
+# LEP physics parameters (override defaults) 
+##################################################
+set LEPGenerator:EventHandler:LuminosityFunction:Energy 91.2
+set LEPGenerator:EventHandler:CascadeHandler:MPIHandler NULL
+set /Herwig/Shower/PartnerFinder:QEDPartner IIandFF
+
+cd /Herwig/Generators
+##################################################
+#  Useful analysis handlers for LEP physics
+##################################################
+# particle multiplicities
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/LEPMultiplicity
+# b multiplicities
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/BMultiplicity
+# b fragmentation functions
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/BFrag
+# event shapes and single particle spectra
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/Shapes
+# identified particle spectra
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/LEPIdent
+# four jet analysis (needs Fastjet installed)
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/LEPFourJet
+# general jet analysis (needs Fastjet installed)
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/LEPJet
+
+##################################################
+#  Useful analysis handlers for B-factory physics
+##################################################
+# BELLE data on charm hadron spetra
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/BELLECharm
+# CLEO  data on charm meson spectra
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/CLEOCharm
+
+##################################################
+#  Useful analysis handlers for HepMC related output
+##################################################
+# Schematic overview of an event (requires --with-hepmc to be set at configure time
+# and the graphviz program 'dot' to produce a plot)
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/Plot
+# A HepMC dump file (requires --with-hepmc to be set at configure time)
+# insert LEPGenerator:AnalysisHandlers 0 /Herwig/Analysis/HepMCFile
+# set /Herwig/Analysis/HepMCFile:PrintEvent 100
+# set /Herwig/Analysis/HepMCFile:Format GenEvent
+# set /Herwig/Analysis/HepMCFile:Units GeV_mm
+
+###################################################
+# Save run for later usage with 'Herwig run'
+##################################################
+saverun LEP LEPGenerator
+
+##################################################
+# uncomment this section for an example batch run
+# of two repeats with different parameters
+#
+# Note that a separate call of 'Herwig run' 
+# is not required
+##################################################
+# set LEPGenerator:NumberOfEvents 100
+# run LEP-Zpole LEPGenerator
+# set LEPGenerator:EventHandler:LuminosityFunction:Energy 208.0
+# run LEP-maxE LEPGenerator
