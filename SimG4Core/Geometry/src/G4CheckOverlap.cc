@@ -126,6 +126,10 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 	       << " Mother LV: " <<  ((*pvs)[i])->GetMotherLogical()->GetName() << G4endl;
 	G4cout << "       Translation: " << ((*pvs)[i])->GetObjectTranslation() << G4endl;
 	G4cout << "       Rotation:    " << ((*pvs)[i])->GetObjectRotationValue() << G4endl;
+	if(gdmlFlag) {
+	  G4GDMLParser gdml;
+	  gdml.Write(PVname+".gdml", (*pvs)[i], true);
+	}
       }
     }
   }
