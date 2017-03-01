@@ -9,8 +9,7 @@ HGCalMulticluster::HGCalMulticluster( const LorentzVector p4,
                                       ClusterCollection &basic_clusters
     ) :
     L1Candidate(p4, pt, eta, phi),
-    myclusters(basic_clusters){
-    //assert(myclusters.size() > 0 && "Invalid cluster collection, zero length.");
+    myclusters_(basic_clusters){
     } 
 
 
