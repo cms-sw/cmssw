@@ -36,3 +36,18 @@ subprocess.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 subprocess.final = cms.EDProducer("AddIntsProducer", labels = cms.vstring('adder'))
 
 subprocess.subpath = cms.Path( subprocess.final )
+
+subprocess.test = cms.EDAnalyzer("TestParentage",
+                                 inputTag = cms.InputTag("final"),
+                                 expectedAncestors = cms.vstring("two", "ten", "adder")
+)
+
+subprocess.out = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('testSubProcessUnscheduled.root'),
+    outputCommands = cms.untracked.vstring(
+        'drop *', 
+        'keep *_final_*_*',
+    )
+)
+subprocess.o = cms.EndPath(subprocess.test * subprocess.out)
+
