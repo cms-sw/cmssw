@@ -39,7 +39,6 @@ cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice')
                           C2d_parameters = C2d_parValues.clone(),
                           C3d_parameters = C3d_parValues.clone()
                           )
-print cluster_algo
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalTriggerDigiProducer",

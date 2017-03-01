@@ -13,9 +13,6 @@ HGCalMulticluster::HGCalMulticluster( const LorentzVector p4,
     } 
 
 
-//{
-    
-//}
 
 HGCalMulticluster::~HGCalMulticluster() 
 {
