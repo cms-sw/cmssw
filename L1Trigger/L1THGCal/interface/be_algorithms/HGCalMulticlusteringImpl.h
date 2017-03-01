@@ -18,6 +18,7 @@ public:
 private:
     
     double dr_;
+    BXVector<edm::PtrVector<l1t::HGCalTriggerCell>> clustersTCcollections_; 
 
 };
 

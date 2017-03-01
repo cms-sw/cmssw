@@ -10,8 +10,10 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     thickCorr_ = beCodecConfig.getParameter<std::vector<double>>("thickCorr");
 }
 
-void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int cellThickness){
-    HGCalDetId trgdetid(trgCell.detId());
+void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+{
+    
+    HGCalDetId trgdetid( trgCell.detId() );
     int trgCellLayer = trgdetid.layer();
     int subdet = trgdetid.subdetId();
 
@@ -39,7 +41,7 @@ void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int 
         
     //weight the amplitude by the absorber coefficient in MeV + bring it in GeV and correct for the sensor thickness
     double trgCellE = amplitude * dEdX_weights_.at(trgCellLayer) * 0.001 *  thickCorr_.at(cellThickness-1);
-    uint32_t trgCellHwPt = amplitude * thickCorr_.at(cellThickness-1);
+    uint32_t trgCellHwPt = amplitude * thickCorr_.at( cellThickness-1 );
 
     //assign the new energy to the four-vector of the trigger cell
     math::PtEtaPhiMLorentzVector calibP4(trgCellE/cosh(trgCell.eta()), 
@@ -49,6 +51,6 @@ void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int 
     trgCell.setP4( calibP4 );
 
     // setting HwPt
-    trgCell.setHwPt( trgCellHwPt/cosh( trgCell.eta() ) ) ;
+    trgCell.setMipPt( trgCellHwPt/cosh( trgCell.eta() ) ) ;
 
 } 

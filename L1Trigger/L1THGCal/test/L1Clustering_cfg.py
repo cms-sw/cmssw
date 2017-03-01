@@ -129,9 +129,9 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
                               C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives )
+process.digi2raw_step = cms.Path( process.DigiToRaw )
 process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
                                         #Luca triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:C2dClusterAlgoBestChoice")
                                         clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
