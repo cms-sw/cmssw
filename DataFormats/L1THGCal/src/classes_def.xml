@@ -1,3 +1,4 @@
+
 <lcgdict>
   <class name="l1t::HGCFETriggerDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="3197268020"/>
@@ -23,6 +24,11 @@
   <class name="std::vector<l1t::HGCalCluster>" />
   <class name="l1t::HGCalClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
+
+  <class name="l1t::HGCalMulticluster" />
+  <class name="std::vector<l1t::HGCalMulticluster>" />
+  <class name="l1t::HGCalMulticlusterBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalMulticlusterBxCollection>"/>
 
   <class name="l1t::HGCalTriggerCell" />
   <class name="std::vector<l1t::HGCalTriggerCell>" />

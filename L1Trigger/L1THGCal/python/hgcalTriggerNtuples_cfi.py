@@ -26,7 +26,12 @@ ntuple_triggercells = cms.PSet(
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
-    Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:FullModuleSumAlgoBestChoice')
+    Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice')
+)
+
+ntuple_multicluster = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
+    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
 )
 
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
@@ -36,6 +41,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_gen,
         ntuple_digis,
         ntuple_triggercells
-        #  ntuple_clusters
+        #  ntuple_clusters,
+        #  ntuple_multicluster
     )
 )
