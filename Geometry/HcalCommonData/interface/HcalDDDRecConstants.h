@@ -107,6 +107,7 @@ public:
   unsigned int              nCells() const;
   HcalDetId                 mergedDepthDetId(const HcalDetId& id) const;
   HcalDetId                 idFront(const HcalDetId& id) const;
+  HcalDetId                 idBack (const HcalDetId& id) const;
   void                      unmergeDepthDetId(const HcalDetId& id,
 					      std::vector<HcalDetId>& ids) const;
   void                      specialRBXHBHE(const std::vector<HcalDetId>&,

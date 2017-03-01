@@ -18,7 +18,7 @@ HcalDbHardcode::HcalDbHardcode()
   setHB_(false), setHE_(false), setHF_(false), setHO_(false), 
   setHBUpgrade_(false), setHEUpgrade_(false), setHFUpgrade_(false), 
   useHBUpgrade_(false), useHEUpgrade_(false), useHOUpgrade_(true),
-  useHFUpgrade_(false), testHFQIE10_(false)
+  useHFUpgrade_(false), testHFQIE10_(false), testHEPlan1_(false)
 {
 }
 
@@ -29,8 +29,9 @@ const HcalHardcodeParameters& HcalDbHardcode::getParameters(HcalGenericDetId fId
     else return theDefaultParameters_;
   }
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap){
-    if(useHEUpgrade_ && setHEUpgrade_) return theHEUpgradeParameters_;
-    else if(!useHEUpgrade_ && setHE_) return theHEParameters_;
+    bool b_isHEPlan1 = testHEPlan1_ ? isHEPlan1(fId) : false;
+    if((useHEUpgrade_ || b_isHEPlan1) && setHEUpgrade_) return theHEUpgradeParameters_;
+    else if(!useHEUpgrade_ && !b_isHEPlan1 && setHE_) return theHEParameters_;
     else return theDefaultParameters_;
   }
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward){
@@ -556,6 +557,15 @@ int HcalDbHardcode::getLayersInDepth(int ieta, int depth, const HcalTopology* to
     }
 }
 
+bool HcalDbHardcode::isHEPlan1(HcalGenericDetId fId){
+  if(fId.isHcalDetId()){
+    HcalDetId hid(fId);
+    //special mixed case for HE 2017
+    if(hid.zside()==1 && (hid.iphi()==63 || hid.iphi()==64 || hid.iphi()==65 || hid.iphi()==66)) return true;
+  }
+  return false;
+}
+
 HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fId, const HcalTopology* topo) {
   // SiPMParameter defined for each DetId the following quantities:
   //  SiPM type, PhotoElectronToAnalog, Dark Current, two auxiliary words
@@ -579,7 +589,7 @@ HcalSiPMParameter HcalDbHardcode::makeHardcodeSiPMParameter (HcalGenericDetId fI
     }
     else theType = HcalHPD;
   } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
-    if(useHEUpgrade_) {
+    if(useHEUpgrade_ || (testHEPlan1_ && isHEPlan1(fId))) {
       HcalDetId hid(fId);
       int nLayersInDepth = getLayersInDepth(hid.ietaAbs(),hid.depth(),topo);
       if(nLayersInDepth > 4) {
