@@ -235,11 +235,9 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
     pat::Electron gsfElectron ;
 
-//    for(std::vector<pat::Electron>::const_iterator el1=electrons->begin(); el1!=electrons->end(); el1++) {
     pat::ElectronCollection::const_iterator el1 ;
     pat::ElectronCollection::const_iterator el2 ;
     for(el1=electrons->begin(); el1!=electrons->end(); el1++) {
-//        for (std::vector<pat::Electron>::const_iterator el2=el1+1 ; el2!=electrons->end() ; el2++ )
         for (el2=el1+1 ; el2!=electrons->end() ; el2++ )
         {
             math::XYZTLorentzVector p12 = el1->p4()+el2->p4();
@@ -265,11 +263,18 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     //===============================================
 
     for(size_t i=0; i<genParticles->size(); i++) {  
-        // number of mc particles
+/*                // DEBUG LINES - KEEP IT !
+        std::cout << "\nevt ID = " << iEvent.id() ; 
+        std::cout << ",  mcIter position : " << i << std::endl; 
+        std::cout << "pdgID : " << (*genParticles)[i].pdgId() << ", Pt : " << (*genParticles)[i].pt() ; 
+        std::cout << ", eta : " << (*genParticles)[i].eta() << ", phi : " << (*genParticles)[i].phi() << std::endl; 
+                // DEBUG LINES - KEEP IT !  */ 
+
+                // number of mc particles
         mcNum++ ;
 
         // counts photons
-        if ( (*genParticles)[i].pdgId() == 22 )
+        if ( (*genParticles)[i].pdgId() == 22 )       
             { gamNum++ ; }
 
         // select requested mother matching gen particle
@@ -277,12 +282,37 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         const Candidate * mother = (*genParticles)[i].mother(0) ;
         matchingMotherID = false ;
         for ( unsigned int ii=0 ; ii<matchingMotherIDs_.size() ; ii++ ) {
-            if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[ii]) )
-                { matchingMotherID = true ; 
-//			std::cout << "matchingMotherID :" << matchingMotherIDs_[ii] << std::endl ;
+
+/*                // DEBUG LINES - KEEP IT !
+                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
+                if (mother != 0) { 
+			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+                }
+                else { 
+                    std::cout << std::endl; 
+                } 
+                // DEBUG LINES - KEEP IT !  */ 
+
+            if ( mother == 0 ) {
+                matchingMotherID = true ; 
             }
-        }
-        if (!matchingMotherID) continue ;
+            else if ( mother->pdgId() == matchingMotherIDs_[ii] ) { 
+                if ( mother->numberOfDaughters() <= 2 ) {
+                    matchingMotherID = true ;
+                    //std::cout << "evt ID = " << iEvent.id() ;                                                                               // debug lines
+                    //std::cout << " - nb of Daughters : " << mother->numberOfDaughters() << " - pdgId() : " << mother->pdgId() << std::endl; // debug lines
+                }
+            } // end of mother if test
+
+/*                // DEBUG LINES - KEEP IT !
+            if (mother != 0) { 
+                std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
+                std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
+            } 
+                // DEBUG LINES - KEEP IT !  */ 
+        } // end of for loop
+    if (!matchingMotherID) {continue ;}
 
         // electron preselection
         if ((*genParticles)[i].pt()> maxPt_ || std::abs((*genParticles)[i].eta())> maxAbsEta_)
@@ -318,6 +348,10 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                         relisoNeutralHadronPt_recomp = sumNeutralHadronPt_recomp/pt_;
                         relisoPhotonPt_recomp = sumPhotonPt_recomp/pt_; /**/
                         okGsfFound = true;
+                        
+                // DEBUG LINES - KEEP IT !
+                        std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl;
+                // DEBUG LINES - KEEP IT !  /**/ 
                     }
                 }
             }
@@ -408,6 +442,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
 
     } // fin boucle size_t i
 
-//    std::cout << ("fin analyze\n");
+    //std::cout << ("fin analyze\n"); //
 }
 
