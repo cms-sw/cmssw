@@ -113,8 +113,7 @@ private:
   std::string                     theTrackQuality_, processName_;
   double                          maxRestrictionP_, slopeRestrictionP_;
   double                          a_mipR_, a_coneR_, a_charIsoR_;
-  double                          pTrackMin_, eEcalMax_, eIsolate1_,eIsolate2_;
-  bool                            useEtaVaryingCut_;
+  double                          pTrackMin_, eEcalMax_, eIsolate_;
   edm::InputTag                   labelTriggerEvent_, labelTriggerResults_;
   edm::InputTag                   labelGenTrack_, labelRecVtx_,  labelHltGT_;
   edm::InputTag                   labelEB_, labelEE_, labelHBHE_, labelBS_;
@@ -163,9 +162,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
   // maxRestrictionP_ = 8 GeV as came from a study
   maxRestrictionP_                    = iConfig.getParameter<double>("MaxTrackP");
   slopeRestrictionP_                  = iConfig.getParameter<double>("SlopeTrackP");
-  eIsolate1_                          = iConfig.getParameter<double>("IsolationEnergyStr");
-  eIsolate2_                          = iConfig.getParameter<double>("IsolationEnergySft");
-  useEtaVaryingCut_                   = iConfig.getParameter<bool>("UseEtaVaryingCut");
+  eIsolate_                           = iConfig.getParameter<double>("IsolationEnergy");
   labelGenTrack_                      = iConfig.getParameter<edm::InputTag>("TrackLabel");
   labelRecVtx_                        = iConfig.getParameter<edm::InputTag>("VertexLabel");
   labelBS_                            = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
@@ -207,8 +204,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig, c
 			       <<"\t eEcalMax "        << eEcalMax_
 			       <<"\t maxRestrictionP_ "<< maxRestrictionP_
 			       <<"\t slopeRestrictionP_ " << slopeRestrictionP_
-			       <<"\t eIsolateStrong_ " << eIsolate1_
-			       <<"\t eIsolateSoft_ "   << eIsolate2_
+			       <<"\t eIsolate_ "       << eIsolate_
 			       <<"\tProcess "          << processName_;
   for (unsigned int k=0; k<trigNames_.size(); ++k)
     edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
@@ -470,9 +466,8 @@ AlCaIsoTracksProducer::select(edm::Handle<edm::TriggerResults>& triggerResults,
 						  nNearTRKs, false);
       HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
       int       ieta = detId.ietaAbs();
-      double eIsolation = (useEtaVaryingCut_) ? (maxRestrictionP_*exp(slopeRestrictionP_*((double)(ieta)))) : 0.0;
-      if (eIsolation < eIsolate1_) eIsolation = eIsolate1_;
-      if (eIsolation < eIsolate2_) eIsolation = eIsolate2_;
+      double eIsolation = (maxRestrictionP_*exp(slopeRestrictionP_*((double)(ieta))));
+      if (eIsolation < eIsolate_) eIsolation = eIsolate_;
 #ifdef DebugLog
       edm::LogInfo("HcalIsoTrack") << "This track : " << nTracks 
 				   << " (pt|eta|phi|p) :"  << pTrack->pt() 
