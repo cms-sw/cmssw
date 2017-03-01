@@ -509,98 +509,57 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
 
 
     // Resolution and pull histograms
-    const double resolx = 0.1;
-    const double resoly = 0.1;
-    const double resolz = 0.1;
     const double resolpt2 = 10;
 
     const double minPull = -10;
     const double maxPull = 10;
     const double nPull = 100;
 
-    // Non-merged vertices
-    book1d("RecoAllAssoc2GenMatched_ResolX",   100,-resolx,resolx);
-    book1d("RecoAllAssoc2GenMatched_ResolY",   100,-resoly,resoly);
-    book1d("RecoAllAssoc2GenMatched_ResolZ",   100,-resolz,resolz);
-    book1d("RecoAllAssoc2GenMatched_ResolPt2", 100,-resolpt2,resolpt2);
-    book1d("RecoAllAssoc2GenMatched_PullX",    250,-25,25);
-    book1d("RecoAllAssoc2GenMatched_PullY",    250,-25,25);
-    book1d("RecoAllAssoc2GenMatched_PullZ",    250,-25,25);
+    auto bookResolPull = [&](const std::string& prefix, const double resolx, const double resoly, const double resolz) {
+      book1d((prefix+"_ResolX"  ).c_str(), 100,-resolx,resolx);
+      book1d((prefix+"_ResolY"  ).c_str(), 100,-resoly,resoly);
+      book1d((prefix+"_ResolZ"  ).c_str(), 100,-resolz,resolz);
+      book1d((prefix+"_ResolPt2").c_str(), 100,-resolpt2,resolpt2);
+      book1d((prefix+"_PullX"   ).c_str(), 250,-25,25);
+      book1d((prefix+"_PullY"   ).c_str(), 250,-25,25);
+      book1d((prefix+"_PullZ"   ).c_str(), 250,-25,25);
 
-    book2d("RecoAllAssoc2GenMatched_ResolX_vs_PU",   125,0.,250., 100,-resolx,resolx);
-    book2d("RecoAllAssoc2GenMatched_ResolY_vs_PU",   125,0.,250., 100,-resoly,resoly);
-    book2d("RecoAllAssoc2GenMatched_ResolZ_vs_PU",   125,0.,250., 100,-resolz,resolz);
-    book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_PU", 125,0.,250., 100,-resolpt2,resolpt2);
-    book2d("RecoAllAssoc2GenMatched_PullX_vs_PU",    125,0.,250., nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatched_PullY_vs_PU",    125,0.,250., nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatched_PullZ_vs_PU",    125,0.,250., nPull,minPull,maxPull);
+      book2d((prefix+"_ResolX_vs_PU"  ).c_str(), 125,0.,250., 100,-resolx,resolx);
+      book2d((prefix+"_ResolY_vs_PU"  ).c_str(), 125,0.,250., 100,-resoly,resoly);
+      book2d((prefix+"_ResolZ_vs_PU"  ).c_str(), 125,0.,250., 100,-resolz,resolz);
+      book2d((prefix+"_ResolPt2_vs_PU").c_str(), 125,0.,250., 100,-resolpt2,resolpt2);
+      book2d((prefix+"_PullX_vs_PU"   ).c_str(), 125,0.,250., nPull,minPull,maxPull);
+      book2d((prefix+"_PullY_vs_PU"   ).c_str(), 125,0.,250., nPull,minPull,maxPull);
+      book2d((prefix+"_PullZ_vs_PU"   ).c_str(), 125,0.,250., nPull,minPull,maxPull);
 
-    book2dlogx("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolx,resolx);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
-    book2dlogx("RecoAllAssoc2GenMatched_PullX_vs_NumTracks",    24,&log_ntrk_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatched_PullY_vs_NumTracks",    24,&log_ntrk_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatched_PullZ_vs_NumTracks",    24,&log_ntrk_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_ResolX_vs_NumTracks"  ).c_str(), 24,&log_ntrk_bins[0], 100,-resolx,resolx);
+      book2dlogx((prefix+"_ResolY_vs_NumTracks"  ).c_str(), 24,&log_ntrk_bins[0], 100,-resoly,resoly);
+      book2dlogx((prefix+"_ResolZ_vs_NumTracks"  ).c_str(), 24,&log_ntrk_bins[0], 100,-resolz,resolz);
+      book2dlogx((prefix+"_ResolPt2_vs_NumTracks").c_str(), 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+      book2dlogx((prefix+"_PullX_vs_NumTracks"   ).c_str(), 24,&log_ntrk_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullY_vs_NumTracks"   ).c_str(), 24,&log_ntrk_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullZ_vs_NumTracks"   ).c_str(), 24,&log_ntrk_bins[0], nPull,minPull,maxPull);
 
-    book2d("RecoAllAssoc2GenMatched_ResolX_vs_Z",   120,-60,60, 100,-resolx,resolx);
-    book2d("RecoAllAssoc2GenMatched_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
-    book2d("RecoAllAssoc2GenMatched_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
-    book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
-    book2d("RecoAllAssoc2GenMatched_PullX_vs_Z",    120,-60,60, nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatched_PullY_vs_Z",    120,-60,60, nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatched_PullZ_vs_Z",    120,-60,60, nPull,minPull,maxPull);
+      book2d((prefix+"_ResolX_vs_Z"  ).c_str(), 120,-60,60, 100,-resolx,resolx);
+      book2d((prefix+"_ResolY_vs_Z"  ).c_str(), 120,-60,60, 100,-resoly,resoly);
+      book2d((prefix+"_ResolZ_vs_Z"  ).c_str(), 120,-60,60, 100,-resolz,resolz);
+      book2d((prefix+"_ResolPt2_vs_Z").c_str(), 120,-60,60, 100,-resolpt2,resolpt2);
+      book2d((prefix+"_PullX_vs_Z"   ).c_str(), 120,-60,60, nPull,minPull,maxPull);
+      book2d((prefix+"_PullY_vs_Z"   ).c_str(), 120,-60,60, nPull,minPull,maxPull);
+      book2d((prefix+"_PullZ_vs_Z"   ).c_str(), 120,-60,60, nPull,minPull,maxPull);
 
-    book2dlogx("RecoAllAssoc2GenMatched_ResolX_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolY_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_Pt", log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
-    book2dlogx("RecoAllAssoc2GenMatched_PullX_vs_Pt",    log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatched_PullY_vs_Pt",    log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatched_PullZ_vs_Pt",    log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_ResolX_vs_Pt"  ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
+      book2dlogx((prefix+"_ResolY_vs_Pt"  ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
+      book2dlogx((prefix+"_ResolZ_vs_Pt"  ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
+      book2dlogx((prefix+"_ResolPt2_vs_Pt").c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
+      book2dlogx((prefix+"_PullX_vs_Pt"   ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullY_vs_Pt"   ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullZ_vs_Pt"   ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+    };
 
-
-    // Merged vertices
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolX",   100,-resolx,resolx);
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolY",   100,-resoly,resoly);
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolZ",   100,-resolz,resolz);
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolPt2", 100,-resolpt2,resolpt2);
-    book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
-    book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
-    book1d("RecoAllAssoc2GenMatchedMerged_PullZ", 250,-25,25);
-
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolX_vs_PU",   125,0.,250., 100,-resolx,resolx);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_PU",   125,0.,250., 100,-resoly,resoly);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_PU",   125,0.,250., 100,-resolz,resolz);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_PU", 125,0.,250., 100,-resolpt2,resolpt2);
-    book2d("RecoAllAssoc2GenMatchedMerged_PullX_vs_PU",    125,0.,250., nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatchedMerged_PullY_vs_PU",    125,0.,250., nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatchedMerged_PullZ_vs_PU",    125,0.,250., nPull,minPull,maxPull);
-
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolx,resolx);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_PullX_vs_NumTracks",    24,&log_ntrk_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_PullY_vs_NumTracks",    24,&log_ntrk_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_PullZ_vs_NumTracks",    24,&log_ntrk_bins[0], nPull,minPull,maxPull);
-
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Z",   120,-60,60, 100,-resolx,resolx);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Z",   120,-60,60, 100,-resoly,resoly);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Z",   120,-60,60, 100,-resolz,resolz);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Z", 120,-60,60, 100,-resolpt2,resolpt2);
-    book2d("RecoAllAssoc2GenMatchedMerged_PullX_vs_Z",    120,-60,60, nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatchedMerged_PullY_vs_Z",    120,-60,60, nPull,minPull,maxPull);
-    book2d("RecoAllAssoc2GenMatchedMerged_PullZ_vs_Z",    120,-60,60, nPull,minPull,maxPull);
-
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolX_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_Pt",   log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_Pt", log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_PullX_vs_Pt",    log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_PullY_vs_Pt",    log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_PullZ_vs_Pt",    log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
-
+    bookResolPull("RecoAllAssoc2GenMatched"      , 0.1 , 0.1 , 0.1 ); // Non-merged vertices
+    bookResolPull("RecoAllAssoc2GenMatchedMerged", 0.1 , 0.1 , 0.1 ); // Merged vertices
+    bookResolPull("RecoPVAssoc2GenPVMatched"     , 0.01, 0.01, 0.01); // PV, when correctly matched, regardless if merged or not
 
     // Purity histograms
     // Reco PV (vtx0) matched to hard-scatter gen vertex
@@ -744,7 +703,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
           ->Fill(v.closest_vertex_distance_z);
 
     // Fill resolution and pull plots here (as in MultiTrackValidator)
-    fillResolutionAndPullHistograms(label, num_pileup_vertices, v);
+    fillResolutionAndPullHistograms(label, num_pileup_vertices, v, false);
 
     // Now keep track of all RecoVTX associated to a SimVTX that
     // itself is associated to more than one RecoVTX, for
@@ -810,11 +769,15 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
 void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
     const std::string& label,
     int num_pileup_vertices,
-    PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
+    PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v,
+    bool isPV) {
 
   std::string prefix = "RecoAllAssoc2GenMatched";
   if(v.sim_vertices_internal.size() > 1) {
     prefix += "Merged";
+  }
+  if(isPV) {
+    prefix = "RecoPVAssoc2GenPVMatched";
   }
 
   // Use the best match as defined by the vertex truth associator
@@ -1470,6 +1433,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
             }
 
             fillRecoAssociatedGenPVHistograms(label, v, genPVMatchedToRecoPV);
+            if(genPVMatchedToRecoPV) {
+              auto pv = recopv[0];
+              assert(pv.recVtx == &(*iv));
+              fillResolutionAndPullHistograms(label, num_pileup_vertices, pv, true);
+            }
             genpv_position_in_reco_collection = pv_position_in_reco_collection;
             break;
           }
