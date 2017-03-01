@@ -2,8 +2,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 //class constructor
-HGCalMulticlusteringImpl::HGCalMulticlusteringImpl(const edm::ParameterSet& beCodecConfig){    
-    dR_forC3d_ = beCodecConfig.getParameter<double>("dR_searchNeighbour");
+HGCalMulticlusteringImpl::HGCalMulticlusteringImpl(const edm::ParameterSet& conf){    
+    dR_forC3d_ = conf.getParameter<double>("dR_searchNeighbour");
 }
        
 void  HGCalMulticlusteringImpl::clusterizeMultiple(const l1t::HGCalClusterBxCollection& cluster_product_, l1t::HGCalMulticlusterBxCollection& multicluster_product_){
