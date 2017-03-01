@@ -12,6 +12,7 @@ hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 from RecoLocalCalo.HcalRecProducers.hfprereco_cfi import hfprereco
 from RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi import hfreco as _phase1_hfreco
 from RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi import hbheprereco as _phase1_hbheprereco
+from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
 
 # copies for cosmics
 _default_hbheprereco = hbheprereco.clone()
@@ -25,6 +26,11 @@ run2_HF_2017.toReplaceWith( hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence
 run2_HF_2017.toReplaceWith( hfreco, _phase1_hfreco )
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toReplaceWith( hbheprereco, _phase1_hbheprereco )
+
+_plan1_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
+_plan1_hcalLocalRecoSequence += hbheplan1
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSequence)
 
 _phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase2_hcalLocalRecoSequence.remove(hbheprereco)

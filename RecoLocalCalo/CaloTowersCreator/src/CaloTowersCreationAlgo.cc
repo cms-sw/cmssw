@@ -544,12 +544,12 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 
 void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
+  DetId detIdF(detId);
   if (detId.det() == DetId::Hcal && theHcalTopology->withSpecialRBXHBHE()) {
-    HcalDetId hid(detId);
-    detId = theHcalTopology->idFront(hid);
+    detIdF = theHcalTopology->idFront(HcalDetId(detId));
 #ifdef EDM_ML_DEBUG
-    std::cout << "AssignHitHcal change " << hid << " to " << HcalDetId(detId)
-	      << std::endl;
+    std::cout << "AssignHitHcal DetId " << HcalDetId(detId) << " Front " 
+	      << HcalDetId(detIdF) << std::endl;
 #endif
   }
 
@@ -567,26 +567,26 @@ void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
         
   // SPECIAL handling of tower 28 merged depths --> half into tower 28 and half into tower 29
   bool merge(false);
-  if (detId.det()==DetId::Hcal && 
-      HcalDetId(detId).subdet()==HcalEndcap &&
+  if (detIdF.det()==DetId::Hcal && 
+      HcalDetId(detIdF).subdet()==HcalEndcap &&
       (theHcalPhase==0 || theHcalPhase==1) &&
       //HcalDetId(detId).depth()==3 &&
-      HcalDetId(detId).ietaAbs()==theHcalTopology->lastHERing()-1) {
-    if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detId).iphi(),HcalDetId(detId).zside())) != phizOne.end())) {
-      merge = (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detId).depth())!=mergedDepthsOne.end());
+      HcalDetId(detIdF).ietaAbs()==theHcalTopology->lastHERing()-1) {
+    if (subdetOne == HcalEndcap && (std::find(phizOne.begin(),phizOne.end(),std::pair<int,int>(HcalDetId(detIdF).iphi(),HcalDetId(detIdF).zside())) != phizOne.end())) {
+      merge = (std::find(mergedDepthsOne.begin(), mergedDepthsOne.end(), HcalDetId(detIdF).depth())!=mergedDepthsOne.end());
 #ifdef EDM_ML_DEBUG
       std::cout << "Special cell ";
 #endif
     } else {
-      merge = (std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detId).depth())!=mergedDepths.end());
+      merge = (std::find(mergedDepths.begin(), mergedDepths.end(), HcalDetId(detIdF).depth())!=mergedDepths.end());
 #ifdef EDM_ML_DEBUG
       std::cout << "Normal cell ";
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    std::cout << "Merge " << HcalDetId(detId).subdet() << ":"
-	      << HcalDetId(detId).ieta() << ":" << HcalDetId(detId).iphi()
-	      << ":" << HcalDetId(detId).depth() << ":" << merge
+    std::cout << "Merge " << HcalDetId(detIdF).subdet() << ":"
+	      << HcalDetId(detIdF).ieta() << ":" << HcalDetId(detIdF).iphi()
+	      << ":" << HcalDetId(detIdF).depth() << ":" << merge
 	      << std::endl;
 #endif
   }
@@ -1454,11 +1454,11 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
   // set depth using geometry of cells that are associated with the
   // tower (regardless if they have non-zero energies)
 
-//  if (hadE <= 0) return GlobalPoint(0, 0, 0);
+  //  if (hadE <= 0) return GlobalPoint(0, 0, 0);
 #ifdef EDM_ML_DEBUG
   std::cout << "hadShwrPos " << towerId << " frac " << fracDepth << std::endl;
 #endif
-  if (fracDepth < 0) fracDepth = 0;
+  if      (fracDepth < 0) fracDepth = 0;
   else if (fracDepth > 1) fracDepth = 1;
 
   GlobalPoint point(0,0,0);
@@ -1482,10 +1482,16 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
       if(items[i].det()!=DetId::Hcal) continue;
       HcalDetId hid(items[i]);
       if(hid.subdet() == HcalOuter) continue;
-      if(!theHcalTopology->validHcal(hid)) continue;
+      if(!theHcalTopology->validHcal(hid,2)) continue;
 	  
-      if(hid.depth()<frontDepth) { frontCellId = hid; frontDepth = hid.depth(); }
-      if(hid.depth()>backDepth) { backCellId = hid; backDepth = hid.depth(); }
+      if (theHcalTopology->idFront(hid).depth()<frontDepth) { 
+	frontCellId = hid; 
+	frontDepth  = theHcalTopology->idFront(hid).depth();
+      }
+      if (theHcalTopology->idBack(hid).depth()>backDepth) { 
+	backCellId = hid; 
+	backDepth  = theHcalTopology->idBack(hid).depth();
+      }
     }
 #ifdef EDM_ML_DEBUG
     std::cout << "Front " << frontCellId << " Back " << backCellId
@@ -1506,7 +1512,9 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
         HcalDetId hid(items28[i]);
 	if(hid.subdet() == HcalOuter) continue;
 		
-        if(hid.depth()>backDepth) { backCellId = hid; backDepth = hid.depth(); }
+        if(theHcalTopology->idBack(hid).depth()>backDepth) { 
+	  backCellId = hid; 
+	  backDepth  = theHcalTopology->idBack(hid).depth(); }
       }
     }
 #ifdef EDM_ML_DEBUG
@@ -1529,7 +1537,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 #ifdef EDM_ML_DEBUG
     std::cout << "Front " << HcalDetId(frontCellId) << " " << hid1 << "\n";
 #endif
-    hid2 = theHcalTopology->idFront(backCellId);
+    hid2 = theHcalTopology->idBack(backCellId);
 #ifdef EDM_ML_DEBUG
     std::cout << "Back  " << HcalDetId(backCellId) << " " << hid2 << "\n";
 #endif
@@ -1538,7 +1546,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
     const CaloCellGeometry* frontCellGeometry = theGeometry->getGeometry(DetId(hid1));
     const CaloCellGeometry* backCellGeometry  = theGeometry->getGeometry(DetId(hid2));
 
-    GlobalPoint point = frontCellGeometry->getPosition();
+    GlobalPoint point     = frontCellGeometry->getPosition();
     GlobalPoint backPoint = backCellGeometry->getBackPoint();
 
     point += fracDepth * (backPoint - point);
@@ -1578,7 +1586,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,
 
 
 GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(const std::vector<std::pair<DetId,float> >& metaContains, 
-                               float fracDepth, double emE) {
+						       float fracDepth, double emE) {
 
   double emX = 0.0;
   double emY = 0.0;
@@ -1652,7 +1660,9 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
     const uint32_t dbStatusFlag = theHcalChStatus->getValues(*it)->getValue();
     if (theHcalSevLvlComputer->dropChannel(dbStatusFlag)) {
 
-      CaloTowerDetId twrId = theTowerConstituentsMap->towerOf(*it);
+      DetId id = theHcalTopology->mergedDepthDetId(HcalDetId(*it));
+      
+      CaloTowerDetId twrId = theTowerConstituentsMap->towerOf(id);
       
       hcalDropChMap[twrId] +=1;
       
@@ -1730,11 +1740,10 @@ void CaloTowersCreationAlgo::makeEcalBadChs() {
 
 unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit* hit) {
 
-  DetId id = hit->detid();
-  HcalDetId hid(id);
-  id = theHcalTopology->idFront(hid);
+  HcalDetId hid(hit->detid());
+  DetId  id = theHcalTopology->idFront(hid);
 #ifdef EDM_ML_DEBUG
-  std::cout << "ChanStatusForCaloTower for " << hid << " to " << HcalDetId(id) 
+  std::cout << "ChanStatusForCaloTower for " << hid << " to " << HcalDetId(id)
 	    << std::endl;
 #endif
   const uint32_t recHitFlag = hit->flags();
@@ -1885,4 +1894,3 @@ std::tuple<unsigned int,bool>  CaloTowersCreationAlgo::ecalChanStatusForCaloTowe
 
 
 }
-

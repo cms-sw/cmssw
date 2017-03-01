@@ -110,6 +110,12 @@ def customise_Hcal2017(process):
         process.AllHcalDigisValidation.digiLabel = cms.string("simHcalDigis")
 
     return process
+
+#customization for Plan1
+def customise_Hcal2017Plan1(process):
+    process = customise_Hcal2017(process)
+    process.es_hardcode.testHEPlan1 = cms.bool(True)
+    return process
     
 #intermediate customization (HCAL 2017, HE and HF upgrades - w/ SiPMs & QIE11)
 def customise_Hcal2017Full(process):

@@ -46,6 +46,7 @@ from DQM.Physics.DQMPhysics_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
+from DQM.Phase2OuterTracker.OuterTrackerSourceConfig_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import * 
@@ -104,6 +105,15 @@ DQMOfflineTracking = cms.Sequence( TrackingDQMSourceTier0Common *
                                    pvMonitor *
                                    materialDumperAnalyzer
                                  )
+
+DQMOuterTracker = cms.Sequence( dqmDcsInfo *
+                                OuterTrackerSource *
+                                DQMMessageLogger *
+                                dqmPhysics *
+                                pvMonitor *
+                                produceDenoms
+                                )
+
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
@@ -132,6 +142,7 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  produceDenoms *
                                  pfTauRunDQMValidation 
                                  )
+
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
