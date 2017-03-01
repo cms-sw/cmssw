@@ -28,10 +28,8 @@ AlcaIsoTracksFilter = cms.EDFilter("AlCaIsoTracksFilter",
 # signal zone in ECAL and MIP energy cutoff
                                    ConeRadiusMIP     = cms.double(14.0),
                                    MaximumEcalEnergy = cms.double(2.0),
-# following 4 parameters are for isolation cuts and described in the code
+# following 3 parameters are for isolation cuts and described in the code
                                    MaxTrackP         = cms.double(8.0),
                                    SlopeTrackP       = cms.double(0.05090504066),
-                                   IsolationEnergyStr= cms.double(2.0),
-                                   IsolationEnergySft= cms.double(10.0),
-                                   UseEtaVaryingCut  = cms.bool(False)
+                                   IsolationEnergy   = cms.double(10.0)
 )
