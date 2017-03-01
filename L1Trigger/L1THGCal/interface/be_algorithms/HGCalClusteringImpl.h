@@ -13,7 +13,7 @@ class HGCalClusteringImpl{
 public:
   
     HGCalClusteringImpl(const edm::ParameterSet &conf);    
-    void clusterizeBase(std::unique_ptr<l1t::HGCalTriggerCellBxCollection> &, std::unique_ptr<l1t::HGCalClusterBxCollection>  &);
+    void clusterizeBase(const l1t::HGCalTriggerCellBxCollection&, l1t::HGCalClusterBxCollection&);
 
 private:
     

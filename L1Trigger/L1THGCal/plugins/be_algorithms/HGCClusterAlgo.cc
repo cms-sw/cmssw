@@ -114,6 +114,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection& co
             }
         }
     }
+    clustering_.clusterizeBase(*trgcell_product_, *cluster_product_);
+    multiclustering_.clusterizeMultiple(*cluster_product_, *multicluster_product_);
 }
 
 

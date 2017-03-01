@@ -6,15 +6,15 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl(const edm::ParameterSet& beCo
     dR_forC3d_ = beCodecConfig.getParameter<double>("dR_searchNeighbour");
 }
        
-void  HGCalMulticlusteringImpl::clusterizeMultiple(std::unique_ptr<l1t::HGCalClusterBxCollection> & cluster_product_, std::unique_ptr<l1t::HGCalMulticlusterBxCollection> & multicluster_product_){
+void  HGCalMulticlusteringImpl::clusterizeMultiple(const l1t::HGCalClusterBxCollection& cluster_product_, l1t::HGCalMulticlusterBxCollection& multicluster_product_){
     
 
-    if(cluster_product_->size()>0){
+    if(cluster_product_.size()>0){
         std::vector<size_t> isMerged;
 
         size_t seedx=0;
  
-        for(l1t::HGCalClusterBxCollection::const_iterator cl = cluster_product_->begin(); cl != cluster_product_->end(); ++cl, ++seedx){
+        for(l1t::HGCalClusterBxCollection::const_iterator cl = cluster_product_.begin(); cl != cluster_product_.end(); ++cl, ++seedx){
             edm::PtrVector<l1t::HGCalCluster> ClusterCollection;
         
             l1t::HGCalMulticluster multicluster( reco::LeafCandidate::LorentzVector(), 0, 0, 0, ClusterCollection);
@@ -29,7 +29,7 @@ void  HGCalMulticlusteringImpl::clusterizeMultiple(std::unique_ptr<l1t::HGCalClu
 
             bool skip=false;
             size_t idx=0;
-            for(l1t::HGCalClusterBxCollection::const_iterator cl_aux = cluster_product_->begin(); cl_aux != cluster_product_->end(); ++cl_aux, ++idx){
+            for(l1t::HGCalClusterBxCollection::const_iterator cl_aux = cluster_product_.begin(); cl_aux != cluster_product_.end(); ++cl_aux, ++idx){
                 for(size_t i(0); i<isMerged.size(); i++){
                     if(idx==isMerged.at(i)){
                         skip=true;
@@ -62,7 +62,7 @@ void  HGCalMulticlusteringImpl::clusterizeMultiple(std::unique_ptr<l1t::HGCalClu
                 C3d_phi=tmpPhi/C3d_pt;                
                 math::PtEtaPhiMLorentzVector calib3dP4(C3d_pt, C3d_eta, C3d_phi, 0 );
                 multicluster.setP4(calib3dP4);                    
-                multicluster_product_->push_back(0,multicluster);
+                multicluster_product_.push_back(0,multicluster);
             }                    
         }
     }
