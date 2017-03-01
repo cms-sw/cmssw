@@ -25,16 +25,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
     )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(
-        'file:./crab/SinglePhoton/l1tpg_gsdr.root'
-        )
-)
+        fileNames = cms.untracked.vstring('/store/relval//CMSSW_9_0_0_pre4/RelValZEE_14/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v3_2023D4Timing-v1/10000/02605B3A-92EC-E611-A9A9-0025905B85B2.root') )
 
 # Additional output definition
 process.TFileService = cms.Service(
@@ -69,9 +65,8 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),                           
                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters,
-                              seeding_threshold = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.seeding_threshold,
-                              clustering_threshold = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters.clustering_threshold,
-                              dR_searchNeighbour = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters.dR_searchNeighbour
+                              C2d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters,
+                              C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )

@@ -2,9 +2,9 @@
 
 
 //class constructor
-HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet& beCodecConfig){    
-    seed_CUT_ = beCodecConfig.getParameter<double>("seeding_threshold");
-    tc_CUT_ = beCodecConfig.getParameter<double>("clustering_threshold");
+HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet& conf){    
+    seed_CUT_ = conf.getParameter<double>("seeding_threshold");
+    tc_CUT_ = conf.getParameter<double>("clustering_threshold");
 }
        
 
