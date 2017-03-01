@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
+import RecoLocalCalo.HcalRecProducers.HBHEMethod0Parameters_cfi as method0
 import RecoLocalCalo.HcalRecProducers.HBHEPulseShapeFlagSetter_cfi as pulseShapeFlag
 import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 
@@ -8,14 +9,11 @@ hbheprereco = cms.EDProducer(
     "HcalHitReconstructor",
     method3.m3Parameters,
     method2.m2Parameters,
-    correctionPhaseNS = cms.double(6.0),
+    method0.m0Parameters,
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HBHE'),
-    correctForPhaseContainment = cms.bool(True),
     correctForTimeslew = cms.bool(True),
     dropZSmarkedPassed = cms.bool(True),
-    firstSample = cms.int32(4),
-    samplesToAdd = cms.int32(2),
     tsFromDB = cms.bool(True),
     recoParamsFromDB = cms.bool(True),
     useLeakCorrection = cms.bool(False),
