@@ -22,6 +22,7 @@ class Eras (object):
                  'Run2_2017',
                  'Run2_2017_trackingRun2',
                  'Run2_2017_trackingPhase1CA',
+                 'Run2_2017_trackingLowPU',
                  'Run2_2018',
                  'Run3',
                  'Phase2C1',
@@ -43,7 +44,7 @@ class Eras (object):
                            'phase2_timing_layer','phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'trackingPhase1QuadProp', 'ctpps_2016', 'trackingPhase2PU140',
                            'tracker_apv_vfp30_2016']
-        internalUseModChains = ['run2_2017_core']
+        internalUseModChains = ['run2_2017_noTrackingModifier']
 
 
         for e in allEras:
