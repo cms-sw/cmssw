@@ -8,7 +8,7 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet& beCodecConfig)
 }
        
 
-void  HGCalClusteringImpl::clusterizeBase(std::unique_ptr<l1t::HGCalTriggerCellBxCollection>& trgcell_product_, std::unique_ptr<l1t::HGCalClusterBxCollection> & cluster_product_){
+void  HGCalClusteringImpl::clusterizeBase(const l1t::HGCalTriggerCellBxCollection& trgcell_product_, l1t::HGCalClusterBxCollection& cluster_product_){
     
         double_t protoClEta = 0.;
         double_t protoClPhi = 0.;           
@@ -18,7 +18,7 @@ void  HGCalClusteringImpl::clusterizeBase(std::unique_ptr<l1t::HGCalTriggerCellB
         uint32_t C2d_hwPtEm = 0;
         uint32_t C2d_hwPtHad = 0;
                 
-        for(l1t::HGCalTriggerCellBxCollection::const_iterator tc = trgcell_product_->begin(); tc != trgcell_product_->end(); ++tc)
+        for(l1t::HGCalTriggerCellBxCollection::const_iterator tc = trgcell_product_.begin(); tc != trgcell_product_.end(); ++tc)
         {
             if(tc->hwPt()>0)
             {
@@ -46,7 +46,7 @@ void  HGCalClusteringImpl::clusterizeBase(std::unique_ptr<l1t::HGCalTriggerCellB
             C2d_phi = protoClPhi/C2d_pt;                
             math::PtEtaPhiMLorentzVector calibP4(C2d_pt, C2d_eta, C2d_phi, 0 );
             cluster.setP4(calibP4);
-            cluster_product_->push_back(0,cluster);
+            cluster_product_.push_back(0,cluster);
         }
     
 } 

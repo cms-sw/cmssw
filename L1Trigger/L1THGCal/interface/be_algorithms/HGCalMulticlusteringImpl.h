@@ -12,7 +12,7 @@ class HGCalMulticlusteringImpl{
 public:
 
     HGCalMulticlusteringImpl(const edm::ParameterSet &conf);    
-    void clusterizeMultiple(std::unique_ptr<l1t::HGCalClusterBxCollection> &, std::unique_ptr<l1t::HGCalMulticlusterBxCollection> &);
+    void clusterizeMultiple(const l1t::HGCalClusterBxCollection&, l1t::HGCalMulticlusterBxCollection&);
 
 private:
     
