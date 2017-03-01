@@ -16,6 +16,7 @@
 // user include files
 #include "tbb/task.h"
 #include <cassert>
+#include <signal.h> /*CDJ DEBUG*/
 
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/hardware_pause.h"
@@ -54,6 +55,11 @@ WaitingTaskList::reset()
   m_exceptionPtr = std::exception_ptr{};
   unsigned int nSeenTasks = m_lastAssignedCacheIndex;
   m_lastAssignedCacheIndex = 0;
+  //CDJ DEBUG
+  if(m_head != nullptr) {
+    //force traceback
+    raise(15);
+  }
   assert(m_head == nullptr);
   if (nSeenTasks > m_nodeCacheSize) {
     //need to expand so next time we don't have to do any
