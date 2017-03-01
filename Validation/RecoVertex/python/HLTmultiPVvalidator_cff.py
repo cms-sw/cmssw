@@ -7,7 +7,8 @@ hltMultiPVanalysis.verbose               = cms.untracked.bool(False)
 hltMultiPVanalysis.root_folder           = cms.untracked.string("HLT/Vertexing/ValidationWRTsim")
 hltMultiPVanalysis.vertexRecoCollections = cms.VInputTag(
     "hltPixelVertices",
-    "hltTrimmedPixelVertices"
+    "hltTrimmedPixelVertices",
+    "hltVerticesPFFilter"
 #    "hltFastPVPixelVertices"
 )
 
