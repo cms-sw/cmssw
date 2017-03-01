@@ -168,6 +168,7 @@ public:
   }
   // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
   HcalDetId idFront(const HcalDetId& id) const {return hcons_->idFront(id);}
+  HcalDetId idBack (const HcalDetId& id) const {return hcons_->idBack(id);}
 
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
