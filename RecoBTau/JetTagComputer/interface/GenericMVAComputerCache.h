@@ -19,7 +19,7 @@ class GenericMVAComputerCache {
 
 	GenericMVAComputer const* getComputer(int index) const;
 
-	inline bool isEmpty() const;
+	bool isEmpty() const;
 
     private:
 	struct IndividualComputer {

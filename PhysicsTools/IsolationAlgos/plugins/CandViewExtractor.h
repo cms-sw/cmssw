@@ -35,6 +35,8 @@ public:
       const edm::EventSetup & evSetup, const reco::Track & cand) const;
 */
 
+  virtual void initEvent(const edm::Event & ev, const edm::EventSetup & evSetup);
+  
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & muon) const {
         return depositFromObject(ev, evSetup, muon);
@@ -55,6 +57,8 @@ private:
   // Parameter set
   edm::EDGetTokenT< edm::View<reco::Candidate> > theCandViewToken; // Track Collection Label
   std::string theDepositLabel;         // name for deposit
+  edm::Handle<edm::View<reco::Candidate> > theCandViewH; //cached handle
+  edm::Event::CacheIdentifier_t theCacheID;  //event cacheID
   double theDiff_r;                    // transverse distance to vertex
   double theDiff_z;                    // z distance to vertex
   double theDR_Max;                    // Maximum cone angle for deposits

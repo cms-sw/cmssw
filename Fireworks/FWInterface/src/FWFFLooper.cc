@@ -1,4 +1,6 @@
 #include <iostream>
+#include "boost/bind.hpp"
+
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
@@ -14,6 +16,7 @@
 #include "Fireworks/Core/interface/FWRecoGeom.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
@@ -46,6 +49,12 @@
 #include "TEveBrowser.h"
 #include "TGeoManager.h"
 
+
+namespace edm
+{
+   class StreamContext;
+   class ModuleCallingContext;
+}
 
 namespace
 {
@@ -164,7 +173,10 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 
    displayConfigFilename = ps.getUntrackedParameter<std::string>("displayConfigFilename", displayConfigFilename);
    geometryFilename = ps.getUntrackedParameter<std::string>("geometryFilename", geometryFilename);
-
+   if( !geometryFilename.empty())
+   {
+      loadDefaultGeometryFile();
+   }
    setGeometryFilename(geometryFilename);
    setConfigFilename(displayConfigFilename);
 
@@ -189,9 +201,8 @@ FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
    m_pathsGUI = new FWPathsPopup(this, guiManager());
 
-   ar.watchPostProcessEvent(m_pathsGUI, &FWPathsPopup::postProcessEvent);
-   ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
-   ar.watchPreModule(m_pathsGUI, &FWPathsPopup::preModule);
+   ar.watchPostModuleEvent(m_pathsGUI, &FWPathsPopup::postModuleEvent);
+   ar.watchPreModuleEvent(m_pathsGUI, &FWPathsPopup::preModuleEvent);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
 }
 
@@ -232,8 +243,8 @@ FWFFLooper::startingNewLoop(unsigned int count)
 void 
 FWFFLooper::postEndJob()
 {
-//   printf("FWFFLooper::postEndJob\n");
-//   TEveManager::Terminate();
+   printf("FWFFLooper::postEndJob\n");
+   TEveManager::Terminate();
 }
 
 void
@@ -276,7 +287,7 @@ FWFFLooper::autoLoadNewEvent()
    else
    {
       m_autoReload = false;
-      setIsPlaying(false);
+      CmsShowMainBase::stopPlaying();
       guiManager()->enableActions();
       guiManager()->getMainFrame()->enableComplexNavigation(false);
    }
@@ -287,7 +298,7 @@ FWFFLooper::stopPlaying()
 {
    stopAutoLoadTimer();
    m_autoReload = false;
-   setIsPlaying(false);
+   CmsShowMainBase::stopPlaying();
    guiManager()->enableActions();
    guiManager()->getMainFrame()->enableComplexNavigation(false);
    checkPosition();
@@ -373,6 +384,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       fwLog(fwlog::kInfo) << "ConditionsInRunBlock not available\n";
    }
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
+   context()->getField()->setFFFieldMag(m_MagField->GetMaxFieldMag());
 }
 
 //------------------------------------------------------------------------------
@@ -386,6 +398,8 @@ FWFFLooper::duringLoop(const edm::Event &event,
       m_geomWatcher.check(es);
    } catch (...) {}
    
+
+   m_pathsGUI->postEvent(event);
 
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;

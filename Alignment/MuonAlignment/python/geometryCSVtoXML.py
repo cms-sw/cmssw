@@ -5,8 +5,8 @@ from sys import stdin
 from re import split, sub
 
 # Skip the first two lines (headers)
-stdin.next()
-stdin.next()
+next(stdin)
+next(stdin)
 
 print "<MuonAlignment>"
 print ""

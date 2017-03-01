@@ -7,14 +7,12 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // Needed only for output
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <boost/bind.hpp>
@@ -198,7 +196,7 @@ void SiStripQuality::add(const RunInfo *runInfo)
     // This must not happen
     if( !check.empty() ) {
       // throw cms::Exception("LogicError")
-      edm::LogWarning("SiStripQuality") 
+      edm::LogInfo("SiStripQuality") 
         << "The cabling should always include the active feds in runInfo and possibly have some more"
         << "there are instead " << check.size() << " feds only active in runInfo";
       // The "false" means that we are only printing the output, but not setting the strips as bad.
@@ -688,44 +686,34 @@ short SiStripQuality::getBadFibers(const uint32_t& detid) const
   return 0;
 } 
 
-void SiStripQuality::printDetInfo(const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss)
+void SiStripQuality::printDetInfo(const TrackerTopology* const tTopo, const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss)
 {
-  int layer = 0;
-  int stereo = 0;
   std::string subDetName;
   DetId detid(detId);
+  int layer = tTopo->layer(detid);
+  int stereo = 0;
   switch (detid.subdetId()) {
   case StripSubdetector::TIB:
     {
-      TIBDetId theTIBDetId(detid.rawId());
-      layer = theTIBDetId.layer();
-      stereo = theTIBDetId.stereo();
+      stereo = tTopo->tibIsStereo(detid);
       subDetName = "TIB";
       break;
     }
   case StripSubdetector::TOB:
     {
-      TOBDetId theTOBDetId(detid.rawId());
-      layer = theTOBDetId.layer();
-      stereo = theTOBDetId.stereo();
+      stereo = tTopo->tobIsStereo(detid);
       subDetName = "TOB";
       break;
     }
   case StripSubdetector::TEC:
     {
-      TECDetId theTECDetId(detid.rawId());
-      // is this module in TEC+ or TEC-?
-      layer = theTECDetId.wheel();
-      stereo = theTECDetId.stereo();
+      stereo = tTopo->tecIsStereo(detid);
       subDetName = "TEC";
       break;
     }
   case StripSubdetector::TID:
     {
-      TECDetId theTIDDetId(detid.rawId());
-      // is this module in TID+ or TID-?
-      layer = theTIDDetId.wheel();
-      stereo = theTIDDetId.stereo();
+      stereo = tTopo->tidIsStereo(detid);
       subDetName = "TID";
       break;
     }
@@ -776,7 +764,7 @@ void SiStripQuality::turnOffFeds(const std::vector<int> & fedsList, const bool t
       uint16_t apvPairNumber = fedChIt->apvPairNumber();
 
       if( printDebug ) {
-        printDetInfo(detId, apvPairNumber, ss);
+        printDetInfo(SiStripDetCabling_->trackerTopology(),detId, apvPairNumber, ss);
       }
 
       if( turnOffStrips ) {

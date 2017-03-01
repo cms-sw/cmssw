@@ -3,8 +3,11 @@
 #
 #
 import FWCore.ParameterSet.Config as cms
-
 process = cms.Process("T")
+
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -51,8 +54,10 @@ process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 process.source = cms.Source("PoolSource",
  fileNames =  cms.untracked.vstring(
-#    'file:../../../SimTracker/SiPixelDigitizer/test/tracks.root'
-    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/tracks/tracks1.root'
+    'file:tracks.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/tracks/tracks1.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/tracks/tracks2_mc71.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/tracks/tracks2_postls171.root'
     )
 )
 
@@ -61,14 +66,14 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo_tracks.root')
 )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-# needed for global transformation
-# process.load("Configuration.StandardSequences.FakeConditions_cff")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
-process.GlobalTag.globaltag = "MC_70_V1::All"
+# Choose the global tag here:
+# DATA 2014
+process.GlobalTag.globaltag = 'PRE_R_71_V3::All'
+# MC 2014
+#process.GlobalTag.globaltag = 'PRE_STA71_V4::All'
+# 2013 MC
+#process.GlobalTag.globaltag = "MC_70_V1::All"
 # 2012
 #process.GlobalTag.globaltag = "GR_P_V40::All"
 #process.GlobalTag.globaltag = "GR_P_V28::All" # A&B
@@ -83,7 +88,7 @@ process.GlobalTag.globaltag = "MC_70_V1::All"
 # process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
 
 process.d = cms.EDAnalyzer("TestWithTracks",
-    Verbosity = cms.untracked.bool(False),
+    Verbosity = cms.untracked.bool(True),
     src = cms.InputTag("generalTracks"),
 #     PrimaryVertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),                             
 #     trajectoryInput = cms.string("TrackRefitterP5")

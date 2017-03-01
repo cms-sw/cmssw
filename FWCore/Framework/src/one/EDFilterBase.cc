@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -49,26 +50,22 @@ namespace edm {
     }
     
     bool
-    EDFilterBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDFilterBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                           ActivityRegistry* act,
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       bool returnValue =true;
-      {
-        std::lock_guard<std::mutex> guard(mutex_);
-        {
-          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
-          EventSignalsSentry sentry(act,mcc);
-          returnValue = this->filter(e, c);
-        }
-        commit_(e,&previousParentage_, &previousParentageId_);
-      }
+      e.setSharedResourcesAcquirer(&resourcesAcquirer_);
+      EventSignalsSentry sentry(act,mcc);
+      returnValue = this->filter(e, c);
+      commit_(e,&previousParentage_, &previousParentageId_);
       return returnValue;
     }
     
     SharedResourcesAcquirer EDFilterBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
     void
@@ -84,7 +81,13 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+    EDFilterBase::doPreallocate(PreallocationConfiguration const&iPrealloc) {
+      auto const nThreads = iPrealloc.numberOfThreads();
+      preallocThreads(nThreads);
+    }
+
+    void
+    EDFilterBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -95,7 +98,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doEndRun(RunPrincipal& rp, EventSetup const& c,
+    EDFilterBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                            ModuleCallingContext const* mcc) {
       Run r(rp, moduleDescription_, mcc);
       r.setConsumer(this);
@@ -106,7 +109,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDFilterBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
@@ -117,7 +120,7 @@ namespace edm {
     }
     
     void
-    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    EDFilterBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                        ModuleCallingContext const* mcc) {
       LuminosityBlock lb(lbp, moduleDescription_, mcc);
       lb.setConsumer(this);
@@ -139,12 +142,12 @@ namespace edm {
     
     void
     EDFilterBase::doPreForkReleaseResources() {
-      //preForkReleaseResources();
+      preForkReleaseResources();
     }
     
     void
     EDFilterBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources(iChildIndex, iNumberOfChildren);
+      postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
     
     void EDFilterBase::doBeginRun_(Run const& rp, EventSetup const& c) {}

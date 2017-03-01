@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
@@ -53,14 +53,14 @@ int main(int argc, char* argv[])
   // ----------------------------------------------------------------------
   // First Part:
   //
-  //  * enable the AutoLibraryLoader 
+  //  * enable FWLite 
   //  * book the histograms of interest 
   //  * open the input file
   // ----------------------------------------------------------------------
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   // book a set of histograms
   fwlite::TFileService fs = fwlite::TFileService("analyzeBasics.root");
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
       double muon2[3] = {(*muon2pt)[i], (*muon2eta)[i], (*muon2phi)[i]};
 
       // pairVector.push_back( std::make_pair( fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2) ) );
-      pairVector.push_back( MuonPair(fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), MuScleFitEvent(0,0,0,0,0)) );
+      pairVector.push_back( MuonPair(fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), MuScleFitEvent(0,0,0,0,0,0)) );
     }
   }
   size_t namePos = fileName.find_last_of("/");

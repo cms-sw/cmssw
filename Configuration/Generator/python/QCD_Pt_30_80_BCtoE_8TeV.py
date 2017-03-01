@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+
 
 from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
 generator = cms.EDFilter("Pythia6GeneratorFilter",
@@ -24,7 +24,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 
 genParticlesForFilter = cms.EDProducer("GenParticleProducer",
     saveBarCodes = cms.untracked.bool(True),
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generatorSmeared"),
     abortOnUnknownPDGCode = cms.untracked.bool(True)
 )
 

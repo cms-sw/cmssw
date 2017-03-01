@@ -18,37 +18,43 @@ namespace ecaldqm
 
     MESet* clone(std::string const& = "") const override;
 
-    void book(DQMStore&) override;
     void book(DQMStore::IBooker&) override;
 
     void fill(DetId const&, double = 1., double = 0., double = 0.) override;
     void fill(EcalElectronicsId const&, double = 1., double = 0., double = 0.) override;
     void fill(int, double = 1., double = 1., double = 1.) override;
 
+    using MESetEcal::setBinContent;
     void setBinContent(DetId const&, double) override;
     void setBinContent(EcalElectronicsId const&, double) override;
     void setBinContent(int, double) override;
 
+    using MESetEcal::setBinError;
     void setBinError(DetId const&, double) override;
     void setBinError(EcalElectronicsId const&, double) override;
     void setBinError(int, double) override;
 
+    using MESetEcal::setBinEntries;
     void setBinEntries(DetId const&, double) override;
     void setBinEntries(EcalElectronicsId const&, double) override;
     void setBinEntries(int, double) override;
 
+    using MESetEcal::getBinContent;
     double getBinContent(DetId const&, int = 0) const override;
     double getBinContent(EcalElectronicsId const&, int = 0) const override;
     double getBinContent(int, int = 0) const override;
 
+    using MESetEcal::getBinError;
     double getBinError(DetId const&, int = 0) const override;
     double getBinError(EcalElectronicsId const&, int = 0) const override;
     double getBinError(int, int = 0) const override;
 
+    using MESetEcal::getBinEntries;
     double getBinEntries(DetId const&, int = 0) const override;
     double getBinEntries(EcalElectronicsId const&, int = 0) const override;
     double getBinEntries(int, int) const override;
 
+    using MESetEcal::findBin;
     int findBin(DetId const&) const;
     int findBin(EcalElectronicsId const&) const;
 
@@ -60,9 +66,6 @@ namespace ecaldqm
     void fill_(unsigned, int, double) override;
     void fill_(unsigned, int, double, double) override;
     void fill_(unsigned, double, double, double) override;
-
-  private:
-    template<class Bookable> void doBook_(Bookable&);
   };
 }
 

@@ -10,10 +10,12 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TLorentzVector.h"
 
+namespace {
+
 using namespace reco;
 using namespace std;
 
-class CaloRecoTauDiscriminationByInvMass : public CaloTauDiscriminationProducerBase  {
+class CaloRecoTauDiscriminationByInvMass final : public CaloTauDiscriminationProducerBase  {
   public:
     explicit CaloRecoTauDiscriminationByInvMass(
         const edm::ParameterSet& iConfig)
@@ -26,16 +28,16 @@ class CaloRecoTauDiscriminationByInvMass : public CaloTauDiscriminationProducerB
 
     ~CaloRecoTauDiscriminationByInvMass(){}
 
-    double discriminate(const reco::CaloTauRef&) override;
+    double discriminate(const reco::CaloTauRef&) const override;
 
   private:
-    double threeProngInvMass(const CaloTauRef&);
+    double threeProngInvMass(const CaloTauRef&) const ;
     double chargedPionMass;
     double invMassMin,invMassMax;
     bool booleanOutput;
 };
 
-double CaloRecoTauDiscriminationByInvMass::discriminate(const CaloTauRef& tau){
+double CaloRecoTauDiscriminationByInvMass::discriminate(const CaloTauRef& tau) const {
 
   double invMass = threeProngInvMass(tau);
   if(booleanOutput) return (
@@ -44,7 +46,7 @@ double CaloRecoTauDiscriminationByInvMass::discriminate(const CaloTauRef& tau){
 }
 
 double CaloRecoTauDiscriminationByInvMass::threeProngInvMass(
-    const CaloTauRef& tau){
+    const CaloTauRef& tau) const {
   TLorentzVector sum;
   reco::TrackRefVector signalTracks = tau->signalTracks();
   for(size_t i = 0; i < signalTracks.size(); ++i){
@@ -58,4 +60,5 @@ double CaloRecoTauDiscriminationByInvMass::threeProngInvMass(
   return sum.M();
 }
 
+}
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByInvMass);

@@ -22,8 +22,7 @@
 #include <iomanip>
 
 // user include files
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
-#include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 
 // forward declarations
@@ -32,7 +31,7 @@
 TriggerMenu::TriggerMenu()
   : m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName( "NULL" ),
-    m_triggerMenuImplementation( "NULL" ),
+    m_triggerMenuImplementation( 0x0 ),
     m_scaleDbKey( "NULL" )
 {
     // empty
@@ -43,31 +42,21 @@ TriggerMenu::TriggerMenu(
         const unsigned int numberConditionChips,
         const std::vector<std::vector<MuonTemplate> >& vecMuonTemplateVal,
         const std::vector<std::vector<CaloTemplate> >& vecCaloTemplateVal,
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTemplateVal,
-        const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTemplateVal,
-        const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTemplateVal,
-        const std::vector<std::vector<L1GtHfBitCountsTemplate> >& vecHfBitCountsTemplateVal,
-        const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >& vecHfRingEtSumsTemplateVal,
-        const std::vector<std::vector<L1GtBptxTemplate> >& vecBptxTemplateVal,
-        const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTemplateVal,
+        const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTemplateVal,
+        const std::vector<std::vector<ExternalTemplate> >& vecExternalTemplateVal,
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplateVal,
         const std::vector<std::vector<MuonTemplate> >& corMuonTemplateVal,
         const std::vector<std::vector<CaloTemplate> >& corCaloTemplateVal,
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTemplateVal
+        const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTemplateVal
 
 ) :
     m_triggerMenuInterface( "NULL" ),
     m_triggerMenuName(triggerMenuNameVal),
-    m_triggerMenuImplementation( "NULL" ),
+    m_triggerMenuImplementation( 0x0 ),
     m_scaleDbKey( "NULL" ),
             m_vecMuonTemplate(vecMuonTemplateVal),
             m_vecCaloTemplate(vecCaloTemplateVal),
             m_vecEnergySumTemplate(vecEnergySumTemplateVal),
-            m_vecJetCountsTemplate(vecJetCountsTemplateVal),
-            m_vecCastorTemplate(vecCastorTemplateVal),
-            m_vecHfBitCountsTemplate(vecHfBitCountsTemplateVal),
-            m_vecHfRingEtSumsTemplate(vecHfRingEtSumsTemplateVal),
-            m_vecBptxTemplate(vecBptxTemplateVal),
             m_vecExternalTemplate(vecExternalTemplateVal),
             m_vecCorrelationTemplate(vecCorrelationTemplateVal),
             m_corMuonTemplate(corMuonTemplateVal),
@@ -76,6 +65,7 @@ TriggerMenu::TriggerMenu(
 {
 
     m_conditionMap.resize(numberConditionChips);
+    m_triggerMenuUUID = 0;
     buildGtConditionMap();
 
 }
@@ -88,16 +78,12 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs)
     m_triggerMenuName = rhs.m_triggerMenuName;
     m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
     m_scaleDbKey = rhs.m_scaleDbKey ;
+    m_triggerMenuUUID = rhs.m_triggerMenuUUID;
 
     // copy physics conditions
     m_vecMuonTemplate = rhs.m_vecMuonTemplate;
     m_vecCaloTemplate = rhs.m_vecCaloTemplate;
     m_vecEnergySumTemplate = rhs.m_vecEnergySumTemplate;
-    m_vecJetCountsTemplate = rhs.m_vecJetCountsTemplate;
-    m_vecCastorTemplate = rhs.m_vecCastorTemplate;
-    m_vecHfBitCountsTemplate = rhs.m_vecHfBitCountsTemplate;
-    m_vecHfRingEtSumsTemplate = rhs.m_vecHfRingEtSumsTemplate;
-    m_vecBptxTemplate = rhs.m_vecBptxTemplate;
     m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
     m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
@@ -116,7 +102,7 @@ TriggerMenu::TriggerMenu(const TriggerMenu& rhs)
 
     // copy technical triggers
     // (separate map for technical triggers and physics triggers)
-    m_technicalTriggerMap = rhs.m_technicalTriggerMap;
+    //m_technicalTriggerMap = rhs.m_technicalTriggerMap;
 
 }
 
@@ -144,15 +130,11 @@ TriggerMenu& TriggerMenu::operator=(const TriggerMenu& rhs) {
         m_triggerMenuInterface = rhs.m_triggerMenuInterface;
         m_triggerMenuName = rhs.m_triggerMenuName;
         m_triggerMenuImplementation = rhs.m_triggerMenuImplementation;
+	m_triggerMenuUUID = rhs.m_triggerMenuUUID;
 
         m_vecMuonTemplate = rhs.m_vecMuonTemplate;
         m_vecCaloTemplate = rhs.m_vecCaloTemplate;
         m_vecEnergySumTemplate = rhs.m_vecEnergySumTemplate;
-        m_vecJetCountsTemplate = rhs.m_vecJetCountsTemplate;
-        m_vecCastorTemplate = rhs.m_vecCastorTemplate;
-        m_vecHfBitCountsTemplate = rhs.m_vecHfBitCountsTemplate;
-        m_vecHfRingEtSumsTemplate = rhs.m_vecHfRingEtSumsTemplate;
-        m_vecBptxTemplate = rhs.m_vecBptxTemplate;
         m_vecExternalTemplate = rhs.m_vecExternalTemplate;
 
         m_vecCorrelationTemplate = rhs.m_vecCorrelationTemplate;
@@ -163,7 +145,7 @@ TriggerMenu& TriggerMenu::operator=(const TriggerMenu& rhs) {
         m_algorithmMap = rhs.m_algorithmMap;
         m_algorithmAliasMap = rhs.m_algorithmAliasMap;
 
-        m_technicalTriggerMap = rhs.m_technicalTriggerMap;
+//        m_technicalTriggerMap = rhs.m_technicalTriggerMap;
 
     }
 
@@ -244,9 +226,7 @@ void TriggerMenu::buildGtConditionMap() {
         }
     }
 
-    /*
-      /// DMP: Comment out unused templates for now
-
+ 
     //
     size_t vecEnergySumSize = m_vecEnergySumTemplate.size();
     if (condMapSize < vecEnergySumSize) {
@@ -255,14 +235,14 @@ void TriggerMenu::buildGtConditionMap() {
     }
 
     chipNr = -1;
-    for (std::vector<std::vector<L1GtEnergySumTemplate> >::iterator
+    for (std::vector<std::vector<EnergySumTemplate> >::iterator
             itCondOnChip = m_vecEnergySumTemplate.begin();
             itCondOnChip != m_vecEnergySumTemplate.end();
             itCondOnChip++) {
 
         chipNr++;
 
-        for (std::vector<L1GtEnergySumTemplate>::iterator
+        for (std::vector<EnergySumTemplate>::iterator
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
@@ -270,121 +250,8 @@ void TriggerMenu::buildGtConditionMap() {
         }
     }
 
+     /// DMP: Comment out unused templates for now
     //
-    size_t vecJetCountsSize = m_vecJetCountsTemplate.size();
-    if (condMapSize < vecJetCountsSize) {
-        m_conditionMap.resize(vecJetCountsSize);
-        condMapSize = m_conditionMap.size();
-    }
-
-    chipNr = -1;
-    for (std::vector<std::vector<L1GtJetCountsTemplate> >::iterator
-            itCondOnChip = m_vecJetCountsTemplate.begin();
-            itCondOnChip != m_vecJetCountsTemplate.end();
-            itCondOnChip++) {
-
-        chipNr++;
-
-        for (std::vector<L1GtJetCountsTemplate>::iterator
-                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-                itCond++) {
-
-            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
-        }
-    }
-
-    //
-    size_t vecCastorSize = m_vecCastorTemplate.size();
-    if (condMapSize < vecCastorSize) {
-        m_conditionMap.resize(vecCastorSize);
-        condMapSize = m_conditionMap.size();
-    }
-
-    chipNr = -1;
-    for (std::vector<std::vector<L1GtCastorTemplate> >::iterator
-            itCondOnChip = m_vecCastorTemplate.begin();
-            itCondOnChip != m_vecCastorTemplate.end();
-            itCondOnChip++) {
-
-        chipNr++;
-
-        for (std::vector<L1GtCastorTemplate>::iterator
-                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-                itCond++) {
-
-            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
-        }
-    }
-
-    //
-    size_t vecHfBitCountsSize = m_vecHfBitCountsTemplate.size();
-    if (condMapSize < vecHfBitCountsSize) {
-        m_conditionMap.resize(vecHfBitCountsSize);
-        condMapSize = m_conditionMap.size();
-    }
-
-    chipNr = -1;
-    for (std::vector<std::vector<L1GtHfBitCountsTemplate> >::iterator
-            itCondOnChip = m_vecHfBitCountsTemplate.begin();
-            itCondOnChip != m_vecHfBitCountsTemplate.end();
-            itCondOnChip++) {
-
-        chipNr++;
-
-        for (std::vector<L1GtHfBitCountsTemplate>::iterator
-                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-                itCond++) {
-
-            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
-        }
-    }
-
-    //
-    size_t vecHfRingEtSumsSize = m_vecHfRingEtSumsTemplate.size();
-    if (condMapSize < vecHfRingEtSumsSize) {
-        m_conditionMap.resize(vecHfRingEtSumsSize);
-        condMapSize = m_conditionMap.size();
-    }
-
-    chipNr = -1;
-    for (std::vector<std::vector<L1GtHfRingEtSumsTemplate> >::iterator
-            itCondOnChip = m_vecHfRingEtSumsTemplate.begin();
-            itCondOnChip != m_vecHfRingEtSumsTemplate.end();
-            itCondOnChip++) {
-
-        chipNr++;
-
-        for (std::vector<L1GtHfRingEtSumsTemplate>::iterator
-                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-                itCond++) {
-
-            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
-        }
-    }
-
-    //
-    size_t vecBptxSize = m_vecBptxTemplate.size();
-    if (condMapSize < vecBptxSize) {
-        m_conditionMap.resize(vecBptxSize);
-        condMapSize = m_conditionMap.size();
-    }
-
-    chipNr = -1;
-    for (std::vector<std::vector<L1GtBptxTemplate> >::iterator
-            itCondOnChip = m_vecBptxTemplate.begin();
-            itCondOnChip != m_vecBptxTemplate.end();
-            itCondOnChip++) {
-
-        chipNr++;
-
-        for (std::vector<L1GtBptxTemplate>::iterator
-                itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
-                itCond++) {
-
-            (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
-        }
-    }
-
     //
     size_t vecExternalSize = m_vecExternalTemplate.size();
     if (condMapSize < vecExternalSize) {
@@ -393,21 +260,21 @@ void TriggerMenu::buildGtConditionMap() {
     }
 
     chipNr = -1;
-    for (std::vector<std::vector<L1GtExternalTemplate> >::iterator
+    for (std::vector<std::vector<ExternalTemplate> >::iterator
             itCondOnChip = m_vecExternalTemplate.begin();
             itCondOnChip != m_vecExternalTemplate.end();
             itCondOnChip++) {
 
         chipNr++;
 
-        for (std::vector<L1GtExternalTemplate>::iterator
+        for (std::vector<ExternalTemplate>::iterator
                 itCond = itCondOnChip->begin(); itCond != itCondOnChip->end();
                 itCond++) {
 
             (m_conditionMap.at(chipNr))[itCond->condName()] = &(*itCond);
         }
     }
-    */
+    
 
     //
     size_t vecCorrelationSize = m_vecCorrelationTemplate.size();
@@ -446,13 +313,23 @@ void TriggerMenu::setGtTriggerMenuName(const std::string& menuName) {
     m_triggerMenuName = menuName;
 }
 
-void TriggerMenu::setGtTriggerMenuImplementation(const std::string& menuImplementation) {
+void TriggerMenu::setGtTriggerMenuImplementation(const unsigned long menuImplementation) {
     m_triggerMenuImplementation = menuImplementation;
 }
+
+void TriggerMenu::setGtTriggerMenuUUID(const unsigned long uuid) {
+    m_triggerMenuUUID = uuid;
+}
+
 
 // set menu associated scale key
 void TriggerMenu::setGtScaleDbKey(const std::string& scaleKey) {
     m_scaleDbKey = scaleKey;
+}
+
+// set menu associated scale key
+void TriggerMenu::setGtScales(const l1t::GlobalScales& scales) {
+    m_gtScales = scales;
 }
 
 // get / set the vectors containing the conditions
@@ -469,46 +346,18 @@ void TriggerMenu::setVecCaloTemplate(
 }
 
 void TriggerMenu::setVecEnergySumTemplate(
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTempl) {
+        const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTempl) {
 
     m_vecEnergySumTemplate = vecEnergySumTempl;
 }
 
-void TriggerMenu::setVecJetCountsTemplate(
-        const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTempl) {
-
-    m_vecJetCountsTemplate = vecJetCountsTempl;
-}
-
-void TriggerMenu::setVecCastorTemplate(
-        const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTempl) {
-
-    m_vecCastorTemplate = vecCastorTempl;
-}
-
-void TriggerMenu::setVecHfBitCountsTemplate(
-        const std::vector<std::vector<L1GtHfBitCountsTemplate> >& vecHfBitCountsTempl) {
-
-    m_vecHfBitCountsTemplate = vecHfBitCountsTempl;
-}
-
-void TriggerMenu::setVecHfRingEtSumsTemplate(
-        const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >& vecHfRingEtSumsTempl) {
-
-    m_vecHfRingEtSumsTemplate = vecHfRingEtSumsTempl;
-}
-
-void TriggerMenu::setVecBptxTemplate(
-        const std::vector<std::vector<L1GtBptxTemplate> >& vecBptxTempl) {
-
-    m_vecBptxTemplate = vecBptxTempl;
-}
 
 void TriggerMenu::setVecExternalTemplate(
-        const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTempl) {
+        const std::vector<std::vector<ExternalTemplate> >& vecExternalTempl) {
 
     m_vecExternalTemplate = vecExternalTempl;
 }
+
 
 void TriggerMenu::setVecCorrelationTemplate(
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTempl) {
@@ -530,7 +379,7 @@ void TriggerMenu::setCorCaloTemplate(
 }
 
 void TriggerMenu::setCorEnergySumTemplate(
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTempl) {
+        const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTempl) {
 
     m_corEnergySumTemplate = corEnergySumTempl;
 }
@@ -547,18 +396,20 @@ void TriggerMenu::setGtAlgorithmAliasMap(const l1t::AlgorithmMap& algoMap) {
     m_algorithmAliasMap = algoMap;
 }
 
+/*
 // set the technical trigger map
 void TriggerMenu::setGtTechnicalTriggerMap(const l1t::AlgorithmMap& ttMap) {
     m_technicalTriggerMap = ttMap;
 }
+*/
 
 // print the trigger menu (bit number, algorithm name, logical expression)
 void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
-    // use another map <int, L1GtAlgorithm> to get the menu sorted after bit number
+    // use another map <int, GlobalAlgorithm> to get the menu sorted after bit number
     // both algorithm and bit numbers are unique
-    std::map<int, const L1GtAlgorithm*> algoBitToAlgo;
-    typedef std::map<int, const L1GtAlgorithm*>::const_iterator CItBit;
+    std::map<int, const GlobalAlgorithm*> algoBitToAlgo;
+    typedef std::map<int, const GlobalAlgorithm*>::const_iterator CItBit;
 
     for (l1t::CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
 
@@ -568,8 +419,9 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
     size_t nrDefinedAlgo = algoBitToAlgo.size();
 
+/*
     // idem for technical trigger map - only name and bit number are relevant for them
-    std::map<int, const L1GtAlgorithm*> ttBitToTt;
+    std::map<int, const GlobalAlgorithm*> ttBitToTt;
 
     for (l1t::CItAlgo itAlgo = m_technicalTriggerMap.begin(); itAlgo
             != m_technicalTriggerMap.end(); itAlgo++) {
@@ -579,7 +431,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
     }
 
     size_t nrDefinedTechTrig = ttBitToTt.size();
-
+*/
     //
 
     switch (printVerbosity) {
@@ -589,9 +441,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number "
@@ -610,7 +463,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                     << std::right << std::setw(35) << aAlias
                     << std::endl;
             }
-
+/*
             myCout
             << "\nL1 Technical Triggers: " << nrDefinedTechTrig
             << " technical triggers defined." << "\n\n" << std::endl;
@@ -629,7 +482,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                 << std::right << std::setw(35) << aAlias
                 << std::endl;
             }
-
+*/
         }
             break;
 
@@ -638,9 +491,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << "Bit Number "
@@ -662,7 +516,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
                 << "\n  Logical expression: " << aLogicalExpression << "\n"
                 << std::endl;
             }
-
+/*
             myCout
             << "\nL1 Technical Triggers: " << nrDefinedTechTrig
             << " technical triggers defined." << "\n\n" << std::endl;
@@ -677,6 +531,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
                 myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
             }
+*/
         }
             break;
 
@@ -685,9 +540,10 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             // header for printing algorithms
 
             myCout << "\n   ********** L1 Trigger Menu - printing   ********** \n"
-            << "\nL1 Trigger Menu Interface: " << m_triggerMenuInterface
-            << "\nL1 Trigger Menu Name:      " << m_triggerMenuName
-            << "\nL1 Trigger Menu Implementation: " << m_triggerMenuImplementation
+            << "\nL1 Trigger Menu Interface:         " << m_triggerMenuInterface
+            << "\nL1 Trigger Menu Name:              " << m_triggerMenuName
+	    << "\nL1 Trigger Menu UUID (hash):     0x" << std::hex << m_triggerMenuUUID << std::dec
+            << "\nL1 Trigger Menu Firmware (hash): 0x" << std::hex << m_triggerMenuImplementation << std::dec
             << "\nAssociated Scale DB Key: " << m_scaleDbKey << "\n\n"
             << "\nL1 Physics Algorithms: " << nrDefinedAlgo << " algorithms defined." << "\n\n"
             << std::endl;
@@ -728,7 +584,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
             myCout << "\nTotal number of conditions on all condition chips: "
             << totalNrConditions << "\n"
             << std::endl;
-
+/*
             myCout
             << "\nL1 Technical Triggers: " << nrDefinedTechTrig
             << " technical triggers defined." << "\n\n" << std::endl;
@@ -743,7 +599,7 @@ void TriggerMenu::print(std::ostream& myCout, int& printVerbosity) const {
 
                 myCout << std::setw(6) << bitNumber << "       " << aName << std::endl;
             }
-
+*/
 
         }
             break;

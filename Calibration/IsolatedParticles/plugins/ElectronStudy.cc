@@ -14,15 +14,15 @@
 
 ElectronStudy::ElectronStudy(const edm::ParameterSet& ps) {
 
-  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generator");
+  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generatorSmeared");
   g4Label = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLabEB= ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLabEE= ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
 
 
-  tok_EBhit_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEB));
-  tok_EEhit_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEE));
-  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
+  tok_EBhit_  = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEB));
+  tok_EEhit_  = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLabEE));
+  tok_simTk_  = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
   tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag(g4Label));
 
   hotZone = ps.getUntrackedParameter<int>("HotZone",0);

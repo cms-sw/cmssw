@@ -32,11 +32,11 @@ class TBLayer: public BarrelDetLayer {
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const final __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const final {return me;}
+  virtual SubDetector subDetector() const final {return GeomDetEnumerators::subDetGeom[me];}
 
 
 protected:
@@ -68,6 +68,7 @@ protected:
   bool isTIB() const { return me==GeomDetEnumerators::TIB;}
   bool isTOB() const { return me==GeomDetEnumerators::TOB;}
   bool isPixel() const { return me==GeomDetEnumerators::PixelBarrel;}
+  bool isPhase2OT() const { return me==GeomDetEnumerators::P2OTB;}
 
   virtual void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,

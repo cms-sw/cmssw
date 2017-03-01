@@ -4,6 +4,7 @@
 #ifndef DataFormats_PatCandidates_MET_h
 #define DataFormats_PatCandidates_MET_h
 
+
 /**
   \class    pat::MET MET.h "DataFormats/PatCandidates/interface/MET.h"
   \brief    Analysis-level MET class
@@ -53,6 +54,8 @@ namespace pat {
       MET(const edm::Ptr<reco::MET> & aMETRef);
       /// copy constructor
       MET( MET const&);
+      /// constructor for corrected METs (keeping specific informations from src MET)
+      MET(const reco::MET & corMET, const MET& srcMET );
       /// destructor
       virtual ~MET();
 
@@ -67,28 +70,18 @@ namespace pat {
       /// set the associated GenMET
       void setGenMET(const reco::GenMET & gm);
 
-      // ---- methods for MET corrections ----
-      //! uses internal info from mEtCorr
-      //! except for full uncorrection, how do you know which is which?
-      //! you don't, 
-      //! present ordering: 
-      //! 1: jet escale Type1 correction
-      //! 2: muon Type1 (?) correction
-      //! 3: tau Type1 (?) correction
-      unsigned int nCorrections() const;
-      enum UncorrectionType {
-	uncorrNONE = -1, //! do nothing
-	uncorrALL = 0, //! uncorrect to bare bones
-	uncorrJES,     //! uncorrect for JES only
-	uncorrMUON,    //! uncorrect for MUON only
-	uncorrTAU,    //! uncorrect for TAU only
-	uncorrMAXN
-      };
-      float corEx(UncorrectionType ix = uncorrALL) const;
-      float corEy(UncorrectionType ix = uncorrALL) const;
-      float corSumEt(UncorrectionType ix = uncorrALL) const;
-      float uncorrectedPt(UncorrectionType ix = uncorrALL) const;
-      float uncorrectedPhi(UncorrectionType ix = uncorrALL) const;
+      // ----- MET significance functions ----
+      // set the MET Significance
+      void setMETSignificance(const double& metSig);
+      // get the MET significance
+      double metSignificance() const;
+
+
+      // ---- methods for uncorrected MET ----
+      // Methods not yet defined
+      //float uncorrectedPt() const;
+      //float uncorrectedPhi() const;
+      //float uncorrectedSumEt() const;
 
       // ---- methods to know what the pat::MET was constructed from ----
       /// True if this pat::MET was made from a reco::CaloMET
@@ -122,7 +115,7 @@ namespace pat {
       /// Returns the event electromagnetic energy extracted from HF
       double emEtInHF() const {return caloSpecific().EmEtInHF;}
       /// Returns the event MET Significance
-      double metSignificance() const {return caloSpecific().METSignificance;}
+      double caloMetSignificance() const {return caloSpecific().METSignificance;}
       /// Returns the event SET in HF+
       double CaloSETInpHF() const {return caloSpecific().CaloSETInpHF;}
       /// Returns the event SET in HF-
@@ -156,52 +149,96 @@ namespace pat {
       }
 
       // ---- members for MET corrections ----
-      struct UncorInfo {
-	UncorInfo(): corEx(0), corEy(0), corSumEt(0), pt(0), phi(0) {}
-	float corEx;
-	float corEy;
-	float corSumEt;
-	float pt;
-	float phi;
+      enum METUncertainty {
+	JetResUp=0, JetResDown=1, JetEnUp=2, JetEnDown=3,
+        MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7,
+	TauEnUp=8, TauEnDown=9, UnclusteredEnUp=10, UnclusteredEnDown=11,
+	PhotonEnUp=12, PhotonEnDown=13, NoShift=14, METUncertaintySize=15,
+	JetResUpSmear=16, JetResDownSmear=17, METFullUncertaintySize=18
+      };
+      enum METCorrectionLevel {
+        Raw=0, Type1=1, Type01=2, TypeXY=3, Type1XY=4, Type01XY=5,
+	Type1Smear=6, Type01Smear=7, Type1SmearXY=8, 
+	Type01SmearXY=9, RawCalo=10, METCorrectionLevelSize=11
+      };
+      enum METCorrectionType {
+        None=0, T1=1, T0=2, TXY=3, TXYForRaw=4,
+	TXYForT01=5, TXYForT1Smear=6, TXYForT01Smear=7,
+	Smear=8, Calo=9, METCorrectionTypeSize=10
       };
 
-      enum METUncertainty {
-        JetEnUp=0, JetEnDown=1, JetResUp=2, JetResDown=3,
-        MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7, TauEnUp=8,TauEnDown=9,
-        UnclusteredEnUp=10,UnclusteredEnDown=11, METUncertaintySize=12
-      };
-      enum METUncertaintyLevel {
-        Raw=0, Type1=1, Type1p2=2
-      };
       struct Vector2 { 
         double px, py; 
         double pt() const { return hypotf(px,py); }  
         double phi() const { return std::atan2(py,px); }
       };
-      Vector2 shiftedP2(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
-      Vector shiftedP3(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
-      LorentzVector shiftedP4(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
-      double shiftedPx(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).px; }
-      double shiftedPy(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).py; }
-      double shiftedPt(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).pt(); }
-      double shiftedPhi(METUncertainty shift, METUncertaintyLevel level=Type1) const { return shiftedP2(shift,level).phi(); }
-      double shiftedSumEt(METUncertainty shift, METUncertaintyLevel level=Type1) const ;
 
-      void setShift(double px, double py, double sumEt, METUncertainty shift, METUncertaintyLevel level=Type1) ;
+      Vector2 shiftedP2(METUncertainty shift, METCorrectionLevel level=Type1)  const ;
+      Vector shiftedP3(METUncertainty shift, METCorrectionLevel level=Type1)  const ;
+      LorentzVector shiftedP4(METUncertainty shift, METCorrectionLevel level=Type1)  const ;
+      double shiftedPx(METUncertainty shift, METCorrectionLevel level=Type1)  const { return shiftedP2(shift,level).px; };
+      double shiftedPy(METUncertainty shift, METCorrectionLevel level=Type1)  const { return shiftedP2(shift,level).py; };
+      double shiftedPt(METUncertainty shift, METCorrectionLevel level=Type1)  const { return shiftedP2(shift,level).pt(); };
+      double shiftedPhi(METUncertainty shift, METCorrectionLevel level=Type1) const { return shiftedP2(shift,level).phi(); };
+      double shiftedSumEt(METUncertainty shift, METCorrectionLevel level=Type1) const ;
+
+      Vector2 corP2(METCorrectionLevel level=Type1)  const ;
+      Vector corP3(METCorrectionLevel level=Type1)  const ;
+      LorentzVector corP4(METCorrectionLevel level=Type1)  const ;
+      double corPx(METCorrectionLevel level=Type1)  const { return corP2(level).px; };
+      double corPy(METCorrectionLevel level=Type1)  const { return corP2(level).py; };
+      double corPt(METCorrectionLevel level=Type1)  const { return corP2(level).pt(); };
+      double corPhi(METCorrectionLevel level=Type1) const { return corP2(level).phi(); };
+      double corSumEt(METCorrectionLevel level=Type1) const ;
+
+      Vector2 uncorP2() const;
+      Vector uncorP3()  const ;
+      LorentzVector uncorP4()  const ;
+      double uncorPx() const { return uncorP2().px; };
+      double uncorPy() const { return uncorP2().py; };
+      double uncorPt() const { return uncorP2().pt(); };
+      double uncorPhi() const { return uncorP2().phi(); };
+      double uncorSumEt() const;
+
+      void setUncShift(double px, double py, double sumEt, METUncertainty shift, bool isSmeared=false);
+      void setCorShift(double px, double py, double sumEt, METCorrectionType level);
+
+      // specific method to fill and retrieve the caloMET quickly from miniAODs, 
+      //should be used by JetMET experts only for the beginning
+      //of the runII, will be discarded later once we are sure
+      //everything is fine
+      Vector2 caloMETP2() const;
+      double caloMETPt() const;
+      double caloMETPhi() const;
+      double caloMETSumEt() const;
+
+      //Functions for backward compatibility with 74X samples.
+      // allow access to 74X samples, transparent and not used in 75
+      Vector2 shiftedP2_74x(METUncertainty shift, METCorrectionLevel level) const ;
+      Vector shiftedP3_74x(METUncertainty shift, METCorrectionLevel level) const ;
+      LorentzVector shiftedP4_74x(METUncertainty shift, METCorrectionLevel level) const ;
+      double shiftedSumEt_74x(METUncertainty shift, METCorrectionLevel level) const ;
+	
 
       /// this below should be private but Reflex doesn't like it
       class PackedMETUncertainty {
         // defined as C++ class so that I can change the packing without having to touch the code elsewhere
         // the compiler should anyway inline everything whenever possible
         public:
-            PackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {}
-            PackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {}
-            double dpx() const { return dpx_; }
-            double dpy() const { return dpy_; }
-            double dsumEt() const { return dsumEt_; }
-            void set(float dpx, float dpy, float dsumEt) { dpx_ = dpx; dpy_ = dpy; dsumEt_ = dsumEt; }
+            PackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {pack(); unpack();}
+            PackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {pack();unpack();}
+            double dpx() const { if(!unpacked_) unpack(); return dpx_; }
+            double dpy() const { if(!unpacked_) unpack(); return dpy_; }
+            double dsumEt() const { if(!unpacked_) unpack(); return dsumEt_; }
+            void set(float dpx, float dpy, float dsumEt) { dpx_ = dpx; dpy_ = dpy; dsumEt_ = dsumEt; pack(); unpack();}
+	    void add(float dpx, float dpy, float dsumEt) { dpx_ += dpx; dpy_ += dpy; dsumEt_ += dsumEt; }
+            void  unpack() const ;
+            void  pack();
+
         protected:
-            float dpx_, dpy_, dsumEt_;
+            mutable float dpx_, dpy_, dsumEt_;
+            mutable bool unpacked_;
+            uint16_t packedDpx_,packedDpy_,packedDSumEt_;
       };
     private:
 
@@ -212,21 +249,26 @@ namespace pat {
       // ---- holder for pfMET specific info ---
       std::vector<SpecificPFMETData> pfMET_;
 
-      // uncorrection transients
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      mutable std::atomic<std::vector<UncorInfo>*> uncorInfo_;
-#else
-      mutable std::vector<UncorInfo>* uncorInfo_;
-#endif
-      mutable unsigned int nCorrections_; //thread-safe protected by uncorInfo_
+      // MET significance
+      double metSig_;
       
+      const PackedMETUncertainty findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const;
+   
+      std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> > corMap_;
+      void initCorMap();
+
+    
+
     protected:
 
       // ---- non-public correction utilities ----
-      void checkUncor_() const;
-      void setPtPhi_(UncorInfo& uci) const;
-
+      //kept for 74X backward-compatibility, not initialized and used in 75X
       std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
+      
+      std::vector<PackedMETUncertainty> uncertainties_;
+      std::vector<PackedMETUncertainty> corrections_;
+      
+      PackedMETUncertainty caloPackedMet_;
 
   };
 

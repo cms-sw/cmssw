@@ -36,7 +36,7 @@ FWTrackTrackingRecHitProxyBuilder::build( const reco::Track& iData, unsigned int
       TEvePointSet* pointSet = new TEvePointSet;
       setupAddElement( pointSet, &oItemHolder );
 
-      TrackingRecHitRef rechitRef = *it;
+      auto rechitRef = *it;
       const TrackingRecHit *rechit = &( *rechitRef );
 
       if( rechit->isValid())

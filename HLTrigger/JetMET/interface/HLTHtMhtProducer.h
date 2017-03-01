@@ -13,7 +13,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,7 +32,7 @@ namespace edm {
 }
 
 // Class declaration
-class HLTHtMhtProducer : public edm::EDProducer {
+class HLTHtMhtProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTHtMhtProducer(const edm::ParameterSet & iConfig);
     ~HLTHtMhtProducer();

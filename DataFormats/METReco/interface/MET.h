@@ -31,11 +31,14 @@
 #include <cmath>
 #include <vector>
 #include <cstring>
-#include "TMatrixD.h"
+#include <Math/SMatrix.h>
+#include <Math/SVector.h>
 
 //____________________________________________________________________________||
 namespace reco
 {
+  typedef ROOT::Math::SMatrix<double,2> METCovMatrix;
+  
   class MET : public RecoCandidate
   {
   public:
@@ -67,8 +70,8 @@ namespace reco
     std::vector<CorrMETData> mEtCorr() const { return corr; }
 
     //________________________________________________________________________||
-    void setSignificanceMatrix(const TMatrixD& matrix);
-    TMatrixD getSignificanceMatrix(void) const;
+    void setSignificanceMatrix(const reco::METCovMatrix& matrix);
+    reco::METCovMatrix getSignificanceMatrix(void) const;
 
   private:
     virtual bool overlap( const Candidate & ) const;

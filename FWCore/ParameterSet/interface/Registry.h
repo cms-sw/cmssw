@@ -49,7 +49,7 @@ namespace edm {
       /// same.  Return 'true' if we really added the new
       /// value_type object, and 'false' if the
       /// value_type object was already present.
-      bool insertMapped(value_type const& v);
+      bool insertMapped(value_type const& v, bool forceUpdate = false);
 
       ///Not thread safe
       void clear();
@@ -89,19 +89,7 @@ namespace edm {
       map_type m_map;
     };
 
-    /// Associated free functions.
-
-    /// Save the ParameterSetID of the top-level ParameterSet.
-    void setProcessParameterSetID(ParameterSetID const& id);
-
-    /// Return the ParameterSetID of the top-level ParameterSet.
-    /// Note the the returned ParameterSetID may be invalid;
-    /// this will happen if the Registry has not yet been filled.
-    ParameterSetID const& getProcessParameterSetID();
   }  // namespace pset
-
-  ParameterSet const& getProcessParameterSet();
-
 }  // namespace edm
 
 #endif

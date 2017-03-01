@@ -41,10 +41,19 @@ namespace edm {
     }
     static boost::regex const reWrapper("edm::Wrapper<(.*)>");
     static boost::regex const reString("std::basic_string<char>");
+    static boost::regex const reString2("std::string");
+    static boost::regex const reString3("std::basic_string<char,std::char_traits<char> >");
+    //The c++11 abi for gcc internally uses a different namespace for standard classes
+    static boost::regex const reCXX11("std::__cxx11::");
     static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
+    static boost::regex const reclangabi("std::__1::");
+    static boost::regex const reULongLong("ULong64_t");
+    static boost::regex const reLongLong("Long64_t");
     static boost::regex const reUnsigned("unsigned ");
     static boost::regex const reLong("long ");
     static boost::regex const reVector("std::vector");
+    static boost::regex const reSharedPtr("std::shared_ptr");
+    static boost::regex const reUniquePtr("std::unique_ptr");
     static boost::regex const reAIKR(", *edm::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
     //force first argument to also be the argument to edm::ClonePolicy so that if OwnVector is within
     // a template it will not eat all the remaining '>'s
@@ -64,16 +73,25 @@ namespace edm {
     static boost::regex const reToRefs2("edm::RefVector< *(.*) *, *(.*) *, *edm::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
     static boost::regex const reToRefsAssoc("edm::RefVector< *Association(.*) *, *edm::helper(.*), *Association(.*)::Find>");
     
+    
     std::string standardRenames(std::string const& iIn) {
        using boost::regex_replace;
        using boost::regex;
        std::string name = regex_replace(iIn, reWrapper, "$1");
        name = regex_replace(name,reAIKR,"");
+       name = regex_replace(name,reclangabi,"std::");
+       name = regex_replace(name,reCXX11,"std::");
        name = regex_replace(name,reString,"String");
+       name = regex_replace(name,reString2,"String");
+       name = regex_replace(name,reString3,"String");
        name = regex_replace(name,reSorted,"sSorted<$1>");
+       name = regex_replace(name,reULongLong,"ull");
+       name = regex_replace(name,reLongLong,"ll");
        name = regex_replace(name,reUnsigned,"u");
        name = regex_replace(name,reLong,"l");
        name = regex_replace(name,reVector,"s");
+       name = regex_replace(name,reSharedPtr,"SharedPtr");
+       name = regex_replace(name,reUniquePtr,"UniquePtr");
        name = regex_replace(name,reOwnVector,"sOwned<$1>");
        name = regex_replace(name,reToVector,"AssociationVector<$1,To,$2>");
        name = regex_replace(name,reOneToOne,"Association<$1,ToOne,$2>");

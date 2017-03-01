@@ -11,7 +11,7 @@
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 namespace reco {
 
@@ -38,14 +38,6 @@ namespace reco {
     virtual ~CompositeRefCandidateT();
     /// returns a clone of the candidate
     virtual CompositeRefCandidateT<D> * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// number of mothers
@@ -78,13 +70,9 @@ namespace reco {
     /// set mother product ID
     void resetMothers( const edm::ProductID & id ) { mom = mothers( id ); }
 
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(13)
 
   private:
-    /// const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implementation
-    typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// collection of references to mothers
@@ -111,26 +99,6 @@ namespace reco {
   CompositeRefCandidateT<D> * CompositeRefCandidateT<D>::clone() const { 
     return new CompositeRefCandidateT( * this ); 
   }
-  
-  template<typename D>
-  Candidate::const_iterator CompositeRefCandidateT<D>::begin() const { 
-    return const_iterator( new const_iterator_imp_specific( dau.begin() ) ); 
-  }
-  
-  template<typename D>
-  Candidate::const_iterator CompositeRefCandidateT<D>::end() const { 
-    return const_iterator( new const_iterator_imp_specific( dau.end() ) ); 
-  }    
-  
-  template<typename D>
-  Candidate::iterator CompositeRefCandidateT<D>::begin() { 
-    return iterator( new iterator_imp_specific ); 
-  }
-  
-  template<typename D>
-  Candidate::iterator CompositeRefCandidateT<D>::end() { 
-    return iterator( new iterator_imp_specific ); 
-  }    
   
   template<typename D>
   const Candidate * CompositeRefCandidateT<D>::daughter( size_type i ) const { 

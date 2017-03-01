@@ -11,7 +11,7 @@ namespace edm {
 
   static void cleanup(const Factory::MakerMap::value_type& v)
   {
-    delete v.second;
+    delete v.second.get();
   }
 
   Factory const Factory::singleInstance_;

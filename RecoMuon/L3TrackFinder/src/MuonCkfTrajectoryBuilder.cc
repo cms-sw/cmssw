@@ -41,7 +41,7 @@ void MuonCkfTrajectoryBuilder::setEvent_(const edm::Event& iEvent, const edm::Ev
 
   // theEstimator is set for this event in the base class
   if(theEstimatorWatcher.check(iSetup) && theDeltaEta>0 && theDeltaPhi>0)
-    theEtaPhiEstimator.reset(new EtaPhiEstimator(theDeltaEta, theDeltaPhi, theEstimator));
+    theEtaPhiEstimator = std::make_unique<EtaPhiEstimator>(theDeltaEta, theDeltaPhi, theEstimator);
 }
 
 

@@ -8,55 +8,44 @@
 
 ----------------------------------------------------------------------*/
 
+namespace {
+  edm::Parentage const s_emptyParentage;
+}
 namespace edm {
-  ProductProvenance::Transients::Transients() :
-    parentagePtr_(),
-    noParentage_(false)
-  {}
-
-  void
-  ProductProvenance::Transients::reset() {
-    parentagePtr_.reset();
-    noParentage_ = false;
-  }
-
   ProductProvenance::ProductProvenance() :
     branchID_(),
-    parentageID_(),
-    transient_()
+    parentageID_()
   {}
 
   ProductProvenance::ProductProvenance(BranchID const& bid) :
     branchID_(bid),
-    parentageID_(),
-    transient_()
+    parentageID_()
   {}
 
    ProductProvenance::ProductProvenance(BranchID const& bid,
 				    ParentageID const& edid) :
     branchID_(bid),
-    parentageID_(edid),
-    transient_()
+    parentageID_(edid)
   {}
-
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-				    std::shared_ptr<Parentage> pPtr) :
-    branchID_(bid),
-    parentageID_(pPtr->id()),
-    transient_() {
-       parentagePtr() = pPtr;
-       ParentageRegistry::instance()->insertMapped(*pPtr);
-  }
 
   ProductProvenance::ProductProvenance(BranchID const& bid,
 		   std::vector<BranchID> const& parents) :
     branchID_(bid),
-    parentageID_(),
-    transient_() {
-      parentagePtr() = std::make_shared<Parentage>();
-      parentagePtr()->setParents(parents);
-      parentageID_ = parentagePtr()->id();
-      ParentageRegistry::instance()->insertMapped(*parentagePtr());
+    parentageID_() {
+      Parentage p;
+      p.setParents(parents);
+      parentageID_ = p.id();
+      ParentageRegistry::instance()->insertMapped(p);
+  }
+
+  ProductProvenance::ProductProvenance(BranchID const& bid,
+                                       std::vector<BranchID>&& parents) :
+  branchID_(bid),
+  parentageID_() {
+    Parentage p;
+    p.setParents(std::move(parents));
+    parentageID_ = p.id();
+    ParentageRegistry::instance()->insertMapped(std::move(p));
   }
 
   ProductProvenance
@@ -66,28 +55,21 @@ namespace edm {
 
   Parentage const &
   ProductProvenance::parentage() const {
-    if (!parentagePtr()) {
-      parentagePtr().reset(new Parentage);
-      ParentageRegistry::instance()->getMapped(parentageID_, *parentagePtr());
+    auto p =ParentageRegistry::instance()->getMapped(parentageID_);
+    if(p) {
+      return *p;
     }
-    return *parentagePtr();
+    return s_emptyParentage;
   }
 
   void
   ProductProvenance::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
-    if (!noParentage()) {
-      os << "entry description ID = " << parentageID() << '\n';
-    }
+    os << "entry description ID = " << parentageID() << '\n';
   }
     
   bool
   operator==(ProductProvenance const& a, ProductProvenance const& b) {
-    if (a.noParentage() != b.noParentage()) return false;
-    if (a.noParentage()) {
-      return
-        a.branchID() == b.branchID();
-    }
     return
       a.branchID() == b.branchID() && a.parentageID() == b.parentageID();
   }

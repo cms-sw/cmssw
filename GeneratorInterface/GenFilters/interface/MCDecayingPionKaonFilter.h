@@ -34,6 +34,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class MCDecayingPionKaonFilter : public edm::EDFilter {
    public:
@@ -45,7 +48,7 @@ class MCDecayingPionKaonFilter : public edm::EDFilter {
    private:
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID;  
        std::vector<double> ptMin;
        std::vector<double> etaMin;  

@@ -1308,7 +1308,7 @@ for interval in QueryResults.keys():
         #    print row
         #if row['change_date']==datetime.datetime(2010, 8, 28, 22, 51, 8, 994000):
         #    print row
-        if row['change_date']>datetime.datetime(2010, 8, 28, 22, 44) and row['change_date']<datetime.datetime(2010, 8, 28, 23, 05,37):
+        if row['change_date']>datetime.datetime(2010, 8, 28, 22, 44) and row['change_date']<datetime.datetime(2010, 8, 28, 23, 5,37):
             print row    
             
         

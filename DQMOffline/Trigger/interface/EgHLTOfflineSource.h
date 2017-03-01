@@ -35,12 +35,14 @@
 #include "DQMOffline/Trigger/interface/EgHLTBinData.h"
 #include "DQMOffline/Trigger/interface/EgHLTCutMasks.h"
 #include "DQMOffline/Trigger/interface/EgHLTMonElemContainer.h"
+#include "DQMOffline/Trigger/interface/EgHLTMonElemFuncs.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffHelper.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTTrigCodes.h"
 
-class DQMStore;
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 class HLTConfigProvider;
 
 namespace egHLT {
@@ -53,10 +55,9 @@ namespace egHLT {
 
 // }
 
-class EgHLTOfflineSource : public edm::EDAnalyzer {
+class EgHLTOfflineSource : public DQMEDAnalyzer {
  
  private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   MonitorElement* dqmErrsMonElem_; //monitors DQM errors (ie failing to get trigger info, etc)
   MonitorElement* nrEventsProcessedMonElem_; //number of events processed mon elem
   int nrEventsProcessed_; //number of events processed 
@@ -70,6 +71,7 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   
   egHLT::OffEvt offEvt_;
   egHLT::OffHelper offEvtHelper_;// this is where up wrap up nasty code which will be replaced by offical tools at some point
+  std::unique_ptr<egHLT::TrigCodes> trigCodes; // the only place instantiate them
   
   //note ele,pho does not refer to whether the trigger is electron or photon, it refers to what type
   //of object passing the trigger will be monitored, eg ele = offline gsf electrons 
@@ -84,26 +86,22 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   egHLT::BinData binData_;
   egHLT::CutMasks cutMasks_;
 
-  bool isSetup_;
   bool filterInactiveTriggers_;
   std::string hltTag_;
 
   //disabling copying/assignment (copying this class would be bad, mkay)
-  EgHLTOfflineSource(const EgHLTOfflineSource& rhs){}
-  EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs){return *this;}
+  EgHLTOfflineSource(const EgHLTOfflineSource& rhs) = delete;
+  EgHLTOfflineSource& operator=(const EgHLTOfflineSource& rhs) = delete;
 
  public:
   explicit EgHLTOfflineSource(const edm::ParameterSet& );
   virtual ~EgHLTOfflineSource();
   
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  void addEleTrigPath(const std::string& name);
-  void addPhoTrigPath(const std::string& name);
+  void addEleTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
+  void addPhoTrigPath(egHLT::MonElemFuncs& monElemFuncs,const std::string& name);
   void getHLTFilterNamesUsed(std::vector<std::string>& filterNames)const;
   void filterTriggers(const HLTConfigProvider& hltConfig);
 };

@@ -40,7 +40,7 @@ DTDigiToRawModule::~DTDigiToRawModule(){
 
 void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
 
-  auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection);
+  auto fed_buffers = std::make_unique<FEDRawDataCollection>();
   
   // Take digis from the event
   Handle<DTDigiCollection> digis;
@@ -78,7 +78,7 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
 
   }
   // Put the raw data to the event
-  e.put(fed_buffers);
+  e.put(std::move(fed_buffers));
   
 }
 

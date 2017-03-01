@@ -65,33 +65,33 @@ private:
   edm::Event& m_event;  ///< The event the collections will be put into on destruction of the GctUnpackCollections instance.
 
   // Collections for storing GCT input data.  
-  std::auto_ptr<L1GctFibreCollection> m_gctFibres;  ///< Raw fibre input to the GCT.
-  std::auto_ptr<L1CaloEmCollection> m_rctEm; ///< Input electrons.
-  std::auto_ptr<L1CaloRegionCollection> m_rctCalo; ///< Input calo regions.
+  std::unique_ptr<L1GctFibreCollection> m_gctFibres;  ///< Raw fibre input to the GCT.
+  std::unique_ptr<L1CaloEmCollection> m_rctEm; ///< Input electrons.
+  std::unique_ptr<L1CaloRegionCollection> m_rctCalo; ///< Input calo regions.
 
   // GCT intermediate data
-  std::auto_ptr<L1GctInternEmCandCollection> m_gctInternEm; 
-  std::auto_ptr<L1GctInternJetDataCollection> m_gctInternJets; 
-  std::auto_ptr<L1GctInternEtSumCollection> m_gctInternEtSums; 
-  std::auto_ptr<L1GctInternHFDataCollection> m_gctInternHFData; 
-  std::auto_ptr<L1GctInternHtMissCollection> m_gctInternHtMiss;
+  std::unique_ptr<L1GctInternEmCandCollection> m_gctInternEm; 
+  std::unique_ptr<L1GctInternJetDataCollection> m_gctInternJets; 
+  std::unique_ptr<L1GctInternEtSumCollection> m_gctInternEtSums; 
+  std::unique_ptr<L1GctInternHFDataCollection> m_gctInternHFData; 
+  std::unique_ptr<L1GctInternHtMissCollection> m_gctInternHtMiss;
 
   // GCT output data
-  std::auto_ptr<L1GctEmCandCollection> m_gctIsoEm;
-  std::auto_ptr<L1GctEmCandCollection> m_gctNonIsoEm;
-  std::auto_ptr<L1GctJetCandCollection> m_gctCenJets;
-  std::auto_ptr<L1GctJetCandCollection> m_gctForJets;
-  std::auto_ptr<L1GctJetCandCollection> m_gctTauJets;
-  std::auto_ptr<L1GctHFBitCountsCollection> m_gctHfBitCounts;
-  std::auto_ptr<L1GctHFRingEtSumsCollection> m_gctHfRingEtSums;
-  std::auto_ptr<L1GctEtTotalCollection> m_gctEtTot;
-  std::auto_ptr<L1GctEtHadCollection> m_gctEtHad;
-  std::auto_ptr<L1GctEtMissCollection> m_gctEtMiss;
-  std::auto_ptr<L1GctHtMissCollection> m_gctHtMiss;
-  std::auto_ptr<L1GctJetCountsCollection> m_gctJetCounts;  // DEPRECATED. ONLY GT NEEDS THIS.
+  std::unique_ptr<L1GctEmCandCollection> m_gctIsoEm;
+  std::unique_ptr<L1GctEmCandCollection> m_gctNonIsoEm;
+  std::unique_ptr<L1GctJetCandCollection> m_gctCenJets;
+  std::unique_ptr<L1GctJetCandCollection> m_gctForJets;
+  std::unique_ptr<L1GctJetCandCollection> m_gctTauJets;
+  std::unique_ptr<L1GctHFBitCountsCollection> m_gctHfBitCounts;
+  std::unique_ptr<L1GctHFRingEtSumsCollection> m_gctHfRingEtSums;
+  std::unique_ptr<L1GctEtTotalCollection> m_gctEtTot;
+  std::unique_ptr<L1GctEtHadCollection> m_gctEtHad;
+  std::unique_ptr<L1GctEtMissCollection> m_gctEtMiss;
+  std::unique_ptr<L1GctHtMissCollection> m_gctHtMiss;
+  std::unique_ptr<L1GctJetCountsCollection> m_gctJetCounts;  // DEPRECATED. ONLY GT NEEDS THIS.
   
   // Misc
-  std::auto_ptr<L1TriggerErrorCollection> m_errors;
+  std::unique_ptr<L1TriggerErrorCollection> m_errors;
 
 };
 

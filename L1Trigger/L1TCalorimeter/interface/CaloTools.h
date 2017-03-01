@@ -17,6 +17,13 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 namespace l1t {
 
   class CaloTools{
@@ -26,20 +33,23 @@ namespace l1t {
     CaloTools(){}
     ~CaloTools(){}
   
-  private:
+  public:
     //temporary location of these key parameters, probably should be read in from a database
     //they are private to stop people using them as they will change (naming is invalid for a start)
     static const int kHBHEEnd=28;
     static const int kHFBegin=29;
-    static const int kHFEnd=32;
-    static const int kHFPhiSeg=4;
-    static const int kHFNrPhi=72/kHFPhiSeg;
-    static const int kHBHENrPhi=72;
+    static const int kHFEnd=41;
+    static const int kHFPhiSeg=1;  // to be deprecated!
+    static const int kHFNrPhi=72/kHFPhiSeg;  // to be deprecated!
+    static const int kHBHENrPhi=72;  // to be deprecated!
+    static const int kNPhi=72;
     static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
     static const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi*2;
 
   public:
     enum SubDet{ECAL=0x1,HCAL=0x2,CALO=0x3}; //CALO is a short cut for ECAL|HCAL
+
+    static bool insertTower( std::vector<l1t::CaloTower>& towers, const l1t::CaloTower& tower);
 
     static const l1t::CaloTower&   getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
     static const l1t::CaloCluster& getCluster(const std::vector<l1t::CaloCluster>& clusters,int iEta,int iPhi);
@@ -66,11 +76,47 @@ namespace l1t {
     //hwEt is either ECAL, HCAL or CALO (ECAL+HCAL) Et
     static size_t calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiMax,const std::vector<l1t::CaloTower>& towers,int minHwEt,int maxHwEt,SubDet etMode=CALO);
 
+    // physical eta/phi position and sizes of trigger towers
+    static float towerEta(int ieta);
+    static float towerPhi(int ieta, int iphi);
+    static float towerEtaSize(int ieta);
+    static float towerPhiSize(int ieta);
 
+    // conversion to other index systems
+    static int mpEta(int ieta);      // convert to internal MP numbering
+    static int caloEta(int ietaMP);  // convert from internal MP to Calo ieta
+    static int regionEta(int ieta);  // RCT region
+    static int bin16Eta(int ieta);     // gives the eta bin label 
+    static int gtEta(int ieta);      // GT eta scale
+    static int gtPhi(int ieta, int iphi);      // GT phi scale
+
+    // conversion methods
+    static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
+    static l1t::EGamma egP4Demux(l1t::EGamma&);
+    static l1t::Tau    tauP4Demux(l1t::Tau&);
+    static l1t::Jet    jetP4Demux(l1t::Jet&);
+    static l1t::EtSum  etSumP4Demux(l1t::EtSum&);
+
+    static math::PtEtaPhiMLorentzVector p4MP(l1t::L1Candidate*);
+    static l1t::EGamma egP4MP(l1t::EGamma&);
+    static l1t::Tau    tauP4MP(l1t::Tau&);
+    static l1t::Jet    jetP4MP(l1t::Jet&);
+    static l1t::EtSum  etSumP4MP(l1t::EtSum&);
+
+    static const int64_t cos_coeff[72];
+    static const int64_t sin_coeff[72];
 
   private:
+    // trigger tower eta boundaries
+    static std::pair<float,float> towerEtaBounds(int ieta);
+
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
-    static const l1t::CaloCluster nullCluster_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
+    static const l1t::CaloCluster nullCluster_; //to return when we need to return a cluster which was not found/invalid rather than throwing an exception
+
+    static const float kGTEtaLSB;
+    static const float kGTPhiLSB;
+    static const float kGTEtLSB;
+
   };
 
 }

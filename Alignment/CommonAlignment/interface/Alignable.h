@@ -5,7 +5,7 @@
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class AlignmentErrors;
+class AlignmentErrorsExtended;
 class AlignmentParameters;
 class AlignmentPositionError;
 class Alignments;
@@ -80,6 +80,11 @@ public:
   /// and adds them to argument. True either if no such components are found
   /// or if all branches of components end with such components (i.e. 'consistent').
   bool firstCompsWithParams(Alignables &paramComps) const;
+
+  /// Steps down hierarchy to the lowest level of components with AlignmentParameters
+  /// and adds them to argument. True either if no such components are found
+  /// or if all branches of components end with such components (i.e. 'consistent').
+  bool lastCompsWithParams(Alignables& paramComps) const;
 
   /// Return pointer to container alignable (if any)
   Alignable* mother() const { return theMother; }
@@ -186,7 +191,7 @@ public:
   virtual Alignments* alignments() const = 0;
   
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const = 0;
+  virtual AlignmentErrorsExtended* alignmentErrors() const = 0;
 
   /// Return surface deformations, sorted by DetId
   AlignmentSurfaceDeformations* surfaceDeformations() const;
@@ -195,7 +200,7 @@ public:
   /// and pointers to surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const = 0;
 
-  /// cache the current position, rotation and other parameters (e.g. surface deformations)
+  /// cache the current position, rotation and other parameters (e.g. surface deformations), also for possible components
   virtual void cacheTransformation();
 
   /// restore the previously cached transformation, also for possible components
@@ -242,5 +247,7 @@ private:
   const SurveyDet* theSurvey; // Pointer to survey info; owned by class
 
 };
+
+typedef std::vector<Alignable*> Alignables;
 
 #endif

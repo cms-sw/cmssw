@@ -1,8 +1,6 @@
 
-#define protected public
 #include "TGLViewer.h" // access to over-all bounding box
 #include "TEveCalo.h" // workaround for TEveCalo3D bounding box
-#undef protected
 #include "TGLFontManager.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
@@ -36,7 +34,7 @@
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/fwLog.h"
-#include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Calo/interface/FWECALCaloDataDetailViewBuilder.h"
 
 #include "Fireworks/Electrons/plugins/FWConvTrackHitsDetailView.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
@@ -66,7 +64,7 @@ void setCameraInit(TGLViewer* v, TGLViewer::ECameraType type, const TEveVectorD 
    TGLMatrix& trans = cam.RefCamBase();
 
    trans.Set(trans.GetTranslation(), b3.Arr(), b1.Arr());
-   cam.Setup(v->fOverallBoundingBox, kTRUE);
+   cam.Setup(v->RefOverallBoundingBox(), kTRUE);
   
    cam.SetExternalCenter(true);
    cam.SetCenterVec(center.fX, center.fY, center.fZ);
@@ -235,31 +233,31 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
       float phi = conv->pairMomentum().phi();
       float eta = conv->pairMomentum().eta();
       
-      FWECALDetailViewBuilder caloBld( id.item()->getEvent(), id.item()->getGeom(), eta, phi, 30);
+      FWECALCaloDataDetailViewBuilder caloBld( id.item()->getEvent(), id.item()->getGeom(), eta, phi, 30);
       TEveCaloData* data = caloBld.buildCaloData(false);
-       // AMT!!! this is mempry leak, check why it needs to be added
+       // AMT!!! this is memory leak, check why it needs to be added
       TEveCalo3D* calo3d = new TEveCalo3D(data);
       gEve->AddElement(data);
       calo3d->SetBarrelRadius(129.00);
       calo3d->SetEndCapPos(268.36);
       
       float theta = TEveCaloData::EtaToTheta(eta);
-      float eps = data->GetMaxVal(true) * calo3d->GetValToHeight();
+      float ext   = data->GetMaxVal(true) * calo3d->GetValToHeight();
       if (TMath::Abs(eta) < calo3d->GetTransitionEta())
       {
-        // printf("barrel\n");
-         float x =   calo3d->GetBarrelRadius() * TMath::Cos(phi);
-         float y =   calo3d->GetBarrelRadius() * TMath::Sin(phi);
-         float z =   calo3d->GetBarrelRadius() / TMath::Tan(theta); 
+         // printf("barrel\n");
+         float x = calo3d->GetBarrelRadius() * TMath::Cos(phi);
+         float y = calo3d->GetBarrelRadius() * TMath::Sin(phi);
+         float z = calo3d->GetBarrelRadius() / TMath::Tan(theta); 
          
-         calo3d->BBoxZero(eps, x, y, z);
+         calo3d->SetupBBoxCube(ext, x, y, z);
       }
       else
       {
-       //  printf("endcap\n");
-         float z  = TMath::Sign(calo3d->GetEndCapPos(), eta);
-         float r =   z*TMath::Tan(theta);
-         calo3d->BBoxZero(eps, r* TMath::Cos(phi), r*TMath::Sin(phi), z);
+         // printf("endcap\n");
+         float z = TMath::Sign(calo3d->GetEndCapPos(), eta);
+         float r = z*TMath::Tan(theta);
+         calo3d->SetupBBoxCube(ext, r* TMath::Cos(phi), r*TMath::Sin(phi), z);
       }
       m_eveScene->AddElement(calo3d);
    }
@@ -377,26 +375,26 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    latex->DrawLatex( x, y, Form( "p_{T}=%.1f GeV, #eta=%0.2f, #varphi=%0.2f",
 				 track0->pt(), track0->eta(), track0->phi()));
    y -= lineH;
-   const reco::HitPattern& p_tk0 = track0->hitPattern();
-   int nvalid_tk0=0, ninvalid_tk0=0, npix_tk0=0, nstrip_tk0=0;
-   for(int i_tk0=0; i_tk0<p_tk0.numberOfHits(); i_tk0++) {
-     uint32_t hit = p_tk0.getHitPattern(i_tk0);
-     if(p_tk0.validHitFilter(hit)) {
-       nvalid_tk0++;
-       if (p_tk0.pixelHitFilter(hit)) npix_tk0++;
-       else if (p_tk0.stripHitFilter(hit)) nstrip_tk0++;
-     } else ninvalid_tk0++;
+   const reco::HitPattern &hp0 = track0->hitPattern();
+   int nvalid_tk0 = 0, ninvalid_tk0 = 0, npix_tk0 = 0, nstrip_tk0 = 0;
+   for(int i_tk0 = 0; i_tk0 < hp0.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk0++) {
+       uint32_t hit = hp0.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk0);
+       if(reco::HitPattern::validHitFilter(hit)) {
+           nvalid_tk0++;
+           if (reco::HitPattern::pixelHitFilter(hit)) npix_tk0++;
+           else if (reco::HitPattern::stripHitFilter(hit)) nstrip_tk0++;
+       } else ninvalid_tk0++;
    }
    latex->DrawLatex( x, y,  Form( "valid hits: %i (pix. %i, str. %i)", nvalid_tk0, npix_tk0, nstrip_tk0) );
    y -= lineH;
    latex->DrawLatex( x, y,  Form( "invalid: %i", ninvalid_tk0) );
    y -= lineH;
-   const reco::HitPattern& p_mhi_tk0 = track0->trackerExpectedHitsInner();
-   int npix_mhi_tk0=0, nstrip_mhi_tk0=0;
-   for(int i_mhi_tk0=0; i_mhi_tk0<p_mhi_tk0.numberOfHits(); i_mhi_tk0++) {
-     uint32_t hit = p_mhi_tk0.getHitPattern(i_mhi_tk0);
-     if (p_mhi_tk0.pixelHitFilter(hit)) npix_mhi_tk0++;
-     else if (p_mhi_tk0.stripHitFilter(hit)) nstrip_mhi_tk0++;
+
+   int npix_mhi_tk0 = 0, nstrip_mhi_tk0 = 0;
+   for(int i_mhi_tk0 = 0; i_mhi_tk0 < hp0.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk0++) {
+       uint32_t hit = hp0.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i_mhi_tk0);
+       if (reco::HitPattern::pixelHitFilter(hit)) npix_mhi_tk0++;
+       else if (reco::HitPattern::stripHitFilter(hit)) nstrip_mhi_tk0++;
    }
    latex->DrawLatex( x, y,  Form("miss. inner hits: pix. %i, str. %i", npix_mhi_tk0, nstrip_mhi_tk0) );
 
@@ -408,26 +406,27 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    latex->DrawLatex( x, y, Form( "p_{T}=%.1f GeV, #eta=%0.2f, #varphi=%0.2f",
 				 track1->pt(), track1->eta(), track1->phi()));
    y -= lineH;
-   const reco::HitPattern& p_tk1 = track1->hitPattern();
-   int nvalid_tk1=0, ninvalid_tk1=0, npix_tk1=0, nstrip_tk1=0;
-   for(int i_tk1=0; i_tk1<p_tk1.numberOfHits(); i_tk1++) {
-     uint32_t hit = p_tk1.getHitPattern(i_tk1);
-     if(p_tk1.validHitFilter(hit)) {
-       nvalid_tk1++;
-       if (p_tk1.pixelHitFilter(hit)) npix_tk1++;
-       else if (p_tk1.stripHitFilter(hit)) nstrip_tk1++;
-     } else ninvalid_tk1++;
+
+   const reco::HitPattern &hp1 = track1->hitPattern();
+   int nvalid_tk1 = 0, ninvalid_tk1 = 0, npix_tk1 = 0, nstrip_tk1 = 0;
+   for(int i_tk1 = 0; i_tk1 < hp1.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk1++) {
+       uint32_t hit = hp1.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk1);
+       if(reco::HitPattern::validHitFilter(hit)) {
+           nvalid_tk1++;
+           if (reco::HitPattern::pixelHitFilter(hit)) npix_tk1++;
+           else if (reco::HitPattern::stripHitFilter(hit)) nstrip_tk1++;
+       } else ninvalid_tk1++;
    }
    latex->DrawLatex( x, y,  Form( "valid hits: %i (pix. %i, str. %i)", nvalid_tk1, npix_tk1, nstrip_tk1) );
    y -= lineH;
    latex->DrawLatex( x, y,  Form( "invalid: %i", ninvalid_tk1) );
    y -= lineH;
-   const reco::HitPattern& p_mhi_tk1 = track1->trackerExpectedHitsInner();
-   int npix_mhi_tk1=0, nstrip_mhi_tk1=0;
-   for(int i_mhi_tk1=0; i_mhi_tk1<p_mhi_tk1.numberOfHits(); i_mhi_tk1++) {
-     uint32_t hit = p_mhi_tk1.getHitPattern(i_mhi_tk1);
-     if (p_mhi_tk1.pixelHitFilter(hit)) npix_mhi_tk1++;
-     else if (p_mhi_tk1.stripHitFilter(hit)) nstrip_mhi_tk1++;
+
+   int npix_mhi_tk1 = 0, nstrip_mhi_tk1 = 0;
+   for(int i_mhi_tk1 = 0; i_mhi_tk1 < hp1.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i_mhi_tk1++) {
+       uint32_t hit = hp1.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i_mhi_tk1);
+       if (reco::HitPattern::pixelHitFilter(hit)) npix_mhi_tk1++;
+       else if (reco::HitPattern::stripHitFilter(hit)) nstrip_mhi_tk1++;
    }
    latex->DrawLatex( x, y,  Form("miss. inner hits: pix. %i, str. %i", npix_mhi_tk1, nstrip_mhi_tk1) );
    y -= lineH;
@@ -564,6 +563,8 @@ FWConvTrackHitsDetailView::addModules( const reco::Track& track,
 		  shape->SetMainColor( iItem->defaultDisplayProperties().color());
 		  break;
 	       case TrackingRecHit::missing:
+	       case TrackingRecHit::missing_inner:
+	       case TrackingRecHit::missing_outer:
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;
@@ -659,5 +660,9 @@ void FWConvTrackHitsDetailView::camera3Callback()
 
 }
 
-
 REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion);
+/*
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, ecalRecHit);
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, reducedEcalRecHitsEB);
+REGISTER_FWDETAILVIEW(FWConvTrackHitsDetailView, Conversion, reducedEGamma);
+*/

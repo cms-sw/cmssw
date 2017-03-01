@@ -6,9 +6,13 @@ import FWCore.ParameterSet.Config as cms
 
 HcalHaloData = cms.EDProducer("HcalHaloDataProducer",
                               # RecHit Level
+                              EBRecHitLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+                              EERecHitLabel = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
                               HBHERecHitLabel = cms.InputTag("hbhereco"),
                               HORecHitLabel  = cms.InputTag("horeco"),
                               HFRecHitLabel = cms.InputTag("hfreco"),
+
+                              caloTowerCollName = cms.InputTag('towerMaker'),
                               
                               HcalMinMatchingRadiusParam = cms.double(110.),
                               HcalMaxMatchingRadiusParam = cms.double(490.),

@@ -25,6 +25,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <TMath.h>
 #include <TFile.h>
@@ -51,6 +53,13 @@ namespace
     
     return mva;
   }
+
+  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName)
+  {
+    edm::ESHandle<GBRForest> mva;
+    es.get<GBRWrapperRcd>().get(mvaName, mva);
+    return mva.product();
+  }
 }
 
 class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProducerBase  
@@ -61,11 +70,15 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       mvaReader_(0),
       mvaInput_(0),
-      category_output_(0)
+      category_output_()
   {
-    inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
     mvaName_ = cfg.getParameter<std::string>("mvaName");
-    mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
+    loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
+    if ( !loadMVAfromDB_ ) {
+      if(cfg.exists("inputFileName")){
+	inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
+      }else throw cms::Exception("MVA input not defined") << "Requested to load tau MVA input from ROOT file but no file provided in cfg file";
+    }    
     std::string mvaOpt_string = cfg.getParameter<std::string>("mvaOpt");
     if      ( mvaOpt_string == "oldDMwoLT" ) mvaOpt_ = kOldDMwoLT;
     else if ( mvaOpt_string == "oldDMwLT"  ) mvaOpt_ = kOldDMwLT;
@@ -92,13 +105,13 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
 
   void endEvent(edm::Event&);
 
   ~PFRecoTauDiscriminationByIsolationMVA2()
   {
-    delete mvaReader_;
+    if(!loadMVAfromDB_) delete mvaReader_;
     delete[] mvaInput_;
     for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
 	  it != inputFilesToDelete_.end(); ++it ) {
@@ -110,8 +123,9 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   std::string moduleLabel_;
 
-  edm::FileInPath inputFileName_;
   std::string mvaName_;
+  bool loadMVAfromDB_;
+  edm::FileInPath inputFileName_;
   const GBRForest* mvaReader_;
   enum { kOldDMwoLT, kOldDMwLT, kNewDMwoLT, kNewDMwLT };
   int mvaOpt_;
@@ -129,8 +143,7 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
   edm::Handle<reco::PFTauDiscriminator> puCorrPtSums_;
 
   edm::Handle<TauCollection> taus_;
-  std::auto_ptr<PFTauDiscriminator> category_output_;
-  size_t tauIndex_;
+  std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -139,6 +152,14 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
 void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
+  if ( !mvaReader_ ) {
+    if ( loadMVAfromDB_ ) {
+      mvaReader_ = loadMVAfromDB(es, mvaName_);
+    } else {
+      mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
+    }
+  }
+
   evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
 
   evt.getByToken(ChargedIsoPtSum_token, chargedIsoPtSums_);
@@ -147,15 +168,13 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
 
   evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
 }
 
-double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
+double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const
 {
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
   double category = 0.; 
   category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
 
   // CV: computation of MVA value requires presence of leading charged hadron
   if ( tau->leadPFChargedHadrCand().isNull() ) return 0.;
@@ -200,14 +219,14 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
         
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
     if ( verbosity_ ) {
-      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:" ;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() ;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum ;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode ;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig() ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:";
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta();
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig();
       edm::LogPrint("PFTauDiscByMVAIsol2") << " has decay vertex = " << tauLifetimeInfo.hasSecondaryVertex() << ":"
-		<< " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig() ;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue ;
+					   << " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig();
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue;
     }
     return mvaValue;
   } else {
@@ -218,7 +237,7 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
 void PFRecoTauDiscriminationByIsolationMVA2::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  evt.put(std::move(category_output_), "category");
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolationMVA2);

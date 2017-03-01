@@ -17,7 +17,9 @@ class ESRawToDigi : public edm::stream::EDProducer<> {
   
   ESRawToDigi(const edm::ParameterSet& ps);
   virtual ~ESRawToDigi();
-  
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+ 
   void produce(edm::Event& e, const edm::EventSetup& es);
   
  private:

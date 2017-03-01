@@ -17,8 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
@@ -63,7 +62,7 @@ HLTForwardBackwardJetsFilter<T>::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<unsigned int>("nPos",1);
   desc.add<unsigned int>("nTot",0);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTForwardBackwardJetsFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTForwardBackwardJetsFilter<T>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------

@@ -47,6 +47,20 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   tryImportSpecific(*aJetRef);
 }
 
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::RefToBase<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = edm::Ptr<reco::Candidate>(aJetRef.id(), aJetRef.get(), aJetRef.key());
+}
+
+/// constructure from ref to pat::Jet
+Jet::Jet(const edm::Ptr<pat::Jet> & aJetRef) :
+  Jet(*aJetRef)
+{
+  refToOrig_ = aJetRef;
+}
+
 std::ostream& 
 reco::operator<<(std::ostream& out, const pat::Jet& obj) 
 {
@@ -338,65 +352,60 @@ const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
 /// get b discriminant from label name
 float Jet::bDiscriminator(const std::string & aLabel) const {
   float discriminator = -1000.;
-  const std::string & theLabel = ((aLabel == "" || aLabel == "default")) ? "trackCountingHighEffBJetTags" : aLabel;
-  for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
-    if(pairDiscriVector_[i].first == theLabel){
+  for(int i=(int(pairDiscriVector_.size())-1); i>=0; i--){
+    if(pairDiscriVector_[i].first == aLabel){
       discriminator = pairDiscriVector_[i].second;
+      break;
     }
   }
   return discriminator;
 }
 
 const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
-    std::vector<std::string>::const_iterator it = std::find(tagInfoLabels_.begin(), tagInfoLabels_.end(), label);
-    if (it != tagInfoLabels_.end()) {
-      if ( tagInfosFwdPtr_.size() > 0 ) return tagInfosFwdPtr_[it - tagInfoLabels_.begin()].get();
-      else if ( tagInfos_.size() > 0 )  return & tagInfos_[it - tagInfoLabels_.begin()];
+  for(int i=(int(tagInfoLabels_.size())-1); i>=0; i--){
+    if (tagInfoLabels_[i] == label) {
+      if ( tagInfosFwdPtr_.size() > 0 ) return tagInfosFwdPtr_[i].get();
+      else if ( tagInfos_.size() > 0 )  return & tagInfos_[i];
       return 0;
     }
-    return 0;
+  }
+  return 0;
 }
 
 
-template<typename T>
-const T *  Jet::tagInfoByType() const {
-  // First check the factorized PAT version
-    for (size_t i = 0, n = tagInfosFwdPtr_.size(); i < n; ++i) {
-      TagInfoFwdPtrCollection::value_type const & val = tagInfosFwdPtr_[i];
-      reco::BaseTagInfo const * baseTagInfo = val.get();
-      if ( typeid(*baseTagInfo) == typeid(T) ) {
-	return static_cast<const T *>( baseTagInfo );
-      }
-    }
-    // Then check compatibility version
-    for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
-      edm::OwnVector<reco::BaseTagInfo>::value_type const & val = tagInfos_[i];
-      reco::BaseTagInfo const * baseTagInfo = &val;
-      if ( typeid(*baseTagInfo) == typeid(T) ) {
-	return static_cast<const T *>( baseTagInfo );
-      }
-    }
-    return 0;
+const reco::CandIPTagInfo *
+Jet::tagInfoCandIP(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandIPTagInfo>(label);
 }
-
-
 
 const reco::TrackIPTagInfo *
 Jet::tagInfoTrackIP(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>()
-                          : dynamic_cast<const reco::TrackIPTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeOrLabel<reco::TrackIPTagInfo>(label);
+}
+
+const reco::CandSoftLeptonTagInfo *
+Jet::tagInfoCandSoftLepton(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandSoftLeptonTagInfo>(label);
 }
 
 const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::SoftLeptonTagInfo>()
-                          : dynamic_cast<const reco::SoftLeptonTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeOrLabel<reco::SoftLeptonTagInfo>(label);
+}
+
+const reco::CandSecondaryVertexTagInfo *
+Jet::tagInfoCandSecondaryVertex(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandSecondaryVertexTagInfo>(label);
 }
 
 const reco::SecondaryVertexTagInfo *
 Jet::tagInfoSecondaryVertex(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::SecondaryVertexTagInfo>()
-                          : dynamic_cast<const reco::SecondaryVertexTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeOrLabel<reco::SecondaryVertexTagInfo>(label);
+}
+
+const reco::BoostedDoubleSVTagInfo *
+Jet::tagInfoBoostedDoubleSV(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::BoostedDoubleSVTagInfo>(label);
 }
 
 void
@@ -574,4 +583,35 @@ void Jet::cachePFCandidates() const {
   }
   // Set the cache
   pfCandidatesTemp_.set(std::move(pfCandidatesTemp));
+}
+
+
+
+
+/// Access to subjet list
+pat::JetPtrCollection const & Jet::subjets( unsigned int index) const { 
+  if ( index < subjetCollections_.size() ) 
+    return subjetCollections_[index]; 
+  else {
+    throw cms::Exception("OutOfRange") << "Index " << index << " is out of range" << std::endl;
+  }
+}
+
+
+/// String access to subjet list
+pat::JetPtrCollection const & Jet::subjets( std::string label ) const { 
+  auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
+  if ( found != subjetLabels_.end() ){
+    auto index = std::distance( subjetLabels_.begin(), found );
+    return subjetCollections_[index]; 
+  }
+  else {
+    throw cms::Exception("SubjetsNotFound") << "Label " << label << " does not match any subjet collection" << std::endl;
+  }
+}
+
+/// Add new set of subjets
+void Jet::addSubjets( pat::JetPtrCollection const & pieces, std::string label  ) {
+  subjetCollections_.push_back( pieces );
+  subjetLabels_.push_back( label );
 }

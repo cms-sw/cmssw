@@ -42,8 +42,7 @@ void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&)
   e.getByToken(tok_raw_, rawraw);
 
   // Step B: Create empty output    
-  std::auto_ptr<HcalLaserDigi>
-    digi(new HcalLaserDigi);
+  auto digi = std::make_unique<HcalLaserDigi>();
     
   if (qdctdcFed_ >=0) {
     // Step C: unpack all requested FEDs
@@ -52,7 +51,7 @@ void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&)
   }
   
   // Step D: Put outputs into event
-  e.put(digi);
+  e.put(std::move(digi));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

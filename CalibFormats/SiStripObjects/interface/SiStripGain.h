@@ -116,7 +116,7 @@ class SiStripGain
   std::vector<const SiStripApvGain *> apvgainVector_;
   std::vector<double> normVector_;
   const SiStripApvGain * apvgain_;
-  std::auto_ptr<SiStripApvGain> apvgainAutoPtr_;
+  std::unique_ptr<SiStripApvGain> apvgainAutoPtr_;
   std::vector<std::pair<std::string, std::string> > recordLabelPair_;
 };
 

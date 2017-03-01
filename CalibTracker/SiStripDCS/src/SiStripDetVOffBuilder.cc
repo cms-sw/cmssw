@@ -15,6 +15,8 @@ SiStripDetVOffBuilder::SiStripDetVOffBuilder(const edm::ParameterSet& pset, cons
   tmax_par(pset.getParameter< std::vector<int> >("Tmax")),
   tmin_par(pset.getParameter< std::vector<int> >("Tmin")),
   tset_par(pset.getParameter< std::vector<int> >("TSetMin")),
+  deltaTmin_(pset.getParameter<uint32_t>("DeltaTmin")),
+  maxIOVlength_(pset.getParameter<uint32_t>("MaxIOVlength")),
   detIdListFile_(pset.getParameter< std::string >("DetIdListFile")),
   excludedDetIdListFile_(pset.getParameter< std::string >("ExcludedDetIdListFile")),
   highVoltageOnThreshold_(pset.getParameter<double>("HighVoltageOnThreshold"))
@@ -137,7 +139,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
   // -- set the saveIovTime as that
   // -- set the payload stats to empty
   // Successivamente:
-  // - loop su tutti gli elementi del detidV, che è stato letto dal pvss (questi elementi sono pair<vettore di detid, time>)
+  // - loop su tutti gli elementi del detidV, che stato letto dal pvss (questi elementi sono pair<vettore di detid, time>)
   // -- setta il tempo dell'IOV:
   // --- LASTVALUE -> iovtime settato a latestTime
   // --- altrimenti iovtime = tempo associato al detId vector del loop
@@ -257,11 +259,14 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
       SiStripDetVOff * testV = 0;
       if (!modulesOff.empty()) {testV = modulesOff.back().first;}
       if (modulesOff.empty() ||  !(*modV == *testV) ) {
-      	modulesOff.push_back( std::make_pair(modV,iovtime) );
-	// save the time of the object
-	saveIovTime = iovtime;
-	// save stats
-	setPayloadStats(afterV.size(), numAdded, numRemoved);
+        modulesOff.push_back( std::make_pair(modV,iovtime) );
+        // save the time of the object
+        saveIovTime = iovtime;
+        // save stats
+        setPayloadStats(afterV.size(), numAdded, numRemoved);
+      } else {
+        // modV will not be used anymore, DELETE it to avoid memory leak!
+        delete modV;
       }
     } else {
       (payloadStats.back())[0] = afterV.size();
@@ -273,12 +278,15 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
 
   // compare the first element and the last from previous transfer
   if (lastStoredCondObj.first != NULL && lastStoredCondObj.second > 0) {
-    if ( lastStoredCondObj.second == modulesOff[0].second &&
-	 *(lastStoredCondObj.first) == *(modulesOff[0].first) ) {
-      std::vector< std::pair<SiStripDetVOff*,cond::Time_t> >::iterator moIt = modulesOff.begin();
-      modulesOff.erase(moIt);
-      std::vector< std::vector<uint32_t> >::iterator plIt = payloadStats.begin();
-      payloadStats.erase(plIt);
+    if ( *(lastStoredCondObj.first) == *(modulesOff[0].first) ) {
+      if ( modulesOff.size() == 1 ){
+        // if no HV/LV transition was found in this period: update the last IOV to be tmax
+        modulesOff[0].second = getCondTime(tmax);
+      }else{
+        // HV/LV transitions found: remove the first one (which came from previous transfer)
+        modulesOff.erase(modulesOff.begin());
+        payloadStats.erase(payloadStats.begin());
+      }
     }
   }
   

@@ -9,7 +9,11 @@ IsoDeposit CandViewExtractor::depositFromObject(const Event & event, const Event
     deposit.addCandEnergy(cand.pt());
 
     Handle< View<Candidate> > candViewH;
-    event.getByToken(theCandViewToken, candViewH);
+    if (theCacheID != event.cacheIdentifier()){
+        event.getByToken(theCandViewToken, candViewH);
+    } else {
+        candViewH = theCandViewH;
+    }
 
     double eta = cand.eta(), phi = cand.phi();
     reco::Particle::Point vtx = cand.vertex();

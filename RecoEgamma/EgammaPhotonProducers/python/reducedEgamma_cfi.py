@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
-  keepPhotons = cms.string("pt > 14 && hadTowOverEm()<0.15"), #keep in output
-  slimRelinkPhotons = cms.string("pt > 14 && hadTowOverEm()<0.15"), #keep only slimmed SuperCluster plus seed cluster
+  keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
+  slimRelinkPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
   relinkPhotons = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), #keep all associated clusters/rechits/conversions
   keepGsfElectrons = cms.string(""), #keep in output
   slimRelinkGsfElectrons = cms.string(""), #keep only slimmed SuperCluster plus seed cluster
@@ -39,7 +39,26 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
     "eidRobustLoose",
     "eidRobustTight",
     "eidTight",
+    ),
+  photonPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("photonEcalPFClusterIsolationProducer"),
+        cms.InputTag("photonHcalPFClusterIsolationProducer"),
+  ),
+  photonPFClusterIsoOutput = cms.vstring(
+        "phoEcalPFClusIso",
+        "phoHcalPFClusIso",
+  ),
+  gsfElectronPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("electronEcalPFClusterIsolationProducer"),
+        cms.InputTag("electronHcalPFClusterIsolationProducer"),
+  ),
+  gsfElectronPFClusterIsoOutput = cms.vstring(
+        "eleEcalPFClusIso",
+        "eleHcalPFClusIso",
   ),
 )
 
-
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(reducedEgamma, 
+        preshowerEcalHits = cms.InputTag(""),
+)

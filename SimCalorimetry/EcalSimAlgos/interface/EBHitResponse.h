@@ -38,27 +38,27 @@ class EBHitResponse : public EcalHitResponse
 
       virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) override;
 
-      virtual void initializeHits() ;
+      virtual void initializeHits() override;
 
-      virtual void finalizeHits() ;
+      virtual void finalizeHits() override;
 
       virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) override;
 
-      virtual unsigned int samplesSize() const ;
+      virtual unsigned int samplesSize() const override;
 
-      virtual EcalSamples* operator[]( unsigned int i ) ;
+      virtual EcalSamples* operator[]( unsigned int i ) override;
 
-      virtual const EcalSamples* operator[]( unsigned int i ) const ;
+      virtual const EcalSamples* operator[]( unsigned int i ) const override;
 
    protected:
 
-      virtual unsigned int samplesSizeAll() const ;
+      virtual unsigned int samplesSizeAll() const override;
 
-      virtual EcalSamples* vSamAll( unsigned int i ) ;
+      virtual EcalSamples* vSamAll( unsigned int i ) override;
 
-      virtual const EcalSamples* vSamAll( unsigned int i ) const ;
+      virtual const EcalSamples* vSamAll( unsigned int i ) const override;
 
-      virtual EcalSamples* vSam( unsigned int i ) ;
+      virtual EcalSamples* vSam( unsigned int i ) override ;
 
       void putAPDSignal( const DetId& detId, double npe, double time ) ;
 

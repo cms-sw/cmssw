@@ -68,7 +68,7 @@ try:
         usage()
         sys.exit(0)
 
-except getopt.GetoptError,ex:
+except getopt.GetoptError as ex:
     print
     print ex," , use -h or --help for help"
     sys.exit(0)

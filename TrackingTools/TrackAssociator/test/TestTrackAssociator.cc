@@ -77,7 +77,6 @@
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "Utilities/Timing/interface/TimerStack.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -86,7 +85,6 @@ class TestTrackAssociator : public edm::EDAnalyzer {
  public:
    explicit TestTrackAssociator(const edm::ParameterSet&);
    virtual ~TestTrackAssociator(){
-      TimingReport::current()->dump(std::cout);
    }
    
    virtual void analyze (const edm::Event&, const edm::EventSetup&);

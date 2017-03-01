@@ -56,7 +56,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 // Trigger Headers
 
 
@@ -65,7 +65,7 @@
 // class declaration
 //
 
-class L1TCompare : public edm::EDAnalyzer {
+class L1TCompare : public DQMEDAnalyzer {
 
 public:
 
@@ -77,21 +77,14 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
- void beginJob(void);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginRun
- void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-
-
-// EndJob
- void endJob(void);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // ++ RCT-GCT
   // - iso

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi 
-hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi 
+hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('hitCollectorForOutInMuonSeeds'),
     MaxChi2 = cms.double(100.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED 

@@ -30,7 +30,7 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 
  protected:
 
-	virtual void analyze( const edm::Event&, const edm::EventSetup& );
+	virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
 	void bookRollME(DQMStore::IBooker &,RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string, MonitorElement*> &);
@@ -48,7 +48,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	bool useMuonDigis_;
 
 	void performSourceOperation(std::map < RPCDetId , std::vector<RPCRecHit> > &, std::string );
-	void makeDcsInfo(const edm::Event& ) ;
 	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
 
 	static const std::string regionNames_[3];
@@ -56,7 +55,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	std::string noiseFolder_;
 	int counter;
 
-	bool dcs_;
 	float muPtCut_, muEtaCut_;
 	bool useRollInfo_;
  	MonitorElement * noiseRPCEvents_ ;

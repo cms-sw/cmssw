@@ -20,7 +20,6 @@
 #include <iostream>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,8 +42,7 @@ L1GlobalTriggerRecordProducer::L1GlobalTriggerRecordProducer(const edm::Paramete
     produces<L1GlobalTriggerRecord>();
 
     // input tag for DAQ GT record
-    m_l1GtReadoutRecordTag = 
-        parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag");
+    m_l1GtReadoutRecordTag = consumes<L1GlobalTriggerReadoutRecord>(parSet.getParameter<edm::InputTag>("L1GtReadoutRecordTag"));
 
     LogDebug("L1GlobalTriggerRecordProducer")
     << "\nInput tag for L1 GT DAQ record:             "
@@ -74,11 +72,11 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
 {
 
     // produce the L1GlobalTriggerRecord
-    std::auto_ptr<L1GlobalTriggerRecord> gtRecord(new L1GlobalTriggerRecord());
+    std::unique_ptr<L1GlobalTriggerRecord> gtRecord(new L1GlobalTriggerRecord());
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_l1GtReadoutRecordTag, gtReadoutRecord);
+    iEvent.getByToken(m_l1GtReadoutRecordTag, gtReadoutRecord);
     
     if (!gtReadoutRecord.isValid()) {
         
@@ -88,7 +86,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
         << "\n Returning empty L1GlobalTriggerRecord.\n\n"
         << std::endl;
         
-        iEvent.put( gtRecord );
+        iEvent.put(std::move(gtRecord));
         return;
     }
 
@@ -221,7 +219,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
     }
 
     // put records into event
-    iEvent.put( gtRecord );
+    iEvent.put(std::move(gtRecord));
 
 }
 

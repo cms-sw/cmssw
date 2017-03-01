@@ -128,7 +128,7 @@ del process.PixelLessStep
 del process.TobTecStep
 
 # Load the new Iterative Tracking configuration
-process.load("RecoTracker.Configuration.RecoTrackerRunI_cff")
+raise Exception("Please migrate to use Run2_2016_trackingLowPU era (or otherwise use trackingLowPU sub-era)")
 
 process.globalreco.insert(tgrIndex, process.trackingGlobalReco)
 process.reconstruction_fromRECO.insert(tgrIndexFromReco, process.trackingGlobalReco)

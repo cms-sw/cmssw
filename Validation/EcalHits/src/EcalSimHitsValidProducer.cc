@@ -45,9 +45,9 @@ EcalSimHitsValidProducer::~EcalSimHitsValidProducer(){
 void
 EcalSimHitsValidProducer::produce(edm::Event& e, const edm::EventSetup&)
 {
-   std::auto_ptr<PEcalValidInfo> product(new PEcalValidInfo );
+   std::unique_ptr<PEcalValidInfo> product(new PEcalValidInfo );
    fillEventInfo(*product);
-   e.put(product,label);
+   e.put(std::move(product),label);
 }
 
 void 

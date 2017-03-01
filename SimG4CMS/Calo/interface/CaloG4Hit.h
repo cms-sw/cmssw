@@ -35,7 +35,7 @@ class CaloG4Hit : public G4VHit {
 public:
   
   CaloG4Hit();
-  ~CaloG4Hit();
+  virtual ~CaloG4Hit();
   CaloG4Hit(const CaloG4Hit &right);
   const CaloG4Hit& operator=(const CaloG4Hit &right);
   bool operator==(const CaloG4Hit &){return false;}

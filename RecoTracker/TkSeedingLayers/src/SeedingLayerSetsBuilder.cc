@@ -14,6 +14,8 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
+
 #include "HitExtractorPIX.h"
 #include "HitExtractorSTRP.h"
 
@@ -27,10 +29,7 @@
 using namespace ctfseeding;
 using namespace std;
 
-namespace {
-  std::tuple<GeomDetEnumerators::SubDetector,
-             SeedingLayer::Side,
-             int> nameToEnumId(const std::string& name) {
+SeedingLayerSetsBuilder::SeedingLayerId SeedingLayerSetsBuilder::nameToEnumId(const std::string& name) {
     GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
     SeedingLayer::Side side = SeedingLayer::Barrel;
     int idLayer = 0;
@@ -97,7 +96,6 @@ namespace {
       }
     }
     return std::make_tuple(subdet, side, idLayer);
-  }
 }
 
 SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::string& layerName, const edm::ParameterSet& cfgLayer, edm::ConsumesCollector& iC):
@@ -127,7 +125,7 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::s
     extractor = std::make_shared<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
   }
   else if(subdet != GeomDetEnumerators::invalidDet) { // strip
-    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer);
+    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer, clusterChargeCut(cfgLayer) );
     if (cfgLayer.exists("matchedRecHits")) {
       extr->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
     }

@@ -13,7 +13,7 @@ MEVarVector::MEVarVector( int size ) : _size(  size )
 
 MEVarVector::~MEVarVector() 
 {
-  for( MusEcal::VarVecTimeMap::iterator it=_map.begin(); it!=_map.end(); it++ )
+  for( MusEcal::VarVecTimeMap::iterator it=_map.begin(); it!=_map.end(); ++it )
     {
       delete it->second;
     }
@@ -57,7 +57,7 @@ MEVarVector::getTime( vector< ME::Time >& time,
 {
   time.clear();
   for( MusEcal::VarVecTimeMap::iterator it=_map.begin(); 
-       it!=_map.end(); it++ )
+       it!=_map.end(); ++it )
     {
       ME::Time t_ = it->first;
       if( interval!=0 )

@@ -19,15 +19,13 @@
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 class Plane;
 
-class ProxyPixelTopology GCC11_FINAL : public PixelTopology {
+class ProxyPixelTopology final : public PixelTopology {
 public:
 
   ProxyPixelTopology( PixelGeomDetType const * type, Plane * bp );
@@ -120,7 +118,7 @@ private:
   
   PixelGeomDetType const * theType;  
   float theLength, theWidth;
-  DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
+  std::unique_ptr<const SurfaceDeformation> theSurfaceDeformation;
 };
 
 #endif

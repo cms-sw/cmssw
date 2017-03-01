@@ -2,6 +2,7 @@
 
 
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
+#include <memory>
 
 using namespace xercesc;
 using namespace std;
@@ -27,40 +28,46 @@ bool SiPixelConfigWriter::init() {
     cout << "Problem to initialise XML !!! " << endl;
     return false;
   }
-  DOMImplementation* domImpl = DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range"));
-  domWriter = (dynamic_cast<DOMImplementation*>(domImpl))->createDOMWriter();
-  domWriter->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  unique_ptr<DOMImplementation> domImpl( DOMImplementationRegistry::getDOMImplementation(qtxml::_toDOMS("Range")));
+  if( domImpl == nullptr ) return false;
+  theDomWriter = domImpl->createLSSerializer();
+  if( theDomWriter == nullptr ) return false;
+  if( theDomWriter->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    theDomWriter->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   theDoc = domImpl->createDocument(0,qtxml::_toDOMS("Layouts"), 0);
+  if( theDoc == nullptr ) return false;
   theTopElement = theDoc->getDocumentElement();
   theTopElement->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
+  theOutput = domImpl->createLSOutput();
+  if( theOutput == nullptr ) return false;
   return true;
 }
 //
 // -- Add an Element
 // 
 void SiPixelConfigWriter::createLayout(string& name) {
-  lastLayout = theDoc->createElement(qtxml::_toDOMS("layout"));
-  lastLayout->setAttribute(qtxml::_toDOMS("name"), qtxml::_toDOMS(name));
-  theTopElement->appendChild(lastLayout);
+  theLastLayout = theDoc->createElement(qtxml::_toDOMS("layout"));
+  theLastLayout->setAttribute(qtxml::_toDOMS("name"), qtxml::_toDOMS(name));
+  theTopElement->appendChild(theLastLayout);
 }
 //
 // -- Add an Element
 // 
 void SiPixelConfigWriter::createRow() {
-  lastLayout->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
+  theLastLayout->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
 
-  lastRow = theDoc->createElement(qtxml::_toDOMS("row"));
-  lastLayout->appendChild(lastRow);
-  lastLayout->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
+  theLastRow = theDoc->createElement(qtxml::_toDOMS("row"));
+  theLastLayout->appendChild(theLastRow);
+  theLastLayout->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
 }
 //
 // -- Add an Element with Children
 //
 void SiPixelConfigWriter::createColumn(string& element, string& name) {
 
-   lastRow->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
+   theLastRow->appendChild(theDoc->createTextNode(qtxml::_toDOMS("\n")));
    DOMElement* e1 = theDoc->createElement(qtxml::_toDOMS("column"));
-   lastRow->appendChild(e1);
+   theLastRow->appendChild(e1);
 
  
    DOMElement* e2 = theDoc->createElement(qtxml::_toDOMS(element));
@@ -72,9 +79,10 @@ void SiPixelConfigWriter::createColumn(string& element, string& name) {
 // 
 void SiPixelConfigWriter::write(string& fname) {
   XMLFormatTarget* formTarget = new LocalFileFormatTarget(fname.c_str());
-  domWriter->writeNode(formTarget, *theTopElement);
+  theOutput->setByteStream(formTarget);
+  theDomWriter->write(theTopElement, theOutput);
   delete formTarget;
-  theDoc->release(); 
-
-
+  theOutput->release();
+  theDoc->release();
+  theDomWriter->release();
 }

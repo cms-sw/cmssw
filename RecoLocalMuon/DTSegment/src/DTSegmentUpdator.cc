@@ -54,6 +54,9 @@ DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
   string theAlgoName = config.getParameter<string>("recAlgo");
   theAlgo = DTRecHitAlgoFactory::get()->create(theAlgoName, 
                                                config.getParameter<ParameterSet>("recAlgoConfig"));
+  intime_cut=20.;
+  if (config.exists("intime_cut"))
+    intime_cut = config.getParameter<double>("intime_cut");
 
   if(debug)
     cout << "[DTSegmentUpdator] Constructor called" << endl;
@@ -116,22 +119,19 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg, bool allow3par)  const {
   }
   
   
-  // use the 2-par fit UNLESS the 4D segment only has the Phi projection or is out of time by more than 20ns
-  // - in these cases use the 3-par fit
+  // If both phi and zed projections are present and the phi segment is in time (segment t0<intime_cut) the 3-par fit is blocked and 
+  // segments are fit with the 2-par fit. Setting intime_cut to -1 results in the 3-par fit being used always.
   if(seg->hasPhi()) {
     if(seg->hasZed()) {
-
-      // fit in-time Phi segments with the 2par fit and out-of-time segments with the 3par fit
-      if (fabs(seg->phiSegment()->t0())<40.) {
-        fit(seg->phiSegment(),allow3par,0);
-        fit(seg->zSegment(),allow3par,0);      
-      } else {
+      if (fabs(seg->phiSegment()->t0())<intime_cut) {
         fit(seg->phiSegment(),allow3par,1);
         fit(seg->zSegment(),allow3par,1);      
+      } else {
+        fit(seg->phiSegment(),allow3par,0);
+        fit(seg->zSegment(),allow3par,0);      
       }
-
-    } else fit(seg->phiSegment(),allow3par,1);
-  } else fit(seg->zSegment(),allow3par,1);
+    } else fit(seg->phiSegment(),allow3par,0);
+  } else fit(seg->zSegment(),allow3par,0);
  
   const DTChamber* theChamber = theGeom->chamber(seg->chamberId());
 
@@ -227,15 +227,14 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   vector <int> lfit;
   vector <double> dist;
   int i=0;
-  
+
   x.reserve(8);
   y.reserve(8);
   sigy.reserve(8);
   lfit.reserve(8);
   dist.reserve(8);
 
-  DTSegmentCand::AssPointCont hits=seg->hits();
-  for (DTSegmentCand::AssPointCont::const_iterator iter=hits.begin(); iter!=hits.end(); ++iter) {
+  for (DTSegmentCand::AssPointCont::const_iterator iter=seg->hits().begin(); iter!=seg->hits().end(); ++iter) {
     LocalPoint pos = (*iter).first->localPosition((*iter).second);
     float xwire = (((*iter).first)->localPosition(DTEnums::Left).x() + ((*iter).first)->localPosition(DTEnums::Right).x()) /2.;
     float distance = pos.x() - xwire;
@@ -261,7 +260,8 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   fit(x,y,lfit,dist,sigy,pos,dir,cminf,vminf,covMat,chi2,allow3par);
   if (cminf!=0) t0_corr=-cminf/0.00543; // convert drift distance to time
 
-  if (debug && fitdebug) cout << "  DTcand chi2: " << chi2 << "/" << x.size() << "   t0: " << t0_corr << endl;
+  if (debug && fitdebug)
+    cout << "  DTcand chi2: " << chi2 << "/" << x.size() << "   t0: " << t0_corr << endl;
 
   seg->setPosition(pos);
   seg->setDirection(dir);
@@ -379,7 +379,7 @@ void DTSegmentUpdator::fit(const vector<float>& x,
   if (leftHits && rightHits && (leftHits+rightHits>3) && allow3par) {
     theFitter->fitNpar(3,x,y,lfit,dist,sigy,slope,intercept,cminf,vminf,chi2,debug);	
     double t0_corr=-cminf/0.00543;
-    if (fabs(t0_corr)<20. && block3par) {
+    if (fabs(t0_corr)<intime_cut && block3par) {
       theFitter->fit(x,y,x.size(),sigy,slope,intercept,chi2,covss,covii,covsi);
       cminf=0;
     }

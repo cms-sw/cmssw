@@ -41,6 +41,18 @@ laserSorter = cms.EDAnalyzer("LaserSorter",
   #   sequence (T_fed, = max event count * 10 ms) divided by the luminosity
   #   block duration (T_lb), divided by 2 and ceil-rounded: ceil(T_fed/(2*T_lb))
   lumiBlockSpan = cms.int32(2),
-  fedRawDataCollectionTag = cms.InputTag('rawDataCollector')
+
+  # Name of the input raw data collection
+  fedRawDataCollectionTag = cms.InputTag('rawDataCollector'),
+
+  #Switch to recompute and overwrite the lumi block ID
+  #It must be set to False for data acquired with global or
+  #minidaq and to True for local daq case.
+  # LB = orbit_id / orbitCountInALumiBlock
+  overWriteLumiBlockId = cms.bool(False),
+
+  # Length of a lumi block in number of orbits used when
+  # overWriteLumiBlockId is set to true;
+  orbitCountInALumiBlock  = cms.int32(257000)
 )
 

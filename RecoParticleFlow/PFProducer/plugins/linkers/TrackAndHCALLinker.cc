@@ -4,6 +4,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TrackAndHCALLinker : public BlockElementLinkerBase {
 public:
@@ -64,19 +65,33 @@ double TrackAndHCALLinker::testLink
 	break;
     
     // If the link exist, we fill dist and linktest.     
+
+
+
     if (mlit != multilinks.end()){     
+
+
+      //special case ! A looper  can exit the barrel inwards and hit the endcap
+      //In this case calculate the distance based on the first crossing since
+      //the looper will probably never make it to the endcap
       if (tkAtHCALEx.position().R()<tkAtHCALEnt.position().R()) {
-	throw cms::Exception("WorkingIn4DSpace")
-	  << "Qu'est ce que c'est que ce gag ? " 
-	  << tkAtHCALEx.position().R() << " is smaller than " 
-	  << tkAtHCALEnt.position().R() << " !" << std::endl;
-      }      
-      dist = LinkByRecHit::computeDist(hcalreppos.Eta(), 
+	dist = LinkByRecHit::computeDist(hcalreppos.Eta(), 
+					 hcalreppos.Phi(), 
+					 tracketa, 
+					 trackphi);
+	
+	edm::LogWarning("TrackHCALLinker ") <<"Special case of linking with track hitting HCAL and looping back in the tracker ";
+      }
+      else {
+	dist = LinkByRecHit::computeDist(hcalreppos.Eta(), 
 				       hcalreppos.Phi(), 
 				       tracketa + 0.1 * dHEta, 
 				       trackphi + 0.1 * dHPhi);
+      }
+
     }
-  } else {// Old algorithm
+
+  }    else {// Old algorithm
     if ( tkAtHCALEnt.isValid() )
       dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, 
 							*clusterref,

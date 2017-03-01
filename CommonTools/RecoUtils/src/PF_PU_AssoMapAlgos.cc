@@ -110,7 +110,7 @@ std::auto_ptr<TrackToVertexAssMap>
 PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap());
+	auto_ptr<TrackToVertexAssMap> track2vertex(new TrackToVertexAssMap(vtxcollH, trkcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -162,7 +162,7 @@ std::auto_ptr<VertexToTrackAssMap>
 PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> trkcollH, const edm::EventSetup& iSetup)
 {
 
-  	auto_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap());
+  	auto_ptr<VertexToTrackAssMap> vertex2track(new VertexToTrackAssMap(trkcollH, vtxcollH));
 
 	int num_vertices = vtxcollH->size();
 	if ( num_vertices < input_MaxNumAssociations_) input_MaxNumAssociations_ = num_vertices;
@@ -209,11 +209,11 @@ PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> tr
 /* function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2  */
 /*****************************************************************************************/
 
-auto_ptr<TrackToVertexAssMap>
+unique_ptr<TrackToVertexAssMap>
 PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
 {
 	//create a new TrackVertexAssMap for the Output which will be sorted
-     	auto_ptr<TrackToVertexAssMap> trackvertexassOutput(new TrackToVertexAssMap() );
+	unique_ptr<TrackToVertexAssMap> trackvertexassOutput(new TrackToVertexAssMap() );
 
 	//Create and fill a vector of pairs of vertex and the summed (pT-pT_Error)**2 of the tracks associated to the vertex
 	VertexPtsumVector vertexptsumvector;

@@ -46,7 +46,7 @@ namespace edm {
     }
     
     bool
-    EDFilterAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+    EDFilterAdaptorBase::doEvent(EventPrincipal const& ep, EventSetup const& c,
                                  ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
       assert(ep.streamID()<m_streamModules.size());

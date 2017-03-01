@@ -36,6 +36,8 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.p = cms.Path(
     process.pfClusterRefsForJetsHCAL*
     process.pfClusterRefsForJetsECAL*
+    process.pfClusterRefsForJetsHF*
+    process.pfClusterRefsForJetsHO*
     process.pfClusterRefsForJets *
     process.pfClusterMet
     )

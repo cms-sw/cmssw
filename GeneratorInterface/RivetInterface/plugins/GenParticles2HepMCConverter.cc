@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -25,20 +25,20 @@
 
 using namespace std;
 
-class GenParticles2HepMCConverter : public edm::EDProducer
+class GenParticles2HepMCConverter : public edm::stream::EDProducer<>
 {
 public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
   ~GenParticles2HepMCConverter() {};
 
-  void beginRun(edm::Run& run, const edm::EventSetup& eventSetup);
-  void produce(edm::Event& event, const edm::EventSetup& eventSetup);
+  //void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
-//  edm::InputTag lheEventLabel_;
-  edm::InputTag genParticlesLabel_;
-//  edm::InputTag genRunInfoLabel_;
-  edm::InputTag genEventInfoLabel_;
+//  edm::InputTag lheEventToken_;
+  edm::EDGetTokenT<reco::CandidateView> genParticlesToken_;
+//  edm::InputTag genRunInfoToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   edm::ESHandle<ParticleDataTable> pTable_;
 
 private:
@@ -58,36 +58,36 @@ private:
 
 GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset)
 {
-//  lheEventLabel_ = pset.getParameter<edm::InputTag>("lheEvent");
-  genParticlesLabel_ = pset.getParameter<edm::InputTag>("genParticles");
-  //genRunInfoLabel_ = pset.getParameter<edm::InputTag>("genRunInfo");
-  genEventInfoLabel_ = pset.getParameter<edm::InputTag>("genEventInfo");
+//  lheEventToken_ = pset.getParameter<edm::InputTag>("lheEvent");
+  genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
+  //genRunInfoToken_ = pset.getParameter<edm::InputTag>("genRunInfo");
+  genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
 
-  produces<edm::HepMCProduct>();
+  produces<edm::HepMCProduct>("unsmeared");
 }
 
-void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
-{
+//void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
+//{
   //edm::Handle<GenRunInfoProduct> genRunInfoHandle;
-  //event.getByLabel(genRunInfoLabel_, genRunInfoHandle);
+  //event.getByToken(genRunInfoToken_, genRunInfoHandle);
   // const double xsecIn = genRunInfoHandle->internalXSec().value();
   // const double xsecInErr = genRunInfoHandle->internalXSec().error();
   // const double xsecLO = genRunInfoHandle->externalXSecLO().value();
   // const double xsecLOErr = genRunInfoHandle->externalXSecLO().error();
   // const double xsecNLO = genRunInfoHandle->externalXSecNLO().value();
   // const double xsecNLOErr = genRunInfoHandle->externalXSecNLO().error();
-}
+//}
 
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
 //  edm::Handle<LHEEventProduct> lheEventHandle;
-//  event.getByLabel(lheEventLabel_, lheEventHandle);
+//  event.getByToken(lheEventToken_, lheEventHandle);
 
   edm::Handle<reco::CandidateView> genParticlesHandle;
-  event.getByLabel(genParticlesLabel_, genParticlesHandle);
+  event.getByToken(genParticlesToken_, genParticlesHandle);
 
   edm::Handle<GenEventInfoProduct> genEventInfoHandle;
-  event.getByLabel(genEventInfoLabel_, genEventInfoHandle);
+  event.getByToken(genEventInfoToken_, genEventInfoHandle);
 
   eventSetup.getData(pTable_);
 
@@ -127,7 +127,9 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     hepmc_particle->suggest_barcode(i+1);
 
     // Assign particle's generated mass from the standard particle data table
-    double particleMass = pTable_->particle(p->pdgId())->mass();
+    double particleMass;
+    if ( pTable_->particle(p->pdgId()) ) particleMass = pTable_->particle(p->pdgId())->mass();
+    else particleMass = p->mass();
 //    // Re-assign generated mass from LHE, find particle among the LHE
 //    for ( unsigned int j=0, m=lhe_meIndex.size(); j<m; ++j )
 //    {
@@ -196,9 +198,9 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   // Finalize HepMC event record
   hepmc_event->set_signal_process_vertex(*(vertex1->vertices_begin()));
 
-  std::auto_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
+  std::unique_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
   hepmc_product->addHepMCData(hepmc_event);
-  event.put(hepmc_product);
+  event.put(std::move(hepmc_product), "unsmeared");
 
 }
 

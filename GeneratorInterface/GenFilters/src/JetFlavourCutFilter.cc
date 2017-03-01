@@ -8,7 +8,7 @@ using namespace HepMC;
 
 JetFlavourCutFilter::JetFlavourCutFilter(const edm::ParameterSet& iConfig)
 {
-  label_ = iConfig.getUntrackedParameter("moduleLabel",std::string("generator"));
+  token_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"));
   jetType = iConfig.getParameter< int >("jetType");
   if ((jetType>=1)&&(jetType<=3)) jetType=1;
 
@@ -72,7 +72,7 @@ JetFlavourCutFilter::printHisto(const HepMC::GenEvent::particle_iterator start,
 bool JetFlavourCutFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
   
   const HepMC::GenEvent * generated_event = evt->GetEvent();
 

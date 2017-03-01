@@ -21,7 +21,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig):
@@ -76,7 +76,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
@@ -163,13 +163,13 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   */
 
   // create and fill value maps
-  std::auto_ptr<edm::ValueMap<reco::MuonQuality> > outQual(new edm::ValueMap<reco::MuonQuality>());
+  auto outQual = std::make_unique<edm::ValueMap<reco::MuonQuality>>();
   edm::ValueMap<reco::MuonQuality>::Filler fillerQual(*outQual);
   fillerQual.insert(glbMuons, valuesQual.begin(), valuesQual.end());
   fillerQual.fill();
   
   // put value map into event
-  iEvent.put(outQual);
+  iEvent.put(std::move(outQual));
 }
 
 std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) const {

@@ -6,7 +6,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 from Configuration.StandardSequences.MagneticField_38T_cff import *
 
 #Geometry
-from Configuration.StandardSequences.Geometry_cff import *
+from Configuration.StandardSequences.GeometryRecoDB_cff import *
 
 # Real data raw to digi
 from Configuration.StandardSequences.RawToDigi_Data_cff import *

@@ -25,36 +25,12 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter0;
-  DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
-  DDFilteredView fv0(cpv);
-  fv0.addFilter(filter0);
-  if (fv0.firstChild()) {
-    DDsvalues_type sv0(fv0.mergedSpecifics());
-
-    //Special Geometry parameters
-    rTable   = getDDDArray("rTable",sv0);
-    edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
-			     << " rTable (cm)";
-    for (unsigned int ig=0; ig<rTable.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
-			       << rTable[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerPMT: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << value;
-    throw cms::Exception("Unknown", "HFShowerPMT")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-
-  attribute = "Volume";
-  value     = "HFPMT";
+  //Special Geometry parameters
+  std::string attribute = "Volume";
+  std::string value     = "HFPMT";
   DDSpecificsFilter filter1;
   DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+  filter1.setCriteria(ddv1,DDCompOp::equals);
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   if (fv1.firstChild()) {
@@ -99,6 +75,17 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
 
 HFShowerPMT::~HFShowerPMT() {
   if (cherenkov) delete cherenkov;
+}
+
+void HFShowerPMT::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+
+  // Special Geometry parameters
+  rTable   = hcons->getRTableHF();
+  edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
+                           << " rTable (cm)";
+  for (unsigned int ig=0; ig<rTable.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
+                             << rTable[ig]/cm << " cm";
 }
 
 double HFShowerPMT::getHits(G4Step * aStep) {

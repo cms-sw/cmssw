@@ -82,7 +82,7 @@
 		</LogicalPart>
 		<LogicalPart name="HcalTestBeamLineWChambGas" category="unspecified">
 			<rSolid name="HcalTestBeamLineWChambGas"/>
-			<rMaterial name="materials:Ar(50%)+CO_2(50%)"/>
+			<rMaterial name="materials:Ar 50pct plus CO_2 50pct"/>
 		</LogicalPart>
 		<LogicalPart name="HcalTestBeamLineWChambVet" category="unspecified">
 			<rSolid name="HcalTestBeamLineWChambVet"/>

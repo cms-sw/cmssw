@@ -17,7 +17,6 @@
 #include "CondCore/IOVService/interface/IOV.h"
 
 // Hcal calibrations
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbXml.h"
 #include "CondTools/Hcal/interface/HcalDbOnline.h"

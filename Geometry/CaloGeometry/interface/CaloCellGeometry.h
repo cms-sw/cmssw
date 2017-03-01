@@ -6,11 +6,13 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Transform3D.h>
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
+
 #include <vector>
+#include <array>
 #include <string>
 #include <cassert>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
 
@@ -64,21 +66,28 @@ public:
   typedef std::vector<ParVec> ParVecVec ;
   typedef EZMgrFL< CCGFloat > ParMgr ;
 
-  enum CornersSize { k_cornerSize = 8 };
+  static constexpr unsigned int k_cornerSize = 8;
+
+  using RepCorners = std::array<RhoEtaPhi,k_cornerSize>;
+  
 
   static const CCGFloat k_ScaleFromDDDtoGeant ;
 
   virtual ~CaloCellGeometry() ;
       
   /// Returns the corner points of this cell's volume.
-  const CornersVec& getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  CornersVec const & getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
+  RepCorners const & getCornersREP() const {  return m_repCorners;}
 
+  
   /// Returns the position of reference for this cell 
   const GlobalPoint& getPosition() const {return m_refPoint;}
   const GlobalPoint& getBackPoint() const {return m_backPoint;} 
 
-  float etaPos() const { return m_eta;}
-  float phiPos() const { return m_phi;}
+  RhoEtaPhi const & repPos() const { return m_rep;}
+  float rhoPos() const { return m_rep.rho();}
+  float etaPos() const { return m_rep.eta();}
+  float phiPos() const { return m_rep.phi();}
 
   float etaSpan() const { return m_dEta;}
   float	phiSpan() const	{ return m_dPhi;}
@@ -126,6 +135,7 @@ protected:
      m_dPhi = std::abs(getCorners()[0].phi() -
                       getCorners()[2].phi());
      initBack();
+     initReps();
   }
 
   virtual void initCorners(CornersVec&) = 0;
@@ -137,18 +147,23 @@ private:
                               0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
                               0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));   
   }
-
+  void initReps() {
+    for (auto i=0U;i<k_cornerSize; ++i) m_repCorners[i]= {getCorners()[i].perp(), getCorners()[i].eta(), getCorners()[i].barePhi()}; 
+      
+  }
+  
 
   GlobalPoint         m_refPoint ;
   GlobalPoint         m_backPoint ;
   CornersVec  m_corners  ;
   const CCGFloat*     m_parms    ;
-  float m_eta, m_phi;
+  RhoEtaPhi m_rep;
   float m_dEta;
   float m_dPhi;
-
+  std::array<RhoEtaPhi,k_cornerSize> m_repCorners;
 };
 
 std::ostream& operator<<( std::ostream& s, const CaloCellGeometry& cell ) ;
+
 
 #endif

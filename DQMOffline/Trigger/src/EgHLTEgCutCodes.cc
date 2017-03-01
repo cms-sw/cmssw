@@ -2,7 +2,7 @@
 
 using namespace egHLT;
 
-ComCodes EgCutCodes::codes_(EgCutCodes::setCodes_());
+const ComCodes EgCutCodes::codes_(EgCutCodes::setCodes_());
 
 //horribly inefficient I know but its done once
 ComCodes EgCutCodes::setCodes_()

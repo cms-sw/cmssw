@@ -40,15 +40,15 @@ namespace pat {
 
             // List of duplicate electrons to remove 
             // Among those that share the same cluster or track, the one with E/P nearer to 1 is kept
-            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) const ;
+            std::unique_ptr< std::vector<size_t> > duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) const ;
 
             // List of duplicate electrons to remove 
             // Among those that share the same cluster or track, the one with E/P nearer to 1 is kept
-            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const edm::View<reco::GsfElectron>   &electrons) const ;
+            std::unique_ptr< std::vector<size_t> > duplicatesToRemove(const edm::View<reco::GsfElectron>   &electrons) const ;
 
             // Generic method. Collection can be vector, view or whatever you like
             template<typename Collection>
-            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const Collection &electrons) const ;
+            std::unique_ptr< std::vector<size_t> > duplicatesToRemove(const Collection &electrons) const ;
             
         private:
     }; // class
@@ -56,7 +56,7 @@ namespace pat {
 
 // implemented here because is templated
 template<typename Collection>
-std::auto_ptr< std::vector<size_t> >
+std::unique_ptr< std::vector<size_t> >
 pat::DuplicatedElectronRemover::duplicatesToRemove(const Collection &electrons) const {
     pat::GenericDuplicateRemover<SameSuperclusterOrTrack,BestEoverP> dups;
     return dups.duplicates(electrons);

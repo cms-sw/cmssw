@@ -11,7 +11,7 @@
 namespace edm {
   namespace reftobase {
     template <class REF>
-    std::auto_ptr<RefVectorHolderBase> RefHolder<REF>::makeVectorHolder() const {
+    std::unique_ptr<RefVectorHolderBase> RefHolder<REF>::makeVectorHolder() const {
       typedef typename RefHolderToRefVectorTrait<REF>::type helper;
       return helper::makeVectorHolder();
     }

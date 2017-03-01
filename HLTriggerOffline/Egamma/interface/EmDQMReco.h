@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/scoped_ptr.hpp>
 
 class EmDQMReco;
 
@@ -90,10 +91,10 @@ public:
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup&);
+  void analyze(const edm::Event & event, const edm::EventSetup&) override;
   void beginJob();
   void endJob();
-  void dqmBeginRun( const edm::Run&, const edm::EventSetup& );
+  void dqmBeginRun( const edm::Run&, const edm::EventSetup& ) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:

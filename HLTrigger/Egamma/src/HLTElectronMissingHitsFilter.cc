@@ -71,13 +71,14 @@ bool HLTElectronMissingHitsFilter::hltFilter(edm::Event& iEvent, const edm::Even
       if(scCand == scEle) {
 	
 	int missinghits = 0;
-	if (electronref->gsfTrack().isNonnull())
-	  missinghits = electronref->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
-	else if (electronref->track().isNonnull())
-	  missinghits = electronref->track()->trackerExpectedHitsInner().numberOfLostHits();
-	else
-	  std::cerr << "Electron without track..." << std::endl;
-	
+	if (electronref->gsfTrack().isNonnull()){
+        missinghits = electronref->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    } else if (electronref->track().isNonnull()){
+        missinghits = electronref->track()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+    }else{
+        std::cerr << "Electron without track..." << std::endl;
+    }
+
 	if(fabs(electronref->eta()) < 1.479) {
 	  if (missinghits < barrelcut_) {
 	    n++;

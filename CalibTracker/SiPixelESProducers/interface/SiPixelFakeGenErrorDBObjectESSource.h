@@ -2,7 +2,6 @@
 #define CalibTracker_SiPixelESProducers_SiPixelFakeGenErrorDBObjectESSource_h
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -18,7 +17,7 @@ class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::
   
   typedef std::vector<std::string> vstring;
   
-  virtual std::auto_ptr<SiPixelGenErrorDBObject>  produce(const SiPixelGenErrorDBObjectRcd &);
+  virtual std::unique_ptr<SiPixelGenErrorDBObject>  produce(const SiPixelGenErrorDBObjectRcd &);
   
  protected:
   

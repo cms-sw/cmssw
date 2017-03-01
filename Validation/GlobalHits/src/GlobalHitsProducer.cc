@@ -177,8 +177,8 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   ++count;
 
   // get event id information
-  int nrun = iEvent.id().run();
-  int nevt = iEvent.id().event();
+  edm::RunNumber_t nrun = iEvent.id().run();
+  edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
@@ -198,8 +198,8 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -245,7 +245,7 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
+  std::unique_ptr<PGlobalSimHit> pOut(new PGlobalSimHit);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
@@ -264,7 +264,7 @@ void GlobalHitsProducer::produce(edm::Event& iEvent,
   storeHCal(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }
@@ -290,7 +290,7 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -300,7 +300,7 @@ void GlobalHitsProducer::fillG4MC(edm::Event& iEvent)
     return;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->product()).moduleLabel();
+    eventout += (HepMCEvt.provenance()->branchDescription()).moduleLabel();
   }
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   nRawGenPart = MCEvt->particles_size();

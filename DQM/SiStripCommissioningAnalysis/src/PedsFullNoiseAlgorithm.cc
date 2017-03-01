@@ -152,6 +152,9 @@ void PedsFullNoiseAlgorithm::analyse() {
     float n_sum = 0., n_sum2 = 0., n_max = -1.*sistrip::invalid_, n_min = sistrip::invalid_;
     float r_sum = 0., r_sum2 = 0., r_max = -1.*sistrip::invalid_, r_min = sistrip::invalid_;		   
     // Iterate through strips of APV
+
+    //Need our own copy for thread safety
+    TF1 mygaus("mygaus","gaus");
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
     	
       ana->ksProb_[iapv].push_back(0);
@@ -189,8 +192,8 @@ void PedsFullNoiseAlgorithm::analyse() {
         // If the histogram is valid.
         if(noisehist->Integral() > 0){
         	ana->noiseRMS_[iapv][istr] = noisehist->GetRMS();
-        	noisehist->Fit("gaus","Q");                       
-        	ana->noiseGaus_[iapv][istr] 	= noisehist->GetFunction("gaus")->GetParameter(2);
+        	noisehist->Fit(&mygaus,"Q");                       
+        	ana->noiseGaus_[iapv][istr] 	= mygaus.GetParameter(2);
           
           // new Bin84 method
       		std::vector<float> integralFrac;
@@ -222,7 +225,7 @@ void PedsFullNoiseAlgorithm::analyse() {
         	// Compare shape of ADC to a histogram made of Gaus Fit for KSProb, Chi2Prob, Etc...
         	TH1D * FitHisto = new TH1D("FitHisto","FitHisto",noisehist->GetNbinsX(),
                            -noisehist->GetNbinsX()/2,noisehist->GetNbinsX()/2);
-        	FitHisto->Add(noisehist->GetFunction("gaus"));
+        	FitHisto->Add(&mygaus);
         	FitHisto->Sumw2();
         	noisehist->Sumw2();
           

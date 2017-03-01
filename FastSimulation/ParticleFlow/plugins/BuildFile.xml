@@ -1,8 +1,0 @@
-<library   name="FastSimulationParticleFlowPlugins" file="FSPFProducer.cc">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="DataFormats/ParticleFlowCandidate"/>
-  <use   name="DataFormats/Math"/>
-  <use   name="boost"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

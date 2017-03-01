@@ -13,7 +13,7 @@ def extractBlock(config, blocks, target):
   #print
   commands = ','.join( block + '::outputCommands' for block in blocks )
   proc = subprocess.Popen(
-    "edmConfigFromDB --configName %s --noedsources --nopaths --noes --nopsets --noservices --cff --blocks %s --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > %s" % (config, commands, target),
+    "hltConfigFromDB --configName %s --noedsources --nopaths --noes --nopsets --noservices --cff --blocks %s --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > %s" % (config, commands, target),
     shell  = True,
     stdin  = None,
     stdout = None,
@@ -22,9 +22,9 @@ def extractBlock(config, blocks, target):
   proc.wait()
 
 def extractBlocks(config):
-  outputA    = ( 'hltOutputA', )
-  outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputA', 'hltOutputHLTDQM', 'hltOutputHLTMON', 'hltOutputReleaseValidation' )
+  outputA    = ( 'hltOutputA', 'hltOutputPhysicsCommissioning' )
+  outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
+  outputMON  = ( 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,  'hltOutputMON_cff.py')
@@ -73,32 +73,57 @@ import hltOutputALCA_cff
 import hltOutputMON_cff
 
 # hltDebugOutput
+
+if not hasattr(hltOutputMON_cff,'block_hltOutputA'):
+  hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
+if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
+  hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
+  hltOutputMON_cff.block_hltOutputHLTMonitor = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
+if not hasattr(hltOutputMON_cff,'block_hltOutputLookArea'):
+  hltOutputMON_cff.block_hltOutputLookArea = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputMON_cff,'block_hltOutputReleaseValidation'):
+  hltOutputMON_cff.block_hltOutputReleaseValidation = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+
 hltDebugOutputBlocks = (
   # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
-  hltOutputMON_cff.block_hltOutputHLTDQM.outputCommands,
-  hltOutputMON_cff.block_hltOutputHLTMON.outputCommands,
+  hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+  hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
+  hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
 )
 hltDebugOutputContent = buildPSet(hltDebugOutputBlocks)
 
 
 # hltDebugWithAlCaOutput
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
+  hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
+  hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALUMIPIXELS'):
+  hltOutputALCA_cff.block_hltOutputALCALUMIPIXELS = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputRPCMON'):
+  hltOutputALCA_cff.block_hltOutputRPCMON = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 hltDebugWithAlCaOutputBlocks = (
   # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
-  hltOutputMON_cff.block_hltOutputHLTDQM.outputCommands,
-  hltOutputMON_cff.block_hltOutputHLTMON.outputCommands,
+  hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+  hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
+  hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCALUMIPIXELS.outputCommands,
   hltOutputALCA_cff.block_hltOutputRPCMON.outputCommands,
 )
 hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 
 
 # hltDefaultOutput
+if not hasattr(hltOutputA_cff,'block_hltOutputA'):
+  hltOutputA_cff.block_hltOutputA = hltOutputA_cff.block_hltOutputPhysicsCommissioning
 hltDefaultOutputBlocks = (
   # the A stream has the HLT default output, with FEDs - strip out the FEDRawDataCollection keep statements for hltDefaultOutput
   hltOutputA_cff.block_hltOutputA.outputCommands,

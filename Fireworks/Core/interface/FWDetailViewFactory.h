@@ -29,8 +29,8 @@ class FWDetailViewBase;
 
 typedef edmplugin::PluginFactory<FWDetailViewBase*()> FWDetailViewFactory;
 
-#define REGISTER_FWDETAILVIEW(_classname_,_name_) \
-   DEFINE_EDM_PLUGIN(FWDetailViewFactory,_classname_,_classname_::classRegisterTypeName()+"@" # _name_ "@" # _classname_)
+#define REGISTER_FWDETAILVIEW(_classname_,_name_, ...)                      \
+   DEFINE_EDM_PLUGIN(FWDetailViewFactory,_classname_,_classname_::classRegisterTypeName()+"@" # _name_ "@" # _classname_ "&" # __VA_ARGS__)
 
 
 #endif

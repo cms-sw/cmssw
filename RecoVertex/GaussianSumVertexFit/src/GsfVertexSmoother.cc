@@ -213,8 +213,8 @@ GsfVertexSmoother::meanVertex(const VertexState & vertexA,
   {
     for (std::vector<VertexState>::iterator iB = vsCompB.begin(); iB!= vsCompB.end(); ++iB)
     {
-      AlgebraicSymMatrix33 newWeight = iA->weight().matrix_new() +
-				     iB->weight().matrix_new();
+      AlgebraicSymMatrix33 newWeight = iA->weight().matrix() +
+				     iB->weight().matrix();
       AlgebraicVector3 newWtP = iA->weightTimesPosition() +
       			       iB->weightTimesPosition();
       double newWeightInMixture = iA->weightInMixture() *

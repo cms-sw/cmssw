@@ -2,15 +2,13 @@
 #define HcalSimProducers_HcalDigiAnalyzer_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitAnalyzer.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "SimCalorimetry/HcalSimProducers/src/HcalDigiStatistics.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -22,7 +20,7 @@
 */
 
 
-class HcalDigiAnalyzer : public edm::EDAnalyzer
+class HcalDigiAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
 

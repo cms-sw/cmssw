@@ -9,7 +9,7 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const& conf)
   simParameterMap_(),
   hbheFilter_(),
   hoFilter_(),
-  hfFilter_(true),
+  hfFilter_(),
   hbheHitAnalyzer_("HBHEDigi", 1., &simParameterMap_, &hbheFilter_),
   hoHitAnalyzer_("HODigi", 1., &simParameterMap_, &hoFilter_),
   hfHitAnalyzer_("HFDigi", 1., &simParameterMap_, &hfFilter_),
@@ -45,8 +45,8 @@ void HcalDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& c) {
   //e.getByLabel("mix", "ZDCHits", zdccf);
   
   // test access to SimHits for HcalHits and ZDC hits
-  std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(cf.product()));
-  //std::auto_ptr<MixCollection<PCaloHit> > zdcHits(new MixCollection<PCaloHit>(zdccf.product()));
+  std::unique_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(cf.product()));
+  //std::unique_ptr<MixCollection<PCaloHit> > zdcHits(new MixCollection<PCaloHit>(zdccf.product()));
   hbheHitAnalyzer_.fillHits(*hits);
   hoHitAnalyzer_.fillHits(*hits);
   hfHitAnalyzer_.fillHits(*hits);

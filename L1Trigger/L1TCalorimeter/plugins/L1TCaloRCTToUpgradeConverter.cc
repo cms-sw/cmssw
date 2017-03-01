@@ -13,36 +13,33 @@
 
 #include <vector>
 
-//#include <stdio.h>
 
-l1t::L1TCaloRCTToUpgradeConverter::L1TCaloRCTToUpgradeConverter(const edm::ParameterSet& ps) {
+using namespace l1t;
 
-  produces<l1t::CaloRegionBxCollection>();
-  produces<l1t::CaloEmCandBxCollection>();
+L1TCaloRCTToUpgradeConverter::L1TCaloRCTToUpgradeConverter(const edm::ParameterSet& ps) {
+
+  produces<CaloRegionBxCollection>();
+  produces<CaloEmCandBxCollection>();
 
   rgnToken_ = consumes<L1CaloRegionCollection>(ps.getParameter<edm::InputTag>("regionTag"));
   emToken_ = consumes<L1CaloEmCollection>(ps.getParameter<edm::InputTag>("emTag"));
-
-  // firstBx_ = -ps.getParameter<unsigned>("preSamples");
-  // lastBx_  =  ps.getParameter<unsigned>("postSamples");
-
 }
 
-l1t::L1TCaloRCTToUpgradeConverter::~L1TCaloRCTToUpgradeConverter() {
+L1TCaloRCTToUpgradeConverter::~L1TCaloRCTToUpgradeConverter() {
 
 }
 
 // ------------ method called to produce the data  ------------
 void
-l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // check status of RCT conditions & renew if needed
 
 
   // store new formats
-  std::auto_ptr<BXVector<l1t::CaloEmCand> > emcands (new l1t::CaloEmCandBxCollection);
-  std::auto_ptr<BXVector<l1t::CaloRegion> > regions (new l1t::CaloRegionBxCollection);
+  std::unique_ptr<BXVector<CaloEmCand> > emcands (new CaloEmCandBxCollection);
+  std::unique_ptr<BXVector<CaloRegion> > regions (new CaloRegionBxCollection);
 
   // get old formats
   edm::Handle<L1CaloEmCollection> ems;
@@ -71,15 +68,17 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
     // double eta = 0.;
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0. );
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =
-      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
 
-    //l1t::CaloStage1Cluster cluster;
-    l1t::CaloEmCand EmCand(*p4,
+    //CaloStage1Cluster cluster;
+    CaloEmCand EmCand(*&p4,
 			   (int) em->rank(),
 			   (int) em->regionId().ieta(),
 			   (int) em->regionId().iphi(),
-			   0);
+			   (int) em->index());
+
+    EmCand.setHwIso((int) em->isolated());
+    //std::cout<<"ISO:    "<<EmCand.hwIso()<<"    "<<em->isolated()<<std::endl;
 
     // create new format
     emcands->push_back( em->bx(), EmCand );
@@ -95,47 +94,49 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
 
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =
-      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+    bool tauVeto = rgn->fineGrain(); //equivalent to tauVeto for HB/HE, includes extra info for HF
+    int hwQual = (int) tauVeto;
+
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
 
 
     // create new format
-    //l1t::CaloRegion region;
-    l1t::CaloRegion region(*p4,
-			   0.,
-			   0.,
-			   (int) rgn->et(),
-			   (int) rgn->id().ieta(),
-			   (int) rgn->id().iphi(),
-			   0,
-			   0,
-			   0);
+    // several values here are stage 2 only, leave empty
+    CaloRegion region(*&p4,           //  LorentzVector& p4,
+      0.,                          //  etEm,
+      0.,                          //  etHad,
+      (int) rgn->et(),             //  pt,
+      (int) rgn->id().ieta(),      //  eta,
+      (int) rgn->id().iphi(),      //  phi,
+      hwQual,                      //  qual,
+      0,                           //  hwEtEm,
+      0);                          //  hwEtHad
 
     // add to output
     regions->push_back( rgn->bx(), region );
 
   }
 
-  iEvent.put(emcands);
-  iEvent.put(regions);
+  iEvent.put(std::move(emcands));
+  iEvent.put(std::move(regions));
 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-l1t::L1TCaloRCTToUpgradeConverter::beginJob()
+L1TCaloRCTToUpgradeConverter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-l1t::L1TCaloRCTToUpgradeConverter::endJob() {
+L1TCaloRCTToUpgradeConverter::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
   void
-  l1t::L1TCaloRCTToUpgradeConverter::beginRun(edm::Run const&, edm::EventSetup const&)
+  L1TCaloRCTToUpgradeConverter::beginRun(edm::Run const&, edm::EventSetup const&)
   {
   }
 */
@@ -143,7 +144,7 @@ l1t::L1TCaloRCTToUpgradeConverter::endJob() {
 // ------------ method called when ending the processing of a run  ------------
 /*
   void
-  l1t::L1TCaloRCTToUpgradeConverter::endRun(edm::Run const&, edm::EventSetup const&)
+  L1TCaloRCTToUpgradeConverter::endRun(edm::Run const&, edm::EventSetup const&)
   {
   }
 */
@@ -151,7 +152,7 @@ l1t::L1TCaloRCTToUpgradeConverter::endJob() {
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
   void
-  l1t::L1TCaloRCTToUpgradeConverter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+  L1TCaloRCTToUpgradeConverter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
   t&)
   {
   }
@@ -160,7 +161,7 @@ l1t::L1TCaloRCTToUpgradeConverter::endJob() {
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
   void
-  l1t::L1TCaloRCTToUpgradeConverter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+  L1TCaloRCTToUpgradeConverter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
   )
   {
   }
@@ -168,7 +169,7 @@ l1t::L1TCaloRCTToUpgradeConverter::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-l1t::L1TCaloRCTToUpgradeConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TCaloRCTToUpgradeConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -177,4 +178,4 @@ l1t::L1TCaloRCTToUpgradeConverter::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloRCTToUpgradeConverter);
+DEFINE_FWK_MODULE(L1TCaloRCTToUpgradeConverter);

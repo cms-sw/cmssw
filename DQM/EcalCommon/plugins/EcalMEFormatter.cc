@@ -11,7 +11,7 @@
 #include <limits>
 
 EcalMEFormatter::EcalMEFormatter(edm::ParameterSet const& _ps) :
-  edm::EDAnalyzer(),
+  DQMEDHarvester(),
   ecaldqm::DQWorker()
 {
   initialize("EcalMEFormatter", _ps);
@@ -31,27 +31,26 @@ EcalMEFormatter::fillDescriptions(edm::ConfigurationDescriptions& _descs)
 }
 
 void
-EcalMEFormatter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+EcalMEFormatter::dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter& _igetter, edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  format_(true);
+  format_(_igetter, true);
 }
 
 void
-EcalMEFormatter::endRun(edm::Run const&, edm::EventSetup const&)
+EcalMEFormatter::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& _igetter)
 {
-  format_(false);
+  format_(_igetter, false);
 }
 
 void
-EcalMEFormatter::format_(bool _checkLumi)
+EcalMEFormatter::format_(DQMStore::IGetter& _igetter, bool _checkLumi)
 {
-  DQMStore& dqmStore(*edm::Service<DQMStore>());
   std::string failedPath;
     
   for(ecaldqm::MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
     if(_checkLumi && !mItr->second->getLumiFlag()) continue;
     mItr->second->clear();
-    if(!mItr->second->retrieve(dqmStore, &failedPath)){
+    if(!mItr->second->retrieve(_igetter, &failedPath)){
       if(verbosity_ > 0) edm::LogWarning("EcalDQM") << "Could not find ME " << mItr->first << "@" << failedPath;
       continue;
     }
@@ -64,25 +63,7 @@ EcalMEFormatter::format_(bool _checkLumi)
 void
 EcalMEFormatter::formatDet2D_(ecaldqm::MESet& _meSet)
 {
-  if(_meSet.getKind() != MonitorElement::DQM_KIND_TPROFILE2D) return;
-
-  MonitorElement* me(0);
-  unsigned iME(0);
-  while((me = _meSet.getME(iME++))){
-    TProfile2D* prof(me->getTProfile2D());
-    for(int iX(1); iX <= prof->GetNbinsX(); ++iX){
-      for(int iY(1); iY <= prof->GetNbinsY(); ++iY){
-        int bin(prof->GetBin(iX, iY));
-        if(prof->GetBinEntries(bin) == 0.){
-          if(verbosity_ > 2) edm::LogInfo("EcalDQM") << "Found empty bin " << bin << " in histogram " << prof->GetName();
-          // TEMPORARY SETUP UNTIL RENDERPLUGIN IS UPDATED TO DO THIS
-          // WHEN IT IS, SWITCH TO ENTRIES -1 CONTENT 0
-          prof->SetBinEntries(bin, 1.);
-          prof->SetBinContent(bin, -std::numeric_limits<double>::max());
-        }
-      }
-    }
-  }
+  return;
 }
 
 DEFINE_FWK_MODULE(EcalMEFormatter);

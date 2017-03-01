@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <TMath.h>
+#include <TDirectory.h>
 
 template <typename T>
 EcalDeadChannelRecoveryNN<T>::EcalDeadChannelRecoveryNN() {
@@ -42,7 +43,7 @@ template <typename T>
 void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, std::string fn) {
   std::string path = edm::FileInPath(fn).fullPath();
 
-  TTree *t = new TTree("t", "dummy MLP tree");
+  auto t = std::make_unique<TTree>("t", "dummy MLP tree");
   t->SetDirectory(0);
 
   t->Branch("z1", &(ctx.tmp[0]), "z1/D");
@@ -55,9 +56,20 @@ void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, s
   t->Branch("z8", &(ctx.tmp[7]), "z8/D");
   t->Branch("zf", &(ctx.tmp[8]), "zf/D");
 
-  ctx.tree = t;
-  ctx.mlp =
-      new TMultiLayerPerceptron("@z1,@z2,@z3,@z4,@z5,@z6,@z7,@z8:10:5:zf", t);
+  ctx.tree = std::move(t);
+  //The TMultiLayerPerceptron will create a TEventList
+  // and it will attach itself to the gDirectory
+  // which will be some random TFile in the job
+  // Need to reset gDirectory back to what it was to
+  // avoid causing other code in other modules from
+  // crashing.
+  {
+    auto resetGDirectory = [](TDirectory* oldDir) {gDirectory = oldDir;};
+    std::unique_ptr<TDirectory, decltype(resetGDirectory)> guard(gDirectory, resetGDirectory);
+    gDirectory = nullptr;
+    ctx.mlp =
+      std::make_unique<TMultiLayerPerceptron>("@z1,@z2,@z3,@z4,@z5,@z6,@z7,@z8:10:5:zf", ctx.tree.get());
+  }
   ctx.mlp->LoadWeights(path.c_str());
 }
 

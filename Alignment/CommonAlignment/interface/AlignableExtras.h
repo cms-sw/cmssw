@@ -13,8 +13,8 @@
  */
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableMap.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/CommonAlignment/interface/AlignSetup.h"
 
 class AlignableExtras 
 {
@@ -39,7 +39,7 @@ class AlignableExtras
   Alignments* alignments() const;
 
   /// Return alignment errors, sorted by DetId
-  AlignmentErrors* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const;
 
   void dump(void) const;
 
@@ -49,7 +49,7 @@ class AlignableExtras
 
  private:
   
-  AlignSetup<Alignables> alignableLists_; //< kind of map of lists of alignables
+  AlignableMap alignableLists_; //< kind of map of lists of alignables
   Alignables components_; //< list of alignables
 };
 

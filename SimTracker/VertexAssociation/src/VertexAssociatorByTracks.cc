@@ -1,73 +1,57 @@
+#include "SimTracker/VertexAssociation/interface/VertexAssociatorByTracks.h"
+
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorByTracks.h"
+#include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
-
 /* Constructor */
-VertexAssociatorByTracks::VertexAssociatorByTracks (const edm::ParameterSet & config) : config_(config)
-{
-    R2SMatchedSimRatio_ = config.getParameter<double>("R2SMatchedSimRatio");
-    R2SMatchedRecoRatio_ = config.getParameter<double>("R2SMatchedRecoRatio");
-    S2RMatchedSimRatio_ = config.getParameter<double>("S2RMatchedSimRatio");
-    S2RMatchedRecoRatio_ = config.getParameter<double>("S2RMatchedRecoRatio");
-
-    std::string trackQualityType = config.getParameter<std::string>("trackQuality");
-    trackQuality_ = reco::TrackBase::qualityByName(trackQualityType);
-
-    edm::ParameterSet param = config.getParameter<edm::ParameterSet>("trackingParticleSelector");
-
-    selector_ = TrackingParticleSelector(
-                    param.getParameter<double>("ptMinTP"),
-                    param.getParameter<double>("minRapidityTP"),
-                    param.getParameter<double>("maxRapidityTP"),
-                    param.getParameter<double>("tipTP"),
-                    param.getParameter<double>("lipTP"),
-                    param.getParameter<int>("minHitTP"),
-                    param.getParameter<bool>("signalOnlyTP"),
-                    param.getParameter<bool>("chargedOnlyTP"),
-		    param.getParameter<bool>("stableOnlyTP"),
-                    param.getParameter<std::vector<int> >("pdgIdTP")
-                );
-}
-
+VertexAssociatorByTracks::VertexAssociatorByTracks(const edm::EDProductGetter *productGetter,
+                                                   double R2SMatchedSimRatio,
+                                                   double R2SMatchedRecoRatio,
+                                                   double S2RMatchedSimRatio,
+                                                   double S2RMatchedRecoRatio,
+                                                   const TrackingParticleSelector *selector,
+                                                   reco::TrackBase::TrackQuality trackQuality,
+                                                   const reco::RecoToSimCollection *trackRecoToSimAssociation,
+                                                   const reco::SimToRecoCollection *trackSimToRecoAssociation):
+  productGetter_(productGetter),
+  R2SMatchedSimRatio_(R2SMatchedSimRatio),
+  R2SMatchedRecoRatio_(R2SMatchedRecoRatio),
+  S2RMatchedSimRatio_(S2RMatchedSimRatio),
+  S2RMatchedRecoRatio_(S2RMatchedRecoRatio),
+  selector_(selector),
+  trackQuality_(trackQuality),
+  trackRecoToSimAssociation_(trackRecoToSimAssociation),
+  trackSimToRecoAssociation_(trackSimToRecoAssociation)
+{}
 
 /* Destructor */
-VertexAssociatorByTracks::~VertexAssociatorByTracks()
-{
-    //do cleanup here
-}
-
+VertexAssociatorByTracks::~VertexAssociatorByTracks() {}
 
 reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
-    edm::Handle<edm::View<reco::Vertex> > & recoVertexes,
-    edm::Handle<TrackingVertexCollection> & trackingVertexes,
-    const edm::Event& event,
-    reco::RecoToSimCollection & associator
+    const edm::Handle<edm::View<reco::Vertex> > & recoVertexes,
+    const edm::Handle<TrackingVertexCollection> & trackingVertexes
 ) const
 {
-    reco::VertexRecoToSimCollection  outputCollection;
+    reco::VertexRecoToSimCollection  outputCollection(productGetter_);
 
     std::map<TrackingVertexRef,std::pair<double, std::size_t> > matches;
 
-    std::cout << "reco::VertexCollection size = " << recoVertexes->size();
-    std::cout << " ; TrackingVertexCollection size = " << trackingVertexes->size() << std::endl << std::endl;
+    LogDebug("VertexAssociation") << "reco::VertexCollection size = " << recoVertexes->size()
+                                  << " ; TrackingVertexCollection size = " << trackingVertexes->size() << std::endl;
 
     // Loop over RecoVertex
     for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex)
@@ -89,9 +73,9 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
             if ( !(*recoDaughter)->quality(trackQuality_) ) continue;
 
             // Check for association for the given RecoDaughter
-            if ( associator.numberOfAssociations(*recoDaughter) > 0 )
+            if ( trackRecoToSimAssociation_->numberOfAssociations(*recoDaughter) > 0 )
             {
-                std::vector<std::pair<TrackingParticleRef,double> > associations = associator[*recoDaughter];
+                std::vector<std::pair<TrackingParticleRef,double> > associations = (*trackRecoToSimAssociation_)[*recoDaughter];
 
                 // Loop over TrackingParticles associated with RecoDaughter
                 for (
@@ -133,7 +117,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
                 simDaughter != trackingVertex->daughterTracks_end();
                 ++simDaughter
             )
-                if ( selector_(**simDaughter) ) simDaughterCounter++;
+                if ( (*selector_)(**simDaughter) ) simDaughterCounter++;
 
             // Sanity condition in case that reconstructable condition is too tight
             if ( simDaughterCounter < matchedDaughterCounter )
@@ -149,19 +133,18 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
             outputCollection.insert(recoVertex, std::make_pair(trackingVertex, quality));
 
-            std::cout << "R2S: INDEX " << assoIndex;
-            std::cout << " ; SimDaughterCounter = " << simDaughterCounter;
-            std::cout << " ; RecoDaughterWeight = " << recoDaughterWeight;
-            std::cout << " ; MatchedDaughterCounter = " << matchedDaughterCounter;
-            std::cout << " ; MatchedDaughterWeight = " << matchedDaughterWeight;
-            std::cout << " ; quality = " << quality << std::endl;
+            LogTrace("VertexAssociation") << "R2S: INDEX " << assoIndex
+                                          << " ; SimDaughterCounter = " << simDaughterCounter
+                                          << " ; RecoDaughterWeight = " << recoDaughterWeight
+                                          << " ; MatchedDaughterCounter = " << matchedDaughterCounter
+                                          << " ; MatchedDaughterWeight = " << matchedDaughterWeight
+                                          << " ; quality = " << quality;
 
             assoIndex++;
         }
     } // Loop on RecoVertex
 
-    std::cout << std::endl;
-    std::cout << "RecoToSim OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl << std::endl;
+    LogTrace("VertexAssociation") << "\nRecoToSim OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl;
 
     return outputCollection;
 }
@@ -169,13 +152,11 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
 
 
 reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
-    edm::Handle<edm::View<reco::Vertex> > & recoVertexes,
-    edm::Handle<TrackingVertexCollection> & trackingVertexes,
-    const edm::Event& event,
-    reco::SimToRecoCollection & associator
+    const edm::Handle<edm::View<reco::Vertex> > & recoVertexes,
+    const edm::Handle<TrackingVertexCollection> & trackingVertexes
 ) const
 {
-    reco::VertexSimToRecoCollection  outputCollection;
+    reco::VertexSimToRecoCollection  outputCollection(productGetter_);
 
     // Loop over TrackingVertexes
     std::map<std::size_t,std::pair<double, std::size_t> > matches;
@@ -197,12 +178,12 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
         )
         {
             // Select only reconstructible SimDaughters
-            if ( !selector_(**simDaughter) ) continue;
+            if ( !(*selector_)(**simDaughter) ) continue;
 
             // Check for association for the given RecoDaughter
-            if ( associator.numberOfAssociations(*simDaughter) > 0 )
+            if ( trackSimToRecoAssociation_->numberOfAssociations(*simDaughter) > 0 )
             {
-                std::vector<std::pair<reco::TrackBaseRef, double> > associations = associator[*simDaughter];
+                std::vector<std::pair<reco::TrackBaseRef, double> > associations = (*trackSimToRecoAssociation_)[*simDaughter];
 
                 // Loop over RecoTracks associated with TrackingParticle
                 for (
@@ -279,18 +260,18 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
             outputCollection.insert(trackingVertex, std::make_pair(recoVertex, quality));
 
-            std::cout << "R2S: INDEX " << assoIndex;
-            std::cout << " ; SimDaughterCounter = " << simDaughterCounter;
-            std::cout << " ; RecoDaughterWeight = " << recoDaughterWeight;
-            std::cout << " ; MatchedDaughterCounter = " << matchedDaughterCounter;
-            std::cout << " ; MatchedDaughterWeight = " << matchedDaughterWeight;
-            std::cout << " ; quality = " << quality << std::endl;
+            LogTrace("VertexAssociation") << "R2S: INDEX " << assoIndex
+                                          << " ; SimDaughterCounter = " << simDaughterCounter
+                                          << " ; RecoDaughterWeight = " << recoDaughterWeight
+                                          << " ; MatchedDaughterCounter = " << matchedDaughterCounter
+                                          << " ; MatchedDaughterWeight = " << matchedDaughterWeight
+                                          << " ; quality = " << quality;
 
             assoIndex++;
         }
     } // loop over TrackingVertexes
 
-    std::cout << "SimToReco OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl << std::endl;
+    LogTrace("VertexAssociation") << "SimToReco OUTPUT COLLECTION: outputCollection.size() = " << outputCollection.size() << std::endl;
 
     return outputCollection;
 }

@@ -20,7 +20,7 @@ and receive as a result the corresponding list of input data files.
 <environment name="Pt10">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
   <var name="E_SELECTION" value="">	
-  <var name="EVENT_SOURCE" value="SingleElectronPt10_cfi.py">
+  <var name="EVENT_SOURCE" value="SingleElectronPt10_pythia8_cfi.py">
   <var name="TITLE" value="Single electrons Pt10" >
   <var name="TEST_OUTPUT_FILE" value="TreeSinglePt10.root">	
   <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py > benchmark_cfg.py">
@@ -34,7 +34,7 @@ and receive as a result the corresponding list of input data files.
   <var name="E_SELECTION" value="">	
   <var name="TITLE" value="Single electrons Pt35">
   <var name="TEST_OUTPUT_FILE" value="TreeSinglePt35.root">	
-  <var name="EVENT_SOURCE" value="SingleElectronPt35_cfi.py">
+  <var name="EVENT_SOURCE" value="SingleElectronPt35_pythia8_cfi.py">
   <executable name="dbs_discovery.py">
   <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py > benchmark_cfg.py">
   <executable name="cmsRun" args="benchmark_cfg.py">

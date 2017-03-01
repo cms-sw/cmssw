@@ -10,7 +10,7 @@ namespace edm {
   class ThrowingSource : public ProducerSourceBase {
   public:
     explicit ThrowingSource(ParameterSet const&, InputSourceDescription const&);
-    ~ThrowingSource();
+    ~ThrowingSource() noexcept(false) ;
 
     virtual void beginJob();
     virtual void endJob();
@@ -41,7 +41,7 @@ namespace edm {
       kCloseFile = 13,
       kDestructor = 14
     };
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time);
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
     virtual void produce(Event &);
 
     // To test exception throws from sources
@@ -55,12 +55,12 @@ namespace edm {
 
   }
 
-  ThrowingSource::~ThrowingSource() {
+  ThrowingSource::~ThrowingSource() noexcept(false) {
     if (whenToThrow_ == kDestructor) throw cms::Exception("TestThrow") << "ThrowingSource destructor";
   }
 
   bool
-  ThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&) {
+  ThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
     return true;
   }
 
@@ -101,7 +101,7 @@ namespace edm {
   std::unique_ptr<FileBlock>
   ThrowingSource::readFile_() {
     if (whenToThrow_ == kReadFile) throw cms::Exception("TestThrow") << "ThrowingSource::readFile_";
-    return std::unique_ptr<FileBlock>(new FileBlock);
+    return std::make_unique<FileBlock>();
   }
 
   void

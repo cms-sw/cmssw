@@ -10,7 +10,7 @@
 template <typename T, 
 	  template <typename,int> class StepWithPrec, 
 	  int N>
-class dso_internal RKAdaptiveSolver GCC11_FINAL : public RKSolver<T,N> {
+class dso_internal RKAdaptiveSolver final : public RKSolver<T,N> {
 public:
 
     typedef RKSolver<T,N>                       Base;

@@ -1,10 +1,17 @@
 #include "DetectorDescription/Core/src/DDCheck.h"
+
+#include <map>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-
-// Message logger.
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool DDCheckLP(const DDLogicalPart & lp, std::ostream & os)
@@ -126,19 +133,15 @@ bool DDCheckAll(const DDCompactView & cpv, std::ostream & os)
      const DDLogicalPart & lp = g.nodeData(it);
      lp_names[std::make_pair(lp.name().ns(),lp.name().name())]++;
    }
-   std::map< std::pair<std::string,std::string>, int >::iterator mit = lp_names.begin();
    
-   
-   for (; mit != lp_names.end(); ++ mit) {
-     if (mit->second >1) {
-       os << "interesting: " << mit->first.first << ":" << mit->first.second
-          << " counted " << mit->second << " times!" << std::endl;
+   for( const auto& mit : lp_names ) {
+     if (mit.second >1) {
+       os << "interesting: " << mit.first.first << ":" << mit.first.second
+          << " counted " << mit.second << " times!" << std::endl;
        os << " Names of LogicalParts seem not to be unique!" << std::endl << std::endl;	  
        result = true;
 	    
      }
-     //os << "registered: " << mit->first.first << ":" << mit->first.second << std::endl;
-   
    }
    // iterate over all nodes in the graph (nodes are logicalparts,
    // edges are posdata*
@@ -151,9 +154,7 @@ bool DDCheckAll(const DDCompactView & cpv, std::ostream & os)
    // Check the connectivity of the graph..., takes quite some time & memory
    result |= DDCheckConnect(cpv, os);
    return result;
-   
 }
-
 
 // comprehensive check, very cpu intensive!
 // - expands the compact-view
@@ -165,9 +166,6 @@ bool DDCheck(std::ostream&os)
    os << "DDCore: start comprehensive checking" << std::endl;
    DDCompactView cpv; // THE one and only (prototype restriction) CompactView
    DDExpandedView exv(cpv);
-   
-   //   result |= DDCheckMaterials(os);
-   //DDCheckLP(exv.logicalPart(),os);
    result |=  DDCheckAll(cpv,os);
    
    // done
@@ -175,13 +173,6 @@ bool DDCheck(std::ostream&os)
    
    if (result) { // at least one error found
      edm::LogError("DDCheck") << std::endl << "DDD:DDCore:DDCheck: found inconsistency problems!" << std::endl;
-//      edm::LogError("DDCheck") << "To continue press 'y' ... " << std::endl;
-//      char c;
-//      cin >> c;
-//      if (c != 'y') {
-//        edm::LogError("DDCheck") << " terminating ..." << std::endl; exit(1);
-// (Mike Case) should we throw instead? OR is an if (DDCheck) the best way?
-//     throw(DDException(std::string("DDD:DDCore:DDCheck: found inconsistency problems!"));
    }
      	  
    return result;
@@ -193,9 +184,6 @@ bool DDCheck(const DDCompactView& cpv, std::ostream&os)
    os << "DDCore: start comprehensive checking" << std::endl;
    //   DDCompactView cpv; // THE one and only (prototype restriction) CompactView
    DDExpandedView exv(cpv);
-   
-   //   result |= DDCheckMaterials(os);
-   //DDCheckLP(exv.logicalPart(),os);
    result |=  DDCheckAll(cpv,os);
    
    // done
@@ -203,13 +191,6 @@ bool DDCheck(const DDCompactView& cpv, std::ostream&os)
    
    if (result) { // at least one error found
      edm::LogError("DDCheck") << std::endl << "DDD:DDCore:DDCheck: found inconsistency problems!" << std::endl;
-//      edm::LogError("DDCheck") << "To continue press 'y' ... " << std::endl;
-//      char c;
-//      cin >> c;
-//      if (c != 'y') {
-//        edm::LogError("DDCheck") << " terminating ..." << std::endl; exit(1);
-// (Mike Case) should we throw instead? OR is an if (DDCheck) the best way?
-//     throw(DDException(std::string("DDD:DDCore:DDCheck: found inconsistency problems!"));
    }
      	  
    return result;

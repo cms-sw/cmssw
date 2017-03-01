@@ -25,38 +25,29 @@ RPCEfficiencyShiftHisto::RPCEfficiencyShiftHisto(const edm::ParameterSet& ps) {
 
   globalFolder_ = ps.getUntrackedParameter<std::string>("GlobalFolder", "RPC/RPCEfficiency/");
   effCut_= ps.getUntrackedParameter<int>("EffCut", 90);
-  SaveFile  = ps.getUntrackedParameter<bool>("SaveFile", false);
-  NameFile  = ps.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root");
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
 }
 
 
 RPCEfficiencyShiftHisto::~RPCEfficiencyShiftHisto(){ }
 
-void RPCEfficiencyShiftHisto::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){}
+void RPCEfficiencyShiftHisto::beginJob(){}
 
-void RPCEfficiencyShiftHisto::beginJob(){
+void RPCEfficiencyShiftHisto::dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&){}
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-}
+void RPCEfficiencyShiftHisto::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
-void RPCEfficiencyShiftHisto::beginRun(const edm::Run& r, const edm::EventSetup& c){
-
-  if(dbe_ == 0) return;
-
-  dbe_->setCurrentFolder(globalFolder_);
-  EffBarrelRoll = dbe_->book1D("EffBarrelRoll", "Barrel Efficiency",101,-0.5, 100.5);
-  EffEndcapPlusRoll = dbe_->book1D("EffEndcapPlusRoll", "Endcap + Efficiency",101,-0.5, 100.5);
-  EffEndcapMinusRoll = dbe_->book1D("EffEndcapMinusRoll", "Endcap - Efficiency",101,-0.5, 100.5);
-  RollPercentage = dbe_->book2D("RollPercentage", "RollPercentage",1,0.,1.,3,0.,3.);
+  ibooker.setCurrentFolder(globalFolder_);
+  EffBarrelRoll = ibooker.book1D("EffBarrelRoll", "Barrel Efficiency",101,-0.5, 100.5);
+  EffEndcapPlusRoll = ibooker.book1D("EffEndcapPlusRoll", "Endcap + Efficiency",101,-0.5, 100.5);
+  EffEndcapMinusRoll = ibooker.book1D("EffEndcapMinusRoll", "Endcap - Efficiency",101,-0.5, 100.5);
+  RollPercentage = ibooker.book2D("RollPercentage", "RollPercentage",1,0.,1.,3,0.,3.);
 
   RollPercentage->setBinLabel(1,"%",1);
   RollPercentage->setBinLabel(1,"E+",2);
   RollPercentage->setBinLabel(2,"B",2);
   RollPercentage->setBinLabel(3,"E-",2);
-}
 
-void RPCEfficiencyShiftHisto::endRun(const edm::Run& r, const edm::EventSetup& c){
 
    std::stringstream meName;
    MonitorElement * myMe;
@@ -73,10 +64,9 @@ void RPCEfficiencyShiftHisto::endRun(const edm::Run& r, const edm::EventSetup& c
    for(int w = -2 ; w<3; w++){
      
        meName.str("");
-       if(w <= 0) meName<<globalFolder_<<"Efficiency_Roll_vs_Sector_Wheel_"<<w;
-       else meName<<globalFolder_<<"Efficiency_Roll_vs_Sector_Wheel_+"<<w;
+       meName<<globalFolder_<<"Efficiency_Roll_vs_Sector_Wheel_"<<w;
 
-       myMe = dbe_->get(meName.str());
+       myMe = igetter.get(meName.str());
 	 
        if(myMe){
 	 for(int s = 1; s <= myMe->getNbinsX(); s++){
@@ -115,7 +105,7 @@ void RPCEfficiencyShiftHisto::endRun(const edm::Run& r, const edm::EventSetup& c
 
 	 meName.str("");
          meName<<globalFolder_<<"Efficiency_Roll_vs_Segment_Disk_"<<d;
-         myMe = dbe_->get(meName.str());
+         myMe = igetter.get(meName.str());
 
        
        if(myMe){    
@@ -150,8 +140,7 @@ void RPCEfficiencyShiftHisto::endRun(const edm::Run& r, const edm::EventSetup& c
 	if(RollPercentage)	RollPercentage->setBinContent(1,1,percEndcapPlus);
      }
 
-     if(SaveFile) dbe_->save(NameFile);
-
+   
 }
 
 

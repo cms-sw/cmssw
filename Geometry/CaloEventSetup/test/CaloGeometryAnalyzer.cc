@@ -1,20 +1,4 @@
-// -*- C++ -*-
-//
-// Package:    CaloGeometryAnalyzer
-// Class:      CaloGeometryAnalyzer
-// 
-/**\class CaloGeometryAnalyzer CaloGeometryAnalyzer.cc test/CaloGeometryAnalyzer/src/CaloGeometryAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-
-#include <memory>
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,93 +32,93 @@
 #include "TH1.h"
 #include "TH1D.h"
 #include "TProfile.h"
-//
-// class decleration
 
+class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+  enum CenterOrCorner { kCenter , kCorner } ;
+  enum XorYorZ { kX, kY, kZ } ;
 
-class CaloGeometryAnalyzer : public edm::EDAnalyzer 
-{
-      enum CenterOrCorner { kCenter , kCorner } ;
-      enum XorYorZ { kX, kY, kZ } ;
+public:
 
-   public:
+  explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
+  ~CaloGeometryAnalyzer();
+  
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
-      ~CaloGeometryAnalyzer();
+private:
+  // ----------member data ---------------------------
+  void build( const CaloGeometry& cg , const HcalTopology& ht,
+	      DetId::Detector     det, 
+	      int                 subdetn, 
+	      const char*         name,
+	      unsigned int        histi   );
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-
-   private:
-      // ----------member data ---------------------------
-      void build( const CaloGeometry& cg , const HcalTopology& ht,
+  void buildHcal( const CaloGeometry& cg , const HcalTopology& ht,
 		  DetId::Detector     det, 
 		  int                 subdetn, 
 		  const char*         name,
 		  unsigned int        histi   );
 
-      void buildHcal( const CaloGeometry& cg , const HcalTopology& ht,
-		  DetId::Detector     det, 
-		  int                 subdetn, 
-		  const char*         name,
-		  unsigned int        histi   );
+  void ctrcor( const DetId&            did     ,
+	       const CaloCellGeometry& cell ,
+	       std::fstream&           fCtr    ,
+	       std::fstream&           fCor    ,  
+	       std::fstream&           oldCtr    ,
+	       std::fstream&           oldCor   ,
+	       unsigned int            histi        );
 
-      void ctrcor( const DetId&            did     ,
-		   const CaloCellGeometry& cell ,
-		   std::fstream&           fCtr    ,
-		   std::fstream&           fCor    ,  
-		   std::fstream&           oldCtr    ,
-		   std::fstream&           oldCor   ,
-		   unsigned int            histi        );
+  void checkDiff( int            i1,
+		  int            i2,
+		  int            i3,
+		  CenterOrCorner iCtrCor ,
+		  XorYorZ        iXYZ    ,
+		  double         diff      ) ;
+  int pass_;
 
-      void checkDiff( int            i1,
-		      int            i2,
-		      int            i3,
-		      CenterOrCorner iCtrCor ,
-		      XorYorZ        iXYZ    ,
-		      double         diff      ) ;
-      int pass_;
+  EEDetId gid( unsigned int ix, 
+	       unsigned int iy,
+	       unsigned int iz,
+	       const EEDetId& did ) const ;
 
-      EEDetId gid( unsigned int ix, 
-		   unsigned int iy,
-		   unsigned int iz,
-		   const EEDetId& did ) const ;
+  void cmpset( const CaloSubdetectorGeometry* geom ,
+	       const GlobalPoint&             gp   ,
+	       const double                   dR     ) ;
 
-      void cmpset( const CaloSubdetectorGeometry* geom ,
-		   const GlobalPoint&             gp   ,
-		   const double                   dR     ) ;
+  void ovrTst( const CaloGeometry& cg      , 
+	       const CaloSubdetectorGeometry* geom ,
+	       const EEDetId&   id   , 
+	       std::fstream&    fOvr  );
 
-      void ovrTst( const CaloGeometry& cg      , 
-		   const CaloSubdetectorGeometry* geom ,
-		   const EEDetId&   id   , 
-		   std::fstream&    fOvr  );
-
-      void ovrTst( const CaloGeometry& cg      , 
-		   const CaloSubdetectorGeometry* geom ,
-		   const EBDetId&   id   , 
-		   std::fstream&    fOvr  );
+  void ovrTst( const CaloGeometry& cg      , 
+	       const CaloSubdetectorGeometry* geom ,
+	       const EBDetId&   id   , 
+	       std::fstream&    fOvr  );
 
 
-      edm::Service<TFileService> h_fs;
+  edm::Service<TFileService> h_fs;
 
 
-      TProfile* h_dPhi[7] ;
-      TProfile* h_dPhiR[7] ;
+  TProfile* h_dPhi[7] ;
+  TProfile* h_dPhiR[7] ;
 
-      TProfile* h_dEta[7] ;
-      TProfile* h_dEtaR[7] ;
+  TProfile* h_dEta[7] ;
+  TProfile* h_dEtaR[7] ;
 
-      TProfile* h_eta ;
-      TProfile* h_phi;
+  TProfile* h_eta ;
+  TProfile* h_phi;
 
-      TH1D* h_diffs[10][12] ;
+  TH1D* h_diffs[10][12] ;
 
-      TH1D* h_scindex ;
+  TH1D* h_scindex ;
 
-      bool m_allOK ;
+  bool m_allOK ;
 };
 
 CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
 {
+  usesResource("TFileService");
+  
   pass_=0;
 
   h_dPhi[0] = h_fs->make<TProfile>("dPhi:EB:index", "EB: dPhi vs index", 61200, -0.5, 61199.5, " " ) ;
@@ -233,7 +217,7 @@ CaloGeometryAnalyzer::cmpset( const CaloSubdetectorGeometry* geom ,
    }
    else
    {
-      if( 2 < abs( base.size() - over.size() ) ) 
+      if( 2 < std::abs( (int)(base.size()) - (int)(over.size()) ) ) 
       {
       DetSet inBaseNotOver ;
       DetSet inOverNotBase ;
@@ -382,7 +366,7 @@ CaloGeometryAnalyzer::ovrTst( const CaloGeometry& cg      ,
 {
    static const GlobalPoint origin (0,0,0) ;
    const int ieta ( id.ieta() ) ;
-   if( 85 == abs( ieta ) )
+   if( 85 == std::abs( ieta ) )
    {
       const EcalBarrelGeometry* ebG ( dynamic_cast<const EcalBarrelGeometry*>( geom ) );
       const CaloCellGeometry* cell ( geom->getGeometry(id) ) ;
@@ -1165,7 +1149,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
    edm::ESHandle<HcalTopology> pT;
-   iSetup.get<IdealGeometryRecord>().get(pT);     
+   iSetup.get<HcalRecNumberingRecord>().get(pT);
 
    const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
 

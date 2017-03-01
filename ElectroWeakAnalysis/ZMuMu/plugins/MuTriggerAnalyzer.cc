@@ -181,7 +181,7 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 	else {
 	  name = fullname;
 	}
-	if ( &toc !=0 ) {
+	if ( toc.size() != 0 ) {
 	  const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
 	  for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	    if (name == L3FilterName_  ) {

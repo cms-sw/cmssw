@@ -1,3 +1,5 @@
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -24,6 +26,8 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
 #include "DataFormats/Common/interface/IntValues.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
@@ -31,6 +35,7 @@
 
 namespace DataFormats_Common {
   struct dictionary {
+    edm::Wrapper<edm::ThinnedAssociation> dummyThinnedAssociation;
     edm::Wrapper<edm::DataFrameContainer> dummywdfc;
     edm::Wrapper<edm::HLTPathStatus> dummyx16;
     edm::Wrapper<std::vector<edm::HLTPathStatus> > dummyx17;
@@ -40,6 +45,7 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
     edm::Wrapper<edm::RefToBaseVector<int> > dummyx21;
     edm::Wrapper<edm::PtrVector<int> > dummyx21_3;
+    edm::Wrapper<std::vector<edm::Ptr<int> > > dummy_vPtrInt;
     edm::Ptr<int> dummyx21_4;
     edm::reftobase::RefVectorHolderBase * dummyx21_0;
     edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
@@ -54,6 +60,7 @@ namespace DataFormats_Common {
     edm::RangeMap<int, std::vector<float>, edm::CopyPolicy<float> > dummyRangeMap1;
     
     std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>  dummyDSTVItemVector;
+    std::vector<edm::SecondaryEventIDAndFileInfo>  dummySecondaryEventIDAndFileInfoVector;
 
     edm::Wrapper<edm::ValueMap<int> > wvm1;
     edm::Wrapper<edm::ValueMap<unsigned int> > wvm2;
@@ -68,5 +75,8 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::ConditionsInLumiBlock> dum11;
     edm::Wrapper<edm::ConditionsInRunBlock> dum21;
     edm::Wrapper<edm::ConditionsInEventBlock> dum31;
+
+    edm::RefProd<std::vector<int> > rpvi;
+    edm::RefToBaseProd<int> rtbpi;
   };
 }

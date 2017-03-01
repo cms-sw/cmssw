@@ -13,8 +13,9 @@
 #include <map>
 #include <stdint.h>
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 class MonitorElement;
-class DQMStore;
 class TrackerTopology;
 class TrackingUtility
 {
@@ -30,12 +31,12 @@ class TrackingUtility
  static void getMEStatusColor(int status, int& icol, std::string& tag);
  static int getMEStatus(MonitorElement* me);
  static int getMEStatus(MonitorElement* me, int& bad_channels);
- static void getModuleFolderList(DQMStore* dqm_store, std::vector<std::string>& m_ids);
+ static void getModuleFolderList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::vector<std::string>& m_ids);
  static void getMEValue(MonitorElement* me, std::string & val);
- static bool goToDir(DQMStore * dqm_store, std::string name);
+ static bool goToDir(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string name);
  static void setBadModuleFlag(std::string & hname, uint16_t& flg);
  static void getBadModuleStatus(uint16_t flag, std::string& message);
- static void getTopFolderPath(DQMStore* dqm_store, std::string top_dir, std::string& path);   
+ static void getTopFolderPath(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string top_dir, std::string& path);   
 };
 
 #endif

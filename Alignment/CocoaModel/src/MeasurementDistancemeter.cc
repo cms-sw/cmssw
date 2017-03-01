@@ -61,7 +61,7 @@ void MeasurementDistancemeter::calculateSimulatedValue( ALIbool firstTime )
 #endif
 
   ALIuint isec = 0;  //security variable to check OptOList().size()
-  for( vocite = OptOList().begin(); vocite != OptOList().end(); vocite++) {
+  for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
     if( ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
     isec ++;
 

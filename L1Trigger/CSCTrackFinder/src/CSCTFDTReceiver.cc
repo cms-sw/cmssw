@@ -33,7 +33,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 	  for(int is = sector; is <= sector+1; ++is)
 	    {
 	      int iss = (is == 12) ? 0 : is;
-	      L1MuDTChambPhDigi const* dtts[2];
+	      const L1MuDTChambPhDigi* dtts[2];
 
 	      for(int stub = 0; stub < 2; ++stub)
 		{

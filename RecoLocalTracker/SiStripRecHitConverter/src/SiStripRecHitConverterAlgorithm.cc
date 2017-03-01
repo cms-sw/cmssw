@@ -2,14 +2,11 @@
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/Ref.h"
-
-#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -55,28 +52,13 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output)
 { run(input, output, LocalVector(0.,0.,0.)); }
 
 
-/*
-namespace {
-  float sigmaPitch(LocalPoint const& pos, LocalError err, 
-		   GeomDetUnit const & stripdet) {
-    const StripTopology& topol=(const StripTopology&)stripdet.topology();
-    
-    HelpertRecHit2DLocalPos::updateWithAPE(err,stripdet);
-    MeasurementError error=topol.measurementError(pos,err);
-    auto pitch=topol.localPitch(pos);
-    return error.uu()*pitch*pitch;
-  }
-}
-*/
 
 void SiStripRecHitConverterAlgorithm::
 run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& output, LocalVector trackdirection)
 {
 
-  edmNew::DetSetVector<SiStripCluster>::const_iterator dse = inputhandle->end();
-  for (edmNew::DetSetVector<SiStripCluster>::const_iterator 
-	 DS = inputhandle->begin(); DS != dse; ++DS ) {     
-    edmNew::det_id_type id = (*DS).id();
+  for (auto const & DS : *inputhandle) {     
+    auto id = DS.id();
     if(!useModule(id)) continue;
 
     Collector collector = StripSubdetector(id).stereo()  
@@ -86,14 +68,14 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& ou
     bool bad128StripBlocks[6]; fillBad128StripBlocks( id, bad128StripBlocks);
     
     GeomDetUnit const & du = *(tracker->idToDetUnit(id));
-    edmNew::DetSet<SiStripCluster>::const_iterator cle = (*DS).end();
-    for(edmNew::DetSet<SiStripCluster>::const_iterator 
-	  cluster = (*DS).begin();  cluster != cle; ++cluster ) {     
+    for(auto const & cluster : DS) {
 
-      if(isMasked(*cluster,bad128StripBlocks)) continue;
+      if(isMasked(cluster,bad128StripBlocks)) continue;
 
-      StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(*cluster,du);
-      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, du, edmNew::makeRefTo(inputhandle,cluster) ));
+      StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(cluster,du);
+      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, du, 
+                                           DS.makeRefTo(inputhandle, &cluster) 
+                                          ));
     }
 
     if (collector.empty()) collector.abort();

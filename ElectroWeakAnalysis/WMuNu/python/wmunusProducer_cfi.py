@@ -17,7 +17,7 @@ tcMetWMuNus = cms.EDProducer("WMuNuProducer",
 corMetWMuNus = cms.EDProducer("WMuNuProducer",
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons")
+      METTag = cms.untracked.InputTag("caloMetM")
 )
 
 allWMuNus = cms.Sequence(corMetWMuNus

@@ -235,9 +235,9 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   ttEvent.print(verbosity_);
 
   // write object into the edm::Event
-  std::auto_ptr<C> pOut(new C);
+  std::unique_ptr<C> pOut(new C);
   *pOut=ttEvent;
-  evt.put(pOut);
+  evt.put(std::move(pOut));
 }
 
 template <>

@@ -8,7 +8,6 @@
 template class CaloGeometryLoaderTest< EcalEndcapGeometry > ;
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-//#include "DetectorDescription/Core/interface/DDInit.h"
 
 
 #include <iostream>

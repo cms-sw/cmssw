@@ -4,7 +4,7 @@ process = cms.Process("TkVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -23,9 +23,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.TrackAssociatorByChi2_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.TrackerSeedValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -65,6 +65,7 @@ process.digi2track = cms.Sequence(process.siPixelDigis*process.SiStripRawToDigis
                                   process.ckftracks*
                                   process.cutsRecoTracks*
                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
+                                  process.quickTrackAssociatorByHits*
                                   process.trackerSeedValidator)
 #redo also tracking particles
 process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
@@ -73,12 +74,14 @@ process.digi2track_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                   process.ckftracks*
                                   process.cutsRecoTracks*
                                   ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
+                                  process.quickTrackAssociatorByHits*
                                   process.trackerSeedValidator)
 
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
                                    process.cutsTPEffic*process.cutsTPFake* 
+                                   process.quickTrackAssociatorByHits*
                                    process.trackerSeedValidator
                                    )
 
@@ -87,13 +90,15 @@ process.re_tracking_and_TP = cms.Sequence(process.mix*process.trackingParticles*
                                    process.ckftracks*
                                    process.cutsRecoTracks*
                                    ##process.cutsTPEffic*process.cutsTPFake* these modules are now useless
+                                   process.quickTrackAssociatorByHits*
                                    process.trackerSeedValidator
                                    )
 
 process.only_validation = cms.Sequence(process.cutsTPEffic*process.cutsTPFake* 
+                                       process.quickTrackAssociatorByHits*
                                            process.trackerSeedValidator)
 
-process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.trackerSeedValidator)
+process.only_validation_and_TP = cms.Sequence(process.mix*process.trackingParticles*process.quickTrackAssociatorByHits*process.trackerSeedValidator)
 
 
 ### customized versoin of the OutputModule

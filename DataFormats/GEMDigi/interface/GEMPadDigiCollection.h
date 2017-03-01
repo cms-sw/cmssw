@@ -1,5 +1,6 @@
-#ifndef GEMDigi_GEMPadDigiCollection_h
-#define GEMDigi_GEMPadDigiCollection_h
+#ifndef DataFormats_GEMDigi_GEMPadDigiCollection_h
+#define DataFormats_GEMDigi_GEMPadDigiCollection_h
+
 /** \class GEMPadDigiCollection
  *  
  *  \author Vadim Khotilovich

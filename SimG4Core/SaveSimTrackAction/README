@@ -1,11 +1,11 @@
-To save SimTracks with particle code (PDG code) within a range, need
-to activate the watcher SaveSimTrack specifying the range in .cfg file:
+To save SimTracks with particle code (PDG code) from a list, need
+to activate the watcher SaveSimTrack specifying the codes in .cfg file:
  
-	replace g4SimHits.Watchers = {
-                    {string type              = "SaveSimTrack"
-                     untracked int32  MinimumPDGCode  = 2212
-                     untracked int32  MaximumPDGCode  = 2212
-		    }
-                }
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    SaveSimTrack = cms.PSet(
+         PDGCodes  = cms.untracked.vint32([2212])
+    ),
+    type  = cms.string('SaveSimTrack')
+) )               
 
 will save all particles of code 2212.

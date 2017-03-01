@@ -1,7 +1,6 @@
 <use name="Geometry/MuonNumbering"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="DetectorDescription/Core"/>
-<use name="boost_serialization"/>
 <export>
  <lib name="1"/>
 </export>

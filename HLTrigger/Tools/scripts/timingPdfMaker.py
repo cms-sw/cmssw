@@ -359,7 +359,7 @@ def main(argv):
 		if not opts:
 			print 'No options supplied'
 			usage()
-	except getopt.GetoptError,e:
+	except getopt.GetoptError as e:
 		print e
 		usage()
 		sys.exit(2)

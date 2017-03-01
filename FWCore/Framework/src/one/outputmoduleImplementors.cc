@@ -25,18 +25,18 @@ namespace edm {
       template class SharedResourcesUser<edm::one::OutputModuleBase>;
     }
     namespace outputmodule {
-      void RunWatcher::doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
-        beginRun(rp, mcc);
+      void RunWatcher::doBeginRun_(RunForOutput const& r) {
+        beginRun(r);
       }
-      void RunWatcher::doEndRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
-        endRun(rp, mcc);
+      void RunWatcher::doEndRun_(RunForOutput const& r) {
+        endRun(r);
       }
       
-      void LuminosityBlockWatcher::doBeginLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const* mcc) {
-        beginLuminosityBlock(lbp, mcc);
+      void LuminosityBlockWatcher::doBeginLuminosityBlock_(LuminosityBlockForOutput const& lb) {
+        beginLuminosityBlock(lb);
       }
-      void LuminosityBlockWatcher::doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const* mcc) {
-        endLuminosityBlock(lbp, mcc);
+      void LuminosityBlockWatcher::doEndLuminosityBlock_(LuminosityBlockForOutput const& lb) {
+        endLuminosityBlock(lb);
       }
       void InputFileWatcher::doRespondToOpenInputFile_(FileBlock const& iB)
       {

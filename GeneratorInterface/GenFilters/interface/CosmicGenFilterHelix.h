@@ -20,13 +20,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <TObjArray.h>
 
@@ -56,7 +58,7 @@ class CosmicGenFilterHelix : public edm::EDFilter {
   const Propagator* getPropagator(const edm::EventSetup &setup) const;
 // ----------member data ---------------------------
 
-  const edm::InputTag     theSrc;
+  edm::EDGetTokenT<edm::HepMCProduct> theSrcToken;
   const std::vector<int>  theIds; /// requested Ids
   const std::vector<int>  theCharges; /// charges, parallel to theIds
   const std::string thePropagatorName; // tag to get propagator from ESetup

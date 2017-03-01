@@ -12,6 +12,8 @@ MuonSubDetector::MuonSubDetector(std::string name)
     detector=rpc;
   } else if (name=="MuonGEMHits") {
     detector=gem;
+  } else if (name=="MuonME0Hits") {
+    detector=me0;
   } else {
     std::cout << "MuonSubDetector::MuonSubDetector does not recognize ";
     std::cout << name <<std::endl;
@@ -27,12 +29,16 @@ bool MuonSubDetector::isEndcap(){
   return (detector==endcap);
 }
 
-bool MuonSubDetector::isRpc(){
+bool MuonSubDetector::isRPC(){
   return (detector==rpc);
 }
 
-bool MuonSubDetector::isGem(){
+bool MuonSubDetector::isGEM(){
   return (detector==gem);
+}
+
+bool MuonSubDetector::isME0(){
+  return (detector==me0);
 }
 
 std::string MuonSubDetector::name(){
@@ -48,6 +54,8 @@ std::string MuonSubDetector::suIdName(){
     return "MuonHitsRPC";
   } else if (detector==gem) {
     return "MuonHitsGEM";
+  } else if (detector==me0) {
+    return "MuonHitsME0";
   } else {
     return "";
   }

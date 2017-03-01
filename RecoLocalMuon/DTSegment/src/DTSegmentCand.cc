@@ -58,8 +58,13 @@ bool DTSegmentCand::operator<(const DTSegmentCand& seg){
   return (nHits()<seg.nHits());
 }
 
+void DTSegmentCand::add(AssPoint newHit) {
+  theHits.insert(newHit);
+}
+
 void DTSegmentCand::add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) {
-  theHits.insert(AssPoint(hit,code));
+  AssPoint newHit(hit,code);
+  theHits.insert(newHit);
 }
 
 void DTSegmentCand::removeHit(AssPoint badHit) {
@@ -68,12 +73,11 @@ void DTSegmentCand::removeHit(AssPoint badHit) {
 
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
   int result=0;
-  AssPointCont hitsCont = seg.hits();
 
   for (AssPointCont::const_iterator hit=theHits.begin(); 
        hit!=theHits.end() ; ++hit) {
-    for (AssPointCont::const_iterator hit2=hitsCont.begin();
-         hit2!=hitsCont.end() ; ++hit2) {
+    for (AssPointCont::const_iterator hit2=seg.hits().begin();
+         hit2!=seg.hits().end() ; ++hit2) {
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first)==(*(*hit2).first)) {
         ++result;
@@ -128,7 +132,6 @@ bool DTSegmentCand::hitsShareLayer() const
       assHit!=theHits.end(); ++assHit) {
     layerN[i]=(*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer();
     i++;
-//    std::cout << (*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer()) << std::endl;
   }
 
   for(int i=0;i<(int)theHits.size();i++){
@@ -196,7 +199,7 @@ DTSegmentCand::operator DTChamberRecSegment2D*() const{
     GlobalPoint hitGlobalPos =
       theSL->toGlobal( (*assHit).first->localPosition((*assHit).second) );
     
-    LocalPoint hitPosInLayer = 
+    LocalPoint hitPosInLayer =
       theSL->chamber()
       ->superLayer((*assHit).first->id().superlayerId())
       ->layer( (*assHit).first->id().layerId() )->toLocal(hitGlobalPos);

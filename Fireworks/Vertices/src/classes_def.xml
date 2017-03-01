@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="TEveEllipsoid"/>
+  <class name="TEveEllipsoidGL"/>
+  <class name="TEveEllipsoidProjected"/>
+  <class name="TEveEllipsoidProjectedGL"/>
+</lcgdict>

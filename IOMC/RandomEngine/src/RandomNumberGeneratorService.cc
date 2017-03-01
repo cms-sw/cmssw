@@ -14,7 +14,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/CurrentModuleOnThread.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterWildcard.h"
+#include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -55,10 +56,6 @@ namespace edm {
     const std::uint32_t RandomNumberGeneratorService::maxSeedRanecu =   2147483647U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedHepJames =  900000000U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedTRandom3 = 4294967295U;
-
-    // This supports the mySeed function
-    // DELETE THIS WHEN/IF that functions is deleted.
-    thread_local std::string RandomNumberGeneratorService::moduleLabel_;
 
     RandomNumberGeneratorService::RandomNumberGeneratorService(ParameterSet const& pset,
                                                                ActivityRegistry& activityRegistry):
@@ -202,20 +199,19 @@ namespace edm {
         activityRegistry.watchPostModuleStreamEndLumi(this, &RandomNumberGeneratorService::postModuleStreamEndLumi);
       }
 
-      // The next 5 lines support the mySeed function
-      // DELETE THEM when/if that function is deleted.
-      activityRegistry.watchPostModuleConstruction(this, &RandomNumberGeneratorService::postModuleConstruction);
-      activityRegistry.watchPreModuleBeginJob(this, &RandomNumberGeneratorService::preModuleBeginJob);
-      activityRegistry.watchPostModuleBeginJob(this, &RandomNumberGeneratorService::postModuleBeginJob);
-      activityRegistry.watchPreModuleEndJob(this, &RandomNumberGeneratorService::preModuleEndJob);
-      activityRegistry.watchPostModuleEndJob(this, &RandomNumberGeneratorService::postModuleEndJob);
     }
 
     RandomNumberGeneratorService::~RandomNumberGeneratorService() {
     }
 
+    void
+    RandomNumberGeneratorService::consumes(ConsumesCollector&& iC) const {
+       iC.consumes<RandomEngineStates, InLumi>(restoreStateBeginLumiTag_);
+       iC.consumes<RandomEngineStates>(restoreStateTag_);
+    }
+
     CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine(StreamID const& streamID) const {
+    RandomNumberGeneratorService::getEngine(StreamID const& streamID) {
 
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
@@ -226,11 +222,11 @@ namespace edm {
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
-      std::vector<ModuleIDToEngine> const& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
+      std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                            moduleIDVector.end(),
-                                                                            target);
+      std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                      moduleIDVector.end(),
+                                                                      target);
       if(iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
           << "The module with label \""
@@ -252,7 +248,7 @@ namespace edm {
     }
 
     CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) const {
+    RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) {
 
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
@@ -263,11 +259,11 @@ namespace edm {
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
-      std::vector<ModuleIDToEngine> const& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
+      std::vector<ModuleIDToEngine>& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                            moduleIDVector.end(),
-                                                                            target);
+      std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                      moduleIDVector.end(),
+                                                                      target);
       if(iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
           << "The module with label \""
@@ -299,15 +295,10 @@ namespace edm {
       std::string label;
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
-        if(!moduleLabel_.empty()) {
-          label = moduleLabel_;
-        }
-        else {
-          throw Exception(errors::LogicError)
-            << "RandomNumberGeneratorService::getEngine()\n"
-               "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "when no module was active. ModuleCallingContext is null\n";
-        }
+        throw Exception(errors::LogicError)
+          << "RandomNumberGeneratorService::getEngine()\n"
+          "Requested a random number engine from the RandomNumberGeneratorService\n"
+          "from an unallowed transition. ModuleCallingContext is null\n";
       } else {
         label = mcc->moduleDescription()->moduleLabel();
       }
@@ -366,36 +357,6 @@ namespace edm {
       if(iter != seedsAndNameMap_.end()) {
         iter->second.setModuleID(description.id());
       }
-      // The next line supports the mySeed function
-      // DELETE IT when/if that function is deleted.
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    // The next 5 functions support the mySeed function
-    // DELETE THEM when/if that function is deleted.
-    void
-    RandomNumberGeneratorService::postModuleConstruction(ModuleDescription const& description) {
-      moduleLabel_.clear();
-    }
-
-    void
-    RandomNumberGeneratorService::preModuleBeginJob(ModuleDescription const& description) {
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    void
-    RandomNumberGeneratorService::postModuleBeginJob(ModuleDescription const& description) {
-      moduleLabel_.clear();
-    }
-
-    void
-    RandomNumberGeneratorService::preModuleEndJob(ModuleDescription const& description) {
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    void
-    RandomNumberGeneratorService::postModuleEndJob(ModuleDescription const& description) {
-      moduleLabel_.clear();
     }
 
     void
@@ -427,7 +388,7 @@ namespace edm {
         unsigned int seedOffset = iStream;
         createEnginesInVector(streamEngines_[iStream], seedOffset, eventSeedOffset_, streamModuleIDToEngine_[iStream]);
         if(!saveFileName_.empty())  {
-          outFiles_[iStream].reset(new std::ofstream);
+          outFiles_[iStream] = std::make_shared<std::ofstream>(); // propagate_const<T> has no reset() function
         }
       }
       for(unsigned int iLumi = 0; iLumi < nConcurrentLumis; ++iLumi) {
@@ -699,11 +660,11 @@ namespace edm {
     RandomNumberGeneratorService::postModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc) {
       if(enableChecking_) {
         unsigned int moduleID = mcc.moduleDescription()->id();
-        std::vector<ModuleIDToEngine> const& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
+        std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
         ModuleIDToEngine target(nullptr, moduleID);
-        std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                              moduleIDVector.end(),
-                                                                              target);
+        std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                        moduleIDVector.end(),
+                                                                        target);
         if(iter != moduleIDVector.end() && iter->moduleID() == moduleID) {
           LabelAndEngine* labelAndEngine = iter->labelAndEngine();
           if(iter->engineState() != labelAndEngine->engine()->put()) {

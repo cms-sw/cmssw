@@ -3,6 +3,5 @@
 /* return a value of phi into interval [-pi,+pi]
  *
  */
-double normalizedPhi(double phi);
-
+#include "DataFormats/Math/include/normalizedPhi.h"
 #endif

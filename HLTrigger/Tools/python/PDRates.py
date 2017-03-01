@@ -105,7 +105,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 	if printLS:
 		print "lsmin lsmax",lsmin,lsmax
 		for ls in range(lsmin,lsmax):
-			if not `ls` in RatePerLS.keys():
+			if not repr(ls) in RatePerLS.keys():
 				RatePerLS[LS] = 0
 				print "Missing LS ",ls
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 		RatesTmp = open("rates_tmp.txt","w")
 		#RatesTmpSort = open("rates_tmp_sort.txt","w")
 		for (LS, rate) in RatePerLS.iteritems():
-			RatesTmp.write(LS+"\t"+`rate`+"\n")
+			RatesTmp.write(LS+"\t"+repr(rate)+"\n")
 			#if int(LS) >=  lsMin and int(LS) <= lsMax:
 				#nLS_within_range =nLS_within_range +1
 				#average = average + rate
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 		if options.saveplot:
 			TempFile.write("set term postscript eps enhanced \n")
 			TempFile.write("set output \"tmp.eps\" \n")
-		st_title = " \"Rates in PrimaryDataset " + PrimaryDataset+ " in Run " + `Run`+ "\" "
+		st_title = " \"Rates in PrimaryDataset " + PrimaryDataset+ " in Run " + repr(Run)+ "\" "
 		TempFile.write("set title " + st_title + "\n")
                 TempFile.write(" set pointsize 2. \n")
                 TempFile.write(" set nokey \n")

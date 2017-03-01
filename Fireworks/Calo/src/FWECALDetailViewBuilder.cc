@@ -4,7 +4,9 @@
 
 #include "TEveCaloData.h"
 #include "TEveViewer.h"
+#include "TEvePointSet.h"
 #include "TEveCalo.h"
+#include "TEveCompound.h"
 #include "TAxis.h"
 #include "TMath.h"
 #include "THLimitsFinder.h"
@@ -12,9 +14,12 @@
 
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Calo/interface/FWBoxRecHit.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/Context.h"
+
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -25,157 +30,68 @@
 
 #include <utility>
 
-TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
+
+FWECALDetailViewBuilder::FWECALDetailViewBuilder(const edm::EventBase *event, const FWGeometry* geom, 
+                                                 float eta, float phi, int size , Color_t defaultColor)
+                                                
+: m_event(event), m_geom(geom),
+  m_eta(eta), m_phi(phi), m_size(size),
+  m_defaultColor(defaultColor), m_towerList(0)
+{
+}
+
+
+TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool)
 {
    // get the hits from the event
 
-   edm::Handle<EcalRecHitCollection> handle_hits;
-   const EcalRecHitCollection *hits = 0;
-
-   if (fabs(m_eta) < 1.5)
-   {
-      try
-      {
-         edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
-         m_event->getByLabel(tag, handle_hits);
-	 if (handle_hits.isValid())
-         {
-	    hits = &*handle_hits;
-         }
-      }
-      catch (...)
-      {
-         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access EcalRecHitsEB collection." << std::endl;
-      }
-      if ( ! handle_hits.isValid()) {
-         try{
-            edm::InputTag tag("reducedEcalRecHitsEB");
-            m_event->getByLabel(tag, handle_hits);
-            if (handle_hits.isValid())
-            {
-               hits = &*handle_hits;
-            }
-
-         }
-         catch (...)
-         {
-            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEB collection." << std::endl;
-         }
-      }   
-   }
-   else
-   {
-      try
-      {
-         edm::InputTag tag("ecalRecHit", "EcalRecHitsEE");
-         m_event->getByLabel(tag, handle_hits);
-	 if (handle_hits.isValid())
-	    hits = &*handle_hits;
-      }
-      catch (...)
-      {
-         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access ecalRecHitsEE collection." << std::endl;
-      }
-
-      if ( ! handle_hits.isValid()) {
-         try {
-            edm::InputTag tag("reducedEcalRecHitsEE");
-            m_event->getByLabel(tag, handle_hits);
-            if (handle_hits.isValid())
-            {
-               hits = &*handle_hits;
-            }
-
-         }
-         catch (...)
-         {     
-            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
-         }
-      }
-   }
-     
    // data
-   TEveCaloDataVec* data = new TEveCaloDataVec( 1 + m_colors.size() );
+   TEveCaloDataVec* data = new TEveCaloDataVec( 1);
+   data->SetWrapTwoPi(false);
    data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor );
-   for( size_t i = 0; i < m_colors.size(); ++i )
-   {
-      data->RefSliceInfo(i + 1).Setup( "hits (clustered)", 0.0, m_colors[i] );
-   }
-
-   if( handle_hits.isValid() ) 
-   {
-      fillData( hits, data, xyEE );
-   }
+   
+   fillData(data);
 
    // axis
-   Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-   if (data->Empty())
-   {
-      fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: No hits found in " << Form("FWECALDetailViewBuilder::build():: No hits found in eta[%f] phi[%f] region", m_eta, m_phi)<<".\n";
+   float etaMin = m_eta - sizeRad();
+   float etaMax = m_eta + sizeRad();
+   float phiMin = m_phi - sizeRad();
+   float phiMax = m_phi + sizeRad();
 
-      // add dummy background
-      float x = m_size*TMath::DegToRad();
-      if (fabs(m_eta) < 1.5 || xyEE == false) {
-         etaMin = m_eta -x;
-         etaMax = m_eta +x;
-         phiMin = m_phi -x;
-         phiMax = m_phi +x;
-         data->AddTower(etaMin, etaMax, phiMin, phiMax);
-      }
-      else
-      {
-         float theta = TEveCaloData::EtaToTheta(m_eta);
-         float r = TMath::Tan(theta) * 290;
-         phiMin = r * TMath::Cos(m_phi - x) -300;
-         phiMax = r * TMath::Cos(m_phi + x) + 300;
-         etaMin = r * TMath::Sin(m_phi - x) - 300;
-         etaMax = r * TMath::Sin(m_phi + x) + 300;
-         data->AddTower(TMath::Min(etaMin, etaMax), TMath::Max(etaMin, etaMax),
-                        TMath::Min(phiMin, phiMax), TMath::Max(phiMin, phiMax));
+   data->AddTower(m_eta - sizeRad(), m_eta + sizeRad(), m_phi - sizeRad(), m_phi + sizeRad());
 
-      }
-      data->FillSlice(0, 0.1);      
-   }
+   data->FillSlice(0, 0.1);      
+   
 
  
    TAxis* eta_axis = 0;
    TAxis* phi_axis = 0; 
-   data->GetEtaLimits(etaMin, etaMax);
-   data->GetPhiLimits(phiMin, phiMax);
-   //  printf("data rng %f %f %f %f\n",etaMin, etaMax, phiMin, phiMax );
 
-   if (fabs(m_eta) > 1.5 && xyEE ) {
-      eta_axis = new TAxis(10, etaMin, etaMax);
-      phi_axis = new TAxis(10, phiMin, phiMax);
-      eta_axis->SetTitle("X[cm]");
-      phi_axis->SetTitle("Y[cm]");
-      phi_axis->SetTitleSize(0.05);
-      eta_axis->SetTitleSize(0.05);
-   } else {
-      std::vector<double> etaBinsWithinLimits;
-      etaBinsWithinLimits.push_back(etaMin);
-      for (unsigned int i=0; i<83; ++i)
-         if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax )
-            etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
-      etaBinsWithinLimits.push_back(etaMax);
+   //  printf("data rng %f %f %f %f\n",etaMin, etaMax, phiMin, phiMax );  
+   std::vector<double> etaBinsWithinLimits;
+   etaBinsWithinLimits.push_back(etaMin);
+   for (unsigned int i=0; i<83; ++i)
+       if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax )
+           etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
+   etaBinsWithinLimits.push_back(etaMax);
 
-      std::vector<double> phiBinsWithinLimits;
-      phiBinsWithinLimits.push_back(phiMin);
-      for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
-         if ( phi > phiMin && phi < phiMax )
-            phiBinsWithinLimits.push_back(phi);
-      phiBinsWithinLimits.push_back(phiMax);
+   std::vector<double> phiBinsWithinLimits;
+   phiBinsWithinLimits.push_back(phiMin);
+   for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
+       if ( phi > phiMin && phi < phiMax )
+           phiBinsWithinLimits.push_back(phi);
+   phiBinsWithinLimits.push_back(phiMax);
 
-      eta_axis = new TAxis((int)etaBinsWithinLimits.size() -1, &etaBinsWithinLimits[0]);
-      phi_axis = new TAxis((int)phiBinsWithinLimits.size() -1, &phiBinsWithinLimits[0]);
+   eta_axis = new TAxis((int)etaBinsWithinLimits.size() -1, &etaBinsWithinLimits[0]);
+   phi_axis = new TAxis((int)phiBinsWithinLimits.size() -1, &phiBinsWithinLimits[0]);
 
-      eta_axis->SetTitleFont(122);
-      eta_axis->SetTitle("h");
-      eta_axis->SetTitleSize(0.07);
-      phi_axis->SetTitleFont(122);
-      phi_axis->SetTitle("f");
-      phi_axis->SetTitleSize(0.07);
-   }
+   eta_axis->SetTitleFont(122);
+   eta_axis->SetTitle("h");
+   eta_axis->SetTitleSize(0.07);
+   phi_axis->SetTitleFont(122);
+   phi_axis->SetTitle("f");
+   phi_axis->SetTitleSize(0.07);
+
    eta_axis->SetNdivisions(510);
    phi_axis->SetNdivisions(510);
    data->SetEtaBins(eta_axis);
@@ -186,40 +102,54 @@ TEveCaloData* FWECALDetailViewBuilder::buildCaloData(bool xyEE)
 //_______________________________________________________________   
 TEveCaloLego* FWECALDetailViewBuilder::build()
 {
-   TEveCaloData* data = buildCaloData(true);   
+
+   // axis
+   float etaMin = m_eta - sizeRad();
+   float etaMax = m_eta + sizeRad();
+   float phiMin = m_phi - sizeRad();
+   float phiMax = m_phi + sizeRad();
    
-   double etaMin, etaMax, phiMin, phiMax;
-   data->GetEtaLimits(etaMin, etaMax);
-   data->GetPhiLimits(phiMin, phiMax);
-   
+   m_towerList = new TEveElementList("TowerHolder");
+   TEveCaloData* data = buildCaloData(true);
+      
    // lego
-   TEveCaloLego *lego = new TEveCaloLego(data);
+   TEveCaloLego *lego = new TEveCaloLego();
+   lego->SetData(data);
+   lego->AddElement(m_towerList);
+   lego->SetAutoRange(false);
    lego->SetDrawNumberCellPixels(100);
    // scale and translate to real world coordinates
    lego->SetEta(etaMin, etaMax);
    lego->SetPhiWithRng((phiMin+phiMax)*0.5, (phiMax-phiMin)*0.5); // phi range = 2* phiOffset
-   Double_t legoScale = ((etaMax - etaMin) < (phiMax - phiMin)) ? (etaMax - etaMin) : (phiMax - phiMin);
+   Double_t legoScale = sizeRad() *2;
    lego->InitMainTrans();
    lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale*0.5);
-   lego->RefMainTrans().SetPos((etaMax+etaMin)*0.5, (phiMax+phiMin)*0.5, 0);
+   lego->RefMainTrans().SetPos(m_eta, m_phi, -0.01);
    lego->SetAutoRebin(kFALSE);
-   lego->Set2DMode(TEveCaloLego::kValSizeOutline);
    lego->SetName("ECALDetail Lego");
+
+   // cut & paste from FWLegoViewBase
+   lego->SetScaleAbs(true);
+   lego->SetHasFixedHeightIn2DMode(true);
+   lego->SetFixedHeightValIn2DMode(0.001);
+
+   
+   TEvePointSet* ps = new TEvePointSet("origin");
+   ps->SetNextPoint(m_eta, m_phi, 0.01);
+   ps->SetMarkerSize(0.05);
+   ps->SetMarkerStyle(2);
+   ps->SetMainColor(kGreen);
+   ps->SetMarkerColor(kGreen);
+   lego->AddElement(ps);
+
    return lego;
 
 }
 
 void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &detIds)
 {
-
-   m_colors.push_back(color);
-
-   // get the slice for this group of detIds
-   // note that the zeroth slice is the default one (all else)
-   int slice = m_colors.size();
-   // take a note of which slice these detids are going to go into
    for (size_t i = 0; i < detIds.size(); ++i)
-      m_detIdsToColor[detIds[i]] = slice;
+      m_detIdsToColor[detIds[i]] = color;
 }
 
 void
@@ -266,8 +196,8 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
       std::sort( sorted.begin(), sorted.end(), superClusterEtaLess );
       for( size_t i = 0; i < sorted.size(); ++i )
       {
-	 if( !(fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
-	       && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
+	 if( !(fabs(sorted[i].eta() - m_eta) < sizeRad()
+	       && fabs(sorted[i].phi() - m_phi) < sizeRad()) )
 	   continue;
 
 	 if( colorIndex %2 == 0 )
@@ -279,129 +209,256 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
    }
 }
 
-void
-FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
-                                  TEveCaloDataVec *data, bool xyEE )
+
+namespace {
+float
+calculateEt( const TEveVector &centre, float e )
 {
-   const float barrelCR = m_size*0.0172; // barrel cell range
-   
-   // loop on all the detids
-   for( EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end();
-       k != kEnd; ++k )
-   {
-      // get reco geometry
-      double centerEta = 0;
-      double centerPhi = 0;
-      const float* points = m_geom->getCorners( k->id().rawId());
-      if( points != 0 )
+   TEveVector vec = centre;
+   float et;
+
+   vec.Normalize();
+   vec *= e;
+   et = vec.Perp();
+
+   return et;
+}
+
+}
+//------------------------------------------------------------------
+void
+FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDataVec *data)
+{
+    // printf("filletaphi \n");  
+   const float area = sizeRad(); // barrel cell range, AMT this is available in context
+
+   double eta1 = m_eta - area;
+   double eta2 = m_eta + area;
+   double phi1 = m_phi - area;
+   double phi2 = m_phi + area;
+
+
+   std::vector<FWBoxRecHit*>  boxes;
+   for( EcalRecHitCollection::const_iterator hitIt = hits->begin(); hitIt != hits->end(); ++hitIt)
+   {    
+       const float *corners = m_geom->getCorners( hitIt->detid() );
+       float energy, et;
+       std::vector<TEveVector> etaphiCorners(8);
+
+       if( corners == 0 )
+           continue;
+
+
+       for( int i = 0; i < 4; ++i )
+       {
+           TEveVector cv = TEveVector( corners[i*3], corners[i*3+1], corners[i*3+2] );
+           etaphiCorners[i].fX = cv.Eta();                                     // Conversion of rechit X/Y values for plotting in Eta/Phi
+           etaphiCorners[i].fY = cv.Phi();
+           etaphiCorners[i].fZ = 0.0;
+
+           etaphiCorners[i+4].fX = etaphiCorners[i].fX;                        // Top can simply be plotted exactly over the top of the bottom face
+           etaphiCorners[i+4].fY = etaphiCorners[i].fY;
+           etaphiCorners[i+4].fZ = 0.001;
+           //  printf("%f %f %d \n",  etaphiCorners[i].fX, etaphiCorners[i].fY, i);
+       }
+
+       TEveVector center;
+       for( int i = 0; i < 4; ++i )
+           center += etaphiCorners[i];
+       center *= 1.f / 4.f;
+
+       
+       if ( center.fX < eta1 || center.fX > eta2) continue;
+       if ( center.fY < phi1 || center.fY > phi2) continue;
+
+
+
+       // Stop phi wrap
+       float dPhi1 = etaphiCorners[2].fY - etaphiCorners[1].fY;
+       float dPhi2 = etaphiCorners[3].fY - etaphiCorners[0].fY;
+       float dPhi3 = etaphiCorners[1].fY - etaphiCorners[2].fY;
+       float dPhi4 = etaphiCorners[0].fY - etaphiCorners[3].fY;
+
+       if( dPhi1 > 1 )
+           etaphiCorners[2].fY = etaphiCorners[2].fY - ( 2 * TMath::Pi() );
+       if( dPhi2 > 1 )
+           etaphiCorners[3].fY = etaphiCorners[3].fY - ( 2 * TMath::Pi() );
+       if( dPhi3 > 1 )
+           etaphiCorners[2].fY = etaphiCorners[2].fY + ( 2 * TMath::Pi() );
+       if( dPhi4 > 1 )
+           etaphiCorners[3].fY = etaphiCorners[3].fY + ( 2 * TMath::Pi() );
+
+
+
+       energy = hitIt->energy();
+       et = calculateEt( center, energy );
+       Color_t bcolor = m_defaultColor;
+       std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(hitIt->id());
+       if (itr != m_detIdsToColor.end()) bcolor = itr->second;
+
+       m_boxes.push_back(new FWBoxRecHit( etaphiCorners, m_towerList, energy, et ));
+       TEveElement::List_i pIt = m_boxes.back()->getTower()->BeginParents();
+       TEveCompound* comp = dynamic_cast<TEveCompound*>(*pIt);
+       comp->SetMainColor(bcolor);
+       m_boxes.back()->getTower()->SetPickable(true);
+       m_boxes.back()->getTower()->SetElementTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
+   } // loop hits
+
+}
+
+
+//---------------------------------------------------------------------------------------
+
+
+void
+FWECALDetailViewBuilder::fillData(  TEveCaloDataVec *data)
+{
+   { // barrel
+      const EcalRecHitCollection *hitsEB = 0;
+      edm::Handle<EcalRecHitCollection> handle_hitsEB;
+
+      // RECO
+      try
       {
-         TEveVector v;
-         int j = 0;
-         for( int i = 0; i < 8; ++i )
-         {	 
-            v += TEveVector( points[j], points[j + 1], points[j + 2] );
-            j +=3;
-         }
-         centerEta = v.Eta();
-         centerPhi = v.Phi();
-      }
-      else
-         fwLog( fwlog::kInfo ) << "cannot get geometry for DetId: "<< k->id().rawId() << ". Ignored.\n";
-      
-      double size = k->energy() / cosh( centerEta );
-      
-      // check what slice to put in
-      int slice = 0;
-      std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
-      if (itr != m_detIdsToColor.end()) slice = itr->second;
-      
-      // if in the EB
-      if( k->id().subdetId() == EcalBarrel || xyEE == false )
-      {
-         // do phi wrapping
-         if( centerPhi > m_phi + M_PI) centerPhi -= 2 * M_PI;
-         if( centerPhi < m_phi - M_PI) centerPhi += 2 * M_PI;
-         
-         // check if the hit is in the window to be drawn
-         if( !( fabs( centerEta - m_eta ) < barrelCR
-               && fabs( centerPhi - m_phi ) < barrelCR )) continue;
-         
-         double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-         if( points != 0 )
+         edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
+         m_event->getByLabel(tag, handle_hitsEB);
+	 if (handle_hitsEB.isValid())
          {
-            // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
-            // so if we simply get the largest eta and phi, cells will overlap
-            // therefore we get a smaller eta-phi range representing the inner square
-            // we also should use only points from the inner face of the crystal, since
-            // non-projecting direction of crystals leads to large shift in eta on outter
-            // face.
-            int j = 0;
-            float eps = 0.005;
-            for( unsigned int i = 0; i < 8; ++i )
+	    hitsEB = &*handle_hitsEB;
+         }
+      }
+      catch (...)
+      {
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access EcalRecHitsEB collection." << std::endl;
+      }
+
+
+      // AOD
+      if ( ! handle_hitsEB.isValid()) {
+         try{
+            edm::InputTag tag("reducedEcalRecHitsEB");
+            m_event->getByLabel(tag, handle_hitsEB);
+            if (handle_hitsEB.isValid())
             {
-               TEveVector crystal( points[j], points[j + 1], points[j + 2] );
-               j += 3;
-               double eta = crystal.Eta();
-               double phi = crystal.Phi();
-               if ( ((k->id().subdetId() == EcalBarrel)  && (crystal.Perp() > 135) )||  ((k->id().subdetId() == EcalEndcap) && (crystal.Perp() > 155))) continue;
-               if ( minEta - eta > eps) minEta = eta;
-               if ( eta - minEta > 0 && eta - minEta < eps ) minEta = eta;
-               if ( eta - maxEta > eps) maxEta = eta;
-               if ( maxEta - eta > 0 && maxEta - eta < eps ) maxEta = eta;
-               if ( minPhi - phi > eps) minPhi = phi;
-               if ( phi - minPhi > 0 && phi - minPhi < eps ) minPhi = phi;
-               if ( phi - maxPhi > eps) maxPhi = phi;
-               if ( maxPhi - phi > 0 && maxPhi - phi < eps ) maxPhi = phi;
+               hitsEB = &*handle_hitsEB;
             }
+
          }
-         else 
+         catch (...)
          {
-            double delta = 0.0172 * 0.5;
-            minEta = centerEta - delta;
-            maxEta = centerEta + delta;
-            minPhi = centerPhi - delta;
-            maxPhi = centerPhi + delta;
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::filData():: Failed to access reducedEcalRecHitsEB collection." << std::endl;
          }
-         if( minPhi >= ( m_phi - barrelCR ) && maxPhi <= ( m_phi + barrelCR ) &&
-            minEta >= ( m_eta - barrelCR ) && maxEta <= ( m_eta + barrelCR ))
-         {
-            // printf("add %f %f %f %f \n",minEta, maxEta, minPhi, maxPhi );
-            data->AddTower( minEta, maxEta, minPhi, maxPhi );
-            data->FillSlice( slice, size );
-         }
-         // otherwise in the EE
       }
-      else if( k->id().subdetId() == EcalEndcap )
-      {
-         // check if the hit is in the window to be drawn
-         double crystalSize = m_size * 0.0172;
-         if( !( fabs( centerEta - m_eta ) < ( crystalSize )
-               && fabs( centerPhi - m_phi ) < ( crystalSize )))
-            continue;
-         
-         if( points != 0 )
-         {
-            double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
-            int j = 0;
-            for( unsigned int i = 0; i < 8; ++i )
+
+      // MINIAOD
+      if ( ! handle_hitsEB.isValid()) {
+         try{
+            edm::InputTag tag("reducedEgamma", "reducedEBRecHits");
+            m_event->getByLabel(tag, handle_hitsEB);
+            if (handle_hitsEB.isValid())
             {
-               TEveVector crystal( points[j], points[j + 1], points[j + 2] );
-               j += 3;
-               double x = crystal.fX;
-               double y = crystal.fY;
-               if( fabs( crystal.fZ ) > 330 ) continue;
-               if( minX - x > 0.01 ) minX = x;
-               if( x - maxX > 0.01 ) maxX = x;
-               if( minY - y > 0.01 ) minY = y;
-               if( y - maxY > 0.01 ) maxY = y;
+               hitsEB = &*handle_hitsEB;
             }
-            data->AddTower( minX, maxX, minY, maxY );
-            // printf("EE add %f %f %f %f \n",minX, maxX, minY, maxY );
+
+
+
+
          }
-         data->FillSlice( slice, size );
+         catch (...)
+         {
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::filData():: Failed to access reducedEgamma collection." << std::endl;
+         }
       }
-   } // end loop on hits
+
+      if( handle_hitsEB.isValid() ) 
+      {
+         fillEtaPhi( hitsEB, data);
+      }
+   }
+
+   {// endcap
+
+      const EcalRecHitCollection *hitsEE = 0;
+      edm::Handle<EcalRecHitCollection> handle_hitsEE;
+
+      // RECO
+      try
+      {
+         edm::InputTag tag("ecalRecHit", "EcalRecHitsEE");
+         m_event->getByLabel(tag, handle_hitsEE);
+	 if (handle_hitsEE.isValid())
+	    hitsEE = &*handle_hitsEE;
+      }
+      catch (...)
+      {
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access ecalRecHitsEE collection." << std::endl;
+      }
+
+      // AOD
+      if ( ! handle_hitsEE.isValid()) {
+         try {
+            edm::InputTag tag("reducedEcalRecHitsEE");
+            m_event->getByLabel(tag, handle_hitsEE);
+            if (handle_hitsEE.isValid())
+            {
+               hitsEE = &*handle_hitsEE;
+            }
+
+         }
+         catch (...)
+         {     
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
+         }
+
+      // MINIAOD
+      if ( ! handle_hitsEE.isValid()) {
+         try {
+            edm::InputTag tag("reducedEgamma", "reducedEERecHits");
+            m_event->getByLabel(tag, handle_hitsEE);
+            if (handle_hitsEE.isValid())
+            {
+               hitsEE = &*handle_hitsEE;
+            }
+
+         }
+         catch (...)
+         {     
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::fillData():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
+         }
+      }
    
+      }
+
+      if( handle_hitsEE.isValid() ) 
+      {
+          fillEtaPhi( hitsEE, data);
+      }
+   }
+
+   if ( m_boxes.empty()) return;
+
+   bool plotEt = true;
+   float maxEnergy = 0;
+   int maxEnergyIdx = 0;
+   // get max energy in EE and EB
+
+   int cnt = 0;
+   for (auto & i : m_boxes)  {
+       if (i->getEnergy(plotEt) > maxEnergy) {
+           maxEnergy = i->getEnergy(plotEt);
+           maxEnergyIdx = cnt;
+       }
+       cnt++;
+   }
+
+   m_boxes[maxEnergyIdx]->setIsTallest();
+
+   // AMT ... max size can be an external parameter
+   float scale = 0.3/maxEnergy;
+   for (auto & i : m_boxes) {
+        i->updateScale(scale, log(maxEnergy + 1), plotEt);
+        i->getTower()->SetDrawFrame(true);
+   }
    data->DataChanged();
 }
 
@@ -451,3 +508,11 @@ FWECALDetailViewBuilder::makeLegend( double x0, double y0,
    
    return y;
 }
+//______________________________________________________________________________
+
+float FWECALDetailViewBuilder::sizeRad() const
+{
+   float rs = m_size * TMath::DegToRad();
+   return rs;
+}
+

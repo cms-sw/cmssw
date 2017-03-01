@@ -27,32 +27,36 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
   // function to extract f(eta) correction
   scEnergyFunction_ = 0 ;
   std::string superClusterFunctionName = config.getParameter<std::string>("superClusterEnergyCorrFunction") ;
-  scEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterFunctionName,config) ;
+  scEnergyFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterFunctionName,config));
 
 
   // function to extract corrections to cracks
   scCrackEnergyFunction_ = 0 ;
   std::string superClusterCrackFunctionName = config.getParameter<std::string>("superClusterCrackEnergyCorrFunction") ;
-  scCrackEnergyFunction_ = EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName,config) ;
+  scCrackEnergyFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterCrackFunctionName,config));
 
 
   // function to extract the error on the sc ecal correction
   scEnergyErrorFunction_ = 0 ;
   std::string superClusterErrorFunctionName = config.getParameter<std::string>("superClusterEnergyErrorFunction") ;
-  scEnergyErrorFunction_ = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,config) ;
+  scEnergyErrorFunction_.reset(EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,config));
 
 
   // function  to extract the error on the photon ecal correction
   photonEcalEnergyCorrFunction_=0;
   std::string photonEnergyFunctionName = config.getParameter<std::string>("photonEcalEnergyCorrFunction") ;
-  photonEcalEnergyCorrFunction_ = EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config);
+  photonEcalEnergyCorrFunction_.reset(EcalClusterFunctionFactory::get()->create(photonEnergyFunctionName, config));
   //ingredient for photon uncertainty
-  photonUncertaintyCalculator_ = new EnergyUncertaintyPhotonSpecific(config);
+  photonUncertaintyCalculator_.reset(new EnergyUncertaintyPhotonSpecific(config));
  
   if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
     const edm::ParameterSet regr_conf = 
       config.getParameterSet("regressionConfig");
-    gedRegression_.reset(new PFSCRegressionCalc(regr_conf));
+    const std::string& mname = regr_conf.getParameter<std::string>("modifierName");
+    ModifyObjectValueBase* regr = ModifyObjectValueFactory::get()->create(mname,regr_conf);
+    gedRegression_.reset(regr);
+  } else {
+    gedRegression_.reset(nullptr);
   }
 
   // ingredient for energy regression
@@ -60,18 +64,10 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
   w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
   if (weightsfromDB_) w_db_   = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
   else  w_db_ = "none" ;
-  regressionCorrector_ = new EGEnergyCorrector(); 
+  regressionCorrector_.reset(new EGEnergyCorrector()); 
 
 
 }
-
-
-PhotonEnergyCorrector::~PhotonEnergyCorrector() {
-  delete regressionCorrector_;
-  delete photonUncertaintyCalculator_;
-}
-
-
 
 void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
@@ -91,11 +87,7 @@ void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
 
  
   photonUncertaintyCalculator_->init(theEventSetup);
-
-  if( gedRegression_ ) 
-    gedRegression_->update(theEventSetup);
-
-
+  
 }
 
 
@@ -148,7 +140,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   
     // correction for low r9 
     phoEcalEnergy =  photonEcalEnergyCorrFunction_->getValue(*(thePhoton.superCluster()), 1);
-    phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_);
+    phoEcalEnergy *= applyCrackCorrection(*(thePhoton.superCluster()), scCrackEnergyFunction_.get());
     phoEcalEnergyError = photonUncertaintyCalculator_->computePhotonEnergyUncertainty_lowR9(thePhoton.superCluster()->eta(), thePhoton.superCluster()->phiWidth()/thePhoton.superCluster()->etaWidth(), phoEcalEnergy);
   }
 
@@ -167,12 +159,12 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   } 
 
   if( gedRegression_ ) {
-    gedRegression_->varCalc()->setEvent(evt);
-    std::pair<float,float> cor = gedRegression_->getCorrectionWithErrors(*(thePhoton.superCluster()));
-    phoRegr1Energy = cor.first*thePhoton.superCluster()->correctedEnergy();
-    phoRegr1EnergyError = cor.second*thePhoton.superCluster()->correctedEnergy();
-    // store the value in the Photon.h
-    thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  false);
+    gedRegression_->modifyObject(thePhoton); // uses regression2 slot
+    // force regresions1 and 2 to be the same (no reason to be different)
+    thePhoton.setCorrectedEnergy( reco::Photon::regression1, 
+                                  thePhoton.getCorrectedEnergy(reco::Photon::regression2),
+                                  thePhoton.getCorrectedEnergyError(reco::Photon::regression2),
+                                  false );
   }
 
   /*

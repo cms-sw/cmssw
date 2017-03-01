@@ -35,8 +35,9 @@ DQMDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   // Fetch GlobalTag information and fill the string/ME.
   dbe_->cd();  
   dbe_->setCurrentFolder(subsystemname_ +"/CMSSWInfo/");
-  const edm::ParameterSet &globalTagPSet = edm::getProcessParameterSet()
-					   .getParameterSet("PoolDBESSource@GlobalTag");
+  const edm::ParameterSet &globalTagPSet =
+    edm::getProcessParameterSetContainingModule(moduleDescription())
+    .getParameterSet("PoolDBESSource@GlobalTag");
 
   dbe_->bookString("globalTag_Harvesting", globalTagPSet.getParameter<std::string>("globaltag"));
 

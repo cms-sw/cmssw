@@ -75,7 +75,7 @@ class TShapeAnalysis: public TObject
   std::vector<double> getVals(int);
   std::vector<double> getInitVals(int);
 
-  //  ClassDef(TShapeAnalysis,1)
+  ClassDef(TShapeAnalysis,0)
 };
 
 #endif

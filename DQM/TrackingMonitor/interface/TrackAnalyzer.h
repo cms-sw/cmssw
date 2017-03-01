@@ -11,6 +11,7 @@ Monitoring source for general quantities related to tracks.
 
 #include <memory>
 #include <fstream>
+#include <unordered_map>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,6 +26,9 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 class DQMStore;
 
 class BeamSpot;
@@ -34,7 +38,7 @@ class TrackAnalyzer
         TrackAnalyzer(const edm::ParameterSet&);
 	TrackAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector& iC);
         virtual ~TrackAnalyzer();
-        virtual void initHisto(DQMStore::IBooker & ibooker);
+        virtual void initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup &);
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
@@ -42,6 +46,15 @@ class TrackAnalyzer
         void doReset      ();
         void undoSoftReset(DQMStore * dqmStore_);
         void setLumiFlag();
+        // Compute and locally store the number of Good vertices found
+        // in the event. This information is used as X-axis value in
+        // the hit-efficiency plots derived from the hit patter. This
+        // ugly design to avoid comuting this very same quantity for
+        // each and every track while in the analyze method. A
+        // redesign of the class is needed in the future.
+        void setNumberOfGoodVertices(const edm::Event &);
+        void setBX(const edm::Event &);
+        void setLumi(const edm::Event &, const edm::EventSetup& iSetup);
 
     private:
 	void initHistos();
@@ -51,15 +64,20 @@ class TrackAnalyzer
 	void bookHistosForLScertification(DQMStore::IBooker & ibooker);
 	void bookHistosForBeamSpot(DQMStore::IBooker & ibooker);
         void bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker);
+        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup, const std::string suffix);
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);
+        void fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring);
 
         // ----------member data ---------------------------
 	std::string TopFolder_;
 
 	edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 	edm::EDGetTokenT<reco::VertexCollection> pvToken_;
+	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+	edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+	float lumi_factor_per_bx_;
 	
         edm::ParameterSet conf_;
 
@@ -72,9 +90,11 @@ class TrackAnalyzer
 	bool doMeasurementStatePlots_;
 	bool doHitPropertiesPlots_;
 	bool doRecHitVsPhiVsEtaPerTrack_;
+	bool doRecHitVsPtVsEtaPerTrack_;
 	// ADD by Mia
 	bool doLayersVsPhiVsEtaPerTrack_;
 	bool doTrackRecHitVsPhiVsEtaPerTrack_;
+	bool doTrackRecHitVsPtVsEtaPerTrack_;
 	bool doTrackLayersVsPhiVsEtaPerTrack_;
 	bool doTrack2DChi2Plots_;
 	bool doRecHitsPerTrackProfile_;
@@ -92,6 +112,23 @@ class TrackAnalyzer
 	// ADD by Mia in order to turnON test MEs
 	bool doTestPlots_;
 
+	//For HI Plots
+	bool doHIPlots_;
+
+        // IP significance plots
+        bool doSIPPlots_;
+
+        // Compute the hit-finding efficiency using the HitPattern of
+        // the reconstructed tracks
+        bool doEffFromHitPatternVsPU_;
+        bool doEffFromHitPatternVsBX_;
+        bool doEffFromHitPatternVsLUMI_;
+	int  pvNDOF_;
+	bool  useBPixLayer1_;
+	int   minNumberOfPixelsPerCluster_;
+	float minPixelClusterCharge_;	
+	std::string qualityString_;
+	
         struct TkParameterMEs {
 	  TkParameterMEs() :
 	    TrackP(NULL)
@@ -126,12 +163,37 @@ class TrackAnalyzer
 	    , NumberOfValidRecHitsPerTrackVsPhi(NULL)
 	    , NumberOfValidRecHitsPerTrackVsTheta(NULL)
 	    , NumberOfValidRecHitsPerTrackVsEta(NULL)
+	    , NumberOfValidRecHitsPerTrackVsPt(NULL)
 	    , NumberOfValidRecHitVsPhiVsEtaPerTrack(NULL)
+	    , NumberOfValidRecHitVsPtVsEtaPerTrack(NULL)
 
+            , NumberOfLostRecHitsPerTrackVsPhi(NULL)
+            , NumberOfLostRecHitsPerTrackVsTheta(NULL)
+            , NumberOfLostRecHitsPerTrackVsEta(NULL)
+            , NumberOfLostRecHitsPerTrackVsPt(NULL)
+            , NumberOfLostRecHitVsPhiVsEtaPerTrack(NULL)
+            , NumberOfLostRecHitVsPtVsEtaPerTrack(NULL)
+
+            , NumberOfMIRecHitsPerTrackVsPhi(NULL)
+            , NumberOfMIRecHitsPerTrackVsTheta(NULL)
+            , NumberOfMIRecHitsPerTrackVsEta(NULL)
+            , NumberOfMIRecHitsPerTrackVsPt(NULL)
+            , NumberOfMIRecHitVsPhiVsEtaPerTrack(NULL)
+            , NumberOfMIRecHitVsPtVsEtaPerTrack(NULL)
+
+            , NumberOfMORecHitsPerTrackVsPhi(NULL)
+            , NumberOfMORecHitsPerTrackVsTheta(NULL)
+            , NumberOfMORecHitsPerTrackVsEta(NULL)
+            , NumberOfMORecHitsPerTrackVsPt(NULL)
+            , NumberOfMORecHitVsPhiVsEtaPerTrack(NULL)
+            , NumberOfMORecHitVsPtVsEtaPerTrack(NULL)
+    
 	    , NumberOfLayersPerTrackVsPhi(NULL)
 	    , NumberOfLayersPerTrackVsTheta(NULL)
 	    , NumberOfLayersPerTrackVsEta(NULL)
 
+            , Chi2oNDFVsNHits(NULL)
+            , Chi2oNDFVsPt(NULL)
 	    , Chi2oNDFVsEta(NULL)
 	    , Chi2oNDFVsPhi(NULL)
 	    , Chi2oNDFVsTheta(NULL)
@@ -159,6 +221,10 @@ class TrackAnalyzer
 	  
 	  MonitorElement* TrackPhi;
 	  MonitorElement* TrackEta;
+          MonitorElement* TrackEtaPhi=nullptr;
+          MonitorElement* TrackEtaPhiInner=nullptr;
+          MonitorElement* TrackEtaPhiOuter=nullptr;
+
 	  MonitorElement* TrackTheta;
 	  
 	  MonitorElement* TrackPhiErr;
@@ -173,12 +239,37 @@ class TrackAnalyzer
 	  MonitorElement* NumberOfValidRecHitsPerTrackVsPhi;
 	  MonitorElement* NumberOfValidRecHitsPerTrackVsTheta;
 	  MonitorElement* NumberOfValidRecHitsPerTrackVsEta;
+	  MonitorElement* NumberOfValidRecHitsPerTrackVsPt;
 	  MonitorElement* NumberOfValidRecHitVsPhiVsEtaPerTrack;
+	  MonitorElement* NumberOfValidRecHitVsPtVsEtaPerTrack;
+
+          MonitorElement* NumberOfLostRecHitsPerTrackVsPhi;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsTheta;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsEta;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsPt;
+          MonitorElement* NumberOfLostRecHitVsPhiVsEtaPerTrack;
+          MonitorElement* NumberOfLostRecHitVsPtVsEtaPerTrack;
+
+          MonitorElement* NumberOfMIRecHitsPerTrackVsPhi;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsTheta;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsEta;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsPt;
+          MonitorElement* NumberOfMIRecHitVsPhiVsEtaPerTrack;
+          MonitorElement* NumberOfMIRecHitVsPtVsEtaPerTrack;
+
+          MonitorElement* NumberOfMORecHitsPerTrackVsPhi;
+          MonitorElement* NumberOfMORecHitsPerTrackVsTheta;
+          MonitorElement* NumberOfMORecHitsPerTrackVsEta;
+          MonitorElement* NumberOfMORecHitsPerTrackVsPt;
+          MonitorElement* NumberOfMORecHitVsPhiVsEtaPerTrack;
+          MonitorElement* NumberOfMORecHitVsPtVsEtaPerTrack;
 
 	  MonitorElement* NumberOfLayersPerTrackVsPhi;
 	  MonitorElement* NumberOfLayersPerTrackVsTheta;
 	  MonitorElement* NumberOfLayersPerTrackVsEta;
 
+          MonitorElement* Chi2oNDFVsNHits;
+          MonitorElement* Chi2oNDFVsPt;
 	  MonitorElement* Chi2oNDFVsEta;
 	  MonitorElement* Chi2oNDFVsPhi;
 	  MonitorElement* Chi2oNDFVsTheta;
@@ -194,30 +285,63 @@ class TrackAnalyzer
 	MonitorElement* NumberOfRecHitsPerTrack;
 	MonitorElement* NumberOfValidRecHitsPerTrack;
 	MonitorElement* NumberOfLostRecHitsPerTrack;
+        MonitorElement* NumberOfMIRecHitsPerTrack = nullptr;
+        MonitorElement* NumberOfMORecHitsPerTrack = nullptr;
+
 	
-	MonitorElement* NumberOfRecHitsPerTrackVsPhi;
-	MonitorElement* NumberOfRecHitsPerTrackVsTheta;
-	MonitorElement* NumberOfRecHitsPerTrackVsEta;
-	MonitorElement* NumberOfRecHitVsPhiVsEtaPerTrack;
+	MonitorElement* NumberOfRecHitsPerTrackVsPhi = nullptr;
+	MonitorElement* NumberOfRecHitsPerTrackVsTheta = nullptr;
+	MonitorElement* NumberOfRecHitsPerTrackVsEta = nullptr;
+	MonitorElement* NumberOfRecHitVsPhiVsEtaPerTrack = nullptr;
 	
-	MonitorElement* NumberOfValidRecHitsPerTrackVsPhi;
-	MonitorElement* NumberOfValidRecHitsPerTrackVsTheta;
-	MonitorElement* NumberOfValidRecHitsPerTrackVsEta;
-	MonitorElement* NumberOfValidRecHitVsPhiVsEtaPerTrack;
+	MonitorElement* NumberOfValidRecHitsPerTrackVsPhi = nullptr;
+	MonitorElement* NumberOfValidRecHitsPerTrackVsTheta = nullptr;
+	MonitorElement* NumberOfValidRecHitsPerTrackVsEta = nullptr;
+	MonitorElement* NumberOfValidRecHitsPerTrackVsPt = nullptr;
+	MonitorElement* NumberOfValidRecHitVsPhiVsEtaPerTrack = nullptr;
+	MonitorElement* NumberOfValidRecHitVsPtVsEtaPerTrack = nullptr;
+
+          MonitorElement* NumberOfLostRecHitsPerTrackVsPhi = nullptr;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsTheta = nullptr;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsEta = nullptr;
+          MonitorElement* NumberOfLostRecHitsPerTrackVsPt = nullptr;
+          MonitorElement* NumberOfLostRecHitVsPhiVsEtaPerTrack = nullptr;
+          MonitorElement* NumberOfLostRecHitVsPtVsEtaPerTrack = nullptr;
+
+          MonitorElement* NumberOfMIRecHitsPerTrackVsPhi = nullptr;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsTheta = nullptr;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsEta = nullptr;
+          MonitorElement* NumberOfMIRecHitsPerTrackVsPt = nullptr;
+          MonitorElement* NumberOfMIRecHitVsPhiVsEtaPerTrack = nullptr;
+          MonitorElement* NumberOfMIRecHitVsPtVsEtaPerTrack = nullptr;
+
+          MonitorElement* NumberOfMORecHitsPerTrackVsPhi = nullptr;
+          MonitorElement* NumberOfMORecHitsPerTrackVsTheta = nullptr;
+          MonitorElement* NumberOfMORecHitsPerTrackVsEta = nullptr;
+          MonitorElement* NumberOfMORecHitsPerTrackVsPt = nullptr;
+          MonitorElement* NumberOfMORecHitVsPhiVsEtaPerTrack = nullptr;
+          MonitorElement* NumberOfMORecHitVsPtVsEtaPerTrack = nullptr;
+
+          MonitorElement* ValidFractionPerTrack = nullptr;
+          MonitorElement* ValidFractionVsPhiVsEtaPerTrack = nullptr;
+
 	
-	MonitorElement* NumberOfLayersPerTrack;
+	MonitorElement* NumberOfLayersPerTrack[4] = {nullptr,nullptr,nullptr,nullptr};
 	
 	MonitorElement* NumberOfLayersPerTrackVsPhi;
 	MonitorElement* NumberOfLayersPerTrackVsTheta;
 	MonitorElement* NumberOfLayersPerTrackVsEta;
 
-	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack;
+	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[4]= {nullptr,nullptr,nullptr,nullptr};
+
 
 	MonitorElement* Chi2;
 	MonitorElement* Chi2Prob;
 	MonitorElement* Chi2oNDF;
 
-	MonitorElement* Chi2oNDFVsEta;
+        MonitorElement* Chi2oNDFVsNHits = nullptr;
+        MonitorElement* Chi2oNDFVsPt = nullptr;
+	MonitorElement* Chi2oNDFVsEta = nullptr;
 	MonitorElement* Chi2oNDFVsPhi;
 	MonitorElement* Chi2oNDFVsTheta;
 	
@@ -227,7 +351,9 @@ class TrackAnalyzer
 	
 	MonitorElement* DistanceOfClosestApproach;
 	MonitorElement* DistanceOfClosestApproachToBS;
+	MonitorElement* AbsDistanceOfClosestApproachToBS;
 	MonitorElement* DistanceOfClosestApproachToPV;
+	MonitorElement* DeltaZToPV;
 	MonitorElement* DistanceOfClosestApproachVsTheta;
 	MonitorElement* DistanceOfClosestApproachVsPhi;
 	MonitorElement* DistanceOfClosestApproachToBSVsPhi;
@@ -246,7 +372,10 @@ class TrackAnalyzer
 	MonitorElement* zPointOfClosestApproach;
 	MonitorElement* zPointOfClosestApproachToPV;
 	MonitorElement* zPointOfClosestApproachVsPhi;
-	MonitorElement* algorithm;
+	MonitorElement *algorithm, *oriAlgo;
+	MonitorElement *stoppingSource;
+	MonitorElement *stoppingSourceVSeta;
+	MonitorElement *stoppingSourceVSphi;
 	// TESTING MEs
 	MonitorElement* TESTDistanceOfClosestApproachToBS;
 	MonitorElement* TESTDistanceOfClosestApproachToBSVsPhi;
@@ -254,7 +383,25 @@ class TrackAnalyzer
 	// add by Mia in order to deal w/ LS transitions
 	MonitorElement* Chi2oNDF_lumiFlag;
 	MonitorElement* NumberOfRecHitsPerTrack_lumiFlag;
-	
+
+	//new plots for Heavy Ion DQM
+	MonitorElement* LongDCASig;
+	MonitorElement* TransDCASig;
+	MonitorElement* dNdPhi_HighPurity;
+	MonitorElement* dNdEta_HighPurity;
+	MonitorElement* dNdPt_HighPurity;
+	MonitorElement* NhitVsEta_HighPurity;
+	MonitorElement* NhitVsPhi_HighPurity;
+	MonitorElement* Ptdist_HighPurity;
+	MonitorElement* dNhitdPt_HighPurity;
+
+	// IP significance plots
+	MonitorElement *sipDxyToBS;
+	MonitorElement *sipDzToBS;
+	MonitorElement *sip3dToPV;
+	MonitorElement *sip2dToPV;
+	MonitorElement *sipDxyToPV;
+	MonitorElement *sipDzToPV;
 	
 	struct TkRecHitsPerSubDetMEs {
 	  MonitorElement* NumberOfRecHitsPerTrack;
@@ -263,14 +410,53 @@ class TrackAnalyzer
 	  MonitorElement* NumberOfLayersPerTrack;
 	  MonitorElement* NumberOfLayersPerTrackVsPhi;
 	  MonitorElement* NumberOfLayersPerTrackVsEta;
+          MonitorElement* RecHitChi2PerTrack;
 	  
 	  int         detectorId;
 	  std::string detectorTag;
 	};
         std::map<std::string, TkRecHitsPerSubDetMEs> TkRecHitsPerSubDetMEMap;
 	
-	
-	
+        struct Key {
+          int det;
+          int subdet;
+	  int monitoring;
+          explicit Key(int det, int subdet,int monitoring):det(det),subdet(subdet),monitoring(monitoring){};
+          bool operator==(const Key & other) const {
+            return (det == other.det && subdet == other.subdet && monitoring == other.monitoring);
+          }
+        };
+
+        struct KeyHasher {
+          std::size_t operator()(const Key& k) const {
+            // 3 bits (0x7) for kind of monitoring (7 kinds at most)
+            // next 8 bits to the subdetector (255 subdetectors at most)
+            // next 8 bits to the detector (255 detectors at most)
+            return (size_t)(
+                (k.monitoring & (0x7)) |
+                ((k.subdet & (0xff)) << 3) |
+                ((k.det & (0xff)) << 11));
+          }
+        };
+
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_valid_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_missing_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_inactive_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_bad_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_total_;
+        unsigned int good_vertices_;
+        unsigned int bx_;
+        float pixel_lumi_;
+        float scal_lumi_;
+	enum monQuantity {
+	  VsPU,
+	  VsBX,
+	  VsPIXELLUMI,
+	  VsSCALLUMI,
+	  END
+	};
+	std::string monName[monQuantity::END] = { "", "VsBX", "VsPIXELLUMI", "VsSCALLUMI" };
+
         std::string histname;  //for naming the histograms according to algorithm used
 };
 #endif

@@ -29,16 +29,19 @@
 
 class MuonServiceProxy;
 
-class SegmentTrackAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class SegmentTrackAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor
   SegmentTrackAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~SegmentTrackAnalyzer() {};
+  virtual ~SegmentTrackAnalyzer() {
+    delete theService;
+    delete theSegmentsAssociator;
+  };
   
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:

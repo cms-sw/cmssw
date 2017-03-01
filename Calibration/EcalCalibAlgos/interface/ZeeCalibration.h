@@ -98,7 +98,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
   virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
   
   /// Produce Ecal interCalibrations
-  virtual boost::shared_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& iRecord );
+  virtual std::shared_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& iRecord );
 
  private:
 
@@ -192,7 +192,7 @@ class ZeeCalibration : public edm::ESProducerLooper {
   float calibCoeffError[nMaxChannels];
    float initCalibCoeff[nMaxChannels];
 
-  boost::shared_ptr<EcalIntercalibConstants> ical;
+  std::shared_ptr<EcalIntercalibConstants> ical;
   
   ZIterativeAlgorithmWithFit* theAlgorithm_;
 

@@ -36,7 +36,7 @@ namespace fwlite {
     explicit FWLiteEventFinder(TBranch* auxBranch) : auxBranch_(auxBranch) {}
     virtual ~FWLiteEventFinder() {}
     virtual
-    edm::EventNumber_t getEventNumberOfEntry(long long entry) const override {
+    edm::EventNumber_t getEventNumberOfEntry(edm::IndexIntoFile::EntryNumber_t entry) const override {
       void* saveAddress = auxBranch_->GetAddress();
       edm::EventAuxiliary eventAux;
       edm::EventAuxiliary *pEvAux = &eventAux;
@@ -105,10 +105,10 @@ namespace fwlite {
    }
 
    void
-   EntryFinder::fillIndex(BranchMapReader const& branchMap) {
+   EntryFinder::fillIndex(BranchMapReader& branchMap) {
     if (empty()) {
       TTree* meta = dynamic_cast<TTree*>(branchMap.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
-      if (0 == meta) {
+      if (nullptr == meta) {
         throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
           << edm::poolNames::metaDataTreeName();
       }
@@ -119,7 +119,7 @@ namespace fwlite {
         b->GetEntry(0);
         TTree* eventTree = branchMap.getEventTree();
         TBranch* auxBranch = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
-        if(0 == auxBranch) {
+        if(nullptr == auxBranch) {
           throw cms::Exception("NoEventAuxilliary") << "The TTree "
           << edm::poolNames::eventTreeName()
           << " does not contain a branch named 'EventAuxiliary'";

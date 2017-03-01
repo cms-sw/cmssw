@@ -5,7 +5,8 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
@@ -24,6 +25,16 @@ namespace {
 
 SeedFromConsecutiveHitsCreator::~SeedFromConsecutiveHitsCreator(){}
 
+void SeedFromConsecutiveHitsCreator::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<std::string>("propagator", "PropagatorWithMaterialParabolicMf");
+  desc.add<double>("SeedMomentumForBOFF", 5.0);
+  desc.add<double>("OriginTransverseErrorMultiplier", 1.0);
+  desc.add<double>("MinOneOverPtError", 1.0);
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.add<std::string>("magneticField", "ParabolicMf");
+  desc.add<bool>("forceKinematicWithRegionDirection", false);
+}
+
 void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
 	  const edm::EventSetup& es,
 	  const SeedComparitor *ifilter) {
@@ -41,15 +52,9 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   isBOFF = (0==nomField);
 
   edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  try { // one sure we need to propagate the ocnfig to HLT
-    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-    cloner = (*builder).cloner();
-  } catch(...) {
-    es.get<TransientRecHitRecord>().get("hltESPTTRHBWithTrackAngle", builderH);
-    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-    cloner = (*builder).cloner();
- }
+  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+  auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+  cloner = (*builder).cloner();
 
 }
 
@@ -125,7 +130,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
 					kine.charge(),
 					&*bfield);
   }
-  return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+  return (filter ? filter->compatible(hits, kine, helix) : true); 
 }
 
 
@@ -188,11 +193,11 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
 
   } 
 
+  if(!hit) return;
   
   PTrajectoryStateOnDet const & PTraj = 
     trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
-  TrajectorySeed seed(PTraj,std::move(seedHits),alongMomentum); 
-  if ( !filter || filter->compatible(seed)) seedCollection.push_back(std::move(seed));
+  seedCollection.emplace_back(PTraj,std::move(seedHits),alongMomentum);
 
 }
 
@@ -208,6 +213,6 @@ SeedFromConsecutiveHitsCreator::checkHit(
       const TrajectoryStateOnSurface &tsos,
       SeedingHitSet::ConstRecHitPointer hit) const 
 { 
-    return (filter ? filter->compatible(tsos,hit) : true); 
+    return (filter ? filter->compatible(tsos,hit) : true);
 }
 

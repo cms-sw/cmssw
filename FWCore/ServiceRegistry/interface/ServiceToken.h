@@ -26,6 +26,9 @@
 // user include files
 
 // forward declarations
+class testServicesManager;
+class TestServicesManagerOrder;
+
 namespace edm {
    class ServiceRegistry;
    class ActivityRegistry;
@@ -38,6 +41,10 @@ namespace edm {
    {
       friend class edm::ServiceRegistry;
       friend class edm::serviceregistry::ServicesManager;
+      //for testing
+      friend class ::testServicesManager;
+      friend class ::TestServicesManagerOrder;
+     
     public:
       ServiceToken() {}
       //virtual ~ServiceToken();

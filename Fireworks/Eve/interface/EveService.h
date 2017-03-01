@@ -27,7 +27,9 @@ namespace edm
    class ActivityRegistry;
    class Run;
    class Event;
-   class EventSetup;
+   class EventSetup; 
+   class StreamContext;
+   class GlobalContext;
 }
 
 class TEveManager;
@@ -54,9 +56,9 @@ public:
    void postBeginJob();
    void postEndJob();
 
-   void postBeginRun(const edm::Run&, const edm::EventSetup&);
+   void postGlobalBeginRun(edm::GlobalContext const&);
 
-   void postProcessEvent(const edm::Event&, const edm::EventSetup&);
+   void postEvent(edm::StreamContext const&);
 
    void display(const std::string& info="");
 

@@ -54,7 +54,7 @@ KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
   vertexCoord(0) = vertexPosition.x();
   vertexCoord(1) = vertexPosition.y();
   vertexCoord(2) = vertexPosition.z();
-  const AlgebraicSymMatrix33 vertexErrorMatrix = vertex.error().matrix_new();
+  const AlgebraicSymMatrix33 vertexErrorMatrix = vertex.error().matrix();
 
 //track information
   const AlgebraicMatrixN3 a = linTrackState->positionJacobian();
@@ -91,7 +91,7 @@ KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
   AlgebraicMatrix3M  refittedPositionMomentumConvariance  = tmpM1 * twbs;
 
   AlgebraicSymMatrixMM refittedMomentumConvariance = s/weight +  
-     ROOT::Math::SimilarityT(refittedPositionMomentumConvariance, vertex.weight().matrix_new());
+     ROOT::Math::SimilarityT(refittedPositionMomentumConvariance, vertex.weight().matrix());
 
   
  // int matrixSize = 3+3; //refittedMomentumConvariance.num_col();

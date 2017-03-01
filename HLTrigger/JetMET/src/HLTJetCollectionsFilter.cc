@@ -5,7 +5,6 @@
  *
  */
 
-#include <typeinfo>
 #include <string>
 #include <vector>
 
@@ -18,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsFilter.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
@@ -50,7 +50,7 @@ HLTJetCollectionsFilter<jetType>::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("MaxAbsJetEta",2.6);
   desc.add<unsigned int>("MinNJets",1);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollectionsFilter<jetType>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetCollectionsFilter<jetType>>(), desc);
 }
 
 // ------------ method called to produce the data  ------------

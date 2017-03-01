@@ -5,12 +5,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
 <flags   EDM_PLUGIN="1"/>
-<library   name="SimG4CMSHcalTestBeamHcalTB02Analysis" file="HcalTB02Analysis.cc">
-</library>
-<library   name="SimG4CMSHcalTestBeamHcalTB04Analysis" file="HcalTB04Analysis.cc">
-</library>
-<library   name="SimG4CMSHcalTestBeamHcalTB06Analysis" file="HcalTB06Analysis.cc">
-</library>
-<library   name="SimG4CMSHcalTestBeamHcalModule" file="module.cc">
+<library   file="*.cc" name="SimG4CMSHcalTestBeamPlugins">
+  <flags   EDM_PLUGIN="1"/>
 </library>
 

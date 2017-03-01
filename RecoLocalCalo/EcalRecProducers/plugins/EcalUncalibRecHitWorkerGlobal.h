@@ -13,7 +13,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitLeadingEdgeAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
@@ -31,18 +30,21 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+	class ParameterSetDescription;
 }
 
 class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
                 EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
-				EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
+		EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
+		EcalUncalibRecHitWorkerGlobal() {};
                 virtual ~EcalUncalibRecHitWorkerGlobal() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
+		edm::ParameterSetDescription getAlgoDescription();
         protected:
 
                 double pedVec[3];
@@ -99,13 +101,10 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
                 edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
-                // leading edge method
                 edm::ESHandle<EcalTimeCalibConstants> itime;
 		edm::ESHandle<EcalTimeOffsetConstant> offtime;
                 std::vector<double> ebPulseShape_;
                 std::vector<double> eePulseShape_;
-                EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
-                EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
 
                 // chi2 method
 		bool kPoorRecoFlagEB_;

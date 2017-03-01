@@ -112,8 +112,7 @@ JetCorrFactors::print() const
   edm::LogInfo message( "JetCorrFactors" );
   for(std::vector<CorrectionFactor>::const_iterator corrFactor=jec_.begin(); corrFactor!=jec_.end(); ++corrFactor){
     unsigned int corrFactorIdx=corrFactor-jec_.begin();
-    std::stringstream idx; idx << corrFactorIdx;
-    message << std::setw(3) << idx << "  " << corrFactor->first;
+    message << std::setw(3) << corrFactorIdx << "  " << corrFactor->first;
     if( flavorDependent(*corrFactor) ){
       for(std::vector<float>::const_iterator flavor=corrFactor->second.begin(); flavor!=corrFactor->second.end(); ++flavor){
 	unsigned int flavorIdx=flavor-corrFactor->second.begin();

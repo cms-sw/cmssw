@@ -72,28 +72,26 @@ const unsigned int CHNLBINS = 396;
 const float CHNLMIN = -0.5;
 const float CHNLMAX = 395.5;
 
-bool first = true ;
 
-
-const int L1TdeRCT::crateFED[90]=
-    {613, 614, 603, 702, 718,
-     611, 612, 602, 700, 718,
-     627, 610, 601,716,  722,
-     625, 626, 609, 714, 722,
-     623, 624, 608, 712, 722,
-     621, 622, 607, 710, 720,
-     619, 620, 606, 708, 720,
-     617, 618, 605, 706, 720,
-     615, 616, 604, 704, 718,
-     631, 632, 648, 703, 719,
-     629, 630, 647, 701, 719,
-     645, 628, 646, 717, 723,
-     643, 644, 654, 715, 723,
-     641, 642, 653, 713, 723,
-     639, 640, 652, 711, 721,
-     637, 638, 651, 709, 721,
-     635, 636, 650, 707, 721,
-     633, 634, 649, 705, 719
+const int L1TdeRCT::crateFED[108]=
+    {613, 614, 603, 702,  718,1118,
+     611, 612, 602, 700, 718, 1118,
+     627, 610, 601,716,  722, 1122,
+     625, 626, 609, 714, 722, 1122,
+     623, 624, 608, 712, 722, 1122,
+     621, 622, 607, 710, 720, 1120,
+     619, 620, 606, 708, 720, 1120,
+     617, 618, 605, 706, 720, 1120,
+     615, 616, 604, 704, 718, 1118,
+     631, 632, 648, 703, 719, 1118,
+     629, 630, 647, 701, 719, 1118,
+     645, 628, 646, 717, 723, 1122,
+     643, 644, 654, 715, 723, 1122,
+     641, 642, 653, 713, 723, 1122,
+     639, 640, 652, 711, 721, 1120,
+     637, 638, 651, 709, 721, 1120,
+     635, 636, 650, 707, 721, 1120,
+     633, 634, 649, 705, 719, 1118
 };
 
 
@@ -108,10 +106,10 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
    gtDigisLabel_( consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter< InputTag >("gtDigisLabel") )),
    gtEGAlgoName_ ( ps.getParameter< std::string >("gtEGAlgoName") ),
    doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") ),
-   filterTriggerType_ (ps.getParameter< int >("filterTriggerType") )
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType") ),
+   selectBX_ (ps.getUntrackedParameter< int >("selectBX",2)),
+   dataInputTagName_(ps.getParameter<InputTag>("rctSourceData").label())
 {
-
-
 
   singlechannelhistos_ = ps.getUntrackedParameter < bool > ("singlechannelhistos", false);
 
@@ -123,13 +121,6 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
 
   if (verbose_)
     std::cout << "L1TdeRCT: constructor...." << std::endl;
-
-
-  dbe = NULL;
-  if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
 
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");
@@ -147,39 +138,14 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
 
   histFolder_
     = ps.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/L1TdeRCT");
-
-  if (dbe != NULL) {
-    dbe->setCurrentFolder(histFolder_);
-  }
-
-
-
 }
 
 L1TdeRCT::~L1TdeRCT()
 {
 }
 
-void L1TdeRCT::beginJob(void)
-{
-  nev_ = 0;
-}
-
-
-void L1TdeRCT::endJob(void)
-{
-  if (verbose_)
-    std::cout << "L1TdeRCT: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events";
-
-  if (outputFile_.size() != 0 && dbe)
-    dbe->save(outputFile_);
-
-  //std::cout << "trig count is " << trigCount << std::endl;
-  //std::cout << "no trig count is " << notrigCount << std::endl;
-
-
-  return;
+void L1TdeRCT::dqmBeginRun(const edm::Run&, const edm::EventSetup&){
+  //
 }
 
 void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
@@ -299,8 +265,6 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   edm::Handle < L1CaloEmCollection > emEmul;
   edm::Handle < L1CaloRegionCollection > rgnEmul;
 
-  // bool doEm = true; FIXME gcc461: variable 'doEm' set but not used
-  // bool doHd = true; FIXME gcc461: variable 'doHd' set but not used
   bool doEcal = true;
   bool doHcal = true;
 
@@ -317,7 +281,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 
   if(doEcal)
   {
-  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++)
+  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++){
     if(iEcalTp->compressedEt() > 0)
     {
 
@@ -336,6 +300,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 
 if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << " eta " << iEcalTp->id().ieta() << " phi " << iEcalTp->id().iphi() << std::endl ;
     }
+   }
    }
 
   if (!hcalTpData.isValid()) {
@@ -395,17 +360,14 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   if (!rgnData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
     if (verbose_)std::cout << "Can not find rgnData!" << std::endl ;
-    // doHd = false;
+    return;
   }
 
-//  if ( doHd ) {
   if (!rgnEmul.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
-    // doHd = false;
     if (verbose_)std::cout << "Can not find rgnEmul!" << std::endl ;
+    return;
   }
-//  }
-
 
   e.getByToken(rctSourceData_emData_,emData);
   e.getByToken(rctSourceEmul_emEmul_,emEmul);
@@ -413,19 +375,14 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   if (!emData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
     if (verbose_)std::cout << "Can not find emData!" << std::endl ;
-    // doEm = false;
+    return;
   }
-
-//  if ( doEm ) {
 
   if (!emEmul.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
     if (verbose_)std::cout << "Can not find emEmul!" << std::endl ;
-    // doEm = false;
-    return ;
+    return;
   }
-
-//  }
 
 
   // Isolated and non-isolated EM
@@ -467,12 +424,6 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   bool regionEmulMip      [PhiEtaMax] = {false};
   bool regionEmulQuiet    [PhiEtaMax] = {false};
   bool regionEmulHfPlusTau[PhiEtaMax] = {false};
-
-if(first)
-{
-  first = false ;
-}
-
 
   // StepII: fill variables
 
@@ -521,10 +472,14 @@ if(first)
     }
   }
 
+
   for (L1CaloEmCollection::const_iterator iem = emData->begin();
        iem != emData->end();
        iem++)
   {
+
+    if(selectBX_!=-1 && selectBX_!=iem->bx()) continue;
+
     if(iem->rank() >= 1)
     {
       if (iem->isolated())
@@ -580,6 +535,7 @@ if(first)
       ireg != rgnEmul->end();
       ireg++)
   {
+
 //     std::cout << "Emul: " << nRegionEmul << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
     if(ireg->overFlow())  rctBitEmulOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->tauVeto())   rctBitEmulTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -640,6 +596,10 @@ if(first)
       ireg != rgnData->end();
       ireg++)
   {
+
+    if(selectBX_!=-1 && selectBX_!=ireg->bx()) continue;
+
+
 //     std::cout << "Data: " << nRegionData << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
     if(ireg->overFlow())  rctBitDataOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->tauVeto())   rctBitDataTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -678,7 +638,7 @@ if(first)
   }
 
  if(verbose_)
-{
+ {
   std::cout << "I found Data! Iso: " << nelectrIsoData << " Niso: " << nelectrNisoData <<  std::endl ;
   for(int i=0; i<nelectrIsoData; i++)
   std::cout << " Iso Energy " << electronDataRank[0][i] << " eta " << electronDataEta[0][i] << " phi " << electronDataPhi[0][i] << std::endl ;
@@ -698,7 +658,7 @@ if(first)
   std::cout << "I found Emul! Regions: " << PhiEtaMax <<  std::endl ;
   for(int i=0; i<(int)PhiEtaMax; i++)
  if(regionEmulRank[i] !=0 )  std::cout << " Energy " << regionEmulRank[i] << " eta " << regionEmulEta[i] << " phi " << regionEmulPhi[i] << std::endl ;
-}
+ }
 
   // StepIII: calculate and fill
 
@@ -995,7 +955,7 @@ if(first)
 
     // calculate region/bit information
   for(unsigned int i = 0; i < (int)PhiEtaMax; i++)
-{
+  {
       Bool_t regFound       = kFALSE;
       Bool_t overFlowFound  = kFALSE;
       Bool_t tauVetoFound   = kFALSE;
@@ -1273,408 +1233,409 @@ void L1TdeRCT::DivideME1D(MonitorElement* numerator, MonitorElement* denominator
 }
 
 
-void L1TdeRCT::beginRun(const edm::Run& run , const edm::EventSetup& es) 
+void L1TdeRCT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run , const edm::EventSetup& es) 
 {
   // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
+  nev_ = 0;
+  //DQMStore *dbe = 0;
+  //dbe = Service < DQMStore > ().operator->();
 
-  if (dbe) {
-    dbe->setCurrentFolder(histFolder_);
-    dbe->rmdir(histFolder_);
-  }
+  //if (dbe) {
+  //  dbe->setCurrentFolder(histFolder_);
+  //  dbe->rmdir(histFolder_);
+  //}
 
 
-  if (dbe) {
+  //if (dbe) {
 
-    dbe->setCurrentFolder(histFolder_);
+  ibooker.setCurrentFolder(histFolder_);
 
-    triggerType_ =
-      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
+  triggerType_ =
+      ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
-    triggerAlgoNumbers_ =
-      dbe->book1D("gtTriggerAlgoNumbers", "gtTriggerAlgoNumbers", 128, -0.5, 127.5);
+  triggerAlgoNumbers_ =
+      ibooker.book1D("gtTriggerAlgoNumbers", "gtTriggerAlgoNumbers", 128, -0.5, 127.5);
 
-    rctInputTPGEcalOcc_ =
-  dbe->book2D("rctInputTPGEcalOcc", "rctInputTPGEcalOcc", TPGETABINS, TPGETAMIN,
+  rctInputTPGEcalOcc_ =
+    ibooker.book2D("rctInputTPGEcalOcc", "rctInputTPGEcalOcc", TPGETABINS, TPGETAMIN,
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
 
-    rctInputTPGEcalOccNoCut_ =
-  dbe->book2D("rctInputTPGEcalOccNoCut", "rctInputTPGEcalOccNoCut", TPGETABINS, TPGETAMIN,
+  rctInputTPGEcalOccNoCut_ =
+    ibooker.book2D("rctInputTPGEcalOccNoCut", "rctInputTPGEcalOccNoCut", TPGETABINS, TPGETAMIN,
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
 
-    rctInputTPGEcalRank_ =
-  dbe->book1D("rctInputTPGEcalRank", "rctInputTPGEcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
+  rctInputTPGEcalRank_ =
+    ibooker.book1D("rctInputTPGEcalRank", "rctInputTPGEcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
 
-    rctInputTPGHcalOcc_ =
-  dbe->book2D("rctInputTPGHcalOcc", "rctInputTPGHcalOcc", TPGETABINS, TPGETAMIN,
+  rctInputTPGHcalOcc_ =
+    ibooker.book2D("rctInputTPGHcalOcc", "rctInputTPGHcalOcc", TPGETABINS, TPGETAMIN,
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
 
-    rctInputTPGHcalSample_ =
-  dbe->book1D("rctInputTPGHcalSample", "rctInputTPGHcalSample", 10, -0.5, 9.5) ;
+  rctInputTPGHcalSample_ =
+    ibooker.book1D("rctInputTPGHcalSample", "rctInputTPGHcalSample", 10, -0.5, 9.5) ;
 
-    rctInputTPGHcalRank_ =
-  dbe->book1D("rctInputTPGHcalRank", "rctInputTPGHcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
+  rctInputTPGHcalRank_ =
+    ibooker.book1D("rctInputTPGHcalRank", "rctInputTPGHcalRank", TPGRANK, TPGRANKMIN, TPGRANKMAX) ;
 
-    dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/");
+  ibooker.setCurrentFolder(histFolder_+"/EffCurves/NisoEm/");
 
-    trigEffThresh_ =
-      dbe->book2D("trigEffThresh", "Rank occupancy >= 2x trig thresh",
+  trigEffThresh_ =
+    ibooker.book2D("trigEffThresh", "Rank occupancy >= 2x trig thresh (source: "+dataInputTagName_+")",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData");
+  ibooker.setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData");
 
-    trigEffThreshOcc_ =
-      dbe->book2D("trigEffThreshOcc", "Rank occupancy >= 2x trig thresh",
+  trigEffThreshOcc_ =
+    ibooker.book2D("trigEffThreshOcc", "Rank occupancy >= 2x trig thresh (source: "+dataInputTagName_+")",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-    trigEffTriggThreshOcc_ =
-      dbe->book2D("trigEffTriggThreshOcc", "Rank occupancy >= 2x trig thresh, triggered",
+  trigEffTriggThreshOcc_ =
+    ibooker.book2D("trigEffTriggThreshOcc", "Rank occupancy >= 2x trig thresh, triggered (source: "+dataInputTagName_+")",
 		  ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"/IsoEm");
+  ibooker.setCurrentFolder(histFolder_+"/IsoEm");
 
-    rctIsoEmEff1_ =
-  dbe->book2D("rctIsoEmEff1", "rctIsoEmEff1", ETABINS, ETAMIN,
+  rctIsoEmEff1_ =
+    ibooker.book2D("rctIsoEmEff1", "rctIsoEmEff1 (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmEff1oneD_ =
-  dbe->book1D("rctIsoEmEff1oneD", "rctIsoEmEff1oneD",
+  rctIsoEmEff1oneD_ =
+    ibooker.book1D("rctIsoEmEff1oneD", "rctIsoEmEff1oneD",
         CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmEff2_ =
-  dbe->book2D("rctIsoEmEff2", "rctIsoEmEff2, energy matching required", ETABINS, ETAMIN,
+  rctIsoEmEff2_ =
+    ibooker.book2D("rctIsoEmEff2", "rctIsoEmEff2, energy matching required (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmEff2oneD_ =
-  dbe->book1D("rctIsoEmEff2oneD", "rctIsoEmEff2oneD, energy matching required",
+  rctIsoEmEff2oneD_ =
+    ibooker.book1D("rctIsoEmEff2oneD", "rctIsoEmEff2oneD, energy matching required",
         CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmIneff2_ =
-  dbe->book2D("rctIsoEmIneff2", "rctIsoEmIneff2, energy matching required", ETABINS, ETAMIN,
+  rctIsoEmIneff2_ =
+    ibooker.book2D("rctIsoEmIneff2", "rctIsoEmIneff2, energy matching required (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmIneff2oneD_ =
-  dbe->book1D("rctIsoEmIneff2oneD", "rctIsoEmIneff2oneD, energy matching required",
+  rctIsoEmIneff2oneD_ =
+    ibooker.book1D("rctIsoEmIneff2oneD", "rctIsoEmIneff2oneD, energy matching required",
         CHNLBINS, CHNLMIN, CHNLMAX);
 
 
-    rctIsoEmIneff_ =
-  dbe->book2D("rctIsoEmIneff", "rctIsoEmIneff", ETABINS, ETAMIN,
+  rctIsoEmIneff_ =
+    ibooker.book2D("rctIsoEmIneff", "rctIsoEmIneff (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmIneff1D_ =
-  dbe->book1D("rctIsoEmIneff1D", "rctIsoEmIneff1D",
+  rctIsoEmIneff1D_ =
+    ibooker.book1D("rctIsoEmIneff1D", "rctIsoEmIneff1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmOvereff_ =
-  dbe->book2D("rctIsoEmOvereff", "rctIsoEmOvereff", ETABINS, ETAMIN,
+  rctIsoEmOvereff_ =
+    ibooker.book2D("rctIsoEmOvereff", "rctIsoEmOvereff (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmOvereff1D_ =
-  dbe->book1D("rctIsoEmOvereff1D", "rctIsoEmOvereff1D",
+  rctIsoEmOvereff1D_ =
+    ibooker.book1D("rctIsoEmOvereff1D", "rctIsoEmOvereff1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData");
+  ibooker.setCurrentFolder(histFolder_+"/IsoEm/ServiceData");
 
-    rctIsoEmDataOcc_ =
-  dbe->book2D("rctIsoEmDataOcc", "rctIsoEmDataOcc", ETABINS, ETAMIN,
+  rctIsoEmDataOcc_ =
+    ibooker.book2D("rctIsoEmDataOcc", "rctIsoEmDataOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmDataOcc1D_ =
-  dbe->book1D("rctIsoEmDataOcc1D", "rctIsoEmDataOcc1D",
+  rctIsoEmDataOcc1D_ =
+    ibooker.book1D("rctIsoEmDataOcc1D", "rctIsoEmDataOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmEmulOcc_ =
-  dbe->book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc", ETABINS, ETAMIN,
+  rctIsoEmEmulOcc_ =
+    ibooker.book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmEmulOcc1D_ =
-  dbe->book1D("rctIsoEmEmulOcc1D", "rctIsoEmEmulOcc1D",
+  rctIsoEmEmulOcc1D_ =
+    ibooker.book1D("rctIsoEmEmulOcc1D", "rctIsoEmEmulOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmEff1Occ_ =
-  dbe->book2D("rctIsoEmEff1Occ", "rctIsoEmEff1Occ", ETABINS, ETAMIN,
+  rctIsoEmEff1Occ_ =
+    ibooker.book2D("rctIsoEmEff1Occ", "rctIsoEmEff1Occ (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmEff1Occ1D_ =
-  dbe->book1D("rctIsoEmEff1Occ1D", "rctIsoEmEff1Occ1D",
+  rctIsoEmEff1Occ1D_ =
+    ibooker.book1D("rctIsoEmEff1Occ1D", "rctIsoEmEff1Occ1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmEff2Occ_ =
-  dbe->book2D("rctIsoEmEff2Occ", "rctIsoEmEff2Occ", ETABINS, ETAMIN,
+  rctIsoEmEff2Occ_ =
+    ibooker.book2D("rctIsoEmEff2Occ", "rctIsoEmEff2Occ (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmEff2Occ1D_ =
-  dbe->book1D("rctIsoEmEff2Occ1D", "rctIsoEmEff2Occ1D",
+  rctIsoEmEff2Occ1D_ =
+    ibooker.book1D("rctIsoEmEff2Occ1D", "rctIsoEmEff2Occ1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmIneff2Occ_ =
-  dbe->book2D("rctIsoEmIneff2Occ", "rctIsoEmIneff2Occ", ETABINS, ETAMIN,
+  rctIsoEmIneff2Occ_ =
+    ibooker.book2D("rctIsoEmIneff2Occ", "rctIsoEmIneff2Occ (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmIneff2Occ1D_ =
-  dbe->book1D("rctIsoEmIneff2Occ1D", "rctIsoEmIneff2Occ1D",
+  rctIsoEmIneff2Occ1D_ =
+    ibooker.book1D("rctIsoEmIneff2Occ1D", "rctIsoEmIneff2Occ1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmIneffOcc_ =
-  dbe->book2D("rctIsoEmIneffOcc", "rctIsoEmIneffOcc", ETABINS, ETAMIN,
+  rctIsoEmIneffOcc_ =
+    ibooker.book2D("rctIsoEmIneffOcc", "rctIsoEmIneffOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmIneffOcc1D_ =
-  dbe->book1D("rctIsoEmIneffOcc1D", "rctIsoEmIneffOcc1D",
+  rctIsoEmIneffOcc1D_ =
+    ibooker.book1D("rctIsoEmIneffOcc1D", "rctIsoEmIneffOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctIsoEmOvereffOcc_ =
-  dbe->book2D("rctIsoEmOvereffOcc", "rctIsoEmOvereffOcc", ETABINS, ETAMIN,
+  rctIsoEmOvereffOcc_ =
+    ibooker.book2D("rctIsoEmOvereffOcc", "rctIsoEmOvereffOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctIsoEmOvereffOcc1D_ =
-  dbe->book1D("rctIsoEmOvereffOcc1D", "rctIsoEmOvereffOcc1D",
-                    CHNLBINS, CHNLMIN, CHNLMAX);
-
-
-    dbe->setCurrentFolder(histFolder_+"/NisoEm");
-    rctNisoEmEff1_ =
-  dbe->book2D("rctNisoEmEff1", "rctNisoEmEff1", ETABINS, ETAMIN,
-        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctNisoEmEff1oneD_ =
-  dbe->book1D("rctNisoEmEff1oneD", "rctNisoEmEff1oneD",
-                    CHNLBINS, CHNLMIN, CHNLMAX);
-
-    rctNisoEmEff2_ =
-  dbe->book2D("rctNisoEmEff2", "rctNisoEmEff2, energy matching required", ETABINS, ETAMIN,
-        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctNisoEmEff2oneD_ =
-  dbe->book1D("rctNisoEmEff2oneD", "rctNisoEmEff2oneD, energy matching required",
-                    CHNLBINS, CHNLMIN, CHNLMAX);
-
-    rctNisoEmIneff2_ =
-  dbe->book2D("rctNisoEmIneff2", "rctNisoEmIneff2, energy matching required", ETABINS, ETAMIN,
-        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctNisoEmIneff2oneD_ =
-  dbe->book1D("rctNisoEmIneff2oneD", "rctNisoEmIneff2oneD, energy matching required",
+  rctIsoEmOvereffOcc1D_ =
+    ibooker.book1D("rctIsoEmOvereffOcc1D", "rctIsoEmOvereffOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
 
-    rctNisoEmIneff_ =
-  dbe->book2D("rctNisoEmIneff", "rctNisoEmIneff", ETABINS, ETAMIN,
+  ibooker.setCurrentFolder(histFolder_+"/NisoEm");
+  rctNisoEmEff1_ =
+    ibooker.book2D("rctNisoEmEff1", "rctNisoEmEff1 (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmIneff1D_ =
-  dbe->book1D("rctNisoEmIneff1D", "rctNisoEmIneff1D",
+  rctNisoEmEff1oneD_ =
+    ibooker.book1D("rctNisoEmEff1oneD", "rctNisoEmEff1oneD",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmOvereff_ =
-  dbe->book2D("rctNisoEmOvereff", "rctNisoEmOvereff", ETABINS, ETAMIN,
+  rctNisoEmEff2_ =
+    ibooker.book2D("rctNisoEmEff2", "rctNisoEmEff2, energy matching required (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmOvereff1D_ =
-  dbe->book1D("rctNisoEmOvereff1D", "rctNisoEmOvereff1D",
+  rctNisoEmEff2oneD_ =
+    ibooker.book1D("rctNisoEmEff2oneD", "rctNisoEmEff2oneD, energy matching required",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData");
-
-    rctNisoEmDataOcc_ =
-  dbe->book2D("rctNisoEmDataOcc", "rctNisoEmDataOcc", ETABINS, ETAMIN,
+  rctNisoEmIneff2_ =
+    ibooker.book2D("rctNisoEmIneff2", "rctNisoEmIneff2, energy matching required (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmDataOcc1D_ =
-  dbe->book1D("rctNisoEmDataOcc1D", "rctNisoEmDataOcc1D",
+  rctNisoEmIneff2oneD_ =
+    ibooker.book1D("rctNisoEmIneff2oneD", "rctNisoEmIneff2oneD, energy matching required",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmEmulOcc_ =
-  dbe->book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc", ETABINS, ETAMIN,
+
+  rctNisoEmIneff_ =
+    ibooker.book2D("rctNisoEmIneff", "rctNisoEmIneff (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmEmulOcc1D_ =
-  dbe->book1D("rctNisoEmEmulOcc1D", "rctNisoEmEmulOcc1D",
+  rctNisoEmIneff1D_ =
+    ibooker.book1D("rctNisoEmIneff1D", "rctNisoEmIneff1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmEff1Occ_ =
-  dbe->book2D("rctNisoEmEff1Occ", "rctNisoEmEff1Occ", ETABINS, ETAMIN,
+  rctNisoEmOvereff_ =
+    ibooker.book2D("rctNisoEmOvereff", "rctNisoEmOvereff (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmEff1Occ1D_ =
-  dbe->book1D("rctNisoEmEff1Occ1D", "rctNisoEmEff1Occ1D",
+  rctNisoEmOvereff1D_ =
+    ibooker.book1D("rctNisoEmOvereff1D", "rctNisoEmOvereff1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmEff2Occ_ =
-  dbe->book2D("rctNisoEmEff2Occ", "rctNisoEmEff2Occ", ETABINS, ETAMIN,
+  ibooker.setCurrentFolder(histFolder_+"/NisoEm/ServiceData");
+
+  rctNisoEmDataOcc_ =
+    ibooker.book2D("rctNisoEmDataOcc", "rctNisoEmDataOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmEff2Occ1D_ =
-  dbe->book1D("rctNisoEmEff2Occ1D", "rctNisoEmEff2Occ1D",
+  rctNisoEmDataOcc1D_ =
+    ibooker.book1D("rctNisoEmDataOcc1D", "rctNisoEmDataOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmIneff2Occ_ =
-  dbe->book2D("rctNisoEmIneff2Occ", "rctNisoEmIneff2Occ", ETABINS, ETAMIN,
+  rctNisoEmEmulOcc_ =
+    ibooker.book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmIneff2Occ1D_ =
-  dbe->book1D("rctNisoEmIneff2Occ1D", "rctNisoEmIneff2Occ1D",
+  rctNisoEmEmulOcc1D_ =
+    ibooker.book1D("rctNisoEmEmulOcc1D", "rctNisoEmEmulOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmIneffOcc_ =
-  dbe->book2D("rctNisoEmIneffOcc", "rctNisoEmIneffOcc", ETABINS, ETAMIN,
+  rctNisoEmEff1Occ_ =
+    ibooker.book2D("rctNisoEmEff1Occ", "rctNisoEmEff1Occ (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmIneffOcc1D_ =
-  dbe->book1D("rctNisoEmIneffOcc1D", "rctNisoEmIneffOcc1D",
+  rctNisoEmEff1Occ1D_ =
+    ibooker.book1D("rctNisoEmEff1Occ1D", "rctNisoEmEff1Occ1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmOvereffOcc_ =
-  dbe->book2D("rctNisoEmOvereffOcc", "rctNisoEmOvereffOcc", ETABINS, ETAMIN,
+  rctNisoEmEff2Occ_ =
+    ibooker.book2D("rctNisoEmEff2Occ", "rctNisoEmEff2Occ (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmOvereffOcc1D_ =
-  dbe->book1D("rctNisoEmOvereffOcc1D", "rctNisoEmOvereffOcc1D",
+  rctNisoEmEff2Occ1D_ =
+    ibooker.book1D("rctNisoEmEff2Occ1D", "rctNisoEmEff2Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+  rctNisoEmIneff2Occ_ =
+    ibooker.book2D("rctNisoEmIneff2Occ", "rctNisoEmIneff2Occ (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+  rctNisoEmIneff2Occ1D_ =
+    ibooker.book1D("rctNisoEmIneff2Occ1D", "rctNisoEmIneff2Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+  rctNisoEmIneffOcc_ =
+    ibooker.book2D("rctNisoEmIneffOcc", "rctNisoEmIneffOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+  rctNisoEmIneffOcc1D_ =
+    ibooker.book1D("rctNisoEmIneffOcc1D", "rctNisoEmIneffOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+  rctNisoEmOvereffOcc_ =
+    ibooker.book2D("rctNisoEmOvereffOcc", "rctNisoEmOvereffOcc (source: "+dataInputTagName_+")", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+  rctNisoEmOvereffOcc1D_ =
+    ibooker.book1D("rctNisoEmOvereffOcc1D", "rctNisoEmOvereffOcc1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
     // region information
-    dbe->setCurrentFolder(histFolder_+"/RegionData");
+  ibooker.setCurrentFolder(histFolder_+"/RegionData");
 
-    rctRegEff1D_ =
-      dbe->book1D("rctRegEff1D", "1D region efficiency",
+  rctRegEff1D_ =
+    ibooker.book1D("rctRegEff1D", "1D region efficiency",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegIneff1D_ =
-      dbe->book1D("rctRegIneff1D", "1D region inefficiency",
+  rctRegIneff1D_ =
+    ibooker.book1D("rctRegIneff1D", "1D region inefficiency",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegOvereff1D_ =
-      dbe->book1D("rctRegOvereff1D", "1D region overefficiency",
+  rctRegOvereff1D_ =
+    ibooker.book1D("rctRegOvereff1D", "1D region overefficiency",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegSpEff1D_ =
-      dbe->book1D("rctRegSpEff1D", "1D region efficiency, energy matching required",
+  rctRegSpEff1D_ =
+    ibooker.book1D("rctRegSpEff1D", "1D region efficiency, energy matching required",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegSpIneff1D_ =
-      dbe->book1D("rctRegSpIneff1D", "1D region inefficiency, energy matching required",
+  rctRegSpIneff1D_ =
+    ibooker.book1D("rctRegSpIneff1D", "1D region inefficiency, energy matching required",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegEff2D_ =
-      dbe->book2D("rctRegEff2D", "2D region efficiency",
+  rctRegEff2D_ =
+    ibooker.book2D("rctRegEff2D", "2D region efficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegIneff2D_ =
-      dbe->book2D("rctRegIneff2D", "2D region inefficiency",
+  rctRegIneff2D_ =
+    ibooker.book2D("rctRegIneff2D", "2D region inefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegOvereff2D_ =
-      dbe->book2D("rctRegOvereff2D", "2D region overefficiency",
+  rctRegOvereff2D_ =
+    ibooker.book2D("rctRegOvereff2D", "2D region overefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegSpEff2D_ =
-      dbe->book2D("rctRegSpEff2D", "2D region efficiency, energy matching required",
+  rctRegSpEff2D_ =
+    ibooker.book2D("rctRegSpEff2D", "2D region efficiency, energy matching required (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegSpIneff2D_ =
-      dbe->book2D("rctRegSpIneff2D", "2D region inefficiency, energy matching required",
+  rctRegSpIneff2D_ =
+    ibooker.book2D("rctRegSpIneff2D", "2D region inefficiency, energy matching required (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData");
+  ibooker.setCurrentFolder(histFolder_+"/RegionData/ServiceData");
 
-    rctRegDataOcc1D_ =
-      dbe->book1D("rctRegDataOcc1D", "1D region occupancy from data",
+  rctRegDataOcc1D_ =
+    ibooker.book1D("rctRegDataOcc1D", "1D region occupancy from data",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegEmulOcc1D_ =
-      dbe->book1D("rctRegEmulOcc1D", "1D region occupancy from emulator",
+  rctRegEmulOcc1D_ =
+    ibooker.book1D("rctRegEmulOcc1D", "1D region occupancy from emulator",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegMatchedOcc1D_ =
-      dbe->book1D("rctRegMatchedOcc1D", "1D region occupancy for matched hits",
+  rctRegMatchedOcc1D_ =
+    ibooker.book1D("rctRegMatchedOcc1D", "1D region occupancy for matched hits",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegUnmatchedDataOcc1D_ =
-      dbe->book1D("rctRegUnmatchedDataOcc1D", "1D region occupancy for unmatched hardware hits",
+  rctRegUnmatchedDataOcc1D_ =
+    ibooker.book1D("rctRegUnmatchedDataOcc1D", "1D region occupancy for unmatched hardware hits",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegUnmatchedEmulOcc1D_ =
-      dbe->book1D("rctRegUnmatchedEmulOcc1D", "1D region occupancy for unmatched emulator hits",
+  rctRegUnmatchedEmulOcc1D_ =
+    ibooker.book1D("rctRegUnmatchedEmulOcc1D", "1D region occupancy for unmatched emulator hits",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegSpEffOcc1D_ =
-      dbe->book1D("rctRegSpEffOcc1D", "1D region occupancy for \\Delta E_{T} efficiency",
+  rctRegSpEffOcc1D_ =
+    ibooker.book1D("rctRegSpEffOcc1D", "1D region occupancy for \\Delta E_{T} efficiency",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegSpIneffOcc1D_ =
-      dbe->book1D("rctRegSpIneffOcc1D", "1D region occupancy for \\Delta E_{T} efficiency ",
+  rctRegSpIneffOcc1D_ =
+    ibooker.book1D("rctRegSpIneffOcc1D", "1D region occupancy for \\Delta E_{T} efficiency ",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctRegDataOcc2D_ =
-      dbe->book2D("rctRegDataOcc2D", "2D region occupancy from hardware",
+  rctRegDataOcc2D_ =
+    ibooker.book2D("rctRegDataOcc2D", "2D region occupancy from hardware (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegEmulOcc2D_ =
-      dbe->book2D("rctRegEmulOcc2D", "2D region occupancy from emulator",
+  rctRegEmulOcc2D_ =
+    ibooker.book2D("rctRegEmulOcc2D", "2D region occupancy from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegMatchedOcc2D_ =
-      dbe->book2D("rctRegMatchedOcc2D", "2D region occupancy for matched hits",
+  rctRegMatchedOcc2D_ =
+    ibooker.book2D("rctRegMatchedOcc2D", "2D region occupancy for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegUnmatchedDataOcc2D_ =
-      dbe->book2D("rctRegUnmatchedDataOcc2D", "2D region occupancy for unmatched hardware hits",
+  rctRegUnmatchedDataOcc2D_ =
+    ibooker.book2D("rctRegUnmatchedDataOcc2D", "2D region occupancy for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegUnmatchedEmulOcc2D_ =
-      dbe->book2D("rctRegUnmatchedEmulOcc2D", "2D region occupancy for unmatched emulator hits",
+  rctRegUnmatchedEmulOcc2D_ =
+    ibooker.book2D("rctRegUnmatchedEmulOcc2D", "2D region occupancy for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
 //    rctRegDeltaEt2D_ =
 //      dbe->book2D("rctRegDeltaEt2D", " \\Delta E_{T}  for each channel",
 //      CHNLBINS, CHNLMIN, CHNLMAX, 100, -50., 50.);
 
-    rctRegSpEffOcc2D_ =
-      dbe->book2D("rctRegSpEffOcc2D", "2D region occupancy for \\Delta E_{T} efficiency",
+  rctRegSpEffOcc2D_ =
+    ibooker.book2D("rctRegSpEffOcc2D", "2D region occupancy for \\Delta E_{T} efficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegSpIneffOcc2D_ =
-      dbe->book2D("rctRegSpIneffOcc2D", "2D region occupancy for \\Delta E_{T} inefficiency",
+  rctRegSpIneffOcc2D_ =
+    ibooker.book2D("rctRegSpIneffOcc2D", "2D region occupancy for \\Delta E_{T} inefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // bit information
-    dbe->setCurrentFolder(histFolder_+"/BitData");
+  ibooker.setCurrentFolder(histFolder_+"/BitData");
 
-    rctBitOverFlowEff2D_ =
-      dbe->book2D("rctBitOverFlowEff2D", "2D overflow bit efficiency",
+  rctBitOverFlowEff2D_ =
+    ibooker.book2D("rctBitOverFlowEff2D", "2D overflow bit efficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitOverFlowIneff2D_ =
-      dbe->book2D("rctBitOverFlowIneff2D", "2D overflow bit inefficiency",
+  rctBitOverFlowIneff2D_ =
+    ibooker.book2D("rctBitOverFlowIneff2D", "2D overflow bit inefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitOverFlowOvereff2D_ =
-      dbe->book2D("rctBitOverFlowOvereff2D", "2D overflow bit overefficiency",
+  rctBitOverFlowOvereff2D_ =
+    ibooker.book2D("rctBitOverFlowOvereff2D", "2D overflow bit overefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitTauVetoEff2D_ =
-      dbe->book2D("rctBitTauVetoEff2D", "2D tau veto bit efficiency",
+  rctBitTauVetoEff2D_ =
+    ibooker.book2D("rctBitTauVetoEff2D", "2D tau veto bit efficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitTauVetoIneff2D_ =
-      dbe->book2D("rctBitTauVetoIneff2D", "2D tau veto bit inefficiency",
+  rctBitTauVetoIneff2D_ =
+    ibooker.book2D("rctBitTauVetoIneff2D", "2D tau veto bit inefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitTauVetoOvereff2D_ =
-      dbe->book2D("rctBitTauVetoOvereff2D", "2D tau veto bit overefficiency",
+  rctBitTauVetoOvereff2D_ =
+    ibooker.book2D("rctBitTauVetoOvereff2D", "2D tau veto bit overefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMipEff2D_ =
-      dbe->book2D("rctBitMipEff2D", "2D mip bit efficiency",
+  rctBitMipEff2D_ =
+    ibooker.book2D("rctBitMipEff2D", "2D mip bit efficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMipIneff2D_ =
-      dbe->book2D("rctBitMipIneff2D", "2D mip bit inefficiency",
+  rctBitMipIneff2D_ =
+    ibooker.book2D("rctBitMipIneff2D", "2D mip bit inefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMipOvereff2D_ =
-      dbe->book2D("rctBitMipOvereff2D", "2D mip bit overefficiency",
+  rctBitMipOvereff2D_ =
+    ibooker.book2D("rctBitMipOvereff2D", "2D mip bit overefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // QUIETBIT: To add quiet bit information, uncomment following 11 lines:
@@ -1690,193 +1651,191 @@ void L1TdeRCT::beginRun(const edm::Run& run , const edm::EventSetup& es)
       // dbe->book2D("rctBitQuietOvereff2D", "2D quiet bit overefficiency",
       // ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitHfPlusTauEff2D_ =
-      dbe->book2D("rctBitHfPlusTauEff2D", "2D HfPlusTau bit efficiency",
+  rctBitHfPlusTauEff2D_ =
+    ibooker.book2D("rctBitHfPlusTauEff2D", "2D HfPlusTau bit efficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitHfPlusTauIneff2D_ =
-      dbe->book2D("rctBitHfPlusTauIneff2D", "2D HfPlusTau bit inefficiency",
+  rctBitHfPlusTauIneff2D_ =
+    ibooker.book2D("rctBitHfPlusTauIneff2D", "2D HfPlusTau bit inefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitHfPlusTauOvereff2D_ =
-      dbe->book2D("rctBitHfPlusTauOvereff2D", "2D HfPlusTau bit overefficiency",
+  rctBitHfPlusTauOvereff2D_ =
+    ibooker.book2D("rctBitHfPlusTauOvereff2D", "2D HfPlusTau bit overefficiency (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    dbe->setCurrentFolder(histFolder_+"/BitData/ServiceData");
+  ibooker.setCurrentFolder(histFolder_+"/BitData/ServiceData");
 
-    rctBitEmulOverFlow2D_ =
-      dbe->book2D("rctBitEmulOverFlow2D", "2D overflow bit from emulator",
+  rctBitEmulOverFlow2D_ =
+    ibooker.book2D("rctBitEmulOverFlow2D", "2D overflow bit from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitDataOverFlow2D_ =
-      dbe->book2D("rctBitDataOverFlow2D", "2D overflow bit from hardware",
+  rctBitDataOverFlow2D_ =
+    ibooker.book2D("rctBitDataOverFlow2D", "2D overflow bit from hardware (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMatchedOverFlow2D_ =
-      dbe->book2D("rctBitMatchedOverFlow2D", "2D overflow bit for matched hits",
+  rctBitMatchedOverFlow2D_ =
+    ibooker.book2D("rctBitMatchedOverFlow2D", "2D overflow bit for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedEmulOverFlow2D_ =
-      dbe->book2D("rctBitUnmatchedEmulOverFlow2D", "2D overflow bit for unmatched emulator hits",
+  rctBitUnmatchedEmulOverFlow2D_ =
+    ibooker.book2D("rctBitUnmatchedEmulOverFlow2D", "2D overflow bit for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedDataOverFlow2D_ =
-      dbe->book2D("rctBitUnmatchedDataOverFlow2D", "2D overflow bit for unmatched hardware hits",
+  rctBitUnmatchedDataOverFlow2D_ =
+    ibooker.book2D("rctBitUnmatchedDataOverFlow2D", "2D overflow bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitEmulTauVeto2D_ =
-      dbe->book2D("rctBitEmulTauVeto2D", "2D tau veto bit from emulator",
+  rctBitEmulTauVeto2D_ =
+    ibooker.book2D("rctBitEmulTauVeto2D", "2D tau veto bit from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitDataTauVeto2D_ =
-      dbe->book2D("rctBitDataTauVeto2D", "2D tau veto bit from hardware",
+  rctBitDataTauVeto2D_ =
+    ibooker.book2D("rctBitDataTauVeto2D", "2D tau veto bit from hardware (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMatchedTauVeto2D_ =
-      dbe->book2D("rctBitMatchedTauVeto2D", "2D tau veto bit for matched hits",
+  rctBitMatchedTauVeto2D_ =
+    ibooker.book2D("rctBitMatchedTauVeto2D", "2D tau veto bit for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedEmulTauVeto2D_ =
-      dbe->book2D("rctBitUnmatchedEmulTauVeto2D", "2D tau veto bit for unmatched emulator hits",
+  rctBitUnmatchedEmulTauVeto2D_ =
+    ibooker.book2D("rctBitUnmatchedEmulTauVeto2D", "2D tau veto bit for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedDataTauVeto2D_ =
-      dbe->book2D("rctBitUnmatchedDataTauVeto2D", "2D tau veto bit for unmatched hardware hits",
+  rctBitUnmatchedDataTauVeto2D_ =
+    ibooker.book2D("rctBitUnmatchedDataTauVeto2D", "2D tau veto bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitEmulMip2D_ =
-      dbe->book2D("rctBitEmulMip2D", "2D mip bit from emulator",
+  rctBitEmulMip2D_ =
+    ibooker.book2D("rctBitEmulMip2D", "2D mip bit from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitDataMip2D_ =
-      dbe->book2D("rctBitDataMip2D", "2D mip bit from hardware",
+  rctBitDataMip2D_ =
+    ibooker.book2D("rctBitDataMip2D", "2D mip bit from hardware",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMatchedMip2D_ =
-      dbe->book2D("rctBitMatchedMip2D", "2D mip bit for matched hits",
+  rctBitMatchedMip2D_ =
+    ibooker.book2D("rctBitMatchedMip2D", "2D mip bit for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedEmulMip2D_ =
-      dbe->book2D("rctBitUnmatchedEmulMip2D", "2D mip bit for unmatched emulator hits",
+  rctBitUnmatchedEmulMip2D_ =
+    ibooker.book2D("rctBitUnmatchedEmulMip2D", "2D mip bit for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedDataMip2D_ =
-      dbe->book2D("rctBitUnmatchedDataMip2D", "2D mip bit for unmatched hardware hits",
+  rctBitUnmatchedDataMip2D_ =
+    ibooker.book2D("rctBitUnmatchedDataMip2D", "2D mip bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitEmulQuiet2D_ =
-      dbe->book2D("rctBitEmulQuiet2D", "2D quiet bit from emulator",
+  rctBitEmulQuiet2D_ =
+    ibooker.book2D("rctBitEmulQuiet2D", "2D quiet bit from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitDataQuiet2D_ =
-      dbe->book2D("rctBitDataQuiet2D", "2D quiet bit from hardware",
+  rctBitDataQuiet2D_ =
+    ibooker.book2D("rctBitDataQuiet2D", "2D quiet bit from hardware",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMatchedQuiet2D_ =
-      dbe->book2D("rctBitMatchedQuiet2D", "2D quiet bit for matched hits",
+  rctBitMatchedQuiet2D_ =
+    ibooker.book2D("rctBitMatchedQuiet2D", "2D quiet bit for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedEmulQuiet2D_ =
-      dbe->book2D("rctBitUnmatchedEmulQuiet2D", "2D quiet bit for unmatched emulator hits",
+  rctBitUnmatchedEmulQuiet2D_ =
+    ibooker.book2D("rctBitUnmatchedEmulQuiet2D", "2D quiet bit for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedDataQuiet2D_ =
-      dbe->book2D("rctBitUnmatchedDataQuiet2D", "2D quiet bit for unmatched hardware hits",
+  rctBitUnmatchedDataQuiet2D_ =
+    ibooker.book2D("rctBitUnmatchedDataQuiet2D", "2D quiet bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitEmulHfPlusTau2D_ =
-      dbe->book2D("rctBitEmulHfPlusTau2D", "2D HfPlusTau bit from emulator",
+  rctBitEmulHfPlusTau2D_ =
+    ibooker.book2D("rctBitEmulHfPlusTau2D", "2D HfPlusTau bit from emulator",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitDataHfPlusTau2D_ =
-      dbe->book2D("rctBitDataHfPlusTau2D", "2D HfPlusTau bit from hardware",
+  rctBitDataHfPlusTau2D_ =
+    ibooker.book2D("rctBitDataHfPlusTau2D", "2D HfPlusTau bit from hardware (source: "+dataInputTagName_+")",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitMatchedHfPlusTau2D_ =
-      dbe->book2D("rctBitMatchedHfPlusTau2D", "2D HfPlusTau bit for matched hits",
+  rctBitMatchedHfPlusTau2D_ =
+    ibooker.book2D("rctBitMatchedHfPlusTau2D", "2D HfPlusTau bit for matched hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedEmulHfPlusTau2D_ =
-      dbe->book2D("rctBitUnmatchedEmulHfPlusTau2D", "2D HfPlusTau bit for unmatched emulator hits",
+  rctBitUnmatchedEmulHfPlusTau2D_ =
+    ibooker.book2D("rctBitUnmatchedEmulHfPlusTau2D", "2D HfPlusTau bit for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctBitUnmatchedDataHfPlusTau2D_ =
-      dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
+  rctBitUnmatchedDataHfPlusTau2D_ =
+    ibooker.book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
  
-    dbe->setCurrentFolder(histFolder_+"/BitMon");
-    rctRegBitOn_ = 
-      dbe->book2D("rctRegBitOn", "Monitoring for Bits Stuck On",
+  ibooker.setCurrentFolder(histFolder_+"/BitMon");
+  rctRegBitOn_ = 
+    ibooker.book2D("rctRegBitOn", "Monitoring for Bits Stuck On",
       BITETABINS, BITETAMIN, BITETAMAX, BITRPHIBINS, BITRPHIMIN, BITRPHIMAX);
 
-    rctRegBitOff_ = 
-      dbe->book2D("rctRegBitOff", "Monitoring for Bits Stuck Off",
+  rctRegBitOff_ = 
+    ibooker.book2D("rctRegBitOff", "Monitoring for Bits Stuck Off",
       BITETABINS, BITETAMIN, BITETAMAX, BITRPHIBINS, BITRPHIMIN, BITRPHIMAX);
 
-    rctRegBitDiff_ = 
-      dbe->book2D("rctRegBitDiff", "Monitoring for Bits Difference",
+  rctRegBitDiff_ = 
+    ibooker.book2D("rctRegBitDiff", "Monitoring for Bits Difference",
       BITETABINS, BITETAMIN, BITETAMAX, BITRPHIBINS, BITRPHIMIN, BITRPHIMAX);
 
-    rctIsoEmBitOn_ = 
-      dbe->book2D("rctIsoEmBitOn", "Monitoring for Bits Stuck On",
+  rctIsoEmBitOn_ = 
+    ibooker.book2D("rctIsoEmBitOn", "Monitoring for Bits Stuck On",
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
-    rctIsoEmBitOff_ = 
-      dbe->book2D("rctIsoEmBitOff", "Monitoring for Bits Stuck Off",
+  rctIsoEmBitOff_ = 
+    ibooker.book2D("rctIsoEmBitOff", "Monitoring for Bits Stuck Off",
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
-    rctIsoEmBitDiff_ = 
-      dbe->book2D("rctIsoEmBitDiff", "Monitoring for Bits Difference",
+  rctIsoEmBitDiff_ = 
+    ibooker.book2D("rctIsoEmBitDiff", "Monitoring for Bits Difference",
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
-    rctNIsoEmBitOn_ = 
-      dbe->book2D("rctNIsoEmBitOn", "Monitoring for Bits Stuck On",
+  rctNIsoEmBitOn_ = 
+    ibooker.book2D("rctNIsoEmBitOn", "Monitoring for Bits Stuck On",
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
-    rctNIsoEmBitOff_ = 
-      dbe->book2D("rctNIsoEmBitOff", "Monitoring for Bits Stuck Off",
+  rctNIsoEmBitOff_ = 
+    ibooker.book2D("rctNIsoEmBitOff", "Monitoring for Bits Stuck Off",
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
-    rctNIsoEmBitDiff_ = 
-      dbe->book2D("rctNIsoEmBitDiff", "Monitoring for Bits Difference",
+  rctNIsoEmBitDiff_ = 
+    ibooker.book2D("rctNIsoEmBitDiff", "Monitoring for Bits Difference",
       BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
 
-    dbe->setCurrentFolder(histFolder_+"/DBData");
-    fedVectorMonitorRUN_ = dbe->book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",90,0,90,2,0,2);
-    fedVectorMonitorLS_ = dbe->book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",90,0,90,2,0,2);
+  ibooker.setCurrentFolder(histFolder_+"/DBData");
+  fedVectorMonitorRUN_ = ibooker.book2D("rctFedVectorMonitorRUN", "FED Vector Monitor Per Run",108,0,108,2,0,2);
+  fedVectorMonitorLS_ = ibooker.book2D("rctFedVectorMonitorLS", "FED Vector Monitor Per LS",108,0,108,2,0,2);
 
-    for(unsigned int i=0;i<90;++i) {
-      char fed[10];
-      sprintf(fed,"%d",crateFED[i]);
-      fedVectorMonitorRUN_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
-      fedVectorMonitorLS_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
-    }
-      fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(1,"OUT");
-      fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(2,"IN");
-      fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(1,"OUT");
-      fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(2,"IN");
-
-    
+  for(unsigned int i=0;i<108;++i) {
+    char fed[10];
+    sprintf(fed,"%d",crateFED[i]);
+    fedVectorMonitorRUN_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
+    fedVectorMonitorLS_->getTH2F()->GetXaxis()->SetBinLabel(i+1,fed);
+  }
+  fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(1,"OUT");
+  fedVectorMonitorRUN_->getTH2F()->GetYaxis()->SetBinLabel(2,"IN");
+  fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(1,"OUT");
+  fedVectorMonitorLS_->getTH2F()->GetYaxis()->SetBinLabel(2,"IN");   
 
 // for single channels
 
-    if(singlechannelhistos_)
+  if(singlechannelhistos_)
+  {
+   for(int m=0; m<12; m++)
    {
-    for(int m=0; m<12; m++)
-    {
-    if(m==0) dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData/Eff1SnglChnls");
-    if(m==1) dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData/Eff1SnglChnls");
-    if(m==2) dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData/EffSnglChnls");
-    if(m==3) dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData/IneffSnglChnls");
-    if(m==4) dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData/IneffSnglChnls");
-    if(m==5) dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData/IneffSnglChnls");
-    if(m==6) dbe->setCurrentFolder(histFolder_+"/IsoEm/ServiceData/OvereffSnglChnls");
-    if(m==7) dbe->setCurrentFolder(histFolder_+"/NisoEm/ServiceData/OvereffSnglChnls");
-    if(m==8) dbe->setCurrentFolder(histFolder_+"/RegionData/ServiceData/OvereffSnglChnls");
-    if(m==9) dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
-    if(m==10) dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
-    if(m==11) dbe->setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==0) ibooker.setCurrentFolder(histFolder_+"/IsoEm/ServiceData/Eff1SnglChnls");
+    if(m==1) ibooker.setCurrentFolder(histFolder_+"/NisoEm/ServiceData/Eff1SnglChnls");
+    if(m==2) ibooker.setCurrentFolder(histFolder_+"/RegionData/ServiceData/EffSnglChnls");
+    if(m==3) ibooker.setCurrentFolder(histFolder_+"/IsoEm/ServiceData/IneffSnglChnls");
+    if(m==4) ibooker.setCurrentFolder(histFolder_+"/NisoEm/ServiceData/IneffSnglChnls");
+    if(m==5) ibooker.setCurrentFolder(histFolder_+"/RegionData/ServiceData/IneffSnglChnls");
+    if(m==6) ibooker.setCurrentFolder(histFolder_+"/IsoEm/ServiceData/OvereffSnglChnls");
+    if(m==7) ibooker.setCurrentFolder(histFolder_+"/NisoEm/ServiceData/OvereffSnglChnls");
+    if(m==8) ibooker.setCurrentFolder(histFolder_+"/RegionData/ServiceData/OvereffSnglChnls");
+    if(m==9) ibooker.setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==10) ibooker.setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
+    if(m==11) ibooker.setCurrentFolder(histFolder_+"/EffCurves/NisoEm/ServiceData/SingleChannels");
 
     for(int i=0; i<ETAMAX; i++)
     {
@@ -1906,38 +1865,36 @@ void L1TdeRCT::beginRun(const edm::Run& run , const edm::EventSetup& es)
      int chnl=PHIBINS*i+j;
 
      if(m==0) rctIsoEffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==1) rctNisoEffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==2) rctRegEffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==3) rctIsoIneffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==4) rctNisoIneffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==5) rctRegIneffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==6) rctIsoOvereffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==7) rctNisoOvereffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==8) rctRegOvereffChannel_[chnl] =
-  dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+        ibooker.book1D(name, name, DEBINS, DEMIN, DEMAX);
      if(m==9) trigEff_[chnl] =
-	 dbe->book1D(name, name, ELBINS, ELMIN, ELMAX);
+	 ibooker.book1D(name, name, ELBINS, ELMIN, ELMAX);
      if(m==10) trigEffOcc_[chnl] =
-	 dbe->book1D(name, name, ELBINS, ELMIN, ELMAX);
+	 ibooker.book1D(name, name, ELBINS, ELMIN, ELMAX);
      if(m==11) trigEffTriggOcc_[chnl] =
-	 dbe->book1D(name, name, ELBINS, ELMIN, ELMAX);
+	 ibooker.book1D(name, name, ELBINS, ELMIN, ELMAX);
      }
     }
     }
    }
 
 //end of single channels
-
-
-  }
+  
   notrigCount=0;
   trigCount=0;
 
@@ -1961,11 +1918,11 @@ void L1TdeRCT::readFEDVector(MonitorElement* histogram,const edm::EventSetup& es
   const std::vector<int> Feds = summary->m_fed_in;
   for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
     int fedNum = *cf;
-    if(fedNum > 600 && fedNum <724) 
+    if(( fedNum > 600 && fedNum <724) || fedNum==1118 || fedNum==1120 || fedNum==1122) 
       caloFeds.push_back(fedNum);
   }
   
-  for(unsigned int i=0;i<90;++i) {
+  for(unsigned int i=0;i<108;++i) {
     std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[i]);
     if(fv!=caloFeds.end()) {
       histogram->setBinContent(i+1,2,1);

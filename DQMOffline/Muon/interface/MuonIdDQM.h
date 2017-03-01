@@ -47,13 +47,13 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
-class MuonIdDQM : public thread_unsafe::DQMEDAnalyzer {
+class MuonIdDQM : public DQMEDAnalyzer {
    public:
       explicit MuonIdDQM(const edm::ParameterSet&);
       ~MuonIdDQM();
 
       /* Operations */
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
    private:

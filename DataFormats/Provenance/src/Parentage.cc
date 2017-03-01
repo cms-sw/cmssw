@@ -15,6 +15,10 @@ namespace edm {
     parents_(parents) {
   }
 
+  Parentage::Parentage(std::vector<BranchID>&& parents) :
+  parents_(std::move(parents)) {
+  }
+
   ParentageID
   Parentage::id() const {
     std::ostringstream oss;

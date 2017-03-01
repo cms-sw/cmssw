@@ -362,8 +362,8 @@ const std::vector<std::string> labels_ = {
   "UncertaintyRelativeSample",
   "UncertaintyPileUpPtEC",
   "UncertaintyPileUpPtHF",
-  "UncertaintyAux1",
-  "UncertaintyAux2",
+  "L1RC",
+  "L1Residual",
   "UncertaintyAux3",
   "UncertaintyAux4",
 };

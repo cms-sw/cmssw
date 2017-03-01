@@ -1,4 +1,4 @@
-#ifndef DataMixingEcalDigiWorkerProd_h
+#ifndef SimDataMixingEcalDigiWorkerProd_h
 #define SimDataMixingEcalDigiWorkerProd_h
 
 /** \class DataMixingEcalDigiWorkerProd
@@ -62,6 +62,7 @@ namespace edm
 
     void beginRun(const edm::EventSetup& ES);
     void initializeEvent(const edm::Event &e, const edm::EventSetup& ES);
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup);
 
     private:
       // data specifiers
@@ -88,7 +89,6 @@ namespace edm
       const double m_peToABarrel;
       const double m_peToAEndcap;
 
-
       EcalDigiProducer* myEcalDigitizer_;
       EBSignalGenerator theEBSignalGenerator;
       EESignalGenerator theEESignalGenerator;
@@ -99,4 +99,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingEcalDigiWorkerProd_h

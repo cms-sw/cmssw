@@ -34,7 +34,7 @@ class PFEGammaFilters {
 		  const edm::ParameterSet& ele_protectionsForJetMET
 		  );
   
-  ~PFEGammaFilters(){delete ele_iso_mvaID_;};
+  ~PFEGammaFilters(){};
   
   bool passPhotonSelection(const reco::Photon &);
   bool passElectronSelection(const reco::GsfElectron &, 
@@ -45,7 +45,7 @@ class PFEGammaFilters {
   bool isElectronSafeForJetMET(const reco::GsfElectron &, 
 			       const reco::PFCandidate &,
 			       const reco::Vertex &,
-			       bool lockTracks);
+			       bool& lockTracks);
 
   bool isPhotonSafeForJetMET(const reco::Photon &, 
 			     const reco::PFCandidate &);
@@ -54,7 +54,7 @@ class PFEGammaFilters {
 
  private:
 
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   // Photon selections
   float ph_Et_;
@@ -71,8 +71,6 @@ class PFEGammaFilters {
   float ele_iso_mva_ee_;
   float ele_iso_combIso_eb_;
   float ele_iso_combIso_ee_;
-  std::string ele_iso_mva_weightFile_;
-  ElectronMVAEstimator *ele_iso_mvaID_;
   float ele_noniso_mva_;
   unsigned int ele_missinghits_;
   //std::vector<double> ele_protectionsForJetMET_; // replacement below

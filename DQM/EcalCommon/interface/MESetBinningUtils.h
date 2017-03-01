@@ -44,10 +44,12 @@ namespace ecaldqm
       kCrystal,
       kTriggerTower,
       kSuperCrystal,
+      kPseudoStrip,
       kTCC,
       kDCC,
       kProjEta,
       kProjPhi,
+      kRCT,
       kUser,
       kReport,
       kTrend,
@@ -55,7 +57,7 @@ namespace ecaldqm
     };
 
     enum Constants {
-      nPresetBinnings = kProjPhi + 1,
+      nPresetBinnings = kRCT + 1,
 
       nEBSMEta = 85,
       nEBSMPhi = 20,
@@ -72,8 +74,8 @@ namespace ecaldqm
 
     struct AxisSpecs {
       int nbins;
-      double low, high;
-      double* edges;
+      float low, high;
+      float* edges;
       std::string* labels;
       std::string title;
       AxisSpecs() : nbins(0), low(0.), high(0.), edges(0), labels(0), title("") {}
@@ -81,7 +83,7 @@ namespace ecaldqm
         nbins(_specs.nbins), low(_specs.low), high(_specs.high), edges(0), labels(0), title(_specs.title)
       {
         if(_specs.edges){
-          edges = new double[nbins + 1];
+          edges = new float[nbins + 1];
           for(int i(0); i <= nbins; i++) edges[i] = _specs.edges[i];
         }
         if(_specs.labels){
@@ -95,7 +97,7 @@ namespace ecaldqm
         if(labels){ delete [] labels; labels = 0; }
         nbins = _rhs.nbins; low = _rhs.low; high = _rhs.high; title = _rhs.title;
         if(_rhs.edges){
-          edges = new double[nbins + 1];
+          edges = new float[nbins + 1];
           for(int i(0); i <= nbins; i++) edges[i] = _rhs.edges[i];
         }
         if(_rhs.labels){
@@ -159,6 +161,8 @@ namespace ecaldqm
     int findBinCrystal_(ObjectType, DetId const&, int = -1);
     int findBinCrystal_(ObjectType, EcalElectronicsId const&);
     int findBinTriggerTower_(ObjectType, DetId const&);
+    int findBinPseudoStrip_(ObjectType, DetId const&);
+    int findBinRCT_(ObjectType, DetId const&);
     int findBinSuperCrystal_(ObjectType, DetId const&, int = -1);
     int findBinSuperCrystal_(ObjectType, EcalElectronicsId const&);
   }

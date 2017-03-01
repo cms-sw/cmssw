@@ -2,7 +2,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPair.h"
-#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -26,6 +25,7 @@ CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const L
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   trackerGeometry = tracker.product();
 }
+CosmicHitPairGeneratorFromLayerPair::~CosmicHitPairGeneratorFromLayerPair() {}
 void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
   const edm::EventSetup& iSetup)

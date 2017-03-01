@@ -1,38 +1,38 @@
 // LAST UPDATED 16.09.2009 ptc
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <DataFormats/GeometryVector/interface/Pi.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <string>
-#include <cmath>
 #include <iomanip> // for setw() etc.
 #include <vector>
 
-class CSCGeometryOfWires : public edm::EDAnalyzer {
+class CSCGeometryOfWires : public edm::one::EDAnalyzer<> {
 
-   public:
+public:
  
-     explicit CSCGeometryOfWires( const edm::ParameterSet& );
-      ~CSCGeometryOfWires();
+  explicit CSCGeometryOfWires( const edm::ParameterSet& );
+  ~CSCGeometryOfWires();
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endJob() override {}
  
-      const std::string& myName() { return myName_;}
+  const std::string& myName() { return myName_;}
 
-   private: 
+private: 
 
-      const int dashedLineWidth_;
-      const std::string dashedLine_;
-      const std::string myName_;
+  const int dashedLineWidth_;
+  const std::string dashedLine_;
+  const std::string myName_;
 };
 
 CSCGeometryOfWires::CSCGeometryOfWires( const edm::ParameterSet& iConfig )

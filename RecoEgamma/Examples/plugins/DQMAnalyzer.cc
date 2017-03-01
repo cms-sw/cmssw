@@ -768,7 +768,7 @@ DQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //fbrem
 
-    h_ele_mva->Fill(gsfIter->mva()) ;
+    h_ele_mva->Fill(gsfIter->mva_e_pi()) ;
     if (gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(1.) ;
     if (gsfIter->trackerDrivenSeed()) h_ele_provenance->Fill(-1.) ;
     if (gsfIter->trackerDrivenSeed()||gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(0.);

@@ -21,12 +21,12 @@ TH2F * ## TYPE ## _dR; \
 TH2F * ## TYPE ## _dPt;
 */
 
-class L1ValidatorHists{
+class L1ValidatorHists {
   public:
-    L1ValidatorHists(DQMStore *dbe);
+    L1ValidatorHists();
     ~L1ValidatorHists();
-    void Book();
-    void Normalize();
+
+    void Book(DQMStore::IBooker &);
     void Write();
 
     int NEvents;
@@ -50,8 +50,7 @@ class L1ValidatorHists{
     DECLARE_HISTS(Muon)*/
 
     MonitorElement *N[Type::Number];
-    TH1F *N_Pt[Type::Number];
-    TH1F *N_Eta[Type::Number];
+
     MonitorElement *Eff_Pt[Type::Number];
     MonitorElement *Eff_Eta[Type::Number];
     MonitorElement *TurnOn_15[Type::Number];
@@ -61,8 +60,6 @@ class L1ValidatorHists{
 
     // add the rest...
     //TH2F *ETM_Delta, *ETT_Delta, *HTM_Delta, *HTT_Delta;
-
-    DQMStore *_dbe;
 
     void Fill(int, const reco::LeafCandidate *, const reco::LeafCandidate *);
     void FillNumber(int, int);

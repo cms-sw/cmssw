@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolationExtra.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
@@ -29,13 +30,15 @@ namespace spr{
 	const GlobalPoint point2(info2.trkGlobPosAtEcal.x(),info2.trkGlobPosAtEcal.y(),info2.trkGlobPosAtEcal.z());
 
 	if (info2.isGoodEcal ) {
-	  if (std::abs(point2.eta())<1.479) {
+	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = gEB->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if (!spr::chargeIsolation(anyCell,theNavigator,ieta, iphi)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = gEE->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if(!spr::chargeIsolation(anyCell,theNavigator,ieta, iphi)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
@@ -98,13 +101,15 @@ namespace spr{
 	const GlobalPoint point2(info2.trkGlobPosAtEcal.x(),info2.trkGlobPosAtEcal.y(),info2.trkGlobPosAtEcal.z());
 
 	if (info2.isGoodEcal ) {
-	  if (std::abs(point2.eta())<1.479) {
+	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = barrelGeom->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EB cell " << (EBDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = endcapGeom->getClosestCell(point2);
+	    if (debug) std::cout << "chargeIsolation:: EE cell " << (EEDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
@@ -152,6 +157,7 @@ namespace spr{
 
 	if (info2.isGoodHcal ) {
 	  const DetId anyCell = gHB->getClosestCell(point2);
+	  if (debug) std::cout << "chargeIsolation:: HCAL cell " << (HcalDetId)(anyCell) << " for pt " << pTrack2->p() << std::endl;
 	  if (!spr::chargeIsolation(anyCell,vdets)) {	
 	    if(maxNearP<pTrack2->p())  maxNearP=pTrack2->p();
 	  }

@@ -14,8 +14,9 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -88,9 +89,10 @@ void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const 
   iEvent.getByToken(hbheRecHitProducer_, hbheRecHitHandle);
   const HBHERecHitCollection* hbheRecHitCollection = hbheRecHitHandle.product();
   
-  edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  iSetup.get<HcalChannelQualityRcd>().get(hcalChStatus);
-  
+  edm::ESHandle<HcalChannelQuality> hcalChStatusHandle;    
+  iSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatusHandle );
+  const HcalChannelQuality* hcalChStatus = hcalChStatusHandle.product();
+
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComp;
   iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComp);
 
@@ -110,7 +112,7 @@ void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const 
   iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
   const CaloGeometry* caloGeom = caloGeomHandle.product();
   
-  reco::RecoEcalCandidateIsolationMap isoMap;
+  reco::RecoEcalCandidateIsolationMap isoMap(recoEcalCandHandle);
   
    
   for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
@@ -121,7 +123,7 @@ void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const 
     if(doEtSum_) {
       isol = isolAlgo_->getEtSum(recoEcalCandRef->superCluster()->eta(),
 				 recoEcalCandRef->superCluster()->phi(),hbheRecHitCollection,caloGeom,
-				 hcalSevLvlComp.product(),hcalChStatus.product());      
+				 hcalSevLvlComp.product(),hcalChStatus);      
      
       if (doRhoCorrection_) {
 	if (fabs(recoEcalCandRef->superCluster()->eta()) < 1.442) 
@@ -132,14 +134,13 @@ void EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const 
     } else {
       isol = isolAlgo_->getESum(recoEcalCandRef->superCluster()->eta(),recoEcalCandRef->superCluster()->phi(),
 				hbheRecHitCollection,caloGeom,
-				hcalSevLvlComp.product(),hcalChStatus.product());      
+				hcalSevLvlComp.product(),hcalChStatus);      
     }
 
     isoMap.insert(recoEcalCandRef, isol);   
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
-  iEvent.put(isolMap);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
 
 }
 

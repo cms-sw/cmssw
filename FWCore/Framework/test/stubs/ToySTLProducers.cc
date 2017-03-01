@@ -33,21 +33,36 @@ namespace edmtest {
   public:
     explicit IntVectorProducer(edm::ParameterSet const& p) :
       value_(p.getParameter<int>("ivalue")),
-      count_(p.getParameter<int>("count")) {
+      count_(p.getParameter<int>("count")),
+      delta_(p.getParameter<int>("delta")) {
       produces<std::vector<int> >();
     }
     virtual ~IntVectorProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue", 0);
+      desc.add<int>("count", 0);
+      desc.add<int>("delta", 0);
+      descriptions.addDefault(desc);
+    }
   private:
     int    value_;
     size_t count_;
+    int delta_;
   };
 
   void
   IntVectorProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
-    e.put(p);
+    auto p = std::make_unique<std::vector<int>>(count_, value_);
+    if(delta_ != 0) {
+      for(unsigned int i = 0; i < p->size(); ++i) {
+        p->at(i) = value_ + i * delta_;
+      }
+    }
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -68,11 +83,9 @@ namespace edmtest {
   void
   IntVectorSetProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::vector<int> > p(new std::vector<int>(1,11));
-    e.put(p);
+    e.put(std::make_unique<std::vector<int>>(1, 11));
 
-    std::auto_ptr<std::set<int> > apset(new std::set<int>);
-    e.put(apset);
+    e.put(std::make_unique<std::set<int>>());
   }
 
   //--------------------------------------------------------------------
@@ -96,8 +109,7 @@ namespace edmtest {
   void
   IntListProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::list<int> > p(new std::list<int>(count_, value_));
-    e.put(p);
+    e.put(std::make_unique<std::list<int>>(count_, value_));
   }
 
   //--------------------------------------------------------------------
@@ -121,8 +133,7 @@ namespace edmtest {
   void
   IntDequeProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
-    e.put(p);
+    e.put(std::make_unique<std::deque<int>>(count_, value_));
   }
 
   //--------------------------------------------------------------------
@@ -146,9 +157,9 @@ namespace edmtest {
   void
   IntSetProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::set<int> > p(new std::set<int>());
+    auto p = std::make_unique<std::set<int>>();
     for(int i = start_; i < stop_; ++i) p->insert(i);
-    e.put(p);
+    e.put(std::move(p));
   }
 
 }

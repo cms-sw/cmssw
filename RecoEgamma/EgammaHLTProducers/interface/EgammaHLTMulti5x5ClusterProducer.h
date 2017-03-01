@@ -27,7 +27,7 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTMulti5x5ClusterProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

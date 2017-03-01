@@ -5,34 +5,48 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 class GeneralTracksImporter : public BlockElementImporterBase {
 public:
   GeneralTracksImporter(const edm::ParameterSet& conf,
 		    edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
-    _src(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
-    _muons(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
-    _DPtovPtCut(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
-    _NHitCut(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
-    _useIterTracking(conf.getParameter<bool>("useIterativeTracking")),
-    _cleanBadConvBrems(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
-    _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
+    src_(sumes.consumes<reco::PFRecTrackCollection>(conf.getParameter<edm::InputTag>("source"))),
+    muons_(sumes.consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
+    DPtovPtCut_(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
+    NHitCut_(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
+    useTiming_(conf.existsAs<edm::InputTag>("timeValueMap")),
+    srcTime_(useTiming_ ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+    srcTimeError_(useTiming_ ? sumes.consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("timeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
+    useIterTracking_(conf.getParameter<bool>("useIterativeTracking")),
+    cleanBadConvBrems_(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
+    debug_(conf.getUntrackedParameter<bool>("debug",false)) {
+    
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo());
+    pfmu_->setParameters(conf);
+    
+  }
   
   void importToBlock( const edm::Event& ,
 		      ElementList& ) const override;
 
 private:
-  bool goodPtResolution( const reco::TrackRef& trackref) const;
   int muAssocToTrack( const reco::TrackRef& trackref,
 		      const edm::Handle<reco::MuonCollection>& muonh) const;
 
-  edm::EDGetTokenT<reco::PFRecTrackCollection> _src;
-  edm::EDGetTokenT<reco::MuonCollection> _muons;
-  const std::vector<double> _DPtovPtCut;
-  const std::vector<unsigned> _NHitCut;
-  const bool _useIterTracking,_cleanBadConvBrems,_debug;
+  edm::EDGetTokenT<reco::PFRecTrackCollection> src_;
+  edm::EDGetTokenT<reco::MuonCollection> muons_;
+  const std::vector<double> DPtovPtCut_;
+  const std::vector<unsigned> NHitCut_;
+  const bool useTiming_;
+  edm::EDGetTokenT<edm::ValueMap<float>> srcTime_, srcTimeError_;
+  const bool useIterTracking_,cleanBadConvBrems_,debug_;
+
+  std::unique_ptr<PFMuonAlgo> pfmu_;
+
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -44,15 +58,20 @@ importToBlock( const edm::Event& e,
 	       BlockElementImporterBase::ElementList& elems ) const {
   typedef BlockElementImporterBase::ElementList::value_type ElementType;  
   edm::Handle<reco::PFRecTrackCollection> tracks;
-  e.getByToken(_src,tracks);
+  e.getByToken(src_,tracks);
    edm::Handle<reco::MuonCollection> muons;
-  e.getByToken(_muons,muons);
+  e.getByToken(muons_,muons);
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
   reco::MuonRef muonref;
+  edm::Handle<edm::ValueMap<float>> timeH, timeErrH;
+  if (useTiming_) {
+    e.getByToken(srcTime_, timeH);
+    e.getByToken(srcTimeError_, timeErrH);
+  }
   // remove converted brems with bad pT resolution if requested
   // this reproduces the old behavior of PFBlockAlgo
-  if( _cleanBadConvBrems ) {
+  if( cleanBadConvBrems_ ) {
     auto itr = elems.begin();
     while( itr != elems.end() ) {
       if( (*itr)->type() == reco::PFBlockElement::TRACK ) {
@@ -68,7 +87,7 @@ importToBlock( const edm::Event& e,
 	if( trkel->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) &&
 	    cRef.size() == 0 && dvRef.isNull() && v0Ref.isNull() ) {
 	  // if the Pt resolution is bad we kill this element
-	  if( !goodPtResolution( trkel->trackRef() ) ) {
+	  if( !PFTrackAlgoTools::goodPtResolution( trkel->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_ ) ) {
 	    itr = elems.erase(itr);
 	    continue;
 	  }
@@ -120,104 +139,23 @@ importToBlock( const edm::Event& e,
     bool thisIsAPotentialMuon = false;
     if( muId != -1 ) {
       muonref= reco::MuonRef( muons, muId );
-      thisIsAPotentialMuon = ( PFMuonAlgo::isLooseMuon(muonref) || 
-			       PFMuonAlgo::isMuon(muonref)         );
+      thisIsAPotentialMuon = ( (pfmu_->hasValidTrack(muonref,true)&&PFMuonAlgo::isLooseMuon(muonref)) || 
+			       (pfmu_->hasValidTrack(muonref,false)&&PFMuonAlgo::isMuon(muonref)));
     }
-    if(thisIsAPotentialMuon || goodPtResolution( pftrackref->trackRef() ) ) {
+    if(thisIsAPotentialMuon || PFTrackAlgoTools::goodPtResolution( pftrackref->trackRef(), DPtovPtCut_, NHitCut_, useIterTracking_, debug_ ) ) {
       trkElem = new reco::PFBlockElementTrack( pftrackref );
-      if (thisIsAPotentialMuon && _debug) {
+      if (thisIsAPotentialMuon && debug_) {
 	std::cout << "Potential Muon P " <<  pftrackref->trackRef()->p() 
 		  << " pt " << pftrackref->trackRef()->p() << std::endl; 
       }
       if( muId != -1 ) trkElem->setMuonRef(muonref);
+      if ( useTiming_ ) {
+        trkElem->setTime( (*timeH)[pftrackref->trackRef()], (*timeErrH)[pftrackref->trackRef()] );
+      }
       elems.emplace_back(trkElem);
     }
   }
   elems.shrink_to_fit();
-}
-
-bool GeneralTracksImporter::
-goodPtResolution( const reco::TrackRef& trackref) const {
-
-  const double P = trackref->p();
-  const double Pt = trackref->pt();
-  const double DPt = trackref->ptError();
-  const unsigned int NHit = 
-    trackref->hitPattern().trackerLayersWithMeasurement();
-  const unsigned int NLostHit = 
-    trackref->hitPattern().trackerLayersWithoutMeasurement();
-  const unsigned int LostHits = trackref->numberOfLostHits();
-  const double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
-
-  // iteration 1,2,3,4,5 correspond to algo = 1/4,5,6,7,8,9
-  unsigned int Algo = 0; 
-  switch (trackref->algo()) {
-  case reco::TrackBase::ctf:
-  case reco::TrackBase::iter0:
-  case reco::TrackBase::iter1:
-  case reco::TrackBase::iter2:
-    Algo = 0;
-    break;
-  case reco::TrackBase::iter3:
-    Algo = 1;
-    break;
-  case reco::TrackBase::iter4:
-    Algo = 2;
-    break;
-  case reco::TrackBase::iter5:
-    Algo = 3;
-    break;
-  case reco::TrackBase::iter6:
-    Algo = 4;
-    break;
-  default:
-    Algo = _useIterTracking ? 5 : 0;
-    break;
-  }
-
-  // Protection against 0 momentum tracks
-  if ( P < 0.05 ) return false;
-
-  // Temporary : Reject all tracking iteration beyond 5th step. 
-  if ( Algo > 4 ) return false;
- 
-  if (_debug) std::cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
-		   << Pt << " DPt = " << DPt << std::endl;
-  if ( ( _DPtovPtCut[Algo] > 0. && 
-	 DPt/Pt > _DPtovPtCut[Algo]*sigmaHad ) || 
-       NHit < _NHitCut[Algo] ) { 
-    // (Algo >= 3 && LostHits != 0) ) {
-    if (_debug) std::cout << " PFBlockAlgo: skip badly measured track"
-		     << ", P = " << P 
-		     << ", Pt = " << Pt 
-		     << " DPt = " << DPt 
-		     << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-		     << ", Algo = " << Algo
-		     << std::endl;
-    if (_debug) std::cout << " cut is DPt/Pt < " << _DPtovPtCut[Algo] * sigmaHad << std::endl;
-    if (_debug) std::cout << " cut is NHit >= " << _NHitCut[Algo] << std::endl;
-    /*
-    std::cout << "Track REJECTED : ";
-    std::cout << ", P = " << P 
-	      << ", Pt = " << Pt 
-	      << " DPt = " << DPt 
-	      << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-	      << ", Algo = " << Algo
-	      << std::std::endl;
-    */
-    return false;
-  }
-
-  /*
-  std::cout << "Track Accepted : ";
-  std::cout << ", P = " << P 
-       << ", Pt = " << Pt 
-       << " DPt = " << DPt 
-       << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-       << ", Algo = " << Algo
-       << std::std::endl;
-  */
-  return true;
 }
 
 int GeneralTracksImporter::

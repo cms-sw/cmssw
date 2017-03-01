@@ -15,28 +15,22 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Math/interface/normalizedPhi.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include <algorithm>
 #include <iterator>
 
 // local convenience functions
-namespace 
-{
-bool isBPIXFED(unsigned int fed) {return fed< 32;}
-bool isFPIXFED(unsigned int fed) {return fed>=32;}
-bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
-bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
-
-inline std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m)
-{
-  s<< (isBPIXModule(m.id) ? "BPIX " : "FPIX ") <<m.id<<" "<<m.fed<<"   "<<m.phi<<"   "<<m.x<<" "<<m.y<<" "<<m.z<<"  "<<sqrt(std::pow(m.x,2)+std::pow(m.y,2));
-  return s;
+namespace {
+  bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
+  bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
+  
+  inline std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m) {
+    s<< (isBPIXModule(m.id) ? "BPIX " : "FPIX ") <<m.id<<" "<<m.fed<<"   "<<m.phi<<"   "<<m.x<<" "<<m.y<<" "<<m.z<<"  "<<sqrt(std::pow(m.x,2)+std::pow(m.y,2));
+    return s;
+  }
 }
-}
-
-
 
 PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm::ConsumesCollector &&iC)
 {
@@ -54,6 +48,7 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm:
     edm::LogError("PixelUnpackingRegions")<<"Not the same size of config parameters vectors!\n"
         <<"   inputs "<<inputs_.size()<<"  deltaPhi "<<dPhi_.size() <<"  maxZ "<< maxZ_.size();
   }
+
 }
 
 
@@ -103,6 +98,16 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     // get the TrackerGeom
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
+    // switch on the phase1 
+    unsigned int fedMin = FEDNumbering::MINSiPixelFEDID; // phase0
+    unsigned int fedMax = FEDNumbering::MAXSiPixelFEDID;
+    if( (geom->isThere(GeomDetEnumerators::P1PXB)) && 
+	(geom->isThere(GeomDetEnumerators::P1PXEC)) ) {
+      fedMin = FEDNumbering::MINSiPixeluTCAFEDID; // phase1
+      fedMax = FEDNumbering::MAXSiPixeluTCAFEDID;
+    }
+
+
     phiBPIX_.clear();
     phiFPIXp_.clear();
     phiFPIXm_.clear();
@@ -124,13 +129,13 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
       m.y = (*it)->position().y();
       m.z = (*it)->position().z();
 
-      m.phi = normalizedPhi( (*it)->position().phi() ); // ensure [-pi,+pi]
+      m.phi = (*it)->position().phi();
 
       m.id = (*it)->geographicalId().rawId();
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = cabling_->pathToDetUnit(m.id);
 
       m.fed = path2det[0].fed;
-      assert(m.fed<40);
+      assert( (m.fed<=fedMax) && (m.fed>=fedMin) );
 
       if (subdet == PixelSubdetector::PixelBarrel)
       {
@@ -155,7 +160,7 @@ void PixelUnpackingRegions::addRegion(Region &r)
 {
   ++nreg_;
 
-  float phi = normalizedPhi(r.v.phi());  // ensure [-pi,+pi]
+  float phi = r.v.phi();
 
   Module lo(phi - r.dPhi);
   Module hi(phi + r.dPhi);
@@ -222,16 +227,6 @@ bool PixelUnpackingRegions::mayUnpackFED(unsigned int fed_n) const
 {
   if (feds_.count(fed_n)) return true;
   return false;
-}
-
-unsigned int PixelUnpackingRegions::nBarrelFEDs() const
-{
-  return std::count_if(feds_.begin(), feds_.end(), isBPIXFED );
-}
-
-unsigned int PixelUnpackingRegions::nForwardFEDs() const
-{
-  return std::count_if(feds_.begin(), feds_.end(), isFPIXFED );
 }
 
 

@@ -10,7 +10,7 @@
 namespace edm { class Event; class EventSetup; class ParameterSet; }
 
 
-class SeedCombiner : public edm::stream::EDProducer<> {
+class dso_hidden SeedCombiner : public edm::stream::EDProducer<> {
 public:
 
   SeedCombiner(const edm::ParameterSet& cfg);

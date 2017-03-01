@@ -1,4 +1,5 @@
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -17,7 +18,7 @@ double GeometricAnnealing::weight ( double chi2 ) const
 {
   double mphi = phi ( chi2 );
   long double newtmp = mphi / ( mphi + phi ( theChi2cut ) );
-  if ( std::isinf(newtmp) )
+  if ( edm::isNotFinite(newtmp) )
   {
     if ( chi2 < theChi2cut ) newtmp=1.;
     else newtmp=0.;

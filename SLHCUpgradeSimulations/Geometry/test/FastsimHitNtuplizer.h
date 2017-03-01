@@ -6,7 +6,8 @@
  *
  ************************************************************/
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,7 +15,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
@@ -34,16 +34,16 @@ class FastsimHitNtuplizer : public edm::EDAnalyzer
   
   explicit FastsimHitNtuplizer(const edm::ParameterSet& conf);
   virtual ~FastsimHitNtuplizer();
-  virtual void beginJob(const edm::EventSetup& es);
-  virtual void endJob();
+  virtual void beginRun(const edm::Run&, const edm::EventSetup& es);
+  virtual void endRun(const edm::Run&, const edm::EventSetup& es);
   virtual void analyze(const edm::Event& e, const edm::EventSetup& es);
 
  protected:
 
   void fillEvt(const edm::Event& );
-  void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
+  void fillSRecHit(const int subid, const FastTrackerRecHit & recHit,
                    const GeomDet* theGeom);
-  void fillPRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
+  void fillPRecHit(const int subid, const FastTrackerRecHit & recHit,
                    const GeomDet* PixGeom);
 
  private:

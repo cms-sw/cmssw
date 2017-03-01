@@ -20,9 +20,10 @@ class SiStripCcu {
   
   /** */
   ~SiStripCcu() {;}
-  
-  /** */
+ 
+   /** */
   inline const std::vector<SiStripModule>& modules() const;
+  inline std::vector<SiStripModule>& modules();
 
   /** */
   inline const uint16_t& ccuAddr() const;
@@ -46,6 +47,7 @@ class SiStripCcu {
 // ---------- inline methods ----------
 
 const std::vector<SiStripModule>& SiStripCcu::modules() const { return modules_; }
+std::vector<SiStripModule>& SiStripCcu::modules() { return modules_; }
 const uint16_t& SiStripCcu::ccuAddr() const { return ccuAddr_; }
 
 #endif // CalibTracker_SiStripObjects_SiStripCcu_H

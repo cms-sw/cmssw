@@ -12,7 +12,7 @@
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
-class MultipleScatteringUpdator GCC11_FINAL : public MaterialEffectsUpdator 
+class MultipleScatteringUpdator final : public MaterialEffectsUpdator 
 {
   virtual dso_export MultipleScatteringUpdator* clone() const {
     return new MultipleScatteringUpdator(*this);
@@ -23,7 +23,7 @@ public:
   /// If ptMin > 0, then the rms muliple scattering angle will be calculated taking into account the uncertainty
   /// in the reconstructed track momentum. (By default, it is neglected). However, a lower limit on the possible
   /// value of the track Pt will be applied at ptMin, to avoid the rms multiple scattering becoming too big.
-  MultipleScatteringUpdator(double mass, double ptMin=-1. ) :
+  MultipleScatteringUpdator(float mass, float ptMin=-1. ) :
     MaterialEffectsUpdator(mass),
     thePtMin(ptMin) {}
   /// destructor
@@ -36,7 +36,7 @@ public:
 
 private:  
 
-  double thePtMin;
+  float thePtMin;
 
 };
 

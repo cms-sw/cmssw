@@ -141,7 +141,7 @@ void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          hNumChambers[i]->Fill(muon->numberOfChambers());
          hNumMatches[i]->Fill(muon->numberOfMatches(Muon::SegmentAndTrackArbitration));
-         hNumChambersNoRPC[i]->Fill(muon->numberOfChambersNoRPC());
+         hNumChambersNoRPC[i]->Fill(muon->numberOfChambersCSCorDT());
 
          // by station
          for(int station = 0; station < 4; ++station)

@@ -10,12 +10,12 @@ class csvReporter(object):
     def writeRow(self,row):
         try:
             self.__writer.writerow(row)
-        except csv.Error,e:
+        except csv.Error as e:
             sys.exit('file %s: %s'%(self.__filename,e))
     def writeRows(self,rows):
         try:
             self.__writer.writerows(rows)
-        except csv.Error,e:
+        except csv.Error as e:
             sys.exit('file %s: %s'%(self.__filename,e))
     def close(self):
         self.__file.close()

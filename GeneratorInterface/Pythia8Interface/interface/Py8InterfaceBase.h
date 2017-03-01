@@ -6,9 +6,14 @@
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
+
+#include "HepMC/IO_AsciiParticles.h"
 
 #include <Pythia8/Pythia.h>
-#include <Pythia8/Pythia8ToHepMC.h>
+#include <Pythia8Plugins/HepMC2.h>
+
+class EvtGenDecays;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -16,7 +21,7 @@ namespace CLHEP {
 
 namespace gen {
 
-   class Py8InterfaceBase {
+   class Py8InterfaceBase : public BaseHadronizer {
 
       public:
          
@@ -41,12 +46,25 @@ namespace gen {
 	 std::auto_ptr<Pythia8::Pythia> fMasterGen;
 	 std::auto_ptr<Pythia8::Pythia> fDecayer;
 	 HepMC::Pythia8ToHepMC          toHepMC;
-	 ParameterCollector	        fParameters;
+// 	 ParameterCollector	        fParameters;
+         edm::ParameterSet	        fParameters;
 	 
 	 unsigned int                   pythiaPylistVerbosity;
          bool                           pythiaHepMCVerbosity;
+         bool                           pythiaHepMCVerbosityParticles;
 	 unsigned int                   maxEventsToPrint;
+         HepMC::IO_AsciiParticles*      ascii_io;
 
+         // EvtGen plugin
+         //
+         bool useEvtGen;
+         std::auto_ptr<EvtGenDecays> evtgenDecays;
+         std::string evtgenDecFile;
+         std::string evtgenPdlFile;
+         std::vector<std::string> evtgenUserFiles;
+         
+         std::string slhafile_;
+         
       private:
 
          P8RndmEngine p8RndmEngine_;

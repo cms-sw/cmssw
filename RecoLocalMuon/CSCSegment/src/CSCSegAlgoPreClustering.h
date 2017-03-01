@@ -1,5 +1,5 @@
 #ifndef CSCSegment_CSCSegAlgoPreClustering_h
-#define CSCSegAlgoPreClustering_h
+#define CSCSegment_CSCSegAlgoPreClustering_h
 /**
  * \file CSCSegAlgoPreClustering.h
  *

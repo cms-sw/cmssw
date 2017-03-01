@@ -1,8 +1,8 @@
 #ifndef CondCore_ESSources_DataProxy_H
 #define CondCore_ESSources_DataProxy_H
 //#include <iostream>
+#include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
@@ -20,9 +20,9 @@ template< class RecordT, class DataT , typename Initializer=cond::DefaultInitial
 class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   public:
   typedef DataProxy<RecordT,DataT> self;
-    typedef boost::shared_ptr<cond::persistency::PayloadProxy<DataT> > DataP;
+    typedef std::shared_ptr<cond::persistency::PayloadProxy<DataT> > DataP;
 
-    explicit DataProxy(boost::shared_ptr<cond::persistency::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
+    explicit DataProxy(std::shared_ptr<cond::persistency::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
  
   }
   //virtual ~DataProxy();
@@ -44,14 +44,14 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
     // m_data->invalidateCache();
   }
   virtual void invalidateTransientCache() {
-    m_data->invalidateCache();
+    m_data->invalidateTransientCache();
   }
   private:
   //DataProxy(); // stop default
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
 
-  boost::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_data;
+  std::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_data;
   Initializer m_initializer;
 };
 
@@ -62,8 +62,8 @@ namespace cond {
    */
   class DataProxyWrapperBase {
   public:
-    typedef boost::shared_ptr<cond::persistency::BasePayloadProxy> ProxyP;
-    typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
+    typedef std::shared_ptr<cond::persistency::BasePayloadProxy> ProxyP;
+    typedef std::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
     
     // limitation of plugin manager...
     typedef std::pair< std::string, std::string> Args;
@@ -76,7 +76,7 @@ namespace cond {
     DataProxyWrapperBase();
     explicit DataProxyWrapperBase(std::string const & il);
     // late initialize (to allow to load ALL library first)
-    virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
+    virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
 			  std::string const & il, std::string const & cs)=0;
 
     void addInfo(std::string const & il, std::string const & cs, std::string const & tag);
@@ -104,7 +104,7 @@ class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
   typedef ::DataProxy<RecordT,DataT, Initializer> DataProxy;
   typedef cond::persistency::PayloadProxy<DataT> PayProxy;
-  typedef boost::shared_ptr<PayProxy> DataP;
+  typedef std::shared_ptr<PayProxy> DataP;
   
   
   DataProxyWrapper(cond::persistency::Session& session,
@@ -127,11 +127,11 @@ public:
   }
 
   // late initialize (to allow to load ALL library first)
-  virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
+  virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
 			std::string const & il, std::string const & cs) {
     m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)(0) : m_source.c_str() ) );
     m_proxy->setUp( session );
-    m_proxy->loadTag( tag);
+    m_proxy->loadTag( tag, snapshotTime );
     m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
   }
@@ -143,7 +143,7 @@ public:
 private:
   std::string m_source;
   edm::eventsetup::TypeTag m_type;
-  boost::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_proxy;
+  std::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_proxy;
   edmProxyP m_edmProxy;
 
 };

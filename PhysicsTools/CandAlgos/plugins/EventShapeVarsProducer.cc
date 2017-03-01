@@ -22,8 +22,7 @@ EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg)
 
 void put(edm::Event& evt, double value, const char* instanceName)
 {
-  std::auto_ptr<double> eventShapeVarPtr(new double(value));
-  evt.put(eventShapeVarPtr, instanceName);
+  evt.put(std::make_unique<double>(value), instanceName);
 }
 
 void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&)

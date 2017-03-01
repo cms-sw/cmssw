@@ -40,10 +40,10 @@ process.ep = cms.EndPath(process.output)
 
 analysisProcess = cms.Process("TESTANALYSIS")
 
-process.subProcess = cms.SubProcess(analysisProcess,
+process.addSubProcess(cms.SubProcess(analysisProcess,
    # Optional SelectEvents parameter can go here.
    #outputCommands = cms.untracked.vstring("drop *")
-   outputCommands = cms.untracked.vstring("keep *", "drop *_Thing_*_TESTPROD")
+   outputCommands = cms.untracked.vstring("keep *", "drop *_Thing_*_TESTPROD"))
 )
 
 # Configuration file for PoolInputTest

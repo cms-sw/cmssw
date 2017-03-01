@@ -17,14 +17,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // to retreive hits
 #include "SimG4CMS/FP420/interface//FP420NumberingScheme.h"
-//#include "SimG4CMS/Calo/interface/CaloG4Hit.h"
-//#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
 #include "SimG4CMS/FP420/interface//FP420G4HitCollection.h"
-//#include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 #include "SimG4CMS/FP420/interface/FP420Test.h"
-
-//#include "Utilities/GenUtil/interface/CMSexception.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
 
 // G4 stuff
 #include "G4SDManager.hh"
@@ -35,13 +29,9 @@
 #include "G4UserEventAction.hh"
 #include "G4TransportationManager.hh"
 #include "G4ProcessManager.hh"
-//#include "G4EventManager.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <stdio.h>
-//#include <gsl/gsl_fit.h>
-
 
 
 //================================================================
@@ -77,7 +67,6 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
   }
   // Initialization:
 
-  theFP420NumberingScheme = new FP420NumberingScheme();
   pn0 = 6;
   sn0 = 3;
   rn00 = 7;
@@ -130,11 +119,8 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
   }
 }
 
-
-
 FP420Test::~FP420Test() {
   //  delete UserNtuples;
-  delete theFP420NumberingScheme;
 
   TFile fp420OutputFile("newntfp420.root","RECREATE");
   std::cout << "FP420 output root file has been created";
@@ -150,14 +136,8 @@ FP420Test::~FP420Test() {
         // Write histograms to file
         TheHistManager->WriteToFile(fOutputFile,fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "FP420Test Destructor  -------->  End of FP420Test : "
-      << std::cout << std::endl; 
+    std::cout << std::endl << "FP420Test Destructor  -------->  End of FP420Test : " << std::endl;
   }
-
-  std::cout<<"FP420Test: End of process"<<std::endl;
-
-
-
 }
 
 //================================================================
@@ -339,66 +319,6 @@ void Fp420AnalysisHistManager::StoreWeights()
 
 //================================================================
 
-/*
-ObserveBeginOfRun::ObserveBeginOfRun() {  }
-
-void ObserveBeginOfRun::update(const BeginOfRun *) {
-    std::cout <<" BeginOfRun " << std::endl;
-  // const G4Run * r = (*run)(); 
-  // recover G4 pointer if wanted
-  // user monitoring code... 
-}
-
-ObserveEndOfRun::ObserveEndOfRun() {  }
-
-void ObserveEndOfRun::update(const EndOfRun *) {
-  // const G4Run * r = (*run)();
-  // recover G4 pointer if wanted
-  // user monitoring code...
-}
-
-ObserveBeginOfEvent::ObserveBeginOfEvent() {  }
-
-void ObserveBeginOfEvent::update(const BeginOfEvent * evt) {
-    std::cout <<" BeginOfEvent " << std::endl;
- // const G4Event * e = (*evt)();
- // recover G4 pointer if wanted
-  // user monitoring code...
-}
-
-ObserveEndOfEvent::ObserveEndOfEvent() {  }
-
-void ObserveEndOfEvent::update(const EndOfEvent *) {
-  // const G4Event * e = (*evt)(); 
-  // recover G4 pointer if wanted
-  // user monitoring code... 
-
-//    std::cout << "ObserveEndOfEvent:  start   " << std::endl;
-
-}
-
-ObserveBeginOfTrack::ObserveBeginOfTrack() {  }
-
-void ObserveBeginOfTrack::update(const BeginOfTrack * trk) {
-  // const G4Track * t = (*trk)(); 
-  // recover G4 pointer if wanted
-  // user monitoring code...
-}
-
-ObserveEndOfTrack::ObserveEndOfTrack() {  }
-
-void ObserveEndOfTrack::update(const EndOfTrack *) {
-  // const G4Track * t = (*trk)(); 
-  // recover G4 pointer if wanted
-  // user monitoring code... 
-}
-
-ObserveStep::ObserveStep() {  }
-
-void ObserveStep::update(const G4Step *) {
-  // user monitoring code... 
-}
-*/
 // using several observers
 
 //==================================================================== per JOB
@@ -415,10 +335,7 @@ void FP420Test::update(const BeginOfRun * run) {
  std::cout << std::endl << "FP420Test:: Begining of Run"<< std::endl; 
 }
 
-
 void FP420Test::update(const EndOfRun * run) {;}
-
-
 
 //=================================================================== per EVENT
 void FP420Test::update(const BeginOfEvent * evt) {
@@ -444,8 +361,6 @@ void FP420Test::update(const BeginOfTrack * trk) {
   }
 }
 
-
-
 //=================================================================== per EndOfTrack
 void FP420Test::update(const EndOfTrack * trk) {
   itrk = (*trk)()->GetTrackID();
@@ -463,8 +378,8 @@ void FP420Test::update(const EndOfTrack * trk) {
   G4ThreeVector   vert_pos  = (*trk)()->GetVertexPosition(); // vertex ,where this track was created
   
 //    float eta = 0.5 * log( (1.+vert_mom.z()) / (1.-vert_mom.z()) );
-    float phi = atan2(vert_mom.y(),vert_mom.x());
-    if (phi < 0.) phi += twopi;
+//    float phi = atan2(vert_mom.y(),vert_mom.x());
+//    if (phi < 0.) phi += twopi;
 //    float phigrad = phi*180./pi;
 
 //      float XV = vert_pos.x(); // mm
@@ -541,17 +456,7 @@ void FP420Test::update(const EndOfTrack * trk) {
          //UserNtuples->fillg532(lastpo.y(),1.);
          //UserNtuples->fillg533(lastpo.z(),1.);
          }
-
-	 /*
-      float th_tr     = lastpo.theta();
-      float eta_tr    = -log(tan(th_tr/2));
-      float phi_tr    = lastpo.phi();
-      if (phi_tr < 0.) phi_tr += twopi;
-*/
-
-
   }
-
 }
 
 // ====================================================
@@ -569,7 +474,6 @@ void FP420Test::update(const G4Step * aStep) {
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*> (theTrack->GetUserInformation());
    if (trkInfo == 0) {
      std::cout << "FP420Test on aStep: No trk info !!!! abort " << std::endl;
-     //     throw Genexception("FP420Test:FP420Test on aStep: cannot get trkInfo");
    } 
   G4int         id             = theTrack->GetTrackID();
   G4String       particleType   = theTrack->GetDefinition()->GetParticleName();   //   !!!
@@ -612,16 +516,17 @@ void FP420Test::update(const G4Step * aStep) {
   G4VPhysicalVolume* currentPV     = preStepPoint->GetPhysicalVolume();
   G4String         prename       = currentPV->GetName();
 
-const G4VTouchable*  pre_touch    = preStepPoint->GetTouchable();
-     int          pre_levels   = detLevels(pre_touch);
+  const G4VTouchable*  pre_touch    = preStepPoint->GetTouchable();
+  int          pre_levels   = detLevels(pre_touch);
 
-//     G4String      pre_name1    = detName(pre_touch, pre_levels, 1);
-//     G4String      pre_name2    = detName(pre_touch, pre_levels, 2);
-//     G4String      pre_name3    = detName(pre_touch, pre_levels, 3);
-        G4String name1[20]; int copyno1[20];
-      if (pre_levels > 0) {
-        detectorLevel(pre_touch, pre_levels, copyno1, name1);
-      }
+  G4String name1[20]; int copyno1[20];
+  for(int i=0; i<20; ++i) {
+    name1[i]   = "";
+    copyno1[i] = 0;
+  }
+  if (pre_levels > 0) {
+    detectorLevel(pre_touch, pre_levels, copyno1, name1);
+  }
 
 //  G4LogicalVolume*   lv            = currentPV->GetLogicalVolume();
 //  G4Material*       mat           = lv->GetMaterial();
@@ -956,37 +861,37 @@ void FP420Test::update(const EndOfEvent * evt) {
 
   // prim.vertex:
   G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-  if (nvertex !=1)
+  if (nvertex !=1) 
     std::cout << "FP420Test: My warning: NumberOfPrimaryVertex != 1  -->  = " << nvertex <<  std::endl;
 
-    for (int i = 0 ; i<nvertex; i++) {
-      G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-      if (avertex == 0)
-	std::cout << "FP420Test  End Of Event ERR: pointer to vertex = 0"
-	     << std::endl;
+  for (int i = 0 ; i<nvertex; i++) {
+    G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
+    if (avertex == 0)
+      std::cout << "FP420Test  End Of Event ERR: pointer to vertex = 0"
+      << std::endl;
     G4int npart = avertex->GetNumberOfParticle();
     if (npart !=1)
       std::cout << "FP420Test: My warning: NumberOfPrimaryPart != 1  -->  = " << npart <<  std::endl;
     if (npart ==0)
       std::cout << "FP420Test End Of Event ERR: no NumberOfParticle" << std::endl;
 
-    // find just primary track:                                                             track pointer: thePrim
+  // find just primary track:                                                             track pointer: thePrim
     if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
 
-       if (thePrim!=0) {
-	 // primary vertex:
-	 G4double vx=0.,vy=0.,vz=0.;
-	 vx = avertex->GetX0();
-	 vy = avertex->GetY0();
-	 vz = avertex->GetZ0();
-	 //UserNtuples->fillh01(vx);
-	 //UserNtuples->fillh02(vy);
-	 //UserNtuples->fillh03(vz);
-	 TheHistManager->GetHisto("VtxX")->Fill(vx);
-	 TheHistManager->GetHisto("VtxY")->Fill(vy);
-	 TheHistManager->GetHisto("VtxZ")->Fill(vz);
-       }
+    if (thePrim!=0) {
+      // primary vertex:
+      G4double vx=0.,vy=0.,vz=0.;
+      vx = avertex->GetX0();
+      vy = avertex->GetY0();
+      vz = avertex->GetZ0();
+      //UserNtuples->fillh01(vx);
+      //UserNtuples->fillh02(vy);
+      //UserNtuples->fillh03(vz);
+      TheHistManager->GetHisto("VtxX")->Fill(vx);
+      TheHistManager->GetHisto("VtxY")->Fill(vy);
+      TheHistManager->GetHisto("VtxZ")->Fill(vz);
     }
+  }
   // prim.vertex loop end
 
 //=========================== thePrim != 0 ================================================================================
@@ -1084,7 +989,6 @@ void FP420Test::update(const EndOfEvent * evt) {
   //   Silicon Hit collection start
     //0) if particle goes into flat beam pipe below detector:
   int varia ;   // = 0 -all; =1 - MI; =2 - noMI
-    varia = 0;
     //                      Select MI or noMI over all 3 stations
     // 1)MI:
   //     if particle goes through window into detector:
@@ -1156,8 +1060,8 @@ void FP420Test::update(const EndOfEvent * evt) {
 
 //    double th_hit    = hitPoint.theta();
 //    double eta_hit = -log(tan(th_hit/2));
-    double phi_hit   = hitPoint.phi();
-    if (phi_hit < 0.) phi_hit += twopi;
+//    double phi_hit   = hitPoint.phi();
+//    if (phi_hit < 0.) phi_hit += twopi;
 //    double phigrad_hit = phi_hit*180./pi;
     //UserNtuples->fillg60(eta_hit,losenergy);
     //UserNtuples->fillg61(eta_hit,1.);
@@ -1188,7 +1092,7 @@ void FP420Test::update(const EndOfEvent * evt) {
     int det, zside, sector, zmodule;
 //    CaloNumberingPacker::unpackCastorIndex(unitID, det, zside, sector, zmodule);
     FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
-    int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+    int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
     if(justlayer<1||justlayer>2) {
       std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl; 
     }
@@ -1379,20 +1283,20 @@ void FP420Test::update(const EndOfEvent * evt) {
    for (int sector=1; sector < sn0; sector++) {
      for (int zmodule=1; zmodule<pn0; zmodule++) {
        for (int zsideinorder=1; zsideinorder<allplacesforsensors; zsideinorder++) {
-	 int zside = theFP420NumberingScheme->FP420NumberingScheme::realzside(rn00, zsideinorder);//1,3,5,2,4,6
+	 int zside = FP420NumberingScheme::realzside(rn00, zsideinorder);//1,3,5,2,4,6
 	 if (verbosity > 2) {
 	   std::cout << "FP420Test:  sector= " << sector << " zmodule= " << zmodule << " zsideinorder= " << zsideinorder << " zside= " << zside << std::endl; 
 	 }	 
 	 if(zside != 0) {
-	   int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+	   int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
 	   if(justlayer<1||justlayer>2) {
 	     std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl; 
 	   }
-	   int copyinlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackCopyIndex(rn00, zside);// 1,2,3
+	   int copyinlayer = FP420NumberingScheme::unpackCopyIndex(rn00, zside);// 1,2,3
 	   if(copyinlayer<1||copyinlayer>3) {
 	     std::cout << "FP420Test:WRONG  copyinlayer= " << copyinlayer << std::endl; 
 	   }
-	   int orientation = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn00, zside);// Front: = 1; Back: = 2
+	   int orientation = FP420NumberingScheme::unpackOrientation(rn00, zside);// Front: = 1; Back: = 2
 	   if(orientation<1||orientation>2) {
 	     std::cout << "FP420Test:WRONG  orientation= " << orientation << std::endl; 
 	   }
@@ -1400,7 +1304,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 	   // iu is a continues numbering of planes(!)  over two arm FP420 set up
 	   int detfixed=1;// use this treatment for each set up arm, hence no sense to do it defferently for +FP420 and -FP420;
 	   //                                                                    and  ...[ii] massives have prepared in such a way
-	   unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
+	   unsigned int ii=FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
 	   // ii = 0-19   --> 20 items
 	   if (verbosity > 2) {
 	     std::cout << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer << " orientation = " << orientation << " ii= " << ii << std::endl; 
@@ -1531,20 +1435,12 @@ void FP420Test::update(const EndOfEvent * evt) {
 // .............
     }   // MI or no MI or all  - end
 
-
-
     }                                                // primary end
-//=========================== thePrim != 0  end   ================================================================================
-  //==================================================================================================================
-
-
-
-
+//=========================== thePrim != 0  end   ===
   // ==========================================================================
   if (verbosity > 0) {
    std::cout << "FP420Test:  END OF Event " << (*evt)()->GetEventID() << std::endl;
   }
-
 }
 
 // ==========================================================================

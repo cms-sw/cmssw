@@ -21,6 +21,10 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   virtual uint16_t NTBins() const {return bits.nTBins;}
   virtual uint16_t NCFEBs() const {return bits.nCFEBs;}
   virtual void setNCFEBs(uint16_t ncfebs) {bits.nCFEBs = ncfebs & 0x1F;}
+  virtual uint16_t syncError() const {return bits.syncError;}
+  virtual uint16_t syncErrorCLCT() const {return bits.clct_sync_err;}
+  virtual uint16_t syncErrorMPC0() const {return bits.MPC_Muon0_SyncErr_;}
+  virtual uint16_t syncErrorMPC1() const {return bits.MPC_Muon1_SyncErr_;}
   virtual uint16_t firmwareRevision() const {return bits.firmRevCode;}
 
   ///returns CLCT digis
@@ -65,7 +69,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   unsigned bd_status:15, flag6:1;
   unsigned firmRevCode:15, flag7:1;
   // 8
-  unsigned bxnPreTrigger:12, reserved:2, lock_lost:1, flag8:1; 
+  unsigned bxnPreTrigger:12, tmb_clct0_discard:1, tmb_clct1_discard:1, lock_lost:1, flag8:1; 
   unsigned preTrigCounterLow:15, flag9:1;
   unsigned preTrigCounterHigh:15, flag10:1;
   unsigned clctCounterLow:15, flag11:1;
@@ -80,7 +84,7 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   unsigned uptimeCounterHigh:15, flag18:1;
   unsigned nCFEBs:3, nTBins:5, fifoPretrig:5, scopeExists:1, vmeExists:1, flag19:1;
   // 20
-  unsigned hitThresh:3, pidThresh:4, nphThresh:3, lyrThresh:3, layerTrigEnabled:1, staggerCSC:1, flag20:1;
+  unsigned hitThresh:3, pidThresh:4, nphThresh:3, pid_thresh_postdrift:4, staggerCSC:1, flag20:1;
   unsigned triadPersist:4, dmbThresh:3, alct_delay:4, clct_width:4, flag21:1;
   unsigned trigSourceVect:9, r_nlayers_hit_vec:6, flag22:1;
   unsigned activeCFEBs:5, readCFEBs:5, pop_l1a_match_win:4, aff_source:1, flag23:1;
@@ -91,8 +95,8 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   unsigned clct0_key_high:1, clct1_key_high:1, clct_bxn:2, clct_sync_err:1,  clct0Invalid:1, clct1Invalid:1, clct1Busy:1, parity_err_cfeb_ram:5, parity_err_rpc:1, parity_err_summary:1, flag27:1;
   // 28
   unsigned alct0Valid:1, alct0Quality:2, alct0Amu:1, alct0Key:7, alct_pretrig_win:4, flag28:1;
-  unsigned alct1Valid:1, alct1Quality:2, alct1Amu:1, alct1Key:7, drift_delay:2, reserved3:1, layerTriggered:1, flag29:1;
-  unsigned alctBXN:5, alctSeqStatus:2, alctSEUStatus:2, alctReserved:4, alctCfg:1, reserved4:1, flag30:1;
+  unsigned alct1Valid:1, alct1Quality:2, alct1Amu:1, alct1Key:7, drift_delay:2, bcb_read_enable:1, layerTriggered:1, flag29:1;
+  unsigned alctBXN:5, alct_ecc_err:2, cfeb_badbits_found:5, cfeb_badbits_blocked:1, alct_cfg_done:1, bx0_match:1, flag30:1;
   unsigned MPC_Muon0_wire_:7, MPC_Muon0_clct_pattern_:4, MPC_Muon0_quality_:4, flag31:1;
   // 32
   unsigned MPC_Muon0_halfstrip_clct_pattern:8, MPC_Muon0_bend_:1, MPC_Muon0_SyncErr_:1, MPC_Muon0_bx_:1, MPC_Muon0_bc0_:1, MPC_Muon0_cscid_low:3, flag32:1;
@@ -101,13 +105,12 @@ struct CSCTMBHeader2007_rev0x50c3 : public CSCVTMBHeaderFormat {
   unsigned MPC_Muon0_vpf_:1, MPC_Muon0_cscid_bit4:1, MPC_Muon1_vpf_:1, MPC_Muon1_cscid_bit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
   // 36
   unsigned RPCList:2, NRPCs:2, RPCEnable:1, fifo_tbins_rpc:5, fifo_pretrig_rpc:5, flag36:1;
-
   unsigned r_wr_buf_adr:11, r_wr_buf_ready:1, wr_buf_ready:1, buf_q_full:1, buf_q_empty:1, flag37:1;
   unsigned r_buf_fence_dist:11, buf_q_ovf_err:1, buf_q_udf_err:1, buf_q_adr_err:1, buf_stalled:1, flag38:1;
-  unsigned buf_fence_cnt:12, reserved7:3, flag39:1;
+  unsigned buf_fence_cnt:12, reverse_hs_csc:1, reverse_hs_me1a:1, reverse_hs_me1b:1, flag39:1;
   // 40
-  unsigned buf_fence_cnt_peak:12, reserved8:3, flag40:1;
-  unsigned reserved9:15, flag41:1;
+  unsigned buf_fence_cnt_peak:12, trig_source_vect:2, tmb_trig_pulse:1, flag40:1;
+  unsigned tmb_allow_alct:1, tmb_allow_clct:1, tmb_allow_match:1, tmb_allow_alct_ro:1, tmb_allow_clct_ro:1, tmb_allow_match_ro:1, tmb_alct_only_ro:1, tmb_clct_only_ro:1, tmb_match_ro:1, tmb_trig_keep:1, tmb_non_trig_keep:1, lyr_thresh_pretrig:3, layer_trig_en:1, flag41:1;
   unsigned e0bline:16;
   } bits;
 

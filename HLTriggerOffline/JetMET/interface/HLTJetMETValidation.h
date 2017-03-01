@@ -1,11 +1,6 @@
 /* HLTJetMET Path Validation Analyzer
-Jochen Cammin
-University of Rochester
-cammin@fnal.gov
-
-Extensions from Len Apanasevich.
+   Migrated to use DQMEDAnalyzer by: Jyothsna Rani Komaragiri, Oct 2014
 */
-
 
 #ifndef HLTJetMETValidation_h
 #define HLTJetMETValidation_h
@@ -47,6 +42,7 @@ Extensions from Len Apanasevich.
 //Include DQM core
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -54,59 +50,47 @@ Extensions from Len Apanasevich.
 #include <string>
 #include "TPRegexp.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace l1extra;
-using namespace trigger;
-
 namespace edm {
   class TriggerNames;
 }
 
-class HLTJetMETValidation : public edm::EDAnalyzer {
+class HLTJetMETValidation : public DQMEDAnalyzer {
   
  public:
   explicit HLTJetMETValidation(const edm::ParameterSet&);
   ~HLTJetMETValidation();
   
  private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun, edm::EventSetup const & iSetup) override;
+  virtual void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
+
   void getHLTResults(const edm::TriggerResults&,
                      const edm::TriggerNames & triggerNames);
 
   /// InputTag of TriggerEventWithRefs to analyze
-  edm::EDGetTokenT<TriggerEventWithRefs> triggerEventObject_;
-  edm::EDGetTokenT<PFJetCollection> CaloJetAlgorithm;
-  edm::EDGetTokenT<GenJetCollection> GenJetAlgorithm;
-  edm::EDGetTokenT<CaloMETCollection> CaloMETColl;
-  edm::EDGetTokenT<GenMETCollection> GenMETColl;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerEventObject_;
+  edm::EDGetTokenT<reco::PFJetCollection> PFJetAlgorithm;
+  edm::EDGetTokenT<reco::GenJetCollection> GenJetAlgorithm;
+  edm::EDGetTokenT<reco::CaloMETCollection> CaloMETColl;
+  edm::EDGetTokenT<reco::GenMETCollection> GenMETColl;
   edm::EDGetTokenT<edm::TriggerResults> HLTriggerResults;
 
   //Just a tag for better file organization
-  std::string triggerTag_, MyTrigger, patternJetTrg_, patternMetTrg_, patternMuTrg_;
+  std::string triggerTag_, patternJetTrg_, patternMetTrg_, patternMuTrg_;
 
-  //edm::InputTag _HLTPath;
-  //edm::InputTag _HLTLow;
-
-  std::string outFile_;
-
-  DQMStore* store;
-
-  std::vector<MonitorElement*> _meRecoJetPt;
-  std::vector<MonitorElement*> _meRecoJetPtTrgMC;
-  std::vector<MonitorElement*> _meRecoJetPtTrg;
-  std::vector<MonitorElement*> _meRecoJetPtTrgLow;
-  std::vector<MonitorElement*> _meRecoJetEta;
-  std::vector<MonitorElement*> _meRecoJetEtaTrgMC;
-  std::vector<MonitorElement*> _meRecoJetEtaTrg;
-  std::vector<MonitorElement*> _meRecoJetEtaTrgLow;
-  std::vector<MonitorElement*> _meRecoJetPhi;
-  std::vector<MonitorElement*> _meRecoJetPhiTrgMC;
-  std::vector<MonitorElement*> _meRecoJetPhiTrg;
-  std::vector<MonitorElement*> _meRecoJetPhiTrgLow;
+  std::vector<MonitorElement*> _meHLTJetPt;
+  std::vector<MonitorElement*> _meHLTJetPtTrgMC;
+  std::vector<MonitorElement*> _meHLTJetPtTrg;
+  std::vector<MonitorElement*> _meHLTJetPtTrgLow;
+  std::vector<MonitorElement*> _meHLTJetEta;
+  std::vector<MonitorElement*> _meHLTJetEtaTrgMC;
+  std::vector<MonitorElement*> _meHLTJetEtaTrg;
+  std::vector<MonitorElement*> _meHLTJetEtaTrgLow;
+  std::vector<MonitorElement*> _meHLTJetPhi;
+  std::vector<MonitorElement*> _meHLTJetPhiTrgMC;
+  std::vector<MonitorElement*> _meHLTJetPhiTrg;
+  std::vector<MonitorElement*> _meHLTJetPhiTrgLow;
 
   std::vector<MonitorElement*> _meGenJetPt;
   std::vector<MonitorElement*> _meGenJetPtTrgMC;
@@ -121,21 +105,18 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   std::vector<MonitorElement*> _meGenJetPhiTrg;
   std::vector<MonitorElement*> _meGenJetPhiTrgLow;
 
-  std::vector<MonitorElement*> _meRecoMET;
-  std::vector<MonitorElement*> _meRecoMETTrgMC;
-  std::vector<MonitorElement*> _meRecoMETTrg;
-  std::vector<MonitorElement*> _meRecoMETTrgLow;  
+  std::vector<MonitorElement*> _meHLTMET;
+  std::vector<MonitorElement*> _meHLTMETTrgMC;
+  std::vector<MonitorElement*> _meHLTMETTrg;
+  std::vector<MonitorElement*> _meHLTMETTrgLow;  
   std::vector<MonitorElement*> _meGenMET;
   std::vector<MonitorElement*> _meGenMETTrgMC;
   std::vector<MonitorElement*> _meGenMETTrg;
   std::vector<MonitorElement*> _meGenMETTrgLow;  
 
-  //MonitorElement *_meGenHT, *_meGenHTTrg, *_meGenHTTrgLow;
-  //MonitorElement *_meRecoHT, *_meRecoHTTrg, *_meRecoHTTrgLow;
   MonitorElement *_triggerResults;
 
-//Define Numbers 
-
+  //Define Numbers 
   int evtCnt;
 
   HLTConfigProvider hltConfig_;
@@ -144,14 +125,13 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   std::vector<std::string> hltTrgMet;
   std::vector<std::string> hltTrgMetLow;
 
-// store hlt information in a map
+  // store hlt information in a map
   std::vector<bool> hlttrigs;
   std::map <std::string,bool> hltTriggerMap;
   std::map<std::string,bool>::iterator trig_iter;
 
   bool HLTinit_;
 
-  //JL
   bool writeFile_;
 };
 #endif

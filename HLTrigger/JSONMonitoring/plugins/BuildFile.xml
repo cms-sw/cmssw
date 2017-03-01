@@ -1,0 +1,9 @@
+<library   file="*.cc" name="HLTriggerJSONMonitoringPlugins">
+  <use   name="FWCore/PrescaleService"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="HLTrigger/HLTcore"/>
+  <use   name="EventFilter/Utilities"/>
+  <use   name="L1Trigger/L1TGlobal"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

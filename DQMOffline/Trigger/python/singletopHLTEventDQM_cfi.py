@@ -51,16 +51,16 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("jetProbabilityBJetTags" ),
+           label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
-         trackCountingPur = cms.PSet(
-           label = cms.InputTag("trackCountingHighPurBJetTags" ),
-           workingPoint = cms.double(3.41)
-         ),
+#         trackCountingPur = cms.PSet(
+#           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+#           workingPoint = cms.double(3.41)
+#         ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-           workingPoint = cms.double(0.679)
+           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+           workingPoint = cms.double(0.890)
          )
        ),
     ),
@@ -74,7 +74,8 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30'])
+### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
+    paths = cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v', 'HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -87,8 +88,9 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30'])
-    ),
+## Updating to HLT paths to be monitored by TOP PAG in 2016
+    select =  cms.vstring(['HLT_IsoMu18_v', 'HLT_IsoMu20_v', 'HLT_IsoMu22_v', 'HLT_IsoMu24_v', 'HLT_IsoTkMu18_v', 'HLT_IsoTkMu20_v', 'HLT_IsoTkMu22_v', 'HLT_IsoTkMu24_v','HLT_IsoMu17_eta2p1_v','HLT_IsoMu20_eta2p1_v','HLT_IsoMu24_eta2p1_v', 'HLT_IsoTkMu20_eta2p1_v','HLT_IsoTkMu24_eta2p1_v'])
+  ),  
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -136,6 +138,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
 )
 
 SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
+
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -188,16 +191,16 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       ## when omitted monitor histograms for b-tagging will not be filled  
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("jetProbabilityBJetTags" ),
+           label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
-         trackCountingPur = cms.PSet(
-           label = cms.InputTag("trackCountingHighPurBJetTags" ),
-           workingPoint = cms.double(3.41)
-         ),
+#         trackCountingPur = cms.PSet(
+#           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+#           workingPoint = cms.double(3.41)
+#         ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-           workingPoint = cms.double(0.679)
+           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+           workingPoint = cms.double(0.890)
          )
        ),
     ),
@@ -211,9 +214,10 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30'])
-     )
-  ),
+### Updating to HLT paths to be monitored by TOP PAG in 2016
+      paths = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele25_WPTight_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])    
+    )
+  ),  
   ## ------------------------------------------------------
   ## PRESELECTION
   ##
@@ -224,8 +228,9 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30'])
-     ),
+### Updating to HLT paths to be monitored by TOP PAG in 2016                                                                                                                 
+      select = cms.vstring(['HLT_Ele27_WPLoose_Gsf_v','HLT_Ele25_WPTight_Gsf_v','HLT_Ele23_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPTight_Gsf_v', 'HLT_Ele27_WPTight_Gsf_v','HLT_Ele27_eta2p1_WPLoose_Gsf_v', 'HLT_Ele22_eta2p1_WPLoose_Gsf_v', 'HLT_Ele24_eta2p1_WPLoose_Gsf_v','HLT_Ele25_eta2p1_WPLoose_Gsf_v'])
+      ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -269,6 +274,6 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       #jetCorrector = cms.string("ak4PFCHSL2L3"),
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
-    ), 
-  )
+    ) 
+  ),  
 )

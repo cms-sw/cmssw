@@ -1,7 +1,7 @@
 #ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 #define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,12 +11,11 @@
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include<vector>
@@ -35,7 +34,7 @@ namespace CLHEP {
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~HcalTBDigiProducer();
 
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -77,7 +76,7 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HOHitFilter   theHOHitFilter;
 
-  HcalHitCorrection * theHitCorrection;
+  HcalTimeSlewSim * theTimeSlewSim;
 
   HBHEDigitizer * theHBHEDigitizer;
   HODigitizer   * theHODigitizer;

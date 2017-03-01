@@ -11,6 +11,7 @@
 ///  last update: $Date: 2012/06/13 16:23:30 $
 ///  by         : $Author: yana $
 
+#include <memory>
 #include <vector>
 
 // Framework
@@ -32,22 +33,21 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 // for watcher
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
 
 
 class Alignments;
 class IntegratedCalibrationBase;
-class SurveyErrors;
+struct SurveyErrors;
 namespace edm {
   class Run;
   class LuminosityBlock;
@@ -72,11 +72,11 @@ class AlignmentProducer : public edm::ESProducerLooper
   ~AlignmentProducer();
 
   /// Produce the tracker geometry
-  virtual boost::shared_ptr<TrackerGeometry> produceTracker( const TrackerDigiGeometryRecord& iRecord );
+  virtual std::shared_ptr<TrackerGeometry> produceTracker( const TrackerDigiGeometryRecord& iRecord );
   /// Produce the muon DT geometry
-  virtual boost::shared_ptr<DTGeometry>      produceDT( const MuonGeometryRecord& iRecord );
+  virtual std::shared_ptr<DTGeometry>      produceDT( const MuonGeometryRecord& iRecord );
   /// Produce the muon CSC geometry
-  virtual boost::shared_ptr<CSCGeometry>     produceCSC( const MuonGeometryRecord& iRecord );
+  virtual std::shared_ptr<CSCGeometry>     produceCSC( const MuonGeometryRecord& iRecord );
 
   /// Called at beginning of job
   virtual void beginOfJob(const edm::EventSetup&);
@@ -132,7 +132,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// (removes *globalCoordinates before writing if non-null...).
   /// Takes over ownership of alignments and alignmentErrrors.
   void writeDB(Alignments *alignments, const std::string &alignRcd,
-	       AlignmentErrors *alignmentErrors, const std::string &errRcd,
+	       AlignmentErrorsExtended *alignmentErrors, const std::string &errRcd,
 	       const AlignTransform *globalCoordinates,
 	       cond::Time_t time) const;
   /// Write surface deformations (bows & kinks) to DB for given record name
@@ -148,6 +148,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   void readInSurveyRcds( const edm::EventSetup& );
 
   RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet);
+  RunRanges makeUniqueRunRanges(const edm::ParameterSet& cfg);
 
   // private data members
 
@@ -164,12 +165,13 @@ class AlignmentProducer : public edm::ESProducerLooper
   AlignableTracker* theAlignableTracker;
   AlignableMuon* theAlignableMuon;
 
-  boost::shared_ptr<TrackerGeometry> theTracker;
-  boost::shared_ptr<DTGeometry> theMuonDT;
-  boost::shared_ptr<CSCGeometry> theMuonCSC;
+  std::shared_ptr<TrackerGeometry> theTracker;
+  std::shared_ptr<DTGeometry> theMuonDT;
+  std::shared_ptr<CSCGeometry> theMuonCSC;
   /// GlobalPositions that might be read from DB, NULL otherwise
   const Alignments *globalPositions_;
 
+  const RunRanges uniqueRunRanges_;
   int nevent_;
   edm::ParameterSet theParameterSet;
 
@@ -193,11 +195,11 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // ESWatcher
   edm::ESWatcher<TrackerSurveyRcd> watchTkSurveyRcd_;
-  edm::ESWatcher<TrackerSurveyErrorRcd> watchTkSurveyErrRcd_;
+  edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrRcd_;
   edm::ESWatcher<DTSurveyRcd> watchDTSurveyRcd_;
-  edm::ESWatcher<DTSurveyErrorRcd> watchDTSurveyErrRcd_;
+  edm::ESWatcher<DTSurveyErrorExtendedRcd> watchDTSurveyErrRcd_;
   edm::ESWatcher<CSCSurveyRcd> watchCSCSurveyRcd_;
-  edm::ESWatcher<CSCSurveyErrorRcd> watchCSCSurveyErrRcd_;	
+  edm::ESWatcher<CSCSurveyErrorExtendedRcd> watchCSCSurveyErrRcd_;	
 
 };
 

@@ -26,6 +26,8 @@ public:
     ///Destructor
     virtual ~RPCUnpackingModule();
  
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
    /** Retrieves a RPCDigiCollection from the Event, creates a
       FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
       and attaches it to the Event. */

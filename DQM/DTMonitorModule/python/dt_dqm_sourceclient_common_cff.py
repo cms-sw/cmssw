@@ -24,8 +24,9 @@ from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 
 # DT digitization and reconstruction
-from EventFilter.DTTFRawToDigi.dttfunpacker_cfi import *
-dttfunpacker.DTTF_FED_Source = 'rawDataCollector'
+# Switched to TwinMux
+from EventFilter.L1TXRawToDigi.twinMuxStage2Digis_cfi import *
+twinMuxStage2Digis.DTTM7_FED_Source = 'rawDataCollector'
 
 from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import *
 #from EventFilter.DTRawToDigi.dtunpackerDDULocal_cfi import *
@@ -33,7 +34,6 @@ dtunpacker.readOutParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
-dtunpacker.fedbyType = False
 dtunpacker.inputLabel = 'rawDataCollector'
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
@@ -45,7 +45,9 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 from DQM.DTMonitorClient.dtDataIntegrityTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
-
+DTDataIntegrityTask.processingMode = 'Online'
+DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
+DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
@@ -100,12 +102,12 @@ from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_TP_cfi import *
 
 
-unpackers = cms.Sequence(dtunpacker + dttfunpacker + scalersRawToDigi)
+unpackers = cms.Sequence(dtunpacker + twinMuxStage2Digis + scalersRawToDigi)
 
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 # sequence of DQM tasks to be run on physics events only
-dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
+dtDQMTask = cms.Sequence(DTDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
 # DQM clients to be run on physics event only
 dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)

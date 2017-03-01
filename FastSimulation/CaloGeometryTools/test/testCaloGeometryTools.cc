@@ -18,7 +18,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -53,7 +53,7 @@
 typedef math::XYZVector XYZVector;
 typedef math::XYZVector XYZPoint;
 
-class testCaloGeometryTools : public edm::EDAnalyzer {
+class testCaloGeometryTools : public edm::stream::EDAnalyzer <> {
 public:
   explicit testCaloGeometryTools( const edm::ParameterSet& );
   ~testCaloGeometryTools();
@@ -230,7 +230,7 @@ void testCaloGeometryTools::testBorderCrossing()
   unsigned counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;
@@ -257,7 +257,7 @@ void testCaloGeometryTools::testBorderCrossing()
   counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec2[ic]);
+      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec2[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;

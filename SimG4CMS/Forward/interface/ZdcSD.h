@@ -14,7 +14,7 @@
 class ZdcSD : public CaloSD {
 
 public:    
-  ZdcSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+  ZdcSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	edm::ParameterSet const &,const SimTrackManager*);
  
   virtual ~ZdcSD();

@@ -44,7 +44,7 @@ SeedGeneratorFromTrackingParticleEDProducer::SeedGeneratorFromTrackingParticleED
 
 void SeedGeneratorFromTrackingParticleEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+  auto result = std::make_unique<TrajectorySeedCollection>();
   Handle<reco::TrackCollection> trks;
   ev.getByLabel(theInputCollectionTag, trks);
 
@@ -75,6 +75,6 @@ void SeedGeneratorFromTrackingParticleEDProducer::produce(edm::Event& ev, const 
     }
   } 
 
-  ev.put(result);
+  ev.put(std::move(result));
 }
 */

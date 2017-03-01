@@ -11,12 +11,15 @@ PNAmplitudeThreshold = [12.5, 200.]
 tolerancePNRMS = [20., 20.]
 
 ecalTestPulseClient = cms.untracked.PSet(
-    name = cms.untracked.string('TestPulseClient'),
-    minChannelEntries = cms.untracked.int32(minChannelEntries),
-    amplitudeThreshold = cms.untracked.vdouble(amplitudeThreshold),
-    toleranceRMS = cms.untracked.vdouble(toleranceRMS),
-    PNAmplitudeThreshold = cms.untracked.vdouble(PNAmplitudeThreshold),
-    tolerancePNRMS = cms.untracked.vdouble(tolerancePNRMS),
+    params = cms.untracked.PSet(
+        minChannelEntries = cms.untracked.int32(minChannelEntries),
+        amplitudeThreshold = cms.untracked.vdouble(amplitudeThreshold),
+        toleranceRMS = cms.untracked.vdouble(toleranceRMS),
+        PNAmplitudeThreshold = cms.untracked.vdouble(PNAmplitudeThreshold),
+        tolerancePNRMS = cms.untracked.vdouble(tolerancePNRMS),
+        MGPAGains = ecaldqmMGPAGains,
+        MGPAGainsPN = ecaldqmMGPAGainsPN
+    ),
     sources = cms.untracked.PSet(
         Amplitude = ecalTestPulseTask.MEs.Amplitude,
         PNAmplitude = ecalTestPulseTask.MEs.PNAmplitude
@@ -57,12 +60,12 @@ ecalTestPulseClient = cms.untracked.PSet(
                 gain = ecaldqmMGPAGains
             ),
             kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal2P'),
+            otype = cms.untracked.string('SM'),
             zaxis = cms.untracked.PSet(
                 title = cms.untracked.string('rms (ADC counts)')
             ),
             btype = cms.untracked.string('Crystal'),
-            path = cms.untracked.string('%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s %(sm)s'),
             description = cms.untracked.string('2D distribution of the amplitude RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         )
     )

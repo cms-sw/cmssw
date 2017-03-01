@@ -30,6 +30,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
@@ -39,7 +40,7 @@
 // class decleration
 //
 
-class L1TGMT : public edm::EDAnalyzer {
+class L1TGMT : public DQMEDAnalyzer {
 
 public:
 
@@ -51,20 +52,16 @@ virtual ~L1TGMT();
 
 protected:
 // Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginJob
-void beginJob(void);
 
-// BeginRun
-void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-// EndJob
-void endJob(void);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
   
   enum ensubs { DTTF=0, RPCb, CSCTF, RPCf, GMT };
 
@@ -106,14 +103,10 @@ private:
   
   MonitorElement* subs_dbx[4];  
 
-  int nev_; // Number of events processed
-  std::string outputFile_; //file name for ROOT ouput
-  bool verbose_;
-  bool monitorDaemon_;
+  const bool verbose_;
   std::ofstream logFile_;
-  edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_ ;
+  const edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_ ;
   
-  int evnum_old_; // event number of previous event
   int bxnum_old_; // bx of previous event
   int obnum_old_; // orbit of previous event
   int trsrc_old_; // code of trigger source ( bits: 0 DT, 1 bRPC, 2 CSC, 3 fRPC )

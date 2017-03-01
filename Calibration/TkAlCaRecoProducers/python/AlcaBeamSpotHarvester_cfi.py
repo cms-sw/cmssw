@@ -5,8 +5,9 @@ alcaBeamSpotHarvester = cms.EDAnalyzer("AlcaBeamSpotHarvester",
 	BeamSpotOutputBase = cms.untracked.string("lumibased"), #runbased 
 	BeamSpotModuleName = cms.untracked.string("alcaBeamSpotProducer"),
 	BeamSpotLabel      = cms.untracked.string("alcaBeamSpot"),
-	outputRecordName   = cms.untracked.string("BeamSpotObjectsRcdByLumi"),
-	SigmaZValue        = cms.untracked.double(-1) 
+	outputRecordName   = cms.untracked.string("BeamSpotObjectsRcd"),
+	SigmaZValue        = cms.untracked.double(-1),
+	SigmaZCut        = cms.untracked.double(1) 
     )
 )
 

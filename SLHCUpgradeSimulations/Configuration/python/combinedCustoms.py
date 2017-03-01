@@ -1,56 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as customiseBE
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import customise as customiseLB6PS
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import customise as customiseLB4LPS_2L2S
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import l1EventContent as customise_ev_BE5D
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventContent as customise_ev_LB6PS
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1EventContent as customise_ev_LB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
-def cust_phase2_BE5D(process):
-    process=customisePostLS1(process)
-    process=customise_HcalPhase1(process)
-    process=customiseBE5D(process)
-    process=customise_ev_BE5D(process)
-    return process
-
-def cust_phase2_BE(process):
-    process=customisePostLS1(process)
-    process=customise_HcalPhase1(process)
-    process=customiseBE(process)
-    process=customise_ev_BE(process)
-    return process
-
-def cust_phase2_LB6PS(process):
-    process=customisePostLS1(process)
-    process=customiseLB6PS(process)
-    process=customise_ev_LB6PS(process)
-    return process
-
-def cust_phase2_LB4LPS_2L2S(process):
-    process=customisePostLS1(process)
-    process=customiseLB4LPS_2L2S(process)
-    process=customise_ev_LB4LPS_2L2S(process)
-    return process
-
-def cust_2017(process):
-    process=customisePostLS1(process)
-    process=customisePhase1Tk(process)
-    process=customise_HcalPhase0(process)
-    process=fixRPCConditions(process)
-    return process
-
 def cust_2019(process):
-    process=customisePostLS1(process)
+    process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
+    return process
+
+def cust_2023MuonOnly(process):
     process=fixRPCConditions(process)
     return process
 
@@ -58,17 +21,15 @@ def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
 
+def cust_2023HGCal_common(process):      
+    return process
 
-def fixRPCConditions(process):
-    if not hasattr(process.GlobalTag,'toGet'):
-        process.GlobalTag.toGet=cms.VPSet()
-    process.GlobalTag.toGet.extend( cms.VPSet(
-        cms.PSet(record = cms.string("RPCStripNoisesRcd"),
-                 tag = cms.string("RPCStripNoise_upscope_mc_v2"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_RPC")
-                 )
-        )
-                                    )
+def cust_2023HGCal(process):    
+    process = cust_2023HGCal_common(process)
+    return process
+
+def cust_2023HGCalMuon(process):    
+    process = cust_2023HGCal_common(process)    
     return process
 
 ##### clone aging.py here 
@@ -183,14 +144,14 @@ def fixEcalConditions_150(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL150_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
@@ -202,14 +163,14 @@ def fixEcalConditions_100(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL100_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
@@ -221,14 +182,14 @@ def fixEcalConditions_200(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL200_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
@@ -240,14 +201,14 @@ def fixEcalConditions_300(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL300_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
@@ -259,14 +220,14 @@ def fixEcalConditions_500(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL500_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
@@ -278,14 +239,14 @@ def fixEcalConditions_1000(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL1000_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_3GeV_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
@@ -297,14 +258,14 @@ def fixEcalConditions_3000(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalSRSettingsRcd"),
                  tag = cms.string("EcalSRSettings_TL3000_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("EcalTPGLutIdMapRcd"),
                  tag = cms.string("EcalTPGLutIdMap_beamv5_4GeV_upgrade_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_ECAL")
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS")
                  )
         )
                                     )

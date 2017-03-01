@@ -151,7 +151,7 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
     //pt_hat = *genEventScale;
 
     edm::Handle<edm::HepMCProduct> MCevt;
-    evt.getByLabel("generator", MCevt);
+    evt.getByLabel("generatorSmeared", MCevt);
     HepMC::GenEvent * myGenEvent = new HepMC::GenEvent(*(MCevt->GetEvent()));
    
     double pthat = myGenEvent->event_scale();

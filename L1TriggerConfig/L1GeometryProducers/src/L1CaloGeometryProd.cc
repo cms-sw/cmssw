@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "L1TriggerConfig/L1GeometryProducers/interface/L1CaloGeometryProd.h"
@@ -78,9 +77,9 @@ L1CaloGeometryProd::ReturnType
 L1CaloGeometryProd::produce(const L1CaloGeometryRecord& iRecord)
 {
    using namespace edm::es;
-   std::auto_ptr<L1CaloGeometry> pL1CaloGeometry ;
+   std::unique_ptr<L1CaloGeometry> pL1CaloGeometry ;
 
-   pL1CaloGeometry = std::auto_ptr< L1CaloGeometry >(
+   pL1CaloGeometry = std::unique_ptr< L1CaloGeometry >(
       new L1CaloGeometry( m_geom ) ) ;
 
    return pL1CaloGeometry ;

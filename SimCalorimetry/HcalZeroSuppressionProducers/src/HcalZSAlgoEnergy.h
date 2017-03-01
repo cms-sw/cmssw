@@ -22,7 +22,8 @@ protected:
   virtual bool shouldKeep(const HBHEDataFrame& digi) const;
   virtual bool shouldKeep(const HODataFrame& digi) const;
   virtual bool shouldKeep(const HFDataFrame& digi) const;
-  virtual bool shouldKeep(const HcalUpgradeDataFrame& digi) const;
+  virtual bool shouldKeep(const QIE10DataFrame& digi) const;
+  virtual bool shouldKeep(const QIE11DataFrame& digi) const;
 private:
   int threshold_, firstsample_, samplecount_;
   bool twosided_;

@@ -8,5 +8,11 @@ DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestThreshold, "PFRecHitQTestTh
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHOThreshold, "PFRecHitQTestHOThreshold");
 
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestECAL, "PFRecHitQTestECAL");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestES, "PFRecHitQTestES");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALCalib29, "PFRecHitQTestHCALCalib29");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALChannel, "PFRecHitQTestHCALChannel");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALTimeVsDepth, "PFRecHitQTestHCALTimeVsDepth");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALThresholdVsDepth, "PFRecHitQTestHCALThresholdVsDepth");
+
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestThresholdInMIPs, "PFRecHitQTestThresholdInMIPs");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestThresholdInThicknessNormalizedMIPs, "PFRecHitQTestThresholdInThicknessNormalizedMIPs");

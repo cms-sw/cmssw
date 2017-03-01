@@ -2,9 +2,10 @@
 #define L2TauPixelIsoTagProducer_h__
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -20,7 +21,7 @@
  *
  * \author Vadim Khotilovich
  */
-class L2TauPixelIsoTagProducer : public edm::EDProducer
+class L2TauPixelIsoTagProducer : public edm::global::EDProducer<>
 {
 public:
 
@@ -28,25 +29,27 @@ public:
 
   ~L2TauPixelIsoTagProducer() {};
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 
-  edm::EDGetTokenT<edm::View<reco::Jet> > m_jetSrc_token;
-  edm::EDGetTokenT<reco::VertexCollection> m_vertexSrc_token;
-  edm::EDGetTokenT<reco::TrackCollection> m_trackSrc_token;
-  edm::EDGetTokenT<reco::BeamSpot> m_beamSpotSrc_token;
+  const edm::EDGetTokenT<edm::View<reco::Jet> > m_jetSrc_token;
+  const edm::EDGetTokenT<reco::VertexCollection> m_vertexSrc_token;
+  const edm::EDGetTokenT<reco::TrackCollection> m_trackSrc_token;
+  const edm::EDGetTokenT<reco::BeamSpot> m_beamSpotSrc_token;
 
-  int m_maxNumberPV;
+  const int m_maxNumberPV;
 
-  float m_trackMinPt;
-  float m_trackMaxDxy;
-  float m_trackMaxNChi2;
-  int   m_trackMinNHits;
-  float m_trackPVMaxDZ;
+  const float m_trackMinPt;
+  const float m_trackMaxDxy;
+  const float m_trackMaxNChi2;
+  const int   m_trackMinNHits;
+  const float m_trackPVMaxDZ;
 
-  float m_isoCone2Min;
-  float m_isoCone2Max;
+  const float m_isoCone2Min;
+  const float m_isoCone2Max;
 };
 
 #endif

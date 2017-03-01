@@ -36,7 +36,7 @@ def listIovs(db,tag):
        for p in iovlist:
            print "  Since " , p[1], " Till " , p[2]
      
-    except Exception,er :
+    except Exception as er :
         print " listIovs exception ",er 
 
 def dumpXML(db,tag,since,filename='dump.xml'):
@@ -58,7 +58,7 @@ def dumpXML(db,tag,since,filename='dump.xml'):
        out = open(filename,'w')
        print >> out, payload
       
-    except Exception,er :
+    except Exception as er :
         print " dumpXML exception ",er
 
 def plot (db, tag,since,filename='plot.root'):
@@ -81,7 +81,7 @@ def plot (db, tag,since,filename='plot.root'):
        payload = inspect.PayLoad(db, tag, elem)
        payload.plot(filename,"",[],[])
             
-    except Exception,er :
+    except Exception as er :
         print " plot exception ",er
         
 
@@ -123,7 +123,7 @@ def compare(tag1,db1,since1,
             coeff_1_e = [i for i in exe.values()]
         db1.commitTransaction()
 
-      except Exception,er :
+      except Exception as er :
         print " compare first set exception ",er
       if not found :
         print "Could not retrieve payload for tag: " , tag1, " since: ", since1
@@ -155,7 +155,7 @@ def compare(tag1,db1,since1,
             coeff_2_e = [i for i in exe.values()]
         db2.commitTransaction()
      
-      except Exception, er :
+      except Exception as er :
           print " compare second set exception ",er
       if not found :
         print "Could not retrieve payload for tag: " , tag2, " since: ", since2
@@ -262,7 +262,7 @@ def histo (db, tag,since,filename='histo.root'):
             coeff_endc = [i for i in exe.values()]
         db.commitTransaction()
 
-      except Exception, er :
+      except Exception as er :
           print " histo exception ",er
       if not found :
         print "Could not retrieve payload for tag: " , tag, " since: ", since
@@ -341,7 +341,7 @@ def getToken(db,tag,since):
        print "Could not retrieve token for tag: " , tag, " since: ", since
        sys.exit(0)
        
-    except Exception, er :
+    except Exception as er :
        print er
 
 
@@ -364,7 +364,7 @@ def getObject(db,tag,since):
 #               return Plug.Object(elem)
                return elem
            
-    except Exception, er :
+    except Exception as er :
         print " getObject exception ",er
 
     if not found :

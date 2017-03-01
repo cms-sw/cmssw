@@ -19,7 +19,7 @@ namespace reco { namespace isodeposit {
 	      veto_->centerOn(eta,phi);
 	    }
         private:
-            std::auto_ptr<AbsVeto> veto_;
+            std::unique_ptr<AbsVeto> veto_;
             bool barrel_;
     };
 
@@ -72,7 +72,7 @@ namespace reco { namespace isodeposit {
 reco::isodeposit::AbsVeto *
 IsoDepositVetoFactory::make(const char *string, edm::ConsumesCollector& iC) {
     reco::isodeposit::EventDependentAbsVeto * evdep = 0;
-    std::auto_ptr<reco::isodeposit::AbsVeto> ret(make(string,evdep, iC));
+    std::unique_ptr<reco::isodeposit::AbsVeto> ret(make(string,evdep, iC));
     if (evdep != 0) {
         throw cms::Exception("Configuration") << "The resulting AbsVeto depends on the edm::Event.\n"
                                               << "Please use the two-arguments IsoDepositVetoFactory::make.\n";

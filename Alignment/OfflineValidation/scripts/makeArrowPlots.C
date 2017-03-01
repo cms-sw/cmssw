@@ -12,7 +12,7 @@ float y_,x_,z_,phi_,r_,dphi_,dr_,dx_,dz_,dy_;
 int level_,sublevel_;
 char outputDir_[192];
 
-void Plot10Mu(char* text,float X, float Y, float size)
+void Plot10Mu(const char* text,float X, float Y, float size)
 {
 	TPaveText* atext = new TPaveText(X,Y,X+size,Y+size);
 	atext->AddText(text);
@@ -48,13 +48,8 @@ void DrawRPhiLegend(double xLim, double yLim, double barrelRPhiRescale)
 	normArrow(xTest+dYTest,yTest-4*dYTest-disty,500./10000*barrelRPhiRescale);
 }
 
-void Write()
-{
-	output->Write();
-}
 
-
-int makeRPhiArrowPlot( TTree* data, char* name, double xLim, double yLim, double level, double sublevel, double zMin, double zMax, double rMin, double rMax, double barrelRPhiRescale){
+int makeRPhiArrowPlot( TTree* data, const char* name, double xLim, double yLim, double level, double sublevel, double zMin, double zMax, double rMin, double rMax, double barrelRPhiRescale){
 	
 	
 	TCanvas* OBPCanvas = new TCanvas(name,name,1050,875);
@@ -80,7 +75,7 @@ int makeRPhiArrowPlot( TTree* data, char* name, double xLim, double yLim, double
 	DrawRPhiLegend( xLim, yLim, barrelRPhiRescale );
 	
 	char sliceLeg[192]; 
-	sprintf( sliceLeg, "%s: %d < z <= %d", name, zMin, zMax );
+	sprintf( sliceLeg, "%s: %f < z <= %f", name, zMin, zMax );
 	//Plot10Mu( name, xLim/2, yLim, 0.2*xLim );
 	TPaveText* atext = new TPaveText(0.2*xLim,0.85*yLim,0.66*xLim,0.99*yLim);
 	atext->AddText(sliceLeg);
@@ -99,7 +94,7 @@ int makeRPhiArrowPlot( TTree* data, char* name, double xLim, double yLim, double
 	return passcut;
 }
 
-int makeZPhiArrowPlot( TTree* data, char* name, double zLim, double phiLim, double level, double sublevel, double zMin, double zMax, double rMin, double rMax, double barrelRPhiRescale){
+int makeZPhiArrowPlot( TTree* data, const char* name, double zLim, double phiLim, double level, double sublevel, double zMin, double zMax, double rMin, double rMax, double barrelRPhiRescale){
 	
 	
 	TCanvas* OBPCanvas = new TCanvas(name,name,1050,875);
@@ -125,7 +120,7 @@ int makeZPhiArrowPlot( TTree* data, char* name, double zLim, double phiLim, doub
 	DrawRPhiLegend( zLim, phiLim, barrelRPhiRescale );
 	
 	char sliceLeg[192]; 
-	sprintf( sliceLeg, "%s: %d < r <= %d", name, rMin, rMax );
+	sprintf( sliceLeg, "%s: %f < r <= %f", name, rMin, rMax );
 	//Plot10Mu( name, xLim/2, yLim, 0.2*xLim );
 	TPaveText* atext = new TPaveText(0.2*zLim,0.85*phiLim,0.66*zLim,0.99*phiLim);
 	atext->AddText(sliceLeg);
@@ -198,7 +193,7 @@ int makeRZArrowPlot( TTree* data, char* name, double zLim, double zLimMax, doubl
 }
 */
 
-void makeArrowPlots(char* filename, char* outputDir)
+void makeArrowPlots(const char* filename, const char* outputDir)
 {
 	
 	fin = new TFile(filename);

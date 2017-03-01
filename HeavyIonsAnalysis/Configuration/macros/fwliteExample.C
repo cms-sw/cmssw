@@ -64,7 +64,7 @@ void fwliteExample(bool debug=false){
   TH1D *hL1TechBits = new TH1D("hL1TechBits","L1 technical trigger bits before mask",64,-0.5,63.5);
   TH2D *hHfTowers   = new TH2D("hHfTowers","Number of HF tower above threshold; positive side; negative side",80,-0.5,79.5,80,-0.5,79.5);
   TH1D *hHLTPaths   = new TH1D("hHLTPaths","HLT Paths",3,0,3);
-  hHLTPaths->SetBit(TH1::kCanRebin);
+  hHLTPaths->SetCanExtend(TH1::kAllAxes);
 
   // vtx hists
   outFile->cd(); outFile->mkdir("vtx"); outFile->cd("vtx");

@@ -60,9 +60,9 @@ HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByToken(HFHitsToken_,HFRecHitsH);
 
   //Create empty output collections
-  std::auto_ptr< HBHERecHitCollection > phiSymHBHERecHitCollection( new HBHERecHitCollection );
-  std::auto_ptr< HORecHitCollection > phiSymHORecHitCollection( new HORecHitCollection );
-  std::auto_ptr< HFRecHitCollection > phiSymHFRecHitCollection( new HFRecHitCollection );
+  std::unique_ptr< HBHERecHitCollection > phiSymHBHERecHitCollection( new HBHERecHitCollection );
+  std::unique_ptr< HORecHitCollection > phiSymHORecHitCollection( new HORecHitCollection );
+  std::unique_ptr< HFRecHitCollection > phiSymHFRecHitCollection( new HFRecHitCollection );
 
   //Select interesting HBHERecHits
   for (HBHERecHitCollection::const_iterator it=HBHERecHitsH->begin(); it!=HBHERecHitsH->end(); it++) {
@@ -92,9 +92,9 @@ HLTHcalPhiSymFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if ((!phiSymHBHERecHitCollection->size() ) && (!phiSymHORecHitCollection->size()) && (!phiSymHFRecHitCollection->size())) return false;
 
   //Put selected information in the event
-  if (phiSymHBHERecHitCollection->size()>0) iEvent.put( phiSymHBHERecHitCollection, phiSymHBHEHits_);
-  if (phiSymHORecHitCollection->size()>0) iEvent.put( phiSymHORecHitCollection, phiSymHOHits_);
-  if (phiSymHFRecHitCollection->size()>0) iEvent.put( phiSymHFRecHitCollection, phiSymHFHits_);
+  if (phiSymHBHERecHitCollection->size()>0) iEvent.put(std::move(phiSymHBHERecHitCollection), phiSymHBHEHits_);
+  if (phiSymHORecHitCollection->size()>0) iEvent.put(std::move(phiSymHORecHitCollection), phiSymHOHits_);
+  if (phiSymHFRecHitCollection->size()>0) iEvent.put(std::move(phiSymHFRecHitCollection), phiSymHFHits_);
 
   return true;
 }

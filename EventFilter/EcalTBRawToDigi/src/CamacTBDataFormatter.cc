@@ -83,7 +83,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
 {
   
 
-  const unsigned long * buffer = ( reinterpret_cast<unsigned long*>(const_cast<unsigned char*> ( fedData.data())));
+  const unsigned long * buffer = ( reinterpret_cast<const unsigned long*>( fedData.data()));
   int fedLenght                        = fedData.size(); // in Bytes
   
   // check ultimate fed size and strip off fed-header and -trailer
@@ -138,11 +138,9 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = b >> 8;
   LogDebug("CamacTBDataFormatter") << "minor:\t" << b;
 
-  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   LogDebug("CamacTBDataFormatter") << "time stamp secs: "<<a;
 
-  a = buffer[wordCounter];wordCounter++;
   LogDebug("CamacTBDataFormatter") << "\n\n word:\t" << a;
   LogDebug("CamacTBDataFormatter") << "time stamp musecs: " <<a;
 
@@ -201,8 +199,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
       a                 = buffer[wordCounter];
       bufferHodo[hodo]  = buffer[wordCounter];
       wordCounter++;
-            
-      b = (a& 0xffffff);
+      b = (a& 0xffffff);      
       LogDebug("CamacTBDataFormatter") << "hodo: " << hodo << "\t: " << b;
     }
 
@@ -326,8 +323,7 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   b = (a& 0x000000ff);
   LogDebug("CamacTBDataFormatter") << "number of words used in multi stop TDC words: "<< b;
   
-  int numberTDCwords = b;
-  numberTDCwords = 16;
+  int numberTDCwords = 16;
   bool multiStopTDCIsGood = true;
   for (int tdc=0; tdc< numberTDCwords ; tdc++)
     {
@@ -380,8 +376,6 @@ void CamacTBDataFormatter::interpretRawData( const FEDRawData & fedData,
   // skip 10 reserved words
   wordCounter += 10;
   bool ADCIsGood = true;
-//  ADCIsGood =  ADCIsGood && checkStatus(buffer[wordCounter], wordCounter);
-  ADCIsGood = checkStatus(buffer[wordCounter], wordCounter);
   a = buffer[wordCounter];      wordCounter++;  // NOT read out
   b = (a&0x00ffffff);
   LogDebug("CamacTBDataFormatter") << "ADC word1: " << a << "\t ADC2: " << b << " word is: " << (wordCounter-1);

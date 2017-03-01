@@ -25,7 +25,7 @@
 
 using namespace reco;
 
-void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & desc )
+void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & desc)
  {
   // input collections
   desc.add<edm::InputTag>("previousGsfElectronsTag",edm::InputTag("ecalDrivenGsfElectrons")) ;
@@ -152,7 +152,7 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<std::string>("crackCorrectionFunction","EcalClusterCrackCorrection") ;
  }
 
-GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
+GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, const gsfAlgoHelpers::HeavyObjectCache* )
  : ecalSeedingParametersChecked_(false)
  {
   produces<GsfElectronCollection>();
@@ -365,7 +365,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
    }
 
 
-   mvaCfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
+   mva_NIso_Cfg_.vweightsfiles = cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
+   mva_Iso_Cfg_.vweightsfiles  = cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
   // create algo
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
@@ -374,7 +375,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction,
-     mvaCfg_,
+     mva_NIso_Cfg_,
+     mva_Iso_Cfg_,
      regressionCfg
    ) ;
 
@@ -427,9 +429,9 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after amb. solving)") ;
    }
   // final filling
-  std::auto_ptr<GsfElectronCollection> finalCollection( new GsfElectronCollection ) ;
+  auto finalCollection = std::make_unique<GsfElectronCollection>();
   algo_->copyElectrons(*finalCollection) ;
-  orphanHandle_ = event.put(finalCollection) ;
+  orphanHandle_ = event.put(std::move(finalCollection));
 }
 
 void GsfElectronBaseProducer::endEvent()

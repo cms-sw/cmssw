@@ -5,7 +5,6 @@
 <use   name="SimCalorimetry/EcalSimAlgos"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <export>
   <lib   name="1"/>

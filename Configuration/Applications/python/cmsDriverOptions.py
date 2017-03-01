@@ -9,6 +9,7 @@ import re
 import Configuration.Applications
 from Configuration.Applications.ConfigBuilder import ConfigBuilder, defaultOptions
 import traceback
+from functools import reduce
 
 
 def checkOptions():
@@ -237,5 +238,33 @@ def OptionsFromItems(items):
 
         options.prefix = "igprof -t cmsRun -%s" % profilerType
         
+    # If an "era" argument was supplied make sure it is one of the valid possibilities
+    if options.era :
+        from Configuration.StandardSequences.Eras import eras
+        from FWCore.ParameterSet.Config import Modifier, ModifierChain
+        # Split the string by commas to check individual eras
+        requestedEras = options.era.split(",")
+        # Check that the entry is a valid era
+        for eraName in requestedEras :
+            if not hasattr( eras, eraName ) : # Not valid, so print a helpful message
+                validOptions="" # Create a stringified list of valid options to print to the user
+                for key in eras.__dict__ :
+                    if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
+                        if validOptions!="" : validOptions+=", " 
+                        validOptions+="'"+key+"'"
+                raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (eraName, validOptions) )
+    # If the "--fast" option was supplied automatically enable the fastSim era
+    if options.fast :
+        if options.era:
+            options.era+=",fastSim"
+        else :
+            options.era="fastSim"
+
+    # options incompatible with fastsim
+    if options.fast and not options.scenario == "pp":
+        raise Exception("ERROR: the --option fast is only compatible with the default scenario (--scenario=pp)")
+    if options.fast and 'HLT' in options.trimmedStep:
+        raise Exception("ERROR: the --option fast is incompatible with HLT (HLT is no longer available in FastSim)")
+
     return options
 

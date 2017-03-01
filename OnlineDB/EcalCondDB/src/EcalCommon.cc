@@ -6,7 +6,7 @@
 using namespace std;
 
 int EcalCommon::crystalToTriggerTower(int xtal)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   if (xtal < 1 || xtal > 1700) {
     throw(std::runtime_error("ERROR:  crystalToTriggerTower:  crystal number out of bounds"));

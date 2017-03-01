@@ -60,10 +60,12 @@ noniso_strings = []
 
 for type in plot_types:
     efficiency_strings.append(efficiency_string("L1", "All", type))
-    for step in ["L2", "L2Iso", "L3", "L3Iso"]:
+    for step in ["L2", "L2Iso", "L3", "Tk", "L3EcalIso", "L3HcalIso", "L3TkIso"]:
         efficiency_strings.append(efficiency_string(step, "L1", type))
     noniso_strings.append(efficiency_string("L3", "All", type, "Total"))
-    iso_strings.append(efficiency_string("L3Iso", "All", type, "Total"))
+    iso_strings.append(efficiency_string("L3EcalIso", "All", type, "Total"))
+    iso_strings.append(efficiency_string("L3HcalIso", "All", type, "Total"))
+    iso_strings.append(efficiency_string("L3TkIso", "All", type, "Total"))
 
 add_reco_strings(efficiency_strings)
 add_reco_strings(noniso_strings)

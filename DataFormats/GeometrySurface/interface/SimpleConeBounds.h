@@ -21,7 +21,7 @@
 #include <algorithm>
 
 
-class SimpleConeBounds GCC11_FINAL : public Bounds {
+class SimpleConeBounds final : public Bounds {
 public:
 
   /// Construct from inner/outer radius on the two Z faces 

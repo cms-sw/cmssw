@@ -11,6 +11,7 @@
 // 22-Jan-2004 Corrected position of trap for 'infinite' loop while
 //    generating steps. Output files (debugV-flagged only) require SC flag.
 //    Increase deCut from 10 keV to 100 keV to accomodate protons!
+// Mar-2015: cout to LogVerbatim. Change superseded debugV-flagged code to flag from config.
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -21,7 +22,8 @@
 #include "CLHEP/Random/RandExponential.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include <iostream>
+// Only needed if file writing code is activated again
+// #include <iostream>
 #include <fstream>
 #include <cassert>
 
@@ -41,21 +43,25 @@
 #include <iterator>
 
 using namespace std;
+
 /* Gas mixture is Ar/CO2/CF4 = 40/50/10
-We'll use the ioinzation energies
+We'll use the ionization energies
 Ar    15.8 eV
 CO2   13.7 eV
 CF4    17.8
-to arrive at a weighted average of 14.95 */
+to arrive at a weighted average of eion = 14.95 */
 
-CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
+CSCGasCollisions::CSCGasCollisions( const edm::ParameterSet & pset ) 
+ : me("CSCGasCollisions"),
   gasDensity( 2.1416e-03 ), 
   deCut( 1.e05 ), eion( 14.95 ), ework( 34.0 ), clusterExtent( 0.001 ),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
   theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
   theParticleDataTable(0),
-  saveGasCollisions ( false )
+  saveGasCollisions_ ( false ), dumpGasCollisions_( false )
 {
+
+  dumpGasCollisions_ = pset.getUntrackedParameter<bool>("dumpGasCollisions");
 
   edm::LogInfo(me) << "Constructing a " << me << ":"; 
   edm::LogInfo(me) << "gas density = " << gasDensity << " g/cm3";
@@ -64,7 +70,8 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
   edm::LogInfo(me) << "ionization threshold = " << eion << " eV";
   edm::LogInfo(me) << "effective work function = " << ework << " eV";
   edm::LogInfo(me) << "cluster extent = " << clusterExtent*1.e04 << " micrometres";
-  edm::LogInfo(me) << "Save gas collision info to files when using debugV? " << saveGasCollisions;
+  edm::LogInfo(me) << "dump gas collision and simhit information? " << dumpGasCollisions();
+  edm::LogInfo(me) << "save gas collision information? -NOT YET IMPLEMENTED- " << saveGasCollisions();
 
   readCollisionTable();
 }
@@ -106,7 +113,7 @@ void CSCGasCollisions::readCollisionTable() {
 
   ifstream & fin = *f1();
 
-  if (fin == 0) {
+  if (fin.fail()) {
     string errorMessage = "Cannot open input file " + path + colliFile;
     edm::LogError("CSCGasCollisions") << errorMessage;
     throw cms::Exception(errorMessage);
@@ -149,9 +156,8 @@ void CSCGasCollisions::setParticleDataTable(const ParticleDataTable * pdt)
 }
 
 
-void CSCGasCollisions::simulate( const PSimHit& simHit, 
-                                 std::vector<LocalPoint>& positions, std::vector<int>& electrons,
-                                 CLHEP::HepRandomEngine* engine ) {
+void CSCGasCollisions::simulate( const PSimHit& simhit, 
+   std::vector<LocalPoint>& positions, std::vector<int>& electrons, CLHEP::HepRandomEngine* engine ) {
 
   const float epsilonL = 0.01;                     // Shortness of simhit 'length'
   //  const float max_gap_z = 1.5;                     // Gas gaps are 0.5 or 1.0 cm
@@ -159,33 +165,35 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   // Note that what I call the 'gap' may in fact be the 'length' of a PSimHit which
   // does not start and end on the gap edges. This confuses the nomenclature at least.
 
-  double mom    = simHit.pabs();
-  int iam       = simHit.particleType();           // PDG type
+  double mom    = simhit.pabs();                   // in GeV/c - see MuonSensitiveDetector.cc
+  //  int iam       = simhit.particleType();           // PDG type
   delete theCrossGap;                              // before building new one
   assert(theParticleDataTable != 0);
-  ParticleData const * particle = theParticleDataTable->particle( simHit.particleType() );
+  ParticleData const * particle = theParticleDataTable->particle( simhit.particleType() );
   double mass = 0.105658; // assume a muon
   if(particle == 0)
   {
-     edm::LogError("CSCGasCollisions") << "Cannot find particle of type " << simHit.particleType()
-                                       << " in the PDT";
+     edm::LogError("CSCGasCollisions") << "Cannot find particle of type " << simhit.particleType()
+            << " in the PDT";
   }
   else 
   {
     mass = particle->mass();
   }
 
-  theCrossGap   = new CSCCrossGap( mass, mom, simHit.exitPoint() - simHit.entryPoint() );
+  theCrossGap   = new CSCCrossGap( mass, mom, simhit.exitPoint() - simhit.entryPoint() );
   float gapSize = theCrossGap->length();
 
   // Test the simhit 'length' (beware of angular effects)
   //  if ( gapSize <= epsilonL || gapSize > max_gap_z ) {
   if ( gapSize <= epsilonL ) {
-    LogTrace(me) << ": WARNING! simhit entry and exit are very close: \n"
-      << "\n entry = " << simHit.entryPoint()
-      << "\n exit  = " << simHit.exitPoint()
-      << "\n particle type = " << iam << ", momentum = " << mom 
-      << ", gap length = " << gapSize;
+    edm::LogVerbatim("CSCDigitizer") 
+      << "[CSCGasCollisions] WARNING! simhit entry and exit are too close - skipping simhit:"
+      << "\n entry = " << simhit.entryPoint()
+      << ": exit  = " << simhit.exitPoint()
+      << "\n particle type = " << simhit.particleType() << " : momentum = " << simhit.pabs()
+      << " GeV/c : energy loss = " << simhit.energyLoss()*1.E06 << " keV"
+      << ", gapSize = " << gapSize << " cm (< epsilonL = " << epsilonL << " cm)";
     return; //@@ Just skip this PSimHit
   }
 
@@ -210,26 +218,32 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   int n_try        = 0;  // no. of tries to generate steps
   double step      = -1.; // Sentinel for start
 
-  LocalPoint layerLocalPoint( simHit.entryPoint() );
+  LocalPoint layerLocalPoint( simhit.entryPoint() );
 
   // step/primary collision loop
   while ( sum_steps < gapSize) {
     ++n_try;
     if ( n_try > MAX_STEPS ) {
-          LogTrace(me) << ": n_try=" << n_try << " is too large. Skip simhit."
-           << "\n particle type=" << iam << ", momentum= " << mom
-           << "\n gapSize=" << gapSize << ", last step=" << step 
-           << ", sum_steps=" << sum_steps << ", n_steps=" << n_steps;
-        break;
+      int maxst = MAX_STEPS;
+      edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] WARNING! n_try = " << n_try 
+	   << " is > MAX_STEPS = " << maxst << " - skipping simhit:"
+           << "\n entry = " << simhit.entryPoint()
+           << ": exit  = " << simhit.exitPoint()
+           << "\n particle type = " << simhit.particleType() << " : momentum = " << simhit.pabs()
+           << " GeV/c : energy loss = " << simhit.energyLoss()*1.E06 << " keV"
+           << "\n gapSize = " << gapSize << " cm, last step = " << step 
+           << " cm, sum_steps = " << sum_steps << " cm, n_steps = " << n_steps;
+      break;
     }
     step = generateStep( amu, engine );
-    if ( sum_steps + step > gapSize ) break;
+    if ( sum_steps + step > gapSize ) break; // this step goes too far
 
     float eloss = generateEnergyLoss( amu, anmin, anmax, collisions, engine );
 
     // Is the eloss too large? (then GEANT should have produced hits!)
     if ( eloss > deCut ) {
-      LogTrace(me) << "eloss > " << deCut << " = " << eloss;
+      edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] WARNING! eloss = " << eloss 
+              << " eV is too large (> " << deCut << " eV) - trying another collision";
       continue; // to generate another collision/step
     }
 
@@ -238,13 +252,16 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
     ++n_steps;          // the number of primary collisions
     
     if (n_steps > MAX_STEPS ) { // Extra-careful trap for bizarreness
-        edm::LogInfo(me) << ": n_steps=" << n_steps << " is too large. Skip simhit.";
-        edm::LogInfo(me) << "particle type=" << iam << ", momentum= " << mom;
-        edm::LogInfo(me) << "gapSize=" << gapSize << ", last step=" << step 
-             << ", sum_steps=" << sum_steps;
+        edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] WARNING! " << n_steps 
+             << " is too many steps -  skipping simhit:"
+             << "\n entry = " << simhit.entryPoint()
+             << ": exit  = " << simhit.exitPoint()
+             << "\n particle type = " << simhit.particleType() << " : momentum = " << simhit.pabs()
+             << " GeV/c : energy loss = " << simhit.energyLoss()*1.E06 << " keV"
+	     << "\ngapSize=" << gapSize << " cm, last step=" << step << " cm, sum_steps=" << sum_steps << " cm";
         break;
     }
-    LogTrace(me) << "sum_steps = " << sum_steps << ", dedx = " << dedx;
+    LogTrace(me) << "sum_steps = " << sum_steps << " cm , dedx = " << dedx << " eV";
     
     // Generate ionization. 
     // eion is the minimum energy at which ionization can occur in the gas
@@ -253,14 +270,12 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
       ionize( eloss, layerLocalPoint );
     }
     else {
-      LogTrace(me) << "Energy available = " << eloss <<
-        ", too low for ionization.";
+      LogTrace(me) << "Energy available = " << eloss << " eV is too low for ionization (< eion = " << eion << " eV)";
     }
 
   } // step/collision loop
 
-  //TODO port this
-  //if ( debugV ) writeSummary( n_steps, sum_steps, dedx, simHit.energyLoss() );
+  if ( dumpGasCollisions() ) writeSummary( n_try, n_steps, sum_steps, dedx, simhit );
 
   // Return values in two container arguments
   positions = theCrossGap->ionClusters();
@@ -277,15 +292,14 @@ double CSCGasCollisions::generateStep( double avCollisions, CLHEP::HepRandomEngi
 //    double da = double(rand())/double(RAND_MAX);
 //    double step = -log(1.-da)/avCollisions;
 
-    LogTrace(me)  << " step = " << step;
+  LogTrace(me)  << " step = " << step << " cm";
     // Next line only used to fill a container of 'step's for later diagnostic dumps
-    //if ( debugV ) theCrossGap->addStep( step );
+  if ( dumpGasCollisions() ) theCrossGap->addStep( step );
     return step;
 }
 
-float CSCGasCollisions::generateEnergyLoss( double avCollisions,
-                                            double anmin, double anmax, const std::vector<float>& collisions,
-                                            CLHEP::HepRandomEngine* engine ) const
+float CSCGasCollisions::generateEnergyLoss( double avCollisions, double anmin, double anmax, 
+                   const std::vector<float>& collisions, CLHEP::HepRandomEngine* engine ) const
 {
 // Generate a no. of collisions between collisions[0] and [N_ENERGY-1]
    float lnColl = log(CLHEP::RandFlat::shoot(engine, anmin, anmax));
@@ -300,9 +314,9 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
     float eloss  = exp(lnE);
     // Compensate if gamma was actually below 1.1
     if ( theCrossGap->gamma() < 1.1 ) eloss = eloss * 0.173554/theCrossGap->beta2();
-    LogTrace(me) << "eloss = " << eloss;
+    LogTrace(me) << "eloss = " << eloss << " eV";
     // Next line only used to fill container of eloss's for later diagnostic dumps
-    // if ( debugV ) theCrossGap->addEloss( eloss );
+    if ( dumpGasCollisions() ) theCrossGap->addEloss( eloss );
     return eloss;
 }
 
@@ -318,17 +332,21 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
   //@@ But this changes tuning of the algorithm so leave it until after the big rush to 7_5_0
   //@@  energyAvailable -= eion; 
 
-  // Sauli CERN 77-09: delta e range with E in MeV (Sauli references Kobetich & Katz 1968,
-  // but I cannot find this expression in that set of papers.)
+  // Sauli CERN 77-09: delta e range with E in MeV (Sauli references Kobetich & Katz 1968
+  // but that has nothing to do with this expression! He seems to have  made a mistake.)
+    // I found the Sauli-quoted relationship in R. Glocker, Z. Naturforsch. Ba, 129 (1948):
+    // delta e range R = aE^n with a=710, n=1.72 for E in MeV and R in mg/cm^2
+    // applicable over the range E = 0.001 to 0.3 MeV.
+
   // Take HALF that range. //@@ Why? Why not...
     double range = 0.5 * (0.71/gasDensity)*pow( energyAvailable*1.E-6, 1.72);
-    LogTrace(me) << " range = " << range;
+    LogTrace(me) << " range = " << range << " cm";
     if ( range < clusterExtent ) {
 
       // short-range delta e
           // How many electrons can we make? Now use *average* energy for ionization (not *minimum*)
       int nelec = static_cast<int>(energyAvailable/ework);
-      LogTrace(me) << "s-r delta energy in = " << energyAvailable;
+      LogTrace(me) << "short-range delta energy in = " << energyAvailable << " eV";
       //energyAvailable -= nelec*(energyAvailable/ework);
       energyAvailable -= nelec*ework;
 	    // If still above eion (minimum, not average) add one more e
@@ -336,14 +354,14 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
         ++nelec;
         energyAvailable -= eion;
       }
-      LogTrace(me) << "s-r delta energy out = " << energyAvailable << ", nelec = " << nelec;
+      LogTrace(me) << "short-range delta energy out = " << energyAvailable << " eV, nelec = " << nelec;
       theCrossGap->addElectrons( nelec );
       break;
 
      }
      else {
       // long-range delta e
-         LogTrace(me) << "l-r delta \n"
+         LogTrace(me) << "long-range delta \n"
              << "no. of electrons in cluster now = " << theCrossGap->noOfElectrons();
          theCrossGap->addElectrons( 1 ); // Position is at startHere still
 
@@ -354,7 +372,7 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
               double range2 = 0.5 * 0.71/gasDensity*pow( 1.E-6*energyAvailable, 1.72);
               double drange = range - range2;
               LogTrace(me) << "  energy left = " << energyAvailable << 
-                        ", range2 = " << range2 << ", drange = " << drange;
+		" eV, range2 = " << range2 << " cm, drange = " << drange << " cm";
               if ( drange < clusterExtent ) {
                 theCrossGap->addElectronToBack(); // increment last element
               }
@@ -362,7 +380,8 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
                 startHere += drange*theCrossGap->unitVector(); // update delta e start position
                 range = range2;                       // update range
                 new_range = true;                     // Test range again
-                LogTrace(me) << "reset range to range2 and iterate";
+                LogTrace(me) << "reset range to range2 = " << range 
+                             << " from startHere = " << startHere << "  and iterate";
               }
        	      break; // out of inner while energyAvailable>eion
 
@@ -381,85 +400,116 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
       } // outer while energyAvailable>eion
 }
 
-void CSCGasCollisions::writeSummary( int n_steps, double sum_steps, float dedx, float simHiteloss ) const
+void CSCGasCollisions::writeSummary( int n_try, int n_steps, double sum_steps, float dedx, 
+           const PSimHit& simhit ) const
 {
-  std::vector<LocalPoint> ion_clusters = theCrossGap->ionClusters();
+  // Switched from std::cout to LogVerbatim, Mar 2015
+
+  std::vector<LocalPoint> ion_clusters   = theCrossGap->ionClusters();
   std::vector<int> electrons             = theCrossGap->electrons();
   std::vector<float> elosses             = theCrossGap->eLossPerStep();
   std::vector<double> steps              = theCrossGap->stepLengths();
 
-    cout << "------------------" << std::endl;
-    cout << "AFTER CROSSING GAP" << std::endl;
-    cout << "No. of steps = " << n_steps << std::endl;
-    cout << "Check:  stored steps = " << theCrossGap->noOfSteps() << std::endl;
+  edm::LogVerbatim("CSCDigitizer") << "------------------"
+                                 << "\nAFTER CROSSING GAP";
+  /*
+  edm::LogVerbatim("CSCDigitizer") << "no. of steps tried             = " << n_try
+                                 << "\nno. of steps from theCrossGap  = " << theCrossGap->noOfSteps()
+				 << "\nsize of steps vector           = " << steps.size();
+                                 
+  edm::LogVerbatim("CSCDigitizer") << "no. of collisions (steps)      = " << n_steps
+			         << "\nsize of elosses vector         = " << elosses.size()
+				 << "\nsize of ion clusters vector    = " << ion_clusters.size()
+                                 << "\nsize of electrons vector       = " << electrons.size();
+  */
 
-    cout << "Lengths of steps: " << std::endl;
-    std::copy( steps.begin(), steps.end(), std::ostream_iterator<float>(cout,"\n"));
-    cout << std::endl;
+  size_t nsteps = n_steps; // force ridiculous type conversion
+  size_t mstep = steps.size() - 1; // final step gets filled but is outside gas gap - unless we reach MAX_STEPS
+  if ( (nsteps != MAX_STEPS) && (nsteps != mstep) ) {
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] WARNING! no. of steps = " << nsteps 
+                                     << " .ne. steps.size()-1 = " << mstep;
+  }
+  size_t meloss = elosses.size();
 
-    if ( saveGasCollisions ) {
-      ofstream of0("osteplen.dat",ios::app);
-      std::copy( steps.begin(), steps.end(), std::ostream_iterator<float>(of0,"\n"));
+  if ( nsteps != meloss ){
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] WARNING! no. of steps = " << nsteps 
+                                     << " .ne. no. of elosses = " << meloss;
+  }
+  else {
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] # / length of step / energy loss per collision:";
+    for ( size_t i = 0; i != nsteps; ++i ) {
+      edm::LogVerbatim("CSCDigitizer") << i+1 << " / S: " << steps[i] << " / E: " << elosses[i];
     }
+  }
 
-    cout << "Total sum of steps = " << sum_steps << std::endl;
-    if ( n_steps > 0 ) cout << "Average step length = " << 
-       sum_steps/float(n_steps) << std::endl;
-    cout << std::endl;
-    
-    cout << "Energy loss per collision:" << std::endl;
-    std::copy( elosses.begin(), elosses.end(), std::ostream_iterator<float>(cout,"\n"));
-    cout << std::endl;
+  size_t mclus = ion_clusters.size();
+  size_t melec = electrons.size();
 
-    if ( saveGasCollisions ) {
-      ofstream of1("olperc.dat",ios::app);
-      std::copy( elosses.begin(), elosses.end(), std::ostream_iterator<float>(of1,"\n"));
+  if ( mclus != melec ){
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] WARNING! size of cluster vector = " << mclus 
+            << " .ne. size of electrons vector = " << melec;
+  }
+  else {
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] # / postion of cluster / electrons per cluster: ";
+    for ( size_t i = 0; i != mclus; ++i ) {
+      edm::LogVerbatim("CSCDigitizer") << i+1 <<  " / I: " << ion_clusters[i] << " / E: " << electrons[i];
     }
+  }
 
-    cout << "Total energy loss across gap = " << dedx << " eV = " <<
-       dedx/1000. << " keV" << std::endl;
-    int n_ic = count_if( elosses.begin(), elosses.end(),
-                     bind2nd(greater<float>(), eion) );
-    cout << "No. of primary ionizing collisions across gap = " << n_ic << std::endl;
-    if ( n_steps > 0 ) cout << "Average energy loss/collision = " << 
-       dedx/float(n_steps) << " eV" << std::endl;
-    cout << std::endl;
+  int n_ic = count_if( elosses.begin(), elosses.end(), bind2nd(greater<float>(), eion) );
 
-    cout << "No. of ion clusters = " << ion_clusters.size() << std::endl;
-    cout << "Positions of clusters:" << std::endl;
-    std::copy( ion_clusters.begin(), ion_clusters.end(), 
-         std::ostream_iterator<LocalPoint>(cout,"\n"));
-    cout << std::endl;
+  edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] total no. of collision steps = " << n_steps;
+  edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] total sum of steps = " << sum_steps << " cm";
+  if ( nsteps > 0 ) edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] average step length = " << 
+      sum_steps/float(nsteps) << " cm";
+  edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] total energy loss across gap = " << 
+      dedx << " eV = " << dedx/1000. << " keV";
+  edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] no. of primary ionizing collisions across gap = no. with eloss > eion = "
+      << eion << " eV = " << n_ic;
+  if ( nsteps > 0 ) edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] average energy loss/collision = " <<  
+      dedx/float(nsteps) << " eV";
 
-    if ( saveGasCollisions ) {
-      ofstream of2("oclpos.dat",ios::app);
-      std::copy( ion_clusters.begin(), ion_clusters.end(), 
-         std::ostream_iterator<LocalPoint>(of2,"\n"));
-    }
+  std::vector<int>::const_iterator bigger = find(electrons.begin(), electrons.end(), 0 );
+  if ( bigger != electrons.end() ) {
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] TROUBLE! There is a cluster with 0 electrons.";
+  }
 
-    cout << "No. of electrons per cluster:" << std::endl;
-    std::copy( electrons.begin(), electrons.end(), std::ostream_iterator<int>(cout,"\n"));
-    cout << std::endl;
+  int n_e = accumulate(electrons.begin(), electrons.end(), 0 );
 
-    if ( saveGasCollisions ) {
-      ofstream of3("oepercl.dat",ios::app);
-      std::copy( electrons.begin(), electrons.end(), std::ostream_iterator<int>(of3,"\n"));
-    }
+  edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] SUMMARY: simhit"
+      << "\n entry = " << simhit.entryPoint()
+      << ": exit  = " << simhit.exitPoint()
+      << "\n particle type = " << simhit.particleType() << " : momentum = " << simhit.pabs()
+      << " GeV/c : energy loss = " << simhit.energyLoss()*1.E06 << " keV";
 
-    // Check for zero-e clusters
-    std::vector<int>::const_iterator bigger = find(electrons.begin(),
-           electrons.end(), 0 );
-    if ( bigger != electrons.end() ) {
-       cout << "Error! There is a cluster with 0 electrons." << std::endl;
-    }
-    int n_e = accumulate(electrons.begin(), electrons.end(), 0 );
-    if ( n_steps > 0 ) {
-      cout << "#        cm       cm             keV               eV          eV       eV     keV" << std::endl;
-      cout << " " << n_steps << "  " << sum_steps << " " << sum_steps/float(n_steps) << "    " <<
-         ion_clusters.size() << "    " <<
-         dedx/1000. << "    " << n_ic << "    " << dedx/float(n_steps) << "  " << n_e << "  " <<
-         dedx/float(n_e) << " " << float(n_e)/float(ion_clusters.size()) << " " << simHiteloss*1.E6 << std::endl;
-    }
+  if ( nsteps > 0 ) {
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] SUMMARY: ionization" 
+      << " : steps= " << nsteps << " : sum(steps)= " << sum_steps << " cm : <step>= " 
+      << sum_steps/float(nsteps) << " cm"
+      << " : ionizing= " << n_ic << " : ionclus= " << mclus << " : total e= " << n_e
+      << " : <dedx/step>= " << dedx/float(nsteps)
+      << " eV : <e/ionclus>= " << float(n_e)/float(mclus)
+      << " : dedx= " << dedx/1000. << " keV";
+  }
+  else {
+    edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisons] ERROR? no collision steps!";
+  }
+
+  // Turn off output file -  used for initial development
+  //  if ( saveGasCollisions() ) {
+  //    ofstream of0("osteplen.dat",ios::app);
+  //    std::copy( steps.begin(), steps.end(), std::ostream_iterator<float>(of0,"\n"));
+
+  //    ofstream of1("olperc.dat",ios::app);
+  //    std::copy( elosses.begin(), elosses.end(), std::ostream_iterator<float>(of1,"\n"));
+
+  //   ofstream of2("oclpos.dat",ios::app);
+  //   std::copy( ion_clusters.begin(), ion_clusters.end(), std::ostream_iterator<LocalPoint>(of2,"\n"));
+
+  //   ofstream of3("oepercl.dat",ios::app);
+  //   std::copy( electrons.begin(), electrons.end(), std::ostream_iterator<int>(of3,"\n"));
+  // }
+
 }
 
 float CSCGasCollisions::lnEnergyLoss( float lnCollisions, 

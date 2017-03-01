@@ -8,7 +8,7 @@
 #include "boost/foreach.hpp"
 
 ShallowTracksProducer::ShallowTracksProducer(const edm::ParameterSet& iConfig)
-  :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
+  :  tracks_token_( consumes<edm::View<reco::Track> >( iConfig.getParameter<edm::InputTag>("Tracks") )),
      Prefix       ( iConfig.getParameter<std::string>("Prefix")    ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    )
 {
@@ -42,34 +42,34 @@ ShallowTracksProducer::ShallowTracksProducer(const edm::ParameterSet& iConfig)
 
 void ShallowTracksProducer::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<unsigned int>               number      ( new unsigned int(0)             );
-  std::auto_ptr<std::vector<double> >       chi2        ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       ndof        ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       chi2ndof    ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<float> >        charge      ( new std::vector<float>()        );
-  std::auto_ptr<std::vector<float> >        momentum    ( new std::vector<float>()        );
-  std::auto_ptr<std::vector<float> >        pt          ( new std::vector<float>()        );
-  std::auto_ptr<std::vector<float> >        pterr       ( new std::vector<float>()        );
-  std::auto_ptr<std::vector<unsigned int> > hitsvalid   ( new std::vector<unsigned int>() );
-  std::auto_ptr<std::vector<unsigned int> > hitslost    ( new std::vector<unsigned int>() );
-  std::auto_ptr<std::vector<double> >       theta       ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       thetaerr    ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       phi         ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       phierr      ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       eta         ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       etaerr      ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       dxy         ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       dxyerr      ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       dsz         ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       dszerr      ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       qoverp      ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       qoverperr   ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       vx          ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       vy          ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<double> >       vz          ( new std::vector<double>()       );
-  std::auto_ptr<std::vector<int> >          algo        ( new std::vector<int>() );
+  auto       number      = std::make_unique<unsigned int>(0);
+  auto       chi2        = std::make_unique<std::vector<double>>();
+  auto       ndof        = std::make_unique<std::vector<double>>();
+  auto       chi2ndof    = std::make_unique<std::vector<double>>();
+  auto       charge      = std::make_unique<std::vector<float>>();
+  auto       momentum    = std::make_unique<std::vector<float>>();
+  auto       pt          = std::make_unique<std::vector<float>>();
+  auto       pterr       = std::make_unique<std::vector<float>>();
+  auto       hitsvalid   = std::make_unique<std::vector<unsigned int>>();
+  auto       hitslost    = std::make_unique<std::vector<unsigned int>>();
+  auto       theta       = std::make_unique<std::vector<double>>();
+  auto       thetaerr    = std::make_unique<std::vector<double>>();
+  auto       phi         = std::make_unique<std::vector<double>>();
+  auto       phierr      = std::make_unique<std::vector<double>>();
+  auto       eta         = std::make_unique<std::vector<double>>();
+  auto       etaerr      = std::make_unique<std::vector<double>>();
+  auto       dxy         = std::make_unique<std::vector<double>>();
+  auto       dxyerr      = std::make_unique<std::vector<double>>();
+  auto       dsz         = std::make_unique<std::vector<double>>();
+  auto       dszerr      = std::make_unique<std::vector<double>>();
+  auto       qoverp      = std::make_unique<std::vector<double>>();
+  auto       qoverperr   = std::make_unique<std::vector<double>>();
+  auto       vx          = std::make_unique<std::vector<double>>();
+  auto       vy          = std::make_unique<std::vector<double>>();
+  auto       vz          = std::make_unique<std::vector<double>>();
+  auto       algo        = std::make_unique<std::vector<int>>();
 
-  edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByLabel(theTracksLabel, tracks);
+  edm::Handle<edm::View<reco::Track> > tracks;  iEvent.getByToken(tracks_token_, tracks);
   
   *number = tracks->size();
   BOOST_FOREACH( const reco::Track track, *tracks) {
@@ -100,32 +100,32 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     algo->push_back(      (int) track.algo()              );
   }			  
   			  
-  iEvent.put(number,       Prefix + "number"     + Suffix );
-  iEvent.put(chi2,         Prefix + "chi2"       + Suffix );
-  iEvent.put(ndof,         Prefix + "ndof"       + Suffix );
-  iEvent.put(chi2ndof,     Prefix + "chi2ndof"   + Suffix );
-  iEvent.put(charge,       Prefix + "charge"     + Suffix );
-  iEvent.put(momentum,     Prefix + "momentum"   + Suffix );
-  iEvent.put(pt,           Prefix + "pt"         + Suffix );
-  iEvent.put(pterr,        Prefix + "pterr"      + Suffix );
-  iEvent.put(hitsvalid,    Prefix + "hitsvalid"  + Suffix );
-  iEvent.put(hitslost,     Prefix + "hitslost"   + Suffix );
-  iEvent.put(theta,        Prefix + "theta"      + Suffix );
-  iEvent.put(thetaerr,     Prefix + "thetaerr"   + Suffix );
-  iEvent.put(phi,          Prefix + "phi"        + Suffix );
-  iEvent.put(phierr,       Prefix + "phierr"     + Suffix );
-  iEvent.put(eta,          Prefix + "eta"        + Suffix );
-  iEvent.put(etaerr,       Prefix + "etaerr"     + Suffix );
-  iEvent.put(dxy,          Prefix + "dxy"        + Suffix );
-  iEvent.put(dxyerr,       Prefix + "dxyerr"     + Suffix );
-  iEvent.put(dsz,          Prefix + "dsz"        + Suffix );
-  iEvent.put(dszerr,       Prefix + "dszerr"     + Suffix );
-  iEvent.put(qoverp,       Prefix + "qoverp"     + Suffix );
-  iEvent.put(qoverperr,    Prefix + "qoverperr"  + Suffix );
-  iEvent.put(vx,           Prefix + "vx"         + Suffix );
-  iEvent.put(vy,           Prefix + "vy"         + Suffix );
-  iEvent.put(vz,           Prefix + "vz"         + Suffix );
-  iEvent.put(algo,         Prefix + "algo"         + Suffix );
+  iEvent.put(std::move(number),       Prefix + "number"     + Suffix );
+  iEvent.put(std::move(chi2),         Prefix + "chi2"       + Suffix );
+  iEvent.put(std::move(ndof),         Prefix + "ndof"       + Suffix );
+  iEvent.put(std::move(chi2ndof),     Prefix + "chi2ndof"   + Suffix );
+  iEvent.put(std::move(charge),       Prefix + "charge"     + Suffix );
+  iEvent.put(std::move(momentum),     Prefix + "momentum"   + Suffix );
+  iEvent.put(std::move(pt),           Prefix + "pt"         + Suffix );
+  iEvent.put(std::move(pterr),        Prefix + "pterr"      + Suffix );
+  iEvent.put(std::move(hitsvalid),    Prefix + "hitsvalid"  + Suffix );
+  iEvent.put(std::move(hitslost),     Prefix + "hitslost"   + Suffix );
+  iEvent.put(std::move(theta),        Prefix + "theta"      + Suffix );
+  iEvent.put(std::move(thetaerr),     Prefix + "thetaerr"   + Suffix );
+  iEvent.put(std::move(phi),          Prefix + "phi"        + Suffix );
+  iEvent.put(std::move(phierr),       Prefix + "phierr"     + Suffix );
+  iEvent.put(std::move(eta),          Prefix + "eta"        + Suffix );
+  iEvent.put(std::move(etaerr),       Prefix + "etaerr"     + Suffix );
+  iEvent.put(std::move(dxy),          Prefix + "dxy"        + Suffix );
+  iEvent.put(std::move(dxyerr),       Prefix + "dxyerr"     + Suffix );
+  iEvent.put(std::move(dsz),          Prefix + "dsz"        + Suffix );
+  iEvent.put(std::move(dszerr),       Prefix + "dszerr"     + Suffix );
+  iEvent.put(std::move(qoverp),       Prefix + "qoverp"     + Suffix );
+  iEvent.put(std::move(qoverperr),    Prefix + "qoverperr"  + Suffix );
+  iEvent.put(std::move(vx),           Prefix + "vx"         + Suffix );
+  iEvent.put(std::move(vy),           Prefix + "vy"         + Suffix );
+  iEvent.put(std::move(vz),           Prefix + "vz"         + Suffix );
+  iEvent.put(std::move(algo),         Prefix + "algo"       + Suffix );
 
 }
 

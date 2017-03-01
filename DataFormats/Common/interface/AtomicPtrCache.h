@@ -27,10 +27,8 @@
 //
 
 // system include files
- #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #include <memory>
-#endif
 // user include files
 
 // forward declarations
@@ -58,11 +56,9 @@ namespace edm {
     T const* load() const;
 
     bool isSet() const;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     ///returns true if actually was set.
     /// Will delete value held by iNewValue if not the first time set
     bool set(std::unique_ptr<T> iNewValue) const;
-#endif
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
@@ -79,13 +75,8 @@ namespace edm {
   private:
     
     // ---------- member data --------------------------------
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<T*> m_data;
-#else
-    mutable T* m_data;
-#endif
   };
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename T>
   inline AtomicPtrCache<T>::AtomicPtrCache():m_data{nullptr} {}
   
@@ -150,6 +141,5 @@ namespace edm {
     T* tmp = m_data.exchange(nullptr);
     return tmp;
   }
-#endif
 }
 #endif

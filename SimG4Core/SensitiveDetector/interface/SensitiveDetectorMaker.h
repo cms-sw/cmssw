@@ -38,7 +38,7 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
       // ---------- const member functions ---------------------
       virtual void make(const std::string& iname,
 			const DDCompactView& cpv,
-			SensitiveDetectorCatalog& clg,
+			const SensitiveDetectorCatalog& clg,
 			const edm::ParameterSet& p,
 			const SimTrackManager* m,
 			SimActivityRegistry& reg,

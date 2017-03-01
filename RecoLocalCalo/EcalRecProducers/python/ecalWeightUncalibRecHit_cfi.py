@@ -6,5 +6,6 @@ ecalWeightUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EEhitCollection = cms.string('EcalUncalibRecHitsEE'),
     EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
     EBhitCollection = cms.string('EcalUncalibRecHitsEB'),
-    algo = cms.string("EcalUncalibRecHitWorkerWeights")
+    algo = cms.string("EcalUncalibRecHitWorkerWeights"),
+    algoPSet = cms.PSet()
 )

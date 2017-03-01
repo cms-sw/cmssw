@@ -3,7 +3,7 @@
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/FWLite/interface/MultiChainEvent.h"
 #include "PhysicsTools/SelectorUtils/interface/WPlusJetsEventSelector.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -31,7 +31,7 @@ int main ( int argc, char ** argv )
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   if ( argc < 2 ) {
     std::cout << "Usage : " << argv[0] << " [parameters.py]" << std::endl;

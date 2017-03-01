@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 short SiPixelCalibConfiguration::vcalIndexForEvent(const uint32_t & eventnumber) const{
-  uint32_t relative_event = abs(eventnumber-1)%patternSize();
+  uint32_t relative_event = std::abs((int32_t)eventnumber-1)%patternSize();
   short relative_pattern = relative_event/getNTriggers();
   return relative_pattern; 
 }

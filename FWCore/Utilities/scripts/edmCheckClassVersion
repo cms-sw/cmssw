@@ -123,6 +123,10 @@ def checkClass(name,version,versionsToChecksums):
     c = ROOT.TClass.GetClass(name)
     if not c:
         raise RuntimeError("failed to load dictionary for class '"+name+"'")
+    temp = "checkTheClass.f(" + '"' + name + '"' + ");"
+    retval = ROOT.gROOT.ProcessLine(temp)
+    if retval == 0 :
+        raise RuntimeError("TClass::GetCheckSum: Failed to load dictionary for base class. See previous Error message")
     classChecksum = c.GetCheckSum()
     classVersion = c.GetClassVersion()
 
@@ -157,24 +161,24 @@ oparser.add_option("-g","--generate_new",dest="generate", action="store_true",de
 
 (options,args)=oparser.parse_args()
 
+#Need to not have ROOT load .rootlogon.(C|py) since it can cause interference.
 import ROOT
+ROOT.PyConfig.DisableRootLogon = True
+
 #Keep ROOT from trying to use X11
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".autodict")
 if options.library is None:
-    if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
-        raise RuntimeError("failed to load libFWCoreFWLite")
-    ROOT.AutoLibraryLoader.enable()
     if options.checkdict :
         print "Dictionary checks require a specific library"
 else:
-    if 0 != ROOT.gSystem.Load("libCintex"):
-        raise RuntimeError("failed to load libCintex")
-    ROOT.Cintex.Enable()
-    if 0 != ROOT.gSystem.Load(options.library):
+    if ROOT.gSystem.Load(options.library) < 0 :
         raise RuntimeError("failed to load library '"+options.library+"'")
 
 missingDict = 0
+
+ROOT.gROOT.ProcessLine("class checkclass {public: int f(char const* name) {TClass* cl = TClass::GetClass(name); bool b = false; cl->GetCheckSum(b); return (int)b;} };")
+ROOT.gROOT.ProcessLine("checkclass checkTheClass;")
 
 p = XmlParser(options.xmlfile)
 foundErrors = dict()

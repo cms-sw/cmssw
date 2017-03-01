@@ -12,6 +12,7 @@
   <use   name="Geometry/Records"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="PhysicsTools/IsolationAlgos"/>
+  <use   name="PhysicsTools/SelectorUtils"/>
   <use   name="RecoMuon/MuonIdentification"/>
   <use   name="RecoMuon/TrackingTools"/>
   <use   name="TrackingTools/Records"/>
@@ -20,5 +21,31 @@
   <use   name="boost_regex"/>
   <use   name="CommonTools/Utils"/>
   <use   name="DataFormats/ParticleFlowCandidate"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   name="RecoMuonMuonIdentificationPlugins_cuts" file="cuts/*.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/MuonDetId"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/RecoCandidate"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="Geometry/CommonDetUnit"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="PhysicsTools/IsolationAlgos"/>
+  <use   name="RecoMuon/MuonIdentification"/>
+  <use   name="RecoMuon/TrackingTools"/>
+  <use   name="TrackingTools/Records"/>
+  <use   name="TrackingTools/TrackAssociator"/>
+  <use   name="TrackingTools/TransientTrackingRecHit"/>
+  <use   name="boost_regex"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="PhysicsTools/SelectorUtils"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

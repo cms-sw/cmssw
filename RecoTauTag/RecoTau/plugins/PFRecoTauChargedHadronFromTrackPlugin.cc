@@ -143,13 +143,14 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
   evt.getByToken(Tracks_token, tracks);
 
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
-
+  float jEta=jet.eta();
+  float jPhi=jet.phi();
   size_t numTracks = tracks->size();
   for ( size_t iTrack = 0; iTrack < numTracks; ++iTrack ) {
     reco::TrackRef track(tracks, iTrack);
 
     // consider tracks in vicinity of tau-jet candidate only
-    double dR = deltaR(track->eta(), track->phi(), jet.eta(), jet.phi());
+    double dR = deltaR(track->eta(), track->phi(), jEta,jPhi);
     double dRmatch = dRcone_;
     if ( dRconeLimitedToJetArea_ ) {
       double jetArea = jet.jetArea();
@@ -157,7 +158,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
 	dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
       } else {
 	if ( numWarnings_ < maxWarnings_ ) {
-	  edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
+	  edm::LogInfo("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
 	    << "Jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << " has area = " << jetArea << " !!" << std::endl;
 	  ++numWarnings_;
 	}

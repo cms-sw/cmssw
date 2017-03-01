@@ -1,60 +1,65 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include <iostream>
 
-class HcalGeometryDetIdAnalyzer : public edm::EDAnalyzer 
-{
+class HcalGeometryDetIdAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-    explicit HcalGeometryDetIdAnalyzer( const edm::ParameterSet& );
-    ~HcalGeometryDetIdAnalyzer( void );
+  explicit HcalGeometryDetIdAnalyzer( const edm::ParameterSet& );
+  ~HcalGeometryDetIdAnalyzer( void );
     
-    virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
-    const HcalFlexiHardcodeGeometryLoader& m_loader;
-    std::string m_label;
+  edm::ParameterSet ps0_;
+  bool              useOld_;
 };
 
-HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer( const edm::ParameterSet& iConfig ) 
-    : m_loader( iConfig ),
-      m_label("_master")
-{
-    m_label = iConfig.getParameter<std::string>( "HCALGeometryLabel" );
+HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer(const edm::ParameterSet& iConfig ) : ps0_(iConfig) {
+  useOld_ = iConfig.getParameter<bool>("UseOldLoader");
 }
 
-HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer( void )
-{}
+HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer( void ) {}
 
 void
-HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
-{
-    edm::ESHandle<HcalTopology> topologyHandle;
-    iSetup.get<IdealGeometryRecord>().get( topologyHandle );
-    const HcalTopology* topology ( topologyHandle.product() ) ;
+HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup ) {
+  edm::ESHandle<HcalDDDRecConstants> hDRCons;
+  iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
+  const HcalDDDRecConstants hcons = (*hDRCons);
+  edm::ESHandle<HcalTopology> topologyHandle;
+  iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
+  const HcalTopology topology = (*topologyHandle);
 
-    edm::ESHandle<CaloSubdetectorGeometry> pG;
-    iSetup.get<HcalGeometryRecord>().get( HcalGeometry::producerTag() + m_label, pG );
-    
-    const CaloSubdetectorGeometry* caloGeom = pG.product();
-    const std::vector<DetId>& ids = caloGeom->getValidDetIds();
+  CaloSubdetectorGeometry* caloGeom(0);
+  if (useOld_) {
+    HcalHardcodeGeometryLoader m_loader(ps0_);
+    caloGeom = m_loader.load(topology);
+  } else {
+    HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
+    caloGeom = m_loader.load(topology, hcons);
+  }
+  const std::vector<DetId>& ids = caloGeom->getValidDetIds();
 
-    int counter = 0;
-    for( std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end(); i != iEnd; ++i, ++counter )
-    {
-	HcalDetId hid = (*i);
-	unsigned int did = topology->detId2denseId(*i);
-	HcalDetId rhid = topology->denseId2detId(did);
+  int counter = 0;
+  for (std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end();
+       i != iEnd; ++i, ++counter )  {
+    HcalDetId hid = (*i);
+    unsigned int did = topology.detId2denseId(*i);
+    HcalDetId rhid = topology.denseId2detId(did);
 	
-	std::cout << counter << ": din " << did << ": " << hid << " == " << rhid << std::endl;
-	assert(hid == rhid);
-    }
+    std::cout << counter << ": din " << std::hex << did << std::dec << ": " 
+	      << hid << " == " << rhid << std::endl;
+    assert(hid == rhid);
+  }
 }
 
 DEFINE_FWK_MODULE(HcalGeometryDetIdAnalyzer);

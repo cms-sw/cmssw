@@ -20,7 +20,6 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 

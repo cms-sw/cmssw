@@ -93,6 +93,12 @@ public:
   /// check if detector is inside any part of this layer 
   bool inside( const MaterialAccountingDetector& detector ) const;
 
+  /// Return the bouding limit in R for the hosted Group
+  std::pair<double, double> getBoundingR() const {return m_boundingbox.range_r();};
+
+  /// Return the bouding limit in Z for the hosted Group
+  std::pair<double, double> getBoundingZ() const {return m_boundingbox.range_z();};
+
   /// return the average normalized material accounting informations
   MaterialAccountingStep average(void) const 
   {
@@ -152,7 +158,15 @@ public:
 
   /// save the plots
   void savePlots(void);
- 
+
+  // get directly the internal vector of global points that
+  // correspond, roughly, to the center of each subcomponent of this
+  // group.
+
+  const std::vector<GlobalPoint> & elements(void) const {
+    return m_elements;
+  }
+
 private:
   void savePlot(TH1F * plot, const std::string & name);
   void savePlot(TProfile * plot, float average, const std::string & name);

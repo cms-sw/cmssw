@@ -25,7 +25,7 @@
 // user include files
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@
 // class decleration
 //
 
-class ClusterCount : public edm::EDAnalyzer {
+class ClusterCount : public DQMEDAnalyzer {
 
    public:
 
@@ -50,8 +50,9 @@ class ClusterCount : public edm::EDAnalyzer {
 
 
    private:
-
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                          edm::EventSetup const&) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
       //      edm::InputTag clusterLabel_;

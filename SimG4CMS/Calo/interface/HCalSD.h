@@ -17,7 +17,9 @@
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 #include "SimG4CMS/Calo/interface/HFDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4String.hh"
 #include <map>
@@ -30,11 +32,11 @@ class G4LogicalVolume;
 class G4Material;
 class G4Step;
 
-class HCalSD : public CaloSD {
+class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HCalSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,
+  HCalSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HCalSD();
   virtual bool                  ProcessHits(G4Step * , G4TouchableHistory * );
@@ -44,6 +46,7 @@ public:
 
 protected:
 
+  virtual void                  update(const BeginOfJob *);
   virtual void                  initRun();
   virtual bool                  filterHit(CaloG4Hit*, double);
 
@@ -73,7 +76,9 @@ private:
   void                          plotProfile(G4Step* step, const G4ThreeVector& pos, 
                                             double edep, double time, int id);
   void                          plotHF(G4ThreeVector& pos, bool emType);
+  void                          modifyDepth(HcalNumberingFromDDD::HcalID& id);
 
+  HcalDDDSimConstants*          hcalConstants;
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
   HFShowerLibrary *             showerLibrary;
@@ -83,13 +88,14 @@ private:
   HFShowerFibreBundle *         showerBundle;
   HEDarkening *                 m_HEDarkening;
   HFDarkening *                 m_HFDarkening;
-  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit, testNumber;
+  bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
+  bool                          testNumber, neutralDensity;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG; 
-  std::vector<double>           layer0wt, gpar;
+  G4int                         mumPDG, mupPDG, depth_;
+  std::vector<double>           gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;
   std::vector<G4Material*>      materials;

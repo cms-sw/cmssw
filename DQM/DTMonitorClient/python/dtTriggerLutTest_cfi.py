@@ -6,7 +6,7 @@ triggerLutTest = cms.EDAnalyzer("DTTriggerLutTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('DCC'),
+    hwSources = cms.untracked.vstring('TM'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),
     # root folder for booking of histograms

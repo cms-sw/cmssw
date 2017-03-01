@@ -466,7 +466,6 @@ void testMagneticField::fillFromTable(string inputFile, vector<GlobalPoint>& p, 
 }
 
 
-#define private public
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
 // Get the pointer of the volume containing a point

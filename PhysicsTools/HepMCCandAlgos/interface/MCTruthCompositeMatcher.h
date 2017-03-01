@@ -52,7 +52,7 @@ void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::Eve
     maps.push_back( & * matchMap );
   }
   MCCandMatcher<C1, C2> match( maps );
-  auto_ptr<map_type> matchMap( new map_type );
+  auto matchMap = std::make_unique<map_type>();
   for( size_t i = 0; i != cands->size(); ++ i ) {
     const typename C1::value_type & cand = ( * cands )[ i ];
     reference_type mc(match( cand ));
@@ -61,7 +61,7 @@ void MCTruthCompositeMatcher<C1, C2>::produce( edm::Event & evt , const edm::Eve
     }
   }
 
-  evt.put( matchMap );
+  evt.put(std::move(matchMap) );
 }
 
 #endif

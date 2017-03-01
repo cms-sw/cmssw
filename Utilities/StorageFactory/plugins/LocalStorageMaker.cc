@@ -11,11 +11,12 @@
 class LocalStorageMaker : public StorageMaker
 {
 public:
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
-			 int mode) override
+			 int mode,
+       const AuxSettings&) const override
     {
-      StorageFactory *f = StorageFactory::get();
+      const StorageFactory *f = StorageFactory::get();
       StorageFactory::ReadHint readHint = f->readHint();
       StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -25,13 +26,14 @@ public:
       else
 	mode |= IOFlags::OpenUnbuffered;
 
-      File *file = new File (path, mode);
-      return f->wrapNonLocalFile (file, proto, path, mode);
+      auto file = std::make_unique<File> (path, mode);
+      return f->wrapNonLocalFile (std::move(file), proto, path, mode);
     }
 
   virtual bool check (const std::string &/*proto*/,
 		      const std::string &path,
-		      IOOffset *size = 0) override
+          const AuxSettings&,
+		      IOOffset *size = 0) const override
     {
       struct stat st;
       if (stat (path.c_str(), &st) != 0)

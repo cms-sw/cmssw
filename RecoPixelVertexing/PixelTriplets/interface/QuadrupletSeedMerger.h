@@ -32,8 +32,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -79,6 +77,7 @@ class QuadrupletSeedMerger {
 
  public:
 
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC): QuadrupletSeedMerger(iConfig, iC) {}
   explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC);
   ~QuadrupletSeedMerger();

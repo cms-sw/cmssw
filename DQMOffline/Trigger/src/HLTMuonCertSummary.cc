@@ -63,7 +63,7 @@ class HLTMuonCertSummary : public DQMEDHarvester {
       ~HLTMuonCertSummary();
 
 
-      virtual void beginJob();
+      virtual void beginJob() override;
       virtual void beginRun(const edm::Run&, const edm::EventSetup&) override ;
       virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
@@ -241,7 +241,7 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
         reportSummaryMapTH2->SetBinContent(reportSummaryMapTH2->GetBin(1,1), qtstatus);
         CertificationSummaryMapTH2->SetBinContent(CertificationSummaryMapTH2->GetBin(1,1), qtstatus );
         if ( (qtstatus == 200) && (SummaryBitResult < 300)) SummaryBitResult = 200;
-        if ( (qtstatus == 300) ) SummaryBitResult = 300;
+        if ( qtstatus == 300 ) SummaryBitResult = 300;
 
       }
 

@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
-#from CommonTools.ParticleFlow.pfJets_cff import pfJets
-from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 
 '''
 
@@ -30,17 +29,12 @@ selection is constructed by:
 # PiZeroProducers
 
 pfJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
-
 pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
-pfTauPFJets08Region = recoTauAK4PFJets08Region.clone()
-pfTauPFJets08Region.src = cms.InputTag("ak4PFJets")
 pfTauPFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
-pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
-pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 # Clone tau producer
@@ -48,7 +42,6 @@ pfTausProducer = hpsPFTauProducer.clone()
 pfTausCombiner = combinatoricRecoTaus.clone()
 pfTausCombiner.jetSrc= cms.InputTag("ak4PFJets")
 pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
-pfTausCombiner.jetRegionSrc='pfTauPFJets08Region'
 pfTausCombiner.chargedHadronSrc='pfTauPFJetsRecoTauChargedHadrons'
 pfTausCombiner.modifiers[3].pfTauTagInfoSrc=cms.InputTag("pfTauTagInfoProducer")
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
@@ -111,7 +104,6 @@ pfTausBaseSequence = cms.Sequence(
     )
 
 # Associate track to pfJets
-#from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 pfJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone()
 pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak4PFJets")
 
@@ -124,13 +116,11 @@ pfTauPileUpVertices = cms.EDFilter(
 
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
-
 
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
-    pfTauPFJets08Region +
     pfTauPileUpVertices +
     pfTauTagInfoProducer
 )

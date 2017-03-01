@@ -10,6 +10,7 @@ namespace ecaldqm {
     SummaryClient();
     ~SummaryClient() {}
 
+    void resetMEs() override;
     void producePlots(ProcessType) override;
 
   private:

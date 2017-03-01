@@ -53,7 +53,7 @@ RPCFakeEvent::produce(edm::Event & e, const edm::EventSetup& c)
       std::cout<<"Opening file "<<filesed[e.id().event()-1]<<std::endl;
     }
   }
-  std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
+  std::unique_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
 
   {
     std::cout <<"Station 1 RB1in"<<std::endl;
@@ -126,7 +126,7 @@ RPCFakeEvent::produce(edm::Event & e, const edm::EventSetup& c)
     RPCDigi rpcDigi1(46,0);
     pDigis->insertDigi(r,rpcDigi1);  
   }
-  e.put(pDigis);
+  e.put(std::move(pDigis));
 }
 
 DEFINE_FWK_MODULE(RPCFakeEvent);

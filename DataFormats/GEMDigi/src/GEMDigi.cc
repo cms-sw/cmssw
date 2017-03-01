@@ -22,9 +22,14 @@ GEMDigi::GEMDigi ():
 // Comparison
 bool GEMDigi::operator == (const GEMDigi& digi) const
 {
-  if ( strip_ != digi.strip() ||
-       bx_    != digi.bx() ) return false;
-  return true;
+  return strip_ == digi.strip() and bx_ == digi.bx();
+}
+
+
+// Comparison
+bool GEMDigi::operator != (const GEMDigi& digi) const
+{
+  return strip_ != digi.strip() or bx_ != digi.bx();
 }
 
 

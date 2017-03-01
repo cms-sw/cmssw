@@ -186,7 +186,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    const std::string metname = "Muon|RecoMuon|MuonIdentification|MuonProducer";
 
    // the muon collection, it will be loaded in the event
-   std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection());
+   auto outputMuons = std::make_unique<reco::MuonCollection>();
    reco::MuonRefProd outputMuonsRefProd = event.getRefBeforePut<reco::MuonCollection>();
 
    edm::Handle<reco::MuonCollection> inputMuons; 
@@ -292,7 +292,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
 
    if(inputMuons->empty()) {
-     edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(outputMuons);
+     edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(std::move(outputMuons));
      
      if(fillTimingInfo_){
        fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, combinedTimeColl,"combined");
@@ -364,10 +364,12 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      // search for the corresponding pf candidate
        MuToPFMap::iterator iter =  muToPFMap.find(muRef);
        if(iter != muToPFMap.end()){
-	 outMuon.setPFP4(pfCandidates->at(iter->second).p4());
-	 outMuon.setP4(pfCandidates->at(iter->second).p4());//PF is the default
-	 outMuon.setCharge(pfCandidates->at(iter->second).charge());//PF is the default
-	 outMuon.setBestTrack(pfCandidates->at(iter->second).bestMuonTrackType());
+	 const auto& pfMu = pfCandidates->at(iter->second);
+	 outMuon.setPFP4(pfMu.p4());
+	 outMuon.setP4(pfMu.p4());//PF is the default
+	 outMuon.setCharge(pfMu.charge());//PF is the default
+	 outMuon.setPdgId(-13*pfMu.charge());
+	 outMuon.setBestTrack(pfMu.bestMuonTrackType());
 	 muToPFMap.erase(iter);
 	 dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
 	      << " Is it PF? " << outMuon.isPFMuon() 
@@ -430,7 +432,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    }
    
    dout << "Number of Muons in the new muon collection: " << outputMuons->size() << endl;
-   edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(outputMuons);
+   edm::OrphanHandle<reco::MuonCollection> muonHandle = event.put(std::move(outputMuons));
 
    if(fillTimingInfo_){
      fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, combinedTimeColl,"combined");
@@ -483,13 +485,13 @@ void MuonProducer::fillMuonMap(edm::Event& event,
  
   typedef typename edm::ValueMap<TYPE>::Filler FILLER; 
 
-  std::auto_ptr<edm::ValueMap<TYPE> > muonMap(new edm::ValueMap<TYPE>());
+  auto muonMap = std::make_unique<edm::ValueMap<TYPE>>();
   if(!muonExtra.empty()){
     FILLER filler(*muonMap);
     filler.insert(muonHandle, muonExtra.begin(), muonExtra.end());
     filler.fill();
   }
-  event.put(muonMap,label);
+  event.put(std::move(muonMap),label);
 }
 
 

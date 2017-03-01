@@ -13,18 +13,18 @@ SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = True
 
 # APV shots monitoring
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
-SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
-SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= False
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = False
 SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 # removing some histograms
@@ -32,13 +32,13 @@ SiStripMonitorDigi.TH1ADCsCoolestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1DigiADCs.moduleswitchon = False
 SiStripMonitorDigi.TH1StripOccupancy.moduleswitchon = False
+SiStripMonitorDigi.TH1NumberOfDigis.moduleswitchon = False
 
 from DQM.SiStripMonitorDigi.SiStripBaselineValidator_cfi import *
 
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
@@ -53,39 +53,37 @@ SiStripMonitorClusterReal.ClusterHisto = True
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterStoN.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = True
+SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterWidth.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
+SiStripMonitorClusterReal.TH1nClusters.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterPos.moduleswitchon = False
 
 # SiStripMonitorTrack ####
 # Clone for Cosmic Track Finder
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_cosmicTk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
-SiStripMonitorTrack_cosmicTk.Mod_On        = True
+SiStripMonitorTrack_cosmicTk.Mod_On        = False
 
 # Clone for CKF Tracks
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
-SiStripMonitorTrack_ckf.Mod_On             = True
+SiStripMonitorTrack_ckf.Mod_On             = False
 
 # Clone fir Road Search  Tracks
-#import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 #SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 #SiStripMonitorTrack_rs.TrackProducer       = 'rsWithMaterialTracksP5'
 #SiStripMonitorTrack_rs.Mod_On              = True
 
 # Clone for General Tracks (for Collision)
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_gentk.TrackProducer    = 'generalTracks'
-SiStripMonitorTrack_gentk.Mod_On           = True
+SiStripMonitorTrack_gentk.Mod_On           = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-SiStripMonitorTrack_hi.TrackProducer    = 'hiGlobalPrimTracks'
+SiStripMonitorTrack_hi.TrackProducer    = 'hiGeneralTracks'
 SiStripMonitorTrack_hi.Mod_On           = True
 
 # TrackerMonitorTrack ####
@@ -94,7 +92,6 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_cosmicTk.Tracks              = 'cosmictrackfinderP5'
 #MonitorTrackResiduals_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5'
-#MonitorTrackResiduals_cosmicTk.OutputMEsInRootFile = False
 #MonitorTrackResiduals_cosmicTk.Mod_On              = False
 
 # Clone for CKF Tracks
@@ -102,7 +99,6 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_ckf.Tracks                   = 'ctfWithMaterialTracksP5'
 #MonitorTrackResiduals_ckf.trajectoryInput          = 'ctfWithMaterialTracksP5'
-#MonitorTrackResiduals_ckf.OutputMEsInRootFile      = False
 #MonitorTrackResiduals_ckf.Mod_On                   = False
 
 # Clone for Road Search  Tracks
@@ -110,7 +106,6 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 #MonitorTrackResiduals_rs.Tracks                    = 'rsWithMaterialTracksP5'
 #MonitorTrackResiduals_rs.trajectoryInput           = 'rsWithMaterialTracksP5'
-#MonitorTrackResiduals_rs.OutputMEsInRootFile       = False
 #MonitorTrackResiduals_rs.Mod_On                    = False
 
 # Clone for General Track (for Collision data)
@@ -118,91 +113,14 @@ import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResiduals_gentk.Tracks                 = 'generalTracks'
 MonitorTrackResiduals_gentk.trajectoryInput        = 'generalTracks'
-MonitorTrackResiduals_gentk.OutputMEsInRootFile    = False
 MonitorTrackResiduals_gentk.Mod_On                 = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
 #import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 #MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-#MonitorTrackResiduals_hi.Tracks                 = 'hiGlobalPrimTracks'
-#MonitorTrackResiduals_hi.trajectoryInput        = 'hiGlobalPrimTracks'
-#MonitorTrackResiduals_hi.OutputMEsInRootFile    = False
+#MonitorTrackResiduals_hi.Tracks                 = 'hiGeneralTracks'
+#MonitorTrackResiduals_hi.trajectoryInput        = 'hiGeneralTracks'
 #MonitorTrackResiduals_hi.Mod_On                 = False
-
-# TrackingMonitor ####
-# Clone for Cosmic Track Finder
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMon_cosmicTk = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMon_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
-TrackMon_cosmicTk.AlgoName      = 'CosmicTk'
-TrackMon_cosmicTk.FolderName    = 'Tracking/TrackParameters'
-TrackMon_cosmicTk.doSeedParameterHistos = True
-
-# Clone for CKF Tracks
-import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-TrackMon_ckf = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-TrackMon_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
-TrackMon_ckf.AlgoName           = 'CKFTk'
-TrackMon_ckf.FolderName         = 'Tracking/TrackParameters'
-TrackMon_ckf.doSeedParameterHistos = True
-
-# Clone for Road Search  Tracks
-#import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
-#TrackMon_rs = DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi.TrackerCosmicTrackMon.clone()
-#TrackMon_rs.TrackProducer       = 'rsWithMaterialTracksP5'
-#TrackMon_rs.AlgoName            = 'RSTk'
-#TrackMon_rs.FolderName          = 'Tracking/TrackParameters'
-#TrackMon_rs.doSeedParameterHistos = True
-
-# Clone for General Track (for Collision data)
-import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-TrackMon_gentk = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
-TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
-# decrease number of histograms
-#TrackMon_gentk.doTrackerSpecific = False
-
-# Clone for Heavy Ion Tracks (for HI Collisions)
-import DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi
-TrackMon_hi = DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi.TrackerHeavyIonTrackMon.clone()
-TrackMon_hi.FolderName          = 'Tracking/TrackParameters'
-TrackMon_hi.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
-
-# Tracking Efficiency ####
-# Clone for Cosmic Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_cosmicTk = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_cosmicTk.TKTrackCollection             = 'cosmictrackfinderP5'
-TrackEffMon_cosmicTk.AlgoName                      = 'CosmicTk'
-TrackEffMon_cosmicTk.FolderName                    = 'Tracking/TrackParameters/TrackEfficiency'
-
-# Clone for CKF Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_ckf = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_ckf.TKTrackCollection                  = 'ctfWithMaterialTracksP5'
-TrackEffMon_ckf.AlgoName                           = 'CKFTk'
-TrackEffMon_ckf.FolderName                         = 'Tracking/TrackParameters/TrackEfficiency'
-
-# Clone for RS Tracks
-#import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-#TrackEffMon_rs = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-#TrackEffMon_rs.TKTrackCollection                   = 'rsWithMaterialTracksP5'
-#TrackEffMon_rs.AlgoName                            = 'RSTk'
-#TrackEffMon_rs.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
-
-# Clone for Beam Halo  Tracks
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
-TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
-TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
-
-# Clone for Heavy Ion Tracks (for HI Collisions)
-import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
-TrackEffMon_hi = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_hi.TKTrackCollection                   = 'hiGlobalPrimTracks'
-TrackEffMon_hi.AlgoName                            = 'HeavyIonTk'
-TrackEffMon_hi.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Services needed for TkHistoMap
 TkDetMap = cms.Service("TkDetMap")

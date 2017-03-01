@@ -5,14 +5,16 @@
 
 #include<vector>
 #include<string>
-#include<algorithm>
-#include<numeric>
-#include<exception>
-#include <boost/bind.hpp>
 #include <boost/iterator_adaptors.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 
+// Function for testing SmallWORMDict
+namespace test {
+  namespace SmallWORMDict {
+    int test();
+  }
+}
 
 namespace cond {
 
@@ -21,6 +23,8 @@ namespace cond {
  */
 
   class SmallWORMDict {
+    friend int test::SmallWORMDict::test();
+
   public:
     SmallWORMDict();
     ~SmallWORMDict();

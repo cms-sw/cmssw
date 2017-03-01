@@ -51,7 +51,7 @@ def getEdmReport(path, candle, step):
 	try:
 		edm_fn = [f for f in edm_files
 			 if f_candle_and_step_inJobID(candle, step, getJobID_fromEdmSizeFileName(f))][0] #that's in the same dir so candle and step is more than enough
-	except IndexError, e: #this would happen if there's no Edmsize report existing !!!
+	except IndexError as e: #this would happen if there's no Edmsize report existing !!!
 		return False
 
 	# open the file and read into lines

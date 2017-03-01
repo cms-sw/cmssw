@@ -16,7 +16,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-
+#include "DataFormats/L1Trigger/interface/Jet.h"
 #include <vector>
 
 namespace l1t {
@@ -25,11 +25,10 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EtSum> * sums) = 0;
 
     virtual ~Stage1Layer2EtSumAlgorithm(){};
-    bool PUSubtract;
-    std::vector<double> regionSubtraction;
   };
 
 }

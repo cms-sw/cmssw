@@ -68,7 +68,7 @@ class RootFileComparison(object):
                             till_id = comp_id
                         if not from_id or comp_id < from_id:
                             from_id = comp_id
-                    except ComparisonError, e:
+                    except ComparisonError as e:
                         print 'Error comparing %s: %s' % (hist1, e)
         if from_id and till_id:
             c.execute('''UPDATE Directory SET from_histogram_id=?, till_histogram_id=?

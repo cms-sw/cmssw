@@ -12,6 +12,7 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
@@ -20,7 +21,6 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -36,10 +36,7 @@ Test of the EventPrincipal class.
 #include <string>
 #include <typeinfo>
 
-//have to do this evil in order to access commit_ member function
-#define private public
 #include "FWCore/Framework/interface/Event.h"
-#undef private
 
 class testEventGetRefBeforePut: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testEventGetRefBeforePut);
@@ -48,7 +45,6 @@ CPPUNIT_TEST(getRefTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){
-    edm::RootAutoLibraryLoader::enable();
   }
   void tearDown(){}
   void failGetProductNotRegisteredTest();
@@ -62,10 +58,11 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
-  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  auto preg = std::make_unique<edm::ProductRegistry>();
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
+  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -77,7 +74,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
@@ -131,11 +128,12 @@ void testEventGetRefBeforePut::getRefTest() {
 
   product.init();
 
-  std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  auto preg = std::make_unique<edm::ProductRegistry>();
   preg->addProduct(product);
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
+  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -148,7 +146,7 @@ void testEventGetRefBeforePut::getRefTest() {
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
@@ -158,12 +156,12 @@ void testEventGetRefBeforePut::getRefTest() {
     edm::ModuleDescription modDesc("Blah", label, pcPtr.get());
 
     edm::Event event(ep, modDesc, nullptr);
-    std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
+    auto pr = std::make_unique<edmtest::IntProduct>();
     pr->value = 10;
 
     refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);
-    event.put(pr,productInstanceName);
-    event.commit_();
+    event.put(std::move(pr),productInstanceName);
+    event.commit_(std::vector<edm::ProductResolverIndex>());
   }
   catch (cms::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;

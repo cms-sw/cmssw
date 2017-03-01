@@ -1258,8 +1258,6 @@ double NewResponse = fJet.energy();
 if( trBgOutOfVertex.size() == 0 ) return mScale;
    double EnergyOfBackgroundCharged         = 0.;
    double ResponseOfBackgroundCharged       = 0.;
-   double NumberOfBackgroundChargedVertex   = 0.;
-   double NumberOfBackgroundChargedCalo     = 0.;
 
 //   
 // calculate the mean response
@@ -1292,11 +1290,9 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 	 
 	 EnergyOfBackgroundCharged += echarBg/efficiency_.value(ieta,ipt);
 
-         NumberOfBackgroundChargedVertex++;
 	 
        } // Energy BG tracks
 
-//        std::cout<<" JetPlusTrackCorrector.cc, NumberOfBackgroundChargedVertex ="<<NumberOfBackgroundChargedVertex<<std::endl;
 
 //============= ResponseOfBackgroundCharged =======================>
 
@@ -1323,11 +1319,9 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 //       std::cout<<" Efficiency of bg tracks "<<efficiency_.value(ieta,ipt)<<std::endl;
 
 
-         NumberOfBackgroundChargedCalo++;
 
        } // Response of BG tracks
 
-//  std::cout<<" JetPlusTrackCorrector.cc, NumberOfBackgroundChargedCalo ="<<NumberOfBackgroundChargedCalo<<std::endl;
 //=================================================================>
 
 //=================================================================>
@@ -1378,15 +1372,11 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
        
     EnergyOfBackgroundCharged       = EnergyOfBackgroundCharged/SquareEtaRingWithoutJets;
     ResponseOfBackgroundCharged     = ResponseOfBackgroundCharged/SquareEtaRingWithoutJets;
-    NumberOfBackgroundChargedVertex = NumberOfBackgroundChargedVertex/SquareEtaRingWithoutJets;
-    NumberOfBackgroundChargedCalo   = NumberOfBackgroundChargedCalo/SquareEtaRingWithoutJets;
 //    NumberOfBackgroundCharged   = NumberOfBackgroundCharged/SquareEtaRingWithoutJets;
 
 
     EnergyOfBackgroundCharged       = M_PI*mConeSize*mConeSize*EnergyOfBackgroundCharged;
     ResponseOfBackgroundCharged     = M_PI*mConeSize*mConeSize*ResponseOfBackgroundCharged;
-    NumberOfBackgroundChargedVertex = M_PI*mConeSize*mConeSize*NumberOfBackgroundChargedVertex;
-    NumberOfBackgroundChargedCalo   = M_PI*mConeSize*mConeSize*NumberOfBackgroundChargedCalo;
 //    NumberOfBackgroundCharged   = M_PI*mConeSize*mConeSize*NumberOfBackgroundCharged;
 
 
@@ -1395,8 +1385,6 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 //      std::cout<<"====JetPlusTrackCorrector, Old response=fJet.energy()"<<fJet.energy()
 //               <<" EnergyOfBackgroundCharged="<<EnergyOfBackgroundCharged
 //               <<" ResponseOfBackgroundCharged="<<ResponseOfBackgroundCharged
-//               <<" NewResponse="<<NewResponse<<" NumberOfBackgroundChargedVertex="<<NumberOfBackgroundChargedVertex
-//               <<" NumberOfBackgroundChargedCalo="<<NumberOfBackgroundChargedCalo<<std::endl;
     
     mScale = NewResponse/fJet.energy();
     if(mScale <0.) mScale=0.;       

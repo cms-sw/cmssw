@@ -1,13 +1,13 @@
 #ifndef DDI_Division_h
 #define DDI_Division_h
 
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDAxes.h"
-
 #include <iostream>
-#include <vector>
-#include <utility>
 #include <map>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 namespace DDI {
   class Division {

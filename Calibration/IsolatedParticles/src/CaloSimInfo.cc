@@ -1,5 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/CaloSimInfo.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -21,27 +22,27 @@ namespace spr{
       double dist  = 0;
       if (det == DetId::Ecal) {
 	if (subdet == static_cast<int>(EcalBarrel)) {
-	  const double rEB = 1292*CLHEP::mm;
+	  const double rEB = spr::rFrontEB*CLHEP::cm;
 	  dist = rEB/sin(theta);
 	} else if (subdet == static_cast<int>(EcalEndcap)) {
-	  const double zEE = 3192*CLHEP::mm;
+	  const double zEE = spr::zFrontEE*CLHEP::cm;
 	  dist = zEE/cos(theta);
 	} else {
-	  const double zES = 3032*CLHEP::mm;
+	  const double zES = spr::zFrontES*CLHEP::cm;
 	  dist = zES/cos(theta);
 	}
       } else if (det == DetId::Hcal) {
 	if (subdet == static_cast<int>(HcalBarrel)) {
-	  const double rHB = 1807*CLHEP::mm;
+	  const double rHB = spr::rFrontHB*CLHEP::cm;
 	  dist = rHB/sin(theta);
 	} else if (subdet == static_cast<int>(HcalEndcap)) {
-	  const double zHE = 4027*CLHEP::mm;
+	  const double zHE = spr::zFrontHE*CLHEP::cm;
 	  dist = zHE/cos(theta);
 	} else if (subdet == static_cast<int>(HcalOuter)) {
-	  const double rHO = 3848*CLHEP::mm;
+	  const double rHO = spr::rFrontHO*CLHEP::cm;
 	  dist = rHO/sin(theta);
 	} else {
-	  const double zHF = 11.15*CLHEP::m;
+	  const double zHF = spr::zFrontHF*CLHEP::cm;
 	  dist = zHF/cos(theta);
 	}
       }

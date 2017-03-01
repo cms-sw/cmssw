@@ -24,7 +24,7 @@ disttcMet = cms.EDProducer("TCMETProducer",
     d0_max = cms.double(0.1),
     ptErr_max = cms.double(0.2),
     track_quality = cms.vint32(2),
-    track_algos = cms.vint32(), 
+    track_algos = cms.vstring(),
     isCosmics = cms.bool(False),
     rf_type = cms.int32(1),
     correctShowerTracks = cms.bool(False),
@@ -42,7 +42,7 @@ disttcMet = cms.EDProducer("TCMETProducer",
     chi2_tight_max = cms.double(3.0),
     nhits_tight_min = cms.double(11),
     ptErr_tight_max = cms.double(0.1),
-    maxTrackAlgo = cms.int32(8)
+    trackAlgos = cms.vstring("undefAlgorithm", "ctf", "rs", "cosmics", "initialStep", "lowPtTripletStep", "pixelPairStep", "detachedTripletStep"),
 )
 
 

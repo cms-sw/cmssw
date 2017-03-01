@@ -34,9 +34,9 @@ DTTrackFinderConfig::DTTrackFinderConfig(const edm::ParameterSet& pset) {
 DTTrackFinderConfig::~DTTrackFinderConfig() {}
 
 
-auto_ptr<L1MuDTExtLut> DTTrackFinderConfig::produceL1MuDTExtLut(const L1MuDTExtLutRcd& iRecord) {
+unique_ptr<L1MuDTExtLut> DTTrackFinderConfig::produceL1MuDTExtLut(const L1MuDTExtLutRcd& iRecord) {
 
-   auto_ptr<L1MuDTExtLut> extlut = auto_ptr<L1MuDTExtLut>( new L1MuDTExtLut() );
+   unique_ptr<L1MuDTExtLut> extlut = unique_ptr<L1MuDTExtLut>( new L1MuDTExtLut() );
 
    if ( extlut->load() != 0 ) {
      cout << "Can not open files to load  extrapolation look-up tables for DTTrackFinder!" << endl;
@@ -45,9 +45,9 @@ auto_ptr<L1MuDTExtLut> DTTrackFinderConfig::produceL1MuDTExtLut(const L1MuDTExtL
    return extlut;
 }
 
-auto_ptr<L1MuDTPhiLut> DTTrackFinderConfig::produceL1MuDTPhiLut(const L1MuDTPhiLutRcd& iRecord) {
+unique_ptr<L1MuDTPhiLut> DTTrackFinderConfig::produceL1MuDTPhiLut(const L1MuDTPhiLutRcd& iRecord) {
 
-   auto_ptr<L1MuDTPhiLut> philut = auto_ptr<L1MuDTPhiLut>( new L1MuDTPhiLut() );
+   unique_ptr<L1MuDTPhiLut> philut = unique_ptr<L1MuDTPhiLut>( new L1MuDTPhiLut() );
 
    if ( philut->load() != 0 ) {
      cout << "Can not open files to load phi-assignment look-up tables for DTTrackFinder!" << endl;
@@ -56,9 +56,9 @@ auto_ptr<L1MuDTPhiLut> DTTrackFinderConfig::produceL1MuDTPhiLut(const L1MuDTPhiL
    return philut;
 }
 
-auto_ptr<L1MuDTPtaLut> DTTrackFinderConfig::produceL1MuDTPtaLut(const L1MuDTPtaLutRcd& iRecord) {
+unique_ptr<L1MuDTPtaLut> DTTrackFinderConfig::produceL1MuDTPtaLut(const L1MuDTPtaLutRcd& iRecord) {
 
-   auto_ptr<L1MuDTPtaLut> ptalut = auto_ptr<L1MuDTPtaLut>( new L1MuDTPtaLut() );
+   unique_ptr<L1MuDTPtaLut> ptalut = unique_ptr<L1MuDTPtaLut>( new L1MuDTPtaLut() );
 
    if ( ptalut->load() != 0 ) {
      cout << "Can not open files to load pt-assignment look-up tables for DTTrackFinder!" << endl;
@@ -67,9 +67,9 @@ auto_ptr<L1MuDTPtaLut> DTTrackFinderConfig::produceL1MuDTPtaLut(const L1MuDTPtaL
    return ptalut;
 }
 
-auto_ptr<L1MuDTEtaPatternLut> DTTrackFinderConfig::produceL1MuDTEtaPatternLut(const L1MuDTEtaPatternLutRcd& iRecord) {
+unique_ptr<L1MuDTEtaPatternLut> DTTrackFinderConfig::produceL1MuDTEtaPatternLut(const L1MuDTEtaPatternLutRcd& iRecord) {
 
-   auto_ptr<L1MuDTEtaPatternLut> etalut = auto_ptr<L1MuDTEtaPatternLut>( new L1MuDTEtaPatternLut() );
+   unique_ptr<L1MuDTEtaPatternLut> etalut = unique_ptr<L1MuDTEtaPatternLut>( new L1MuDTEtaPatternLut() );
 
    if ( etalut->load() != 0 ) {
      cout << "Can not open files to load eta track finder look-up tables for DTTrackFinder!" << endl;
@@ -78,9 +78,9 @@ auto_ptr<L1MuDTEtaPatternLut> DTTrackFinderConfig::produceL1MuDTEtaPatternLut(co
    return etalut;
 }
 
-auto_ptr<L1MuDTQualPatternLut> DTTrackFinderConfig::produceL1MuDTQualPatternLut(const L1MuDTQualPatternLutRcd& iRecord) {
+unique_ptr<L1MuDTQualPatternLut> DTTrackFinderConfig::produceL1MuDTQualPatternLut(const L1MuDTQualPatternLutRcd& iRecord) {
 
-   auto_ptr<L1MuDTQualPatternLut> qualut = auto_ptr<L1MuDTQualPatternLut>( new L1MuDTQualPatternLut() );
+   unique_ptr<L1MuDTQualPatternLut> qualut = unique_ptr<L1MuDTQualPatternLut>( new L1MuDTQualPatternLut() );
 
    if ( qualut->load() != 0 ) {
      cout << "Can not open files to load eta matching look-up tables for DTTrackFinder!" << endl;
@@ -89,18 +89,18 @@ auto_ptr<L1MuDTQualPatternLut> DTTrackFinderConfig::produceL1MuDTQualPatternLut(
    return qualut;
 }
 
-auto_ptr<L1MuDTTFParameters> DTTrackFinderConfig::produceL1MuDTTFParameters(const L1MuDTTFParametersRcd& iRecord) {
+unique_ptr<L1MuDTTFParameters> DTTrackFinderConfig::produceL1MuDTTFParameters(const L1MuDTTFParametersRcd& iRecord) {
 
-   auto_ptr<L1MuDTTFParameters> dttfpar = auto_ptr<L1MuDTTFParameters>( new L1MuDTTFParameters() );
+   unique_ptr<L1MuDTTFParameters> dttfpar = unique_ptr<L1MuDTTFParameters>( new L1MuDTTFParameters() );
 
    dttfpar->reset();
 
    return dttfpar;
 }
 
-auto_ptr<L1MuDTTFMasks> DTTrackFinderConfig::produceL1MuDTTFMasks(const L1MuDTTFMasksRcd& iRecord) {
+unique_ptr<L1MuDTTFMasks> DTTrackFinderConfig::produceL1MuDTTFMasks(const L1MuDTTFMasksRcd& iRecord) {
 
-   auto_ptr<L1MuDTTFMasks> dttfmsk = auto_ptr<L1MuDTTFMasks>( new L1MuDTTFMasks() );
+   unique_ptr<L1MuDTTFMasks> dttfmsk = unique_ptr<L1MuDTTFMasks>( new L1MuDTTFMasks() );
 
    dttfmsk->reset();
 

@@ -139,7 +139,7 @@ TrackCount::TrackCount(const edm::ParameterSet& iConfig):
   m_runHisto(iConfig.getUntrackedParameter<bool>("runHisto",false)),
   m_dump(iConfig.getUntrackedParameter<bool>("dumpTracks",false)),
   m_trkcollToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
-  m_lumiProducerToken(consumes<LumiDetails>(edm::InputTag("lumiProducer"))),
+  m_lumiProducerToken(consumes<LumiDetails,edm::InLumi>(edm::InputTag("lumiProducer"))),
   m_nptbin(iConfig.getUntrackedParameter<unsigned int>("numberPtBins",200)),
   m_ptmin(iConfig.getUntrackedParameter<double>("ptMin",0.)),
   m_ptmax(iConfig.getUntrackedParameter<double>("ptMax",20.))
@@ -309,18 +309,18 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				     << it->hitPattern().trackerLayersWithMeasurement() << " "
 				     << it->hitPattern().pixelLayersWithMeasurement() << " "
 				     << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo() << " "
-				     << it->hitPattern().trackerLayersWithoutMeasurement() << " ";
+				     << it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) << " ";
 
      }
 
-     m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits());
+     m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
 
      m_hnrhits->Fill(it->hitPattern().numberOfValidTrackerHits());
      m_hnpixelrhits->Fill(it->hitPattern().numberOfValidPixelHits());
      m_hnstriprhits->Fill(it->hitPattern().numberOfValidStripHits());
      m_hnhitphieta->Fill(it->eta(),it->phi(),it->hitPattern().numberOfValidTrackerHits());
 
-     m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement());
+     m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
 
      m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement());
      m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement());
@@ -364,7 +364,7 @@ TrackCount::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 
   if(m_runHisto) {
     (*m_ntrkvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");    (*m_ntrkvsorbrun)->GetYaxis()->SetTitle("Ntracks");
-    (*m_ntrkvsorbrun)->SetBit(TH1::kCanRebin);
+    (*m_ntrkvsorbrun)->SetCanExtend(TH1::kXaxis);
   }
 }
 

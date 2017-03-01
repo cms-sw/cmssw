@@ -27,6 +27,10 @@ public:
   virtual uint16_t Bxn0Diff() const = 0;
   virtual uint16_t Bxn1Diff() const = 0;
   virtual uint16_t L1ANumber() const = 0;
+  virtual uint16_t syncError() const = 0;
+  virtual uint16_t syncErrorCLCT() const = 0;
+  virtual uint16_t syncErrorMPC0() const = 0;
+  virtual uint16_t syncErrorMPC1() const = 0;
   uint16_t sizeInBytes() const {
     return sizeInWords()*2;
   }

@@ -31,7 +31,7 @@ class untitled(unittest.TestCase):
         
         try:
             addMonitoring(process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to call addMonitoring on a cms.Process:\n"
             msg += str(ex)
             self.fail(msg)

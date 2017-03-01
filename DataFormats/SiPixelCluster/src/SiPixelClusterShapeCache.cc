@@ -3,9 +3,6 @@
 
 SiPixelClusterShapeData::~SiPixelClusterShapeData() {}
 
-SiPixelClusterShapeCache::LazyGetter::LazyGetter() {}
-SiPixelClusterShapeCache::LazyGetter::~LazyGetter() {}
-
 SiPixelClusterShapeCache::~SiPixelClusterShapeCache() {}
 
 void SiPixelClusterShapeCache::checkRef(const ClusterRef& ref) const {

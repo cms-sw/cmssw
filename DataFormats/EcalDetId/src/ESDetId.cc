@@ -3,18 +3,6 @@
 
 #include <ostream>
 
-ESDetId::ESDetId( const DetId& gen ) 
-{
-   if( !gen.null() && 
-       ( gen.det()      != Ecal          ||
-	 gen.subdetId() != EcalPreshower    ) ) 
-   {
-      throw cms::Exception("InvalidDetId");
-   }
-   id_ = gen.rawId() ;
-}
-
-
 void ESDetId::verify( int strip,
                  int ixs,
                  int iys,
@@ -52,19 +40,6 @@ ESDetId::validDetId( int istrip,
 		0 == hxy2[ixs-1][iys-1]  )    ) ) ;
 }
   
-ESDetId& 
-ESDetId::operator=( const DetId& gen ) 
-{
-   if (!gen.null() &&
-       ( gen.det()      != Ecal          ||
-	 gen.subdetId() != EcalPreshower    ) ) 
-   {
-      throw cms::Exception("InvalidDetId");
-   }
-   id_=gen.rawId();
-   return *this;
-}
-
 int 
 ESDetId::hashedIndex() const 
 {

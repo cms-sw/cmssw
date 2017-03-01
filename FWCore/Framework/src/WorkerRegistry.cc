@@ -52,7 +52,7 @@ namespace edm {
       workerPtr->setActivityRegistry(actReg_);
 
       // Transfer ownership of worker to the registry
-      m_workerMap[moduleLabel].reset(workerPtr.release());
+      m_workerMap[moduleLabel] = std::shared_ptr<Worker>(workerPtr.release()); // propagate_const<T> has no reset() function
       return m_workerMap[moduleLabel].get(); 
     } 
     return (workerIt->second.get());

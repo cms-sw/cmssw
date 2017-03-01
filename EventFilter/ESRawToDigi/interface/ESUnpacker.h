@@ -1,5 +1,5 @@
-#ifndef ESUNPACKER_H
-#define ESUNPCAKER_H
+#ifndef EventFilter_ESRawToDigi_ESUnpacker_h
+#define EventFilter_ESRawToDigi_ESUnpacker_h
 
 #include <iostream>
 #include <vector>
@@ -27,7 +27,7 @@ class ESUnpacker {
   public :
       
   typedef unsigned int Word32;
-  typedef long long Word64;  
+  typedef unsigned long long Word64;
 
   ESUnpacker(const edm::ParameterSet& ps);
   ~ESUnpacker();

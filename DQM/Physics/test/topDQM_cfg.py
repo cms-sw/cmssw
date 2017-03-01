@@ -23,7 +23,7 @@ process.source = cms.Source(
 
 ## apply VBTF electronID (needed for the current implementation
 ## of topSingleElectronDQMLoose and topSingleElectronDQMMedium)
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("DQM.Physics.topElectronID_cff")
 

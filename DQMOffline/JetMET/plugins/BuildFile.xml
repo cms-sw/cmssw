@@ -3,6 +3,15 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Common"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/VertexReco"/>
+<use name="RecoJets/JetAlgorithms"/>
+<use name="RecoJets/JetProducers"/>
+<use name="Validation/RecoJets"/>
+<use name="DataFormats/JetReco"/>
 <library name="DQMOfflineJetMETPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

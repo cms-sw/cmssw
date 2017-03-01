@@ -414,7 +414,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	float etareco = theGsfEle[j].eta();
 	float phireco = theGsfEle[j].phi();
 
-	float pfmva =  theGsfEle[j].mva();
+	float pfmva =  theGsfEle[j].mva_e_pi();
 
 	reco::GsfTrackRef refGsf =  theGsfEle[j].gsfTrack();
 	//ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();
@@ -469,7 +469,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	      pf_EEcalEtrue_5->Fill(EpfEtrue);
 	    }
 	    const reco::GsfElectron::ShowerShape& pfshapes = 
-	      theGsfEle[j].pfShowerShape();
+	      theGsfEle[j].showerShape();
 	    
 	    pf_e1x5_all->Fill(pfshapes.e1x5);
 	    pf_sihih_all->Fill(pfshapes.sigmaIetaIeta);
@@ -552,7 +552,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	reco::GsfTrackRef egGsfTrackRef = (theGedEle[j]).gsfTrack();
 	float etareco = theGedEle[j].eta();
 	float phireco = theGedEle[j].phi();	
-	float pfmva =  theGedEle[j].mva();
+	float pfmva =  theGedEle[j].mva_e_pi();
 	
 	reco::GsfTrackRef refGsf =  theGedEle[j].gsfTrack();
 	//ElectronSeedRef seedRef= refGsf->extra()->seedRef().castTo<ElectronSeedRef>();

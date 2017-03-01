@@ -17,7 +17,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@ namespace edm {
 }
 
 // Class declaration
-class HLTTrackMETProducer : public edm::EDProducer {
+class HLTTrackMETProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTTrackMETProducer(const edm::ParameterSet & iConfig);
     ~HLTTrackMETProducer();

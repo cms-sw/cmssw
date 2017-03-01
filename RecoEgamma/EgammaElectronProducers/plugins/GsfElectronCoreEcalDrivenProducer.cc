@@ -34,7 +34,7 @@ void GsfElectronCoreEcalDrivenProducer::produce( edm::Event & event, const edm::
   GsfElectronCoreBaseProducer::initEvent(event,setup) ;
 
   // output
-  std::auto_ptr<GsfElectronCoreCollection> electrons(new GsfElectronCoreCollection) ;
+  auto electrons = std::make_unique<GsfElectronCoreCollection>();
 
   // loop on ecal driven tracks
   if (useGsfPfRecTracks_)
@@ -59,7 +59,7 @@ void GsfElectronCoreEcalDrivenProducer::produce( edm::Event & event, const edm::
      }
    }
 
-  event.put(electrons) ;
+  event.put(std::move(electrons));
  }
 
 void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore( const GsfTrackRef & gsfTrackRef, GsfElectronCoreCollection * electrons )

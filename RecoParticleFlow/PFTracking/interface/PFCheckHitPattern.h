@@ -68,7 +68,7 @@ private:
   /// Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
 
-  void print(const reco::HitPattern& hp) const;
+  void print(const reco::HitPattern::HitCategory, const reco::HitPattern& hp) const;
 
 private:
   /// Note if geometry info is already initialized.

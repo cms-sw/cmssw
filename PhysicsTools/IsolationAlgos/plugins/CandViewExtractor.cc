@@ -40,6 +40,11 @@ reco::IsoDeposit::Veto CandViewExtractor::veto(const reco::IsoDeposit::Direction
   return result;
 }
 
+void CandViewExtractor::initEvent(const edm::Event & ev, const edm::EventSetup & evSetup){
+  ev.getByToken(theCandViewToken, theCandViewH);
+  theCacheID = ev.cacheIdentifier();
+}
+
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 

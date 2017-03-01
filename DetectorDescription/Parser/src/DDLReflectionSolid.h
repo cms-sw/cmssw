@@ -1,11 +1,11 @@
 #ifndef DDL_ReflectionSolid_H
 #define DDL_ReflectionSolid_H
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLSolid.h"
 
 #include <string>
+#include "DDLSolid.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLReflectionSolid processes ReflectionSolid elements.
 /** @class DDLReflectionSolid
@@ -20,17 +20,14 @@
  *                                                                         
  */
 
-class DDLReflectionSolid : public DDLSolid
+class DDLReflectionSolid final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLReflectionSolid( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLReflectionSolid( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
+
 #endif

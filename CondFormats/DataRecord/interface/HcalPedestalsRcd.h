@@ -3,7 +3,8 @@
 #ifndef HcalPedestalsRcd_H
 #define HcalPedestalsRcd_H
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalPedestalsRcd : public edm::eventsetup::DependentRecordImplementation<HcalPedestalsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalPedestalsRcd : public edm::eventsetup::DependentRecordImplementation<HcalPedestalsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
 #endif

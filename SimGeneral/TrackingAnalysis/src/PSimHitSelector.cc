@@ -48,7 +48,7 @@ void PSimHitSelector::select(PSimHitCollection & selection, edm::Event const & e
     if (cfPSimHitProductPointers.empty()) return;
 
     // Create a mix collection from the different psimhit collections
-    std::auto_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
+    std::unique_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
     // Select all psimhits
     for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit)

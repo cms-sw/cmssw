@@ -64,7 +64,6 @@ private:
     double weight_;
     bool storeTrack_;
     bool saved_;
-    static G4TrackToParticleID*  theG4TrackToParticleID;
     int extractGenID(const G4Track * gt) const;
 };
 

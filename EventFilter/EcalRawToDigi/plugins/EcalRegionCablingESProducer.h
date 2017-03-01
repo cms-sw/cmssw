@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -35,7 +34,7 @@ public:
       EcalRegionCablingESProducer(const edm::ParameterSet&);
   ~EcalRegionCablingESProducer();
 
-  typedef boost::shared_ptr<EcalRegionCabling> ReturnType;
+  typedef std::shared_ptr<EcalRegionCabling> ReturnType;
 
   ReturnType produce(const EcalRegionCablingRecord&);
 private:

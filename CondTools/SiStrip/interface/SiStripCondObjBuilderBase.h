@@ -12,7 +12,7 @@ class SiStripCondObjBuilderBase {
  public:
 
   SiStripCondObjBuilderBase(const edm::ParameterSet& pset):_pset(pset){};
-  virtual ~SiStripCondObjBuilderBase(){};
+  virtual ~SiStripCondObjBuilderBase() noexcept(false) {};
   
   virtual void initialize(){};
 			    

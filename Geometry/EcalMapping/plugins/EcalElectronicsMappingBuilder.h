@@ -4,7 +4,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -37,7 +36,7 @@ class EcalElectronicsMappingBuilder : public edm::ESProducer
   EcalElectronicsMappingBuilder(const edm::ParameterSet&);
   ~EcalElectronicsMappingBuilder();
   
-  typedef std::auto_ptr<EcalElectronicsMapping> ReturnType;
+  typedef std::unique_ptr<EcalElectronicsMapping> ReturnType;
   
   // ReturnType produce(const IdealGeometryRecord&);
   ReturnType produce(const EcalMappingRcd&);

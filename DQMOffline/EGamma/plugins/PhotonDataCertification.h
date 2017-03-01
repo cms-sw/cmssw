@@ -23,11 +23,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //DQM services
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -44,34 +44,24 @@ class TTree;
 // class decleration
 //
 
-class PhotonDataCertification : public edm::EDAnalyzer {
+class PhotonDataCertification : public DQMEDHarvester {
 
 public:
   explicit PhotonDataCertification(const edm::ParameterSet& pset);
   ~PhotonDataCertification();
-  
-  
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-  
-  
+
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+
 private:
-  
-  DQMStore *dbe_;
+
   edm::ParameterSet parameters_;
-  
+
   bool verbose_;
   MonitorElement* reportSummary_;
   MonitorElement* reportSummaryMap_;
-  float invMassZtest(std::string path, TString name);
-  
-  
+  float invMassZtest(std::string path, TString name, DQMStore::IGetter &);
 
 
-  
  // ----------member data ---------------------------
 };
 

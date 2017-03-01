@@ -118,16 +118,16 @@ BackgroundTestingFiles     = glob.glob(BackgroundFileTestingGlob)
 # Catch dumb errors before we begin
 def EverythingInItsRightPlace():
    if not len(SignalTrainFiles) or not len(BackgroundTrainFiles) or not len(SignalTestingFiles) or not len(BackgroundTestingFiles):
-      raise IOError, "The signal/background root file training/testing file list is empty! Check the SignalFileTrainingGlob etc. in MVASteering.py"
+      raise IOError("The signal/background root file training/testing file list is empty! Check the SignalFileTrainingGlob etc. in MVASteering.py")
 
    # Ensure that we have all the necessary XML files 
    for aModule in myModules:
       computerName = aModule.computerName.value() #conver to python string
       xmlFileLoc   = os.path.join(TauTagToolsWorkingDirectory, "xml", "%s.xml" % computerName)
       if not os.path.exists(xmlFileLoc):
-         raise IOError, "Can't find xml configuration file for %s - please check that %s exists!" % (computerName, xmlFileLoc)
+         raise IOError("Can't find xml configuration file for %s - please check that %s exists!" % (computerName, xmlFileLoc))
 
    if not os.path.exists(SignalRootDir):
-      raise IOError, "Signal root file directory (%s) does not exist! Have you created the MVA raw training data?" % SignalRootDir
+      raise IOError("Signal root file directory (%s) does not exist! Have you created the MVA raw training data?" % SignalRootDir)
    if not os.path.exists(BackgroundRootDir):
-      raise IOError, "Background root file directory (%s) does not exist! Have you created the MVA raw training data?" % BackgroundRootDir
+      raise IOError("Background root file directory (%s) does not exist! Have you created the MVA raw training data?" % BackgroundRootDir)

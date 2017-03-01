@@ -3,6 +3,9 @@
  *
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
+ *  
+ *  Modified by C. Calabria
+ *  Modified by D. Nash
  */
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonFilter.h"
 
@@ -87,14 +90,20 @@ StandAloneMuonFilter::StandAloneMuonFilter(const ParameterSet& par,
   bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
   bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
   bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
+  bool enableGEMMeasurement = par.getParameter<bool>("EnableGEMMeasurement");
+  bool enableME0Measurement = par.getParameter<bool>("EnableME0Measurement");
 
   theMeasurementExtractor = new MuonDetLayerMeasurements(par.getParameter<InputTag>("DTRecSegmentLabel"),
 							 par.getParameter<InputTag>("CSCRecSegmentLabel"),
 							 par.getParameter<InputTag>("RPCRecSegmentLabel"),
+							 par.getParameter<InputTag>("GEMRecSegmentLabel"),
+							 par.getParameter<InputTag>("ME0RecSegmentLabel"),
 							 iC,
 							 enableDTMeasurement,
 							 enableCSCMeasurement,
-							 enableRPCMeasurement);
+							 enableRPCMeasurement,
+							 enableGEMMeasurement,
+							 enableME0Measurement);
   
   theRPCLoneliness = (!(enableDTMeasurement && enableCSCMeasurement)) ? enableRPCMeasurement : false;
 }
@@ -123,8 +132,8 @@ PropagationDirection StandAloneMuonFilter::propagationDirection() const{
 
 
 void StandAloneMuonFilter::reset(){
-  totalChambers = dtChambers = cscChambers = rpcChambers = 0;
-  totalCompatibleChambers = dtCompatibleChambers = cscCompatibleChambers = rpcCompatibleChambers = 0;
+  totalChambers = dtChambers = cscChambers = rpcChambers = gemChambers = me0Chambers = 0;
+  totalCompatibleChambers = dtCompatibleChambers = cscCompatibleChambers = rpcCompatibleChambers = gemCompatibleChambers = me0CompatibleChambers = 0;
   
   theLastCompatibleTSOS = theLastUpdatedTSOS = theLastButOneUpdatedTSOS = TrajectoryStateOnSurface();
 
@@ -143,6 +152,8 @@ void StandAloneMuonFilter::incrementChamberCounters(const DetLayer *layer){
   if(layer->subDetector()==GeomDetEnumerators::DT) dtChambers++; 
   else if(layer->subDetector()==GeomDetEnumerators::CSC) cscChambers++; 
   else if(layer->subDetector()==GeomDetEnumerators::RPCBarrel || layer->subDetector()==GeomDetEnumerators::RPCEndcap) rpcChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::GEM) gemChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::ME0) me0Chambers++; 
   else 
     LogError("Muon|RecoMuon|StandAloneMuonFilter")
       << "Unrecognized module type in incrementChamberCounters";
@@ -157,6 +168,8 @@ void StandAloneMuonFilter::incrementCompatibleChamberCounters(const DetLayer *la
   if(layer->subDetector()==GeomDetEnumerators::DT) dtCompatibleChambers++; 
   else if(layer->subDetector()==GeomDetEnumerators::CSC) cscCompatibleChambers++; 
   else if(layer->subDetector()==GeomDetEnumerators::RPCBarrel || layer->subDetector()==GeomDetEnumerators::RPCEndcap) rpcCompatibleChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::GEM) gemCompatibleChambers++; 
+  else if(layer->subDetector()==GeomDetEnumerators::ME0) me0CompatibleChambers++; 
   else 
     LogError("Muon|RecoMuon|StandAloneMuonFilter")
       << "Unrecognized module type in incrementCompatibleChamberCounters";

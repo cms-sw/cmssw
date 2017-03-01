@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_0_0_std">
-<var name="TEST_REF" value="7_0_0_std">
+<var name="TEST_NEW" value="7_5_0_pre5_std">
+<var name="TEST_REF" value="7_5_0_pre4_std">
 
-<var name="TAG_STARTUP" value="POSTLS170_V3">
-<var name="DATA_VERSION" value="v2">
+<var name="TAG_STARTUP" value="MCRUN2_75_V5">
+<var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="POSTLS170_V3-v2">
+<var name="DD_COND_REF" value="MCRUN2_75_V1_FastSim-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
@@ -149,8 +149,8 @@ FastSim
         <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION_gedGsfE}.py">
         <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
         
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
         
       </environment>
     
@@ -168,8 +168,8 @@ FastSim
         <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION_gedGsfE}.py">
         <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
         
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION_gedGsfE}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
         
       </environment>
     
@@ -187,6 +187,7 @@ FastSim
 
       <environment name="ValFastVsFastTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
@@ -194,23 +195,26 @@ FastSim
       
       <environment name="ValFastVsFastZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
         <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
         
       <environment name="ValFastVsFastTTbarStartup_gedGsfE">
-        <var name="DD_SAMPLE" value="RelValTTbar">
+        <var name="DD_SAMPLE" value="RelValTTbar_13">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFast_${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="ValFastVsFastZEEStartup_gedGsfE">
-        <var name="DD_SAMPLE" value="RelValZEE">
+        <var name="DD_SAMPLE" value="RelValZEE_13">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <!--var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup.root"-->
         <var name="TEST_HISTOS_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} / ${DD_SAMPLE} / ${DD_COND} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "gedGsfElectrons ${DD_SAMPLE}<br><b><font color='red'>${TEST_NEW}</font></b> : ${DD_COND}<br><b><font color='blue'>${TEST_REF}</font></b> : ${DD_COND_REF}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFast_${TEST_REF}/Fast_${DD_SAMPLE}_Startup'>
       </environment>
         
     </environment>
@@ -227,16 +231,18 @@ FastSim
 
       <environment name="ValFastVsFullTTbarStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValTTbar_13">
-        <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
+ 	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
+       <var name="BLUE_FILE" value="electronHistos.ValFullTTbarStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastTTbarStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_NEW} -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
       </environment>
       
       <environment name="ValFastVsFullZEEStartup_gedGsfE">
         <var name="DD_SAMPLE" value="RelValZEE_13">
+	<var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}/${DD_SAMPLE}">
         <var name="BLUE_FILE" value="electronHistos.ValFullZEEStartup_13_gedGsfE.root">
         <var name="RED_FILE" value="electronHistos.ValFastZEEStartup_gedGsfE.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_REF}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_NEW} -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/FastVsFull/${DD_SAMPLE}_Startup'>
       </environment>
       
     </environment>

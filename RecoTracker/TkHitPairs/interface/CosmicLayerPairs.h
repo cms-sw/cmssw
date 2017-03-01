@@ -4,7 +4,6 @@
 /** \class CosmicLayerPairs
 * find all (resonable) pairs of pixel layers
  */
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
@@ -14,6 +13,9 @@
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
 #include <vector>
+
+class TrackerTopology;
+
 class CosmicLayerPairs : public SeedLayerPairs{
 public:
   CosmicLayerPairs(std::string geometry):_geometry(geometry){};//:isFirstCall(true){};
@@ -46,18 +48,24 @@ private:
    edm::OwnVector<LayerWithHits> CRACKLayerWithHits;
 
    std::vector<const TrackingRecHit*> selectTECHit(const SiStripRecHit2DCollection &collrphi,
+                                                   const TrackerTopology& ttopo,
                                                                 int side,
                                                                 int disk);
    std::vector<const TrackingRecHit*> selectTIBHit(const SiStripRecHit2DCollection &collrphi,
+                                                   const TrackerTopology& ttopo,
 								int layer);
    std::vector<const TrackingRecHit*> selectTOBHit(const SiStripRecHit2DCollection &collrphi,
+                                                   const TrackerTopology& ttopo,
                                                                 int layer);
    std::vector<const TrackingRecHit*> selectTECHit(const SiStripMatchedRecHit2DCollection &collmatch,
+                                                   const TrackerTopology& ttopo,
                                                                 int side,
                                                                 int disk);
    std::vector<const TrackingRecHit*> selectTIBHit(const SiStripMatchedRecHit2DCollection &collmatch,
+                                                   const TrackerTopology& ttopo,
                                                                 int layer);
    std::vector<const TrackingRecHit*> selectTOBHit(const SiStripMatchedRecHit2DCollection &collmatch,
+                                                   const TrackerTopology& ttopo,
                                                                 int layer);	
 };
 

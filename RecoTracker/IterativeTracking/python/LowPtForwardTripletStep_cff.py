@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-lowPtForwardTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution= cms.bool(True),
-    trajectories = cms.InputTag("initialStepTracks"),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+lowPtForwardTripletStepClusters = trackClusterRemover.clone(
+    maxChi2          = cms.double(9.0),
+    trajectories     = cms.InputTag("initialStepTracks"),
+    pixelClusters    = cms.InputTag("siPixelClusters"),
+    stripClusters    = cms.InputTag("siStripClusters"),
     overrideTrkQuals = cms.InputTag('initialStepSelector','initialStep'),
-    TrackQuality = cms.string('highPurity'),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
-    )
+    TrackQuality     = cms.string('highPurity'),
 )
 
 
@@ -53,8 +51,8 @@ lowPtForwardTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Traj
     minPt = 0.1
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-lowPtForwardTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+lowPtForwardTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('lowPtForwardTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0)
@@ -83,7 +81,7 @@ lowPtForwardTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidat
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtForwardTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtForwardTripletStepTrackCandidates',
-    AlgorithmName = cms.string('iter1')
+    AlgorithmName = cms.string('lowPtTripletStep')
     )
 
 

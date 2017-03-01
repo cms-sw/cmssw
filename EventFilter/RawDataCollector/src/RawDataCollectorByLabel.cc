@@ -50,7 +50,7 @@ void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
    //else{     //skipping the inputtag requested. but this is a normal operation to bare data & MC. silent warning   }
  }
 
- std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+ auto producedData = std::make_unique<FEDRawDataCollection>();
 
  for (unsigned int i=0; i< rawData.size(); ++i ) { 
 
@@ -88,7 +88,7 @@ void RawDataCollectorByLabel::produce(Event & e, const EventSetup& c){
  }
 
  // Insert the new product in the event  
- e.put(producedData);  
+ e.put(std::move(producedData));
 
 }
 

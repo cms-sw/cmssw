@@ -17,8 +17,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -515,13 +513,12 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
     monitor()->fillmeNdigis(double(Ndig));
     
-  } //  end of if( subdet != 0 && noise_ == 0) { // signal only 
+  } //  end of if( subdet != 0 && noise_ == 0)  // signal only 
 
-}
+} // end reco method
 
 
-HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
-  : dbe_(edm::Service<DQMStore>().operator->()),
+HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig):
     inputTag_(iConfig.getParameter<edm::InputTag>("digiLabel")),
     outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
     hcalselector_(iConfig.getUntrackedParameter<std::string>("hcalselector", "all")),
@@ -537,6 +534,13 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
   tok_ho_ = consumes<edm::SortedCollection<HODataFrame> >(edm::InputTag(inputTag_));
   tok_hf_ = consumes<edm::SortedCollection<HFDataFrame> >(edm::InputTag(inputTag_));
 
+  nevent1 = 0;
+  nevent2 = 0;
+  nevent3 = 0;
+  nevent4 = 0;
+
+  nevtot  = 0;
+
   if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
@@ -547,7 +551,59 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
 }
    
 
-HcalDigiTester::~HcalDigiTester() { }
+HcalDigiTester::~HcalDigiTester() 
+{
+  std::map<std::string, HcalSubdetDigiMonitor*>::iterator itr =  monitors_.begin();
+  std::map<std::string, HcalSubdetDigiMonitor*>::iterator itrEnd =  monitors_.end();
+
+  while ( itr != itrEnd ) {
+    delete (*itr).second;
+    itr++;
+  }
+
+
+}
+
+void HcalDigiTester::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &run, edm::EventSetup const &es )
+{
+
+  // This is the only opportunity to call the constructors for HcalSubdetDigiMonitor
+  //
+  if( hcalselector_ != "all") {
+    noise_ = 0;
+    if (hcalselector_ == "noise") {
+      noise_ = 1;
+      
+      hcalselector_ = "HB";
+      constructMonitor(ibooker);
+      hcalselector_ = "HE";
+      constructMonitor(ibooker);
+      hcalselector_ = "HO";
+      constructMonitor(ibooker);
+      hcalselector_ = "HF";
+      constructMonitor(ibooker);
+      hcalselector_ = "noise";
+    } else {
+      noise_ = 0;
+      constructMonitor(ibooker);
+    }
+  }    
+    // all subdetectors
+  else {
+    noise_ = 0;
+    
+    hcalselector_ = "HB";
+    constructMonitor(ibooker); 
+    hcalselector_ = "HE";
+    constructMonitor(ibooker); 
+    hcalselector_ = "HO";
+    constructMonitor(ibooker); 
+    hcalselector_ = "HF";
+    constructMonitor(ibooker); 
+    hcalselector_ = "all";    
+  }
+
+}
 
 
 void HcalDigiTester::endRun() {
@@ -571,12 +627,6 @@ void HcalDigiTester::endRun() {
 }
 
 
-
-void HcalDigiTester::endJob() {
-
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
-}
 
 
   //occupancies evaluation
@@ -645,31 +695,37 @@ void HcalDigiTester::eval_occupancy() {
   
 }
 
-void HcalDigiTester::beginJob() {
-
-  nevent1 = 0;
-  nevent2 = 0;
-  nevent3 = 0;
-  nevent4 = 0;
-
-  nevtot  = 0;
-
-}
-
 
 HcalSubdetDigiMonitor * HcalDigiTester::monitor()
 {
   std::map<std::string, HcalSubdetDigiMonitor*>::iterator monitorItr
     = monitors_.find(hcalselector_);
 
-  if(monitorItr == monitors_.end())
+  /*if(monitorItr == monitors_.end())
     {
       HcalSubdetDigiMonitor* m = new HcalSubdetDigiMonitor(dbe_, hcalselector_, noise_);
       std::pair<std::string, HcalSubdetDigiMonitor*> mapElement(
 								hcalselector_, m);
       monitorItr = monitors_.insert(mapElement).first;
-    }
+    }*/
+
   return monitorItr->second;
+}
+
+void HcalDigiTester::constructMonitor(DQMStore::IBooker &ibooker)
+{
+  
+  std::map<std::string, HcalSubdetDigiMonitor*>::iterator monitorItr
+    = monitors_.find(hcalselector_);
+
+  if(monitorItr == monitors_.end())
+    {
+      HcalSubdetDigiMonitor* m = new HcalSubdetDigiMonitor(ibooker, hcalselector_, noise_);
+      std::pair<std::string, HcalSubdetDigiMonitor*> mapElement(
+								hcalselector_, m);
+      monitorItr = monitors_.insert(mapElement).first;
+    }
+
 }
 
 void 

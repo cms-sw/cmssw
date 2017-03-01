@@ -10,6 +10,7 @@
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PVSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/RunLumiSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/MakePyVIDClassBuilder.h"
 
 
 namespace PhysicsTools_SelectorUtils {

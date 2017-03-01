@@ -1,7 +1,6 @@
 #include <vector>
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeQIESample.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
@@ -10,7 +9,16 @@
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalUMNioDigi.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+
+// dummy structs to ensure backward compatibility
+struct HcalUpgradeDataFrame {
+  typedef HcalDetId key_type;
+};
+struct HcalUpgradeQIESample {};
+typedef edm::SortedCollection<HcalUpgradeDataFrame> HBHEUpgradeDigiCollection;
+typedef edm::SortedCollection<HcalUpgradeDataFrame> HFUpgradeDigiCollection;
 
 namespace DataFormats_HcalDigi {
   struct dictionary {
@@ -40,6 +48,8 @@ namespace DataFormats_HcalDigi {
     CastorTrigPrimDigiCollection theCastorTP_;
     HOTrigPrimDigiCollection theHOTP_;
     HcalTTPDigiCollection theTTP_;
+    QIE10DigiCollection theqie10_;
+    QIE11DigiCollection theqie11_;
       
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
@@ -63,9 +73,12 @@ namespace DataFormats_HcalDigi {
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;
     edm::Wrapper<HcalLaserDigi> theLaserw_;
+    edm::Wrapper<HcalUMNioDigi> theUMNIOw_;
     edm::Wrapper<HcalTTPDigiCollection> theTTPw_;
     edm::Wrapper<HBHEUpgradeDigiCollection> theUHBHEw_;
     edm::Wrapper<HFUpgradeDigiCollection> theUHFw_;
+    edm::Wrapper<QIE10DigiCollection> theQIE10w_;
+    edm::Wrapper<QIE11DigiCollection> theQIE11w_;
   };
 }
 

@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -28,9 +28,9 @@ class TriggerMatchProducer : public edm::EDProducer
 
  private:
   virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  virtual void beginJob() ;
+  virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endJob() override;
 
   // ----------member data --------------------------
     
@@ -47,7 +47,7 @@ class TriggerMatchProducer : public edm::EDProducer
   //  bool isFilter_;
   //  bool printIndex_;
   bool changed_;
-  HLTConfigProvider hltConfig_;
+  HLTPrescaleProvider hltPrescaleProvider_;
 };
 #include "DPGAnalysis/Skims/src/TriggerMatchProducer.icc"
 #endif

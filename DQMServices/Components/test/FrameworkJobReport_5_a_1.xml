@@ -8,7 +8,7 @@
 <ModuleLabel>RAWSIMoutput</ModuleLabel>
 <GUID>4A2AFBF6-28CE-E111-8714-003048CB9882</GUID>
 <Branches>
-  <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
+  <Branch>CrossingFramePlaybackInfoNew_mix__HLT.</Branch>
   <Branch>FEDRawDataCollection_rawDataCollector__HLT.</Branch>
   <Branch>GenEventInfoProduct_generator__HLT.</Branch>
   <Branch>L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT.</Branch>

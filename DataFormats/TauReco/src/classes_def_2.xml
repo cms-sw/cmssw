@@ -1,6 +1,11 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="15">
+  <class name="reco::PFTau" ClassVersion="19">
+   <version ClassVersion="20" checksum="3395041825"/>
+   <version ClassVersion="19" checksum="4003955973"/>
+   <version ClassVersion="18" checksum="1318776182"/>
+   <version ClassVersion="17" checksum="1523260402"/>
+    <version ClassVersion="16" checksum="2695990650"/>
     <version ClassVersion="15" checksum="4105994460"/>
     <version ClassVersion="14" checksum="3087106015"/>
     <version ClassVersion="13" checksum="1088944403"/>
@@ -153,6 +158,47 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 
 
 
+
+
+
+<ioread sourceClass = "reco::PFTau" version="[1-]" 
+ targetClass="reco::PFTau" 
+source = "" 
+target="signalPiZeroCandidates_">
+<![CDATA[
+signalPiZeroCandidates_.reset();
+]]>
+</ioread>
+              
+<ioread sourceClass = "reco::PFTau" version="[1-]" 
+ targetClass="reco::PFTau" 
+source = "" 
+target="isolationPiZeroCandidates_">
+<![CDATA[
+isolationPiZeroCandidates_.reset();
+]]>
+</ioread>
+
+
+<ioread sourceClass = "reco::PFTau" version="[1-]"
+ targetClass="reco::PFTau" 
+source = "" 
+target="signalTauChargedHadronCandidates_">
+<![CDATA[signalTauChargedHadronCandidates_.reset();
+]]>                                    
+</ioread>
+                                      
+<ioread sourceClass = "reco::PFTau" version="[1-]"
+ targetClass="reco::PFTau" 
+source = "" 
+target="isolationTauChargedHadronCandidates_">                                          
+<![CDATA[
+isolationTauChargedHadronCandidates_.reset();                                              
+]]>                                                
+</ioread>
+
+
+
 <!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
 <!-- source="reco::PFCandidateRefVector selectedIsolationPFCands_;" -->
 <!--  targetClass="reco::PFTau" -->
@@ -204,7 +250,10 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 <!-- </ioread> -->
 
 
-  <class name="reco::PFTauDecayMode" ClassVersion="10">
+  <class name="reco::PFTauDecayMode" ClassVersion="13">
+   <version ClassVersion="13" checksum="3507751092"/>
+   <version ClassVersion="12" checksum="2043565930"/>
+   <version ClassVersion="11" checksum="3414615810"/>
    <version ClassVersion="10" checksum="2108215737"/>
   </class>
   <class name="std::vector<reco::PFTauDecayMode>"/>
@@ -218,7 +267,12 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
 
-  <class name="reco::RecoTauPiZero" ClassVersion="10">
+  <class name="reco::RecoTauPiZero" ClassVersion="14">
+   <version ClassVersion="15" checksum="4070597512"/>
+   <version ClassVersion="14" checksum="3535311745"/>
+   <version ClassVersion="13" checksum="3687187514"/>
+   <version ClassVersion="12" checksum="453348937"/>
+   <version ClassVersion="11" checksum="2458276705"/>
    <version ClassVersion="10" checksum="465425628"/>
   </class>
   <class name="std::vector<reco::RecoTauPiZero>"/>
@@ -229,7 +283,10 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
 
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="11">
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="14">
+   <version ClassVersion="14" checksum="3665832588"/>
+   <version ClassVersion="13" checksum="591384956"/>
+   <version ClassVersion="12" checksum="2480143236" />
    <version ClassVersion="11" checksum="858406271" />
    <version ClassVersion="10" checksum="4027987990"/>
   </class>
@@ -244,7 +301,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="reco::CaloTauDiscriminatorByIsolation" ClassVersion="10">
+  <class name="reco::CaloTauDiscriminatorByIsolation" ClassVersion="11">
+   <version ClassVersion="11" checksum="2337069537"/>
    <version ClassVersion="10" checksum="2968502385"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
@@ -256,7 +314,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="reco::CaloTauDiscriminatorBase">
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="reco::CaloTauDiscriminator" ClassVersion="10">
+  <class name="reco::CaloTauDiscriminator" ClassVersion="11">
+   <version ClassVersion="11" checksum="3173873463"/>
    <version ClassVersion="10" checksum="1989330711"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>

@@ -1,18 +1,21 @@
+### who is using this python file ?
+### I found it obsolete, at least in terms of the TrackClusterRemover setting
+### now, it is ok, but ....
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.ConversionSeedGenerators.PostLS1_PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
-convClusters = cms.EDProducer("TrackClusterRemover",
-                              clusterLessSolution = cms.bool(True),
-                              oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
-                              trajectories = cms.InputTag("tobTecStepTracks"),
-                              overrideTrkQuals = cms.InputTag('tobTecStepSelector','tobTecStep'),
-                              TrackQuality = cms.string('highPurity'),
-                              pixelClusters = cms.InputTag("siPixelClusters"),
-                              stripClusters = cms.InputTag("siStripClusters"),
-                              Common = cms.PSet(maxChi2 = cms.double(30.0))
-                              )
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+convClusters = trackClusterRemover.clone(
+   maxChi2               = cms.double(30.0),
+   trajectories          = cms.InputTag("tobTecStepTracks"),
+   pixelClusters         = cms.InputTag("siPixelClusters"),
+   stripClusters         = cms.InputTag("siStripClusters"),
+   oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
+   overrideTrkQuals      = cms.InputTag('tobTecStepSelector','tobTecStep'),
+   TrackQuality          = cms.string('highPurity'),
+)
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
@@ -250,7 +253,7 @@ convStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.
 import RecoTracker.TrackProducer.TrackProducer_cfi
 convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'convTrackCandidates',
-    AlgorithmName = cms.string('iter8'),
+    AlgorithmName = cms.string('conversionStep'),
     Fitter = 'convStepFitterSmoother',
     )
 

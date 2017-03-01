@@ -154,7 +154,7 @@ namespace reco {
 	for(int i = 0; i < n; ++i)
 	  evt.getByToken(tokens_[i], colls[i]);
 
-	auto_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
+	unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
 	if(setLongLived_ || setMassConstraint_ || setPdgId_) {
 	  typename OutputCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {
@@ -164,7 +164,7 @@ namespace reco {
 	    if(setPdgId_) i->setPdgId(pdgId_);
 	  }
 	}
-	evt.put(out);
+	evt.put(std::move(out));
       }
       /// combiner utility
       ::CandCombiner<Selector, PairSelector, Cloner, OutputCollection, Setup> combiner_;

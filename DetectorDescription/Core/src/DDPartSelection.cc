@@ -1,14 +1,9 @@
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-
-#include "boost/spirit/include/classic.hpp"
-
-// Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <map>
+#include "boost/spirit/include/classic.hpp"
 
 namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 

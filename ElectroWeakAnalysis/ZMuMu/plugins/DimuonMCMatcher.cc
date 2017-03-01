@@ -31,7 +31,7 @@ DimuonMCMatcher::DimuonMCMatcher(const edm::ParameterSet & cfg) :
 void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
   Handle<CandidateView> src;
   evt.getByToken(srcToken_, src);
-  auto_ptr<vector<GenParticleRef> > matched(new vector<GenParticleRef>);
+  unique_ptr<vector<GenParticleRef> > matched(new vector<GenParticleRef>);
   matched->reserve(src->size());
   int j=0;
   for(CandidateView::const_iterator i = src->begin(); i != src->end(); ++i) {
@@ -85,7 +85,7 @@ void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
     matched->push_back(dimuonMatch);
   }
 
-  evt.put(matched);
+  evt.put(std::move(matched));
 }
 
 

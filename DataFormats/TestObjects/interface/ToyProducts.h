@@ -28,6 +28,11 @@ namespace edmtest {
   struct DummyProduct {
   };
 
+  struct ArrayProduct {
+    explicit ArrayProduct(int i = 0) : value{i} {}
+    int value[1];
+  };
+
   struct EnumProduct {
     enum TheEnumProduct {
 	TheZero = 0,
@@ -46,6 +51,13 @@ namespace edmtest {
     ~IntProduct() {}
 
     cms_int32_t value;
+  };
+
+  struct UInt64Product {
+    explicit UInt64Product(unsigned long long i = 0) : value(i) {}
+    ~UInt64Product() {}
+
+    unsigned long long value;
   };
 
   struct TransientIntProduct {

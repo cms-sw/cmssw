@@ -63,8 +63,8 @@ void MuonSelectorVertex::produce( edm::Event & iEvent, const edm::EventSetup & i
     }
   }
 
-  std::auto_ptr< std::vector< pat::Muon > > selectedMuonsPtr( selectedMuons );
-  iEvent.put( selectedMuonsPtr );
+  std::unique_ptr< std::vector< pat::Muon > > selectedMuonsPtr( selectedMuons );
+  iEvent.put(std::move(selectedMuonsPtr));
 
 }
 

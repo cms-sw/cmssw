@@ -5,13 +5,13 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 
 /**
  */
-class EcalSRCondTools : public edm::EDAnalyzer {
+class EcalSRCondTools : public edm::one::EDAnalyzer<> {
   //methods
 public:
   /** Constructor
@@ -70,6 +70,9 @@ private:
 private:
 
   edm::ParameterSet ps_;
+
+  bool done_;
+
 };
 
 #endif //SRCONDACCESS_H not defined

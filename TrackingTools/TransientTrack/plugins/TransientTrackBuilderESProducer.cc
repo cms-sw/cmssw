@@ -20,7 +20,7 @@ TransientTrackBuilderESProducer::TransientTrackBuilderESProducer(const edm::Para
 
 TransientTrackBuilderESProducer::~TransientTrackBuilderESProducer() {}
 
-boost::shared_ptr<TransientTrackBuilder> 
+std::shared_ptr<TransientTrackBuilder> 
 TransientTrackBuilderESProducer::produce(const TransientTrackRecord & iRecord){ 
 
   edm::ESHandle<MagneticField> magfield;
@@ -28,8 +28,7 @@ TransientTrackBuilderESProducer::produce(const TransientTrackRecord & iRecord){
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iRecord.getRecord<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
 
-  _builder  = boost::shared_ptr<TransientTrackBuilder>(
-	new TransientTrackBuilder(magfield.product(), theTrackingGeometry ));
+  _builder  = std::make_shared<TransientTrackBuilder>(magfield.product(), theTrackingGeometry);
   return _builder;
 
 }

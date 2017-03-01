@@ -9,12 +9,16 @@
 
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
-TrackClassifier::TrackClassifier(edm::ParameterSet const & config) : TrackCategories(),
+TrackClassifier::TrackClassifier(edm::ParameterSet const & config,
+                                 edm::ConsumesCollector&& collector) : TrackCategories(),
         hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") ),
         beamSpotLabel_( config.getUntrackedParameter<edm::InputTag>("beamSpot") ),
-        tracer_(config),
-        quality_(config)
+        tracer_(config,std::move(collector)),
+        quality_(config, collector)
 {
+    collector.consumes<edm::HepMCProduct>(hepMCLabel_);
+    collector.consumes<reco::BeamSpot>(beamSpotLabel_);
+
     // Set the history depth after hadronization
     tracer_.depth(-2);
 
@@ -64,7 +68,7 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHand;
-    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    setup.get<TrackerTopologyRcd>().get(tTopoHand);
     tTopo_=tTopoHand.product();
 }
 
@@ -258,13 +262,13 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
 
 void TrackClassifier::hadronFlavor()
 {
-    // Get the initial hadron
-    const HepMC::GenParticle * particle = tracer_.genParticle();
+    // Get the initial hadron from the recoGenParticleTrail
+    const reco::GenParticle * particle = tracer_.recoGenParticle();
 
     // Check for the initial hadron
     if (particle)
     {
-        HepPDT::ParticleID pid(particle->pdg_id());
+        HepPDT::ParticleID pid(particle->pdgId());
         flags_[Bottom] = pid.hasBottom();
         flags_[Charm] =  pid.hasCharm();
         flags_[Light] = !pid.hasCharm() && !pid.hasBottom();
@@ -277,26 +281,13 @@ void TrackClassifier::processesAtGenerator()
     // pdgid of the "in" particle to the production vertex
     int pdgid = 0;
 
-    // Get the generated particles from track history
-    TrackHistory::GenParticleTrail const & genParticleTrail = tracer_.genParticleTrail();
+    // Get the generated particles from track history (reco::GenParticle in the recoGenParticleTrail)
+    TrackHistory::RecoGenParticleTrail const & recoGenParticleTrail = tracer_.recoGenParticleTrail();
 
-    // Loop over the generated particles
-    for (TrackHistory::GenParticleTrail::const_iterator iparticle = genParticleTrail.begin(); iparticle != genParticleTrail.end(); ++iparticle)
+    // Loop over the generated particles (reco::GenParticle in the recoGenParticleTrail)
+    for (TrackHistory::RecoGenParticleTrail::const_iterator iparticle = recoGenParticleTrail.begin(); iparticle != recoGenParticleTrail.end(); ++iparticle)
     {
-        // Get the source vertex for the particle
-        HepMC::GenVertex * productionVertex = (*iparticle)->production_vertex();
-
-        // Get the pointer to the vertex by removing the const-ness (no const methos in HepMC::GenVertex)
-        // HepMC::GenVertex * vertex = const_cast<HepMC::GenVertex *>(*ivertex);
-
-        // Check for a non-null pointer to the production vertex
-        if (productionVertex)
-        {
-            // Only case track history will navegate (one in or source particle per vertex)
-            if ( productionVertex->particles_in_size() == 1 )
-            {
-                // Look at the pdgid of the first "in" particle to the vertex
-                pdgid = std::abs((*productionVertex->particles_in_const_begin())->pdg_id());
+                pdgid = std::abs((*iparticle)->pdgId());
                 // Get particle type
                 HepPDT::ParticleID particleID(pdgid);
 
@@ -315,9 +306,13 @@ void TrackClassifier::processesAtGenerator()
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
                         // Check for B and C pure leptonic decay
-                        int daughterId = abs((*iparticle)->pdg_id());
-                        update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && daughterId == 13);
-                        update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && daughterId == 13);
+                        std::set<int> daughterIds;
+                        size_t ndau = (*iparticle)->numberOfDaughters();
+                        for( size_t i = 0; i < ndau; ++ i ){
+    						daughterIds.insert((*iparticle)->daughter(i)->pdgId());
+    					}
+                        update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && (daughterIds.find(13) != daughterIds.end()));
+                        update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && (daughterIds.find(13) != daughterIds.end()));
                     }
                     // Check Tau, Ks and Lambda decay
                     update(flags_[ChargePionDecay], pdgid == 211);
@@ -329,9 +324,7 @@ void TrackClassifier::processesAtGenerator()
                     update(flags_[XiDecay], pdgid == 3312);
                     update(flags_[SigmaPlusDecay], pdgid == 3222);
                     update(flags_[SigmaMinusDecay], pdgid == 3112);
-                }
-            }
-        }
+                }            
     }
     // Decays in flight
     update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
@@ -383,38 +376,40 @@ void TrackClassifier::processesAtSimulation()
                 pdgid = 0;
         }
 
-        unsigned short process = 0;
+        unsigned int processG4 = 0;
 
 	// Check existence of SimVerteces assigned
         if(parentVertex->nG4Vertices() > 0) {
-	  process = (*(parentVertex->g4Vertices_begin())).processType();
+	  processG4 = (*(parentVertex->g4Vertices_begin())).processType();
 	}
+	
+	unsigned int process = g4toCMSProcMap_.processId(processG4);
 
         // Flagging all the different processes
         update(
             flags_[KnownProcess],
-            process != G4::Undefined &&
-            process != G4::Unknown &&
-            process != G4::Primary
+            process != CMS::Undefined &&
+            process != CMS::Unknown &&
+            process != CMS::Primary
         );
 
-        update(flags_[UndefinedProcess], process == G4::Undefined);
-        update(flags_[UnknownProcess], process == G4::Unknown);
-        update(flags_[PrimaryProcess], process == G4::Primary);
-        update(flags_[HadronicProcess], process == G4::Hadronic);
-        update(flags_[DecayProcess], process == G4::Decay);
-        update(flags_[ComptonProcess], process == G4::Compton);
-        update(flags_[AnnihilationProcess], process == G4::Annihilation);
-        update(flags_[EIoniProcess], process == G4::EIoni);
-        update(flags_[HIoniProcess], process == G4::HIoni);
-        update(flags_[MuIoniProcess], process == G4::MuIoni);
-        update(flags_[PhotonProcess], process == G4::Photon);
-        update(flags_[MuPairProdProcess], process == G4::MuPairProd);
-        update(flags_[ConversionsProcess], process == G4::Conversions);
-        update(flags_[EBremProcess], process == G4::EBrem);
-        update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
-        update(flags_[MuBremProcess], process == G4::MuBrem);
-        update(flags_[MuNuclProcess], process == G4::MuNucl);
+        update(flags_[UndefinedProcess], process == CMS::Undefined);
+        update(flags_[UnknownProcess], process == CMS::Unknown);
+        update(flags_[PrimaryProcess], process == CMS::Primary);
+        update(flags_[HadronicProcess], process == CMS::Hadronic);
+        update(flags_[DecayProcess], process == CMS::Decay);
+        update(flags_[ComptonProcess], process == CMS::Compton);
+        update(flags_[AnnihilationProcess], process == CMS::Annihilation);
+        update(flags_[EIoniProcess], process == CMS::EIoni);
+        update(flags_[HIoniProcess], process == CMS::HIoni);
+        update(flags_[MuIoniProcess], process == CMS::MuIoni);
+        update(flags_[PhotonProcess], process == CMS::Photon);
+        update(flags_[MuPairProdProcess], process == CMS::MuPairProd);
+        update(flags_[ConversionsProcess], process == CMS::Conversions);
+        update(flags_[EBremProcess], process == CMS::EBrem);
+        update(flags_[SynchrotronRadiationProcess], process == CMS::SynchrotronRadiation);
+        update(flags_[MuBremProcess], process == CMS::MuBrem);
+        update(flags_[MuNuclProcess], process == CMS::MuNucl);
 
         // Get particle type
         HepPDT::ParticleID particleID(pdgid);
@@ -425,7 +420,7 @@ void TrackClassifier::processesAtSimulation()
             // Get particle data
             ParticleData const * particleData = particleDataTable_->particle(particleID);
             // Special treatment for decays
-            if (process == G4::Decay)
+            if (process == CMS::Decay)
             {
                 // Check if the particle exist in the table
                 if (particleData)
@@ -470,7 +465,7 @@ void TrackClassifier::vertexInformation()
     GeneratedPrimaryVertex const & genpv = genpvs_.back();
 
     // Get the generated history of the tracks
-    TrackHistory::GenParticleTrail & genParticleTrail = const_cast<TrackHistory::GenParticleTrail &> (tracer_.genParticleTrail());
+    const TrackHistory::GenParticleTrail & genParticleTrail = tracer_.genParticleTrail();
 
     // Vertex counter
     int counter = 0;
@@ -484,7 +479,7 @@ void TrackClassifier::vertexInformation()
 
     // Loop over the generated particles
     for (
-        TrackHistory::GenParticleTrail::reverse_iterator iparticle = genParticleTrail.rbegin();
+        TrackHistory::GenParticleTrail::const_reverse_iterator iparticle = genParticleTrail.rbegin();
         iparticle != genParticleTrail.rend();
         ++iparticle
     )
@@ -511,11 +506,11 @@ void TrackClassifier::vertexInformation()
         }
     }
 
-    TrackHistory::SimParticleTrail & simParticleTrail = const_cast<TrackHistory::SimParticleTrail &> (tracer_.simParticleTrail());
+    const TrackHistory::SimParticleTrail & simParticleTrail = tracer_.simParticleTrail();
 
     // Loop over the generated particles
     for (
-        TrackHistory::SimParticleTrail::reverse_iterator iparticle = simParticleTrail.rbegin();
+        TrackHistory::SimParticleTrail::const_reverse_iterator iparticle = simParticleTrail.rbegin();
         iparticle != simParticleTrail.rend();
         ++iparticle
     )

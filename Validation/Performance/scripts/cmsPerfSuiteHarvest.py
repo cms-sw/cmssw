@@ -62,7 +62,7 @@ def get_params(argv):
     xml_dir="PerfSuiteDBData"
     try:                              
         opts, args = getopt.getopt(argv[1:], "v:", ["version=", "outdir="])
-    except getopt.GetoptError, e:  
+    except getopt.GetoptError as e:  
         print e
     for opt, arg in opts:
         if opt in ("-v", "--version"):
@@ -87,7 +87,7 @@ def _eventContent_DEBUG(edm_report):
 		for prod in edm_report:
 			ecs = parseEventContent.List_ECs_forProduct(prod)
 			for ec in ecs:
-				if not EC_count.has_key(ec):
+				if ec not in EC_count:
 					EC_count[ec] = []	
 				EC_count[ec].append(prod)
 		#print out the statistics
@@ -116,11 +116,11 @@ def exportIgProfReport(path, igProfReport, igProfType, runinfo):
     candleLong = os.path.split(path)[1].replace("_IgProf_Perf", "").replace("_IgProf_Mem", "").replace("_PU", "")
     found = False
     #print igProfType
-    if runinfo['TestResults'].has_key(igProfType):
+    if igProfType in runinfo['TestResults']:
         for result in runinfo['TestResults'][igProfType]:
             if candleLong == result["candle"] and jobID["pileup_type"] == result['pileup_type'] and jobID["conditions"] == result['conditions'] and jobID["event_content"] == result['event_content']:
                 jobID["candle"] = jobID["candle"].upper()
-                if not result.has_key("jobs"):
+                if "jobs" not in result:
                     result['jobs'] = []
                 result['jobs'].append(igProfReport)
                 found = True
@@ -140,7 +140,7 @@ def exportTimeSizeJob(path, timeSizeReport,  runinfo):
 
 		#search for a run Test to which could belong our JOB
 		found = False
-		if runinfo['TestResults'].has_key('TimeSize'):
+		if 'TimeSize' in runinfo['TestResults']:
 			for result in runinfo['TestResults']['TimeSize']:
 				#print result
 				""" If this is the testResult which fits TimeSize job """
@@ -148,7 +148,7 @@ def exportTimeSizeJob(path, timeSizeReport,  runinfo):
 				#and jobID["step"] in result['steps'].split(parserPerfsuiteMetadata._LINE_SEPARATOR)
 				if result['candle'] == candleLong  and jobID["pileup_type"] == result['pileup_type'] and jobID["conditions"] == result['conditions'] and jobID["event_content"] == result['event_content']:
 					#print result
-					if not result.has_key("jobs"):
+					if "jobs" not in result:
 						result['jobs'] = []
 					result['jobs'].append(timeSizeReport)
 					found = True
@@ -167,7 +167,7 @@ def exportMemcheckReport(path, MemcheckReport, runinfo):
 
 		#search for a run Test to which could belong our JOB
 		found = False
-		if runinfo['TestResults'].has_key('Memcheck'):
+		if 'Memcheck' in runinfo['TestResults']:
 			for result in runinfo['TestResults']['Memcheck']:
 				#print result
                                 #print jobID
@@ -176,7 +176,7 @@ def exportMemcheckReport(path, MemcheckReport, runinfo):
 				#and jobID["step"] in result['steps'].split(parserPerfsuiteMetadata._LINE_SEPARATOR)
 				if result['candle'] == candleLong  and jobID["pileup_type"] == result['pileup_type'] and jobID["conditions"] == result['conditions'] and jobID["event_content"] == result['event_content']:
 					#print result
-					if not result.has_key("jobs"):
+					if "jobs" not in result:
 						result['jobs'] = []
 					result['jobs'].append(MemcheckReport)
 					found = True
@@ -217,7 +217,7 @@ def process_timesize_dir(path, runinfo):
 		jobID = getJobID_fromTimeReportLogName(os.path.join(path, timelog_f))
 		print "jobID: %s" % str(jobID)
 		(candle, step, pileup_type, conditions, event_content) = jobID
-		jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+		jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
 		print "Dictionary based jobID %s: " % str(jobID)
 		
 		#if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
@@ -256,7 +256,7 @@ def process_timesize_dir(path, runinfo):
 				edm_report  = map(assign_event_content_for_product, edm_report)
 				# for testing / imformation
 				_eventContent_DEBUG(edm_report)
-			except Exception, e:
+			except Exception as e:
 				print e
 
 		timeSizeReport = {
@@ -299,7 +299,7 @@ def process_memcheck_dir(path, runinfo):
                 (candle, step, pileup_type, conditions, event_content) = jobID
                 
                 print "jobID: %s" % str(jobID)
-                jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+                jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
 
                 print "Dictionary based jobID %s: " % str(jobID)
             
@@ -375,7 +375,7 @@ def process_igprof_dir(path, runinfo):
                 (candle, step, pileup_type, conditions, event_content) = jobID
 
                 print "jobID: %s" % str(jobID)
-                jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+                jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
                 
                 print "Dictionary based jobID %s: " % str(jobID)
                 
@@ -552,12 +552,12 @@ if __name__ == "__main__":
 	 try:
 		 import Validation.Performance.ModuleToSequenceAssign as ModuleToSequenceAssign
 		 Sequences_OK = True
-	 except Exception, e:
+	 except Exception as e:
 		print e
 	 try:
     	 	import Validation.Performance.parseEventContent as parseEventContent
 		EventContents_OK = True
-	 except Exception, e:
+	 except Exception as e:
 		print e	
 
     print "Parsing TimeSize report"

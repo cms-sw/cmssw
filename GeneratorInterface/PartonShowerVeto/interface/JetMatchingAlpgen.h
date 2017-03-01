@@ -1,6 +1,5 @@
-#ifndef GeneratorInterface_PartonShowerVeto_JetMatchingMadggraph_h
-#define GeneratorInterface_PartonShowerVeto_JetMatchingMadgraph_h
-
+#ifndef GeneratorInterface_PartonShowerVeto_JetMatchingAlpgen_h
+#define GeneratorInterface_PartonShowerVeto_JetMatchingAlpgen_h
 
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenHeader.h"

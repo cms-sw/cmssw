@@ -136,6 +136,9 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 
 
 # flag to allow/disallow missing inputs
-    AllowMissingInputs = cms.bool(False)
+    AllowMissingInputs = cms.bool(False),
+	
+# specify hcal upgrade phase - 0, 1, 2	
+	HcalPhase = cms.int32(0)
     
 )

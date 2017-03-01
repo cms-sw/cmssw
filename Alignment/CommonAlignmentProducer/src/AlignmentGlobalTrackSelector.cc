@@ -2,13 +2,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //DataFormats
 #include <DataFormats/Candidate/interface/Particle.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
 #include <DataFormats/TrackReco/interface/Track.h>
 #include <DataFormats/JetReco/interface/CaloJet.h>
-#include <DataFormats/MuonReco/interface/MuonFwd.h>
+
 #include <DataFormats/MuonReco/interface/Muon.h>
 
 #include <DataFormats/RecoCandidate/interface/RecoCandidate.h> //for the get<TrackRef>() Call
@@ -25,19 +26,17 @@ using namespace std;
 using namespace edm;   
 
 // constructor ----------------------------------------------------------------
-AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterSet & cfg) :
+AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC) :
   theGMFilterSwitch(cfg.getParameter<bool>("applyGlobalMuonFilter")),
   theIsoFilterSwitch(cfg.getParameter<bool>("applyIsolationtest")),
-  theJetCountFilterSwitch(cfg.getParameter<bool>("applyJetCountFilter")),
-  theMuonSource("muons"),
-  theJetIsoSource("fastjet6CaloJets"),
-  theJetCountSource("fastjet6CaloJets")
+  theJetCountFilterSwitch(cfg.getParameter<bool>("applyJetCountFilter"))
 {
   if (theGMFilterSwitch || theIsoFilterSwitch || theJetCountFilterSwitch)
     LogDebug("Alignment") << "> applying global Trackfilter ...";
- 
+
   if (theGMFilterSwitch) {
-    theMuonSource = cfg.getParameter<InputTag>("muonSource");
+    edm::InputTag theMuonSource = cfg.getParameter<InputTag>("muonSource");
+    theMuonToken = iC.consumes<reco::MuonCollection>(theMuonSource);
     theMaxTrackDeltaR =cfg.getParameter<double>("maxTrackDeltaR");
     theMinGlobalMuonCount = cfg.getParameter<int>("minGlobalMuonCount");
     LogDebug("Alignment") << ">  GlobalMuonFilter : source, maxTrackDeltaR, min. Count       : "
@@ -47,7 +46,8 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
   }
   
   if (theIsoFilterSwitch) {
-    theJetIsoSource = cfg.getParameter<InputTag>("jetIsoSource");
+    edm::InputTag theJetIsoSource = cfg.getParameter<InputTag>("jetIsoSource");
+    theJetIsoToken = iC.consumes<reco::CaloJetCollection>(theJetIsoSource);
     theMaxJetPt = cfg.getParameter<double>("maxJetPt");
     theMinJetDeltaR = cfg.getParameter<double>("minJetDeltaR");
     theMinIsolatedCount = cfg.getParameter<int>("minIsolatedCount");
@@ -59,7 +59,8 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
   }
   
   if (theJetCountFilterSwitch) {
-    theJetCountSource = cfg.getParameter<InputTag>("jetCountSource");
+    edm::InputTag theJetCountSource = cfg.getParameter<InputTag>("jetCountSource");
+    theJetCountToken = iC.consumes<reco::CaloJetCollection>(theJetCountSource);
     theMinJetPt = cfg.getParameter<double>("minJetPt");
     theMaxJetCount = cfg.getParameter<int>("maxJetCount");
     LogDebug("Alignment") << ">  JetCountFilter   : source, minJetPt, maxJetCount             : "
@@ -104,7 +105,7 @@ AlignmentGlobalTrackSelector::findMuons(const Tracks& tracks, const edm::Event& 
 
   //fill globalMuons with muons
   Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(theMuonSource, muons);
+  iEvent.getByToken(theMuonToken, muons);
 
   if (muons.isValid()) {
     for (reco::MuonCollection::const_iterator itMuon = muons->begin(); 
@@ -137,7 +138,7 @@ AlignmentGlobalTrackSelector::checkIsolation(const Tracks& cands,const edm::Even
   Tracks result; result.clear();
 
   Handle<reco::CaloJetCollection> jets;
-  iEvent.getByLabel(theJetIsoSource, jets);
+  iEvent.getByToken(theJetIsoToken, jets);
 
   if (jets.isValid()) {
     for (Tracks::const_iterator it = cands.begin();
@@ -170,7 +171,7 @@ AlignmentGlobalTrackSelector::checkJetCount(const Tracks& tracks, const edm::Eve
   Tracks result; result.clear();
 
   Handle<reco::CaloJetCollection> jets;
-  iEvent.getByLabel(theJetCountSource, jets);
+  iEvent.getByToken(theJetCountToken, jets);
 
   if (jets.isValid()) {
     int jetCount = 0;

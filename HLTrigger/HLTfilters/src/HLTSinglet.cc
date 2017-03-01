@@ -19,7 +19,7 @@
 
 #include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
 
-#include <typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 // extract the candidate type
 template<typename T>
@@ -106,7 +106,7 @@ HLTSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("MinMass",-1.0);
   desc.add<double>("MaxEta",-1.0);
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTSinglet<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTSinglet<T>>(), desc);
 }
 
 //

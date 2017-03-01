@@ -1,10 +1,14 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
+#include "FWCore/Utilities/interface/RunningAverage.h"
 
 namespace {
   bool sortByDetId(const reco::PFRecHit& a,
 		   const reco::PFRecHit& b) {
     return a.detId() < b.detId();
   }
+
+ edm::RunningAverage localRA1;
+ edm::RunningAverage localRA2;
 }
 
  PFRecHitProducer:: PFRecHitProducer(const edm::ParameterSet& iConfig)
@@ -43,15 +47,20 @@ void
  PFRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   std::auto_ptr<reco::PFRecHitCollection> out(new reco::PFRecHitCollection );
-   std::auto_ptr<reco::PFRecHitCollection> cleaned(new reco::PFRecHitCollection );
+   auto out = std::make_unique<reco::PFRecHitCollection>();
+   auto cleaned = std::make_unique<reco::PFRecHitCollection>();
 
    navigator_->beginEvent(iSetup);
 
+   out->reserve(localRA1.upper());
+   cleaned->reserve(localRA2.upper());
    for( const auto& creator : creators_ ) {
      creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
-
+   if (out->capacity()>2*out->size()) out->shrink_to_fit();
+   if (cleaned->capacity()>2*cleaned->size()) cleaned->shrink_to_fit();
+   localRA1.update(out->size());
+   localRA2.update(cleaned->size());
    std::sort(out->begin(),out->end(),sortByDetId);
 
    //create a refprod here
@@ -62,8 +71,8 @@ void
      navigator_->associateNeighbours(pfrechit,out,refProd);
    }
 
-   iEvent.put(out,"");
-   iEvent.put(cleaned,"Cleaned");
+   iEvent.put(std::move(out),"");
+   iEvent.put(std::move(cleaned),"Cleaned");
 
 }
 

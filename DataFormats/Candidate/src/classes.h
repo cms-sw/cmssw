@@ -6,6 +6,7 @@
 #include "Math/Polar3D.h" 
 #include "Math/CylindricalEta3D.h" 
 #include "Math/PxPyPzE4D.h" 
+#include "DataFormats/Candidate/interface/LeafRefCandidateT.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
@@ -56,6 +57,7 @@ namespace DataFormats_Candidate {
     std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
+    edm::reftobase::RefHolder<reco::CandidatePtr> rhptr1;
     edm::reftobase::IndirectVectorHolder<reco::Candidate> rbih2;
     edm::reftobase::RefVectorHolder<reco::CandidateRefVector> rh2;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;

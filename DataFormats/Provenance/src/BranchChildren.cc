@@ -3,14 +3,15 @@
 namespace edm {
   void
   BranchChildren::append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const {
-    BranchIDSet const& items = const_cast<map_t &>(lookup)[item];
-    // For each parent(child)
-    for (BranchIDSet::const_iterator ci = items.begin(), ce = items.end();
-	ci != ce; ++ci) {
-      // Insert the BranchID of the parents(children) into the set of ancestors(descendants).
-      // If the insert succeeds, append recursively.
-      if (itemSet.insert(*ci).second) {
-	append_(lookup, *ci, itemSet);
+    auto const iter = lookup.find(item);
+    if(iter != lookup.end()) {
+      BranchIDSet const& branchIDs = iter->second;
+      for(BranchID const& branchID : branchIDs) {
+        // Insert the BranchID of the parents(children) into the set of ancestors(descendants).
+        // If the insert succeeds, append recursively.
+        if(itemSet.insert(branchID).second) {
+          append_(lookup, branchID, itemSet);
+        }
       }
     }
   }

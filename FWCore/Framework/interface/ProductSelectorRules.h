@@ -43,8 +43,9 @@ namespace edm {
 
     bool keepAll() const {return keepAll_;}
 
-    static void fillDescription(ParameterSetDescription& desc, char const* parameterName);
+    static void fillDescription(ParameterSetDescription& desc, char const* parameterName, std::vector<std::string> const& defaultStrings = defaultSelectionStrings());
 
+    static const std::vector<std::string>& defaultSelectionStrings();
   private:
     class Rule {
     public:

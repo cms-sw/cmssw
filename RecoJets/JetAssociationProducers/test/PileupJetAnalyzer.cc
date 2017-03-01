@@ -26,8 +26,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -114,17 +113,12 @@ void PileupJetAnalyzer::analyze(const edm::Event &event,
 			bool signal = false;
 			unsigned int trackId;
 
-			const SiTrackerGSMatchedRecHit2D *hit =
-				dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(&*hitRef);
+			const FastTrackerRecHit *hit =
+				dynamic_cast<const FastTrackerRecHit*>(&*hitRef);
 
-			if (!hit) {
-				const SiTrackerGSRecHit2D *hit =
-					dynamic_cast<const SiTrackerGSRecHit2D*>(&*hitRef);
-				if (!hit)	
-					continue;
-				trackId = hit->simtrackId();
-			} else
-				trackId = hit->simtrackId();
+			if (!hit)	
+			    continue;
+			trackId = hit->simTrackId(0);
 
 			for(;;) {
 				const SimTrack &simTrack =

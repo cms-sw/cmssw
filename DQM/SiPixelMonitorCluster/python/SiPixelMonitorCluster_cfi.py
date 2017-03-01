@@ -1,7 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# This object is used to make changes for different running scenarios
+#
+
 SiPixelClusterSource = cms.EDAnalyzer("SiPixelClusterSource",
+    TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelClusters"),
+    digisrc = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Cluster.root'),
     saveFile = cms.untracked.bool(False),
     slowDown = cms.untracked.bool(False),
@@ -19,3 +25,6 @@ SiPixelClusterSource = cms.EDAnalyzer("SiPixelClusterSource",
     bigEventSize = cms.untracked.int32(100)
 )
 
+# Modify for if the phase 1 pixel detector is active
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify( SiPixelClusterSource, isUpgrade=cms.untracked.bool(True) )

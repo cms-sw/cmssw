@@ -31,7 +31,7 @@ class L1RPCBxOrConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCBxOrConfig
       L1RPCBxOrConfigOnlineProd(const edm::ParameterSet&);
       ~L1RPCBxOrConfigOnlineProd();
 
-  virtual boost::shared_ptr< L1RPCBxOrConfig > newObject(
+  virtual std::shared_ptr< L1RPCBxOrConfig > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -67,16 +67,16 @@ L1RPCBxOrConfigOnlineProd::~L1RPCBxOrConfigOnlineProd()
 
 }
 
-boost::shared_ptr< L1RPCBxOrConfig >
+std::shared_ptr< L1RPCBxOrConfig >
 L1RPCBxOrConfigOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1RPCBxOrConfig object with key "
 			    << objectKey << " not in ORCON!" ;
-  boost::shared_ptr< L1RPCBxOrConfig > pBxOrConfig (new L1RPCBxOrConfig());
+  auto pBxOrConfig = std::make_shared< L1RPCBxOrConfig >();
   pBxOrConfig->setFirstBX(0);
   pBxOrConfig->setLastBX(0);
   return pBxOrConfig;
-//  return boost::shared_ptr< L1RPCBxOrConfig >() ;
+//  return std::shared_ptr< L1RPCBxOrConfig >() ;
 }
 
 //

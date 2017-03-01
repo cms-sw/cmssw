@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TOBRod GCC11_FINAL : public DetRod {
+class TOBRod final : public DetRod {
  public:
   typedef PeriodicBinFinderInZ<float>   BinFinderType;
 

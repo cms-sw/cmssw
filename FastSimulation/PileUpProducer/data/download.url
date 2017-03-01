@@ -1,4 +1,0 @@
-This file is not used anymore to build the minimumbias data external!
-Now the correct procedure is to update the list directly in data-FastSimulation-PileUpProducer.spec (in the CMSDIST repository) and to inform the release managers to rebuild data-FastSimulation-PileUpProducer external via a pull request. 
-
-You have to fork the CMSDIST repository, clone it locally, modify the file data-FastSimulation-PileUpProducer.spec, push it in your forked repository, and make a pull request. 

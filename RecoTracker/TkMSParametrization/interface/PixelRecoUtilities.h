@@ -24,7 +24,7 @@ namespace PixelRecoUtilities {
    *  MagneticField is accessed only once.
    */
   inline float fieldInInvGev(const edm::EventSetup& iSetup) {
-    static  FieldAt0 fieldAt0(iSetup);
+    static  const FieldAt0 fieldAt0(iSetup);
     return fieldAt0.fieldInInvGev;
   }
   //  void MaginTesla(const edm::EventSetup& c);

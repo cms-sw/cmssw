@@ -27,7 +27,7 @@ class Scenario(object):
 
     """
     def __init__(self):
-        pass
+        self.eras=cms.Modifier()
 
 
     def promptReco(self, globalTag, **options):
@@ -42,7 +42,7 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for promptReco"
-        raise NotImplementedError, msg
+        raise NotImplementedError(msg)
 
 
     def expressProcessing(self, globalTag, **options):
@@ -67,7 +67,29 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for expressProcessing"
-        raise NotImplementedError, msg
+        raise NotImplementedError(msg)
+
+
+
+    def visualizationProcessing(self, globalTag, **options):
+        """
+        _expressProcessing_
+
+        Build a configuration for the visualization processing for this scenario.
+
+        Visualization processing runs unpacking, and reco on 
+        streamer files and it is equipped to run on the online cluster
+        and writes RECO or FEVT files,
+        
+        writeTiers is list of tiers to write out.
+        
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        msg += "Does not contain an implementation for visualizationProcessing"
+        raise NotImplementedError(msg)
+
+
 
 
     def alcaSkim(self, skims, **options):
@@ -79,7 +101,7 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for alcaSkim"
-        raise NotImplementedError, msg
+        raise NotImplementedError(msg)
 
 
     def alcaReco(self, *skims, **options):
@@ -91,7 +113,7 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for alcaReco"
-        raise NotImplementedError, msg
+        raise NotImplementedError(msg)
 
 
     def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
@@ -111,7 +133,7 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for dqmHarvesting"
-        raise NotImplementedError, msg
+        raise NotImplementedError(msg)
 
 
     def alcaHarvesting(self, globalTag, datasetName, **options):
@@ -128,7 +150,7 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for alcaHarvesting"
-        raise NotImplementedError, msg
+        raise NotImplementedError(msg)
 
 
     def skimming(self, skims, globalTag, **options):
@@ -141,7 +163,7 @@ class Scenario(object):
         """
         msg = "Scenario Implementation %s\n" % self.__class__.__name__
         msg += "Does not contain an implementation for skimming"
-        raise NotImplementedError, msg        
+        raise NotImplementedError(msg)        
 
 
     def merge(self, *inputFiles, **options):

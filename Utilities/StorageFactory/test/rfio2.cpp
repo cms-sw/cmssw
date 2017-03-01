@@ -11,7 +11,7 @@ int main (int, char **/*argv*/) try
      "ORCA_7_5_2/PoolFileCatalog.xml", &size);
 
   std::cout << "exists = " << exists << ", size = " << size << "\n";
-  std::cout << StorageAccount::summaryXML() << std::endl;
+  std::cout << StorageAccount::summaryText(true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

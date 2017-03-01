@@ -18,7 +18,7 @@ class MultiTrajectoryStateMerger;
  *  testing purposes) without combination with the forward fit. 
  */
 
-class GsfTrajectorySmoother GCC11_FINAL : public TrajectorySmoother {
+class GsfTrajectorySmoother final : public TrajectorySmoother {
 
 private:
 
@@ -51,7 +51,7 @@ public:
 				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
-  virtual void setHitCloner(TkCloner const * hc) {
+  virtual void setHitCloner(TkCloner const * hc)  override{
   }
 
 

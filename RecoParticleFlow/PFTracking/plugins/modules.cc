@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "RecoParticleFlow/PFTracking/interface/GoodSeedProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/LightPFTrackProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFNuclearProducer.h"
@@ -13,7 +12,6 @@
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedVertexSelector.cc"
 #include "RecoParticleFlow/PFTracking/plugins/SimVertexSelector.cc"
 
-DEFINE_FWK_MODULE(GoodSeedProducer);
 DEFINE_FWK_MODULE(PFElecTkProducer);
 DEFINE_FWK_MODULE(LightPFTrackProducer);
 DEFINE_FWK_MODULE(PFNuclearProducer);

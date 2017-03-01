@@ -30,7 +30,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          aBeamTarget = cms.double(208.0), ## beam/target atomic number
                          doCollisionalEnLoss = cms.bool(True), ## if true, perform partonic collisional en loss
                          embeddingMode = cms.bool(False),
-                         backgroundLabel = cms.InputTag("generator")
+                         backgroundLabel = cms.InputTag("generator","unsmeared")
                          )
 
 

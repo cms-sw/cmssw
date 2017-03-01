@@ -12,6 +12,7 @@
 RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
   theName = config.getParameter<std::string>("digiModel");
   theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiModelConfig"));
+  theNoise=config.getParameter<bool>("doBkgNoise");
 }
 
 RPCDigitizer::~RPCDigitizer() {
@@ -25,34 +26,39 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 			    RPCDigiSimLinks & rpcDigiSimLink,
                             CLHEP::HepRandomEngine* engine)
 {
-
+  
   theRPCSim->setRPCSimSetUp(theSimSetUp);
-
+  
   // arrange the hits by roll
   std::map<int, edm::PSimHitContainer> hitMap;
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
       hitItr != simHits.end(); ++hitItr) 
-  {
-    hitMap[hitItr->detUnitId()].push_back(*hitItr);
+    {
+      hitMap[hitItr->detUnitId()].push_back(*hitItr);
+    }
+  
+  if ( ! theGeometry) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
   }
-
-   if ( ! theGeometry) {
-   throw cms::Exception("Configuration")
-     << "RPCDigitizer requires the RPCGeometry \n which is not present in the configuration file.  You must add the service\n in the configuration file or remove the modules that require it.";
-  }
-
-
+  
+  
   const std::vector<const RPCRoll*>&  rpcRolls = theGeometry->rolls() ;
   for(auto r = rpcRolls.begin();
       r != rpcRolls.end(); r++){
-
-    const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];
     
-//    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
-//			     <<" hit(s) in the rpc roll";  
+    RPCDetId id = (*r)->id();
+    const edm::PSimHitContainer & rollSimHits = hitMap[id];
+  
     
-    theRPCSim->simulate(*r, rollSimHits, engine);
-    theRPCSim->simulateNoise(*r, engine);
+    if(!((*r)->isIRPC())){  
+      theRPCSim->simulate(*r, rollSimHits, engine);
+      
+      if(theNoise){
+	theRPCSim->simulateNoise(*r, engine);
+      }
+    }
+	
     theRPCSim->fillDigis((*r)->id(),rpcDigis);
     rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
   }

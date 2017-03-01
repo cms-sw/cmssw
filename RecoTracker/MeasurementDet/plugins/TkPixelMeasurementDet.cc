@@ -85,7 +85,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
        return result;
      }
      if(data.pixelClustersToSkip().empty() or (not data.pixelClustersToSkip()[index]) ) {
-       SiPixelClusterRef cluster = edmNew::makeRefTo( data.pixelData().handle(), ci );
+       SiPixelClusterRef cluster = detSet.makeRefTo( data.pixelData().handle(), ci );
        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
      }else{   
        LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<fastGeomDet().geographicalId().rawId()<<" key: "<<index;

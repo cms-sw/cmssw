@@ -241,7 +241,7 @@ void ProcMLP::trainData(const std::vector<double> *values,
 
 	if (iteration == ITER_COUNT)
 		count++;
-		weightSum += weight;
+   weightSum += weight; 
 
 	if (iteration != ITER_TRAIN)
 		return;

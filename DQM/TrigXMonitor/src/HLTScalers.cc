@@ -1,4 +1,4 @@
-// 
+//
 // Revision 1.30  2011/03/30 21:44:03  fwyzard
 // make sure HLTConfigProvider is used only if succesfully initialized
 //
@@ -54,7 +54,6 @@
 
 #include <iostream>
 
-
 // FW
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -70,7 +69,6 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-
 #include "DQM/TrigXMonitor/interface/HLTScalers.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -78,71 +76,125 @@
 
 using namespace edm;
 
+HLTScalers::HLTScalers(const edm::ParameterSet& ps)
+    : folderName_(ps.getUntrackedParameter<std::string>("dqmFolder",
+                                                        "HLT/HLTScalers_EvF")),
+      processname_(ps.getParameter<std::string>("processname")),
+      pairPDPaths_(),
+      trigResultsSource_(consumes<TriggerResults>(
+          ps.getParameter<edm::InputTag>("triggerResults"))),
+      scalersN_(0),
+      scalersException_(0),
+      hltCorrelations_(0),
+      detailedScalers_(0),
+      nProc_(0),
+      nLumiBlock_(0),
+      hltBx_(0),
+      hltBxVsPath_(0),
+      hltOverallScaler_(0),
+      hltOverallScalerN_(0),
+      diagnostic_(0),
+      sentPaths_(false),
+      monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
+      nev_(0),
+      nLumi_(0) {
+  LogDebug("HLTScalers") << "HLTScalers: constructor....";
+}
 
+void HLTScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) {
+  LogDebug("HLTScalers") << "HLTScalers::beginRun, run " << run.id();
 
-HLTScalers::HLTScalers(const edm::ParameterSet &ps):
-  folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", "HLT/HLTScalers_EvF")),
-  processname_(ps.getParameter<std::string>("processname")),
-  pairPDPaths_(),
-  trigResultsSource_(consumes<TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
-  dbe_(0),
-  scalersN_(0),
-  scalersException_(0),
-  hltCorrelations_(0),
-  detailedScalers_(0), 
-  nProc_(0),
-  nLumiBlock_(0),
-  hltBx_(0),
-  hltBxVsPath_(0),
-  hltOverallScaler_(0),
-  hltOverallScalerN_(0),
-  diagnostic_(0),
-  resetMe_(true),
-  sentPaths_(false),
-  monitorDaemon_(ps.getUntrackedParameter<bool>("MonitorDaemon", false)),
-  nev_(0), 
-  nLumi_(0),
-  currentRun_(-1)
-{
-  LogDebug("HLTScalers") << "HLTScalers: constructor...." ;
+  // HLT config does not change within runs!
+  bool changed = false;
 
-  dbe_ = Service<DQMStore>().operator->();
-  if (dbe_ ) {
-    dbe_->setVerbose(0);
-    dbe_->setCurrentFolder(folderName_);
+  // clear vector pairPDPaths_
+  pairPDPaths_.clear();
+
+  if (not hltConfig_.init(run, c, processname_, changed)) {
+    edm::LogError("TrigXMonitor") << "HLTConfigProvider failed to initialize.";
+  } else {
+    // check if trigger name in (new) config
+    //  cout << "Available TriggerNames are: " << endl;
+    //  hltConfig_.dump("Triggers");
+
+    if (hltConfig_.streamIndex("A") < hltConfig_.streamNames().size()) {
+      // get hold of PD names and constituent path names
+      const std::vector<std::string>& PD = hltConfig_.streamContent("A");
+
+      for (unsigned int i = 0; i < PD.size(); i++) {
+        const std::vector<std::string>& datasetPaths =
+            hltConfig_.datasetContent(PD[i]);
+        pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
+      }
+
+      // push stream A and its PDs
+      pairPDPaths_.push_back(make_pair("A", PD));
+
+    } else {
+      LogDebug("HLTScalers")
+          << "HLTScalers::beginRun, steamm A not in the HLT menu ";
+    }
   }
 }
 
+void HLTScalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
+                                edm::EventSetup const&) {
+  std::string rawdir(folderName_ + "/raw");
+  iBooker.setCurrentFolder(rawdir);
 
-void HLTScalers::beginJob(void)
-{
-  LogDebug("HLTScalers") << "HLTScalers::beginJob()..." << std::endl;
+  nProc_ = iBooker.bookInt("nProcessed");
+  nLumiBlock_ = iBooker.bookInt("nLumiBlock");
+  diagnostic_ = iBooker.book1D("hltMerge", "HLT merging diagnostic", 1, 0.5, 1.5);
+  // fill for ever accepted event
+  hltOverallScaler_ =
+      iBooker.book1D("hltOverallScaler", "HLT Overall Scaler", 1, 0.5, 1.5);
+  hltOverallScalerN_ = iBooker.book1D("hltOverallScalerN",
+                                    "Reset HLT Overall Scaler", 1, 0.5, 1.5);
 
-  if (dbe_) {
-    std::string rawdir(folderName_ + "/raw");
-    dbe_->setCurrentFolder(rawdir);
+  // DQM: Previously the number of trigger paths was determined on the first
+  // event, by taking the size of the htlResults to book the histogram.
+  // Now we use the size of the hltConfig instead.
+  int npath = hltConfig_.size();
+  unsigned int nPD = pairPDPaths_.size();
 
-    nProc_      = dbe_->bookInt("nProcessed");
-    nLumiBlock_ = dbe_->bookInt("nLumiBlock");
-    diagnostic_ = dbe_->book1D("hltMerge", "HLT merging diagnostic", 
-                               1, 0.5, 1.5);
+  // need to get maxModules dynamically
+  int maxModules = 200;
 
-    // fill for ever accepted event 
-    hltOverallScaler_  = dbe_->book1D("hltOverallScaler", "HLT Overall Scaler", 
-                                      1, 0.5, 1.5);
-    hltOverallScalerN_ = dbe_->book1D("hltOverallScalerN", 
-                                      "Reset HLT Overall Scaler", 1, 0.5, 1.5);
-    
-    // other ME's are now found on the first event of the new run, 
-    // when we know more about the HLT configuration.
-  }
+  scalersPD_ = iBooker.book1D("pdScalers", "PD scalers (stream A)", nPD, -0.5,
+                            nPD - 0.5);
+  detailedScalers_ =
+      iBooker.book2D("detailedHltScalers", "HLT Scalers", npath, -0.5,
+                   npath - 0.5, maxModules, 0, maxModules - 1);
+  scalers_ =
+      iBooker.book1D("hltScalers", "HLT scalers", npath, -0.5, npath - 0.5);
+  scalersN_ = iBooker.book1D("hltScalersN", "Reset HLT scalers", npath, -0.5,
+                           npath - 0.5);
+  scalersException_ = iBooker.book1D("hltExceptions", "HLT Exception scalers",
+                                   npath, -0.5, npath - 0.5);
+  hltCorrelations_ =
+      iBooker.book2D("hltCorrelations", "HLT Scalers", npath, -0.5, npath - 0.5,
+                   npath, -0.5, npath - 0.5);
+
+  // these two belong in top-level
+  iBooker.setCurrentFolder(folderName_);
+  hltBxVsPath_ = iBooker.book2D("hltBxVsPath", "HLT Accept vs Bunch Number",
+                              3600, -0.5, 3599.5, npath, -0.5, npath - 0.5);
+  hltBx_ =
+      iBooker.book1D("hltBx", "Bx of HLT Accepted Events ", 3600, -0.5, 3599.5);
 }
 
-void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
-{
+void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                      const edm::EventSetup& c) {
+  LogDebug("HLTScalers") << "Start of luminosity block.";
+  // reset the N guys
+  if (scalersN_) scalersN_->Reset();
+  if (hltOverallScalerN_) hltOverallScalerN_->Reset();
+}
+
+void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
   nProc_->Fill(++nev_);
-  diagnostic_->setBinContent(1,1); // this ME is never touched - 
-                                   // it just tells you how the merging is doing.
+  diagnostic_->setBinContent(1, 1);  // this ME is never touched -
+  // it just tells you how the merging is doing.
 
   edm::Handle<TriggerResults> hltResults;
   bool b = e.getByToken(trigResultsSource_, hltResults);
@@ -154,101 +206,57 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
                                << " with label " << l.module;
     return;
   }
-  
-  
   int npath = hltResults->size();
   unsigned int nPD = pairPDPaths_.size();
+  ///////////////////////////////////////////////////////////////////////////
 
-  // on the first event of a new run we book new ME's
-  if (resetMe_ ) {
-    LogInfo("HLTScalers") << "analyze(): new run. dump path for this evt " 
-                          << e.id() << ", \n"
-                          << *hltResults ;
-
-    if (not dbe_)
-      return;
-
-    // need to get maxModules dynamically
-    int maxModules = 200;
-
-    std::string rawdir(folderName_ + "/raw");
-    dbe_->setCurrentFolder(rawdir);
-
-    scalersPD_          = dbe_->book1D("pdScalers", "PD scalers (stream A)",
-                                       nPD, -0.5, nPD-0.5);
-    detailedScalers_    = dbe_->book2D("detailedHltScalers", "HLT Scalers", 
-                                       npath, -0.5, npath-0.5,
-                                       maxModules, 0, maxModules-1);
-    scalers_            = dbe_->book1D("hltScalers", "HLT scalers",
-                                       npath, -0.5, npath-0.5);
-    scalersN_           = dbe_->book1D("hltScalersN", "Reset HLT scalers",
-                                       npath, -0.5, npath-0.5);
-    scalersException_   = dbe_->book1D("hltExceptions", "HLT Exception scalers",
-                                       npath, -0.5, npath-0.5);
-    hltCorrelations_    = dbe_->book2D("hltCorrelations", "HLT Scalers", 
-                                       npath, -0.5, npath-0.5,
-                                       npath, -0.5, npath-0.5);
-
-    // these two belong in top-level
-    dbe_->setCurrentFolder(folderName_);
-    hltBxVsPath_        = dbe_->book2D("hltBxVsPath", "HLT Accept vs Bunch Number", 
-                                       3600, -0.5, 3599.5,
-                                       npath, -0.5, npath-0.5);
-    hltBx_              = dbe_->book1D("hltBx", "Bx of HLT Accepted Events ", 
-                                       3600, -0.5, 3599.5);
-
-    resetMe_ = false;
-  } // end resetMe_ - pseudo-end-run record
-
-  const edm::TriggerNames & trigNames = e.triggerNames(*hltResults);
+  const edm::TriggerNames& trigNames = e.triggerNames(*hltResults);
   // for some reason this doesn't appear to work on the first event sometimes
-  if ( ! sentPaths_ ) {
-    const edm::TriggerNames & names = e.triggerNames(*hltResults);
+  if (!sentPaths_) {
+    const edm::TriggerNames& names = e.triggerNames(*hltResults);
 
     // save path names in DQM-accessible format
     int q = 0;
-    for ( TriggerNames::Strings::const_iterator 
-          j = names.triggerNames().begin();
-          j !=names.triggerNames().end(); ++j ) {
-      
-      LogDebug("HLTScalers") << q << ": " << *j ;
+    for (TriggerNames::Strings::const_iterator j = names.triggerNames().begin();
+         j != names.triggerNames().end(); ++j) {
+      LogDebug("HLTScalers") << q << ": " << *j;
       ++q;
       scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());
     }
 
     for (unsigned int i = 0; i < nPD; i++) {
-      LogDebug("HLTScalers") << i << ": " << pairPDPaths_[i].first << std::endl ;
-      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(i+1, pairPDPaths_[i].first.c_str());
+      LogDebug("HLTScalers") << i << ": " << pairPDPaths_[i].first << std::endl;
+      scalersPD_->getTH1()->GetXaxis()->SetBinLabel(
+          i + 1, pairPDPaths_[i].first.c_str());
     }
 
     sentPaths_ = true;
   }
-      
+
   bool accept = false;
   int bx = e.bunchCrossing();
-  for ( int i = 0; i < npath; ++i ) {
+  for (int i = 0; i < npath; ++i) {
     // state returns 0 on ready, 1 on accept, 2 on fail, 3 on exception.
     // these are defined in HLTEnums.h
-    for ( unsigned int j = 0; j < hltResults->index(i); ++j ) {
-      detailedScalers_->Fill(i,j);
+    for (unsigned int j = 0; j < hltResults->index(i); ++j) {
+      detailedScalers_->Fill(i, j);
     }
-    if ( hltResults->state(i) == hlt::Pass) {
+    if (hltResults->state(i) == hlt::Pass) {
       scalers_->Fill(i);
       scalersN_->Fill(i);
       hltBxVsPath_->Fill(bx, i);
       accept = true;
-      for ( int j = i + 1; j < npath; ++j ) {
-        if ( hltResults->state(j) == hlt::Pass) {
-          hltCorrelations_->Fill(i,j); // fill 
-          hltCorrelations_->Fill(j,i);
+      for (int j = i + 1; j < npath; ++j) {
+        if (hltResults->state(j) == hlt::Pass) {
+          hltCorrelations_->Fill(i, j);  // fill
+          hltCorrelations_->Fill(j, i);
         }
       }
-    }
-    else if ( hltResults->state(i) == hlt::Exception) {
+    } else if (hltResults->state(i) == hlt::Exception) {
       scalersException_->Fill(i);
     }
   }
-  if ( accept ) {
+  if (accept) {
     hltOverallScaler_->Fill(1.0);
     hltOverallScalerN_->Fill(1.0);
     hltBx_->Fill(int(bx));
@@ -256,124 +264,50 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
 
   bool anyGroupPassed = false;
   for (unsigned int mi = 0; mi < pairPDPaths_.size(); mi++) {
-
     bool groupPassed = false;
 
-    for (unsigned int i = 0; i < pairPDPaths_[mi].second.size(); i++)
-    { 
-
-      //string hltPathName =  hist_2d->GetXaxis()->GetBinLabel(i);
-      std::string hltPathName =  pairPDPaths_[mi].second[i];
+    for (unsigned int i = 0; i < pairPDPaths_[mi].second.size(); i++) {
+      // string hltPathName =  hist_2d->GetXaxis()->GetBinLabel(i);
+      std::string hltPathName = pairPDPaths_[mi].second[i];
 
       // check if this is hlt path name
-      //unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
-      unsigned int pathByIndex = trigNames.triggerIndex(pairPDPaths_[mi].second[i]);
-      if(pathByIndex >= hltResults->size() ) continue;
+      // unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
+      unsigned int pathByIndex =
+          trigNames.triggerIndex(pairPDPaths_[mi].second[i]);
+      if (pathByIndex >= hltResults->size()) continue;
 
       // check if its L1 passed
       // comment out below but set groupL1Passed to true always
-      //if(hasL1Passed(hltPathName,triggerNames)) groupL1Passed = true;
-      //groupL1Passed = true;
+      // if(hasL1Passed(hltPathName,triggerNames)) groupL1Passed = true;
+      // groupL1Passed = true;
 
       // Fill HLTPassed Matrix and HLTPassFail Matrix
       // --------------------------------------------------------
 
-      if(hltResults->accept(pathByIndex)) {
-        groupPassed = true; 
+      if (hltResults->accept(pathByIndex)) {
+        groupPassed = true;
         break;
-     }
-
+      }
     }
 
-    if(groupPassed) {
+    if (groupPassed) {
       scalersPD_->Fill(mi);
       anyGroupPassed = true;
     }
-
   }
 
-  if(anyGroupPassed) scalersPD_->Fill(pairPDPaths_.size()-1);
+  if (anyGroupPassed) scalersPD_->Fill(pairPDPaths_.size() - 1);
 }
 
-void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                                      const edm::EventSetup& c)
-{
-  LogDebug("HLTScalers") << "Start of luminosity block." ;
-  // reset the N guys
-  if ( scalersN_ ) 
-    scalersN_->Reset();
-  if ( hltOverallScalerN_ )
-    hltOverallScalerN_->Reset();
-}
-
-
-void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                                    const edm::EventSetup& c)
-{
+void HLTScalers::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                    const edm::EventSetup& c) {
   // put this in as a first-pass for figuring out the rate
   // each lumi block is 23 seconds in length
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
- 
-  LogDebug("HLTScalers") << "End of luminosity block." ;
 
+  LogDebug("HLTScalers") << "End of luminosity block.";
 }
 
-
-/// BeginRun
-void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  LogDebug("HLTScalers") << "HLTScalers::beginRun, run "
-                         << run.id();
-  if ( currentRun_ != int(run.id().run()) ) {
-    resetMe_ = true;
-    currentRun_ = run.id().run();
-  }
-
-  // HLT config does not change within runs!
-  bool changed=false;
-
-  // clear vector pairPDPaths_
-  pairPDPaths_.clear();
-
-  if (not hltConfig_.init(run, c, processname_, changed)) {
-    edm::LogError("TrigXMonitor") << "HLTConfigProvider failed to initialize.";
-  } else {
-
-    // check if trigger name in (new) config
-    //  cout << "Available TriggerNames are: " << endl;
-    //  hltConfig_.dump("Triggers");
-
-    if (hltConfig_.streamIndex("A")<hltConfig_.streamNames().size()) {
-
-      // get hold of PD names and constituent path names
-      const std::vector<std::string> & PD = hltConfig_.streamContent("A") ;
-
-      for (unsigned int i = 0; i < PD.size(); i++) {
-
-        const std::vector<std::string> & datasetPaths = hltConfig_.datasetContent(PD[i]);
-        pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
-
-      }
-
-      // push stream A and its PDs
-      pairPDPaths_.push_back(make_pair("A", PD));
-
-    } else {
-
-      LogDebug("HLTScalers") << "HLTScalers::beginRun, steamm A not in the HLT menu ";
-
-    }
-
-  }
-}
-
-/// EndRun
-void HLTScalers::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  LogDebug("HLTScalers") << "HLTScalers::endRun , run "
-                     << run.id();
-  if ( currentRun_ != int(run.id().run()) ) {
-    resetMe_ = true;
-    currentRun_ = run.id().run();
-  }
+void HLTScalers::endRun(const edm::Run& run, const edm::EventSetup& c) {
+  LogDebug("HLTScalers") << "HLTScalers::endRun , run " << run.id();
 }

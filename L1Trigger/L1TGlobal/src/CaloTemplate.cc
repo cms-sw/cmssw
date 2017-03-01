@@ -26,14 +26,12 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 
 // constructors
 CaloTemplate::CaloTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondCalo;
@@ -41,7 +39,7 @@ CaloTemplate::CaloTemplate()
 }
 
 CaloTemplate::CaloTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondCalo;
@@ -49,7 +47,7 @@ CaloTemplate::CaloTemplate(const std::string& cName)
 }
 
 CaloTemplate::CaloTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GtCondition(cName, l1t::CondCalo, cType)
+        : GlobalCondition(cName, l1t::CondCalo, cType)
 {
 
     int nObjects = nrObjects();
@@ -64,7 +62,7 @@ CaloTemplate::CaloTemplate(const std::string& cName, const l1t::GtConditionType&
 
 // copy constructor
 CaloTemplate::CaloTemplate(const CaloTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -100,7 +98,7 @@ void CaloTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  CaloTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     int nObjects = nrObjects();
 
@@ -108,11 +106,15 @@ void CaloTemplate::print(std::ostream& myCout) const
         myCout << std::endl;
         myCout << "  Template for object " << i << " [ hex ]" << std::endl;
         myCout << "    etThreshold       = "
-        << std::hex << m_objectParameter[i].etThreshold << std::endl;
+        << std::hex << m_objectParameter[i].etLowThreshold << "  " << m_objectParameter[i].etHighThreshold << std::endl;
         myCout << "    etaRange          = "
         << std::hex << m_objectParameter[i].etaRange << std::endl;
         myCout << "    phiRange          = "
         << std::hex << m_objectParameter[i].phiRange << std::endl;
+        myCout << "    isolationLUT      = "
+        << std::hex << m_objectParameter[i].isolationLUT << std::endl;
+        myCout << "    qualityLUT      = "
+        << std::hex << m_objectParameter[i].qualityLUT << std::endl;	
     }
 
     if ( wsc() ) {

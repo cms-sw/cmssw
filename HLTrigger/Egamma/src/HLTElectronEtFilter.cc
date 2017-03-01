@@ -26,17 +26,15 @@
 // constructors and destructor
 //
 HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
-  candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-  EtEB_ = iConfig.getParameter<double> ("EtCutEB");
-  EtEE_ = iConfig.getParameter<double> ("EtCutEE");
+  candTag_   = iConfig.getParameter< edm::InputTag > ("candTag");
+  EtEB_      = iConfig.getParameter<double> ("EtCutEB");
+  EtEE_      = iConfig.getParameter<double> ("EtCutEE");
 
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
+  l1EGTag_   = iConfig.getParameter< edm::InputTag > ("l1EGCand");
 
-  candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
+  candToken_ =  consumes<trigger::TriggerFilterObjectWithRefs> (candTag_);
 }
 
 HLTElectronEtFilter::~HLTElectronEtFilter(){}
@@ -45,12 +43,12 @@ void
 HLTElectronEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candTag",edm::InputTag("hltElectronPixelMatchFilter"));
-  desc.add<double>("EtCutEB",0.0);
-  desc.add<double>("EtCutEE",0.0);
-  desc.add<int>("ncandcut",1);
-  desc.add<bool>("doIsolated",true);
-  descriptions.add("hltElectronEtFilter",desc);
+  desc.add<edm::InputTag>("candTag", edm::InputTag("hltElectronPixelMatchFilter"));
+  desc.add<double>("EtCutEB", 0.0);
+  desc.add<double>("EtCutEE", 0.0);
+  desc.add<int>("ncandcut", 1);
+  desc.add<edm::InputTag>("l1EGCand", edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  descriptions.add("hltElectronEtFilter", desc);
 }
 
 // ------------ method called to produce the data  ------------
@@ -58,15 +56,14 @@ bool HLTElectronEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 {
   using namespace trigger;
   if (saveTags()) {
-    filterproduct.addCollectionTag(L1IsoCollTag_);
-    if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
+    filterproduct.addCollectionTag(l1EGTag_);
   }
 
   // Ref to Candidate object to be recorded in filter object
   reco::ElectronRef ref;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
-  iEvent.getByToken (candToken_,PrevFilterOutput);
+  iEvent.getByToken (candToken_, PrevFilterOutput);
 
   std::vector<edm::Ref<reco::ElectronCollection> > elecands;
   PrevFilterOutput->getObjects(TriggerElectron, elecands);

@@ -77,14 +77,14 @@ public:
   bool cmHistosEnabled();
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore* dqm,std::string topFolderName = "SiStrip");
+  void bookTopLevelHistograms(DQMStore::IBooker & , std::string topFolderName = "SiStrip");
 
   //book individual FED histograms or book all FED level histograms at once
-  void bookFEDHistograms(unsigned int fedId,
+  void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId,
 			 bool fullDebugMode = false
 			 );
 
-  void bookAllFEDHistograms();
+  void bookAllFEDHistograms(DQMStore::IBooker & , bool);
 
   bool tkHistoMapEnabled(unsigned int aIndex=0);
 
@@ -195,6 +195,8 @@ private:
     unlockedDetailedMap_, 
     outOfSyncDetailedMap_;
 
+
+  HistogramConfig fedErrorsVsId_;
 
   //has individual FED histogram been booked? (index is FedId)
   std::vector<bool> histosBooked_, 

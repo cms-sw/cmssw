@@ -4,6 +4,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "FWCore/ParameterSet/interface/types.h"
 #include <string>
+#include <vector>
 
 class GeometricDet;
 class DDCompactView;
@@ -17,7 +18,7 @@ class DDDCmsTrackerContruction
 {
 public:
   DDDCmsTrackerContruction( void );
-  const GeometricDet* construct( const DDCompactView* cpv, unsigned int layerNumberPXB, unsigned int totalBlade );
+  const GeometricDet* construct( const DDCompactView* cpv, std::vector<int> detidShifts);
   
 protected:
 

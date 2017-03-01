@@ -263,9 +263,9 @@ void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
 
   // Create output collections - they are parallel.
   // (edm::Ref etc. and thus edm::AssociationVector are not supported for edm::Run...)
-  std::auto_ptr<TkFittedLasBeamCollection> fittedBeams(new TkFittedLasBeamCollection);
+  auto fittedBeams = std::make_unique<TkFittedLasBeamCollection>();
   // One std::vector<TSOS> for each TkFittedLasBeam:
-  std::auto_ptr<TsosVectorCollection> tsosesVec(new TsosVectorCollection);
+  auto tsosesVec = std::make_unique<TsosVectorCollection>();
 
   // get TkLasBeams, Tracker geometry, magnetic field
   run.getByLabel( "LaserAlignment", "tkLaserBeams", laserBeams );
@@ -320,8 +320,8 @@ void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
   }
   
   // finally, put fitted beams and TSOS vectors into run
-  run.put(fittedBeams);
-  run.put(tsosesVec);
+  run.put(std::move(fittedBeams));
+  run.put(std::move(tsosesVec));
 }
 
 // methods for las data processing
@@ -676,19 +676,19 @@ void TkLasBeamFitter::fitter(TkFittedLasBeam &beam, AlgebraicSymMatrix &covMatri
     TF1 tecPlus("tecPlus", tecPlusFunction, zMin, zMax, nFitParams );
     tecPlus.SetParameter( 1, 0 ); // slope
     tecPlus.SetParameter( nFitParams - 1, 0 ); // BS 
-    lasData->Fit("tecPlus", "R"); // "R", "RV" or "RQ"
+    lasData->Fit(&tecPlus, "R"); // "R", "RV" or "RQ"
   }
   else if(beam.isTecInternal(-1)){
     TF1 tecMinus("tecMinus", tecMinusFunction, zMin, zMax, nFitParams );
     tecMinus.SetParameter( 1, 0 ); // slope
     tecMinus.SetParameter( nFitParams - 1, 0 ); // BS 
-    lasData->Fit("tecMinus", "R");
+    lasData->Fit(&tecMinus, "R");
   }
   else{
     TF1 at("at", atFunction, zMin, zMax, nFitParams );
     at.SetParameter( 1, 0 ); // slope
     at.SetParameter( nFitParams - 1, 0 ); // BS 
-    lasData->Fit("at","R");
+    lasData->Fit(&at,"R");
   }
   
   // get values and errors for offset and slope

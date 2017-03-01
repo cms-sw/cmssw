@@ -52,14 +52,14 @@ public:
 
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore* dqm);
+  void bookTopLevelHistograms(DQMStore::IBooker &);
 
   //book individual FED histograms or book all FED level histograms at once
-  void bookFEDHistograms(unsigned int fedId);
+  void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId);
   //void bookFEDHistograms(unsigned int fedId, unsigned int aCategory);
-  void bookChannelsHistograms(unsigned int fedId);
+  void bookChannelsHistograms(DQMStore::IBooker & , unsigned int fedId);
 
-  void bookAllFEDHistograms();
+  void bookAllFEDHistograms(DQMStore::IBooker &);
 
   bool tkHistoMapEnabled(unsigned int aIndex=0);
 

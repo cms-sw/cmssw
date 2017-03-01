@@ -4,8 +4,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+//#include "MagneticField/Engine/interface/MagneticField.h"
+//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "HepMC/GenVertex.h"
 #include <map>
 #include <vector>
@@ -14,13 +14,14 @@ using namespace std;
 namespace cms
 
 {
-  CosmicTIFTrigFilter::CosmicTIFTrigFilter(const edm::ParameterSet& conf):    conf_(conf)
+  CosmicTIFTrigFilter::CosmicTIFTrigFilter(const edm::ParameterSet& conf): 
+    m_Token(consumes<edm::HepMCProduct>(conf.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel")))
   {
-    trigconf  = conf_.getParameter<int>("trig_conf");
-    trigS1  = conf_.getParameter<std::vector<double> >("PosScint1");
-    trigS2  = conf_.getParameter<std::vector<double> >("PosScint2");
-    trigS3  = conf_.getParameter<std::vector<double> >("PosScint3");
-    trigS4  = conf_.getParameter<std::vector<double> >("PosScint4");
+    trigconf  = conf.getParameter<int>("trig_conf");
+    trigS1  = conf.getParameter<std::vector<double> >("PosScint1");
+    trigS2  = conf.getParameter<std::vector<double> >("PosScint2");
+    trigS3  = conf.getParameter<std::vector<double> >("PosScint3");
+    trigS4  = conf.getParameter<std::vector<double> >("PosScint4");
 
     /*
     std::cout << "S1 = " << trigS1[0] << ", " <<  trigS1[1] << ", " <<trigS1[2]
@@ -33,10 +34,10 @@ namespace cms
   
   bool CosmicTIFTrigFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
-    
-    
-    edm::Handle<edm::HepMCProduct>HepMCEvt;
-    iEvent.getByLabel("source","",HepMCEvt);
+        
+    edm::Handle<edm::HepMCProduct> HepMCEvt;
+    iEvent.getByToken(m_Token, HepMCEvt);
+
     const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
     
     bool hit1=false;
@@ -44,13 +45,11 @@ namespace cms
     bool hit3=false;
     bool hit4=false;
     
-    
     for(HepMC::GenEvent::particle_const_iterator i=MCEvt->particles_begin(); i != MCEvt->particles_end();++i)
       {
 	int myId = (*i)->pdg_id();
 	if (abs(myId)==13)
-	  {
-	    
+	  {	    
 	    // Get the muon position and momentum
 	    HepMC::GenVertex* pv = (*i)->production_vertex();
 	    HepMC::FourVector vertex = pv->position();
@@ -62,17 +61,6 @@ namespace cms
 	    
 	    if(trigconf==1){
 
-/*
-	      HepMC::FourVector S1(350.,1600.,500.,0.);
-	      HepMC::FourVector S2(350.,-1600.,400.,0.);
-	      HepMC::FourVector S3(350.,1600.,1600.,0.);
-*/
-/*
-//numbers taken from real data
-	     HepMC::FourVector S1(150.,1600.,550.,0.);
- 	     HepMC::FourVector S2(400.,-1600.,50.,0.);
-	     HepMC::FourVector S3(0.,1600.,2400.,0.);
-*/
 	      HepMC::FourVector S1(trigS1[0],trigS1[1],trigS1[2],0.);
 	      HepMC::FourVector S2(trigS2[0],trigS2[1],trigS2[2],0.);
 	      HepMC::FourVector S3(trigS3[0],trigS3[1],trigS3[2],0.);
@@ -96,16 +84,9 @@ namespace cms
 		}
 	    }else if(trigconf ==2) {
 
-	      /*
-	      HepMC::FourVector S1(350.,1600.,850.,0.);
-	      HepMC::FourVector S2(0.,-1550.,-1650.,0.);
-	      HepMC::FourVector S3(350.,1600.,2300.,0.);
-	      */
-
 	      HepMC::FourVector S1(trigS1[0],trigS1[1],trigS1[2],0.);
 	      HepMC::FourVector S2(trigS2[0],trigS2[1],trigS2[2],0.);
 	      HepMC::FourVector S3(trigS3[0],trigS3[1],trigS3[2],0.);
-
 	      
 	      hit1=Sci_trig(vertex, momentum, S1);
 	      hit2=Sci_trig(vertex, momentum, S2);
@@ -126,26 +107,11 @@ namespace cms
 		}
 
 	    }else if(trigconf ==3) {
-/*
-	      HepMC::FourVector S1(350.,1600.,850.,0.);
-	      HepMC::FourVector S2(350.,-1600.,400.,0.);
-	      HepMC::FourVector S3(350.,1600.,2300.,0.);
-	      HepMC::FourVector S4(0.,-1600.,-2000.,0.);
-*/
-/*
-//new configuration from data
-	      HepMC::FourVector S1(150.,1600.,900.,0.);
-	      HepMC::FourVector S2(400.,-1600.,100.,0.);
-	      HepMC::FourVector S3(50.,1600.,2450.,0.);
-  	      HepMC::FourVector S4(-250.,-1600.,-2050.,0.);
-*/	      
-
 	      HepMC::FourVector S1(trigS1[0],trigS1[1],trigS1[2],0.);
 	      HepMC::FourVector S2(trigS2[0],trigS2[1],trigS2[2],0.);
 	      HepMC::FourVector S3(trigS3[0],trigS3[1],trigS3[2],0.);
 	      HepMC::FourVector S4(trigS4[0],trigS4[1],trigS4[2],0.);
 	      
-
 	      /*	      std::cout << "S1 = " << S1.x() << "," << S1.y() << ", " << S1.z()  
 			<< "\nS2 = " << S2.x() << "," << S2.y() << ", " << S2.z()  
 			<< "\nS3 = " << S3.x() << "," << S3.y() << ", " << S3.z()  
@@ -192,9 +158,7 @@ namespace cms
     float Sy=S.y();
     float Sz=S.z();
     
-    //float ys=Sy;
     float zs=(Sy-y0)*(pz0/py0)+z0;
-    //	  float xs=((Sy-y0)*(pz0/py0)-z0)*(px0/pz0)+x0;
     float xs=(Sy-y0)*(px0/py0)+x0;
     
     //    std::cout << Sx << " " << Sz << " " << xs << " " << zs << std::endl;
@@ -209,8 +173,6 @@ namespace cms
       {
 	return false;
       }
-    
   }
-  
 }
 

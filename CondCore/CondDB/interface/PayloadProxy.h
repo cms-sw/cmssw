@@ -28,6 +28,8 @@ namespace cond {
       void setUp( Session dbSession );
       
       void loadTag( const std::string& tag );
+
+      void loadTag( const std::string& tag, const boost::posix_time::ptime& snapshotTime );
       
       void reload();
       
@@ -97,6 +99,11 @@ namespace cond {
 	  m_session.transaction().commit();
 	}
       }
+
+      virtual void invalidateTransientCache() {
+	m_data.reset();
+        m_currentPayloadId.clear();
+      }
       
       virtual void invalidateCache() {
 	m_data.reset();
@@ -116,7 +123,7 @@ namespace cond {
       }
       
     private:
-      boost::shared_ptr<DataT> m_data;
+      std::shared_ptr<DataT> m_data;
       Hash m_currentPayloadId;
     };
     

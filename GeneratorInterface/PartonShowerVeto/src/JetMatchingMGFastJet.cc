@@ -277,10 +277,10 @@ void JetMatchingMGFastJet::beforeHadronisation( const lhef::LHEEvent* lhee )
 										  // we only take those that descent
 										  // directly from "incoming partons"
       idx = 2;
-      if ( hepeup.IDUP[i] == ID_GLUON || (fabs(hepeup.IDUP[i]) <= nQmatch) ) // light jet
+      if ( hepeup.IDUP[i] == ID_GLUON || (std::abs(hepeup.IDUP[i]) <= nQmatch) ) // light jet
          // light jet
 	 idx = 0;
-      else if ( fabs(hepeup.IDUP[i]) > nQmatch && fabs(hepeup.IDUP[i]) <= ID_TOP) // heavy jet
+      else if ( std::abs(hepeup.IDUP[i]) > nQmatch && std::abs(hepeup.IDUP[i]) <= ID_TOP) // heavy jet
          idx = 1;
       // Store
       typeIdx[idx].push_back(i); 

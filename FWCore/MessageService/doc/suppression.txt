@@ -159,7 +159,7 @@ and how modification policy is established.
 
 The variable obtained by edm::MessageDrop::instance()->infoEnabled 
 is the relevant suppression boolean.  It is used in the ctor of LogInfo
-to decide whether to initialize an auto_ptr to a MessageSender with
+to decide whether to initialize a unique_ptr to a MessageSender with
 an actual MessageSender, or with 0.  
 
 In MessageLogger/interface/MessageLogger.h:
@@ -174,7 +174,7 @@ public:
 }
 
 The act of destroying the MessageSender, which occurs when in the dtor of
-LogInfo this auto_ptr is destructed, is what triggers preparation of the
+LogInfo this unique_ptr is destructed, is what triggers preparation of the
 ErrorObject and placing that ErrorObject onto the MessageLoggerQueue.  
 That is, if the MessageSender is constructed, then INEVITABLY the message 
 will appear on the queue, and such a message by definition was not suppressed.

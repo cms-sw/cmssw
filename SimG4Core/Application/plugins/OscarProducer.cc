@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarProducer.h"
@@ -10,6 +11,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 
@@ -18,7 +20,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/Random.h"
+#include "Randomize.hh"
 
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -51,7 +53,6 @@ namespace {
         StaticRandomEngineSetUnset(edm::StreamID const&);
         explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine);
         ~StaticRandomEngineSetUnset();
-        CLHEP::HepRandomEngine* getEngine() const;
     private:
         CLHEP::HepRandomEngine* m_currentEngine;
         CLHEP::HepRandomEngine* m_previousEngine;
@@ -67,8 +68,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
 
   consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManager.reset(new RunManager(p));
-  //m_runManager.reset(new RunManager(p, consumesCollector()));
+  m_runManager.reset(new RunManager(p, consumesCollector()));
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
@@ -92,16 +92,25 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   produces<edm::PSimHitContainer>("BSCHits");
   produces<edm::PSimHitContainer>("PLTHits");
   produces<edm::PSimHitContainer>("BCM1FHits");
+  produces<edm::PSimHitContainer>("BHMHits");
+  produces<edm::PSimHitContainer>("FastTimerHitsBarrel");
+  produces<edm::PSimHitContainer>("FastTimerHitsEndcap");
 
   produces<edm::PCaloHitContainer>("EcalHitsEB");
   produces<edm::PCaloHitContainer>("EcalHitsEE");
   produces<edm::PCaloHitContainer>("EcalHitsES");
   produces<edm::PCaloHitContainer>("HcalHits");
   produces<edm::PCaloHitContainer>("CaloHitsTk");
+  produces<edm::PCaloHitContainer>("HGCHitsEE");
+  produces<edm::PCaloHitContainer>("HGCHitsHEfront");
+  produces<edm::PCaloHitContainer>("HGCHitsHEback");
+
   produces<edm::PSimHitContainer>("MuonDTHits");
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonRPCHits");
   produces<edm::PSimHitContainer>("MuonGEMHits");
+  produces<edm::PSimHitContainer>("MuonME0Hits");
+
   produces<edm::PCaloHitContainer>("CastorPL");
   produces<edm::PCaloHitContainer>("CastorFI");
   produces<edm::PCaloHitContainer>("CastorBU");
@@ -156,16 +165,16 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
     m_runManager->produce(e, es);
 
-    std::auto_ptr<edm::SimTrackContainer> 
+    std::unique_ptr<edm::SimTrackContainer>
       p1(new edm::SimTrackContainer);
-    std::auto_ptr<edm::SimVertexContainer> 
+    std::unique_ptr<edm::SimVertexContainer>
       p2(new edm::SimVertexContainer);
     G4SimEvent * evt = m_runManager->simEvent();
     evt->load(*p1);
     evt->load(*p2);   
 
-    e.put(p1);
-    e.put(p2);
+    e.put(std::move(p1));
+    e.put(std::move(p2));
 
     for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin(); 
 	 it != sTk.end(); ++it) {
@@ -174,10 +183,10 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       for (std::vector<std::string>::iterator in = v.begin(); 
 	   in!= v.end(); ++in) {
 
-	std::auto_ptr<edm::PSimHitContainer> 
+	std::unique_ptr<edm::PSimHitContainer>
 	  product(new edm::PSimHitContainer);
 	(*it)->fillHits(*product,*in);
-	e.put(product,*in);
+	e.put(std::move(product),*in);
       }
     }
     for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin(); 
@@ -188,10 +197,10 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
       for (std::vector<std::string>::iterator in = v.begin(); 
 	   in!= v.end(); in++) {
 
-	std::auto_ptr<edm::PCaloHitContainer> 
+	std::unique_ptr<edm::PCaloHitContainer>
 	  product(new edm::PCaloHitContainer);
 	(*it)->fillHits(*product,*in);
-	e.put(product,*in);
+	e.put(std::move(product),*in);
       }
     }
 
@@ -203,11 +212,14 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
   } catch ( const SimG4Exception& simg4ex ) {
        
-    edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" 
+    edm::LogInfo("SimG4CoreApplication") << "SimG4Exception caght! " 
 					 << simg4ex.what();
+    m_runManager->stopG4();
        
-    m_runManager->abortEvent();
-    throw edm::Exception( edm::errors::EventCorruption );
+    throw edm::Exception( edm::errors::EventCorruption ) 
+      << "SimG4CoreApplication exception in generation of event "
+      << e.id() << " in stream " << e.streamID() << " \n"
+      << simg4ex.what();
   }
 }
 
@@ -223,26 +235,25 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
   }
   m_currentEngine = &(rng->getEngine(streamID));
 
-  m_previousEngine = CLHEP::HepRandom::getTheEngine();
-  CLHEP::HepRandom::setTheEngine(m_currentEngine);
+  // Must use G4Random instead of CLHEP::HepRandom even for the serial
+  // version if Geant4 has been built with MT enabled. If G4 was built
+  // with MT disabled G4Random is defined to be CLHEP::HepRandom,
+  // preserving the old behaviour.
+  m_previousEngine = G4Random::getTheEngine();
+  G4Random::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
       CLHEP::HepRandomEngine * engine) 
 {
   m_currentEngine = engine;
-  m_previousEngine = CLHEP::HepRandom::getTheEngine();
-  CLHEP::HepRandom::setTheEngine(m_currentEngine);
+  m_previousEngine = G4Random::getTheEngine();
+  G4Random::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() 
 {
-  CLHEP::HepRandom::setTheEngine(m_previousEngine);
-}
-
-CLHEP::HepRandomEngine* StaticRandomEngineSetUnset::getEngine() const 
-{ 
-  return m_currentEngine; 
+  G4Random::setTheEngine(m_previousEngine);
 }
 
 DEFINE_FWK_MODULE(OscarProducer);

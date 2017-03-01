@@ -18,7 +18,7 @@ class PFCandConnector {
     public :
        
        PFCandConnector( ) { 
-	 pfC_ = std::auto_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection); 
+	 pfC_ = std::make_unique<reco::PFCandidateCollection>(); 
 	 debug_ = false;
 	 bCorrect_ = false;
 	 bCalibPrimary_ =  false;
@@ -65,17 +65,17 @@ class PFCandConnector {
 
        
 
-       std::auto_ptr<reco::PFCandidateCollection> connect(std::auto_ptr<reco::PFCandidateCollection>& pfCand);
+       std::unique_ptr<reco::PFCandidateCollection> connect(std::unique_ptr<reco::PFCandidateCollection>& pfCand);
 
        
  
     private :
 
        /// Analyse nuclear interactions where a primary or merged track is present
-       void analyseNuclearWPrim(std::auto_ptr<reco::PFCandidateCollection>&, unsigned int);
+       void analyseNuclearWPrim(std::unique_ptr<reco::PFCandidateCollection>&, unsigned int);
 
        /// Analyse nuclear interactions where a secondary track is present
-       void analyseNuclearWSec(std::auto_ptr<reco::PFCandidateCollection>&, unsigned int);
+       void analyseNuclearWSec(std::unique_ptr<reco::PFCandidateCollection>&, unsigned int);
 
        bool isPrimaryNucl( const reco::PFCandidate& pf ) const;
 
@@ -85,7 +85,7 @@ class PFCandConnector {
        double rescaleFactor( const double pt, const double cFrac ) const;
 
        /// Collection of primary PFCandidates to be transmitted to the Event
-       std::auto_ptr<reco::PFCandidateCollection> pfC_;
+       std::unique_ptr<reco::PFCandidateCollection> pfC_;
        /// A mask to define the candidates which shall not be transmitted
        std::vector<bool> bMask_;
 

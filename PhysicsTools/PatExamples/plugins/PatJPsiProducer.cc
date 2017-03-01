@@ -97,7 +97,7 @@ void
 PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr<std::vector<pat::CompositeCandidate> > jpsiCands( new std::vector<pat::CompositeCandidate> );
+  auto jpsiCands = std::make_unique<std::vector<pat::CompositeCandidate>>();
   edm::Handle<edm::View<pat::Muon> > h_muons;
   iEvent.getByToken( muonSrcToken_, h_muons );
 
@@ -137,7 +137,7 @@ PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
 
-  iEvent.put( jpsiCands );
+  iEvent.put(std::move(jpsiCands));
 
 }
 

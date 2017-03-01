@@ -66,7 +66,7 @@ namespace edm {
    {
    public:
       SerialTaskQueue():
-      m_taskChosen{ATOMIC_FLAG_INIT},
+      m_taskChosen(false),
       m_pauseCount{0}
       {  }
       
@@ -176,7 +176,7 @@ namespace edm {
       
       // ---------- member data --------------------------------
       tbb::concurrent_queue<TaskBase*> m_tasks;
-      std::atomic_flag m_taskChosen;
+      std::atomic<bool> m_taskChosen;
       std::atomic<unsigned long> m_pauseCount;
    };
    

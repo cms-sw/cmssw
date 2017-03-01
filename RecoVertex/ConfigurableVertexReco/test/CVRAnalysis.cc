@@ -11,8 +11,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "RecoVertex/ConfigurableVertexReco/test/CVRAnalysis.h"
 #include <iostream>
 
@@ -119,11 +118,11 @@ void CVRAnalysis::analyze( const edm::Event & iEvent,
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
   iEvent.getByLabel( trackingtruth_, TPCollectionH);
 
-  edm::ESHandle<TrackAssociatorBase> byHitsAssociator;
-  iSetup.get<TrackAssociatorRecord>().get(associator_, byHitsAssociator);
+  edm::Handle<reco::TrackToTrackingParticleAssociator> byHitsAssociator;
+  iEvent.getByLabel(associator_, byHitsAssociator);
 
   reco::RecoToSimCollection p =
-  byHitsAssociator->associateRecoToSim ( tks, TPCollectionH, &iEvent );
+  byHitsAssociator->associateRecoToSim ( tks, TPCollectionH );
 
   edm::Handle<reco::BeamSpot > bs;
   iEvent.getByLabel ( beamspot_, bs );

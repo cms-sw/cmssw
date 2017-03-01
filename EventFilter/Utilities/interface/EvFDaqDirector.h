@@ -13,6 +13,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <map>
 #include <list>
 #include <mutex>
 
@@ -31,7 +32,22 @@ class StreamID;
 class InputFile;
 class InputChunk;
 
+namespace edm {
+  class PathsAndConsumesOfModulesBase;
+  class ProcessContext;
+}
+
+namespace Json{
+  class Value;
+}
+
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 namespace evf{
+
+  enum MergeType { MergeTypeNULL = 0, MergeTypeDAT = 1, MergeTypePB = 2, MergeTypeJSNDATA = 3};
 
   class FastMonitoringService;
 
@@ -39,16 +55,20 @@ namespace evf{
     {
     public:
 
-      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
+      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded, runAbort };
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
+      void initRun();
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void preallocate(edm::service::SystemBounds const& bounds);
+      void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
       void preSourceEvent(edm::StreamID const& streamID);
       //std::string &baseDir(){return base_dir_;}
+      void overrideRunNumber(unsigned int run) {run_=run;}
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
@@ -58,10 +78,13 @@ namespace evf{
       std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
+      std::string getDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenInitFilePath(std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
       std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
@@ -71,19 +94,17 @@ namespace evf{
       std::string getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getEoLSFilePathOnBU(const unsigned int ls) const;
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
+      std::string getBoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
       std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
+      bool outputAdler32Recheck() const {return outputAdler32Recheck_;}
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
 
-      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize);
+      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
-      unsigned int getJumpLS() const { return jumpLS_; }
-      unsigned int getJumpIndex() const { return jumpIndex_; }
-      std::string getJumpFilePath() const { return bu_run_dir_ + "/" + fffnaming::inputRawFileName(getRunNumber(),jumpLS_,jumpIndex_); }
-      bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
       void lockInitLock();
@@ -97,16 +118,24 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      void createProcessingNotificationMaybe() const;
+      int readLastLSEntry(std::string const& file);
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
+      void checkTransferSystemPSet(edm::ProcessContext const& pc);
+      void checkMergeTypePSet(edm::ProcessContext const& pc);
+      std::string getStreamDestinations(std::string const& stream) const;
+      std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
+      bool emptyLumisectionMode() const {return emptyLumisectionMode_;}
+      bool microMergeDisabled() const {return microMergeDisabled_;}
 
 
     private:
       //bool bulock();
       //bool fulock();
-      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize);
+      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -114,12 +143,20 @@ namespace evf{
       std::string initFileName(std::string const& stream) const;
       std::string eolsFileName(const unsigned int ls) const;
       std::string eorFileName() const;
+      int getNFilesFromEoLS(std::string BUEoLSFile);
 
-      bool testModeNoBuilderUnit_;
       std::string base_dir_;
       std::string bu_base_dir_;
       bool directorBu_;
       unsigned int run_;
+      bool outputAdler32Recheck_;
+      bool requireTSPSet_;
+      std::string selectedTransferMode_;
+      std::string hltSourceDirectory_;
+      unsigned int fuLockPollInterval_;
+      bool emptyLumisectionMode_;
+      bool microMergeDisabled_;
+      std::string mergeTypePset_;
 
       std::string hostname_;
       std::string run_string_;
@@ -144,7 +181,6 @@ namespace evf{
       DirManager dirManager_;
 
       unsigned long previousFileSize_;
-      unsigned int jumpLS_, jumpIndex_;
 
       struct flock bu_w_flk;
       struct flock bu_r_flk;
@@ -171,6 +207,17 @@ namespace evf{
       unsigned int nStreams_=0;
       unsigned int nThreads_=0;
 
+      bool readEolsDefinition_ = true;
+      unsigned int eolsNFilesIndex_ = 1;
+      std::string stopFilePath_;
+      std::string stopFilePathPid_;
+      unsigned int stop_ls_override_ = 0;
+
+      std::shared_ptr<Json::Value> transferSystemJson_;
+      std::map<std::string,std::string> mergeTypeMap_;
+
+      //values initialized in .cc file
+      static const std::vector<std::string> MergeTypeNames_;
   };
 }
 

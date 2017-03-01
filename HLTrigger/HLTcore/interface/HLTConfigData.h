@@ -88,6 +88,10 @@ class HLTConfigData {
   /// Is module an L3 filter (ie, tracked saveTags=true)
   bool saveTags(const std::string& module) const;
 
+
+  /// L1T type (0=unknown, 1=legacy/stage-1 or 2=stage-2)                                                                                    
+  unsigned int l1tType() const;
+
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths
   const std::vector<std::vector<std::pair<bool,std::string> > >& hltL1GTSeeds() const;
@@ -95,6 +99,14 @@ class HLTConfigData {
   const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(const std::string& trigger) const;
   /// HLTLevel1GTSeed modules for trigger path with index i
   const std::vector<std::pair<bool,std::string> >& hltL1GTSeeds(unsigned int trigger) const;
+
+  /// HLTL1TSeed module
+  /// HLTL1TSeed modules for all trigger paths
+  const std::vector<std::vector<std::string> >& hltL1TSeeds() const;
+  /// HLTL1TSeed modules for trigger path with name
+  const std::vector<std::string>& hltL1TSeeds(const std::string& trigger) const;
+  /// HLTL1TSeed modules for trigger path with index i
+  const std::vector<std::string>& hltL1TSeeds(unsigned int trigger) const;
 
 
   /// Streams
@@ -153,7 +165,9 @@ class HLTConfigData {
   std::map<std::string,unsigned int> triggerIndex_;
   std::vector<std::map<std::string,unsigned int> > moduleIndex_;
 
+  unsigned int l1tType_;
   std::vector<std::vector<std::pair<bool,std::string> > > hltL1GTSeeds_;
+  std::vector<std::vector<std::string> > hltL1TSeeds_;
 
   std::vector<std::string> streamNames_;
   std::map<std::string,unsigned int> streamIndex_;

@@ -5,7 +5,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="SimDataFormats/RandomEngine"/>
-<use   name="boost"/>
 <use   name="clhep"/>
 <use   name="rootcore"/>
 <use   name="rootmath"/>

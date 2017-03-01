@@ -1,8 +1,9 @@
 #ifndef TKClonerImplRecHit_H
 #define TKClonerImplRecHit_H
 
+#include <memory>
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
-
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
@@ -15,31 +16,37 @@ public:
   TkClonerImpl(const PixelClusterParameterEstimator * ipixelCPE,
 	       const StripClusterParameterEstimator * istripCPE,
 	       const SiStripRecHitMatcher           * iMatcher
-	       ): pixelCPE(ipixelCPE), stripCPE(istripCPE), theMatcher(iMatcher){}
+	       ): pixelCPE(ipixelCPE), stripCPE(istripCPE), theMatcher(iMatcher), phase2TrackerCPE(0){}
+  TkClonerImpl(const PixelClusterParameterEstimator * ipixelCPE,
+	       const ClusterParameterEstimator<Phase2TrackerCluster1D> * iPhase2OTCPE
+	       ): pixelCPE(ipixelCPE), stripCPE(0), theMatcher(0), phase2TrackerCPE(iPhase2OTCPE){}
 
   using TkCloner::operator();
-  virtual SiPixelRecHit * operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual SiStripRecHit2D * operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual SiStripRecHit1D * operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual SiStripMatchedRecHit2D * operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual ProjectedSiStripRecHit2D * operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
+  virtual std::unique_ptr<SiPixelRecHit> operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual std::unique_ptr<SiStripRecHit2D> operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual std::unique_ptr<SiStripRecHit1D> operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual std::unique_ptr<SiStripMatchedRecHit2D> operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual std::unique_ptr<ProjectedSiStripRecHit2D> operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual std::unique_ptr<Phase2TrackerRecHit1D> operator()(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const override;
 
 
   using TkCloner::makeShared;
-  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
-  virtual TrackingRecHit::ConstRecHitPointer makeShared(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
+  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual TrackingRecHit::ConstRecHitPointer makeShared(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual TrackingRecHit::ConstRecHitPointer makeShared(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const override;
+  virtual TrackingRecHit::ConstRecHitPointer makeShared(Phase2TrackerRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const override;
 
 
   // project either mono or stero hit...
-  ProjectedSiStripRecHit2D * project(SiStripMatchedRecHit2D const & hit, bool mono, TrajectoryStateOnSurface const& tsos) const;
+  std::unique_ptr<ProjectedSiStripRecHit2D> project(SiStripMatchedRecHit2D const & hit, bool mono, TrajectoryStateOnSurface const& tsos) const;
 
 private:
   const PixelClusterParameterEstimator * pixelCPE;
   const StripClusterParameterEstimator * stripCPE;
   const SiStripRecHitMatcher           * theMatcher;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D> * phase2TrackerCPE;
 
 
 };

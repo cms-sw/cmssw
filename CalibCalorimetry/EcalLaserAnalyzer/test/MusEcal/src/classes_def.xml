@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="MERun"/>
+  <class name="MERunManager"/>
+  <class name="METimeInterval"/>
+  <class name="MusEcal"/>
+  <class name="MusEcalGUI"/>
+  <class name="MEVarVector"/>
+  <class name="MEEBDisplay"/>
+  <class name="MEEEDisplay"/>
+  <class name="MECanvasHolder"/>
+  <class name="MEClickableCanvas"/>
+  <class name="MEPlotWindow"/>
+  <class name="MERunPanel"/>
+  <class name="MEChanPanel"/>
+  <class name="MELeafPanel"/>
+  <class name="MEMultiVarPanel"/>
+</lcgdict>

@@ -9,18 +9,21 @@
 
 
 RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx) :  RecHit2DLocalPos(rpcId),
-  theRPCId(rpcId), theBx(bx),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError() 
+  theRPCId(rpcId), theBx(bx),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError(),
+  theTime(0), theTimeError(0)
 {
 }
 
 RPCRecHit::RPCRecHit() :  RecHit2DLocalPos(),
-  theRPCId(), theBx(99),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError() 
+  theRPCId(), theBx(99),theFirstStrip(99),theClusterSize(99), theLocalPosition(), theLocalError(),
+  theTime(0), theTimeError(0)
 {
 }
 
 
 RPCRecHit::RPCRecHit(const RPCDetId& rpcId, int bx, const LocalPoint& pos) :  RecHit2DLocalPos(rpcId),
-  theRPCId(rpcId), theBx(bx), theFirstStrip(99),theClusterSize(99), theLocalPosition(pos) 
+  theRPCId(rpcId), theBx(bx), theFirstStrip(99),theClusterSize(99), theLocalPosition(pos),
+  theTime(0), theTimeError(0)
 {
   float stripResolution = 3.0 ; //cm  this sould be taken from trimmed cluster size times strip size 
                                  //    taken out from geometry service i.e. topology
@@ -35,7 +38,8 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int bx,
 		     const LocalPoint& pos,
 		     const LocalError& err) :  RecHit2DLocalPos(rpcId),
-  theRPCId(rpcId), theBx(bx),theFirstStrip(99), theClusterSize(99), theLocalPosition(pos), theLocalError(err) 
+  theRPCId(rpcId), theBx(bx),theFirstStrip(99), theClusterSize(99), theLocalPosition(pos), theLocalError(err),
+  theTime(0), theTimeError(0)
 {
 }
 
@@ -47,7 +51,8 @@ RPCRecHit::RPCRecHit(const RPCDetId& rpcId,
 		     int clustSize,
 		     const LocalPoint& pos,
 		     const LocalError& err) :  RecHit2DLocalPos(rpcId),
-  theRPCId(rpcId), theBx(bx),theFirstStrip(firstStrip), theClusterSize(clustSize), theLocalPosition(pos), theLocalError(err) 
+  theRPCId(rpcId), theBx(bx),theFirstStrip(firstStrip), theClusterSize(clustSize), theLocalPosition(pos), theLocalError(err),
+  theTime(0), theTimeError(0)
 {
 }
 

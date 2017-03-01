@@ -6,9 +6,11 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
+namespace {
+
 using namespace reco;
 
-class CaloRecoTauDiscriminationByIsolation : public CaloTauDiscriminationProducerBase {
+class CaloRecoTauDiscriminationByIsolation final : public CaloTauDiscriminationProducerBase {
  public:
   explicit CaloRecoTauDiscriminationByIsolation(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
     applyDiscriminationByTrackerIsolation_ = iConfig.getParameter<bool>("ApplyDiscriminationByTrackerIsolation");
@@ -18,7 +20,7 @@ class CaloRecoTauDiscriminationByIsolation : public CaloTauDiscriminationProduce
     EcalIsolAnnulus_maximumSumEtCut_       = iConfig.getParameter<double>("ECALisolAnnulus_maximumSumEtCut");   
   }
   ~CaloRecoTauDiscriminationByIsolation(){} 
-  double discriminate(const CaloTauRef&) override;
+  double discriminate(const CaloTauRef&) const override;
  private:  
   bool applyDiscriminationByTrackerIsolation_;
   unsigned TrackerIsolAnnulus_maximumOccupancy_;   
@@ -26,7 +28,7 @@ class CaloRecoTauDiscriminationByIsolation : public CaloTauDiscriminationProduce
   double EcalIsolAnnulus_maximumSumEtCut_;
 };
 
-double CaloRecoTauDiscriminationByIsolation::discriminate(const CaloTauRef& caloTau)
+double CaloRecoTauDiscriminationByIsolation::discriminate(const CaloTauRef& caloTau) const 
 {
   if ( applyDiscriminationByTrackerIsolation_ ){  
     if ( caloTau->isolationTracks().size() > TrackerIsolAnnulus_maximumOccupancy_ ) return 0.;
@@ -38,6 +40,8 @@ double CaloRecoTauDiscriminationByIsolation::discriminate(const CaloTauRef& calo
   
   // N.B. the lead track requirement must be included in the discriminants
   return 1.;
+}
+
 }
 
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByIsolation);

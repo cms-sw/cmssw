@@ -62,7 +62,7 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   dirName = iConfig.getParameter<std::string>("directory");
   
   //--------Initialize tags-------
-  theMuonCollectionLabel_   = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label"));
+  theMuonCollectionLabel_   = consumes<edm::View<reco::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label"));
   theVertexCollectionLabel_ = consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel"));
   
   //-------Initialize Counterse----------------
@@ -74,8 +74,8 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   InitStatics();
   
   
+
   //------"allocate" space for the data vectors-------
- 
   h_1D.resize(NUM_VARS);
   h_2D.resize(NUM_VARS_2D);
   h_1D_NVTX.resize(NUM_VARS_NVTX);
@@ -522,7 +522,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 #endif
 
   // Get Muon Collection 
-  edm::Handle<reco::MuonCollection> muons;
+  edm::Handle<edm::View<reco::Muon> > muons; 
   iEvent.getByToken(theMuonCollectionLabel_,muons);
 
 #ifdef DEBUG
@@ -556,7 +556,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // Get Muon Collection 
 
   //Fill historgams concerning muon isolation 
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon!=muons->end(); ++muon){
+  for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
     if (requireSTAMuon && muon->isStandAloneMuon()) {
       ++nSTAMuons;
       RecordData(*muon);
@@ -676,6 +676,12 @@ void MuonIsolationDQM::RecordData(const reco::Muon&  muon){
 void MuonIsolationDQM::bookHistograms(DQMStore::IBooker & ibooker,
 				      edm::Run const & /*iRun*/,
 				      edm::EventSetup const & /* iSetup */){
+  
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName.c_str());
+
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName.c_str());
 
   //---initialize number of muons histogram---
   h_nMuons = ibooker.book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);

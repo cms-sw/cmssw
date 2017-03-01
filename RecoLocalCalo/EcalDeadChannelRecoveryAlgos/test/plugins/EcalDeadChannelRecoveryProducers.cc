@@ -67,9 +67,9 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
   }
   const EcalRecHitCollection* hit_collection = rhcHandle.product();
 
-  // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and
+  // create a unique_ptr to a EcalRecHitCollection, copy the RecHits into it and
   // put it in the Event:
-  std::auto_ptr<EcalRecHitCollection> redCollection(new EcalRecHitCollection);
+  auto redCollection = std::make_unique<EcalRecHitCollection>();
   deadChannelCorrector.setCaloTopology(theCaloTopology.product());
 
   //
@@ -105,7 +105,7 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(
     }
   }
 
-  evt.put(redCollection, reducedHitCollection_);
+  evt.put(std::move(redCollection), reducedHitCollection_);
 }
 
 // method called once each job just before starting event loop  ------------

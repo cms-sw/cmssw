@@ -1,13 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#==================================================== FILTER EVENTS WITH WZSkims
-#from DPGAnalysis.Skims.WElectronSkim_cff import * # already imported by ZElectronSkim_cff
-from DPGAnalysis.Skims.ZElectronSkim_cff import *
-# tagGsfSeq for Zee
-#
-WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
-
-#from calibration.SANDBOX.ZElectronSkimSandbox_cff import *
 
 #===================================================== removing events with trackerDrivenOnly electrons
 # if you want to filter events with trackerDrivenOnly electrons
@@ -32,24 +24,49 @@ WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
 #trackerDrivenRemoverSeq = cms.Sequence( trackerDrivenOnlyElectrons)
 
 
-# already imported by the WElectronSkim
-#from RecoJets.Configuration.RecoPFJets_cff import *
-#kt6PFJetsForRhoCorrection = kt6PFJets.clone(doRhoFastjet = True)
-#kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
-
-
-
-
 from Calibration.EcalAlCaRecoProducers.alCaIsolatedElectrons_cfi import *
+from Calibration.EcalAlCaRecoProducers.AlCaElectronTracksReducer_cfi import *
+from Calibration.EcalAlCaRecoProducers.eleIsoSequence_cff import *
+
+from Calibration.EcalAlCaRecoProducers.WZElectronSkims_cff import *
+
+from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
+kt6PFJetsForRhoCorrection = kt6PFJets.clone(doRhoFastjet = True)
+kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+
+#list of SCs to be used for the recHit reduction
+#GsfMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer",
+#   src     = cms.InputTag("goodPhotons"),
+#   ReferenceElectronCollection = cms.untracked.InputTag("goodElectrons"),
+#   deltaR =  cms.untracked.double(0.3)
+#)
+
+alcarecoEcalRecHitReducerSeq = cms.Sequence(alCaIsolatedElectrons)
+alcarecoElectronTracksReducerSeq = cms.Sequence(alcaElectronTracksReducer)
+
+# sequence that reduces the RECO format (only ECAL part) into ALCARECO
+ALCARECOEcalCalElectronECALSeq = cms.Sequence( alCaIsolatedElectrons)
+
+# sequence that reduces the RECO format (not ECAL part) into ALCARECO
+ALCARECOEcalCalElectronNonECALSeq = cms.Sequence( kt6PFJetsForRhoCorrection +
+                                              alcaElectronTracksReducer 
+#                                             + pfisoALCARECO 
+                                              )
+
+ALCARECOEcalCalElectronSeq = cms.Sequence( ALCARECOEcalCalElectronNonECALSeq+
+                                           ALCARECOEcalCalElectronECALSeq
+                                           )
+############################################### FINAL SEQUENCES
+# sequences used in AlCaRecoStreams_cff.py
+seqALCARECOEcalCalZElectron   = cms.Sequence(ZeeSkimFilterSeq  * ALCARECOEcalCalElectronSeq)
+seqALCARECOEcalCalZSCElectron = cms.Sequence(ZSCSkimFilterSeq  * ALCARECOEcalCalElectronSeq)
+seqALCARECOEcalCalWElectron   = cms.Sequence(WenuSkimFilterSeq * ALCARECOEcalCalElectronSeq)
+
+
+seqALCARECOEcalCalPhoton = cms.Sequence( alCaIsolatedElectrons +
+                                           kt6PFJetsForRhoCorrection 
+                                         # + pfisoALCARECO 
+                                         )
 
 
 
-seqALCARECOEcalCalElectronRECO = cms.Sequence( alCaIsolatedElectrons)
-
-
-seqALCARECOEcalCalElectron = cms.Sequence( kt6PFJetsForRhoCorrection +
-                                           seqALCARECOEcalCalElectronRECO
-                                          )
-
-seqALCARECOEcalCalZElectron = cms.Sequence( tagGsfSeq * seqALCARECOEcalCalElectron)
-seqALCARECOEcalCalWElectron = cms.Sequence( WSkimSeq  * seqALCARECOEcalCalElectron) 

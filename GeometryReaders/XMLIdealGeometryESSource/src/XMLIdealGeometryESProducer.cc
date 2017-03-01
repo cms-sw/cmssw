@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -53,7 +52,7 @@ public:
   XMLIdealGeometryESProducer(const edm::ParameterSet&);
   ~XMLIdealGeometryESProducer();
   
-  typedef std::auto_ptr<DDCompactView> ReturnType;
+  typedef std::unique_ptr<DDCompactView> ReturnType;
   
   ReturnType produce(const IdealGeometryRecord&);
 private:

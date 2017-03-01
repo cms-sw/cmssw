@@ -7,8 +7,7 @@
  *  \author N. Amapane - CERN
  */
 
-#include "EvffedFillerRB.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -19,7 +18,7 @@
 
 
 
-class DaqFakeReader : public edm::EDProducer
+class DaqFakeReader : public edm::one::EDProducer<>
 {
  public:
   //
@@ -48,8 +47,8 @@ private:
 		FEDRawDataCollection& data,
 		float meansize,
 		float width);
-  void fillFED1023(edm::EventID& eID,
-		   FEDRawDataCollection& data);
+  void fillGTPFED(edm::EventID& eID,
+		   FEDRawDataCollection& data,timeval * now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
  private:
   //
@@ -62,7 +61,7 @@ private:
   unsigned int        width;
   unsigned int        injected_errors_per_million_events;
   unsigned int        modulo_error_events;
-  evf::EvffedFillerRB frb;
+  unsigned int        fakeLs_=0;
 };
 
 #endif

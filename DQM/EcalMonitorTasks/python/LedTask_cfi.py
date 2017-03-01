@@ -10,6 +10,24 @@ ecalLedTask = cms.untracked.PSet(
         ledWavelengths = ecaldqmLedWavelengths
     ),
     MEs = cms.untracked.PSet(
+        CalibStatus = cms.untracked.PSet(
+            path = cms.untracked.string('EcalCalibration/EventInfo/Calibration event rate'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('None'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(5),
+                low = cms.untracked.double(-0.5),
+                high = cms.untracked.double(4.5),
+                labels = cms.untracked.vstring(['Green Laser','Blue Laser','IR Laser','LED1','LED2'])
+            ),
+            yaxis = cms.untracked.PSet(
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(1),
+                title = cms.untracked.string('event rate')
+            ),
+            description = cms.untracked.string('')
+        ),
         PNAmplitude = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedTask/Led%(wl)s/PN/Gain16/EELDT PNs amplitude %(sm)s G16 L%(wl)s'),
             otype = cms.untracked.string('EESMMEM'),
@@ -33,7 +51,9 @@ ecalLedTask = cms.untracked.PSet(
             otype = cms.untracked.string('EE'),
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Fraction of laser events with measurable led pulse.'),
-            multi = cms.untracked.int32(2)
+            multi = cms.untracked.PSet(
+                wl = ecaldqmLedWavelengths
+            )
         ),
         Shape = cms.untracked.PSet(
             multi = cms.untracked.PSet(
@@ -83,7 +103,9 @@ ecalLedTask = cms.untracked.PSet(
         AmplitudeSummary = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedTask/Led%(wl)s/EELDT amplitude map L%(wl)s%(suffix)s'),
             otype = cms.untracked.string('EE2P'),
-            multi = cms.untracked.int32(4),
+            multi = cms.untracked.PSet(
+                wl = ecaldqmLedWavelengths
+            ),
             kind = cms.untracked.string('TProfile2D'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the mean led amplitude. In general, a channel is filled only when a led pulse was observed in it. When no led signal was observed for longer than ' + str(emptyLSLimit) + ' lumi sections, the channels start to get filled with 0 amplitude, causing the mean to drop.')

@@ -81,18 +81,20 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
         and /proc/meminfo files and Memory statistics
 */
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <atomic>
 #include <cstddef>
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "boost/scoped_ptr.hpp"
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/concurrent_vector.h"
 
@@ -243,6 +245,9 @@ namespace edm {
 
         JobReportImpl(std::ostream* iOst): printedReadBranches_(false), ost_(iOst) {}
 
+        std::ostream const* ost() const {return get_underlying_safe(ost_);}
+        std::ostream*& ost() {return get_underlying_safe(ost_);}
+
         std::vector<InputFile> inputFiles_;
         tbb::concurrent_vector<InputFile> inputFilesSecSource_;
         std::vector<OutputFile> outputFiles_;
@@ -251,7 +256,7 @@ namespace edm {
         tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
         bool printedReadBranches_;
         std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
-        std::ostream* ost_;
+        edm::propagate_const<std::ostream*> ost_;
       };
 
       JobReport();
@@ -317,14 +322,14 @@ namespace edm {
       /// the file identified by the given Token.
       // CMS-THREADING Current implementation requires an instance of an
       // OuputModule run on only one thread at a time.
-      void eventWrittenToFile(Token fileToken, unsigned int run, unsigned int event);
+      void eventWrittenToFile(Token fileToken, RunNumber_t run, EventNumber_t event);
 
       /// Report that the output file identified by the given Token has
       /// been closed. An exception will be thrown if the given Token
       /// was not obtained from outputFileOpened.
       void outputFileClosed(Token fileToken);
 
-      void reportSkippedEvent(unsigned int run, unsigned int event);
+      void reportSkippedEvent(RunNumber_t run, EventNumber_t event);
 
       /// API for reporting a Run to the job report.
       /// for output files, call only if Run is written to
@@ -430,10 +435,10 @@ namespace edm {
       std::string dumpFiles(void);
 
    protected:
-      boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}
+      edm::propagate_const<std::unique_ptr<JobReportImpl>>& impl() {return impl_;}
 
    private:
-      boost::scoped_ptr<JobReportImpl> impl_;
+      edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
       std::mutex write_mutex;
    };
 

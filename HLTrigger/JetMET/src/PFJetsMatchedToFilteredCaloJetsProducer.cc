@@ -46,7 +46,7 @@ void PFJetsMatchedToFilteredCaloJetsProducer::produce(edm::Event& iEvent, const 
 	using namespace reco;
 	using namespace trigger;
 	
-	auto_ptr<PFJetCollection> pfjets(new PFJetCollection);
+	unique_ptr<PFJetCollection> pfjets(new PFJetCollection);
 	
 	//Getting HLT jets to be matched
 	edm::Handle<edm::View<reco::Candidate> > PFJets;
@@ -80,5 +80,5 @@ void PFJetsMatchedToFilteredCaloJetsProducer::produce(edm::Event& iEvent, const 
 	  }  
 			
 	// std::cout <<"Size of PF matched jets "<<pfjets->size()<<std::endl;
-	iEvent.put(pfjets);
+	iEvent.put(std::move(pfjets));
 }

@@ -41,6 +41,8 @@ public:
   }
   
 
+  ConstRecHitPointer const * data() const { return theRecHits;}
+
   unsigned int size() const { return theRecHits[3] ? 4 : (theRecHits[2] ? 3 : ( theRecHits[1] ? 2 : 0 ) ); }
 
   ConstRecHitPointer  get(unsigned int i) const { return theRecHits[i]; }

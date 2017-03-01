@@ -29,7 +29,7 @@ class MVATrainerSave : public edm::EDAnalyzer {
 	virtual std::string getRecordName() const = 0;
 
     private:
-	std::auto_ptr<Calibration::MVAComputer>	calib;
+	std::unique_ptr<Calibration::MVAComputer>	calib;
 	bool					saved;
 };
 

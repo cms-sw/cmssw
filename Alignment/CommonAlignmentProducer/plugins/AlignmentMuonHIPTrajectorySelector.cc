@@ -122,7 +122,7 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
    iEvent.getByLabel(m_input, originalTrajTrackMap);
 
    // output
-   std::auto_ptr<TrajTrackAssociationCollection> newTrajTrackMap(new TrajTrackAssociationCollection());
+   auto newTrajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
 
    TrajectoryStateCombiner tsoscomb;
 
@@ -203,7 +203,7 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
    } // end loop over original trajTrackMap
 
    // put it in the Event
-   iEvent.put(newTrajTrackMap);
+   iEvent.put(std::move(newTrajTrackMap));
 }
 
 //define this as a plug-in

@@ -65,7 +65,7 @@ class SiPixelGainCalibrationRejectNoisyAndDead : public edm::EDAnalyzer {
       
       
       std::string noisypixellist_;
-      bool insertnoisypixelsindb_;
+      int insertnoisypixelsindb_;
       std::string record_;
       bool DEBUG;
       float pedlow_;

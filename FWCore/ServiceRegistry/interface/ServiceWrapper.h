@@ -23,6 +23,7 @@
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceWrapperBase.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -36,16 +37,17 @@ namespace edm {
       {
 
 public:
-         ServiceWrapper(std::auto_ptr<T> iService) :
-         service_(iService) {}
+         ServiceWrapper(std::unique_ptr<T> iService) :
+         service_(std::move(iService)) {}
          //virtual ~ServiceWrapper();
          
          // ---------- const member functions ---------------------
-         T& get() const { return *service_; }
+         T const& get() const { return *service_; }
          
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
+         T& get() { return *service_; }
 
 private:
          ServiceWrapper(const ServiceWrapper&); // stop default
@@ -53,7 +55,7 @@ private:
          const ServiceWrapper& operator=(const ServiceWrapper&); // stop default
          
          // ---------- member data --------------------------------
-         std::auto_ptr<T> service_;
+         edm::propagate_const<std::unique_ptr<T>> service_;
          
       };
    }

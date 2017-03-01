@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class PF_PU_AssoMap : public edm::EDProducer, public PF_PU_AssoMapAlgos {
+class PF_PU_AssoMap : public edm::stream::EDProducer<>, public PF_PU_AssoMapAlgos {
    public:
       explicit PF_PU_AssoMap(const edm::ParameterSet&);
       ~PF_PU_AssoMap();

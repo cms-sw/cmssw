@@ -25,7 +25,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 using namespace trigger;
-using namespace l1extra;
 
 
 
@@ -189,7 +188,7 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     const size_t nSteps     = stepLabels_.size();
     const size_t nStepsHlt  = nSteps - 2;
     const int nObjectsToPassPath = (isDoubleMuonPath) ? 2 : 1;
-    vector< L1MuonParticleRef > candsL1;
+    l1t::MuonVectorRef candsL1;
     vector< vector< RecoChargedCandidateRef      > > refsHlt(nStepsHlt);
     vector< vector< const RecoChargedCandidate * > > candsHlt(nStepsHlt);
     
@@ -224,9 +223,13 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     
     for (size_t step = 0; step < nSteps; step++) {
       
-      const size_t hltStep = (step >= 2) ? step - 2 : 0;
+      size_t hltStep = (step >= 2) ? step - 2 : 0;
+      if (nSteps == 6) hltStep=hltStep-1; // case of the tracker muon (it has no L2)
       size_t level = 0;
-      if (stepLabels_[step].find("L3") != string::npos) level = 3;
+      if ((stepLabels_[step].find("L3TkIso") != string::npos)||(stepLabels_[step].find("TkTkIso") != string::npos)) level = 6;
+      else if ((stepLabels_[step].find("L3HcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 5;
+      else if ((stepLabels_[step].find("L3EcalIso") != string::npos)||(stepLabels_[step].find("TkEcalIso") != string::npos)) level = 4;
+      else if ((stepLabels_[step].find("L3") != string::npos)||(stepLabels_[step].find("Tk") != string::npos)) level = 3;
       else if (stepLabels_[step].find("L2") != string::npos) level = 2;
       else if (stepLabels_[step].find("L1") != string::npos) level = 1;
       
@@ -308,7 +311,7 @@ boost::tuple<
 void
 HLTMuonPlotter::findMatches(
     vector<MatchStruct> & matches,
-    const std::vector<L1MuonParticleRef>& candsL1,
+    const l1t::MuonVectorRef& candsL1,
     const std::vector< vector< const RecoChargedCandidate *> >& candsHlt)
 {
 
@@ -317,7 +320,7 @@ HLTMuonPlotter::findMatches(
   set<size_t> indicesL1;
   for (size_t i = 0; i < candsL1.size(); i++) 
     indicesL1.insert(i);
-
+  
   vector< set<size_t> > indicesHlt(candsHlt.size());
   for (size_t i = 0; i < candsHlt.size(); i++)
     for (size_t j = 0; j < candsHlt[i].size(); j++)
@@ -330,27 +333,29 @@ HLTMuonPlotter::findMatches(
     double bestDeltaR = cutsDr_[0];
     size_t bestMatch = kNull;
     for (it = indicesL1.begin(); it != indicesL1.end(); it++) {
-     if (candsL1[*it].isAvailable()) {
+     if (candsL1[*it].isAvailable()) { 
       double dR = deltaR(cand->eta(), cand->phi(),
                          candsL1[*it]->eta(), candsL1[*it]->phi());
       if (dR < bestDeltaR) {
         bestMatch = *it;
         bestDeltaR = dR;
       }
-      // TrajectoryStateOnSurface propagated;
-      // float dR = 999., dPhi = 999.;
-      // bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 
-      //                                 dR, dPhi, propagated);
-      // if (isValid && dR < bestDeltaR) {
-      //   bestMatch = *it;
-      //   bestDeltaR = dR;
-      // }
+      // TrajectoryStateOnSurface propagated;		
+      // float dR = 999., dPhi = 999.;		
+      // bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 		
+      //                                 dR, dPhi, propagated);		
+      // if (isValid && dR < bestDeltaR) {		
+      //   bestMatch = *it;		
+      //   bestDeltaR = dR;		
+      // }		
      } else {
        LogWarning("HLTMuonPlotter")
 	 << "Ref candsL1[*it]: product not available "
 	 << *it;
      }
     }
+    
+    
     if (bestMatch != kNull)
       matches[i].candL1 = & * candsL1[bestMatch];
     indicesL1.erase(bestMatch);

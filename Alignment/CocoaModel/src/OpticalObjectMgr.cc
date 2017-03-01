@@ -44,7 +44,7 @@ std::vector<OpticalObject*> OpticalObjectMgr::findOptOs( const ALIstring& name, 
   std::vector<OpticalObject*> vopto;
   msopto::const_iterator cite;
   //----- Look for OptO's that contains 'name' in its longName as the last word (after the last '/')
-  for( cite = theOptODict.begin(); cite != theOptODict.end(); cite++ ) {
+  for( cite = theOptODict.begin(); cite != theOptODict.end(); ++cite ) {
     ALIstring oname = (*cite).first;
     int nf = oname.rfind( name );
     int sf = oname.rfind( '/' );
@@ -72,7 +72,7 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
 {
   std::cout << "OPTICALOBJECT list size " << theOptODict.size() << std::endl;
   std::vector< OpticalObject* >::const_iterator vocite;
-  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); vocite++ ) {
+  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite ) {
     ALIstring name = (*vocite)->name();
     ALIUtils::dump3v( (*vocite)->centreGlobal(), (name + " CENTRE GLOBAL: ").c_str() );
     if( (*vocite)->parent() != 0 ) ALIUtils::dump3v( (*vocite)->centreLocal(),  (name + "  CENTRE LOCAL: ").c_str() ); //not for the 'system'

@@ -10,7 +10,11 @@
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
 
+#include "TProfile.h"
+#include "TFile.h"
+
 class BeginOfJob;
+class EndOfJob;
 class BeginOfEvent;
 class BeginOfTrack;
 class EndOfTrack;
@@ -23,6 +27,7 @@ class G4LogicalVolume;
 
 class TrackingMaterialProducer : public SimProducer,
                                  public Observer<const BeginOfJob*>,
+                                 public Observer<const EndOfJob*>,
                                  public Observer<const BeginOfEvent*>,
                                  public Observer<const BeginOfTrack*>,
                                  public Observer<const G4Step*>,
@@ -38,9 +43,11 @@ private:
   void update(const BeginOfTrack*);
   void update(const G4Step*);
   void update(const EndOfTrack*);
+  void update(const EndOfJob*);
   void produce(edm::Event&, const edm::EventSetup&);
  
   bool isSelected( const G4VTouchable* touch );
+  bool isSelectedFast( const G4TouchableHistory* touch );
 
 private:
   bool                                  m_primaryTracks;
@@ -48,6 +55,8 @@ private:
   std::vector<const G4LogicalVolume *>  m_selectedVolumes;
   MaterialAccountingTrack               m_track;
   std::vector<MaterialAccountingTrack>* m_tracks;  
+  TFile * output_file_;
+  TProfile *  radLen_vs_eta_;
 };
 
 #endif // TrackingMaterialProducer_h

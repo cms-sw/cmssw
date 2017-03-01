@@ -2,51 +2,58 @@
 
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/ProductHolder.h"
+#include "FWCore/Framework/interface/ProductResolverBase.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include <algorithm>
+#include <cassert>
+#include <limits>
 #include <memory>
 
 namespace edm {
   EventPrincipal::EventPrincipal(
         std::shared_ptr<ProductRegistry const> reg,
         std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+        std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int streamIndex) :
-    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender),
+        unsigned int streamIndex,
+        bool isForPrimaryProcess) :
+    Base(reg, reg->productLookup(InEvent), pc, InEvent, historyAppender,isForPrimaryProcess),
           aux_(),
           luminosityBlockPrincipal_(),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
-          unscheduledHandler_(),
-          moduleLabelsRunning_(),
           eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
+          thinnedAssociationsHelper_(thinnedAssociationsHelper),
           branchListIndexes_(),
           branchListIndexToProcessIndex_(),
-          streamID_(streamIndex){}
+          streamID_(streamIndex) {
+    assert(thinnedAssociationsHelper_);
+  }
 
   void
   EventPrincipal::clearEventPrincipal() {
     clearPrincipal();
     aux_ = EventAuxiliary();
-    luminosityBlockPrincipal_.reset();
+    luminosityBlockPrincipal_ = nullptr; // propagate_const<T> has no reset() function
     provRetrieverPtr_->reset();
-    unscheduledHandler_.reset();
-    moduleLabelsRunning_.clear();
     branchListIndexToProcessIndex_.clear();
   }
 
@@ -55,10 +62,10 @@ namespace edm {
         ProcessHistoryRegistry const& processHistoryRegistry,
         EventSelectionIDVector&& eventSelectionIDs,
         BranchListIndexes&& branchListIndexes,
-        ProductProvenanceRetriever& provRetriever,
+        ProductProvenanceRetriever const& provRetriever,
         DelayedReader* reader) {
     eventSelectionIDs_ = eventSelectionIDs;
-    provRetrieverPtr_->deepSwap(provRetriever);
+    provRetrieverPtr_->deepCopy(provRetriever);
     branchListIndexes_ = branchListIndexes;
     if(branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
@@ -85,6 +92,11 @@ namespace edm {
   EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                      ProcessHistoryRegistry const& processHistoryRegistry,
                                      DelayedReader* reader) {
+    if(aux.event() == invalidEventNumber) {
+      throw Exception(errors::LogicError)
+        << "EventPrincipal::fillEventPrincipal, Invalid event number provided in EventAuxiliary, It is illegal for the event number to be 0\n";
+    }
+
     fillPrincipal(aux.processHistoryID(), processHistoryRegistry, reader);
     aux_ = aux;
     aux_.setProcessHistoryID(processHistoryID());
@@ -103,9 +115,16 @@ namespace edm {
     }
 
     // Fill in the product ID's in the product holders.
-    for(auto const& prod : *this) {
+    for(auto& prod : *this) {
       if (prod->singleProduct()) {
-        prod->setProvenance(productProvenanceRetrieverPtr(), processHistory(), branchIDToProductID(prod->branchDescription().branchID()));
+        // If an alias is in the same process as the original then isAlias will be true.
+        //  Under that condition, we want the ProductID to be the same as the original.
+        //  If not, then we've internally changed the original BranchID to the alias BranchID
+        //  in the ProductID lookup so we need the alias BranchID.
+        auto const & bd =prod->branchDescription();
+        prod->setProvenance(productProvenanceRetrieverPtr(),
+                            processHistory(),
+                            branchIDToProductID(bd.isAlias()?bd.originalBranchID(): bd.branchID()));
       }
     }
   }
@@ -131,65 +150,35 @@ namespace edm {
   void
   EventPrincipal::put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp,
-        ProductProvenance const& productProvenance) {
+        std::unique_ptr<WrapperBase> edp,
+        ProductProvenance const& productProvenance) const {
 
     // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
     //assert(produced());
-    if(!edp.isValid()) {
+    if(edp.get() == nullptr) {
       throw Exception(errors::InsertFailure, "Null Pointer")
         << "put: Cannot put because ptr to product is null."
         << "\n";
     }
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    auto phb = getExistingProduct(bd.branchID());
     assert(phb);
-    checkUniquenessAndType(edp, phb);
-    // ProductHolder assumes ownership
-    phb->putProduct(edp, productProvenance);
+    // ProductResolver assumes ownership
+    phb->putProduct(std::move(edp));
   }
 
   void
   EventPrincipal::putOnRead(
         BranchDescription const& bd,
-        void const* product,
-        ProductProvenance const& productProvenance) {
+        std::unique_ptr<WrapperBase> edp,
+        ProductProvenance const& productProvenance) const {
 
     assert(!bd.produced());
     productProvenanceRetrieverPtr()->insertIntoSet(productProvenance);
-    ProductHolderBase* phb = getExistingProduct(bd.branchID());
+    auto phb = getExistingProduct(bd.branchID());
     assert(phb);
-    WrapperOwningHolder const edp(product, phb->productData().getInterface());
-    checkUniquenessAndType(edp, phb);
-    // ProductHolder assumes ownership
-    phb->putProduct(edp, productProvenance);
-  }
-
-   void
-  EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
-    if(phb.branchDescription().produced()) return; // nothing to do.
-    if(phb.product()) return; // nothing to do.
-    if(phb.productUnavailable()) return; // nothing to do.
-    if(!reader()) return; // nothing to do.
-    
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(phb.branchDescription());
-    {
-      if(mcc) {
-        preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      }
-      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-        if(mcc) {
-          postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-        }
-      });
-      
-      WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
-      
-      // Now fix up the ProductHolder
-      checkUniquenessAndType(edp, &phb);
-      phb.putProduct(edp);
-    }
+    // ProductResolver assumes ownership
+    phb->putProduct(std::move(edp));
   }
 
   BranchID
@@ -230,7 +219,7 @@ namespace edm {
     return streamID_.value();
   }
 
-  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductHolderPtr const phb) {
+  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductResolverPtr const phb) {
     ProductDeletedException exception;
     exception<<"get by product ID: The product with given id: "<<pid
     <<"\ntype: "<<phb->productType()
@@ -243,7 +232,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    ConstProductHolderPtr const phb = getProductHolder(bid);
+    ConstProductResolverPtr const phb = getProductResolver(bid);
     if(phb == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
@@ -259,7 +248,7 @@ namespace edm {
     }
     // Check for case where we tried on demand production and
     // it failed to produce the object
-    if(phb->onDemand()) {
+    if(phb->unscheduledWasNotRun()) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
         *whyFailed
@@ -268,15 +257,124 @@ namespace edm {
         return whyFailed;
       }));
     }
-    ProductHolderBase::ResolveStatus status;
-    phb->resolveProduct(status,false,nullptr);
+    auto resolution = phb->resolveProduct(*this,false,nullptr,nullptr);
 
-    return BasicHandle(phb->productData());
+    auto data = resolution.data();
+    if(data) {
+      return BasicHandle(data->wrapper(), &(data->provenance()));
+    }
+    return BasicHandle(nullptr,nullptr);
   }
 
-  WrapperHolder
+  WrapperBase const*
   EventPrincipal::getIt(ProductID const& pid) const {
-    return getByProductID(pid).wrapperHolder();
+    return getByProductID(pid).wrapper();
+  }
+
+  WrapperBase const*
+  EventPrincipal::getThinnedProduct(ProductID const& pid, unsigned int& key) const {
+
+    BranchID parent = pidToBid(pid);
+
+    // Loop over thinned containers which were made by selecting elements from the parent container
+    for(auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
+                           iEnd = thinnedAssociationsHelper_->parentEnd(parent);
+        associatedBranches != iEnd; ++associatedBranches) {
+
+      ThinnedAssociation const* thinnedAssociation =
+        getThinnedAssociation(associatedBranches->association());
+      if(thinnedAssociation == nullptr) continue;
+
+      if(associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
+        continue;
+      }
+
+      unsigned int thinnedIndex = 0;
+      // Does this thinned container have the element referenced by key?
+      // If yes, thinnedIndex is set to point to it in the thinned container
+      if(!thinnedAssociation->hasParentIndex(key, thinnedIndex)) {
+        continue;
+      }
+      // Get the thinned container and return a pointer if we can find it
+      ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
+      if(!bhThinned.isValid()) {
+        // Thinned container is not found, try looking recursively in thinned containers
+        // which were made by selecting elements from this thinned container.
+        WrapperBase const* wrapperBase = getThinnedProduct(thinnedCollectionPID, thinnedIndex);
+        if(wrapperBase != nullptr) {
+          key = thinnedIndex;
+          return wrapperBase;
+        } else {
+          continue;
+        }
+      }
+      key = thinnedIndex;
+      return bhThinned.wrapper();
+    }
+    return nullptr;
+  }
+
+  void
+  EventPrincipal::getThinnedProducts(ProductID const& pid,
+                                     std::vector<WrapperBase const*>& foundContainers,
+                                     std::vector<unsigned int>& keys) const {
+
+    BranchID parent = pidToBid(pid);
+
+    // Loop over thinned containers which were made by selecting elements from the parent container
+    for(auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
+                           iEnd = thinnedAssociationsHelper_->parentEnd(parent);
+        associatedBranches != iEnd; ++associatedBranches) {
+
+      ThinnedAssociation const* thinnedAssociation =
+        getThinnedAssociation(associatedBranches->association());
+      if(thinnedAssociation == nullptr) continue;
+
+      if(associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
+        continue;
+      }
+
+      unsigned nKeys = keys.size();
+      unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
+      std::vector<unsigned int> thinnedIndexes(nKeys, doNotLookForThisIndex);
+      bool hasAny = false;
+      for(unsigned k = 0; k < nKeys; ++k) {
+        // Already found this one
+        if(foundContainers[k] != nullptr) continue;
+        // Already know this one is not in this thinned container
+        if(keys[k] == doNotLookForThisIndex) continue;
+        // Does the thinned container hold the entry of interest?
+        // Modifies thinnedIndexes[k] only if it returns true and
+        // sets it to the index in the thinned collection.
+        if(thinnedAssociation->hasParentIndex(keys[k], thinnedIndexes[k])) {
+          hasAny = true;
+        }
+      }
+      if(!hasAny) {
+        continue;
+      }
+      // Get the thinned container and set the pointers and indexes into
+      // it (if we can find it)
+      ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
+      if(!bhThinned.isValid()) {
+        // Thinned container is not found, try looking recursively in thinned containers
+        // which were made by selecting elements from this thinned container.
+        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
+        for(unsigned k = 0; k < nKeys; ++k) {
+          if(foundContainers[k] == nullptr) continue;
+          if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+          keys[k] = thinnedIndexes[k];
+        }
+      } else {
+        for(unsigned k = 0; k < nKeys; ++k) {
+          if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+          keys[k] = thinnedIndexes[k];
+          foundContainers[k] = bhThinned.wrapper();
+        }
+      }
+    }
   }
 
   Provenance
@@ -286,13 +384,10 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
-    unscheduledHandler_ = iHandler;
-  }
-
-  std::shared_ptr<UnscheduledHandler>
-  EventPrincipal::unscheduledHandler() const {
-     return unscheduledHandler_;
+  EventPrincipal::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
+    applyToResolvers([&iConfigure](ProductResolverBase* iResolver) {
+      iResolver->setupUnscheduled(iConfigure);
+    });
   }
 
   EventSelectionIDVector const&
@@ -305,44 +400,27 @@ namespace edm {
     return branchListIndexes_;
   }
 
-  bool
-  EventPrincipal::unscheduledFill(std::string const& moduleLabel, 
-                                  ModuleCallingContext const* mcc) const {
+  edm::ThinnedAssociation const*
+  EventPrincipal::getThinnedAssociation(edm::BranchID const& branchID) const {
 
-    // If it is a module already currently running in unscheduled
-    // mode, then there is a circular dependency related to which
-    // EDProducts modules require and produce.  There is no safe way
-    // to recover from this.  Here we check for this problem and throw
-    // an exception.
-    std::vector<std::string>::const_iterator i =
-      find_in_all(moduleLabelsRunning_, moduleLabel);
+    ConstProductResolverPtr const phb = getProductResolver(branchID);
 
-    if(i != moduleLabelsRunning_.end()) {
+    if(phb == nullptr) {
       throw Exception(errors::LogicError)
-        << "Hit circular dependency while trying to run an unscheduled module.\n"
-        << "The last module on the stack shown above requested data from the\n"
-        << "module with label: '" << moduleLabel << "'.\n"
-        << "This is illegal because this module is already running (it is in the\n"
-        << "stack shown above, it might or might not be asking for data from itself).\n"
-        << "More information related to resolving circular dependences can be found here:\n"
-        << "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideUnscheduledExecution#Circular_Dependence_Errors.";
+        << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
+        << "This should never happen. Contact a Framework developer";
     }
-
-    UnscheduledSentry sentry(&moduleLabelsRunning_, moduleLabel);
-
-    if(unscheduledHandler_) {
-      if(mcc == nullptr) {
-        throw Exception(errors::LogicError)
-          << "EventPrincipal::unscheduledFill, Attempting to run unscheduled production\n"
-          << "with a null pointer to the ModuleCalling Context. This should never happen.\n"
-          << "Contact a Framework developer";
-      }
-      preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
-        postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
-      });
-      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
+    ProductData const* productData = (phb->resolveProduct(*this,false,nullptr,nullptr)).data();
+    if (productData == nullptr) {
+      return nullptr;
     }
-    return true;
+    WrapperBase const* product = productData->wrapper();
+    if(!(typeid(edm::ThinnedAssociation) == product->dynamicTypeInfo())) {
+      throw Exception(errors::LogicError)
+        << "EventPrincipal::getThinnedProduct, product has wrong type, not a ThinnedAssociation.\n";
+    }
+    Wrapper<ThinnedAssociation> const* wrapper = static_cast<Wrapper<ThinnedAssociation> const*>(product);
+    return wrapper->product();
   }
+
 }

@@ -57,7 +57,7 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
 
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());
+  auto segments4DCollection = std::make_unique<DTRecSegment4DCollection>();
 
   // Iterate over the input DTSegment4D
   DTRecSegment4DCollection::id_iterator chamberId;
@@ -95,5 +95,5 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
     cout << "[DTSegment4DT0Corrector] Saving modified segments into the event" << endl;
 
   // Load the output in the Event
-  event.put(segments4DCollection);
+  event.put(std::move(segments4DCollection));
 }

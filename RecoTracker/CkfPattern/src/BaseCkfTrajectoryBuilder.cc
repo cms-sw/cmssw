@@ -87,6 +87,13 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
     }
     else {
       TSOS innerState   = backwardPropagator(seed)->propagate(outerState,hitGeomDet->surface());
+
+      // try to recover if propagation failed
+      if unlikely(!innerState.isValid())
+        innerState =
+          trajectoryStateTransform::transientState(pState, &(hitGeomDet->surface()),
+                                                            forwardPropagator(seed)->magneticField());
+
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 	result.emplace(invalidState, innerUpdated, recHit, 0, hitLayer);
@@ -104,7 +111,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
 TempTrajectory BaseCkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  TempTrajectory result(seed.direction());
+  TempTrajectory result(seed.direction(),seed.nHits());
   seedMeasurements(seed, result);
 
   LogDebug("CkfPattern")
@@ -222,8 +229,12 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const T
 
 BaseCkfTrajectoryBuilder::StateAndLayers
 BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
-  assert(!traj.empty());
- 
+  //assert(!traj.empty());
+  if ( traj.empty() ) {
+    edm::LogWarning("CkfPattern")<< "empty traj. Skipping.";
+    return StateAndLayers();
+  }
+
   TSOS const & currentState = traj.lastMeasurement().updatedState();
   return StateAndLayers(currentState,theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction()) );
 }

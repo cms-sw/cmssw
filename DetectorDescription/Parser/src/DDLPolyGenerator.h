@@ -1,9 +1,12 @@
 #ifndef DDL_PolyGenerator_H
 #define DDL_PolyGenerator_H
 
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLPolyGenerator processes DDL XML Polycone and DDL XML Polyhedra elements.
 /** @class DDLPolyGenerator
@@ -22,19 +25,14 @@
  *
  */
 
-class DDLPolyGenerator : public DDLSolid
+class DDLPolyGenerator final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLPolyGenerator( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLPolyGenerator( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
 
 #endif

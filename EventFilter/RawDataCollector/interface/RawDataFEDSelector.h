@@ -28,9 +28,9 @@ public:
   inline void setRange(const std::pair<int,int> & range) {fedRange = range;};
   inline void setRange(const std::vector<int> & list) {fedList = list;};
 
-  std::auto_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData);
-  std::auto_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData, const std::pair<int,int> & range);
-  std::auto_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData, const std::vector<int> & list);
+  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData);
+  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData, const std::pair<int,int> & range);
+  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData, const std::vector<int> & list);
 
 
 private:

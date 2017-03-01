@@ -7,6 +7,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,43 +35,14 @@
 #include <map>
 #include <boost/cstdint.hpp>
 
-class DQMStore;
 class SiPixelEDAClient;
 class SiPixelWebInterface;
-class SiPixelHistoPlotter;
 class SiPixelInformationExtractor {
 
  public:
 
   SiPixelInformationExtractor(  bool                                      offlineXMLfile);
  ~SiPixelInformationExtractor();
-
- //  void getSingleModuleHistos(   DQMStore                                * bei, 
- //                                const std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output                             * out,
- //				bool					  isUpgrade);
- //  void getHistosFromPath(       DQMStore                                * bei, 
- //                                const std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output                             * out);
- //  void getTrackerMapHistos(     DQMStore                                * bei, 
- //                                const std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output                             * out,
- //				bool					  isUpgrade);
-				
- //  void readModuleAndHistoList(	DQMStore				* bei,
- //                              	xgi::Output				* out);
- //  void readModuleHistoTree(   	DQMStore				* bei, 
- //                              	std::string				& str_name, 
- //			      	xgi::Output				* out);
- //  void readSummaryHistoTree(  	DQMStore				* bei, 
- //                              	std::string				& str_name, 
- //			      	xgi::Output				* out);
- //  void readAlarmTree(         	DQMStore				* bei, 
- //                              	std::string				& str_name, 
- //                              	xgi::Output				* out);
- //  void readStatusMessage(       DQMStore                                * bei, 
- //                                std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output * out);
 
   void computeStatus(           MonitorElement                          * mE,
                                 double                                  & colorValue,
@@ -82,21 +54,7 @@ class SiPixelInformationExtractor {
                                 std::pair<double,double>                & normX,
                                 std::pair<double,double>                & normY,
 				std::string                               theMEType) ;
-
- //  void sendTkUpdatedStatus(     DQMStore				* bei,
- //                              	xgi::Output                             * out,
- //				std::string                             & meName,
-  //				std::string                             & theTKType) ;
-  void selectMEList(            DQMStore                                * bei,  
-                                std::string                             & name, 
-				std::vector<MonitorElement*>            & mes);
-  void getMEList(               DQMStore                                * bei,  
-				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mE) ;				
-  //  void getIMGCImage(            const std::multimap<std::string, std::string>& req_map, 
-  //                                xgi::Output                             * out);
-  //  void getIMGCImage(            std::multimap<std::string, std::string>& req_map, 
-  //                                xgi::Output                             * out);
   std::string getMEType(        MonitorElement                          * mE) ;
     
   void readConfiguration();
@@ -104,34 +62,22 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
-  void bookNoisyPixels(          DQMStore                               * bei,
+  void bookNoisyPixels(          DQMStore::IBooker                      & iBooker,
                                  float                                    noiseRate,
 				 bool                                     Tier0Flag);
 
-  void findNoisyPixels (         DQMStore                               * bei,
+  void findNoisyPixels (         DQMStore::IBooker                      & iBooker,
+				 DQMStore::IGetter                      & iGetter,
                                  bool                                     init,
 				 float                                    noiseRate,
 				 int                                      noiseRateDenominator,
-                                 edm::EventSetup const                  & eSetup);
-  
-  void createImages             (DQMStore                               * bei);
+                                 edm::ESHandle<SiPixelFedCablingMap>      theCablingMap);
   
  private:
 
-  void fillModuleAndHistoList(	DQMStore				* bei,
-                              	std::vector<std::string>		& modules, 
-			      	std::map<std::string,std::string>	& histos);
   void getItemList(             const std::multimap<std::string, std::string> & req_map,
                                 std::string                               item_name, 
 				std::vector<std::string>                & items);
-  void printModuleHistoList(    DQMStore 				* bei, 
-                                std::ostringstream                      & str_val);
-  void printSummaryHistoList(   DQMStore 				* bei, 
-                                std::ostringstream                      & str_val);
-  void printAlarmList(          DQMStore 				* bei, 
-                                std::ostringstream                      & str_val);
-  bool goToDir(                 DQMStore                                * bei, 
-                                std::string                             & sname);
   bool hasItem(                 std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
   std::string getItemValue(     const std::multimap<std::string, std::string> & req_map,
@@ -148,10 +94,6 @@ class SiPixelInformationExtractor {
   void selectColor(            std::string                              & col, 
                                std::vector<QReport*>                    & reports);
   
-  //  void setHTMLHeader(          xgi::Output                              * out);
-  //  void setXMLHeader(           xgi::Output                              * out);
-  //  void setPlainHeader(         xgi::Output                              * out);
- 
   int                                    alarmCounter_;
 
   SiPixelConfigParser   	       * configParser_  ;
@@ -182,7 +124,7 @@ class SiPixelInformationExtractor {
   int nevents_;
   std::map< uint32_t , std::vector< std::pair< std::pair<int,int> , float > > >  noisyDetIds_;
   bool endOfModules_;
-  edm::ESHandle<SiPixelFedCablingMap> theCablingMap;
+
   MonitorElement * EventRateBarrelPixels;
   MonitorElement * EventRateEndcapPixels;
   
@@ -190,6 +132,5 @@ class SiPixelInformationExtractor {
   MonitorElement * BarrelNdigisFREQProjection;
   
   
-  SiPixelHistoPlotter* histoPlotter_;
 };
 #endif

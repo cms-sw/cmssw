@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -244,7 +243,7 @@ void DDPixBarStackLayerAlgo::execute(DDCompactView& cpv) {
 
     //inner layer of stack
     tran = DDTranslation(radius*cos(phi)-deltaX, radius*sin(phi)-deltaY, 0);
-    name = idName + dbl_to_string(component_copy_no);
+    name = idName + std::to_string(component_copy_no);
     rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
     cpv.position (ladderFullDown, layer, component_copy_no, tran, rot);
@@ -259,7 +258,7 @@ void DDPixBarStackLayerAlgo::execute(DDCompactView& cpv) {
 
     //outer layer of stack
     tran = DDTranslation(radius*cos(phi)+deltaX, radius*sin(phi)+deltaY, 0);
-    name = idName + dbl_to_string(component_copy_no);
+    name = idName + std::to_string(component_copy_no);
     rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
     cpv.position (ladderFullUp, layer, component_copy_no, tran, rot);
@@ -307,7 +306,7 @@ void DDPixBarStackLayerAlgo::execute(DDCompactView& cpv) {
 
     tran = DDTranslation(radius*cos(phi)-deltaX, radius*sin(phi)+deltaY, 0);
 
-    name = idName + "xxx"+dbl_to_string(i+10000);
+    name = idName + "xxx" + std::to_string(i+10000);
 
     rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
     cpv.position (coolTube, layer, i+1, tran, rot);

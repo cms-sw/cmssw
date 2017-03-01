@@ -241,7 +241,7 @@ bool MillePedeMonitor::init(TDirectory *directory)
     (new TH2F("derivativesVsPhi", 
               "derivatives vs. #phi;#phi(geomDet);#partial(x/y)_{local}/#partial(param)",
 	      50, -TMath::Pi(), TMath::Pi(), 101, -300., 300.));
-  //  myTrajectoryHists2D.back()->SetBit(TH1::kCanRebin);
+  //  myTrajectoryHists2D.back()->SetCanExtend(TH1::kAllAxes);
 
   TDirectory *dirTraject = directory->mkdir("refTrajectoryHists", "ReferenceTrajectory's");
   this->addToDirectory(myTrajectoryHists2D, dirTraject);
@@ -344,12 +344,12 @@ bool MillePedeMonitor::init(TDirectory *directory)
   // Here for x-measurements:
   std::vector<TH1*> allResidHistsX;
   allResidHistsX.push_back(new TH1F("resid", "hit residuals;residuum [cm]", 101,-.5,.5));//51,-.05, .05));
-  //allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  //allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("sigma", "hit uncertainties;#sigma [cm]", 100,0.,1.));//50, 0., .02));
-  //allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  //allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("reduResid", "reduced hit residuals;res./#sigma",
 				    101, -10., 10.));//51, -3., 3.));
-  //  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  //  allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("angle", "#phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens}",
 				    50, 0., TMath::PiOver2()));
   allResidHistsX.push_back(new TH2F("residVsAngle",
@@ -366,23 +366,23 @@ bool MillePedeMonitor::init(TDirectory *directory)
   allResidHistsX.push_back(new TH1F("residGt45",
 				    "hit residuals (#phi_{n}^{sens}>45#circ);residuum [cm]",
 				    101, -.5, .5));//51, -.05, .05));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  // allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("sigmaGt45",
 				    "hit uncertainties(#phi_{n}^{sens}>45#circ);#sigma [cm]",
 				     100, 0., 1.));//50, 0., .02));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  // allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("reduResidGt45",
 				    "reduced hit residuals(#phi_{n}^{sens}>45#circ);res./#sigma",
                                     101, -10., 10.));//51,-3.,3.));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  // allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("residLt45",
 				    "hit residuals (#phi_{n}^{sens}<45#circ);residuum [cm]",
 				    101, -.5, .5));//51, -.15, .15));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  // allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("sigmaLt45",
 				    "hit uncertainties(#phi_{n}^{sens}<45#circ);#sigma [cm]",
 				    100, 0., 1.));//50, 0., .01));
-  // allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  // allResidHistsX.back()->SetCanExtend(TH1::kAllAxes);
   allResidHistsX.push_back(new TH1F("reduResidLt45",
 				    "reduced hit residuals(#phi_{n}^{sens}<45#circ);res./#sigma",
 				    101, -10., 10.));//51,-3.,3.));
@@ -445,12 +445,12 @@ bool MillePedeMonitor::init(TDirectory *directory)
         (new TH2F(Form("frame2framePhi%d%d", i, j),
                   Form("frame to frame derivatives, %d%d;#phi(aliDet);deriv",i,j),
                   51, -TMath::Pi(), TMath::Pi(), 10, 0., 1.));
-      myFrame2FrameHists2D.back()->SetBit(TH1::kCanRebin);
+      myFrame2FrameHists2D.back()->SetCanExtend(TH1::kAllAxes);
       myFrame2FrameHists2D.push_back
         (new TH2F(Form("frame2frameR%d%d", i, j),
                   Form("frame to frame derivatives, %d%d;r(aliDet);deriv",i,j),
                   51, 0., 110., 10, 0., 1.));
-      myFrame2FrameHists2D.back()->SetBit(TH1::kCanRebin);
+      myFrame2FrameHists2D.back()->SetCanExtend(TH1::kAllAxes);
 
       myFrame2FrameHists2D.push_back
         (new TH2F(Form("frame2framePhiLog%d%d", i, j),

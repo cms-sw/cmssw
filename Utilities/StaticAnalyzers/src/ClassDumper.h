@@ -12,14 +12,13 @@
 #include <clang/StaticAnalyzer/Core/BugReporter/BugReporter.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 #include <llvm/ADT/SmallString.h>
-
+#include <string>
 #include "CmsException.h"
 #include "CmsSupport.h"
 
 namespace clangcms {
 
 class ClassDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
@@ -27,50 +26,35 @@ public:
 
   void checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
-	std::string pname = "/tmp/classes.txt.dumperall.unsorted";
-	checkASTDecl(RD,mgr,BR,pname);
+     std::string pname = "classes.txt.dumperall.unsorted";
+     checkASTDecl(RD,mgr,BR,pname);
 }
-
-private:
-  CmsException m_exception;
 
 };
 
 class ClassDumperCT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
 
   void checkASTDecl(const clang::ClassTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const ;
 
-private:
-  CmsException m_exception;
-
 };
 
 class ClassDumperFT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
 
   void checkASTDecl(const clang::FunctionTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const ;
 
-private:
-  CmsException m_exception;
-
 };
 
 class ClassDumperInherit : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const ;
-
-private:
-  CmsException m_exception;
 
 };
 

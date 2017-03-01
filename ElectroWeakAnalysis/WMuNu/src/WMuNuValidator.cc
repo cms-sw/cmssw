@@ -547,34 +547,39 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         fill_histogram("ETA_LASTCUT",eta);
                   if (!muon_sel[2] || flags_passed==NFLAGS)
                         fill_histogram("DXY_LASTCUT",dxy);
-                  if (!muon_sel[3] || flags_passed==NFLAGS)
+                  if (!muon_sel[3] || flags_passed==NFLAGS) {
                         fill_histogram("CHI2_LASTCUT",normalizedChi2);
-                        fill_histogram("ValidMuonHits_LASTCUT",validmuonhits);
+                        fill_histogram("ValidMuonHits_LASTCUT",validmuonhits); }
                   if (!muon_sel[4] || flags_passed==NFLAGS)
                         fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS)
                         fill_histogram("TKMU_LASTCUT",mu.isTrackerMuon());
                   if (!muon_sel[6] || flags_passed==NFLAGS)
                         fill_histogram("ISO_LASTCUT",isovar);
-                  if (!muon_sel[7] || flags_passed==NFLAGS)
-                        if (!hlt_hist_done) fill_histogram("TRIG_LASTCUT",trigger_fired);
-                        hlt_hist_done = true;
+                  if (!muon_sel[7] || flags_passed==NFLAGS) {
+                        if (!hlt_hist_done) { fill_histogram("TRIG_LASTCUT",trigger_fired);
+                                              hlt_hist_done = true;}
+                  }
                   if (!muon_sel[8] || flags_passed==NFLAGS)
                         fill_histogram("MT_LASTCUT",massT);
-                  if (!muon_sel[9] || flags_passed==NFLAGS)
-                        if (!met_hist_done) fill_histogram("MET_LASTCUT",met_et);
-                        met_hist_done = true;
+                  if (!muon_sel[9] || flags_passed==NFLAGS) {
+                        if (!met_hist_done) { fill_histogram("MET_LASTCUT",met_et);
+                                              met_hist_done = true;}
+                  } 
                   if (!muon_sel[10] || flags_passed==NFLAGS)
                         fill_histogram("ACOP_LASTCUT",acop);
-                  if (!muon_sel[11] || flags_passed==NFLAGS)
-                        if (!nz1_hist_done) fill_histogram("NZ1_LASTCUT",nmuonsForZ1);
-                        nz1_hist_done = true;
-                  if (!muon_sel[11] || flags_passed==NFLAGS)
-                        if (!nz2_hist_done) fill_histogram("NZ2_LASTCUT",nmuonsForZ2);
-                        nz2_hist_done = true;
-                  if (!muon_sel[12] || flags_passed==NFLAGS)
-                        if (!njets_hist_done) fill_histogram("NJETS_LASTCUT",njets);
-                        njets_hist_done = true;
+                  if (!muon_sel[11] || flags_passed==NFLAGS) {
+                        if (!nz1_hist_done) { fill_histogram("NZ1_LASTCUT",nmuonsForZ1);
+                                              nz1_hist_done = true;}
+                  }
+                  if (!muon_sel[11] || flags_passed==NFLAGS) {
+                        if (!nz2_hist_done) { fill_histogram("NZ2_LASTCUT",nmuonsForZ2);
+                                              nz2_hist_done = true; }
+                  }
+                  if (!muon_sel[12] || flags_passed==NFLAGS) {
+                        if (!njets_hist_done) { fill_histogram("NJETS_LASTCUT",njets);
+                                                njets_hist_done = true;}
+                  }
               }
             }
 

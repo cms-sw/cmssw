@@ -189,8 +189,6 @@ private:
 private:
 
   //UHB_Analysis* UserNtuples;
-  FP420NumberingScheme * theFP420NumberingScheme;
-
 
   int iev;
   int itrk;

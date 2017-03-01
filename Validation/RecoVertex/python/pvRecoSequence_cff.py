@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
+from Configuration.StandardSequences.GeometryRecoDB_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 
 #from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *

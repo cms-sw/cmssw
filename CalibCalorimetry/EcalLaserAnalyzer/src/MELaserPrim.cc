@@ -938,20 +938,20 @@ MELaserPrim::writeHistograms()
 
   std::map< TString, TH2* >::iterator it;
 
-  for( it=i_h.begin(); it!=i_h.end(); it++ )
+  for( it=i_h.begin(); it!=i_h.end(); ++it )
     {
       it->second->Write();
       delete it->second;
     }
 
-  for( it=f_h.begin(); it!=f_h.end(); it++ )
+  for( it=f_h.begin(); it!=f_h.end(); ++it )
     {
       it->second->Write();
       delete it->second;
     }
 
   std::map< TString, TTree* >::iterator it_t;
-  for( it_t=t_t.begin(); it_t!=t_t.end(); it_t++ )
+  for( it_t=t_t.begin(); it_t!=t_t.end(); ++it_t )
     {
       it_t->second->Write();
       delete it_t->second;
@@ -1247,14 +1247,14 @@ MELaserPrim::refresh()
 {
   std::map< TString, TH2* >::iterator it;
 
-  for( it=i_h.begin(); it!=i_h.end(); it++ )
+  for( it=i_h.begin(); it!=i_h.end(); ++it )
     {
       delete it->second;
       it->second = 0;
     }
   i_h.clear();
 
-  for( it=f_h.begin(); it!=f_h.end(); it++ )
+  for( it=f_h.begin(); it!=f_h.end(); ++it )
     {
       delete it->second;
       it->second = 0;
@@ -1262,7 +1262,7 @@ MELaserPrim::refresh()
   f_h.clear();
 
   std::map< TString, TTree* >::iterator it_t;
-  for( it_t=t_t.begin(); it_t!=t_t.end(); it_t++ )
+  for( it_t=t_t.begin(); it_t!=t_t.end(); ++it_t )
     {
       delete it_t->second;
       it->second = 0;

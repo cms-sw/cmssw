@@ -81,7 +81,7 @@ public:
 
 protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
 private: 
 
@@ -173,8 +173,14 @@ private:
   std::vector<MonitorElement*> hSChiSqProb;
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
+  MonitorElement *hSTimeDiff;
+  MonitorElement *hSTimeAnode;
   MonitorElement *hSTimeCathode;
   MonitorElement *hSTimeCombined;
+  MonitorElement *hSTimeDiffSerial;
+  MonitorElement *hSTimeAnodeSerial;
+  MonitorElement *hSTimeCathodeSerial;
+  MonitorElement *hSTimeCombinedSerial;
   MonitorElement *hSTimeVsZ;
   MonitorElement *hSTimeVsTOF;
 

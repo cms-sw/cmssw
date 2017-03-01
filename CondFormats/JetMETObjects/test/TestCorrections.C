@@ -2,7 +2,7 @@ void TestCorrections(double rawPt, double rawEta, double rawPhi, double rawE, do
 {
   gROOT->ProcessLine("#include <vector>");
   gSystem->Load("libFWCoreFWLite.so");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   ////////////// Construct the JetCorrectorParameters objects ///////////////////////
   string L1Tag    = "../data/Jec11V0_L1Offset_AK5JPT.txt"; 
   string L1JPTTag = "../data/Jec11V0_L1JPTOffset_AK5JPT.txt"; 

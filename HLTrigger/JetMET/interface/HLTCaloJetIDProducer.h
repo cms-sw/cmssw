@@ -12,7 +12,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,7 +33,7 @@ namespace reco {
 }
 
 // Class declaration
-class HLTCaloJetIDProducer : public edm::EDProducer {
+class HLTCaloJetIDProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTCaloJetIDProducer(const edm::ParameterSet & iConfig);
     ~HLTCaloJetIDProducer();

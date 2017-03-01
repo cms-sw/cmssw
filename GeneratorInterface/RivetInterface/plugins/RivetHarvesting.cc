@@ -11,7 +11,7 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
 #include "Rivet/Tools/RivetYODA.hh"
-#include "FWCore/Utilities/interface/tinyxml.h"
+#include "tinyxml.h"
 
 #include <string>
 #include <vector>
@@ -45,11 +45,11 @@ _analysisNames(pset.getParameter<std::vector<std::string> >("AnalysisNames"))
   _analysisHandler.addAnalyses(_analysisNames);
 
   //go through the analyses and check those that need the cross section
-  const std::set< AnaHandle, AnaHandleLess > & analyses = _analysisHandler.analyses();
+  const std::set< AnaHandle, CmpAnaHandle > & analyses = _analysisHandler.analyses();
 
-  std::set< AnaHandle, AnaHandleLess >::const_iterator ibeg = analyses.begin();
-  std::set< AnaHandle, AnaHandleLess >::const_iterator iend = analyses.end();
-  std::set< AnaHandle, AnaHandleLess >::const_iterator iana; 
+  std::set< AnaHandle, CmpAnaHandle >::const_iterator ibeg = analyses.begin();
+  std::set< AnaHandle, CmpAnaHandle >::const_iterator iend = analyses.end();
+  std::set< AnaHandle, CmpAnaHandle >::const_iterator iana; 
   double xsection = -1.;
   xsection = pset.getParameter<double>("CrossSection");
   for (iana = ibeg; iana != iend; ++iana){

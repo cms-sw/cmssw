@@ -6,7 +6,7 @@ triggerSynchTest = cms.EDAnalyzer("DTLocalTriggerSynchTest",
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('DCC','DDU'),
+    hwSources = cms.untracked.vstring('TM','DDU'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),                         
     # root folder for booking of histograms
@@ -18,7 +18,7 @@ triggerSynchTest = cms.EDAnalyzer("DTLocalTriggerSynchTest",
     nBXLow          = cms.int32(1),
     minEntries      = cms.int32(200),
     writeDB         = cms.bool(True),
-    dbFromDCC       = cms.bool(False),
+    dbFromTM       = cms.bool(False),
     fineParamDiff   = cms.bool(False),
     coarseParamDiff = cms.bool(False),
     numHistoTag     = cms.string("TrackCrossingTimeAllInBX"),

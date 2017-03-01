@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
@@ -24,4 +23,8 @@ globalSeedsFromTriplets = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHit
 # arbitrarily large D0 and generally exhibits a smaller fake rate:
 #     GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
     )
+)
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toModify(globalSeedsFromTriplets,
+    OrderedHitsFactoryPSet = dict(GeneratorPSet = dict(maxElement = 0)),
 )

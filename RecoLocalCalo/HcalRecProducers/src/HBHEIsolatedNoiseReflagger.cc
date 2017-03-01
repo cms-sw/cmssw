@@ -9,16 +9,19 @@ Original Author: John Paul Chou (Brown University)
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/HcalFrontEndMapRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 
 HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& iConfig) :
   
@@ -51,6 +54,8 @@ HBHEIsolatedNoiseReflagger::HBHEIsolatedNoiseReflagger(const edm::ParameterSet& 
   TightDiHitEne_(iConfig.getParameter<double>("TightDiHitEne")),
   LooseMonoHitEne_(iConfig.getParameter<double>("LooseMonoHitEne")),
   TightMonoHitEne_(iConfig.getParameter<double>("TightMonoHitEne")),
+
+  RBXEneThreshold_(iConfig.getParameter<double>("RBXEneThreshold")),
   
   debug_(iConfig.getUntrackedParameter<bool>("debug",true)),
   objvalidator_(iConfig)
@@ -78,8 +83,9 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   const EcalChannelStatus* dbEcalChStatus = ecalChStatus.product();
 
   // get the HCAL channel status map
+
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
-  evSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  evSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
 
   // get the severity level computers
@@ -93,8 +99,13 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
   // get the calotower mappings
   edm::ESHandle<CaloTowerConstituentsMap> ctcm;
-  evSetup.get<IdealGeometryRecord>().get(ctcm);
-  
+  evSetup.get<CaloGeometryRecord>().get(ctcm);
+
+  // get hcal frontend map
+  edm::ESHandle<HcalFrontEndMap> hfemapHndl;
+  evSetup.get<HcalFrontEndMapRcd>().get(hfemapHndl);
+  hfemap = hfemapHndl.product();
+
   // get the HB/HE hits
   edm::Handle<HBHERecHitCollection> hbhehits_h;
   iEvent.getByToken(tok_hbhe_, hbhehits_h);
@@ -119,7 +130,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
 
   // organizer the hits
   PhysicsTowerOrganizer pto(iEvent, evSetup, hbhehits_h, ebhits_h, eehits_h, trackextraps_h, objvalidator_, *(ctcm.product()));
-  HBHEHitMapOrganizer organizer(hbhehits_h, objvalidator_, pto);
+  HBHEHitMapOrganizer organizer(hbhehits_h, objvalidator_, pto, hfemap);
 
   // get the rbxs, hpds, dihits, and monohits
   std::vector<HBHEHitMap> rbxs;
@@ -153,8 +164,25 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=rbxs[i].hcalEnergySameTowers()+rbxs[i].hcalEnergyNeighborTowers();
     double isolecale=rbxs[i].ecalEnergySameTowers();
     double isoltrke=rbxs[i].trackEnergySameTowers()+rbxs[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && ((trkfide>LooseRBXEne1_ && nhits>=LooseRBXHits1_) || (trkfide>LooseRBXEne2_ && nhits>=LooseRBXHits2_))) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ((trkfide>TightRBXEne1_ && nhits>=TightRBXHits1_) || (trkfide>TightRBXEne2_ && nhits>=TightRBXHits2_)))) {
+    // 
+    // RBX mistag reduction
+    bool isLooseIso=false;
+    bool isTightIso=false;
+    if( ene>RBXEneThreshold_ && ene>0 ){// New absolute iso-cut for high energy RBX clusters
+      if( isolhcale<LooseHcalIsol_*RBXEneThreshold_ && isolecale<LooseEcalIsol_*RBXEneThreshold_ && isoltrke<LooseTrackIsol_*RBXEneThreshold_ )
+	isLooseIso=true; 
+      if( isolhcale<TightHcalIsol_*RBXEneThreshold_ && isolecale<TightEcalIsol_*RBXEneThreshold_ && isoltrke<TightTrackIsol_*RBXEneThreshold_ )
+	isTightIso=true;
+    }
+    if( ene<=RBXEneThreshold_ && ene>0 ){// Old relative iso-cut for low energy RBX clusters
+      if( isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ )
+	isLooseIso=true;
+      if( isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ )
+	isTightIso=true;
+    }
+    //
+    if((isLooseIso && ((trkfide>LooseRBXEne1_ && nhits>=LooseRBXHits1_) || (trkfide>LooseRBXEne2_ && nhits>=LooseRBXHits2_))) ||
+       (isTightIso && ((trkfide>TightRBXEne1_ && nhits>=TightRBXHits1_) || (trkfide>TightRBXEne2_ && nhits>=TightRBXHits2_)))) {
       for(HBHEHitMap::hitmap_const_iterator it=rbxs[i].beginHits(); it!=rbxs[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
@@ -168,8 +196,8 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=hpds[i].hcalEnergySameTowers()+hpds[i].hcalEnergyNeighborTowers();
     double isolecale=hpds[i].ecalEnergySameTowers();
     double isoltrke=hpds[i].trackEnergySameTowers()+hpds[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && ((trkfide>LooseHPDEne1_ && nhits>=LooseHPDHits1_) || (trkfide>LooseHPDEne2_ && nhits>=LooseHPDHits2_))) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ((trkfide>TightHPDEne1_ && nhits>=TightHPDHits1_) || (trkfide>TightHPDEne2_ && nhits>=TightHPDHits2_)))) {
+    if((ene>0 && isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && ((trkfide>LooseHPDEne1_ && nhits>=LooseHPDHits1_) || (trkfide>LooseHPDEne2_ && nhits>=LooseHPDHits2_))) ||
+       (ene>0 && isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ((trkfide>TightHPDEne1_ && nhits>=TightHPDHits1_) || (trkfide>TightHPDEne2_ && nhits>=TightHPDHits2_)))) {
       for(HBHEHitMap::hitmap_const_iterator it=hpds[i].beginHits(); it!=hpds[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
@@ -182,8 +210,8 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=dihits[i].hcalEnergySameTowers()+dihits[i].hcalEnergyNeighborTowers();
     double isolecale=dihits[i].ecalEnergySameTowers();
     double isoltrke=dihits[i].trackEnergySameTowers()+dihits[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseDiHitEne_) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightDiHitEne_)) {
+    if((ene>0 && isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseDiHitEne_) ||
+       (ene>0 && isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightDiHitEne_)) {
       for(HBHEHitMap::hitmap_const_iterator it=dihits[i].beginHits(); it!=dihits[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
@@ -196,8 +224,8 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     double isolhcale=monohits[i].hcalEnergySameTowers()+monohits[i].hcalEnergyNeighborTowers();
     double isolecale=monohits[i].ecalEnergySameTowers();
     double isoltrke=monohits[i].trackEnergySameTowers()+monohits[i].trackEnergyNeighborTowers();
-    if((isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseMonoHitEne_) ||
-       (isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightMonoHitEne_)) {
+    if((ene>0 && isolhcale/ene<LooseHcalIsol_ && isolecale/ene<LooseEcalIsol_ && isoltrke/ene<LooseTrackIsol_ && trkfide>0.99*ene && trkfide>LooseMonoHitEne_) ||
+       (ene>0 && isolhcale/ene<TightHcalIsol_ && isolecale/ene<TightEcalIsol_ && isoltrke/ene<TightTrackIsol_ && ene>TightMonoHitEne_)) {
       for(HBHEHitMap::hitmap_const_iterator it=monohits[i].beginHits(); it!=monohits[i].endHits(); ++it)
 	noisehits.insert(it->first);
       //      result=false;
@@ -205,7 +233,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
   }
 
   // prepare the output HBHE RecHit collection
-  std::auto_ptr<HBHERecHitCollection> pOut(new HBHERecHitCollection());
+  auto pOut = std::make_unique<HBHERecHitCollection>();
   // loop over rechits, and set the new bit you wish to use
   for(HBHERecHitCollection::const_iterator it=hbhehits_h->begin(); it!=hbhehits_h->end(); ++it) {
     const HBHERecHit* hit=&(*it);
@@ -216,7 +244,7 @@ HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSetup& e
     pOut->push_back(newhit);
   }
 
-  iEvent.put(pOut);
+  iEvent.put(std::move(pOut));
 
   return;  
 }
@@ -234,9 +262,10 @@ void HBHEIsolatedNoiseReflagger::DumpHBHEHitMap(std::vector<HBHEHitMap>& i) cons
         edm::LogInfo("HBHEIsolatedNoiseReflagger") << "hits:" << std::endl;
         for(HBHEHitMap::hitmap_const_iterator it2=it->beginHits(); it2!=it->endHits(); ++it2) {
           const HBHERecHit *hit=it2->first;
-            edm::LogInfo("HBHEIsolatedNoiseReflagger") << "RBX #=" << HcalHPDRBXMap::indexRBX(hit->id())
-                      << "; HPD #=" << HcalHPDRBXMap::indexHPD(hit->id())
-                      << "; " << (*hit) << std::endl;
+            edm::LogInfo("HBHEIsolatedNoiseReflagger") 
+	      << "RBX #=" << hfemap->lookupRBX(hit->id())
+	      << "; HPD #=" << hfemap->lookupRMIndex(hit->id())
+	      << "; " << (*hit) << std::endl;
         }
   }
   return;

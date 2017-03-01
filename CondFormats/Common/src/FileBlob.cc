@@ -65,9 +65,9 @@ void FileBlob::write(std::ostream & os) const {
       edm::LogError("FileBlob")<< "uncompressing error " << zerr
                                    << " original size was " << isize
                                    << " new size is " << destLen;
-    os.write((const char *)(&*out.begin()),out.size());
+    os.write(reinterpret_cast<const char *>(&*out.begin()),out.size());
   }else{
-    os.write((char *)&*blob.begin(),blob.size());
+    os.write(reinterpret_cast<const char *>(&*blob.begin()),blob.size());
   }
 }
 

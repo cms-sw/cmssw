@@ -33,7 +33,7 @@ DTGeometryBuilderFromDDD::DTGeometryBuilderFromDDD() {}
 DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD(){}
 
 
-void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
+void DTGeometryBuilderFromDDD::build(std::shared_ptr<DTGeometry> theGeometry,
                                      const DDCompactView* cview,
                                      const MuonDDDConstants& muonConstants){
   //  cout << "DTGeometryBuilderFromDDD::build" << endl;
@@ -47,8 +47,8 @@ void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
   // Asking only for the Muon DTs
   DDSpecificsFilter filter;
   filter.setCriteria(val,  // name & value of a variable 
-		     DDSpecificsFilter::matches,
-		     DDSpecificsFilter::AND, 
+		     DDCompOp::matches,
+		     DDLogOp::AND, 
 		     true, // compare strings otherwise doubles
 		     true  // use merged-specifics or simple-specifics
 		     );
@@ -58,7 +58,7 @@ void DTGeometryBuilderFromDDD::build(boost::shared_ptr<DTGeometry> theGeometry,
 }
 
 
-void DTGeometryBuilderFromDDD::buildGeometry(boost::shared_ptr<DTGeometry> theGeometry,
+void DTGeometryBuilderFromDDD::buildGeometry(std::shared_ptr<DTGeometry> theGeometry,
                                              DDFilteredView& fv,
                                              const MuonDDDConstants& muonConstants) const {
   // static const string t0 = "DTGeometryBuilderFromDDD::buildGeometry";

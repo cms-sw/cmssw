@@ -16,7 +16,11 @@
   RPC3  BXN     Pads[15:8]
 */
 
+#ifdef LOCAL_UNPACK
 bool CSCRPCData::debug = false;
+#else
+std::atomic<bool> CSCRPCData::debug{false};
+#endif
 
 CSCRPCData::CSCRPCData(int ntbins) 
   : ntbins_(ntbins), size_( 0 )

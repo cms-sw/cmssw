@@ -7,9 +7,9 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
-CSCWireHitSim::CSCWireHitSim(CSCDriftSim* driftSim) 
+CSCWireHitSim::CSCWireHitSim(CSCDriftSim* driftSim, const edm::ParameterSet & p) 
 : theDriftSim(driftSim),
-  theGasIonizer( new CSCGasCollisions() ) ,
+  theGasIonizer( new CSCGasCollisions( p ) ) ,
   theNewWireHits()
 {
 }

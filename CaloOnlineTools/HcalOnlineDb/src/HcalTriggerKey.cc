@@ -14,6 +14,8 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
+XERCES_CPP_NAMESPACE_USE 
+
 HcalTriggerKey::HcalTriggerKey( void )
 {
   _root = 0;

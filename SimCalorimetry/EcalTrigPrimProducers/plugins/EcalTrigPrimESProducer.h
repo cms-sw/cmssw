@@ -52,22 +52,22 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   EcalTrigPrimESProducer(const edm::ParameterSet&);
   ~EcalTrigPrimESProducer();
 
-  std::auto_ptr<EcalTPGPedestals> producePedestals(const EcalTPGPedestalsRcd &) ;
-  std::auto_ptr<EcalTPGLinearizationConst> produceLinearizationConst(const EcalTPGLinearizationConstRcd &) ;
-  std::auto_ptr<EcalTPGSlidingWindow> produceSlidingWindow(const EcalTPGSlidingWindowRcd &) ;
-  std::auto_ptr<EcalTPGFineGrainEBIdMap> produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd &) ;
-  std::auto_ptr<EcalTPGFineGrainStripEE> produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd &) ;
-  std::auto_ptr<EcalTPGFineGrainTowerEE> produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd &) ;
-  std::auto_ptr<EcalTPGLutIdMap> produceLUT(const EcalTPGLutIdMapRcd &) ;
-  std::auto_ptr<EcalTPGWeightIdMap> produceWeight(const EcalTPGWeightIdMapRcd &) ;
-  std::auto_ptr<EcalTPGWeightGroup> produceWeightGroup(const EcalTPGWeightGroupRcd &) ;
-  std::auto_ptr<EcalTPGLutGroup> produceLutGroup(const EcalTPGLutGroupRcd &) ;
-  std::auto_ptr<EcalTPGFineGrainEBGroup> produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd &) ;
-  std::auto_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &) ;
-  std::auto_ptr<EcalTPGCrystalStatus> produceBadX(const EcalTPGCrystalStatusRcd &) ;
-  std::auto_ptr<EcalTPGStripStatus> produceBadStrip(const EcalTPGStripStatusRcd &) ;
-  std::auto_ptr<EcalTPGTowerStatus> produceBadTT(const EcalTPGTowerStatusRcd &) ;
-  std::auto_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
+  std::unique_ptr<EcalTPGPedestals> producePedestals(const EcalTPGPedestalsRcd &) ;
+  std::unique_ptr<EcalTPGLinearizationConst> produceLinearizationConst(const EcalTPGLinearizationConstRcd &) ;
+  std::unique_ptr<EcalTPGSlidingWindow> produceSlidingWindow(const EcalTPGSlidingWindowRcd &) ;
+  std::unique_ptr<EcalTPGFineGrainEBIdMap> produceFineGrainEB(const EcalTPGFineGrainEBIdMapRcd &) ;
+  std::unique_ptr<EcalTPGFineGrainStripEE> produceFineGrainEEstrip(const EcalTPGFineGrainStripEERcd &) ;
+  std::unique_ptr<EcalTPGFineGrainTowerEE> produceFineGrainEEtower(const EcalTPGFineGrainTowerEERcd &) ;
+  std::unique_ptr<EcalTPGLutIdMap> produceLUT(const EcalTPGLutIdMapRcd &) ;
+  std::unique_ptr<EcalTPGWeightIdMap> produceWeight(const EcalTPGWeightIdMapRcd &) ;
+  std::unique_ptr<EcalTPGWeightGroup> produceWeightGroup(const EcalTPGWeightGroupRcd &) ;
+  std::unique_ptr<EcalTPGLutGroup> produceLutGroup(const EcalTPGLutGroupRcd &) ;
+  std::unique_ptr<EcalTPGFineGrainEBGroup> produceFineGrainEBGroup(const EcalTPGFineGrainEBGroupRcd &) ;
+  std::unique_ptr<EcalTPGPhysicsConst> producePhysicsConst(const EcalTPGPhysicsConstRcd &) ;
+  std::unique_ptr<EcalTPGCrystalStatus> produceBadX(const EcalTPGCrystalStatusRcd &) ;
+  std::unique_ptr<EcalTPGStripStatus> produceBadStrip(const EcalTPGStripStatusRcd &) ;
+  std::unique_ptr<EcalTPGTowerStatus> produceBadTT(const EcalTPGTowerStatusRcd &) ;
+  std::unique_ptr<EcalTPGSpike> produceSpike(const EcalTPGSpikeRcd &) ;
 
  private:
 

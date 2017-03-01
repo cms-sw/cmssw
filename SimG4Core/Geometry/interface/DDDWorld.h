@@ -14,6 +14,7 @@ public:
 	   SensitiveDetectorCatalog &, bool check=false);
   ~DDDWorld();
   static void SetAsWorld(G4VPhysicalVolume * pv);
+  static void WorkerSetAsWorld(G4VPhysicalVolume * pv);
   const G4VPhysicalVolume * GetWorldVolume() const { return m_world; }
 
   // In order to share the world volume with the worker threads, we

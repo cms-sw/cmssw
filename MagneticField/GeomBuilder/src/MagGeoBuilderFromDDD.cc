@@ -196,7 +196,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
     volumeHandle* v = new volumeHandle(fv, expand);
 
-    if (theGridFiles.get()) {
+    if (theGridFiles!=0) {
       int key = (v->volumeno)*100+v->copyno;
       TableFileMap::const_iterator itable = theGridFiles->find(key);
       if (itable == theGridFiles->end()) {
@@ -346,13 +346,34 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   //Sort in phi
   precomputed_value_sort(eVolumes.begin(), eVolumes.end(), ExtractPhi());
+  
+  // Handle the -pi/pi boundary: volumes crossing it could be half at the begin and half at end of the sorted list. 
+  // So, check if any of the volumes that should belong to the first bin (at -phi) are at the end of the list:
+  float lastBinPhi = phiClust.back();
+  handles::reverse_iterator ri = eVolumes.rbegin();
+  while ((*ri)->center().phi()>lastBinPhi) {++ri;}
+  if (ri!=eVolumes.rbegin()) {
+    // ri points to the first element that is within the last bin.
+    // We need to move the following element (ie ri.base()) to the beginning of the list,
+    handles::iterator newbeg = ri.base();
+    rotate(eVolumes.begin(),newbeg, eVolumes.end());
+  }  
 
   //Group volumes in sectors
+  int offset = eVolumes.size()/nESectors;
   for (int i = 0; i<nESectors; ++i) {
-    int offset = eVolumes.size()/nESectors;
-    if (debug) cout << " Sector at phi = "
-		    << (*(eVolumes.begin()+((i)*offset)))->center().phi()
-		    << endl;
+    if (debug) {
+      cout << " Sector at phi = "
+	   << (*(eVolumes.begin()+((i)*offset)))->center().phi()
+	   << endl;
+      // Additional x-check: sectors are expected to be made by volumes with the same copyno
+      int secCopyNo = -1;
+      for (handles::const_iterator iv=eVolumes.begin()+((i)*offset); iv!=eVolumes.begin()+((i+1)*offset); ++iv){
+	if (secCopyNo>=0&& (*iv)->copyno!=secCopyNo) cout << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno << " differs from others in same sectors " << secCopyNo << endl;
+	secCopyNo = (*iv)->copyno;
+      }
+    }
+
     sectors.push_back(eSector(eVolumes.begin()+((i)*offset),
 			      eVolumes.begin()+((i+1)*offset)));
   }
@@ -497,6 +518,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	 << " at " << vol->center()
 	 << " phi: " << vol->center().phi()
 	 << " file: " << vol->magFile
+	 << " master : " << vol->masterSector
 	 << endl;
 
     if ( fabs(vol->center().phi() - masterSectorPhi) > Geom::pi()/9.) {
@@ -608,8 +630,8 @@ void MagGeoBuilderFromDDD::testInside(handles & volumes) {
       if ((*i)==(*vol)) continue;
       //if ((*i)->magVolume == 0) continue;
       if ((*i)->magVolume->inside((*vol)->center())) {
-	cout << "*** ERROR: center of V " << (*vol)->volumeno << " is inside V " 
-	     << (*i)->volumeno <<endl;
+	cout << "*** ERROR: center of V " << (*vol)->volumeno << ":" << (*vol)->copyno << " is inside V " 
+	     << (*i)->volumeno << ":" << (*i)->copyno << endl;
       }
     }
     
@@ -677,8 +699,8 @@ void MagGeoBuilderFromDDD::setScaling(const std::vector<int>& keys,
 }
 
 
-void MagGeoBuilderFromDDD::setGridFiles(auto_ptr<TableFileMap> gridFiles){
-  theGridFiles=gridFiles;
+void MagGeoBuilderFromDDD::setGridFiles(const TableFileMap& gridFiles){
+  theGridFiles=&gridFiles;
 }
 
 

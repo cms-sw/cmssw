@@ -69,7 +69,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
   int layersIn = 0; 
   int nGoodHits=0;
   for(vector<InfoLayer*>::const_iterator ilay =  theInfoLayers.begin();
-      ilay != theInfoLayers.end(); ilay++) {
+      ilay != theInfoLayers.end(); ++ilay) {
     if ((*ilay) == 0 ) {
       theSegType+= "X";
       continue;
@@ -367,12 +367,12 @@ const DTTMax::TMax* DTTMax::getTMax(TMaxCells cCase){
 /* Destructor */ 
 DTTMax::~DTTMax(){
   for (vector<InfoLayer*>::const_iterator ilay = theInfoLayers.begin();
-       ilay != theInfoLayers.end(); ilay++) {
+       ilay != theInfoLayers.end(); ++ilay) {
     delete (*ilay);
   }
 
   for (vector<TMax*>::const_iterator iTmax = theTMaxes.begin();
-       iTmax != theTMaxes.end(); iTmax++) {
+       iTmax != theTMaxes.end(); ++iTmax) {
     delete (*iTmax);
   }
 }

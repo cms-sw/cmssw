@@ -16,7 +16,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -34,7 +34,8 @@ using namespace std;
 using namespace edm;
 
 SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), 
-									    ttree_track_hits_(0), ttree_track_hits_strip_(0) 
+									    ttree_track_hits_(0), ttree_track_hits_strip_(0),
+									    trackerHitAssociatorConfig_(consumesCollector())
 {
   //Read config file
   outputFile_ = ps.getUntrackedParameter<string>( "outputFile", "SiPixelErrorEstimation_Ntuple.root" );
@@ -372,7 +373,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   using namespace edm;
@@ -391,7 +392,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   float mindist = 999999.9;
 
   std::vector<PSimHit> matched;
-  TrackerHitAssociator associate(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -696,11 +697,11 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      //strip_clst_err_y = ... 
 
 	      // Get cluster total charge
-	      const std::vector<uint8_t>& stripCharges = cluster->amplitudes();
+	      const auto & stripCharges = cluster->amplitudes();
 	      uint16_t charge = 0;
 	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
 		{
-		  charge += stripCharges.at(i);
+		  charge += stripCharges[i];
 		}
 	      
 	      strip_charge = (float)charge;
@@ -832,11 +833,11 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      //strip_clst_err_y = ... 
 
 	      // Get cluster total charge
-	      const std::vector<uint8_t>& stripCharges = cluster->amplitudes();
+	      auto & stripCharges = cluster->amplitudes();
 	      uint16_t charge = 0;
 	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
 		{
-		  charge += stripCharges.at(i);
+		  charge += stripCharges[i];
 		}
 	      
 	      strip_charge = (float)charge;

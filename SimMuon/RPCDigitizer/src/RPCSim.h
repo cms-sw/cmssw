@@ -58,6 +58,7 @@ class RPCSim
 
  protected:
   std::set< std::pair<int,int> > strips;
+  std::set<RPCDigi> irpc_digis;
 
   //--------NEW---------------------
 

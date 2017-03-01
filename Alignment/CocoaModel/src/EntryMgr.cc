@@ -63,7 +63,7 @@ EntryData* EntryMgr::findEntryByShortName( const ALIstring& optoName, const ALIs
 
   int icount = 0;
   std::vector<EntryData*>::iterator ite;
-  for( ite = theEntryData.begin(); ite != theEntryData.end(); ite++ ) {
+  for( ite = theEntryData.begin(); ite != theEntryData.end(); ++ite ) {
     if( (*ite)->shortOptOName() == extractShortName(optoName) && 
 	( (*ite)->entryName() == entryName || entryName  == "" ) ) {
       if( icount == 0 ) data = (*ite);
@@ -87,7 +87,7 @@ EntryData* EntryMgr::findEntryByLongName( const ALIstring& optoName, const ALIst
   int icount = 0;
   std::vector<EntryData*>::iterator ite;
   if(ALIUtils::debug >= 6) std::cout << " findEntryByLongName theEntryData size = " << theEntryData.size() << std::endl;
-  for( ite = theEntryData.begin(); ite != theEntryData.end(); ite++ ) {
+  for( ite = theEntryData.begin(); ite != theEntryData.end(); ++ite ) {
     if( (*ite)->longOptOName() == optoName && 
 	( (*ite)->entryName() == entryName || entryName == "" ) ) {
     //-    if( (*ite)->longOptOName() == optoName ) {

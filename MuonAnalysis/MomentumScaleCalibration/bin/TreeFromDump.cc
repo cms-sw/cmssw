@@ -11,7 +11,7 @@
 #include <TFile.h>
 #include <TSystem.h>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
 
 /**
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   
   // MuonPairVector pairVector;
   std::vector<MuonPair> pairVector;
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 	ss >> value[i];
 	// std::cout << "value["<<i<<"] = " << value[i] << std::endl;
       }
-      pairVector.push_back(MuonPair(fromPtEtaPhiToPxPyPz(value), fromPtEtaPhiToPxPyPz(&(value[3])), MuScleFitEvent(0,0,0,0,0)) );
+      pairVector.push_back(MuonPair(fromPtEtaPhiToPxPyPz(value), fromPtEtaPhiToPxPyPz(&(value[3])), MuScleFitEvent(0,0,0,0,0,0)) );
       if( genInfo ) {
 	for( int i=0; i<6; ++i ) {
 	  ss >> genValue[i];

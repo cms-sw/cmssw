@@ -55,7 +55,7 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   protected:
-    void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:
@@ -79,9 +79,12 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
 
     EDGetTokenT<TriggerEventWithRefs>  triggerSummaryRAWTag;
     EDGetTokenT<TriggerEvent>          triggerSummaryAODTag;
-    EDGetTokenT<TriggerResults>        triggerResultsTag;
-    EDGetTokenT<MuonCollection>        recoMuonsTag;
-    EDGetTokenT<GenParticleCollection> genParticlesTag;
+    InputTag                           triggerResultsTag;
+    EDGetTokenT<TriggerResults>        triggerResultsToken;
+    InputTag                           recoMuonsTag;
+    EDGetTokenT<MuonCollection>        recoMuonsToken;
+    InputTag                           genParticlesTag;
+    EDGetTokenT<GenParticleCollection> genParticlesToken;
 
     vector<int> motherIDs;
     double genGlobDeltaRMatchingCut;
@@ -124,9 +127,12 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
 {
   triggerSummaryRAWTag = consumes<TriggerEventWithRefs>(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName));
   triggerSummaryAODTag = consumes<TriggerEvent>(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName));
-  triggerResultsTag = consumes<TriggerResults>(InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName));
-  recoMuonsTag = consumes<MuonCollection>(pset.getParameter<InputTag>("RecoMuons"));
-  genParticlesTag = consumes<GenParticleCollection>(pset.getParameter<InputTag>("GenParticles"));
+  triggerResultsTag = InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName);
+  triggerResultsToken = consumes<TriggerResults>(triggerResultsTag);
+  recoMuonsTag = pset.getParameter<InputTag>("RecoMuons");
+  recoMuonsToken = consumes<MuonCollection>(recoMuonsTag);
+  genParticlesTag = pset.getParameter<InputTag>("GenParticles");
+  genParticlesToken = consumes<GenParticleCollection>(genParticlesTag);
 }
 
 void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup & iSetup ) {
@@ -147,16 +153,22 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 			vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
 			for( size_t j = 0; j < moduleNames.size(); j++) {
 				TString name = moduleNames[j];
-				if(name.Contains("Filter")){
+                                // MK 2016-12-09: added requirement for the module EDM type to be
+                                // EDFilter, as without it the name check can match also any EDProducer
+                                // (and would be fragile; ok I think it is still fragile, but the added
+                                // check allows PR #16792 to go forward)
+				if(name.Contains("Filter") && hltConfig.moduleEDMType(moduleNames[j]) == "EDFilter"){
 					int level = 0;
 					if(name.Contains("L1"))
 						level = 1;
-					else if(name.Contains("L2"))
+					if(name.Contains("L2"))
 						level = 2;
-					else if(name.Contains("L3"))
+					if(name.Contains("L3"))
 						level = 3;
-					else if(name.Contains("mumuFilter") || name.Contains("JpsiTrackMass"))
+					if(name.Contains("mumuFilter") || name.Contains("DiMuon") || name.Contains("MuonL3Filtered") || name.Contains("TrackMassFiltered"))
 						level = 4;
+					if(name.Contains("Vertex") || name.Contains("Dz"))
+						level = 5;
 					filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
 					os<<" "<<moduleNames[j];
 				}
@@ -274,13 +286,13 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if(filterNamesLevels.size()==0){
+  if(filterNamesLevels.size()==0){ 
     return;
-  }
+  } 
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
-  iEvent.getByToken(genParticlesTag, genParticles);
+  iEvent.getByToken(genParticlesToken, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
       if( p->status() == 1 && std::abs(p->pdgId())==13 && 
@@ -298,7 +310,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   vector<LeafCandidate> globMuons;
   vector<LeafCandidate> globMuons_position;
   Handle<MuonCollection> recoMuonsHandle;
-  iEvent.getByToken(recoMuonsTag, recoMuonsHandle);
+  iEvent.getByToken(recoMuonsToken, recoMuonsHandle);
   if(recoMuonsHandle.isValid()){
     for(MuonCollection::const_iterator p=recoMuonsHandle->begin(); p!= recoMuonsHandle->end(); ++p){
       if(p->isGlobalMuon()){
@@ -372,7 +384,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 // access Trigger Results
   bool triggerFired = false;
   Handle<TriggerResults> triggerResults;
-  iEvent.getByToken(triggerResultsTag,triggerResults);
+  iEvent.getByToken(triggerResultsToken,triggerResults);
   if(triggerResults.isValid()){
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Successfully initialized "<<triggerResultsTag<<endl;
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
@@ -402,7 +414,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonPositionsAtFilter[i] ,globL2DeltaRMatchingCut, filt_glob[i] );
-    }else if( filterNamesLevels[i].second == 3 || filterNamesLevels[i].second == 4){
+    }else if( filterNamesLevels[i].second > 2){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons, muonsAtFilter[i] ,globL3DeltaRMatchingCut, filt_glob[i] );
     }
   }
@@ -411,7 +423,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons_position, pathMuons ,globL1DeltaRMatchingCut, path_glob );
   }else if( (filterNamesLevels.end()-1)->second == 2 ){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL2DeltaRMatchingCut, path_glob );
-  }else if( (filterNamesLevels.end()-1)->second == 3 || (filterNamesLevels.end()-1)->second == 4){
+  }else if( (filterNamesLevels.end()-1)->second > 2){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL3DeltaRMatchingCut, path_glob );
   }
     

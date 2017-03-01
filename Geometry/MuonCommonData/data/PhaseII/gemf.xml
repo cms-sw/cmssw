@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="gemf.xml" eval="true">
+  <Constant name="Tilt"       value="2.5*deg"/>
+</ConstantsSection>
+
+<MaterialSection label="gemf.xml">
+  <CompositeMaterial name="M_Rdout_Brd" density="1.79*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.98667">
+    <rMaterial name="materials:G10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01333">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_Kapton_Cu" density="1.24*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9836">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0164">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Gas" density="1.8*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.60">
+    <rMaterial name="materials:Argon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.083">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.145">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.172">
+    <rMaterial name="materials:Fluorine"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Foil" density="1.74*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.6565">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1013">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2422">
+    <rMaterial name="gemf:M_GEM_Gas"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_Hybrid" density="1.050*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.91512109">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.084878906">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+
+<RotationSection label="gemf.xml">
+  <Rotation name="M10D" thetaX="(90*deg-[Tilt])" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="-[Tilt]" phiZ="0*deg"/>
+  <Rotation name="P10D" thetaX="(90*deg+[Tilt])" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="[Tilt]" phiZ="0*deg"/>
+  <Rotation name="90XD" thetaX="90*deg" phiX="90*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="0*deg"/>
+</RotationSection>
+
+</DDDefinition>

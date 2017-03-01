@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ##____________________________________________________________________________||
 tcMet = cms.EDProducer(
     "TCMETProducer",
-    alias = cms.string('TCMET'),
+    alias = cms.string('tcMet'),
     electronVetoCone = cms.bool(True),
     electronInputTag  = cms.InputTag("gedGsfElectrons"),
     muonInputTag      = cms.InputTag("muons"),
@@ -20,7 +20,7 @@ tcMet = cms.EDProducer(
     nhits_min = cms.double(6),
     ptErr_max = cms.double(0.2),
     track_quality = cms.vint32(2),
-    track_algos = cms.vint32(),
+    track_algos = cms.vstring(),
     isCosmics = cms.bool(False),
     rf_type = cms.int32(1),
     correctShowerTracks = cms.bool(False),
@@ -43,7 +43,7 @@ tcMet = cms.EDProducer(
     eVetoDeltaCotTheta = cms.double(100.0),
     eVetoMinElectronPt = cms.double(10.0),
     hOverECut = cms.double(0.1),
-    maxTrackAlgo = cms.int32(8),
+    trackAlgos = cms.vstring("undefAlgorithm", "ctf", "rs", "cosmics", "initialStep", "lowPtTripletStep", "pixelPairStep", "detachedTripletStep"),
     nLayers = cms.int32(0),
     nLayersTight = cms.int32(0),
     vertexNdof = cms.int32(4),
@@ -58,13 +58,13 @@ tcMet = cms.EDProducer(
     dupDCotTh = cms.double(0.0006),
     PFClustersECAL = cms.InputTag("particleFlowClusterECAL"),
     PFClustersHCAL = cms.InputTag("particleFlowClusterHCAL"),
-    PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),
-    PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
+    PFClustersHF = cms.InputTag("particleFlowClusterHF"),
     usePFClusters = cms.bool(False)
     )
 
 ##____________________________________________________________________________||
 tcMetWithPFclusters = tcMet.clone()
+tcMetWithPFclusters.alias = cms.string('tcMetWithPFclusters')
 tcMetWithPFclusters.usePFClusters = cms.bool(True)
 
 ##____________________________________________________________________________||

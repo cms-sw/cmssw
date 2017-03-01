@@ -1,8 +1,6 @@
 <use   name="clhep"/>
 <use   name="root"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/Records"/>
@@ -14,6 +12,5 @@
 <use   name="Alignment/CocoaFit"/>
 <use   name="meschach"/>
 <use   name="Alignment/CocoaDaq"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <flags   EDM_PLUGIN="1"/>

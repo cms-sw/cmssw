@@ -18,24 +18,24 @@ namespace edm {
   }
 
   IfExistsDescription::
-  IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+  IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                       ParameterDescriptionNode const& node_right) :
-    node_left_(node_left),
+    node_left_(std::move(node_left)),
     node_right_(node_right.clone()) {
   }
 
   IfExistsDescription::
   IfExistsDescription(ParameterDescriptionNode const& node_left,
-                      std::auto_ptr<ParameterDescriptionNode> node_right) :
+                      std::unique_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left.clone()),
-    node_right_(node_right) {
+    node_right_(std::move(node_right)) {
   }
 
   IfExistsDescription::
-  IfExistsDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                      std::auto_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(node_left),
-    node_right_(node_right) {
+  IfExistsDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                      std::unique_ptr<ParameterDescriptionNode> node_right) :
+    node_left_(std::move(node_left)),
+    node_right_(std::move(node_right)) {
   }
 
   void
@@ -109,7 +109,7 @@ namespace edm {
   print_(std::ostream & os,
          bool optional,
          bool writeToCfi,
-         DocFormatHelper & dfh) {
+         DocFormatHelper & dfh) const {
 
     if (dfh.pass() == 1) {
 
@@ -154,7 +154,7 @@ namespace edm {
   IfExistsDescription::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
 
     int indentation = dfh.indentation();
     if (dfh.parent() != DocFormatHelper::TOP) {

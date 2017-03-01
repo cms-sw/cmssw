@@ -19,8 +19,8 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
 
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
-  _SingleMuonEventFlag     = new GenericTriggerEventFlag( muonparms, consumesCollector() );
-  _DoubleMuonEventFlag     = new GenericTriggerEventFlag( dimuonparms, consumesCollector() );
+  _SingleMuonEventFlag     = new GenericTriggerEventFlag( muonparms, consumesCollector(), *this );
+  _DoubleMuonEventFlag     = new GenericTriggerEventFlag( dimuonparms, consumesCollector(), *this );
 
   // Trigger Expresions in case de connection to the DB fails
   singlemuonExpr_          = muonparms.getParameter<std::vector<std::string> >("hltPaths");
@@ -46,6 +46,7 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
   phiMax = parameters.getParameter<double>("phiMax");
 }
 MuonRecoOneHLT::~MuonRecoOneHLT() {
+  delete theService;
   delete _SingleMuonEventFlag;
   delete _DoubleMuonEventFlag;
 }
@@ -149,7 +150,7 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     iEvent.getByToken(theBeamSpotLabel_,recoBeamSpotHandle);
-    reco::BeamSpot bs = *recoBeamSpotHandle;
+    const reco::BeamSpot& bs = *recoBeamSpotHandle;
 
     posVtx = bs.position();
     errVtx(0,0) = bs.BeamWidthX();
@@ -172,12 +173,12 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(!muons.isValid()) return;
 
   //  Pick the leading lepton.
-  std::map<float,reco::Muon> muonMap;
+  std::map<float,const reco::Muon*> muonMap;
   for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
-    muonMap[recoMu->pt()] = *recoMu;
+    muonMap[recoMu->pt()] = &*recoMu;
   }
-  std::vector<reco::Muon> LeadingMuon;
-  for( std::map<float,reco::Muon>::reverse_iterator rit=muonMap.rbegin(); rit!=muonMap.rend(); ++rit){
+  std::vector<const reco::Muon*> LeadingMuon;
+  for( std::map<float,const reco::Muon*>::reverse_iterator rit=muonMap.rbegin(); rit!=muonMap.rend(); ++rit){
     LeadingMuon.push_back( (*rit).second );
   }
 
@@ -201,19 +202,19 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //  if (_MuonEventFlag->on() && !(_MuonEventFlag->accept(iEvent,iSetup))) return;
 
   // Check if Muon is Global
-  if(LeadingMuon[0].isGlobalMuon()) {
+  if((*LeadingMuon[0]).isGlobalMuon()) {
     LogTrace(metname)<<"[MuonRecoOneHLT] The mu is global - filling the histos";
-    if(LeadingMuon[0].isTrackerMuon() && LeadingMuon[0].isStandAloneMuon())          muReco->Fill(1);
-    if(!(LeadingMuon[0].isTrackerMuon()) && LeadingMuon[0].isStandAloneMuon())       muReco->Fill(2);
-    if(!LeadingMuon[0].isStandAloneMuon())
+    if((*LeadingMuon[0]).isTrackerMuon() && (*LeadingMuon[0]).isStandAloneMuon())          muReco->Fill(1);
+    if(!((*LeadingMuon[0]).isTrackerMuon()) && (*LeadingMuon[0]).isStandAloneMuon())       muReco->Fill(2);
+    if(!(*LeadingMuon[0]).isStandAloneMuon())
       LogTrace(metname)<<"[MuonRecoOneHLT] ERROR: the mu is global but not standalone!";
 
     // get the track combinig the information from both the Tracker and the Spectrometer
-    reco::TrackRef recoCombinedGlbTrack = LeadingMuon[0].combinedMuon();
+    reco::TrackRef recoCombinedGlbTrack = (*LeadingMuon[0]).combinedMuon();
     // get the track using only the tracker data
-    reco::TrackRef recoTkGlbTrack = LeadingMuon[0].track();
+    reco::TrackRef recoTkGlbTrack = (*LeadingMuon[0]).track();
     // get the track using only the mu spectrometer data
-    reco::TrackRef recoStaGlbTrack = LeadingMuon[0].standAloneMuon();
+    reco::TrackRef recoStaGlbTrack = (*LeadingMuon[0]).standAloneMuon();
 
     etaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta());
     etaGlbTrack[1]->Fill(recoTkGlbTrack->eta());
@@ -232,11 +233,11 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ptGlbTrack[2]->Fill(recoStaGlbTrack->pt());
   }
   // Check if Muon is Tight
-  if (muon::isTightMuon(LeadingMuon[0], vtx) ) {
+  if (muon::isTightMuon((*LeadingMuon[0]), vtx) ) {
 
     LogTrace(metname)<<"[MuonRecoOneHLT] The mu is tracker only - filling the histos";
 
-    reco::TrackRef recoCombinedGlbTrack = LeadingMuon[0].combinedMuon();
+    reco::TrackRef recoCombinedGlbTrack = (*LeadingMuon[0]).combinedMuon();
 
     etaTight->Fill(recoCombinedGlbTrack->eta());
     phiTight->Fill(recoCombinedGlbTrack->phi());
@@ -245,13 +246,13 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Check if Muon is Tracker but NOT Global
-  if(LeadingMuon[0].isTrackerMuon() && !(LeadingMuon[0].isGlobalMuon())) {
+  if((*LeadingMuon[0]).isTrackerMuon() && !((*LeadingMuon[0]).isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoOneHLT] The mu is tracker only - filling the histos";
-    if(LeadingMuon[0].isStandAloneMuon())          muReco->Fill(3);
-    if(!(LeadingMuon[0].isStandAloneMuon()))        muReco->Fill(4);
+    if((*LeadingMuon[0]).isStandAloneMuon())          muReco->Fill(3);
+    if(!((*LeadingMuon[0]).isStandAloneMuon()))        muReco->Fill(4);
 
     // get the track using only the tracker data
-    reco::TrackRef recoTrack = LeadingMuon[0].track();
+    reco::TrackRef recoTrack = (*LeadingMuon[0]).track();
 
     etaTrack->Fill(recoTrack->eta());
     phiTrack->Fill(recoTrack->phi());
@@ -260,12 +261,12 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Check if Muon is STA but NOT Global
-  if(LeadingMuon[0].isStandAloneMuon() && !(LeadingMuon[0].isGlobalMuon())) {
+  if((*LeadingMuon[0]).isStandAloneMuon() && !((*LeadingMuon[0]).isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoOneHLT] The mu is STA only - filling the histos";
-    if(!(LeadingMuon[0].isTrackerMuon()))         muReco->Fill(5);
+    if(!((*LeadingMuon[0]).isTrackerMuon()))         muReco->Fill(5);
 
     // get the track using only the mu spectrometer data
-    reco::TrackRef recoStaTrack = LeadingMuon[0].standAloneMuon();
+    reco::TrackRef recoStaTrack = (*LeadingMuon[0]).standAloneMuon();
 
     etaStaTrack->Fill(recoStaTrack->eta());
     phiStaTrack->Fill(recoStaTrack->phi());
@@ -273,6 +274,6 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     ptStaTrack->Fill(recoStaTrack->pt());
   }
   // Check if Muon is Only CaloMuon
-  if(LeadingMuon[0].isCaloMuon() && !(LeadingMuon[0].isGlobalMuon()) && !(LeadingMuon[0].isTrackerMuon()) && !(LeadingMuon[0].isStandAloneMuon()))
+  if((*LeadingMuon[0]).isCaloMuon() && !((*LeadingMuon[0]).isGlobalMuon()) && !((*LeadingMuon[0]).isTrackerMuon()) && !((*LeadingMuon[0]).isStandAloneMuon()))
     muReco->Fill(6);
 }

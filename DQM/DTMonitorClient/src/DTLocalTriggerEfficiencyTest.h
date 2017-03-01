@@ -7,6 +7,9 @@
  *  DQM Test Client
  *
  *  \author  C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 
@@ -29,7 +32,7 @@ public:
 protected:
 
   /// Book the new MEs (for each chamber)
-  void bookChambHistos(DTChamberId chambId, std::string htype );
+  void bookChambHistos(DQMStore::IBooker &, DTChamberId chambId, std::string htype );
 
   /// Compute efficiency plots
   void makeEfficiencyME(TH1D* numerator, TH1D* denominator, MonitorElement* result);
@@ -40,15 +43,18 @@ protected:
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
+
   /// DQM Client Diagnostic
-  void runClientDiagnostic();
 
-
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:
 
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
   DTTrigGeomUtils *trigGeomUtils;
+
+  bool bookingdone;
 
 };
 

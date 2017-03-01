@@ -76,7 +76,7 @@ class TMatacq: public TObject
   double getWidth80() {return width80;}
   double getSlide() {return slidingmean;}
 
-  //  ClassDef(TMatacq,1)
+  ClassDef(TMatacq,0)
 };
 
 #endif

@@ -54,7 +54,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //class MuonIdVal : public edm::EDAnalyzer {
-class MuonIdVal : public thread_unsafe::DQMEDAnalyzer {
+class MuonIdVal : public DQMEDAnalyzer {
    public:
       explicit MuonIdVal(const edm::ParameterSet&);
       ~MuonIdVal();
@@ -62,7 +62,7 @@ class MuonIdVal : public thread_unsafe::DQMEDAnalyzer {
    private:
       virtual void beginJob();
       void bookHistograms(DQMStore::IBooker &,  edm::Run const &, edm::EventSetup const &) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
       virtual void Fill(MonitorElement*, float);
 

@@ -1,57 +1,49 @@
 #ifndef SimG4Core_RunManagerMT_H
 #define SimG4Core_RunManagerMT_H
 
-#include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 namespace CLHEP {
   class HepJamesRandom;
 }
 
 namespace sim {
-  class FieldBuilder;
+  class ChordFinderSetter;
 }
 
 class PrimaryTransformer;
 class Generator;
 class PhysicsList;
+class CustomUIsession;
 
 class SimWatcher;
 class SimProducer;
 class G4SimEvent;
-class SimTrackManager;
 
 class RunAction;
-class EventAction; 
-class TrackingAction;
-class SteppingAction;
 
+class DDCompactView;
 class DDDWorld;
+class DDG4ProductionCuts;
 class MagneticField;
 
-class G4RunManagerKernel;
+class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
 class G4Field;
 class RunAction;
 
 class SimRunInterface;
-//class ExceptionHandler;
 
 namespace HepPDT {
   class ParticleDataTable;
@@ -62,91 +54,83 @@ namespace HepPDT {
  * (acting as the Geant4 master thread), and there should be exactly
  * one instance of it. 
  */
+class RunManagerMTWorker;
 
 class RunManagerMT 
 {
+  friend class RunManagerMTWorker;
+
 public:
-  RunManagerMT(edm::ParameterSet const & p);
+  explicit RunManagerMT(edm::ParameterSet const & p);
   ~RunManagerMT();
 
-  void initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es);
+  void initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable);
+
+  void initializeUserActions();
 
   void stopG4();
 
-  // Keep these to keep SimTrackManager compiling for now, probably to
-  // be moved to RunManagerMTWorker
-  void abortRun(bool softAbort=false) {}
-  void abortEvent() {}
-  G4SimEvent * simEvent() { return nullptr; }
-  SimTrackManager* GetSimTrackManager() { return nullptr; }
-  void             Connect(RunAction*) {}
-  void             Connect(EventAction*) {}
-  void             Connect(TrackingAction*) {}
-  void             Connect(SteppingAction*) {}
+  void Connect(RunAction*);
 
+  // Keep this to keep ExceptionHandler to compile, probably removed
+  // later (or functionality moved to RunManagerMTWorker)
+  inline void abortRun(bool softAbort=false) {}
 
-  const DDDWorld& world() const {
+  inline const DDDWorld& world() const {
     return *m_world;
+  }
+
+  inline const SensitiveDetectorCatalog& catalog() const {
+    return m_catalog;
+  }
+
+  inline const std::vector<std::string>& G4Commands() const {
+    return m_G4Commands;
   }
 
   // In order to share the physics list with the worker threads, we
   // need a non-const pointer. Thread-safety is handled inside Geant4
-  // with TLS. Should we consider a friend declaration here in order
-  // to avoid misuse?
-  PhysicsList *physicsListForWorker() const {
+  // with TLS. 
+  inline PhysicsList *physicsListForWorker() const {
     return m_physicsList.get();
   }
 
-protected:
-
-
 private:
+  void terminateRun();
+  void DumpMagneticField( const G4Field*) const;
 
-  G4RunManagerKernel * m_kernel;
+  G4MTRunManagerKernel * m_kernel;
     
-  Generator * m_generator;
-  std::string m_InTag ;
-    
-  bool m_nonBeam;
+  std::unique_ptr<CustomUIsession> m_UIsession;
   std::unique_ptr<PhysicsList> m_physicsList;
-  PrimaryTransformer * m_primaryTransformer;
   bool m_managerInitialized;
-  bool m_runInitialized;
   bool m_runTerminated;
-  bool m_runAborted;
-  bool firstRun;
   bool m_pUseMagneticField;
+  RunAction* m_userRunAction;
+  G4Run* m_currentRun;
+  std::unique_ptr<SimRunInterface> m_runInterface;
 
-  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
-
-  std::string m_PhysicsTablesDir;
+  const std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
-  int m_EvtMgrVerbosity;
   bool m_check;
-  edm::ParameterSet m_pGeometry;
   edm::ParameterSet m_pField;
-  edm::ParameterSet m_pGenerator;   
-  edm::ParameterSet m_pVertexGenerator;
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
-  edm::ParameterSet m_pEventAction;
-  edm::ParameterSet m_pStackingAction;
-  edm::ParameterSet m_pTrackingAction;
-  edm::ParameterSet m_pSteppingAction;
+  edm::ParameterSet m_g4overlap;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  //ExceptionHandler* m_CustomExceptionHandler ;
 
   std::unique_ptr<DDDWorld> m_world;
+  std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
   SimActivityRegistry m_registry;
+  SensitiveDetectorCatalog m_catalog;
     
-  sim::FieldBuilder             *m_fieldBuilder;
+  std::unique_ptr<sim::ChordFinderSetter> m_chordFinderSetter;
     
-  edm::InputTag m_theLHCTlinkTag;
-
   std::string m_FieldFile;
   std::string m_WriteFile;
+  std::string m_RegionFile;
 };
 
 #endif

@@ -23,7 +23,7 @@
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
 
@@ -49,31 +49,47 @@ public:
 
 
 public:
+    const static unsigned int maxPhysicsTriggers = 512;
 
     /// set simple members
-    void setOrbitNr(int orbNr)     { m_orbitNr   = orbNr; }
-    void setbxNr(int bxNr)         { m_bxNr      = bxNr; }
-    void setbxInEventNr(int bxNr)  { m_bxInEvent = bxNr; }
-    void setFinalOR(int fOR)       { m_finalOR   = fOR; }
+    void setL1MenuUUID(int uuid)      { m_orbitNr       = uuid; }
+    void setL1FirmwareUUID(int fuuid) { m_bxNr   = fuuid; }
+    void setbxInEventNr(int bxNr)   { m_bxInEvent      = bxNr; }
+    void setFinalORVeto(bool fOR)   { m_finalORVeto    = fOR; }
+    void setFinalORPreVeto(bool fOR){ m_finalORPreVeto = fOR; }
+    void setFinalOR(bool fOR)       { m_finalOR        = fOR; }
+    void setPreScColumn(int psC)    { m_preScColumn    = psC; }
 
     /// get simple members
-    inline const int getOrbitNr() const     { return m_orbitNr; }
-    inline const int getbxNr() const        { return m_bxNr; }
-    inline const int getbxInEventNr() const { return m_bxInEvent; }
-    inline const int getFinalOR() const     { return m_finalOR; }
+    inline const int getL1MenuUUID() const      { return m_orbitNr; }
+    inline const int getL1FirmwareUUID() const  { return m_bxNr; }
+    inline const int getbxInEventNr() const     { return m_bxInEvent; }
+    inline const bool getFinalOR() const        { return m_finalOR; }
+    inline const bool getFinalORPreVeto() const { return m_finalORPreVeto; };
+    inline const bool getFinalORVeto() const    { return m_finalORVeto; }
+    inline const int getPreScColumn() const     { return m_preScColumn; }
 
     /// Copy vectors words
-    void copyInitialToPrescaled() { m_algoDecisionPreScaled   = m_algoDecisionInitial; }
-    void copyPrescaledToFinal() { m_algoDecisionFinal   = m_algoDecisionPreScaled; }
+    void copyInitialToInterm() { m_algoDecisionPreScaled   = m_algoDecisionInitial; }
+    void copyIntermToFinal() { m_algoDecisionFinal   = m_algoDecisionPreScaled; }
 
     /// Set decision bits
-    void setAlgoDecisionInitial(int bit, bool val);
-    void setAlgoDecisionPreScaled(int bit, bool val);
-    void setAlgoDecisionFinal(int bit, bool val);
+    void setAlgoDecisionInitial(unsigned int bit, bool val);
+    void setAlgoDecisionInterm(unsigned int bit, bool val);
+    void setAlgoDecisionFinal(unsigned int bit, bool val);
 
     /// Get decision bits
+    std::vector<bool> const & getAlgoDecisionInitial() const {
+        return m_algoDecisionInitial;
+    }
+    std::vector<bool> const & getAlgoDecisionInterm() const {
+        return m_algoDecisionPreScaled;
+    }
+    std::vector<bool> const & getAlgoDecisionFinal() const { 
+        return m_algoDecisionFinal;
+    }
     bool getAlgoDecisionInitial(unsigned int bit) const;
-    bool getAlgoDecisionPreScaled(unsigned int bit) const;
+    bool getAlgoDecisionInterm(unsigned int bit) const;
     bool getAlgoDecisionFinal(unsigned int bit) const;
 
     /// reset the content of a GlobalAlgBlk
@@ -85,21 +101,28 @@ public:
 
 private:
 
-    /// orbit number
+    // where noted member data has been re-interpreted, to keep persistant data the same, as these features were added late in release cycle.
+
+    /// orbit number -> L1MenuUUID
     int m_orbitNr;
 
-    /// bunch cross number of the actual bx
+    /// bunch cross number of the actual bx -> L1FirmwareUUID
     int m_bxNr;
 
     /// bunch cross in the GT event record (E,F,0,1,2)
     int m_bxInEvent;
 
     // finalOR 
-    int m_finalOR;
+    bool m_finalOR;
+    bool m_finalORPreVeto;
+    bool m_finalORVeto; 
+    
+    //Prescale Column
+    int m_preScColumn;
 
    
     std::vector<bool> m_algoDecisionInitial;
-    std::vector<bool> m_algoDecisionPreScaled;
+    std::vector<bool> m_algoDecisionPreScaled;   // -> Interm
     std::vector<bool> m_algoDecisionFinal;
 
 

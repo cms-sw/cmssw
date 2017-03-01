@@ -74,7 +74,8 @@ namespace ecaldqm {
   void
   LedTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
   {
-    if(++emptyLS_ > emptyLSLimit_) emptyLS_ = -1;
+    isemptyLS = 0;
+    if(emptyLS_+1 > emptyLSLimit_) emptyLS_ = -1;
   }
 
   void
@@ -86,6 +87,7 @@ namespace ecaldqm {
   void
   LedTask::runOnRawData(EcalRawDataCollection const& _rawData)
   {
+    MESet& meCalibStatus(MEs_.at("CalibStatus"));
     for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
       unsigned iDCC(rItr->id() - 1);
       if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
@@ -108,6 +110,26 @@ namespace ecaldqm {
 
       rtHalf_[index] = rItr->getRtHalf();
     }
+    bool LedStatus[2];
+    for(unsigned iW(0); iW < 2; iW++){
+       LedStatus[iW] = false;
+    }
+    for(unsigned index(0); index < nEEDCC; ++index){
+       switch (wavelength_[index])
+       {
+         case 1: 
+           LedStatus[0] = true; 
+           break;
+         case 2:
+           LedStatus[1] = true; 
+           break;
+         default:
+           break;
+        } 
+    }
+    for(unsigned iWL(0); iWL<2; iWL++){
+       meCalibStatus.fill(double(iWL+3), LedStatus[iWL]? 1:0);
+    }  
   }
 
   void
@@ -185,6 +207,9 @@ namespace ecaldqm {
 
       meSignalRate.fill((index <= kEEmHigh ? index : index + nEBDCC) + 1, enable_[index] ? 1 : 0);
     }
+
+    if(!enable && isemptyLS >= 0) isemptyLS = 1;
+    else if(enable) isemptyLS = -1;
 
     if(enable) emptyLS_ = 0;
     else if(ledOnExpected) return;
@@ -309,6 +334,11 @@ namespace ecaldqm {
 
       meAOverP.fill(id, aop);
     }
+  }
+
+  void
+  LedTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){
+    if(isemptyLS == 1)emptyLS_ += 1;
   }
 
   DEFINE_ECALDQM_WORKER(LedTask);

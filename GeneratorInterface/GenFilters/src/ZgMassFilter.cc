@@ -7,7 +7,7 @@ using namespace edm;
 using namespace std;
 
 ZgMassFilter::ZgMassFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",edm::InputTag("generator","unsmeared")))),
 minDileptonMass(iConfig.getUntrackedParameter("MinDileptonMass", 0.)),
 minZgMass(iConfig.getUntrackedParameter("MinZgMass", 0.))
 {
@@ -23,7 +23,7 @@ bool ZgMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    bool accepted = false;
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
      
    vector<TLorentzVector> Lepton; Lepton.clear();

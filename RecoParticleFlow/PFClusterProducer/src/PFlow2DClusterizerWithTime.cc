@@ -89,14 +89,14 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
   if( conf.exists("timeResolutionCalcBarrel") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcBarrel");
-      _timeResolutionCalcBarrel.reset(new ECALRecHitResolutionProvider(
+      _timeResolutionCalcBarrel.reset(new CaloRecHitResolutionProvider(
         timeResConf));
   }
   _timeResolutionCalcEndcap.reset(NULL);
   if( conf.exists("timeResolutionCalcEndcap") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcEndcap");
-      _timeResolutionCalcEndcap.reset(new ECALRecHitResolutionProvider(
+      _timeResolutionCalcEndcap.reset(new CaloRecHitResolutionProvider(
         timeResConf));
   }
 }
@@ -206,7 +206,7 @@ growPFClusters(const reco::PFCluster& topo,
     }  
     const double recHitEnergyNorm = 
       _recHitEnergyNorms.find(cell_layer)->second; 
-    const math::XYZPoint& topocellpos_xyz = refhit->position();
+    math::XYZPoint topocellpos_xyz(refhit->position());
     dist2.clear(); frac.clear(); fractot = 0;
 
     // add rechits to clusters, calculating fraction based on distance

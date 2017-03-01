@@ -123,7 +123,7 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   rho = rho*rhoScale_;
 
   //prepare product
-  reco::RecoEcalCandidateIsolationMap isoMap;
+  reco::RecoEcalCandidateIsolationMap isoMap(recoecalcandHandle);
 
   //create algorithm objects
   EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,edm::ESHandle<CaloGeometry>(caloGeom),*ecalBarrelRecHitHandle,sevLevel,DetId::Ecal);
@@ -176,8 +176,7 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
     isoMap.insert(recoecalcandref, isol);
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
-  iEvent.put(isolMap);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
 
 }
 

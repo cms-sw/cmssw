@@ -1,12 +1,13 @@
 #ifndef DD_ALGO_PLUGIN_DD_ALGORITHM_H
 #define DD_ALGO_PLUGIN_DD_ALGORITHM_H
 
-#include <vector>
-#include <DetectorDescription/Core/interface/DDLogicalPart.h>
-#include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Base/interface/DDTypes.h>
+#include <DetectorDescription/Core/interface/DDCompactView.h>
+#include <DetectorDescription/Core/interface/DDLogicalPart.h>
+#include <vector>
 
 class DDAlgorithmHandler;
+class DDCompactView;
 
 /** Abstract Base of all DDD algorithms. */
 class DDAlgorithm

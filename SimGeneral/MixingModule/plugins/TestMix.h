@@ -13,10 +13,9 @@
 //
 //
 
-
 // system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +30,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-
 #include <vector>
 #include <string>
 
@@ -42,11 +40,10 @@ namespace edm
   // class declaration
   //
 
-  class TestMix : public edm::EDAnalyzer {
+  class TestMix : public edm::one::EDAnalyzer<> {
   public:
     explicit TestMix(const edm::ParameterSet&);
-    ~TestMix();
-
+    virtual ~TestMix();
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 

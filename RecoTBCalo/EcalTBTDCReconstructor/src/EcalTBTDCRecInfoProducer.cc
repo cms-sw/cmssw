@@ -93,9 +93,8 @@ void EcalTBTDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& es)
      }
 
   // Create empty output
-  std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(algo_->reconstruct(*ecalRawTDC,*tbEventHeader,use2004OffsetConvention_)));
   
-  e.put(recInfo,recInfoCollection_);
+  e.put(std::make_unique<EcalTBTDCRecInfo>(algo_->reconstruct(*ecalRawTDC,*tbEventHeader,use2004OffsetConvention_)),recInfoCollection_);
 } 
 
 

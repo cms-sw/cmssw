@@ -37,7 +37,7 @@ public:
   L1MuTriggerScalesOnlineProducer(const edm::ParameterSet&);
   ~L1MuTriggerScalesOnlineProducer();
 
-  virtual boost::shared_ptr<L1MuTriggerScales> newObject(
+  virtual std::shared_ptr<L1MuTriggerScales> newObject(
 	const std::string& objectKey ) ;
 
 private:

@@ -11,7 +11,7 @@
  * $Id: EcalCondHeader.h,v 1.2 2008/10/22 08:41:31 argiro Exp $
  */   
 
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include <string>
 
 struct EcalCondHeader {

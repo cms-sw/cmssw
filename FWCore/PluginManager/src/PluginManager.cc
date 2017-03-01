@@ -11,12 +11,10 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
-
 #include <boost/filesystem/operations.hpp>
 
 #include <fstream>
+#include <functional>
 #include <set>
 
 // TEMPORARY
@@ -41,16 +39,36 @@ namespace edmplugin {
 // static data member definitions
 //
 
+static bool readCacheFile(const boost::filesystem::path &cacheFile,
+                          const boost::filesystem::path &dir, 
+                          PluginManager::CategoryToInfos &categoryToInfos) 
+{
+  if(exists(cacheFile) ) {
+    std::ifstream file(cacheFile.string().c_str());
+    if(not file) {
+      throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
+      <<"'. Please check permissions on file";
+    }
+    CacheParser::read(file, dir, categoryToInfos);          
+    return true;
+  }
+  return false;
+}
 //
 // constructors and destructor
 //
 PluginManager::PluginManager(const PluginManager::Config& iConfig) :
   searchPath_( iConfig.searchPath() )
 {
+    using std::placeholders::_1;
     const boost::filesystem::path kCacheFile(standard::cachefileName());
+    // This is the filename of a file which contains plugins which exist in the
+    // base release and which should exists in the local area, otherwise they
+    // were removed and we want to catch their usage.
+    const boost::filesystem::path kPoisonedCacheFile(standard::poisonedCachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
-    pfm->newFactory_.connect(boost::bind(boost::mem_fn(&PluginManager::newFactory),this,_1));
+    pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory),this,_1));
 
     // When building a single big executable the plugins are already registered in the 
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
@@ -80,15 +98,15 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         }
         boost::filesystem::path cacheFile = dir/kCacheFile;
         
-        if(exists(cacheFile) ) {
-          std::ifstream file(cacheFile.string().c_str());
-          if(not file) {
-            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
-            <<"'. Please check permissions on file";
-          }
-          foundAtLeastOneCacheFile=true;
-          CacheParser::read(file, dir, categoryToInfos_);          
+        if (readCacheFile(cacheFile, dir, categoryToInfos_))
+        {
+          foundAtLeastOneCacheFile=true; 
         }
+
+        // We do not check for return code since we do not want to consider a
+        // poison cache file as a valid cache file having been found.
+        boost::filesystem::path poisonedCacheFile = dir/kPoisonedCacheFile;
+        readCacheFile(poisonedCacheFile, dir/"poisoned", categoryToInfos_);
       }
     }
     if(not foundAtLeastOneCacheFile) {
@@ -249,7 +267,7 @@ PluginManager::load(const std::string& iCategory,
       {
 	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
 	// take the lock ourselves
-	R__LOCKGUARD2(gCINTMutex);
+	R__LOCKGUARD2(gInterpreterMutex);
 	ptr.reset( new SharedLibrary(p) );
       }
       loadables_[p]=ptr;
@@ -289,7 +307,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
       {
 	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
 	// take the lock ourselves
-	R__LOCKGUARD(gCINTMutex);
+	R__LOCKGUARD(gInterpreterMutex);
 	ptr.reset( new SharedLibrary(p) );
       }
       loadables_[p]=ptr;

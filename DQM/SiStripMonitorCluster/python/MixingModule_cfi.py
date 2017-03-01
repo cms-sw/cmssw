@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # from Configuration/Applications/data/DIGI-RECO.cfg 
 mix = cms.EDFilter("MixingModule",
-    #      secsource input = PoolRASource
+    #      secsource input = EmbeddedRootSource
     #      {
     #
     # starting 050, you can skip secsource block at all if you don't
@@ -14,7 +14,7 @@ mix = cms.EDFilter("MixingModule",
     # alternatively, you can set averageNumber=0 if you don't want
     # to model the pileup
     #
-    # to the secsource/PoolRASource, you can give just 1 file or more;
+    # to the secsource/EmbeddedRootSource, you can give just 1 file or more;
     # this files will make a "concatinated buffer", which will go circular
     # until the loop of primary events is done - thus, it'll never run out
     #
@@ -24,7 +24,7 @@ mix = cms.EDFilter("MixingModule",
     #          gun and a file made with a single pion gun, because PartID
     #          is a *tracked* parameter in the gun's PSet;
     #          however, you can merge together files made with other generators,
-    #          for example, PythiaSource, because all parameters of it would be
+    #          because all parameters of it would be
     #          *untracked*
     #
     #         untracked vstring fileNames =

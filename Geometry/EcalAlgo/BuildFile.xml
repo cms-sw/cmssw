@@ -4,7 +4,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="clhep"/>
-  <use name="Utilities/General"/>
   <use name="CondCore/DBOutputService"/>
   <use name="CondFormats/Alignment"/>
   <use name="CondFormats/AlignmentRecord"/>

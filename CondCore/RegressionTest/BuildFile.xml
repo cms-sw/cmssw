@@ -1,6 +1,0 @@
-<use   name="CondCore/DBCommon"/>
-<use name="CondCore/MetaDataService"/>
-<use name="CondCore/IOVService"/>
-<export>
-  <lib   name="1"/>
-</export>

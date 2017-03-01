@@ -18,7 +18,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// #include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngleAlgorithm.h"
 
 class SiPixelLorentzAngleDB : public edm::EDAnalyzer
 {
@@ -28,8 +27,6 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   
   virtual ~SiPixelLorentzAngleDB();
   
-  //  virtual void beginJob(const edm::EventSetup& c);
-
   virtual void beginJob();
   
   virtual void endJob(); 
@@ -45,12 +42,11 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   double magneticField_;
   std::string recordName_;
-//  float bPixLorentzAnglePerTesla_;
-//  float fPixLorentzAnglePerTesla_;
-//hp
+
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters BPixParameters_;
   Parameters FPixParameters_;
+  Parameters ModuleParameters_;
 
   std::string fileName_;
   bool useFile_;

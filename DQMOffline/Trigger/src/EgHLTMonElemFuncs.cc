@@ -34,7 +34,7 @@ void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& his
 
   addStdHist<OffEle,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffEle::e2x5MaxOver5x5);
   addStdHist<OffEle,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffEle::e1x5Over5x5);
-  // addStdHist<OffEle,float>(histVec,baseName+"_isolEM",baseName+"Isol EM; Isol EM (GeV)",bins.isolEm,&OffEle::isolEm); 
+  //addStdHist<OffEle,float>(histVec,baseName+"_isolEM",baseName+"Isol EM; Isol EM (GeV)",bins.isolEm,&OffEle::isolEm); 
   //addStdHist<OffEle,float>(histVec,baseName+"_isolHad",baseName+"Isol Had; Isol Had (GeV)",bins.isolHad,&OffEle::isolHad);
   //addStdHist<OffEle,float>(histVec,baseName+"_isolPtTrks",baseName+"Isol Pt Trks; Isol Pt Tracks (GeV/c)",bins.isolPtTrks,&OffEle::isolPtTrks); 
   addStdHist<OffEle,float>(histVec,baseName+"_hltIsolTrksEle",baseName+"HLT Ele Isol Trks; HLT Ele Iso Tracks (GeV/c)",bins.isolPtTrks,&OffEle::hltIsolTrksEle);  
@@ -43,12 +43,12 @@ void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& his
   addStdHist<OffEle,float>(histVec,baseName+"_hltIsolEm",baseName+"HLT Isol Em; HLT Isol Em (GeV)",bins.isolEm,&OffEle::hltIsolEm);
   addStdHist<OffEle,float>(histVec,baseName+"_DeltaE",baseName+"HLT Energy - reco SC Energy;HLT Energy - reco SC Energy (GeV)",bins.deltaE,&OffEle::DeltaE);
 
-  histVec.push_back(new MonElemManager2D<OffEle,float,float>(baseName+"_etaVsPhi",
+  histVec.push_back(new MonElemManager2D<OffEle,float,float>(iBooker, baseName+"_etaVsPhi",
 							     baseName+" #eta vs #phi;#eta;#phi (rad)",
 							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
 							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
 							     &OffEle::detEta,&OffEle::phi));
-  histVec.push_back(new MonElemManager2D<OffEle,float,float>(baseName+"_HLTetaVsHLTphi",
+  histVec.push_back(new MonElemManager2D<OffEle,float,float>(iBooker, baseName+"_HLTetaVsHLTphi",
 							     baseName+" HLT #eta vs HLT #phi;HLT #eta;HLT #phi (rad)",
 							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
 							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
@@ -80,16 +80,16 @@ void MonElemFuncs::initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& his
   addStdHist<OffPho,float>(histVec,baseName+"_isolHad",baseName+"Isol Had; Isol Had (GeV)",bins.isolHad,&OffPho::isolHad);
   addStdHist<OffPho,float>(histVec,baseName+"_isolPtTrks",baseName+"Isol Pt Trks; Isol Pt Tracks (GeV/c)",bins.isolPtTrks,&OffPho::isolPtTrks);  
   addStdHist<OffPho,int>(histVec,baseName+"_isolNrTrks",baseName+"Isol Nr Trks; Isol Nr Tracks",bins.isolNrTrks,&OffPho::isolNrTrks); 
-  // addStdHist<OffPho,float>(histVec,baseName+"_hltIsolTrks",baseName+"HLT Isol Trks; HLT Iso Tracks (GeV/c)",bins.isolPtTrks,&OffPho::hltIsolTrks); 
+  //addStdHist<OffPho,float>(histVec,baseName+"_hltIsolTrks",baseName+"HLT Isol Trks; HLT Iso Tracks (GeV/c)",bins.isolPtTrks,&OffPho::hltIsolTrks); 
   //addStdHist<OffPho,float>(histVec,baseName+"_hltIsolHad",baseName+"HLT Isol Had; HLT Isol Had (GeV)",bins.isolPtTrks,&OffPho::hltIsolHad);
   addStdHist<OffPho,float>(histVec,baseName+"_DeltaE",baseName+"HLT Energy - reco SC Energy;HLT Energy - reco SC Energy (GeV)",bins.deltaE,&OffPho::DeltaE);
   
-  histVec.push_back(new MonElemManager2D<OffPho,float,float>(baseName+"_etaVsPhi",
+  histVec.push_back(new MonElemManager2D<OffPho,float,float>(iBooker, baseName+"_etaVsPhi",
 							     baseName+" #eta vs #phi;#eta;#phi (rad)",
 							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
 							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
 							     &OffPho::detEta,&OffPho::phi));
-  histVec.push_back(new MonElemManager2D<OffPho,float,float>(baseName+"_HLTetaVsHLTphi",
+  histVec.push_back(new MonElemManager2D<OffPho,float,float>(iBooker, baseName+"_HLTetaVsHLTphi",
 							     baseName+" HLT #eta vs HLT #phi;HLT #eta;HLT #phi (rad)",
 							     bins.etaVsPhi.nrX,bins.etaVsPhi.xMin,bins.etaVsPhi.xMax,
 							     bins.etaVsPhi.nrY,bins.etaVsPhi.yMin,bins.etaVsPhi.yMax,
@@ -114,52 +114,52 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& his
   int stdCutCode = masks.stdEle;
 
   //first do the zero and all cuts histograms
-  histVec.push_back(new MonElemFloat(baseName+"_noCuts",baseName+" NoCuts",nrBins,xMin,xMax,vsVarFunc));
-  histVec.push_back(new MonElemFloat(baseName+"_allCuts",baseName+" All Cuts",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker, baseName+"_noCuts",baseName+" NoCuts",nrBins,xMin,xMax,vsVarFunc));
+  histVec.push_back(new MonElemFloat(iBooker, baseName+"_allCuts",baseName+" All Cuts",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(stdCutCode,&OffEle::cutCode))); 
 		       
   //now for the n-1
-  histVec.push_back(new MonElemFloat(baseName+"_n1_dEtaIn",baseName+" N1 #Delta#eta_{in}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_dEtaIn",baseName+" N1 #Delta#eta_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::DETAIN&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_dPhiIn",baseName+" N1 #Delta#phi_{in}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_dPhiIn",baseName+" N1 #Delta#phi_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::DPHIIN&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::SIGMAIETAIETA&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HADEM&stdCutCode,&OffEle::cutCode)));
-  /* histVec.push_back(new MonElemFloat(baseName+"_n1_isolEm",baseName+" N1 Isol Em",nrBins,xMin,xMax,vsVarFunc,
+  /* histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolEm",baseName+" N1 Isol Em",nrBins,xMin,xMax,vsVarFunc,
      new VarCut(~EgCutCodes::ISOLEM&stdCutCode,&OffEle::cutCode)));
-     histVec.push_back(new MonElemFloat(baseName+"_n1_isolHad",baseName+" N1 Isol Had",nrBins,xMin,xMax,vsVarFunc,
+     histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolHad",baseName+" N1 Isol Had",nrBins,xMin,xMax,vsVarFunc,
      new VarCut(~EgCutCodes::ISOLHAD&stdCutCode,&OffEle::cutCode)));
-     histVec.push_back(new MonElemFloat(baseName+"_n1_isolPtTrks",baseName+" N1 Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
+     histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolPtTrks",baseName+" N1 Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
      new VarCut(~EgCutCodes::ISOLPTTRKS&stdCutCode,&OffEle::cutCode)));*/
-  histVec.push_back(new MonElemFloat(baseName+"_n1_hltIsolEm",baseName+" N1 HLT Isol Em",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_hltIsolEm",baseName+" N1 HLT Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HLTISOLEM&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_hltIsolHad",baseName+" N1 HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_hltIsolHad",baseName+" N1 HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HLTISOLHAD&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_hltIsolTrksEle",baseName+" N1 HLT Isol Tracks Ele ",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_hltIsolTrksEle",baseName+" N1 HLT Isol Tracks Ele ",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HLTISOLTRKSELE&stdCutCode,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_dEtaIn",baseName+" Single #Delta#eta_{in}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_dEtaIn",baseName+" Single #Delta#eta_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::DETAIN,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_dPhiIn",baseName+" Single #Delta#phi_{in}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_dPhiIn",baseName+" Single #Delta#phi_{in}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::DPHIIN,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::SIGMAIETAIETA,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_hOverE",baseName+" Single H/E",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hOverE",baseName+" Single H/E",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HADEM,&OffEle::cutCode)));
-  /* histVec.push_back(new MonElemFloat(baseName+"_single_isolEm",baseName+" Single Isol Em",nrBins,xMin,xMax,vsVarFunc,
+  /* histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_isolEm",baseName+" Single Isol Em",nrBins,xMin,xMax,vsVarFunc,
      new VarCut(EgCutCodes::ISOLEM,&OffEle::cutCode)));
-     histVec.push_back(new MonElemFloat(baseName+"_single_isolHad",baseName+" Single Isol Had",nrBins,xMin,xMax,vsVarFunc,
+     histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_isolHad",baseName+" Single Isol Had",nrBins,xMin,xMax,vsVarFunc,
      new VarCut(EgCutCodes::ISOLHAD,&OffEle::cutCode)));
-     histVec.push_back(new MonElemFloat(baseName+"_single_isolPtTrks",baseName+" Single Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
+     histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_isolPtTrks",baseName+" Single Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
      new VarCut(EgCutCodes::ISOLPTTRKS,&OffEle::cutCode)));*/
-  histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolEm",baseName+" Single HLT Isol Em",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hltIsolEm",baseName+" Single HLT Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HLTISOLEM,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolHad",baseName+" Single HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hltIsolHad",baseName+" Single HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HLTISOLHAD,&OffEle::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolTrksEle",baseName+" Single HLT Isol Tracks Ele ",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hltIsolTrksEle",baseName+" Single HLT Isol Tracks Ele ",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HLTISOLTRKSELE,&OffEle::cutCode))); 
-  /*histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolTrksPho",baseName+" Single HLT Isol Tracks Pho ",nrBins,xMin,xMax,vsVarFunc,
+  /*histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hltIsolTrksPho",baseName+" Single HLT Isol Tracks Pho ",nrBins,xMin,xMax,vsVarFunc,
     new VarCut(EgCutCodes::HLTISOLTRKSPHO,&OffEle::cutCode)));*/
   
 }
@@ -171,43 +171,43 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& his
   typedef MonElemWithCutEBEE<OffPho,float> MonElemFloat;
   int stdCutCode = masks.stdPho;
 
-  histVec.push_back(new MonElemFloat(baseName+"_noCuts",baseName+" NoCuts",nrBins,xMin,xMax,vsVarFunc));
-  histVec.push_back(new MonElemFloat(baseName+"_allCuts",baseName+" All Cuts",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_noCuts",baseName+" NoCuts",nrBins,xMin,xMax,vsVarFunc));
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_allCuts",baseName+" All Cuts",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(stdCutCode,&OffPho::cutCode))); 
 
   
-  histVec.push_back(new MonElemFloat(baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_sigmaIEtaIEta",baseName+" N1 #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::SIGMAIETAIETA&stdCutCode,&OffPho::cutCode)));
   //-----Morse------
-  histVec.push_back(new MonElemFloat(baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_hOverE",baseName+" N1 H/E",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::HADEM&stdCutCode,&OffPho::cutCode)));//---BUG FIX!!--
-  /*histVec.push_back(new MonElemFloat(baseName+"_n1_minr9",baseName+" N1 MINR9",nrBins,xMin,xMax,vsVarFunc,
+  /*histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_minr9",baseName+" N1 MINR9",nrBins,xMin,xMax,vsVarFunc,
     new VarCut(~EgCutCodes::MINR9&stdCutCode,&OffPho::cutCode)));
-    histVec.push_back(new MonElemFloat(baseName+"_n1_maxr9",baseName+" N1 MAXR9",nrBins,xMin,xMax,vsVarFunc,
+    histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_maxr9",baseName+" N1 MAXR9",nrBins,xMin,xMax,vsVarFunc,
     new VarCut(~EgCutCodes::MAXR9&stdCutCode,&OffPho::cutCode)));*/
   //----------------
-  histVec.push_back(new MonElemFloat(baseName+"_n1_isolEm",baseName+" N1 Isol Em",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolEm",baseName+" N1 Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLEM&stdCutCode,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_isolHad",baseName+" N1 Isol Had",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolHad",baseName+" N1 Isol Had",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLHAD&stdCutCode,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_n1_isolPtTrks",baseName+" N1 Pt Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolPtTrks",baseName+" N1 Pt Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLPTTRKS&stdCutCode,&OffPho::cutCode))); 
-  histVec.push_back(new MonElemFloat(baseName+"_n1_isolNrTrks",baseName+" N1 Nr Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_n1_isolNrTrks",baseName+" N1 Nr Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLNRTRKS&stdCutCode,&OffPho::cutCode)));
 
-  histVec.push_back(new MonElemFloat(baseName+"_single_hOverE",baseName+" Single H/E",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hOverE",baseName+" Single H/E",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::HADEM,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_sigmaIEtaIEta",baseName+" Single #sigma_{i#etai#eta}",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(EgCutCodes::SIGMAIETAIETA,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_isolEm",baseName+" Single Isol Em",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_isolEm",baseName+" Single Isol Em",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLEM,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_isolHad",baseName+" Single Isol Had",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_isolHad",baseName+" Single Isol Had",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLHAD,&OffPho::cutCode)));
-  histVec.push_back(new MonElemFloat(baseName+"_single_isolPtTrks",baseName+" Single Pt Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
+  histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_isolPtTrks",baseName+" Single Pt Isol Tracks",nrBins,xMin,xMax,vsVarFunc,
 				     new VarCut(~EgCutCodes::ISOLPTTRKS,&OffPho::cutCode))); 
-  /*histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolHad",baseName+" Single HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
+  /*histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hltIsolHad",baseName+" Single HLT Isol Had",nrBins,xMin,xMax,vsVarFunc,
     new VarCut(EgCutCodes::HLTISOLHAD,&OffPho::cutCode)));
-    histVec.push_back(new MonElemFloat(baseName+"_single_hltIsolTrksPho",baseName+" Single HLT Isol Tracks Pho ",nrBins,xMin,xMax,vsVarFunc,
+    histVec.push_back(new MonElemFloat(iBooker,baseName+"_single_hltIsolTrksPho",baseName+" Single HLT Isol Tracks Pho ",nrBins,xMin,xMax,vsVarFunc,
     new VarCut(EgCutCodes::HLTISOLTRKSPHO,&OffPho::cutCode)));*/
 
   
@@ -218,22 +218,22 @@ void MonElemFuncs::initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& his
 //only currently used for trigger tag and probe
 void MonElemFuncs::initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffEle>* cut)
 {
-  histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(baseName+"_et",
+  histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_et",
 							 baseName+" E_{T};E_{T} (GeV)",
 							 bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,cut));
-  histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(baseName+"_eta",
+  histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_eta",
 							 baseName+" #eta;#eta",
 							 bins.eta.nr,bins.eta.min,bins.eta.max,
 							 &OffEle::detEta,cut ? cut->clone(): NULL));		
-  histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(baseName+"_phi",
+  histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
 							 &OffEle::phi,cut ? cut->clone():NULL));		
-  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(baseName+"_nVertex",
+  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(iBooker,baseName+"_nVertex",
 							 baseName+" nVertex;nVertex",
 							 bins.nVertex.nr,bins.nVertex.min,bins.nVertex.max,
 							 &OffEle::NVertex,cut ? cut->clone():NULL));
-  /*  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(baseName+"_charge",
+  /*  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(iBooker,baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
 						       &OffEle::charge,cut ? cut->clone():NULL)); */
@@ -242,18 +242,18 @@ void MonElemFuncs::initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& 
 
 void MonElemFuncs::initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffPho>* cut)
 {
-  histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(baseName+"_et",
+  histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_et",
 							 baseName+" E_{T};E_{T} (GeV)",
 							 bins.et.nr,bins.et.min,bins.et.max,&OffPho::et,cut));
-  histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(baseName+"_eta",
+  histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_eta",
 							 baseName+" #eta;#eta",
 							 bins.eta.nr,bins.eta.min,bins.eta.max,
 							 &OffPho::detEta,cut ? cut->clone(): NULL));		
-  histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(baseName+"_phi",
+  histVec.push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
 							 &OffPho::phi,cut ? cut->clone():NULL));
-  /* histVec.push_back(new MonElemWithCutEBEE<OffPho,int>(baseName+"_charge",
+  /* histVec.push_back(new MonElemWithCutEBEE<OffPho,int>(iBooker,baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
 						       &OffPho::charge,cut ? cut->clone():NULL)); */
@@ -306,14 +306,14 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffEle>*>&
   MonElemContainer<OffEle>* passMonElem = NULL;
   passMonElem = new MonElemContainer<OffEle>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
 					     &(*(new EgMultiCut<OffEle>) << 
-					       new EgObjTrigCut<OffEle>(TrigCodes::getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffEle>::AND)  <<
+					       new EgObjTrigCut<OffEle>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffEle>::AND)  <<
 					       eleCut->clone()));
   
   
   MonElemContainer<OffEle>* failMonElem = NULL;
   failMonElem = new MonElemContainer<OffEle>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
 					     &(*(new EgMultiCut<OffEle>) << 
-					       new EgObjTrigCut<OffEle>(TrigCodes::getCode(looseTrig),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(tightTrig))  << 
+					       new EgObjTrigCut<OffEle>(trigCodes.getCode(looseTrig),EgObjTrigCut<OffEle>::AND,trigCodes.getCode(tightTrig))  << 
 					       eleCut));
   
   MonElemFuncs::initStdEleHists(passMonElem->monElems(),tightTrig+"_"+looseTrig,passMonElem->name(),bins);
@@ -332,14 +332,14 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>&
   MonElemContainer<OffPho>* passMonElem = NULL;
   passMonElem = new MonElemContainer<OffPho>(tightTrig+"_"+looseTrig+"_"+histId+"_passTrig","",
 					     &(*(new EgMultiCut<OffPho>) << 
-					       new EgObjTrigCut<OffPho>(TrigCodes::getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffPho>::AND)  <<
+					       new EgObjTrigCut<OffPho>(trigCodes.getCode(tightTrig+":"+looseTrig),EgObjTrigCut<OffPho>::AND)  <<
 					       phoCut->clone()));
   
   
   MonElemContainer<OffPho>* failMonElem = NULL;
   failMonElem = new MonElemContainer<OffPho>(tightTrig+"_"+looseTrig+"_"+histId+"_failTrig","",
 					     &(*(new EgMultiCut<OffPho>) << 
-					       new EgObjTrigCut<OffPho>(TrigCodes::getCode(looseTrig),EgObjTrigCut<OffPho>::AND,TrigCodes::getCode(tightTrig))  << 
+					       new EgObjTrigCut<OffPho>(trigCodes.getCode(looseTrig),EgObjTrigCut<OffPho>::AND,trigCodes.getCode(tightTrig))  << 
 					       phoCut));
   
   MonElemFuncs::initStdPhoHists(passMonElem->monElems(),tightTrig+"_"+looseTrig,passMonElem->name(),bins);
@@ -359,7 +359,7 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
-    EgHLTDQMCut<OffEle>* eleCut = new EgHLTDQMUserVarCut<OffEle,TrigCodes::TrigBitSet>(&OffEle::trigCutsCutCode,TrigCodes::getCode(tightTrig));
+    EgHLTDQMCut<OffEle>* eleCut = new EgHLTDQMUserVarCut<OffEle,TrigCodes::TrigBitSet>(&OffEle::trigCutsCutCode,trigCodes.getCode(tightTrig));
     addTightLooseTrigHist(eleMonElems,tightTrig,looseTrig,eleCut,"gsfEle_trigCuts",bins);
   }
 } 
@@ -373,7 +373,7 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
-    EgHLTDQMCut<OffPho>* phoCut = new EgHLTDQMUserVarCut<OffPho,TrigCodes::TrigBitSet>(&OffPho::trigCutsCutCode,TrigCodes::getCode(tightTrig));
+    EgHLTDQMCut<OffPho>* phoCut = new EgHLTDQMUserVarCut<OffPho,TrigCodes::TrigBitSet>(&OffPho::trigCutsCutCode,trigCodes.getCode(tightTrig));
     addTightLooseTrigHist(phoMonElems,tightTrig,looseTrig,phoCut,"pho_trigCuts",bins);
   }
 } 
@@ -388,7 +388,7 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
-    EgHLTDQMCut<OffEle>* eleCut = new EgDiEleUserCut<TrigCodes::TrigBitSet>(&OffEle::trigCutsCutCode,TrigCodes::getCode(tightTrig));
+    EgHLTDQMCut<OffEle>* eleCut = new EgDiEleUserCut<TrigCodes::TrigBitSet>(&OffEle::trigCutsCutCode,trigCodes.getCode(tightTrig));
     addTightLooseTrigHist(eleMonElems,tightTrig,looseTrig,eleCut,"gsfEle_trigCuts",bins);
   }
 } 
@@ -403,7 +403,7 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
-    EgHLTDQMCut<OffPho>* phoCut = new EgDiPhoUserCut<TrigCodes::TrigBitSet>(&OffPho::trigCutsCutCode,TrigCodes::getCode(tightTrig));
+    EgHLTDQMCut<OffPho>* phoCut = new EgDiPhoUserCut<TrigCodes::TrigBitSet>(&OffPho::trigCutsCutCode,trigCodes.getCode(tightTrig));
     addTightLooseTrigHist(phoMonElems,tightTrig,looseTrig,phoCut,"pho_trigCuts",bins);
   }
 }
@@ -421,22 +421,22 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
     //  float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-    MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFiltesr"),cutMask,&OffEle::cutCode));
+    MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFiltesr"),cutMask,&OffEle::cutCode));
     //this is all that pass trigtagprobecut
     MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_all",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
     //this is all that pass trigtagprobecut and the probe passes the test trigger
-    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_pass",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
+    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_pass",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND)));
     //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is NOT a tag
-    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passNotTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND)));
+    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passNotTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND,trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND)));
     //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is also a tag
-    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passTagTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND) <<  new EgObjTrigCut<OffEle>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND) ));
+    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passTagTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND) <<  new EgObjTrigCut<OffEle>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND) ));
     //this is all that pass trigtagprobecut and the probe fails the test trigger
-    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_fail",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
+    MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_fail",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffEle>::AND,trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND)));
     /*
-    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffEle,float>(trigName+"_"+monElemCont->name()+"_gsfEle_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
+    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffEle,float>(iBooker,trigName+"_"+monElemCont->name()+"_gsfEle_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
 								       bins.et.nr,bins.et.min,bins.et.max,&OffEle::et));
-    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffEle,float>(trigName+"_"+monElemCont->name()+"_gsfEle_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
-    bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));*/
+    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,trigName+"_"+monElemCont->name()+"_gsfEle_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
+    bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND)));*/
     eleMonElems.push_back(monElemCont);
   } //end filter names loop
    
@@ -449,22 +449,22 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& 
   //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(filterName);
   float etCutValue = 0.;
   //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
+  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
   //this is all that pass trigtagprobecut
   MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_all",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
   //this is all that pass trigtagprobecut and the probe passes the test trigger
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_pass",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_pass",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND)));
   //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is NOT a tag
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passNotTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND)));
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passNotTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND,trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND)));
   //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is also a tag
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passTagTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND) <<  new EgObjTrigCut<OffEle>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND) ));
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_passTagTag",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND) <<  new EgObjTrigCut<OffEle>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffEle>::AND) ));
   //this is all that pass trigtagprobecut and the probe fails the test trigger
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_fail",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_gsfEle_fail",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffEle>::AND,trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND)));
   /*
-    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffEle,float>(trigName+"_"+monElemCont->name()+"_gsfEle_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
+    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffEle,float>(iBooker,trigName+"_"+monElemCont->name()+"_gsfEle_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
     bins.et.nr,bins.et.min,bins.et.max,&OffEle::et));
-    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffEle,float>(trigName+"_"+monElemCont->name()+"_gsfEle_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
-    bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));*/
+    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffEle,float>(iBooker,trigName+"_"+monElemCont->name()+"_gsfEle_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
+    bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,new EgObjTrigCut<OffEle>(trigCodes.getCode(trigName),EgObjTrigCut<OffEle>::AND)));*/
   eleMonElems.push_back(monElemCont);
 }
 
@@ -476,13 +476,13 @@ void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle
   std::string trigNameLeg2 = filterName.substr(filterName.find("::")+2);
 
   float etCutValue = 0.;
-  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
+  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
   //this is all that pass trigtagprobecut
   //MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_allEt20",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
   //this is all that pass trigtagprobecut and the probe passes the first trigger
-  //MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passEt20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
+  //MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passEt20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
   //this is all that pass trigtagprobecut and the probe passes the second trigger and fails the first trigger
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passLeg2failLeg1",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg2),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passLeg2failLeg1",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(trigCodes.getCode(trigNameLeg2),EgObjTrigCut<OffEle>::AND,trigCodes.getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
 
 }
 
@@ -496,22 +496,22 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
     //float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-    MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_NewPho(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffPho::cutCode));
+    MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_NewPho(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffPho::cutCode));
     //this is all that pass trigtagprobecut
     MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_all",bins,new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC));
     //this is all that pass trigtagprobecut and the probe passes the test trigger
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_pass",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND)));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_pass",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND)));
     //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is NOT a tag
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passNotTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND,TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND)));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passNotTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND,trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND)));
     //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is also a tag
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passTagTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND) <<  new EgObjTrigCut<OffPho>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND) ));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passTagTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND) <<  new EgObjTrigCut<OffPho>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND) ));
     //this is all that pass trigtagprobecut and the probe fails the test trigger
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_fail",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffPho>::AND,TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND)));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_fail",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffPho>::AND,trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND)));
     /*
-    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffPho,float>(trigName+"_"+monElemCont->name()+"_pho_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
+    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffPho,float>(iBooker,trigName+"_"+monElemCont->name()+"_pho_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
 								       bins.et.nr,bins.et.min,bins.et.max,&OffPho::et));
-    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffPho,float>(trigName+"_"+monElemCont->name()+"_pho_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
-    bins.et.nr,bins.et.min,bins.et.max,&OffPho::et,new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND)));*/
+    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,trigName+"_"+monElemCont->name()+"_pho_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
+    bins.et.nr,bins.et.min,bins.et.max,&OffPho::et,new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND)));*/
     phoMonElems.push_back(monElemCont);
   } //end filter names loop
    
@@ -523,22 +523,22 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& 
     //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-    MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_NewPho(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffPho::cutCode));
+    MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_NewPho(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffPho::cutCode));
     //this is all that pass trigtagprobecut
     MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_all",bins,new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC));
     //this is all that pass trigtagprobecut and the probe passes the test trigger
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_pass",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND)));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_pass",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND)));
     //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is NOT a tag
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passNotTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND,TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND)));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passNotTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND,trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND)));
     //this is all that pass trigtagprobecut and the probe passes the test trigger and the probe is also a tag
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passTagTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND) <<  new EgObjTrigCut<OffPho>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND) ));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_passTagTag",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND) <<  new EgObjTrigCut<OffPho>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),EgObjTrigCut<OffPho>::AND) ));
     //this is all that pass trigtagprobecut and the probe fails the test trigger
-    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_fail",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffPho>::AND,TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND)));
+    MonElemFuncs::initStdPhoCutHists(monElemCont->cutMonElems(),trigName,trigName+"_"+monElemCont->name()+"_pho_fail",bins,&(*(new EgMultiCut<OffPho>) << new EgGreaterCut<OffPho,float>(etCutValue,&OffPho::etSC) << new EgObjTrigCut<OffPho>(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),EgObjTrigCut<OffPho>::AND,trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND)));
     /*
-    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffPho,float>(trigName+"_"+monElemCont->name()+"_pho_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
+    monElemCont->monElems().push_back(new MonElemMgrEBEE<OffPho,float>(iBooker,trigName+"_"+monElemCont->name()+"_pho_all_etUnCut",monElemCont->name()+"_gsfEle_all E_{T} (Uncut);E_{T} (GeV)",
 								       bins.et.nr,bins.et.min,bins.et.max,&OffPho::et));
-    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffPho,float>(trigName+"_"+monElemCont->name()+"_pho_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
-    bins.et.nr,bins.et.min,bins.et.max,&OffPho::et,new EgObjTrigCut<OffPho>(TrigCodes::getCode(trigName),EgObjTrigCut<OffPho>::AND)));*/
+    monElemCont->cutMonElems().push_back(new MonElemWithCutEBEE<OffPho,float>(iBooker,trigName+"_"+monElemCont->name()+"_pho_pass_etUnCut",monElemCont->name()+"_gsfEle_pass E_{T} (Uncut);E_{T} (GeV)",
+    bins.et.nr,bins.et.min,bins.et.max,&OffPho::et,new EgObjTrigCut<OffPho>(trigCodes.getCode(trigName),EgObjTrigCut<OffPho>::AND)));*/
     phoMonElems.push_back(monElemCont);
 }
 

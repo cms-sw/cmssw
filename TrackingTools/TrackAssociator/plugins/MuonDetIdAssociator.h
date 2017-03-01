@@ -28,6 +28,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class MuonDetIdAssociator: public DetIdAssociator{
  public:
@@ -36,7 +37,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
      :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0),cscbadchambers_(0),includeBadChambers_(0){};
 
    MuonDetIdAssociator(const edm::ParameterSet& pSet)
-     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0),cscbadchambers_(0),includeBadChambers_(pSet.getParameter<bool>("includeBadChambers")){};
+     :DetIdAssociator(pSet.getParameter<int>("nPhi"),pSet.getParameter<int>("nEta"),pSet.getParameter<double>("etaBinSize")),geometry_(0),cscbadchambers_(0),includeBadChambers_(pSet.getParameter<bool>("includeBadChambers")),includeGEM_(pSet.getParameter<bool>("includeGEM")),includeME0_(pSet.getParameter<bool>("includeME0")){};
    
    virtual void setGeometry(const GlobalTrackingGeometry* ptr) { geometry_ = ptr; }
 
@@ -53,7 +54,7 @@ class MuonDetIdAssociator: public DetIdAssociator{
    virtual const GeomDet* getGeomDet( const DetId& id ) const override;
 
    virtual const char* name() const override { return "AllMuonDetectors"; }
-
+   
  protected:
    
    virtual void check_setup() const override;
@@ -70,6 +71,8 @@ class MuonDetIdAssociator: public DetIdAssociator{
 
    const CSCBadChambers* cscbadchambers_;
    bool includeBadChambers_;
+   bool includeGEM_;
+   bool includeME0_;
 
 };
 #endif

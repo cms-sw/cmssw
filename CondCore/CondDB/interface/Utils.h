@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <iostream>
 #include <tuple>
+#include <fstream>
+#include <unistd.h>
+#include <limits.h>
 //
 #include <boost/regex.hpp>
 
@@ -28,6 +31,53 @@ namespace cond {
       return ret;
     }
 
+    inline std::string currentCMSSWVersion(){
+      std::string version("");
+      const char* envVersion = ::getenv( "CMSSW_VERSION" );
+      if(envVersion){
+        version += envVersion;
+      }
+      return version;
+    }
+
+    inline std::string currentArchitecture(){
+      std::string arch("");
+      const char* archEnv = ::getenv( "SCRAM_ARCH" );
+      if(archEnv){
+        arch += archEnv;
+      }
+      return arch;
+    }
+
+    inline std::string getUserName(){
+      char username[LOGIN_NAME_MAX];
+      int retcode = getlogin_r(username,LOGIN_NAME_MAX);
+      if( retcode ) return "";
+      return std::string(username);
+    }
+
+    inline std::string getHostName(){
+      char hostname[HOST_NAME_MAX];
+      int retcode = gethostname(hostname,HOST_NAME_MAX);
+      if( retcode ) return "";
+      return std::string(hostname);
+    }
+
+    inline std::string getCommand(){
+      std::string commName("");
+      try{
+	std::ifstream comm("/proc/self/cmdline");
+	std::getline(comm,commName);
+        size_t ind = commName.find('\0');
+        while( ind != std::string::npos ){
+	  commName.replace(ind,1,1,' ');
+	  ind = commName.find('\0');
+	}
+      } catch ( std::ifstream::failure ){
+	commName = "unknown";
+      }
+      return commName;
+    }
   }
 
   namespace persistency {
@@ -65,6 +115,9 @@ namespace cond {
 
     inline std::string convertoToOracleConnection(const std::string & input){
 
+      // leave the connection string unmodified for sqlite
+      if( input.find("sqlite") == 0 || input.find("oracle") == 0) return input;
+
       //static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
       static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
       static const boost::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
@@ -101,7 +154,7 @@ namespace cond {
 	match = true;
       }
 
-      if( !match ) throwException("Connection string can't be converted.","convertoToOracleConnection");
+      if( !match ) throwException("Connection string "+input+" can't be converted to oracle connection.","convertoToOracleConnection");
 
       if( service == "FrontierArc" ){
 	size_t len = account.size()-5;

@@ -9,15 +9,15 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoLocalTracker/Records//interface/TrackerCPERecord.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  TkTransientTrackingRecHitBuilderESProducer: public edm::ESProducer{
  public:
   TkTransientTrackingRecHitBuilderESProducer(const edm::ParameterSet & p);
   virtual ~TkTransientTrackingRecHitBuilderESProducer(); 
-  boost::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord &);
+  std::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord &);
  private:
-  boost::shared_ptr<TransientTrackingRecHitBuilder> _builder;
+  std::shared_ptr<TransientTrackingRecHitBuilder> _builder;
   edm::ParameterSet pset_;
 };
 

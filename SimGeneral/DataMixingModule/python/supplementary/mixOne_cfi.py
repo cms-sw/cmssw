@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # this is the configuration to model pileup adding one zerobias event 
 mix = cms.EDFilter("DataMixingModule",
     # Mixing Module parameters
-    input = cms.SecSource("PoolRASource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),

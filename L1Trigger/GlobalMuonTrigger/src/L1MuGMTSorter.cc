@@ -155,7 +155,7 @@ void L1MuGMTSorter::run() {
   while ( iter1 != mycands.end() ) {
     if ( *iter1 && number_of_cands < 4 ) {
       m_MuonCands.push_back(*iter1);
-      m_gmt.currentReadoutRecord()->setGMTCand ( count, **iter1 );
+      m_gmt.currentReadoutRecord()->setGMTCand ( number_of_cands, **iter1 );
       number_of_cands++;
     }
     iter1++;

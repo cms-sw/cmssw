@@ -15,27 +15,20 @@
 
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 
-//#include "DataFormats/TrackReco/interface/TrackFwd.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
 #include <DataFormats/Math/interface/deltaR.h>
 
-EgammaHLTPFChargedIsolationProducer::EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet& config) {
-
-  pfCandidateProducer_       = consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("pfCandidatesProducer"));
-  beamSpotProducer_          = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
-
-  useGsfTrack_ = config.getParameter<bool>("useGsfTrack");
-  useSCRefs_ = config.getParameter<bool>("useSCRefs");
-  
-  drMax_ = config.getParameter<double>("drMax");
-  drVetoBarrel_ = config.getParameter<double>("drVetoBarrel");
-  drVetoEndcap_ = config.getParameter<double>("drVetoEndcap");
-  ptMin_ = config.getParameter<double>("ptMin");
-  dzMax_ = config.getParameter<double>("dzMax");
-  dxyMax_ = config.getParameter<double>("dxyMax");
-  pfToUse_ = config.getParameter<int>("pfCandidateType");
+EgammaHLTPFChargedIsolationProducer::EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet& config):
+  pfCandidateProducer_(consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("pfCandidatesProducer"))),
+  beamSpotProducer_   (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"))),
+  useGsfTrack_        (config.getParameter<bool>("useGsfTrack")),
+  useSCRefs_          (config.getParameter<bool>("useSCRefs")),
+  drMax_              (config.getParameter<double>("drMax")),
+  drVetoBarrel_       (config.getParameter<double>("drVetoBarrel")),
+  drVetoEndcap_       (config.getParameter<double>("drVetoEndcap")),
+  ptMin_              (config.getParameter<double>("ptMin")),
+  dzMax_              (config.getParameter<double>("dzMax")),
+  dxyMax_             (config.getParameter<double>("dxyMax")),
+  pfToUse_            (config.getParameter<int>("pfCandidateType")) {
 
   if(useSCRefs_) {
     recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
@@ -74,12 +67,11 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
   iEvent.getByToken(pfCandidateProducer_, pfHandle);
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
-  reco::ElectronIsolationMap eleMap;
-  reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
-   
   if(useSCRefs_) {
 
     iEvent.getByToken(recoEcalCandidateProducer_, recoEcalCandHandle);
+    reco::RecoEcalCandidateIsolationMap recoEcalCandMap(recoEcalCandHandle);
+
     iEvent.getByToken(beamSpotProducer_, recoBeamSpotHandle);
     const reco::BeamSpot::Point& beamSpotPosition = recoBeamSpotHandle->position(); 
 
@@ -124,10 +116,12 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
       
       recoEcalCandMap.insert(candRef, sum);
     }
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandMap));
 
   } else {
 
     iEvent.getByToken(electronProducer_,electronHandle);
+    reco::ElectronIsolationMap eleMap(electronHandle);   
 
     float dRveto = -1;
 
@@ -166,14 +160,6 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
 
       eleMap.insert(eleRef, sum);
     }   
-
-  }
-
-  if(useSCRefs_){
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
-    iEvent.put(mapForEvent);
-  }else{
-    std::auto_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
-    iEvent.put(mapForEvent);
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(eleMap));
   }
 }

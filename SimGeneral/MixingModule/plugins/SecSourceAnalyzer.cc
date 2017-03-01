@@ -19,7 +19,7 @@
 
 // system include files
 #include <memory>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,11 +61,11 @@ SecSourceAnalyzer::SecSourceAnalyzer(const edm::ParameterSet& iConfig)
 //    int maxb = maxBunch_;
    int averageNumber = 1;
    std::string histoFileName = " ";
-   TH1F * histoName = new TH1F("h","",10,0,10); 
+   std::unique_ptr<TH1F> histoName(new TH1F("h","",10,0,10));
    bool playback = false;
    
-   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),
-                                averageNumber,histoName,playback));
+   auto conf = std::make_shared<PileUpConfig>("input",averageNumber,histoName,playback);
+   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),conf));
       
    dataStep2_ = iConfig.getParameter<bool>("dataStep2");
    
@@ -93,6 +93,7 @@ SecSourceAnalyzer::~SecSourceAnalyzer()
 void
 SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   using namespace std::placeholders;
    vectorEventIDs_.resize(maxBunch_-minBunch_+1);
 
    int nevt = 0 ;
@@ -102,7 +103,7 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 {
 	   input_->readPileUp( iEvent.id(),
                                vectorEventIDs_[ ibx-minBunch_ ],
-                               boost::bind(&SecSourceAnalyzer::getBranches,
+                               std::bind(&SecSourceAnalyzer::getBranches,
                                            this, _1, iEvent.moduleCallingContext()), ibx,
                                iEvent.streamID());
 	 }
@@ -110,7 +111,7 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 {
 	   input_->readPileUp( iEvent.id(),
                                vectorEventIDs_[ ibx-minBunch_ ],
-                               boost::bind(&SecSourceAnalyzer::dummyFunction,
+                               std::bind(&SecSourceAnalyzer::dummyFunction,
                                            this, _1),
                                ibx,
                                iEvent.streamID());
@@ -179,7 +180,7 @@ SecSourceAnalyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SecSourceAnalyzer::endJob() {
-  if (input_) input_->endJob();
+  if (input_) input_->endStream();
 }
 
 }//edm

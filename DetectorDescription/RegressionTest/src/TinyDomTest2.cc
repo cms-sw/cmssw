@@ -1,6 +1,10 @@
 #include "DetectorDescription/RegressionTest/src/TinyDomTest2.h"
-#include "DetectorDescription/Core/interface/adjgraph.h"
+
 #include <iostream>
+#include <utility>
+
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
 
 using std::vector;
 using std::cout;

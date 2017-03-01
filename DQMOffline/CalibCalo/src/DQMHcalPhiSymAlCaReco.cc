@@ -45,7 +45,6 @@ using namespace edm;
 DQMHcalPhiSymAlCaReco::DQMHcalPhiSymAlCaReco( const edm::ParameterSet& ps ) :
 eventCounter_(0)
 {
-  dbe_ = Service<DQMStore>().operator->();
   //
   // Input from configurator file 
   //
@@ -86,23 +85,23 @@ DQMHcalPhiSymAlCaReco::~DQMHcalPhiSymAlCaReco()
 {}
 
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::beginJob(){
+void DQMHcalPhiSymAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & irun, edm::EventSetup const & isetup) {
  
   // create and cd into new folder
-  dbe_->setCurrentFolder(folderName_);
+  ibooker.setCurrentFolder(folderName_);
 
   eventCounter_ = 0;
 
-  hFEDsize = dbe_->book1D("hFEDsize","HCAL FED size (kB)",200,-0.5,20.5);
+  hFEDsize = ibooker.book1D("hFEDsize","HCAL FED size (kB)",200,-0.5,20.5);
   hFEDsize->setAxisTitle("kB",1);
 
-  hHcalIsZS = dbe_->book1D("hHcalIsZS", "Hcal Is ZS", 4, -1.5, 2.5);
+  hHcalIsZS = ibooker.book1D("hHcalIsZS", "Hcal Is ZS", 4, -1.5, 2.5);
   hHcalIsZS->setBinLabel(2, "NZS");
   hHcalIsZS->setBinLabel(3, "ZS");
 
   char hname[50];
   sprintf(hname, "L1 Event Number %% %i", period_);
-  hL1Id = dbe_->book1D("hL1Id", hname,4200,-99.5,4099.5);
+  hL1Id = ibooker.book1D("hL1Id", hname,4200,-99.5,4099.5);
   hL1Id->setAxisTitle(hname);
   
 
@@ -110,13 +109,13 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
   double xmin = 0.1;
   double xmax = 1.1;
   hiDistrHBHEsize1D_ =
-    dbe_->book1D("DistrHBHEsize","Size of HBHE Collection",
+    ibooker.book1D("DistrHBHEsize","Size of HBHE Collection",
                   hiDistr_r_nbin_,
                   xmin,
                   xmax
                 );
   hiDistrHFsize1D_ =
-    dbe_->book1D("DistrHFsize","Size of HF Collection",
+    ibooker.book1D("DistrHFsize","Size of HF Collection",
                   hiDistr_r_nbin_,
                   xmin,
                   xmax
@@ -125,7 +124,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
   // First moment
   hiDistrMBPl2D_ = 
-    dbe_->book2D("MBdepthPl1", "iphi- +ieta signal distribution at depth1",
+    ibooker.book2D("MBdepthPl1", "iphi- +ieta signal distribution at depth1",
 		 hiDistr_x_nbin_, 
 		 hiDistr_x_min_,
 		 hiDistr_x_max_,
@@ -139,7 +138,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 
   hiDistrNoisePl2D_ = 
-    dbe_->book2D("NoisedepthPl1", "iphi-ieta noise distribution at depth1",
+    ibooker.book2D("NoisedepthPl1", "iphi-ieta noise distribution at depth1",
 		 hiDistr_x_nbin_+1, 
 		 hiDistr_x_min_-1.,
 		 hiDistr_x_max_,
@@ -152,7 +151,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
   hiDistrNoisePl2D_->setAxisTitle("i#eta ", 1);
 // Second moment
   hiDistrMB2Pl2D_ =
-    dbe_->book2D("MB2depthPl1", "iphi- +ieta signal distribution at depth1",
+    ibooker.book2D("MB2depthPl1", "iphi- +ieta signal distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -166,7 +165,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 
   hiDistrNoise2Pl2D_ =
-    dbe_->book2D("Noise2depthPl1", "iphi-ieta noise distribution at depth1",
+    ibooker.book2D("Noise2depthPl1", "iphi-ieta noise distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -180,7 +179,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 // Variance
   hiDistrVarMBPl2D_ =
-    dbe_->book2D("VarMBdepthPl1", "iphi- +ieta signal distribution at depth1",
+    ibooker.book2D("VarMBdepthPl1", "iphi- +ieta signal distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -194,7 +193,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 
   hiDistrVarNoisePl2D_ =
-    dbe_->book2D("VarNoisedepthPl1", "iphi-ieta noise distribution at depth1",
+    ibooker.book2D("VarNoisedepthPl1", "iphi-ieta noise distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -209,7 +208,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 //==================================================================================
 // First moment
   hiDistrMBMin2D_ = 
-    dbe_->book2D("MBdepthMin1", "iphi- +ieta signal distribution at depth1",
+    ibooker.book2D("MBdepthMin1", "iphi- +ieta signal distribution at depth1",
 		 hiDistr_x_nbin_, 
 		 hiDistr_x_min_,
 		 hiDistr_x_max_,
@@ -223,7 +222,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 
   hiDistrNoiseMin2D_ = 
-    dbe_->book2D("NoisedepthMin1", "iphi-ieta noise distribution at depth1",
+    ibooker.book2D("NoisedepthMin1", "iphi-ieta noise distribution at depth1",
 		 hiDistr_x_nbin_, 
 		 hiDistr_x_min_,
 		 hiDistr_x_max_,
@@ -236,7 +235,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
   hiDistrNoiseMin2D_->setAxisTitle("i#eta ", 1);
 // Second moment
   hiDistrMB2Min2D_ =
-    dbe_->book2D("MB2depthMin1", "iphi- +ieta signal distribution at depth1",
+    ibooker.book2D("MB2depthMin1", "iphi- +ieta signal distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -250,7 +249,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 
   hiDistrNoise2Min2D_ =
-    dbe_->book2D("Noise2depthMin1", "iphi-ieta noise distribution at depth1",
+    ibooker.book2D("Noise2depthMin1", "iphi-ieta noise distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -264,7 +263,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 // Variance
   hiDistrVarMBMin2D_ =
-    dbe_->book2D("VarMBdepthMin1", "iphi- +ieta signal distribution at depth1",
+    ibooker.book2D("VarMBdepthMin1", "iphi- +ieta signal distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -278,7 +277,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 
 
   hiDistrVarNoiseMin2D_ =
-    dbe_->book2D("VarNoisedepthMin1", "iphi-ieta noise distribution at depth1",
+    ibooker.book2D("VarNoisedepthMin1", "iphi-ieta noise distribution at depth1",
                  hiDistr_x_nbin_,
                  hiDistr_x_min_,
                  hiDistr_x_max_,
@@ -294,9 +293,9 @@ void DQMHcalPhiSymAlCaReco::beginJob(){
 }
 
 //--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::beginRun(const edm::Run& r, const EventSetup& context) {
-//   eventCounter_ = 0;
-}
+//void DQMHcalPhiSymAlCaReco::beginRun(const edm::Run& r, const EventSetup& context) {
+////   eventCounter_ = 0;
+//}
 
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
@@ -331,18 +330,17 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 
   const FEDRawDataCollection *rdc=rawIn.product(); 
 
-  bool hcalIsZS = false ;
-  for (unsigned int k=0; k<selFEDs.size(); k++)
-    {
-      const FEDRawData & fedData = rdc->FEDData(selFEDs[k]);
-      // std::cout<<fedData.size()*std::pow(1024.,-1)<<std::endl;
-      hFEDsize->Fill(fedData.size()*std::pow(1024.,-1),1);
-      
-      // get HCAL DCC Header for each FEDRawData
-      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
-
-      if (!dccHeader) continue;
-
+  bool hcalIsZS = false;
+  int lvl1ID = 0;
+  bool lvl1IDFound = false;
+  for (unsigned int k=0; k<selFEDs.size(); k++) {
+    const FEDRawData & fedData = rdc->FEDData(selFEDs[k]);
+    // std::cout<<fedData.size()*std::pow(1024.,-1)<<std::endl;
+    hFEDsize->Fill(fedData.size()*std::pow(1024.,-1),1);
+    
+    // get HCAL DCC Header for each FEDRawData
+    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
+    if (dccHeader) {
       // walk through the HTR data...
       HcalHTRData htr;
 
@@ -350,26 +348,28 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
       for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
        nspigot++;
 
-	if (!dccHeader->getSpigotPresent(spigot)) continue;
+        if (!dccHeader->getSpigotPresent(spigot)) continue;
 
-	// Load the given decoder with the pointer and length from this spigot.
-	dccHeader->getSpigotData(spigot,htr, fedData.size()); 
+        // Load the given decoder with the pointer and length from this spigot.
+        dccHeader->getSpigotData(spigot,htr, fedData.size()); 
 
         if(k != 20 && nspigot !=14 ) {      
-	if ( !htr.isUnsuppressed() ) { hcalIsZS = true; }
+          if ( !htr.isUnsuppressed() ) { hcalIsZS = true; }
         }
       } 
-    
-    } // loop over HcalFEDs
+    }
+ 
+    // try to get the lvl1ID from the HCAL fed
+    if (!lvl1IDFound && (fedData.size() > 0)) { 
+      // get FED Header for FEDRawData
+      FEDHeader fedHeader(fedData.data());
+      lvl1ID = fedHeader.lvl1ID();
+      lvl1IDFound = true;
+    }
+  } // loop over HcalFEDs
   
   hHcalIsZS->Fill( hcalIsZS );
-
-  // get Trigger FED-Id
-  const FEDRawData& fedData = rdc->FEDData(FEDNumbering::MINTriggerGTPFEDID) ;
-  FEDHeader header(fedData.data()) ;
-
-  /// Level-1 event number generated by the TTC system
-  hL1Id->Fill( (header.lvl1ID())%period_ );
+  hL1Id->Fill( lvl1ID%period_ );
  
   edm::Handle<HBHERecHitCollection> hbheNS;
   iEvent.getByToken(hbherecoNoise, hbheNS);
@@ -525,49 +525,6 @@ void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
        hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
     }     
   }
-  }
-}
-//--------------------------------------------------------
-void DQMHcalPhiSymAlCaReco::endJob(){
-  if (saveToFile_) {
-
-  for(int k=0; k<=hiDistr_x_nbin_;k++)
-  {
-    for(int j=0; j<=hiDistr_y_nbin_;j++)
-    {
-// First moment
-       float cc1=hiDistrMBPl2D_->getBinContent(k,j);
-       cc1 = cc1 * 1./eventCounter_;
-       hiDistrMBPl2D_->setBinContent(k,j,cc1); 
-       float cc2=hiDistrNoisePl2D_->getBinContent(k,j);
-       cc2 = cc2 * 1./eventCounter_;
-       hiDistrNoisePl2D_->setBinContent(k,j,cc2);
-       float cc3=hiDistrMBMin2D_->getBinContent(k,j);
-       cc3 = cc3 * 1./eventCounter_;
-       hiDistrMBMin2D_->setBinContent(k,j,cc3);
-       float cc4=hiDistrNoiseMin2D_->getBinContent(k,j);
-       cc4 = cc4 * 1./eventCounter_;
-       hiDistrNoiseMin2D_->setBinContent(k,j,cc4);
-// Second moment
-       float cc11=hiDistrMB2Pl2D_->getBinContent(k,j);
-       cc11 = cc11 * 1./eventCounter_;
-       hiDistrMB2Pl2D_->setBinContent(k,j,cc11);
-       hiDistrVarMBPl2D_->setBinContent(k,j,cc11-cc1*cc1);
-       float cc22=hiDistrNoise2Pl2D_->getBinContent(k,j);
-       cc22 = cc22 * 1./eventCounter_;
-       hiDistrNoise2Pl2D_->setBinContent(k,j,cc22);
-       hiDistrVarNoisePl2D_->setBinContent(k,j,cc22-cc2*cc2);
-       float cc33=hiDistrMB2Min2D_->getBinContent(k,j);
-       cc33 = cc33 * 1./eventCounter_;
-       hiDistrMB2Min2D_->setBinContent(k,j,cc33);
-       hiDistrVarMBMin2D_->setBinContent(k,j,cc33-cc3*cc3);
-       float cc44=hiDistrNoise2Min2D_->getBinContent(k,j);
-       cc44 = cc44 * 1./eventCounter_;
-       hiDistrNoise2Min2D_->setBinContent(k,j,cc44);
-       hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
-    }
-  }
-     dbe_->save(fileName_);
   }
 }
 

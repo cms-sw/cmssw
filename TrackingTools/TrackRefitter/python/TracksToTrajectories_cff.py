@@ -11,7 +11,7 @@ from TrackingTools.GeomPropagators.SmartPropagator_cff import *
 from RecoMuon.TransientTrackingRecHit.MuonTransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 
 Chi2EstimatorForRefit = Chi2MeasurementEstimator.clone()
 Chi2EstimatorForRefit.ComponentName = cms.string('Chi2EstimatorForRefit')
@@ -19,8 +19,8 @@ Chi2EstimatorForRefit.MaxChi2 = cms.double(100000.0)
 Chi2EstimatorForRefit.nSigma = cms.double(3.0)
 
 
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import *
 
 KFFitterForRefitOutsideIn = KFTrajectoryFitter.clone()
 KFFitterForRefitOutsideIn.ComponentName = cms.string('KFFitterForRefitOutsideIn')

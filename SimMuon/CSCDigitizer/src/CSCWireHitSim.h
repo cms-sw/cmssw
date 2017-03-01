@@ -8,6 +8,7 @@
  */
 
 #include <vector>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -26,7 +27,7 @@ namespace CLHEP {
 class CSCWireHitSim
 {
 public:
-  explicit CSCWireHitSim(CSCDriftSim* driftSim);
+  explicit CSCWireHitSim(CSCDriftSim* driftSim, const edm::ParameterSet & p);
   ~CSCWireHitSim();
 
   // makes wire hits from the given g3hits

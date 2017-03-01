@@ -20,7 +20,6 @@ sed -i "s/THECLASS/$class/g" ${cname}_test.cc
 sed -i "s/THEPACKAGE/$1/g" ${cname}_test.cc
 echo "<bin file=${cname}_test.cc name=CondPayload_${cname}_testIO>" > bfile
 echo "<use name=CondFormats/$1>" >> bfile
-echo "<use name=CondCore/DBCommon>" >> bfile
 echo "</bin>" >> bfile
 mv bfile BuildFile
 scramv1 b

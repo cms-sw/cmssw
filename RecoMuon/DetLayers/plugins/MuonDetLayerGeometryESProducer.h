@@ -12,7 +12,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <RecoMuon/Records/interface/MuonRecoGeometryRecord.h>
 #include <RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 class  MuonDetLayerGeometryESProducer: public edm::ESProducer{
@@ -24,7 +24,7 @@ class  MuonDetLayerGeometryESProducer: public edm::ESProducer{
   virtual ~MuonDetLayerGeometryESProducer(); 
 
   /// Produce MuonDeLayerGeometry.
-  boost::shared_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord & record);
+  std::shared_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord & record);
 
  private:
 };

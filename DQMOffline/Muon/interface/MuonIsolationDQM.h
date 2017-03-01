@@ -69,7 +69,7 @@ public:
   explicit MuonIsolationDQM(const edm::ParameterSet&);
   ~MuonIsolationDQM();
   
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
@@ -90,7 +90,8 @@ private:
   
   //Collection labels
   edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionLabel_;
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
+
 
   //root file name
   std::string rootfilename;
@@ -147,6 +148,7 @@ private:
   int nSTAMuons;
   int nGLBMuons;
   int nTRKMuons;
+
   
   //enums for monitorElement
   enum {NOAXIS,XAXIS,YAXIS,ZAXIS};

@@ -20,13 +20,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 
@@ -114,7 +111,7 @@ class MuonTrackValidatorBase {
     }
   
   /// Destructor
-  virtual ~MuonTrackValidatorBase(){ }
+  virtual ~MuonTrackValidatorBase() noexcept(false) { }
   
   virtual void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){
@@ -389,7 +386,6 @@ h->setBinContent(j+1, 0);
   bool useLogPt;
 
   edm::ESHandle<MagneticField> theMF;
-  std::vector<const TrackAssociatorBase*> associator;
 
   //sim
   std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM;
@@ -420,10 +416,10 @@ h->setBinContent(j+1, 0);
 
   //#hit vs eta: to be used with doProfileX
   std::vector<MonitorElement*> nhits_vs_eta,
-    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta;
+    nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta,nGEMhits_vs_eta,nME0hits_vs_eta;
 
   std::vector<MonitorElement*> h_hits_eta,
-    h_DThits_eta,h_CSChits_eta,h_RPChits_eta;
+    h_DThits_eta,h_CSChits_eta,h_RPChits_eta,h_GEMhits_eta,h_ME0hits_eta;
     
 
   std::vector< std::vector<double> > etaintervals;

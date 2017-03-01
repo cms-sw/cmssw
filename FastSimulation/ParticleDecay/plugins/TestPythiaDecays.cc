@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,7 +45,7 @@
 // class declaration
 //
 
-class TestPythiaDecays : public edm::EDAnalyzer {
+class TestPythiaDecays : public edm::stream::EDAnalyzer <> {
 public:
   explicit TestPythiaDecays(const edm::ParameterSet&);
   ~TestPythiaDecays();
@@ -54,9 +54,7 @@ public:
   
   
 private:
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -78,7 +76,7 @@ private:
   std::map<int,TH1D*> h_br;
   std::map<int,TH1D*> h_br_ref;
 
-  std::map<int,std::vector<string> > knownDecayModes;
+  std::map<int,std::vector<std::string> > knownDecayModes;
 
   Pythia8::Pythia * pythia;
   std::string outputFile;
@@ -181,10 +179,10 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
     strstr.str("");
     strstr << "br_" << pid;
     h_br[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),0,0,0);
-    h_br[pid]->SetBit(TH1::kCanRebin);
+    h_br[pid]->SetCanExtend(TH1::kAllAxes);
     h_br_ref[pid] = (TH1D*)(h_br[pid]->Clone(strstr.str().c_str()));
     h_br_ref[pid]->SetTitle(h_br_ref[pid]->GetName());
-    knownDecayModes[pid] = vector<string>();
+    knownDecayModes[pid] = std::vector<std::string>();
     for(int d = 0;d<pd->sizeChannels();++d){
       Pythia8::DecayChannel & channel = pd->channel(d);
       std::vector<int> prod;
@@ -336,7 +334,7 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      size_t parentIndex = it->first;
      const SimTrack & parent = simtracks->at(parentIndex);
      int pid = abs(parent.type());
-     vector<size_t> & childIndices = it->second;
+     std::vector<size_t> & childIndices = it->second;
      if(childIndices.size() == 0)
        continue;
 
@@ -377,17 +375,6 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TestPythiaDecays::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TestPythiaDecays::endJob() 
-{
-}
 
 // ------------ method called when starting to processes a run  ------------
 /*

@@ -57,7 +57,7 @@ void HLTCaloJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & des
 void HLTCaloJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::CaloJetCollection> result (new reco::CaloJetCollection());
+    std::unique_ptr<reco::CaloJetCollection> result (new reco::CaloJetCollection());
 
     edm::Handle<reco::CaloJetCollection> calojets;
     iEvent.getByToken(m_theCaloJetToken, calojets);
@@ -85,5 +85,5 @@ void HLTCaloJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

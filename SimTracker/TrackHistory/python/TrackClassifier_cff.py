@@ -10,7 +10,7 @@ from SimTracker.TrackHistory.TrackQuality_cff import *
 trackClassifier = cms.PSet(
     trackHistory,
     trackQuality,
-    hepMC = cms.untracked.InputTag("generator"),
+    hepMC = cms.untracked.InputTag("generatorSmeared"),
     beamSpot = cms.untracked.InputTag("offlineBeamSpot"),
     badPull = cms.untracked.double(3.0),
     longLivedDecayLength = cms.untracked.double(1e-14),

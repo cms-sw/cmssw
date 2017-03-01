@@ -20,7 +20,7 @@ public:
   // A RecHit extension that caches the phi angle for fast access
   class HitWithPhi {
   public:
-    HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().phi()) {}
+    HitWithPhi( const Hit & hit) : theHit(hit), thePhi(hit->globalPosition().barePhi()) {}
     HitWithPhi( const Hit & hit,float phi) : theHit(hit), thePhi(phi) {}
     HitWithPhi( float phi) : theHit(0), thePhi(phi) {}
     float phi() const {return thePhi;}
@@ -91,7 +91,7 @@ public:
 
 public:
 
-  mutable GlobalPoint theOrigin;
+  GlobalPoint theOrigin;
 
   std::vector<HitWithPhi> theHits;
 
@@ -141,14 +141,17 @@ public:
   std::size_t size() const { return indeces.size()/2;}
   bool empty() const { return indeces.empty();}
   void clear() { indeces.clear();}
+  void shrink_to_fit() { indeces.shrink_to_fit();}
 
   void add (int il, int ol) { indeces.push_back(il);indeces.push_back(ol);}
 
   DetLayer const * detLayer(layer l) const { return layers[l]->layer; }
-
+  int innerHitId(int i) const {return indeces[2*i];}
+  int outerHitId(int i) const {return indeces[2*i+1];}
   Hit const & hit(int i, layer l) const { return layers[l]->theHits[indeces[2*i+l]].hit();}
   float       phi(int i, layer l) const { return layers[l]->phi(indeces[2*i+l]);}
   float       rv(int i, layer l) const { return layers[l]->rv(indeces[2*i+l]);}
+  float       r(int i, layer l) const { float xp = x(i,l); float yp = y(i,l);  return sqrt (xp*xp + yp*yp);}
   float        z(int i, layer l) const { return layers[l]->z[indeces[2*i+l]];}
   float        x(int i, layer l) const { return layers[l]->x[indeces[2*i+l]];}
   float        y(int i, layer l) const { return layers[l]->y[indeces[2*i+l]];}

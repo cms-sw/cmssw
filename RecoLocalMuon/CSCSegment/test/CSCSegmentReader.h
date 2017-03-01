@@ -4,8 +4,7 @@
 /** \class CSCSegmentReader
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
- *
- *  \author M. Sani
+ *  [This hasn't been used in many years but I am loath to delete code.]
  */
 
 #include <FWCore/Framework/interface/Event.h>
@@ -86,8 +85,8 @@ private:
     int simhit;
     int maxNhits;
     int minNhits;
-    int n6hitSegmentMC[9];
-    int n6hitSegmentReco[9];
+    //    int n6hitSegmentMC[9];
+    //    int n6hitSegmentReco[9];
     int near_segment;
 };
 

@@ -3,8 +3,9 @@
  *  \author M. Sani
  */
 
-#include <Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h>
-#include <FWCore/Utilities/interface/Exception.h>
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <memory>
 
 GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometry*>& geos)

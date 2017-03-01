@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 simHcalDigis = cms.EDProducer("HcalTBDigiProducer",
     doNoise             = cms.bool(False),
     doTimeSlew          = cms.bool(True),
+    minFCToDelay        = cms.double(5.),
     readoutFrameSizeTB  = cms.untracked.int32(10),
     doPhotostatisticsTB = cms.untracked.bool(True),
     syncPhaseTB         = cms.untracked.bool(False),

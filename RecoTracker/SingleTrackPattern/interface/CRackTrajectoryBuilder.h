@@ -238,7 +238,6 @@ class CRackTrajectoryBuilder
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
-   edm::ParameterSet conf_;
    
    PropagatorWithMaterial  *thePropagator;
    PropagatorWithMaterial  *thePropagatorOp;
@@ -264,6 +263,7 @@ class CRackTrajectoryBuilder
    TransientTrackingRecHit::RecHitContainer  hits;
    bool seed_plus;
    std::string geometry;
+   std::string theBuilderName;
 //   TransientInitialStateEstimator*  theInitialState;
 };
 

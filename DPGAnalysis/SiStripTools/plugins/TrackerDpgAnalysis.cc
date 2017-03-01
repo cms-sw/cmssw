@@ -70,7 +70,7 @@
 #include <DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h>
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <DataFormats/SiPixelCluster/interface/SiPixelCluster.h>
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 #include <DataFormats/TrackReco/interface/Track.h>
@@ -89,7 +89,6 @@
 #include <MagneticField/Engine/interface/MagneticField.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h>
-#include <RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h>
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -166,7 +165,9 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       TTree* psumap_;
       TTree* readoutmap_;
       bool onTrack_;
-      uint32_t vertexid_, eventid_, runid_;
+      uint32_t vertexid_;
+      edm::EventNumber_t eventid_;
+      uint32_t runid_;
       uint32_t globalvertexid_;
       uint32_t *globaltrackid_, *trackid_;
       float globalX_, globalY_, globalZ_;
@@ -756,10 +757,11 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        quality_ = itTrack->qualityMask();
        foundhits_ = itTrack->found();
        lostHits_  = itTrack->lost();
-       foundhitsStrips_ = itTrack->hitPattern().numberOfValidStripHits();
-       foundhitsPixels_ = itTrack->hitPattern().numberOfValidPixelHits();
-       losthitsStrips_  = itTrack->hitPattern().numberOfLostStripHits();
-       losthitsPixels_  = itTrack->hitPattern().numberOfLostPixelHits();
+       foundhitsStrips_ =  itTrack->hitPattern().numberOfValidStripHits();
+       foundhitsPixels_ =  itTrack->hitPattern().numberOfValidPixelHits();
+       losthitsStrips_  =  itTrack->hitPattern().numberOfLostStripHits(reco::HitPattern::TRACK_HITS);
+       losthitsPixels_  =  itTrack->hitPattern().numberOfLostPixelHits(reco::HitPattern::TRACK_HITS);
+       nLayers_ = uint32_t(itTrack->hitPattern().trackerLayersWithMeasurement());
        p_ = itTrack->p();
        pt_ = itTrack->pt();
        chi2_  = itTrack->chi2();
@@ -777,7 +779,6 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        xPCA_ = itTrack->vertex().x();
        yPCA_ = itTrack->vertex().y();
        zPCA_ = itTrack->vertex().z();
-       nLayers_ = uint32_t(itTrack->hitPattern().trackerLayersWithMeasurement());
        try { // only one track collection (at best) is connected to the main vertex
          if(vertexColl.size()>0 && !vertexColl.begin()->isFake()) {
            trkWeightpvtx_ =  vertexColl.begin()->trackWeight(itTrack);
@@ -961,7 +962,7 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
    const TrackerTopology* const tTopo = tTopoHandle.product();
 
    //geometry
@@ -1104,7 +1105,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
 void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t,std::pair<LocalPoint,double> >& collection,const TransientTrackingRecHit* hit , double tla)
 {
       if(!hit) return;
-      const TSiTrackerMultiRecHit* multihit=dynamic_cast<const TSiTrackerMultiRecHit*>(hit);
+      const SiTrackerMultiRecHit* multihit=dynamic_cast<const SiTrackerMultiRecHit*>(hit);
       const SiStripRecHit2D* singlehit=dynamic_cast<const SiStripRecHit2D*>(hit);
       const SiStripRecHit1D* hit1d=dynamic_cast<const SiStripRecHit1D*>(hit);
       if(hit1d) { //...->33X

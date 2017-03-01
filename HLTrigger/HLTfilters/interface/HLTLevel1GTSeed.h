@@ -112,7 +112,7 @@ private:
     // cached stuff
 
     /// trigger menu
-    L1GtTriggerMenu * m_l1GtMenu;
+    const L1GtTriggerMenu * m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
     /// logic parser for m_l1SeedsLogicalExpression
@@ -182,6 +182,8 @@ private:
     edm::EDGetTokenT<l1extra::L1JetParticleCollection>    m_l1ForJetToken;
     edm::InputTag                                         m_l1TauJetTag;
     edm::EDGetTokenT<l1extra::L1JetParticleCollection>    m_l1TauJetToken;
+    edm::InputTag                                         m_l1IsoTauJetTag;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection>    m_l1IsoTauJetToken;
     edm::InputTag                                         m_l1EtMissMETTag;
     edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_l1EtMissMETToken;
     edm::InputTag                                         m_l1EtMissMHTTag;

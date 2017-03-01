@@ -5,8 +5,8 @@
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
-#include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h"
-#include "RecoTracker/TkNavigation/interface/LayerCollector.h"
+#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
+#include "RecoTracker/MeasurementDet/interface/LayerCollector.h"
 //
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

@@ -2,7 +2,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +14,7 @@
 #include <iostream>
 
 //____________________________________________________________________________||
-class ScaleCorrMETData : public edm::EDProducer
+class ScaleCorrMETData : public edm::stream::EDProducer<>
 {
 public:
   explicit ScaleCorrMETData(const edm::ParameterSet&);
@@ -46,8 +46,8 @@ void ScaleCorrMETData::produce(edm::Event& evt, const edm::EventSetup& es)
   evt.getByToken(token_, input);
   product += scaleFactor_*(*input);
 
-  std::auto_ptr<CorrMETData> pprod(new CorrMETData(product));
-  evt.put(pprod, "");
+  std::unique_ptr<CorrMETData> pprod(new CorrMETData(product));
+  evt.put(std::move(pprod), "");
 }
 
 //____________________________________________________________________________||

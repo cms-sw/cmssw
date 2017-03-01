@@ -9,10 +9,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Session.h"
-//#include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-
-//#include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "DataFormats/Provenance/interface/RunID.h"
 
@@ -94,7 +90,7 @@ void DataWriter::readObject( const std::string& payloadToken,
   session.transaction().start(true);
  
   // Get object from CondDB
-  boost::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken) ;
+  std::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken) ;
   outputObject = *ref ;
   session.transaction().commit ();
 }

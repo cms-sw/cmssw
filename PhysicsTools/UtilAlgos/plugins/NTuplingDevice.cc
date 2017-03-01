@@ -82,8 +82,7 @@ void
 NTuplingDevice::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   ntupler_->fill(iEvent);
-  std::auto_ptr<double> v(new double(0));
-  iEvent.put(v,"dummy");
+  iEvent.put(std::make_unique<double>(0.),"dummy");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

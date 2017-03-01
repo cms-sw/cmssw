@@ -40,15 +40,33 @@ class ParameterSetDescriptionFillerBase
       // ---------- const member functions ---------------------
       virtual void fill(ConfigurationDescriptions & descriptions) const = 0;
       virtual const std::string& baseType() const = 0;
+      virtual const std::string& extendedBaseType() const = 0;
   
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
 
 protected:
+     static const std::string kEmpty;
      static const std::string kBaseForService;
      static const std::string kBaseForESSource;
      static const std::string kBaseForESProducer;
+     static const std::string kExtendedBaseForEDAnalyzer;
+     static const std::string kExtendedBaseForEDProducer;
+     static const std::string kExtendedBaseForEDFilter;
+     static const std::string kExtendedBaseForOutputModule;
+     static const std::string kExtendedBaseForOneEDAnalyzer;
+     static const std::string kExtendedBaseForOneEDProducer;
+     static const std::string kExtendedBaseForOneEDFilter;
+     static const std::string kExtendedBaseForOneOutputModule;
+     static const std::string kExtendedBaseForStreamEDAnalyzer;
+     static const std::string kExtendedBaseForStreamEDProducer;
+     static const std::string kExtendedBaseForStreamEDFilter;
+     static const std::string kExtendedBaseForGlobalEDAnalyzer;
+     static const std::string kExtendedBaseForGlobalEDProducer;
+     static const std::string kExtendedBaseForGlobalEDFilter;
+     static const std::string kExtendedBaseForGlobalOutputModule;
+
    private:
       ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default
 

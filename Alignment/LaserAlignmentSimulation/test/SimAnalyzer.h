@@ -17,12 +17,11 @@
 // ROOT
 #include "TH1.h"
 #include "TH2.h"
-#include "TObject.h"
 class TFile;
 
 #include <iostream>
 
-class SimAnalyzer : public edm::EDAnalyzer, public TObject 
+class SimAnalyzer : public edm::EDAnalyzer
 {
  public:
 	/// constructor

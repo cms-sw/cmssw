@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -14,7 +14,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 
 
-class CleanAndMergeProducer : public edm::EDProducer 
+class CleanAndMergeProducer : public edm::stream::EDProducer<>
 {
   
   public:

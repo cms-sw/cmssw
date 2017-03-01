@@ -1,6 +1,10 @@
 #include "DetectorDescription/Core/src/EllipticalTube.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 #include <ostream>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 void DDI::EllipticalTube::stream(std::ostream & os) const
 {

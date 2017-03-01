@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterGammaJet::PythiaFilterGammaJet(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 etaMax(iConfig.getUntrackedParameter<double>("MaxPhotonEta", 2.8)),
 ptSeed(iConfig.getUntrackedParameter<double>("PhotonSeedPt", 5.)),
 ptMin(iConfig.getUntrackedParameter<double>("MinPhotonPt")),
@@ -67,7 +67,7 @@ bool PythiaFilterGammaJet::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   std::list<const HepMC::GenParticle *> seeds;
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();

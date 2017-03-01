@@ -16,29 +16,29 @@ public:
 
   virtual ~InvalidTrackingRecHit() {}
 
-  virtual InvalidTrackingRecHit * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHit(*this);}
-#ifdef NO_DICT
-  virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
+  virtual InvalidTrackingRecHit * clone() const override {return new InvalidTrackingRecHit(*this);}
+#ifndef __GCCXML__
+  virtual RecHitPointer cloneSH() const override { return RecHitPointer(clone());}
 #endif
 
   
-  virtual AlgebraicVector parameters() const;
+  virtual AlgebraicVector parameters() const override;
 
-  virtual AlgebraicSymMatrix parametersError() const;
+  virtual AlgebraicSymMatrix parametersError() const override;
 
-  virtual AlgebraicMatrix projectionMatrix() const;
+  virtual AlgebraicMatrix projectionMatrix() const override;
 
-  virtual int dimension() const { return 0;}
+  virtual int dimension() const override { return 0;}
 
-  virtual LocalPoint localPosition() const;
+  virtual LocalPoint localPosition() const override;
 
-  virtual LocalError localPositionError() const;
+  virtual LocalError localPositionError() const override;
 
-  virtual std::vector<const TrackingRecHit*> recHits() const;
+  virtual std::vector<const TrackingRecHit*> recHits() const override;
 
-  virtual std::vector<TrackingRecHit*> recHits();
+  virtual std::vector<TrackingRecHit*> recHits() override;
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const override;
 
 private:
 
@@ -46,15 +46,15 @@ private:
 
 };
 
-class InvalidTrackingRecHitNoDet GCC11_FINAL : public InvalidTrackingRecHit {
+class InvalidTrackingRecHitNoDet final : public InvalidTrackingRecHit {
 public:
 
   InvalidTrackingRecHitNoDet() {}
   InvalidTrackingRecHitNoDet(Surface const & surface, Type type) : InvalidTrackingRecHit(type), m_surface(&surface){}
 
-  virtual InvalidTrackingRecHitNoDet * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHitNoDet(*this);}
+  virtual InvalidTrackingRecHitNoDet * clone() const override {return new InvalidTrackingRecHitNoDet(*this);}
 
-  const Surface* surface() const GCC11_OVERRIDE {  return  m_surface; }
+  const Surface* surface() const override {  return  m_surface; }
 
  private:
   Surface const * m_surface;

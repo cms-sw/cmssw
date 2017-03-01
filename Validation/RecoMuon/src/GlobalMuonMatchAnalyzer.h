@@ -26,9 +26,10 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
 namespace reco {class Track;}
@@ -42,7 +43,7 @@ class  DQMStore;
 // class decleration
 //
 
-class GlobalMuonMatchAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class GlobalMuonMatchAnalyzer : public DQMEDAnalyzer {
    public:
       explicit GlobalMuonMatchAnalyzer(const edm::ParameterSet&);
       ~GlobalMuonMatchAnalyzer();
@@ -51,10 +52,10 @@ class GlobalMuonMatchAnalyzer : public thread_unsafe::DQMEDAnalyzer {
    private:
       virtual void beginJob() ;
       //      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       virtual void endJob() ;
-      virtual void endRun() ;
+      virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void computeEfficiencyEta(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
   void computeEfficiencyPt(MonitorElement*, MonitorElement *recoTH2, MonitorElement *simTH2);
@@ -69,10 +70,10 @@ class GlobalMuonMatchAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement *h_fake, *h_fakePt;
 
   const TrackAssociatorBase *tkAssociator_, *muAssociator_;
-  std::string tkAssociatorName_, muAssociatorName_;
+  edm::InputTag tkAssociatorName_, muAssociatorName_;
   edm::InputTag tkName_, tpName_, glbName_, staName_;
   edm::EDGetTokenT<edm::View<reco::Track> >  tkToken_, tpToken_, glbToken_, staToken_;
-
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> tkAssociatorToken_, muAssociatorToken_;
 
 };
 

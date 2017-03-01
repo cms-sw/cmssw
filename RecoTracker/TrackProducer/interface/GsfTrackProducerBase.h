@@ -28,20 +28,21 @@ public:
 
   /// Constructor
   explicit GsfTrackProducerBase(bool trajectoryInEvent, bool split) :
-    TrackProducerBase<reco::GsfTrack>(trajectoryInEvent),
+  TrackProducerBase<reco::GsfTrack>(trajectoryInEvent),
     useSplitting(split){}
-
+  
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
 			const Propagator* prop,
 			const MeasurementTracker* measTk,
-			std::auto_ptr<TrackingRecHitCollection>&,
-			std::auto_ptr<reco::GsfTrackCollection>&,
-			std::auto_ptr<reco::TrackExtraCollection>&,
-			std::auto_ptr<reco::GsfTrackExtraCollection>&,
-			std::auto_ptr<std::vector<Trajectory> >&,
-			AlgoProductCollection&, TransientTrackingRecHitBuilder const*,
-			const reco::BeamSpot&);
+			std::unique_ptr<TrackingRecHitCollection>&,
+			std::unique_ptr<reco::GsfTrackCollection>&,
+			std::unique_ptr<reco::TrackExtraCollection>&,
+			std::unique_ptr<reco::GsfTrackExtraCollection>&,
+			std::unique_ptr<std::vector<Trajectory> >&,
+			AlgoProductCollection&,
+			TransientTrackingRecHitBuilder const*,
+			const reco::BeamSpot&, const TrackerTopology *ttopo);
 
 
 protected:

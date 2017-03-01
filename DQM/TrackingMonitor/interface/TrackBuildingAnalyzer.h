@@ -82,7 +82,8 @@ class TrackBuildingAnalyzer
         MonitorElement* TrackCandPt;
         MonitorElement* TrackCandEta;
         MonitorElement* TrackCandPhi;
-        MonitorElement* TrackCandTheta;
+        MonitorElement* TrackCandPhiVsEta;
+	MonitorElement* TrackCandTheta;
         MonitorElement* TrackCandQ;
         MonitorElement* TrackCandDxy;
         MonitorElement* TrackCandDz;
@@ -90,12 +91,17 @@ class TrackBuildingAnalyzer
         MonitorElement* NumberOfRecHitsPerTrackCandVsPhiProfile;
         MonitorElement* NumberOfRecHitsPerTrackCandVsEtaProfile;
 
+	MonitorElement* stoppingSource;
+	MonitorElement* stoppingSourceVSeta;
+	MonitorElement* stoppingSourceVSphi;
+	
         std::string histname;  //for naming the histograms according to algorithm used
 
 	//to disable some plots
 	bool doAllPlots;
 	bool doAllSeedPlots;
 	bool doTCPlots;
+	bool doAllTCPlots;
        	bool doPT;
 	bool doETA;
 	bool doPHI;
@@ -107,5 +113,6 @@ class TrackBuildingAnalyzer
 	bool doNRecHits;
 	bool doProfPHI;
 	bool doProfETA;
+	bool doStopSource;
 };
 #endif

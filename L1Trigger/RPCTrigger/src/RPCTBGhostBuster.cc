@@ -83,15 +83,15 @@ L1RpcTBMuonsVec RPCTBGhostBuster::gBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
       }
     }
 
-    if(pacMuonsVec[RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1].isLive()) 
-      pacMuonsVec[RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1].setGBDataKilledLast();
-    else if(pacMuonsVec[RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1].wasKilled())
-      for(int iMu = RPCConst::m_SEGMENTS_IN_SECTOR_CNT -1; iMu >= 0 ; iMu--) {
-        if(pacMuonsVec[iMu].isLive()) {
-          pacMuonsVec[iMu].setGBDataKilledLast();
-          break;
-      }
+  if(pacMuonsVec[RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1].isLive()) 
+    pacMuonsVec[RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1].setGBDataKilledLast();
+  else if(pacMuonsVec[RPCConst::m_SEGMENTS_IN_SECTOR_CNT-1].wasKilled())
+    for(int iMu = RPCConst::m_SEGMENTS_IN_SECTOR_CNT -1; iMu >= 0 ; iMu--) {
+      if(pacMuonsVec[iMu].isLive()) {
+        pacMuonsVec[iMu].setGBDataKilledLast();
+        break;
     }
+  }
 //-------------sorting ------------------------------------------
   /*
   multiset<RPCTBMuon, RPCTBMuon::TMuonMore> liveMuonsSet;

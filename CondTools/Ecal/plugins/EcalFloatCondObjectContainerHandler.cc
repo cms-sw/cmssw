@@ -7,7 +7,7 @@
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerHandler.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"

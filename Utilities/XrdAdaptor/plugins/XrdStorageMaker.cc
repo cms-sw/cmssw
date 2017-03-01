@@ -1,27 +1,67 @@
+
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/XrdAdaptor/src/XrdStatistics.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
-#include "XrdClient/XrdClientAdmin.hh"
-#include "XrdClient/XrdClientUrlSet.hh"
-#include "XrdClient/XrdClientEnv.hh"
 
-class XrdStorageMaker : public StorageMaker
+#include "XrdCl/XrdClDefaultEnv.hh"
+#include "XrdNet/XrdNetUtils.hh"
+
+#include <atomic>
+#include <mutex>
+
+class MakerResponseHandler : public XrdCl::ResponseHandler
 {
 public:
+    virtual void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response )
+    {
+        // Note: Prepare call has a response object.
+        delete response;
+        delete status;
+    }
+
+};
+
+class XrdStorageMaker final : public StorageMaker
+{
+public:
+  static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
+
+  XrdStorageMaker():
+  m_lastDebugLevel(1),//so that 0 will trigger change
+  m_lastTimeout(0)
+  {
+    // When CMSSW loads, both XrdCl and XrdClient end up being loaded
+    // (ROOT loads XrdClient).  XrdClient forces IPv4-only.  Accordingly,
+    // we must explicitly set the default network stack in XrdCl to
+    // whatever is available on the node (IPv4 or IPv6).
+    XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+    if (env)
+    {
+      env->PutString("NetworkStack", "IPAuto");
+    }
+    XrdNetUtils::SetAuto(XrdNetUtils::prefAuto);
+    setTimeout(XRD_DEFAULT_TIMEOUT);
+    setDebugLevel(0);
+  }
+
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
-			 int mode) override
+			 int mode,
+       const AuxSettings& aux) const override
   {
-    // The important part here is not the cache size (which will get
-    // auto-adjusted), but the fact the cache is set to something non-zero.
-    // If we don't do this before creating the XrdFile object, caching will be
-    // completely disabled, resulting in poor performance.
-    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
-
-    StorageFactory *f = StorageFactory::get();
+    setDebugLevel(aux.debugLevel);
+    setTimeout(aux.timeout);
+    
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -32,50 +72,128 @@ public:
       mode |=  IOFlags::OpenUnbuffered;
 
     std::string fullpath(proto + ":" + path);
-    Storage *file = new XrdFile (fullpath, mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<XrdFile>(fullpath, mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
-  virtual void stagein (const std::string &proto, const std::string &path) override
+  virtual void stagein (const std::string &proto, const std::string &path,
+                        const AuxSettings& aux) const override
   {
+    setDebugLevel(aux.debugLevel);
+    setTimeout(aux.timeout);
+
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (admin.Connect())
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
+    std::vector<std::string> fileList; fileList.push_back(url.GetPath());
+    auto status = fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
+    if (!status.IsOK())
     {
-      XrdOucString str(fullpath.c_str());
-      XrdClientUrlSet url(str);
-      admin.Prepare(url.GetFile().c_str(), kXR_stage | kXR_noerrs, 0);
+        edm::LogWarning("StageInError") << "XrdCl::FileSystem::Prepare failed with error '"
+                                        << status.ToStr() << "' (errNo = " << status.errNo << ")";
     }
   }
 
   virtual bool check (const std::string &proto,
 		      const std::string &path,
-		      IOOffset *size = 0) override
+          const AuxSettings& aux,
+		      IOOffset *size = 0) const override
   {
+    setDebugLevel(aux.debugLevel);
+    setTimeout(aux.timeout);
+
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (! admin.Connect())
-      return false; // FIXME: Throw?
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
 
-    long      id;
-    long      flags;
-    long      modtime;
-    long long xrdsize;
+    XrdCl::StatInfo *stat;
+    if (!(fs.Stat(url.GetPath(), stat)).IsOK() || (stat == nullptr))
+    {
+        return false;
+    }
 
-    XrdOucString str(fullpath.c_str());
-    XrdClientUrlSet url(str);
-
-    if (! admin.Stat(url.GetFile().c_str(), id, xrdsize, flags, modtime))
-      return false; // FIXME: Throw?
-
-    *size = xrdsize;
+    if (size) *size = stat->GetSize();
     return true;
   }
 
-  virtual void setDebugLevel (unsigned int level) override
+  void setDebugLevel (unsigned int level) const
   {
-    EnvPutInt("DebugLevel", level);
+    auto oldLevel = m_lastDebugLevel.load();
+    if(level == oldLevel) {
+      return;
+    }
+    std::lock_guard<std::mutex> guard(m_envMutex);
+    if(oldLevel != m_lastDebugLevel) {
+      //another thread just changed this value
+      return;
+    }
+    
+    // 'Error' is way too low of debug level - we have interest
+    // in warning in the default
+    switch (level)
+    {
+      case 0:
+        XrdCl::DefaultEnv::SetLogLevel("Warning");
+        break;
+      case 1:
+        XrdCl::DefaultEnv::SetLogLevel("Info");
+        break;
+      case 2:
+        XrdCl::DefaultEnv::SetLogLevel("Debug");
+        break;
+      case 3:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
+        break;
+      case 4:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
+        break;
+      default:
+        edm::Exception ex(edm::errors::Configuration);
+        ex << "Invalid log level specified " << level;
+        ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
+        throw ex;
+    }
+    m_lastDebugLevel = level;
   }
+
+  void setTimeout(unsigned int timeout) const
+  {
+    timeout = timeout ? timeout : XRD_DEFAULT_TIMEOUT;
+
+    auto oldTimeout = m_lastTimeout.load();
+    if (oldTimeout == timeout) {
+      return;
+    }
+    
+    std::lock_guard<std::mutex> guard(m_envMutex);
+    if (oldTimeout != m_lastTimeout) {
+      //Another thread beat us to changing the value
+      return;
+    }
+    
+    XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+    if (env)
+    {
+      env->PutInt("StreamTimeout", timeout);
+      env->PutInt("RequestTimeout", timeout);
+      env->PutInt("ConnectionWindow", timeout);
+      env->PutInt("StreamErrorWindow", timeout);
+      // Crank down some of the connection defaults.  We have more
+      // aggressive error recovery than the default client so we
+      // can error out sooner.
+      env->PutInt("ConnectionWindow", timeout/6+1);
+      env->PutInt("ConnectionRetry", 2);
+    }
+    m_lastTimeout = timeout;
+  }
+
+private:
+  [[cms::thread_safe]] mutable MakerResponseHandler m_null_handler;
+  mutable std::mutex m_envMutex;
+  mutable std::atomic<unsigned int> m_lastDebugLevel;
+  mutable std::atomic<unsigned int> m_lastTimeout;
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, XrdStorageMaker, "root");
+DEFINE_FWK_SERVICE (XrdAdaptor::XrdStatisticsService);
+

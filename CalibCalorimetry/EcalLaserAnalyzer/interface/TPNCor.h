@@ -28,7 +28,7 @@ class TPNCor: public TObject
   double corParams[iSizeGain][iSizePar];
   int isFileOK;
   
-  //  ClassDef(TPNCor,1)
+  ClassDef(TPNCor,0)
     
 
 

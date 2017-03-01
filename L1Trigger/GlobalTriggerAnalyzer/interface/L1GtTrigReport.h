@@ -23,10 +23,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -43,7 +42,7 @@ class L1GtTriggerMenu;
 
 // class declaration
 
-class L1GtTrigReport : public edm::EDAnalyzer
+class L1GtTrigReport : public edm::one::EDAnalyzer<>
 {
 
 public:
@@ -119,19 +118,19 @@ private:
 private:
 
     /// boolean flag to select the input record
-    bool m_useL1GlobalTriggerRecord;
+    const bool m_useL1GlobalTriggerRecord;
 
     /// input tag for GT record (L1 GT DAQ record or L1 GT "lite" record):
-    edm::InputTag m_l1GtRecordInputTag;
+    const edm::InputTag m_l1GtRecordInputTag;
 
-    edm::EDGetTokenT<L1GlobalTriggerRecord> m_l1GtRecordInputToken1;
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtRecordInputToken2;
+    const edm::EDGetTokenT<L1GlobalTriggerRecord> m_l1GtRecordInputToken1;
+    const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtRecordInputToken2;
 
     /// print verbosity
-    int m_printVerbosity;
+    const int m_printVerbosity;
 
     /// print output
-    int m_printOutput;
+    const int m_printOutput;
 
     /// counters
 
@@ -154,7 +153,7 @@ private:
     typedef std::list<L1GtTrigReportEntry*>::iterator ItEntry;
 
     /// index of physics DAQ partition
-    unsigned int m_physicsDaqPartition;
+    const unsigned int m_physicsDaqPartition;
 
 };
 

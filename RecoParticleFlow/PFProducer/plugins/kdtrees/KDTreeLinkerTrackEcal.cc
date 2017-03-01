@@ -71,20 +71,20 @@ KDTreeLinkerTrackEcal::buildTree()
     
     const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
     
-    KDTreeNodeInfo rh1 (*it, posrep.Eta(), posrep.Phi());
+    KDTreeNodeInfo rh1 (*it, posrep.eta(), posrep.phi());
     eltList.push_back(rh1);
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dim2 > (M_PI - getPhiOffset())) {
       double phi = rh1.dim2 - 2 * M_PI;
-      KDTreeNodeInfo rh2(*it, posrep.Eta(), phi); 
+      KDTreeNodeInfo rh2(*it, posrep.eta(), phi); 
       eltList.push_back(rh2);
     }
 
     if (rh1.dim2 < (M_PI * -1.0 + getPhiOffset())) {
       double phi = rh1.dim2 + 2 * M_PI;
-      KDTreeNodeInfo rh3(*it, posrep.Eta(), phi); 
+      KDTreeNodeInfo rh3(*it, posrep.eta(), phi); 
       eltList.push_back(rh3);
     }
   }
@@ -125,8 +125,8 @@ KDTreeLinkerTrackEcal::searchLinks()
       trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
     
     double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
-    double tracketa = atECAL.positionREP().Eta();
-    double trackphi = atECAL.positionREP().Phi();
+    double tracketa = atECAL.positionREP().eta();
+    double trackphi = atECAL.positionREP().phi();
     double trackx = atECAL.position().X();
     double tracky = atECAL.position().Y();
     double trackz = atECAL.position().Z();
@@ -144,18 +144,17 @@ KDTreeLinkerTrackEcal::searchLinks()
     for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
 	rhit != recHits.end(); ++rhit) {
            
-      const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
-      const math::XYZPoint& posxyz			   = rhit->ptr->position();
-      const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
-      const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
-      if(corners.size() != 4) continue;
+      const auto & cornersxyz      = rhit->ptr->getCornersXYZ();
+      const auto & posxyz			   = rhit->ptr->position();
+      const auto &rhrep		   = rhit->ptr->positionREP();
+      const auto & corners = rhit->ptr->getCornersREP();
       
-      double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
-      double rhsizePhi = fabs(corners[0].Phi() - corners[2].Phi());
-      if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
+      double rhsizeeta = fabs(corners[3].eta() - corners[1].eta());
+      double rhsizephi = fabs(corners[3].phi() - corners[1].phi());
+      if ( rhsizephi > M_PI ) rhsizephi = 2.*M_PI - rhsizephi;
       
-      double deta = fabs(rhrep.Eta() - tracketa);
-      double dphi = fabs(rhrep.Phi() - trackphi);
+      double deta = fabs(rhrep.eta() - tracketa);
+      double dphi = fabs(rhrep.phi() - trackphi);
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
       
       // Find all clusters associated to given rechit
@@ -165,18 +164,18 @@ KDTreeLinkerTrackEcal::searchLinks()
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
-	double clusterz = clusterref->position().Z();
+	double clusterz = clusterref->position().z();
 	int fracsNbr = clusterref->recHitFractions().size();
 
 	if (clusterref->layer() == PFLayer::ECAL_BARREL){ // BARREL
 	  // Check if the track is in the barrel
 	  if (fabs(trackz) > 300.) continue;
 
-	  double _rhsizeEta = rhsizeEta * (2.00 + 1.0 / (fracsNbr * std::min(1.,trackPt/2.)));
-	  double _rhsizePhi = rhsizePhi * (2.00 + 1.0 / (fracsNbr * std::min(1.,trackPt/2.)));
+	  double _rhsizeeta = rhsizeeta * (2.00 + 1.0 / (fracsNbr * std::min(1.,trackPt/2.)));
+	  double _rhsizephi = rhsizephi * (2.00 + 1.0 / (fracsNbr * std::min(1.,trackPt/2.)));
 	  
 	  // Check if the track and the cluster are linked
-	  if(deta < (_rhsizeEta / 2.) && dphi < (_rhsizePhi / 2.))
+	  if(deta < (_rhsizeeta / 2.) && dphi < (_rhsizephi / 2.))
 	    target2ClusterLinks_[*it].insert(*clusterIt);
 
 	  
@@ -189,10 +188,10 @@ KDTreeLinkerTrackEcal::searchLinks()
 	  double x[5];
 	  double y[5];
 	  for ( unsigned jc=0; jc<4; ++jc ) {
-	    math::XYZPoint cornerposxyz = cornersxyz[jc];
-	    x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
+	    auto cornerposxyz = cornersxyz[jc];
+	    x[3-jc] = cornerposxyz.x() + (cornerposxyz.x()-posxyz.x())
 	      * (1.00+0.50/fracsNbr /std::min(1.,trackPt/2.));
-	    y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
+	    y[3-jc] = cornerposxyz.y() + (cornerposxyz.y()-posxyz.y())
 	      * (1.00+0.50/fracsNbr /std::min(1.,trackPt/2.));
 	  }
 	  
@@ -225,10 +224,10 @@ KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks()
     for (BlockEltSet::iterator jt = it->second.begin();
 	 jt != it->second.end(); ++jt) {
 
-      double clusterPhi = (*jt)->clusterRef()->positionREP().Phi();
-      double clusterEta = (*jt)->clusterRef()->positionREP().Eta();
+      double clusterphi = (*jt)->clusterRef()->positionREP().phi();
+      double clustereta = (*jt)->clusterRef()->positionREP().eta();
 
-      multitracks.linkedClusters.push_back(std::make_pair(clusterPhi, clusterEta));
+      multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
     }
 
     it->first->setMultilinks(multitracks);

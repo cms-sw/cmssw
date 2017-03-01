@@ -15,3 +15,7 @@ NoiseRatesDQMOffline    = DQMOffline.Hcal.HcalNoiseRatesParam_cfi.hcalNoiseRates
 
 HcalDQMOfflineSequence = cms.Sequence(NoiseRatesDQMOffline*RecHitsDQMOffline*AllCaloTowersDQMOffline)
 #HcalDQMOfflineSequence = cms.Sequence(NoiseRatesDQMOffline*AllCaloTowersDQMOffline)
+
+_phase2_HcalDQMOfflineSequence = HcalDQMOfflineSequence.copyAndExclude([NoiseRatesDQMOffline])
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith(HcalDQMOfflineSequence, _phase2_HcalDQMOfflineSequence)

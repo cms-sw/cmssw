@@ -637,8 +637,8 @@ void GlobalHitsProdHist::produce(edm::Event& iEvent,
   ++count;
 
   // get event id information
-  int nrun = iEvent.id().run();
-  int nevt = iEvent.id().event();
+  edm::RunNumber_t nrun = iEvent.id().run();
+  edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
@@ -655,8 +655,8 @@ void GlobalHitsProdHist::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -722,9 +722,9 @@ void GlobalHitsProdHist::endRunProduce(edm::Run& iRun, const edm::EventSetup& iS
   for (std::size_t i = 0; i < histName_.size(); ++i) {
     iter = histMap_.find(histName_[i]);
     if (iter != histMap_.end()) {
-      std::auto_ptr<TH1F> hist1D(iter->second);
+      std::unique_ptr<TH1F> hist1D(iter->second);
       eventout += "\n Storing histogram " + histName_[i];
-      iRun.put(hist1D, histName_[i]);
+      iRun.put(std::move(hist1D), histName_[i]);
     } else {
       warning = true;
       eventoutw += "\n Unable to find histogram with name " + histName_[i];
@@ -760,7 +760,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -770,7 +770,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
     return;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->product()).moduleLabel();
+    eventout += (HepMCEvt.provenance()->branchDescription()).moduleLabel();
   }
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   nRawGenPart = MCEvt->particles_size();

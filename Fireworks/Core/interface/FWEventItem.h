@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <sigc++/connection.h>
 
 // user include files
@@ -56,7 +56,8 @@ namespace fireworks {
 class FWEventItem
 {
 public:
-   struct ModelInfo {
+   struct ModelInfo
+   {
       FWDisplayProperties m_displayProperties;
       bool m_isSelected;
       ModelInfo(const FWDisplayProperties& iProps, bool iIsSelected) :
@@ -74,7 +75,7 @@ public:
 
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
-               boost::shared_ptr<FWItemAccessorBase> iAccessor,
+               std::shared_ptr<FWItemAccessorBase> iAccessor,
                const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
    virtual ~FWEventItem();
 
@@ -115,12 +116,13 @@ public:
    std::string modelName(int iIndex) const;
 
    ///one value from the model which is normally used for the popup
-  const  FWItemValueGetter& valueGetter() const { return m_interestingValueGetter; }
+   const  FWItemValueGetter& valueGetter() const { return m_interestingValueGetter; }
    bool haveInterestingValue() const;
    const std::string& modelInterestingValueAsString(int iIndex) const;
 
    bool isCollection() const;
 
+   void resetColor();
    //convenience methods
 
    const fireworks::Context& context () const {
@@ -161,6 +163,9 @@ public:
    // ---------- member functions ---------------------------
    void setEvent(const edm::EventBase* iEvent);
 
+   void setData(const edm::ObjectWithDict& ) const;
+
+   void getPrimaryData() const;
    const FWGeometry* getGeom() const;
    FWProxyBuilderConfiguration* getConfig() const { return m_proxyBuilderConfig; }
 
@@ -212,13 +217,12 @@ public:
    /** connect to this signal if you need to know that this item is going to be destroyed.
     */
    mutable FWItemChangeSignal goingToBeDestroyed_;
+
 private:
    //FWEventItem(const FWEventItem&); // stop default
 
    //const FWEventItem& operator=(const FWEventItem&); // stop default
-   void setData(const edm::ObjectWithDict& ) const;
 
-   void getPrimaryData() const;
    void runFilter();
    void handleChange();
    // ---------- member data --------------------------------
@@ -227,7 +231,7 @@ private:
    std::string m_name;
    const TClass* m_type;
    std::string m_purpose;
-   boost::shared_ptr<FWItemAccessorBase> m_accessor;
+   std::shared_ptr<FWItemAccessorBase> m_accessor;
    FWDisplayProperties m_displayProperties;
    int m_layer;
    mutable std::vector<ModelInfo> m_itemInfos;
@@ -245,7 +249,7 @@ private:
    mutable std::string m_errorMessage;
    
    bool m_isSelected;
-
+   Color_t m_origColor;
 
    FWProxyBuilderConfiguration*  m_proxyBuilderConfig;
 };

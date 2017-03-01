@@ -27,7 +27,7 @@ class DCCTBXtalBlock : public DCCTBBlockPrototype {
 		std::vector<int> xtalDataSamples();
 
 	protected :
-		
+		using DCCTBBlockPrototype::increment;
 		void increment(uint32_t numb);
 		
 		enum xtalBlockFields{ BPOSITION_BLOCKID = 30, BLOCKID = 3};

@@ -32,12 +32,9 @@ using namespace std;
 TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
 
-  vertexGenerator_ = iConfig.getParameter<edm::ParameterSet>
-    ( "VertexGenerator" );   
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>
     ( "ParticleFilter" );   
 
-  // mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
   mySimEvent =  new FSimEvent( particleFilter_);
 }
 

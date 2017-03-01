@@ -10,36 +10,59 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
-      "HLT_IsoMu20_eta2p1_v",
-      "HLT_IsoMu24_eta2p1_v",
+      "HLT_Mu45_eta2p1_v1",
+      "HLT_Mu50_v",
       "HLT_IsoMu24_v",
-      "HLT_IsoMu30_eta2p1_v",
-      "HLT_IsoMu30_v",
-      "HLT_IsoMu34_eta2p1_v",
-      "HLT_IsoMu40_eta2p1_v",
-      "HLT_L1SingleMu12_v",
-      "HLT_Mu12_v",
-      "HLT_Mu15_eta2p1_v",
-      "HLT_Mu17_v",
-      "HLT_Mu24_eta2p1_v",
-      "HLT_Mu30_eta2p1_v",
-      "HLT_Mu40_v",
-      "HLT_Mu40_eta2p1_v",
-      "HLT_Mu50_eta2p1_v",
-      "HLT_Mu5_v",
-      "HLT_Mu8_v", 
-      "HLT_RelIso1p0Mu17_v",
-      "HLT_RelIso1p0Mu5_v",
-      "HLT_DoubleMu5_IsoMu5_v",
-      "HLT_Mu13_Mu8_v",
-      "HLT_Mu17_Mu8_v",
-      "HLT_Mu17_TkMu8_v",
-      "HLT_Mu22_TkMu22_v",
-      "HLT_Mu22_TkMu8_v",
-      "HLT_TripleMu5_v",
-      "HLT_DoubleMu11_Acoplanarity03_v", #Added for forward physics
-      "HLT_Mu40_eta2p1_Track50_dEdx3p6_v", #Exotica
-      "HLT_Mu40_eta2p1_Track60_dEdx3p7_v"
+      "HLT_IsoTkMu24_v",
+#      "HLT_Mu17_Mu8_DZ_v",
+#      "HLT_Mu17_TkMu8_DZ_v",
+      "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+      "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+      "HLT_IsoMu20_eta2p1_v",
+      "HLT_IsoTkMu20_eta2p1_v",
+      "HLT_IsoMu24_eta2p1_v",
+      "HLT_IsoTkMu24_eta2p1_v",
+      "HLT_IsoMu27_v",
+      "HLT_IsoTkMu27_v",
+      "HLT_IsoMu20_v",
+      "HLT_IsoTkMu20_v",
+      "HLT_IsoMu22_v",
+      "HLT_IsoTkMu22_v",
+      "HLT_IsoMu22_eta2p1_v",
+      "HLT_IsoTkMu22_eta2p1_v",
+      "HLT_IsoMu18_v",
+      "HLT_IsoTkMu18_v",
+      "HLT_PAL1DoubleMuOpen_v", #for HI
+      "HLT_PAL1DoubleMuOpen_OS_v", #for HI
+      "HLT_PAL1DoubleMuOpen_SS_v", #for HI
+      "HLT_PAL1DoubleMu0_v", #for HI
+      "HLT_PAL1DoubleMu0_HighQ_v", #for HI
+      "HLT_PAL1DoubleMu0_MGT1_v", #for HI
+      "HLT_PAL1DoubleMu10_v", #for HI
+      "HLT_PAL2DoubleMu0_v", #for HI
+      "HLT_PAL2DoubleMu10_v", #for HI
+      "HLT_PAL3DoubleMu0_v", #for HI
+      "HLT_PAL3DoubleMu0_HIon_v", #for HI
+      "HLT_PAL3DoubleMu10_v", #for HI
+      "HLT_PAL2Mu12_v", #for HI
+      "HLT_PAL2Mu15_v", #for HI
+      "HLT_PAL3Mu3_v", #for HI 
+      "HLT_PAL3Mu5_v", #for HI 
+      "HLT_PAL3Mu7_v", #for HI 
+      "HLT_PAL3Mu12_v", #for HI
+      "HLT_PAL3Mu15_v", #for HI
+      "HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt10_v", #for HI Forward
+      "HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt15_v", #for HI Forward
+      "HLT_PASingleMuOpen_PixelTrackGt0Lt10_v", #for HI Forward
+      "HLT_PASingleMuOpen_PixelTrackGt0Lt15_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFOneTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFOneTowerVeto_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFTwoTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PASingleMuOpen_HFTwoTowerVeto_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFOneTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFOneTowerVeto_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFTwoTowerVeto_SingleTrack_v", #for HI Forward
+      "HLT_PADoubleMuOpen_HFTwoTowerVeto_v" #for HI Forward
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
@@ -66,7 +89,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         charge     = cms.untracked.vdouble(  2,  -2.00,   2.00),
         deltaR     = cms.untracked.vdouble( 20,   0.00,   0.05),
         phiCoarse  = cms.untracked.vdouble( 10,  -3.14,   3.14),
-        resolutionRel = cms.untracked.vdouble( 20,  -0.15,   0.15),
+        resolutionRel = cms.untracked.vdouble( 40,  -0.30,   0.30),
         resolutionEta = cms.untracked.vdouble( 20,  -0.01,   0.01),
         resolutionPhi = cms.untracked.vdouble( 20,  -0.01,   0.01),
         ## parameters for variable-width plots

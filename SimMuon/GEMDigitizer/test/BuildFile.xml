@@ -1,7 +1,6 @@
 <use   name="boost"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/GEMDigi"/>
-<use   name="DataFormats/RPCDigi"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -23,5 +22,8 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="GEMFakeEvent.cc" name="GEMFakeEvent">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="GEMDigiSimLinkReader.cc" name="GEMDigiSimLinkReader">
   <flags   EDM_PLUGIN="1"/>
 </library>

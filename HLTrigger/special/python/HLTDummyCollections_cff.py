@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-hltDummyEcalRawToRecHitFacility = cms.EDProducer("HLTDummyCollections",
-  action = cms.string("doEcal"),
-  UnpackZDC = cms.bool(False),          # not actually needed here
-  ESdigiCollection = cms.string( "" )   # not actually needed here
-)
+#out of data interface
+#hltDummyEcalRawToRecHitFacility = cms.EDProducer("HLTDummyCollections",
+#  action = cms.string("doEcal"),
+#  UnpackZDC = cms.bool(False),          # not actually needed here
+#  ESdigiCollection = cms.string( "" )   # not actually needed here
+#)
 
 hltDummyHcalDigis = cms.EDProducer("HLTDummyCollections",
   action = cms.string("doHcal"),

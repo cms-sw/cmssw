@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,15 +54,13 @@ struct FindCorrectedSubjet {
   edm::Ptr<reco::Candidate> da_;
 };
 
-class BoostedJetMerger : public edm::EDProducer {
+class BoostedJetMerger : public edm::stream::EDProducer<> {
    public:
       explicit BoostedJetMerger(const edm::ParameterSet&);
       ~BoostedJetMerger();
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
 

@@ -13,7 +13,6 @@ ProductRegistryHelper:
 #include <list>
 
 namespace edm {
-  class WrapperOwningHolder;
   class ModuleDescription;
   class ProductRegistry;
   class ProductRegistryHelper {

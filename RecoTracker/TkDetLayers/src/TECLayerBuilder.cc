@@ -22,10 +22,10 @@ TECLayer* TECLayerBuilder::build(const GeometricDet* aTECLayer,
   for(vector<const GeometricDet*>::const_iterator it=theGeometricDetPetals.begin();
       it!=theGeometricDetPetals.end();it++){
 
-    if( fabs((*it)->positionBounds().z()) < fabs(meanZ) ) 
+    if( std::abs((*it)->positionBounds().z()) < std::abs(meanZ) ) 
       theInnerPetals.push_back(myPetalBuilder.build(*it,theGeomDetGeometry));
 
-    if( fabs((*it)->positionBounds().z()) > fabs(meanZ) ) 
+    if( std::abs((*it)->positionBounds().z()) > std::abs(meanZ) ) 
       theOuterPetals.push_back(myPetalBuilder.build(*it,theGeomDetGeometry));
   }
   

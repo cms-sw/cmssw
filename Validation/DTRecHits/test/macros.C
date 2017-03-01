@@ -73,12 +73,12 @@ TString opt2Dplot = "col";
 // minY, maxY: Y range for plotting and for computing profile if addProfile==true.
 //             Note that the simple profile is very sensitive to the Y range used!
 TH1F* plotAndProfileX (TH2* theh, int rebinX, int rebinY, int rebinProfile, float minY, float maxY, float minX=0, float maxX=0) {
-  TH2* h2=theh->Clone();
+  TH2* h2=(TH2*)theh->Clone();
   
   //  setStyle(h2);
   if (h2==0) {
     cout << "plotAndProfileX: null histo ptr" << endl;
-    return;
+    return 0;
   }
   
   gPad->SetGrid(1,1);
@@ -271,16 +271,17 @@ TF1* drawGFit(TH1 * h1, float nsigmas, float min, float max){
 // If no name is specified, a new name is generated automatically
 TCanvas * newCanvas(TString name="", TString title="",
                      Int_t xdiv=0, Int_t ydiv=0, Int_t form = 1, Int_t w=-1){
-  static int i = 1;
+  static char i = '1';
   if (name == "") {
     name = TString("Canvas ") + i;
     i++;
   }
   if (title == "") title = name;
+  TCanvas * c = 0;
   if (w<0) {
-    TCanvas * c = new TCanvas(name,title, form);
+    c = new TCanvas(name,title, form);
   } else {
-    TCanvas * c = new TCanvas(name,title,form,w);
+    c = new TCanvas(name,title,form,w);
   }
   if (xdiv*ydiv!=0) c->Divide(xdiv,ydiv);
   c->cd(1);
@@ -541,6 +542,7 @@ TStyle * getStyle(TString name="myStyle")
 }
 
 
+void
 setPalette()
 {
   const Int_t NRGBs = 5;
@@ -577,10 +579,10 @@ setPalette()
     Double_t red[NRGBs]   = { 1.00, 1-step, 1-2*step, 1-3*step, 1-4*step };
     Double_t green[NRGBs] = { 1.00, 1-step, 1-2*step, 1-3*step, 1-4*step };
     Double_t blue[NRGBs]  = { 1.00, 1-step, 1-2*step, 1-3*step, 1-4*step };
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   }
 
 
- TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
  gStyle->SetNumberContours(NCont);
 }
 
@@ -618,7 +620,7 @@ void plotEff(TH1* h1, TH1* h2=0, TH1* h3=0) {
 TH1F* getEffPlot(TH1* hnum, TH1* hden, int rebin=1) {
   hnum->Rebin(rebin);
   hden->Rebin(rebin);
-  TH1F* h = hnum->Clone();
+  TH1F* h = (TH1F*)hnum->Clone();
   h->Sumw2();
   h->Divide(hnum,hden,1.,1.,"B");
   h->SetStats(0);

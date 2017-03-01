@@ -13,7 +13,6 @@
 #include <atomic>
 #include <thread>
 #include "tbb/task.h"
-#include "boost/shared_ptr.hpp"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 class SerialTaskQueue_test : public CppUnit::TestFixture {
@@ -41,7 +40,7 @@ void SerialTaskQueue_test::testPush()
    
    edm::SerialTaskQueue queue;
    {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(1+3);
       tbb::task* pWaitTask = waitTask.get();
@@ -103,7 +102,7 @@ void SerialTaskQueue_test::testPause()
    {
       queue.pause();
       {
-         boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+         std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                              [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
          waitTask->set_ref_count(1+1);
          tbb::task* pWaitTask = waitTask.get();
@@ -120,7 +119,7 @@ void SerialTaskQueue_test::testPause()
       }
 
       {
-         boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+         std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                              [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
          waitTask->set_ref_count(1+3);
          tbb::task* pWaitTask = waitTask.get();
@@ -162,7 +161,7 @@ void SerialTaskQueue_test::stressTest()
    unsigned int index = 100;
    const unsigned int nTasks = 1000;
    while(0 != --index) {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(3);
       tbb::task* pWaitTask=waitTask.get();
@@ -193,7 +192,7 @@ void SerialTaskQueue_test::stressTest()
             });
          }
          pWaitTask->decrement_ref_count();
-         boost::shared_ptr<std::thread>(&pushThread,join_thread);
+         std::shared_ptr<std::thread>(&pushThread,join_thread);
       }
       waitTask->wait_for_all();
 

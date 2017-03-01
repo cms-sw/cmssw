@@ -69,7 +69,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesC
   _cache.reserve(4*17);
   _cache0.reserve(144*17);
 
-  iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
+  m_DTDigiToken = iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
 }
 
 
@@ -110,7 +110,7 @@ L1MuDTTrackFinder::~L1MuDTTrackFinder() {
 //
 // setup MTTF configuration
 //
-void L1MuDTTrackFinder::setup() {
+void L1MuDTTrackFinder::setup( edm::ConsumesCollector&& iC) {
 
   // build the barrel Muon Trigger Track Finder
 
@@ -123,7 +123,7 @@ void L1MuDTTrackFinder::setup() {
     if ( wh == 0 ) continue;
     for ( int sc = 0; sc < 12; sc++ ) {
       L1MuDTSecProcId tmpspid(wh,sc);
-      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this,tmpspid);
+      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this,tmpspid,std::move(iC));
       if ( L1MuDTTFConfig::Debug(2) ) cout << "creating " << tmpspid << endl;
       m_spmap->insert(tmpspid,sp);
     }
@@ -131,7 +131,7 @@ void L1MuDTTrackFinder::setup() {
  
   // create new eta processors and wedge sorters
   for ( int sc = 0; sc < 12; sc++ ) {
-    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this,sc);
+    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this,sc,std::move(iC));
     if ( L1MuDTTFConfig::Debug(2) ) cout << "creating Eta Processor " << sc << endl;
     m_epvec.push_back(ep);
     L1MuDTWedgeSorter* ws = new L1MuDTWedgeSorter(*this,sc);
@@ -154,7 +154,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
   // run the barrel Muon Trigger Track Finder
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
+  e.getByToken(m_DTDigiToken,dttrig);
   if ( dttrig->getContainer()->size() == 0 ) return;
 
   if ( L1MuDTTFConfig::Debug(2) ) cout << endl;

@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -22,15 +23,14 @@
 // #include "HepMC/SimpleVector.h"
 
 using namespace edm;
-using namespace std;
 using namespace CLHEP;
 //using namespace HepMC;
+
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
 	: fVertex(0), boost_(0), fTimeOffset(0),
 	  sourceLabel(pset.getParameter<edm::InputTag>("src"))
 {
-   
    Service<RandomNumberGenerator> rng;
    if ( ! rng.isAvailable()) {
      throw cms::Exception("Configuration")
@@ -40,14 +40,14 @@ BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset )
           "in the configuration file or remove the modules that require it.";
    }
 
-   consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"));
-   produces<bool>(); 
+   consumes<edm::HepMCProduct>(sourceLabel);
+   produces<edm::HepMCProduct>();
 }
 
 BaseEvtVtxGenerator::~BaseEvtVtxGenerator() 
 {
    delete fVertex ;
-   if (boost_ != 0 ) delete boost_;
+   if (boost_ != nullptr ) delete boost_;
    // no need since now it's done in HepMCProduct
    // delete fEvt ;
 }
@@ -57,10 +57,13 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    edm::Service<edm::RandomNumberGenerator> rng;
    CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
 
-   Handle<HepMCProduct> HepMCEvt ;
+   Handle<HepMCProduct> HepUnsmearedMCEvt ;
    
-   evt.getByLabel( sourceLabel, HepMCEvt ) ;
+   evt.getByLabel( sourceLabel, HepUnsmearedMCEvt ) ;
    
+   // Copy the HepMC::GenEvent
+   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
    // generate new vertex & apply the shift 
    //
    HepMCEvt->applyVtxGen( newVertex(engine) ) ;
@@ -69,10 +72,7 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
    HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
    
-   // OK, create a (pseudo)product and put in into edm::Event
-   //
-   auto_ptr<bool> NewProduct(new bool(true)) ;      
-   evt.put( NewProduct ) ;
+   evt.put(std::move(HepMCEvt)) ;
       
    return ;
 }

@@ -10,6 +10,11 @@
 #include <vector>
 #include <string>
 
+// Unit test for ProfilerService
+namespace test {
+  class TestProfilerService;
+  struct CheckPaths;
+}
 
 /** \class  ProfilerService
  * A Service to start and stop calgrind profiling on demand...
@@ -17,6 +22,10 @@
  * (in the same service to avoid dependency between service)
  */
 class ProfilerService {
+  // For tests
+  friend class test::TestProfilerService;
+  friend struct test::CheckPaths;
+
 public:
 
   /// Standard Service Constructor

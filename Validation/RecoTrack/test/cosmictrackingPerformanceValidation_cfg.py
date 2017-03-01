@@ -4,7 +4,7 @@ process = cms.Process("TkVal")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### standard includes
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
@@ -25,9 +25,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+#process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cosmiccuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -71,7 +71,6 @@ process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
 process.multiTrackValidator.label = ['cutsRecoCTFTracksP5', 'cutsRecoCosmicTFTracksP5', 'cutsRecoRSTracksP5']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(False)
-process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidator.min = cms.double(MINETA)
 process.multiTrackValidator.max = cms.double(MAXETA)
 process.multiTrackValidator.nint = cms.int32(NINTETA)
@@ -122,6 +121,7 @@ process.options = cms.untracked.PSet(
 process.re_tracking = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.tracksP5*
                                    process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                   process.quickTrackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
@@ -129,14 +129,17 @@ process.re_tracking_and_TP = cms.Sequence(process.trackingParticles*
                                    process.siPixelRecHits*process.siStripMatchedRecHits*
                                    process.tracksP5*
                                    process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                   process.quickTrackAssociatorByHits*
                                    process.multiTrackValidator
                                    )
 
 process.only_validation = cms.Sequence(process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                       process.quickTrackAssociatorByHits*
                                        process.multiTrackValidator)
     
 process.only_validation_and_TP = cms.Sequence(process.trackingParticles*
                                               process.cutsRecoCTFTracksP5*process.cutsRecoCosmicTFTracksP5*process.cutsRecoRSTracksP5*
+                                              process.quickTrackAssociatorByHits*
                                               process.multiTrackValidator)
 
 ### customized versoin of the OutputModule

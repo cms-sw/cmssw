@@ -1,4 +1,6 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -24,8 +26,9 @@ MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurf
   //  
   // 1D mode computation for px, py and pz
   // 
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  unsigned int numb = components.size();
+  GetComponents comps(tsos);
+  auto const & components = comps();
+  auto numb = components.size();
   // vectors of components in x, y and z
   std::vector<SingleGaussianState1D> pxStates; pxStates.reserve(numb);
   std::vector<SingleGaussianState1D> pyStates; pyStates.reserve(numb);
@@ -71,8 +74,10 @@ MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurf
   //  
   // 1D mode computation for x, y and z
   // 
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  unsigned int numb = components.size();
+  
+  GetComponents comps(tsos);
+  auto const & components = comps();
+  auto numb = components.size();
   // vectors of components in x, y and z
   std::vector<SingleGaussianState1D> xStates; xStates.reserve(numb);
   std::vector<SingleGaussianState1D> yStates; yStates.reserve(numb);
@@ -263,8 +268,9 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
   //  
   // 1D mode computation for p, phi, eta
   // 
-  std::vector<TrajectoryStateOnSurface> components(tsos.components());
-  unsigned int numb = components.size();
+  GetComponents comps(tsos);
+  auto const & components = comps();
+  auto numb = components.size();
   // vectors of components in p, phi and eta
   std::vector<SingleGaussianState1D> pStates; pStates.reserve(numb);
   std::vector<SingleGaussianState1D> phiStates; phiStates.reserve(numb);
@@ -278,28 +284,28 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
 	ic!=components.end(); ++ic ) {
     // parameters
     GlobalVector mom(ic->globalMomentum());
-    double px = mom.x();
-    double py = mom.y();
-    double pz = mom.z();
-    double p = mom.mag();
-    double pt2 = mom.perp2();
-    double phi = mom.phi();
-    double eta = mom.eta();
+    auto px = mom.x();
+    auto py = mom.y();
+    auto pz = mom.z();
+    auto op = 1./mom.mag();
+    auto opt2 = 1./mom.perp2();
+    auto phi = mom.phi();
+    auto eta = mom.eta();
     // jacobian
-    jacobian(0,0) = px/p;
-    jacobian(0,1) = py/p;
-    jacobian(0,2) = pz/p;
-    jacobian(1,0) = py/pt2;
-    jacobian(1,1) = -px/pt2;
+    jacobian(0,0) = px*op;
+    jacobian(0,1) = py*op;
+    jacobian(0,2) = pz*op;
+    jacobian(1,0) = py*opt2;
+    jacobian(1,1) = -px*opt2;
     jacobian(1,2) = 0;
-    jacobian(2,0) = px*pz/(pt2*p);
-    jacobian(2,1) = py*pz/(pt2*p);
-    jacobian(2,2) = -1./p;
+    jacobian(2,0) = px*pz*opt2*op;
+    jacobian(2,1) = py*pz*opt2*op;
+    jacobian(2,2) = -op;
     // extraction of the momentum part from the 6x6 cartesian error matrix
     // and conversion to p-phi-eta
     covCart = ic->cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3);
     covPPhiEta = ROOT::Math::Similarity(jacobian,covCart);
-    pStates.push_back(SingleGaussianState1D(p,covPPhiEta(0,0),ic->weight()));
+    pStates.push_back(SingleGaussianState1D(1/op,covPPhiEta(0,0),ic->weight()));
     phiStates.push_back(SingleGaussianState1D(phi,covPPhiEta(1,1),ic->weight()));
     etaStates.push_back(SingleGaussianState1D(eta,covPPhiEta(2,2),ic->weight()));
   }
@@ -315,13 +321,13 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
   //
   // parameters from mode (in case of failure: mean)
   //
-  double p = pUtils.modeIsValid() ? pUtils.mode().mean() : pUtils.mean();
-  double phi = phiUtils.modeIsValid() ? phiUtils.mode().mean() : phiUtils.mean();
-  double eta = etaUtils.modeIsValid() ? etaUtils.mode().mean() : etaUtils.mean();
+  auto p = pUtils.modeIsValid() ? pUtils.mode().mean() : pUtils.mean();
+  auto phi = phiUtils.modeIsValid() ? phiUtils.mode().mean() : phiUtils.mean();
+  auto eta = etaUtils.modeIsValid() ? etaUtils.mode().mean() : etaUtils.mean();
 //   double theta = 2*atan(exp(-eta));
-  double tanth2 = exp(-eta);
-  double pt = p*2*tanth2/(1+tanth2*tanth2);  // p*sin(theta)
-  double pz = p*(1-tanth2*tanth2)/(1+tanth2*tanth2);  // p*cos(theta)
+  auto tanth2 = std::exp(-eta);
+  auto pt = p*2*tanth2/(1+tanth2*tanth2);  // p*sin(theta)
+  auto pz = p*(1-tanth2*tanth2)/(1+tanth2*tanth2);  // p*cos(theta)
   // conversion to a cartesian momentum vector
   momentum = GlobalVector(pt*cos(phi),pt*sin(phi),pz);
   return true;

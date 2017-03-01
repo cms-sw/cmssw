@@ -256,13 +256,11 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   double eventZ = 0;
   double averageZ = 0;
 
-  for ( reco::TrackCollection::const_iterator track = tracks->begin();
-	track != tracks->end();
-	++track ) {
+  for (reco::TrackCollection::const_iterator track = tracks->begin();
+          track != tracks->end(); ++track){
 
-    if ( ! isMuon_) {
-
-      const reco::HitPattern& trkHP = track->hitPattern();
+    if (!isMuon_) {
+      const reco::HitPattern &trkHP = track->hitPattern();
 
       fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
       fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
@@ -274,9 +272,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
       fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
     } else {
-
       fnTotLayerMeas = track->numberOfValidHits();
-
     }
 
     fpt = track->pt();
@@ -629,7 +625,7 @@ void BeamFitter::dumpTxtFile(std::string & fileName, bool append){
 
   std::string tmpname = outputTxt_;
   char index[15];
-  if (appendRunTxt_ && !ffilename_changed ) {
+  if (appendRunTxt_ && writeTxt_ && !ffilename_changed ) {
       sprintf(index,"%s%i","_Run", frun );
       tmpname.insert(outputTxt_.length()-4,index);
       fileName = tmpname;

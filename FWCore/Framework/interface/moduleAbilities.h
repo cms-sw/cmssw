@@ -4,7 +4,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     moduleAbilities
-// 
+//
 /**\file moduleAbilities moduleAbilities.h "FWCore/Framework/interface/moduleAbilities.h"
 
  Description: Template arguments for stream::{Module}, global::{Module}, one::{Module} classes
@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include "boost/mpl/if.hpp"
+#include <type_traits>
 
 // user include files
 #include "FWCore/Framework/interface/moduleAbilityEnums.h"
@@ -31,43 +31,43 @@ namespace edm {
     //Used in the case where ability is not available
     struct Empty{};
   }
-  
+
   template<typename T>
   struct GlobalCache {
     static constexpr module::Abilities kAbilities=module::Abilities::kGlobalCache;
     typedef T Type;
   };
-  
+
   template<typename T>
   struct StreamCache {
     static constexpr module::Abilities kAbilities=module::Abilities::kStreamCache;
     typedef T Type;
   };
-  
+
   template<typename T>
   struct RunCache {
     static constexpr module::Abilities kAbilities=module::Abilities::kRunCache;
     typedef T Type;
   };
-  
+
   template<typename T>
   struct LuminosityBlockCache {
     static constexpr module::Abilities kAbilities=module::Abilities::kLuminosityBlockCache;
     typedef T Type;
   };
-  
+
   template<typename T>
   struct RunSummaryCache {
     static constexpr module::Abilities kAbilities=module::Abilities::kRunSummaryCache;
     typedef T Type;
   };
-  
+
   template<typename T>
   struct LuminosityBlockSummaryCache {
     static constexpr module::Abilities kAbilities=module::Abilities::kLuminosityBlockSummaryCache;
     typedef T Type;
   };
-  
+
   struct BeginRunProducer {
     static constexpr module::Abilities kAbilities=module::Abilities::kBeginRunProducer;
     typedef module::Empty Type;
@@ -82,7 +82,7 @@ namespace edm {
     static constexpr module::Abilities kAbilities=module::Abilities::kBeginLuminosityBlockProducer;
     typedef module::Empty Type;
   };
-  
+
   struct EndLuminosityBlockProducer {
     static constexpr module::Abilities kAbilities=module::Abilities::kEndLuminosityBlockProducer;
     typedef module::Empty Type;
@@ -92,18 +92,18 @@ namespace edm {
     static constexpr module::Abilities kAbilities=module::Abilities::kWatchInputFiles;
     typedef module::Empty Type;
   };
-  
+
   //Recursively checks VArgs template arguments looking for the ABILITY
   template<module::Abilities ABILITY, typename... VArgs> struct CheckAbility;
-  
+
   template<module::Abilities ABILITY, typename T, typename... VArgs>
   struct CheckAbility<ABILITY,T,VArgs...> {
     static constexpr bool kHasIt = (T::kAbilities==ABILITY) | CheckAbility<ABILITY,VArgs...>::kHasIt;
-    typedef typename boost::mpl::if_c<(T::kAbilities==ABILITY),
-    typename T::Type,
-    typename CheckAbility<ABILITY,VArgs...>::Type>::type Type;
+    typedef std::conditional_t<(T::kAbilities==ABILITY),
+                               typename T::Type,
+                               typename CheckAbility<ABILITY,VArgs...>::Type> Type;
   };
-  
+
   //End of the recursion
   template<module::Abilities ABILITY>
   struct CheckAbility<ABILITY> {

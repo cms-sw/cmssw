@@ -13,391 +13,247 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
+//         Modified: Tue Mar   3 16:10:31 CEST 2015
 //
 //
-
 
 // system include files
-#include <memory>
+#include <cmath>
 
 // user include files
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMOffline/CalibCalo/src/DQMHcalIsoTrackAlCaReco.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig) {
+  folderName_  = iConfig.getParameter<std::string>("FolderName");
+  l1FilterTag_ = iConfig.getParameter<std::vector<std::string> >("L1FilterLabel");
+  hltFilterTag_= iConfig.getParameter<std::vector<std::string> >("HltFilterLabels");
+  type_        = iConfig.getParameter<std::vector<int> >("TypeFilter");
+  labelTrigger_= iConfig.getParameter<edm::InputTag>("TriggerLabel");
+  labelTrack_  = iConfig.getParameter<edm::InputTag>("TracksLabel");
+  pThr_        = iConfig.getUntrackedParameter<double>("pThrL3",0);
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-
-#include <fstream>
-
-#include "TH1F.h"
-
-class DQMHcalIsoTrackAlCaReco : public edm::EDAnalyzer {
-public:
-  explicit DQMHcalIsoTrackAlCaReco(const edm::ParameterSet&);
-  ~DQMHcalIsoTrackAlCaReco();
-  
-  
-private:
-
-  DQMStore* dbe_;  
-
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
-
-  std::string folderName_;
-  bool saveToFile_;
-  std::string outRootFileName_;
-  edm::EDGetTokenT<trigger::TriggerEvent> hltEventTag_;
-  std::string l1FilterTag_;
-  std::vector<std::string> hltFilterTag_;
-  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> arITrLabel_;
-  edm::InputTag recoTrLabel_;
-  double pThr_;
-  double heLow_;
-  double heUp_;
-  
-  MonitorElement* hl3Pt;
-  MonitorElement* hl3eta;
-  MonitorElement* hl3AbsEta;
-  MonitorElement* hl3phi;
-  MonitorElement* hOffL3TrackMatch;
-  MonitorElement* hOffL3TrackPtRat;
-
-  MonitorElement* hOffP_0005;
-  MonitorElement* hOffP_0510;
-  MonitorElement* hOffP_1015;
-  MonitorElement* hOffP_1520;
-
-  MonitorElement* hOffP;
-
-  MonitorElement* hTracksSumP;
-  MonitorElement* hTracksMaxP;
-
-  MonitorElement* hDeposEcalInnerEB;
-  MonitorElement* hDeposEcalOuterEB;
-  MonitorElement* hDeposEcalInnerEE;
-  MonitorElement* hDeposEcalOuterEE;
-  
-  MonitorElement* hL1jetMatch;
-
-  MonitorElement* hOffEtaFP;
-  MonitorElement* hOffAbsEta;
-  MonitorElement* hOffPhiFP;
-
-  MonitorElement* hOffEta;
-  MonitorElement* hOffPhi;
-  
-  MonitorElement* hOccupancyFull;
-  MonitorElement* hOccupancyHighEn;
-
-  MonitorElement* hPurityEta;
-  MonitorElement* hPurityPhi;
-
-  int nTotal;
-  int nHLTL3accepts;
-  int nameLength_;
-  int l1nameLength_;
-  
-  std::pair<int, int> towerIndex(double eta, double phi);
-
-};
-
-std::pair<int,int> DQMHcalIsoTrackAlCaReco::towerIndex(double eta, double phi) 
-{
-  int ieta = 0;
-  int iphi = 0;
-  for (int i=1; i<21; i++)
-    {
-      if (fabs(eta)<=(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
-    }
-  if (fabs(eta)>1.740&&fabs(eta)<=1.830) ieta=int(fabs(eta)/eta)*21;
-  if (fabs(eta)>1.830&&fabs(eta)<=1.930) ieta=int(fabs(eta)/eta)*22;
-  if (fabs(eta)>1.930&&fabs(eta)<=2.043) ieta=int(fabs(eta)/eta)*23;
-  if (fabs(eta)>2.043&&fabs(eta)<=2.172) ieta=int(fabs(eta)/eta)*24;
-
-  double delta=phi+0.174532925;
-  if (delta<0) delta=delta+2*acos(-1);
-  if (fabs(eta)<1.740) 
-    {
-      for (int i=0; i<72; i++)
-	{
-	  if (delta<(i+1)*0.087266462&&delta>i*0.087266462) iphi=i;
-	}
-    }
-  else 
-    {
-      for (int i=0; i<36; i++)
-	{
-	  if (delta<2*(i+1)*0.087266462&&delta>2*i*0.087266462) iphi=2*i;
-	}
-    }
-
-  return std::pair<int,int>(ieta,iphi);
+  nTotal_     = nHLTaccepts_ = 0;
+  tokTrigger_ = consumes<trigger::TriggerEvent>(labelTrigger_);
+  tokTrack_   = consumes<reco::HcalIsolatedTrackCandidateCollection>(labelTrack_);
+  LogDebug("HcalIsoTrack") << "Folder " << folderName_ 
+			   << " Input Tag for Trigger " << labelTrigger_ 
+			   << " track " << labelTrack_ << " threshold "
+			   << pThr_ << " with " << l1FilterTag_.size() 
+			   << " level 1 and " << hltFilterTag_.size() 
+			   << " hlt filter tags" << "\n";
+  for (unsigned int k=0; k<l1FilterTag_.size(); ++k) 
+    LogDebug("HcalIsoTrack") << "L1FilterTag[" << k << "] " << l1FilterTag_[k] << "\n";
+  for (unsigned int k=0; k<hltFilterTag_.size(); ++k)
+    LogDebug("HcalIsoTrack") << "HLTFilterTag[" << k << "] " << hltFilterTag_[k] << "\n";
 }
 
+DQMHcalIsoTrackAlCaReco::~DQMHcalIsoTrackAlCaReco() {}
 
-DQMHcalIsoTrackAlCaReco::DQMHcalIsoTrackAlCaReco(const edm::ParameterSet& iConfig)
+void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-{
-  folderName_ = iConfig.getParameter<std::string>("folderName");
-  saveToFile_=iConfig.getParameter<bool>("saveToFile");
-  outRootFileName_=iConfig.getParameter<std::string>("outputRootFileName");
-  hltEventTag_= consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerEventLabel"));
-  l1FilterTag_=iConfig.getParameter<std::string>("l1FilterLabel");
-  hltFilterTag_=iConfig.getParameter<std::vector<std::string> >("hltL3FilterLabels");
-  nameLength_=iConfig.getUntrackedParameter<int>("filterNameLength",27);
-  l1nameLength_=iConfig.getUntrackedParameter<int>("l1filterNameLength",11);
-  arITrLabel_= consumes<reco::IsolatedPixelTrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("alcarecoIsoTracksLabel"));
-  recoTrLabel_=iConfig.getParameter<edm::InputTag>("recoTracksLabel");
-  pThr_=iConfig.getUntrackedParameter<double>("pThrL3",0);
-  heLow_=iConfig.getUntrackedParameter<double>("lowerHighEnergyCut",40);
-  heUp_=iConfig.getUntrackedParameter<double>("upperHighEnergyCut",60);
-
-  nTotal=0;
-  nHLTL3accepts=0;
-}
-
-DQMHcalIsoTrackAlCaReco::~DQMHcalIsoTrackAlCaReco()
-{}
-
-void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-  nTotal++;
-
+  nTotal_++;
+  bool accept(false);
   edm::Handle<trigger::TriggerEvent> trEv;
-  iEvent.getByToken(hltEventTag_,trEv);
+  iEvent.getByToken(tokTrigger_,trEv);
   
-  edm::Handle<reco::IsolatedPixelTrackCandidateCollection> recoIsoTracks;
-  iEvent.getByToken(arITrLabel_,recoIsoTracks);
+  edm::Handle<reco::HcalIsolatedTrackCandidateCollection> recoIsoTracks;
+  iEvent.getByToken(tokTrack_,recoIsoTracks);
+  LogDebug("HcalIsoTrack") << "Gets Trigger information with " 
+			   << trEv.isValid() <<" and offline tracks with "
+			   << recoIsoTracks.isValid() << "\n";
 
-  const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
-
-  const trigger::size_type nFilt(trEv->sizeFilters());
-
-  //get coordinates of L1 trigger
-  trigger::Keys KEYSl1;
-  for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++)
-    {
-      if ((trEv->filterTag(iFilt).label()).substr(0,l1nameLength_)==l1FilterTag_) KEYSl1=trEv->filterKeys(iFilt); 
-    }
-  
-  trigger::size_type nRegl1=KEYSl1.size();
-  
-  double etaTrigl1=-10000;
-  double phiTrigl1=-10000;
-  double ptMaxl1=0;
-  for (trigger::size_type iReg=0; iReg<nRegl1; iReg++)
-    {
-      const trigger::TriggerObject& TObj(TOCol[KEYSl1[iReg]]);
-      if (TObj.pt()>ptMaxl1)
-	{
-	  etaTrigl1=TObj.eta();
-	  phiTrigl1=TObj.phi();
-	  ptMaxl1=TObj.pt();
-	}
-    }
-  
-  //get coordinates of hlt objects
-  std::vector<double> trigEta;
-  std::vector<double> trigPhi;
-  
-  trigger::Keys KEYS;
-  for (unsigned l=0; l<hltFilterTag_.size(); l++)
-    {
-      for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) 
-	{
-	  if ((trEv->filterTag(iFilt).label()).substr(0,nameLength_)==hltFilterTag_[l]) 
-	    {
-	      KEYS=trEv->filterKeys(iFilt);
+  if (trEv.isValid()) {
+    const trigger::TriggerObjectCollection& TOCol(trEv->getObjects());
+    const trigger::size_type nFilt(trEv->sizeFilters());
+    //plots for L1 trigger
+    for (unsigned int k=0; k<l1FilterTag_.size(); ++k) {
+      trigger::Keys KEYSl1;
+      double etaTrigl1(-10000), phiTrigl1(-10000), ptMaxl1(0);
+      for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) {
+	LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << l1FilterTag_[k] << " gives " << (trEv->filterTag(iFilt).label()).find(l1FilterTag_[k].c_str()) << "\n";
+	if ((trEv->filterTag(iFilt).label()).find(l1FilterTag_[k].c_str()) !=
+	    std::string::npos) {
+	  KEYSl1=trEv->filterKeys(iFilt);
+	  trigger::size_type nRegl1=KEYSl1.size();
+	  LogDebug("HcalIsoTrack") << "# of objects " << nRegl1 << "\n";
+	  for (trigger::size_type iReg=0; iReg<nRegl1; iReg++) {
+	    const trigger::TriggerObject& TObj(TOCol[KEYSl1[iReg]]);
+	    LogDebug("HcalIsoTrack") << "Object[" << iReg << "] with pt " << TObj.pt() << " " << TObj.eta() << " " << TObj.phi() << "\n";
+	    if (TObj.pt()>ptMaxl1) {
+	      etaTrigl1=TObj.eta();
+	      phiTrigl1=TObj.phi();
+	      ptMaxl1=TObj.pt();
 	    }
+	  }
 	}
-      
-      trigger::size_type nReg=KEYS.size();
-      
-      //checks with IsoTrack trigger results
-      for (trigger::size_type iReg=0; iReg<nReg; iReg++)
-	{
-	  const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
-	  if (TObj.p()<pThr_) continue;
-	  hl3eta->Fill(TObj.eta(),1);
-	  hl3AbsEta->Fill(fabs(TObj.eta()),1);
-	  hl3phi->Fill(TObj.phi(),1);
-	  
-	  if (recoIsoTracks->size()>0)
-	    {
-	      double minRecoL3dist=1000;
-	      reco::IsolatedPixelTrackCandidateCollection::const_iterator mrtr;
-	      for (reco::IsolatedPixelTrackCandidateCollection::const_iterator rtrit=recoIsoTracks->begin(); rtrit!=recoIsoTracks->end(); rtrit++)
-		{
-		  double R=deltaR(rtrit->eta(),rtrit->phi(),TObj.eta(),TObj.phi()); 
-		  if (R<minRecoL3dist) 
-		    {
-		      mrtr=rtrit;
-		      minRecoL3dist=R;
-		    }
+      }
+      LogDebug("HcalIsoTrack") << "For L1 trigger type " << k << " pt " 
+			       << ptMaxl1 << " eta " << etaTrigl1 
+			       << " phi " << phiTrigl1 << "\n";
+      if (ptMaxl1 > 0) {
+	hL1Pt_[k]->Fill(ptMaxl1);
+	hL1Eta_[k]->Fill(etaTrigl1);
+	hL1phi_[k]->Fill(phiTrigl1);
+      }
+    }
+    //Now make plots for hlt objects
+    trigger::Keys KEYS;   
+    for (unsigned l=0; l<hltFilterTag_.size(); l++) {
+      for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++) {
+	LogDebug("HcalIsoTrack") << trEv->filterTag(iFilt).label() << " find for " << hltFilterTag_[l] << " gives " << (trEv->filterTag(iFilt).label()).find(hltFilterTag_[l].c_str()) << "\n";
+	if ((trEv->filterTag(iFilt).label()).find(hltFilterTag_[l].c_str()) !=
+	    std::string::npos) {
+	  KEYS=trEv->filterKeys(iFilt);
+	  trigger::size_type nReg=KEYS.size();
+	  LogDebug("HcalIsoTrack") << "# of objects for HLT " << nReg << "\n";
+	  //checks with IsoTrack trigger results
+	  for (trigger::size_type iReg=0; iReg<nReg; iReg++) {
+	    const trigger::TriggerObject& TObj(TOCol[KEYS[iReg]]);
+	    LogDebug("HcalIsoTrack") << "HLT Filter Tag " << l 
+				     << " trigger " << iFilt << " object "
+				     << iReg << " p " << TObj.p() 
+				     << " pointer " << indexH_[l] << ":" 
+				     << hHltP_[indexH_[l]] << ":"
+				     << hHltEta_[indexH_[l]] << ":" 
+				     << hHltPhi_[indexH_[l]] << "\n";
+	    if (TObj.p()>pThr_) {
+	      hHltP_[indexH_[l]]  ->Fill(TObj.p());
+	      hHltEta_[indexH_[l]]->Fill(TObj.eta());
+	      hHltPhi_[indexH_[l]]->Fill(TObj.phi());
+	      if (ifL3_[l]) accept = true;
+	      if (recoIsoTracks.isValid() && ifL3_[l]) {
+		double minRecoL3dist(1000), pt(1000);
+		reco::HcalIsolatedTrackCandidateCollection::const_iterator mrtr;
+		for (mrtr=recoIsoTracks->begin(); mrtr!=recoIsoTracks->end(); 
+		     mrtr++)  {
+		  double R = deltaR(mrtr->eta(),mrtr->phi(),TObj.eta(),TObj.phi()); 
+		  if (R<minRecoL3dist) {
+		    minRecoL3dist = R;
+		    pt            = mrtr->pt();
+		  }
 		}
-	      hOffL3TrackMatch->Fill(minRecoL3dist,1);
-	      if (minRecoL3dist<0.02) hOffL3TrackPtRat->Fill(TObj.pt()/mrtr->pt(),1);
+		LogDebug("HcalIsoTrack") << "Minimum R " << minRecoL3dist 
+					 << " pt " << pt << ":" 
+					 << TObj.pt() << "\n";
+		hL3Dr_->Fill(minRecoL3dist);
+		if (minRecoL3dist<0.02) hL3Rat_->Fill(TObj.pt()/pt);
+	      }
 	    }
-	  
-	  hl3Pt->Fill(TObj.pt(),1);
-	  trigEta.push_back(TObj.eta());
-	  trigPhi.push_back(TObj.phi());
-	}
+	  }
+        }
+      }
     }
-  
-  //general distributions
-  for (reco::IsolatedPixelTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end(); itr++)
-    {
-      bool match=false;
-      for (unsigned int l=0; l<trigEta.size(); l++)
-	{
-	  if (deltaR(itr->eta(),itr->phi(),trigEta[l],trigPhi[l])<0.02) match=true;
-	}
-      if (match)
-	{	
-	  hOffEtaFP->Fill(itr->eta(),1);
-	  hOffPhiFP->Fill(itr->phi(),1);
-	}
-      
-      hOffEta->Fill(itr->eta(),1);
-      hOffPhi->Fill(itr->phi(),1);
-
-      hOffAbsEta->Fill(fabs(itr->eta()),1);
-
-      hL1jetMatch->Fill(deltaR(itr->eta(), itr->phi(), etaTrigl1, phiTrigl1),1);  
-
-      if (fabs(itr->eta())<1.479) 
-	{
-	  hDeposEcalInnerEB->Fill(itr->energyIn(),1);
-	  hDeposEcalOuterEB->Fill(itr->energyOut(),1);
-	}
-      else
-	{
-	  hDeposEcalInnerEE->Fill(itr->energyIn(),1);
-	  hDeposEcalOuterEE->Fill(itr->energyOut(),1);
-	}
-      
-      hTracksSumP->Fill(itr->sumPtPxl(),1);
-      if (itr->maxPtPxl()==-10) hTracksMaxP->Fill(0,1);
-      else hTracksMaxP->Fill(itr->maxPtPxl(),1);
-
-      if (fabs(itr->eta())<0.5) hOffP_0005->Fill(itr->p(),1);
-      if (fabs(itr->eta())>0.5&&fabs(itr->eta())<1.0) hOffP_0510->Fill(itr->p(),1);
-      if (fabs(itr->eta())>1.0&&fabs(itr->eta())<1.5) hOffP_1015->Fill(itr->p(),1);
-      if (fabs(itr->eta())<1.5&&fabs(itr->eta())<2.0) hOffP_1520->Fill(itr->p(),1);
-
-      hOffP->Fill(itr->p(),1);
-
-      std::pair<int,int> TI=towerIndex(itr->eta(),itr->phi());
-      hOccupancyFull->Fill(TI.first,TI.second,1);
-      if (itr->p()>heLow_&&itr->p()<heUp_) hOccupancyHighEn->Fill(TI.first,TI.second,1);
-    }    
-      
-}
-
-void DQMHcalIsoTrackAlCaReco::beginJob()
-{
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder(folderName_);
-
-  hl3Pt=dbe_->book1D("hl3Pt","pT of hlt L3 objects",1000,0,1000);
-  hl3Pt->setAxisTitle("pT(GeV)",1);
-
-  hl3eta=dbe_->book1D("hl3eta","eta of hlt L3 objects",16,-2,2);
-  hl3eta->setAxisTitle("eta",1);
-  hl3AbsEta=dbe_->book1D("hl3AbsEta","|eta| of hlt L3 objects",8,0,2);
-  hl3AbsEta->setAxisTitle("eta",1);
-  hl3phi=dbe_->book1D("hl3phi","phi of hlt L3 objects",16,-3.2,3.2);
-  hl3phi->setAxisTitle("phi",1);
-  hOffEta=dbe_->book1D("hOffEta","eta of alcareco objects",100,-2,2);
-  hOffEta->setAxisTitle("eta",1);
-  hOffPhi=dbe_->book1D("hOffPhi","phi of alcareco objects",100,-3.2,3.2);
-  hOffPhi->setAxisTitle("phi",1);
-  hOffP=dbe_->book1D("hOffP","p of alcareco objects",1000,0,1000);
-  hOffP->setAxisTitle("E(GeV)",1);
-  hOffP_0005=dbe_->book1D("hOffP_0005","p of alcareco objects, |eta|<0.5",1000,0,1000);
-  hOffP_0005->setAxisTitle("E(GeV)",1);
-  hOffP_0510=dbe_->book1D("hOffP_0510","p of alcareco objects, 0.5<|eta|<1.0",1000,0,1000);
-  hOffP_0510->setAxisTitle("E(GeV)",1);
-  hOffP_1015=dbe_->book1D("hOffP_1015","p of alcareco objects, 1.0<|eta|<1.5",1000,0,1000);
-  hOffP_1015->setAxisTitle("E(GeV)",1);
-  hOffP_1520=dbe_->book1D("hOffP_1520","p of alcareco objects, 1.5<|eta|<2.0",1000,0,1000);
-  hOffP_1520->setAxisTitle("E(GeV)",1);
-  hOffEtaFP=dbe_->book1D("hOffEtaFP","eta of alcareco objects, FP",16,-2,2);
-  hOffEtaFP->setAxisTitle("eta",1);
-  hOffAbsEta=dbe_->book1D("hOffAbsEta","|eta| of alcareco objects",8,0,2);
-  hOffAbsEta->setAxisTitle("|eta|",1);
-  hOffPhiFP=dbe_->book1D("hOffPhiFP","phi of alcareco objects, FP",16,-3.2,3.2);
-  hOffPhiFP->setAxisTitle("phi",1);
-  hTracksSumP=dbe_->book1D("hTracksSumP","summary p of tracks in the isolation cone",100,0,20);
-  hTracksSumP->setAxisTitle("E(GeV)");
-  hTracksMaxP=dbe_->book1D("hTracksMaxP","maximum p among tracks in the isolation cone",100,0,20);
-  hTracksMaxP->setAxisTitle("E(GeV)");
-  hDeposEcalInnerEE=dbe_->book1D("hDeposEcalInnerEE","ecal energy deposition in inner cone around track, EE",20,0,20);
-  hDeposEcalInnerEE->setAxisTitle("E(GeV)");
-  hDeposEcalOuterEE=dbe_->book1D("hDeposEcalOuterEE","ecal energy deposition in outer cone around track, EE",100,0,100);
-  hDeposEcalInnerEB=dbe_->book1D("hDeposEcalInnerEB","ecal energy deposition in inner cone around track, EB",20,0,20);
-  hDeposEcalInnerEB->setAxisTitle("E(GeV)");
-  hDeposEcalOuterEB=dbe_->book1D("hDeposEcalOuterEB","ecal energy deposition in outer cone around track, EB",100,0,100);
-  hDeposEcalOuterEB->setAxisTitle("E(GeV)");
-  hOccupancyFull=dbe_->book2D("hOccupancyFull","number of tracks per tower, full energy range",48,-25,25,73,0,73);
-  hOccupancyFull->setAxisTitle("ieta",1);
-  hOccupancyFull->setAxisTitle("iphi",2);
-  hOccupancyFull->getTH2F()->SetOption("colz");
-  hOccupancyFull->getTH2F()->SetStats(kFALSE);
-  hOccupancyHighEn=dbe_->book2D("hOccupancyHighEn","number of tracks per tower, high energy tracks",48,-25,25,73,0,73);
-  hOccupancyHighEn->setAxisTitle("ieta",1);
-  hOccupancyHighEn->setAxisTitle("iphi",2);
-  hOccupancyHighEn->getTH2F()->SetOption("colz");
-  hOccupancyHighEn->getTH2F()->SetStats(kFALSE);
-  hOffL3TrackMatch=dbe_->book1D("hOffL3TrackMatch","Distance from L3 object to offline track",40,0,0.2);
-  hOffL3TrackMatch->setAxisTitle("R(eta,phi)",1);
-  hOffL3TrackPtRat=dbe_->book1D("hOffL3TrackPtRat","Ratio of pT: L3/offline",500,0,3);
-  hOffL3TrackPtRat->setAxisTitle("ratio L3/offline",1);
-
-  hL1jetMatch=dbe_->book1D("hL1jetMatch","dR(eta,phi) from leading L1 jet to offline track",100,0,5);
-
-}
-
-void DQMHcalIsoTrackAlCaReco::endJob() {
-
-if(dbe_) 
-  {
-    if (saveToFile_) dbe_->save(outRootFileName_);
   }
+
+  //general distributions
+  if (recoIsoTracks.isValid()) {
+    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=recoIsoTracks->begin(); itr!=recoIsoTracks->end(); itr++) {
+      hMaxP_->Fill(itr->maxP());
+      hEnEcal_->Fill(itr->energyEcal());
+      std::pair<int,int> etaphi = itr->towerIndex();
+      hIeta_->Fill(etaphi.first);
+      hIphi_->Fill(etaphi.second);
+      LogDebug("HcalIsoTrack") << "Reco track p " << itr->p() 
+			       << " eta|phi " << etaphi.first
+			       << "|" << etaphi.second << " maxP " 
+			       << itr->maxP() << " EcalE "
+			       << itr->energyEcal() << " pointers " 
+			       << hHltP_[3] << ":"
+			       << hHltEta_[3] << ":" << hHltPhi_[3] << "\n";
+      if (itr->p()>=pThr_) {
+	hHltP_[3]  ->Fill(itr->p());
+	hHltEta_[3]->Fill(itr->eta());
+	hHltPhi_[3]->Fill(itr->phi());
+      }
+      double etaAbs = std::abs(itr->eta());
+      hOffP_[0]->Fill(itr->p());
+      for (unsigned int l=1; l<etaRange_.size(); l++) {
+	if (etaAbs >= etaRange_[l-1] && etaAbs < etaRange_[l]) {
+	  LogDebug("HcalIsoTrack") << "Range " << l << " p " << itr->p() 
+				   <<  " pointer " << hOffP_[l];
+	  hOffP_[l]->Fill(itr->p());
+	  break;
+	}
+      }
+    }
+  }
+
+  if (accept) nHLTaccepts_++;
+  LogDebug("HcalIsoTrack") << "Accept " << accept << "\n";
 }
 
+void DQMHcalIsoTrackAlCaReco::bookHistograms(DQMStore::IBooker &iBooker,
+					     edm::Run const &, 
+					     edm::EventSetup const & ) {
+
+  iBooker.setCurrentFolder(folderName_);
+  LogDebug("HcalIsoTrack") << "Set the folder to " << folderName_ << "\n";
+  char name[100], title[200];
+  for (unsigned int k=0; k<l1FilterTag_.size(); ++k) {
+    sprintf (name, "hp%s", l1FilterTag_[k].c_str());
+    sprintf (title, "p_T of L1 object for %s", l1FilterTag_[k].c_str());
+    hL1Pt_.push_back(iBooker.book1D(name,title,1000,0,1000));
+    hL1Pt_[k]->setAxisTitle("p_T (GeV)", 1);
+    sprintf (name, "heta%s", l1FilterTag_[k].c_str());
+    sprintf (title, "#eta of L1 object for %s", l1FilterTag_[k].c_str());
+    hL1Eta_.push_back(iBooker.book1D(name,title,100,-2.5,2.5));
+    hL1Eta_[k]->setAxisTitle("#eta",1);
+    sprintf (name, "hphi%s", l1FilterTag_[k].c_str());
+    sprintf (title, "#phi of L1 object for %s", l1FilterTag_[k].c_str());
+    hL1phi_.push_back(iBooker.book1D(name,title,100,-3.2,3.2));
+    hL1phi_[k]->setAxisTitle("#phi",1);
+  }
+  
+  std::string types[4] = {"L2","L2x","L3","Off"};
+  for (unsigned int l=0; l<4; l++) {
+    sprintf (name, "hp%s", types[l].c_str());
+    sprintf (title,"Momentum of %s object", types[l].c_str());
+    hHltP_.push_back(iBooker.book1D(name,title,200,0,1000));
+    hHltP_[l]->setAxisTitle("p (GeV)", 1);
+    sprintf (name, "heta%s", types[l].c_str());
+    sprintf (title,"#eta of %s object", types[l].c_str());
+    hHltEta_.push_back(iBooker.book1D(name,title,16,-2,2));
+    hHltEta_[l]->setAxisTitle("#eta",1);
+    sprintf (name, "hphi%s", types[l].c_str());
+    sprintf (title,"#phi of %s object", types[l].c_str());
+    hHltPhi_.push_back(iBooker.book1D(name,title,16,-3.2,3.2));
+    hHltPhi_[l]->setAxisTitle("#phi",1);
+  }
+  sprintf (title,"Distance of offline track from L3 object");
+  hL3Dr_ = (iBooker.book1D("hDRL3",title,40,0,0.2));
+  hL3Dr_->setAxisTitle("R(#eta,#phi)",1);
+  sprintf (title,"Ratio of p L3/Offline");
+  hL3Rat_ = (iBooker.book1D("hRatL3",title,500,0,3));
+  indexH_.clear(); ifL3_.clear();
+  for (unsigned int l=0; l<hltFilterTag_.size(); l++) {
+    unsigned int indx = (type_[l] >= 0 && type_[l] < 3) ? type_[l] : 0;
+    indexH_.push_back(indx);
+    ifL3_.push_back(indx==2);
+    LogDebug("HcalIsoTrack") << "Filter[" << l << "] " << hltFilterTag_[l]
+			     << " type " << type_[l] << " index " 
+			     << indexH_[l] << " L3? " << ifL3_[l] << "\n";
+  }
+  
+  double etaV[6] = {0.0, 0.5, 1.0, 1.5, 2.0, 2.5};
+  for (unsigned int k=0; k<6; ++k) {
+    sprintf (name, "hOffP%d", k);
+    if (k == 0) {
+      sprintf (title, "p of AlCaReco object (All)");
+    } else {
+      sprintf (title, "p of AlCaReco object (%3.1f < |#eta| < %3.1f)",etaV[k-1],etaV[k]);
+    }
+    etaRange_.push_back(etaV[k]);
+    hOffP_.push_back(iBooker.book1D(name,title,1000,0,1000));
+    hOffP_[k]->setAxisTitle("E (GeV)",1);
+  }
+  hMaxP_ = iBooker.book1D("hChgIsol","Energy for charge isolation",110,-10,100);
+  hMaxP_->setAxisTitle("p (GeV)",1);
+  hEnEcal_ = iBooker.book1D("hEnEcal","Energy in ECAL",100,0,20);
+  hEnEcal_->setAxisTitle("E (GeV)",1);
+  hIeta_   = iBooker.book1D("hIEta","i#eta for HCAL tower",90,-45,45);
+  hIeta_->setAxisTitle("i#eta",1);
+  hIphi_   = iBooker.book1D("hIPhi","i#phi for HCAL tower",72,0,72);
+  hIphi_->setAxisTitle("i#phi",1);
+}

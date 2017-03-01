@@ -1,6 +1,8 @@
 // Author: Matevz Tadel
 // Shows one muon chamber in local coordinate system.
 
+#include "common_foos.C"
+
 void geom_detail_local()
 {
    TEveUtil::LoadMacro("common_foos.C+");

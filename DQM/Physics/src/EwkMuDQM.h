@@ -9,35 +9,37 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+// #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace reco {
-  class Muon;
-  class Jet;
-  class MET;
-  class Vertex;
-  class Photon;
-  class BeamSpot;
+class Muon;
+class Jet;
+class MET;
+class Vertex;
+class Photon;
+class BeamSpot;
 }
 
 class DQMStore;
 class MonitorElement;
 
-class EwkMuDQM : public edm::EDAnalyzer {
-public:
-  EwkMuDQM (const edm::ParameterSet &);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+class EwkMuDQM : public DQMEDAnalyzer {
+ public:
+  EwkMuDQM(const edm::ParameterSet&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
-private:
 
+ private:
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
   edm::EDGetTokenT<edm::TriggerResults> trigTag_;
@@ -47,18 +49,18 @@ private:
   edm::EDGetTokenT<edm::View<reco::Photon> > phoTag_;
   edm::EDGetTokenT<edm::View<reco::Vertex> > vertexTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
-  std::vector <std::string> trigPathNames_;
+  std::vector<std::string> trigPathNames_;
 
-  bool   isAlsoTrackerMuon_;
+  bool isAlsoTrackerMuon_;
   double dxyCut_;
   double normalizedChi2Cut_;
-  int    trackerHitsCut_;
-  int    pixelHitsCut_;
-  int    muonHitsCut_;
-  int    nMatchesCut_;
+  int trackerHitsCut_;
+  int pixelHitsCut_;
+  int muonHitsCut_;
+  int nMatchesCut_;
 
-  bool   isRelativeIso_;
-  bool   isCombinedIso_;
+  bool isRelativeIso_;
+  bool isCombinedIso_;
   double isoCut03_;
 
   double acopCut_;
@@ -77,13 +79,13 @@ private:
   double dimuonMassMax_;
 
   double eJetMin_;
-  int    nJetMax_;
+  int nJetMax_;
 
   double ptThrForPhoton_;
-  int    nPhoMax_ ;
+  int nPhoMax_;
 
   bool isValidHltConfig_;
-  HLTConfigProvider  hltConfigProvider_;
+  HLTPrescaleProvider hltPrescaleProvider_;
 
   unsigned int nall;
   unsigned int nrec;
@@ -91,9 +93,7 @@ private:
   unsigned int nhlt;
   unsigned int nmet;
   unsigned int nsel;
-  unsigned int nz  ;
-
-  DQMStore* theDbe;
+  unsigned int nz;
 
   MonitorElement* pt_before_;
   MonitorElement* pt_after_;
@@ -124,13 +124,13 @@ private:
   MonitorElement* leadingjet_eta_after_;
   MonitorElement* leadingjet_eta_afterZ_;
 
-  //MonitorElement* ptPlus_before_;
-  //MonitorElement* ptMinus_before_;
+  // MonitorElement* ptPlus_before_;
+  // MonitorElement* ptMinus_before_;
   MonitorElement* ptDiffPM_before_;
-  //MonitorElement* ptPlus_afterW_;
-  //MonitorElement* ptMinus_afterW_;
-  //MonitorElement* ptPlus_afterZ_;
-  //MonitorElement* ptMinus_afterZ_;
+  // MonitorElement* ptPlus_afterW_;
+  // MonitorElement* ptMinus_afterW_;
+  // MonitorElement* ptPlus_afterZ_;
+  // MonitorElement* ptMinus_afterZ_;
   MonitorElement* ptDiffPM_afterZ_;
 
   MonitorElement* met_afterZ_;
@@ -146,8 +146,8 @@ private:
   MonitorElement* iso2_afterZ_;
 
   // filled if there is a Z-candidate
-  MonitorElement* n_zselPt1thr_; // number of muons in the event with pt>pt1thr
-  MonitorElement* n_zselPt2thr_; // number of muons in the event with pt>pt2thr
+  MonitorElement* n_zselPt1thr_;  // number of muons in the event with pt>pt1thr
+  MonitorElement* n_zselPt2thr_;  // number of muons in the event with pt>pt2thr
 
   MonitorElement* ztrig_afterZ_;
   MonitorElement* dimuonmass_before_;
@@ -170,7 +170,6 @@ private:
   MonitorElement* phPt_;
   MonitorElement* pfphEta_;
   MonitorElement* phEta_;
-
 };
 
 #endif

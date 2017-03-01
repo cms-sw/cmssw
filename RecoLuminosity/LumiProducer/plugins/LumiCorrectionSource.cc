@@ -9,7 +9,6 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 */
 
 //#include <memory>
-//#include "boost/shared_ptr.hpp"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -206,7 +205,7 @@ LumiCorrectionSource::produceLumiCorrectionParam(const LumiCorrectionParamRcd&)
 { 
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   if(currentrun==0||currentrun==4294967295){ 
-    return  boost::shared_ptr<LumiCorrectionParam>(new LumiCorrectionParam());
+    return std::make_shared<LumiCorrectionParam>();
   }
   if(m_paramcachedrun!=currentrun){//i'm in a new run
     fillparamcache(currentrun);//fill cache
@@ -216,11 +215,11 @@ LumiCorrectionSource::produceLumiCorrectionParam(const LumiCorrectionParamRcd&)
     }
   }
   if(m_paramcache.empty()){
-    return boost::shared_ptr<LumiCorrectionParam>(new LumiCorrectionParam());
+    return std::make_shared<LumiCorrectionParam>();
   }
   m_paramresult=m_paramcache[currentrun];
   if(m_paramresult.get()==0){
-    return boost::shared_ptr<LumiCorrectionParam>(new LumiCorrectionParam());
+    return std::make_shared<LumiCorrectionParam>();
   }
   return m_paramresult;
 }
@@ -271,7 +270,7 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
   tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned short"),std::string("NUMBER(1)"));
-  boost::shared_ptr<LumiCorrectionParam> result(new LumiCorrectionParam(LumiCorrectionParam::HF));
+  auto result = std::make_shared<LumiCorrectionParam>(LumiCorrectionParam::HF);
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();

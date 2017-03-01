@@ -27,8 +27,6 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/TrackingMonitorClient/interface/TrackingActionExecutor.h"
 
@@ -63,9 +61,6 @@ TrackingOfflineDQM::TrackingOfflineDQM(edm::ParameterSet const& pSet) :
 
   // Action Executor
   actionExecutor_ = new TrackingActionExecutor(pSet);
-
-  // get back-end interface
-  dqmStore_ = edm::Service<DQMStore>().operator->();
 
   usedWithEDMtoMEConverter_= configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
   inputFileName_           = configPar_.getUntrackedParameter<std::string>("InputFileName","");
@@ -102,7 +97,6 @@ void TrackingOfflineDQM::beginJob() {
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
 void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  //  std::cout << "[TrackingOfflineDQM::beginRun] .. starting" << std::endl;
   edm::LogInfo ("BeginRun") <<"TrackingOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
@@ -133,45 +127,24 @@ void TrackingOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eS
   const int siPixelFedN = (FEDNumbering::MAXSiPixelFEDID-FEDNumbering::MINSiPixelFEDID+1);
   allpixelFEDsFound_ = (nPixelFEDs == siPixelFedN);
   trackerFEDsFound_  = (nFEDs > 0);
-  std::cout << "[TrackingOfflineDQM::beginRun] nPixelFEDs: " << nPixelFEDs << " ==> " << allpixelFEDsFound_ << std::endl;
-  std::cout << "[TrackingOfflineDQM::beginRun] nFEDs: "      << nFEDs      << " ==> " << trackerFEDsFound_  << std::endl;
   
-  if (globalStatusFilling_ > 0) {
-    actionExecutor_->createGlobalStatus(dqmStore_);
-    //    std::cout << "[TrackingOfflineDQM::beginRun] done actionExecutor_->createStatus" << std::endl;
-  }
+}
 
-  //  std::cout << "[TrackingOfflineDQM::beginRun] DONE" << std::endl;
-}
-/** 
- * @brief
- *
- *  Executed at every Event
- *
- * @param Event                             
- *   Event  
- *                 
- * @param eSetup 
- *  Event Setup object with Geometry, Magnetic Field, etc.    
- */
-void TrackingOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
-}
 /** 
  * @brief 
  * 
  * End Lumi
  *
 */
-void TrackingOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
+void TrackingOfflineDQM::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
 
-  //  std::cout << "[TrackingOfflineDQM::endLuminosityBlock] .. starting" << std::endl;
 
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::endLuminosityBlock";
+  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::dqmBeginLuminosityBlock";
 
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->createLSStatus(dqmStore_);
+    actionExecutor_->createLSStatus(ibooker_,igetter_);
 
-    if (trackerFEDsFound_) actionExecutor_->fillStatusAtLumi(dqmStore_);
+    if (trackerFEDsFound_) actionExecutor_->fillStatusAtLumi(ibooker_,igetter_);
     else actionExecutor_->fillDummyLSStatus();
   }
 }
@@ -181,58 +154,21 @@ void TrackingOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
  * End Run
  *
 */
-void TrackingOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
+void TrackingOfflineDQM::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_)
+{
 
-  //  std::cout << "[TrackingOfflineDQM::endRun] .. starting" << std::endl;
-
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::endRun";
+  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::dqmEndJob";
 
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->createGlobalStatus(dqmStore_);
+    actionExecutor_->createGlobalStatus(ibooker_,igetter_);
 
     if ( !trackerFEDsFound_ ) {
       actionExecutor_->fillDummyGlobalStatus();
       return;
     } else {
-      actionExecutor_->fillGlobalStatus(dqmStore_);
+      actionExecutor_->fillGlobalStatus(ibooker_,igetter_);
     }
   }
-
-  //  std::cout << "[TrackingOfflineDQM::endRun] DONE" << std::endl;
-
-}
-/** 
-* @brief 
-* 
-* End Job
-*
-*/
-void TrackingOfflineDQM::endJob() {
-
-  //  std::cout << "[TrackingOfflineDQM::endJob] .. starting" << std::endl;
-
-  edm::LogInfo("TrackingOfflineDQM") << "TrackingOfflineDQM::endJob";
-
-  if (!usedWithEDMtoMEConverter_) {
-    // Save Output file
-    dqmStore_->cd();
-    dqmStore_->save(outputFileName_, "","","");
-  }
-
-  //  std::cout << "[TrackingOfflineDQM::endJob] DONE" << std::endl;
-
-}
-/** 
-* @brief 
-* 
-* Open Input File
-*
-*/
-bool TrackingOfflineDQM::openInputFile() { 
-  if (inputFileName_.size() == 0) return false;
-  edm::LogInfo("TrackingOfflineDQM") <<  "TrackingOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
-  dqmStore_->open(inputFileName_, false); 
-  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

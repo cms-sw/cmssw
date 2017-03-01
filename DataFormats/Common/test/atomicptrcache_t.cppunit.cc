@@ -28,9 +28,8 @@ testAtomicPtrCache::check()
     CPPUNIT_ASSERT(false == cache.isSet());
     CPPUNIT_ASSERT(nullptr == cache.operator->());
     CPPUNIT_ASSERT(nullptr == cache.load());
-    std::unique_ptr<Vec> p{ new Vec{values} };
 
-    cache.set(std::move(p));
+    cache.set(std::make_unique<Vec>(values));
     CPPUNIT_ASSERT(true == cache.isSet());
     CPPUNIT_ASSERT(cache->size() == values.size());
     CPPUNIT_ASSERT((*cache).size() == values.size());

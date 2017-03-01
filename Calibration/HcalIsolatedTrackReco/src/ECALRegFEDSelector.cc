@@ -11,7 +11,7 @@ ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
   
   tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
 
-  ec_mapping = new EcalElectronicsMapping();
+  ec_mapping = std::make_unique<EcalElectronicsMapping>();
 
   produces<FEDRawDataCollection>();
   produces<EcalListOfFEDS>();
@@ -35,9 +35,9 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       fedSaved[p]=false;
     }
 
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
 
-  std::auto_ptr<EcalListOfFEDS> fedList(new EcalListOfFEDS);  
+  auto fedList = std::make_unique<EcalListOfFEDS>();
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
   iEvent.getByToken(tok_seed_,trigSeedTrks);
@@ -107,8 +107,8 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
     }
 
-  iEvent.put(producedData);  
-  iEvent.put(fedList);
+  iEvent.put(std::move(producedData));
+  iEvent.put(std::move(fedList));
   
 }
 

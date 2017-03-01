@@ -41,8 +41,8 @@ class ProxyFactoryTemplate : public ProxyFactoryBase
       //virtual ~ProxyFactoryTemplate();
 
       // ---------- const member functions ---------------------
-      virtual std::auto_ptr<DataProxy> makeProxy() const {
-         return std::auto_ptr<DataProxy>(new T);
+      virtual std::unique_ptr<DataProxy> makeProxy() const {
+         return std::make_unique<T>();
       }
       
       

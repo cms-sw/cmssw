@@ -105,10 +105,12 @@ namespace ecaldqm
     _es.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
     L1GtTriggerMenu const* menu(menuRcd.product());
 
-    for(unsigned iT(0); iT != egTriggerAlgos_.size(); ++iT){
-      if(menu->gtAlgorithmResult(egTriggerAlgos_[iT], dWord)){
-        triggered_.set(kEcalTrigger);
-        break;
+    if ( dWord.size() > 0)  { //protect against no L1GT in run
+      for(unsigned iT(0); iT != egTriggerAlgos_.size(); ++iT){
+	if(menu->gtAlgorithmResult(egTriggerAlgos_[iT], dWord)){
+	  triggered_.set(kEcalTrigger);
+	  break;
+	}
       }
     }
 

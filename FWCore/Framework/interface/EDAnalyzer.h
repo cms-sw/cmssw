@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 #include <string>
-#include <mutex>
 
 // EDAnalyzer is the base class for all analyzer "modules".
 
@@ -17,6 +16,9 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+  class WaitingTask;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -46,6 +48,9 @@ namespace edm {
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                  ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
+    //Needed by Worker but not something supported
+    void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
     void doEndJob();
@@ -61,7 +66,14 @@ namespace edm {
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doRegisterThinnedAssociations(ProductRegistry const&,
+                                       ThinnedAssociationsHelper&) { }
+
     void registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg);
+    
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     virtual void analyze(Event const&, EventSetup const&) = 0;
     virtual void beginJob(){}
@@ -80,7 +92,6 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     SharedResourcesAcquirer resourceAcquirer_;
-    std::mutex mutex_;
 
     std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
   };

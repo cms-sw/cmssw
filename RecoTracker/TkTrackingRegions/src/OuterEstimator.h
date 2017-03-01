@@ -21,50 +21,56 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 
+template<typename Algo>
 class dso_internal OuterEstimator final : public MeasurementEstimator {
 
 public:
+
+  using OuterHitCompat = OuterHitCompatibility<Algo>;
+
   OuterEstimator(
       const OuterDetCompatibility & detCompatibility,
-      const OuterHitCompatibility & hitCompatibility,  
+      const OuterHitCompat & hitCompatibility,  
       const edm::EventSetup& iSetup) 
    : theDetCompatibility(detCompatibility), 
      theHitCompatibility (hitCompatibility) { }
-  virtual ~OuterEstimator(){}
-  virtual std::pair<bool,double> estimate(
+  
+  ~OuterEstimator(){}
+
+  std::pair<bool,double> estimate(
       const TrajectoryStateOnSurface& ts, 
       const TrackingRecHit& hit)  
-    const {
+    const override {
        return theHitCompatibility(hit) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
   }
 
-  virtual bool estimate(
+  bool estimate(
       const TrajectoryStateOnSurface& ts, 
       const BoundPlane& plane
-) const {
+   ) const override {
     return theDetCompatibility(plane);
   }
 
   GlobalPoint center() { return theDetCompatibility.center(); }
 
-  virtual OuterEstimator* clone() const {
+  OuterEstimator* clone() const override {
     return new OuterEstimator(*this);
   }
 
-  virtual MeasurementEstimator::Local2DVector maximalLocalDisplacement( 
-      const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const {
+  MeasurementEstimator::Local2DVector maximalLocalDisplacement( 
+      const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const override {
     return theDetCompatibility.maximalLocalDisplacement(
         ts.globalPosition(),plane);
  }
 
   const OuterDetCompatibility & detCompatibility() const 
     {return theDetCompatibility; }
-  const OuterHitCompatibility & hitCompatibility() const 
+  const OuterHitCompat & hitCompatibility() const 
     {return theHitCompatibility; }
 
 private:
   OuterDetCompatibility theDetCompatibility;
-  OuterHitCompatibility theHitCompatibility; 
+  OuterHitCompat theHitCompatibility; 
 
 };
 #endif

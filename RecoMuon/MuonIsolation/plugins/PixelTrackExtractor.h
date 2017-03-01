@@ -39,7 +39,7 @@ private:
   reco::isodeposit::Direction directionAtPresetRadius(const reco::Track& tk, double bz) const;
 private:
   // Parameter set
-  edm::EDGetTokenT<edm::View<reco::Track> > theTrackCollectionToken; //! Track Collection Token
+  edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken; //! Track Collection Token
   std::string theDepositLabel;         //! name for deposit
   double theDiff_r;                    //! transverse distance to vertex
   double theDiff_z;                    //! z distance to vertex

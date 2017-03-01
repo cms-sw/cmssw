@@ -25,8 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/EDProduct.h"
-
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -89,11 +87,13 @@
 #define NEW_ID
 #ifdef NEW_ID
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #else 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #endif 
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 using namespace std;
 
@@ -101,9 +101,9 @@ using namespace std;
 //#define L1
 //#define HLT
 //#define HI
-#define ROC_EFF
-#define Lumi
-#define USE_RESYNCS  // get theinfo about recyncs 
+//#define ROC_EFF
+//#define Lumi
+//#define USE_RESYNCS  // get theinfo about recyncs 
 
 // special hitos with parameters normalized to intlumi (usually disabled)
 //#define INSTLUMI_STUDIES
@@ -800,10 +800,10 @@ class TestClusters : public edm::EDAnalyzer {
   
   explicit TestClusters(const edm::ParameterSet& conf);  
   virtual ~TestClusters();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
@@ -981,7 +981,7 @@ TestClusters::TestClusters(edm::ParameterSet const& conf)
 TestClusters::~TestClusters() { }  
 
 // ------------ method called at the begining   ------------
-void TestClusters::beginRun(const edm::EventSetup& iSetup) {
+void TestClusters::beginRun(edm::Run const&, const edm::EventSetup& iSetup) {
   cout << "beginRun -  PixelClusterTest " <<endl;
 }
 
@@ -1067,11 +1067,11 @@ void TestClusters::beginJob() {
   hpixPerLink3 = fs->make<TH1D>( "hpixPerLink3", "Pix per link l3",
 			    sizeH, lowH, highH);
 
-  sizeH=3000;
+  sizeH=5000;
 #ifdef HI
   highH = 19999.5;
 #else
-  highH = 2999.5;
+  highH = 4999.5;
 #endif
 
   hclusPerLay1 = fs->make<TH1D>( "hclusPerLay1", "Clus per layer l1",
@@ -1082,11 +1082,11 @@ void TestClusters::beginJob() {
 			    sizeH, lowH, highH);
 
   hclus = fs->make<TH1D>( "hclus", "Clus per event",
-			    sizeH, lowH, 4.*highH);
+			    sizeH, lowH, 5.*highH);
   hclusBPix = fs->make<TH1D>( "hclusBPix", "Bpix Clus per event",
-			    sizeH, lowH, 3.*highH);
+			    sizeH, lowH, 4.*highH);
   hclusFPix = fs->make<TH1D>( "hclusFPix", "Fpix Clus per event",
-			    sizeH, lowH, highH);
+			    sizeH, lowH, 2.*highH);
 
 #ifdef HI
   highH = 3999.5;
@@ -1123,7 +1123,7 @@ void TestClusters::beginJob() {
 #ifdef HI
   highH = 99999.5;
 #else
-  highH = 14999.5;
+  highH = 19999.5;
 #endif
 
   hpixPerLay1 = fs->make<TH1D>( "hpixPerLay1", "Pix per layer l1",
@@ -1134,11 +1134,11 @@ void TestClusters::beginJob() {
 				 sizeH, lowH, highH);
 
   hdigis = fs->make<TH1D>( "hdigis", "All Digis in clus per event",
-				 sizeH, lowH, 4.*highH);
+				 sizeH, lowH, 5.*highH);
   hdigisB = fs->make<TH1D>( "hdigisB", "BPix Digis in clus per event",
-				 sizeH, lowH, 3.*highH);
+				 sizeH, lowH, 4.*highH);
   hdigisF = fs->make<TH1D>( "hdigisF", "FPix Digis in clus per event",
-				 sizeH, lowH, highH);
+				 sizeH, lowH, 2.*highH);
   hdigis2 = fs->make<TH1D>( "hdigis2", "Digis per event - zoomed",1000, -0.5, 999.5);
 
   //#ifdef BX
@@ -1162,12 +1162,11 @@ void TestClusters::beginJob() {
 #ifdef HI
   highH = 19999.5;
 #else
-  highH = 2999.5;
+  highH = 4999.5;
 #endif
 
 
   hclus2 = fs->make<TH1D>( "hclus2", "Clus per event - zoomed",1000, -0.5, 999.5);
-
   //hclus3 = fs->make<TH1D>( "hclus3", "Clus per event",sizeH, lowH, highH);
   //hclus4 = fs->make<TH1D>( "hclus4", "Clus per event",sizeH, lowH, highH);
   hclus5 = fs->make<TH1D>( "hclus5", "Clus per event",sizeH, lowH, highH);
@@ -1736,7 +1735,10 @@ void TestClusters::beginJob() {
 // ------------ method called to at the end of the job  ------------
 void TestClusters::endJob(){
   double norm = 1;
+#ifdef ROC_EFF
   double totClusters = sumClusters; // save the total cluster number
+#endif
+
   if(countEvents>0) {
     sumClusters = sumClusters/float(countEvents);
     sumPixels = sumPixels/float(countEvents);
@@ -1775,10 +1777,7 @@ void TestClusters::endJob(){
   hcluDetMap2->Scale(norm);
   hcluDetMap3->Scale(norm);
 
-
-
 #ifdef ROC_EFF
-
   // Do this only if there is enough statistics
   double clusPerROC = totClusters/15000.;
   if( clusPerROC < 1000.) {
@@ -1918,7 +1917,7 @@ void TestClusters::analyze(const edm::Event& e,
   //const int MAX_CUT = 1000000; unused
   const int selectEvent = -1;
   //bool select = false; unused
-  static int runNumberOld=-1;
+  static RunNumber_t runNumberOld=-1;
   static int countRuns=0;
   //static double pixsum = 0., clussum=0.;
   //static int nsum = 0, lsold=-999, lumiold=0.;
@@ -1930,10 +1929,10 @@ void TestClusters::analyze(const edm::Event& e,
   const TrackerGeometry& theTracker(*geom);
 
   countAllEvents++;
-  int run       = e.id().run();
-  int event     = e.id().event();
+  RunNumber_t const run       = e.id().run();
+  EventNumber_t const event     = e.id().event();
+  LuminosityBlockNumber_t const lumiBlock = e.luminosityBlock();
 
-  int lumiBlock = e.luminosityBlock();
   int bx        = e.bunchCrossing();
   int orbit     = e.orbitNumber();
 
@@ -2289,7 +2288,7 @@ void TestClusters::analyze(const edm::Event& e,
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  es.get<TrackerTopologyRcd>().get(tTopo);
 #endif
 
   //---------------------------------------

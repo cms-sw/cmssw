@@ -21,7 +21,7 @@ EcalCompactTrigPrimProducer::EcalCompactTrigPrimProducer(const edm::ParameterSet
 
 void EcalCompactTrigPrimProducer::produce(edm::Event& event, const edm::EventSetup& es)
 {
-  std::auto_ptr<EcalTrigPrimCompactColl> outColl(new EcalTrigPrimCompactColl);
+  auto outColl = std::make_unique<EcalTrigPrimCompactColl>();
   edm::Handle<EcalTrigPrimDigiCollection> hTPDigis;
   event.getByToken(inCollectionToken_, hTPDigis);
   
@@ -31,5 +31,5 @@ void EcalCompactTrigPrimProducer::produce(edm::Event& event, const edm::EventSet
       trigPrim != trigPrims->end(); ++trigPrim){
     outColl->setValue(trigPrim->id().ieta(), trigPrim->id().iphi(), trigPrim->sample(trigPrim->sampleOfInterest()).raw());
   }
-  event.put(outColl, outCollection_);
+  event.put(std::move(outColl), outCollection_);
 }

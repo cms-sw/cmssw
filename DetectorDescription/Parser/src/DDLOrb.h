@@ -1,12 +1,11 @@
 #ifndef DDL_Orb_H
 #define DDL_Orb_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLOrb processes all Orb elements.
 /** @class DDLOrb
@@ -21,16 +20,13 @@
  *                                                                         
  */
 
-class DDLOrb : public DDLSolid
+class DDLOrb final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLOrb( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLOrb( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

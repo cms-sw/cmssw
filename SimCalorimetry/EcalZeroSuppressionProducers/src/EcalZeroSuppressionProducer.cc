@@ -58,8 +58,8 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
 
   // collection of zero suppressed digis to put in the event
   
-  std::auto_ptr< EBDigiCollection > gzsBarrelDigis(new EBDigiCollection());
-  std::auto_ptr< EEDigiCollection > gzsEndcapDigis(new EEDigiCollection());
+  std::unique_ptr< EBDigiCollection > gzsBarrelDigis(new EBDigiCollection());
+  std::unique_ptr< EEDigiCollection > gzsEndcapDigis(new EEDigiCollection());
 
   CaloDigiCollectionSorter sorter(5);
 
@@ -113,8 +113,8 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   
   }
   // Step D: Put outputs into event
-  event.put(gzsBarrelDigis, EBZSdigiCollection_);
-  event.put(gzsEndcapDigis, EEZSdigiCollection_);
+  event.put(std::move(gzsBarrelDigis), EBZSdigiCollection_);
+  event.put(std::move(gzsEndcapDigis), EEZSdigiCollection_);
 
 }
 

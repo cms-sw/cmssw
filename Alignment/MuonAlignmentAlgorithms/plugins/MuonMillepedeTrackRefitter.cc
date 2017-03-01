@@ -85,9 +85,9 @@ void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSe
     = event.getRefBeforePut<std::vector<Trajectory> >();
 
   //Allocate collection of tracks
-  std::auto_ptr<std::vector<Trajectory> > trajectoryCollection( new std::vector<Trajectory> );
+  auto trajectoryCollection = std::make_unique<std::vector<Trajectory>>();
   // Association map between Trajectory and Track
-  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection );
+  auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>();
  
 
   //Create the propagator
@@ -123,7 +123,7 @@ void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSe
     ++trackIndex;
   } 
 
-  edm::OrphanHandle<std::vector<Trajectory> > trajsRef = event.put(trajectoryCollection);
+  edm::OrphanHandle<std::vector<Trajectory> > trajsRef = event.put(std::move(trajectoryCollection));
   
   for( trajectoryIndex = 0; trajectoryIndex < tracksSA->size(); ++trajectoryIndex) 
   {      
@@ -131,7 +131,7 @@ void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSe
     trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(trajsRef, trajectoryIndex), edm::Ref<reco::TrackCollection>(tracksSA, trackCounter));
   }
   
-  event.put(trajTrackMap);
+  event.put(std::move(trajTrackMap));
  
 }
 

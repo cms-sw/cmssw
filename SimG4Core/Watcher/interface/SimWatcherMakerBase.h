@@ -20,7 +20,7 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 // user include files
 
@@ -41,8 +41,8 @@ class SimWatcherMakerBase
       // ---------- const member functions ---------------------
       virtual void make(const edm::ParameterSet&,
 			SimActivityRegistry&,
-			boost::shared_ptr<SimWatcher>&,
-			boost::shared_ptr<SimProducer>&
+			std::shared_ptr<SimWatcher>&,
+			std::shared_ptr<SimProducer>&
 	 ) const = 0;
 };
 

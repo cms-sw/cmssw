@@ -70,11 +70,11 @@ process.genParticlesForJets.excludeResonances = False
 process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Full_HLT.root')
 process.pfJetBenchmark.deltaRMax = 0.1
 process.pfJetBenchmark.OnlyTwoJets = cms.bool(True)
-#process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak4GenJets')
+process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak4GenJets')
 process.p =cms.Path(
     process.genJetParticles+
-    #process.ak4GenJets+
-    process.iterativeCone5GenJets+
+    process.ak4GenJets+
+    #process.iterativeCone5GenJets+
     #process.ak4PFJets+
     process.pfJetBenchmark
     )

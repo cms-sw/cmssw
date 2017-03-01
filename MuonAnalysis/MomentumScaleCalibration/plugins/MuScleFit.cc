@@ -155,9 +155,9 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -236,7 +236,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   void takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks);
   /// Function for onia selections
   bool selGlobalMuon(const pat::Muon* aMuon);
-  bool selTrackerMuon(const pat::Muon* aMuon);  
+  bool selTrackerMuon(const pat::Muon* aMuon);
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
@@ -324,7 +324,7 @@ std::vector<MuScleFitMuon> MuScleFit::fillMuonCollection( const std::vector<T>& 
     // Apply smearing if needed, and then bias
     // ---------------------------------------
     MuScleFitUtils::goodmuon++;
-    if (debug_>0) 
+    if (debug_>0)
       std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
                        << ": initial value   Pt = " << mu.Pt() << std::endl;
 
@@ -549,13 +549,13 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::massWindowHalfWidth[0][2] = 0.35;
   MuScleFitUtils::massWindowHalfWidth[0][3] = 0.35;
   MuScleFitUtils::massWindowHalfWidth[0][4] = 0.2;
-  MuScleFitUtils::massWindowHalfWidth[0][5] = 0.2;  
-  MuScleFitUtils::massWindowHalfWidth[1][0] = 20.;  
-  MuScleFitUtils::massWindowHalfWidth[1][1] = 0.35; 
-  MuScleFitUtils::massWindowHalfWidth[1][2] = 0.35; 
-  MuScleFitUtils::massWindowHalfWidth[1][3] = 0.35; 
-  MuScleFitUtils::massWindowHalfWidth[1][4] = 0.2;  
-  MuScleFitUtils::massWindowHalfWidth[1][5] = 0.2;  
+  MuScleFitUtils::massWindowHalfWidth[0][5] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[1][0] = 20.;
+  MuScleFitUtils::massWindowHalfWidth[1][1] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[1][2] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[1][3] = 0.35;
+  MuScleFitUtils::massWindowHalfWidth[1][4] = 0.2;
+  MuScleFitUtils::massWindowHalfWidth[1][5] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][0] = 20.;
   MuScleFitUtils::massWindowHalfWidth[2][1] = 0.35;
   MuScleFitUtils::massWindowHalfWidth[2][2] = 0.35;
@@ -796,23 +796,23 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
     hltConfig.init(event.getRun(), eventSetup, triggerResultsProcess_, changed);
 
 
-    const edm::TriggerNames triggerNames = event.triggerNames(*triggerResults); 
+    const edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
 
-    for (unsigned i=0; i<triggerNames.size(); i++) { 
+    for (unsigned i=0; i<triggerNames.size(); i++) {
       std::string hltName = triggerNames.triggerName(i);
 
-      // match the path in the pset with the true name of the trigger  
+      // match the path in the pset with the true name of the trigger
       for ( unsigned int ipath=0; ipath<triggerPath_.size(); ipath++ ) {
 	if ( hltName.find(triggerPath_[ipath]) != std::string::npos ) {
 	    unsigned int triggerIndex( hltConfig.triggerIndex(hltName) );
-	  
+
 	  // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
 	    if (triggerIndex < triggerResults->size()) {
 	      isFired = triggerResults->accept(triggerIndex);
-	      if(debug_>0) 
+	      if(debug_>0)
 		std::cout << triggerPath_[ipath] <<" "<< hltName << " " << isFired<<std::endl;
-	    }	    
-	} // end if (matching the path in the pset with the true trigger name      
+	    }
+	} // end if (matching the path in the pset with the true trigger name
       }
     }
 
@@ -910,12 +910,12 @@ void MuScleFit::selectMuons(const edm::Event & event)
   UInt_t the_NVtx(0);
   Int_t the_numPUvtx(0);
   Float_t the_TrueNumInteractions(0);
-    
+
   // Fill pile-up related informations
   // --------------------------------
   edm::Handle<std::vector< PileupSummaryInfo > >  puInfo;
   event.getByLabel(puInfoSrc_, puInfo);
-  if ( puInfo.isValid() ) {    
+  if ( puInfo.isValid() ) {
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
       int BX = PVI->getBunchCrossing();
@@ -925,10 +925,10 @@ void MuScleFit::selectMuons(const edm::Event & event)
       }
     }
   }
-  
+
   edm::Handle< std::vector<reco::Vertex> > vertices;
   event.getByLabel(vertexSrc_, vertices);
-  if ( vertices.isValid() ) {    
+  if ( vertices.isValid() ) {
     std::vector<reco::Vertex>::const_iterator itv;
     // now, count vertices
     for (itv = vertices->begin(); itv != vertices->end(); ++itv) {
@@ -939,10 +939,17 @@ void MuScleFit::selectMuons(const edm::Event & event)
       ++the_NVtx;
     }
   }
-				
 
-  muonPairs_.push_back(MuonPair(MuScleFitUtils::SavedPairMuScleFitMuons.back().first, MuScleFitUtils::SavedPairMuScleFitMuons.back().second, 
-				MuScleFitEvent(event.run(), event.id().event(), the_numPUvtx, the_TrueNumInteractions, the_NVtx)
+  // get the MC event weight
+  edm::Handle<GenEventInfoProduct> genEvtInfo;
+  event.getByLabel("generator", genEvtInfo);
+  double the_genEvtweight = 1.; 
+  if ( genEvtInfo.isValid() ) {
+    the_genEvtweight = genEvtInfo->weight();
+  }
+
+  muonPairs_.push_back(MuonPair(MuScleFitUtils::SavedPairMuScleFitMuons.back().first, MuScleFitUtils::SavedPairMuScleFitMuons.back().second,
+				MuScleFitEvent(event.run(), event.id().event(), the_genEvtweight, the_numPUvtx, the_TrueNumInteractions, the_NVtx)
 				));
   // Fill the internal genPair tree from the external one
   if( MuScleFitUtils::speedup == false ) {
@@ -954,19 +961,19 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
 {
   std::cout << "Reading muon pairs from Root Tree in " << treeFileName << std::endl;
   RootTreeHandler rootTreeHandler;
-  std::vector<std::pair<int, int> > evtRun;
+  std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   if( MuScleFitUtils::speedup ) {
-    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &evtRun);
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPairMuScleFitMuons), theMuonType_, &evtRun);
   }
   else {
-    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &evtRun, &(MuScleFitUtils::genPair));
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPairMuScleFitMuons), theMuonType_, &evtRun, &(MuScleFitUtils::genMuscleFitPair));
   }
   // Now loop on all the pairs and apply any smearing and bias if needed
-  std::vector<std::pair<int, int> >::iterator evtRunIt = evtRun.begin();
-  std::vector<std::pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();
-  std::vector<std::pair<lorentzVector,lorentzVector> >::iterator genIt;
-  if(MuScleFitUtils::speedup == false) genIt = MuScleFitUtils::genPair.begin();
-  for( ; it != MuScleFitUtils::SavedPair.end(); ++it, ++evtRunIt ) {
+  std::vector<std::pair<unsigned int, unsigned long long> >::iterator evtRunIt = evtRun.begin();
+  std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >::iterator it = MuScleFitUtils::SavedPairMuScleFitMuons.begin();
+  std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >::iterator genIt;
+  if (MuScleFitUtils::speedup == false) genIt = MuScleFitUtils::genMuscleFitPair.begin();
+  for (; it != MuScleFitUtils::SavedPairMuScleFitMuons.end(); ++it, ++evtRunIt) {
 
     // Apply any cut if requested
     // Note that cuts here are only applied to already selected muons. They should not be used unless
@@ -981,68 +988,80 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
     //std::cout << "eta2 = " << eta2 << std::endl;
     // If they don't pass the cuts set to null vectors
     bool dontPass = false;
-    bool eta1InFirstRange; 
-    bool eta2InFirstRange; 
-    bool eta1InSecondRange; 
-    bool eta2InSecondRange; 
+    bool eta1InFirstRange;
+    bool eta2InFirstRange;
+    bool eta1InSecondRange;
+    bool eta2InSecondRange;
 
-    if( MuScleFitUtils::separateRanges_ ) {
+    int ch1 = it->first.charge();
+    int ch2 = it->second.charge();
+
+    if (MuScleFitUtils::separateRanges_) {
       eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
       eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
       eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
       eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
 
       // This is my logic, which should be erroneous, but certainly simpler...
-      if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
-	    pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    eta1InFirstRange && eta2InSecondRange ) ) {
-	dontPass = true;
-      }
+      if (
+        !(
+        pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
+        pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
+        ((eta1InFirstRange && eta2InSecondRange && ch1>=ch2)||(eta1InSecondRange && eta2InFirstRange && ch1<ch2))
+        )
+        ) dontPass = true;
     }
     else {
-      eta1 = fabs(eta1);
-      eta2 = fabs(eta2);
       eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
       eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
       eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
       eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
-      if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
-	    pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    ( ((eta1InFirstRange && !eta2InFirstRange) && (eta2InSecondRange && !eta1InSecondRange)) ||
-	      ((eta2InFirstRange && !eta1InFirstRange) && (eta1InSecondRange && !eta2InSecondRange)) )) ) {
-	dontPass = true;
-      }
+      if (
+        !(
+        pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
+        pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
+        (
+        ((eta1InFirstRange && !eta2InFirstRange) && (eta2InSecondRange && !eta1InSecondRange) && ch1>=ch2) ||
+        ((eta2InFirstRange && !eta1InFirstRange) && (eta1InSecondRange && !eta2InSecondRange) && ch1<ch2)
+        )
+        )
+        ) dontPass = true;
     }
-    
+
     // Additional check on deltaPhi
     double deltaPhi = MuScleFitUtils::deltaPhi(it->first.phi(), it->second.phi());
     if( (deltaPhi <= MuScleFitUtils::deltaPhiMinCut_) || (deltaPhi >= MuScleFitUtils::deltaPhiMaxCut_) ) dontPass = true;
 
-
-    if( dontPass ) {
-      // std::cout << "removing muons not passing cuts" << std::endl;
-      it->first = reco::Particle::LorentzVector(0,0,0,0);
-      it->second = reco::Particle::LorentzVector(0,0,0,0);
+    lorentzVector vec1 = it->first.p4();
+    lorentzVector vec2 = it->second.p4();
+    if (ch1>=ch2){
+      lorentzVector vectemp=vec1;
+      vec1=vec2;
+      vec2=vectemp;
     }
 
+    if (!dontPass) {
+      // First is always mu-, second mu+
+      if ((MuScleFitUtils::SmearType != 0) || (MuScleFitUtils::BiasType != 0)) {
+        applySmearing(vec1);
+        applyBias(vec1, -1);
+        applySmearing(vec2);
+        applyBias(vec2, 1);
+      }
 
-    // First is always mu-, second mu+
-    if( (MuScleFitUtils::SmearType != 0) || (MuScleFitUtils::BiasType != 0) ) {
-      applySmearing(it->first);
-      applyBias(it->first, -1);
-      applySmearing(it->second);
-      applyBias(it->second, 1);
+      MuScleFitUtils::SavedPair.push_back(std::make_pair(vec1, vec2));
     }
 
     //FIXME: we loose the additional information besides the 4-momenta
-    muonPairs_.push_back(MuonPair(MuScleFitMuon(it->first,-1), MuScleFitMuon(it->second,+1),
-				  MuScleFitEvent((*evtRunIt).first, (*evtRunIt).second, 0, 0, 0) )
-				  );
-
+    muonPairs_.push_back(
+      MuonPair(MuScleFitMuon(vec1, -1), MuScleFitMuon(vec2, +1),
+      MuScleFitEvent((*evtRunIt).first, (*evtRunIt).second, 0, 0, 0, 0)) // FIXME: order of event and run number mixed up!
+      );
 
     // Fill the internal genPair tree from the external one
-    if( MuScleFitUtils::speedup == false ) {
-      genMuonPairs_.push_back(GenMuonPair(genIt->first, genIt->second, 0));
+    if (!MuScleFitUtils::speedup) {
+      MuScleFitUtils::genPair.push_back(std::make_pair(genIt->first.p4(), genIt->second.p4()));
+      genMuonPairs_.push_back(GenMuonPair(genIt->first.p4(), genIt->second.p4(), 0));
       ++genIt;
     }
   }
@@ -1095,12 +1114,12 @@ void MuScleFit::duringFastLoop()
       std::cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = "
 		<< recMu1.Pt() << " Pt2 = " << recMu2.Pt() << std::endl;
     }
-    
+
     reco::Particle::LorentzVector bestRecRes( recMu1+recMu2 );
 
     //Fill histograms
     //------------------
-   
+
     mapHisto_["hRecBestMu"]->Fill(recMu1, -1,weight);
     mapHisto_["hRecBestMuVSEta"]->Fill(recMu1);
     mapHisto_["hRecBestMu"]->Fill(recMu2, +1,weight);
@@ -1119,11 +1138,11 @@ void MuScleFit::duringFastLoop()
     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1, weight);
     // Fill also the mass mu+/mu- comparisons
     mapHisto_["hRecBestResVSMu"]->Fill(recMu1, recMu2, bestRecRes, weight);
-    
+
     //-- rc 2010 filling histograms for mu+ /mu- ------
     //  mapHisto_["hRecBestResVSMuMinus"]->Fill (recMu1, bestRecRes, -1);
     // mapHisto_["hRecBestResVSMuPlus"]->Fill (recMu2, bestRecRes, +1);
-  
+
     //-- rc 2010 filling histograms MassVsMuEtaPhi------
     //  mapHisto_["hRecBestResVSMuEtaPhi"]->Fill (recMu1, bestRecRes,-1);
     //  mapHisto_["hRecBestResVSMuEtaPhi"]->Fill (recMu2, bestRecRes,+1);
@@ -1466,10 +1485,10 @@ bool MuScleFit::selGlobalMuon(const pat::Muon* aMuon) {
 	  fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
 }
- 
+
 
 bool MuScleFit::selTrackerMuon(const pat::Muon* aMuon) {
-  
+
   reco::TrackRef iTrack = aMuon->innerTrack();
   const reco::HitPattern& p = iTrack->hitPattern();
 
@@ -1481,7 +1500,7 @@ bool MuScleFit::selTrackerMuon(const pat::Muon* aMuon) {
           p.pixelLayersWithMeasurement() > 1 &&
 	  fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
- 
+
 }
 
 

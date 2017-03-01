@@ -1,0 +1,26 @@
+<use   name="boost"/>
+<use   name="GeneratorInterface/Core"/>
+<use   name="FWCore/Framework"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/PyquenInterface"/>
+<use   name="GeneratorInterface/ExternalDecays"/>
+<use   name="GeneratorInterface/HiGenCommon"/>
+<use   name="FWCore/Concurrency"/>
+<use   name="clhep"/>
+<use   name="f77compiler"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="FWCore/Common"/>
+<use   name="FWCore/FWLite"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="root"/>
+<use   name="rootmath"/>
+
+<use   name="rootcore"/>
+<export> 
+  <lib   name="1"/>
+</export>

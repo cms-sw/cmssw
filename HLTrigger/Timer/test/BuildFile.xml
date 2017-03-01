@@ -3,14 +3,13 @@
   <use   name="DataFormats/HLTReco"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
-  <use   name="rootcintex"/>
   <use   name="root"/>
 </bin>
 
-<bin name="testChrono" file="chrono.cc mach_absolute_time.cc mach_clock_get_time.cc posix_clock_gettime.cc tbb_tick_count.cc x86_tsc.cc x86_tsc_tick.cc x86_tsc_clock.cc">
+<bin name="testChrono" file="chrono/test/chrono.cc chrono/src/*.cc chrono/src/native/*.cc">
   <use   name="boost"/>
   <use   name="tbb"/>
   <use   name="sockets"/>       <!-- imply -lrt on Linux -->
-  <flags CXXFLAGS="-fopenmp -lboost_timer"/>
+  <flags CXXFLAGS="-I${CMSSW_BASE}/src/HLTrigger/Timer/test/chrono -I${CMSSW_RELEASE_BASE}/src/HLTrigger/Timer/test/chrono -fopenmp -DHAVE_TBB"/>
   <flags NO_TESTRUN="1"/>
 </bin>

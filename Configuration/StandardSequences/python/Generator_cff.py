@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # generator level info
 #
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
+from GeneratorInterface.Core.generatorSmeared_cfi import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
@@ -18,7 +19,7 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 # Configuration/StandardSequences/data/VtxSmearedBetafuncNominalCollision.cff
 # Configuration/StandardSequences/data/VtxSmearedBetafuncEarlyCollision.cff
 #
-# Either of the above returns label "VtxSmeared" that is already in the path below
+# Either of the above returns label "generatorSmeared" that is already in the path below
 # (but not included here!!!)
 #   
 # Note 1 : one and only label is allowed for either of these modules,
@@ -45,28 +46,18 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 #      untracked uint32 VtxSmeared = 98765432
 #   }
 # }
+
+
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
+GenSmeared = cms.Sequence(generatorSmeared)
 GeneInfo = cms.Sequence(genParticles)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
-pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
+
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET)
 
 # sequence for bare generator result only, without vertex smearing and analysis objects added
 
 pgen_genonly = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer"))
-
-#
-# this sequence is intended for HI runs/studies;
-#
-
-hiGenJets = cms.Sequence(hiGenParticlesForJets*hiRecoGenJets)
-
-from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
-
-pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+hiGenParticles+hiGenJets)
-
-from SimGeneral.MixingModule.MatchVtx_cfi import *
-
-pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+matchVtx+hiGenParticles+hiGenJets)
 
 fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
 

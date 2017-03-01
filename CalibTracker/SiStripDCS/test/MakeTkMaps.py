@@ -105,7 +105,7 @@ def runcmd(command):
 	    exitstat= process.wait()
 	    cmdout   = process.stdout.read()
 	    exitstat = process.returncode
-	except OSError, detail:
+	except OSError as detail:
 	    print "Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail)
 	    exitstat=999
 	if exitstat == None:

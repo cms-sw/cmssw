@@ -11,7 +11,7 @@ try:
     import ROOT
     import pxl.core,pxl.astro,pxl.hep
     import_root_error=None
-except Exception,e:
+except Exception as e:
     import_root_error=(str(e),exception_traceback())
 
 from array import array

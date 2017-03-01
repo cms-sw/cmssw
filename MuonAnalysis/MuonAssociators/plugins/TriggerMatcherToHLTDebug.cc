@@ -413,11 +413,11 @@ TriggerMatcherToHLTDebug::storeValueMap(edm::Event &iEvent,
 					const std::vector<T> & values,
 					const std::string    & label) const {
   using namespace edm; using namespace std;
-  auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+  unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
   typename edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
-  iEvent.put(valMap, label);
+  iEvent.put(std::move(valMap), label);
 }
 
 

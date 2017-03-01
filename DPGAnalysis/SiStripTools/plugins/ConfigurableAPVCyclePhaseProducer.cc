@@ -180,9 +180,9 @@ ConfigurableAPVCyclePhaseProducer::produce(edm::Event& iEvent, const edm::EventS
 
   using namespace edm;
   
-  std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection(_currapvphases) );
+  std::unique_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection(_currapvphases) );
   
-  iEvent.put(apvphases);
+  iEvent.put(std::move(apvphases));
 
 }
 

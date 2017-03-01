@@ -1,25 +1,16 @@
-/***************************************************************************
-                          DDLMaterial.cc  -  description
-                             -------------------
-    begin                : Wed Oct 3 2002
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLMaterial.h"
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLMaterial::DDLMaterial(  DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
-{}
-
-DDLMaterial::~DDLMaterial( void )
 {}
 
 void
@@ -41,6 +32,4 @@ DDLMaterial::setReference( const std::string& nmspace, DDCompactView& cpv )
     }
   // clear THIS material's values.
   clear();
-
-  DCOUT_V('P', "DDLMaterial::setReference completed");
 }

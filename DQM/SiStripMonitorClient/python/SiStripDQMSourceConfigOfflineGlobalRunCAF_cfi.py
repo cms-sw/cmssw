@@ -21,7 +21,6 @@ SiStripMonitorDigiCAF.SelectAllDetectors = True
 # SiStripMonitorCluster
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterCAF = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-SiStripMonitorClusterCAF.OutputMEsInRootFile = False
 SiStripMonitorClusterCAF.SelectAllDetectors  = True
 SiStripMonitorClusterCAF.StripQualityLabel   = ''
 
@@ -48,19 +47,16 @@ import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResidualsCAF_cosmicTk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResidualsCAF_cosmicTk.Tracks              = 'cosmictrackfinderP5'
 MonitorTrackResidualsCAF_cosmicTk.trajectoryInput     = 'cosmictrackfinderP5Refitter'
-MonitorTrackResidualsCAF_cosmicTk.OutputMEsInRootFile = False
 # clone for CTF track finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResidualsCAF_ckf = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResidualsCAF_ckf.Tracks              = 'ctfWithMaterialTracksP5'
 MonitorTrackResidualsCAF_ckf.trajectoryInput     = 'ctfWithMaterialTracksP5Refitter'
-MonitorTrackResidualsCAF_ckf.OutputMEsInRootFile = False
 # clone for RS track finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 MonitorTrackResidualsCAF_rs = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
 MonitorTrackResidualsCAF_rs.Tracks              = 'rsWithMaterialTracksP5'
 MonitorTrackResidualsCAF_rs.trajectoryInput     = 'rsWithMaterialTracksP5Refitter'
-MonitorTrackResidualsCAF_rs.OutputMEsInRootFile = False
 
 # TrackingMonitor
 # clone for cosmic track finder

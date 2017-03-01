@@ -20,7 +20,7 @@ class DreamSD : public CaloSD {
 
 public:    
 
-  DreamSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+  DreamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~DreamSD() {}
   virtual bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory);

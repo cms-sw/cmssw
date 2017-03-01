@@ -31,7 +31,7 @@ class TECLayer : public ForwardDetLayer  {
 			       std::vector<DetGroup> & result) const __attribute__ ((hot));
  
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TEC;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::TEC];}
   
 
   

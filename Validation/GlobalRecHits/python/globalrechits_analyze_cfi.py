@@ -30,6 +30,8 @@ globalrechitsanalyze = cms.EDAnalyzer("GlobalRecHitsAnalyzer",
     ECalUncalEESrc = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEE"),
     Name = cms.untracked.string('GlobalRecHitsAnalyzer'),
     Verbosity = cms.untracked.int32(0), ## 0 provides no output
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
 
     associateStrip = cms.bool(True),
     MuRPCSrc = cms.InputTag("rpcRecHits"),

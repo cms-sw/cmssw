@@ -1,20 +1,25 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
   theDigitizer_(pset, iC) {
   mixMod.produces<HBHEDigiCollection>();
   mixMod.produces<HODigiCollection>();
   mixMod.produces<HFDigiCollection>();
   mixMod.produces<ZDCDigiCollection>();
-  mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-  mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
-
+  mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+  mixMod.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
+  if(pset.getParameter<bool>("debugCaloSamples")){
+    mixMod.produces<CaloSamplesCollection>("HcalSamples");
+  }
+  if(pset.getParameter<bool>("injectTestHits")){
+    mixMod.produces<edm::PCaloHitContainer>("HcalHits");
+  }
 }
 
 
@@ -74,7 +79,15 @@ HcalDigiProducer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGene
   theDigitizer_.setZDCNoiseSignalGenerator(noiseGenerator);
 }
 
+void
+HcalDigiProducer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE10NoiseSignalGenerator(noiseGenerator);
+}
 
+void
+HcalDigiProducer::setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE11NoiseSignalGenerator(noiseGenerator);
+}
 
 CLHEP::HepRandomEngine* HcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
   unsigned int index = streamID.value();

@@ -1,5 +1,4 @@
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
 //needed for the geometry: 
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -8,14 +7,11 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //--- for RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
@@ -28,29 +24,11 @@
 using namespace std;
 using namespace edm;
 
-namespace helper { 
-    struct GetDetId { 
-        template<typename X> 
-        DetId operator()(const X &x) { return DetId(x.detId()); }
-    };
-
-    template<typename T>
-    std::pair<typename T::DetSet::const_iterator, typename T::DetSet::const_iterator> 
-    getRange(const T &detset, const DetId &id) {
-        typedef std::pair<typename T::DetSet::const_iterator, typename T::DetSet::const_iterator> return_type;
-        typename T::const_iterator match = detset.find(id);
-        if (match == detset.end()) return return_type();
-        typename T::DetSet hits = *match;
-        return return_type(hits.begin(), hits.end());
-    } 
-}
-
-
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
-  dbe_(edm::Service<DQMStore>().operator->()),
   conf_(ps),
+  trackerHitAssociatorConfig_(ps, consumesCollector()),
   m_cacheID_(0)
   // matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
   // rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
@@ -65,12 +43,6 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
   SubDetList_ = conf_.getParameter<std::vector<std::string> >("SubDetList");
-  
-  outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  
-  outputFileName = conf_.getParameter<std::string>("outputFile");
-
-  runStandalone = conf_.getParameter<bool>("runStandalone");
 
   edm::ParameterSet ParametersNumTotrphi =  conf_.getParameter<edm::ParameterSet>("TH1NumTotrphi");
   switchNumTotrphi = ParametersNumTotrphi.getParameter<bool>("switchon");
@@ -84,11 +56,29 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersNumrphi =  conf_.getParameter<edm::ParameterSet>("TH1Numrphi");
   switchNumrphi = ParametersNumrphi.getParameter<bool>("switchon");
 
+  edm::ParameterSet ParametersBunchrphi =  conf_.getParameter<edm::ParameterSet>("TH1Bunchrphi");
+  switchBunchrphi = ParametersBunchrphi.getParameter<bool>("switchon");
+
+  edm::ParameterSet ParametersEventrphi =  conf_.getParameter<edm::ParameterSet>("TH1Eventrphi");
+  switchEventrphi = ParametersEventrphi.getParameter<bool>("switchon");
+
   edm::ParameterSet ParametersNumStereo =  conf_.getParameter<edm::ParameterSet>("TH1NumStereo");
   switchNumStereo = ParametersNumStereo.getParameter<bool>("switchon");
 
+  edm::ParameterSet ParametersBunchStereo =  conf_.getParameter<edm::ParameterSet>("TH1BunchStereo");
+  switchBunchStereo = ParametersBunchStereo.getParameter<bool>("switchon");
+
+  edm::ParameterSet ParametersEventStereo =  conf_.getParameter<edm::ParameterSet>("TH1EventStereo");
+  switchEventStereo = ParametersEventStereo.getParameter<bool>("switchon");
+
   edm::ParameterSet ParametersNumMatched =  conf_.getParameter<edm::ParameterSet>("TH1NumMatched");
   switchNumMatched = ParametersNumMatched.getParameter<bool>("switchon");
+
+  edm::ParameterSet ParametersBunchMatched =  conf_.getParameter<edm::ParameterSet>("TH1BunchMatched");
+  switchBunchMatched = ParametersBunchMatched.getParameter<bool>("switchon");
+
+  edm::ParameterSet ParametersEventMatched =  conf_.getParameter<edm::ParameterSet>("TH1EventMatched");
+  switchEventMatched = ParametersEventMatched.getParameter<bool>("switchon");
 
   edm::ParameterSet ParametersWclusrphi =  conf_.getParameter<edm::ParameterSet>("TH1Wclusrphi");
   switchWclusrphi = ParametersWclusrphi.getParameter<bool>("switchon");
@@ -114,6 +104,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersChi2rphi =  conf_.getParameter<edm::ParameterSet>("TH1Chi2rphi");
   switchChi2rphi = ParametersChi2rphi.getParameter<bool>("switchon");
 
+  edm::ParameterSet ParametersNsimHitrphi =  conf_.getParameter<edm::ParameterSet>("TH1NsimHitrphi");
+  switchNsimHitrphi = ParametersNsimHitrphi.getParameter<bool>("switchon");
+
   edm::ParameterSet ParametersWclusStereo =  conf_.getParameter<edm::ParameterSet>("TH1WclusStereo");
   switchWclusStereo = ParametersWclusStereo.getParameter<bool>("switchon");
 
@@ -138,6 +131,9 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersChi2Stereo =  conf_.getParameter<edm::ParameterSet>("TH1Chi2Stereo");
   switchChi2Stereo = ParametersChi2Stereo.getParameter<bool>("switchon");
 
+  edm::ParameterSet ParametersNsimHitStereo =  conf_.getParameter<edm::ParameterSet>("TH1NsimHitStereo");
+  switchNsimHitStereo = ParametersNsimHitStereo.getParameter<bool>("switchon");
+
   edm::ParameterSet ParametersPosxMatched =  conf_.getParameter<edm::ParameterSet>("TH1PosxMatched");
   switchPosxMatched = ParametersPosxMatched.getParameter<bool>("switchon");
 
@@ -159,6 +155,8 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersChi2Matched =  conf_.getParameter<edm::ParameterSet>("TH1Chi2Matched");
   switchChi2Matched = ParametersChi2Matched.getParameter<bool>("switchon");
 
+  edm::ParameterSet ParametersNsimHitMatched =  conf_.getParameter<edm::ParameterSet>("TH1NsimHitMatched");
+  switchNsimHitMatched = ParametersNsimHitMatched.getParameter<bool>("switchon");
 }
 
 SiStripRecHitsValid::~SiStripRecHitsValid(){
@@ -180,13 +178,6 @@ void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
 void SiStripRecHitsValid::beginJob(const edm::EventSetup& es){
 }
 
-void SiStripRecHitsValid::endJob() {
-  //Only in standalone mode save local root file 
-  if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
-  
-}
-
-
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
@@ -194,7 +185,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
     
   // Step A: Get Inputs 
@@ -205,182 +196,156 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByToken(rphiRecHitsToken_, rechitsrphi);
   e.getByToken(stereoRecHitsToken_, rechitsstereo);
 
-  int numrechitrphi   =0;
-  int numrechitstereo    =0;
-  int numrechitmatched=0;
-
   //Variables in order to count total num of rechitrphi,rechitstereo, rechitmatched in subdetectors
-  std::map<std::string, std::vector<int> > totnumrechitrphi;
-  std::map<std::string, std::vector<int> > totnumrechitstereo;
-  std::map<std::string, std::vector<int> > totnumrechitmatched;
-  totnumrechitrphi.clear();
-  totnumrechitstereo.clear();
-  totnumrechitmatched.clear();
+  std::map<std::string, int > totnumrechitrphi;
+  std::map<std::string, int > totnumrechitstereo;
+  std::map<std::string, int > totnumrechitmatched;
   int totrechitrphi =0;
   int totrechitstereo =0;
   int totrechitmatched =0;
    
-  TrackerHitAssociator associate(e, conf_);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
   
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry &tracker(*pDD);
-  // FIXME: this using of vector<DetId> is suboptimal, but I don't want to re-write the full class now
-  std::vector<DetId> IDs; 
-  IDs.reserve(rechitsrphi->size() + rechitsmatched->size() + rechitsstereo->size());
-  std::transform(rechitsrphi->begin(), rechitsrphi->end(), std::back_inserter(IDs), helper::GetDetId() );
-  std::transform(rechitsstereo->begin(), rechitsstereo->end(), std::back_inserter(IDs), helper::GetDetId() );
-  std::transform(rechitsmatched->begin(), rechitsmatched->end(), std::back_inserter(IDs), helper::GetDetId() );
-  // loop over DetIds
-  //  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-  for(std::vector<DetId>::const_iterator it = IDs.begin(); it != IDs.end(); ++it ){//loop on detector with hits
-    uint32_t myid=((*it).rawId());       
-    DetId detid = ((*it));
-    
-    rechitrphi.clear();
-    rechitstereo.clear();
-    rechitmatched.clear();
-    
-    numrechitrphi =0;
-    //loop over rechits-rphi in the same subdetector
-    std::pair<SiStripRecHit2DCollection::DetSet::const_iterator,SiStripRecHit2DCollection::DetSet::const_iterator> rechitrphiRange = helper::getRange(*rechitsrphi, detid);
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
-    SiStripRecHit2DCollection::DetSet::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
-    
-    numrechitrphi = rechitrphiRangeIteratorEnd - rechitrphiRangeIteratorBegin;   
-         
-    if(numrechitrphi > 0 ){
-      totrechitrphi+=numrechitrphi;
-      for(iterrphi=rechitrphiRangeIteratorBegin; iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){
-	
-	const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-	const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-	const StripTopology &topol=(StripTopology&)stripdet->topology();
-	SiStripRecHit2D const rechit=*iterrphi;
-	//analyze RecHits 
-	rechitanalysis(rechit,topol,associate);
-	rechitrphi.push_back(rechitpro);
-      }
-    }
-    
-    //loop over rechits-stereo in the same subdetector
-    numrechitstereo=0;
-    std::pair<SiStripRecHit2DCollection::DetSet::const_iterator,SiStripRecHit2DCollection::DetSet::const_iterator> rechitstereoRange = helper::getRange(*rechitsstereo, detid);
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitstereoRangeIteratorBegin = rechitstereoRange.first;
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitstereoRangeIteratorEnd   = rechitstereoRange.second;
-    SiStripRecHit2DCollection::DetSet::const_iterator iterstereo=rechitstereoRangeIteratorBegin;
-    numrechitstereo = rechitstereoRangeIteratorEnd - rechitstereoRangeIteratorBegin;   
-    if(numrechitstereo > 0){
-      totrechitstereo+=numrechitstereo;
-      for(iterstereo=rechitstereoRangeIteratorBegin; iterstereo!=rechitstereoRangeIteratorEnd;++iterstereo){
-	const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-	const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-	const StripTopology &topol=(StripTopology&)stripdet->topology();
-	SiStripRecHit2D const rechit=*iterstereo;
-	//analyze RecHits 
-	rechitanalysis(rechit,topol,associate);
-	rechitstereo.push_back(rechitpro);
-      }
-    }
-    
-    //now matched hits
-    //loop over rechits-matched in the same subdetector
-    numrechitmatched=0;
-    std::pair<SiStripMatchedRecHit2DCollection::DetSet::const_iterator,SiStripMatchedRecHit2DCollection::DetSet::const_iterator> rechitmatchedRange = helper::getRange(*rechitsmatched, detid);
-    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
-    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
-    SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
-    numrechitmatched = rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;   
-    if(numrechitmatched > 0){
-      totrechitmatched +=numrechitmatched;
-
-      for(itermatched=rechitmatchedRangeIteratorBegin; itermatched!=rechitmatchedRangeIteratorEnd;++itermatched){
-	SiStripMatchedRecHit2D const rechit=*itermatched;
-	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
-	//analyze RecHits 
-	rechitanalysis_matched(rechit, gluedDet, associate);
-	rechitmatched.push_back(rechitpro);
-      }
-    }
-    
-    SiStripHistoId hidmanager;
+  
+  SiStripHistoId hidmanager;
+  SiStripFolderOrganizer fold_organ;
+  // start loops over detectors with detected rechitsrphi
+  for (auto it = rechitsrphi->begin(), itEnd = rechitsrphi->end(); it != itEnd; ++it) {
+    DetId detid = (*it).detId();
+    uint32_t myid = detid.rawId();       
+    auto detsetIter = rechitsrphi->find(detid);
+    totrechitrphi += detsetIter->size();
+  
     std::string label = hidmanager.getSubdetid(myid,tTopo,true);
     std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    //std::cout << "label " << label << endl;
-    SiStripFolderOrganizer fold_organ;
     std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
-  
-    if(numrechitrphi>0 || numrechitstereo>0 || numrechitmatched){
 
-      totnumrechitrphi[det_lay_pair.first].push_back(numrechitrphi);
-      totnumrechitstereo[det_lay_pair.first].push_back(numrechitstereo);
-      totnumrechitmatched[det_lay_pair.first].push_back(numrechitmatched);
-
-      for (std::vector<RecHitProperties>::iterator irh=rechitrphi.begin(); irh!=rechitrphi.end(); ++irh) {
-	if(iLayerME != LayerMEsMap.end()){
-	  fillME(iLayerME->second.meWclusrphi,(*irh).clusiz);
-	  fillME(iLayerME->second.meAdcrphi,(*irh).cluchg);
-	  fillME(iLayerME->second.mePosxrphi,(*irh).x);
-	  fillME(iLayerME->second.meResolxrphi,(*irh).resolxx);
-	  if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
-	    fillME(iLayerME->second.meResrphi,(*irh).resx);
-	    fillME(iLayerME->second.mePullLFrphi,(*irh).resx/sqrt((*irh).resolxx));
-	    fillME(iLayerME->second.mePullMFrphi,(*irh).pullMF);
-	    fillME(iLayerME->second.meChi2rphi,(*irh).chi2);
-	  }
-	}
+    totnumrechitrphi[det_lay_pair.first] = totnumrechitrphi[det_lay_pair.first] + detsetIter->size();
+    //loop over rechits-rphi in the same subdetector
+    if(iLayerME != LayerMEsMap.end()){
+      for(auto iterrphi= detsetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterrphi;
+        //analyze RecHits 
+        rechitanalysis(rechit,topol,associate);
+        // fill the result in a histogram
+        fillME(iLayerME->second.meWclusrphi,rechitpro.clusiz);
+        fillME(iLayerME->second.meAdcrphi,rechitpro.cluchg);
+        fillME(iLayerME->second.mePosxrphi,rechitpro.x);
+        fillME(iLayerME->second.meResolxrphi,rechitpro.resolxx);
+        fillME(iLayerME->second.meNsimHitrphi,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchrphi, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventrphi, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.pullMF != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iLayerME->second.meResrphi,rechitpro.resx);
+          fillME(iLayerME->second.mePullLFrphi,rechitpro.resx/sqrt(rechitpro.resolxx));
+          fillME(iLayerME->second.mePullMFrphi,rechitpro.pullMF);
+          fillME(iLayerME->second.meChi2rphi,rechitpro.chi2);
+        }
       }
-      
-      
-      for (std::vector<RecHitProperties>::iterator irh=rechitstereo.begin(); irh!=rechitstereo.end(); ++irh) {
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.meWclusStereo,(*irh).clusiz);
-	  fillME(iStereoAndMatchedME->second.meAdcStereo,(*irh).cluchg);
-	  fillME(iStereoAndMatchedME->second.mePosxStereo,(*irh).x);
-	  fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt((*irh).resolxx));
-	  if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
-	    fillME(iStereoAndMatchedME->second.meResStereo,(*irh).resx);
-	    fillME(iStereoAndMatchedME->second.mePullLFStereo,(*irh).resx/sqrt((*irh).resolxx));
-	    fillME(iStereoAndMatchedME->second.mePullMFStereo,(*irh).pullMF);
-	    fillME(iStereoAndMatchedME->second.meChi2Stereo,(*irh).chi2);
-	  }
-	}
-      }
-
-      for (std::vector<RecHitProperties>::iterator irh=rechitmatched.begin(); irh!=rechitmatched.end(); ++irh) {
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.mePosxMatched,(*irh).x);
-	  fillME(iStereoAndMatchedME->second.mePosyMatched,(*irh).y);
-	  fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt((*irh).resolxx));
-	  fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt((*irh).resolyy));
-	  if ( (*irh).resx != -999999. || (*irh).resy != -999999. || (*irh).chi2 != -999999. ){
-	    fillME(iStereoAndMatchedME->second.meResxMatched,(*irh).resx);
-	    fillME(iStereoAndMatchedME->second.meResyMatched,(*irh).resy);
-	    fillME(iStereoAndMatchedME->second.meChi2Matched,(*irh).chi2);
-	  }
-	}
-      }
-
     }
-    
-  }//End of loop over detectors
-  
+  }
 
+  // start loops over detectors with detected rechitsstereo
+  for (auto it = rechitsstereo->begin(), itEnd = rechitsstereo->end(); it != itEnd; ++it) {
+    DetId detid = (*it).detId();
+    uint32_t myid= detid.rawId();       
+    auto detsetIter = rechitsstereo->find(detid);
+    totrechitstereo += detsetIter->size();
+ 
+    std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+    std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
+   
+    totnumrechitstereo[det_lay_pair.first] = totnumrechitstereo[det_lay_pair.first] + detsetIter->size();
+    //loop over rechits-stereo in the same subdetector
+    if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+      for(auto iterstereo=detsetIter->begin(), iterEnd = detsetIter->end(); iterstereo!=iterEnd; ++iterstereo){
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterstereo;
+        //analyze RecHits
+        rechitanalysis(rechit,topol,associate);
+        // fill the result in a histogram
+        fillME(iStereoAndMatchedME->second.meWclusStereo,rechitpro.clusiz);
+        fillME(iStereoAndMatchedME->second.meAdcStereo,rechitpro.cluchg);
+        fillME(iStereoAndMatchedME->second.mePosxStereo,rechitpro.x);
+        fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt(rechitpro.resolxx));
+        fillME(iStereoAndMatchedME->second.meNsimHitStereo,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchStereo, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventStereo, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.pullMF != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iStereoAndMatchedME->second.meResStereo,rechitpro.resx);
+          fillME(iStereoAndMatchedME->second.mePullLFStereo,rechitpro.resx/sqrt(rechitpro.resolxx));
+          fillME(iStereoAndMatchedME->second.mePullMFStereo,rechitpro.pullMF);
+          fillME(iStereoAndMatchedME->second.meChi2Stereo,rechitpro.chi2);
+        }
+      }
+    }
+  }
+
+  // start loops over detectors with detected rechitmatched
+  for (auto it = rechitsmatched->begin(), itEnd = rechitsmatched->end(); it != itEnd; ++it) {
+    DetId detid = (*it).detId();
+    uint32_t myid = detid.rawId();       
+    auto detsetIter = rechitsmatched->find(detid);
+    totrechitmatched += detsetIter->size();
+ 
+    std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+    std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
+   
+    totnumrechitmatched[det_lay_pair.first] = totnumrechitmatched[det_lay_pair.first] + detsetIter->size();
+    //loop over rechits-matched in the same subdetector
+    if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+      for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
+        SiStripMatchedRecHit2D const rechit=*itermatched;
+        const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
+        //analyze RecHits 
+        rechitanalysis_matched(rechit, gluedDet, associate);
+        // fill the result in a histogram
+        fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
+        fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
+        fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
+        fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
+        fillME(iStereoAndMatchedME->second.meNsimHitMatched,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchMatched, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventMatched, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.resy != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
+          fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
+          fillME(iStereoAndMatchedME->second.meChi2Matched,rechitpro.chi2);
+        }
+      }
+    }
+  }//End of loops over detectors
+  
   //now fill the cumulative histograms of the hits
-  std::vector<std::string> SubDetList_; 
-  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); iSubdet++){
+  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet){
     std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
-    fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
-    fillME(iSubDetME->second.meNumStereo,std::accumulate(totnumrechitstereo[(*iSubdet)].rbegin(), totnumrechitstereo[(*iSubdet)].rend(), 0));
-    fillME(iSubDetME->second.meNumMatched,std::accumulate(totnumrechitmatched[(*iSubdet)].rbegin(), totnumrechitmatched[(*iSubdet)].rend(), 0));
+    fillME(iSubDetME->second.meNumrphi,totnumrechitrphi[(*iSubdet)]);
+    fillME(iSubDetME->second.meNumStereo,totnumrechitstereo[(*iSubdet)]);
+    fillME(iSubDetME->second.meNumMatched,totnumrechitmatched[(*iSubdet)]);
   }
 
   fillME(totalMEs.meNumTotrphi,totrechitrphi);
   fillME(totalMEs.meNumTotStereo,totrechitstereo);
   fillME(totalMEs.meNumTotMatched,totrechitmatched);
- 
 }
 
   
@@ -409,7 +374,7 @@ std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit
   double selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
   
   LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
-  
+ 
   LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
   
   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
@@ -417,52 +382,47 @@ std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol,TrackerHitAssociator& associate){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.; 
-  rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.;
-
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.pullMF = -999999.; 
+  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
+  
   LocalPoint position=rechit.localPosition();
   LocalError error=rechit.localPositionError();
-  MeasurementPoint Mposition;
-  MeasurementError Merror;
-  Mposition = topol.measurementPosition(position);
-  Merror = topol.measurementError(position,error);
-  SiStripRecHit2D::ClusterRef clust=rechit.cluster();
-  int clusiz=0;
+  MeasurementPoint Mposition = topol.measurementPosition(position);
+  MeasurementError Merror = topol.measurementError(position,error);
+  const auto & amplitudes=(rechit.cluster())->amplitudes();
   int totcharge=0;
-  clusiz = clust->amplitudes().size();
-  const std::vector<uint8_t> amplitudes=clust->amplitudes();
-  for(size_t ia=0; ia<amplitudes.size();ia++){
+  for(size_t ia=0; ia<amplitudes.size();++ia){
     totcharge+=amplitudes[ia];
   }
   rechitpro.x = position.x();
   rechitpro.y = position.y();
-  rechitpro.z = position.z();
+  //rechitpro.z = position.z();
   rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
+  //rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
-  rechitpro.clusiz = clusiz;
+  rechitpro.clusiz = amplitudes.size();
   rechitpro.cluchg = totcharge;
 
+  auto const & matched = associate.associateHit(rechit);
+  rechitpro.NsimHit = matched.size();
 
-  matched.clear();
-  matched = associate.associateHit(rechit);
-
-  double mindist = 999999;
-  double dist = 999999;
-  PSimHit closest;
-  
   if(!matched.empty()){
 
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      dist = fabs(rechitpro.x - (*m).localPosition().x());
+    float mindist = std::numeric_limits<float>::max();
+    float dist = std::numeric_limits<float>::max();
+    PSimHit const * closest = NULL;
+ 
+    for(auto const &m : matched){
+      dist = fabs(rechitpro.x - m.localPosition().x());
       if(dist<mindist){
 	mindist = dist;
-	closest = (*m);
+	closest = &m;
       }
     }  
-    rechitpro.resx = rechitpro.x - closest.localPosition().x();
-    rechitpro.pullMF = (Mposition.x() - (topol.measurementPosition(closest.localPosition())).x())/sqrt(Merror.uu());
+    rechitpro.bunch = closest->eventId().bunchCrossing();
+    rechitpro.event = closest->eventId().event();
+    rechitpro.resx = rechitpro.x - closest->localPosition().x();
+    rechitpro.pullMF = (Mposition.x() - (topol.measurementPosition(closest->localPosition())).x())/sqrt(Merror.uu());
     
     //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
     //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
@@ -470,8 +430,8 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
     rhparameters[0] = position.x(); 
     rhparameters[1] = position.y();
     AlgebraicVector shparameters(2);
-    shparameters[0] = closest.localPosition().x();
-    shparameters[1] = closest.localPosition().y();
+    shparameters[0] = closest->localPosition().x();
+    shparameters[1] = closest->localPosition().y();
     AlgebraicVector r(rhparameters - shparameters);
     AlgebraicSymMatrix R(2);//  = rechit.parametersError();
     R[0][0] = error.xx();
@@ -479,7 +439,7 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
     R[1][1] = error.yy();
     int ierr; 
     R.invert(ierr); // if (ierr != 0) throw exception;
-    double est = R.similarity(r);
+    float est = R.similarity(r);
     // 	  std::cout << " ====== Chi2 test rphi hits ====== " << std::endl;
     // 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
     // 	  std::cout << "RecHit errors = " << R << std::endl;
@@ -495,48 +455,56 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator& associate){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.; 
-  rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.;
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.pullMF = -999999.; 
+  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
+  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.;
 
   LocalPoint position=rechit.localPosition();
   LocalError error=rechit.localPositionError();
 
   rechitpro.x = position.x();
   rechitpro.y = position.y();
-  rechitpro.z = position.z();
+  //rechitpro.z = position.z();
   rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
+  //rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
 
-  matched.clear();
-  matched = associate.associateHit(rechit);
+  auto const & matched = associate.associateHit(rechit);
+  rechitpro.NsimHit = matched.size();
 
-  double mindist = 999999;
-  double dist = 999999;
-  double distx = 999999;
-  double disty = 999999;
-  std::pair<LocalPoint,LocalVector> closestPair;
-
-  if(!matched.empty()){
+  if(matched.empty()) return;
+    float mindist = std::numeric_limits<float>::max();
+    float dist = std::numeric_limits<float>::max();
+    float dist2 = std::numeric_limits<float>::max();
+    float distx = std::numeric_limits<float>::max();
+    float disty = std::numeric_limits<float>::max();
+    PSimHit const * closest = nullptr;
+    std::pair<LocalPoint,LocalVector> closestPair;
 
     const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
     std::pair<LocalPoint,LocalVector> hitPair;
-    
 
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+    for(auto const &m : matched){
+      SiStripDetId hitDetId(m.detUnitId());
+      if (hitDetId.stereo()) {  // project from the stereo sensor
       //project simhit;
-	hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
-	distx = fabs(rechitpro.x - hitPair.first.x());
-	disty = fabs(rechitpro.y - hitPair.first.y());
-	dist = sqrt(distx*distx+disty*disty);
+	hitPair= projectHit(m,partnerstripdet,gluedDet->surface());
+	distx = rechitpro.x - hitPair.first.x();
+	disty = rechitpro.y - hitPair.first.y();
+	dist2 = distx*distx+disty*disty;
+	dist = sqrt(dist2);
 	// std::cout << " Simhit position x = " << hitPair.first.x() 
 	//      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;
 	if(dist<mindist){
 	  mindist = dist;
 	  closestPair = hitPair;
+	  closest = &m;
 	}
-    }  
+      }
+    }
+    if (!closest) return;  
+    rechitpro.bunch = closest->eventId().bunchCrossing();
+    rechitpro.event = closest->eventId().event();
     rechitpro.resx = rechitpro.x - closestPair.first.x();
     rechitpro.resy = rechitpro.y - closestPair.first.y();
     //std::cout << " Closest position x = " << closestPair.first.x() 
@@ -558,7 +526,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     R[1][1] = error.yy();
     int ierr; 
     R.invert(ierr); // if (ierr != 0) throw exception;
-    double est = R.similarity(r);
+    float est = R.similarity(r);
     // 	  std::cout << " ====== Chi2 test rphi hits ====== " << std::endl;
     // 	  std::cout << "RecHit param. = " << rhparameters << std::endl;
     // 	  std::cout << "RecHit errors = " << R << std::endl;
@@ -566,7 +534,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     //	  std::cout << " chi2  = " << est << std::endl;
     //	  std::cout << "DEBUG BORIS,filling chi2rphi[i],i: " << i << std::endl;
     rechitpro.chi2 = est;
-  }
+  
 
 
 }
@@ -576,7 +544,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -597,10 +565,10 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
   // std::cout << "curfold " << curfold << std::endl;
 
   createTotalMEs(ibooker);
-
   // loop over detectors and book MEs
   edm::LogInfo("SiStripTkRecHits|SiStripRecHitsValid")<<"nr. of activeDets:  "<<activeDets.size();
-  for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); detid_iterator++){
+  const std::string& tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB";        
+  for(std::vector<uint32_t>::iterator detid_iterator=activeDets.begin(), detid_end=activeDets.end(); detid_iterator!=detid_end; ++detid_iterator){
     uint32_t detid = (*detid_iterator);
     // remove any eventual zero elements - there should be none, but just in case
     if(detid == 0) {
@@ -614,26 +582,30 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
     std::string label = hidmanager.getSubdetid(detid,tTopo,true);
     // std::cout << "label " << label << endl;
       
-    std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-    if(iLayerME==LayerMEsMap.end()) {
+    if(LayerMEsMap.find(label)==LayerMEsMap.end()) {
 	
       // get detids for the layer
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       int32_t lnumber = det_layer_pair.second;
-      std::vector<uint32_t> layerDetIds;        
-      if (det_layer_pair.first == "TIB") {
-	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
-      } else if (det_layer_pair.first == "TOB") {
+      const std::string& lname = det_layer_pair.first; 
+      std::vector<uint32_t> layerDetIds;
+      if (lname.compare(tec) == 0) {
+        if (lnumber > 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
+        }
+      } else if (lname.compare(tid) == 0) {
+         if (lnumber > 0) {
+	   substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
+        }
+      } else if (lname.compare(tob) == 0) {
 	substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
-      } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
-      }
+      } else if (lname.compare(tib) == 0) {
+	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
+      }  
       LayerDetMap[label] = layerDetIds;
 
       // book Layer MEs 
@@ -644,40 +616,45 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       createLayerMEs(ibooker,label);
     }
     // book sub-detector plots 
-    std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
-    // std::cout << "sdet_pair " << sdet_pair.first << " " << sdet_pair.second << std::endl;
     if (SubDetMEsMap.find(det_layer_pair.first) == SubDetMEsMap.end()){
+      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      // std::cout << "sdet_pair " << sdet_pair.first << " " << sdet_pair.second << std::endl;
       ibooker.setCurrentFolder(sdet_pair.first);
       createSubDetMEs(ibooker,det_layer_pair.first);        
     }
     //Create StereoAndMatchedMEs
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    if(iStereoAndMatchedME==StereoAndMatchedMEsMap.end()) {
+    if(StereoAndMatchedMEsMap.find(label)==StereoAndMatchedMEsMap.end()) {
 	
       // get detids for the stereo and matched layer. We are going to need a bool for these layers
       bool isStereo = false;
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
-      int32_t stereolnumber = det_layer_pair.second;
       std::vector<uint32_t> stereoandmatchedDetIds;        
-      if ( (det_layer_pair.first == "TIB") &&  (TIBDetId(detid).stereo()== 1) ) {
-	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TOB") &&  (TOBDetId(detid).stereo()== 1) ) {
+      int32_t stereolnumber = det_layer_pair.second;
+      const std::string& stereolname = det_layer_pair.first;
+      if ( stereolname.compare(tec) == 0 && (tTopo->tecIsStereo(detid)) ) {
+        if ( stereolnumber > 0 ) {
+          substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
+	  isStereo = true;
+        } else if ( stereolnumber < 0 ) {
+	  substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
+	  isStereo = true;
+        }
+      } else if ( stereolname.compare(tid) == 0 && (tTopo->tidIsStereo(detid)) ) {
+        if ( stereolnumber > 0 ) {
+	  substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
+	  isStereo = true;
+        } else if ( stereolnumber < 0 ) {
+	  substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
+	  isStereo = true;
+        }
+      } else if ( stereolname.compare(tob) == 0 && (tTopo->tobIsStereo(detid)) ) {
 	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber > 0) && (TIDDetId(detid).stereo()== 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
+      } else if ( stereolname.compare(tib) == 0 && (tTopo->tibIsStereo(detid)) ) {
+	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
 	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber < 0) && (TIDDetId(detid).stereo()== 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber > 0) && (TECDetId(detid).stereo()== 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber < 0) && (TECDetId(detid).stereo()== 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
-      }
+      } 
+
       StereoAndMatchedDetMap[label] = stereoandmatchedDetIds;
 
       if(isStereo){
@@ -690,8 +667,6 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 	createStereoAndMatchedMEs(ibooker,label);
       }
     }
- 
-
   }//end of loop over detectors
 }
 //------------------------------------------------------------------------------------------
@@ -703,7 +678,7 @@ void SiStripRecHitsValid::createTotalMEs(DQMStore::IBooker & ibooker)
 
   //NumTotrphi
   if(switchNumTotrphi) {
-    totalMEs.meNumTotrphi = bookME1D(ibooker,"TH1NumTotrphi", "TH1NumTotrphi" ,"Num of RecHits");
+    totalMEs.meNumTotrphi = bookME1D(ibooker,"TH1NumTotrphi", "TH1NumTotrphi" ,"Num of RecHits rphi");
     totalMEs.meNumTotrphi->setAxisTitle("Total number of RecHits");
   }
   //NumTotStereo
@@ -713,7 +688,7 @@ void SiStripRecHitsValid::createTotalMEs(DQMStore::IBooker & ibooker)
   }
   //NumTotMatched
   if(switchNumTotMatched) {
-    totalMEs.meNumTotMatched = bookME1D(ibooker,"TH1NumTotMatched","TH1NumTotMatched","Num of RecHits rmatched"); 
+    totalMEs.meNumTotMatched = bookME1D(ibooker,"TH1NumTotMatched","TH1NumTotMatched","Num of RecHits matched"); 
     totalMEs.meNumTotMatched->setAxisTitle("Total number of matched RecHits");
   }
        
@@ -732,6 +707,7 @@ void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std::string
   layerMEs.mePullLFrphi = 0;
   layerMEs.mePullMFrphi = 0;
   layerMEs.meChi2rphi = 0;
+  layerMEs.meNsimHitrphi = 0;
 
   //Wclusrphi
   if(switchWclusrphi) {
@@ -773,6 +749,11 @@ void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std::string
     layerMEs.meChi2rphi = bookME1D(ibooker,"TH1Chi2rphi", hidmanager.createHistoLayer("Chi2_rphi","layer",label,"").c_str() ,"RecHit Chi2 test"); 
     layerMEs.meChi2rphi->setAxisTitle(("RecHit Chi2 test in " + label).c_str()); 
   }
+  //NsimHitrphi
+  if(switchNsimHitrphi) {
+    layerMEs.meNsimHitrphi = bookME1D(ibooker,"TH1NsimHitrphi", hidmanager.createHistoLayer("NsimHit_rphi","layer",label,"").c_str() ,"No. of assoc. simHits"); 
+    layerMEs.meNsimHitrphi->setAxisTitle(("Number of assoc. simHits in " + label).c_str()); 
+  }
 
   LayerMEsMap[label]=layerMEs;
  
@@ -791,6 +772,7 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,
   stereoandmatchedMEs.mePullLFStereo = 0;
   stereoandmatchedMEs.mePullMFStereo = 0;
   stereoandmatchedMEs.meChi2Stereo = 0;
+  stereoandmatchedMEs.meNsimHitStereo = 0;
   stereoandmatchedMEs.mePosxMatched = 0;
   stereoandmatchedMEs.mePosyMatched = 0;
   stereoandmatchedMEs.meResolxMatched = 0;
@@ -798,6 +780,7 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,
   stereoandmatchedMEs.meResxMatched = 0;
   stereoandmatchedMEs.meResyMatched = 0;
   stereoandmatchedMEs.meChi2Matched = 0;
+  stereoandmatchedMEs.meNsimHitMatched = 0;
 
   //WclusStereo
   if(switchWclusStereo) {
@@ -839,6 +822,11 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,
     stereoandmatchedMEs.meChi2Stereo = bookME1D(ibooker,"TH1Chi2Stereo", hidmanager.createHistoLayer("Chi2_stereo","layer",label,"").c_str() ,"RecHit Chi2 test");  
     stereoandmatchedMEs.meChi2Stereo->setAxisTitle(("RecHit Chi2 test in stereo modules in " + label).c_str()); 
   }
+  //NsimHitStereo
+  if(switchNsimHitStereo) {
+    stereoandmatchedMEs.meNsimHitStereo = bookME1D(ibooker,"TH1NsimHitStereo", hidmanager.createHistoLayer("NsimHit_stereo","layer",label,"").c_str() ,"No. of assoc. simHits");  
+    stereoandmatchedMEs.meNsimHitStereo->setAxisTitle(("Number of assoc. simHits in stereo modules in " + label).c_str()); 
+  }
   //PosxMatched
   if(switchPosxMatched) {
     stereoandmatchedMEs.mePosxMatched = bookME1D(ibooker,"TH1PosxMatched", hidmanager.createHistoLayer("Posx_matched","layer",label,"").c_str() ,"RecHit x coord.");  
@@ -874,6 +862,11 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,
     stereoandmatchedMEs.meChi2Matched = bookME1D(ibooker,"TH1Chi2Matched", hidmanager.createHistoLayer("Chi2_matched","layer",label,"").c_str() ,"RecHit Chi2 test"); 
     stereoandmatchedMEs.meChi2Matched->setAxisTitle(("Matched RecHit Chi2 test in " + label).c_str()); 
   }
+  //NsimHitMatched
+  if(switchNsimHitMatched) {
+    stereoandmatchedMEs.meNsimHitMatched = bookME1D(ibooker,"TH1NsimHitMatched", hidmanager.createHistoLayer("NsimHit_matched","layer",label,"").c_str() ,"No. of assoc. simHits"); 
+    stereoandmatchedMEs.meNsimHitMatched->setAxisTitle(("Number of assoc. simHits in " + label).c_str()); 
+  }
 
   StereoAndMatchedMEsMap[label]=stereoandmatchedMEs;
  
@@ -883,8 +876,14 @@ void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker & ibooker,std::strin
 
   SubDetMEs subdetMEs;
   subdetMEs.meNumrphi = 0;
+  subdetMEs.meBunchrphi = 0;
+  subdetMEs.meEventrphi = 0;
   subdetMEs.meNumStereo = 0;
+  subdetMEs.meBunchStereo = 0;
+  subdetMEs.meEventStereo = 0;
   subdetMEs.meNumMatched = 0;
+  subdetMEs.meBunchMatched = 0;
+  subdetMEs.meEventMatched = 0;
 
   std::string HistoName;
   //Numrphi
@@ -893,29 +892,65 @@ void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker & ibooker,std::strin
     subdetMEs.meNumrphi = bookME1D(ibooker,"TH1Numrphi",HistoName.c_str(),"Num of RecHits");
     subdetMEs.meNumrphi->setAxisTitle(("Total number of RecHits in "+ label).c_str());
   }  
+  //Bunchrphi
+  if(switchBunchrphi) {
+    HistoName = "TH1Bunchrphi__" + label;
+    subdetMEs.meBunchrphi = bookME1D(ibooker,"TH1Bunchrphi",HistoName.c_str(),"Bunch Crossing");
+    subdetMEs.meBunchrphi->setAxisTitle(("Bunch crossing in " + label).c_str()); 
+  }
+  //Eventrphi
+  if(switchEventrphi) {
+    HistoName = "TH1Eventrphi__" + label;
+    subdetMEs.meEventrphi = bookME1D(ibooker,"TH1Eventrphi",HistoName.c_str(),"Event (in-time bunch)");
+    subdetMEs.meEventrphi->setAxisTitle(("Event (in-time bunch) in " + label).c_str()); 
+  }
   //NumStereo
   if (switchNumStereo){
     HistoName = "TH1NumStereo__" + label;
     subdetMEs.meNumStereo = bookME1D(ibooker,"TH1NumStereo",HistoName.c_str(),"Num of RecHits in stereo modules");
-    subdetMEs.meNumStereo->setAxisTitle(("Total number of RecHits in stereo modules in "+ label).c_str());
+    subdetMEs.meNumStereo->setAxisTitle(("Total number of RecHits, stereo modules in "+ label).c_str());
   }  
+  //BunchStereo
+  if(switchBunchStereo) {
+    HistoName = "TH1BunchStereo__" + label;
+    subdetMEs.meBunchStereo = bookME1D(ibooker,"TH1BunchStereo",HistoName.c_str(),"Bunch Crossing");
+    subdetMEs.meBunchStereo->setAxisTitle(("Bunch crossing, stereo modules in " + label).c_str()); 
+  }
+  //EventStereo
+  if(switchEventStereo) {
+    HistoName = "TH1EventStereo__" + label;
+    subdetMEs.meEventStereo = bookME1D(ibooker,"TH1EventStereo",HistoName.c_str(),"Event (in-time bunch)");
+    subdetMEs.meEventStereo->setAxisTitle(("Event (in-time bunch), stereo modules in " + label).c_str()); 
+  }
   //NumMatched
   if (switchNumMatched){
     HistoName = "TH1NumMatched__" + label;
     subdetMEs.meNumMatched = bookME1D(ibooker,"TH1NumMatched",HistoName.c_str(),"Num of matched RecHits" );
     subdetMEs.meNumMatched->setAxisTitle(("Total number of matched RecHits in "+ label).c_str());
   }  
+  //BunchMatched
+  if(switchBunchMatched) {
+    HistoName = "TH1BunchMatched__" + label;
+    subdetMEs.meBunchMatched = bookME1D(ibooker,"TH1BunchMatched",HistoName.c_str(),"Bunch Crossing");
+    subdetMEs.meBunchMatched->setAxisTitle(("Bunch crossing, matched RecHits in " + label).c_str()); 
+  }
+  //EventMatched
+  if(switchEventMatched) {
+    HistoName = "TH1EventMatched__" + label;
+    subdetMEs.meEventMatched = bookME1D(ibooker,"TH1EventMatched",HistoName.c_str(),"Event (in-time bunch)");
+    subdetMEs.meEventMatched->setAxisTitle(("Event (in-time bunch), matched RecHits in " + label).c_str()); 
+  }
 
   SubDetMEsMap[label]=subdetMEs;
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker & ibooker, const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+inline MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker & ibooker, const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
-  Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+  edm::ParameterSet parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,HistoTitle,
-			   Parameters.getParameter<int32_t>("Nbinx"),
-			   Parameters.getParameter<double>("xmin"),
-			   Parameters.getParameter<double>("xmax")
+			   parameters.getParameter<int32_t>("Nbinx"),
+			   parameters.getParameter<double>("xmin"),
+			   parameters.getParameter<double>("xmax")
 			   );
 }
 

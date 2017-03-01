@@ -1,9 +1,20 @@
 #include "DetectorDescription/Algorithm/interface/DDAngular.h"
-#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <math.h>
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDAlgoPar.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Math/GenVector/AxisAngle.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
 
 DDAngular::DDAngular( void )
   : m_n( 1 ),
@@ -84,7 +95,6 @@ DDAngular::initialize( const DDNumericArguments & nArgs,
   }
 
   m_idNameSpace = DDCurrentNamespace::ns();
-//   m_childName   = sArgs["ChildName"]; 
   m_childNmNs 	= DDSplit( sArgs["ChildName"] );
   if( m_childNmNs.second.empty())
     m_childNmNs.second = DDCurrentNamespace::ns();
@@ -110,7 +120,7 @@ DDAngular::execute( DDCompactView& cpv )
     double phiy = phix + 90. * CLHEP::deg;
     double phideg = phix / CLHEP::deg;
 
-    std::string rotstr = m_childNmNs.first + "_" + dbl_to_string( phideg * 10.);
+    std::string rotstr = m_childNmNs.first + "_" + std::to_string( phideg * 10.);
     DDRotation rotation = DDRotation( DDName( rotstr, m_idNameSpace ));
     if( !rotation )
     {

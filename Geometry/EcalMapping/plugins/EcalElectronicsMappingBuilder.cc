@@ -58,7 +58,7 @@ EcalElectronicsMappingBuilder::ReturnType
 EcalElectronicsMappingBuilder::produce(const EcalMappingRcd& iRecord)
 {
    using namespace edm::es;
-   std::auto_ptr<EcalElectronicsMapping> prod(new EcalElectronicsMapping());
+   auto prod = std::make_unique<EcalElectronicsMapping>();
    const std::vector<EcalMappingElement>& ee = Mapping_ -> endcapItems();
    FillFromDatabase(ee,*prod);
    return prod;

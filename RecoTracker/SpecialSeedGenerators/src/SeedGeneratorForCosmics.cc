@@ -44,27 +44,26 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 }
 
 SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
-  conf_(conf),
   maxSeeds_(conf.getParameter<int32_t>("maxSeeds"))
 {  
 
-  float ptmin=conf_.getParameter<double>("ptMin");
-  float originradius=conf_.getParameter<double>("originRadius");
-  float halflength=conf_.getParameter<double>("originHalfLength");
-  float originz=conf_.getParameter<double>("originZPosition");
-  seedpt = conf_.getParameter<double>("SeedPt");
+  float ptmin=conf.getParameter<double>("ptMin");
+  float originradius=conf.getParameter<double>("originRadius");
+  float halflength=conf.getParameter<double>("originHalfLength");
+  float originz=conf.getParameter<double>("originZPosition");
+  seedpt = conf.getParameter<double>("SeedPt");
 
-  builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  builderName = conf.getParameter<std::string>("TTRHBuilder");
+  geometry=conf.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
   region=GlobalTrackingRegion(ptmin,originradius,
  			      halflength,originz);
-  hitsforseeds=conf_.getUntrackedParameter<std::string>("HitsForSeeds","pairs");
+  hitsforseeds=conf.getUntrackedParameter<std::string>("HitsForSeeds","pairs");
   edm::LogInfo("SeedGeneratorForCosmics")<<" PtMin of track is "<<ptmin<< 
     " The Radius of the cylinder for seeds is "<<originradius <<"cm"  << " The set Seed Momentum" <<  seedpt;
 
   //***top-bottom
-  positiveYOnly=conf_.getParameter<bool>("PositiveYOnly");
-  negativeYOnly=conf_.getParameter<bool>("NegativeYOnly");
+  positiveYOnly=conf.getParameter<bool>("PositiveYOnly");
+  negativeYOnly=conf.getParameter<bool>("NegativeYOnly");
   //***
 
 

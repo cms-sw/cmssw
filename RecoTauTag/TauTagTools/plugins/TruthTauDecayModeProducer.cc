@@ -158,7 +158,7 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    //output collection
-   std::auto_ptr<vector<PFTauDecayMode> > pOut( new std::vector<PFTauDecayMode> );
+   auto pOut = std::make_unique<std::vector<PFTauDecayMode>>();
    for(std::vector<tauObjectsHolder>::const_iterator iTempTau  = tausToAdd_.begin();
                                                 iTempTau != tausToAdd_.end();
                                               ++iTempTau)
@@ -205,7 +205,7 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
          pOut->push_back(decayModeToAdd);
       }
    }
-   iEvent.put(pOut);
+   iEvent.put(std::move(pOut));
 }
 
 void 

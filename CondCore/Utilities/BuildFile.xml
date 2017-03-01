@@ -6,11 +6,6 @@
 <use   name="FWCore/Concurrency"/>
 <use   name="boost"/>
 <use   name="boost_program_options"/>
-<use   name="CondCore/ORA"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
-<use   name="CondCore/TagCollection"/>
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/HLTObjects"/>
 <use   name="CondFormats/Alignment"/>
@@ -35,7 +30,7 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/BTauObjects"/>
-<use   name="rootcintex"/>
+<use   name="CondFormats/MFObjects"/>
 <export>
   <lib   name="1"/>
 </export>

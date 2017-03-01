@@ -68,11 +68,9 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
   DumpMET = iConfig.getParameter<double>("DumpMET");
 
   //Muon to Segment Matching
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  TheService = new MuonServiceProxy(serviceParameters);
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
   edm::ConsumesCollector iC  = consumesCollector();
-  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService,iC);
+  TheMatcher = new MuonSegmentMatcher(matchParameters, iC);
 
 }
 
@@ -305,9 +303,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   EventID TheEvent = iEvent.id();
   int BXN = iEvent.bunchCrossing() ;
   bool Dump = TextFileName.size();
-  int TheEventNumber = TheEvent.event();
-  int Lumi = iEvent.luminosityBlock();
-  int Run  = iEvent.run();
+  edm::EventNumber_t TheEventNumber = TheEvent.event();
+  edm::LuminosityBlockNumber_t Lumi = iEvent.luminosityBlock();
+  edm::RunNumber_t Run  = iEvent.run();
 
   //Get CSC Geometry
   edm::ESHandle<CSCGeometry> TheCSCGeometry;
@@ -346,9 +344,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float innermost_x =0.;
 	  float innermost_y =0.;
 	  float innermost_r =0.;
-	  for(unsigned int j = 0 ; j < Track->extra()->recHits().size(); j++ )
+	  for(unsigned int j = 0 ; j < Track->extra()->recHitsSize(); j++ )
 	    {
-	      edm::Ref<TrackingRecHitCollection> hit( Track->extra()->recHits(), j );
+	      auto hit = Track->extra()->recHitRef(j);
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
 	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
@@ -610,7 +608,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       //Access selected SuperClusters
       for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
 	{
-	  edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
+	  edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n] );
 	  float angle = vm_Angle[cluster];
 	  float roundness = vm_Roundness[cluster];
 	  hEcalHaloData_SuperClusterShowerShapes->Fill(angle, roundness);

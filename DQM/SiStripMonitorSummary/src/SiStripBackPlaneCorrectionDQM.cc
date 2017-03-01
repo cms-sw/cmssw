@@ -1,4 +1,5 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBackPlaneCorrectionDQM.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "TCanvas.h"
 
@@ -43,7 +44,7 @@ void SiStripBackPlaneCorrectionDQM::fillSummaryMEs(const std::vector<uint32_t> &
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // -----

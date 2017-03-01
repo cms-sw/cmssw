@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = source
 
 ### validation-specific includes
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoMuon.MuonTrackValidator_cff")
 if (FastSim):
@@ -54,8 +54,8 @@ process.load("Validation.Configuration.postValidation_cff")
 process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
 if (onlyRecoMuons):
     from Validation.Configuration.postValidation_cff import *
-    postValidation.remove(postProcessorTrack)
-    postValidation_fastsim.remove(postProcessorTrack)
+    postValidation.remove(postProcessorTrackSequence)
+    postValidation_fastsim.remove(postProcessorTrackSequence)
     from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
     HLTMuonPostVal.remove(hltMuonPostProcessors)
     HLTMuonPostVal_FastSim.remove(hltMuonPostProcessors)
@@ -63,7 +63,7 @@ if (onlyRecoMuons):
 process.cutsRecoTracks.algorithm = ['ALGORITHM']
 process.cutsRecoTracks.quality = ['QUALITY']
 
-process.muonTrackValidator.associators = ['TrackAssociatorByHits']
+process.muonTrackValidator.associators = ['trackAssociatorByHits']
 
 process.muonTrackValidator.label = ['TRACKS']
 if (process.muonTrackValidator.label[0] == 'generalTracks'):
@@ -78,7 +78,8 @@ process.options = cms.untracked.PSet(
 )
 
 if (FastSim):
-    process.recoMuonValidationSequence = cms.Sequence(process.muonTrackValidator
+    process.recoMuonValidationSequence = cms.Sequence(process.trackAssociatorByHits
+                                                      *process.muonTrackValidator
                                                       *process.recoMuonAssociationFastSim 
                                                       *process.recoMuonValidationFastSim
                                                       *process.recoMuonAssociationHLTFastSim_seq
@@ -86,7 +87,8 @@ if (FastSim):
 elif ('SAMPLE'=='RelValCosmics'):
     process.recoMuonValidationSequence = cms.Sequence(process.recoCosmicMuonValidation)
 else:
-    process.recoMuonValidationSequence = cms.Sequence(process.muonTrackValidator
+    process.recoMuonValidationSequence = cms.Sequence(process.trackAssociatorByHits
+                                                      *process.muonTrackValidator
                                                       *process.recoMuonValidation
                                                       *process.recoMuonValidationHLT_seq)
 

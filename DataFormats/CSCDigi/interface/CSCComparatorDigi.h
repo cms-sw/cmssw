@@ -31,10 +31,10 @@ public:
   /// sort by time first, then by strip
   bool operator<(const CSCComparatorDigi& digi) const;
 
-  /// Get the strip number
-    int getStrip() const { return strip_; }
+  /// Get the strip number. Counts from 1.
+  int getStrip() const { return strip_; }
 
-  /// Get Comparator readings
+  /// Get Comparator readings. Can be 0 or 1.
   int getComparator() const { return comparator_; }
 
   /// Return the word with each bit corresponding to a time bin
@@ -42,6 +42,9 @@ public:
 
   /// Return bin number of first time bin which is ON. Counts from 0.
   int getTimeBin() const;
+
+  /// Get the associated halfstrip number for this comparator digi. Counts from 0.
+  int getHalfStrip() const;
 
   /** Return vector of the bin numbers for which time bins are ON.
    * e.g. if bits 0 and 13 fired, then this vector will contain the values 0 and 13

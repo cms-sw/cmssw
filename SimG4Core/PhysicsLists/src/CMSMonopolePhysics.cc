@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ParticleDefinition.hh"
@@ -16,9 +17,9 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
-				       sim::FieldBuilder * fB_, 
+				       sim::ChordFinderSetter * cfs_, 
 				       const edm::ParameterSet & p) :
-  G4VPhysicsConstructor("Monopole Physics"), fieldBuilder(fB_) {
+  G4VPhysicsConstructor("Monopole Physics"), chordFinderSetter(cfs_) {
   
   verbose   = p.getUntrackedParameter<int>("Verbosity",0);
   magCharge = p.getUntrackedParameter<int>("MonopoleCharge",1);
@@ -93,8 +94,27 @@ void CMSMonopolePhysics::ConstructProcess() {
   for (unsigned int ii=0; ii<monopoles.size(); ++ii) {
     if (monopoles[ii]) {
       G4Monopole* mpl = monopoles[ii];
-      G4ProcessManager* pmanager = new G4ProcessManager(mpl);
-      mpl->SetProcessManager(pmanager);
+      G4ProcessManager *pmanager = mpl->GetProcessManager();
+      if(!pmanager) {
+        std::ostringstream o;
+        o << "Monopole without a Process Manager";
+        G4Exception("CMSMonopolePhysics::ConstructProcess()","",
+                    FatalException,o.str().c_str());
+      }
+
+      // Clear process list, for some reason G4Transportation is added
+      // somewhere, and it is not wanted (at least that was the
+      // behaviour before MT)
+      const G4int procLength = pmanager->GetProcessListLength();
+      for(G4int ip=procLength-1; ip >= 0; --ip) {
+        G4VProcess *proc = pmanager->RemoveProcess(ip);
+        if(!proc) {
+          std::ostringstream o;
+          o << "Clearing Monopole Process Manager failed for process " << ip << ", total number of processes " << procLength;
+          G4Exception("CMSMonopolePhysics::ConstructProcess()","",
+                      FatalException,o.str().c_str());
+        }
+      }
 
       G4String particleName = mpl->GetParticleName();
       G4double magn         = mpl->MagneticCharge();
@@ -123,7 +143,7 @@ void CMSMonopolePhysics::ConstructProcess() {
       if (magn == 0.0 || (!transport)) {
 	pmanager->AddProcess( new G4Transportation(verbose), -1, 0, 0);
       } else {
-	pmanager->AddProcess( new G4MonopoleTransportation(mpl,fieldBuilder,verbose), -1, 0, 0);
+	pmanager->AddProcess( new G4MonopoleTransportation(mpl,chordFinderSetter,verbose), -1, 0, 0);
       }
 
       if (mpl->GetPDGCharge() != 0.0) {

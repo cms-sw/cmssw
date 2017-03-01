@@ -46,7 +46,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 //#include "Geometry/Surface/interface/Surface.h"
 
 // For ROOT
@@ -272,7 +272,7 @@ void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
 
   const double PI = 3.142;
@@ -310,7 +310,7 @@ void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent,
     edm::Handle<CrossingFrame> cf;
     iEvent.getByType(cf);
     
-    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+    std::unique_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
 
     //   for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsLowTof->begin();
     //       isim != PixelBarrelHitsLowTof->end(); ++isim){

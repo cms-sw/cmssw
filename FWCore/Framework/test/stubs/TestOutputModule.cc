@@ -5,7 +5,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 
@@ -65,15 +68,16 @@ namespace edmtest
     virtual ~TestOutputModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e, ModuleCallingContext const*) override;
-    virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) override;
-    virtual void writeRun(edm::RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void write(edm::EventForOutput const& e) override;
+    virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    virtual void writeRun(edm::RunForOutput const&) override;
     virtual void endJob() override;
 
     std::string name_;
     int bitMask_;
     std::vector<unsigned char> hltbits_;
     bool expectTriggerResults_;
+    edm::EDGetTokenT<edm::TriggerResults> resultsToken_;
   };
 
   // -----------------------------------------------------------------
@@ -83,7 +87,8 @@ namespace edmtest
     name_(ps.getParameter<std::string>("name")),
     bitMask_(ps.getParameter<int>("bitMask")),
     hltbits_(0),
-    expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true))
+    expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true)),
+  resultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults")))
   {
   }
     
@@ -91,10 +96,9 @@ namespace edmtest
   {
   }
 
-  void TestOutputModule::write(edm::EventPrincipal const& e, ModuleCallingContext const* mcc)
+  void TestOutputModule::write(edm::EventForOutput const& e)
   {
-    assert(mcc != nullptr);
-    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+    assert(e.moduleCallingContext()->moduleDescription()->moduleLabel() == description().moduleLabel());
 
     Trig prod;
 
@@ -114,7 +118,7 @@ namespace edmtest
     if (!expectTriggerResults_) {
 
       try {
-        prod = getTriggerResults(e, mcc);
+        prod = getTriggerResults(resultsToken_, e);
         //throw doesn't happen until we dereference
         *prod;
       }
@@ -131,7 +135,7 @@ namespace edmtest
     // Now deal with the other case where we expect the object
     // to be present.
 
-    prod = getTriggerResults(e, mcc);
+    prod = getTriggerResults(resultsToken_, e);
 
     std::vector<unsigned char> vHltState;
 
@@ -169,14 +173,12 @@ namespace edmtest
     else std::cout <<"\nSUCCESS: Found Matching Bits"<< std::endl;
   }
 
-  void TestOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const* mcc) {
-    assert(mcc != nullptr);
-    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+  void TestOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& lb) {
+    assert(lb.moduleCallingContext()->moduleDescription()->moduleLabel() == description().moduleLabel());
   }
 
-  void TestOutputModule::writeRun(edm::RunPrincipal const&, ModuleCallingContext const* mcc) {
-    assert(mcc != nullptr);
-    assert(mcc->moduleDescription()->moduleLabel() == description().moduleLabel());
+  void TestOutputModule::writeRun(edm::RunForOutput const& r) {
+    assert(r.moduleCallingContext()->moduleDescription()->moduleLabel() == description().moduleLabel());
   }
 
   void TestOutputModule::endJob()

@@ -116,7 +116,7 @@ namespace edm {
           break;
         }
         case MessageLoggerQ::CONFIGURE:  {			// changelog 17
-          job_pset_p.reset(static_cast<ParameterSet *>(operand));
+          job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(operand)); // propagate_const<T> has no reset() function
           configure_errorlog();
           break;
         }
@@ -787,17 +787,14 @@ namespace edm {
         return;
       }
       
-      for( std::vector<NamedDestination*>::const_iterator it = extern_dests.begin()
-          ; it != extern_dests.end()
-          ;  ++it
-          )
+      for( auto& dest : extern_dests)
       {
-        ELdestination *  dest_p = (*it)->dest_p().get();
+        ELdestination *  dest_p = dest->dest_p().get();
         ELdestControl  dest_ctrl = admin_p->attach( *dest_p );
         
         // configure the newly-attached destination:
-        configure_dest( dest_ctrl, (*it)->name() );
-        delete *it;  // dispose of our (copy of the) NamedDestination
+        configure_dest( dest_ctrl, dest->name() );
+        delete dest;  // dispose of our (copy of the) NamedDestination
       }
       extern_dests.clear();
       

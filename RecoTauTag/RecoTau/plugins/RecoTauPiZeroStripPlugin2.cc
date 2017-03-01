@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <memory>
 
+#include "boost/bind.hpp"
+
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -168,15 +170,16 @@ void RecoTauPiZeroStripPlugin2::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs
   }
 }
 
-void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds)
+namespace 
 {
-  for ( std::set<size_t>::const_iterator candId = candIds.begin();
-	candId != candIds.end(); ++candId ) {
-    candFlags[*candId] = true;
+  void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds)
+  {
+    for ( std::set<size_t>::const_iterator candId = candIds.begin();
+	  candId != candIds.end(); ++candId ) {
+      candFlags[*candId] = true;
+    }
   }
-}
-
-namespace {
+  
   inline const reco::TrackBaseRef getTrack(const PFCandidate& cand)
   {
     if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());

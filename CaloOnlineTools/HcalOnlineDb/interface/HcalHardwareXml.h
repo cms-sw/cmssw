@@ -50,9 +50,9 @@ class HcalHardwareXml : public XMLDOMBlock
   HcalHardwareXml(const HcalHardwareXml&); // stop default
   const HcalHardwareXml& operator=(const HcalHardwareXml&); // stop default
 
-  DOMElement * addPart( DOMElement * parent, HcalPart & part );
+  XERCES_CPP_NAMESPACE::DOMElement * addPart( XERCES_CPP_NAMESPACE::DOMElement * parent, HcalPart & part );
 
-  DOMElement * partsElem;
+  XERCES_CPP_NAMESPACE::DOMElement * partsElem;
 
   //hw_map["rbx_slot"]["rbx"]["rm"][qie_slot]="qie";
   //std::map<std::string,std::map<std::string,std::map<std::string,std::map<int,std::string> > > > hw_map;

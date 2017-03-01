@@ -57,7 +57,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  // wire digis
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Digis");
 
-	  hWirenGroupsTotal = ibooker.book1D("hWirenGroupsTotal","Fired Wires per Event; # Wiregroups Fired",100,-0.5,99.5);
+	  hWirenGroupsTotal = ibooker.book1D("hWirenGroupsTotal","Fired Wires per Event; # Wiregroups Fired",200,-0.5,199.5);
 	  hWireTBin.push_back(ibooker.book1D("hWireTBin_m42","Wire TBin Fired (ME -4/2); Time Bin (25ns)",17,-0.5,16.5));
 	  hWireTBin.push_back(ibooker.book1D("hWireTBin_m41","Wire TBin Fired (ME -4/1); Time Bin (25ns)",17,-0.5,16.5));
 	  hWireTBin.push_back(ibooker.book1D("hWireTBin_m32","Wire TBin Fired (ME -3/2); Time Bin (25ns)",17,-0.5,16.5));
@@ -100,7 +100,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  hWireNumber.push_back(ibooker.book1D("hWireNumber_p42","Wiregroup Number Fired (ME +4/2); Wiregroup #",113,-0.5,112.5));
 
 	  // strip digis
-	  hStripNFired = ibooker.book1D("hStripNFired","Fired Strips per Event; # Strips Fired (above 13 ADC)",200,-0.5,199.5);
+	  hStripNFired = ibooker.book1D("hStripNFired","Fired Strips per Event; # Strips Fired (above 13 ADC)",300,-0.5,299.5);
 	  hStripNumber.push_back(ibooker.book1D("hStripNumber_m42","Strip Number Fired (ME -4/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
 	  hStripNumber.push_back(ibooker.book1D("hStripNumber_m41","Strip Number Fired (ME -4/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
 	  hStripNumber.push_back(ibooker.book1D("hStripNumber_m32","Strip Number Fired (ME -3/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
@@ -149,7 +149,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  // rechits
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/recHits");
 
-	  hRHnrechits = ibooker.book1D("hRHnrechits","recHits per Event (all chambers); # of RecHits",100,-0.50,99.5);
+	  hRHnrechits = ibooker.book1D("hRHnrechits","recHits per Event (all chambers); # of RecHits",200,-0.50,199.5);
 	  hRHGlobal.push_back(ibooker.book2D("hRHGlobalp1","recHit global X,Y station +1; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
 	  hRHGlobal.push_back(ibooker.book2D("hRHGlobalp2","recHit global X,Y station +2; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
 	  hRHGlobal.push_back(ibooker.book2D("hRHGlobalp3","recHit global X,Y station +3; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
@@ -282,7 +282,7 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  // segments
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Segments");
 
-	  hSnSegments   = ibooker.book1D("hSnSegments","Number of Segments per Event; # of Segments",21,-0.5,20.5);
+	  hSnSegments   = ibooker.book1D("hSnSegments","Number of Segments per Event; # of Segments",26,-0.5,25.5);
 	  hSnhitsAll = ibooker.book1D("hSnhits","N hits on Segments; # of hits",8,-0.5,7.5);
 	  hSnhits.push_back(ibooker.book1D("hSnhitsm42","# of hits on Segments (ME -4/2); # of hits",8,-0.5,7.5));
 	  hSnhits.push_back(ibooker.book1D("hSnhitsm41","# of hits on Segments (ME -4/1); # of hits",8,-0.5,7.5));
@@ -348,10 +348,19 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp42","Segment chi2 Probability (ME +4/2); Probability",110,-0.05,1.05));
 	  hSGlobalTheta = ibooker.book1D("hSGlobalTheta","Segment Direction (Global Theta); Global Theta (radians)",136,-0.1,3.3);
 	  hSGlobalPhi   = ibooker.book1D("hSGlobalPhi","Segment Direction (Global Phi); Global Phi (radians)",  128,-3.2,3.2);
+          hSTimeDiff  = ibooker.book1D("hSTimeDiff", "Anode Minus Cathode Segment Time  [ns]",50,-50,50);
+          hSTimeAnode  = ibooker.book1D("hSTimeAnode", "Anode Only Segment Time  [ns]",200,-200,200);
 	  hSTimeCathode  = ibooker.book1D("hSTimeCathode", "Cathode Only Segment Time  [ns]",200,-200,200);
 	  hSTimeCombined = ibooker.book1D("hSTimeCombined", "Segment Time (anode+cathode times) [ns]",200,-200,200);
+          hSTimeDiffSerial  = ibooker.book2D("hSTimeDiffSerial", "Anode Minus Cathode Segment Time  [ns]",601,-0.5,600.5,200,-50,50);
+          hSTimeAnodeSerial  = ibooker.book2D("hSTimeAnodeSerial", "Anode Only Segment Time  [ns]",601,-0.5,600.5,200,-200,200);
+          hSTimeCathodeSerial  = ibooker.book2D("hSTimeCathodeSerial", "Cathode Only Segment Time  [ns]",601,-0.5,600.5,200,-200,200);
+          hSTimeCombinedSerial = ibooker.book2D("hSTimeCombinedSerial", "Segment Time (anode+cathode times) [ns]",601,-0.5,600.5,200,-200,200);
+
+
 	  hSTimeVsZ	  = ibooker.book2D("hSTimeVsZ","Segment Time vs. Z; [ns] vs. [cm]",200,-1200,1200,200,-200,200);
 	  hSTimeVsTOF = ibooker.book2D("hSTimeVsTOF","Segment Time vs. Distance from IP; [ns] vs. [cm]",180,500,1400, 200,-200,200);
+
 
 	  // resolution
 	  ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Resolution");
@@ -427,9 +436,9 @@ void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	  hALCTMatch2Denominator = ibooker.book2D("hALCTMatch2Denominator","Number of ALCT-CLCT matches checked",36,0.5,36.5,20,0.5,20.5);
 	  //      hALCTMatch2DMeans->setAxisTitle("Chamber #");
 	  hALCTMatch2Denominator->setAxisTitle("Chamber #");
-	  hCLCTL1A = ibooker.book1D("hCLCTL1A","L1A - CLCTpreTrigger at TMB [BX]",10,149.5,159.5);
+	  hCLCTL1A = ibooker.book1D("hCLCTL1A","L1A - CLCTpreTrigger at TMB [BX]",40,149.5,189.5);
 	  //      hCLCTL1AChamberMeans = ibooker.book1D("hCLCTL1AChamberMeans","Chamber Mean L1A - CLCTpreTrigger at TMB [BX]",90,150,159);
-	  hCLCTL1ASerial = ibooker.book2D("hCLCTL1ASerial","L1A - CLCTpreTrigger at TMB [BX]",601,-0.5,600.5,10,149.5,159.5);
+	  hCLCTL1ASerial = ibooker.book2D("hCLCTL1ASerial","L1A - CLCTpreTrigger at TMB [BX]",601,-0.5,600.5,40,149.5,189.5);
 	  hCLCTL1ASerial->setAxisTitle("Chamber Serial Number");
 	  hCLCTL1A2DNumerator = ibooker.book2D("hCLCTL1A2DNumerator","L1A - CLCTpreTrigger at TMB [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
 	  //      hCLCTL1A2DMeans = ibooker.book2D("hCLCTL1A2DMeans","L1A - CLCTpreTrigger at TMB [BX]",36,0.5,36.5,20,0.5,20.5);
@@ -954,8 +963,14 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 	hSChiSqProb[tIndex-1]->Fill(chisqProb);
 	hSGlobalTheta->Fill(globTheta);
 	hSGlobalPhi->Fill(globPhi);
+	hSTimeDiff->Fill(timeAnode-timeCathode);
+        hSTimeAnode->Fill(timeAnode);
 	hSTimeCathode->Fill(timeCathode);
 	hSTimeCombined->Fill(timeCombined);
+        hSTimeDiffSerial->Fill(chamberSerial(id),timeAnode-timeCathode);
+        hSTimeAnodeSerial->Fill(chamberSerial(id),timeAnode);
+        hSTimeCathodeSerial->Fill(chamberSerial(id),timeCathode);
+        hSTimeCombinedSerial->Fill(chamberSerial(id),timeCombined);
 	hSTimeVsZ->Fill(globZ, timeCombined);
 	hSTimeVsTOF->Fill(globTOF, timeCombined);
 

@@ -50,9 +50,13 @@ namespace edm
         subdet_(std::string(" ")),
         label_(std::string(" ")),
         labelCF_(std::string(" ")),
-        maxNbSources_(5) {
-	    tag_=InputTag();
-	    tagSignal_=InputTag();
+        maxNbSources_(5),
+	tag_(),
+	tagSignal_(),
+        allTags_(),
+        crFrame_(nullptr),
+        secSourceCF_(nullptr)
+        {
 	}
 
       /*Normal constructor*/ 
@@ -69,7 +73,32 @@ namespace edm
 	labelCF_(labelCF),
 	maxNbSources_(maxNbSources),
 	tag_(tag),
-	tagSignal_(tagCF)
+	tagSignal_(tagCF),
+        allTags_(),
+        crFrame_(nullptr),
+        secSourceCF_(nullptr)
+	{
+	}
+
+       /*constructor for HepMCproduct case*/  
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,
+		   std::string subdet,std::string label,
+		   std::string labelCF,int maxNbSources, InputTag& tag,
+		   InputTag& tagCF,
+		   std::vector<InputTag> const& tags) : 
+	MixingWorkerBase(),
+	minBunch_(minBunch),
+	maxBunch_(maxBunch),
+	bunchSpace_(bunchSpace),
+	subdet_(subdet),
+	label_(label),
+	labelCF_(labelCF),
+	maxNbSources_(maxNbSources),
+	tag_(tag),
+	tagSignal_(tagCF),
+        allTags_(tags),
+        crFrame_(nullptr),
+        secSourceCF_(nullptr)
 	{
 	}
 
@@ -126,11 +155,10 @@ namespace edm
       void setTof();
 
       virtual void put(edm::Event &e) {	
-        std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
-	e.put(pOut,label_);
+        std::unique_ptr<CrossingFrame<T> > pOut(crFrame_);
+	e.put(std::move(pOut),label_);
 	LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
       }
-
 
       // When using mixed secondary source 
       // Copy the data from the PCrossingFrame to the CrossingFrame
@@ -146,6 +174,7 @@ namespace edm
       unsigned int const maxNbSources_;
       InputTag tag_;
       InputTag tagSignal_;
+      std::vector<InputTag> allTags_; // for HepMCProduct
 
       CrossingFrame<T> * crFrame_;
       PCrossingFrame<T> * secSourceCF_;

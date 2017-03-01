@@ -8,11 +8,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
 #ifdef EDM_ML_DEBUG
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -20,6 +21,71 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+namespace {
+   void dump(TrackingRecHit const & hit, int hitcounter) {
+    if (hit.isValid()) {
+      LogTrace("TrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
+	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
+	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
+	<< "  HIT IS AT Loc " << hit.localPosition() << "\n"
+	<< "  WITH LocError " << hit.localPositionError() << "\n"
+	<< "  HIT IS AT Glo " << hit.globalPosition() << "\n"
+	<< "SURFACE POSITION" << "\n"
+	<< hit.surface()->position()<<"\n"
+	<< "SURFACE ROTATION" << "\n"
+	<< hit.surface()->rotation()
+        <<  "dimension " << hit.dimension();
+
+      DetId hitId = hit.geographicalId();
+
+      LogDebug("TrackFitters") << " hit det=" << hitId.rawId();
+
+      if(hitId.det() == DetId::Tracker) {
+	if (hitId.subdetId() == StripSubdetector::TIB )
+	  LogDebug("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TOB )
+	  LogDebug("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TEC )
+	  LogDebug("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
+	else if (hitId.subdetId() == StripSubdetector::TID )
+	  LogDebug("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
+	  LogDebug("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
+	  LogDebug("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
+	else
+	  LogDebug("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
+      }
+      else if(hitId.det() == DetId::Muon) {
+	if(hitId.subdetId() == MuonSubdetId::DT)
+	  LogDebug("TrackFitters") << " I am DT " << DTWireId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::CSC )
+	  LogDebug("TrackFitters") << " I am CSC " << CSCDetId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::RPC )
+	  LogDebug("TrackFitters") << " I am RPC " << RPCDetId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::GEM )
+	  LogDebug("TrackFitters") << " I am GEM " << GEMDetId(hitId);
+
+	else if (hitId.subdetId() == MuonSubdetId::ME0 )
+	  LogDebug("TrackFitters") << " I am ME0 " << ME0DetId(hitId);
+	else 
+	  LogDebug("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
+      }
+      else
+	LogDebug("TrackFitters") << " UNKNOWN HIT TYPE ";
+
+    } else {
+      LogDebug("TrackFitters")
+	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";
+    }
+   }
+}
+#else
+namespace {
+   inline void dump(TrackingRecHit const &, int) {}
+}
 #endif
 
 const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
@@ -78,74 +144,20 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   TSOS predTsos(firstPredTsos);
   TSOS currTsos;
 
-  int hitcounter = 1;
-  for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit, ++hitcounter) {
+  int hitcounter = 0;
+  for(auto ihit : hits) {
+    ++hitcounter;
 
-    const TransientTrackingRecHit & hit = (**ihit);
+    const TransientTrackingRecHit & hit = (*ihit);
 
     // if unlikely(hit.det() == nullptr) continue;
 
     if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
-       std::cout << "TrackFitters" << " Error: invalid hit with no GeomDet attached .... skipping" << std::endl;
        LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
-   if (hit.det() && hit.geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId()  << std::endl;
-   if (hit.isValid() && hit.geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId()  << std::endl;
-
-#ifdef EDM_ML_DEBUG
-    if (hit.isValid()) {
-      LogTrace("TrackFitters")
-	<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
-	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
-	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
-	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
-	<< "  HIT IS AT Loc " << hit.localPosition() << "\n"
-	<< "  WITH LocError " << hit.localPositionError() << "\n"
-	<< "  HIT IS AT Glo " << hit.globalPosition() << "\n"
-	<< "SURFACE POSITION" << "\n"
-	<< hit.surface()->position()<<"\n"
-	<< "SURFACE ROTATION" << "\n"
-	<< hit.surface()->rotation();
-
-      DetId hitId = hit.geographicalId();
-
-      LogTrace("TrackFitters") << " hit det=" << hitId.rawId();
-
-      if(hitId.det() == DetId::Tracker) {
-	if (hitId.subdetId() == StripSubdetector::TIB )
-	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TOB )
-	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TEC )
-	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
-	else if (hitId.subdetId() == StripSubdetector::TID )
-	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
-	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
-	else
-	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
-      }
-      else if(hitId.det() == DetId::Muon) {
-	if(hitId.subdetId() == MuonSubdetId::DT)
-	  LogTrace("TrackFitters") << " I am DT " << DTWireId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::CSC )
-	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
-	else if (hitId.subdetId() == MuonSubdetId::RPC )
-	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
-	else
-	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
-      }
-      else
-	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
-
-    } else {
-      LogTrace("TrackFitters")
-	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";
-    }
-#endif
+   // if (hit.det() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId() ;
+   // if (hit.isValid() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId();
 
     if ( hitcounter != 1) //no propagation needed for the first hit
       predTsos = p_cloned->propagate( currTsos, *(hit.surface()) );
@@ -168,22 +180,24 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       }
     }
 
+
     if likely(hit.isValid()) {
-        assert(hit.geographicalId()!=0U);
+        assert( (hit.geographicalId()!=0U) | !hit.canImproveWithTrack() ) ;
        	assert(hit.surface()!=nullptr);
 	//update
 	LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
-        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
-        assert( (!(*ihit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((*ihit).get())));
-	auto preciseHit = theHitCloner->makeShared(*ihit,predTsos);
+        assert( (!hit.canImproveWithTrack()) | (nullptr!=theHitCloner));
+        assert( (!hit.canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>((ihit).get())));
+	auto preciseHit = theHitCloner->makeShared(ihit,predTsos);
+        dump(*preciseHit,hitcounter);
         assert(preciseHit->isValid());
-       	assert(preciseHit->geographicalId()!=0U);
+       	assert( (preciseHit->geographicalId()!=0U)  | (!preciseHit->canImproveWithTrack()) );
        	assert(preciseHit->surface()!=nullptr);
 
 	if unlikely(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	    currTsos = predTsos;
-	    myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId()) ));
+	    myTraj.push(TM(predTsos, ihit,0,theGeometry->idToLayer((ihit)->geographicalId()) ));
 
 	  }else{
 	  LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
@@ -197,12 +211,18 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
                || std::abs(currTsos.localParameters().position().x()) > 1000
                ) ) || edm::isNotFinite(currTsos.localParameters().qbp());
 	  if unlikely(badState){
-	    if (!currTsos.isValid()) edm::LogError("FailedUpdate")
-	     <<"updating with the hit failed. Not updating the trajectory with the hit";
-	    else if (edm::isNotFinite(currTsos.localParameters().qbp())) edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
-	    else LogTrace("FailedUpdate")<<"updated state is valid but pretty bad, skipping. currTsos "
-	    				 <<currTsos<<"\n predTsos "<<predTsos;
-	    myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+	    if (!currTsos.isValid()) {
+	      edm::LogError("FailedUpdate") <<"updating with the hit failed. Not updating the trajectory with the hit";
+
+            } 
+	    else if (edm::isNotFinite(currTsos.localParameters().qbp())) {
+              edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
+
+            }
+	    else{ 
+              LogTrace("FailedUpdate")<<"updated state is valid but pretty bad, skipping. currTsos " <<currTsos<<"\n predTsos "<<predTsos;
+            }
+	    myTraj.push(TM(predTsos, ihit,0,theGeometry->idToLayer((ihit)->geographicalId())  ));
 	    //There is a no-fail policy here. So, it's time to give up
 	    //Keep the traj with invalid TSOS so that it's clear what happened
 	    if( myTraj.foundHits() >= minHits_ ) {
@@ -213,27 +233,33 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	      return Trajectory();
 	    }
 	  } else{
-	    if (preciseHit->det()) myTraj.push(TM(predTsos, currTsos, preciseHit,
+	    if (preciseHit->det()){
+	      myTraj.push(TM(predTsos, currTsos, preciseHit,
 						  estimator()->estimate(predTsos, *preciseHit).second,
 						  theGeometry->idToLayer(preciseHit->geographicalId())  ));
-	    else myTraj.push(TM(predTsos, currTsos, preciseHit,
+            }
+	    else{
+               myTraj.push(TM(predTsos, currTsos, preciseHit,
 				estimator()->estimate(predTsos, *preciseHit).second));
+            }
 	  }
 	}
-      } else {
-      //no update
-      LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos" << "\n";
-      currTsos = predTsos;
-      assert( ((*ihit)->det()==nullptr) || (*ihit)->geographicalId()!=0U);
-      if ((*ihit)->det()) myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
-      else   myTraj.push(TM(predTsos, *ihit,0));
+      } else {  // invalid hit
+        dump(hit,hitcounter);
+        //no update
+        LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos" << "\n";
+        currTsos = predTsos;
+        assert( ((ihit)->det()==nullptr) || (ihit)->geographicalId()!=0U);
+        if ((ihit)->det()) myTraj.push(TM(predTsos, ihit,0,theGeometry->idToLayer((ihit)->geographicalId())  ));
+        else   myTraj.push(TM(predTsos, ihit,0));
     }
-
     LogTrace("TrackFitters")
       << "predTsos !" << "\n"
-      << predTsos << "\n"
+      << predTsos 
+      <<" with local position " << predTsos.localPosition()
       <<"currTsos !" << "\n"
-      << currTsos;
+      << currTsos
+      <<" with local position " << currTsos.localPosition();
   }
 
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";

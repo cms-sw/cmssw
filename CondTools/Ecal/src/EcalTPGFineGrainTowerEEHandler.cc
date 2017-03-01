@@ -286,6 +286,7 @@ void  popcon::EcalTPGFineGrainTowerEEHandler::readFromFile(const char* inputFile
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGFineGrainTowerEEHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

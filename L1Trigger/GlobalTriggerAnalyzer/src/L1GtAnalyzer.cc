@@ -22,21 +22,11 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
-
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
-
-#include "DataFormats/Common/interface/ConditionsInEdm.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerPSB.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
@@ -110,12 +100,31 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
             m_l1GtTmLInputTagProv(parSet.getParameter<bool> ("L1GtTmLInputTagProv")),
             m_l1GtRecordsInputTagProv(parSet.getParameter<bool> ("L1GtRecordsInputTagProv")),
             m_l1GtUtilsConfigureBeginRun(parSet.getParameter<bool> ("L1GtUtilsConfigureBeginRun")), 
-            m_l1GtUtilsLogicalExpression(parSet.getParameter<std::string>("L1GtUtilsLogicalExpression")), 
-            m_logicalExpressionL1ResultsProv(m_l1GtUtilsLogicalExpression, m_l1GtUtils),
-            m_logicalExpressionL1Results(m_l1GtUtilsLogicalExpression, m_l1GtUtils, m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag)
-
+            m_l1GtUtilsLogicalExpression(parSet.getParameter<std::string>("L1GtUtilsLogicalExpression")),
+            m_l1GtUtilsProv(parSet,
+                            consumesCollector(),
+                            m_l1GtUtilsConfiguration == 0 || m_l1GtUtilsConfiguration == 100000,
+                            *this,
+                            edm::InputTag(),
+                            edm::InputTag(),
+                            m_l1GtTmLInputTagProv ? edm::InputTag() : m_l1GtTmLInputTag),
+            m_l1GtUtils(parSet,
+                        consumesCollector(),
+                        m_l1GtUtilsConfiguration == 0 || m_l1GtUtilsConfiguration == 100000,
+                        *this,
+                        m_l1GtRecordInputTag,
+                        m_l1GtDaqReadoutRecordInputTag,
+                        m_l1GtTmLInputTagProv ? edm::InputTag() : m_l1GtTmLInputTag),
+            m_logicalExpressionL1ResultsProv(m_l1GtUtilsLogicalExpression, m_l1GtUtilsProv),
+            m_logicalExpressionL1Results(m_l1GtUtilsLogicalExpression, m_l1GtUtils)
 {
-
+    m_l1GtDaqReadoutRecordToken = consumes<L1GlobalTriggerReadoutRecord>(m_l1GtDaqReadoutRecordInputTag);
+    m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag);
+    m_l1GtObjectMapsToken = consumes<L1GlobalTriggerObjectMaps>(m_l1GtObjectMapsInputTag);
+    m_l1GtTmLToken = consumes<L1GtTriggerMenuLite,edm::InRun>(m_l1GtTmLInputTag);
+    m_condInRunToken = consumes<edm::ConditionsInRunBlock,edm::InRun>(m_condInEdmInputTag);
+    m_condInLumiToken = consumes<edm::ConditionsInLumiBlock,edm::InLumi>(m_condInEdmInputTag);
+    m_condInEventToken = consumes<edm::ConditionsInEventBlock>(m_condInEdmInputTag);
 
     LogDebug("L1GtAnalyzer")
             << "\n Input parameters for L1 GT test analyzer"
@@ -200,17 +209,11 @@ void L1GtAnalyzer::beginRun(const edm::Run& iRun,
                 break;
         }
 
-        if (m_l1GtTmLInputTagProv) {
-            // L1GtTriggerMenuLite input tag from provenance
-            m_l1GtUtils.getL1GtRunCache(iRun, evSetup, useL1EventSetup,
-                    useL1GtTriggerMenuLite);
+        m_l1GtUtilsProv.getL1GtRunCache(iRun, evSetup, useL1EventSetup,
+                                        useL1GtTriggerMenuLite);
 
-        } else {
-
-            // L1GtTriggerMenuLite input tag given in configuration file
-            m_l1GtUtils.getL1GtRunCache(iRun, evSetup, useL1EventSetup,
-                    useL1GtTriggerMenuLite, m_l1GtTmLInputTag);
-        }
+        m_l1GtUtils.getL1GtRunCache(iRun, evSetup, useL1EventSetup,
+                                    useL1GtTriggerMenuLite);
 
         // check if the parsing of the logical expression was successful
 
@@ -271,7 +274,7 @@ void L1GtAnalyzer::analyzeDecisionReadoutRecord(const edm::Event& iEvent, const 
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_l1GtDaqReadoutRecordInputTag, gtReadoutRecord);
+    iEvent.getByToken(m_l1GtDaqReadoutRecordToken, gtReadoutRecord);
 
     if (!gtReadoutRecord.isValid()) {
 
@@ -375,19 +378,19 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
 
-    bool decisionBeforeMaskAlgTechTrig = m_l1GtUtils.decisionBeforeMask(iEvent,
+    bool decisionBeforeMaskAlgTechTrig = m_l1GtUtilsProv.decisionBeforeMask(iEvent,
             m_nameAlgTechTrig, iErrorCode);
 
-    bool decisionAfterMaskAlgTechTrig = m_l1GtUtils.decisionAfterMask(iEvent,
+    bool decisionAfterMaskAlgTechTrig = m_l1GtUtilsProv.decisionAfterMask(iEvent,
             m_nameAlgTechTrig, iErrorCode);
 
-    bool decisionAlgTechTrig = m_l1GtUtils.decision(iEvent, m_nameAlgTechTrig,
+    bool decisionAlgTechTrig = m_l1GtUtilsProv.decision(iEvent, m_nameAlgTechTrig,
             iErrorCode);
 
-    int prescaleFactorAlgTechTrig = m_l1GtUtils.prescaleFactor(iEvent,
+    int prescaleFactorAlgTechTrig = m_l1GtUtilsProv.prescaleFactor(iEvent,
             m_nameAlgTechTrig, iErrorCode);
 
-    int triggerMaskAlgTechTrig = m_l1GtUtils.triggerMask(iEvent,
+    int triggerMaskAlgTechTrig = m_l1GtUtilsProv.triggerMask(iEvent,
             m_nameAlgTechTrig, iErrorCode);
 
     myCoutStream << "\n\nMethods:"
@@ -421,13 +424,13 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
     } else if (iErrorCode == 1) {
         myCoutStream << "\n" << m_nameAlgTechTrig
                 << " does not exist in the L1 menu "
-                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+                << m_l1GtUtilsProv.l1TriggerMenu() << "\n" << std::endl;
 
     } else {
         myCoutStream << "\nError: "
                 << "\n  An error was encountered when retrieving decision, mask and prescale factor for "
                 << m_nameAlgTechTrig << "\n  L1 Menu: "
-                << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                << m_l1GtUtilsProv.l1TriggerMenu() << "\n  Error code: "
                 << iErrorCode << std::endl;
 
     }
@@ -435,7 +438,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
     // another method to get the trigger mask (no common errorCode)
 
     iErrorCode = -1;
-    triggerMaskAlgTechTrig = m_l1GtUtils.triggerMask(m_nameAlgTechTrig,
+    triggerMaskAlgTechTrig = m_l1GtUtilsProv.triggerMask(m_nameAlgTechTrig,
             iErrorCode);
 
     if (iErrorCode == 0) {
@@ -446,13 +449,13 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
     } else if (iErrorCode == 1) {
         myCoutStream << "\n" << m_nameAlgTechTrig
                 << " does not exist in the L1 menu "
-                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+                << m_l1GtUtilsProv.l1TriggerMenu() << "\n" << std::endl;
 
     } else {
         myCoutStream << "\nError: "
                 << "\n  An error was encountered when fast retrieving trigger mask for "
                 << m_nameAlgTechTrig << "\n  L1 Menu: "
-                << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                << m_l1GtUtilsProv.l1TriggerMenu() << "\n  Error code: "
                 << iErrorCode << std::endl;
 
     }
@@ -470,7 +473,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
             << std::endl;
 
     iErrorCode = -1;
-    const int pfSetIndexAlgorithmTrigger = m_l1GtUtils.prescaleFactorSetIndex(
+    const int pfSetIndexAlgorithmTrigger = m_l1GtUtilsProv.prescaleFactorSetIndex(
             iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
@@ -478,7 +481,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nAlgorithm triggers: index for prescale factor set = "
                 << pfSetIndexAlgorithmTrigger << "\nfor run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << ", with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << std::endl;
 
 
@@ -487,19 +490,19 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nError encountered when retrieving the prescale factor set index"
                 << "\n  for algorithm triggers, for run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << " with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
     iErrorCode = -1;
     const std::vector<int>& pfSetAlgorithmTrigger =
-            m_l1GtUtils.prescaleFactorSet(iEvent, trigCategory, iErrorCode);
+            m_l1GtUtilsProv.prescaleFactorSet(iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nAlgorithm triggers: prescale factor set index = "
                 << pfSetIndexAlgorithmTrigger << "\nfor run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << ", with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << std::endl;
 
         int iBit = -1;
@@ -518,7 +521,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nError encountered when retrieving the prescale factor set "
                 << "\n  for algorithm triggers, for run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << " with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
@@ -530,13 +533,13 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
     const std::vector<unsigned int>& tmSetAlgorithmTrigger =
-            m_l1GtUtils.triggerMaskSet(trigCategory, iErrorCode);
+            m_l1GtUtilsProv.triggerMaskSet(trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nAlgorithm triggers: trigger mask set for run "
                 << iEvent.run() << ", luminosity block "
                 << iEvent.luminosityBlock() << ", with L1 menu \n  "
-                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+                << m_l1GtUtilsProv.l1TriggerMenu() << "\n" << std::endl;
 
         int iBit = -1;
         for (std::vector<unsigned int>::const_iterator cItBit =
@@ -554,7 +557,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nError encountered when retrieving the trigger mask set "
                 << "\n  for algorithm triggers, for run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << " with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
@@ -572,7 +575,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
             << std::endl;
 
     iErrorCode = -1;
-    const int pfSetIndexTechnicalTrigger = m_l1GtUtils.prescaleFactorSetIndex(
+    const int pfSetIndexTechnicalTrigger = m_l1GtUtilsProv.prescaleFactorSetIndex(
             iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
@@ -580,7 +583,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nTechnical triggers: index for prescale factor set = "
                 << pfSetIndexTechnicalTrigger << "\nfor run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << ", with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\nMethod: prescaleFactorSetIndex(iEvent, trigCategory, iErrorCode)\n"
                 << std::endl;
 
@@ -589,19 +592,19 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nError encountered when retrieving the prescale factor set index"
                 << "\n  for technical triggers, for run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << " with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
     iErrorCode = -1;
     const std::vector<int>& pfSetTechnicalTrigger =
-            m_l1GtUtils.prescaleFactorSet(iEvent, trigCategory, iErrorCode);
+            m_l1GtUtilsProv.prescaleFactorSet(iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nTechnical triggers: prescale factor set index = "
                 << pfSetIndexTechnicalTrigger << "\nfor run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << ", with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\nMethod: prescaleFactorSet(iEvent, trigCategory,iErrorCode)\n"
                 << std::endl;
 
@@ -621,7 +624,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nError encountered when retrieving the prescale factor set "
                 << "\n  for technical triggers, for run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << " with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
@@ -633,13 +636,13 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
     const std::vector<unsigned int>& tmSetTechnicalTrigger =
-            m_l1GtUtils.triggerMaskSet(trigCategory, iErrorCode);
+            m_l1GtUtilsProv.triggerMaskSet(trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nTechnical triggers: trigger mask set for run "
                 << iEvent.run() << ", luminosity block "
                 << iEvent.luminosityBlock() << ", with L1 menu \n  "
-                << m_l1GtUtils.l1TriggerMenu() << "\n" << std::endl;
+                << m_l1GtUtilsProv.l1TriggerMenu() << "\n" << std::endl;
 
         int iBit = -1;
         for (std::vector<unsigned int>::const_iterator cItBit =
@@ -657,7 +660,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                 << "\nError encountered when retrieving the trigger mask set "
                 << "\n  for technical triggers, for run " << iEvent.run()
                 << ", luminosity block " << iEvent.luminosityBlock()
-                << " with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu()
+                << " with L1 menu \n  " << m_l1GtUtilsProv.l1TriggerMenu()
                 << "\n  Error code: " << iErrorCode << "\n" << std::endl;
     }
 
@@ -692,7 +695,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
                     << (expL1TriggersProv[iTrig]).tokenNumber << ")\n  for run "
                     << iEvent.run() << ", luminosity block "
                     << iEvent.luminosityBlock() << " with L1 menu \n  "
-                    << m_l1GtUtils.l1TriggerMenu() << "\n  Error code: "
+                    << m_l1GtUtilsProv.l1TriggerMenu() << "\n  Error code: "
                     << (errorCodesProv[iTrig]).second << "\n" << std::endl;
 
         } else {
@@ -738,23 +741,18 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
     iErrorCode = -1;
 
     bool decisionBeforeMaskAlgTechTrigITag = m_l1GtUtils.decisionBeforeMask(iEvent,
-            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
             m_nameAlgTechTrig, iErrorCode);
 
     bool decisionAfterMaskAlgTechTrigITag = m_l1GtUtils.decisionAfterMask(iEvent,
-            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
             m_nameAlgTechTrig, iErrorCode);
 
     bool decisionAlgTechTrigITag = m_l1GtUtils.decision(iEvent,
-            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
             m_nameAlgTechTrig, iErrorCode);
 
     int prescaleFactorAlgTechTrigITag = m_l1GtUtils.prescaleFactor(iEvent,
-            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
             m_nameAlgTechTrig, iErrorCode);
 
     int triggerMaskAlgTechTrigITag = m_l1GtUtils.triggerMask(iEvent,
-            m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
             m_nameAlgTechTrig, iErrorCode);
 
     myCoutStream << "\n\nMethods:"
@@ -814,8 +812,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
     const int pfSetIndexAlgorithmTriggerITag = m_l1GtUtils.prescaleFactorSetIndex(
-            iEvent, m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
-            trigCategory, iErrorCode);
+            iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream
@@ -837,8 +834,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
     const std::vector<int>& pfSetAlgorithmTriggerITag =
-            m_l1GtUtils.prescaleFactorSet(iEvent, m_l1GtRecordInputTag,
-                    m_l1GtDaqReadoutRecordInputTag, trigCategory, iErrorCode);
+            m_l1GtUtils.prescaleFactorSet(iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nAlgorithm triggers: prescale factor set index = "
@@ -884,8 +880,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
     const int pfSetIndexTechnicalTriggerITag = m_l1GtUtils.prescaleFactorSetIndex(
-            iEvent, m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
-            trigCategory, iErrorCode);
+            iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream
@@ -906,8 +901,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent,
 
     iErrorCode = -1;
     const std::vector<int>& pfSetTechnicalTriggerITag =
-            m_l1GtUtils.prescaleFactorSet(iEvent, m_l1GtRecordInputTag,
-                    m_l1GtDaqReadoutRecordInputTag, trigCategory, iErrorCode);
+            m_l1GtUtils.prescaleFactorSet(iEvent, trigCategory, iErrorCode);
 
     if (iErrorCode == 0) {
         myCoutStream << "\nTechnical triggers: prescale factor set index = "
@@ -1014,21 +1008,13 @@ void L1GtAnalyzer::analyzeL1GtUtilsMenuLite(const edm::Event& iEvent,
     bool useL1EventSetup = false;
     bool useL1GtTriggerMenuLite = true;
 
-    if (m_l1GtTmLInputTagProv) {
-
-        // input tag for L1GtTriggerMenuLite retrieved from provenance
-        m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+    m_l1GtUtilsProv.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
                 useL1GtTriggerMenuLite);
 
-    } else {
-
-        // input tag for L1GtTriggerMenuLite explicitly given
-        m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
-                useL1GtTriggerMenuLite, m_l1GtTmLInputTag);
-    }
+    m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+                useL1GtTriggerMenuLite);
 
     analyzeL1GtUtilsCore(iEvent, evSetup);
-
 }
 
 void L1GtAnalyzer::analyzeL1GtUtilsEventSetup(const edm::Event& iEvent,
@@ -1045,6 +1031,9 @@ void L1GtAnalyzer::analyzeL1GtUtilsEventSetup(const edm::Event& iEvent,
 
     bool useL1EventSetup = true;
     bool useL1GtTriggerMenuLite = false;
+
+    m_l1GtUtilsProv.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+            useL1GtTriggerMenuLite);
 
     m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
             useL1GtTriggerMenuLite);
@@ -1068,22 +1057,13 @@ void L1GtAnalyzer::analyzeL1GtUtils(const edm::Event& iEvent,
     bool useL1EventSetup = true;
     bool useL1GtTriggerMenuLite = true;
 
-    if (m_l1GtTmLInputTagProv) {
-
-        // input tag for L1GtTriggerMenuLite retrieved from provenance
-        m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+    m_l1GtUtilsProv.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
                 useL1GtTriggerMenuLite);
 
-    } else {
-
-        // input tag for L1GtTriggerMenuLite explicitly given
-        m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
-                useL1GtTriggerMenuLite, m_l1GtTmLInputTag);
-
-    }
+    m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+                useL1GtTriggerMenuLite);
 
     analyzeL1GtUtilsCore(iEvent, evSetup);
-
 }
 
 void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
@@ -1142,19 +1122,11 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
             break;
     }
 
-    if (m_l1GtTmLInputTagProv) {
-
-        // input tag for L1GtTriggerMenuLite retrieved from provenance
-        m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+    m_l1GtUtilsProv.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
                 useL1GtTriggerMenuLite);
 
-    } else {
-
-        // input tag for L1GtTriggerMenuLite explicitly given
-        m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
-                useL1GtTriggerMenuLite, m_l1GtTmLInputTag);
-
-    }
+    m_l1GtUtils.getL1GtRunCache(iEvent, evSetup, useL1EventSetup,
+                useL1GtTriggerMenuLite);
 
     // testing which environment is used
 
@@ -1193,42 +1165,36 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
     int triggerMaskAlgTechTrig = -1;
 
     if (m_l1GtRecordsInputTagProv) {
-        decisionBeforeMaskAlgTechTrig = m_l1GtUtils.decisionBeforeMask(iEvent,
+        decisionBeforeMaskAlgTechTrig = m_l1GtUtilsProv.decisionBeforeMask(iEvent,
                 m_nameAlgTechTrig, iErrorCode);
 
-        decisionAfterMaskAlgTechTrig = m_l1GtUtils.decisionAfterMask(iEvent,
+        decisionAfterMaskAlgTechTrig = m_l1GtUtilsProv.decisionAfterMask(iEvent,
                 m_nameAlgTechTrig, iErrorCode);
 
-        decisionAlgTechTrig = m_l1GtUtils.decision(iEvent, m_nameAlgTechTrig,
+        decisionAlgTechTrig = m_l1GtUtilsProv.decision(iEvent, m_nameAlgTechTrig,
                 iErrorCode);
 
-        prescaleFactorAlgTechTrig = m_l1GtUtils.prescaleFactor(iEvent,
+        prescaleFactorAlgTechTrig = m_l1GtUtilsProv.prescaleFactor(iEvent,
                 m_nameAlgTechTrig, iErrorCode);
 
-        triggerMaskAlgTechTrig = m_l1GtUtils.triggerMask(iEvent,
+        triggerMaskAlgTechTrig = m_l1GtUtilsProv.triggerMask(iEvent,
                 m_nameAlgTechTrig, iErrorCode);
 
     } else {
         decisionBeforeMaskAlgTechTrig = m_l1GtUtils.decisionBeforeMask(iEvent,
-                m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
                 m_nameAlgTechTrig, iErrorCode);
 
         decisionAfterMaskAlgTechTrig = m_l1GtUtils.decisionAfterMask(iEvent,
-                m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
                 m_nameAlgTechTrig, iErrorCode);
 
         decisionAlgTechTrig = m_l1GtUtils.decision(iEvent,
-                m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
                 m_nameAlgTechTrig, iErrorCode);
 
         prescaleFactorAlgTechTrig = m_l1GtUtils.prescaleFactor(iEvent,
-                m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
                 m_nameAlgTechTrig, iErrorCode);
 
         triggerMaskAlgTechTrig = m_l1GtUtils.triggerMask(iEvent,
-                m_l1GtRecordInputTag, m_l1GtDaqReadoutRecordInputTag,
                 m_nameAlgTechTrig, iErrorCode);
-
     }
 
     switch (iErrorCode) {
@@ -1277,7 +1243,7 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
     bool gtObjectMapRecordValid = false;
 
     edm::Handle<L1GlobalTriggerObjectMaps> gtObjectMaps;
-    iEvent.getByLabel(m_l1GtObjectMapsInputTag, gtObjectMaps);
+    iEvent.getByToken(m_l1GtObjectMapsToken, gtObjectMaps);
 
     if (gtObjectMaps.isValid()) {
 
@@ -1292,7 +1258,7 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
     }
 
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
+    iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
     if (gtObjectMapRecord.isValid()) {
 
@@ -1379,7 +1345,7 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent,
     // get a handle to the object map product
     // the product can come only from emulator - no hardware ObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
+    iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
     if (!gtObjectMapRecord.isValid()) {
         LogDebug("L1GtAnalyzer")
@@ -1447,7 +1413,7 @@ void L1GtAnalyzer::analyzeL1GtTriggerMenuLite(const edm::Event& iEvent,
 
     // get L1GtTriggerMenuLite
     edm::Handle<L1GtTriggerMenuLite> triggerMenuLite;
-    iRun.getByLabel(m_l1GtTmLInputTag, triggerMenuLite);
+    iRun.getByToken(m_l1GtTmLToken, triggerMenuLite);
 
     if (!triggerMenuLite.isValid()) {
 
@@ -1641,7 +1607,7 @@ void L1GtAnalyzer::analyzeConditionsInRunBlock(const edm::Run& iRun,
 
     // get ConditionsInRunBlock
     edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
-    iRun.getByLabel(m_condInEdmInputTag, condInRunBlock);
+    iRun.getByToken(m_condInRunToken, condInRunBlock);
 
     if (!condInRunBlock.isValid()) {
 
@@ -1681,7 +1647,7 @@ void L1GtAnalyzer::analyzeConditionsInLumiBlock(
 
     // get ConditionsInLumiBlock
     edm::Handle<edm::ConditionsInLumiBlock> condInLumiBlock;
-    iLumi.getByLabel(m_condInEdmInputTag, condInLumiBlock);
+    iLumi.getByToken(m_condInLumiToken, condInLumiBlock);
 
     if (!condInLumiBlock.isValid()) {
 
@@ -1718,7 +1684,7 @@ void L1GtAnalyzer::analyzeConditionsInEventBlock(const edm::Event& iEvent,
 
     // get ConditionsInEventBlock
     edm::Handle<edm::ConditionsInEventBlock> condInEventBlock;
-    iEvent.getByLabel(m_condInEdmInputTag, condInEventBlock);
+    iEvent.getByToken(m_condInEventToken, condInEventBlock);
 
     if (!condInEventBlock.isValid()) {
 

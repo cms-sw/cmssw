@@ -63,18 +63,21 @@ SiStripSimBlock = cms.PSet(
     LorentzAngle               = cms.string(''),
     Gain                       = cms.string(''),
     #-----SiStripDigitizerAlgorithm
+    PreMixingMode              = cms.bool(False),
     NoiseSigmaThreshold        = cms.double(2.0),
     electronPerAdcDec          = cms.double(247.0), #tuned on collisions at 7 TeV
     electronPerAdcPeak         = cms.double(262.0), #tuned on craft08
     FedAlgorithm               = cms.int32(4),
+    FedAlgorithm_PM            = cms.int32(4),  # extra degree of freedom for PreMixing
     Noise                      = cms.bool(True), ## NOTE : turning Noise ON/OFF will make a big change
     #Parameters valid only if Noise = True and ZeroSuppression = False
     RealPedestals              = cms.bool(True), #The pedestal for each stip is read from the Db. if False it is added to all the strips the cnetral strip pedestal value
     SingleStripNoise           = cms.bool(True), #The noise RMS is read from the Db. If false it is considered the central strip noise
     CommonModeNoise            = cms.bool(True),
     BaselineShift              = cms.bool(True),
-    APVSaturationFromHIP       = cms.bool(True),
-    APVSaturationProb          = cms.double(0.001),
+    APVSaturationFromHIP       = cms.bool(False),
+    APVSaturationProbScaling   = cms.double(1.0),
+    APVProbabilityFile         = cms.FileInPath("SimTracker/SiStripDigitizer/data/APVProbaList.txt"),
     cmnRMStib                  = cms.double(5.92),
     cmnRMStob                  = cms.double(1.08),
     cmnRMStid                  = cms.double(3.08),

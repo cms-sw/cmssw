@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 //#include "Calibration/EcalAlCaRecoProducers/interface/AlCaElectronsProducer.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -47,8 +48,8 @@ class AlCaElectronsTest : public edm::EDAnalyzer {
 
   private:
 
-    edm::InputTag m_barrelAlCa ;
-    edm::InputTag m_endcapAlCa ;
+    edm::EDGetTokenT<EBRecHitCollection> m_barrelAlCa ;
+    edm::EDGetTokenT<EERecHitCollection> m_endcapAlCa ;
     std::string   m_outputFileName ;            
 
     //! ECAL map
@@ -78,8 +79,8 @@ class AlCaElectronsTest : public edm::EDAnalyzer {
 
 
 AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
-  m_barrelAlCa (iConfig.getParameter<edm::InputTag> ("alcaBarrelHitCollection")) ,
-  m_endcapAlCa (iConfig.getParameter<edm::InputTag> ("alcaEndcapHitCollection")) ,
+  m_barrelAlCa (consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag> ("alcaBarrelHitCollection"))) ,
+  m_endcapAlCa (consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag> ("alcaEndcapHitCollection"))) ,
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
                       ("HistOutFile",std::string ("AlCaElectronsTest.root"))) 
 {}
@@ -142,10 +143,12 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
   //PG get the collections  
   // get Barrel RecHits
   edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
-  iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
+  iEvent.getByToken (m_barrelAlCa, barrelRecHitsHandle) ;
   if (!barrelRecHitsHandle.isValid()) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(m_barrelAlCa, labels);
       std::cerr << "[AlCaElectronsTest] caught std::exception "
-                << " in rertieving " << m_barrelAlCa 
+                << " in rertieving " << labels.module
                 << std::endl ;
       return ;
   } else {
@@ -171,10 +174,12 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
   
   // get Endcap RecHits
   edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
-  iEvent.getByLabel (m_endcapAlCa,endcapRecHitsHandle) ;
+  iEvent.getByToken (m_endcapAlCa,endcapRecHitsHandle) ;
   if (!endcapRecHitsHandle.isValid()) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(m_endcapAlCa, labels);
       std::cerr << "[AlCaElectronsTest] caught std::exception " 
-                << " in rertieving " << m_endcapAlCa 
+                << " in rertieving " << labels.module
                 << std::endl ;
       return ;
   } else {

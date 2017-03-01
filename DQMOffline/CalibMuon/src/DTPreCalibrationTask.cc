@@ -35,8 +35,6 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
 
   LogTrace("DTPreCalibSummary") <<"[DTPrecalibrationTask]: Constructor"<<endl;
 
-  dbe = Service<DQMStore>().operator->();
-
   // Label to retrieve DT digis from the event
   digiLabel = consumes<DTDigiCollection>(ps.getUntrackedParameter<string>("digiLabel")); 
 
@@ -44,10 +42,6 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
   minTriggerWidth = ps.getUntrackedParameter<int>("minTriggerWidth",2000); 
   maxTriggerWidth = ps.getUntrackedParameter<int>("maxTriggerWidth",6000); 
 
-  // histo saving on file
-  saveFile = ps.getUntrackedParameter<bool>("SaveFile",false); 
-  // output file name
-  outputFileName = ps.getUntrackedParameter<string>("outputFileName"); 
   // get the histo folder name
   folderName = ps.getUntrackedParameter<string>("folderName");
 
@@ -57,15 +51,16 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
 DTPreCalibrationTask::~DTPreCalibrationTask(){}
 
 
-void DTPreCalibrationTask::beginJob(){
- 
+void DTPreCalibrationTask::bookHistograms(DQMStore::IBooker &iBooker,
+  edm::Run const &, edm::EventSetup const &) {
+
   for(int wheel=-2; wheel<=2; wheel++){
    for(int sector=1; sector<=14; sector++){
      LogTrace("DTPreCalibSummary") <<"[DTPrecalibrationTask]: Book histos for wheel "<<wheel<<", sector "<<sector<<endl;
-     dbe->setCurrentFolder(folderName+"/TimeBoxes");  
-     bookTimeBoxes(wheel, sector);
-     dbe->setCurrentFolder(folderName+"/OccupancyHistos");
-     if(sector<13) bookOccupancyPlot(wheel, sector);
+     iBooker.setCurrentFolder(folderName+"/TimeBoxes");  
+     bookTimeBoxes(iBooker, wheel, sector);
+     iBooker.setCurrentFolder(folderName+"/OccupancyHistos");
+     if(sector<13) bookOccupancyPlot(iBooker, wheel, sector);
     }
   }
 
@@ -111,39 +106,29 @@ void DTPreCalibrationTask::analyze(const edm::Event& event, const edm::EventSetu
 
 }
 
-
-void DTPreCalibrationTask::endJob(){
-  
-  // save file for offLine analysis
-  if(saveFile)
-    dbe->save(outputFileName);
-
-}
-
-
-void DTPreCalibrationTask::bookTimeBoxes(int wheel, int sector) {
+void DTPreCalibrationTask::bookTimeBoxes(DQMStore::IBooker &iBooker, int wheel, int sector) {
 
   stringstream wh; wh << wheel;
   stringstream sec; sec << sector;
 
   // book the time boxes
-  TimeBoxes[make_pair(wheel, sector)]= dbe->book1D("TimeBox_W"+wh.str()+"_Sec"+sec.str(), "Time Box W"+wh.str()+"_Sec"+sec.str(),(maxTriggerWidth-minTriggerWidth)/50, minTriggerWidth, maxTriggerWidth);
+  TimeBoxes[make_pair(wheel, sector)]= iBooker.book1D("TimeBox_W"+wh.str()+"_Sec"+sec.str(), "Time Box W"+wh.str()+"_Sec"+sec.str(),(maxTriggerWidth-minTriggerWidth)/50, minTriggerWidth, maxTriggerWidth);
   TimeBoxes[make_pair(wheel, sector)]->setAxisTitle("TDC counts");
 
 }
 
 
 
-void DTPreCalibrationTask::bookOccupancyPlot(int wheel, int sector) {
+void DTPreCalibrationTask::bookOccupancyPlot(DQMStore::IBooker &iBooker, int wheel, int sector) {
 
   stringstream wh; wh << wheel;
   stringstream sec; sec << sector;
 
   // book the occpancy plot
   if(sector==4 || sector==10)
-    OccupancyHistos[make_pair(wheel, sector)]= dbe->book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,52,1,53);
+    OccupancyHistos[make_pair(wheel, sector)]= iBooker.book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,52,1,53);
   else
-    OccupancyHistos[make_pair(wheel, sector)]= dbe->book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,44,1,45);
+    OccupancyHistos[make_pair(wheel, sector)]= iBooker.book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,44,1,45);
   OccupancyHistos[make_pair(wheel, sector)]->setAxisTitle("wire number", 1);
   OccupancyHistos[make_pair(wheel, sector)]->setBinLabel(1,"M1L1",2);
   OccupancyHistos[make_pair(wheel, sector)]->setBinLabel(2,"M1L2",2);

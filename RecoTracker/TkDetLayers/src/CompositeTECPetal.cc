@@ -58,8 +58,8 @@ namespace {
       
       for (auto gsdet : dets) { 
 	const BoundDiskSector& wedgeSector = static_cast<const BoundDiskSector&>( gsdet->surface());                   
-	float wedgeMinZ = fabs( wedgeSector.position().z()) - 0.5*wedgeSector.bounds().thickness();
-	float wedgeMaxZ = fabs( wedgeSector.position().z()) + 0.5*wedgeSector.bounds().thickness(); 
+	float wedgeMinZ = std::abs( wedgeSector.position().z()) - 0.5*wedgeSector.bounds().thickness();
+	float wedgeMaxZ = std::abs( wedgeSector.position().z()) + 0.5*wedgeSector.bounds().thickness(); 
 	float thetaWedgeMin =  wedgeSector.innerRadius()/ wedgeMaxZ;
 	float thetaWedgeMax =  wedgeSector.outerRadius()/ wedgeMinZ;
 	CompositeTECPetal::WedgePar apar = {gsdet->position().perp(),thetaWedgeMin,thetaWedgeMax};

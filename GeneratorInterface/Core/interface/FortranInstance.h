@@ -15,7 +15,7 @@ extern "C" {
 class FortranInstance {
     public:
 	FortranInstance() : instanceNesting(0) {}
-	virtual ~FortranInstance();
+        virtual ~FortranInstance() noexcept(false);
 
 	void call(void(&fn)())
 	{ InstanceWrapper wrapper(this); fn(); }

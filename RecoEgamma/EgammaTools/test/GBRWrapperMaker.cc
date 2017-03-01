@@ -30,7 +30,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TFile.h"
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/DBCommon/interface/CoralServiceManager.h"
@@ -102,70 +102,34 @@ GBRWrapperMaker::~GBRWrapperMaker()
 void
 GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
 
-
-
-// #ifdef THIS_IS_AN_EVENT_EXAMPLE
-//    Handle<ExampleData> pIn;
-//    iEvent.getByLabel("example",pIn);
-// #endif
-//    
-// #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-//    ESHandle<SetupData> pSetup;
-//    iSetup.get<SetupRecord>().get(pSetup);
-// #endif
-//from Josh:
-  TFile *infile = new TFile("eleEnergyRegWeights_WithSubClusters_VApr15.root","READ");
-
+  //from Josh:
+  //TFile *infile = new TFile("../data/GBRLikelihood_Clustering_746_bx25_Electrons_NoPosition_standardShapes_NoPS_PFMustache_results_PROD.root","READ");
+  TFile *infile = new TFile("../data/GBRLikelihood_Clustering_746_bx25_HLT.root","READ");
   printf("load forest\n");
-
-
-  GBRForest *p4comb = (GBRForest*)infile->Get("CombinationWeight");
-  //GBRForest *gbbrebvar = (GBRForest*)infile->Get("EBUncertainty");
-  //GBRForest *gbree = (GBRForest*)infile->Get("EECorrection");
-  //GBRForest *gbreevar = (GBRForest*)infile->Get("EEUncertainty");
-
-
-
-
-//from Rishi
-  /*
-  TFile *infile_PFLC = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFClusterCorr.root","READ");
-  TFile *infile_PFGC = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFGlobalCorr.root","READ");
-  TFile *infile_PFRes = new TFile("/afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFRes.root ","READ");
   
-  GBRForest *gbrLC = (GBRForest*)infile_PFLC->Get("GBRForest");
-  GBRForest *gbrGC = (GBRForest*)infile_PFGC->Get("GBRForest");
-  GBRForest *gbrRes = (GBRForest*)infile_PFRes->Get("GBRForest");
-  */
-  
-  
-  
+  //GBRForestD *p4comb = (GBRForest*)infile->Get("CombinationWeight");
+  GBRForestD *gbreb = (GBRForestD*)infile->Get("EBCorrection");
+  GBRForestD *gbrebvar = (GBRForestD*)infile->Get("EBUncertainty");
+  GBRForestD *gbree = (GBRForestD*)infile->Get("EECorrection");
+  GBRForestD *gbreevar = (GBRForestD*)infile->Get("EEUncertainty");
   
   printf("made objects\n");
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-       
- poolDbService->writeOne( p4comb, poolDbService->beginOfTime(),
-                                                "gedelectron_p4combination"  );
- //poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
- //"wgbrph_EBUncertainty"  );
- //poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
- //"pfecalsc_EECorrection"  );
- //poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
- //		  "wgbrph_EEUncertainty"  );
     
- //poolDbService->writeOne( gbrLC, poolDbService->beginOfTime(),
- //		     "wgbrph_PFLCCorrection"  );
- // poolDbService->writeOne( gbrGC, poolDbService->beginOfTime(),
- //		     "wgbrph_PFGlobalCorrection"  );
- // poolDbService->writeOne( gbrRes, poolDbService->beginOfTime(),
- //		     "wgbrph_PFResolution"  );
-  
+    //poolDbService->writeOne( p4comb, poolDbService->beginOfTime(),
+    //		     "gedelectron_p4combination"  );
+    poolDbService->writeOne( gbreb, poolDbService->beginOfTime(),
+			     "mustacheSC_online_EBCorrection"  );
+    poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
+			     "mustacheSC_online_EBUncertainty"  );
+    poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
+			     "mustacheSC_online_EECorrection"  );
+    poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
+			     "mustacheSC_online_EEUncertainty"  );
   }
-
-
 }
 
 

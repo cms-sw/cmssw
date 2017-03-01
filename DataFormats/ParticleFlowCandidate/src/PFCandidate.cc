@@ -41,13 +41,15 @@ PFCandidate::PFCandidate() :
   flags_(0), 
   deltaP_(0.), 
   vertexType_(kCandVertex),
+  mva_Isolated_(bigMva_),
   mva_e_pi_(bigMva_),
   mva_e_mu_(bigMva_),
   mva_pi_mu_(bigMva_),
   mva_nothing_gamma_(bigMva_),
   mva_nothing_nh_(bigMva_),
   mva_gamma_nh_(bigMva_),
-  getter_(0),storedRefsBitPattern_(0)
+  getter_(0),storedRefsBitPattern_(0),
+  time_(0.f),timeError_(-1.f)
 {
 
   muonTrackType_ = reco::Muon::None;
@@ -81,13 +83,15 @@ PFCandidate::PFCandidate( Charge charge,
   flags_(0),
   deltaP_(0.),
   vertexType_(kCandVertex),
+  mva_Isolated_(bigMva_),
   mva_e_pi_(bigMva_),
   mva_e_mu_(bigMva_),
   mva_pi_mu_(bigMva_),
   mva_nothing_gamma_(bigMva_),
   mva_nothing_nh_(bigMva_),
   mva_gamma_nh_(bigMva_),
-  getter_(0),storedRefsBitPattern_(0)
+  getter_(0),storedRefsBitPattern_(0),
+  time_(0.f),timeError_(-1.f)
 {
   refsInfo_.reserve(3);
   blocksStorage_.reserve(10);
@@ -139,6 +143,7 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   flags_(iOther.flags_), 
   deltaP_(iOther.deltaP_), 
   vertexType_(iOther.vertexType_),
+  mva_Isolated_(iOther.mva_Isolated_),
   mva_e_pi_(iOther.mva_e_pi_),
   mva_e_mu_(iOther.mva_e_mu_),
   mva_pi_mu_(iOther.mva_pi_mu_),
@@ -149,7 +154,8 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   getter_(iOther.getter_),
   storedRefsBitPattern_(iOther.storedRefsBitPattern_),
   refsInfo_(iOther.refsInfo_),
-  refsCollectionCache_(iOther.refsCollectionCache_)
+  refsCollectionCache_(iOther.refsCollectionCache_),
+  time_(iOther.time_),timeError_(iOther.timeError_)
 {
   auto tmp = iOther.elementsInBlocks_.load(std::memory_order_acquire);
   if(nullptr != tmp) {
@@ -180,6 +186,7 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   flags_=iOther.flags_; 
   deltaP_=iOther.deltaP_; 
   vertexType_=iOther.vertexType_;
+  mva_Isolated_=iOther.mva_Isolated_;
   mva_e_pi_=iOther.mva_e_pi_;
   mva_e_mu_=iOther.mva_e_mu_;
   mva_pi_mu_=iOther.mva_pi_mu_;
@@ -191,6 +198,8 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   storedRefsBitPattern_=iOther.storedRefsBitPattern_;
   refsInfo_=iOther.refsInfo_;
   refsCollectionCache_=iOther.refsCollectionCache_;
+  time_=iOther.time_;
+  timeError_=iOther.timeError_;
 
   return *this;
 }
@@ -643,7 +652,7 @@ void PFCandidate::setPFEGammaExtraRef(const reco::PFCandidateEGammaExtraRef & iR
 const math::XYZPoint & PFCandidate::vertex() const {
   switch (vertexType_) {
   case kCandVertex:
-    return vertex_;
+    return LeafCandidate::vertex();
     break;
   case kTrkVertex:
     return trackRef()->vertex();
@@ -663,12 +672,15 @@ const math::XYZPoint & PFCandidate::vertex() const {
   case kPickyMuonVertex:
     return muonRef()->pickyTrack()->vertex();
     break;
+  case kDYTMuonVertex:
+    return muonRef()->dytTrack()->vertex();
+    break;
 
   case kGSFVertex:
     return gsfTrackRef()->vertex();
     break;
   }
-  return vertex_;
+  return LeafCandidate::vertex();
 }
 
 const PFCandidate::ElementsInBlocks& 

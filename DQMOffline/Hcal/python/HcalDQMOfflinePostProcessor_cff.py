@@ -6,4 +6,3 @@ from DQMOffline.Hcal.CaloTowersDQMClient_cfi import *
 
 HcalDQMOfflinePostProcessor = cms.Sequence(hcalNoiseRatesClient*hcalRecHitsDQMClient*calotowersDQMClient)
 #HcalDQMOfflinePostProcessor = cms.Sequence(hcalNoiseRatesClient*calotowersDQMClient)
-

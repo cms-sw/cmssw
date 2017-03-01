@@ -8,7 +8,7 @@
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
 {
-   static SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
+   static const SelectionTypeStringToEnum selectionTypeStringToEnumMap[] = {
       { "All", All },
       { "AllGlobalMuons", AllGlobalMuons },
       { "AllStandAloneMuons", AllStandAloneMuons },
@@ -764,6 +764,18 @@ bool muon::isLooseMuon(const reco::Muon& muon){
 }
 
 
+bool muon::isMediumMuon(const reco::Muon& muon){
+  if( !( isLooseMuon(muon) && muon.innerTrack()->validFraction() > 0.8 )) return false; 
+
+  bool goodGlb = muon.isGlobalMuon() && 
+    muon.globalTrack()->normalizedChi2() < 3. && 
+    muon.combinedQuality().chi2LocalPosition < 12. && 
+    muon.combinedQuality().trkKink < 20.; 
+
+  return (segmentCompatibility(muon) > (goodGlb ? 0.303 : 0.451)); 
+}
+
+
 bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
   bool muID = muon::isGoodMuon(muon, TMOneStationTight);
@@ -771,13 +783,13 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   if(!muID) return false;
   
   bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
 
-  bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
+  bool ishighq = muon.innerTrack()->quality(reco::Track::highPurity); 
   
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 3. && fabs(muon.innerTrack()->dz(vtx.position())) < 30.;
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
   
-  return muID && layers && ip && chi2 ;
+  return layers && ip && ishighq;
 }
 
 

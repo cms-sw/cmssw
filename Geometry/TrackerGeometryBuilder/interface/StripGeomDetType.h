@@ -8,7 +8,7 @@
 /**
  * StripGeomDetType is the abstract class for SiStripGeomDetType.
  */
-class StripGeomDetType GCC11_FINAL : public GeomDetType
+class StripGeomDetType final : public GeomDetType
 {
 
 public:

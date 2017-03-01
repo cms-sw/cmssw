@@ -4,8 +4,7 @@
 #include <string>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+#include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,20 +21,20 @@ public:
   JetTagComputerESProducer(const edm::ParameterSet & pset) : m_pset(pset) {
     setWhatProduced(this, m_pset.getParameter<std::string>("@module_label") );
 
-    m_jetTagComputer = boost::make_shared<ConcreteJetTagComputer>(m_pset);
+    m_jetTagComputer = std::make_shared<ConcreteJetTagComputer>(m_pset);
   }
   
   virtual ~JetTagComputerESProducer() {
   }
 
-  boost::shared_ptr<JetTagComputer> produce(const JetTagComputerRecord & record) {
+  std::shared_ptr<JetTagComputer> produce(const JetTagComputerRecord & record) {
     m_jetTagComputer->initialize(record);
     m_jetTagComputer->setupDone();
     return m_jetTagComputer;
   }
 
 private:
-  boost::shared_ptr<JetTagComputer> m_jetTagComputer;
+  std::shared_ptr<JetTagComputer> m_jetTagComputer;
   edm::ParameterSet m_pset;
 };
 

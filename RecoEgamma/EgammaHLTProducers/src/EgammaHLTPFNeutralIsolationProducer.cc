@@ -100,13 +100,11 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
   iEvent.getByToken(pfCandidateProducer_, pfHandle);
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
-  reco::ElectronIsolationMap eleMap;
-  reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
-
   if(useSCRefs_) {
 
     iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
-    
+    reco::RecoEcalCandidateIsolationMap recoEcalCandMap(recoecalcandHandle);
+
     float dRVeto = -1.;
     float etaStrip = -1;
     
@@ -163,10 +161,12 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
        
       recoEcalCandMap.insert(candRef, sum);
     }
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandMap));
     
   } else {
 
     iEvent.getByToken(electronProducer_,electronHandle);
+    reco::ElectronIsolationMap eleMap(electronHandle);
     
     float dRVeto = -1.;
     float etaStrip = -1;
@@ -218,14 +218,6 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
  
       eleMap.insert(eleRef, sum);
     }   
-    
-  }
-
-  if(useSCRefs_){
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
-    iEvent.put(mapForEvent);
-  }else{
-    std::auto_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
-    iEvent.put(mapForEvent);
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(eleMap));
   }
 }

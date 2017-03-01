@@ -21,6 +21,7 @@ from cmsPerfCommons import CandFname, Step, ProductionSteps, Candles
 import ROOT
 #Switching from os.popen4 to subprocess.Popen for Python 2.6 (340_pre5 onwards):
 import subprocess
+from functools import reduce
 
 PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"
@@ -161,7 +162,7 @@ class Table(object):
                 for col in self.colNames:
                     if col == None:
                         pass
-                    elif rowdict.has_key(col) and not col == name:
+                    elif col in rowdict and not col == name:
                         if mode == 1:
                             total1 += rowdict[col]
                         else:
@@ -191,7 +192,7 @@ class Table(object):
                     pass
                 else:
                     row_dict = self.rows[key].getRowDict()
-                    if row_dict.has_key(key):
+                    if key in row_dict:
                         rowobj.addEntry(key,row_dict[col])
         return transp
 
@@ -223,7 +224,7 @@ def main():
             LOG.write("They were run in %s" % LocalPath)
             LOG.write("Results of showtags -r in the local release:\n%s" % ShowTagsResult)
             LOG.close()
-        except IOError, detail:
+        except IOError as detail:
             print "WARNING: Can't create log file"            
             print detail
 
@@ -309,7 +310,7 @@ def get_environ():
         HOST=os.environ['HOST']
         USER=os.environ['USER']
         CMSSW_WORK = os.path.join(CMSSW_BASE,"work/Results")
-    except KeyError, detail:
+    except KeyError as detail:
         fail("ERROR: Could not retrieve some necessary environment variables. Have you ran scramv1 runtime -csh yet?. Details: %s" % detail)
 
     LocalPath=getcmdBasic("pwd")
@@ -605,7 +606,7 @@ def getStageRepDirs(options,args):
         if not os.path.exists(path):
             try:
                 os.mkdir("%s" % path)
-            except OSError, detail:
+            except OSError as detail:
                 if   detail.errno == 13:
                     fail("ERROR: Failed to create staging area %s because permission was denied " % StagingArea)
                 elif detail.errno == 17:
@@ -623,7 +624,7 @@ def getStageRepDirs(options,args):
     StagingArea="%s/%s" % (StagingArea,CMSSW_VERSION)
     try:
         os.mkdir("%s" % StagingArea)
-    except OSError, detail:
+    except OSError as detail:
         if   detail.errno == 13:
             fail("ERROR: Failed to create staging area %s because permission was denied " % StagingArea)
         elif detail.errno == 17:
@@ -701,7 +702,7 @@ def createRegressHTML(reghtml,repdir,outd,CurrentCandle,htmNames):
                 REGR.write(CurrentCandle)
             else:
                 REGR.write(line)
-    except IOError, detail:
+    except IOError as detail:
         print "ERROR: Could not write regression html %s because %s" % (os.path.basename(reghtml),detail)                
 
 def getOutputNames(base,reportName):
@@ -1232,7 +1233,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                 CAND.write(line)
 
         CAND.close()
-    except IOError, detail:
+    except IOError as detail:
         print "ERROR: Could not write candle html %s because %s" % (os.path.basename(candlHTML),detail)
 
 
@@ -1335,7 +1336,7 @@ def createHTMLtab(INDEX,table_dict,ordered_keys,header,caption,name,mode=0):
                 INDEX.write("</th>")                            
             else:
                 rowdict = table_dict[key].getRowDict()
-                if rowdict.has_key(col):
+                if col in rowdict:
                     if mode == 2:
                         dat = prettySize(rowdict[col])
                         INDEX.write("<td>")
@@ -1545,9 +1546,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                         curRow = fsize_tab.newRow(cand)
                                         
                                     curRow.addEntry(step,fsize)       
-                            except IOError, detail:
+                            except IOError as detail:
                                 print detail
-                            except OSError, detail:
+                            except OSError as detail:
                                 print detail
                         if puRow == None:
                             pass
@@ -1630,9 +1631,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                             curRow = fsize_tab.newRow(cand)
 
                                         curRow.addEntry(step,data_tuple)
-                                except IOError, detail:
+                                except IOError as detail:
                                     print detail
-                                except OSError, detail:
+                                except OSError as detail:
                                     print detail
                             if puRow == None:
                                 pass
@@ -1647,9 +1648,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                           "Release ROOT file sizes",
                                           "Table showing previous release ROOT filesizes, fs1, latest sizes, fs2, and the difference between them &#x0394; in (k/M/G) bytes.",
                                           "Filesizes",1)
-                    except IOError, detail:
+                    except IOError as detail:
                         print detail
-                    except OSError, detail:
+                    except OSError as detail:
                         print detail
             #CPU Time Summary Table    
             elif cpureg.search(NewFileLine):
@@ -1694,7 +1695,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                 i += 1
                             try:
                                 mean = mean / float(i)
-                            except ZeroDivisionError, detail:
+                            except ZeroDivisionError as detail:
                                 print "WARNING: Could not calculate mean CPU time from log because no events could be parsed", log
 
                             if "PILEUP" in step:
@@ -1798,7 +1799,7 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
 
         #End of while loop on template html file
         INDEX.close()
-    except IOError, detail:
+    except IOError as detail:
         print "Error: Could not create index Html file for some reason, check position. Details : %s" % detail
 
 ########################
@@ -1869,7 +1870,7 @@ def getRelativeDir(parent,child,keepTop=True):
     n = 0
     try:
         while True:
-            pwalk.next()
+            next(pwalk)
             n += 1
     except StopIteration:
         pass
@@ -1881,7 +1882,7 @@ def getRelativeDir(parent,child,keepTop=True):
     try:
         #prewalk
         for x in range(n):
-            cwalk.next()
+            next(cwalk)
     except StopIteration:
         print "ERROR: Unable to determine relative dir"
         raise ReldirExcept
@@ -1889,7 +1890,7 @@ def getRelativeDir(parent,child,keepTop=True):
     relpath = ""
     try:
         while True:
-            relpath=os.path.join(relpath,cwalk.next())
+            relpath=os.path.join(relpath,next(cwalk))
     except StopIteration:
         pass
     return relpath
@@ -1897,9 +1898,9 @@ def getRelativeDir(parent,child,keepTop=True):
 def docopy(src,dest):
     try:
         copy2(src,dest)
-    except OSError, detail:
+    except OSError as detail:
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
-    except IOError, detail:
+    except IOError as detail:
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
     else:
         if _verbose:
@@ -1923,9 +1924,9 @@ def copytree4(src,dest,keepTop=True):
                         os.mkdir(newnode)                
                     else:
                         copy2(node,newnode)
-                except IOError, detail:
+                except IOError as detail:
                     print "WARNING: Could not copy %s to %s because %s" % (node,newnode,detail)
-                except OSError, detail:
+                except OSError as detail:
                     print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)                    
                 except ReldirExcept:
                     print "WARNING: Could not determine new location for source %s into destination %s" % (source,dst)
@@ -1934,7 +1935,7 @@ def copytree4(src,dest,keepTop=True):
                         try:
                             match = fnmatch.fnmatch(node,filter[0])
                             assert not match
-                        except AssertionError, detail:
+                        except AssertionError as detail:
                             print node, filter[0], match
                             raise RuntimeError
                     if _verbose:
@@ -1949,7 +1950,7 @@ def copytree4(src,dest,keepTop=True):
         os.mkdir(newloc)
         try:
             while True:
-                step   = gen.next()
+                step   = next(gen)
                 curdir = step[0]
                 dirs   = step[1]
                 files  = step[2]
@@ -1959,9 +1960,9 @@ def copytree4(src,dest,keepTop=True):
 
         except StopIteration:
             pass        
-    except IOError, detail:
+    except IOError as detail:
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)
-    except OSError, detail:
+    except OSError as detail:
         print "WARNING: Could not copy %s to %s because %s" % (src,dest,detail)        
     except ReldirExcept:
         print "WARNING: Could not determine the new location for source %s into destination %s" % (src,dest)

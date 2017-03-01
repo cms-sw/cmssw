@@ -142,14 +142,14 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   edm::Handle<edm::DetSetVector<RPCDigiSimLink> > simIn;
   
-  std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
+  std::unique_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   
   if ( m_useRPCSimLink == 0 ) {
     iEvent.getByLabel(m_rpcDigiLabel, pIn);
     if ( ! pIn.isValid() ) {
       edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
                                            << m_rpcDigiLabel << '\n';
-      iEvent.put(output);
+      iEvent.put(std::move(output));
       return;
     }
     m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCDigis( m_rpcGeometry, pIn ));
@@ -161,7 +161,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if ( ! simIn.isValid() ) {
       edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
                                            << m_rpcDigiLabel << '\n';
-      iEvent.put(output);
+      iEvent.put(std::move(output));
       return;
     }
     m_signal  = dynamic_cast<ProcessInputSignal*>(new RBCProcessRPCSimDigis( m_rpcGeometry, simIn ));
@@ -171,7 +171,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   if ( ! m_hasConfig ) {
     edm::LogError("RPCTechnicalTrigger") << "cannot read hardware configuration \n";
-    iEvent.put(output);
+    iEvent.put(std::move(output));
     return;
   }
   
@@ -179,7 +179,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   if ( !status)  { 
     delete m_signal;
-    iEvent.put(output);
+    iEvent.put(std::move(output));
     return;
   }
   
@@ -332,7 +332,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   //...check that data appeared at bx=0
   
   if ( ! has_bx0 ) {
-    iEvent.put(output);
+    iEvent.put(std::move(output));
     status = Reset();
     ++m_ievt;
     LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger> end of event loop" << std::endl;
@@ -341,7 +341,7 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   output->setGtTechnicalTrigger(ttVec);    
-  iEvent.put(output);
+  iEvent.put(std::move(output));
   
   //.... all done
   

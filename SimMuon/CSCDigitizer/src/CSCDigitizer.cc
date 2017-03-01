@@ -15,7 +15,7 @@
 
 CSCDigitizer::CSCDigitizer(const edm::ParameterSet & p)
 : theDriftSim(new CSCDriftSim()),
-  theWireHitSim(new CSCWireHitSim(theDriftSim)),
+  theWireHitSim(new CSCWireHitSim(theDriftSim, p)),
   theStripHitSim(new CSCStripHitSim()),
   theWireElectronicsSim(new CSCWireElectronicsSim(p.getParameter<edm::ParameterSet>("wires"))),
   theStripElectronicsSim(new CSCStripElectronicsSim(p.getParameter<edm::ParameterSet>("strips"))),
@@ -110,10 +110,12 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     const edm::PSimHitContainer & layerSimHits = hitMapItr->second;
 
     std::vector<CSCDetectorHit> newWireHits, newStripHits;
-  
-    LogTrace("CSCDigitizer") << "CSCDigitizer: found " << layerSimHits.size() <<" hit(s) in layer"
-       << " E" << layer->id().endcap() << " S" << layer->id().station() << " R" << layer->id().ring()
-       << " C" << layer->id().chamber() << " L" << layer->id().layer();
+
+    //    LogTrace("CSCDigitizer") << "CSCDigitizer: found " << layerSimHits.size() <<" hit(s) in layer"
+    edm::LogVerbatim("CSCDigitizer") << "[CSCDigitizer] found " << layerSimHits.size() << " hit(s) in layer"
+				     << layer->id();
+      //       << " E" << layer->id().endcap() << " S" << layer->id().station() << " R" << layer->id().ring()
+      //       << " C" << layer->id().chamber() << " L" << layer->id().layer();
 
     // turn the edm::PSimHits into WireHits, using the WireHitSim
     {

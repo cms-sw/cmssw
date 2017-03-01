@@ -7,7 +7,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -106,7 +105,7 @@ string printseed(const L3TkMuonProducer::SeedRef & s){
 }
 
 /// reconstruct muons
-void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
+void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   const string metname = "Muon|RecoMuon|L3TkMuonProducer";
   
   // Take the L3 container
@@ -194,10 +193,10 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
 
 
   //prepare the output
-  std::auto_ptr<TrackCollection> outTracks( new TrackCollection(LXtoL3s.size()));
-  std::auto_ptr<TrackExtraCollection> outTrackExtras( new TrackExtraCollection(LXtoL3s.size()));
+  auto outTracks = std::make_unique<TrackCollection>(LXtoL3s.size());
+  auto outTrackExtras = std::make_unique<TrackExtraCollection>(LXtoL3s.size());
   reco::TrackExtraRefProd rTrackExtras = event.getRefBeforePut<TrackExtraCollection>();
-  std::auto_ptr<TrackingRecHitCollection> outRecHits( new TrackingRecHitCollection());
+  auto outRecHits = std::make_unique<TrackingRecHitCollection>();
   TrackingRecHitRefProd rHits = event.getRefBeforePut<TrackingRecHitCollection>();
 
   LogDebug(metname)<<"reading the map to make "<< LXtoL3s.size()<<"products.";
@@ -226,17 +225,17 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
     unsigned int iRH=0;
     for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit,++iRH ) {
       outRecHits->push_back((*hit)->clone());
-      (*outTrackExtras)[i].add( TrackingRecHitRef( rHits, iRH));
     }
+    (*outTrackExtras)[i].setHits( rHits, 0, iRH);
   }
   
   LogDebug(metname)<<"made: "<<outTracks->size()<<" tracks, "<<outTrackExtras->size()<<" extras and "<<outRecHits->size()<<" rechits.";
 
   //put the collection in the event
   LogDebug(metname)<<"loading...";
-  event.put(outTracks);
-  event.put(outTrackExtras);
-  event.put(outRecHits);
+  event.put(std::move(outTracks));
+  event.put(std::move(outTrackExtras));
+  event.put(std::move(outRecHits));
   LogDebug(metname)<<" Event loaded"
 		   <<"================================";
 }

@@ -24,14 +24,12 @@
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 class Plane;
 
-class ProxyStripTopology GCC11_FINAL : public StripTopology {
+class ProxyStripTopology final : public StripTopology {
 public:
 
   ProxyStripTopology(StripGeomDetType const * type, Plane * bp);
@@ -112,7 +110,7 @@ private:
 
   StripGeomDetType const * theType;
   float theLength, theWidth;
-  DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
+  std::unique_ptr<const SurfaceDeformation> theSurfaceDeformation;
 };
 
 #endif

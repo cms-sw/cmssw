@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 patTrigger = cms.EDProducer( "PATTriggerProducer"
 , onlyStandAlone = cms.bool( False )
+,l1GtRecordInputTag = cms.InputTag("gtDigis")
+,l1GtReadoutRecordInputTag = cms.InputTag("gtDigis")
+,l1GtTriggerMenuLiteInputTag = cms.InputTag("gtDigis")
+,l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis")
+,l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
+
 # ## L1
 # , addL1Algos                     = cms.bool( False )                                 # default; possibly superseded by 'onlyStandAlone' = True
 # , l1GlobalTriggerObjectMaps      = cms.InputTag( "l1L1GtObjectMap" )                 # default; change only, if you know exactly, what you are doing!

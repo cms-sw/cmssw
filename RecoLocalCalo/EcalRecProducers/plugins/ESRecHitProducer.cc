@@ -12,13 +12,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) {
-
-  digiToken_ = consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection"));
-  rechitCollection_ = ps.getParameter<std::string>("ESrechitCollection");
+ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) :
+  digiToken_( consumes<ESDigiCollection>(ps.getParameter<edm::InputTag>("ESdigiCollection")) ),
+  rechitCollection_( ps.getParameter<std::string>("ESrechitCollection") )
+{
   produces<ESRecHitCollection>(rechitCollection_);
   
-  std::string componentType = ps.getParameter<std::string>("algo");
+  std::string const & componentType = ps.getParameter<std::string>("algo");
   worker_ = ESRecHitWorkerFactory::get()->create( componentType, ps );
 }
 
@@ -37,7 +37,7 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   LogDebug("ESRecHitInfo") << "total # ESdigis: " << digi->size();
   
   // Create empty output
-  std::auto_ptr<ESRecHitCollection> rec(new ESRecHitCollection );
+  auto rec = std::make_unique<ESRecHitCollection>();
   
   if ( digi ) {
     rec->reserve(digi->size()); 
@@ -51,7 +51,7 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
   
-  e.put(rec,rechitCollection_);
+  e.put(std::move(rec),rechitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"  

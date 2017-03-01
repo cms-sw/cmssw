@@ -44,7 +44,7 @@ SiPixelFakeGainESSource::~SiPixelFakeGainESSource()
 
 }
 
-std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiPixelGainCalibrationRcd & )
+std::unique_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiPixelGainCalibrationRcd & )
 {
 
    using namespace edm::es;
@@ -81,7 +81,7 @@ std::auto_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const SiP
    
 
    // 
-   return std::auto_ptr<SiPixelGainCalibration>(obj);
+   return std::unique_ptr<SiPixelGainCalibration>(obj);
 
 
 }

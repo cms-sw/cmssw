@@ -27,7 +27,7 @@ GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::Para
 
 GsfTrajectorySmootherESProducer::~GsfTrajectorySmootherESProducer() {}
 
-boost::shared_ptr<TrajectorySmoother> 
+std::shared_ptr<TrajectorySmoother> 
 GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
   //
   // material effects
@@ -66,7 +66,7 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
   //
   //   bool matBefUpd = pset_.getParameter<bool>("MaterialBeforeUpdate");
   double scale = pset_.getParameter<double>("ErrorRescaling");
-  return boost::shared_ptr<TrajectorySmoother>(new GsfTrajectorySmoother(propagator,
+  return std::shared_ptr<TrajectorySmoother>(new GsfTrajectorySmoother(propagator,
 									 GsfMultiStateUpdator(), 
 									 estimator,merger,
 // 									 matBefUpd,

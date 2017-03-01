@@ -75,7 +75,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
   event.getByToken(recHits1DToken_, allHits);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecSegment2DCollection> segments(new DTRecSegment2DCollection());
+  auto segments = std::make_unique<DTRecSegment2DCollection>();
 
   // Iterate through all hit collections ordered by LayerId
   DTRecHitCollection::id_iterator dtLayerIt;
@@ -107,7 +107,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     if (segs.size() > 0 )
       segments->put(SLId, segs.begin(),segs.end());
   }
-  event.put(segments);
+  event.put(std::move(segments));
 }
 
 

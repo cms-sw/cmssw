@@ -30,8 +30,7 @@
  * Authors :  Evan Friis (UC Davis), Simone Gennai (SNS)
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
-//#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,11 +41,14 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
+
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
 template<class TauType, class TauDiscriminator>
-class TauDiscriminationProducerBase : public edm::EDProducer { // edm::stream::EDProducer<> {
+class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
   public:
     // setup framework types for this tautype
     typedef std::vector<TauType>        TauCollection;
@@ -69,7 +71,7 @@ class TauDiscriminationProducerBase : public edm::EDProducer { // edm::stream::E
                             const edm::EventSetup& evtSetup) {}
 
     // abstract functions implemented in derived classes.
-    virtual double discriminate(const TauRef& tau) = 0;
+    virtual double discriminate(const TauRef& tau) const = 0;
 
     // called at the end of event processing - override if necessary.
     virtual void endEvent(edm::Event& evt) {}
@@ -85,6 +87,7 @@ class TauDiscriminationProducerBase : public edm::EDProducer { // edm::stream::E
 	evt.getByToken(disc_token, handle); 
       };
     };
+    
 
   protected:
     //value given to taus that fail prediscriminants
@@ -95,6 +98,9 @@ class TauDiscriminationProducerBase : public edm::EDProducer { // edm::stream::E
     std::string moduleLabel_;
     edm::EDGetTokenT<TauCollection> Tau_token;
 
+    // current tau
+    size_t tauIndex_;
+
   private:
     std::vector<TauDiscInfo> prediscriminants_;
     // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
@@ -104,8 +110,11 @@ class TauDiscriminationProducerBase : public edm::EDProducer { // edm::stream::E
 // define our implementations
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator>
   PFTauDiscriminationProducerBase;
+typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>
+  PATTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator>
   CaloTauDiscriminationProducerBase;
+
 
 /// helper function retrieve the correct cfi getter string (ie PFTauProducer)
 //for this tau type
@@ -114,6 +123,6 @@ template<class TauType> std::string getProducerString()
   // this generic one shoudl never be called.
   // these are specialized in TauDiscriminationProducerBase.cc
   throw cms::Exception("TauDiscriminationProducerBase")
-      << "Unsupported TauType used.  You must use either PFTau or CaloTaus.";
+      << "Unsupported TauType used. You must use either PFTau, PATTau or CaloTaus.";
 }
 #endif

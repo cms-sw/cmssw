@@ -50,7 +50,7 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
             <<" pythia did not accept MSTU(12)=12345";
    }
 
-   produces<HepMCProduct>();
+   produces<HepMCProduct>("unsmeared");
 
 }
 
@@ -230,11 +230,11 @@ void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
 void Pythia6Gun::loadEvent( edm::Event& evt )
 {
 
-   std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+   std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
    
    if(fEvt)  bare_product->addHepMCData( fEvt );
 
-   evt.put(bare_product);
+   evt.put(std::move(bare_product), "unsmeared");
 
    
    return;

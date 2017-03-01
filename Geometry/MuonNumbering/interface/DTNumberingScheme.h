@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_DTNumberingScheme_h
-#define MuonNumbering_DTNumberingScheme_h
+#ifndef Geometry_MuonNumbering_DTNumberingScheme_h
+#define Geometry_MuonNumbering_DTNumberingScheme_h
 
 /** \class DTNumberingScheme
  *

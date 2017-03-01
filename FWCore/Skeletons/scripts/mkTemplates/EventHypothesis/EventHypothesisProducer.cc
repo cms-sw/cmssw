@@ -83,7 +83,7 @@ __class__Producer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup )
 
 
   // Here is where we write the hypotheses to the event stream
-  std::auto_ptr<std::vector<__class__> > ap_hyps( hyps );
-  iEvent.put( ap_hyps, outputName_);
+  std::unique_ptr<std::vector<__class__> > ap_hyps( hyps );
+  iEvent.put( std::move(ap_hyps), outputName_);
 
 }

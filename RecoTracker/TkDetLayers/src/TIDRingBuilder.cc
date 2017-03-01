@@ -27,10 +27,10 @@ TIDRing* TIDRingBuilder::build(const GeometricDet* aTIDRing,
 
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
 
-    if( fabs( (*it)->positionBounds().z() ) < fabs(meanZ))
+    if( std::abs( (*it)->positionBounds().z() ) < std::abs(meanZ))
       innerGeomDets.push_back(theGeomDet);
 
-    if( fabs( (*it)->positionBounds().z() ) > fabs(meanZ))
+    if( std::abs( (*it)->positionBounds().z() ) > std::abs(meanZ))
       outerGeomDets.push_back(theGeomDet);      
   }
 

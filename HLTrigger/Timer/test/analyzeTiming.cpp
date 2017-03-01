@@ -14,7 +14,7 @@
 // needed for event-id info
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 //
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #include "HLTrigger/Timer/test/AnalyzeTiming.h"
 
@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
 {
   // load libraries
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   // default arguments
   string filename = "hlt.root";

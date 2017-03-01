@@ -1,0 +1,25 @@
+<lcgdict>
+  <class name="heppy::BTagSF"/>
+  <class name="heppy::RochCor"/>
+  <class name="heppy::RochCor2012"/>
+  <class name="heppy::FSRWeightAlgo"/>
+  <class name="heppy::PdfWeightProducerTool" transient="true" />
+  <class name="heppy::Davismt2" transient="true" />
+  <class name="heppy::Hemisphere"/>
+  <class name="heppy::mt2w_bisect::mt2w"  transient="true" />
+  <class name="heppy::MuScleFitCorrector" transient="true" />
+  <class name="heppy::TriggerBitChecker" transient="true" />
+  <class name="heppy::CMGMuonCleanerBySegmentsAlgo" transient="true" />
+  <class name="heppy::EGammaMvaEleEstimatorFWLite" transient="true" />
+  <class name="heppy::AlphaT" transient="true" />
+  <class name="heppy::Apc" transient="true" />
+  <class name="heppy::Megajet" transient="true" />
+  <class name="heppy::ReclusterJets"  transient="true"/>
+  <class name="heppy::JetUtils"  transient="true"/>
+  <class name="heppy::IsolationComputer"  transient="true"/>
+
+  <!--<class name="heppy::SimpleElectron" transient="true" />-->
+  <!--<class name="ElectronEnergyCalibrator" transient="true" />-->
+  <!--<class name="heppy::ElectronEPcombinator" transient="true" />-->
+
+</lcgdict>

@@ -29,17 +29,31 @@ muonSeededTrajectoryCleanerBySharedHits = TrackingTools.TrajectoryCleaning.Traje
 
 ###------------- MeasurementEstimator, defining the searcgh window for pattern recongnition ----------------
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-muonSeededMeasurementEstimatorForInOut = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import Chi2MeasurementEstimator as _Chi2MeasurementEstimator
+_muonSeededMeasurementEstimatorForInOutBase = _Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForInOut'),
-    MaxChi2 = cms.double(400.0), ## was 30 ## TO BE TUNED
+    MaxChi2 = cms.double(80.0), ## was 30 ## TO BE TUNED
     nSigma  = cms.double(4.),    ## was 3  ## TO BE TUNED 
 )
-muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+muonSeededMeasurementEstimatorForInOut = _muonSeededMeasurementEstimatorForInOutBase.clone(
+    MaxSagitta = cms.double(-1.)
+)
+from Configuration.Eras.Modifier_trackingPhase1PU70_cff import trackingPhase1PU70
+trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForInOut, _muonSeededMeasurementEstimatorForInOutBase.clone(
+    MaxChi2 = 400
+))
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(muonSeededMeasurementEstimatorForInOut, MaxChi2 = 400.0, MaxSagitta = 2)
+
+_muonSeededMeasurementEstimatorForOutInBase = _Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('muonSeededMeasurementEstimatorForOutIn'),
     MaxChi2 = cms.double(30.0), ## was 30 ## TO BE TUNED
-    nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED 
+    nSigma  = cms.double(3.),    ## was 3  ## TO BE TUNED
 )
+muonSeededMeasurementEstimatorForOutIn = _muonSeededMeasurementEstimatorForOutInBase.clone(
+    MaxSagitta = cms.double(-1.) 
+)
+trackingPhase1PU70.toReplaceWith(muonSeededMeasurementEstimatorForOutIn, _muonSeededMeasurementEstimatorForOutInBase)
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -104,15 +118,39 @@ muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.c
 import RecoTracker.TrackProducer.TrackProducer_cfi
 muonSeededTracksOutIn = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesOutIn"),
-    AlgorithmName = cms.string('iter10'),
+    AlgorithmName = cms.string('muonSeededStepOutIn'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 muonSeededTracksInOut = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesInOut"),
-    AlgorithmName = cms.string('iter9'),
+    AlgorithmName = cms.string('muonSeededStepInOut'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 
+
+# Final Classifier
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cff import *
+muonSeededTracksInOutClassifier = TrackCutClassifier.clone()
+muonSeededTracksInOutClassifier.src='muonSeededTracksInOut'
+muonSeededTracksInOutClassifier.mva.minPixelHits = [0,0,0]
+muonSeededTracksInOutClassifier.mva.maxChi2 = [9999.,9999.,9999.]
+muonSeededTracksInOutClassifier.mva.maxChi2n = [10.0,1.0,0.4]
+muonSeededTracksInOutClassifier.mva.minLayers = [3,5,5]
+muonSeededTracksInOutClassifier.mva.min3DLayers = [1,2,2]
+muonSeededTracksInOutClassifier.mva.maxLostLayers = [4,3,2]
+
+
+muonSeededTracksOutInClassifier = TrackCutClassifier.clone()
+muonSeededTracksOutInClassifier.src='muonSeededTracksOutIn'
+muonSeededTracksOutInClassifier.mva.minPixelHits = [0,0,0]
+muonSeededTracksOutInClassifier.mva.maxChi2 = [9999.,9999.,9999.]
+muonSeededTracksOutInClassifier.mva.maxChi2n = [10.0,1.0,0.4]
+muonSeededTracksOutInClassifier.mva.minLayers = [3,5,5]
+muonSeededTracksOutInClassifier.mva.min3DLayers = [1,2,2]
+muonSeededTracksOutInClassifier.mva.maxLostLayers = [4,3,2]
+
+
+# For Phase1PU70
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='muonSeededTracksInOut',
@@ -151,7 +189,6 @@ muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
             ),
         ) #end of vpset
     ) #end of clone
-
 muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='muonSeededTracksOutIn',
     trackSelectors= cms.VPSet(
@@ -192,15 +229,35 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
 
 
 
-
+muonSeededStepCoreInOut = cms.Sequence(
+    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut
+)
 muonSeededStepCore = cms.Sequence(
-    muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
-    muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn 
+    muonSeededStepCoreInOut +
+    muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn
 )
+#Phase2 : just muon Seed InOut is used in this moment
+trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+muonSeededStepExtraInOut = cms.Sequence(
+    muonSeededTracksInOutClassifier
+)
+trackingPhase1PU70.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
+    muonSeededTracksInOutSelector
+))
+trackingPhase2PU140.toReplaceWith(muonSeededStepExtraInOut, cms.Sequence(
+    muonSeededTracksInOutSelector
+))
 muonSeededStepExtra = cms.Sequence(
-    muonSeededTracksInOutSelector +
-    muonSeededTracksOutInSelector
+    muonSeededStepExtraInOut +
+    muonSeededTracksOutInClassifier
 )
+trackingPhase1PU70.toReplaceWith(muonSeededStepExtra, cms.Sequence(
+    muonSeededStepExtraInOut +
+    muonSeededTracksOutInSelector
+))
+trackingPhase2PU140.toReplaceWith(muonSeededStepExtra, cms.Sequence(
+    muonSeededStepExtraInOut
+))
 
 muonSeededStep = cms.Sequence(
     earlyMuons +
@@ -214,7 +271,10 @@ muonSeededSeedsInOutAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src =
 muonSeededSeedsOutInAsTracks = cms.EDProducer("FakeTrackProducerFromSeed", src = cms.InputTag("muonSeededSeedsOutIn"))
 muonSeededTrackCandidatesInOutAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesInOut"))
 muonSeededTrackCandidatesOutInAsTracks = cms.EDProducer("FakeTrackProducerFromCandidate", src = cms.InputTag("muonSeededTrackCandidatesOutIn"))
+muonSeededStepDebugInOut = cms.Sequence(
+    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+)
 muonSeededStepDebug = cms.Sequence(
     muonSeededSeedsOutInAsTracks + muonSeededTrackCandidatesOutInAsTracks +
-    muonSeededSeedsInOutAsTracks + muonSeededTrackCandidatesInOutAsTracks
+    muonSeededStepDebugInOut
 )

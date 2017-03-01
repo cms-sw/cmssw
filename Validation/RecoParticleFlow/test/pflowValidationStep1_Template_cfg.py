@@ -24,7 +24,7 @@ process.source = cms.Source("PoolSource",
                             #,SkipEvent = cms.untracked.vstring('ProductNotFound')
                             )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
     )
 
 #dataset = 'QCD'
@@ -39,20 +39,21 @@ dataset = 'DATA' # to be used with RunPFVal.sh
 if dataset == 'QCD' :
     sourceFiles = cms.untracked.vstring(    
 #        '/store/relval/CMSSW_7_0_0_pre11/RelValQCD_FlatPt_15_3000/GEN-SIM-DIGI-RECO/START70_V4_OldEG_FastSim-v1/00000/F0132E22-A76A-E311-BE6D-0025905A60B6.root',
-      '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/EE4D1086-0F25-E311-BD19-003048678A6C.root',
-        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/CCA45DB9-1325-E311-B521-0025905938AA.root',
-        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/686ECB84-1025-E311-95BF-00261894387E.root',
-        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/6666ACEF-0F25-E311-B2CE-00248C0BE01E.root',
-        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/4E0FDB84-1025-E311-90B7-0026189438E0.root',
-        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/483621D2-1025-E311-BB70-003048B95B30.root',
-        '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/48118597-1125-E311-8645-003048678B7C.root'
-
+      #'/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/EE4D1086-0F25-E311-BD19-003048678A6C.root',
+      # '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/CCA45DB9-1325-E311-B521-0025905938AA.root',
+      # '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/686ECB84-1025-E311-95BF-00261894387E.root',
+      #  '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/6666ACEF-0F25-E311-B2CE-00248C0BE01E.root',
+      #  '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/4E0FDB84-1025-E311-90B7-0026189438E0.root',
+      #  '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/483621D2-1025-E311-BB70-003048B95B30.root',
+      # '/store/relval/CMSSW_7_0_0_pre4/RelValQCD_FlatPt_15_3000HS/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/48118597-1125-E311-8645-003048678B7C.root'
+        '/store/relval/CMSSW_7_2_0_pre1/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/POSTLS172_V1-v1/00000/1EB9CDDA-C8FE-E311-9082-0025905A6066.root'
         )
 elif dataset == 'TTbar' :
     sourceFiles = cms.untracked.vstring( 
-        '/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/1A4CBAAC-48EC-E211-8A00-001E67397EB8.root',
-        '/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/24366CE4-42EC-E211-A3B9-003048D4988C.root',
-        '/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/8476F595-44EC-E211-B8E7-003048F00B16.root'
+        #'/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/1A4CBAAC-48EC-E211-8A00-001E67397EB8.root',
+        #'/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/24366CE4-42EC-E211-A3B9-003048D4988C.root',
+        #'/store/relval/CMSSW_6_2_0/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v3/00000/8476F595-44EC-E211-B8E7-003048F00B16.root'
+        'file:/afs/cern.ch/user/l/lecriste/miniAOD_validation_sequence_multiThreaded/CMSSW_7_2_0_pre3/src/20.0_SingleMuPt10+SingleMuPt10+DIGI+RECO+HARVEST/patTuple_mini.root'
         )
 elif dataset == 'ZEE' :
     sourceFiles = cms.untracked.vstring( 
@@ -74,7 +75,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_4T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup'] #'mc'
@@ -246,29 +247,27 @@ process.pfReRecoSequence = cms.Sequence(
 # PFDQM modules to book/fill actual histograms
 #----------------------------------------------
 process.load("Validation.RecoParticleFlow.PFJetValidation_cff")
-process.pfJetValidation1.SkimParameter.switchOn = cms.bool(False)
-process.pfJetValidation2.SkimParameter.switchOn = cms.bool(False)
 
 process.load("Validation.RecoParticleFlow.PFMETValidation_cff")
 process.load("Validation.RecoParticleFlow.PFJetResValidation_cff")
-process.pfJetResValidation1.SkimParameter.switchOn = cms.bool(True)
-process.pfJetResValidation2.SkimParameter.switchOn = cms.bool(True)
 
 process.load("Validation.RecoParticleFlow.PFElectronValidation_cff") 
 #process.load("Validation.RecoParticleFlow.PFMuonValidation_cff")
 process.load("Validation.RecoMET.METRelValForDQM_cff")
+process.load("Validation.RecoParticleFlow.miniAODDQM_cff")
 
 # The complete reprocessing
 process.p = cms.Path(
 #    process.pfElectronSequence +
 #    process.pfReRecoSequence +  # not needed for global validation used in case of software development
-    process.pfJetValidationSequence +
-    process.pfMETValidationSequence +
-    process.pfJetResValidationSequence +
-    process.METValidation +
+    #process.pfJetValidationSequence +
+    #process.pfMETValidationSequence +
+    #process.pfJetResValidationSequence +
+    #process.METValidation +
 #    process.pfMuonValidationSequence +  
-    process.pfElectronValidationSequence +
+    #process.pfElectronValidationSequence +
 #    process.pfElectronBenchmarkGeneric + # replaced by pfElectronBenchmarkGeneric
+    process.miniAODDQMSequence +
     process.MEtoEDMConverter
     )
 

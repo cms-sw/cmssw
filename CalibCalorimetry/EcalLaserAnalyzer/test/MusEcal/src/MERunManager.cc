@@ -533,7 +533,7 @@ void
 MERunManager::setBadRange( ME::Time key1, ME::Time key2, bool verbose )
 {
   MusEcal::RunIterator it;
-  for( it=from( key1 ); it!=to( key2 ); it++ )
+  for( it=from( key1 ); it!=to( key2 ); ++it )
     {
       ME::Time key = it->first;
       _badRuns[ key ]=false;

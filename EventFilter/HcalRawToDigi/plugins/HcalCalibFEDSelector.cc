@@ -49,7 +49,7 @@ void
 HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<FEDRawDataCollection> rawIn;
   iEvent.getByToken(tok_fed_,rawIn);
@@ -118,7 +118,7 @@ HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
    }
 
- iEvent.put(producedData);
+ iEvent.put(std::move(producedData));
 }
 
 

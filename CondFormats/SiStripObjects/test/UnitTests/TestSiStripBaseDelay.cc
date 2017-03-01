@@ -7,11 +7,7 @@
 #include <cppunit/TextTestProgressListener.h>
 #include <cppunit/CompilerOutputter.h>
 
-#define protected public
-#define private public
 #include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
-#undef protected
-#undef private
 
 class TestSiStripBaseDelay : public CppUnit::TestFixture
 {

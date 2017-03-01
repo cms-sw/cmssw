@@ -28,8 +28,8 @@ options.parseArguments()
 
 # Make sure we are only dealing w/ one algorithm...
 if len(myTauAlgorithms) > 1:
-   raise RuntimeError, "ERROR: more than one tau algorithm is defined in MVASteering.py; this feature should be used only for algorithm evaluation.  \
-         Please modify it so that it only includeds the algorithm on which the TaNC is to be used."
+   raise RuntimeError("ERROR: more than one tau algorithm is defined in MVASteering.py; this feature should be used only for algorithm evaluation.  \
+         Please modify it so that it only includeds the algorithm on which the TaNC is to be used.")
 
 algorithm = myTauAlgorithms[0]
 myconnect   = cms.string(options.db)  #or frontier, etc
@@ -55,7 +55,7 @@ for aNeuralNet in RecoTauTag.TauTagTools.TauMVAConfigurations_cfi.TaNC.value():
    # Make sure we have the .mva training done
    mvaFileLocation = GetTrainingFile(neuralNetName, algorithm)
    if not os.path.exists(mvaFileLocation):
-      raise IOError, "Expected trained .mva file at %s, it doesn't exist!" % mvaFileLocation
+      raise IOError("Expected trained .mva file at %s, it doesn't exist!" % mvaFileLocation)
    # god bless you, python
    tempPSet.__setattr__(aNeuralNet.computerName.value(), cms.string(mvaFileLocation))
    toCopyList.append(neuralNetName)

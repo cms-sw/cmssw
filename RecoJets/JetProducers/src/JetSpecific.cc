@@ -51,7 +51,7 @@ void reco::writeSpecific(reco::CaloJet & jet,
     geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
   edm::ESHandle<HcalTopology> topology;
-  c.get<IdealGeometryRecord>().get(topology);
+  c.get<HcalRecNumberingRecord>().get(topology);
 
   // Make the specific
   reco::CaloJet::Specific specific;
@@ -268,6 +268,8 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
   float chargedMuEnergy=0.;
   int   chargedMultiplicity=0;
   int   neutralMultiplicity=0;
+
+  float HOEnergy=0.;
   
   vector<reco::CandidatePtr>::const_iterator itParticle;
   for (itParticle=particles.begin();itParticle!=particles.end();++itParticle){
@@ -277,6 +279,11 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
     }    
     const Candidate* pfCand = itParticle->get();
     if (pfCand) {
+
+      const PFCandidate* pfCandCast = dynamic_cast<const PFCandidate*>(pfCand);
+      if (pfCandCast)
+        HOEnergy += pfCandCast->hoEnergy();
+
       switch (std::abs(pfCand->pdgId())) {
       case 211: //PFCandidate::h:       // charged hadron
 	chargedHadronEnergy += pfCand->energy();
@@ -314,6 +321,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
       case 1: // PFCandidate::h_HF :    // hadron in HF
 	HFHadronEnergy += pfCand->energy();
 	HFHadronMultiplicity++;
+	neutralHadronEnergy += pfCand->energy();
 	neutralMultiplicity++;
 	break;
 
@@ -358,6 +366,8 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
   pfJetSpecific->mNeutralEmEnergy=neutralEmEnergy;
   pfJetSpecific->mChargedMultiplicity=chargedMultiplicity;
   pfJetSpecific->mNeutralMultiplicity=neutralMultiplicity;
+
+  pfJetSpecific->mHOEnergy= HOEnergy;
 
   return true;
 }

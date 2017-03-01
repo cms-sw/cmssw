@@ -5,6 +5,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
@@ -28,7 +29,7 @@ The filling of the values for each module is done later
 when the user starts to fill it.
 **********************************************************/
 
-TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabling* tkFed) {
+TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabling* tkFed,const TrackerTopology* const topology) {
 
  psetAvailable=true;
   xsize=340;ysize=200;
@@ -222,7 +223,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
  if(enableLVProcessing || enableHVProcessing){
 
    SiStripDetCabling* detCabling = 0;
-   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed );
+   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed,topology );
 
 
    int npsu=0; int nmod,nmodHV2,nmodHV3;
@@ -550,7 +551,6 @@ void TrackerMap::drawModule(TmModule * mod, int key,int mlay, bool print_total, 
   int numod=0;
   phi = phival(mod->posx,mod->posy);
   r = sqrt(mod->posx*mod->posx+mod->posy*mod->posy);
-  vhbot = mod->width;
   vhtop=mod->width;
   vhapo=mod->length;
   if(mlay < 31){ //endcap
@@ -746,7 +746,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
   }
-  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue)||!rangefound) printflag = false;
   if(!temporary_file){
     *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
     *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -1345,7 +1345,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           }
   
  
-  if(title==" Tracker Map from  QTestAlarm"){
+  if(title.find("QTestAlarm")!=std::string::npos){
       for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
           TmCcu *  ccu= i_ccu->second;
           if(ccu!=0) {
@@ -1481,9 +1481,10 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         col =gROOT->GetColor(ncolor+100);
         if(col)
           col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
-        else
+        else {
           c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
           vc.push_back(c);
+          }
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1612,7 +1613,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	 }
        }
    
-   if(title==" Tracker Map from  QTestAlarm"){
+   if(title.find("QTestAlarm")!=std::string::npos){
       for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
           TmPsu *  psu= ipsu->second;
           if(psu!=0) {
@@ -1762,9 +1763,10 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	col =gROOT->GetColor(ncolor+100);
 	if(col) 
 	  col->SetRGB((Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.)); 
-	else 
+	else {
 	  c = new TColor(ncolor+100,(Double_t)(red/255.),(Double_t)(green/255.),(Double_t)(blue/255.));
 	  vc.push_back(c);
+          }
 	ncolor++;
       }
       for (int i=0;i<npoints;i++){
@@ -1896,7 +1898,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     }
   }
   
-  if(title==" Tracker Map from  QTestAlarm"){
+  if(title.find("QTestAlarm")!=std::string::npos){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
       if(psu!=0) {
@@ -2190,7 +2192,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
-  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue)||!rangefound) printflag = false;
 
      if(filetype=="svg"){
       saveAsSingleLayer=false;

@@ -50,7 +50,7 @@ void
 ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
 {
   //CREATE OUTPUT COLLECTION
-  auto_ptr<ElectronSeedCollection> output(new ElectronSeedCollection);
+  auto output = std::make_unique<ElectronSeedCollection>();
 
   //HANDLE THE INPUT SEED COLLECTIONS
   Handle<ElectronSeedCollection> EcalBasedSeeds;
@@ -124,6 +124,6 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
   }
   
   //PUT THE MERGED COLLECTION IN THE EVENT
-  iEvent.put(output);
+  iEvent.put(std::move(output));
   
 }

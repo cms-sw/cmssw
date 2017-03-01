@@ -26,7 +26,6 @@ namespace edm {
 
   class HistoryAppender;
   class ModuleCallingContext;
-  class UnscheduledHandler;
 
   class RunPrincipal : public Principal {
   public:
@@ -38,7 +37,8 @@ namespace edm {
         std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
-        unsigned int iRunIndex);
+        unsigned int iRunIndex,
+        bool isForPrimaryProcess=true);
     ~RunPrincipal() {}
 
     void fillRunPrincipal(ProcessHistoryRegistry const& processHistoryRegistry, DelayedReader* reader = 0);
@@ -86,13 +86,9 @@ namespace edm {
       return aux_->mergeAuxiliary(aux);
     }
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
-
     void put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp);
-
-    void readImmediate() const;
+        std::unique_ptr<WrapperBase> edp) const;
 
     void setComplete() {
       complete_ = true;
@@ -102,14 +98,9 @@ namespace edm {
 
     virtual bool isComplete_() const override {return complete_;}
 
-    virtual bool unscheduledFill(std::string const&,
-                                 ModuleCallingContext const* mcc) const override {return false;}
-
     virtual unsigned int transitionIndex_() const override;
 
-    void resolveProductImmediate(ProductHolderBase const& phb) const;
-
-    std::shared_ptr<RunAuxiliary> aux_;
+    edm::propagate_const<std::shared_ptr<RunAuxiliary>> aux_;
     ProcessHistoryID m_reducedHistoryID;
     RunIndex index_;
 

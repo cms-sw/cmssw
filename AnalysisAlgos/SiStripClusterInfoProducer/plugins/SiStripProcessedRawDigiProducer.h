@@ -41,8 +41,8 @@ class SiStripProcessedRawDigiProducer : public edm::EDProducer {
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > > inputTokensRawDigi;
   edm::ESHandle<SiStripGain> gainHandle;
 
-  std::auto_ptr<SiStripPedestalsSubtractor>       subtractorPed;
-  std::auto_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
+  std::unique_ptr<SiStripPedestalsSubtractor>       subtractorPed;
+  std::unique_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
 
 };
 #endif

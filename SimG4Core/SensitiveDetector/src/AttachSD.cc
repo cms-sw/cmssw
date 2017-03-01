@@ -22,7 +22,7 @@ std::pair< std::vector<SensitiveTkDetector*>,
 	   std::vector<SensitiveCaloDetector*> > 
 AttachSD::create(const DDDWorld & w, 
 		 const DDCompactView & cpv,
-		 SensitiveDetectorCatalog & clg,
+		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p,
 		 const SimTrackManager* m,
 		 SimActivityRegistry& reg) const
@@ -33,8 +33,8 @@ AttachSD::create(const DDDWorld & w,
   //cout << " Initializing AttachSD " << endl;
   LogDebug("SimG4CoreSensitiveDetector") << " AttachSD: Initializing" ;
 //#endif
-  std::vector<std::string> rouNames = clg.readoutNames();
-  for (std::vector<std::string>::iterator it = rouNames.begin();
+  const std::vector<std::string>& rouNames = clg.readoutNames();
+  for (std::vector<std::string>::const_iterator it = rouNames.begin();
        it != rouNames.end(); it++) {
     std::string className = clg.className(*it);
     //std::cout<<" trying to find something for "<<className<<" " <<*it<<std::endl;

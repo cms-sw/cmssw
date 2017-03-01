@@ -44,8 +44,8 @@ class RPCHitAssociator {
   // Destructor
   ~RPCHitAssociator(){}
 
-   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit);
-   std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx);
+   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit) const;
+   std::set<RPCDigiSimLink> findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx) const;
    //   const PSimHit* linkToSimHit(RPCDigiSimLink link);
 
 

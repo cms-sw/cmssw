@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
@@ -92,7 +91,7 @@
     if (!(enabled_ = pset.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
-    StorageFactory* f = StorageFactory::get();
+    StorageFactory* f = StorageFactory::getToModify();
     doStats_ = pset.getUntrackedParameter<bool> ("stats", doStats_);
 
     // values set in the site local config or in SiteLocalConfigService override
@@ -176,8 +175,13 @@
     // set our own root plugins
     TPluginManager* mgr = gROOT->GetPluginManager();
 
+    // Make sure ROOT parses system directories first.
+    mgr->LoadHandlersFromPluginDirs("TFile");
+    mgr->LoadHandlersFromPluginDirs("TSystem");
+
     if (!native("file"))      addType(mgr, "^file:");
     if (!native("http"))      addType(mgr, "^http:");
+    if (!native("http"))      addType(mgr, "^http[s]?:");
     if (!native("ftp"))       addType(mgr, "^ftp:");
     /* always */              addType(mgr, "^web:");
     /* always */              addType(mgr, "^gsiftp:");
@@ -189,9 +193,8 @@
     if (!native("storm"))     addType(mgr, "^storm:");
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
     if (!native("lstore"))    addType(mgr, "^lstore:");
-    // This is ready to go from a code point-of-view.
-    // Waiting on the validation "OK" from Computing.
     if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
+    if (!native("root"))      addType(mgr, "^[x]?root:", 1); // See comments in addType
   }
 
   void
@@ -255,31 +258,12 @@
     data.insert(std::make_pair("ROOT-tfile-write-totalMegabytes", w.str()));
   }
 
-/*
- * wrapper to bind TFileAdaptor to root, python etc
- * loading IOPoolTFileAdaptor library and instantiating
- * TFileAdaptorUI will make root to use StorageAdaptor for I/O instead
- * of its own plugins
- */
-class TFileAdaptorUI {
-public:
-
-  TFileAdaptorUI();
-  ~TFileAdaptorUI();
-
-  // print current Storage statistics on cout
-  void stats() const;
-
-private:
-  boost::shared_ptr<TFileAdaptor> me;
-};
-
 #include <iostream>
 
 TFileAdaptorUI::TFileAdaptorUI() {
   edm::ActivityRegistry ar;
   const edm::ParameterSet param;
-  me.reset(new TFileAdaptor(param, ar));
+  me = std::make_shared<TFileAdaptor>(param, ar); // propagate_const<T> has no reset() function
 }
 
 TFileAdaptorUI::~TFileAdaptorUI() {}
@@ -287,7 +271,3 @@ TFileAdaptorUI::~TFileAdaptorUI() {}
 void TFileAdaptorUI::stats() const {
   me->stats(std::cout); std::cout << std::endl;
 }
-
-typedef TFileAdaptor AdaptorConfig;
-
-DEFINE_FWK_SERVICE(AdaptorConfig);

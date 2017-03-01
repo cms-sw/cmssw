@@ -29,12 +29,12 @@ public:
 
   ~G4SimTrack() {}
 
-  const int id() const { return id_; }
-  const int part() const { return ipart_; }
+  int id() const { return id_; }
+  int part() const { return ipart_; }
   const math::XYZVectorD & momentum() const { return ip_; }
-  const double energy() const { return ie_; }
-  int const ivert() const { return ivert_; }
-  int const igenpart() const { return igenpart_; }
+  double energy() const { return ie_; }
+  int ivert() const { return ivert_; }
+  int igenpart() const { return igenpart_; }
   // parent momentum at interaction
   const math::XYZVectorD & parentMomentum() const { return parentMomentum_; } 
   // Information at level of tracker surface
@@ -42,7 +42,7 @@ public:
   const math::XYZTLorentzVectorD & trackerSurfaceMomentum() const {return tkSurfaceMomentum_;}
   // parent track ID (only stored if parent momentum at interaction
   // is stored, else = -1)
-  const int parentID() const { return parentID_; }
+  int parentID() const { return parentID_; }
 private:
   int id_;
   int ipart_;

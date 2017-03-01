@@ -1,6 +1,5 @@
 #include "CondFormats/SiStripObjects/src/headers.h"
 
-
 namespace CondFormats_SiStripObjects {
   struct dictionary {
     std::vector< std::vector<FedChannelConnection> > tmp1;
@@ -13,6 +12,8 @@ namespace CondFormats_SiStripObjects {
    
     std::vector<SiStripThreshold::Container>  tmp22;
     std::vector< SiStripThreshold::DetRegistry >  tmp24;
+
+    std::vector<Phase2TrackerModule> vp2m;
  
   };
 }  

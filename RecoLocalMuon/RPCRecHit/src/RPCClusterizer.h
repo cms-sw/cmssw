@@ -5,19 +5,13 @@
  */
 
 #include "RPCClusterContainer.h"
+#include "RPCCluster.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
-class RPCCluster;
 class RPCClusterizer{
  public:
-  RPCClusterizer();
-  ~RPCClusterizer();
+  RPCClusterizer() {};
+  ~RPCClusterizer() {};
   RPCClusterContainer doAction(const RPCDigiCollection::Range& digiRange);
-
- private:
-  RPCClusterContainer doActualAction(RPCClusterContainer& initialclusters);
-
- private:
-  RPCClusterContainer cls;
 };
 #endif

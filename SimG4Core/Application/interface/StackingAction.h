@@ -2,6 +2,7 @@
 #define SimG4Core_StackingAction_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "G4UserStackingAction.hh"
 #include "G4Region.hh"
@@ -12,14 +13,18 @@
 #include <vector>
 
 class NewTrackAction;
+class TrackingAction;
+class CMSSteppingVerbose;
 
 class StackingAction : public G4UserStackingAction {
 
 public:
-  StackingAction(const edm::ParameterSet & ps);
+  explicit StackingAction(const TrackingAction*, const edm::ParameterSet & ps, 
+			  const CMSSteppingVerbose*);
+
   virtual ~StackingAction();
 
-  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack);
+  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack) final;
 
   void NewStage();
   void PrepareNewEvent();
@@ -34,7 +39,7 @@ private:
 
   bool rrApplicable(const G4Track*, const G4Track&) const;
 
-  bool isItLongLived(const G4Track*) const;
+  bool isItOutOfTimeWindow(const G4Region*, const G4Track*) const;
 
   bool isThisRegion(const G4Region*, std::vector<const G4Region*>&) const;
 
@@ -48,6 +53,7 @@ private:
   bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
+  bool                          killExtra;
   bool                          killGamma;
   double                        limitEnergyForVacuum;
   double                        kmaxIon, kmaxNeutron, kmaxProton;
@@ -65,7 +71,11 @@ private:
   std::vector<const G4Region*>  lowdensRegions;
   std::vector<const G4Region*>  deadRegions;
 
+  G4VSolid*                     worldSolid;
+  const TrackingAction*         trackAction;
+  const CMSSteppingVerbose*     steppingVerbose;
   NewTrackAction*               newTA;
+  TrackInformationExtractor     extractor;
 
   // Russian roulette regions
   const G4Region*               regionEcal;
@@ -78,31 +88,23 @@ private:
   // Russian roulette energy limits
   double                        gRusRoEnerLim;
   double                        nRusRoEnerLim;
-  double                        pRusRoEnerLim;
 
   // Russian roulette factors
   double                        gRusRoEcal;
   double                        nRusRoEcal;
-  double                        pRusRoEcal;
   double                        gRusRoHcal;
   double                        nRusRoHcal;
-  double                        pRusRoHcal;
   double                        gRusRoMuonIron;
   double                        nRusRoMuonIron;
-  double                        pRusRoMuonIron;
   double                        gRusRoPreShower;
   double                        nRusRoPreShower;
-  double                        pRusRoPreShower;
   double                        gRusRoCastor;
   double                        nRusRoCastor;
-  double                        pRusRoCastor;
   double                        gRusRoWorld;
   double                        nRusRoWorld;
-  double                        pRusRoWorld;
   // flags
   bool                          gRRactive;
   bool                          nRRactive;
-  bool                          pRRactive;
 };
 
 #endif

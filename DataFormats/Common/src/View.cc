@@ -9,10 +9,10 @@ namespace edm
 
   ViewBase::~ViewBase() { }
 
-  ViewBase*
+  std::unique_ptr<ViewBase>
   ViewBase::clone() const
   {
-    ViewBase* p = doClone();
+    auto p = doClone();
     assert(typeid(*p)==typeid(*this) && "doClone() incorrectly overriden");
     return p;
   }

@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
@@ -28,9 +28,9 @@ class CandidateTriggerObjectProducer : public edm::EDProducer {
 
  private:
   virtual void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
-  virtual void beginJob() {} ;
+  virtual void beginJob() override {} ;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() {} ;
+  virtual void endJob() override {} ;
 
   /// module config parameters
   edm::InputTag triggerResultsTag_;
@@ -42,7 +42,6 @@ class CandidateTriggerObjectProducer : public edm::EDProducer {
   /// additional class data memebers
   edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
-  HLTConfigProvider hltConfig_;
-
+  HLTPrescaleProvider hltPrescaleProvider_;
 };
 #endif

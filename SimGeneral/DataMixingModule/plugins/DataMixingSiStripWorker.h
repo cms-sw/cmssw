@@ -1,4 +1,4 @@
-#ifndef DataMixingSiStripWorker_h
+#ifndef SimDataMixingSiStripWorker_h
 #define SimDataMixingSiStripWorker_h
 
 /** \class DataMixingSiStripWorker
@@ -85,4 +85,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingSiStripWorker_h

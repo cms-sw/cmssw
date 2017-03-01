@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -30,7 +31,7 @@ namespace {
   }
 }
 
-BOOST_PYTHON_MODULE(libFWCoreParameterSet)
+BOOST_PYTHON_MODULE(libFWCorePythonParameterSet)
 {
   boost::python::register_exception_translator<cms::Exception>(translator);
 
@@ -48,7 +49,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
    .def("data",  &edm::ESInputTag::data, boost::python::return_value_policy<boost::python::copy_const_reference>())
    ;
 
-   boost::python::class_<edm::EventID>("EventID", boost::python::init<unsigned int, unsigned int, unsigned int>())
+   boost::python::class_<edm::EventID>("EventID", boost::python::init<edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t>())
       .def("run",   &edm::EventID::run)
       .def("luminosityBlock", &edm::EventID::luminosityBlock)
       .def("event", &edm::EventID::event)
@@ -71,7 +72,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
       .def("endSub",   &edm::LuminosityBlockRange::endLumi)
   ;
 
-  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>())
+  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t>())
       .def("start",     &edm::EventRange::startRun)
       .def("startLumi", &edm::EventRange::startLumi)
       .def("startSub",  &edm::EventRange::startEvent)
@@ -151,6 +152,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   boost::python::class_<PythonProcessDesc>("ProcessDesc", boost::python::init<>())
     .def(boost::python::init<std::string>())
     .def("newPSet", &PythonProcessDesc::newPSet)
+  .def("pset", &PythonProcessDesc::pset, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("dump", &PythonProcessDesc::dump)
   ;
 }

@@ -35,7 +35,7 @@ class RPCRoll : public GeomDetUnit{
   float localPitch(const LocalPoint& lp) const; 
   bool isBarrel() const; 
   bool isForward() const;
-  
+  bool isIRPC() const {return (((this->id()).region()!=0) && (((this->id()).station()==3)||((this->id()).station()==4))&&((this->id()).ring()==1));}
  private:
   void setChamber(const RPCChamber* ch);
 

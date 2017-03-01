@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <list> 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 using namespace std;

@@ -17,12 +17,13 @@
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan  13 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
+
 // system include files
 #include <string>
 #include <typeinfo>
 //
 // // user include files
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "FWCore/Common/interface/RunBase.h"
 
 #include "Rtypes.h"
@@ -42,12 +43,6 @@ namespace fwlite
                                   char const*,
                                   char const*,
                                   void*) const = 0;
-         virtual bool getByLabel(
-                                  std::type_info const&,
-                                  char const*,
-                                  char const*,
-                                  char const*,
-                                  edm::WrapperHolder&) const = 0;
 
          using edm::RunBase::getByLabel;
 
@@ -71,5 +66,4 @@ namespace fwlite
    };
 } // fwlite namespace
 
-#endif /*__CINT__ */
 #endif

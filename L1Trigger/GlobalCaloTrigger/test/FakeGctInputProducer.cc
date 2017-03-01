@@ -30,8 +30,8 @@ FakeGctInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // containers
-  std::auto_ptr<L1CaloEmCollection> emCands (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> regions (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> emCands (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> regions (new L1CaloRegionCollection);
 
 
   /// REGIONS ///
@@ -128,8 +128,8 @@ FakeGctInputProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   // put everything in the event
-  iEvent.put(emCands);
-  iEvent.put(regions);
+  iEvent.put(std::move(emCands));
+  iEvent.put(std::move(regions));
   
 
 }

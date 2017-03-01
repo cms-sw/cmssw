@@ -13,3 +13,5 @@
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerModule.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"

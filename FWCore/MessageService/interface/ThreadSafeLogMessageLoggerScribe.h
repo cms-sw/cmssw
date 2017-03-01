@@ -2,6 +2,7 @@
 #define FWCore_MessageService_ThreadSafeLogMessageLoggerScribe_h
 
 #include "FWCore/Utilities/interface/value_ptr.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "FWCore/MessageService/interface/ELdestControl.h"
 #include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
@@ -94,12 +95,12 @@ private:
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
   
   // --- data:
-  std::shared_ptr<ELadministrator>  admin_p;
+  edm::propagate_const<std::shared_ptr<ELadministrator>>  admin_p;
   ELdestControl                       early_dest;
-  std::vector<std::shared_ptr<std::ofstream> > file_ps;
-  std::shared_ptr<PSet>             job_pset_p;
+  std::vector<edm::propagate_const<std::shared_ptr<std::ofstream>>> file_ps;
+  edm::propagate_const<std::shared_ptr<PSet>> job_pset_p;
   std::vector<NamedDestination     *> extern_dests;
-  std::map<String,std::ostream     *> stream_ps;
+  std::map<String, edm::propagate_const<std::ostream*>> stream_ps;
   std::vector<String> 	  	      ordinary_destination_filenames;
   std::vector<ELdestControl>          statisticsDestControls;
   std::vector<bool>                   statisticsResets;

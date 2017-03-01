@@ -52,15 +52,13 @@
 #include "TMath.h"
 #include "TF1.h"
 
-
-
-
 class G4Step;
 class BeginOfJob;
 class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
 class EndOfEvent;
+class ZdcNumberingScheme;
 
 class ZdcTestAnalysis : public SimWatcher,
 			public Observer<const BeginOfJob *>, 
@@ -104,6 +102,8 @@ private:
 
   Float_t zdcsteparray[18];
   Float_t zdceventarray[16];
+
+  ZdcNumberingScheme* theZdcNumScheme;
 
 };
 

@@ -10,35 +10,52 @@ from Validation.RecoMET.METValidation_cfi import *
 # as requested by DQM group to reduce the load on server.
 # -Samantha Hewamanage (samantha@cern.ch) - 04-27-2012
 
-from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfJetMETcorr, pfchsMETcorr, pfType1CorrectedMet
+from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT0pc,pfMetT0pcT1,pfMetT1
+from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
+from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
-newAk5PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
-pfJetMETcorr.jetCorrLabel = cms.string('newAk5PFL1FastL2L3')
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFCHSL1FastL2L3ResidualCorrectorChain,ak4PFCHSL1FastL2L3CorrectorChain,ak4PFCHSL1FastL2L3ResidualCorrector,ak4PFCHSResidualCorrector,ak4PFCHSL1FastL2L3Corrector,ak4PFCHSL3AbsoluteCorrector,ak4PFCHSL2RelativeCorrector,ak4PFCHSL1FastjetCorrector
 
-pfType0CorrectedMet = pfType1CorrectedMet.clone(applyType0Corrections = cms.bool(True), applyType1Corrections = cms.bool(False))
-pfType01CorrectedMet = pfType1CorrectedMet.clone(applyType0Corrections = cms.bool(True), applyType1Corrections = cms.bool(True))
+newAK4PFCHSL1FastL2L3Corrector = ak4PFCHSL1FastL2L3Corrector.clone()
+newAK4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
+    #ak4PFCHSL1FastjetCorrector * ak4PFCHSL2RelativeCorrector * ak4PFCHSL3AbsoluteCorrector * 
+    newAK4PFCHSL1FastL2L3Corrector
+    )
+
+newAK4PFCHSL1FastL2L3ResidualCorrector = ak4PFCHSL1FastL2L3ResidualCorrector.clone()
+newAK4PFCHSL1FastL2L3ResidualCorrectorChain = cms.Sequence(
+    #ak4PFCHSL1FastjetCorrector * ak4PFCHSL2RelativeCorrector * ak4PFCHSL3AbsoluteCorrector * 
+    newAK4PFCHSL1FastL2L3ResidualCorrector
+    )
+
+metPreValidSeq=cms.Sequence(ak4PFCHSL1FastjetCorrector * ak4PFCHSL2RelativeCorrector * ak4PFCHSL3AbsoluteCorrector * ak4PFCHSResidualCorrector)
+
+valCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('newAK4PFCHSL1FastL2L3Corrector'),
+                                       jetCorrLabelRes = cms.InputTag('newAK4PFCHSL1FastL2L3ResidualCorrector')
+                                      )
+
+PfMetT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
+        cms.InputTag('valCorrPfMetType1', 'type1')
+        ))
+
+PfMetT0pcT1=pfMetT0pcT1.clone(
+    srcCorrections = cms.VInputTag(
+        cms.InputTag('corrPfMetType0PfCand'),
+        cms.InputTag('valCorrPfMetType1', 'type1')
+        )
+    )
 
 METRelValSequence = cms.Sequence(
     metAnalyzer*
-    #metHOAnalyzer*
-    #metNoHFAnalyzer*
-    #metNoHFHOAnalyzer*
-    #metOptAnalyzer*
-    #metOptHOAnalyzer*
-    #metOptNoHFAnalyzer*
-    #metOptNoHFHOAnalyzer
     pfMetAnalyzer*
-    #tcMetAnalyzer*
-    #corMetGlobalMuonsAnalyzer*
     genMetTrueAnalyzer*
-    #genMetCaloAnalyzer*
-    #genMetCaloAndNonPromptAnalyzer
-    pfJetMETcorr*
-    pfchsMETcorr*
-    pfType0CorrectedMet*
-    pfType1CorrectedMet*
-    pfType01CorrectedMet*
+    correctionTermsPfMetType0PFCandidateForValidation*
+    newAK4PFCHSL1FastL2L3CorrectorChain*
+    newAK4PFCHSL1FastL2L3ResidualCorrectorChain*
+    valCorrPfMetType1*
+    pfMetT0pc*
+    PfMetT1*
+    PfMetT0pcT1*
     pfType0CorrectedMetAnalyzer*
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
@@ -47,29 +64,18 @@ METRelValSequence = cms.Sequence(
 
 METValidation = cms.Sequence(
     metAnalyzer*
-    #metHOAnalyzer*
-    #metNoHFAnalyzer*
-    #metNoHFHOAnalyzer*
-    #metOptAnalyzer*
-    #metOptHOAnalyzer*
-    #metOptNoHFAnalyzer*
-    #metOptNoHFHOAnalyzer*
     pfMetAnalyzer*
-    #tcMetAnalyzer*
-    #corMetGlobalMuonsAnalyzer*
-    genMetTrueAnalyzer*#*
-    #genMetCaloAnalyzer*
-    #genMetCaloAndNonPromptAnalyzer
-    pfJetMETcorr*
-    pfchsMETcorr*
-    pfType0CorrectedMet*
-    pfType1CorrectedMet*
-    pfType01CorrectedMet*
+    genMetTrueAnalyzer*
+    correctionTermsPfMetType0PFCandidateForValidation*
+    newAK4PFCHSL1FastL2L3CorrectorChain*
+    newAK4PFCHSL1FastL2L3ResidualCorrectorChain*
+    valCorrPfMetType1*
+    pfMetT0pc*
+    PfMetT1*
+    PfMetT0pcT1*
     pfType0CorrectedMetAnalyzer*
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
     )
 
-
-
-
+METValidationMiniAOD = cms.Sequence(pfType1CorrectedMetAnalyzerMiniAOD*pfPuppiMetAnalyzerMiniAOD)

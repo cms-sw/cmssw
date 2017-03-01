@@ -1,6 +1,34 @@
 #include <FWCore/Utilities/interface/ESInputTag.h>
-#include "RecoTracker/TkNavigation/plugins/NavigationSchoolESProducer.h"
 
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "NavigationSchoolFactory.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
+
+//
+// class decleration
+//
+
+class dso_hidden NavigationSchoolESProducer final : public edm::ESProducer {
+public:
+  NavigationSchoolESProducer(const edm::ParameterSet&);
+  ~NavigationSchoolESProducer();
+  
+  typedef std::shared_ptr<NavigationSchool> ReturnType;
+
+  virtual ReturnType produce(const NavigationSchoolRecord&);
+ protected:
+  // ----------member data ---------------------------
+  edm::ParameterSet theNavigationPSet;
+  std::string theNavigationSchoolName;
+  std::shared_ptr<NavigationSchool> theNavigationSchool ;
+};
 
 //
 //
@@ -55,3 +83,7 @@ NavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord)
 								    field.product()));
    return theNavigationSchool ;
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_EVENTSETUP_MODULE(NavigationSchoolESProducer);

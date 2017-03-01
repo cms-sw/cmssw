@@ -49,8 +49,8 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     #lAWidthFPix = cms.double(0.0),
 
     # Flag to select the source of LA-Width
-    # Normal = True, use LA from DB, not ready yet
-    useLAWidthFromDB = cms.bool(False),                             
+    # Normal = True, use LA from DB
+    useLAWidthFromDB = cms.bool(True),                             
     # if lAWith=0 and useLAWidthFromDB=false than width is calculated from lAOffset.         
     # Use the LA-Offsets from Alignment instead of our calibration
     useLAAlignmentOffsets = cms.bool(False),                             
@@ -59,4 +59,16 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     MagneticFieldRecord = cms.ESInputTag(""),
 )
 
+# This customization will be removed once we get the templates for phase2 pixel
+# FIXME::Is the Upgrade variable actually used?
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(PixelCPEGenericESProducer, 
+  useLAWidthFromDB = False,
+  UseErrorsFromTemplates = False,
+  LoadTemplatesFromDB = False,
+  TruncatePixelCharge = False,
+  IrradiationBiasCorrection = False,
+  DoCosmics = False,
+  Upgrade = cms.bool(True)
+)
 

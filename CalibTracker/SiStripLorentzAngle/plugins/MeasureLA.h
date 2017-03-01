@@ -9,6 +9,8 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripCommon/interface/Book.h"
 
+#include <memory>
+
 namespace sistrip {
 
 class MeasureLA : public edm::ESProducer {
@@ -16,7 +18,7 @@ class MeasureLA : public edm::ESProducer {
  public:
 
   explicit MeasureLA(const edm::ParameterSet&);
-  boost::shared_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleRcd&);
+  std::shared_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleRcd&);
   
  private:
 

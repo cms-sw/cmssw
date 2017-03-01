@@ -1,0 +1,7 @@
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="RecoLocalTracker/Records"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="RecoLocalTracker/Phase2TrackerRecHits"/>
+<library file="*.cc" name="RecoLocalTrackerPhase2TrackerRecHitsPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

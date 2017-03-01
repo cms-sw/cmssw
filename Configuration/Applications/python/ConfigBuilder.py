@@ -7,7 +7,9 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
 import sys
 import re
-
+import collections
+from subprocess import Popen,PIPE
+import FWCore.ParameterSet.DictTypes as DictTypes
 class Options:
         pass
 
@@ -19,14 +21,14 @@ defaultOptions.isData=True
 defaultOptions.step=''
 defaultOptions.pileup='NoPileUp'
 defaultOptions.pileup_input = None
+defaultOptions.pileup_dasoption = ''
 defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
-defaultOptions.magField = '38T'
+defaultOptions.magField = ''
 defaultOptions.conditions = None
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
-defaultOptions.himix = False
 defaultOptions.number = -1
 defaultOptions.number_out = None
 defaultOptions.arguments = ""
@@ -34,8 +36,10 @@ defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = ""
 defaultOptions.dasquery=""
+defaultOptions.dasoption=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = []
+defaultOptions.customisation_file_unsch = []
 defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
@@ -61,7 +65,6 @@ defaultOptions.outputCommands = None
 defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
-defaultOptions.slhc = None
 defaultOptions.profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
@@ -73,6 +76,8 @@ defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
+defaultOptions.timeoutOutput = False
+defaultOptions.nThreads = '1'
 
 # some helper routines
 def dumpPython(process,name):
@@ -117,13 +122,28 @@ def filesFromList(fileName,s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 	
-def filesFromDASQuery(query,s=None):
-	import os
+def filesFromDASQuery(query,option="",s=None):
+	import os,time
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
 	sec=[]
 	print "the query is",query
-	for line in os.popen('das_client.py --query "%s"'%(query)):
+	eC=5
+	count=0
+	while eC!=0 and count<3:
+		if count!=0:
+			print 'Sleeping, then retrying DAS'
+			time.sleep(100)
+		p = Popen('das_client %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+                pipe=p.stdout.read()
+		tupleP = os.waitpid(p.pid, 0)
+		eC=tupleP[1]
+		count=count+1
+	if eC==0:
+		print "DAS succeeded after",count,"attempts",eC
+	else:
+		print "DAS failed 3 times- I give up"
+	for line in pipe.split('\n'):
 		if line.count(".root")>=2:
 			#two files solution...
 			entries=line.replace("\n","").split()
@@ -154,14 +174,26 @@ def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker")
 	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	for s in aProcess.paths_().keys():
 		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
+	for s in aProcess.endpaths_().keys():
+		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
 
+def anyOf(listOfKeys,dict,opt=None):
+	for k in listOfKeys:
+		if k in dict:
+			toReturn=dict[k]
+			dict.pop(k)
+			return toReturn
+	if opt!=None:
+		return opt
+	else:
+		raise Exception("any of "+','.join(listOfKeys)+" are mandatory entries of --output options")
 
 class ConfigBuilder(object):
     """The main building routines """
 
     def __init__(self, options, process = None, with_output = False, with_input = False ):
         """options taken from old cmsDriver and optparse """
-
+	    
         options.outfile_name = options.dirout+options.fileout
 
         self._options = options
@@ -171,8 +203,18 @@ class ConfigBuilder(object):
         #if not self._options.conditions:
         #        raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
-	if hasattr(self._options,"datatier") and self._options.datatier and 'DQMIO' in self._options.datatier and 'ENDJOB' in self._options.step:
-		self._options.step=self._options.step.replace(',ENDJOB','')
+	# check that MEtoEDMConverter (running in ENDJOB) and DQMIO don't run in the same job
+	if 'ENDJOB' in self._options.step:
+		if  (hasattr(self._options,"outputDefinition") and \
+		    self._options.outputDefinition != '' and \
+		    any(anyOf(['t','tier','dataTier'],outdic) == 'DQMIO' for outdic in eval(self._options.outputDefinition))) or \
+		    (hasattr(self._options,"datatier") and \
+		    self._options.datatier and \
+		    'DQMIO' in self._options.datatier):
+			print "removing ENDJOB from steps since not compatible with DQMIO dataTier" 
+			self._options.step=self._options.step.replace(',ENDJOB','')
+
+
 		
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -196,10 +238,6 @@ class ConfigBuilder(object):
 		
         #print "map of steps is:",self.stepMap
 
-	if 'FASTSIM' in self.stepMap:
-		#overriding the --fast option to True
-		self._options.fast=True
-		
         self.with_output = with_output
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
@@ -209,6 +247,7 @@ class ConfigBuilder(object):
         else:
             self.process = process
         self.imports = []
+        self.importsUnsch = []
         self.define_Configs()
         self.schedule = list()
 
@@ -225,6 +264,7 @@ class ConfigBuilder(object):
         self.productionFilterSequence = None
 	self.nextScheduleIsConditional=False
 	self.conditionalPaths=[]
+	self.excludedPaths=[]
 
     def profileOptions(self):
 	    """
@@ -274,14 +314,18 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile):
+    def loadAndRemember(self, includeFile,unsch=0):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-        self.imports.append(includeFile)
-        self.process.load(includeFile)
-        return sys.modules[includeFile]
+	if unsch==0:
+		self.imports.append(includeFile)
+		self.process.load(includeFile)
+		return sys.modules[includeFile]
+	else:
+		self.importsUnsch.append(includeFile)
+		return 0#sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -341,7 +385,7 @@ class ConfigBuilder(object):
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:") or entry.startswith("das:"):
-				filesFromDASQuery('file dataset = %s'%(entry[4:]),self.process.source)
+				filesFromDASQuery('file dataset = %s'%(entry[4:]),self._options.dasoption,self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -352,7 +396,7 @@ class ConfigBuilder(object):
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
 				elif entry.startswith("dbs:") or entry.startswith("das:"):
-					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:])))[0])
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:]),self._options.dasoption))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 
@@ -378,6 +422,10 @@ class ConfigBuilder(object):
 			   for line in textOfFiles:
 				   for fileName in [x for x in line.split() if '.lhe' in x]:
 					   self.process.source.fileNames.append(location+article+'/'+fileName)
+			   #check first if list of LHE files is loaded (not empty)
+			   if len(line)<2:
+				   print 'Issue to load LHE files, please check and try again.'
+				   sys.exit(-1)
 			   if len(args)>2:
 				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
 		   else:
@@ -388,15 +436,27 @@ class ConfigBuilder(object):
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
 		   filesFromOption(self)
+
+	   elif self._options.filetype == "DQMDAQ":
+		   # FIXME: how to configure it if there are no input files specified?
+		   self.process.source=cms.Source("DQMStreamerReader")
+		   
 			   
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-	       filesFromDASQuery(self._options.dasquery,self.process.source)
+	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
 
-	if self._options.inputCommands:
+	##drop LHEXMLStringProduct on input to save memory if appropriate
+	if 'GEN' in self.stepMap.keys():
+        	if self._options.inputCommands:
+        		self._options.inputCommands+=',drop LHEXMLStringProduct_*_*_*,'
+		else:
+			self._options.inputCommands='keep *, drop LHEXMLStringProduct_*_*_*,'    
+
+	if self.process.source and self._options.inputCommands:
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for command in self._options.inputCommands.split(','):
 			# remove whitespace around the keep/drop statements
@@ -413,10 +473,6 @@ class ConfigBuilder(object):
         if 'GEN' in self.stepMap.keys() or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
-            # if option himix is active, drop possibly duplicate DIGI-RAW info:
-            if self._options.himix==True:
-                self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
-                self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
 
 	# modify source in case of run-dependent MC
 	self.runsAndWeights=None
@@ -447,18 +503,7 @@ class ConfigBuilder(object):
 	if self._options.outputDefinition:
 		if self._options.datatier:
 			print "--datatier & --eventcontent options ignored"
-			
-		def anyOf(listOfKeys,dict,opt=None):
-			for k in listOfKeys:
-				if k in dict:
-					toReturn=dict[k]
-					dict.pop(k)
-					return toReturn
-			if opt!=None:
-				return opt
-			else:
-				raise Exception("any of "+','.join(listOfKeys)+" are mandatory entries of --output options")
-				
+							
 		#new output convention with a list of dict
 		outList = eval(self._options.outputDefinition)
 		for (id,outDefDict) in enumerate(outList):
@@ -502,11 +547,16 @@ class ConfigBuilder(object):
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
 			else:
 				theEventContent = getattr(self.process, theStreamType+"EventContent")
-				
+
+
+			addAlCaSelects=False
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
+				addAlCaSelects=True
 
 			CppType='PoolOutputModule'
+			if self._options.timeoutOutput:
+				CppType='TimeoutPoolOutputModule'
 			if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
 			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
@@ -515,12 +565,19 @@ class ConfigBuilder(object):
 				                     dataTier = cms.untracked.string(theTier),
 						     filterName = cms.untracked.string(theFilterName))
 						  )
-			if not theSelectEvent and hasattr(self.process,'generation_step'):
+			if not theSelectEvent and hasattr(self.process,'generation_step') and theStreamType!='LHE':
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 			if not theSelectEvent and hasattr(self.process,'filtering_step'):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
 			if theSelectEvent:
 				output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
+
+			if addAlCaSelects:
+				if not hasattr(output,'SelectEvents'):
+					output.SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring())
+				for alca in self.AlCaPaths:
+					output.SelectEvents.SelectEvents.extend(getattr(self.process,'OutALCARECO'+alca).SelectEvents.SelectEvents)
+
 			
 			if hasattr(self.process,theModuleLabel):
 				raise Exception("the current process already has a module "+theModuleLabel+" defined")
@@ -568,6 +625,8 @@ class ConfigBuilder(object):
                         theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
+		if self._options.timeoutOutput:
+			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
@@ -576,7 +635,7 @@ class ConfigBuilder(object):
                                                                        filterName = cms.untracked.string(theFilterName)
                                                                        )
                                           )
-                if hasattr(self.process,"generation_step"):
+                if hasattr(self.process,"generation_step") and streamType!='LHE':
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
 		if hasattr(self.process,"filtering_step"):
                         output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
@@ -617,9 +676,14 @@ class ConfigBuilder(object):
         # load the pile up file
 	if self._options.pileup:
 		pileupSpec=self._options.pileup.split(',')[0]
+
+		# Does the requested pile-up scenario exist?
 		from Configuration.StandardSequences.Mixing import Mixing,defineMixing
 		if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:
-			raise Exception(pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys()))
+			message = pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys())
+			raise Exception(message)
+
+		# Put mixing parameters in a dictionary
 		if '.' in pileupSpec:
 			mixingDict={'file':pileupSpec}
 		elif pileupSpec.startswith('file:'):
@@ -629,6 +693,8 @@ class ConfigBuilder(object):
 			mixingDict=copy.copy(Mixing[pileupSpec])
 		if len(self._options.pileup.split(','))>1:
 			mixingDict.update(eval(self._options.pileup[self._options.pileup.find(',')+1:]))
+
+		# Load the pu cfg file corresponding to the requested pu scenario
 		if 'file:' in pileupSpec:
 			#the file is local
 			self.process.load(mixingDict['file'])
@@ -641,17 +707,16 @@ class ConfigBuilder(object):
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
 			if self._options.pileup_input:
 				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
+				elif self._options.pileup_input.startswith("filelist:"):
+					mixingDict['F']=(filesFromList(self._options.pileup_input[9:]))[0]
 				else:
 					mixingDict['F']=self._options.pileup_input.split(',')
-			specialization=defineMixing(mixingDict,self._options.fast)
+			specialization=defineMixing(mixingDict)
 			for command in specialization:
 				self.executeAndRemember(command)
 			if len(mixingDict)!=0:
 				raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
-
-			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
-				self.executeAndRemember('process.mix.playback= True')
 
 
         # load the geometry file
@@ -739,23 +804,24 @@ class ConfigBuilder(object):
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
 						
         self.loadAndRemember(self.ConditionsDefaultCFF)
-
         from Configuration.AlCa.GlobalTag import GlobalTag
         self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
         self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
         self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
-	if self._options.slhc:
-		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
-		
 
-    def addCustomise(self):
+    def addCustomise(self,unsch=0):
         """Include the customise code """
 
 	custOpt=[]
-	for c in self._options.customisation_file:
-		custOpt.extend(c.split(","))
-	custMap={}
+	if unsch==0:
+		for c in self._options.customisation_file:
+			custOpt.extend(c.split(","))
+	else:
+		for c in self._options.customisation_file_unsch:
+			custOpt.extend(c.split(","))
+
+	custMap=DictTypes.SortedKeysDict()
 	for opt in custOpt:
 		if opt=='': continue
 		if opt.count('.')>1:
@@ -814,10 +880,13 @@ class ConfigBuilder(object):
 	if len(custMap)!=0:
 		final_snippet += '\n# End of customisation functions\n'
 
-	### now for a usuful command
+	### now for a useful command
+	return final_snippet
+
+    def addCustomiseCmdLine(self):
+        final_snippet='\n# Customisation from command line\n'
 	if self._options.customise_commands:
 		import string
-		final_snippet +='\n# Customisation from command line'
 		for com in self._options.customise_commands.split('\\n'):
 			com=string.lstrip(com)
 			self.executeAndRemember(com)
@@ -898,7 +967,7 @@ class ConfigBuilder(object):
         self.RAW2DIGIDefaultSeq='RawToDigi'
         self.L1RecoDefaultSeq='L1Reco'
         self.L1TrackTriggerDefaultSeq='L1TrackTrigger'
-        if 'RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap:
+        if self._options.fast or ('RAW2DIGI' in self.stepMap and 'RECO' in self.stepMap):
                 self.RECODefaultSeq='reconstruction'
         else:
                 self.RECODefaultSeq='reconstruction_fromRECO'
@@ -907,7 +976,6 @@ class ConfigBuilder(object):
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
-        self.FASTSIMDefaultSeq='all'
         self.VALIDATIONDefaultSeq=''
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
@@ -933,10 +1001,12 @@ class ConfigBuilder(object):
 		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='cosmics':
+	    self._options.pileup='Cosmics'	
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
 	    self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
+            self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationCosmics_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
             if self._options.isMC==True:
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmicsMC_cff"
@@ -944,18 +1014,10 @@ class ConfigBuilder(object):
             self.RECODefaultSeq='reconstructionCosmics'
             self.DQMDefaultSeq='DQMOfflineCosmics'
 
-        if self._options.himix:
-                print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
-                self._options.scenario='HeavyIons'
-
         if self._options.scenario=='HeavyIons':
 	    if not self._options.beamspot:
 		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
-            if not self._options.himix:
-                    self.GENDefaultSeq='pgen_hi'
-            else:
-                    self.GENDefaultSeq='pgen_himix'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
@@ -1031,43 +1093,24 @@ class ConfigBuilder(object):
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
             self._options.beamspot='NoSmear'
 
-        # if fastsim switch event content
+        # fastsim requires some changes to the default cff files and sequences
 	if self._options.fast:
-		self.GENDefaultSeq='pgen_genonly'
-		self.SIMDefaultCFF = 'FastSimulation.Configuration.FamosSequences_cff'
-		self.SIMDefaultSeq='simulationWithFamos'
-		self.RECODefaultCFF= 'FastSimulation.Configuration.FamosSequences_cff'
-		self.RECODefaultSeq= 'reconstructionWithFamos'
-                self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
-                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
-
-		
+		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
+		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
+		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
+		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
+                self.DQMOFFLINEDefaultCFF="FastSimulation.Configuration.DQMOfflineMC_cff"
 
         # Mixing
 	if self._options.pileup=='default':
-		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
-		if self._options.fast:
-			self._options.pileup=MixingFSDefaultKey
-		else:
-			self._options.pileup=MixingDefaultKey
-			
+		from Configuration.StandardSequences.Mixing import MixingDefaultKey
+		self._options.pileup=MixingDefaultKey
+		
+
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
-        if self._options.isMC==True and self._options.himix==False:
-                if self._options.fast:
-			self._options.pileup='FS_'+self._options.pileup
-        elif self._options.isMC==True and self._options.himix==True:
-		self._options.pileup='HiMix'
 
-
-	if self._options.slhc:
-		self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
-		if 'stdgeom' not in self._options.slhc:
-			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
-		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
-		if self._options.pileup!=defaultOptions.pileup:
-			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
 
 	self.REDIGIDefaultSeq=self.DIGIDefaultSeq
 
@@ -1137,11 +1180,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF)
+                    l=self.loadAndRemember(defaultCFF,unsch)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0])
+                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
                     sequence=sequence.split('.')[1]
             else:
                     print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
@@ -1195,12 +1238,14 @@ class ConfigBuilder(object):
 	from Configuration.AlCa.autoAlca import autoAlca
 	# support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
 	self.expandMapping(alcaList,autoAlca)
-	
+	self.AlCaPaths=[]
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
 	        output = self.addExtraStream(name,alcastream, workflow = workflow)
+		self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
+		self.AlCaPaths.append(shortName)
 		if 'DQM' in alcaList:
 			if not self._options.inlineEventContent and hasattr(self.process,name):
 				self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
@@ -1254,6 +1299,7 @@ class ConfigBuilder(object):
 	    
 	    #schedule it
 	    self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+	    self.excludedPaths.append("lhe_step")
 	    self.schedule.append( self.process.lhe_step )
 
     def prepare_GEN(self, sequence = None):
@@ -1280,6 +1326,11 @@ class ConfigBuilder(object):
 	if not loadFailure:
 		generatorModule=sys.modules[loadFragment]
 		genModules=generatorModule.__dict__
+		#remove lhe producer module since this should have been
+		#imported instead in the LHE step
+		if self.LHEDefaultSeq in genModules:
+                        del genModules[self.LHEDefaultSeq]
+
 		if self._options.hideGen:
 			self.loadAndRemember(loadFragment)
 		else:
@@ -1293,8 +1344,8 @@ class ConfigBuilder(object):
 				elif isinstance(theObject, cms.Sequence) or isinstance(theObject, cmstypes.ESProducer):
 					self._options.inlineObjets+=','+name
 
-		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly' or ( sequence == 'pgen_hi' and 'generator' in genModules):
-			if 'ProductionFilterSequence' in genModules and ('generator' in genModules or 'hiSignal' in genModules):
+		if sequence == self.GENDefaultSeq or sequence == 'pgen_genonly':
+			if 'ProductionFilterSequence' in genModules and ('generator' in genModules):
 				self.productionFilterSequence = 'ProductionFilterSequence'
 			elif 'generator' in genModules:
 				self.productionFilterSequence = 'generator'
@@ -1307,14 +1358,15 @@ class ConfigBuilder(object):
                 try:
 			from Configuration.StandardSequences.VtxSmeared import VtxSmeared
 			cffToBeLoaded=VtxSmeared[self._options.beamspot]
-			if self._options.fast:
-				cffToBeLoaded='IOMC.EventVertexGenerators.VtxSmearedParameters_cfi'
 			self.loadAndRemember(cffToBeLoaded)
                 except ImportError:
                         raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
 
-                if self._options.scenario == 'HeavyIons' and self._options.himix:
-                        self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
+                if self._options.scenario == 'HeavyIons': 
+			if self._options.pileup=='HiMixGEN':
+				self.loadAndRemember("Configuration/StandardSequences/GeneratorMix_cff")
+			else:
+				self.loadAndRemember("Configuration/StandardSequences/GeneratorHI_cff")
 
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
@@ -1341,28 +1393,10 @@ class ConfigBuilder(object):
 
 		if self._options.magField=='0T':
 			self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
-
-		if self._options.himix==True:
-			if self._options.geometry in defaultOptions.geometryExtendedOptions:
-				self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")
-			else:
-				self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 	else:
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		## manipulate the beamspot
-		if 'Flat' in self._options.beamspot:
-			beamspotType = 'Flat'
-		elif 'Gauss' in self._options.beamspot:
-			beamspotType = 'Gaussian'
-		else:
-			beamspotType = 'BetaFunc'
-		beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
-		self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
-		self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-		if hasattr(self.process,'famosPileUp'):
-			self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
-		
+		if self._options.magField=='0T':
+			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
+
 	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
 
@@ -1373,11 +1407,15 @@ class ConfigBuilder(object):
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
-        if self._options.himix==True:
-            self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
-
         if sequence == 'pdigi_valid':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
+
+	if sequence != 'pdigi_nogen' and sequence != 'pdigi_valid_nogen' and not self.process.source.type_()=='EmptySource':
+		if self._options.inputEventContent=='':
+			self._options.inputEventContent='REGEN'
+		else:
+			self._options.inputEventContent=self._options.inputEventContent+',REGEN'
+
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
@@ -1387,14 +1425,18 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
-	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+
+        if sequence == 'pdigi_valid':
+		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
+	else:
+		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
     def prepare_DIGIPREMIX_S2(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
 
@@ -1421,7 +1463,7 @@ class ConfigBuilder(object):
 	    if self._options.pileup_input:
 		    theFiles=''
 		    if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
 		    elif self._options.pileup_input.startswith("filelist:"):
 			    theFiles= (filesFromList(self._options.pileup_input[9:]))[0]
 		    else:
@@ -1436,6 +1478,7 @@ class ConfigBuilder(object):
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
 	    if "DIGIPREMIX" in self.stepMap.keys():
 		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
+		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
 
             return
 
@@ -1446,27 +1489,22 @@ class ConfigBuilder(object):
 
     def prepare_L1(self, sequence = None):
 	    """ Enrich the schedule with the L1 simulation step"""
-	    if not sequence:
-		    self.loadAndRemember(self.L1EMDefaultCFF)
-	    else:
-		    # let the L1 package decide for the scenarios available
-		    from L1Trigger.Configuration.ConfigBuilder import getConfigsForScenario
-		    listOfImports = getConfigsForScenario(sequence)
-		    for file in listOfImports:
-			    self.loadAndRemember(file)
+            assert(sequence == None)
+	    self.loadAndRemember(self.L1EMDefaultCFF)
 	    self.scheduleSequence('SimL1Emulator','L1simulation_step')
 	    return
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-            if sequence is not 'GT':
-                  print 'Running the full L1 emulator is not supported yet'
-                  raise Exception('unsupported feature')
-            if sequence is 'GT':
-                  self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_GT_cff')
-		  if self._options.scenario == 'HeavyIons':
-			  self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
-                  self.scheduleSequence('SimL1Emulator','L1simulation_step')
+	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT']
+            if sequence in supported:
+                self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
+		if self._options.scenario == 'HeavyIons':
+			self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
+		self.scheduleSequence('SimL1Emulator','L1RePack_step')
+	    else:
+                print "L1REPACK with '",sequence,"' is not supported! Supported choices are: ",supported
+                raise Exception('unsupported feature')
 
 
     def prepare_HLT(self, sequence = None):
@@ -1503,10 +1541,7 @@ class ConfigBuilder(object):
 		else:
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-                if self._options.fast:
-                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-                else:
-                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+		self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
 		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
@@ -1520,15 +1555,11 @@ class ConfigBuilder(object):
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-        if (self._options.fast and 'HLT' in self.stepMap and 'FASTSIM' in self.stepMap):
-                self.finalizeFastSimHLT()
 
 	#this is a fake, to be removed with fastim migration and HLT menu dump
-	if self._options.fast and not 'FASTSIM' in self.stepMap:
+	if self._options.fast:
 		if not hasattr(self.process,'HLTEndSequence'):
 			self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
-		if not hasattr(self.process,'simulation'):
-			self.executeAndRemember("process.simulation = cms.Sequence( process.dummyModule )")
 		
 
     def prepare_RAW2RECO(self, sequence = None):
@@ -1548,6 +1579,12 @@ class ConfigBuilder(object):
 	    #	    if self._options.isRepacked:
 	    #self.renameInputTagsInSequence(sequence)
             return
+
+    def prepare_PATFILTER(self, sequence=None):
+            self.loadAndRemember("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
+	    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import allMetFilterPaths
+	    for filt in allMetFilterPaths:
+		    self.schedule.append(getattr(self.process,'Flag_'+filt))
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
@@ -1606,17 +1643,34 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
+    def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
+        ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
+        if not self._options.fast:
+                print "ERROR: this step is only implemented for FastSim"
+                sys.exit()
+        self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
+        self.scheduleSequence(sequence.split('.')[-1],'reconstruction_befmix_step')
+        return
+
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+	self.prepare_PATFILTER(self)
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
-            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
-            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.insert(0,"PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
-                self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+                self._options.customisation_file_unsch.insert(1,"PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+
+	if self._options.hltProcess:
+	     if len(self._options.customise_commands) > 1:
+		     self._options.customise_commands = self._options.customise_commands + " \n"
+	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\""
+#            self.renameHLTprocessInSequence(sequence)
+
         return
 
     def prepare_EI(self, sequence = None):
@@ -1721,10 +1775,7 @@ class ConfigBuilder(object):
 			    return ''
 		    else:
 			    return '%s'%index
-		    
-            if not 'DIGI' in self.stepMap and not self._options.fast and not any(map( lambda s : s.startswith('genvalid'), valSeqName)):
-		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
-			    self._options.restoreRNDSeeds=True
+
 
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not self._options.fast) or self._options.hltProcess:
@@ -1739,6 +1790,14 @@ class ConfigBuilder(object):
 	    for (i,s) in enumerate(valSeqName):
 		    setattr(self.process,'validation_step%s'%NFI(i), cms.EndPath( getattr(self.process, s)))
 		    self.schedule.append(getattr(self.process,'validation_step%s'%NFI(i)))
+
+            #needed in case the miniAODValidation sequence is run starting from AODSIM
+	    if 'PAT' in self.stepMap and not 'RECO' in self.stepMap:
+		    return
+
+            if not 'DIGI' in self.stepMap and not self._options.fast and not any(map( lambda s : s.startswith('genvalid'), valSeqName)):
+		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
+			    self._options.restoreRNDSeeds=True
 
 	    if not 'DIGI' in self.stepMap and not self._options.fast:
 		    self.executeAndRemember("process.mix.playback = True")
@@ -1861,36 +1920,42 @@ class ConfigBuilder(object):
 
         self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
         sequenceList=sequence.split('.')[-1].split('+')
+        postSequenceList=sequence.split('.')[-1].split('+')
 	from DQMOffline.Configuration.autoDQM import autoDQM
 	self.expandMapping(sequenceList,autoDQM,index=0)
+	self.expandMapping(postSequenceList,autoDQM,index=1)
 	
 	if len(set(sequenceList))!=len(sequenceList):
 		sequenceList=list(set(sequenceList))
 		print "Duplicate entries for DQM:, using",sequenceList
+
 	pathName='dqmoffline_step'
-	
 	for (i,sequence) in enumerate(sequenceList):
 		if (i!=0):
 			pathName='dqmoffline_%d_step'%(i)
 			
 		if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
 			self.renameHLTprocessInSequence(sequence)
+                
+                setattr(self.process,pathName, cms.EndPath( getattr(self.process,sequence ) ) )
+                self.schedule.append(getattr(self.process,pathName))
 
-		# if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-		if 'HLT' in self.stepMap.keys():
-			# need to put [HLT]DQM in an EndPath, to access the HLT trigger results
-			setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
-		else:
-			# schedule DQM as a standard Path
-			setattr(self.process,pathName, cms.Path( getattr(self.process, sequence) ) ) 
-		self.schedule.append(getattr(self.process,pathName))
+                if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
+                        #will get in the schedule, smoothly
+                        getattr(self.process,pathName).insert(0,self.process.genstepfilter)
 
+	pathName='dqmofflineOnPAT_step'
+	for (i,sequence) in enumerate(postSequenceList):
+                if (i!=0):
+                        pathName='dqmofflineOnPAT_%d_step'%(i)
+
+                setattr(self.process,pathName, cms.EndPath( getattr(self.process, sequence ) ) )
+                self.schedule.append(getattr(self.process,pathName))
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
-        self.EDMtoMECFF='Configuration/StandardSequences/EDMtoME'+self._options.harvesting+'_cff'
-        self.loadAndRemember(self.EDMtoMECFF)
-	self.scheduleSequence('EDMtoME','edmtome_step')
+        self.DQMSaverCFF='Configuration/StandardSequences/DQMSaver'+self._options.harvesting+'_cff'
+        self.loadAndRemember(self.DQMSaverCFF)
 
         harvestingConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.HARVESTINGDefaultCFF)
         sequence = sequence.split('.')[-1]
@@ -1930,6 +1995,12 @@ class ConfigBuilder(object):
 
         # decide which AlcaHARVESTING paths to use
         harvestingList = sequence.split("+")
+
+
+
+ 	from Configuration.AlCa.autoPCL import autoPCL
+ 	self.expandMapping(harvestingList,autoPCL)
+	
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):
@@ -1955,78 +2026,6 @@ class ConfigBuilder(object):
     def finalizeFastSimHLT(self):
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
             self.schedule.append(self.process.reconstruction)
-
-    def prepare_FASTSIM(self, sequence = "all"):
-        """Enrich the schedule with fastsim"""
-        self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-
-        if sequence in ('all','allWithHLTFiltering',''):
-            if not 'HLT' in self.stepMap.keys():
-                    self.prepare_HLT(sequence=None)
-
-            self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-            self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-
-            self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
-            self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
-
-            # since we have HLT here, the process should be called HLT
-            self._options.name = "HLT"
-
-            # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
-            if sequence == 'all' and not 'HLT' in self.stepMap.keys(): #(a)
-                self.finalizeFastSimHLT()
-	elif sequence == 'sim':
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		
-		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithFamos") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'reco':
-		self.executeAndRemember("process.mix.playback = True")
-		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionWithFamos)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionWithFamos") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'simExtended':
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		
-		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithSomeReconstruction)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithSomeReconstruction") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'recoHighLevel':
-		self.executeAndRemember("process.mix.playback = True")
-		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionHighLevel)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionHighLevel") )
-		self.schedule.append(self.process.fastsim_step)
-        elif sequence == 'famosWithEverything':
-            self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
-            self.schedule.append(self.process.fastsim_step)
-
-            # now the additional commands we need to make the config work
-            self.executeAndRemember("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
-        else:
-             print "FastSim setting", sequence, "unknown."
-             raise ValueError
-
-        if 'Flat' in self._options.beamspot:
-                beamspotType = 'Flat'
-        elif 'Gauss' in self._options.beamspot:
-                beamspotType = 'Gaussian'
-        else:
-                beamspotType = 'BetaFunc'
-        self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
-        beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
-        self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
-        self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-	if hasattr(self.process,'famosPileUp'):
-		self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
-
 
 
     def build_production_info(self, evt_type, evtnumber):
@@ -2054,7 +2053,7 @@ class ConfigBuilder(object):
 
 
         outputModuleCfgCode=""
-        if not 'HARVESTING' in self.stepMap.keys() and not 'SKIM' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
+        if not 'HARVESTING' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
@@ -2063,7 +2062,15 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
         self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
+        if hasattr(self._options,"era") and self._options.era :
+            self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"'" # Start of the line, finished after the loop
+            # Multiple eras can be specified in a comma seperated list
+            for requestedEra in self._options.era.split(",") :
+                self.pythonCfgCode += ",eras."+requestedEra
+            self.pythonCfgCode += ")\n\n" # end of the line
+        else :
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
@@ -2124,32 +2131,36 @@ class ConfigBuilder(object):
                 self.pythonCfgCode += dumpPython(self.process,endpath)
 
         # dump the schedule
-	if not self._options.runUnscheduled:	
-		self.pythonCfgCode += "\n# Schedule definition\n"
-		result = "process.schedule = cms.Schedule("
+	self.pythonCfgCode += "\n# Schedule definition\n"
+	result = "process.schedule = cms.Schedule("
 
-                # handling of the schedule
-		self.process.schedule = cms.Schedule()
-		for item in self.schedule:
-			if not isinstance(item, cms.Schedule):
-				self.process.schedule.append(item)
-			else:
-				self.process.schedule.extend(item)
-
-		if hasattr(self.process,"HLTSchedule"):
-			beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-			afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-			pathNames = ['process.'+p.label_() for p in beforeHLT]
-			result += ','.join(pathNames)+')\n'
-			result += 'process.schedule.extend(process.HLTSchedule)\n'
-			pathNames = ['process.'+p.label_() for p in afterHLT]
-			result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+        # handling of the schedule
+	self.process.schedule = cms.Schedule()
+	for item in self.schedule:
+		if not isinstance(item, cms.Schedule):
+			self.process.schedule.append(item)
 		else:
-			pathNames = ['process.'+p.label_() for p in self.schedule]
-			result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+			self.process.schedule.extend(item)
 
-	        self.pythonCfgCode += result
+	if hasattr(self.process,"HLTSchedule"):
+		beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
+		afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
+		pathNames = ['process.'+p.label_() for p in beforeHLT]
+		result += ','.join(pathNames)+')\n'
+		result += 'process.schedule.extend(process.HLTSchedule)\n'
+		pathNames = ['process.'+p.label_() for p in afterHLT]
+		result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+	else:
+		pathNames = ['process.'+p.label_() for p in self.schedule]
+		result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
 
+	self.pythonCfgCode += result
+
+	if self._options.nThreads is not "1":
+		self.pythonCfgCode +="\n"
+		self.pythonCfgCode +="#Setup FWK for multithreaded\n"
+		self.pythonCfgCode +="process.options.numberOfThreads=cms.untracked.uint32("+self._options.nThreads+")\n"
+		self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32(0)\n"
 	#repacked version
 	if self._options.isRepacked:
 		self.pythonCfgCode +="\n"
@@ -2163,15 +2174,56 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +='for path in process.paths:\n'
 		if len(self.conditionalPaths):
 			self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
+                if len(self.excludedPaths):
+                        self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
                 self.pythonCfgCode +='\tgetattr(process,path)._seq = process.%s * getattr(process,path)._seq \n'%(self.productionFilterSequence,)
 		pfs = getattr(self.process,self.productionFilterSequence)
 		for path in self.process.paths:
 			if not path in self.conditionalPaths: continue
+                        if path in self.excludedPaths: continue
 			getattr(self.process,path)._seq = pfs * getattr(self.process,path)._seq
 			
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
+
+	if self._options.runUnscheduled:	
+		# prune and delete paths
+		#this is not supporting the blacklist at this point since I do not understand it
+		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import convertToUnscheduled\n"
+		self.pythonCfgCode+="process=convertToUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import convertToUnscheduled
+		self.process=convertToUnscheduled(self.process)
+
+		#now add the unscheduled stuff
+		for module in self.importsUnsch:
+			self.process.load(module)
+			self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+		#and clean the unscheduled stuff	
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
+		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import cleanUnscheduled
+		self.process=cleanUnscheduled(self.process)
+
+		self.pythonCfgCode += self.addCustomise(1)
+
+	self.pythonCfgCode += self.addCustomiseCmdLine()
+
+        # Temporary hack to put the early delete customization after
+        # everything else
+        #
+        # FIXME: remove when no longer needed
+        self.pythonCfgCode += "\n# Add early deletion of temporary data products to reduce peak memory need\n"
+        self.pythonCfgCode += "from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete\n"
+        self.pythonCfgCode += "process = customiseEarlyDelete(process)\n"
+        self.pythonCfgCode += "# End adding early deletion\n"
+        from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
+        self.process = customiseEarlyDelete(self.process)
+
 
 	# make the .io file
 

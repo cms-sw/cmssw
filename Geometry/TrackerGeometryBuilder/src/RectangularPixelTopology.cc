@@ -18,7 +18,8 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
   float px = p.x();
   
 #ifdef EDM_ML_DEBUG
-
+#define EPSCM 0
+#define EPS 0
   // This will catch points which are outside the active sensor area.
   // In the digitizer during the early induce_signal phase non valid
   // location are passed here. They are cleaned later.
@@ -50,7 +51,6 @@ RectangularPixelTopology::pixel( const LocalPoint& p ) const
   
   if( !debugstr.str().empty())
       LogDebug( "RectangularPixelTopology" ) << debugstr.str();
-    
 #endif // EDM_ML_DEBUG
 
   float newybin = ( py - m_yoffset ) / m_pitchy;
@@ -174,6 +174,7 @@ RectangularPixelTopology::localPosition( const MeasurementPoint& mp ) const
   float mpx = mp.x();
 
 #ifdef EDM_ML_DEBUG
+#define EPS 0
   // check limits
   std::ostringstream debugstr;
 
@@ -199,7 +200,6 @@ RectangularPixelTopology::localPosition( const MeasurementPoint& mp ) const
   }
   if(! debugstr.str().empty())
       LogDebug("RectangularPixelTopology") << debugstr.str();
-
 #endif // EDM_ML_DEBUG
 
   float lpY = localY( mpy );
@@ -222,9 +222,9 @@ RectangularPixelTopology::localX( const float mpx ) const
 
   if unlikely( m_upgradeGeometry ) {
 #ifdef EDM_ML_DEBUG
-    if( binoffx > m_ROWS_PER_ROC * `m_ROCS_X ) // too large
-    {`
-      `LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
+    if( binoffx > m_ROWS_PER_ROC * m_ROCS_X ) // too large
+    {
+      LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
 					   << mpx << " " << binoffx << " "
 					   << fractionX << " " << local_pitchx << " " << m_xoffset << "\n";
     }

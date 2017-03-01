@@ -14,23 +14,23 @@
 
 #include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "G4SystemOfUnits.hh"
  
 CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
 			     const HepPDT::ParticleDataTable * table_,
-			     sim::FieldBuilder *fieldBuilder_, 
-			     const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+			     sim::ChordFinderSetter *chordFinderSetter_, 
+			     const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   G4DataQuestionaire it(photon);
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
-  bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
-  bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
+  bool tracking= p.getParameter<bool>("TrackingCut");
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QQGSP_FTFP_BERT_EML with Flags for EM Physics "
-			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << "\n";
-
+			      << "QGSP_FTFP_BERT_EML for regular particles \n"
+			      << "CustomPhysicsList " << ssPhys << " for exotics; "
+                              << " tracking cut " << tracking << "  t(ns)= " << timeLimit/ns;
   // EM Physics
   RegisterPhysics(new CMSEmStandardPhysics(ver));
   //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
@@ -54,7 +54,11 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4IonPhysics(ver));
 
   // Neutron tracking cut
-  RegisterPhysics(new G4NeutronTrackingCut(ver));
+  if (tracking) {
+    G4NeutronTrackingCut* ncut= new G4NeutronTrackingCut(ver);
+    ncut->SetTimeLimit(timeLimit);
+    RegisterPhysics(ncut);
+  }
 
   // Custom Physics
   if(ssPhys) {

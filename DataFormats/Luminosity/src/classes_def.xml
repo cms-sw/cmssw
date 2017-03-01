@@ -3,13 +3,33 @@
   <class name="LumiSummaryRunHeader" ClassVersion="10">
    <version ClassVersion="10" checksum="2308070716"/>
   </class>
-  <class name="LumiSummary" ClassVersion="11">
+  <class name="LumiSummary" ClassVersion="12">
+   <version ClassVersion="12" checksum="554374187"/>
    <version ClassVersion="11" checksum="2908285481"/>
    <version ClassVersion="10" checksum="2670120703"/>
   </class>
   <class name="LumiDetails" ClassVersion="10">
    <version ClassVersion="10" checksum="3520498663"/>
   </class>
+  <class name="LumiInfoRunHeader"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3459250671"/>
+  </class>
+  <class name="LumiInfo"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4234044727"/>
+  </class>
+  <class name="BeamCurrentInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="706652033"/>
+   <field name="beam1IntensitiesUnpacked_" transient="true"/>
+   <field name="beam2IntensitiesUnpacked_" transient="true"/>
+  </class>
+  <ioread sourceClass="BeamCurrentInfo" version="[1-]" targetClass="BeamCurrentInfo" source="std::vector<uint16_t> beam1IntensitiesPacked_" target="beam1IntensitiesUnpacked_">
+  <![CDATA[ BeamCurrentInfo::unpackData(onfile.beam1IntensitiesPacked_,beam1IntensitiesUnpacked_);
+  ]]>
+  </ioread>
+  <ioread sourceClass="BeamCurrentInfo" version="[1-]" targetClass="BeamCurrentInfo" source="std::vector<uint16_t> beam2IntensitiesPacked_" target="beam2IntensitiesUnpacked_">
+  <![CDATA[ BeamCurrentInfo::unpackData(onfile.beam2IntensitiesPacked_,beam2IntensitiesUnpacked_);
+  ]]>
+  </ioread>
   <class name="LumiSummary::HLT" ClassVersion="11">
    <version ClassVersion="11" checksum="4065059464"/>
    <version ClassVersion="10" checksum="2862036727"/>

@@ -7,8 +7,9 @@
 class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
   typedef Basic2DGenericTopoClusterizer B2DGT;
  public:
-  Basic2DGenericTopoClusterizer(const edm::ParameterSet& conf) :
-    InitialClusteringStepBase(conf),
+  Basic2DGenericTopoClusterizer(const edm::ParameterSet& conf,
+				edm::ConsumesCollector& sumes) :
+    InitialClusteringStepBase(conf,sumes),
     _useCornerCells(conf.getParameter<bool>("useCornerCells")) { }
   virtual ~Basic2DGenericTopoClusterizer() {}
   Basic2DGenericTopoClusterizer(const B2DGT&) = delete;
@@ -23,7 +24,7 @@ class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
   const bool _useCornerCells;
   void buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>&,
 			const std::vector<bool>&, // masked rechits
-			const reco::PFRecHitRef&, //present rechit
+			unsigned int, //present rechit
 			std::vector<bool>&, // hit usage state
 			reco::PFCluster&); // the topocluster
   

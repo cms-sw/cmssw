@@ -4,12 +4,9 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.tools.jetTools import *
 from Configuration.AlCa.autoCond import autoCond
-
+import Utilities.General.cmssw_das_client as das_client
 import os
 import socket
-from subprocess import *
-import json
-import das_client
 
 
 ## ------------------------------------------------------
@@ -64,7 +61,10 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.addParameter( self._defaultParameters, 'relVal'       , 'RelValTTbar'                                                       , '' )
         self.addParameter( self._defaultParameters, 'dataTier'     , 'GEN-SIM-RECO'                                                      , '' )
         self.addParameter( self._defaultParameters, 'condition'    , 'startup'                                                           , '' )
-        self.addParameter( self._defaultParameters, 'globalTag'    , autoCond[ self.getDefaultParameters()[ 'condition' ].value ][ : -5 ], 'auto from \'condition\'' )
+        gt = autoCond[ self.getDefaultParameters()[ 'condition' ].value ]
+        if isinstance(gt,tuple) or isinstance(gt,list):
+            gt = gt[0]
+        self.addParameter( self._defaultParameters, 'globalTag'    , gt[ : -5 ]                                                          , 'auto from \'condition\'' )
         self.addParameter( self._defaultParameters, 'maxVersions'  , 3                                                                   , '' )
         self.addParameter( self._defaultParameters, 'skipFiles'    , 0                                                                   , '' )
         self.addParameter( self._defaultParameters, 'numberOfFiles', -1                                                                  , 'all' )
@@ -257,7 +257,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                 print '%s DEBUG: Using DAS query'%( self._label )
             dasLimit = numberOfFiles
             if dasLimit <= 0:
-                dasLimit += 1
+                dasLimit = 1
             for version in range( maxVersions, 0, -1 ):
                 filePaths    = []
                 filePathsTmp = []
@@ -267,8 +267,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                 if debug:
                     print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
                     print '    \'%s\''%( dasQuery )
-                # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
-                jsondict    = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
+                jsondict = das_client.get_data(dasQuery,dasLimit)
                 if debug:
                     print '%s DEBUG: Received DAS JSON dictionary:'%( self._label )
                     print '    \'%s\''%( jsondict )
@@ -291,7 +290,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                         print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
                     if len( filePath ) > 0:
                         if validVersion != version:
-                            jsontestdict    = das_client.get_data( 'https://cmsweb.cern.ch', 'site dataset=%s | grep site.name'%( dataset ), 0, 999, False )
+                            jsontestdict = das_client.get_data('site dataset=%s | grep site.name' % ( dataset ),  999)
                             mongo_testquery = jsontestdict[ 'mongo_query' ]
                             testfilters = mongo_testquery[ 'filters' ]
                             testdata    = jsontestdict[ 'data' ]

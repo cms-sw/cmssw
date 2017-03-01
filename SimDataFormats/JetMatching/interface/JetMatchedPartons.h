@@ -18,7 +18,7 @@ public:
   { }
 
   JetMatchedPartonsCollection(const reco::CaloJetRefProd & ref) :
-    JetMatchedPartonsCollectionBase(ref)
+    JetMatchedPartonsCollectionBase(edm::RefToBaseProd<reco::Jet>(ref))
   { }
 
   JetMatchedPartonsCollection(const JetMatchedPartonsCollectionBase &v) :

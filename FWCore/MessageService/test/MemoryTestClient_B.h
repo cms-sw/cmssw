@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <vector>
 
@@ -38,7 +39,7 @@ private:
   std::vector<double> memoryPattern;
   void initializeMemoryPattern(int pattern);
   double vsize;
-  char* last_Allocation;
+  edm::propagate_const<char*> last_Allocation;
 };
 
 

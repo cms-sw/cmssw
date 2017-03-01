@@ -10,10 +10,13 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
 
 class AlCa(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
+
     """
     _AlCa_
 
@@ -35,9 +38,9 @@ class AlCa(Scenario):
         options.scenario = "pp"
         options.step = step
         dictIO(options,args)
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
         
-        process = cms.Process('RECO')
+        process = cms.Process('RECO', self.eras)
         cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
@@ -60,9 +63,12 @@ class AlCa(Scenario):
         options.scenario = "pp"
         options.step = "ALCAOUTPUT:"+('+'.join(skims))
         options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
+        if 'globalTagConnect' in args and args['globalTagConnect'] != '':
+            options.conditions += ','+args['globalTagConnect']
+
         options.triggerResultsProcess = 'RECO'
         
-        process = cms.Process('ALCA')
+        process = cms.Process('ALCA', self.eras)
         cb = ConfigBuilder(options, process = process)
 
         # Input source
@@ -87,9 +93,9 @@ class AlCa(Scenario):
         options.scenario = "pp"
         options.step = "HARVESTING:alcaHarvesting"
         options.name = "EDMtoMEConvert"
-        options.conditions = globalTag
+        options.conditions = gtNameAndConnect(globalTag, args)
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         process.source = dqmIOSource(args)
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()

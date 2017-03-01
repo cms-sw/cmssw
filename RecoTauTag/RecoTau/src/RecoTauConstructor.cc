@@ -3,6 +3,8 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
 #include <boost/foreach.hpp>
@@ -10,8 +12,17 @@
 
 namespace reco { namespace tau {
 
-RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, bool copyGammasFromPiZeros)
-  : pfCands_(pfCands) 
+RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PFCandidateCollection>& pfCands, 
+				       bool copyGammasFromPiZeros,
+				       const StringObjectFunction<reco::PFTau>* signalConeSize,
+				       double minAbsPhotonSumPt_insideSignalCone, double minRelPhotonSumPt_insideSignalCone,
+				       double minAbsPhotonSumPt_outsideSignalCone, double minRelPhotonSumPt_outsideSignalCone)
+  : signalConeSize_(signalConeSize),
+    minAbsPhotonSumPt_insideSignalCone_(minAbsPhotonSumPt_insideSignalCone),
+    minRelPhotonSumPt_insideSignalCone_(minRelPhotonSumPt_insideSignalCone),
+    minAbsPhotonSumPt_outsideSignalCone_(minAbsPhotonSumPt_outsideSignalCone),
+    minRelPhotonSumPt_outsideSignalCone_(minRelPhotonSumPt_outsideSignalCone),
+    pfCands_(pfCands)
 {
   // Initialize tau
   tau_.reset(new PFTau());
@@ -90,10 +101,10 @@ void RecoTauConstructor::reserve(Region region, ParticleType type, size_t size){
 void RecoTauConstructor::reserveTauChargedHadron(Region region, size_t size) 
 {
   if ( region == kSignal ) {
-    tau_->signalTauChargedHadronCandidates_.reserve(size);
+    tau_->signalTauChargedHadronCandidatesRestricted().reserve(size);
     tau_->selectedSignalPFChargedHadrCands_.reserve(size);
   } else {
-    tau_->isolationTauChargedHadronCandidates_.reserve(size);
+    tau_->isolationTauChargedHadronCandidatesRestricted().reserve(size);
     tau_->selectedIsolationPFChargedHadrCands_.reserve(size);
   }
 }
@@ -136,10 +147,10 @@ void RecoTauConstructor::addTauChargedHadron(Region region, const PFRecoTauCharg
     LogDebug("TauConstructorAddChH") << "neutral = " << neutral->id() << ":" << neutral->key();
     bool isUnique = true;
     if ( copyGammas_ ) checkOverlap(*neutral, *getSortedCollection(kSignal, kGamma), isUnique);
-    else checkOverlap(*neutral, tau_->signalPiZeroCandidates_, isUnique);
+    else checkOverlap(*neutral, tau_->signalPiZeroCandidatesRestricted(), isUnique);
     if ( region == kIsolation ) {
       if ( copyGammas_ ) checkOverlap(*neutral, *getSortedCollection(kIsolation, kGamma), isUnique);
-      else checkOverlap(*neutral, tau_->isolationPiZeroCandidates_, isUnique);      
+      else checkOverlap(*neutral, tau_->isolationPiZeroCandidatesRestricted(), isUnique);      
     }
     LogDebug("TauConstructorAddChH") << "--> isUnique = " << isUnique;
     if ( isUnique ) neutrals_cleaned.push_back(*neutral);
@@ -150,7 +161,7 @@ void RecoTauConstructor::addTauChargedHadron(Region region, const PFRecoTauCharg
     setChargedHadronP4(chargedHadron_cleaned);
   }
   if ( region == kSignal ) {
-    tau_->signalTauChargedHadronCandidates_.push_back(chargedHadron_cleaned);
+    tau_->signalTauChargedHadronCandidatesRestricted().push_back(chargedHadron_cleaned);
     p4_ += chargedHadron_cleaned.p4();
     if ( chargedHadron_cleaned.getChargedPFCandidate().isNonnull() ) {
       addPFCand(kSignal, kChargedHadron, chargedHadron_cleaned.getChargedPFCandidate(), true);
@@ -162,7 +173,7 @@ void RecoTauConstructor::addTauChargedHadron(Region region, const PFRecoTauCharg
       else if ( (*neutral)->particleId() == reco::PFCandidate::h0    ) addPFCand(kSignal, kNeutralHadron, *neutral, true);
     };
   } else {
-    tau_->isolationTauChargedHadronCandidates_.push_back(chargedHadron_cleaned);
+    tau_->isolationTauChargedHadronCandidatesRestricted().push_back(chargedHadron_cleaned);
     if ( chargedHadron_cleaned.getChargedPFCandidate().isNonnull() ) {
       if      ( chargedHadron_cleaned.getChargedPFCandidate()->particleId() == reco::PFCandidate::h  ) addPFCand(kIsolation, kChargedHadron, chargedHadron_cleaned.getChargedPFCandidate());
       else if ( chargedHadron_cleaned.getChargedPFCandidate()->particleId() == reco::PFCandidate::h0 ) addPFCand(kIsolation, kNeutralHadron, chargedHadron_cleaned.getChargedPFCandidate());
@@ -179,12 +190,12 @@ void RecoTauConstructor::addTauChargedHadron(Region region, const PFRecoTauCharg
 void RecoTauConstructor::reservePiZero(Region region, size_t size) 
 {
   if ( region == kSignal ) {
-    tau_->signalPiZeroCandidates_.reserve(size);
+    tau_->signalPiZeroCandidatesRestricted().reserve(size);
     // If we are building the gammas with the pizeros, resize that
     // vector as well
     if ( copyGammas_ ) reserve(kSignal, kGamma, 2*size);
   } else {
-    tau_->isolationPiZeroCandidates_.reserve(size);
+    tau_->isolationPiZeroCandidatesRestricted().reserve(size);
     if ( copyGammas_ ) reserve(kIsolation, kGamma, 2*size);
   }
 }
@@ -193,7 +204,7 @@ void RecoTauConstructor::addPiZero(Region region, const RecoTauPiZero& piZero)
 {
   LogDebug("TauConstructorAddPi0") << " region = " << region << ": Pt = " << piZero.pt() << ", eta = " << piZero.eta() << ", phi = " << piZero.phi();
   if ( region == kSignal ) {
-    tau_->signalPiZeroCandidates_.push_back(piZero);
+    tau_->signalPiZeroCandidatesRestricted().push_back(piZero);
     // Copy the daughter gammas into the gamma collection if desired
     if ( copyGammas_ ) {
       // If we are using the pizeros to build the gammas, make sure we update
@@ -203,7 +214,7 @@ void RecoTauConstructor::addPiZero(Region region, const RecoTauPiZero& piZero)
           piZero.daughterPtrVector().end());
     }
   } else {
-    tau_->isolationPiZeroCandidates_.push_back(piZero);
+    tau_->isolationPiZeroCandidatesRestricted().push_back(piZero);
     if ( copyGammas_ ) {
       addPFCands(kIsolation, kGamma, piZero.daughterPtrVector().begin(),
           piZero.daughterPtrVector().end());
@@ -268,17 +279,17 @@ template<typename T> bool ptDescendingPtr(const T& a, const T& b) {
 
 void RecoTauConstructor::sortAndCopyIntoTau() {
   // The charged hadrons and pizeros are a special case, as we can sort them in situ
-  std::sort(tau_->signalTauChargedHadronCandidates_.begin(),
-            tau_->signalTauChargedHadronCandidates_.end(),
+  std::sort(tau_->signalTauChargedHadronCandidatesRestricted().begin(),
+            tau_->signalTauChargedHadronCandidatesRestricted().end(),
             ptDescending<PFRecoTauChargedHadron>);
-  std::sort(tau_->isolationTauChargedHadronCandidates_.begin(),
-            tau_->isolationTauChargedHadronCandidates_.end(),
+  std::sort(tau_->isolationTauChargedHadronCandidatesRestricted().begin(),
+            tau_->isolationTauChargedHadronCandidatesRestricted().end(),
             ptDescending<PFRecoTauChargedHadron>);
-  std::sort(tau_->signalPiZeroCandidates_.begin(),
-            tau_->signalPiZeroCandidates_.end(),
+  std::sort(tau_->signalPiZeroCandidatesRestricted().begin(),
+            tau_->signalPiZeroCandidatesRestricted().end(),
             ptDescending<RecoTauPiZero>);
-  std::sort(tau_->isolationPiZeroCandidates_.begin(),
-            tau_->isolationPiZeroCandidates_.end(),
+  std::sort(tau_->isolationPiZeroCandidatesRestricted().begin(),
+            tau_->isolationPiZeroCandidatesRestricted().end(),
             ptDescending<RecoTauPiZero>);
 
   // Sort each of our sortable collections, and copy them into the final
@@ -293,6 +304,50 @@ void RecoTauConstructor::sortAndCopyIntoTau() {
 	  particle != sortedCollection->end(); ++particle ) {
       colkey.second->push_back(*particle);
     }
+  }
+}
+
+namespace
+{
+  PFTau::hadronicDecayMode calculateDecayMode(const reco::PFTau& tau, double dRsignalCone, 
+					      double minAbsPhotonSumPt_insideSignalCone, double minRelPhotonSumPt_insideSignalCone,
+					      double minAbsPhotonSumPt_outsideSignalCone, double minRelPhotonSumPt_outsideSignalCone) 
+  {
+    unsigned int nCharged = tau.signalTauChargedHadronCandidates().size();
+    // If no tracks exist, this is definitely not a tau!
+    if ( !nCharged ) return PFTau::kNull;
+
+    unsigned int nPiZeros = 0;
+    const std::vector<RecoTauPiZero>& piZeros = tau.signalPiZeroCandidates();
+    for ( std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin();
+	  piZero != piZeros.end(); ++piZero ) {
+      double photonSumPt_insideSignalCone = 0.;
+      double photonSumPt_outsideSignalCone = 0.;
+      int numPhotons = piZero->numberOfDaughters();
+      for ( int idxPhoton = 0; idxPhoton < numPhotons; ++idxPhoton ) {
+	const reco::Candidate* photon = piZero->daughter(idxPhoton);
+	double dR = deltaR(photon->p4(), tau.p4());
+	if ( dR < dRsignalCone ) {
+	  photonSumPt_insideSignalCone += photon->pt();
+	} else {
+	  photonSumPt_outsideSignalCone += photon->pt();
+	}
+      }
+      if ( photonSumPt_insideSignalCone  > minAbsPhotonSumPt_insideSignalCone  || photonSumPt_insideSignalCone  > (minRelPhotonSumPt_insideSignalCone*tau.pt())  ||
+	   photonSumPt_outsideSignalCone > minAbsPhotonSumPt_outsideSignalCone || photonSumPt_outsideSignalCone > (minRelPhotonSumPt_outsideSignalCone*tau.pt()) ) ++nPiZeros;
+    }
+    
+    // Find the maximum number of PiZeros our parameterization can hold
+    const unsigned int maxPiZeros = PFTau::kOneProngNPiZero;
+    
+    // Determine our track index
+    unsigned int trackIndex = (nCharged - 1)*(maxPiZeros + 1);
+    
+    // Check if we handle the given number of tracks
+    if ( trackIndex >= PFTau::kRareDecayMode ) return PFTau::kRareDecayMode;
+    
+    if ( nPiZeros > maxPiZeros ) nPiZeros = maxPiZeros;
+    return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
   }
 }
 
@@ -315,8 +370,8 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
   int charge = 0;
   double leadChargedHadronPt = 0.;
   int leadChargedHadronCharge = 0;
-  for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = tau_->signalTauChargedHadronCandidates_.begin();
-	chargedHadron != tau_->signalTauChargedHadronCandidates_.end(); ++chargedHadron ) {
+  for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = tau_->signalTauChargedHadronCandidatesRestricted().begin();
+	chargedHadron != tau_->signalTauChargedHadronCandidatesRestricted().end(); ++chargedHadron ) {
     if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
       ++nCharged;
       charge += chargedHadron->charge();
@@ -334,14 +389,14 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
 
   // Set P4
   tau_->setP4(p4_);
-//  tau_->setP4(
-//      sumPFCandP4(
-//        getCollection(kSignal, kAll)->begin(),
-//        getCollection(kSignal, kAll)->end()
-//        )
-//      );
+
   // Set Decay Mode
-  PFTau::hadronicDecayMode dm = tau_->calculateDecayMode();
+  double dRsignalCone = ( signalConeSize_ ) ? (*signalConeSize_)(*tau_) : 0.5;
+  tau_->setSignalConeSize(dRsignalCone);
+  PFTau::hadronicDecayMode dm = calculateDecayMode(
+      *tau_, 
+      dRsignalCone, 
+      minAbsPhotonSumPt_insideSignalCone_, minRelPhotonSumPt_insideSignalCone_, minAbsPhotonSumPt_outsideSignalCone_, minRelPhotonSumPt_outsideSignalCone_);
   tau_->setDecayMode(dm);
 
   LogDebug("TauConstructorGet") << "Pt = " << tau_->pt() << ", eta = " << tau_->eta() << ", phi = " << tau_->phi() << ", mass = " << tau_->mass() << ", dm = " << tau_->decayMode() ;

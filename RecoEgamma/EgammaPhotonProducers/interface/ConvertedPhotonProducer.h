@@ -19,7 +19,6 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
@@ -40,7 +39,7 @@ class ConvertedPhotonProducer : public edm::stream::EDProducer<> {
   virtual ~ConvertedPhotonProducer();
 
   virtual void beginRun(edm::Run const&, const edm::EventSetup &es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
   

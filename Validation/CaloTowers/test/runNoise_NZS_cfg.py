@@ -71,7 +71,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     sign = cms.untracked.string('*'),
     hcalselector = cms.untracked.string('noise'),
     ecalselector = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(True) 
 )
 process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
@@ -136,7 +135,7 @@ process.mix.mixObjects.mixCH.mixCaloHits = cms.PSet(
 )
 
 
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'
+process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared'
 process.p = cms.Path(
  process.VtxSmeared * process.g4SimHits * process.mix *
  process.ecalDigiSequence * process.hcalDigiSequence *

@@ -1,4 +1,4 @@
-#ifndef gen_JetMatchinhHook_h
+#ifndef gen_JetMatchingHook_h
 #define gen_JetMatchingHook_h
 
 #include "Pythia8/Pythia.h"
@@ -78,6 +78,4 @@ protected:
  
 };
 
-#endif
-
-
+#endif // gen_JetMatchingHook_h

@@ -72,21 +72,20 @@ private:
 
 
 	//parameters
-	edm::ParameterSet m_params;
 	std::vector<align::StructureType> m_theLevels;
 	//std::vector<int> theSubDets;
 	
 	//compare surface deformations
 	void compareSurfaceDeformations(TTree* _inputTree11, TTree* _inputTree12); 
 	//compares two geometries
-	void compareGeometries(Alignable* refAli, Alignable* curAli, const TrackerTopology* tTopo);
+	void compareGeometries(Alignable* refAli, Alignable* curAli, const TrackerTopology* tTopo, const edm::EventSetup& iSetup);
 	//filling the ROOT file
 	void fillTree(Alignable *refAli, const AlgebraicVector& diff, // typedef CLHEP::HepVector      AlgebraicVector; 
-                      const TrackerTopology* tTopo); 
+                      const TrackerTopology* tTopo, const edm::EventSetup& iSetup); 
 	//for filling identifiers
 	void fillIdentifiers( int subdetlevel, int rawid, const TrackerTopology* tTopo);
 	//converts surveyRcd into alignmentRcd
-	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors);
+	void surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrorsExtended* alignErrors);
 	//need for conversion for surveyToTracker
 	void addSurveyInfo(Alignable* ali);
 	//void createDBGeometry(const edm::EventSetup& iSetup);
@@ -106,6 +105,8 @@ private:
 	const SurveyErrors* theSurveyErrors;
 	
 	// configurables
+        const std::vector<std::string> _levelStrings;
+	std::string _moduleListName;
 	std::string _inputFilename1;
 	std::string _inputFilename2;
 	std::string _inputTreenameAlign;
@@ -125,6 +126,10 @@ private:
 	align::GlobalVector _TrackerCommonR;
 	align::PositionType _TrackerCommonCM;
 	
+	std::ifstream _moduleListFile;
+	std::vector< int > _moduleList;
+	int _moduleInList;
+	
 	//root configuration
 	std::string _filename;
 	TFile* _theFile;
@@ -137,7 +142,7 @@ private:
 	TTree* _inputTree12;
 	
 	/**\ Tree variables */
-	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
+	int _id, _badModuleQuality, _inModuleList, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
 	float _xVal, _yVal, _zVal, _rVal, _etaVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
 	// changes in global variables
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;

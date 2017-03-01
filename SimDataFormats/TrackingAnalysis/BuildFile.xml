@@ -7,7 +7,7 @@
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Vertex"/>
-<use   name="rootrflx"/>
+
 <use   name="clhepheader"/>
 <export>
   <lib   name="1"/>

@@ -35,7 +35,7 @@ class MVATrainerContainerSave : public edm::EDAnalyzer {
     private:
 	std::vector<std::string>				toPut;
 	std::vector<std::string>				toCopy;
-	std::auto_ptr<Calibration::MVAComputerContainer>	calib;
+	std::unique_ptr<Calibration::MVAComputerContainer>	calib;
 	bool							saved;
 };
 

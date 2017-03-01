@@ -128,13 +128,13 @@ class HcalDCCHeader {
 
  private:
   // CURRENTLY VALID FOR LITTLE-ENDIAN (LINUX/x86) ONLY
-  unsigned int commondataformat0;
-  unsigned int commondataformat1;
-  unsigned int commondataformat2;
-  unsigned int commondataformat3;
-  unsigned int dcch0;
-  unsigned int dcch1;
-  unsigned int spigotInfo[18];   //The last three of these 32bit words should always be zero!
+  uint32_t commondataformat0;
+  uint32_t commondataformat1;
+  uint32_t commondataformat2;
+  uint32_t commondataformat3;
+  uint32_t dcch0;
+  uint32_t dcch1;
+  uint32_t spigotInfo[18];   //The last three of these 32bit words should always be zero!
 
 };
 

@@ -27,7 +27,7 @@ class FP420TrackMain
 
   /// Runs the algorithm
   void run(edm::Handle<ClusterCollectionFP420> &input,
-	   std::auto_ptr<TrackCollectionFP420> &toutput
+	   TrackCollectionFP420 *toutput
 	   );
 
  private:

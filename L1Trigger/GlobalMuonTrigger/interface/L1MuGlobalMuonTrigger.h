@@ -81,7 +81,7 @@ class L1MuGlobalMuonTrigger : public edm::one::EDProducer<edm::one::SharedResour
     /// get the GMT readout data for the triggered bx
     /// readout data contains input and output muons as well as MIP and Quiet bits
     /// for 3 or 5 bx around the triggered bx
-    std::auto_ptr<L1MuGMTReadoutCollection> getReadoutCollection();
+    std::unique_ptr<L1MuGMTReadoutCollection> getReadoutCollection();
 
     /// return a reference to the current record in the ring buffer
     L1MuGMTReadoutRecord* currentReadoutRecord () const { return m_ReadoutRingbuffer.back(); };

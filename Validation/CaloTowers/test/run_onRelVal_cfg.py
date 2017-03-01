@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("hcalval")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
@@ -61,7 +61,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
     mc                        = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(False)                                                                                                          
 )
 
 process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')

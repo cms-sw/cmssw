@@ -83,7 +83,7 @@ class TreeSaver : public TrainProcessor {
 		{ return name == other; }
 	};
 
-	std::auto_ptr<TFile>		file;
+	std::unique_ptr<TFile>		file;
 	TTree				*tree;
 	Double_t			weight;
 	Bool_t				target;
@@ -177,7 +177,7 @@ void TreeSaver::trainBegin()
 	if (iteration == ITER_EXPORT) {
 		ROOTContextSentinel ctx;
 
-		file = std::auto_ptr<TFile>(TFile::Open(
+		file = std::unique_ptr<TFile>(TFile::Open(
 			trainer->trainFileName(this, "root").c_str(),
 			"RECREATE"));
 		if (!file.get())

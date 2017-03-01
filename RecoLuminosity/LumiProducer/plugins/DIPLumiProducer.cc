@@ -8,7 +8,6 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 */
 
 //#include <memory>
-//#include "boost/shared_ptr.hpp"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -75,7 +74,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
   if(currentls==0||currentls==4294967295){ 
-    return  boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary());
+    return std::make_shared<DIPLumiSummary>();
   }
   if(m_summarycachedrun!=currentrun){//i'm in a new run
     fillsummarycache(currentrun,currentls);//starting ls
@@ -85,11 +84,11 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
     }
   }
   if(m_summarycache.empty()){
-    return boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary());
+    return std::make_shared<DIPLumiSummary>();
   }
   if(m_summarycache.find(currentls)==m_summarycache.end()){
     std::vector<unsigned int> v;
-    for(std::map<unsigned int,boost::shared_ptr<DIPLumiSummary> >::iterator it=m_summarycache.begin();it!=m_summarycache.end();++it){
+    for(std::map<unsigned int,std::shared_ptr<DIPLumiSummary> >::iterator it=m_summarycache.begin();it!=m_summarycache.end();++it){
       v.push_back(it->first);
     }
     m_summaryresult=m_summarycache[v.back()];
@@ -97,7 +96,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
     m_summaryresult=m_summarycache[currentls];
   }
   if(m_summaryresult.get()==0){
-    return boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary());
+    return std::make_shared<DIPLumiSummary>();
   }
   return m_summaryresult;
 }
@@ -107,7 +106,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
   if(currentls==0||currentls==4294967295){ 
-    return  boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail());
+    return std::make_shared<DIPLumiDetail>();
   }
   if(m_detailcachedrun!=currentrun){//i'm in a new run
     filldetailcache(currentrun,currentls);//starting ls
@@ -117,11 +116,11 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     }
   }
   if(m_detailcache.empty()){
-    return boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail());
+    return std::make_shared<DIPLumiDetail>();
   }
   if(m_detailcache.find(currentls)==m_detailcache.end()){
     std::vector<unsigned int> v;
-    for(std::map<unsigned int,boost::shared_ptr<DIPLumiDetail> >::iterator it=m_detailcache.begin();it!=m_detailcache.end();++it){
+    for(std::map<unsigned int,std::shared_ptr<DIPLumiDetail> >::iterator it=m_detailcache.begin();it!=m_detailcache.end();++it){
       v.push_back(it->first);
     }
     m_detailresult=m_detailcache[v.back()];
@@ -129,7 +128,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     m_detailresult=m_detailcache[currentls];
   }
   if(m_detailresult.get()==0){
-    return boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail());
+    return std::make_shared<DIPLumiDetail>();
   }
   return m_detailresult;
 }
@@ -226,7 +225,7 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
       if(!row["CMS_ACTIVE"].isNull()){
 	cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
       }
-      boost::shared_ptr<DIPLumiSummary> tmpls(new DIPLumiSummary(instlumi,intgdellumi,intgreclumi,cmsalive));
+      auto tmpls = std::make_shared<DIPLumiSummary>(instlumi,intgdellumi,intgreclumi,cmsalive);
       tmpls->setOrigin(m_summarycachedrun,lsnum);
       //std::cout<<"filling "<<lsnum<<std::endl;
       m_summarycache.insert(std::make_pair(lsnum,tmpls));
@@ -324,7 +323,7 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
       const coral::AttributeList& row=lumidetailcursor.currentRow();
       unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
       if(m_detailcache.find(lsnum)==m_detailcache.end()){
-	m_detailcache.insert(std::make_pair(lsnum,boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail)));
+	m_detailcache.insert(std::make_pair(lsnum,std::make_shared<DIPLumiDetail>()));
 	m_detailcache[lsnum]->setOrigin(m_detailcachedrun,lsnum);
       }
       if(!row["BUNCH"].isNull()){

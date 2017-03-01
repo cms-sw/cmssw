@@ -2,44 +2,44 @@
 
 getExternals()
 {
-   mkdir  ${tard}/external
+    mkdir  ${tard}/external
+
+    ext=$CMS_PATH/$SCRAM_ARCH/external # this used to be CMSSW_DATA_PATH
+    echo "=========================================================="
+    echo "=========================================================="
+
+    cd $CMSSW_BASE
+	echo "Copy gcc subdirs"
+    scram tool tag gcc-ccompiler GCC_CCOMPILER_BASE
+    gccd_src=`scram tool tag gcc-ccompiler GCC_CCOMPILER_BASE`
+set -x
+    gccd_target=${tard}/external/gcc
+    mkdir $gccd_target
+	cp -a $gccd_src/include $gccd_target
+	cp -a $gccd_src/bin $gccd_target
+
+    if [ `uname` = "Darwin" ]; then
+   	   cp -a $gccd_src/lib $gccd_target/lib64
+    else
+       cp -a $gccd_src/lib64 $gccd_target/lib64
+    fi
+    exit
+    echo "=========================================================="
+    echo "=========================================================="
+
+    echo "Copying external libraries from $ext to $extdl."
 
    # external libraries
     extdl=${tard}/external/lib
     mkdir $extdl
     extt=/tmp/cmsswExt
-    ext=`dirname ${CMSSW_DATA_PATH}`/external
     ls -l $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/* > $extt
-    echo "=========================================================="
-    echo "=========================================================="
-
-    gccd=${tard}/external
-
-	export gcmd=`which gcc`
-	gv=`perl -e ' if ($ENV{gcmd} =~ /\/gcc\/(.*)\/bin\/gcc/) { print $1;}'`
-	printf "gcc version $gv"
-	if [ -z "$gv" ]; then
-            echo "can't get gcc version"
-            exit;
-	fi
-	echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
-	cp -a $ext/gcc/${gv}/ ${gccd}/gcc
-        if [ `uname` = "Darwin" ]; then
-           echo "Renaming gcc lib directory to lib64."
-           mv ${gccd}/gcc/lib ${gccd}/gcc/lib64
-        fi
-    
-    echo "=========================================================="
-    echo "=========================================================="
-
-
-    echo "Copying external libraries from $ext to $extdl."
    # cp -a $ext/*/*/lib/*  ${tard}/external/lib
     for i in boost bz2lib castor clhep dcap db4 dcap \
         expat fftw3 gdbm gsl hepmc\
    	libjpg libpng libtiff libungif \
    	openssl pcre \
-   	sigcpp  xrootd zlib xz freetype
+   	sigcpp  xrootd zlib xz freetype tbb
     do
         export i;
         ever=`grep $i $extt |  perl -ne 'if ($_ =~ /$ENV{i}\/(.*)\/lib\/(.*)/ ) {print "$1\n"; last;}'`
@@ -51,6 +51,19 @@ getExternals()
         cp -a $ext/$i/$ever/lib/* ${extdl}
     done
 
+    
+    echo "=========================================================="
+    echo "=========================================================="
+    echo "Copying external headers."
+
+    mkdir ${tard}/external/var-inc
+    for i in CLHEP HepMC boost sigcpp; do
+      # scram tool info $i | grep INCL | head -1
+       edir=`scram tool info $i | grep INCL | head -1| perl -ne 'if ($_ =~/\=(.*)$/) {print "$1\n"}'`
+       if [ -n $edir ]; then
+          cp -r $edir/* ${tard}/external/var-inc
+       fi
+    done
 
     echo "=========================================================="
     echo "=========================================================="
@@ -74,43 +87,36 @@ getExternals()
     cp -a $origr  ${tard}/external/root
      
 }
+
 #----------------------------------------------------------------
-
-getCmssw()
+getCmsSources()
 {
-    echo "=========================================================="
-    echo "=========================================================="
-    echo "get CMS libs"
-
-    mkdir -p ${tard}/lib
-    fwl="/tmp/fwlite_build_set.file"
-    $dwnCmd $fwl https://raw.githubusercontent.com/cms-sw/cmsdist/IB/CMSSW_7_0_X/stable/fwlite_build_set.file
-    
-    # remove package without libs
-    perl -i -ne 'print unless /Fireworks\/Macros/' $fwl
-    perl -i -ne 'print unless /FWCore\/PythonUtilities/' $fwl
-    perl -i -ne 'print unless /DataFormats\/MuonData/' $fwl
-    perl -i -ne 'print unless /Utilities\/ReleaseScripts/' $fwl
-
-    cn=${tard}/lib/.edmplugincache;
-    fwpl=`cat $fwl |  perl -ne 'if( ~/(.+)\/(.+)$/){print "$1$2 ";}'`
     echo "get list from $fwpl"
-    for i in $fwpl
+    for i in `cat $fwl` $extra_list
     do
-	cp -f $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/*${i}* $tard/lib
-	grep $i  $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
+        # run-away headers
+        if [ -f $CMSSW_RELEASE_BASE/src/${i} ]; then
+           mkdir -p  $tard/src/`dirname $i`
+           cp $CMSSW_RELEASE_BASE/src/$i $tard/src/$i
+        fi
 
+
+        mkdir -p $tard/src/$i
+        mkdir -p $tard/src/$i/src
+
+        if [ -e  $CMSSW_BASE/src/$i ]; then
+	   cp -rf $CMSSW_BASE/src/${i}/interface $tard/src/$i
+	   cp -rf $CMSSW_BASE/src/${i}/src/*.h $tard/src/$i/src
+        else
+	   cp -rf $CMSSW_RELEASE_BASE/src/${i}/interface $tard/src/$i
+	   cp -rf $CMSSW_RELEASE_BASE/src/${i}/src/*.h $tard/src/$i/src
+        fi
     done;
-    
-    echo "getting libs from $CMSSW_BASE/lib/$SCRAM_ARCH"
-    cp -f $CMSSW_BASE/lib/$SCRAM_ARCH/* ${tard}/lib/
-
-    sort -u  $cn -o  $cn
 }
 
 #----------------------------------------------------------------
 
-getSources()
+getFireworksSources()
 {
    echo "=========================================================="
    echo "=========================================================="
@@ -147,14 +153,60 @@ getSources()
 
    # link to config files
    cd  $tard
-   ln -s  src/Fireworks/Core/macros/default.fwc .
+   ln -s  src/Fireworks/Core/macros/aod.fwc .
    ln -s  src/Fireworks/Core/macros/ispy.fwc .
    ln -s  src/Fireworks/Core/macros/pflow.fwc .
-   ln -s  src/Fireworks/Core/macros/hfLego.fwc .
+   ln -s  src/Fireworks/Core/macros/miniaod.fwc .
    ln -s  src/Fireworks/Core/macros/simGeo.fwc .
    ln -s  src/Fireworks/Core/macros/overlaps.fwc .
    
    ln -s  src/Fireworks/Core/scripts/cmsShow .   
+}
+
+#----------------------------------------------------------------
+
+getCmsLibs()
+{
+mkdir -p $tard/lib
+    echo "=========================================================="
+    echo "=========================================================="
+    echo "get CMS libs"
+
+    libext=".so";
+    if [ `uname` = "Darwin" ]; then
+      libext=".dylib";
+    fi
+
+    cat $fwl | grep -v '\.h$' >  ${fwl}tmp
+    # remove package without libs
+    perl -i -ne 'print unless /Fireworks\/Macros/'         ${fwl}tmp
+    perl -i -ne 'print unless /FWCore\/PythonUtilities/'   ${fwl}tmp
+    perl -i -ne 'print unless /DataFormats\/MuonData/'     ${fwl}tmp
+    perl -i -ne 'print unless /Utilities\/ReleaseScripts/' ${fwl}tmp
+
+
+    libl=`cat ${fwl}tmp |  perl -ne 'if( ~/(.+)\/(.+)$/){print "$1$2 ";}'`
+    libl_extra=`echo $extra_list | perl -pe '{ s/\///og;}'`
+
+    echo "get FWLite libraries"
+
+    cn=${tard}/lib/.edmplugincache;
+    for i in $libl $libl_extra; do
+       if [ -e  $CMSSW_BASE/lib/$SCRAM_ARCH/lib${i}.$libext ]; then
+	      cp -f $CMSSW_BASE/lib/$SCRAM_ARCH/*${i}* $tard/lib
+       else
+	      cp -f $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/*${i}* $tard/lib
+       fi
+	   grep $i  $CMSSW_RELEASE_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
+	   grep $i  $CMSSW_BASE/lib/$SCRAM_ARCH/.edmplugincache  >> $cn
+    done
+
+    echo "getting libs from $CMSSW_BASE/lib/$SCRAM_ARCH"
+    cp -f $CMSSW_BASE/lib/$SCRAM_ARCH/* ${tard}/lib/
+
+    sort -u  $cn -o  $cn
+    
+    rm ${fwl}tmp
 }
 
 #----------------------------------------------------------------
@@ -167,14 +219,14 @@ getDataFiles()
    # sample files
    cd ${tard}
    name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "data", $a, $b, ".root"  '`
-   $dwnCmd data.root  http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
+   $dwnCmd data.root  http://amraktad.web.cern.ch/amraktad/scratch0/data/$name
 
-   mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
-   $dwnCmd mc.root http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
+ #  mc_name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "mc", $a, $b, ".root"  '`
+ #  $dwnCmd mc.root http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$mc_name
 
    #geometry files
    cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsSimGeom-* ${tard}
-   cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsGeom* ${tard}
+   cp $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/data/Fireworks/Geometry/data/cmsGeom10.root ${tard}
 }
 
 #----------------------------------------------------------------
@@ -226,7 +278,12 @@ case $i in
     doForce=1;
     shift;
     ;;
+    --fwlite=*)
+    fwlite_list="${i#*=}"
+    shift;
+    ;;
     *)
+echo "usage [$i] ----"
     usage
     ;;
 esac
@@ -258,11 +315,24 @@ if [ `uname` = "Darwin" ]; then
 fi
 
 origd=$PWD
+
+if [ -z fwlite_list ]; then
+   fwl="/tmp/fwlite_build_set.file"
+   $dwnCmd $fwl https://raw.githubusercontent.com/cms-sw/cmsdist/IB/CMSSW_7_3_X/stable/fwlite_build_set.file
+else
+   fwl=$fwlite_list
+fi
+extra_list="/CondFormats/Serialization /Geometry/CommonDetUnit /DataFormats/MuonSeed"
+
+
 getExternals
-getCmssw
+getCmsSources
+getFireworksSources
 
 
-getSources
+getCmsLibs
+
+
 getDataFiles
 echo $tard
 if [ -n "$doTar" ] ; then

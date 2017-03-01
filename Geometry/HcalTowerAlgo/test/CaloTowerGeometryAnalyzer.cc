@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,12 +22,14 @@ namespace
     return std::fabs( a - b ) < epsilon;
   }
 
+  /*
   inline double
   round( double n, int digits )
   {
     double mult = pow( 10, digits );
     return floor( n * mult ) / mult;
   }
+  */
   
   std::map<int, std::string> hcalmapping = {{1, "HB"},
 					    {2, "HE"},
@@ -39,13 +41,15 @@ namespace
   };
 }
 
-class CaloTowerGeometryAnalyzer : public edm::EDAnalyzer 
+class CaloTowerGeometryAnalyzer : public edm::one::EDAnalyzer<> 
 {
 public:
   explicit CaloTowerGeometryAnalyzer( const edm::ParameterSet& );
   ~CaloTowerGeometryAnalyzer( void );
     
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   std::string m_fname;

@@ -8,9 +8,9 @@
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
@@ -29,6 +29,7 @@ namespace edm {
       , vpsetPrescales_(iPS.getParameterSetVector("prescaleTable"))
       , prescaleTable_()
     {
+      iReg.watchPreBeginJob(this, &PrescaleService::preBeginJob);
       iReg.watchPostBeginJob(this, &PrescaleService::postBeginJob);
 
       // Sanity check
@@ -61,11 +62,17 @@ namespace edm {
 
     // member functions
 
+    void PrescaleService::preBeginJob(PathsAndConsumesOfModulesBase const&,
+                                      ProcessContext const& processContext) {
+      if(!processParameterSetID_.isValid()) {
+        processParameterSetID_ = processContext.parameterSetID();
+      }
+    }
+ 
     void PrescaleService::postBeginJob() {
 
-      // Acesss to Process ParameterSet needed - can't be done in c'tor
-      const ParameterSet prcPS = getProcessParameterSet();
-
+      // Acess to Process ParameterSet needed - can't be done in c'tor
+      ParameterSet const& prcPS = edm::getParameterSet(processParameterSetID_);
       // Label of HLTPrescaler on each path, keyed on pathName
       std::map<std::string,std::string> path2module;
       // Name of path for each HLTPrescaler, keyed on moduleLabel

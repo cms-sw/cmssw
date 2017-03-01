@@ -5,7 +5,6 @@
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="FWCore/Framework"/>
 <use   name="DQMServices/Core"/>
-<use   name="boost"/>
 <use   name="root"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>

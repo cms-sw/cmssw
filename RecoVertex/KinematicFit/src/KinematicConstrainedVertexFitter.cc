@@ -163,7 +163,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(const std::vector<
   deltapos[1] = newPoint.y() - lPoint.y();
   deltapos[2] = newPoint.z() - lPoint.z();
   for (int i=0; i<3; ++i) {
-    double delta = deltapos[i]*deltapos[i]/rVtx->error().matrix_new()(i,i);
+    double delta = deltapos[i]*deltapos[i]/rVtx->error().matrix()(i,i);
     if (delta>maxDelta) maxDelta = delta;
   }
   

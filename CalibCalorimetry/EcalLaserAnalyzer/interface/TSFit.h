@@ -86,7 +86,7 @@ public :
 
   double inverms  ( int, double xx[matdim][matdim], double yy[matdim][matdim] );
 
-  //  ClassDef( TSFit, 1 )
+  ClassDef( TSFit, 0 )
 };
 
 #endif

@@ -27,22 +27,22 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Run client analysis
-  void runClientDiagnostic();
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
-  void fillGlobalSummary();
+  /// Run client analysis
+
+  void runClientDiagnostic(DQMStore::IBooker &,DQMStore::IGetter &);
+
+  void fillGlobalSummary(DQMStore::IGetter &);
 
  private:
 
   int nMinEvts;
 
-  
+  bool bookingdone;  
   
 
 };

@@ -154,7 +154,35 @@ namespace pat {
       float hcalIso()  const { return dr04HcalTowerSumEt(); }
       /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
+      /// get and set PFCluster Isolation                                                                                                                                      
+      float ecalPFClusterIso() const { return ecalPFClusIso_; };
+      float hcalPFClusterIso() const { return hcalPFClusIso_; };
+      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
+      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
+      /// returns PUPPI isolations			
+      float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
+      float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
+      float puppiPhotonIso() const {return puppiPhotonIso_; }
+      /// returns PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso() const {return puppiNoLeptonsChargedHadronIso_; }
+      float puppiNoLeptonsNeutralHadronIso() const {return puppiNoLeptonsNeutralHadronIso_; }
+      float puppiNoLeptonsPhotonIso() const {return puppiNoLeptonsPhotonIso_; }
+      /// sets PUPPI isolations
+      void setIsolationPUPPI(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiChargedHadronIso_ = chargedhadrons_;
+         puppiNeutralHadronIso_ = neutralhadrons_;
+         puppiPhotonIso_ = photons_;
 
+      }
+      /// sets PUPPINoLeptons isolations
+      void setIsolationPUPPINoLeptons(float chargedhadrons_, float neutralhadrons_, float photons_)
+      {  
+         puppiNoLeptonsChargedHadronIso_ = chargedhadrons_;
+         puppiNoLeptonsNeutralHadronIso_ = neutralhadrons_;
+         puppiNoLeptonsPhotonIso_ = photons_;
+
+      }
       // ---- PF specific methods ----
       bool isPF() const{ return isPF_; }
       void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate ; }
@@ -175,13 +203,17 @@ namespace pat {
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       // ---- embed various impact parameters with errors ----
-      typedef enum IPTYPE { None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4 } IpType;
+      typedef enum IPTYPE { PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4 } IpType;
       /// Impact parameter wrt primary vertex or beamspot
-      double dB(IpType type = None) const;
+      double dB(IPTYPE type) const;
       /// Uncertainty on the corresponding impact parameter
-      double edB(IpType type = None) const;
+      double edB(IPTYPE type) const;
+      /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+      double dB() const { return std::abs(dB(PV2D)); }
+      /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+      double edB() const { return std::abs(edB(PV2D)); }
       /// Set impact parameter of a certain type and its uncertainty
-      void setDB(double dB, double edB, IpType type = None);
+      void setDB(double dB, double edB, IPTYPE type);
 
       // ---- Momentum estimate specific methods ----
       const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
@@ -234,12 +266,19 @@ namespace pat {
       bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
 
-      /// References to PFCandidates (e.g. to recompute isolation)
-      void setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) ; 
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
       edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
       /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
-      void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
+      template<typename T>
+      void setAssociatedPackedPFCandidates(const edm::RefProd<pat::PackedCandidateCollection> & refprod,
+                                           T beginIndexItr,
+                                           T endIndexItr) {
+        packedPFCandidates_ = refprod;
+        associatedPackedFCandidateIndices_.clear();
+        associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.end(),
+                                                  beginIndexItr,
+                                                  endIndexItr);
+      }
 
       friend class PATElectronSlimmer;
 
@@ -304,14 +343,6 @@ namespace pat {
       /// ECAL-driven momentum
       LorentzVector ecalDrivenMomentum_;
 
-      // V+Jets group selection variables.
-      /// True if impact parameter has been cached
-      bool    cachedDB_;
-      /// Impact parameter at the primary vertex
-      double  dB_;
-      /// Impact paramater uncertainty at the primary vertex
-      double  edB_;
-
       /// additional missing mva variables : 14/04/2012
       float sigmaIetaIphi_, full5x5_sigmaIetaIphi_;
       double ip3d_;
@@ -332,17 +363,30 @@ namespace pat {
       double ecalTrackRegressionScale_;
       double ecalTrackRegressionSmear_;
       
-      
+      /// PFCluster Isolation (a la HLT)
+      float ecalPFClusIso_;
+      float hcalPFClusIso_;
+
+      /// PUPPI isolations
+      float puppiChargedHadronIso_;
+      float puppiNeutralHadronIso_;
+      float puppiPhotonIso_;
+
+      /// PUPPINoLeptons isolations
+      float puppiNoLeptonsChargedHadronIso_;
+      float puppiNoLeptonsNeutralHadronIso_;
+      float puppiNoLeptonsPhotonIso_;
+
       /// conversion veto
       bool passConversionVeto_;
 
       // ---- cached impact parameters ----
       /// True if the IP (former dB) has been cached
-      std::vector<bool>    cachedIP_;
+      uint8_t    cachedIP_;
       /// Impact parameter at the primary vertex,
-      std::vector<double>  ip_;
+      float  ip_[IpTypeSize];    
       /// Impact parameter uncertainty as recommended by the tracking group
-      std::vector<double>  eip_;
+      float  eip_[IpTypeSize];      
 
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;

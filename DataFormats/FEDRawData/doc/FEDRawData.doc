@@ -1,34 +1,102 @@
+
 /*!
-<!-- Substitute DataFormats and FEDRawData with the proper names! -->
 
 \page DataFormats_FEDRawData Package DataFormats/FEDRawData
-<center>
-<small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DataFormats/FEDRawData/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
-</small>
-</center>
 
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
-Classes to store raw data blocks in the event.
-FED data blocks are required to have correct padding (64 bit).
+Classes to store raw data blocks in the event. FED data blocks are required to have correct padding (64 bit).
 
+Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been assigned, they must not be changed.
+
+<!-- This table must be created with DataFormats/FEDRawData/doc/createFEDtable.py -->
+<table width='75%' border='1' align='center'>
+<tr style='color:#FF0000'><th>Detector</th><th>Min FED id (decimal)</th><th>Max FED id (decimal)</th></tr>
+<tr style='color:#000000'><td><div align='center'>SiPixel</div></td><td><div align='center'>0</div></td><td><div align='center'>40</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>41</div></td><td><div align='center'>49</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>SiStrip</div></td><td><div align='center'>50</div></td><td><div align='center'>489</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>490</div></td><td><div align='center'>519</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>PreShower</div></td><td><div align='center'>520</div></td><td><div align='center'>575</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>576</div></td><td><div align='center'>576</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TotemTrigger</div></td><td><div align='center'>577</div></td><td><div align='center'>577</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TotemRP</div></td><td><div align='center'>578</div></td><td><div align='center'>581</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CTPPSDiamond</div></td><td><div align='center'>582</div></td><td><div align='center'>585</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>586</div></td><td><div align='center'>599</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>ECAL</div></td><td><div align='center'>600</div></td><td><div align='center'>670</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>671</div></td><td><div align='center'>689</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CASTOR</div></td><td><div align='center'>690</div></td><td><div align='center'>693</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>694</div></td><td><div align='center'>699</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>HCAL</div></td><td><div align='center'>700</div></td><td><div align='center'>731</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>732</div></td><td><div align='center'>734</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>LUMISCALERS</div></td><td><div align='center'>735</div></td><td><div align='center'>735</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>736</div></td><td><div align='center'>744</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerGCT</div></td><td><div align='center'>745</div></td><td><div align='center'>749</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CSC</div></td><td><div align='center'>750</div></td><td><div align='center'>757</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>758</div></td><td><div align='center'>759</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CSCTF</div></td><td><div align='center'>760</div></td><td><div align='center'>760</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>761</div></td><td><div align='center'>769</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>DT</div></td><td><div align='center'>770</div></td><td><div align='center'>779</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>DTTF</div></td><td><div align='center'>780</div></td><td><div align='center'>780</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>781</div></td><td><div align='center'>789</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>RPC</div></td><td><div align='center'>790</div></td><td><div align='center'>795</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>796</div></td><td><div align='center'>811</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerGTP</div></td><td><div align='center'>812</div></td><td><div align='center'>813</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerEGTP</div></td><td><div align='center'>814</div></td><td><div align='center'>814</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCmtcc</div></td><td><div align='center'>815</div></td><td><div align='center'>815</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCTrigger</div></td><td><div align='center'>816</div></td><td><div align='center'>816</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTC</div></td><td><div align='center'>816</div></td><td><div align='center'>824</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCHCAL</div></td><td><div align='center'>817</div></td><td><div align='center'>817</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCSiStrip</div></td><td><div align='center'>818</div></td><td><div align='center'>818</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCECAL</div></td><td><div align='center'>819</div></td><td><div align='center'>819</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCTotemCastor</div></td><td><div align='center'>820</div></td><td><div align='center'>820</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCRPC</div></td><td><div align='center'>821</div></td><td><div align='center'>821</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCCSC</div></td><td><div align='center'>822</div></td><td><div align='center'>822</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCDT</div></td><td><div align='center'>823</div></td><td><div align='center'>823</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerLTCSiPixel</div></td><td><div align='center'>824</div></td><td><div align='center'>824</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>825</div></td><td><div align='center'>829</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CSCDDU</div></td><td><div align='center'>830</div></td><td><div align='center'>869</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>870</div></td><td><div align='center'>879</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CSCContingency</div></td><td><div align='center'>880</div></td><td><div align='center'>887</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>888</div></td><td><div align='center'>889</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CSCTFSP</div></td><td><div align='center'>890</div></td><td><div align='center'>901</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>DAQeFED</div></td><td><div align='center'>902</div></td><td><div align='center'>931</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>932</div></td><td><div align='center'>1022</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>DAQmFED</div></td><td><div align='center'>1023</div></td><td><div align='center'>1023</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TCDSuTCA</div></td><td><div align='center'>1024</div></td><td><div align='center'>1099</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>HCALuTCA</div></td><td><div align='center'>1100</div></td><td><div align='center'>1199</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>SiPixeluTCA</div></td><td><div align='center'>1200</div></td><td><div align='center'>1349</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TriggerUpgrade</div></td><td><div align='center'>1350</div></td><td><div align='center'>1409</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>SiPixelAMC13</div></td><td><div align='center'>1410</div></td><td><div align='center'>1449</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>SiPixelTest</div></td><td><div align='center'>1450</div></td><td><div align='center'>1461</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>CTPPSPixels</div></td><td><div align='center'>1462</div></td><td><div align='center'>1466</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>GEM</div></td><td><div align='center'>1467</div></td><td><div align='center'>1472</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1473</div></td><td><div align='center'>1499</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>SiPixel2nduTCA</div></td><td><div align='center'>1500</div></td><td><div align='center'>1649</div></td></tr>
+<tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>1650</div></td><td><div align='center'>2814</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>DAQvFED</div></td><td><div align='center'>2815</div></td><td><div align='center'>4095</div></td></tr>
+</table>
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
+
+- DaqData
 - FEDHeader
 - FEDNumbering
 - FEDRawData
 - FEDRawDataCollection
 - FEDTrailer
 
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+None
+
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
-None (see also "Examples")
+None
 
-\subsection tests Unit tests and Examples
+\subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 - testFEDRawData: unit test
 - testDumpFEDRawDataProduct: test module, prints the list of non-empy FEDs in the event and their data size. To use it include in your parameter set:
@@ -38,11 +106,9 @@ module dump = DumpFEDRawDataProduct{ }
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Stable.
-
-FEDHeader and FEDTrailer should be modified use the implementation of XDAQ, including CRC check, etc.
+Stable
 
 <hr>
-Last updated: @DATE@ 
-Author: N. Amapane
+Last updated:
+@DATE@  Author: Remi Mommsen
 */

@@ -22,7 +22,7 @@ public:
   virtual ~MagELayer();
 
   /// Find the volume containing a point, with a given tolerance
-  MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
 
   /// Lower Z bound
   double minZ() const {return theZMin;}

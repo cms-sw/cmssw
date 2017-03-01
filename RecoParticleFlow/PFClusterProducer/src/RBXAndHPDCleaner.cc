@@ -81,18 +81,19 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       totalEta2 = totalEta2W = totalPhi2 = totalPhi2W = totalEnergy2 = 1e-9;
       nSeeds = nSeeds0 = rechits.size();
       for( unsigned jh = 0; jh < rechits.size(); ++jh ) {
-	const reco::PFRecHit&  rechit = input->at(jh);
+	const reco::PFRecHit&  rechit = (*input)[jh];
 	// check if rechit is a seed
 	unsigned nN = 0 ; // neighbours over threshold
 	bool isASeed = true;
-	const reco::PFRecHitRefVector& neighbours4 = rechit.neighbours4();
-	for( const reco::PFRecHitRef& neighbour : neighbours4 ) {
-	  if( neighbour->energy() > rechit.energy() ) {	    
+	auto const & neighbours4 = rechit.neighbours4();
+	for( auto k : neighbours4 ) {
+          auto const & neighbour = (*input)[k]; 
+	  if( neighbour.energy() > rechit.energy() ) {	    
 	    --nSeeds; --nSeeds0;
 	    isASeed = false;
 	    break;
 	  } else {
-	    if( neighbour->energy() > 0.4 ) ++nN;
+	    if( neighbour.energy() > 0.4 ) ++nN;
 	  }
 	}
 	if ( isASeed && !nN ) --nSeeds0;

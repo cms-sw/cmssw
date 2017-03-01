@@ -2,7 +2,6 @@
 
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -83,7 +82,7 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
       std::string sd        = names[i];
       DDSpecificsFilter filter;
       DDValue           ddv(attribute,sd,0);
-      filter.setCriteria(ddv,DDSpecificsFilter::equals);
+      filter.setCriteria(ddv,DDCompOp::equals);
       DDFilteredView fv(*pDD);
       std::cout << "PrintGeomInfoAction:: Get Filtered view for " 
 		<< attribute << " = " << sd << std::endl;

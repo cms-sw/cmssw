@@ -31,7 +31,8 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theMinBunch(-10), 
   theMaxBunch(10),
   thePhaseShift_(1.),
-  changeScale(false) {}
+  storePrecise(false),
+  ignoreTime(false) {}
 
 CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
                                  const CaloShapes * shapes)
@@ -46,43 +47,10 @@ CaloHitResponse::CaloHitResponse(const CaloVSimParameterMap * parametersMap,
   theMinBunch(-10),
   theMaxBunch(10),
   thePhaseShift_(1.),
-  changeScale(false) {}
+  storePrecise(false),
+  ignoreTime(false) {}
 
 CaloHitResponse::~CaloHitResponse() {
-}
-
-void CaloHitResponse::initHBHEScale() {
-#ifdef ChangeHcalEnergyScale
-  for (int ij=0; ij<100; ij++) {
-    for (int jk=0; jk<72; jk++) {	
-      for (int kl=0; kl<4; kl++) {
-	hcal_en_scale[ij][jk][kl] = 1.0;
-      }
-    }
-  }
-#endif
-}
-
-void CaloHitResponse::setHBHEScale(std::string & fileIn) {
-  
-  std::ifstream infile(fileIn.c_str());
-  LogDebug("CaloHitResponse") << "Reading from " << fileIn;
-#ifdef ChangeHcalEnergyScale
-  if (!infile.is_open()) {
-    edm::LogError("CaloHitResponse") << "** ERROR: Can't open '" << fileIn << "' for the input file";
-  } else {
-    int     eta, phi, depth;
-    double  cFactor;
-    while(1) {
-      infile >> eta >> phi >> depth >> cFactor;
-      if (!infile.good()) break;
-      hcal_en_scale[eta][phi][depth] = cFactor;
-      //      LogDebug("CaloHitResponse") << "hcal_en_scale[" << eta << "][" << phi << "][" << depth << "] = " << hcal_en_scale[eta][phi][depth];
-    }
-    infile.close();
-  }
-  changeScale = true;
-#endif
 }
 
 void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
@@ -90,7 +58,7 @@ void CaloHitResponse::setBunchRange(int minBunch, int maxBunch) {
   theMaxBunch = maxBunch;
 }
 
-void CaloHitResponse::run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine) {
+void CaloHitResponse::run(const MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine) {
 
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr) {
@@ -108,7 +76,6 @@ void CaloHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
   if(theHitFilter == 0 || theHitFilter->accepts(hit)) {
     LogDebug("CaloHitResponse") << hit;
     CaloSamples signal( makeAnalogSignal( hit, engine ) ) ;
-
     bool keep ( keepBlank() ) ;  // here we  check for blank signal if not keeping them
     if( !keep )
     {
@@ -122,8 +89,6 @@ void CaloHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
        }
     }
 
-
-    //    std::cout << "CaloHitResponse " << signal << std::endl;
     if( keep ) add(signal);
   }
 }
@@ -135,18 +100,16 @@ void CaloHitResponse::add(const CaloSamples & signal)
   CaloSamples * oldSignal = findSignal(id);
   if (oldSignal == 0) {
     theAnalogSignalMap[id] = signal;
-    //std::cout << "CaloHitResponseAdd " << signal << std::endl;
 
   } else  {
     // need a "+=" to CaloSamples
     int sampleSize =  oldSignal->size();
-    assert(sampleSize == signal.size());
+    assert(sampleSize <= signal.size());
     assert(signal.presamples() == oldSignal->presamples());
 
     for(int i = 0; i < sampleSize; ++i) {
       (*oldSignal)[i] += signal[i];
     }
-    //std::cout << "CaloHitResponseAdd " << (*oldSignal) << std::endl;
   }
 }
 
@@ -155,14 +118,15 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
 
   DetId detId(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  
   double signal = analogSignalAmplitude(detId, hit.energy(), parameters, engine);
 
   double time = hit.time();
+  double tof = timeOfFlight(detId);
+  if(ignoreTime) time = tof;
   if(theHitCorrection != 0) {
     time += theHitCorrection->delay(hit, engine);
   }
-  double jitter = hit.time() - timeOfFlight(detId);
+  double jitter = time - tof;
 
   const CaloVShape * shape = theShape;
   if(!shape) {
@@ -178,9 +142,23 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
 
   CaloSamples result(makeBlankSignal(detId));
 
-  for(int bin = 0; bin < result.size(); bin++) {
-    result[bin] += (*shape)(binTime)* signal;
-    binTime += BUNCHSPACE;
+  if(storePrecise){
+    result.resetPrecise();
+    int sampleBin(0);
+    //use 1ns binning for precise sample
+    for(int bin = 0; bin < result.size()*BUNCHSPACE; bin++) {
+      sampleBin = bin/BUNCHSPACE;
+      double pulseBit = (*shape)(binTime)* signal;
+      result[sampleBin] += pulseBit;
+      result.preciseAtMod(bin) += pulseBit;
+      binTime += 1.0;
+    }
+  }
+  else {
+    for(int bin = 0; bin < result.size(); bin++) {
+      result[bin] += (*shape)(binTime)* signal;
+      binTime += BUNCHSPACE;
+    }
   }
   return result;
 } 
@@ -190,26 +168,10 @@ double CaloHitResponse::analogSignalAmplitude(const DetId & detId, float energy,
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
   //GMA Smeared in photon production it self  
-  double scl =1.0;
-#ifdef ChangeHcalEnergyScale
-  if (changeScale) {
-    if (detId.det()==DetId::Hcal ) { 
-      HcalDetId dId = HcalDetId(detId); 
-      if (dId.subdet()==HcalBarrel || dId.subdet()==HcalEndcap) { 
-	int ieta = dId.ieta()+50;
-	int iphi = dId.iphi()-1;
-	int idep = dId.depth()-1;
-	scl = hcal_en_scale[ieta][iphi][idep];
-	LogDebug("CaloHitResponse") << " ID " << dId << " Scale " << scl;
-      }
-    }
-  } 
-#endif
-  double npe = scl * energy * parameters.simHitToPhotoelectrons(detId);
+  double npe = energy * parameters.simHitToPhotoelectrons(detId);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
-    CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
-    npe = randPoissonQ.fire();
+    npe = CLHEP::RandPoissonQ::shoot(engine,npe);
   }
   if(thePECorrection) npe = thePECorrection->correctPE(detId, npe, engine);
   return npe;
@@ -230,8 +192,10 @@ CaloSamples * CaloHitResponse::findSignal(const DetId & detId) {
 
 CaloSamples CaloHitResponse::makeBlankSignal(const DetId & detId) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  CaloSamples result(detId, parameters.readoutFrameSize());
+  int preciseSize(storePrecise ? parameters.readoutFrameSize()*BUNCHSPACE : 0);
+  CaloSamples result(detId, parameters.readoutFrameSize(),preciseSize);
   result.setPresamples(parameters.binOfMaximum()-1);
+  if(storePrecise) result.setPrecise(result.presamples()*BUNCHSPACE,1.0);
   return result;
 }
 

@@ -6,7 +6,7 @@
 // Class:           ElectronSeedProducer
 //
 // Description:     Calls ElectronSeedGenerator
-//                  to find TrackingSeeds.
+//                  to find TrajectorySeeds.
 
 
 class ElectronSeedGenerator ;
@@ -14,7 +14,7 @@ class SeedFilter ;
 class EgammaHcalIsolation ;
 class ElectronHcalHelper ;
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -36,8 +36,10 @@ namespace edm
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
-class ElectronSeedProducer : public edm::EDProducer
+class ElectronSeedProducer : public edm::stream::EDProducer<>
  {
   public:
 
@@ -50,19 +52,22 @@ class ElectronSeedProducer : public edm::EDProducer
 
     virtual void produce( edm::Event &, const edm::EventSetup & ) override final;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   private:
 
     void filterClusters
-     ( const reco::BeamSpot & bs,
-       const edm::Handle<reco::SuperClusterCollection> & superClusters,
-       reco::SuperClusterRefVector &sclRefs,
-       std::vector<float> & hoe1s, std::vector<float> & hoe2s ) ;
+      ( const reco::BeamSpot & bs,
+	const edm::Handle<reco::SuperClusterCollection> & superClusters,
+	reco::SuperClusterRefVector &sclRefs,
+	std::vector<float> & hoe1s, std::vector<float> & hoe2s, edm::Event& e, const edm::EventSetup& setup ) ;
     void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
-
+    
     edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2] ;
     edm::EDGetTokenT<TrajectorySeedCollection> initialSeeds_ ;
     edm::EDGetTokenT<std::vector<reco::Vertex> > filterVtxTag_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
+    edm::EDGetTokenT<EcalRecHitCollection> ebRecHitCollection_;
+    edm::EDGetTokenT<EcalRecHitCollection> eeRecHitCollection_;
 
     edm::ParameterSet conf_ ;
     ElectronSeedGenerator * matcher_ ;
@@ -71,34 +76,38 @@ class ElectronSeedProducer : public edm::EDProducer
     TrajectorySeedCollection * theInitialSeedColl ;
 
     // for the filter
-
     // H/E
-  //  edm::InputTag hcalRecHits_;
+    //  edm::InputTag hcalRecHits_;
     bool applyHOverECut_ ;
     ElectronHcalHelper * hcalHelper_ ;
-  //  edm::ESHandle<CaloGeometry> caloGeom_ ;
-  //  unsigned long long caloGeomCacheId_ ;
+    //  edm::ESHandle<CaloGeometry> caloGeom_ ;
+    //  unsigned long long caloGeomCacheId_ ;
     edm::ESHandle<CaloGeometry> caloGeom_ ;
     unsigned long long caloGeomCacheId_ ;
     edm::ESHandle<CaloTopology> caloTopo_;
     unsigned long long caloTopoCacheId_;
-  //  EgammaHcalIsolation * hcalIso_ ;
-  ////  CaloDualConeSelector * doubleConeSel_ ;
-  //  double maxHOverE_ ;
-     double maxHOverEBarrel_ ;
-     double maxHOverEEndcaps_ ;
-     double maxHBarrel_ ;
-     double maxHEndcaps_ ;
-  //  double hOverEConeSize_;
-  //  double hOverEHBMinE_;
-  //  double hOverEHFMinE_;
-
+    //  EgammaHcalIsolation * hcalIso_ ;
+    ////  CaloDualConeSelector * doubleConeSel_ ;
+    //  double maxHOverE_ ;
+    double maxHOverEBarrel_ ;
+    double maxHOverEEndcaps_ ;
+    double maxHBarrel_ ;
+    double maxHEndcaps_ ;
+    //  double hOverEConeSize_;
+    //  double hOverEHBMinE_;
+    //  double hOverEHFMinE_;
     // super cluster Et cut
     double SCEtCut_;
 
+    bool applySigmaIEtaIEtaCut_;
+    double maxSigmaIEtaIEtaBarrel_;
+    double maxSigmaIEtaIEtaEndcaps_;
 
     bool fromTrackerSeeds_;
     bool prefilteredSeeds_;
+
+    bool allowHGCal_;
+    std::unique_ptr<hgcal::ClusterTools> hgcClusterTools_;
 
  } ;
 

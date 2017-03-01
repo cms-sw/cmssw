@@ -1,6 +1,8 @@
 <use name="DataFormats/Candidate"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="boost_system"/>
 <use name="Fireworks/Core"/>
+<use name="Fireworks/Calo"/>
 <lib name="Eve"/>
 <export>
   <lib name="1"/>

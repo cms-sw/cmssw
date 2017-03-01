@@ -12,12 +12,9 @@ c
 c=======================================================================
 c.....subroutine to set up ART parameters and analysis files
 c.....before looping different events
-cms
-cms   dlw & gsfs 8/2009 commented out lots of output files
-cms
       SUBROUTINE ARTSET
 c
-      PARAMETER (AMU= 0.9383)
+      PARAMETER (AMU= 0.9383,nxymax=10001)
       double precision dpcoal,drcoal,ecritl
       INTEGER ZTA, ZPR
       common  /gg/      dx,dy,dz,dpx,dpy,dpz
@@ -41,6 +38,9 @@ cc      SAVE /imulst/
       common /coal/dpcoal,drcoal,ecritl
       common/anim/nevent,isoft,isflag,izpc
       common /para7/ ioscar,nsmbbbar,nsmmeson
+      common/embed/iembed,nsembd,pxqembd,pyqembd,xembd,yembd,
+     1     psembd,tmaxembd,phidecomp
+      common/xyembed/nxyjet,xyjet(nxymax,2)
       SAVE   
 clin-10/03/03  ecritl: local energy density below which a parton 
 c     will freeze out (in GeV/fm^3), for improvements on string melting, 
@@ -161,24 +161,45 @@ c
 clin-5b/2008
 c      if(ioscar.eq.2) then
       if(ioscar.eq.2.or.ioscar.eq.3) then
-cms      OPEN (92,FILE='ana/parton-initial-afterPropagation.dat',
-cms  1        STATUS = 'UNKNOWN')
+c         OPEN (92,FILE='ana/parton-initial-afterPropagation.dat',
+c     1        STATUS = 'UNKNOWN')
       endif
       if(ioscar.eq.3) then
 clin-6/2009 write out full parton collision history:
-cms      OPEN (95,FILE='ana/parton-collisionsHistory.dat',
-cms  1        STATUS='UNKNOWN')
+c         OPEN (95,FILE='ana/parton-collisionsHistory.dat',
+c     1        STATUS='UNKNOWN')
 clin-6/2009 write out initial minijet information:
-cms      OPEN (96,FILE='ana/minijet-initial-beforePropagation.dat',
-cms  1        STATUS='UNKNOWN')
+c         OPEN (96,FILE='ana/minijet-initial-beforePropagation.dat',
+c     1        STATUS='UNKNOWN')
 clin-6/2009 write out parton info after coalescence:
          if(isoft.eq.4.or.isoft.eq.5) then
-cms         OPEN (85,FILE='ana/parton-after-coalescence.dat',
-cms  1           STATUS='UNKNOWN')
+c            OPEN (85,FILE='ana/parton-after-coalescence.dat',
+c     1           STATUS='UNKNOWN')
          endif
       endif
 clin-6/2009 write out initial transverse positions of initial nucleons:
-cms   OPEN (94,FILE='ana/npart-xy.dat',STATUS='UNKNOWN')
+c      OPEN (94,FILE='ana/npart-xy.dat',STATUS='UNKNOWN')
+c
+clin-8/2009 In case that random positions are used to embed high-Pt jets:
+      if(iembed.eq.3.or.iembed.eq.4) then
+c         OPEN (97,FILE='embed-jet-xy.txt',STATUS = 'UNKNOWN')
+c         read(97,*) nxyjet
+c     Save positions in array to reuse when embedding more jet pairs 
+c     than the number of entries in the position file:
+         if(nevent.gt.nxyjet) then
+            if(nxyjet.gt.nxymax) then
+c              print *, 'Too many lines in embed-jet-xy.txt: 
+c     1 increase value of the parameter nxymax'
+               stop
+            elseif(nxyjet.le.0) then
+c               print *, 'Check number of entries in embed-jet-xy.txt' 
+               stop
+            endif
+            do ixy=1,nxyjet
+c               read(97,*) xyjet(ixy,1),xyjet(ixy,2)
+            enddo
+         endif
+      endif
 
       RETURN
       END
@@ -252,15 +273,13 @@ cc      SAVE /HPARNT/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       common /para8/ idpert,npertd,idxsec
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
+
 clin-5/2008 for perturbatively-produced hadrons (currently only deuterons):
-cms   OPEN (91, FILE = 'ana/deuteron_processes.dat', 
-cms  1     STATUS = 'UNKNOWN')
+c      OPEN (91, FILE = 'ana/deuteron_processes.dat', 
+c     1     STATUS = 'UNKNOWN')
       if(idpert.eq.1.or.idpert.eq.2) then
-cms      OPEN (90, FILE = 'ana/ampt_pert.dat', STATUS = 'UNKNOWN')
+c         OPEN (90, FILE = 'ana/ampt_pert.dat', STATUS = 'UNKNOWN')
       endif
 c.....generate formation time and position at formation time.
       TAU0 = ARPAR1(1)
@@ -270,20 +289,28 @@ c     formed from partons inside ZPC (from string melting):
       if(isoft.eq.3.or.isoft.eq.4.or.isoft.eq.5) then
          if(NP.le.nattzp) return
          do 1001 I = nattzp+1, NP
-            IF (ABS(PZAR(I)) .GE. PEAR(I)) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN ARINI1'
-               PRINT *, 'ABS(PZ) .GE. EE for particle ', I
-               PRINT *, ' FLAV = ', ITYPAR(I), ' PX = ', PXAR(I), 
-     &              ' PY = ', PYAR(I)
-               PRINT *, ' PZ = ', PZAR(I), ' EE = ', PEAR(I)
-               PRINT *, ' XM = ', XMAR(I)
-               endif
-               RAP = 1000000.0
-               GOTO 50
-            END IF
-            RAP = 0.5 * LOG((PEAR(I) + PZAR(I)) / (PEAR(I) - PZAR(I)))
- 50         CONTINUE
+clin-9/2012 determine rapidity more generally 
+c     to prevent overflow when Pt~=0 and E=|Pz|:
+c            IF (ABS(PZAR(I)) .GE. PEAR(I)) THEN
+c               PRINT *, ' IN ARINI1'
+c               PRINT *, 'ABS(PZ) .GE. EE for particle ', I
+c               PRINT *, ' FLAV = ', ITYPAR(I), ' PX = ', PXAR(I), 
+c     &              ' PY = ', PYAR(I)
+c               PRINT *, ' PZ = ', PZAR(I), ' EE = ', PEAR(I)
+c               PRINT *, ' XM = ', XMAR(I)
+c               RAP = 1000000.0
+c               GOTO 50
+c            END IF
+cc            RAP=0.5*LOG((PEAR(I)+PZAR(I))/(PEAR(I)-PZAR(I)))
+c            RAP=0.5*LOG((PEAR(I)+PZAR(I)+1e-5)/(PEAR(I)-PZAR(I)+1e-5))
+c 50         CONTINUE
+            if((XMAR(I)**2+PXAR(I)**2+PYAR(I)**2).gt.0.) then
+               RAP=asinh(PZAR(I)/sqrt(XMAR(I)**2+PXAR(I)**2+PYAR(I)**2))
+            else
+               PRINT *, ' IN ARINI1 mt=0'
+               RAP = 1000000.0*sign(1.,PZAR(I))
+            endif
+
             VX = PXAR(I) / PEAR(I)
             VY = PYAR(I) / PEAR(I)
             FTAR(I) = TAU0 * COSH(RAP)
@@ -292,32 +319,43 @@ c     formed from partons inside ZPC (from string melting):
             GZAR(I) = TAU0 * SINH(RAP)
 clin-5/2009 No formation time for spectator projectile or target nucleons:
             if(PXAR(I).eq.0.and.PYAR(I).eq.0
-     1           .and.(PEAR(I)*2/HINT1(1)).gt.0.99
      2           .and.(ITYPAR(I).eq.2112.or.ITYPAR(I).eq.2212)) then
+clin-2/2013 for spectator target nucleons in LAB frame:
+c     1           .and.(PEAR(I)*2/HINT1(1)).gt.0.99
+              if((PEAR(I)/HINT1(6).gt.0.99.and.PEAR(I)/HINT1(6).lt.1.01)
+     1 .or.(PEAR(I)/HINT1(7).gt.0.99.and.PEAR(I)/HINT1(7).lt.1.01)) then
+c
                TAUI=1.E-20
                FTAR(I)=TAUI*COSH(RAP)
                GZAR(I)=TAUI*SINH(RAP)
+               endif
             endif
  1001    continue
 clin-7/10/01-end
 clin-3/2009 cleanup of program flow:
       else
          DO 1002 I = 1, NP
-            IF (ABS(PZAR(I)) .GE. PEAR(I)) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN ARINI1'
-               PRINT *, 'ABS(PZ) .GE. EE for particle ', I
-               PRINT *, ' FLAV = ', ITYPAR(I), ' PX = ', PXAR(I), 
-     &              ' PY = ', PYAR(I)
-               PRINT *, ' PZ = ', PZAR(I), ' EE = ', PEAR(I)
-               PRINT *, ' XM = ', XMAR(I)
-               endif
-               RAP = 1000000.0
-               GOTO 100
-c               STOP
-            END IF
-            RAP = 0.5 * LOG((PEAR(I) + PZAR(I)) / (PEAR(I) - PZAR(I)))
- 100        CONTINUE
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZAR(I)) .GE. PEAR(I)) THEN
+c               PRINT *, ' IN ARINI1'
+c               PRINT *, 'ABS(PZ) .GE. EE for particle ', I
+c               PRINT *, ' FLAV = ', ITYPAR(I), ' PX = ', PXAR(I), 
+c     &              ' PY = ', PYAR(I)
+c               PRINT *, ' PZ = ', PZAR(I), ' EE = ', PEAR(I)
+c               PRINT *, ' XM = ', XMAR(I)
+c               RAP = 1000000.0
+c               GOTO 100
+cc               STOP
+c            END IF
+c 100        CONTINUE
+c            RAP=0.5*LOG((PEAR(I)+PZAR(I)+1e-5)/(PEAR(I)-PZAR(I)+1e-5))
+            if((XMAR(I)**2+PXAR(I)**2+PYAR(I)**2).gt.0.) then
+               RAP=asinh(PZAR(I)/sqrt(XMAR(I)**2+PXAR(I)**2+PYAR(I)**2))
+            else
+               PRINT *, ' IN ARINI1 mt=0'
+               RAP = 1000000.0*sign(1.,PZAR(I))
+            endif
+
             VX = PXAR(I) / PEAR(I)
             VY = PYAR(I) / PEAR(I)
 c.....give initial formation time shift
@@ -334,13 +372,18 @@ c            GZAR(I) = GZAR(I) + TAU0 * SINH(RAP)
 cbz1/28/99end
 c     10/05/01 no formation time for spectator projectile or target nucleons:
             if(PXAR(I).eq.0.and.PYAR(I).eq.0
-     1           .and.(PEAR(I)*2/HINT1(1)).gt.0.99
      2           .and.(ITYPAR(I).eq.2112.or.ITYPAR(I).eq.2212)) then
+clin-2/2013 for spectator target nucleons in LAB frame:
+c     1           .and.(PEAR(I)*2/HINT1(1)).gt.0.99
+              if((PEAR(I)/HINT1(6).gt.0.99.and.PEAR(I)/HINT1(6).lt.1.01)
+     1 .or.(PEAR(I)/HINT1(7).gt.0.99.and.PEAR(I)/HINT1(7).lt.1.01)) then
+c
 clin-5/2008:
 c               TAUI=0.00001
                TAUI=1.E-20
                FTAR(I)=TAUI*COSH(RAP)
                GZAR(I)=TAUI*SINH(RAP)+zsmear
+               endif
             endif
  1002    CONTINUE
 clin-3/2009 cleanup of program flow:
@@ -2118,7 +2161,6 @@ c       inverse Lorentz transformation
 cc      SAVE /RNDF77/
         SAVE   
 
-        iseed=iseed
         iflag=-1
 c        iflag=-1: fail to find momenta
 c             = 1: success
@@ -2273,21 +2315,14 @@ cc      SAVE /PB/
 cc      SAVE /PC/
       COMMON   /PD/LPION(MAXSTR,MAXR)
 cc      SAVE /PD/
-      dimension bb(3),p1(4),p2(4),p3(4),px(4),py(4),pz(4)
+      dimension bb(3),p1(4),p2(4),p3(4)
+cms      ,px(4),py(4),pz(4)
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       COMMON /dpert/dpertt(MAXSTR,MAXR),dpertp(MAXSTR),dplast(MAXSTR),
      1     dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2     dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
       SAVE   
-        iseed=iseed
-        dt=dt
-        nchrg=nchrg
-        nt=nt
-        ratiok=ratiok
-        px(1)=px(1)
-        py(1)=py(1)
-        pz(1)=pz(1)
         px1cm=pcx
         py1cm=pcy
         pz1cm=pcz
@@ -2506,10 +2541,6 @@ cc      SAVE /PD/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-        irun=irun
-        iseed=iseed
-        nt=nt
-        dt=dt
         px1cm=pcx
         py1cm=pcy
         pz1cm=pcz
@@ -2676,11 +2707,6 @@ cc      SAVE /PD/
       COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
       SAVE   
-        dt=dt
-        irun=irun
-        iseed=iseed
-        nchrg=nchrg
-        nt=nt
         px1cm=pcx
         py1cm=pcy
         pz1cm=pcz
@@ -2830,7 +2856,7 @@ c      PARAMETER (YMT1 = -0.4, YMT2 = 0.4)
       PARAMETER (YMT1 = -1.0, YMT2 = 1.0)
 cbz3/17/99 end
 c.....bin width for mt spectrum and y spectrum
-clin-9/26/03 no symmetrization in y (or eta) for ana.dat:
+c.... clin-9/26/03 no symmetrization in y (or eta) for ana dat files
 c      PARAMETER (BMT = 0.05, BY = 0.2)
       PARAMETER (BMT = 0.05, BY = 0.4)
       COMMON /RUN/ NUM
@@ -2856,9 +2882,6 @@ cc      SAVE /ARPRC1/
      &     DY1PI0(50), DY1PR(50), DY1PB(50)
      &     ,DY1NEG(50), DY1CH(50), DE1NEG(50), DE1CH(50)
 cc      SAVE /ARANA1/
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
 
 cbz3/17/99 end
@@ -2873,31 +2896,49 @@ cbz3/17/99 end
 c     2/24/03 leptons and photons:
             if(xm.lt.0.01) goto 200
             ptot = sqrt(PX ** 2 + PY ** 2 + pz ** 2)
-            eta = 0.5*alog((Ptot+pz+1e-5)/(ptot-pz+1e-5))
+clin-9/2012 determine pseudo-rapidity more generally:
+c            eta = 0.5*alog((Ptot+pz+1e-5)/(ptot-pz+1e-5))
+            if((PX**2+PY**2).gt.0.) then
+               eta=asinh(PZ/sqrt(PX**2+PY**2))
+            else
+               eta = 1000000.0*sign(1.,PZ)
+clin-2/2013 for spectator target nucleons in LAB frame,
+c     note that finite precision of HBOOST 
+c     would give spectator target nucleons a small but non-zero pz:
+               if(abs(pz).le.1e-3) eta=0.
+            endif
 
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
-            IF (ABS(PZ) .GE. EE) THEN
-              if ( iwrite ) then
-               PRINT *, 'IN ARTAN1'
-               PRINT *, 'PARTICLE ', I, ' RUN ', J, 'PREC ERR'
-cbzdbg2/16/99
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-cbzdbg2/16/99
-cbzdbg2/15/99
-               PRINT *, ' PZ = ', PZ, ' EE = ', EE
-cbzdbg2/16/99
-               PRINT *, ' XM = ', XM
-cbzdbg2/16/99end
-               endif
-               GOTO 200
-c               STOP
-cbzdbg2/15/99end
-            END IF
             DXMT = XMT - XM
-            Y = 0.5 * LOG((EE + PZ) / (EE - PZ))
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. EE) THEN
+c               PRINT *, 'IN ARTAN1'
+c               PRINT *, 'PARTICLE ', I, ' RUN ', J, 'PREC ERR'
+ccbzdbg2/16/99
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+ccbzdbg2/16/99
+ccbzdbg2/15/99
+c               PRINT *, ' PZ = ', PZ, ' EE = ', EE
+ccbzdbg2/16/99
+c               PRINT *, ' XM = ', XM
+ccbzdbg2/16/99end
+c               GOTO 200
+c            else
+cc            Y = 0.5 * LOG((EE + PZ) / (EE - PZ))
+c               Y = 0.5 * LOG((EE + PZ +1e-5) / (EE - PZ +1e-5))
+cc               STOP
+ccbzdbg2/15/99end
+c            END IF
+            if(XMT.gt.0.) then
+               Y=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN ARTAN1 mt=0'
+               Y = 1000000.0*sign(1.,PZ)
+            endif
+
 c.....rapidity cut for the rapidity distribution
             IF (ABS(Y) .GE. 10.0) GOTO 100
-clin-9/26/03 no symmetrization in y (or eta) for ana.dat:
+c.....clin-9/26/03 no symmetrization in y (or eta) for ana dat files
 c            IY = 1 + int(ABS(Y) / BY)
 c            Ieta = 1 + int(ABS(eta) / BY)
             IF (ABS(eta) .GE. 10.0) GOTO 100
@@ -3054,9 +3095,6 @@ cc      SAVE /ARPRC1/
      &     ,DY2NEG(50), DY2CH(50), DE2NEG(50), DE2CH(50)
 cbz3/17/99 end
 cc      SAVE /ARANA2/
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
 
       DO 1002 J = 1, NUM
@@ -3070,28 +3108,42 @@ cc      SAVE /ARANA2/
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
 c     2/24/03 leptons and photons:
             if(xm.lt.0.01) goto 200
-            ptot = sqrt(PX ** 2 + PY ** 2 + pz ** 2)
-            eta = 0.5*alog((Ptot+pz+1e-5)/(ptot-pz+1e-5))
-
-            IF (ABS(PZ) .GE. EE) THEN
-              if ( iwrite ) then
-               PRINT *, 'IN ARTAN2'
-               PRINT *, 'PARTICLE ', I, ' RUN ', J, 'PREC ERR'
-cbzdbg2/16/99
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-cbzdbg2/16/99
-cbzdbg2/15/99
-               PRINT *, ' PZ = ', PZ, ' EE = ', EE
-cbzdbg2/16/99
-               PRINT *, ' XM = ', XM
-cbzdbg2/16/99end
-               endif
-               GOTO 200
-c               STOP
-cbzdbg2/15/99end
-            END IF
             DXMT = XMT - XM
-            Y = 0.5 * LOG((EE + PZ) / (EE - PZ))
+            ptot = sqrt(PX ** 2 + PY ** 2 + pz ** 2)
+clin-9/2012 determine pseudo-rapidity more generally:
+c            eta = 0.5*alog((Ptot+pz+1e-5)/(ptot-pz+1e-5))
+            if((PX**2+PY**2).gt.0.) then
+               eta=asinh(PZ/sqrt(PX**2+PY**2))
+            else
+               eta = 1000000.0*sign(1.,PZ)
+clin-2/2013 for spectator target nucleons in LAB frame:
+               if(abs(pz).le.1e-3) eta=0.
+            endif
+
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. EE) THEN
+c               PRINT *, 'IN ARTAN2'
+c               PRINT *, 'PARTICLE ', I, ' RUN ', J, 'PREC ERR'
+ccbzdbg2/16/99
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+ccbzdbg2/16/99
+ccbzdbg2/15/99
+c               PRINT *, ' PZ = ', PZ, ' EE = ', EE
+ccbzdbg2/16/99
+c               PRINT *, ' XM = ', XM
+ccbzdbg2/16/99end
+c               GOTO 200
+cc               STOP
+ccbzdbg2/15/99end
+c            END IF
+c            Y = 0.5 * LOG((EE + PZ +1e-5) / (EE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               Y=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN ARTAN2 mt=0'
+               Y = 1000000.0*sign(1.,PZ)
+            endif
+
 c.....rapidity cut for the rapidity distribution
             IF (ABS(Y) .GE. 10.0) GOTO 100
 c            IY = 1 + int(ABS(Y) / BY)
@@ -3261,157 +3313,157 @@ c     &     dm2k0s(50), DMT2LA(50), DMT2LB(50)
 cc      SAVE /ARANA2/
       SAVE   
 cbz3/17/99 end
-cms   OPEN (30, FILE = 'ana/dndy_netb.dat', STATUS = 'UNKNOWN')
-cms   OPEN (31, FILE = 'ana/dndy_netp.dat', STATUS = 'UNKNOWN')
-cms   OPEN (32, FILE = 'ana/dndy_nb.dat', STATUS = 'UNKNOWN')
-cms   OPEN (33, FILE = 'ana/dndy_neg.dat', STATUS = 'UNKNOWN')
-cms   OPEN (34, FILE = 'ana/dndy_ch.dat', STATUS = 'UNKNOWN')
-cms   OPEN (35, FILE = 'ana/dnde_neg.dat', STATUS = 'UNKNOWN')
-cms   OPEN (36, FILE = 'ana/dnde_ch.dat', STATUS = 'UNKNOWN')
-cms   OPEN (37, FILE = 'ana/dndy_kp.dat', STATUS = 'UNKNOWN')
-cms   OPEN (38, FILE = 'ana/dndy_km.dat', STATUS = 'UNKNOWN')
+cms      OPEN (30, FILE = 'ana/dndy_netb.dat', STATUS = 'UNKNOWN')
+cms      OPEN (31, FILE = 'ana/dndy_netp.dat', STATUS = 'UNKNOWN')
+cms      OPEN (32, FILE = 'ana/dndy_nb.dat', STATUS = 'UNKNOWN')
+cms      OPEN (33, FILE = 'ana/dndy_neg.dat', STATUS = 'UNKNOWN')
+cms      OPEN (34, FILE = 'ana/dndy_ch.dat', STATUS = 'UNKNOWN')
+cms      OPEN (35, FILE = 'ana/dnde_neg.dat', STATUS = 'UNKNOWN')
+cms      OPEN (36, FILE = 'ana/dnde_ch.dat', STATUS = 'UNKNOWN')
+cms      OPEN (37, FILE = 'ana/dndy_kp.dat', STATUS = 'UNKNOWN')
+cms      OPEN (38, FILE = 'ana/dndy_km.dat', STATUS = 'UNKNOWN')
 clin-4/24/03
 c      OPEN (39, FILE = 'ana/dndy_k0s.dat', STATUS = 'UNKNOWN')
-cms   OPEN (39, FILE = 'ana/dndy_k0l.dat', STATUS = 'UNKNOWN')
-cms   OPEN (40, FILE = 'ana/dndy_la.dat', STATUS = 'UNKNOWN')
-cms   OPEN (41, FILE = 'ana/dndy_lb.dat', STATUS = 'UNKNOWN')
-cms   OPEN (42, FILE = 'ana/dndy_phi.dat', STATUS = 'UNKNOWN')
+cms      OPEN (39, FILE = 'ana/dndy_k0l.dat', STATUS = 'UNKNOWN')
+cms      OPEN (40, FILE = 'ana/dndy_la.dat', STATUS = 'UNKNOWN')
+cms      OPEN (41, FILE = 'ana/dndy_lb.dat', STATUS = 'UNKNOWN')
+cms      OPEN (42, FILE = 'ana/dndy_phi.dat', STATUS = 'UNKNOWN')
 cbz3/17/99
-cms   OPEN (43, FILE = 'ana/dndy_meson.dat', STATUS = 'UNKNOWN')
-cms   OPEN (44, FILE = 'ana/dndy_pip.dat', STATUS = 'UNKNOWN')
-cms   OPEN (45, FILE = 'ana/dndy_pim.dat', STATUS = 'UNKNOWN')
-cms   OPEN (46, FILE = 'ana/dndy_pi0.dat', STATUS = 'UNKNOWN')
-cms   OPEN (47, FILE = 'ana/dndy_pr.dat', STATUS = 'UNKNOWN')
-cms   OPEN (48, FILE = 'ana/dndy_pb.dat', STATUS = 'UNKNOWN')
+cms      OPEN (43, FILE = 'ana/dndy_meson.dat', STATUS = 'UNKNOWN')
+cms      OPEN (44, FILE = 'ana/dndy_pip.dat', STATUS = 'UNKNOWN')
+cms      OPEN (45, FILE = 'ana/dndy_pim.dat', STATUS = 'UNKNOWN')
+cms      OPEN (46, FILE = 'ana/dndy_pi0.dat', STATUS = 'UNKNOWN')
+cms      OPEN (47, FILE = 'ana/dndy_pr.dat', STATUS = 'UNKNOWN')
+cms      OPEN (48, FILE = 'ana/dndy_pb.dat', STATUS = 'UNKNOWN')
 cbz3/17/99 end
 
-cms   OPEN (50, FILE = 'ana/dndmtdy_pip.dat', STATUS = 'UNKNOWN')
-cms   OPEN (51, FILE = 'ana/dndmtdy_0_1_pim.dat', STATUS = 'UNKNOWN')
-cms   OPEN (52, FILE = 'ana/dndmtdy_pr.dat', STATUS = 'UNKNOWN')
-cms   OPEN (53, FILE = 'ana/dndmtdy_pb.dat', STATUS = 'UNKNOWN')
-cms   OPEN (54, FILE = 'ana/dndmtdy_kp.dat', STATUS = 'UNKNOWN')
-cms   OPEN (55, FILE = 'ana/dndmtdy_0_5_km.dat', STATUS = 'UNKNOWN')
-cms   OPEN (56, FILE = 'ana/dndmtdy_k0s.dat', STATUS = 'UNKNOWN')
-cms   OPEN (57, FILE = 'ana/dndmtdy_la.dat', STATUS = 'UNKNOWN')
-cms   OPEN (58, FILE = 'ana/dndmtdy_lb.dat', STATUS = 'UNKNOWN')
-clin-9/26/03 no symmetrization in y (or eta) for ana.dat:
+cms      OPEN (50, FILE = 'ana/dndmtdy_pip.dat', STATUS = 'UNKNOWN')
+cms      OPEN (51, FILE = 'ana/dndmtdy_0_1_pim.dat', STATUS = 'UNKNOWN')
+cms      OPEN (52, FILE = 'ana/dndmtdy_pr.dat', STATUS = 'UNKNOWN')
+cms      OPEN (53, FILE = 'ana/dndmtdy_pb.dat', STATUS = 'UNKNOWN')
+cms      OPEN (54, FILE = 'ana/dndmtdy_kp.dat', STATUS = 'UNKNOWN')
+cms      OPEN (55, FILE = 'ana/dndmtdy_0_5_km.dat', STATUS = 'UNKNOWN')
+cms      OPEN (56, FILE = 'ana/dndmtdy_k0s.dat', STATUS = 'UNKNOWN')
+cms      OPEN (57, FILE = 'ana/dndmtdy_la.dat', STATUS = 'UNKNOWN')
+cms      OPEN (58, FILE = 'ana/dndmtdy_lb.dat', STATUS = 'UNKNOWN')
+clin-9/26/03 no symmetrization in y (or eta) for ana dat files
 c      SCALE1 = 1. / REAL(NEVNT * NUM) / BY / 2.0
       SCALE1 = 1. / REAL(NEVNT * NUM) / BY
       SCALE2 = 1. / REAL(NEVNT * NUM) / BMT / (YMT2 - YMT1)
 c
       DO 1001 I = 1, 50
          ymid=-10.+BY * (I - 0.5)
-cms      WRITE (30, 333) ymid, SCALE1 * dy1ntb(I)
-cms      WRITE (31, 333) ymid, SCALE1 * dy1ntp(I)
-cms      WRITE (32, 333) ymid, SCALE1 * DY1HM(I)
-cms      WRITE (37, 333) ymid, SCALE1 * DY1KP(I)
-cms      WRITE (38, 333) ymid, SCALE1 * DY1KM(I)
-cms      WRITE (39, 333) ymid, SCALE1 * DY1K0S(I)
-cms      WRITE (40, 333) ymid, SCALE1 * DY1LA(I)
-cms      WRITE (41, 333) ymid, SCALE1 * DY1LB(I)
-cms      WRITE (42, 333) ymid, SCALE1 * DY1PHI(I)
-cms      WRITE (33, 333) ymid, SCALE1 * DY1NEG(I)
-cms      WRITE (34, 333) ymid, SCALE1 * DY1CH(I)
-cms      WRITE (35, 333) ymid, SCALE1 * DE1NEG(I)
-cms      WRITE (36, 333) ymid, SCALE1 * DE1CH(I)
-cms      WRITE (43, 333) ymid, SCALE1 * dy1msn(I)
-cms      WRITE (44, 333) ymid, SCALE1 * DY1PIP(I)
-cms      WRITE (45, 333) ymid, SCALE1 * DY1PIM(I)
-cms      WRITE (46, 333) ymid, SCALE1 * DY1PI0(I)
-cms      WRITE (47, 333) ymid, SCALE1 * DY1PR(I)
-cms      WRITE (48, 333) ymid, SCALE1 * DY1PB(I)
+cms         WRITE (30, 333) ymid, SCALE1 * dy1ntb(I)
+cms         WRITE (31, 333) ymid, SCALE1 * dy1ntp(I)
+cms         WRITE (32, 333) ymid, SCALE1 * DY1HM(I)
+cms         WRITE (37, 333) ymid, SCALE1 * DY1KP(I)
+cms         WRITE (38, 333) ymid, SCALE1 * DY1KM(I)
+cms         WRITE (39, 333) ymid, SCALE1 * DY1K0S(I)
+cms         WRITE (40, 333) ymid, SCALE1 * DY1LA(I)
+cms         WRITE (41, 333) ymid, SCALE1 * DY1LB(I)
+cms         WRITE (42, 333) ymid, SCALE1 * DY1PHI(I)
+cms         WRITE (33, 333) ymid, SCALE1 * DY1NEG(I)
+cms         WRITE (34, 333) ymid, SCALE1 * DY1CH(I)
+cms         WRITE (35, 333) ymid, SCALE1 * DE1NEG(I)
+cms         WRITE (36, 333) ymid, SCALE1 * DE1CH(I)
+cms         WRITE (43, 333) ymid, SCALE1 * dy1msn(I)
+cms         WRITE (44, 333) ymid, SCALE1 * DY1PIP(I)
+cms         WRITE (45, 333) ymid, SCALE1 * DY1PIM(I)
+cms         WRITE (46, 333) ymid, SCALE1 * DY1PI0(I)
+cms         WRITE (47, 333) ymid, SCALE1 * DY1PR(I)
+cms         WRITE (48, 333) ymid, SCALE1 * DY1PB(I)
 
          IF (dm1pip(I) .NE. 0.0) THEN
-cms         WRITE (50, 333) BMT * (I - 0.5), SCALE2 * dm1pip(I)
+c            WRITE (50, 333) BMT * (I - 0.5), SCALE2 * dm1pip(I)
          END IF
          IF (dm1pim(I) .NE. 0.0) THEN
-cms         WRITE (51, 333) BMT * (I - 0.5), SCALE2 * 0.1 * 
-cms  &         dm1pim(I)
+c            WRITE (51, 333) BMT * (I - 0.5), SCALE2 * 0.1 * 
+c     &         dm1pim(I)
          END IF
          IF (DMT1PR(I) .NE. 0.0) THEN
-cms         WRITE (52, 333) BMT * (I - 0.5), SCALE2 * DMT1PR(I)
+c            WRITE (52, 333) BMT * (I - 0.5), SCALE2 * DMT1PR(I)
          END IF
          IF (DMT1PB(I) .NE. 0.0) THEN
-cms         WRITE (53, 333) BMT * (I - 0.5), SCALE2 * DMT1PB(I)
+c            WRITE (53, 333) BMT * (I - 0.5), SCALE2 * DMT1PB(I)
          END IF
          IF (DMT1KP(I) .NE. 0.0) THEN
-cms         WRITE (54, 333) BMT * (I - 0.5), SCALE2 * DMT1KP(I)
+c            WRITE (54, 333) BMT * (I - 0.5), SCALE2 * DMT1KP(I)
          END IF
          IF (dm1km(I) .NE. 0.0) THEN
-cms         WRITE (55, 333) BMT * (I - 0.5), SCALE2 * 0.5 *
-cms  &         dm1km(I)
+c            WRITE (55, 333) BMT * (I - 0.5), SCALE2 * 0.5 *
+c     &         dm1km(I)
          END IF
          IF (dm1k0s(I) .NE. 0.0) THEN
-cms         WRITE (56, 333) BMT * (I - 0.5), SCALE2 * dm1k0s(I)
+c            WRITE (56, 333) BMT * (I - 0.5), SCALE2 * dm1k0s(I)
          END IF
          IF (DMT1LA(I) .NE. 0.0) THEN
-cms         WRITE (57, 333) BMT * (I - 0.5), SCALE2 * DMT1LA(I)
+c            WRITE (57, 333) BMT * (I - 0.5), SCALE2 * DMT1LA(I)
          END IF
          IF (DMT1LB(I) .NE. 0.0) THEN
-cms         WRITE (58, 333) BMT * (I - 0.5), SCALE2 * DMT1LB(I)
+c            WRITE (58, 333) BMT * (I - 0.5), SCALE2 * DMT1LB(I)
          END IF
  1001 CONTINUE
 c
       DO 1002 I = 30, 48
-cms      WRITE (I, *) 'after hadron evolution'
+c         WRITE (I, *) 'after hadron evolution'
  1002    CONTINUE
       DO 1003 I = 50, 58
-cms      WRITE (I, *) 'after hadron evolution'
+c         WRITE (I, *) 'after hadron evolution'
  1003 CONTINUE
 
       DO 1004 I = 1, 50
          ymid=-10.+BY * (I - 0.5)
-cms      WRITE (30, 333) ymid, SCALE1 * dy2ntb(I)
-cms      WRITE (31, 333) ymid, SCALE1 * dy2ntp(I)
-cms      WRITE (32, 333) ymid, SCALE1 * DY2HM(I)
-cms      WRITE (37, 333) ymid, SCALE1 * DY2KP(I)
-cms      WRITE (38, 333) ymid, SCALE1 * DY2KM(I)
-cms      WRITE (39, 333) ymid, SCALE1 * DY2K0S(I)
-cms      WRITE (40, 333) ymid, SCALE1 * DY2LA(I)
-cms      WRITE (41, 333) ymid, SCALE1 * DY2LB(I)
-cms      WRITE (42, 333) ymid, SCALE1 * DY2PHI(I)
-cms      WRITE (33, 333) ymid, SCALE1 * DY2NEG(I)
-cms      WRITE (34, 333) ymid, SCALE1 * DY2CH(I)
-cms      WRITE (35, 333) ymid, SCALE1 * DE2NEG(I)
-cms      WRITE (36, 333) ymid, SCALE1 * DE2CH(I)
-cms      WRITE (43, 333) ymid, SCALE1 * dy2msn(I)
-cms      WRITE (44, 333) ymid, SCALE1 * DY2PIP(I)
-cms      WRITE (45, 333) ymid, SCALE1 * DY2PIM(I)
-cms      WRITE (46, 333) ymid, SCALE1 * DY2PI0(I)
-cms      WRITE (47, 333) ymid, SCALE1 * DY2PR(I)
-cms      WRITE (48, 333) ymid, SCALE1 * DY2PB(I)
+cms         WRITE (30, 333) ymid, SCALE1 * dy2ntb(I)
+cms         WRITE (31, 333) ymid, SCALE1 * dy2ntp(I)
+cms         WRITE (32, 333) ymid, SCALE1 * DY2HM(I)
+cms         WRITE (37, 333) ymid, SCALE1 * DY2KP(I)
+cms         WRITE (38, 333) ymid, SCALE1 * DY2KM(I)
+cms         WRITE (39, 333) ymid, SCALE1 * DY2K0S(I)
+cms         WRITE (40, 333) ymid, SCALE1 * DY2LA(I)
+cms         WRITE (41, 333) ymid, SCALE1 * DY2LB(I)
+cms         WRITE (42, 333) ymid, SCALE1 * DY2PHI(I)
+cms         WRITE (33, 333) ymid, SCALE1 * DY2NEG(I)
+cms         WRITE (34, 333) ymid, SCALE1 * DY2CH(I)
+cms         WRITE (35, 333) ymid, SCALE1 * DE2NEG(I)
+cms         WRITE (36, 333) ymid, SCALE1 * DE2CH(I)
+cms         WRITE (43, 333) ymid, SCALE1 * dy2msn(I)
+cms         WRITE (44, 333) ymid, SCALE1 * DY2PIP(I)
+cms         WRITE (45, 333) ymid, SCALE1 * DY2PIM(I)
+cms         WRITE (46, 333) ymid, SCALE1 * DY2PI0(I)
+cms         WRITE (47, 333) ymid, SCALE1 * DY2PR(I)
+cms         WRITE (48, 333) ymid, SCALE1 * DY2PB(I)
 c
          IF (dm2pip(I) .NE. 0.0) THEN
-cms         WRITE (50, 333) BMT * (I - 0.5), SCALE2 * dm2pip(I)
+c            WRITE (50, 333) BMT * (I - 0.5), SCALE2 * dm2pip(I)
          END IF
          IF (dm2pim(I) .NE. 0.0) THEN
-cms         WRITE (51, 333) BMT * (I - 0.5), SCALE2 * 0.1 * 
-cms  &         dm2pim(I)
+c            WRITE (51, 333) BMT * (I - 0.5), SCALE2 * 0.1 * 
+c     &         dm2pim(I)
          END IF
          IF (DMT2PR(I) .NE. 0.0) THEN
-cms         WRITE (52, 333) BMT * (I - 0.5), SCALE2 * DMT2PR(I)
+c            WRITE (52, 333) BMT * (I - 0.5), SCALE2 * DMT2PR(I)
          END IF
          IF (DMT2PB(I) .NE. 0.0) THEN
-cms         WRITE (53, 333) BMT * (I - 0.5), SCALE2 * DMT2PB(I)
+c            WRITE (53, 333) BMT * (I - 0.5), SCALE2 * DMT2PB(I)
          END IF
          IF (DMT2KP(I) .NE. 0.0) THEN
-cms         WRITE (54, 333) BMT * (I - 0.5), SCALE2 * DMT2KP(I)
+c            WRITE (54, 333) BMT * (I - 0.5), SCALE2 * DMT2KP(I)
          END IF
          IF (dm2km(I) .NE. 0.0) THEN
-cms         WRITE (55, 333) BMT * (I - 0.5), SCALE2 * 0.5 * 
-cms  &         dm2km(I)
+c            WRITE (55, 333) BMT * (I - 0.5), SCALE2 * 0.5 * 
+c     &         dm2km(I)
          END IF
          IF (dm2k0s(I) .NE. 0.0) THEN
-cms         WRITE (56, 333) BMT * (I - 0.5), SCALE2 * dm2k0s(I)
+c            WRITE (56, 333) BMT * (I - 0.5), SCALE2 * dm2k0s(I)
          END IF
          IF (DMT2LA(I) .NE. 0.0) THEN
-cms         WRITE (57, 333) BMT * (I - 0.5), SCALE2 * DMT2LA(I)
+c            WRITE (57, 333) BMT * (I - 0.5), SCALE2 * DMT2LA(I)
          END IF
          IF (DMT2LB(I) .NE. 0.0) THEN
-cms         WRITE (58, 333) BMT * (I - 0.5), SCALE2 * DMT2LB(I)
+c            WRITE (58, 333) BMT * (I - 0.5), SCALE2 * DMT2LB(I)
          END IF
  1004 CONTINUE
-cms 333  format(2(f12.5,1x))
+c      format(2(f12.5,1x))
 
       RETURN
       END
@@ -3461,9 +3513,6 @@ cc      SAVE /prec1/
 cc      SAVE /AREVT/
       COMMON /AROUT/ IOUT
 cc      SAVE /AROUT/
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -3524,20 +3573,27 @@ c.....analysis
             PZ = PJPZ(I, J)
             PE = PJPE(I, J)
             PM = PJPM(I, J)
-            IF (ABS(PZ) .GE. PE) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN HJANA1, PROJ STR ', I, ' PART ', J
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', PE
-               PRINT *, ' XM = ', PM
-               endif
-               GOTO 200
-            END IF
-            RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
             XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
             DXMT = XMT - PM
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. PE) THEN
+c               PRINT *, ' IN HJANA1, PROJ STR ', I, ' PART ', J
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c               PRINT *, ' XM = ', PM
+c               GOTO 200
+c            END IF
+c            RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               RAP=asinh(PZ/XMT)
+            else
+               RAP = 1000000.0*sign(1.,PZ)
+            endif
+
             IY = 1 + int(ABS(RAP) / DY)
-            IF (IY .GT. 50) GOTO 100
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 100
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 100
             dyp1(IY) = dyp1(IY) + 1.0
             DEYP1(IY) = DEYP1(IY) + XMT
             IF (ITYP .EQ. 21) THEN
@@ -3564,20 +3620,28 @@ c.....analysis
             PZ = PJTZ(I, J)
             PE = PJTE(I, J)
             PM = PJTM(I, J)
-            IF (ABS(PZ) .GE. PE) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN HJANA1, TARG STR ', I, ' PART ', J
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', PE
-               PRINT *, ' XM = ', PM
-               endif
-               GOTO 400
-            END IF
-            RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
             XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
             DXMT = XMT - PM
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. PE) THEN
+c               PRINT *, ' IN HJANA1, TARG STR ', I, ' PART ', J
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c               PRINT *, ' XM = ', PM
+c               GOTO 400
+c            END IF
+c            RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               RAP=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA1 mt=0'
+               RAP = 1000000.0*sign(1.,PZ)
+            endif
+
             IY = 1 + int(ABS(RAP) / DY)
-            IF (IY .GT. 50) GOTO 300
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 300
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 300
             dyp1(IY) = dyp1(IY) + 1.0
             DEYP1(IY) = DEYP1(IY) + XMT
             IF (ITYP .EQ. 21) THEN
@@ -3604,20 +3668,28 @@ c.....analysis
             PZ = PZSG(I, J)
             PE = PESG(I, J)
             PM = PMSG(I, J)
-            IF (ABS(PZ) .GE. PE) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN HJANA1, INDP STR ', I, ' PART ', J
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', PE
-               PRINT *, ' XM = ', PM
-               endif
-               GOTO 600
-            END IF
-            RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
             XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
             DXMT = XMT - PM
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. PE) THEN
+c               PRINT *, ' IN HJANA1, INDP STR ', I, ' PART ', J
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c               PRINT *, ' XM = ', PM
+c               GOTO 600
+c            END IF
+c            RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               RAP=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA1 mt=0'
+               RAP = 1000000.0*sign(1.,PZ)
+            endif
+
             IY = 1 + int(ABS(RAP) / DY)
-            IF (IY .GT. 50) GOTO 500
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 500
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 500
             dyp1(IY) = dyp1(IY) + 1.0
             DEYP1(IY) = DEYP1(IY) + XMT
             IF (ITYP .EQ. 21) THEN
@@ -3674,20 +3746,28 @@ c         IF (IR .GT. 50) GOTO 601
          PZ = sngl(PZ0(I))
          PE = sngl(E0(I))
          PM = sngl(XMASS0(I))
-         IF (ABS(PZ) .GE. PE) THEN
-           if ( iwrite ) then
-            PRINT *, ' IN HJANA1, GLUON ', I
-            PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-            PRINT *, ' PZ = ', PZ, ' EE = ', PE
-            PRINT *, ' XM = ', PM
-            endif
-            GOTO 800
-         END IF
-         RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
          XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
          DXMT = XMT - PM
+clin-9/2012 determine rapidity more generally:
+c         IF (ABS(PZ) .GE. PE) THEN
+c            PRINT *, ' IN HJANA1, GLUON ', I
+c            PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c            PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c            PRINT *, ' XM = ', PM
+c            GOTO 800
+c         END IF
+c         RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+         if(XMT.gt.0.) then
+            RAP=asinh(PZ/XMT)
+         else
+            PRINT *, ' IN HJANA1 mt=0'
+            RAP = 1000000.0*sign(1.,PZ)
+         endif
+
          IY = 1 + int(ABS(RAP) / DY)
-         IF (IY .GT. 50) GOTO 700
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c         IF (IY .GT. 50) GOTO 700
+         IF (IY.lt.1 .or.IY .GT. 50) GOTO 700
          dyg1c(IY) = dyg1c(IY) + 1.0
          deyg1c(IY) = deyg1c(IY) + XMT
  700     CONTINUE
@@ -3939,9 +4019,6 @@ cc      SAVE /anim/
      &     GYSGS(MAXSTR,3),GZSGS(MAXSTR,3),FTSGS(MAXSTR,3),
      &     K1SGS(MAXSTR,3),K2SGS(MAXSTR,3),NJSGS(MAXSTR)
 cc      SAVE /SOFT/
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -4014,23 +4091,31 @@ c.....analysis
             PZ = PJPZ(I, J)
             PE = PJPE(I, J)
             PM = PJPM(I, J)
-cbzdbg2/16/99
-c            IF (ABS(PZ) .GE. PE) GOTO 200
-            IF (ABS(PZ) .GE. PE) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN HJANA2, PROJ STR ', I, ' PART ', J
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', PE
-               PRINT *, ' XM = ', PM
-               endif
-               GOTO 200
-            END IF
-cbzdbg2/16/99end
-            RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
             XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
             DXMT = XMT - PM
+clin-9/2012 determine rapidity more generally:
+ccbzdbg2/16/99
+cc            IF (ABS(PZ) .GE. PE) GOTO 200
+c            IF (ABS(PZ) .GE. PE) THEN
+c               PRINT *, ' IN HJANA2, PROJ STR ', I, ' PART ', J
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c               PRINT *, ' XM = ', PM
+c               GOTO 200
+c            END IF
+ccbzdbg2/16/99end
+c            RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               RAP=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA2 mt=0'
+               RAP = 1000000.0*sign(1.,PZ)
+            endif
+
             IY = 1 + int(ABS(RAP) / DY)
-            IF (IY .GT. 50) GOTO 100
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 100
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 100
             dyp2(IY) = dyp2(IY) + 1.0
             DEYP2(IY) = DEYP2(IY) + XMT
             IF (ITYP .EQ. 21) THEN
@@ -4057,23 +4142,31 @@ cbzdbg2/16/99end
             PZ = PJTZ(I, J)
             PE = PJTE(I, J)
             PM = PJTM(I, J)
-cbzdbg2/16/99
-c            IF (ABS(PZ) .GE. PE) GOTO 400
-            IF (ABS(PZ) .GE. PE) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN HJANA2, TARG STR ', I, ' PART ', J
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', PE
-               PRINT *, ' XM = ', PM
-               endif
-               GOTO 400
-            END IF
-cbzdbg2/16/99end
-            RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
             XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
             DXMT = XMT - PM
+clin-9/2012 determine rapidity more generally:
+ccbzdbg2/16/99
+cc            IF (ABS(PZ) .GE. PE) GOTO 400
+c            IF (ABS(PZ) .GE. PE) THEN
+c               PRINT *, ' IN HJANA2, TARG STR ', I, ' PART ', J
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c               PRINT *, ' XM = ', PM
+c               GOTO 400
+c            END IF
+ccbzdbg2/16/99end
+c            RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               RAP=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA2 mt=0'
+               RAP = 1000000.0*sign(1.,PZ)
+            endif
+
             IY = 1 + int(ABS(RAP) / DY)
-            IF (IY .GT. 50) GOTO 300
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 300
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 300
             dyp2(IY) = dyp2(IY) + 1.0
             DEYP2(IY) = DEYP2(IY) + XMT
             IF (ITYP .EQ. 21) THEN
@@ -4120,23 +4213,31 @@ clin-4/25/01 soft3:
             endif
 clin-4/25/01-end
 
-cbzdbg2/16/99
-c            IF (ABS(PZ) .GE. PE) GOTO 600
-            IF (ABS(PZ) .GE. PE) THEN
-              if ( iwrite ) then
-               PRINT *, ' IN HJANA2, INDP STR ', I, ' PART ', J
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', PE
-               PRINT *, ' XM = ', PM
-               endif
-               GOTO 600
-            END IF
-cbzdbg2/16/99end
-            RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
+clin-9/2012 determine rapidity more generally:
             XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
             DXMT = XMT - PM
+ccbzdbg2/16/99
+cc            IF (ABS(PZ) .GE. PE) GOTO 600
+c            IF (ABS(PZ) .GE. PE) THEN
+c               PRINT *, ' IN HJANA2, INDP STR ', I, ' PART ', J
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c               PRINT *, ' XM = ', PM
+c               GOTO 600
+c            END IF
+ccbzdbg2/16/99end
+c            RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               RAP=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA2 mt=0'
+               RAP = 1000000.0*sign(1.,PZ)
+            endif
+
             IY = 1 + int(ABS(RAP) / DY)
-            IF (IY .GT. 50) GOTO 500
+clin-8/2014 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 500
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 500
             dyp2(IY) = dyp2(IY) + 1.0
             DEYP2(IY) = DEYP2(IY) + XMT
             IF (ITYP .EQ. 21) THEN
@@ -4216,25 +4317,31 @@ clin-4/28/01:
          PZ = sngl(PZ5(I))
          PE = sngl(E5(I))
          PM = sngl(XMASS5(I))
-cbzdbg2/16/99
-c            IF (ABS(PZ) .GE. PE) GOTO 800
-         
-         IF (ABS(PZ) .GE. PE) THEN
-           if ( iwrite ) then
-            PRINT *, ' IN HJANA2, GLUON ', I
-            PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-            PRINT *, ' PZ = ', PZ, ' EE = ', PE
-            PRINT *, ' XM = ', PM
-            endif
-            GOTO 800
-         END IF
-         
-cbzdbg2/16/99end
-         RAP = 0.5 * LOG((PE + PZ) / (PE - PZ))
+clin-9/2012 determine rapidity more generally:
          XMT = SQRT(PX ** 2 + PY ** 2 + PM ** 2)
          DXMT = XMT - PM
+ccbzdbg2/16/99
+cc            IF (ABS(PZ) .GE. PE) GOTO 800
+c         IF (ABS(PZ) .GE. PE) THEN
+c            PRINT *, ' IN HJANA2, GLUON ', I
+c            PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c            PRINT *, ' PZ = ', PZ, ' EE = ', PE
+c            PRINT *, ' XM = ', PM
+c            GOTO 800
+c         END IF
+ccbzdbg2/16/99end
+c         RAP = 0.5 * LOG((PE + PZ +1e-5) / (PE - PZ + 1e-5))
+         if(XMT.gt.0.) then
+            RAP=asinh(PZ/XMT)
+         else
+            PRINT *, ' IN HJANA2 mt=0'
+            RAP = 1000000.0*sign(1.,PZ)
+         endif
+
          IY = 1 + int(ABS(RAP) / DY)
-         IF (IY .GT. 50) GOTO 700
+clin-9/2012 prevent possible segmentation fault (due to IY<=0):
+c         IF (IY .GT. 50) GOTO 700
+         IF (IY.lt.1 .or.IY .GT. 50) GOTO 700
          dyg2c(IY) = dyg2c(IY) + 1.0
          deyg2c(IY) = deyg2c(IY) + XMT
  700     CONTINUE
@@ -4552,9 +4659,6 @@ cc      SAVE /ARPRC1/
 cc      SAVE /AROUT/
       COMMON/iflow/v2i,eti,xmulti,v2mi,s2mi,xmmult,v2bi,s2bi,xbmult
 cc      SAVE /iflow/
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -4569,22 +4673,32 @@ cc      SAVE /iflow/
             EE = EE1(I, J)
             XM = XM1(I, J)
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
-            IF (ABS(PZ) .GE. EE) THEN
-              if ( iwrite) then
-               PRINT *, 'IN HJANA3'
-               PRINT *, ' PARTICLE ', I, ' RUN ', J, 'PREC ERR'
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', EE
-               PRINT *, ' XM = ', XM
-               endif
-               GOTO 200
-            END IF
             DXMT = XMT - XM
-            Y = 0.5 * LOG((EE + PZ) / (EE - PZ))
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. EE) THEN
+c               PRINT *, 'IN HJANA3'
+c               PRINT *, ' PARTICLE ', I, ' RUN ', J, 'PREC ERR'
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', EE
+c               PRINT *, ' XM = ', XM
+c               GOTO 200
+c            END IF
+c            Y = 0.5 * LOG((EE + PZ +1e-5) / (EE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               Y=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA3 mt=0'
+               Y = 1000000.0*sign(1.,PZ)
+            endif
+
 c.....rapidity cut for the rapidity distribution
 c            IY = 1 + int(ABS(Y) / DY)
-            IY = 1 + int((Y+10.) / DY)
-            IF (IY .GT. 50) GOTO 100
+clin-8/2014 no rapidity shift here:
+c            IY = 1 + int((Y+10.) / DY)
+            IY = 1 + int(Y/DY)
+clin-9/2012 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 100
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 100
             dndyh3(IY) = dndyh3(IY) + 1.0
             DEYH3(IY) = DEYH3(IY) + XMT
  100        CONTINUE
@@ -4628,9 +4742,6 @@ cc      SAVE /ARPRC1/
 cc      SAVE /AROUT/
       COMMON /fflow/ v2f,etf,xmultf,v2fpi,xmulpi
 cc      SAVE /fflow/
-
-      logical iwrite
-      data iwrite / .false. /
       SAVE   
       DATA IW/0/
 
@@ -4645,22 +4756,32 @@ cc      SAVE /fflow/
             EE = EE1(I, J)
             XM = XM1(I, J)
             XMT = SQRT(PX ** 2 + PY ** 2 + XM ** 2)
-            IF (ABS(PZ) .GE. EE) THEN
-              if ( iwrite ) then
-               PRINT *, 'IN HJANA4'
-               PRINT *, ' PARTICLE ', I, ' RUN ', J, 'PREC ERR'
-               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
-               PRINT *, ' PZ = ', PZ, ' EE = ', EE
-               PRINT *, ' XM = ', XM
-               endif
-               GOTO 200
-            END IF
             DXMT = XMT - XM
-            Y = 0.5 * LOG((EE + PZ) / (EE - PZ))
+clin-9/2012 determine rapidity more generally:
+c            IF (ABS(PZ) .GE. EE) THEN
+c               PRINT *, 'IN HJANA4'
+c               PRINT *, ' PARTICLE ', I, ' RUN ', J, 'PREC ERR'
+c               PRINT *, ' FLAV = ', ITYP, ' PX = ', PX, ' PY = ', PY
+c               PRINT *, ' PZ = ', PZ, ' EE = ', EE
+c               PRINT *, ' XM = ', XM
+c               GOTO 200
+c            END IF
+c            Y = 0.5 * LOG((EE + PZ +1e-5) / (EE - PZ + 1e-5))
+            if(XMT.gt.0.) then
+               Y=asinh(PZ/XMT)
+            else
+               PRINT *, ' IN HJANA4 mt=0'
+               Y = 1000000.0*sign(1.,PZ)
+            endif
+
 c.....rapidity cut for the rapidity distribution
 c            IY = 1 + int(ABS(Y) / DY)
-            IY = 1 + int((Y+10.) / DY)
-            IF (IY .GT. 50) GOTO 100
+clin-8/2014 no rapidity shift here:
+c            IY = 1 + int((Y+10.) / DY)
+            IY = 1 + int(Y/DY)
+clin-9/2012 prevent possible segmentation fault (due to IY<=0):
+c            IF (IY .GT. 50) GOTO 100
+            IF (IY.lt.1 .or.IY .GT. 50) GOTO 100
             dndyh4(IY) = dndyh4(IY) + 1.0
             DEYH4(IY) = DEYH4(IY) + XMT
  100        CONTINUE
@@ -4822,6 +4943,17 @@ c
       RETURN
       END
 
+clin-10/01/03 random number generator for f77:
+c      function RANART(NSEED)
+c      SAVE   
+clin-4/2008 ran(nseed) is renamed to avoid conflict with system functions:
+c      ran=rand()
+c      ranart=rand(0)
+c     one may also use the following random number generator in PYTHIA/JETSET:
+c      ranart=rlu(0)
+c      return
+c      end
+
 clin-3/2009
 c     Initialize hadron weights; 
 c     Can add initial hadrons before the hadron cascade starts (but after ZPC).
@@ -4840,6 +4972,7 @@ c     Can add initial hadrons before the hadron cascade starts (but after ZPC).
       COMMON/RNDF77/NSEED
       common /para8/ idpert,npertd,idxsec
       SAVE   
+
 c     All hadrons at the start of hadron cascade have the weight of 1
 c     except those inserted by the user in this subroutine:
       np0=IAINT2(1)
@@ -4851,7 +4984,9 @@ c     Specify number, species, weight, initial x,p,m for inserted hadrons here:
       tau0=ARPAR1(1)
       DO 100 i=np0+1,np0+nadd
          ITYPAR(I)=42
-         dpertp(I)=1d0/dble(nadd)
+clin-5/2012 fix type mismatch:
+c         dpertp(I)=1d0/dble(nadd)
+         dpertp(I)=1./float(nadd)
          GXAR(I)=5.*(1.-2.*RANART(NSEED))
          GYAR(I)=5.*(1.-2.*RANART(NSEED))
          GZAR(I)=2.*(1.-2.*RANART(NSEED))
@@ -4862,7 +4997,10 @@ c     Specify number, species, weight, initial x,p,m for inserted hadrons here:
          XMAR(I)=xmd
 c
          PEAR(I)=sqrt(PXAR(I)**2+PYAR(I)**2+PZAR(I)**2+XMAR(I)**2)
-         RAP=0.5*alog((PEAR(I)+PZAR(I))/(PEAR(I)-PZAR(I)))
+clin-9/2012 determine rapidity more generally:
+c         RAP=0.5*alog((PEAR(I)+PZAR(I)+1e-5)/(PEAR(I)-PZAR(I)+1e-5))
+         RAP=asinh(PZAR(I)/sqrt(XMAR(I)**2+PXAR(I)**2+PYAR(I)**2))
+c
          VX=PXAR(I)/PEAR(I)
          VY=PYAR(I)/PEAR(I)
 c.....give initial formation time shift and boost according to rapidity:
@@ -4888,5 +5026,17 @@ c
          stop
       endif
 c
+      return
+      end
+
+clin-8/2014 define function asinh():
+      FUNCTION asinh(x)
+      SAVE
+      if(x.gt.0) then
+         ASINH=alog(x+sqrt(x**2+1.))
+      else
+c     a la suggestion de YP Liu:
+         ASINH=-alog(-x+sqrt(x**2+1.))
+      endif
       return
       end

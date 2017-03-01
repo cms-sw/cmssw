@@ -3,7 +3,7 @@
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -12,6 +12,9 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
 
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 #include "RecoJets/JetProducers/interface/AnomalousTower.h"
@@ -27,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 
-class VirtualJetProducer : public edm::EDProducer
+class dso_hidden VirtualJetProducer : public edm::stream::EDProducer<>
 {
 protected:
   //
@@ -43,7 +46,7 @@ protected:
       PFClusterJet,
       LastJetType  // no real type, technical
     };
-    static const char *names[];
+    static const char *const names[];
     static Type byName(const std::string &name);
   };
     
@@ -88,7 +91,7 @@ public:
   // member functions
   //
 public:
-  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   std::string   jetType() const { return jetType_; }
   
 protected:
@@ -118,6 +121,11 @@ protected:
   // has no default. 
   virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
+  // This will allow making the HTTTopJetTagInfoCollection
+  virtual void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
+					      const edm::EventSetup& iSetup,
+					      edm::OrphanHandle<reco::BasicJetCollection> & oh){};
+ 
   // Do the offset correction. 
   // Only runs if "doPUOffsetCorrection_" is true.  
   void offsetCorrectJets(std::vector<fastjet::PseudoJet> & orphanInput);
@@ -175,7 +183,6 @@ protected:
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
   std::string           puSubtractorName_;
 
-
   std::vector<edm::Ptr<reco::Candidate> > inputs_;  // input candidates [View, PtrVector and CandCollection have limitations]
   reco::Particle::Point           vertex_;          // Primary vertex 
   ClusterSequencePtr              fjClusterSeq_;    // fastjet cluster sequence
@@ -200,14 +207,15 @@ protected:
   unsigned int                    minSeed_;              // minimum seed to use, useful for MC generation
 
   int                   verbosity_;                 // flag to enable/disable debug output
+  bool                  fromHTTTopJetProducer_;   // for running the v2.0 HEPTopTagger
 
- private:
-
+private:
   std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
+  edm::EDGetTokenT<std::vector<edm::FwdPtr<pat::PackedCandidate> > > input_packedcandidatefwdptr_token_;
 
  protected:
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;

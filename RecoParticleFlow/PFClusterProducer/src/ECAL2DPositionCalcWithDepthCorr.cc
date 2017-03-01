@@ -17,24 +17,23 @@
 
 void ECAL2DPositionCalcWithDepthCorr::
 update(const edm::EventSetup& es) {
-  const CaloGeometryRecord& temp = es.get<CaloGeometryRecord>();
-  if( _caloGeom == NULL || 
-      ( _caloGeom->cacheIdentifier() != temp.cacheIdentifier() ) ) {
-    _caloGeom = &temp;
+  
+    const CaloGeometryRecord& caloGeom = es.get<CaloGeometryRecord>();
     edm::ESHandle<CaloGeometry> geohandle;
-    _caloGeom->get(geohandle);
+    caloGeom.get(geohandle);
     _ebGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     _eeGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
     _esGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
-    // ripped from RecoEcal/EgammaCoreTools 
-    for( uint32_t ic = 0; 
-	 ic < _esGeom->getValidDetIds().size() && 
-	   ( !_esPlus || !_esMinus ); ++ic ) {
-	const double z = _esGeom->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
-	_esPlus = _esPlus || ( 0 < z ) ;
-	_esMinus = _esMinus || ( 0 > z ) ;
-    }  
-  }
+    if(_esGeom){
+      // ripped from RecoEcal/EgammaCoreTools 
+      for( uint32_t ic = 0; 
+	   ic < _esGeom->getValidDetIds().size() && 
+	     ( !_esPlus || !_esMinus ); ++ic ) {
+        const double z = _esGeom->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
+        _esPlus = _esPlus || ( 0 < z ) ;
+        _esMinus = _esMinus || ( 0 > z ) ;
+      }  
+    }
 }
 
 void ECAL2DPositionCalcWithDepthCorr::
@@ -81,9 +80,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     cl_energy_float += rh_energyf;
     // If time resolution is given, calculate weighted average
     if (_timeResolutionCalc) {
-      const double res2 = _timeResolutionCalc->timeResolution2(rh_rawenergy);
-      cl_time += rh_fraction*refhit->time()/res2;
-      cl_timeweight += rh_fraction/res2;
+      const double res2 = 1./_timeResolutionCalc->timeResolution2(rh_rawenergy);
+      cl_time += rh_fraction*refhit->time()*res2;
+      cl_timeweight += rh_fraction*res2;
     }
     else { // assume resolution ~ 1/E**2
       const double rh_rawenergy2 = rh_rawenergy*rh_rawenergy;
@@ -114,9 +113,10 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     throw cms::Exception("InvalidLayer")
       << "ECAL Position Calc only accepts ECAL_BARREL or ECAL_ENDCAP";
   }
+
   const CaloCellGeometry* center_cell = 
     ecal_geom->getGeometry(refmax->detId());
-  const double ctreta = center_cell->getPosition().eta();
+  const double ctreta = center_cell->etaPos();
   const double actreta = std::abs(ctreta);
   // need to change T0 if in ES
   if( actreta > preshowerStartEta && actreta < preshowerEndEta ) { 
@@ -141,13 +141,35 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
     const GlobalPoint pos =
       static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
-    
+
     x += weight*pos.x() ;
     y += weight*pos.y() ;
     z += weight*pos.z() ;
-    
+
     position_norm += weight ;
   }
+  
+  // FALL BACK to LINEAR WEIGHTS
+  if (position_norm == 0.) {
+    for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
+      double weight = 0.0;
+      const reco::PFRecHitRef& refhit = rhf.recHitRef();
+      const double rh_energy = ((float)refhit->energy()) * ((float)rhf.fraction());
+      if( rh_energy > 0.0 ) 
+	weight = rh_energy/cluster.energy();
+
+      const CaloCellGeometry* cell = ecal_geom->getGeometry(refhit->detId());
+      const float depth = maxDepth + maxToFront - cell->getPosition().mag();    
+      const GlobalPoint pos = static_cast<const TruncatedPyramid*>(cell)->getPosition(depth);
+      
+      x += weight*pos.x() ;
+      y += weight*pos.y() ;
+      z += weight*pos.z() ;
+
+      position_norm += weight ;
+    }
+  }
+
   if( position_norm < _minAllowedNorm ) {
     edm::LogError("WeirdClusterNormalization") 
       << "PFCluster too far from seeding cell: set position to (0,0,0).";
@@ -157,6 +179,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     x *= norm_inverse;
     y *= norm_inverse;
     z *= norm_inverse;
+
     cluster.setPosition(math::XYZPoint(x,y,z));
     cluster.calculatePositionREP();
   }

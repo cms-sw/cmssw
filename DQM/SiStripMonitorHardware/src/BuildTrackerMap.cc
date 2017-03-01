@@ -37,6 +37,8 @@
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
@@ -315,9 +317,13 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
   edm::ESHandle<SiStripFedCabling> fedcabling;
   iSetup.get<SiStripFedCablingRcd>().get(fedcabling );
   
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (firstEvent) {
     for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
-      tkmap_.push_back(new TrackerMap(pset_,&(*fedcabling)));
+      tkmap_.push_back(new TrackerMap(pset_,&(*fedcabling),tTopo));
     }
 
   }

@@ -4,6 +4,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/SiStripObjects"/>
+<use   name="CondFormats/RunInfo"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/GeometrySurface"/>
@@ -13,6 +14,7 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="RecoTracker/DeDx"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>

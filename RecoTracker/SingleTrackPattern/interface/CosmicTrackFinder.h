@@ -6,7 +6,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -64,7 +64,7 @@ namespace cms
       return t1->chiSquared()< t2->chiSquared();  
     }
   };
-  class CosmicTrackFinder : public edm::EDProducer
+  class CosmicTrackFinder : public edm::stream::EDProducer<>
   {
 
     typedef TrajectoryStateOnSurface     TSOS;
@@ -83,6 +83,11 @@ namespace cms
     std::string geometry;
     bool trinevents;
     bool useHitsSplitting_;
+    edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
+    edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitsToken_;
+    edm::EDGetTokenT<TrajectorySeedCollection> seedToken_;
   };
 }
 

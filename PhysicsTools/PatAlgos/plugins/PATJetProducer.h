@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -44,7 +44,7 @@ class JetFlavourIdentifier;
 
 namespace pat {
 
-  class PATJetProducer : public edm::EDProducer {
+  class PATJetProducer : public edm::stream::EDProducer<> {
 
     public:
 
@@ -104,6 +104,8 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
+      //
+      bool printWarning_; // this is introduced to issue warnings only once per job
 
 
 

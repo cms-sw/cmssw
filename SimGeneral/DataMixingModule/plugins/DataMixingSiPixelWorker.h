@@ -1,4 +1,4 @@
-#ifndef DataMixingSiPixelWorker_h
+#ifndef SimDataMixingSiPixelWorker_h
 #define SimDataMixingSiPixelWorker_h
 
 /** \class DataMixingSiPixelWorker
@@ -77,4 +77,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingSiPixelWorker_h

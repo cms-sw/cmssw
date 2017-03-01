@@ -29,6 +29,7 @@ private:
 
    bool m_invertBox;
    bool m_ignoreGeoShapeSize;
+   double m_enlarge;
    TEveVector m_vector; // internal memeber, to avoid constant recreation
 };
 #endif

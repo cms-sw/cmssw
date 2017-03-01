@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
+from functools import reduce
 #Documentation needs to follow... but for now just know that
 #a template file for cmsPerfClient.py -f option is BencmarkCfg.py in Validation/Performance/python dir.
 PROG_NAME = os.path.basename(sys.argv[0])
@@ -154,10 +155,10 @@ def optionparse():
                 try:
                     execfile(cmdfile)
                     cmsperf_cmds.append(listperfsuitekeywords)
-                except (SyntaxError), detail:
+                except (SyntaxError) as detail:
                     parser.error("ERROR: %s must be a valid python file" % cmdfile)
                     sys.exit()
-                except (NameError), detail:
+                except (NameError) as detail:
                     parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program: %s" % (cmdfile,str(detail)))
                     sys.exit()
                 except :
@@ -229,13 +230,13 @@ def request_benchmark(perfcmds,shost,sport):
     try:
         server = xmlrpclib.ServerProxy("http://%s:%s" % (shost,sport))    
         return server.request_benchmark(perfcmds)
-    except socket.error, detail:
+    except socket.error as detail:
         print "ERROR: Could not communicate with server %s:%s:" % (shost,sport), detail
-    except xml.parsers.expat.ExpatError, detail:
+    except xml.parsers.expat.ExpatError as detail:
         print "ERROR: XML-RPC could not be parsed:", detail
-    except xmlrpclib.ProtocolError, detail:
+    except xmlrpclib.ProtocolError as detail:
         print "ERROR: XML-RPC protocol error", detail, "try using -L xxx:localhost:xxx if using ssh to forward"
-    except exceptions, detail:
+    except exceptions as detail:
         print "ERROR: There was a runtime error thrown by server %s; detail follows." % shost
         print detail
 
@@ -259,7 +260,7 @@ class Worker(threading.Thread):
             print "data is %s"%data
             print "Puttin it in the queue as (%s,%s)"%(self.__host,data)
             self.__queue.put((self.__host, data))
-        except (exceptions.Exception, xmlrpclib.Fault), detail:
+        except (exceptions.Exception, xmlrpclib.Fault) as detail:
             print "Exception was thrown when receiving/submitting job information to host", self.__host, ". Exception information:"
             print detail
             sys.stdout.flush()

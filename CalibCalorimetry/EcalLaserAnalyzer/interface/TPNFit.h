@@ -35,7 +35,7 @@ class TPNFit: public TObject
   double getAmpl() {return ampl;}
   double getTimax() {return timeatmax;}
 
-  //  ClassDef(TPNFit,1)
+  ClassDef(TPNFit,0)
 };
 
 #endif

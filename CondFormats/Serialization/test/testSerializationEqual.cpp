@@ -23,16 +23,16 @@ void diff(const T & first, const T & second)
 template <typename T>
 void checkFloatingPoint()
 {
-    constexpr T zero(0);
-    constexpr T nzero(-zero);
-    constexpr T first(1);
-    constexpr T second(2);
-    constexpr T inf(std::numeric_limits<T>::infinity());
-    constexpr T ninf(-inf);
-    constexpr T qnan(std::numeric_limits<T>::quiet_NaN());
-    constexpr T nqnan(-qnan);
-    constexpr T snan(std::numeric_limits<T>::signaling_NaN());
-    constexpr T nsnan(-snan);
+    const T zero(0);
+    const T nzero(-zero);
+    const T first(1);
+    const T second(2);
+    const T inf(std::numeric_limits<T>::infinity());
+    const T ninf(-inf);
+    const T qnan(std::numeric_limits<T>::quiet_NaN());
+    const T nqnan(-qnan);
+    const T snan(std::numeric_limits<T>::signaling_NaN());
+    const T nsnan(-snan);
 
     auto positive = [](T x){
         if (std::signbit(x))

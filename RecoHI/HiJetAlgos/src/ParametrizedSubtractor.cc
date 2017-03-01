@@ -7,6 +7,9 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TFile.h"
+
 #include <string>
 #include <iostream>
 using namespace std;
@@ -19,12 +22,13 @@ void ParametrizedSubtractor::rescaleRMS(double s){
 }
 
 
-ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig) : 
-   PileUpSubtractor(iConfig),
+ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) : 
+  PileUpSubtractor(iConfig, std::move(iC)),
    dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true)),
    cbins_(0)
 {
-   centTag_ = iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO"));
+
+    centTag_ = iC.consumes<reco::Centrality>(iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO")));
 
    interpolate_ = iConfig.getParameter<bool>("interpolate");
    sumRecHits_ = iConfig.getParameter<bool>("sumRecHits");
@@ -48,10 +52,13 @@ ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig)
 void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup){
    LogDebug("PileUpSubtractor")<<"The subtractor setting up geometry...\n";
 
+   // The function below that is commented out was deleted from
+   // DataFormats/HeavyIonEvent/src/Centrality.cc
+   // in June 2015. See comments associated with that commit.
    //   if(!cbins_) getCentralityBinsFromDB(iSetup);
 
    edm::Handle<reco::Centrality> cent;
-   iEvent.getByLabel(centTag_,cent);
+   iEvent.getByToken(centTag_,cent);
    
    centrality_ = cent->EtHFhitSum();
    bin_ = 40-hC->FindBin(centrality_);

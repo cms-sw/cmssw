@@ -17,7 +17,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
-class KFTrajectorySmoother GCC11_FINAL : public TrajectorySmoother {
+class KFTrajectorySmoother final : public TrajectorySmoother {
 
 private:
 
@@ -88,7 +88,7 @@ public:
   }
 
  // FIXME a prototype:  final inplementaiton may differ
-  virtual void setHitCloner(TkCloner const * hc) {  theHitCloner =	hc;}
+  virtual void setHitCloner(TkCloner const * hc) override {  theHitCloner =	hc;}
 
 
 private:

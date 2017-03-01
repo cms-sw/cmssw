@@ -29,8 +29,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -129,12 +131,12 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // take first tagInfo
   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
-  auto_ptr<JetTagCollection> jetTagCollection;
+  std::unique_ptr<JetTagCollection> jetTagCollection;
   if (tagInfoHandle.product()->size() > 0) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
-    jetTagCollection.reset(new JetTagCollection(RefToBaseProd<Jet>(jj)));
+    jetTagCollection = std::make_unique<JetTagCollection>(edm::makeRefToBaseProdFrom(jj, iEvent));
   } else
-    jetTagCollection.reset(new JetTagCollection());
+    jetTagCollection = std::make_unique<JetTagCollection>();
 
   // now loop over the map and compute all JetTags
   for(JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin();
@@ -147,7 +149,24 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
     (*jetTagCollection)[iter->first] = discriminator;
   }
 
-  iEvent.put(jetTagCollection);
+  iEvent.put(std::move(jetTagCollection));
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+void
+JetTagProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("jetTagComputer","combinedMVAComputer");
+  {
+    std::vector<edm::InputTag> tagInfos;
+    tagInfos.push_back(edm::InputTag("impactParameterTagInfos"));
+    tagInfos.push_back(edm::InputTag("inclusiveSecondaryVertexFinderTagInfos"));
+    tagInfos.push_back(edm::InputTag("softPFMuonsTagInfos"));
+    tagInfos.push_back(edm::InputTag("softPFElectronsTagInfos"));
+    desc.add<std::vector<edm::InputTag> >("tagInfos",tagInfos);
+  }
+  descriptions.addDefault(desc);
 }
 
 // define it as plugin

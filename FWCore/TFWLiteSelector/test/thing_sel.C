@@ -1,17 +1,14 @@
 {
   //Need this to allow ROOT to be able to use a ThingsTSelector
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
-  //Have to load library manually since Proof does not use the 
-  // mechanism used by TFile to find class dictionaries and therefore
-  // the AutoLibraryLoader can not help
+  FWLiteEnabler::enable();
   gSystem->Load("libFWCoreTFWLiteSelectorTest");
 
   TSelector* sel = new tfwliteselectortest::ThingsTSelector();
   
   //This holds the list of files and 'TTree' to process
   TChain c("Events");
-  c.Add("test.root");
+  c.Add("testTFWLiteSelector.root");
 
   //This actually processes the data
   c.Process(sel);

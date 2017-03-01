@@ -57,6 +57,8 @@ public:
     /// destructor
     virtual ~L1GlobalTriggerRawToDigi();
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
 
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -73,7 +75,7 @@ private:
     void unpackPSB(const edm::EventSetup&, const unsigned char*, L1GtPsbWord&);
 
     /// unpack the GMT record
-    void unpackGMT(const unsigned char*, std::auto_ptr<L1MuGMTReadoutCollection>&,edm::Event&);
+    void unpackGMT(const unsigned char*, std::unique_ptr<L1MuGMTReadoutCollection>&,edm::Event&);
 
     /// unpack trailer word
     void unpackTrailer(const unsigned char*, FEDTrailer&);

@@ -8,7 +8,7 @@ process.load("HLTriggerOffline.Common.HLTValidationQT_cff")
 
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')  
@@ -59,7 +59,6 @@ process.validation = cms.Path(
     #+process.egammaValidationSequence
     #+process.HLTTopVal
     #+process.HLTSusyExoVal
-    #+process.HLTFourVector
     #+process.heavyFlavorValidationSequence
     #+process.HLTJetMETValSeq
     #+process.HLTAlCaVal
@@ -73,7 +72,6 @@ process.post_validation = cms.Path(
     #+process.EgammaPostVal
     #+process.HLTTopPostVal
     #+process.SusyExoPostVal
-    #+process.HLTriggerOfflineFourVectorClient
     #+process.heavyFlavorValidationHarvestingSequence
     #+process.JetMETPostVal
     #+process.HLTAlCaPostVal

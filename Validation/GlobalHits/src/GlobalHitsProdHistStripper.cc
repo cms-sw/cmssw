@@ -112,8 +112,8 @@ void GlobalHitsProdHistStripper::beginRun(const edm::Run& iRun,
 
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iRun.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iRun.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -169,23 +169,23 @@ void GlobalHitsProdHistStripper::endRun(const edm::Run& iRun,
     /*
     std::cout << "Extracting histogram: " << std::endl
 	      << "       Module       : "
-	      << (histogram1D.provenance()->product()).moduleLabel()
+	      << (histogram1D.provenance()->branchDescription()).moduleLabel()
 	      << std::endl
 	      << "       ProductID    : "
-	      << (histogram1D.provenance()->product()).productID().id()
+	      << (histogram1D.provenance()->branchDescription()).productID().id()
 	      << std::endl
 	      << "       ClassName    : "
-	      << (histogram1D.provenance()->product()).className()
+	      << (histogram1D.provenance()->branchDescription()).className()
 	      << std::endl
 	      << "       InstanceName : "
-	      << (histogram1D.provenance()->product()).productInstanceName()
+	      << (histogram1D.provenance()->branchDescription()).productInstanceName()
 	      << std::endl
 	      << "       BranchName   : "
-	      << (histogram1D.provenance()->product()).branchName()
+	      << (histogram1D.provenance()->branchDescription()).branchName()
 	      << std::endl;
     */
 
-    if ((histogram1D.provenance()->product()).moduleLabel()
+    if ((histogram1D.provenance()->branchDescription()).moduleLabel()
 	!= "globalhitsprodhist") continue;
    
     std::string histname = histogram1D->GetName();

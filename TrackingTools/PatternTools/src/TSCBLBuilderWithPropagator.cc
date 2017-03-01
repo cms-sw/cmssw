@@ -29,6 +29,9 @@ TSCBLBuilderWithPropagator::operator()
 
   TrajectoryStateOnSurface tsosfinal = tetl.extrapolate(originalFTS,bsline,*thePropagator);
 
+  if (!tsosfinal.isValid())
+    return TrajectoryStateClosestToBeamLine();
+
   //Compute point on beamline of closest approach
   GlobalPoint tp = tsosfinal.globalPosition(); //position of trajectory closest approach
   GlobalVector hyp(tp.x() - bspos.x(),tp.y() - bspos.y(),tp.z() - bspos.z()); //difference between traj and beamline reference

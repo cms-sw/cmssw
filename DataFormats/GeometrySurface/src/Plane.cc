@@ -2,14 +2,14 @@
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
 
-ReferenceCountingPointer<TangentPlane> 
+ConstReferenceCountingPointer<TangentPlane> 
 Plane::tangentPlane (const GlobalPoint&) const
 {
-  return ReferenceCountingPointer<TangentPlane>(const_cast<Plane*>(this));
+  return ConstReferenceCountingPointer<TangentPlane>(this);
 }
 
-ReferenceCountingPointer<TangentPlane> 
+ConstReferenceCountingPointer<TangentPlane> 
 Plane::tangentPlane (const LocalPoint&) const
 {
-  return ReferenceCountingPointer<TangentPlane>(const_cast<Plane*>(this));
+  return ConstReferenceCountingPointer<TangentPlane>(this);
 }

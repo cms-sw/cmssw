@@ -8,8 +8,6 @@ int main()
     //testSerialization<HcalCalibrationQIEData>(); no default constructor
     testSerialization<HcalChannelQuality>();
     testSerialization<HcalChannelStatus>();
-    testSerialization<HcalCholeskyMatrices>();
-    testSerialization<HcalCholeskyMatrix>();
     /* no default constructor
     testSerialization<HcalCondObjectContainer<HcalCalibrationQIECoder>>();
     testSerialization<HcalCondObjectContainer<HcalChannelStatus>>();
@@ -19,6 +17,7 @@ int main()
     testSerialization<HcalCondObjectContainer<HcalL1TriggerObject>>();
     testSerialization<HcalCondObjectContainer<HcalLUTCorr>>();
     testSerialization<HcalCondObjectContainer<HcalLongRecoParam>>();
+    testSerialization<HcalCondObjectContainer<HcalZDCLowGainFraction>>();
     testSerialization<HcalCondObjectContainer<HcalLutMetadatum>>();
     testSerialization<HcalCondObjectContainer<HcalMCParam>>();
     testSerialization<HcalCondObjectContainer<HcalPFCorr>>();
@@ -33,8 +32,6 @@ int main()
     testSerialization<HcalCondObjectContainer<HcalZSThreshold>>();
     */
     //testSerialization<HcalCondObjectContainerBase>(); protected constructor
-    testSerialization<HcalCovarianceMatrices>();
-    testSerialization<HcalCovarianceMatrix>();
     testSerialization<HcalDcsMap>();
     testSerialization<HcalDcsMap::Item>();
     testSerialization<HcalDcsValue>();
@@ -54,6 +51,8 @@ int main()
     testSerialization<HcalLUTCorrs>();
     testSerialization<HcalLongRecoParam>();
     testSerialization<HcalLongRecoParams>();
+    testSerialization<HcalZDCLowGainFraction>();
+    testSerialization<HcalZDCLowGainFractions>();
     testSerialization<HcalLutMetadata>();
     testSerialization<HcalLutMetadata::NonChannelData>();
     testSerialization<HcalLutMetadatum>();
@@ -67,6 +66,8 @@ int main()
     testSerialization<HcalPedestals>();
     testSerialization<HcalQIECoder>();
     testSerialization<HcalQIEData>();
+    testSerialization<HcalQIEType>();
+    testSerialization<HcalQIETypes>();
     testSerialization<HcalRecoParam>();
     testSerialization<HcalRecoParams>();
     testSerialization<HcalRespCorr>();
@@ -93,6 +94,7 @@ int main()
     testSerialization<std::pair<std::string, std::vector<HcalPedestal>>>();
     testSerialization<std::pair<std::string, std::vector<HcalPedestalWidth>>>();
     testSerialization<std::pair<std::string, std::vector<HcalQIECoder>>>();
+    testSerialization<std::pair<std::string, std::vector<HcalQIEType>>>();
     testSerialization<std::pair<std::string, std::vector<HcalRecoParam>>>();
     testSerialization<std::pair<std::string, std::vector<HcalRespCorr>>>();
     testSerialization<std::pair<std::string, std::vector<HcalTimeCorr>>>();
@@ -101,8 +103,6 @@ int main()
     testSerialization<std::pair<std::string, std::vector<HcalZSThreshold>>>();
     testSerialization<std::vector<HcalCalibrationQIECoder>>();
     testSerialization<std::vector<HcalChannelStatus>>();
-    testSerialization<std::vector<HcalCholeskyMatrix>>();
-    testSerialization<std::vector<HcalCovarianceMatrix>>();
     testSerialization<std::vector<HcalDcsMap::Item>>();
     testSerialization<std::vector<HcalDcsValue>>();
     testSerialization<std::vector<HcalElectronicsMap::PrecisionItem>>();
@@ -113,12 +113,14 @@ int main()
     testSerialization<std::vector<HcalL1TriggerObject>>();
     testSerialization<std::vector<HcalLUTCorr>>();
     testSerialization<std::vector<HcalLongRecoParam>>();
+    testSerialization<std::vector<HcalZDCLowGainFraction>>();
     testSerialization<std::vector<HcalLutMetadatum>>();
     testSerialization<std::vector<HcalMCParam>>();
     testSerialization<std::vector<HcalPFCorr>>();
     testSerialization<std::vector<HcalPedestal>>();
     testSerialization<std::vector<HcalPedestalWidth>>();
     testSerialization<std::vector<HcalQIECoder>>();
+    testSerialization<std::vector<HcalQIEType>>();
     testSerialization<std::vector<HcalRecoParam>>();
     testSerialization<std::vector<HcalRespCorr>>();
     testSerialization<std::vector<HcalTimeCorr>>();
@@ -133,12 +135,14 @@ int main()
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalL1TriggerObject>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalLUTCorr>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalLongRecoParam>>>>();
+    testSerialization<std::vector<std::pair<std::string, std::vector<HcalZDCLowGainFraction>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalLutMetadatum>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalMCParam>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPFCorr>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPedestal>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalPedestalWidth>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalQIECoder>>>>();
+    testSerialization<std::vector<std::pair<std::string, std::vector<HcalQIEType>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalRecoParam>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalRespCorr>>>>();
     testSerialization<std::vector<std::pair<std::string, std::vector<HcalTimeCorr>>>>();

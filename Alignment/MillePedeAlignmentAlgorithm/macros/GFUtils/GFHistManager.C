@@ -33,8 +33,8 @@
 
 ClassImp(GFHistManager)
 
-const Int_t GFHistManager::kDefaultPadsPerCanX = 4;
-const Int_t GFHistManager::kDefaultPadsPerCanY = 3;
+const Int_t GFHistManager::kDefaultPadsPerCanX = 1;
+const Int_t GFHistManager::kDefaultPadsPerCanY = 1;
 const Int_t GFHistManager::kDefaultDepth = 0;
 TString GFHistManager::fgLegendEntryOption = "l";
 
@@ -50,6 +50,7 @@ GFHistManager::GFHistManager()
   fLegendY2 = 0.99;
   fLegendX2 = 0.99;
   fStatsX1 = 0.72, fStatsX2 = 0.995, fStatsY1 = .8, fStatsY2 = .995;
+  fCanvasName = "canvas";
   fCanvasWidth = 600;
   fCanvasHeight = 600;
 }
@@ -68,6 +69,7 @@ GFHistManager::GFHistManager(TH1* hist)
   fLegendY2 = 0.99;
   fLegendX2 = 0.99;
   fStatsX1 = 0.72, fStatsX2 = 0.995, fStatsY1 = .8, fStatsY2 = .995;
+  fCanvasName = "canvas";
   fCanvasWidth = 600;
   fCanvasHeight = 600;
 }
@@ -86,6 +88,7 @@ GFHistManager::GFHistManager(TCollection* hists)
   fLegendY2 = 0.99;
   fLegendX2 = 0.99;
   fStatsX1 = 0.72, fStatsX2 = 0.995, fStatsY1 = .8, fStatsY2 = .995;
+  fCanvasName = "canvas";
   fCanvasWidth = 600;
   fCanvasHeight = 600;
 }
@@ -306,6 +309,8 @@ void GFHistManager::DrawReally(Int_t layer)
 	histNo++;
       }
     } // loop over pads
+    const TString name = can->GetTitle();
+    can->SaveAs(name+".pdf");
   } // loop over canvases
 }
 
@@ -528,6 +533,8 @@ TLegendEntry* GFHistManager::AddHist(TH1* hist, Int_t layer, const char* legendT
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,6,0)
     if (TString(gStyle->GetName()) == "Plain") legend->SetBorderSize(1);
 #endif
+    legend->SetTextFont(42);
+    legend->SetFillColor(kWhite);
     legends->AddAtAndExpand(legend, layerHistArrays->IndexOf(newHist));
     return legend->AddEntry(hist, legendTitle, legOpt ? legOpt : fgLegendEntryOption.Data());
   }
@@ -577,6 +584,7 @@ TLegendEntry* GFHistManager::AddHistSame(TH1* hist, Int_t layer, Int_t histNum,
 	if (TString(gStyle->GetName()) == "Plain") legend->SetBorderSize(1);
 #endif
 	legends->AddAtAndExpand(legend, histNum);
+	legend->SetFillColor(kWhite);
       }
       result = legend->AddEntry(hist,legendTitle, legOpt ? legOpt : fgLegendEntryOption.Data());
     }
@@ -678,6 +686,7 @@ TLegend* GFHistManager::AddLegend(Int_t layer, Int_t histoNum,
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,6,0)
     if (TString(gStyle->GetName()) == "Plain") legend->SetBorderSize(1);
 #endif
+    legend->SetFillColor(kWhite);
     legendsOfLayer->AddAtAndExpand(legend, histoNum);
   }
 
@@ -845,7 +854,7 @@ void GFHistManager::MakeCanvases(Int_t layer)
     fCanArrays->AddAtAndExpand(new TObjArray, layer);
   }
 
-  TString canName("canvas");
+  TString canName(fCanvasName);
   (canName += layer) += "_";
 
   for(Long_t i = 0; i < nCanvases; i++){
@@ -1377,6 +1386,7 @@ void GFHistManager::MakeDifferentStyle(GFHistArray* hists)
     }
     hists->At(i)->SetLineColor(color);
     hists->At(i)->SetMarkerColor(color);
+    hists->At(i)->SetMarkerSize(0.02);
     hists->At(i)->SetLineStyle(style);
   }
 }
@@ -1597,4 +1607,9 @@ void GFHistManager::ColourFuncs(GFHistArray *hists) const
       func->SetLineStyle(h->GetLineStyle());
     }
   } 
+}
+
+//________________________________________________________
+void GFHistManager::SetCanvasName(const TString& name) {
+  fCanvasName = name;
 }

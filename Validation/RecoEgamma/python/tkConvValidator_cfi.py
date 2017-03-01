@@ -1,17 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 from Validation.RecoEgamma.tpSelection_cfi import *
 
-from SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi import *
-import SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi
-trackAssociatorByHitsForConversionValidation = SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
-trackAssociatorByHitsForConversionValidation.ComponentName = cms.string('trackAssociatorByHitsForConversionValidation')
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
+import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
+trackAssociatorByHitsForConversionValidation = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 trackAssociatorByHitsForConversionValidation.SimToRecoDenominator = 'reco'
 trackAssociatorByHitsForConversionValidation.Quality_SimToReco = 0.5
 trackAssociatorByHitsForConversionValidation.Purity_SimToReco = 0.5
 trackAssociatorByHitsForConversionValidation.Cut_RecoToSim = 0.5
 
-import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
-tpSelecForEfficiency = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
+from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
+tpSelecForEfficiency = _trackingParticleRefSelector.clone()
 tpSelecForEfficiency.chargedOnly = True
 # trackingParticleSelector.pdgId = cms.vint32()
 tpSelecForEfficiency.tip = 120
@@ -23,7 +22,7 @@ tpSelecForEfficiency.maxRapidity = 2.5
 tpSelecForEfficiency.minHit = 0
 
 
-tpSelecForFakeRate = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
+tpSelecForFakeRate = _trackingParticleRefSelector.clone()
 tpSelecForFakeRate.chargedOnly = True
 # trackingParticleSelector.pdgId = cms.vint32()
 tpSelecForFakeRate.tip = 120
@@ -133,7 +132,11 @@ tkConversionValidation = cms.EDAnalyzer("TkConvValidator",
     zBin2ForXray = cms.int32(560),
     zMinForXray = cms.double(0.),
     zMaxForXray = cms.double(280.),                               
-                                  
+
+    simTracks = cms.InputTag("g4SimHits")
 )
 
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+    tkConversionValidation.simTracks = cms.InputTag("famosSimHits")

@@ -2,6 +2,7 @@
 #define DD_DDStreamer_h
 
 #include <iostream>
+
 class DDCompactView;
 
 //! Streaming the DDD transient store from/into a std::istream/std::ostream */
@@ -121,7 +122,6 @@ protected:
   void vars_read();  
 
 private:  
-  const DDCompactView * cpv_;/**< not used */
   std::ostream * o_; /**< std::ostream target for writing DDD objects */
   std::istream * i_; /**< istream target for reading DDD objects */
 };

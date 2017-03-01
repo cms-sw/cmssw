@@ -1,28 +1,20 @@
-/***************************************************************************
-                          DDLRotationSequence.cc  -  description
-                             -------------------
-    begin                : Friday November 14, 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLRotationSequence.h"
 
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <stddef.h>
+#include <map>
+#include <utility>
+
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class DDCompactView;
 
 DDLRotationSequence::DDLRotationSequence( DDLElementRegistry* myreg )
   : DDLRotationByAxis( myreg ) 
-{}
-
-DDLRotationSequence::~DDLRotationSequence( void )
 {}
 
 void
@@ -34,8 +26,6 @@ DDLRotationSequence::preProcessElement( const std::string& name, const std::stri
 void
 DDLRotationSequence::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLRotationSequence::processElement started " << name);
-
   /** Get the name, axis and angle of each Rotate child and make this the rotation. 
    */
 
@@ -55,6 +45,4 @@ DDLRotationSequence::processElement( const std::string& name, const std::string&
 
   myRotations->clear();
   clear();
-
-  DCOUT_V('P', "DDLRotationSequence::processElement completed");
 }

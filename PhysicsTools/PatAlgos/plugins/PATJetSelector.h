@@ -4,7 +4,7 @@
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h
 #define PhysicsTools_PatAlgos_PATJetSelector_h
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -21,15 +21,14 @@
 
 namespace pat {
 
-  class PATJetSelector : public edm::EDFilter {
+  class PATJetSelector : public edm::stream::EDFilter<> {
   public:
 
 
   PATJetSelector( edm::ParameterSet const & params ) :
-    edm::EDFilter( ),
       srcToken_(consumes<edm::View<pat::Jet> >( params.getParameter<edm::InputTag>("src") )),
       cut_( params.getParameter<std::string>("cut") ),
-      filter_(false),
+      filter_( params.exists("filter") ? params.getParameter<bool>("filter") : false ),
       selector_( cut_ )
       {
 	produces< std::vector<pat::Jet> >();
@@ -37,10 +36,6 @@ namespace pat {
 	produces<std::vector<CaloTower>  > ("caloTowers");
 	produces<reco::PFCandidateCollection > ("pfCandidates");
 	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
-
-	if ( params.exists("filter") ) {
-	  filter_ = params.getParameter<bool>("filter");
-	}
       }
 
     virtual ~PATJetSelector() {}
@@ -50,12 +45,12 @@ namespace pat {
 
     virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
-      std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
+      auto patJets = std::make_unique<std::vector<Jet>>();
 
-      std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-      std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
-      std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
-      std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );
+      auto genJetsOut = std::make_unique<reco::GenJetCollection>();
+      auto caloTowersOut = std::make_unique<std::vector<CaloTower> >();
+      auto pfCandidatesOut = std::make_unique<reco::PFCandidateCollection>();
+      auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
 
       edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
@@ -108,10 +103,10 @@ namespace pat {
 
 
       // Output the secondary collections.
-      edm::OrphanHandle<reco::GenJetCollection>  oh_genJetsOut = iEvent.put( genJetsOut, "genJets" );
-      edm::OrphanHandle<std::vector<CaloTower> > oh_caloTowersOut = iEvent.put( caloTowersOut, "caloTowers" );
-      edm::OrphanHandle<reco::PFCandidateCollection> oh_pfCandidatesOut = iEvent.put( pfCandidatesOut, "pfCandidates" );
-      edm::OrphanHandle<edm::OwnVector<reco::BaseTagInfo> > oh_tagInfosOut = iEvent.put( tagInfosOut, "tagInfos" );
+      edm::OrphanHandle<reco::GenJetCollection>  oh_genJetsOut = iEvent.put(std::move(genJetsOut), "genJets" );
+      edm::OrphanHandle<std::vector<CaloTower> > oh_caloTowersOut = iEvent.put(std::move(caloTowersOut), "caloTowers" );
+      edm::OrphanHandle<reco::PFCandidateCollection> oh_pfCandidatesOut = iEvent.put(std::move(pfCandidatesOut), "pfCandidates" );
+      edm::OrphanHandle<edm::OwnVector<reco::BaseTagInfo> > oh_tagInfosOut = iEvent.put(std::move(tagInfosOut), "tagInfos" );
 
 
 
@@ -187,7 +182,7 @@ namespace pat {
 
       // put genEvt  in Event
       bool pass = patJets->size() > 0;
-      iEvent.put(patJets);
+      iEvent.put(std::move(patJets));
 
       if ( filter_ )
 	return pass;
@@ -196,10 +191,10 @@ namespace pat {
     }
 
   protected:
-    edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
-    std::string                    cut_;
-    bool                           filter_;
-    StringCutObjectSelector<Jet>   selector_;
+    const edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
+    const std::string                    cut_;
+    const bool                           filter_;
+    const StringCutObjectSelector<Jet>   selector_;
   };
 
 }

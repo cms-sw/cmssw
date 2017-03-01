@@ -102,7 +102,9 @@ class PFProducer : public edm::stream::EDProducer<> {
 
   // Take PF cluster calibrations from Global Tag ?
   bool useCalibrationsFromDB_;
+  std::string calibrationsLabel_;
 
+  bool postHFCleaning_;
   // Name of the calibration functions to read from the database
   // std::vector<std::string> fToRead;
   

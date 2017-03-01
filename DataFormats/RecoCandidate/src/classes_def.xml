@@ -1,31 +1,38 @@
 <lcgdict>
   <selection>
-  <class name="reco::RecoCandidate"  ClassVersion="10">
+  <class name="reco::RecoCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="3838151746"/>
+   <version ClassVersion="11" checksum="1478341962"/>
    <version ClassVersion="10" checksum="1183963017"/>
   </class>
-  <class name="reco::RecoChargedCandidate"  ClassVersion="10">
+  <class name="reco::RecoChargedCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="3730584585"/>
+   <version ClassVersion="11" checksum="2262215505"/>
    <version ClassVersion="10" checksum="2818554415"/>
   </class>
-  <class name="reco::RecoChargedRefCandidateBase">
-    <field name="p4Polar_" transient="true"/>
-    <field name="p4Cartesian_" transient="true"/>
-    <field name="cachePolarFixed_" transient="true"/>
-    <field name="cacheCartesianFixed_" transient="true"/>
+  <class name="reco::RecoChargedRefCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2499408251"/>
+    <version ClassVersion="11" checksum="27158565"/>
+    <version ClassVersion="10" checksum="2155624976"/>
   </class>
-  <class name="reco::RecoChargedRefCandidate"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2155624976"/>
-  </class>
-  <class name="reco::RecoEcalCandidate"  ClassVersion="10">
+  <class name="reco::RecoEcalCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2643748274"/>
+   <version ClassVersion="11" checksum="1100355146"/>
    <version ClassVersion="10" checksum="3531165310"/>
   </class>
-  <class name="reco::RecoCaloTowerCandidate" ClassVersion="10">
+  <class name="reco::RecoCaloTowerCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="4228136352"/>
+   <version ClassVersion="11" checksum="2294254376"/>
    <version ClassVersion="10" checksum="4182970126"/>
   </class>
-  <class name="reco::CaloRecHitCandidate" ClassVersion="10">
+  <class name="reco::CaloRecHitCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="878375709"/>
+   <version ClassVersion="11" checksum="85197237"/>
    <version ClassVersion="10" checksum="1441861764"/>
   </class>
 
-  <class name="reco::FitQuality"  ClassVersion="10">
+  <class name="reco::FitQuality"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2062631270"/>
    <version ClassVersion="10" checksum="1584619238"/>
   </class>
   <class name="std::vector<reco::FitQuality>" />
@@ -45,6 +52,12 @@
   <class name="edm::Ref<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> >"/>
   <class name="edm::RefProd<std::vector<reco::RecoChargedRefCandidate> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> >"/>
+
+  <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoChargedCandidate>, float, unsigned int> >">
+      <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoChargedCandidate>, float, unsigned int> > >" />
+  <class name="edm::helpers::Key<edm::RefProd<std::vector<reco::RecoChargedCandidate> > >" />
 
   <class name="std::vector<reco::RecoEcalCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::RecoEcalCandidate> >"/>
@@ -69,18 +82,18 @@
   <class name="edm::Wrapper<reco::SimToRecoCollection>" />
   <class name="edm::Wrapper<reco::RecoToSimCollection>" />
 
-  <class name="reco::SimToRecoCollection" />
-  <class name="reco::RecoToSimCollection" />
+  <class name="reco::SimToRecoCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="reco::RecoToSimCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
 
 
   <class name="edm::ValueMap<reco::IsoDeposit>" />
   <class name="edm::ValueMap<reco::FitQuality>" />
   <class pattern="edm::Wrapper<edm::ValueMap<*>" />
-  <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
-  <class pattern="edm::Ref<edm::AssociationMap<*>" />
-  <class pattern="edm::RefProd<edm::AssociationMap<*>" />
-  <class pattern="edm::RefVector<edm::AssociationMap<*>" />
  
   <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef>" />
   <class name="edm::reftobase::RefHolder<reco::RecoChargedCandidateRef>" />
@@ -127,7 +140,6 @@
   </class>
   <class name="std::multimap<reco::isodeposit::Direction::Distance,float>"/>
 
-  <class name="reco::IsoDepositMap"/>
   <class name="edm::ValueMap<reco::IsoDeposit>::const_iterator">
     <field name="values_" transient="true"/>
     <field name="i_" transient="true"/>

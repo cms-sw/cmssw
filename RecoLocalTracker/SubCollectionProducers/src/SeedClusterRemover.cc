@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -14,8 +15,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -30,6 +29,10 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 //
 // class decleration
@@ -76,12 +79,12 @@ class SeedClusterRemover : public edm::stream::EDProducer<> {
         std::vector<uint8_t> pixels, strips;                // avoid unneed alloc/dealloc of this
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
-        inline void process(const TrackingRecHit *hit, float chi2);
+        inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
         inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
 
 
         template<typename T> 
-        std::auto_ptr<edmNew::DetSetVector<T> >
+        std::unique_ptr<edmNew::DetSetVector<T> >
         cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
                     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
 
@@ -194,13 +197,13 @@ void SeedClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
 
  
 template<typename T> 
-auto_ptr<edmNew::DetSetVector<T> >
+std::unique_ptr<edmNew::DetSetVector<T> >
 SeedClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
 			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
-    auto_ptr<DSV> output(new DSV());
+    auto output = std::make_unique<DSV>();
     output->reserve(oldClusters.size(), oldClusters.dataSize());
 
     unsigned int countOld=0;
@@ -252,7 +255,7 @@ void SeedClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subde
 }
 
 
-void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2) {
+void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg) {
     DetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
@@ -261,7 +264,7 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2) {
     // chi2 cut
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
-    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+    if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
         if (!doPixel_) return;
         // this is a pixel, and i *know* it is
         const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
@@ -325,6 +328,9 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 {
     ProductID pixelOldProdID, stripOldProdID;
 
+    edm::ESHandle<TrackerGeometry> tgh;
+    iSetup.get<TrackerDigiGeometryRecord>().get("",tgh);  //is it correct to use "" ?
+
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     if (doPixel_) {
         iEvent.getByToken(pixelClusters_, pixelClusters);
@@ -339,11 +345,11 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 //DBG// std::cout << "SeedClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
-    auto_ptr<ClusterRemovalInfo> cri;
+    std::unique_ptr<ClusterRemovalInfo> cri;
     if (clusterWasteSolution_){
-      if (doStrip_ && doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters, stripClusters));
-      else if (doStrip_) cri.reset(new ClusterRemovalInfo(stripClusters));
-      else if (doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters));
+      if (doStrip_ && doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters, stripClusters);
+      else if (doStrip_) cri = std::make_unique<ClusterRemovalInfo>(stripClusters);
+      else if (doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters);
     }
 
     Handle<ClusterRemovalInfo> oldRemovalInfo;
@@ -386,9 +392,11 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       LogDebug("SeedClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
+      assert(stripClusters->dataSize()>=collectedStrips_.size());
+      collectedStrips_.resize(stripClusters->dataSize(),false);  // for ondemand
     }else {
-      collectedStrips_.resize(stripClusters->dataSize()); fill(collectedStrips_.begin(), collectedStrips_.end(), false);
-      collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
+      collectedStrips_.resize(stripClusters->dataSize(), false);
+      collectedPixels_.resize(pixelClusters->dataSize(), false);
     } 
 
 
@@ -402,22 +410,20 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       TrajectorySeed::const_iterator hit=hits.first;
       for (;hit!=hits.second;++hit){
 	if (!hit->isValid()) continue;
-	process( &(*hit), 0. );
+	process( &(*hit), 0. , tgh.product());
       }
     }
       
     
     if (doPixel_ && clusterWasteSolution_) {
-        auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
-                    cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
-        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
+        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
+          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0));
 //DBG// std::cout << "SeedClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
     if (doStrip_ && clusterWasteSolution_) {
-        auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
-                    cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
-        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
+        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips =
+          iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0));
 //DBG// std::cout << "SeedClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
         cri->setNewStripClusters(newStrips);
     }
@@ -427,7 +433,7 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       //      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
       //      double fraction_strp= cri->stripIndices().size() / (double) strips.size();
       //      edm::LogWarning("SeedClusterRemover")<<" fraction: " << fraction_pxl <<" "<<fraction_strp;
-      iEvent.put(cri);
+      iEvent.put(std::move(cri));
     }
 
     pixels.clear(); strips.clear(); 
@@ -436,18 +442,15 @@ SeedClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       //auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
       //auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
       
-      std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-         new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
       LogDebug("SeedClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true);
-      iEvent.put( removedStripClusterMask );
+      iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
 
-      std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-         new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
       LogDebug("SeedClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-      iEvent.put( removedPixelClusterMask );
+      iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
       
     }
-    
+    collectedStrips_.clear();
+    collectedPixels_.clear();    
 
 }
 

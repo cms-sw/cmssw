@@ -1,63 +1,124 @@
 #include "RecoJets/JetProducers/interface/NjettinessAdder.h"
-#include "fastjet/contrib/Njettiness.hh"
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-  // read input collection
-  edm::Handle<edm::View<reco::PFJet> > jets;
-  iEvent.getByToken(src_token_, jets);
-  
-  // prepare room for output
-  std::vector<float> tau1;         tau1.reserve(jets->size());
-  std::vector<float> tau2;         tau2.reserve(jets->size());
-  std::vector<float> tau3;         tau3.reserve(jets->size());
+NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
+  src_(iConfig.getParameter<edm::InputTag>("src")),
+  src_token_(consumes<edm::View<reco::Jet>>(src_)),
+  Njets_(iConfig.getParameter<std::vector<unsigned> >("Njets")),
+  measureDefinition_(iConfig.getParameter<unsigned >("measureDefinition")),
+  beta_(iConfig.getParameter<double>("beta")),
+  R0_(iConfig.getParameter<double>("R0")),
+  Rcutoff_(iConfig.getParameter<double>("Rcutoff")),
+  axesDefinition_(iConfig.getParameter< unsigned >("axesDefinition")),
+  nPass_(iConfig.getParameter<int>("nPass")),
+  akAxesR0_(iConfig.getParameter<double>("akAxesR0"))
+{
+  for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
+    {
+      std::ostringstream tauN_str;
+      tauN_str << "tau" << *n;
 
-  for ( typename edm::View<reco::PFJet>::const_iterator jetIt = jets->begin() ; jetIt != jets->end() ; ++jetIt ) {
-    reco::PFJet newCand(*jetIt);
-    edm::Ptr<reco::PFJet> jetPtr = jets->ptrAt(jetIt - jets->begin());
+      produces<edm::ValueMap<float> >(tauN_str.str().c_str());
+    }
 
-    float t1=getTau(1, jetPtr );
-    float t2=getTau(2, jetPtr );
-    float t3=getTau(3, jetPtr );
 
-    tau1.push_back(t1);
-    tau2.push_back(t2);
-    tau3.push_back(t3);
-  }
+  // Get the measure definition
+  fastjet::contrib::NormalizedMeasure          normalizedMeasure        (beta_,R0_);
+  fastjet::contrib::UnnormalizedMeasure        unnormalizedMeasure      (beta_);
+  fastjet::contrib::OriginalGeometricMeasure   geometricMeasure         (beta_);// changed in 1.020
+  fastjet::contrib::NormalizedCutoffMeasure    normalizedCutoffMeasure  (beta_,R0_,Rcutoff_);
+  fastjet::contrib::UnnormalizedCutoffMeasure  unnormalizedCutoffMeasure(beta_,Rcutoff_);
+  //fastjet::contrib::GeometricCutoffMeasure     geometricCutoffMeasure   (beta_,Rcutoff_); // removed in 1.020
 
-  std::auto_ptr<edm::ValueMap<float> > outT1(new edm::ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outT2(new edm::ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outT3(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerT1(*outT1);
-  edm::ValueMap<float>::Filler fillerT2(*outT2);
-  edm::ValueMap<float>::Filler fillerT3(*outT3);
-  fillerT1.insert(jets, tau1.begin(), tau1.end());
-  fillerT2.insert(jets, tau2.begin(), tau2.end());
-  fillerT3.insert(jets, tau3.begin(), tau3.end());
-  fillerT1.fill();
-  fillerT2.fill();
-  fillerT3.fill();
-  
-  iEvent.put(outT1,"tau1");
-  iEvent.put(outT2,"tau2");
-  iEvent.put(outT3,"tau3");
+  fastjet::contrib::MeasureDefinition const * measureDef = 0;
+  switch ( measureDefinition_ ) {
+  case UnnormalizedMeasure : measureDef = &unnormalizedMeasure; break;
+  case OriginalGeometricMeasure    : measureDef = &geometricMeasure; break;// changed in 1.020
+  case NormalizedCutoffMeasure : measureDef = &normalizedCutoffMeasure; break;
+  case UnnormalizedCutoffMeasure : measureDef = &unnormalizedCutoffMeasure; break;
+  //case GeometricCutoffMeasure : measureDef = &geometricCutoffMeasure; break; // removed in 1.020
+  case NormalizedMeasure : default : measureDef = &normalizedMeasure; break;
+  } 
+
+  // Get the axes definition
+  fastjet::contrib::KT_Axes             kt_axes; 
+  fastjet::contrib::CA_Axes             ca_axes; 
+  fastjet::contrib::AntiKT_Axes         antikt_axes   (akAxesR0_);
+  fastjet::contrib::WTA_KT_Axes         wta_kt_axes; 
+  fastjet::contrib::WTA_CA_Axes         wta_ca_axes; 
+  fastjet::contrib::OnePass_KT_Axes     onepass_kt_axes;
+  fastjet::contrib::OnePass_CA_Axes     onepass_ca_axes;
+  fastjet::contrib::OnePass_AntiKT_Axes onepass_antikt_axes   (akAxesR0_);
+  fastjet::contrib::OnePass_WTA_KT_Axes onepass_wta_kt_axes;
+  fastjet::contrib::OnePass_WTA_CA_Axes onepass_wta_ca_axes;
+  fastjet::contrib::MultiPass_Axes      multipass_axes (nPass_);
+
+  fastjet::contrib::AxesDefinition const * axesDef = 0;
+  switch ( axesDefinition_ ) {
+  case  KT_Axes : default : axesDef = &kt_axes; break;
+  case  CA_Axes : axesDef = &ca_axes; break; 
+  case  AntiKT_Axes : axesDef = &antikt_axes; break;
+  case  WTA_KT_Axes : axesDef = &wta_kt_axes; break; 
+  case  WTA_CA_Axes : axesDef = &wta_ca_axes; break; 
+  case  OnePass_KT_Axes : axesDef = &onepass_kt_axes; break;
+  case  OnePass_CA_Axes : axesDef = &onepass_ca_axes; break; 
+  case  OnePass_AntiKT_Axes : axesDef = &onepass_antikt_axes; break;
+  case  OnePass_WTA_KT_Axes : axesDef = &onepass_wta_kt_axes; break; 
+  case  OnePass_WTA_CA_Axes : axesDef = &onepass_wta_ca_axes; break; 
+  case  MultiPass_Axes : axesDef = &multipass_axes; break;
+  };
+
+  routine_ = std::auto_ptr<fastjet::contrib::Njettiness> ( new fastjet::contrib::Njettiness( *axesDef, *measureDef ) );
+      
 }
 
-float NjettinessAdder::getTau(int num, edm::Ptr<reco::PFJet> object) const
-{
-  std::vector<const reco::PFCandidate*> all_particles;
-  for (unsigned k =0; k < object->getPFConstituents().size(); k++)
-    all_particles.push_back( object->getPFConstituent(k).get() );
+void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+  // read input collection
+  edm::Handle<edm::View<reco::Jet> > jets;
+  iEvent.getByToken(src_token_, jets);
+  
+  for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
+    {
+      std::ostringstream tauN_str;
+      tauN_str << "tau" << *n;
 
+      // prepare room for output
+      std::vector<float> tauN;
+      tauN.reserve(jets->size());
+
+      for ( typename edm::View<reco::Jet>::const_iterator jetIt = jets->begin() ; jetIt != jets->end() ; ++jetIt ) {
+
+	edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(jetIt - jets->begin());
+
+	float t=getTau( *n, jetPtr );
+
+	tauN.push_back(t);
+      }
+
+      auto outT = std::make_unique<edm::ValueMap<float>>();
+      edm::ValueMap<float>::Filler fillerT(*outT);
+      fillerT.insert(jets, tauN.begin(), tauN.end());
+      fillerT.fill();
+
+      iEvent.put(std::move(outT),tauN_str.str().c_str());
+    }
+}
+
+float NjettinessAdder::getTau(unsigned num, const edm::Ptr<reco::Jet> & object) const
+{
   std::vector<fastjet::PseudoJet> FJparticles;
-  for (unsigned particle = 0; particle < all_particles.size(); particle++){
-    const reco::PFCandidate *thisParticle = all_particles.at(particle);
-    FJparticles.push_back( fastjet::PseudoJet( thisParticle->px(), thisParticle->py(), thisParticle->pz(), thisParticle->energy() ) );	
-  }
-  fastjet::contrib::NsubParameters paraNsub = fastjet::contrib::NsubParameters(1.0, cone_); //assume R=0.7 jet clusering used
-  fastjet::contrib::Njettiness routine(fastjet::contrib::Njettiness::onepass_kt_axes, paraNsub);
-  return routine.getTau(num, FJparticles); 
+  for (unsigned k = 0; k < object->numberOfDaughters(); ++k)
+    {
+      const reco::CandidatePtr & dp = object->daughterPtr(k);
+      if ( dp.isNonnull() && dp.isAvailable() )
+	FJparticles.push_back( fastjet::PseudoJet( dp->px(), dp->py(), dp->pz(), dp->energy() ) );
+      else
+	edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
+    }
+
+  return routine_->getTau(num, FJparticles); 
 }
 
 

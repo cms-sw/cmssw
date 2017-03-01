@@ -231,7 +231,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
             for (std::vector<int>::iterator sit = deadNeighbourStati.begin(); sit != deadNeighbourStati.end(); ++sit) {
                //std::cout << "Neighbouring dead channel with status: " << *sit << std::endl;
-               if (channelAllowed == *sit || (channelAllowed < 0 && abs(channelAllowed) <= *sit)) {
+               if (channelAllowed == *sit || (channelAllowed < 0 && std::abs(channelAllowed) <= *sit)) {
                   passChannelLimitation = true;
                   break;
                }
@@ -326,7 +326,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
             for (std::vector<int>::iterator sit = deadNeighbourStati.begin(); sit != deadNeighbourStati.end(); ++sit) {
                //std::cout << "Neighbouring dead channel with status: " << *sit << std::endl;
-               if (channelAllowed == *sit || (channelAllowed < 0 && abs(channelAllowed) <= *sit)) {
+               if (channelAllowed == *sit || (channelAllowed < 0 && std::abs(channelAllowed) <= *sit)) {
                   passChannelLimitation = true;
                   break;
                }
@@ -344,7 +344,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
          double eta = cellGeom->getPosition().eta();
 
          if (!detIdAlreadyChecked && deadNeighbourStati.size() == 0 && eeBoundaryCalc.checkRecHitHasInvalidNeighbour(
-               *hit, ecalStatus) && abs(eta) < 1.6) {
+               *hit, ecalStatus) && std::abs(eta) < 1.6) {
 
             if (debug_)
                eeBoundaryCalc.setDebugMode();
@@ -405,8 +405,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
    sameFlagDetIds.clear();
 
-   std::auto_ptr<AnomalousECALVariables> pAnomalousECALVariables(new AnomalousECALVariables(v_enNeighboursGap_EB,
-            v_enNeighboursGap_EE, v_boundaryInfoDeadCells_EB, v_boundaryInfoDeadCells_EE));
+   auto pAnomalousECALVariables = std::make_unique<AnomalousECALVariables>(v_enNeighboursGap_EB,
+            v_enNeighboursGap_EE, v_boundaryInfoDeadCells_EB, v_boundaryInfoDeadCells_EE);
 
 
    bool isGap = pAnomalousECALVariables->isGapEcalCluster(cutBoundEnergyGapEB, cutBoundEnergyGapEE);
@@ -414,9 +414,9 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
             limitDeadCellToChannelStatusEE_);
    pass = (!isBoundary && ((!isGap && enableGap_) || !enableGap_));
 
-   iEvent.put(pAnomalousECALVariables, "anomalousECALVariables");
+   iEvent.put(std::move(pAnomalousECALVariables), "anomalousECALVariables");
 
-   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+   iEvent.put(std::make_unique<bool>(pass));
 
    if( taggingMode_ ){
       if (skimDead_ && (i_EBDead >= 1 || i_EEDead >= 1)) {
@@ -435,7 +435,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
    if (FilterAlgo_ == "TuningMode") {
       std::auto_ptr<AnomalousECALVariables> pAnomalousECALVariables(new AnomalousECALVariables(v_enNeighboursGap_EB,
             v_enNeighboursGap_EE, v_boundaryInfoDeadCells_EB, v_boundaryInfoDeadCells_EE));
-      iEvent.put(pAnomalousECALVariables, "anomalousECALVariables");
+      iEvent.put(std::move(pAnomalousECALVariables), "anomalousECALVariables");
 
       if (skimDead_ && (i_EBDead >= 1 || i_EEDead >= 1)) {
          return true;

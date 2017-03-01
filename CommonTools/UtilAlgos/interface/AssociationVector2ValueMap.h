@@ -44,7 +44,7 @@ void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, cons
   Handle<av_t> av;
   evt.getByToken(av_, av);
 
-  auto_ptr<vm_t> vm(new vm_t);
+  unique_ptr<vm_t> vm(new vm_t);
   typename vm_t::Filler filler(*vm);
   filler.fill();
   size_t size = av->size();
@@ -54,7 +54,7 @@ void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, cons
     values.push_back(i->second);
   }
   filler.insert(av->keyProduct(), values.begin(), values.end());
-  evt.put(vm);
+  evt.put(std::move(vm));
 }
 
 #endif

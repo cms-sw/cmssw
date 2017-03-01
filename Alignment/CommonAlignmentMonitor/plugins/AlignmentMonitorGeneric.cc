@@ -3,6 +3,7 @@
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "TObject.h" 
 
 #include <TString.h>
@@ -20,6 +21,10 @@ void AlignmentMonitorGeneric::book()
   residNames.push_back("x hit residuals neg track");
   residNames.push_back("y hit residuals pos track");
   residNames.push_back("y hit residuals neg track");
+
+
+  auto alignableObjectId =
+    AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
 
   const std::vector<Alignable*>& alignables = pStore()->alignables();
 
@@ -42,15 +47,15 @@ void AlignmentMonitorGeneric::book()
       const std::string& name = residNames[n];
 
       TString histName(name.c_str());
-      histName += Form("_%s_%d", AlignableObjectId::idToString(type), id);
+      histName += Form("_%s_%d", alignableObjectId.idToString(type), id);
       histName.ReplaceAll(" ", "");
 
       TString histTitle(name.c_str());
       histTitle += Form(" for %s with ID %d (subdet %d)",
-			AlignableObjectId::idToString(type),
+			alignableObjectId.idToString(type),
 			id, DetId(id).subdetId());
 
-      hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName), std::string(histTitle), nBin_, -5., 5.);
+      hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName.Data()), std::string(histTitle.Data()), nBin_, -5., 5.);
     }
   }
 
@@ -97,7 +102,16 @@ void AlignmentMonitorGeneric::event(const edm::Event &iEvent,
 	      
 	      align::LocalVector res = tsos.localPosition() - hit.localPosition();
 	      LocalError err1 = tsos.localError().positionError();
-	      LocalError err2 = hit.localPositionError();
+	      LocalError err2 = hit.localPositionError(); // CPE+APE
+
+	      // subtract APEs from err2 (if existing) from covariance matrix
+	      auto det = static_cast<const TrackerGeomDet*>(hit.det());
+	      const auto localAPE = det->localAlignmentError();
+	      if (localAPE.valid()) {
+		err2 = LocalError(err2.xx() - localAPE.xx(),
+				  err2.xy() - localAPE.xy(),
+				  err2.yy() - localAPE.yy());
+	      }
 	      
 	      float errX = std::sqrt( err1.xx() + err2.xx() );
 	      float errY = std::sqrt( err1.yy() + err2.yy() );

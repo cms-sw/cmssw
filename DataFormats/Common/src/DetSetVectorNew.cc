@@ -7,6 +7,13 @@ namespace edmNew {
       throw edm::Exception(edm::errors::LogicError,"Instantiating a second DetSetVector::FastFiller")
 	<< "only one DetSetVector::FastFiller can be active at a given time!";
     }
+
+    void notSafe() {
+      throw edm::Exception(edm::errors::LogicError,"Instantiating a DetSetVector::FastFiller for OnDemand")
+	<< "use DetSetVector::TSFastFiller";
+    }
+
+
     void errorIdExists(det_id_type iid) {
       throw edm::Exception(edm::errors::InvalidReference)
 	<< "DetSetVector::inserv called with index already in collection;\n"

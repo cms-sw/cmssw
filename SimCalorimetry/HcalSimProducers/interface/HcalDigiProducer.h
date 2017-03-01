@@ -8,7 +8,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
+  namespace stream {
     class EDProducerBase;
   }
   class ParameterSet;
@@ -21,7 +21,7 @@ namespace CLHEP {
 
 class HcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
   HcalDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
@@ -36,6 +36,8 @@ public:
   void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
 

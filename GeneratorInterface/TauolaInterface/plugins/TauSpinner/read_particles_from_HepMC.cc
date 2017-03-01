@@ -1,5 +1,5 @@
 #include "GeneratorInterface/TauolaInterface/interface/read_particles_from_HepMC.h"
-
+using namespace TauSpinner;
 /*******************************************************************************
   Get daughters of HepMC::GenParticle
 

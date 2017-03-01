@@ -12,7 +12,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRCheck.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitZCheck.h"
 
-class HitEtaCheck GCC11_FINAL : public HitRZCompatibility {
+class HitEtaCheck final : public HitRZCompatibility {
 public:
 
   static constexpr Algo me = etaAlgo;

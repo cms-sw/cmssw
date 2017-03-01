@@ -40,6 +40,7 @@ namespace edm {
       class EventSetupProvider;
       class EventSetupRecord;
       template<class T> struct data_default_record_trait;
+      class EventSetupKnownRecordsSupplier;
    }
 class EventSetup
 {
@@ -70,7 +71,7 @@ class EventSetup
         BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
         const T* value = nullptr;
         eventSetupTryToGetImplementation(*this, value);
-        return *value;
+        return value;
       }
 
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
@@ -103,7 +104,10 @@ class EventSetup
       
       ///clears the oToFill vector and then fills it with the keys for all available records
       void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
-      
+  
+      ///returns true if the Record is provided by a Source or a Producer
+      /// a value of true does not mean this EventSetup object holds such a record
+      bool recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& ) const;
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -115,6 +119,9 @@ class EventSetup
    protected:
       //Only called by EventSetupProvider
       void setIOVSyncValue(const IOVSyncValue&);
+      void setKnownRecordsSupplier(eventsetup::EventSetupKnownRecordsSupplier const* iSupplier) {
+        knownRecords_ = iSupplier;
+      }
 
       void add(const eventsetup::EventSetupRecord& iRecord);
       
@@ -135,6 +142,7 @@ class EventSetup
       
       //NOTE: the records are not owned
       std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> recordMap_;
+      eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
 };
 
 }

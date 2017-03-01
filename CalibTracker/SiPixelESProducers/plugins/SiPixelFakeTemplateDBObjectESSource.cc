@@ -16,7 +16,7 @@ SiPixelFakeTemplateDBObjectESSource::~SiPixelFakeTemplateDBObjectESSource()
 {
 }
 
-std::auto_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::produce(const SiPixelTemplateDBObjectRcd & )
+std::unique_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::produce(const SiPixelTemplateDBObjectRcd & )
 {
 	using namespace edm::es;
 
@@ -84,7 +84,7 @@ std::auto_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::prod
 	}
 
 	//std::cout << *obj << std::endl;
-	return std::auto_ptr<SiPixelTemplateDBObject>(obj);
+	return std::unique_ptr<SiPixelTemplateDBObject>(obj);
 }
 
 void SiPixelFakeTemplateDBObjectESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 

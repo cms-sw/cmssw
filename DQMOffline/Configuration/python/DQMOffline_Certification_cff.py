@@ -11,6 +11,7 @@ DQMOffline_Certification = cms.Sequence(daq_dqmoffline*dcs_dqmoffline*crt_dqmoff
 DQMCertCommon = cms.Sequence(siStripDaqInfo * sipixelDaqInfo * 
                              siStripDcsInfo * sipixelDcsInfo *
                              siStripCertificationInfo * sipixelCertification *
+                             trackingCertificationInfo *
                              egammaDataCertificationTask *
                              dqmOfflineTriggerCert)
 
@@ -21,9 +22,5 @@ DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
 DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
                            ecalDcsInfoTask * ecalPreshowerDcsInfoTask *
                            ecalCertification * ecalPreshowerDataCertificationTask)
-
-DQMCertHcal = cms.Sequence(hcalDAQInfo *
-                           hcalDCSInfo *
-                           hcalDataCertification)                           
 
 DQMCertJetMET = cms.Sequence(dataCertificationJetMETSequence)

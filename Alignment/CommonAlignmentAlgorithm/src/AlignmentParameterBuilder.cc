@@ -176,7 +176,7 @@ void AlignmentParameterBuilder::fixAlignables(int n)
   int i=0;
   int imax = theAlignables.size();
   for ( align::Alignables::const_iterator ia=theAlignables.begin();
-        ia!=theAlignables.end();  ia++ ) 
+        ia!=theAlignables.end();  ++ia ) 
 	{
 	  i++;
 	  if ( n==1 && i>1 ) 

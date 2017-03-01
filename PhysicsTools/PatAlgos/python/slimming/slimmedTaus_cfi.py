@@ -7,5 +7,7 @@ slimmedTaus = cms.EDProducer("PATTauSlimmer",
    dropTauChargedHadronRefs = cms.bool(True),
    dropPFSpecific = cms.bool(True),
    packedPFCandidates = cms.InputTag("packedPFCandidates"), 
+   modifyTaus = cms.bool(True),
+   modifierConfig = cms.PSet( modifications = cms.VPSet() )    
 )
 

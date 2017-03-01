@@ -23,28 +23,50 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+struct MEPSet {
+  std::string folder;
+  std::string name;
+  int nbins;
+  double xmin;
+  double xmax;
+};
+
 class FastTimerServiceClient : public DQMEDHarvester {
 public:
   explicit FastTimerServiceClient(edm::ParameterSet const &);
   ~FastTimerServiceClient();
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillLumiMePSetDescription(edm::ParameterSetDescription & pset);
 
 private:
   std::string m_dqm_path;
 
-  void dqmEndLuminosityBlock(DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const &, edm::EventSetup const&) override;
+  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter) override;
 
-private:
   void fillSummaryPlots(        DQMStore::IBooker & booker, DQMStore::IGetter & getter);
   void fillProcessSummaryPlots( DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & path);
   void fillPathSummaryPlots(    DQMStore::IBooker & booker, DQMStore::IGetter & getter, double events, std::string const & path);
+  void fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path, std::string const & suffix, MEPSet pset);
+
+  static MEPSet getHistoPSet  (edm::ParameterSet pset);
+
+  bool doPlotsVsScalLumi_;
+  bool doPlotsVsPixelLumi_;
+
+  MEPSet scalLumiMEPSet_;
+  MEPSet pixelLumiMEPSet_;
+
 };
 
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const & config) :
   m_dqm_path( config.getUntrackedParameter<std::string>( "dqmPath" ) )
+  , doPlotsVsScalLumi_ ( config.getParameter<bool>( "doPlotsVsScalLumi" )  )
+  , doPlotsVsPixelLumi_( config.getParameter<bool>( "doPlotsVsPixelLumi" ) )
+  , scalLumiMEPSet_ ( doPlotsVsScalLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("scalLumiME")) : MEPSet{}  )
+  , pixelLumiMEPSet_( doPlotsVsPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("pixelLumiME")) : MEPSet{} )
 {
 }
 
@@ -59,9 +81,9 @@ FastTimerServiceClient::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter 
 }
 
 void
-FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
+FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
 {
-  // fillSummaryPlots(getter);
+  fillSummaryPlots(booker, getter);
 }
 
 void
@@ -88,10 +110,20 @@ FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::I
 
 void
 FastTimerServiceClient::fillProcessSummaryPlots(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path) {
+
   MonitorElement * me = getter.get(current_path + "/event");
   if (me == 0)
     // no FastTimerService DQM information
     return;
+
+  if ( doPlotsVsScalLumi_ ) {
+    fillPlotsVsLumi( booker,getter, current_path, "VsScalLumi", scalLumiMEPSet_ );
+  }
+  if ( doPlotsVsPixelLumi_ ) {
+    fillPlotsVsLumi( booker,getter, current_path, "VsPixelLumi", pixelLumiMEPSet_ );
+  }
+
+  getter.setCurrentFolder(current_path);
 
   double events = me->getTH1F()->GetEntries();
 
@@ -133,7 +165,6 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
     paths = me->getTProfile();
     size  = paths->GetXaxis()->GetNbins();
   }
-
   if (paths == nullptr)
     return;
 
@@ -151,25 +182,70 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
       continue;
     TH1F * counter = me_counter->getTH1F();
     TH1F * total   = me_total  ->getTH1F();
-    uint32_t bins = counter->GetXaxis()->GetNbins();
+    uint32_t bins = counter->GetXaxis()->GetNbins() - 1;
     double   min  = counter->GetXaxis()->GetXmin();
-    double   max  = counter->GetXaxis()->GetXmax();
-    TH1F * average    = booker.book1D(label + "_module_average",    label + " module average",    bins, min, max)->getTH1F();
-    average   ->SetYTitle("processing time [ms]");
-    TH1F * running    = booker.book1D(label + "_module_running",    label + " module running",    bins, min, max)->getTH1F();
-    running   ->SetYTitle("processing time [ms]");
-    TH1F * efficiency = booker.book1D(label + "_module_efficiency", label + " module efficiency", bins, min, max)->getTH1F();
-    efficiency->SetYTitle("filter efficiency");
-    efficiency->SetMaximum(1.05);
+    double   max  = counter->GetXaxis()->GetXmax() - 1;
+    booker.setCurrentFolder(current_path + "/Paths");
+
+    TH1F * average;
+    TH1F * running;
+    TH1F * efficiency;
+    MonitorElement * me;
+
+    me = getter.get( current_path + "/Paths/" + label + "_module_average" );
+    if (me) {
+      average = me->getTH1F();
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
+      assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
+      average->Reset();
+    } else {
+      average = booker.book1D(label + "_module_average", label + " module average", bins, min, max)->getTH1F();
+      average->SetYTitle("processing time [ms]");
+      for (uint32_t i = 1; i <= bins; ++i) {
+        const char * module = counter->GetXaxis()->GetBinLabel(i);
+        average->GetXaxis()->SetBinLabel(i, module);
+      }
+    }
+
+    me = getter.get( current_path + "/Paths/" + label + "_module_running" );
+    if (me) {
+      running = me->getTH1F();
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
+      assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
+      running->Reset();
+    } else {
+      running = booker.book1D(label + "_module_running", label + " module running", bins, min, max)->getTH1F();
+      running->SetYTitle("processing time [ms]");
+      for (uint32_t i = 1; i <= bins; ++i) {
+        const char * module = counter->GetXaxis()->GetBinLabel(i);
+        running->GetXaxis()->SetBinLabel(i, module);
+      }
+    }
+
+    me = getter.get( current_path + "/Paths/" + label + "_module_efficiency" );
+    if (me) {
+      efficiency = me->getTH1F();
+      //assert( me->getTH1F()->GetXaxis()->GetNbins() == (int) bins );
+      assert( me->getTH1F()->GetXaxis()->GetXmin()  == min );
+      assert( me->getTH1F()->GetXaxis()->GetXmax()  == max );
+      efficiency->Reset();
+    } else {
+      efficiency = booker.book1D(label + "_module_efficiency", label + " module efficiency", bins, min, max)->getTH1F();
+      efficiency->SetYTitle("filter efficiency");
+      efficiency->SetMaximum(1.05);
+      for (uint32_t i = 1; i <= bins; ++i) {
+        const char * module = counter->GetXaxis()->GetBinLabel(i);
+        efficiency->GetXaxis()->SetBinLabel(i, module);
+      }
+    }
+
     for (uint32_t i = 1; i <= bins; ++i) {
-      const char * module = counter->GetXaxis()->GetBinLabel(i);
-      average   ->GetXaxis()->SetBinLabel(i, module);
-      running   ->GetXaxis()->SetBinLabel(i, module);
-      efficiency->GetXaxis()->SetBinLabel(i, module);
       double t = total  ->GetBinContent(i);
       double n = counter->GetBinContent(i);
       double p = counter->GetBinContent(i+1);
-      average   ->SetBinContent(i, t / events);
+      average ->SetBinContent(i, t / events);
       if (n) {
         running   ->SetBinContent(i, t / n);
         efficiency->SetBinContent(i, p / n);
@@ -179,12 +255,128 @@ FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker & booker, DQMStor
 
 }
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+void
+FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path, std::string const & suffix, MEPSet pset ) {
+
+  std::vector<std::string> menames;
+
+  static const boost::regex byls(".*byls");
+  static const boost::regex test(suffix);
+  // get all MEs in the current_path
+  getter.setCurrentFolder(current_path);
+  std::vector<std::string> allmenames = getter.getMEs();
+  for ( auto m : allmenames )
+    // get only MEs vs LS
+    if (boost::regex_match(m, byls))
+      menames.push_back(m);
+
+  // if no MEs available, return
+  if ( menames.size() == 0 )
+    return;
+  
+
+  // get info for getting the lumi VS LS histogram
+  std::string folder = pset.folder;
+  std::string name   = pset.name;
+  int         nbins  = pset.nbins;
+  double      xmin   = pset.xmin;
+  double      xmax   = pset.xmax;
+
+  // get lumi VS LS ME
+  getter.setCurrentFolder(folder);
+  MonitorElement* lumiVsLS = getter.get(folder+"/"+name);
+  // if no ME available, return
+  if ( !lumiVsLS ) {
+    edm::LogWarning("FastTimerServiceClient") << "no " << name << " ME is available in " << folder << std::endl;
+    return;
+  }
+
+  // get range and binning for new MEs x-axis
+  size_t size        = lumiVsLS->getTProfile()->GetXaxis()->GetNbins();
+  std::string xtitle = lumiVsLS->getTProfile()->GetYaxis()->GetTitle();
+
+  std::vector<double> lumi;
+  std::vector<int> LS;
+  for ( size_t ibin=1; ibin <= size; ++ibin ) {
+    // avoid to store points w/ no info
+    if ( lumiVsLS->getTProfile()->GetBinContent(ibin) == 0. ) continue;
+
+    lumi.push_back( lumiVsLS->getTProfile()->GetBinContent(ibin) );
+    LS.push_back  ( lumiVsLS->getTProfile()->GetXaxis()->GetBinCenter(ibin) );
+  }
+
+  booker.setCurrentFolder(current_path);
+  getter.setCurrentFolder(current_path);
+  for ( auto m : menames ) {
+    std::string label = m;
+    label.erase(label.find("_byls"));
+
+    MonitorElement* me = getter.get(current_path + "/" + m);
+    double ymin        = me->getTProfile()->GetMinimum();
+    double ymax        = me->getTProfile()->GetMaximum();
+    std::string ytitle = me->getTProfile()->GetYaxis()->GetTitle();
+
+    MonitorElement* meVsLumi = getter.get( current_path + "/" + label + "_" + suffix );
+    if (meVsLumi) {
+      assert( meVsLumi->getTProfile()->GetXaxis()->GetXmin()  == xmin );
+      assert( meVsLumi->getTProfile()->GetXaxis()->GetXmax()  == xmax );
+      meVsLumi->Reset(); // do I have to do it ?!?!?
+    } else {
+      meVsLumi = booker.bookProfile(label + "_" + suffix, label + "_" + suffix, nbins, xmin, xmax, ymin, ymax);
+      //    TProfile* meVsLumi_p = meVsLumi->getTProfile();
+      meVsLumi->getTProfile()->GetXaxis()->SetTitle(xtitle.c_str());
+      meVsLumi->getTProfile()->GetYaxis()->SetTitle(ytitle.c_str());
+    }
+    for ( size_t ils=0; ils < LS.size(); ++ils ) {
+      int ibin = me->getTProfile()->GetXaxis()->FindBin(LS[ils]);
+      double y = me->getTProfile()->GetBinContent(ibin);
+
+      meVsLumi->Fill(lumi[ils],y);
+    }
+  }
+  
+  
+}
+
+void 
+FastTimerServiceClient::fillLumiMePSetDescription(edm::ParameterSetDescription & pset) {
+  pset.add<std::string>("folder", "HLT/LumiMonitoring");
+  pset.add<std::string>("name"  , "lumiVsLS");
+  pset.add<int>   ("nbins",  6500 );
+  pset.add<double>("xmin",      0.);
+  pset.add<double>("xmax",  13000.);
+}
+
+
+MEPSet FastTimerServiceClient::getHistoPSet(edm::ParameterSet pset)
+{
+  return MEPSet{
+    pset.getParameter<std::string>("folder"),
+      pset.getParameter<std::string>("name"),
+      pset.getParameter<int>("nbins"),
+      pset.getParameter<double>("xmin"),
+      pset.getParameter<double>("xmax"),
+      };
+}
+
 void
 FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "dqmPath", "HLT/TimerService");
+  desc.add<bool>( "doPlotsVsScalLumi",  true  );
+  desc.add<bool>( "doPlotsVsPixelLumi", false );
+
+  edm::ParameterSetDescription scalLumiMEPSet;
+  fillLumiMePSetDescription(scalLumiMEPSet);
+  desc.add<edm::ParameterSetDescription>("scalLumiME", scalLumiMEPSet);
+  
+  edm::ParameterSetDescription pixelLumiMEPSet;
+  fillLumiMePSetDescription(pixelLumiMEPSet);
+  desc.add<edm::ParameterSetDescription>("pixelLumiME", pixelLumiMEPSet);
+
   descriptions.add("fastTimerServiceClient", desc);
 }
 

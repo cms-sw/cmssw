@@ -21,12 +21,22 @@
 using namespace reco;
 
 TrackTransientTrack::TrackTransientTrack() : 
-  Track(), tkr_(), theField(0), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+  Track(), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), theField(0), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+
 {
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field) : 
-  Track(tk), tkr_(), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+  Track(tk), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const Track & tk , const double time,
+                                          const double dtime,
+                                          const MagneticField* field) : 
+  Track(tk), tkr_(), hasTime(true), timeExt_(time), dtErrorExt_(dtime), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
@@ -34,21 +44,50 @@ TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField
 
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field) : 
-  Track(*tk), tkr_(tk), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+  Track(*tk), tkr_(tk), hasTime(false), timeExt_(0.), dtErrorExt_(0.), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const double time,
+                                          const double dtime,
+                                          const MagneticField* field) : 
+  Track(*tk), tkr_(tk), hasTime(true), timeExt_(time), dtErrorExt_(dtime), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
 }
 
 TrackTransientTrack::TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(tk), tkr_(), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
+  Track(tk), tkr_(), hasTime(false), timeExt_(0.), dtErrorExt_(0.), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
 }
 
 TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& tg) :
-  Track(*tk), tkr_(tk), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
+  Track(*tk), tkr_(tk), hasTime(false), timeExt_(0.), dtErrorExt_(0.), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const Track & tk , const double time,
+                                          const double dtime,
+                                          const MagneticField* field, 
+                                          const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Track(tk), tkr_(), hasTime(true), timeExt_(time), dtErrorExt_(dtime), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
+{
+  
+  initialFTS = trajectoryStateTransform::initialFreeState(tk, field);
+}
+
+TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const double time, 
+                                          const double dtime,
+                                          const MagneticField* field, 
+                                          const edm::ESHandle<GlobalTrackingGeometry>& tg) :
+  Track(*tk), tkr_(tk), hasTime(true), timeExt_(time), dtErrorExt_(dtime), theField(field), m_TSOS(kUnset), m_TSCP(kUnset), m_SCTBL(kUnset), theTrackingGeometry(tg)
 {
   
   initialFTS = trajectoryStateTransform::initialFreeState(*tk, field);
@@ -56,7 +95,9 @@ TrackTransientTrack::TrackTransientTrack( const TrackRef & tk , const MagneticFi
 
 
 TrackTransientTrack::TrackTransientTrack( const TrackTransientTrack & tt ) :
-  Track(tt), tkr_(tt.persistentTrackRef()), theField(tt.field()), 
+  Track(tt), tkr_(tt.persistentTrackRef()), 
+  hasTime(tt.hasTime), timeExt_(tt.timeExt()), dtErrorExt_(tt.dtErrorExt()),
+  theField(tt.field()), 
   initialFTS(tt.initialFreeState()), m_TSOS(kUnset), m_TSCP(kUnset)
 {
   // see ThreadSafe statement above about the order of operator= and store

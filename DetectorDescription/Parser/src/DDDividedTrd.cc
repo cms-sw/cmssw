@@ -1,23 +1,23 @@
-//
-// ********************************************************************
-// 25.04.04 - M. Case ddd-ize G4ParameterisationTrd*
-// ********************************************************************
-
 #include "DetectorDescription/Parser/src/DDDividedTrd.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
-
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDAxes.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-
-#include "DetectorDescription/Base/interface/DDdebug.h"
-
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <cmath>
-#include <cstdlib>
+#include <ostream>
+#include <string>
+#include <utility>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDAxes.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+class DDCompactView;
 
 DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
   : DDDividedGeometryObject(div,cpv)
@@ -34,12 +34,7 @@ DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
   {
     compWidth_ = calculateWidth( 2*mtrd.x1(), div_.nReplicas(), div_.offset() );
   }
-
-  DCOUT_V ('P', " DDDividedTrdX - ## divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width());
 }
-
-DDDividedTrdX::~DDDividedTrdX( void )
-{}
 
 double
 DDDividedTrdX::getMaxParameter( void ) const
@@ -58,9 +53,7 @@ DDDividedTrdX::makeDDTranslation( const int copyNo ) const
   //----- translation 
   double posi = -mdx + div_.offset() + (copyNo+0.5)*compWidth_;
 
-  DCOUT_V ('P', " DDDividedTrdX: " << copyNo << "\n Position: x=" << posi << "  Axis= " << DDAxesNames::name(div_.axis()) << "\n");
-
-  if( div_.axis() == x )
+  if( div_.axis() == DDAxes::x )
   {
     return DDTranslation(posi, 0.0, 0.0);
   }
@@ -117,7 +110,6 @@ DDDividedTrdX::makeDDLogicalPart( const int copyNo ) const
 				, 0.*deg);
     ddlp = DDLogicalPart(solname, usemat, dsol);
   }
-  DCOUT_V ('P', "DDDividedTrdX::makeDDLogicalPart lp = " << ddlp);
   return ddlp;
 }
 
@@ -188,12 +180,7 @@ DDDividedTrdY::DDDividedTrdY( const DDDivision& div, DDCompactView* cpv )
   {
     compWidth_ = calculateWidth( 2 * mtrd.y1(), div_.nReplicas(), div_.offset() );
   }
-
-  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);  
 }
-
-DDDividedTrdY::~DDDividedTrdY( void )
-{}
 
 double
 DDDividedTrdY::getMaxParameter( void ) const
@@ -211,9 +198,7 @@ DDDividedTrdY::makeDDTranslation( const int copyNo ) const
   //----- translation 
   double posi = -mdy + div_.offset() + (copyNo+0.5)*compWidth_;
 
-  DCOUT_V ('P', " DDDividedTrdY: " << copyNo << "\n Position: y=" << posi << "  Axis= " << DDAxesNames::name(div_.axis()) << "\n");
-
-  if( div_.axis() == y )
+  if( div_.axis() == DDAxes::y )
   {
     return DDTranslation(0.0, posi, 0.0);
   }
@@ -271,7 +256,6 @@ DDDividedTrdY::makeDDLogicalPart( const int copyNo ) const
 				, 0.*deg);
     DDLogicalPart ddlp(solname,  usemat, dsol);
   }
-  DCOUT_V ('P', "DDDividedTrdY::makeDDLogicalPart lp = " << ddlp);
   return ddlp;
 }
 
@@ -326,11 +310,7 @@ DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv )
   {
     compWidth_ = calculateWidth( 2*mtrd.halfZ(), div_.nReplicas(), div_.offset() );
   }
-  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);
 }
-
-DDDividedTrdZ::~DDDividedTrdZ( void )
-{}
 
 double
 DDDividedTrdZ::getMaxParameter( void ) const
@@ -348,9 +328,7 @@ DDDividedTrdZ::makeDDTranslation( const int copyNo ) const
   //----- translation 
   double posi = -mdz + div_.offset() + (copyNo+0.5)*compWidth_;
 
-  DCOUT_V ('P', " DDDividedTrdZ: " << copyNo << "\n Position: z=" << posi << "  Axis= " << DDAxesNames::name(div_.axis()) << "\n");
-
-  if( div_.axis() == z )
+  if( div_.axis() == DDAxes::z )
   {
     return DDTranslation(0.0, 0.0, posi);
   }
@@ -396,8 +374,8 @@ DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
   //                           pDy1+DDy*(div_.offset()+(copyNo+1)*compWidth_)/zLength, pDz );
 
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD" 
-		 + DDXMLElement::itostr(copyNo)
-		 , div_.parent().ddname().ns());
+		 + std::to_string(copyNo),
+		 div_.parent().ddname().ns());
   DDSolid  dsol = 
     DDSolidFactory::trap(solname
 			 , pDz
@@ -414,7 +392,6 @@ DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
       );
 
   DDLogicalPart ddlp(solname, usemat, dsol);
-  DCOUT_V ('P', "DDDividedTrdZ::makeDDLogicalPart lp = " << ddlp);
   return ddlp;
 }
 

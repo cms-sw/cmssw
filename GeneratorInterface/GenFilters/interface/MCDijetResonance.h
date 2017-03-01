@@ -34,6 +34,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class MCDijetResonance : public edm::EDFilter {
    public:
@@ -44,7 +47,7 @@ class MCDijetResonance : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-      std::string label_;
+      edm::EDGetTokenT<edm::HepMCProduct> token_;
       std::string dijetProcess;
       unsigned int  nEvents;
       unsigned int nAccepted; 

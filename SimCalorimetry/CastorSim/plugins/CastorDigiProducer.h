@@ -1,7 +1,7 @@
 #ifndef CastorDigiProducer_h
 #define CastorDigiProducer_h
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +34,7 @@ class PileUpEventPrincipal;
 class CastorDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~CastorDigiProducer();
 
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
@@ -43,6 +43,8 @@ public:
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
 private:
+  
+
   void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing, CLHEP::HepRandomEngine*);
 
   /// fills the vectors for each subdetector
@@ -52,6 +54,8 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
+
+  edm::InputTag theHitsProducerTag;
 
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 

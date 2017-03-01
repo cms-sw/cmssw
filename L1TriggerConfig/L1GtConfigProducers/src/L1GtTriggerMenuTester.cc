@@ -230,11 +230,8 @@ void L1GtTriggerMenuTester::retrieveL1EventSetup(const edm::EventSetup& evSetup)
     edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
     evSetup.get<L1GtTriggerMenuRcd> ().get(l1GtMenu);
     m_l1GtMenu = l1GtMenu.product();
-    (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap();
-
     m_algorithmMap = &(m_l1GtMenu->gtAlgorithmMap());
     m_algorithmAliasMap = &(m_l1GtMenu->gtAlgorithmAliasMap());
-
     m_technicalTriggerMap = &(m_l1GtMenu->gtTechnicalTriggerMap());
 
 }

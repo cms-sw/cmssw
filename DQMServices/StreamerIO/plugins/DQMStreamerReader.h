@@ -1,10 +1,14 @@
-#ifndef IOPool_DQMStreamer_DQMStreamerReader_h
-#define IOPool_DQMStreamer_DQMStreamerReader_h
+#ifndef DQMServices_StreamerIO_DQMStreamerReader_h
+#define DQMServices_StreamerIO_DQMStreamerReader_h
 
-#include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "DQMFileIterator.h"
+#include "DQMMonitoringService.h"
+#include "TriggerSelector.h"
 
 #include "boost/filesystem.hpp"
 
@@ -15,66 +19,74 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-class EventMsgView;
-class InitMsgView;
+namespace dqmservices {
 
-namespace edm {
-class ConfigurationDescriptions;
-class EventPrincipal;
-class EventSkipperByID;
-struct InputSourceDescription;
-class ParameterSet;
-class StreamerInputFile;
-
-class DQMStreamerReader : public StreamerInputSource {
+class DQMStreamerReader : public edm::StreamerInputSource {
  public:
-  DQMStreamerReader(ParameterSet const& pset,
-                    InputSourceDescription const& desc);
+  DQMStreamerReader(edm::ParameterSet const& pset,
+                    edm::InputSourceDescription const& desc);
   virtual ~DQMStreamerReader();
 
   bool newHeader();
-  static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  typedef std::vector<std::string> Strings;
 
  protected:
   virtual bool checkNextEvent(); /* from raw input source */
   virtual void skip(int toSkip); /* from raw input source */
 
  private:
-  void delay_();
-  void update_watchdog_();
-
   // our own, but we do inherit reset(),
   // which will break things if called
   void reset_();
 
-  void openFile_(std::string filename);
+  void openFile_(const DQMFileIterator::LumiEntry& entry);
+  void closeFile_(const std::string& reason);
+
   bool openNextFile_();
-  void closeFile_();
 
   InitMsgView const* getHeaderMsg();
   EventMsgView const* getEventMsg();
 
   EventMsgView const* prepareNextEvent();
   bool prepareNextFile();
+  bool acceptEvent(const EventMsgView*);
+
+  bool triggerSel();
+  bool matchTriggerSel(Strings const& tnames);
+  bool acceptAllEvt_;
+  bool matchTriggerSel_;
 
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
+  Strings hltSel_;
 
   unsigned int processedEventPerLs_;
   unsigned int minEventsPerLs_;
-  unsigned int delayMillis_;
 
   bool flagSkipFirstLumis_;
   bool flagEndOfRunKills_;
   bool flagDeleteDatFiles_;
 
-  std::unique_ptr<StreamerInputFile> streamReader_;
-  std::shared_ptr<EventSkipperByID> eventSkipperByID_;
-
   DQMFileIterator fiterator_;
+
+  struct OpenFile {
+    std::unique_ptr<edm::StreamerInputFile> streamFile_;
+    DQMFileIterator::LumiEntry lumi_;
+
+    bool open() { return (streamFile_.get() != nullptr); }
+
+  } file_;
+
+  std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
+  std::shared_ptr<TriggerSelector> eventSelector_;
+
+  /* this is for monitoring */
+  edm::Service<DQMMonitoringService> mon_;
 };
 
-}  //end-of-namespace-def
+}  // end-of-namespace-def
 
 #endif

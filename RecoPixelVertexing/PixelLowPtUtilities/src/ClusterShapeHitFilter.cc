@@ -5,9 +5,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
@@ -183,11 +180,11 @@ pair<float,float> ClusterShapeHitFilter::getCotangent
 
 /*****************************************************************************/
 float ClusterShapeHitFilter::getCotangent
-  (const StripGeomDetUnit * stripDet) const
+  (const StripGeomDetUnit * stripDet, const LocalPoint & pos) const
 {
   // FIXME may be problematic in case of RadialStriptolopgy
   return stripDet->surface().bounds().thickness() /
-         stripDet->specificTopology().localPitch(LocalPoint(0,0,0));
+         stripDet->specificTopology().localPitch(pos);
 }
 
 /*****************************************************************************/
@@ -347,7 +344,7 @@ bool ClusterShapeHitFilter::isCompatible
 /*****************************************************************************/
 /*****************************************************************************/
 bool ClusterShapeHitFilter::getSizes
-  (DetId id, const SiStripCluster & cluster, const LocalVector & ldir,
+  (DetId id, const SiStripCluster & cluster, const LocalPoint &lpos, const LocalVector & ldir,
    int & meas, float & pred) const 
 {
   // Get detector
@@ -374,7 +371,7 @@ bool ClusterShapeHitFilter::getSizes
     pred += drift;
   
     // Apply cotangent
-    pred *= getCotangent(stripDet);
+    pred *= getCotangent(stripDet,lpos);
   }
 
   return usable;
@@ -383,7 +380,7 @@ bool ClusterShapeHitFilter::getSizes
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
-  (DetId detId, const SiStripCluster & cluster, const LocalVector & ldir) const
+  (DetId detId, const SiStripCluster & cluster, const LocalPoint & lpos, const LocalVector & ldir) const
 {
   int meas;
   float pred;
@@ -391,7 +388,7 @@ bool ClusterShapeHitFilter::isCompatible
   if (cutOnStripCharge_ && (!checkClusterCharge(detId, cluster, ldir))) return false;
   if (!cutOnStripShape_) return true;
 
-  if(getSizes(detId, cluster, ldir, meas, pred))
+  if(getSizes(detId, cluster, lpos, ldir, meas, pred))
   {
     StripKeys key(meas);
     if (key.isValid())
@@ -405,29 +402,33 @@ bool ClusterShapeHitFilter::isCompatible
 
 /*****************************************************************************/
 bool ClusterShapeHitFilter::isCompatible
+  (DetId detId, const SiStripCluster & cluster, const GlobalPoint &gpos, const GlobalVector & gdir) const
+{
+  const GeomDet *det = theTracker->idToDet(detId);
+  LocalVector ldir = det->toLocal(gdir);
+  LocalPoint  lpos = det->toLocal(gpos); 
+  // now here we do the transformation 
+  lpos -= ldir * lpos.z()/ldir.z();
+  return isCompatible(detId, cluster, lpos, ldir);
+}
+bool ClusterShapeHitFilter::isCompatible
   (DetId detId, const SiStripCluster & cluster, const GlobalVector & gdir) const
 {
-  LocalVector ldir = theTracker->idToDet(detId)->toLocal(gdir);
-  return isCompatible(detId, cluster, ldir);
+  return isCompatible(detId, cluster, theTracker->idToDet(detId)->toLocal(gdir));
 }
 
+
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 
 bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const
 {
-  int clusCharge=accumulate( cluster.amplitudes().begin(), cluster.amplitudes().end(), uint16_t(0));
-
-  float chargeCut = minGoodStripCharge_*
-    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
-
-  return (clusCharge>chargeCut);
+  return siStripClusterTools::chargePerCM(detId, cluster, ldir) >  minGoodStripCharge_;
 }
+
 
 bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const
 {
-  float chargeCut = minGoodPixelCharge_*
-    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
-
-  return (cluster.charge()>chargeCut);
+  return siStripClusterTools::chargePerCM(detId, cluster, ldir) >  minGoodPixelCharge_;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

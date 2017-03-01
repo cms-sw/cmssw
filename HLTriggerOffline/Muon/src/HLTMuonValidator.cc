@@ -123,27 +123,43 @@ HLTMuonValidator::moduleLabels(string path) {
 
 vector<string>
 HLTMuonValidator::stepLabels(const vector<string>& modules) {
-  vector<string> steps(1, "All");
-  for (size_t i = 0; i < modules.size(); i++) {
-    if (modules[i].find("IsoFiltered") != string::npos) {
-      if (modules[i].find("L3") != string::npos)
-        steps.push_back("L3Iso");
-      else
-        steps.push_back("L2Iso");
+    vector<string> steps(1, "All");
+    for (size_t i = 0; i < modules.size(); i++) {
+        if ((modules[i].find("IsoFiltered") != string::npos)){
+            if (modules[i].find("L3") != string::npos)
+                steps.push_back("L3TkIso");
+            else
+                steps.push_back("L2Iso");
+        }
+        else if ((modules[i].find("pfecalIsoRhoFiltered") != string::npos)) {
+            if (modules[i].find("L3") != string::npos)
+                steps.push_back("L3EcalIso");
+            else if (modules[i].find("TkFiltered") != string::npos)
+                steps.push_back("TkEcalIso");
+        }
+        else if ((modules[i].find("pfhcalIsoRhoFiltered") != string::npos)) {
+            if (modules[i].find("L3") != string::npos)
+                steps.push_back("L3HcalIso");
+            else if (modules[i].find("TkFiltered") != string::npos)
+                steps.push_back("TkHcalIso");
+        }
+        else if (modules[i].find("TkFiltered") != string::npos){
+            steps.push_back("Tk");
+        }
+        else if (modules[i].find("L3") != string::npos)
+            steps.push_back("L3");
+        else if (modules[i].find("L2") != string::npos)
+            steps.push_back("L2");
+        else if (modules[i].find("L1") != string::npos)
+            steps.push_back("L1");
+        else
+            return vector<string>();
     }
-    else if (modules[i].find("L3") != string::npos)
-      steps.push_back("L3");
-    else if (modules[i].find("L2") != string::npos)
-      steps.push_back("L2");
-    else if (modules[i].find("L1") != string::npos)
-      steps.push_back("L1");
-    else
-      return vector<string>();
-  }
-  if (steps.size() < 2 || steps[1] != "L1")
-    return vector<string>();
-  return steps;
 
+    if (steps.size() < 2 || ((steps[1] != "L1")&&(steps[1] != "Tk")))
+        return vector<string>();
+    return steps;
+    
 }
 
 
@@ -180,7 +196,7 @@ HLTMuonValidator::dqmBeginRun(const edm::Run & iRun,
     
     vector<string> labels = moduleLabels(path);
     vector<string> steps = stepLabels(labels);
-    
+
     if (labels.size() > 0 && steps.size() > 0) {
       HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
       analyzers_.push_back(analyzer);

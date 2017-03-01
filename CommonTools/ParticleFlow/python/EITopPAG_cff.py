@@ -17,10 +17,9 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 
 
 # b-tagging
-from RecoJets.JetAssociationProducers.ak4JTA_cff import ak4JetTracksAssociatorAtVertex
-from RecoBTag.ImpactParameter.impactParameter_cfi import impactParameterTagInfos
-from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import secondaryVertexTagInfos
-from RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi import combinedSecondaryVertexBJetTags
+from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import pfImpactParameterTagInfos
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import pfInclusiveSecondaryVertexFinderTagInfos
+from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi import pfCombinedInclusiveSecondaryVertexV2BJetTags
 
 
 #### PU Again... need to do this twice because the "linking" stage of PF reco ####
@@ -89,7 +88,7 @@ pfIsolatedElectronsEI = cms.EDFilter(
     src = cms.InputTag("pfElectronsFromVertexEI"),
     cut = cms.string('''abs(eta)<2.5 && pt>20. &&
     gsfTrackRef.isAvailable() &&
-    gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2 &&
+    gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2 &&
     (gsfElectronRef.pfIsolationVariables().sumChargedHadronPt+
     max(0.,gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt+
     gsfElectronRef.pfIsolationVariables().sumPhotonEt-
@@ -97,7 +96,6 @@ pfIsolatedElectronsEI = cms.EDFilter(
     '''),
     makeClones = cms.bool(True)
 )
-
 
 
 pfNoElectron.topCollection    = 'pfIsolatedElectronsEI'
@@ -135,18 +133,15 @@ pfTauEISequence = cms.Sequence(
     )
 
 #### B-tagging ####
-pfJetTrackAssociatorEI = ak4JetTracksAssociatorAtVertex.clone (
-    src = cms.InputTag("pfJetsEI")
+pfImpactParameterTagInfosEI = pfImpactParameterTagInfos.clone(
+    jets = cms.InputTag( 'pfJetsEI' )
     )
-impactParameterTagInfosEI = impactParameterTagInfos.clone(
-    jetTracks = cms.InputTag( 'pfJetTrackAssociatorEI' )
+pfInclusiveSecondaryVertexFinderTagInfosEI = pfInclusiveSecondaryVertexFinderTagInfos.clone(
+    trackIPTagInfos = cms.InputTag( 'pfImpactParameterTagInfosEI' )
     )
-secondaryVertexTagInfosEI = secondaryVertexTagInfos.clone(
-    trackIPTagInfos = cms.InputTag( 'impactParameterTagInfosEI' )
-    )
-combinedSecondaryVertexBJetTagsEI = combinedSecondaryVertexBJetTags.clone(
-    tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfosEI"),
-                             cms.InputTag("secondaryVertexTagInfosEI"))
+pfCombinedInclusiveSecondaryVertexV2BJetTagsEI = pfCombinedInclusiveSecondaryVertexV2BJetTags.clone(
+    tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfosEI"),
+                             cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfosEI"))
     )
 
 
@@ -175,9 +170,8 @@ EIsequence = cms.Sequence(
     pfTauEISequence +
     pfNoTauEI +
     pfMetEI+
-    pfJetTrackAssociatorEI+
-    impactParameterTagInfosEI+
-    secondaryVertexTagInfosEI+
-    combinedSecondaryVertexBJetTagsEI
+    pfImpactParameterTagInfosEI+
+    pfInclusiveSecondaryVertexFinderTagInfosEI+
+    pfCombinedInclusiveSecondaryVertexV2BJetTagsEI
     )
 

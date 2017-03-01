@@ -20,7 +20,6 @@ sed -i "s/THEHEADER/$3/g" $1_test.cc
 
 echo "<bin file=$1_test.cc name=CondPayload_$1_test>" > bfile
 echo "<use name=CondFormats/$2>" >> bfile
-echo "<use name=CondCore/DBCommon>" >> bfile
 echo "<use name=CoralCommon>" >> bfile
 echo "<use name=CoralKernel>" >> bfile
 echo "<use name=RelationalAccess>" >> bfile

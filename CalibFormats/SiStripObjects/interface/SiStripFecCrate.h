@@ -23,6 +23,7 @@ class SiStripFecCrate {
   
   /** */
   inline const std::vector<SiStripFec>& fecs() const;
+  inline std::vector<SiStripFec>& fecs();
   
   /** */
   inline const uint16_t& fecCrate() const;
@@ -46,6 +47,7 @@ class SiStripFecCrate {
 // ---------- inline methods ----------
 
 const std::vector<SiStripFec>& SiStripFecCrate::fecs() const { return fecs_; }
+std::vector<SiStripFec>& SiStripFecCrate::fecs() { return fecs_; }
 const uint16_t& SiStripFecCrate::fecCrate() const { return fecCrate_; }
 
 #endif // CalibTracker_SiStripObjects_SiStripFecCrate_H

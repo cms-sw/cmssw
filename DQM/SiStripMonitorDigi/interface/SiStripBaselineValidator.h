@@ -23,14 +23,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-/*#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
-#include "DataFormats/TrackReco/interface/Track.h" 
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-*/
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -43,23 +35,16 @@ class SiStripBaselineValidator : public DQMEDAnalyzer
   explicit SiStripBaselineValidator(const edm::ParameterSet&);
   virtual ~SiStripBaselineValidator();
 
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
-
-  DQMStore *dbe;
 
   MonitorElement *h1NumbadAPVsRes_;
   MonitorElement *h1ADC_vs_strip_;
 
   edm::InputTag srcProcessedRawDigi_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > moduleRawDigiToken_;
- // edm::InputTag hiSelectedTracks;
-  std::string outputFile_;
-  bool createOutputFile_;
 
 };
 #endif

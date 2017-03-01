@@ -6,7 +6,7 @@
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 // 
 // Description:     Calls RoadSeachSeedFinderAlgorithm
-//                  to find TrackingSeeds.
+//                  to find TrajectorySeeds.
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -36,7 +36,7 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 
   virtual ~EgammaHLTRegionalPixelSeedGeneratorProducers();
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual void beginRun(edm::Run const&run, const edm::EventSetup& es) override final;
   virtual void endRun(edm::Run const&run, const edm::EventSetup& es) override final;

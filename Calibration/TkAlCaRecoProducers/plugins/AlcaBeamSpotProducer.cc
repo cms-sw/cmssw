@@ -127,9 +127,9 @@ void AlcaBeamSpotProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiS
         << "fit failed \n" << std::endl;
   }
 
-  std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
+  auto result = std::make_unique<reco::BeamSpot>();
   *result = bs;
-  lumiSeg.put(result, std::string("alcaBeamSpot"));
+  lumiSeg.put(std::move(result), std::string("alcaBeamSpot"));
 	
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
     std::vector<BSTrkParameters> theBSvector = theBeamFitter->getBSvector();

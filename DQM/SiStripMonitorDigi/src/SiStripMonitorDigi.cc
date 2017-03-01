@@ -38,6 +38,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /* mia: but is there not a smarter way ?!?!?! */
 const double NORBITS_PER_SECOND = 11223.;
@@ -105,9 +106,6 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
   subdetswitchtotdigiprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
-
-  //  edm::ParameterSet ParametersTotDigisProfVsLS = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigisVsLS");
-  //  subdetswitchtotdigiproflson = ParametersTotDigisProfVsLS.getParameter<bool>("subdetswitchon");
 
   edm::ParameterSet ParametersTotDigiFailure = conf_.getParameter<edm::ParameterSet>("TotalNumberOfDigisFailure");
   subdetswitchtotdigifailureon = ParametersTotDigiFailure.getParameter<bool>("subdetswitchon");
@@ -272,9 +270,6 @@ void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&){
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es){
-  if (subdetswitchtotdigiproflson){
-    //    if (digiFailureMEs.SubDetTotDigiProfLS) digiFailureMEs.SubDetTotDigiProfLS->Reset();
-  }
   if (subdetswitchtotdigifailureon) {
     isStableBeams = false;
     //integrate stats over several LS to prevent eventual low trigger rates
@@ -322,18 +317,13 @@ void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, cons
 
 }
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginJob(){
-}
-
-
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es ){
 
   if ( show_mechanical_structure_view ){
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<IdealGeometryRecord>().get(tTopoHandle);
+    es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -422,7 +412,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
       }
       
       // book sub-detector plots
-      std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
 	ibooker.setCurrentFolder(sdet_pair.first);
 	createSubDetMEs( ibooker , sdet_pair.second );        
@@ -462,7 +452,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 						    "" );
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)",1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots",2);
-      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetBit(TH1::kCanRebin);
+      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetCanExtend(TH1::kAllAxes);
     }
 
     //cumulative number of Strips in APV shots
@@ -523,7 +513,6 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     folder_organizer.getLayerFolderName(ss, 0, tTopo);
     ibooker.setCurrentFolder(ss.str().c_str());
     
-    //    if (subdetswitchtotdigiproflson) {
     if (subdetswitchtotdigifailureon) {
       const char* HistoName = "NumberOfDigisInLastLS";
       digiFailureMEs.SubDetTotDigiProfLS= ibooker.bookProfile(HistoName, HistoName,
@@ -569,7 +558,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   TotalNShots=0;
@@ -767,7 +756,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
        it != SubDetMEsMap.end(); it++) {
 
-    //      if (subdetswitchtotdigiproflson) {
       if (subdetswitchtotdigifailureon) {
         if (strcmp(it->first.c_str(),"TEC__MINUS")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);
@@ -870,16 +858,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 }//end of method analyze
 //--------------------------------------------------------------------------------------------
-
-void SiStripMonitorDigi::endJob(void){
-  bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-
-  // save histograms in a file
-  if(outputMEsInRootFile)     dqmStore_->save(outputFileName);
-  
-}//end of method
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(idet);
   ModMEs mod_me = pos->second;
@@ -909,7 +887,7 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , co
   if(!me) return me;
 
   me->setAxisTitle("Event Time in Seconds",1);
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
 
@@ -1093,7 +1071,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						    Parameters.getParameter<double>("ymax"),
 						    "" );
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
-    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetBit(TH1::kCanRebin);
+    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
   
   // Number of Digi vs Bx - Profile
@@ -1199,7 +1177,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						      "" );
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)",1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots",2);
-    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetBit(TH1::kCanRebin);
+    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
 
 

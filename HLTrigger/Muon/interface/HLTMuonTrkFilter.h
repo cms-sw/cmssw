@@ -4,6 +4,7 @@
 //  based on HLTrigger/Muon/interface/HLTDiMuonGlbTrkFilter.h
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 namespace edm {
@@ -24,6 +25,8 @@ class HLTMuonTrkFilter : public HLTFilter {
   edm::EDGetTokenT<reco::MuonCollection>                 m_muonsToken; // input collection of muons
   edm::InputTag                                          m_candsTag;   // input collection of candidates to be referenced
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> m_candsToken; // input collection of candidates to be referenced
+  edm::InputTag                                          m_previousCandTag;   // input tag identifying product contains muons passing the previous level
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> m_previousCandToken; // token identifying product contains muons passing the previous level
   int m_minTrkHits;
   int m_minMuonHits;
   int m_minMuonStations;
@@ -31,6 +34,8 @@ class HLTMuonTrkFilter : public HLTFilter {
   unsigned int m_requiredTypeMask;
   double m_maxNormalizedChi2;
   double m_minPt;
+  unsigned int m_minN;
+  double m_maxAbsEta;
   muon::SelectionType m_trkMuonId;
   bool m_saveTags;
 

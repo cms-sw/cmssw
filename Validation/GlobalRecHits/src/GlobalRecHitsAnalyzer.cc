@@ -5,18 +5,22 @@
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
-using namespace std;
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+using namespace std;
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), count(0)
+  printProvenanceInfo(false), trackerHitAssociatorConfig_(iPSet, consumesCollector()), count(0)
 {
+  consumesMany<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit> > >();
+  consumesMany<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit> > >();
+  consumesMany<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit> > >();
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_GlobalRecHitsAnalyzer";
 
   // get information from parameter set
@@ -45,8 +49,6 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   MuCSCSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
   MuRPCSimSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSimSrc");
-
-  conf_ = iPSet;
 
   // fix for consumes
   ECalUncalEBSrc_Token_ = consumes<EBUncalibratedRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalUncalEBSrc"));
@@ -116,206 +118,177 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
       << ":" << MuRPCSimSrc_.instance() << "\n"
       << "===============================\n";
   }
-  //Put in analyzer stuff here....
-
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  if (dbe) {
-    if (verbosity > 0 ) {
-      dbe->setVerbose(1);
-    } else {
-      dbe->setVerbose(0);
-    }
-  }
-  if (dbe) {
-    if (verbosity > 0 ) dbe->showDirStructure();
-  }
-
-  //monitor elements 
-  
-  //Si Strip
-  if(dbe) {
-    string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5", 
-				"TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2", 
-				"TIBL3", "TIBL4", "TIDW1", "TIDW2", "TIDW3", 
-				"TOBL1", "TOBL2", "TOBL3", "TOBL4"};
-    for(int i = 0; i<19; ++i) {
-      mehSiStripn[i]=0;
-      mehSiStripResX[i]=0;
-      mehSiStripResY[i]=0;
-    }
-    string hcharname, hchartitle;
-    dbe->setCurrentFolder("GlobalRecHitsV/SiStrips");
-    for(int amend = 0; amend < 19; ++amend) { 
-      hcharname = "hSiStripn_"+SiStripString[amend];
-      hchartitle= SiStripString[amend]+"  rechits";
-      mehSiStripn[amend] = dbe->book1D(hcharname,hchartitle,200,0.,200.);
-      mehSiStripn[amend]->setAxisTitle("Number of hits in "+
-				       SiStripString[amend],1);
-      mehSiStripn[amend]->setAxisTitle("Count",2);
-      hcharname = "hSiStripResX_"+SiStripString[amend];
-      hchartitle= SiStripString[amend]+" rechit x resolution";
-      mehSiStripResX[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
-      mehSiStripResX[amend]->setAxisTitle("X-resolution in "
-					  +SiStripString[amend],1);
-      mehSiStripResX[amend]->setAxisTitle("Count",2);
-      hcharname = "hSiStripResY_"+SiStripString[amend];
-      hchartitle= SiStripString[amend]+" rechit y resolution";
-      mehSiStripResY[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
-      mehSiStripResY[amend]->setAxisTitle("Y-resolution in "+
-					  SiStripString[amend],1);
-      mehSiStripResY[amend]->setAxisTitle("Count",2);
-    }
-    
-    
-    //HCal
-    //string hcharname, hchartitle;
-    string HCalString[4]={"HB", "HE", "HF", "HO"};
-    float HCalnUpper[4]={3000.,3000.,3000.,3000.}; 
-    float HCalnLower[4]={0.,0.,0.,0.};
-    for(int j =0; j <4; ++j) {
-      mehHcaln[j]=0;
-      mehHcalRes[j]=0;
-    }
-    
-    dbe->setCurrentFolder("GlobalRecHitsV/HCals");
-    for(int amend = 0; amend < 4; ++amend) {
-      hcharname = "hHcaln_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"  rechits";
-      mehHcaln[amend] = dbe->book1D(hcharname,hchartitle, 1000, HCalnLower[amend], 
-				    HCalnUpper[amend]);
-      mehHcaln[amend]->setAxisTitle("Number of RecHits",1);
-      mehHcaln[amend]->setAxisTitle("Count",2);
-      hcharname = "hHcalRes_"+HCalString[amend];
-      hchartitle= HCalString[amend]+"  rechit resolution";
-      mehHcalRes[amend] = dbe->book1D(hcharname,hchartitle, 25, -2., 2.);
-      mehHcalRes[amend]->setAxisTitle("RecHit E - SimHit E",1);
-      mehHcalRes[amend]->setAxisTitle("Count",2);
-    }
-    
-    
-    //Ecal
-    string ECalString[3] = {"EB","EE", "ES"}; 
-    int ECalnBins[3] = {1000,3000,150};
-    float ECalnUpper[3] = {20000., 62000., 3000.};
-    float ECalnLower[3] = {0., 0., 0.};
-    int ECalResBins[3] = {200,200,200};
-    float ECalResUpper[3] = {1., 0.3, .0002};
-    float ECalResLower[3] = {-1., -0.3, -.0002};
-    for(int i =0; i<3; ++i) {
-      mehEcaln[i]=0;
-      mehEcalRes[i]=0;
-    }
-    dbe->setCurrentFolder("GlobalRecHitsV/ECals");
-    
-    for(int amend = 0; amend < 3; ++amend) {
-      hcharname = "hEcaln_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"  rechits";
-      mehEcaln[amend] = dbe->book1D(hcharname,hchartitle, ECalnBins[amend], 
-				    ECalnLower[amend], ECalnUpper[amend]);
-      mehEcaln[amend]->setAxisTitle("Number of RecHits",1);
-      mehEcaln[amend]->setAxisTitle("Count",2);
-      hcharname = "hEcalRes_"+ECalString[amend];
-      hchartitle= ECalString[amend]+"  rechit resolution";
-      mehEcalRes[amend] = dbe->book1D(hcharname,hchartitle,ECalResBins[amend], 
-				      ECalResLower[amend], 
-				      ECalResUpper[amend]);
-      mehEcalRes[amend]->setAxisTitle("RecHit E - SimHit E",1);
-      mehEcalRes[amend]->setAxisTitle("Count",2);
-    }
-    
-    //Si Pixels
-    string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", 
-			       "FWD2n", "FWD2p"};
-    for(int j =0; j<7; ++j) {
-      mehSiPixeln[j]=0;
-      mehSiPixelResX[j]=0;
-      mehSiPixelResY[j]=0;
-    }
-    
-    dbe->setCurrentFolder("GlobalRecHitsV/SiPixels");
-    for(int amend = 0; amend < 7; ++amend) {
-      hcharname = "hSiPixeln_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" rechits";
-      mehSiPixeln[amend] = dbe->book1D(hcharname,hchartitle,200,0.,200.);
-      mehSiPixeln[amend]->setAxisTitle("Number of hits in "+
-				       SiPixelString[amend],1);
-      mehSiPixeln[amend]->setAxisTitle("Count",2);
-      hcharname = "hSiPixelResX_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" rechit x resolution";
-      mehSiPixelResX[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
-      mehSiPixelResX[amend]->setAxisTitle("X-resolution in "+
-					  SiPixelString[amend],1);
-      mehSiPixelResX[amend]->setAxisTitle("Count",2);
-      hcharname = "hSiPixelResY_"+SiPixelString[amend];
-      hchartitle= SiPixelString[amend]+" rechit y resolution";
-      
-      mehSiPixelResY[amend] = dbe->book1D(hcharname,hchartitle,200,-0.02,.02);
-      mehSiPixelResY[amend]->setAxisTitle("Y-resolution in "+
-					  SiPixelString[amend],1);
-      mehSiPixelResY[amend]->setAxisTitle("Count",2);
-    }
- 
-    //Muons 
-    dbe->setCurrentFolder("GlobalRecHitsV/Muons");
-    
-    mehDtMuonn = 0;
-    mehCSCn = 0;
-    mehRPCn = 0;
-    
-    string n_List[3] = {"hDtMuonn", "hCSCn", "hRPCn"};
-    string hist_string[3] = {"Dt", "CSC", "RPC"};
-    
-    for(int amend=0; amend<3; ++amend) {
-      hchartitle = hist_string[amend]+" rechits";
-      if(amend==0) {
-	mehDtMuonn=dbe->book1D(n_List[amend],hchartitle,50, 0., 500.);
-	mehDtMuonn->setAxisTitle("Number of Rechits",1);
-	mehDtMuonn->setAxisTitle("Count",2);
-      }
-      if(amend==1) {
-	mehCSCn=dbe->book1D(n_List[amend],hchartitle,50, 0., 500.);
-	mehCSCn->setAxisTitle("Number of Rechits",1);
-	mehCSCn->setAxisTitle("Count",2);
-      }
-      if(amend==2){
-	mehRPCn=dbe->book1D(n_List[amend],hchartitle,50, 0., 500.);
-	mehRPCn->setAxisTitle("Number of Rechits",1);
-	mehRPCn->setAxisTitle("Count",2);
-      }
-    }
-    
-    mehDtMuonRes=0;
-    mehCSCResRDPhi=0;
-    mehRPCResX=0;
-    
-    hcharname = "hDtMuonRes";
-    hchartitle = "DT wire distance resolution";
-    mehDtMuonRes = dbe->book1D(hcharname, hchartitle, 200, -0.2, 0.2);
-    hcharname = "CSCResRDPhi";
-    hchartitle = "CSC perp*dphi resolution";
-    mehCSCResRDPhi = dbe->book1D(hcharname, hchartitle, 200, -0.2, 0.2);
-    hcharname = "hRPCResX";
-    hchartitle = "RPC rechits x resolution";
-    mehRPCResX = dbe->book1D(hcharname, hchartitle, 50, -5., 5.);
-  } 
 }
 
 GlobalRecHitsAnalyzer::~GlobalRecHitsAnalyzer() {}
 
-void GlobalRecHitsAnalyzer::beginJob()
-{
-  return;
+void GlobalRecHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
+  // Si Strip
+  string SiStripString[19] = {"TECW1", "TECW2", "TECW3", "TECW4", "TECW5", 
+                              "TECW6", "TECW7", "TECW8", "TIBL1", "TIBL2", 
+                              "TIBL3", "TIBL4", "TIDW1", "TIDW2", "TIDW3", 
+                              "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
+  for(int i = 0; i<19; ++i) {
+    mehSiStripn[i]=0;
+    mehSiStripResX[i]=0;
+    mehSiStripResY[i]=0;
+  }
+  string hcharname, hchartitle;
+  iBooker.setCurrentFolder("GlobalRecHitsV/SiStrips");
+  for(int amend = 0; amend < 19; ++amend) { 
+    hcharname = "hSiStripn_"+SiStripString[amend];
+    hchartitle= SiStripString[amend]+"  rechits";
+    mehSiStripn[amend] = iBooker.book1D(hcharname,hchartitle,200,0.,200.);
+    mehSiStripn[amend]->setAxisTitle("Number of hits in "+
+                                     SiStripString[amend],1);
+    mehSiStripn[amend]->setAxisTitle("Count",2);
+    hcharname = "hSiStripResX_"+SiStripString[amend];
+    hchartitle= SiStripString[amend]+" rechit x resolution";
+    mehSiStripResX[amend] = iBooker.book1D(hcharname,hchartitle,200,-0.02,.02);
+    mehSiStripResX[amend]->setAxisTitle("X-resolution in "
+                                        +SiStripString[amend],1);
+    mehSiStripResX[amend]->setAxisTitle("Count",2);
+    hcharname = "hSiStripResY_"+SiStripString[amend];
+    hchartitle= SiStripString[amend]+" rechit y resolution";
+    mehSiStripResY[amend] = iBooker.book1D(hcharname,hchartitle,200,-0.02,.02);
+    mehSiStripResY[amend]->setAxisTitle("Y-resolution in "+
+                                        SiStripString[amend],1);
+    mehSiStripResY[amend]->setAxisTitle("Count",2);
+  }
+  
+  
+  //HCal
+  //string hcharname, hchartitle;
+  string HCalString[4]={"HB", "HE", "HF", "HO"};
+  float HCalnUpper[4]={3000.,3000.,3000.,3000.}; 
+  float HCalnLower[4]={0.,0.,0.,0.};
+  for(int j =0; j <4; ++j) {
+    mehHcaln[j]=0;
+    mehHcalRes[j]=0;
+  }
+  
+  iBooker.setCurrentFolder("GlobalRecHitsV/HCals");
+  for(int amend = 0; amend < 4; ++amend) {
+    hcharname = "hHcaln_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"  rechits";
+    mehHcaln[amend] = iBooker.book1D(hcharname,hchartitle, 1000, HCalnLower[amend], 
+                                  HCalnUpper[amend]);
+    mehHcaln[amend]->setAxisTitle("Number of RecHits",1);
+    mehHcaln[amend]->setAxisTitle("Count",2);
+    hcharname = "hHcalRes_"+HCalString[amend];
+    hchartitle= HCalString[amend]+"  rechit resolution";
+    mehHcalRes[amend] = iBooker.book1D(hcharname,hchartitle, 25, -2., 2.);
+    mehHcalRes[amend]->setAxisTitle("RecHit E - SimHit E",1);
+    mehHcalRes[amend]->setAxisTitle("Count",2);
+  }
+  
+  
+  //Ecal
+  string ECalString[3] = {"EB","EE", "ES"}; 
+  int ECalnBins[3] = {1000,3000,150};
+  float ECalnUpper[3] = {20000., 62000., 3000.};
+  float ECalnLower[3] = {0., 0., 0.};
+  int ECalResBins[3] = {200,200,200};
+  float ECalResUpper[3] = {1., 0.3, .0002};
+  float ECalResLower[3] = {-1., -0.3, -.0002};
+  for(int i =0; i<3; ++i) {
+    mehEcaln[i]=0;
+    mehEcalRes[i]=0;
+  }
+  iBooker.setCurrentFolder("GlobalRecHitsV/ECals");
+  
+  for(int amend = 0; amend < 3; ++amend) {
+    hcharname = "hEcaln_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"  rechits";
+    mehEcaln[amend] = iBooker.book1D(hcharname,hchartitle, ECalnBins[amend], 
+                                  ECalnLower[amend], ECalnUpper[amend]);
+    mehEcaln[amend]->setAxisTitle("Number of RecHits",1);
+    mehEcaln[amend]->setAxisTitle("Count",2);
+    hcharname = "hEcalRes_"+ECalString[amend];
+    hchartitle= ECalString[amend]+"  rechit resolution";
+    mehEcalRes[amend] = iBooker.book1D(hcharname,hchartitle,ECalResBins[amend], 
+                                    ECalResLower[amend], 
+                                    ECalResUpper[amend]);
+    mehEcalRes[amend]->setAxisTitle("RecHit E - SimHit E",1);
+    mehEcalRes[amend]->setAxisTitle("Count",2);
+  }
+  
+  //Si Pixels
+  string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", 
+                             "FWD2n", "FWD2p"};
+  for(int j =0; j<7; ++j) {
+    mehSiPixeln[j]=0;
+    mehSiPixelResX[j]=0;
+    mehSiPixelResY[j]=0;
+  }
+  
+  iBooker.setCurrentFolder("GlobalRecHitsV/SiPixels");
+  for(int amend = 0; amend < 7; ++amend) {
+    hcharname = "hSiPixeln_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" rechits";
+    mehSiPixeln[amend] = iBooker.book1D(hcharname,hchartitle,200,0.,200.);
+    mehSiPixeln[amend]->setAxisTitle("Number of hits in "+
+                                     SiPixelString[amend],1);
+    mehSiPixeln[amend]->setAxisTitle("Count",2);
+    hcharname = "hSiPixelResX_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" rechit x resolution";
+    mehSiPixelResX[amend] = iBooker.book1D(hcharname,hchartitle,200,-0.02,.02);
+    mehSiPixelResX[amend]->setAxisTitle("X-resolution in "+
+                                        SiPixelString[amend],1);
+    mehSiPixelResX[amend]->setAxisTitle("Count",2);
+    hcharname = "hSiPixelResY_"+SiPixelString[amend];
+    hchartitle= SiPixelString[amend]+" rechit y resolution";
+    
+    mehSiPixelResY[amend] = iBooker.book1D(hcharname,hchartitle,200,-0.02,.02);
+    mehSiPixelResY[amend]->setAxisTitle("Y-resolution in "+
+                                        SiPixelString[amend],1);
+    mehSiPixelResY[amend]->setAxisTitle("Count",2);
+  }
+ 
+  //Muons 
+  iBooker.setCurrentFolder("GlobalRecHitsV/Muons");
+  
+  mehDtMuonn = 0;
+  mehCSCn = 0;
+  mehRPCn = 0;
+  
+  string n_List[3] = {"hDtMuonn", "hCSCn", "hRPCn"};
+  string hist_string[3] = {"Dt", "CSC", "RPC"};
+  
+  for(int amend=0; amend<3; ++amend) {
+    hchartitle = hist_string[amend]+" rechits";
+    if(amend==0) {
+      mehDtMuonn=iBooker.book1D(n_List[amend],hchartitle,50, 0., 500.);
+      mehDtMuonn->setAxisTitle("Number of Rechits",1);
+      mehDtMuonn->setAxisTitle("Count",2);
+    }
+    if(amend==1) {
+      mehCSCn=iBooker.book1D(n_List[amend],hchartitle,50, 0., 500.);
+      mehCSCn->setAxisTitle("Number of Rechits",1);
+      mehCSCn->setAxisTitle("Count",2);
+    }
+    if(amend==2){
+      mehRPCn=iBooker.book1D(n_List[amend],hchartitle,50, 0., 500.);
+      mehRPCn->setAxisTitle("Number of Rechits",1);
+      mehRPCn->setAxisTitle("Count",2);
+    }
+  }
+  
+  mehDtMuonRes=0;
+  mehCSCResRDPhi=0;
+  mehRPCResX=0;
+  
+  hcharname = "hDtMuonRes";
+  hchartitle = "DT wire distance resolution";
+  mehDtMuonRes = iBooker.book1D(hcharname, hchartitle, 200, -0.2, 0.2);
+  hcharname = "CSCResRDPhi";
+  hchartitle = "CSC perp*dphi resolution";
+  mehCSCResRDPhi = iBooker.book1D(hcharname, hchartitle, 200, -0.2, 0.2);
+  hcharname = "hRPCResX";
+  hchartitle = "RPC rechits x resolution";
+  mehRPCResX = iBooker.book1D(hcharname, hchartitle, 50, -5., 5.);
 }
 
-void GlobalRecHitsAnalyzer::endJob()
-{
-  std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_endJob";
-  if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat) 
-      << "Terminating having processed " << count << " events.";
-  return;
-}
 
 void GlobalRecHitsAnalyzer::analyze(const edm::Event& iEvent, 
 				    const edm::EventSetup& iSetup)
@@ -326,8 +299,8 @@ void GlobalRecHitsAnalyzer::analyze(const edm::Event& iEvent,
   ++count;
   
   // get event id information
-  int nrun = iEvent.id().run();
-  int nevt = iEvent.id().event();
+  edm::RunNumber_t nrun = iEvent.id().run();
+  edm::EventNumber_t nevt = iEvent.id().event();
   
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
@@ -344,8 +317,8 @@ void GlobalRecHitsAnalyzer::analyze(const edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
     
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
     
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -435,19 +408,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType ebSimMap;
   if (validXFrame) {
-    std::auto_ptr<MixCollection<PCaloHit> >
-      barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
-    
+    const MixCollection<PCaloHit> barrelHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = barrelHits->begin();
-	 hitItr != barrelHits->end();
-	 ++hitItr) {
+    for ( auto const & iHit : barrelHits ) {
       
-      EBDetId ebid = EBDetId(hitItr->id());
+      EBDetId ebid = EBDetId(iHit.id());
       
       uint32_t crystid = ebid.rawId();
-      ebSimMap[crystid] += hitItr->energy();
+      ebSimMap[crystid] += iHit.energy();
     }
   }  
 
@@ -512,19 +480,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType eeSimMap;
   if (validXFrame) {
-    std::auto_ptr<MixCollection<PCaloHit> >
-      endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
-    
+    const MixCollection<PCaloHit> endcapHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = endcapHits->begin();
-	 hitItr != endcapHits->end();
-	 ++hitItr) {
-      
-      EEDetId eeid = EEDetId(hitItr->id());
+    for ( auto const & iHit:  endcapHits ) {
+     
+      EEDetId eeid = EEDetId(iHit.id());
       
       uint32_t crystid = eeid.rawId();
-      eeSimMap[crystid] += hitItr->energy();
+      eeSimMap[crystid] += iHit.energy();
     }
   }    
 
@@ -580,19 +543,14 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
 
   MapType esSimMap;
   if (validXFrame) {
-    std::auto_ptr<MixCollection<PCaloHit> >
-      preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
-    
+    const MixCollection<PCaloHit> preshowerHits(crossingFrame.product());
     // keep track of sum of simhit energy in each crystal
-    for (MixCollection<PCaloHit>::MixItr hitItr 
-	   = preshowerHits->begin();
-	 hitItr != preshowerHits->end();
-	 ++hitItr) {
+    for ( auto const & iHit : preshowerHits ) {
       
-      ESDetId esid = ESDetId(hitItr->id());
+      ESDetId esid = ESDetId(iHit.id());
       
       uint32_t crystid = esid.rawId();
-      esSimMap[crystid] += hitItr->energy();
+      esSimMap[crystid] += iHit.energy();
     }
   }
 
@@ -657,10 +615,10 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
     validhcalHits = false;
   }  
 
-  MapType fHBEnergySimHits;
-  MapType fHEEnergySimHits;
-  MapType fHOEnergySimHits;
-  MapType fHFEnergySimHits;
+  std::map<HcalDetId,float> fHBEnergySimHits;
+  std::map<HcalDetId,float> fHEEnergySimHits;
+  std::map<HcalDetId,float> fHOEnergySimHits;
+  std::map<HcalDetId,float> fHFEnergySimHits;
   if (validhcalHits) {
     const edm::PCaloHitContainer *simhitResult = hcalHits.product();
   
@@ -669,19 +627,18 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	 ++simhits) {
       
       HcalDetId detId(simhits->id());
-      uint32_t cellid = detId.rawId();
       
       if (detId.subdet() == sdHcalBrl){  
-	fHBEnergySimHits[cellid] += simhits->energy(); 
+	fHBEnergySimHits[detId] += simhits->energy(); 
       }
       if (detId.subdet() == sdHcalEC){  
-	fHEEnergySimHits[cellid] += simhits->energy(); 
+	fHEEnergySimHits[detId] += simhits->energy(); 
       }    
       if (detId.subdet() == sdHcalOut){  
-	fHOEnergySimHits[cellid] += simhits->energy(); 
+	fHOEnergySimHits[detId] += simhits->energy(); 
       }    
       if (detId.subdet() == sdHcalFwd){  
-	fHFEnergySimHits[cellid] += simhits->energy(); 
+	fHFEnergySimHits[detId] += simhits->energy(); 
       }    
     }
   }
@@ -713,6 +670,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 
   if (validHBHE) {
     std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
+    const CaloGeometry* geo = geometry.product();
     
     int iHB = 0;
     int iHE = 0; 
@@ -726,9 +684,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	
 	if (cell.subdet() == sdHcalBrl) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHBEnergy ) {
 	    maxHBEnergy = jhbhe->energy();
 	    maxHBPhi = fPhi;
@@ -738,9 +698,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
       
 	if (cell.subdet() == sdHcalEC) {
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  if ( (jhbhe->energy()) > maxHEEnergy ) {
 	    maxHEEnergy = jhbhe->energy();
 	    maxHEPhi = fPhi;
@@ -757,31 +719,35 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  
 	  ++iHB;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHBPhi - fPhi;
 	  if (fPhi > maxHBPhi) { deltaphi = fPhi - maxHBPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
 	  
 	  mehHcalRes[0]->Fill(jhbhe->energy() - 
-			      fHBEnergySimHits[cell.rawId()]);
+			      fHBEnergySimHits[cell]);
 	}
 	
 	if (cell.subdet() == sdHcalEC) {
 	  
 	  ++iHE;
 	  
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fPhi = cellGeometry->getPosition().phi () ;
+	  const HcalGeometry* cellGeometry = 
+	    (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	  const CaloCellGeometry* cellGeometry =
+//	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	  double fPhi = cellGeometry->getPosition(cell).phi () ;
 	  
 	  float deltaphi = maxHEPhi - fPhi;
 	  if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
 	  mehHcalRes[1]->Fill(jhbhe->energy() - 
-			      fHEEnergySimHits[cell.rawId()]);
+			      fHEEnergySimHits[cell]);
 	}
       }
     } // end loop through collection
@@ -852,7 +818,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  if (fPhi > maxHFPhi) { deltaphi = fPhi - maxHFPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
 	  
-	  mehHcalRes[2]->Fill(jhf->energy()-fHFEnergySimHits[cell.rawId()]);
+	  mehHcalRes[2]->Fill(jhf->energy()-fHFEnergySimHits[cell]);
 	}
       }
     } // end loop through collection
@@ -898,7 +864,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	  float deltaphi = maxHOPhi - fPhi;
 	  if (fPhi > maxHOPhi) { deltaphi = fPhi - maxHOPhi;}
 	  if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
-	  mehHcalRes[3]->Fill(jho->energy()-fHOEnergySimHits[cell.rawId()]);
+	  mehHcalRes[3]->Fill(jho->energy()-fHOEnergySimHits[cell]);
 	}
       }
     } // end loop through collection
@@ -921,7 +887,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -941,7 +907,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
     validstrip = false;
   }  
   
-  TrackerHitAssociator associate(iEvent,conf_);
+  TrackerHitAssociator associate(iEvent, trackerHitAssociatorConfig_);
   
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
@@ -1372,12 +1338,11 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
     validXFrame = false;
   }
   if (validXFrame) {
-    MixCollection<PSimHit> simHits(cf.product());
+    const MixCollection<PSimHit>  simHits(cf.product());
     
     // arrange the hits by detUnit
-    for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
-	hitItr != simHits.end(); ++hitItr) {
-      theMap[hitItr->detUnitId()].push_back(*hitItr);
+    for ( auto const & iHit : simHits ) {
+      theMap[iHit.detUnitId()].push_back(iHit);
     }  
   }
 

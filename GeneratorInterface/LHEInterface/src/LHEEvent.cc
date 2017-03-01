@@ -36,7 +36,7 @@ namespace lhef {
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
   runInfo(runInfo), weights_(0), counted(false), 
-  readAttemptCounter(0)
+  readAttemptCounter(0), npLO_(-99), npNLO_(-99)
   
 {
 	hepeup.NUP = 0;
@@ -103,7 +103,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	      pdf.reset();
 	    } else
 	      continue;
-	  }
+	  }	  
 	  comments.push_back(line + "\n");
 	}
 	
@@ -115,7 +115,8 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
-	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0)
+	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0),
+        npLO_(-99), npNLO_(-99)
 {
 }
 
@@ -124,7 +125,8 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
 	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
-	comments(comments), counted(false), readAttemptCounter(0)
+	comments(comments), counted(false), readAttemptCounter(0),
+	npLO_(-99), npNLO_(-99)
 {
 }
 
@@ -134,7 +136,9 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
 	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
-	counted(false), readAttemptCounter(0)
+	counted(false), readAttemptCounter(0),
+	originalXWGTUP_(product.originalXWGTUP()), scales_(product.scales()),
+	npLO_(product.npLO()), npNLO_(product.npNLO())
 {
 }
 
@@ -286,25 +290,25 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 		// current particle has a mother? --- Sorry, parent! We're PC.
 		if (mother1) {
 			mother1--;      // FORTRAN notation!
-		if (mother2)
-			mother2--;
-		else
-			mother2 = mother1;
+			if (mother2)
+				mother2--;
+			else
+				mother2 = mother1;
 
-		HepMC::GenParticle *in_par = genParticles.at(mother1);
-		HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
+			HepMC::GenParticle *in_par = genParticles.at(mother1);
+			HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
 
-		if (!current_vtx) {
-			current_vtx = new HepMC::GenVertex(
-					HepMC::FourVector(0, 0, 0, cTau));
+			if (!current_vtx) {
+				current_vtx = new HepMC::GenVertex(
+						HepMC::FourVector(0, 0, 0, cTau));
 
-			// add vertex to event
-			genVertices.push_back(current_vtx);
-		}
+				// add vertex to event
+				genVertices.push_back(current_vtx);
+			}
 
-		for(unsigned int j = mother1; j <= mother2; j++)	// set mother-daughter relations
-			if (!genParticles.at(j)->end_vertex())
-				current_vtx->add_particle_in(genParticles.at(j));
+			for(unsigned int j = mother1; j <= mother2; j++) // set mother-daughter relations
+				if (!genParticles.at(j)->end_vertex())
+					current_vtx->add_particle_in(genParticles.at(j));
 
 			// connect THIS outgoing particle to current vertex
 			current_vtx->add_particle_out(genParticles.at(i));

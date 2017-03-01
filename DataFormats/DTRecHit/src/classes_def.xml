@@ -1,30 +1,39 @@
 <lcgdict>
 <selection>
-  <class name="DTRecHit1D" ClassVersion="10">
+  <class name="DTRecHit1D" ClassVersion="12">
+   <version ClassVersion="12" checksum="1472176344"/>
+   <version ClassVersion="11" checksum="3736924859"/>
    <version ClassVersion="10" checksum="4049488222"/>
   </class>
-  <class name="DTRecHit1DPair" ClassVersion="10">
+  <class name="DTRecHit1DPair" ClassVersion="11">
+   <version ClassVersion="11" checksum="3962018876"/>
    <version ClassVersion="10" checksum="843790643"/>
   </class>
   <class name="std::vector<DTRecHit1DPair*>"/>
   <class name="std::map<DTLayerId,std::pair<unsigned int,unsigned int> >"/>
+  <class name="std::pair<DTLayerId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<DTLayerId,std::pair<unsigned long,unsigned long> >"/>
+  <class name="std::pair<DTLayerId,std::pair<unsigned long,unsigned long> >"/>
   <class name="edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >"/>
+  <class name="edm::ClonePolicy<DTRecHit1DPair>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTLayerId,edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> >"/> 
   <class name="edm::Wrapper<edm::RangeMap <DTLayerId, edm::OwnVector<DTRecHit1DPair,edm::ClonePolicy<DTRecHit1DPair> >,edm::ClonePolicy<DTRecHit1DPair> > >"/>
   <class name="std::vector<DTRecHit1D>"/>
   <class name="std::vector<DTRecHit1DPair>"/>
-  <class name="DTSLRecCluster" ClassVersion="10">
+  <class name="DTSLRecCluster" ClassVersion="11">
+   <version ClassVersion="11" checksum="2050315925"/>
    <version ClassVersion="10" checksum="2463285514"/>
   </class>
   <class name="std::vector<DTSLRecCluster*>"/>
   <class name="edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >"/>
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >,edm::ClonePolicy<DTSLRecCluster> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >,edm::ClonePolicy<DTSLRecCluster> > >"/>
-  <class name="DTRecSegment2D" ClassVersion="10">
+  <class name="DTRecSegment2D" ClassVersion="11">
+   <version ClassVersion="11" checksum="2660040211"/>
    <version ClassVersion="10" checksum="798824929"/>
   </class>
-  <class name="DTSLRecSegment2D" ClassVersion="10">
+  <class name="DTSLRecSegment2D" ClassVersion="11">
+   <version ClassVersion="11" checksum="1292701912"/>
    <version ClassVersion="10" checksum="3839187863"/>
   </class>
   <class name="std::vector<DTSLRecSegment2D*>"/>
@@ -33,16 +42,22 @@
   <class name="edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >"/>
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> > >"/>
-  <class name="DTChamberRecSegment2D" ClassVersion="10">
+  <class name="DTChamberRecSegment2D" ClassVersion="11">
+   <version ClassVersion="11" checksum="541439955"/>
    <version ClassVersion="10" checksum="725455680"/>
   </class>
-  <class name="DTRecSegment4D" ClassVersion="10">
+  <class name="DTRecSegment4D" ClassVersion="12">
+   <version ClassVersion="12" checksum="2768723140"/>
+   <version ClassVersion="11" checksum="3765797874"/>
    <version ClassVersion="10" checksum="2324947244"/>
   </class>
   <class name="std::vector<DTRecSegment4D*>"/>
   <class name="std::map<DTChamberId,std::pair<unsigned int,unsigned int> >"/>
+  <class name="std::pair<DTChamberId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<DTChamberId,std::pair<unsigned long,unsigned long> >"/>
+  <class name="std::pair<DTChamberId,std::pair<unsigned long,unsigned long> >"/>
   <class name="edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >"/>
+  <class name="edm::ClonePolicy<DTRecSegment4D>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTChamberId, edm::OwnVector<DTRecSegment4D,edm::ClonePolicy<DTRecSegment4D> >,edm::ClonePolicy<DTRecSegment4D> > >"/>
   <class name="DTRecSegment4DRef"/>

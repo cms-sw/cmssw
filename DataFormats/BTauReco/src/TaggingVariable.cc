@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <functional>
-#include <ext/functional>
 using namespace std;
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -8,17 +7,22 @@ using namespace std;
 
 namespace reco {
 
-const char* TaggingVariableDescription[] = {
+const char* const TaggingVariableDescription[] = {
   /* [jetEnergy]                                = */ "jet energy",
   /* [jetPt]                                    = */ "jet transverse momentum",
   /* [trackJetPt]                               = */ "track-based jet transverse momentum",
   /* [jetEta]                                   = */ "jet pseudorapidity",
+  /* [jetAbsEta]                                = */ "jet absolute pseudorapidity",
   /* [jetPhi]                                   = */ "jet polar angle",
   /* [jetNTracks]                               = */ "tracks associated to jet",
+  /* [jetNSelectedTracks]                       = */ "selected tracks in the jet",
+  /* [jetNTracksEtaRel]                         = */ "number of tracks for which etaRel is computed",
 
   /* [trackMomentum]                            = */ "track momentum",
   /* [trackEta]                                 = */ "track pseudorapidity",
   /* [trackPhi]                                 = */ "track polar angle",
+
+  /* [trackCharge]                              = */ "track charge",
 
   /* [trackPtRel]                               = */ "track transverse momentum, relative to the jet axis",
   /* [trackPPar]                                = */ "track parallel momentum, along the jet axis",
@@ -27,7 +31,6 @@ const char* TaggingVariableDescription[] = {
   /* [trackPtRatio]                             = */ "track transverse momentum, relative to the jet axis, normalized to its energy",
   /* [trackPParRatio]                           = */ "track parallel momentum, along the jet axis, normalized to its energy",
 
-  /* [trackIp2dVal]                             = */ "track 2D impact parameter",
   /* [trackSip2dVal]                            = */ "track 2D signed impact parameter",
   /* [trackSip2dSig]                            = */ "track 2D signed impact parameter significance",
   /* [trackSip3dVal]                            = */ "track 3D signed impact parameter",
@@ -55,7 +58,9 @@ const char* TaggingVariableDescription[] = {
 
   /* [vertexEnergyRatio]                        = */ "ratio of energy at secondary vertex over total energy",
   /* [vertexJetDeltaR]                          = */ "pseudoangular distance between jet axis and secondary vertex direction",
-
+  
+  /* [flightDistance1dVal]                      = */ "Longitudinal distance along the z-axis between primary and secondary vertex",
+  /* [flightDistance1dSig]                      = */ "Longitudinal distance significance along the z-axis between primary and secondary vertex",
   /* [flightDistance2dVal]                      = */ "transverse distance between primary and secondary vertex",
   /* [flightDistance2dSig]                      = */ "transverse distance significance between primary and secondary vertex",
   /* [flightDistance3dVal]                      = */ "distance between primary and secondary vertex",
@@ -98,25 +103,61 @@ const char* TaggingVariableDescription[] = {
   /* [leptonP0Par]                              = */ "momentum of the soft lepton along the jet direction, in the jet rest frame",
   /* [leptonEtaRel]                             = */ "pseudo)rapidity of the soft lepton along jet axis",
   /* [leptonDeltaR]                             = */ "pseudo)angular distance of the soft lepton to jet axis",
-  /* [leptonRatio],                             = */ "momentum of the soft lepton over jet energy",
+  /* [leptonRatio]                              = */ "momentum of the soft lepton over jet energy",
   /* [leptonRatioRel]                           = */ "momentum of the soft lepton parallel to jet axis over jet energy",
+  /* [electronMVA]                              = */ "mva output of the electron ID",
+
+  /* [trackSip3dSig_0]                          = */ "1st largest track 3D signed impact parameter significance",
+  /* [trackSip3dSig_1]                          = */ "2nd largest track 3D signed impact parameter significance",
+  /* [trackSip3dSig_2]                          = */ "3rd largest track 3D signed impact parameter significance",
+  /* [trackSip3dSig_3]                          = */ "4th largest track 3D signed impact parameter significance",
+  /* [tau1_trackSip3dSig_0]                     = */ "1st largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis",
+  /* [tau1_trackSip3dSig_1]                     = */ "2nd largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis",
+  /* [tau2_trackSip3dSig_0]                     = */ "1st largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis",
+  /* [tau2_trackSip3dSig_1]                     = */ "2nd largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis",
+  /* [trackSip2dSigAboveBottom_0]               = */ "track 2D signed impact parameter significance of 1st track lifting mass above bottom",
+  /* [trackSip2dSigAboveBottom_1]               = */ "track 2D signed impact parameter significance of 2nd track lifting mass above bottom",
+  /* [tau1_trackEtaRel_0]                       = */ "1st smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis",
+  /* [tau1_trackEtaRel_1]                       = */ "2nd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis",
+  /* [tau1_trackEtaRel_2]                       = */ "3rd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis",
+  /* [tau2_trackEtaRel_0]                       = */ "1st smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis",
+  /* [tau2_trackEtaRel_1]                       = */ "2nd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis",
+  /* [tau2_trackEtaRel_2]                       = */ "3rd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis",
+  /* [tau1_vertexMass]                          = */ "mass of track sum at secondary vertex associated to the 1st N-subjettiness axis",
+  /* [tau1_vertexEnergyRatio]                   = */ "ratio of energy at secondary vertex over total energy associated to the 1st N-subjettiness axis",
+  /* [tau1_flightDistance2dSig]                 = */ "transverse distance significance between primary and secondary vertex associated to the 1st N-subjettiness axis",
+  /* [tau1_vertexDeltaR]                        = */ "pseudoangular distance between the 1st N-subjettiness axis and secondary vertex direction",
+  /* [tau2_vertexMass]                          = */ "mass of track sum at secondary vertex associated to the 2nd N-subjettiness axis",
+  /* [tau2_vertexEnergyRatio]                   = */ "ratio of energy at secondary vertex over total energy associated to the 2nd N-subjettiness axis",
+  /* [tau2_flightDistance2dSig]                 = */ "transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis",
+  /* [tau2_vertexDeltaR]                        = */ "pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction",
+  /* [z_ratio]                                  = */ "z ratio",
+  /* [Jet_SoftMu]                               = */ "SoftMu Tagger discriminator",
+  /* [Jet_SoftEl]                               = */ "SoftEl Tagger discriminator",
+  /* [Jet_JBP]                                  = */ "JBP Tagger discriminator",
+  /* [Jet_JP]                                   = */ "JP Tagger discriminator",
 
   /* [algoDiscriminator]                        = */ "discriminator output of an algorithm",
 
   /* [lastTaggingVariable]                      = */ ""
 };
 
-const char* TaggingVariableTokens[] = {
+const char* const TaggingVariableTokens[] = {
   /* [jetEnergy]                                = */ "jetEnergy",
   /* [jetPt]                                    = */ "jetPt",
   /* [trackJetPt]                               = */ "trackJetPt",
   /* [jetEta]                                   = */ "jetEta",
+  /* [jetAbsEta]                                = */ "jetAbsEta",
   /* [jetPhi]                                   = */ "jetPhi",
   /* [jetNTracks]                               = */ "jetNTracks",
+  /* [jetNSelectedTracks]                       = */ "jetNSelectedTracks",
+  /* [jetNTracksEtaRel]                         = */ "jetNTracksEtaRel",
 
   /* [trackMomentum]                            = */ "trackMomentum",
   /* [trackEta]                                 = */ "trackEta",
   /* [trackPhi]                                 = */ "trackPhi",
+
+  /* [trackCharge]                              = */ "trackCharge",
 
   /* [trackPtRel]                               = */ "trackPtRel",
   /* [trackPPar]                                = */ "trackPPar",
@@ -125,7 +166,6 @@ const char* TaggingVariableTokens[] = {
   /* [trackPtRatio]                             = */ "trackPtRatio",
   /* [trackPParRatio]                           = */ "trackPParRatio",
 
-  /* [trackIp2dVal]                             = */ "trackIp2dVal",
   /* [trackSip2dVal]                            = */ "trackSip2dVal",
   /* [trackSip2dSig]                            = */ "trackSip2dSig",
   /* [trackSip3dVal]                            = */ "trackSip3dVal",
@@ -154,6 +194,8 @@ const char* TaggingVariableTokens[] = {
   /* [vertexEnergyRatio]                        = */ "vertexEnergyRatio",
   /* [vertexJetDeltaR]                          = */ "vertexJetDeltaR",
 
+  /* [flightDistance1dVal]                      = */ "flightDistance1dVal",
+  /* [flightDistance1dSig]                      = */ "flightDistance1dSig", 
   /* [flightDistance2dVal]                      = */ "flightDistance2dVal",
   /* [flightDistance2dSig]                      = */ "flightDistance2dSig",
   /* [flightDistance3dVal]                      = */ "flightDistance3dVal",
@@ -178,19 +220,19 @@ const char* TaggingVariableTokens[] = {
   /* [neutralHadronEnergyFraction]              = */ "neutralHadronEnergyFraction",
   /* [photonEnergyFraction]                     = */ "photonEnergyFraction",
   /* [electronEnergyFraction]                   = */ "electronEnergyFraction",
-  /* [muonEnergyFraction],                      = */ "muonEnergyFraction",
-  /* [chargedHadronMultiplicity],               = */ "chargedHadronMultiplicity",
-  /* [neutralHadronMultiplicity],               = */ "neutralHadronMultiplicity",
+  /* [muonEnergyFraction]                       = */ "muonEnergyFraction",
+  /* [chargedHadronMultiplicity]                = */ "chargedHadronMultiplicity",
+  /* [neutralHadronMultiplicity]                = */ "neutralHadronMultiplicity",
   /* [photonMultiplicity]                       = */ "photonMultiplicity",
   /* [electronMultiplicity]                     = */ "electronMultiplicity",
-  /* [muonMultiplicity],                        = */ "muonMultiplicity",
-  /* [hadronMultiplicity],                      = */ "hadronMultiplicity",
-  /* [hadronPhotonMultiplicity],                = */ "hadronPhotonMultiplicity",
+  /* [muonMultiplicity]                         = */ "muonMultiplicity",
+  /* [hadronMultiplicity]                       = */ "hadronMultiplicity",
+  /* [hadronPhotonMultiplicity]                 = */ "hadronPhotonMultiplicity",
   /* [totalMultiplicity]                        = */ "totalMultiplicity",
 
-  /* [massVertexEnergyFraction],                = */ "massVertexEnergyFraction",
-  /* [vertexBoostOverSqrtJetPt],                = */ "vertexBoostOverSqrtJetPt",
- 
+  /* [massVertexEnergyFraction]                 = */ "massVertexEnergyFraction",
+  /* [vertexBoostOverSqrtJetPt]                 = */ "vertexBoostOverSqrtJetPt",
+
   /* [leptonSip2d]                              = */ "leptonSip2d",
   /* [leptonSip3d]                              = */ "leptonSip3d",
   /* [leptonPtRel]                              = */ "leptonPtRel",
@@ -198,7 +240,38 @@ const char* TaggingVariableTokens[] = {
   /* [leptonEtaRel]                             = */ "leptonEtaRel",
   /* [leptonDeltaR]                             = */ "leptonDeltaR",
   /* [leptonRatio]                              = */ "leptonRatio",
-  /* [leptonRatioRel],                          = */ "leptonRatioRel",
+  /* [leptonRatioRel]                           = */ "leptonRatioRel",
+  /* [electronMVA]                              = */ "electronMVA",
+
+  /* [trackSip3dSig_0]                          = */ "trackSip3dSig_0",
+  /* [trackSip3dSig_1]                          = */ "trackSip3dSig_1",
+  /* [trackSip3dSig_2]                          = */ "trackSip3dSig_2",
+  /* [trackSip3dSig_3]                          = */ "trackSip3dSig_3",
+  /* [tau1_trackSip3dSig_0]                     = */ "tau1_trackSip3dSig_0",
+  /* [tau1_trackSip3dSig_1]                     = */ "tau1_trackSip3dSig_1",
+  /* [tau2_trackSip3dSig_0]                     = */ "tau2_trackSip3dSig_0",
+  /* [tau2_trackSip3dSig_1]                     = */ "tau2_trackSip3dSig_1",
+  /* [trackSip2dSigAboveBottom_0]               = */ "trackSip2dSigAboveBottom_0",
+  /* [trackSip2dSigAboveBottom_1]               = */ "trackSip2dSigAboveBottom_1",
+  /* [tau1_trackEtaRel_0]                       = */ "tau1_trackEtaRel_0",
+  /* [tau1_trackEtaRel_1]                       = */ "tau1_trackEtaRel_1",
+  /* [tau1_trackEtaRel_2]                       = */ "tau1_trackEtaRel_2",
+  /* [tau2_trackEtaRel_0]                       = */ "tau2_trackEtaRel_0",
+  /* [tau2_trackEtaRel_1]                       = */ "tau2_trackEtaRel_1",
+  /* [tau2_trackEtaRel_2]                       = */ "tau2_trackEtaRel_2",
+  /* [tau1_vertexMass]                          = */ "tau1_vertexMass",
+  /* [tau1_vertexEnergyRatio]                   = */ "tau1_vertexEnergyRatio",
+  /* [tau1_flightDistance2dSig]                 = */ "tau1_flightDistance2dSig",
+  /* [tau1_vertexDeltaR]                        = */ "tau1_vertexDeltaR",
+  /* [tau2_vertexMass]                          = */ "tau2_vertexMass",
+  /* [tau2_vertexEnergyRatio]                   = */ "tau2_vertexEnergyRatio",
+  /* [tau2_flightDistance2dSig]                 = */ "tau2_flightDistance2dSig",
+  /* [tau2_vertexDeltaR]                        = */ "tau2_vertexDeltaR",
+  /* [z_ratio]                                  = */ "z_ratio",
+  /* [Jet_SoftMu]                               = */ "Jet_SoftMu",
+  /* [Jet_SoftEl]                               = */ "Jet_SoftEl",
+  /* [Jet_JBP]                                  = */ "Jet_JBP",
+  /* [Jet_JP]                                   = */ "Jet_JP",
 
   /* [algoDiscriminator]                        = */ "algoDiscriminator",
 
@@ -261,13 +334,12 @@ TaggingValue TaggingVariableList::get( TaggingVariableName tag, TaggingValue def
 }
 
 std::vector<TaggingValue> TaggingVariableList::getList( TaggingVariableName tag, bool throwOnEmptyList ) const {
-  using namespace __gnu_cxx;
   range r = getRange( tag );
   if ( throwOnEmptyList && r.first == r.second )
     throw edm::Exception( edm::errors::InvalidReference )
                   << "TaggingVariable " << tag << " is not present in the collection";
   std::vector<TaggingValue> list( r.second - r.first );
-  transform( r.first, r.second, list.begin(), select2nd< TaggingVariable >() );
+  transform( r.first, r.second, list.begin(), [](TaggingVariable const& x) { return x.second;} );
   return list;
 }
 

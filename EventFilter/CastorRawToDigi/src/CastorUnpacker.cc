@@ -62,6 +62,11 @@ CastorUnpacker::CastorUnpacker(int sourceIdOffset, int beg, int end) : sourceIdO
  }
 }
 
+static int slb(const HcalTriggerPrimitiveSample& theSample) { return ((theSample.raw()>>13)&0x7); }
+static int slbChan(const HcalTriggerPrimitiveSample& theSample) { return (theSample.raw()>>11)&0x3; }
+static int slbAndChan(const HcalTriggerPrimitiveSample& theSample) { return (theSample.raw()>>11)&0x1F; }
+
+
 
 void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& emap,
 			  CastorRawCollections& colls, HcalUnpackerReport& report, bool silent) {
@@ -136,8 +141,8 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
     int htr_slot=(smid>>1)&0x1F;
     int htr_cr=(smid>>6)&0x1F;
     
-    tp_begin=(HcalTriggerPrimitiveSample*)tp_first;
-    tp_end=(HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
+    tp_begin=(const HcalTriggerPrimitiveSample*)tp_first;
+    tp_end=(const HcalTriggerPrimitiveSample*)(tp_last+1); // one beyond last..
        
     /// work through the samples
     int currFiberChan=0x3F; // invalid fiber+channel...
@@ -165,9 +170,9 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	//	  std::cout << "raw=0x"<<std::hex<< tp_work->raw()<<std::dec <<std::endl;
 	if (tp_work->raw()==0xFFFF) continue; // filler word
-	if (tp_work->slbAndChan()!=currFiberChan) { // start new set
+	if (slbAndChan(*tp_work)!=currFiberChan) { // start new set
 	  npre=0;
-	  currFiberChan=tp_work->slbAndChan();
+	  currFiberChan=slbAndChan(*tp_work);
 	  
 		// std::cout<< " NEW SET "<<std::endl;
 	  //HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
@@ -190,7 +195,7 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
 	  colls.tpCont->push_back(CastorTriggerPrimitiveDigi(id));
 	  // set the various bits
 	  if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
-	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(tp_work->slb(),tp_work->slbChan()));
+	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(slb(*tp_work),slbChan(*tp_work)));
 
 	  // no hits recorded for current
 	  ncurr=0;
@@ -211,21 +216,16 @@ void CastorUnpacker::unpack(const FEDRawData& raw, const CastorElectronicsMap& e
      }
 
 //////////////////////////////////////////////
-    qie_begin=(HcalQIESample*)daq_first;
-    qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
+    qie_begin=(const HcalQIESample*)daq_first;
+    qie_end=(const HcalQIESample*)(daq_last+1); // one beyond last..
 
     /// work through the samples
-    currFiberChan=0x3F; // invalid fiber+channel...
-    ncurr=0;
-    valid=false;
     
     for (qie_work=qie_begin; qie_work!=qie_end; ) {
       if (qie_work->raw()==0xFFFF) {
 	qie_work++;
 	continue; // filler word
       }
-      // always at the beginning ...
-      currFiberChan=qie_work->fiberAndChan();
 
       // lookup the right channel
       CastorElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);

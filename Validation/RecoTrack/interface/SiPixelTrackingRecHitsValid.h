@@ -28,7 +28,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
@@ -56,7 +55,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -67,7 +66,7 @@
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public thread_unsafe::DQMEDAnalyzer
+class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
 {
  public:
   
@@ -85,7 +84,7 @@ class SiPixelTrackingRecHitsValid : public thread_unsafe::DQMEDAnalyzer
 
  private:
 
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;
   bool runStandalone;
@@ -508,8 +507,8 @@ class SiPixelTrackingRecHitsValid : public thread_unsafe::DQMEDAnalyzer
   float simhitx; // true x position of hit 
   float simhity; // true y position of hit
 
-  int evt;
-  int run;
+  edm::EventNumber_t evt;
+  edm::RunNumber_t run;
 
   TFile * tfile_;
   TTree * t_;

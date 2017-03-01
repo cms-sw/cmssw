@@ -42,9 +42,10 @@ class RPCSimAverageNoiseEffCls : public RPCSim
   int getClSize(float posX, CLHEP::HepRandomEngine*);
   int getClSize(uint32_t id,float posX, CLHEP::HepRandomEngine*);
 
- private:
-  void init(){};
- private:
+// private:
+ protected:
+  void init() override{};
+  
   double aveEff;
   double aveCls;
   double resRPC;

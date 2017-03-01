@@ -22,7 +22,7 @@ class SiStripFedCablingESProducer : public edm::ESProducer {
   virtual ~SiStripFedCablingESProducer();
   
   /** Calls pure virtual make() method, to force concrete implementation. */
-  virtual std::auto_ptr<SiStripFedCabling> produce( const SiStripFedCablingRcd& );
+  virtual std::unique_ptr<SiStripFedCabling> produce( const SiStripFedCablingRcd& );
   
  private:
   

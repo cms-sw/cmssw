@@ -5,6 +5,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -30,6 +31,9 @@ TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig)
     , NumberOfRecHitsPerSeed(NULL)
     , NumberOfRecHitsPerSeedVsPhiProfile(NULL)
     , NumberOfRecHitsPerSeedVsEtaProfile(NULL)
+    , stoppingSource(NULL)
+    , stoppingSourceVSeta(NULL)
+    , stoppingSourceVSphi(NULL)
 {
 }
 
@@ -101,6 +105,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
   doAllPlots     = conf_.getParameter<bool>("doAllPlots");
   doAllSeedPlots = conf_.getParameter<bool>("doSeedParameterHistos");
   doTCPlots      = conf_.getParameter<bool>("doTrackCandHistos");
+  doAllTCPlots   = conf_.getParameter<bool>("doAllTrackCandHistos");
   doPT           = conf_.getParameter<bool>("doSeedPTHisto");
   doETA          = conf_.getParameter<bool>("doSeedETAHisto");
   doPHI          = conf_.getParameter<bool>("doSeedPHIHisto");
@@ -112,6 +117,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
   doNRecHits     = conf_.getParameter<bool>("doSeedNRecHitsHisto");
   doProfPHI      = conf_.getParameter<bool>("doSeedNVsPhiProf");
   doProfETA      = conf_.getParameter<bool>("doSeedNVsEtaProf");
+  doStopSource   = conf_.getParameter<bool>("doStopSource");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
@@ -121,7 +127,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
   // ---------------------------------------------------------------------------------//
   //  std::cout << "[TrackBuildingAnalyzer::beginRun] MEFolderName: " << MEFolderName << std::endl;
   ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
-  
+
   if (doAllSeedPlots || doPT) {
     histname = "SeedPt_"+seedProducer.label() + "_";
     SeedPt = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackPtBin, TrackPtMin, TrackPtMax);
@@ -198,6 +204,56 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Seed #eta",1);
     NumberOfRecHitsPerSeedVsEtaProfile->setAxisTitle("Number of RecHits of each Seed",2);
   }
+
+  if (doAllTCPlots || doStopSource) {
+    // DataFormats/TrackReco/interface/TrajectoryStopReasons.h
+    size_t StopReasonNameSize = sizeof(StopReasonName::StopReasonName)/sizeof(std::string);
+    if(StopReasonNameSize != static_cast<unsigned int>(StopReason::SIZE)) {
+      throw cms::Exception("Assert") << "StopReason::SIZE is " << static_cast<unsigned int>(StopReason::SIZE)
+				     << " but StopReasonName's only for "
+				     << StopReasonNameSize
+				     << ". Please update DataFormats/TrackReco/interface/TrajectoryStopReasons.h.";
+    }
+    
+    
+    histname = "StoppingSource_"+seedProducer.label() + "_";
+    stoppingSource = ibooker.book1D(histname+CatagoryName,
+                                    histname+CatagoryName,
+                                    StopReasonNameSize,
+                                    0., double(StopReasonNameSize));
+    stoppingSource->setAxisTitle("stopping reason",1);
+    stoppingSource->setAxisTitle("Number of Tracks",2);
+    
+    histname = "StoppingSourceVSeta_"+seedProducer.label() + "_";
+    stoppingSourceVSeta = ibooker.book2D(histname+CatagoryName,
+                                         histname+CatagoryName,
+                                         EtaBin,
+                                         EtaMin,
+                                         EtaMax,
+                                         StopReasonNameSize,
+                                         0., double(StopReasonNameSize));
+    stoppingSourceVSeta->setAxisTitle("track #eta",1);
+    stoppingSourceVSeta->setAxisTitle("stopping reason",2);
+    
+    histname = "StoppingSourceVSphi_"+seedProducer.label() + "_";
+    stoppingSourceVSphi = ibooker.book2D(histname+CatagoryName,
+                                         histname+CatagoryName,
+                                         PhiBin,
+                                         PhiMin,
+                                         PhiMax,
+                                         StopReasonNameSize,
+                                         0., double(StopReasonNameSize));
+    stoppingSourceVSphi->setAxisTitle("track #phi",1);
+    stoppingSourceVSphi->setAxisTitle("stopping reason",2);
+    
+    for (size_t ibin=0; ibin<StopReasonNameSize; ibin++) {
+      stoppingSource->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],1);
+      stoppingSourceVSeta->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
+      stoppingSourceVSphi->setBinLabel(ibin+1,StopReasonName::StopReasonName[ibin],2);
+    }
+  }
+  
+
   
   // book the TrackCandidate histograms
   // ---------------------------------------------------------------------------------//
@@ -221,40 +277,49 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
     TrackCandPhi->setAxisTitle("Track Candidate #phi", 1);
     TrackCandPhi->setAxisTitle("Number of Track Candidates", 2);
     
-    histname = "TrackCandTheta_"+tcProducer.label() + "_";
-    TrackCandTheta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
-    TrackCandTheta->setAxisTitle("Track Candidate #theta", 1);
-    TrackCandTheta->setAxisTitle("Number of Track Candidates", 2);
+    if (doTheta) {
+      histname = "TrackCandTheta_"+tcProducer.label() + "_";
+      TrackCandTheta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
+      TrackCandTheta->setAxisTitle("Track Candidate #theta", 1);
+      TrackCandTheta->setAxisTitle("Number of Track Candidates", 2);
+    }
     
-    histname = "TrackCandQ_"+tcProducer.label() + "_";
-    TrackCandQ = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
-    TrackCandQ->setAxisTitle("Track Candidate Charge", 1);
-    TrackCandQ->setAxisTitle("Number of Track Candidates",2);
+    if (doAllTCPlots) {
+      histname = "TrackCandQ_"+tcProducer.label() + "_";
+      TrackCandQ = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
+      TrackCandQ->setAxisTitle("Track Candidate Charge", 1);
+      TrackCandQ->setAxisTitle("Number of Track Candidates",2);
+
+      histname = "TrackCandDxy_"+tcProducer.label() + "_";
+      TrackCandDxy = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDxyBin, TCDxyMin, TCDxyMax);
+      TrackCandDxy->setAxisTitle("Track Candidate d_{xy} (cm)", 1);
+      TrackCandDxy->setAxisTitle("Number of Track Candidates",2);
+      
+      histname = "TrackCandDz_"+tcProducer.label() + "_";
+      TrackCandDz = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDzBin, TCDzMin, TCDzMax);
+      TrackCandDz->setAxisTitle("Track Candidate d_{z} (cm)", 1);
+      TrackCandDz->setAxisTitle("Number of Track Candidates",2);
+
+      histname = "NumberOfRecHitsPerTrackCand_"+tcProducer.label() + "_";
+      NumberOfRecHitsPerTrackCand = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCHitBin, TCHitMin, TCHitMax);
+      NumberOfRecHitsPerTrackCand->setAxisTitle("Number of RecHits per Track Candidate", 1);
+      NumberOfRecHitsPerTrackCand->setAxisTitle("Number of Track Candidates",2);
     
-    histname = "TrackCandDxy_"+tcProducer.label() + "_";
-    TrackCandDxy = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDxyBin, TCDxyMin, TCDxyMax);
-    TrackCandDxy->setAxisTitle("Track Candidate d_{xy} (cm)", 1);
-    TrackCandDxy->setAxisTitle("Number of Track Candidates",2);
-    
-    histname = "TrackCandDz_"+tcProducer.label() + "_";
-    TrackCandDz = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDzBin, TCDzMin, TCDzMax);
-    TrackCandDz->setAxisTitle("Track Candidate d_{z} (cm)", 1);
-    TrackCandDz->setAxisTitle("Number of Track Candidates",2);
-    
-    histname = "NumberOfRecHitsPerTrackCand_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCand = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCHitBin, TCHitMin, TCHitMax);
-    NumberOfRecHitsPerTrackCand->setAxisTitle("Number of RecHits per Track Candidate", 1);
-    NumberOfRecHitsPerTrackCand->setAxisTitle("Number of Track Candidates",2);
-    
-    histname = "NumberOfRecHitsPerTrackCandVsPhiProfile_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCandVsPhiProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, TCHitBin, TCHitMin, TCHitMax,"s");
-    NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Track Candidate #phi",1);
-    NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
-    
-    histname = "NumberOfRecHitsPerTrackCandVsEtaProfile_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCandVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, TCHitBin, TCHitMin, TCHitMax,"s");
-    NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Track Candidate #eta",1);
-    NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
+      histname = "NumberOfRecHitsPerTrackCandVsPhiProfile_"+tcProducer.label() + "_";
+      NumberOfRecHitsPerTrackCandVsPhiProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, TCHitBin, TCHitMin, TCHitMax,"s");
+      NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Track Candidate #phi",1);
+      NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
+      
+      histname = "NumberOfRecHitsPerTrackCandVsEtaProfile_"+tcProducer.label() + "_";
+      NumberOfRecHitsPerTrackCandVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, TCHitBin, TCHitMin, TCHitMax,"s");
+      NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Track Candidate #eta",1);
+      NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
+    }
+
+    histname = "TrackCandPhiVsEta_"+tcProducer.label() + "_";
+    TrackCandPhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    TrackCandPhiVsEta->setAxisTitle("Track Candidate #eta", 1);
+    TrackCandPhiVsEta->setAxisTitle("Track Candidate #phi", 2);
   }
   
 }
@@ -274,8 +339,9 @@ void TrackBuildingAnalyzer::analyze
   TSCBLBuilderNoMaterial tscblBuilder;
   
   //get parameters and errors from the candidate state
-  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.startingState(), recHit->surface(), theMF.product());
+  auto const & theG = ((TkTransientTrackingRecHitBuilder const *)(theTTRHBuilder.product()))->geometry();
+  auto const & candSS = candidate.startingState();
+  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
   TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
   if(!(tsAtClosestApproachSeed.isValid())) {
     edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -286,9 +352,9 @@ void TrackBuildingAnalyzer::analyze
   GlobalPoint  v(v0.x()-bs.x0(),v0.y()-bs.y0(),v0.z()-bs.z0());
   
   double pt           = sqrt(state.globalMomentum().perp2());
-  double eta          = state.globalMomentum().eta();
-  double phi          = state.globalMomentum().phi();
-  double theta        = state.globalMomentum().theta();
+  double eta          = state.globalPosition().eta();
+  double phi          = state.globalPosition().phi();
+  double theta        = state.globalPosition().theta();
   //double pm           = sqrt(state.globalMomentum().mag2());
   //double pz           = state.globalMomentum().z();
   //double qoverp       = tsAtClosestApproachSeed.trackStateAtPCA().charge()/p.mag();
@@ -328,8 +394,9 @@ void TrackBuildingAnalyzer::analyze
   TSCBLBuilderNoMaterial tscblBuilder;
   
   //get parameters and errors from the candidate state
-  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.trajectoryStateOnDet(), recHit->surface(), theMF.product());
+  auto const & theG = ((TkTransientTrackingRecHitBuilder const *)(theTTRHBuilder.product()))->geometry();
+  auto const & candSS = candidate.trajectoryStateOnDet();
+  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
   TrajectoryStateClosestToBeamLine tsAtClosestApproachTrackCand = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
   if(!(tsAtClosestApproachTrackCand.isValid())) {
     edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -340,9 +407,9 @@ void TrackBuildingAnalyzer::analyze
   GlobalPoint  v(v0.x()-bs.x0(),v0.y()-bs.y0(),v0.z()-bs.z0());
   
   double pt           = sqrt(state.globalMomentum().perp2());
-  double eta          = state.globalMomentum().eta();
-  double phi          = state.globalMomentum().phi();
-  double theta        = state.globalMomentum().theta();
+  double eta          = state.globalPosition().eta();
+  double phi          = state.globalPosition().phi();
+  double theta        = state.globalPosition().theta();
   //double pm           = sqrt(state.globalMomentum().mag2());
   //double pz           = state.globalMomentum().z();
   //double qoverp       = tsAtClosestApproachTrackCand.trackStateAtPCA().charge()/p.mag();
@@ -352,18 +419,28 @@ void TrackBuildingAnalyzer::analyze
   double dxy          = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
   
   double dz           = v.z() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.perp();
-  
+
+  if (doAllTCPlots || doStopSource) {
+    // stopping source
+    int max = stoppingSource->getNbinsX();
+    double stop = candidate.stopReason() > max ? double(max-1) : static_cast<double>(candidate.stopReason());
+    stoppingSource      ->Fill(stop);
+    stoppingSourceVSeta ->Fill(eta,stop);
+    stoppingSourceVSphi ->Fill(phi,stop);
+  }
+
   if (doTCPlots){
     // fill the ME's
-    TrackCandQ->Fill( state.charge() );
+    if (doAllTCPlots) TrackCandQ->Fill( state.charge() );
     TrackCandPt->Fill( pt );
     TrackCandEta->Fill( eta );
     TrackCandPhi->Fill( phi );
-    TrackCandTheta->Fill( theta );
-    TrackCandDxy->Fill( dxy );
-    TrackCandDz->Fill( dz );
-    NumberOfRecHitsPerTrackCand->Fill( numberOfHits );
-    NumberOfRecHitsPerTrackCandVsEtaProfile->Fill( eta, numberOfHits );
-    NumberOfRecHitsPerTrackCandVsPhiProfile->Fill( phi, numberOfHits );
+    TrackCandPhiVsEta->Fill( eta, phi );
+    if (doTheta) TrackCandTheta->Fill( theta );
+    if (doAllTCPlots) TrackCandDxy->Fill( dxy );
+    if (doAllTCPlots) TrackCandDz->Fill( dz );
+    if (doAllTCPlots) NumberOfRecHitsPerTrackCand->Fill( numberOfHits );
+    if (doAllTCPlots) NumberOfRecHitsPerTrackCandVsEtaProfile->Fill( eta, numberOfHits );
+    if (doAllTCPlots) NumberOfRecHitsPerTrackCandVsPhiProfile->Fill( phi, numberOfHits );
   }
 }

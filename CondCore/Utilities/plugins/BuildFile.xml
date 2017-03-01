@@ -1,12 +1,10 @@
-<library   file="CondPyWrappers.cc" name="CondDBPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <use   name="rootcintex"/>
-</library>
 <library   file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
   <use   name="CondCore/CondDB"/>
   <use   name="FWCore/Sources"/>
+</library>
+<library   file="BasicP_PayloadInspector.cc" name="BasicPayload_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="boost_python"/>
 </library>

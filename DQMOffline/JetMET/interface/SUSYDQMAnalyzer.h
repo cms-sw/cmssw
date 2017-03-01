@@ -28,7 +28,7 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   edm::ParameterSet iConfig;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event& , const edm::EventSetup&);
+  virtual void analyze(const edm::Event& , const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollectionToken;
   edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionToken;

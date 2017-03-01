@@ -54,7 +54,8 @@
 #include "RecoLocalTracker/SubCollectionProducers/interface/ClusterVariables.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/DetId/interface/DetId.h" 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 
 
 //
@@ -72,42 +73,26 @@ class ClusterSummaryProducer : public edm::stream::EDProducer<> {
    private:
       virtual void beginStream(edm::StreamID) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-
-      void decodeInput(std::vector<std::string> &, std::string );
       
+
+      typedef std::pair<DetIdSelector,ClusterSummary::CMSTracker> ModuleSelection;
+      typedef std::vector<ModuleSelection> ModuleSelections;
+
       // ----------member data ---------------------------
       
       edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
       edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
-      std::string stripModules;
 
-      std::vector<std::string> v_stripModuleTypes;
-      std::string pixelModules;
-      std::vector<std::string> v_pixelModuleTypes;
-      
-      std::string stripVariables;
-      std::vector<std::string> v_stripVariables;
-      std::string pixelVariables;
-      std::vector<std::string> v_pixelVariables;
-      
+      ModuleSelections         selectors;
+      std::vector<std::string> moduleNames;
+
       ClusterSummary cCluster;
       std::map< std::string, int > EnumMap;
-      std::vector<ClusterSummary::ModuleSelection*> ModuleSelectionVect;
-      std::vector<ClusterSummary::ModuleSelection*> ModuleSelectionVectPixels;
 
 
       bool doStrips;
       bool doPixels;
       bool verbose;
-      bool firstpass;
-      bool firstpass_mod;
-      bool firstpassPixel;
-      bool firstpassPixel_mod;
-
-      //Declare the variables to fill the summary info with
-      std::vector<std::string> v_userContent; 
-      
-      
 
 };
 

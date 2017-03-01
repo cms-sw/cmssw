@@ -1,17 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-lowPtBarrelTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution= cms.bool(True),
-    trajectories = cms.InputTag("lowPtForwardTripletStepTracks"),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+lowPtBarrelTripletStepClusters = trackClusterRemover.clone(
+    maxChi2               = cms.double(9.0),
+    trajectories          = cms.InputTag("lowPtForwardTripletStepTracks"),
+    pixelClusters         = cms.InputTag("siPixelClusters"),
+    stripClusters         = cms.InputTag("siStripClusters"),
     oldClusterRemovalInfo = cms.InputTag("lowPtForwardTripletStepClusters"),
-    overrideTrkQuals = cms.InputTag('lowPtForwardTripletStepSelector','lowPtForwardTripletStep'),
-    TrackQuality = cms.string('highPurity'),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
-    )
+    overrideTrkQuals      = cms.InputTag('lowPtForwardTripletStepSelector','lowPtForwardTripletStep'),
+    TrackQuality          = cms.string('highPurity'),
 )
 
 # SEEDING LAYERS
@@ -50,8 +48,8 @@ lowPtBarrelTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Traje
     minPt = 0.1
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-lowPtBarrelTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+lowPtBarrelTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0) 
@@ -98,21 +96,21 @@ lowPtBarrelTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidate
 ### reconstruction of loopers
 
 # TRACK FITTING
-import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi
-lowPtBarrelTripletStepKFTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone(
+import TrackingTools.TrackFitters.KFTrajectoryFitter_cfi
+lowPtBarrelTripletStepKFTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepKFTrajectoryFitter'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers')
 )
 
-import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
-lowPtBarrelTripletStepKFTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
+import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
+lowPtBarrelTripletStepKFTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepKFTrajectorySmoother'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers'),
     errorRescaling = cms.double(10.0)
 )
 
-import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
-lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi.KFFittingSmoother.clone(
+import TrackingTools.TrackFitters.KFFittingSmoother_cfi
+lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepKFFittingSmoother'),
     Fitter = cms.string('lowPtBarrelTripletStepKFTrajectoryFitter'),
     Smoother = cms.string('lowPtBarrelTripletStepKFTrajectorySmoother'),
@@ -126,7 +124,7 @@ lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSm
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtBarrelTripletStepTrackCandidates',
-    AlgorithmName = cms.string('iter1'),
+    AlgorithmName = cms.string('lowPtTripletStep'),
     Fitter = cms.string('lowPtBarrelTripletStepKFFittingSmoother'),
     #Propagator = cms.string('PropagatorWithMaterialForLoopers'),
     #NavigationSchool = cms.string('') ### Is the outerHitPattern filled correctly for loopers???

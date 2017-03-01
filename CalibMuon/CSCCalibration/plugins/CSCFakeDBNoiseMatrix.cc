@@ -5,7 +5,7 @@
 
 CSCFakeDBNoiseMatrix::CSCFakeDBNoiseMatrix(const edm::ParameterSet& iConfig)
 {
-  cndbNoiseMatrix = boost::shared_ptr<CSCDBNoiseMatrix> ( prefillDBNoiseMatrix() );  
+  cndbNoiseMatrix = std::shared_ptr<CSCDBNoiseMatrix> ( prefillDBNoiseMatrix() );  
   //tell the framework what data is being produced
   setWhatProduced(this,&CSCFakeDBNoiseMatrix::produceDBNoiseMatrix);  
   findingRecord<CSCDBNoiseMatrixRcd>();

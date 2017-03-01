@@ -32,7 +32,7 @@ class ESOccupancyTask : public DQMEDAnalyzer {
   MonitorElement* hRecNHit_[2][2];
   MonitorElement* hEnDensity_[2][2];
   MonitorElement* hSelEnDensity_[2][2];
-  MonitorElement* hDigiNHit_[2][2];
+  MonitorElement* hGoodRecNHit_[2][2];
   MonitorElement* hSelEng_[2][2];
   MonitorElement* hEng_[2][2];
   MonitorElement* hEvEng_[2][2];

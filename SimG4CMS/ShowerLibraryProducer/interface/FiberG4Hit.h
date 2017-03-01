@@ -9,7 +9,6 @@
 #include "G4Allocator.hh"
 #include "G4LogicalVolume.hh"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class FiberG4Hit : public G4VHit {

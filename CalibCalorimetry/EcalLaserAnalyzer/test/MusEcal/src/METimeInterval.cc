@@ -63,7 +63,7 @@ METimeInterval::split( const list<ME::Time>& times )
       theList.unique();
       theList.sort();
       list<ME::Time>::iterator it;
-      for( it=theList.begin(); it!=theList.end(); it++ )
+      for( it=theList.begin(); it!=theList.end(); ++it )
 	{
 	  ME::Time time = *it;
 	  if( time<=_firstTime ) continue;

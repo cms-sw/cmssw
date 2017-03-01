@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -114,14 +113,13 @@ L1GtPsbSetupTrivialProducer::~L1GtPsbSetupTrivialProducer()
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1GtPsbSetup> L1GtPsbSetupTrivialProducer::producePsbSetup(
+std::shared_ptr<L1GtPsbSetup> L1GtPsbSetupTrivialProducer::producePsbSetup(
         const L1GtPsbSetupRcd& iRecord)
 {
 
     using namespace edm::es;
 
-    boost::shared_ptr<L1GtPsbSetup> pL1GtPsbSetup = boost::shared_ptr<
-            L1GtPsbSetup>(new L1GtPsbSetup());
+    auto pL1GtPsbSetup = std::make_shared<L1GtPsbSetup>();
 
     pL1GtPsbSetup->setGtPsbSetup(m_gtPsbSetup);
 

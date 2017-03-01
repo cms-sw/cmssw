@@ -6,9 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
-
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtended2017_cff")
 
 #Magnetic Field
 #

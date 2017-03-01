@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 #include <algorithm>
@@ -78,7 +79,7 @@ private:
    unsigned int numberOfEventsLeftBeforeSearch_;
    bool mustSearch_;
    
-   std::shared_ptr<boost::thread> listenerThread_;
+   edm::propagate_const<std::shared_ptr<boost::thread>> listenerThread_;
    int messageQueue_;
 };
 

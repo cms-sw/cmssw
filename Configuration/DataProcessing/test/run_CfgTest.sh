@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Test suite for various ConfigDP scenarios
-# run using: scram build runtest 
+# run using: scram build runtests
 # feel free to contribute with your favourite configuration
 
 
@@ -11,59 +11,41 @@ function die { echo $1: status $2 ;  exit $2; }
 function runTest { echo $1 ; python $1 || die "Failure for configuration: $1" $?; }
 
 
-INPUT=${LOCAL_TEST_DIR}/RunExpressProcessing.py
+runTest "${LOCAL_TEST_DIR}/RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever"
 
-runTest "${INPUT} --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-runTest "${INPUT} --scenario pp --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-runTest "${INPUT} --scenario cosmicsRun2 --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-runTest "${INPUT} --scenario ppRun2 --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-runTest "${INPUT} --scenario HeavyIons --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
-
-
-INPUT=${LOCAL_TEST_DIR}/RunRepack.py
-
-runTest "${INPUT} --select-events HLT:path1,HLT:path2 --lfn /store/whatever"
+declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "cosmicsEra_Run2_2017" "ppEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU")
+for scenario in "${arr[@]}"
+do
+     runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio  --alcareco TkAlMinBias+SiStripCalMinBias "
+     runTest "${LOCAL_TEST_DIR}/RunVisualizationProcessing.py --scenario $scenario --lfn /store/whatever --global-tag GLOBALTAG --fevt"
+     runTest "${LOCAL_TEST_DIR}/RunAlcaHarvesting.py --scenario $scenario --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
+done
 
 
-INPUT=${LOCAL_TEST_DIR}/RunPromptReco.py
+declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "AlCaLumiPixels" "AlCaTestEnable" "hcalnzs" "hcalnzsEra_Run2_25ns" "hcalnzsEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "cosmicsEra_Run2_2017" "hcalnzsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017")
+for scenario in "${arr[@]}"
+do
+     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
+done
 
-runTest "${INPUT} --scenario=cosmics --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=pp --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=cosmicsRun2 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=ppRun2 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=HeavyIons --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=AlCaLumiPixels --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-#runTest "${INPUT} --scenario=AlCaP0 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-#runTest "${INPUT} --scenario=AlCaPhiSymEcal --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=AlCaTestEnable --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=hcalnzs --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-
-INPUT=${LOCAL_TEST_DIR}/RunAlcaSkimming.py
-
-runTest "${INPUT} --scenario pp --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBias,PromptCalibProd"
-runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripPCLHistos"
-runTest "${INPUT} --scenario ppRun2 --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBias,PromptCalibProd"
-runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripPCLHistos"
-runTest "${INPUT} --scenario HeavyIons --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBiasHI,PromptCalibProd"
-runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims LumiPixels"
-#runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPi0Calib"
-#runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPhiSym"
+declare -a arr=("HeavyIonsEra_Run2_HI")
+for scenario in "${arr[@]}"
+do
+     runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio  --alcareco TkAlMinBiasHI+SiStripCalMinBias "
+     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBiasHI+SiStripCalMinBias"
+done
 
 
-INPUT=${LOCAL_TEST_DIR}/RunAlcaHarvesting.py
+declare -a arr=("cosmics" "pp" "cosmicsEra_Run2_25ns" "cosmicsEra_Run2_2016" "HeavyIons" "HeavyIonsEra_Run2_HI" "AlCaLumiPixels" "ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "cosmicsEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU" "ppEra_Run2_2017")
+for scenario in "${arr[@]}"
+do
+     runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario $scenario --lfn=/store/whatever --global-tag GLOBALTAG --skims SiStripCalZeroBias,SiStripCalMinBias,PromptCalibProd"
+     runTest "${LOCAL_TEST_DIR}/RunDQMHarvesting.py --scenario $scenario --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG"
+done
 
-runTest "${INPUT} --scenario pp --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
-runTest "${INPUT} --scenario cosmics --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=SiStripQuality"
-runTest "${INPUT} --scenario ppRun2 --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
-runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=SiStripQuality"
-runTest "${INPUT} --scenario HeavyIons --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
-
-INPUT=${LOCAL_TEST_DIR}/RunDQMHarvesting.py
-
-runTest "${INPUT} --scenario pp --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-runTest "${INPUT} --scenario cosmics --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-runTest "${INPUT} --scenario ppRun2 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-#runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-#runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+declare -a arr=("ppEra_Run2_50ns" "ppEra_Run2_25ns" "ppEra_Run2_2016" "ppEra_Run2_2016_trackingLowPU" "ppEra_Run2_2016_pA" "ppEra_Run2_2017" "ppEra_Run2_2017_trackingLowPU")
+for scenario in "${arr[@]}"
+do
+     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --miniaod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
+     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias --PhysicsSkim=@SingleMuon"
+done

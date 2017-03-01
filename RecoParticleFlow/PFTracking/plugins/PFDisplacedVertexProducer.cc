@@ -146,13 +146,13 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   }    
 
 
-  auto_ptr< reco::PFDisplacedVertexCollection > 
+  std::unique_ptr<reco::PFDisplacedVertexCollection>
     pOutputDisplacedVertexCollection( 
       pfDisplacedVertexFinder_.transferDisplacedVertices() ); 
 
 
   
-  iEvent.put(pOutputDisplacedVertexCollection);
+  iEvent.put(std::move(pOutputDisplacedVertexCollection));
  
   LogDebug("PFDisplacedVertexProducer")<<"STOP event: "<<iEvent.id().event()
 			     <<" in run "<<iEvent.id().run()<<endl;

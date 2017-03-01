@@ -4,7 +4,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-
+#include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,10 +15,10 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer
 {
   
   std::string componentName = iConfig.getParameter<std::string>("ComponentName");
-  cutOnPixelCharge_ = iConfig.exists("minGoodPixelCharge");
-  cutOnStripCharge_ = iConfig.exists("minGoodStripCharge");
-  minGoodPixelCharge_= (cutOnPixelCharge_ ? iConfig.getParameter<double>("minGoodPixelCharge") : 0); 
-  minGoodStripCharge_= (cutOnStripCharge_ ? iConfig.getParameter<double>("minGoodStripCharge") : 0);
+  minGoodPixelCharge_= 0,
+  minGoodStripCharge_ = (clusterChargeCut(iConfig));
+  cutOnPixelCharge_ = false;
+  cutOnStripCharge_ = minGoodStripCharge_>0;
   cutOnPixelShape_ = (iConfig.exists("doPixelShapeCut") ? iConfig.getParameter<bool>("doPixelShapeCut") : true);
   cutOnStripShape_ = (iConfig.exists("doStripShapeCut") ? iConfig.getParameter<bool>("doStripShapeCut") : true);
 

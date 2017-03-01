@@ -10,8 +10,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -41,14 +40,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet& cfg) 
-  : theSrc(cfg.getParameter<edm::InputTag>("src")),
-    theIds(cfg.getParameter<std::vector<int> >("pdgIds")),
+  : theIds(cfg.getParameter<std::vector<int> >("pdgIds")),
     theCharges(cfg.getParameter<std::vector<int> >("charges")),
     thePropagatorName(cfg.getParameter<std::string>("propagator")),
     theMinP2(cfg.getParameter<double>("minP")*cfg.getParameter<double>("minP")),
     theMinPt2(cfg.getParameter<double>("minPt")*cfg.getParameter<double>("minPt")),
     theDoMonitor(cfg.getUntrackedParameter<bool>("doMonitor"))
 {
+  theSrcToken = consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("src"));
+
   if (theIds.size() != theCharges.size()) {
     throw cms::Exception("BadConfig") << "CosmicGenFilterHelix: "
 				      << "'pdgIds' and 'charges' need same length.";
@@ -82,7 +82,7 @@ CosmicGenFilterHelix::~CosmicGenFilterHelix()
 bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
   edm::Handle<edm::HepMCProduct> hepMCEvt;
-  iEvent.getByLabel(theSrc, hepMCEvt);
+  iEvent.getByToken(theSrcToken, hepMCEvt);
   const HepMC::GenEvent *mCEvt = hepMCEvt->GetEvent();
   const MagneticField *bField = this->getMagneticField(iSetup); // should be fast (?)
   const Propagator *propagator = this->getPropagator(iSetup);

@@ -30,6 +30,8 @@ LXXXCorrector::LXXXCorrector(const JetCorrectorParameters& fParam, const edm::Pa
     mLevel = 5;
   else if (level == "L7Parton")
     mLevel = 7;
+  else if (level == "L2L3Residual")
+    mLevel = 8;
   else
     throw cms::Exception("LXXXCorrector")<<" unknown correction level "<<level; 
   vector<JetCorrectorParameters> vParam;

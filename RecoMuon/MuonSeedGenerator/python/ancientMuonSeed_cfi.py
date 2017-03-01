@@ -15,7 +15,10 @@ ancientMuonSeed = cms.EDProducer("MuonSeedGenerator",
                                  EnableCSCMeasurement = cms.bool(True),
                                  # places where it's OK to have single-segment seeds
                                  crackEtas = cms.vdouble(0.2, 1.6, 1.7),
-                                 crackWindow = cms.double(0.04)
+                                 crackWindow = cms.double(0.04),
+                                 deltaPhiSearchWindow = cms.double(0.25),
+                                 deltaEtaSearchWindow = cms.double(0.2),
+                                 deltaEtaCrackSearchWindow = cms.double(0.25),
                                  )
 
 

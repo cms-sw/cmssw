@@ -9,16 +9,10 @@
 //     the discriminator computer calibration object. POOL doesn't support
 //     polymorph pointers, so this is implemented using multiple containers
 //     for each possible sub-class and an index array from which the
-//     array of pointers can be reconstructed. In order to avoid having
-//     to handle each sub-class container by hand here, the generated
-//     reflex dictionary is used to find and read/write the std::vector<...>
-//     containers for the individual classes in the private data members.
-//     So changes can be solely done in the header files and does not leave
-//     a trail elsewhere.
+//     array of pointers can be reconstructed.
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.10 2010/01/26 19:40:03 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -27,9 +21,7 @@
 #include <cstring>
 #include <cstddef>
 
-#include <boost/thread.hpp>
-
-#include <Reflex/Reflex.h>
+#include <atomic>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -53,6 +45,81 @@ std::string VarProcessor::getInstanceName() const
 	return type.substr(sizeof prefix - 1);
 }
 
+std::unique_ptr<VarProcessor>
+VarProcessor::clone() const {
+   return(std::unique_ptr<VarProcessor>(new VarProcessor(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcOptional::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcOptional(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcCount::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcCount(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcClassed::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcClassed(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcSplitter::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcSplitter(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcForeach::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcForeach(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcSort::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcSort(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcCategory::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcCategory(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcNormalize::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcNormalize(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcLikelihood::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcLikelihood(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcLinear::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcLinear(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcMultiply::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcMultiply(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcMatrix::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcMatrix(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcExternal::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcExternal(*this)));
+}
+
+std::unique_ptr<VarProcessor>
+ProcMLP::clone() const {
+   return(std::unique_ptr<VarProcessor>(new ProcMLP(*this)));
+}
+
 std::string ProcExternal::getInstanceName() const
 {
 	return method;
@@ -60,10 +127,8 @@ std::string ProcExternal::getInstanceName() const
 
 static MVAComputer::CacheId getNextMVAComputerCacheId()
 {
-	static boost::mutex mutex;
-	static MVAComputer::CacheId nextCacheId = 0;
+	static std::atomic<MVAComputer::CacheId> nextCacheId{0};
 
-	boost::mutex::scoped_lock scoped_lock(mutex);
 	return ++nextCacheId;
 }
 
@@ -115,45 +180,10 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 	return processors;
 }
 
-void MVAComputer::addProcessor(const VarProcessor *proc)
+void MVAComputer::addProcessor(const VarProcessor* proc)
 {
-	cacheId = getNextMVAComputerCacheId();
-
-	ROOT::Reflex::Type baseType = ROOT::Reflex::GetType<VarProcessor>();
-	ROOT::Reflex::Type type =
-				ROOT::Reflex::Type::ByTypeInfo(typeid(*proc));
-	ROOT::Reflex::Type refType(type,
-				ROOT::Reflex::CONST & ROOT::Reflex::REFERENCE);
-	if (!type.Name().size())
-		throw cms::Exception("MVAComputerCalibration")
-			<< "Calibration class " << typeid(*proc).name()
-			<< " not registered with ROOT::Reflex."
-			<< std::endl;
-
-	ROOT::Reflex::Object obj =
-		ROOT::Reflex::Object(baseType, const_cast<void*>(
-			static_cast<const void*>(proc))).CastObject(type);
-
-	// find and call copy constructor
-	for(ROOT::Reflex::Member_Iterator iter = type.FunctionMember_Begin();
-	    iter != type.FunctionMember_End(); iter++) {
-		const ROOT::Reflex::Type &ctor = iter->TypeOf();
-		if (!iter->IsConstructor() ||
-		    ctor.FunctionParameterSize() != 1 ||
-		    ctor.FunctionParameterAt(0).Id() != refType.Id())
-			continue;
-
-		ROOT::Reflex::Object copy = type.Construct(ctor,
-			ROOT::Reflex::Tools::MakeVector<void*>(obj.Address()));
-
-		processors.push_back(static_cast<VarProcessor*>(copy.Address()));
-		return;
-	}
-
-	throw cms::Exception("MVAComputerCalibration")
-			<< "Calibration class " << typeid(*proc).name()
-			<< " has no copy ctor registered with ROOT::Reflex."
-			<< std::endl;
+  cacheId = getNextMVAComputerCacheId();
+  processors.push_back(proc->clone().release());
 }
 
 static MVAComputerContainer::CacheId getNextMVAComputerContainerCacheId()

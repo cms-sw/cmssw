@@ -34,10 +34,8 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
   typedef reco::NuclearInteraction::trackRef_iterator trackRef_iterator;
 
   //create the empty collections 
-  auto_ptr< reco::PFNuclearInteractionCollection > 
-    pfNuclearColl (new reco::PFNuclearInteractionCollection);
-  auto_ptr< reco::PFRecTrackCollection > 
-    pfNuclearRecTrackColl (new reco::PFRecTrackCollection);
+  auto pfNuclearColl = std::make_unique<reco::PFNuclearInteractionCollection>();
+  auto pfNuclearRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
   
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
   int hid=0;
@@ -72,8 +70,8 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
       pfNuclearColl->push_back( reco::PFNuclearInteraction( niRef, pfRecTkcoll ));
     }
   }
-  iEvent.put(pfNuclearRecTrackColl);
-  iEvent.put(pfNuclearColl);
+  iEvent.put(std::move(pfNuclearRecTrackColl));
+  iEvent.put(std::move(pfNuclearColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

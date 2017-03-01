@@ -28,8 +28,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/one/OutputModule.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -181,13 +181,14 @@ namespace edm {
 class DQMRootOutputModule : public edm::one::OutputModule<> {
 public:
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
+  virtual void beginJob() override;
   virtual ~DQMRootOutputModule();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
-  virtual void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override;
+  virtual void write(edm::EventForOutput const& e) override;
+  virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  virtual void writeRun(edm::RunForOutput const&) override;
   virtual bool isFileOpen() const override;
   virtual void openFile(edm::FileBlock const&) override;
   virtual void reallyCloseFile() override;
@@ -270,12 +271,12 @@ DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset):
 edm::one::OutputModuleBase::OutputModuleBase(pset),
 edm::one::OutputModule<>(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
-m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName","")),
+m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
-m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
-m_enableMultiThread(pset.getUntrackedParameter<bool>("enableMultiThread", false)),
+m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
+m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
@@ -285,6 +286,14 @@ m_indicesTree(0)
 // {
 //    // do actual copying here;
 // }
+
+void
+DQMRootOutputModule::beginJob()
+{
+  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
+  edm::Service<DQMStore> dstore;
+  m_enableMultiThread = dstore->enableMultiThread_;
+}
 
 DQMRootOutputModule::~DQMRootOutputModule()
 {
@@ -392,14 +401,12 @@ DQMRootOutputModule::postForkReacquireResources(unsigned int childIndex, unsigne
 
 
 void
-DQMRootOutputModule::write(edm::EventPrincipal const&, edm::ModuleCallingContext const*){
-
+DQMRootOutputModule::write(edm::EventForOutput const&){
 }
 
 
 void
-DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& iLumi,
-                                          edm::ModuleCallingContext const*) {
+DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
   //std::cout << "DQMRootOutputModule::writeLuminosityBlock"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run = iLumi.id().run();
@@ -460,8 +467,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
   jr->reportLumiSection(m_jrToken, m_run, m_lumi);
 }
 
-void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun,
-                                   edm::ModuleCallingContext const*){
+void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun){
   //std::cout << "DQMRootOutputModule::writeRun"<< std::endl;
   edm::Service<DQMStore> dstore;
   m_run = iRun.id().run();
@@ -593,14 +599,23 @@ void DQMRootOutputModule::finishEndFile() {
 //
 void
 DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+
+  desc.addUntracked<std::string>("fileName");
+  desc.addUntracked<std::string>("logicalFileName","");
+  desc.addUntracked<unsigned int>("filterOnRun",0)
+    ->setComment("Only write the run with this run number. 0 means write all runs.");
+  desc.addOptionalUntracked<int>("splitLevel", 99)
+    ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
+  edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+
+  edm::ParameterSetDescription dataSet;
+  dataSet.setAllowAnything();
+  desc.addUntracked<edm::ParameterSetDescription>("dataset", dataSet)
+    ->setComment("PSet is only used by Data Operations and not by this module.");
+
   descriptions.addDefault(desc);
 
-  //NOTE: when actually filling this in, do not forget to add a untracked PSet 'dataset'
-  // which is used for bookkeeping by the DMWM
 }
 
 

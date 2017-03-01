@@ -1,7 +1,6 @@
 #ifndef LhcTrackAnalyzer_h
 #define LhcTrackAnalyzer_h
 
-//#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

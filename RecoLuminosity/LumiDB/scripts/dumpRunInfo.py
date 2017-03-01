@@ -23,9 +23,9 @@ def fillnumForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         fillOutput=coral.AttributeList()
         fillOutput.extend("fillnum","string")
@@ -45,13 +45,13 @@ def fillnumForRun(dbsession,c,runnum):
         query.defineOutput(fillOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             result=cursor.currentRow()['fillnum'].data()
         del query
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -65,9 +65,9 @@ def hltkeyForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         hltkeyOutput=coral.AttributeList()
         hltkeyOutput.extend("runnum","unsigned int")
@@ -88,7 +88,7 @@ def hltkeyForRun(dbsession,c,runnum):
         query.defineOutput(hltkeyOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             hltkey=cursor.currentRow()['hltkey'].data()
             result[runnum]=hltkey
@@ -96,7 +96,7 @@ def hltkeyForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -110,9 +110,9 @@ def l1keyForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         l1keyOutput=coral.AttributeList()
         l1keyOutput.extend("runnum","unsigned int")
@@ -133,7 +133,7 @@ def l1keyForRun(dbsession,c,runnum):
         query.defineOutput(l1keyOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             l1key=cursor.currentRow()['l1key'].data()
             result[runnum]=l1key
@@ -141,7 +141,7 @@ def l1keyForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

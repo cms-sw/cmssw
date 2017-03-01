@@ -1,4 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
+#include <iostream>
 
 local_phi_address& local_phi_address::operator=(const unsigned& u)
 {

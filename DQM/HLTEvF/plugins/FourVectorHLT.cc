@@ -1,21 +1,18 @@
-// See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/HLTEvF/interface/FourVectorHLT.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+// see header file for information. 
+#include "FourVectorHLT.h"
 
 using namespace edm;
 
-FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
-  resetMe_(true),  currentRun_(-99)
+FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
 {
   LogDebug("FourVectorHLT") << "constructor...." ;
 

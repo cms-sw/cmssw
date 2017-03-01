@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -38,7 +37,7 @@ class L1TriggerKeyListDummyProd : public edm::ESProducer {
       L1TriggerKeyListDummyProd(const edm::ParameterSet&);
       ~L1TriggerKeyListDummyProd();
 
-      typedef boost::shared_ptr<L1TriggerKeyList> ReturnType;
+      typedef std::shared_ptr<L1TriggerKeyList> ReturnType;
 
       ReturnType produce(const L1TriggerKeyListRcd&);
    private:

@@ -38,7 +38,6 @@ class TauHadronDecayFilter : public edm::EDFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
-  edm::ParameterSet  vertexGenerator_; 
   edm::ParameterSet  particleFilter_;
   FSimEvent* mySimEvent;
   std::unique_ptr<ParticleTable::Sentry> pTableSentry_;

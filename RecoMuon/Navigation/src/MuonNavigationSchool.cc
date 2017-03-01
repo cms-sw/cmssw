@@ -13,6 +13,10 @@
  * Chang Liu:
  * The class links maps for nextLayers and compatibleLayers in the same time.
  *
+ * Cesare Calabria:
+ * GEMs implementation.
+ * David Nash:
+ * ME0s implementation.
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
@@ -35,7 +39,7 @@
 using namespace std;
 
 /// Constructor
-MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
+MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC, bool enableCSC, bool enableGEM, bool enableME0 ) : theMuonDetLayerGeometry(muonLayout) {
 
   theAllDetLayersInSystem=&muonLayout->allLayers(); 
   theAllNavigableLayer.resize(muonLayout->allLayers().size(),nullptr);
@@ -53,10 +57,18 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
     addBarrelLayer(mbp);
   }
 
-  // get all endcap DetLayers (CSC + optional RPC)
+
+  // get all endcap DetLayers (CSC + optional RPC, GEM, ME0)
   vector<const DetLayer*> endcap;
-  if ( enableRPC ) endcap = muonLayout->allEndcapLayers();
-  else endcap = muonLayout->allCSCLayers();
+  if ( enableCSC & enableGEM & enableRPC & enableME0) endcap = muonLayout->allEndcapLayers(); //CSC + RPC + GEM +ME0
+  else if ( enableCSC & enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allEndcapCscGemLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allCSCLayers(); //CSC only
+  else if ( enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allEndcapCscME0Layers(); // CSC + ME0
+  else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allME0Layers(); // ME0 only
+  //else endcap = muonLayout->allCSCLayers(); //CSC only for all the remaining cases
+  //Trying allEndcaplayers in all other cases, as in the GEM PR
+  else endcap = muonLayout->allEndcapLayers();
 
   for ( auto i = endcap.begin(); i != endcap.end(); i++ ) {
     const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(*i);

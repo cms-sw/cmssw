@@ -31,7 +31,14 @@ onlyOne = cms.untracked.bool(True),
 acceptValue = cms.untracked.int32(3)
 )
 
+process.p1Done = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
+process.waitTillP1Done = cms.EDAnalyzer("IntConsumingAnalyzer",
+                                        getFromModule = cms.untracked.InputTag("p1Done"))
 
-process.p1 = cms.Path(process.maker+process.f2+process.reader+process.tester)
-process.p2 = cms.Path(process.maker+process.p2PreTester+process.f3+process.reader+process.tester)
-process.p3 = cms.Path(process.tester)
+process.p2Done = cms.EDProducer("IntProducer", ivalue = cms.int32(2))
+process.waitTillP2Done = cms.EDAnalyzer("IntConsumingAnalyzer",
+                                        getFromModule = cms.untracked.InputTag("p2Done"))
+
+process.p1 = cms.Path(process.maker+process.f2+process.reader+process.tester+process.p1Done)
+process.p2 = cms.Path(process.waitTillP1Done+process.maker+process.p2PreTester+process.f3+process.reader+process.tester+process.p2Done)
+process.p3 = cms.Path(process.waitTillP2Done+process.tester)

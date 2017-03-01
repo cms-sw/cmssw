@@ -92,7 +92,7 @@ class PFTau3ProngReco : public EDProducer {
   edm::InputTag PFTauTIPTag_;
   int Algorithm_;
   DiscCutPairVec discriminators_;
-  std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
   int ndfPVT_;
   KinematicParticleVertexFitter kpvFitter_;
 };
@@ -114,7 +114,7 @@ PFTau3ProngReco::PFTau3ProngReco(const edm::ParameterSet& iConfig):
     discriminators_.push_back(newCut);
   }
   // Build a string cut if desired
-  if (iConfig.exists("cut")) cut_.reset(new StringCutObjectSelector<reco::PFTau>(iConfig.getParameter<std::string>( "cut" )));
+  if (iConfig.exists("cut")) cut_ = std::make_unique<StringCutObjectSelector<reco::PFTau>>(iConfig.getParameter<std::string>("cut"));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   produces<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTau3ProngSummaryRef> > >();
   produces<PFTau3ProngSummaryCollection>("PFTau3ProngSummary");
@@ -135,8 +135,8 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   edm::Handle<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > > TIPAV;
   iEvent.getByLabel(PFTauTIPTag_,TIPAV);
 
-  auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTau3ProngSummaryRef> > > AVPFTau3PS(new edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTau3ProngSummaryRef> >(PFTauRefProd(Tau)));
-  std::auto_ptr<PFTau3ProngSummaryCollection>  PFTau3PSCollection_out= std::auto_ptr<PFTau3ProngSummaryCollection>(new PFTau3ProngSummaryCollection());
+  auto AVPFTau3PS = std::make_unique<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTau3ProngSummaryRef>>>(PFTauRefProd(Tau));
+  auto PFTau3PSCollection_out = std::make_unique<PFTau3ProngSummaryCollection>();
   reco::PFTau3ProngSummaryRefProd PFTau3RefProd_out = iEvent.getRefBeforePut<reco::PFTau3ProngSummaryCollection>("PFTau3ProngSummary");
 
   // Load each discriminator
@@ -263,8 +263,8 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
       AVPFTau3PS->setValue(iPFTau,PFTau3PSRef);
     }
   }
-  iEvent.put(PFTau3PSCollection_out,"PFTau3ProngSummary");
-  iEvent.put(AVPFTau3PS);
+  iEvent.put(std::move(PFTau3PSCollection_out),"PFTau3ProngSummary");
+  iEvent.put(std::move(AVPFTau3PS));
 }
 
 DEFINE_FWK_MODULE(PFTau3ProngReco);

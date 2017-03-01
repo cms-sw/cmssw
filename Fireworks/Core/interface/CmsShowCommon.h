@@ -22,6 +22,7 @@
 #include <sigc++/sigc++.h>
 
 #include "Rtypes.h"
+#include "TGLUtil.h"
 
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
@@ -59,22 +60,31 @@ public:
    int  gamma() { return m_gamma.value(); }
    void setGamma();
    void switchBackground();
+   void permuteColors();
+   void randomizeColors();
+   void loopPalettes();
 
    void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(int val, bool projected);
 
    FWViewEnergyScale* getEnergyScale() const { return m_energyScale.get(); }
 
+   const TGLColorSet& getLightColorSet() const { return m_lightColorSet; }
+   const TGLColorSet& getDarkColorSet()  const { return m_darkColorSet;  }
+
    
    UChar_t getProjTrackBreaking() const { return m_trackBreak.value(); }
    bool    getRnrPTBMarkers() const { return m_drawBreakPoints.value(); }
 
+   void setView(CmsShowCommonPopup* x) { m_view= x;}
+
 protected:
    const FWColorManager*   colorManager() const;
-
+   void setPalette();
    // ---------- member data --------------------------------
 
  
+   CmsShowCommonPopup*        m_view;
    fireworks::Context*        m_context;
 
    FWEnumParameter            m_trackBreak;
@@ -83,18 +93,23 @@ protected:
    // general colors
    mutable FWLongParameter   m_backgroundColor; // can be set via Ctr+b key binding
    FWLongParameter           m_gamma;
+   mutable FWEnumParameter   m_palette;
 
    // geom colors
    FWLongParameter     m_geomTransparency2D;
    FWLongParameter     m_geomTransparency3D;
    FWLongParameter*    m_geomColors[kFWGeomColorSize];
 
+   TGLColorSet         m_lightColorSet;
+   TGLColorSet         m_darkColorSet;
  
    std::auto_ptr<FWViewEnergyScale>  m_energyScale;
+
 
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default
    const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
+
 };
 
 

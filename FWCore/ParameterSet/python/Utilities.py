@@ -66,6 +66,29 @@ def traverseInputTags(pset, visitor, stringInputLabels):
       visitor.labels.add(value.value())
     #ignore the rest
 
+def ignoreAllFiltersOnPath(path):
+  """Given a 'Path', find all EDFilters and wrap them in 'cms.ignore'
+  """
+  import FWCore.ParameterSet.Config as cms
+  from FWCore.ParameterSet.SequenceTypes import _MutatingSequenceVisitor, _UnarySequenceOperator
+
+  class IgnoreFilters(object):
+    def __init__(self):
+      self.__lastCallUnary = False
+    def __call__(self, obj):
+      if isinstance(obj,_UnarySequenceOperator):
+        self.__lastCallUnary = True
+      elif obj.isLeaf() and isinstance(obj, cms.EDFilter) and not self.__lastCallUnary:
+        return cms.ignore(obj)
+      else:
+        self.__lastCallUnary = False
+      return obj
+
+  mutator = _MutatingSequenceVisitor(IgnoreFilters())
+  path.visit(mutator)
+  path._seq = mutator.result()
+  return path
+
 def convertToUnscheduled(proc):
   import FWCore.ParameterSet.Config as cms
   """Given a 'Process', convert the python configuration from scheduled execution to unscheduled. This is done by
@@ -101,7 +124,13 @@ def convertToUnscheduled(proc):
     proc.options = cms.untracked.PSet()
   proc.options.allowUnscheduled = cms.untracked.bool(True)
 
-  l = proc.paths
+  proc=cleanUnscheduled(proc)
+  return proc
+
+def cleanUnscheduled(proc):
+  import FWCore.ParameterSet.Config as cms
+  l = dict(proc.paths)
+  l.update( dict(proc.endpaths) )
   droppedPaths =[]
   #have to get them now since switching them after the
   # paths have been changed gives null labels
@@ -110,106 +139,83 @@ def convertToUnscheduled(proc):
   else:
     pathNamesInScheduled = False
 
-  # Look for EDProducers that depend on an EDFilter, either
-  # directly or indirectly through another EDProducer. These
-  # EDProducers must stay in a path and run scheduled. The
-  # first loop will find all the direct dependencies, but then
-  # the loop must be repeated until no more dependencies
-  # are found in order to find the indirect dependencies.
-  # Note that here we are assuming that if a module
-  # has a configuration parameter that is an InputTag, then
-  # it depends on the module with the same module label as in
-  # the InputTag. In addition, there are a number of special
-  # cases where we have identified specific types of modules
-  # which use particular string parameters like InputTag
-  # module labels. And so we have some special code to
-  # handle those cases also. If there are other cases where
-  # the module gets things without using InputTags, then this
-  # conversion script can fail, which might result in ProductNotFound
-  # exceptions or other problems when the converted configuration is run.
+  def getUnqualifiedName(name):
+    if name[0] in set(['!','-']):
+        return name[1:]
+    return name
 
-  # The dictionary keys are are the types of the EDProducers
-  # The dictionary values are lists of parameter names that are strings
-  # used like InputTags.
-  knownStringInputLabels = {}
-  knownStringInputLabels['KProd'] = ['xSrc'] # a fake entry for a unit test below
-  knownStringInputLabels['SeedGeneratorFromRegionHitsEDProducer'] = ['vertexSrc']
-  knownStringInputLabels['PixelTrackProducer'] = ['vertexSrc']
-  knownStringInputLabels['PixelTracksProducer'] = ['vertexSrc']
-  knownStringInputLabels['SimpleTrackListMerger'] = ['TrackProducer1', 'TrackProducer2']
-
-  allEDFilters = set(proc.filters_().keys())
-  allEDProducers = set(proc.producers_().keys())
-
-  dependentProducers = set()
-  firstPass = True
-
-  while True :
-
-    dependentsFoundThisPass = False
-
-    for producer in allEDProducers :
-      if producer not in dependentProducers :
-        iModule = getattr(proc,producer)
-
-        stringInputLabels = []
-        moduleType = iModule.type_()
-        if moduleType in knownStringInputLabels :
-          stringInputLabels = knownStringInputLabels[moduleType]
-
-        inputTagLabels = InputTagLabelSet()
-        traverseInputTags(getattr(proc,producer), inputTagLabels, stringInputLabels)
-
-        if firstPass :
-          if not inputTagLabels.labels.isdisjoint(allEDFilters) :
-            dependentProducers.add(producer)
-            dependentsFoundThisPass = True
-
-        if not inputTagLabels.labels.isdisjoint(dependentProducers) :
-          dependentProducers.add(producer)
-          dependentsFoundThisPass = True
-
-    if not dependentsFoundThisPass :
-      break
-    firstPass = False
+  def getQualifiedModule(name,proc):
+    unqual_name = getUnqualifiedName(name)
+    p=getattr(proc,unqual_name)
+    if unqual_name != name:
+      if name[0] == '!':
+        p = ~p
+      elif name[0] == '-':
+        p = cms.ignore(p)
+    return p
 
   # Loop over paths
   # On each path we drop EDProducers except we
   # keep the EDProducers that depend on EDFilters
   for pName,p in l.iteritems():
-    nodes = []
-    v = cms.ModuleNodeVisitor(nodes)
+    qualified_names = []
+    v = cms.DecoratedNodeNameVisitor(qualified_names)
     p.visit(v)
-    names = [node.label_() for node in nodes]
     remaining =[]
 
-    for n in names:
-      if not isinstance(getattr(proc,n), cms.EDProducer):
+    for n in qualified_names:
+      unqual_name = getUnqualifiedName(n)
+      #remove EDProducer's and EDFilter's which are set to ignore
+      if not (isinstance(getattr(proc,unqual_name), cms.EDProducer) or
+        (n[0] =='-' and isinstance(getattr(proc,unqual_name), cms.EDFilter)) ):
         remaining.append(n)
-      else :
-        if n in dependentProducers :
-          remaining.append(n)
 
     if remaining:
-      p=getattr(proc,remaining[0])
+      p = getQualifiedModule(remaining[0],proc)
       for m in remaining[1:]:
-        p+=getattr(proc,m)
-      setattr(proc,pName,cms.Path(p))
+        p+=getQualifiedModule(m,proc)
+      setattr(proc,pName,type(getattr(proc,pName))(p))
     # drop empty paths
     else:
-      setattr(proc,pName,cms.Path())
+      setattr(proc,pName,type(getattr(proc,pName))())
 
   # If there is a schedule then it needs to point at
   # the new Path objects
   if proc.schedule:
-    proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
+      proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
   return proc
+
+
+def modulesInSequences(* sequences):
+  from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+  modules = []
+  for sequence in sequences:
+    sequence.visit(ModuleNodeVisitor(modules))
+  return modules
+
+
+def moduleLabelsInSequences(* sequences):
+  return [module.label() for module in modulesInSequences(* sequences)]
+
 
 if __name__ == "__main__":
     import unittest
     class TestModuleCommand(unittest.TestCase):
         def setup(self):
             None
+        def testIgnoreFiltersOnPath(self):
+            import FWCore.ParameterSet.Config as cms
+            process = cms.Process("Test")
+            
+            process.f1 = cms.EDFilter("F1")
+            process.f2 = cms.EDFilter("F2")
+            process.f3 = cms.EDFilter("F3")
+            process.s = cms.Sequence(process.f3)
+            
+            process.p =  cms.Path(process.f1+cms.ignore(process.f2)+process.s)
+            ignoreAllFiltersOnPath(process.p)
+            self.assertEqual(process.p.dumpPython(None),'cms.Path(cms.ignore(process.f1)+cms.ignore(process.f2)+cms.ignore(process.f3))\n')
+            
         def testConfig(self):
             import FWCore.ParameterSet.Config as cms
             process = cms.Process("Test")
@@ -277,8 +283,9 @@ if __name__ == "__main__":
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
+            process.f4 = cms.EDFilter("FIlter4")
             process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g+process.h+process.k)
-            process.p4 = cms.Path(process.a+process.f2+process.b+process.f1)
+            process.p4 = cms.Path(process.a+process.f2+process.b+~process.f1+cms.ignore(process.f4))
             process.p2 = cms.Path(process.a+process.b)
             process.p3 = cms.Path(process.f1)
             convertToUnscheduled(process)
@@ -294,10 +301,11 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g+process.h+process.k)\n')
+            self.assert_(hasattr(process,'f4'))
+            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
+            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1)\n')
         def testWithSchedule(self):
             import FWCore.ParameterSet.Config as cms
             process = cms.Process("TEST")
@@ -312,13 +320,17 @@ if __name__ == "__main__":
                                        par1 = cms.VInputTag("x","y","f1"))
             process.g = cms.EDProducer("GProd",
                                        par1 = cms.InputTag("f"))
+            process.h = cms.EDProducer("HProd", 
+                                       par1 = cms.InputTag("a"))
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
+            process.f4 = cms.EDFilter("Filter4")
             process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g)
             process.p4 = cms.Path(process.a+process.f2+process.b+process.f1)
             process.p2 = cms.Path(process.a+process.b)
             process.p3 = cms.Path(process.f1)
+            process.p5 = cms.Path(process.a+process.h+process.f4) #not used on schedule
             process.schedule = cms.Schedule(process.p1,process.p4,process.p2,process.p3)
             convertToUnscheduled(process)
             self.assertEqual(process.options.allowUnscheduled,cms.untracked.bool(True))
@@ -333,10 +345,14 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
-            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g)\n')
+            self.assert_(not hasattr(process,"f4"))
+            self.assert_(not hasattr(process,"h"))
+            self.assert_(not hasattr(process,"p5"))
+            self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
-            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
+# there is no longer a schedule.
+#            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
 
     unittest.main()

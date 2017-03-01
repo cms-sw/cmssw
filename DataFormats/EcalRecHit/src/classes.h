@@ -42,7 +42,6 @@ namespace DataFormats_EcalRecHit {
 }
 
 //raw to rechit specific formats
-#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -57,12 +56,5 @@ namespace DataFormats_EcalRecHit {
     edm::Wrapper< std::vector<edm::DetSet<EcalRecHit> > > dummy31;
     edm::Wrapper< edm::DetSetVector<EcalRecHit> > dummy41;
     edm::Wrapper< std::vector< std::vector < edm::DetSet<EcalRecHit> > > > dummy51;
-    edm::Wrapper< edm::RegionIndex<EcalRecHit> > dummy71;
-    edm::Wrapper< std::vector< edm::RegionIndex<EcalRecHit> > > dummy72;
-    edm::Wrapper< edm::LazyGetter<EcalRecHit> > dummy73;
-    edm::Wrapper< edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> > > dummy74;
-    edm::Wrapper< std::vector<edm::Ref<edm::LazyGetter<EcalRecHit>,edm::RegionIndex<EcalRecHit>,edm::FindRegion<EcalRecHit> > > > dummy75;
-    edm::Wrapper< edm::RefGetter<EcalRecHit> > dummy76;
-    edm::Wrapper< edm::Ref< edm::LazyGetter<EcalRecHit>, EcalRecHit, edm::FindValue<EcalRecHit> > > dummy77;
   };
 }

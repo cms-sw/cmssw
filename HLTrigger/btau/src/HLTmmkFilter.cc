@@ -102,8 +102,8 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   const double thirdTrackMass2(thirdTrackMass_*thirdTrackMass_);
 
-  auto_ptr<CandidateCollection> output(new CandidateCollection());
-  auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
+  unique_ptr<CandidateCollection> output(new CandidateCollection());
+  unique_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
   //get the transient track builder:
   edm::ESHandle<TransientTrackBuilder> theB;
@@ -342,7 +342,7 @@ bool HLTmmkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   LogDebug("HLTDisplacedMumukFilter") << " >>>>> Result of HLTDisplacedMumukFilter is "<< accept << ", number of muon pairs passing thresholds= " << counter;
 
-  iEvent.put(vertexCollection);
+  iEvent.put(std::move(vertexCollection));
 
   return accept;
 }

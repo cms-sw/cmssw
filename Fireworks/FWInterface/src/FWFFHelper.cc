@@ -4,7 +4,9 @@
 
 #include "TROOT.h"
 #include "TSystem.h"
-#define private public
+#include "TColor.h"
+#include "TStyle.h"
+#include "TEnv.h"
 #include "TRint.h"
 #include "TEveManager.h"
 #include "TEveEventManager.h"
@@ -26,7 +28,7 @@ public:
             return;
             
          SetPrompt("");
-         fInputHandler->Remove();
+         GetInputHandler()->Remove();
       }
 
    Bool_t HandleTermInput() override
@@ -62,6 +64,5 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
       throw;
    }
    
-
-   TEveManager::Create(kFALSE, "FIV");
+   TEveManager::Create(kFALSE, "FI");
 }

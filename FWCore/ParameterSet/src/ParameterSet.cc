@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/bind.hpp"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include <algorithm>
 #include <iostream>
@@ -141,11 +141,11 @@ namespace edm {
     return *this;
   }
 
-  std::auto_ptr<ParameterSet> ParameterSet::popParameterSet(std::string const& name) {
+  std::unique_ptr<ParameterSet> ParameterSet::popParameterSet(std::string const& name) {
     assert(!isRegistered());
     psettable::iterator it = psetTable_.find(name);
     assert(it != psetTable_.end());
-    std::auto_ptr<ParameterSet> pset(new ParameterSet);
+    auto pset = std::make_unique<ParameterSet>();
     std::swap(*pset, it->second.psetForUpdate());
     psetTable_.erase(it);
     return pset;
@@ -170,12 +170,12 @@ namespace edm {
     }
   }
 
-  std::auto_ptr<std::vector<ParameterSet> > ParameterSet::popVParameterSet(std::string const& name) {
+  std::vector<ParameterSet> ParameterSet::popVParameterSet(std::string const& name) {
     assert(!isRegistered());
     vpsettable::iterator it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
-    std::auto_ptr<std::vector<ParameterSet> > vpset(new std::vector<ParameterSet>);
-    std::swap(*vpset, it->second.vpsetForUpdate());
+    std::vector<ParameterSet> vpset;
+    std::swap(vpset, it->second.vpsetForUpdate());
     vpsetTable_.erase(it);
     return vpset;
   }
@@ -746,13 +746,14 @@ namespace edm {
 
   std::vector<std::string>
   ParameterSet::getParameterNames() const {
+    using std::placeholders::_1;
     std::vector<std::string> returnValue;
     std::transform(tbl_.begin(), tbl_.end(), back_inserter(returnValue),
-                   boost::bind(&std::pair<std::string const, Entry>::first, _1));
+                   std::bind(&std::pair<std::string const, Entry>::first, _1));
     std::transform(psetTable_.begin(), psetTable_.end(), back_inserter(returnValue),
-                   boost::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
+                   std::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
     std::transform(vpsetTable_.begin(), vpsetTable_.end(), back_inserter(returnValue),
-                   boost::bind(&std::pair<std::string const, VParameterSetEntry>::first, _1));
+                   std::bind(&std::pair<std::string const, VParameterSetEntry>::first, _1));
     return returnValue;
   }
 
@@ -794,8 +795,9 @@ namespace edm {
   // Comment out unneeded function
   size_t
   ParameterSet::getAllParameterSetNames(std::vector<std::string>& output) const {
+    using std::placeholders::_1;
     std::transform(psetTable_.begin(), psetTable_.end(), back_inserter(output),
-                   boost::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
+                   std::bind(&std::pair<std::string const, ParameterSetEntry>::first, _1));
     return output.size();
   }
 */
@@ -951,12 +953,17 @@ namespace edm {
   // Free function to return a parameterSet given its ID.
   ParameterSet const&
   getParameterSet(ParameterSetID const& id) {
-    ParameterSet const* result = 0;
-    if(0 == (result = pset::Registry::instance()->getMapped(id))) {
-      throw Exception(errors::Configuration, "MissingParameterSet:")
+    ParameterSet const* result = nullptr;
+    if(nullptr == (result = pset::Registry::instance()->getMapped(id))) {
+      throw Exception(errors::LogicError, "MissingParameterSet:")
         << "Parameter Set ID '" << id << "' not found.";
     }
     return *result;
+  }
+
+  ParameterSet const&
+  getProcessParameterSetContainingModule(ModuleDescription const& moduleDescription) {
+    return getParameterSet(moduleDescription.mainParameterSetID());
   }
 
   void ParameterSet::deprecatedInputTagWarning(std::string const& name,

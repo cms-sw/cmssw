@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # import this until command line options are parsed.
     from Validation.Tools.GenObject import GenObject
     if len (args) < 1 or len (args) > 2:
-        raise RuntimeError, "You must provide 1 or 2 root files"
+        raise RuntimeError("You must provide 1 or 2 root files")
 
     ###########################
     ## Check Queuing Options ##
@@ -149,8 +149,8 @@ if __name__ == "__main__":
         # make sure we aren't trying to use options that should not be
         # used with the queueing system
         if options.compRoot or options.summary or options.summaryFull:
-            raise RuntimeError, "You can not use --compRoot or --summary "\
-                  "in --queue mode"
+            raise RuntimeError("You can not use --compRoot or --summary "\
+                  "in --queue mode")
 
     ##############################
     ## Make Sure CMSSW is Setup ##
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     base         = os.environ.get ('CMSSW_BASE')
     release_base = os.environ.get ('CMSSW_RELEASE_BASE')
     if not base or not release_base:
-        raise RuntimeError, "You must have already setup a CMSSW environment."
+        raise RuntimeError("You must have already setup a CMSSW environment.")
     # find command
     found = False
     for directory in [base, release_base]:
@@ -167,17 +167,17 @@ if __name__ == "__main__":
             found = True
             break
     if not found:
-        raise RuntimeError, "Can not find %s" % command
+        raise RuntimeError("Can not find %s" % command)
     if not options.noQueue:
         fullCommand = queueCommand % fullCommand
     if not os.path.isdir (logDir):
         os.mkdir (logDir)
         if not os.path.isdir (logDir):
-            raise RuntimeError, "Can't create %s directory" % logDir
+            raise RuntimeError("Can't create %s directory" % logDir)
     if options.compRoot and not os.path.isdir (compRootDir):
         os.mkdir (compRootDir)
         if not os.path.isdir (compRootDir):
-            raise RuntimeError, "Can't create %s directory" % compRootDir
+            raise RuntimeError("Can't create %s directory" % compRootDir)
     logPrefix      = logDir      + '/'
     compRootPrefix = compRootDir + '/'
     if options.prefix:
@@ -189,18 +189,18 @@ if __name__ == "__main__":
     else:
         filename2 = filename1
     if not os.path.exists (filename1) or not os.path.exists (filename2):
-        raise RuntimeError, "Can not find '%s' or '%s'" % (filename1, filename2)
+        raise RuntimeError("Can not find '%s' or '%s'" % (filename1, filename2))
     # if verboseDebug is set, set verbose as well
     if options.verboseDebug:
         options.verbose = True
     if options.verbose:
         print "files", filename1, filename2
     if options.singletons and not options.describeOnly:
-        raise RuntimeError, "--singletons can only be used with "\
-              "--describeOnly option"
+        raise RuntimeError("--singletons can only be used with "\
+              "--describeOnly option")
     if options.privateMemberData and not options.describeOnly:
-        raise RuntimeError, "--privateMemberData can only be used with "\
-              "--describeOnly option"
+        raise RuntimeError("--privateMemberData can only be used with "\
+              "--describeOnly option")
     if options.singletons:
         containerList.append (singletonRE)
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         print dumpCommand, '\n'
     output = commands.getoutput (dumpCommand).split("\n")
     if not len(output):
-        raise RuntimeError, "No output from edmDumpEventContent."
+        raise RuntimeError("No output from edmDumpEventContent.")
     if options.verboseDebug:
         print "output:\n", "\n".join(output)
     collection = {}

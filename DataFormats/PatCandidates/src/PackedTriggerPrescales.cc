@@ -1,5 +1,6 @@
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include <cstring>
 
 pat::PackedTriggerPrescales::PackedTriggerPrescales(const edm::Handle<edm::TriggerResults> & handle) :
     prescaleValues_(), 

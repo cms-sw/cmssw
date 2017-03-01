@@ -30,6 +30,7 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 // member functions
@@ -104,7 +105,7 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
       else if ( (*ite) == EcalPreshowerGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building EcalPreshower reconstruction geometry";
-	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get(EcalPreshowerGeometry::producerTag(), pG); 
+ 	 iRecord.getRecord<EcalPreshowerGeometryRecord>().get(EcalPreshowerGeometry::producerTag(), pG); 
 	 pCalo->setSubdetGeometry(DetId::Ecal,EcalPreshower,pG.product());
       }
       // look for TOWER parts
@@ -114,10 +115,17 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 	 iRecord.getRecord<CaloTowerGeometryRecord>().get(CaloTowerGeometry::producerTag(),pG);
 	 pCalo->setSubdetGeometry(DetId::Calo,1,pG.product());
       }
+      else if ( ite->find(HGCalGeometry::producerTag()) != std::string::npos ) {
+	edm::LogInfo("CaloGeometryBuilder") << "Building " << *ite << " reconstruction geometry";
+	edm::ESHandle<HGCalGeometry> pHG;
+	iRecord.getRecord<IdealGeometryRecord>().get(*ite,pHG);
+	const auto& topo = pHG->topology();
+	pCalo->setSubdetGeometry(DetId::Forward,topo.subDetector(),pHG.product());
+      }
       else 
       {
 	 edm::LogWarning("CaloGeometryBuilder") 
-	    << "Reconstrcution geometry requested for a not implemented sub-detector: " 
+	    << "Reconstruction geometry requested for a not implemented sub-detector: " 
 	    << (*ite); 
       }
    }

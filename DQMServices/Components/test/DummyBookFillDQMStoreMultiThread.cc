@@ -147,14 +147,14 @@ class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
 
  private:
   virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&);
+                                    edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&);
+                                  edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void fillerDispose();
@@ -256,6 +256,12 @@ DummyBookFillDQMStoreMultiThread::~DummyBookFillDQMStoreMultiThread() {
 void
 DummyBookFillDQMStoreMultiThread::analyze(edm::Event const& iEvent,
                                edm::EventSetup const& iSetup) {
+
+  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
+  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
+  for (; it != ite; ++it)
+    (*it)->fill();
+
 //   using namespace edm;
   /* This is an event example
   //Read 'ExampleData' from the Event
@@ -264,8 +270,8 @@ DummyBookFillDQMStoreMultiThread::analyze(edm::Event const& iEvent,
 
   //Use the ExampleData to create an ExampleData2 which
   // is put into the Event
-  std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-  iEvent.put(pOut);
+  std::unique_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
+  iEvent.put(std::move(pOut));
   */
 
   /* this is an EventSetup example
@@ -285,10 +291,6 @@ void DummyBookFillDQMStoreMultiThread::endJob() {
 
 // ------------ method called when ending the processing of a run  ------------
 void DummyBookFillDQMStoreMultiThread::endRun(edm::Run const&, edm::EventSetup const&) {
-  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
-  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
-  for (; it != ite; ++it)
-    (*it)->fill();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------

@@ -25,12 +25,15 @@ static const double X0 = 0.;
 static const double Z0 = 140000.0;
 static const double Y0 = 0.;
 static const double YLUM = 253.6;  
+static const double YRPD = 253.6;  
 static const double dYPlate = 62.5;
 static const double dYLUM = 320.0;
+static const double dYRPD = 320.0;
 static const double dXPlate = 48.0;
 static const double tiltangle = 0.7854; // 45 degrees 
 static const double theZSectionBoundaries[] = {-500.0,-395.55,-290.0};
 static const double theXChannelBoundaries[] = {-48.0,-28.8,-9.6,9.6,28.8};
 static const double theZLUMChannelBoundaries[] = {-395.55,-346.525,-301.5};
+static const double theZRPDChannelBoundaries[] = {-395.55,-346.525,-301.5};
 static const double theZHadChannelBoundaries[] = {-257.4,-118.2,21.0,160.2,};
 #endif

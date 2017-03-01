@@ -847,18 +847,14 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
             std::ostringstream newExpr;
             
             // look for the condition on correct chip
-           
-            std::vector<ConditionMap> * conditionMapCp = const_cast< std::vector<ConditionMap>* >(conditionMap_);
-            
-            L1GtCondition* cond = (*conditionMapCp).at((algoIter->second).algoChipNumber())[conditions.at(i)];
+            ConditionMap  const& chip = conditionMap_->at(algoIter->second.algoChipNumber());
+            L1GtCondition const* cond = (chip.find(conditions.at(i)) == chip.end()) ? nullptr : chip.at(conditions.at(i));
 
             // check weather condition exists
             if (cond!=NULL)
             {
-                newExpr<<objType2Str_[(cond->objectType()).at(0)];
-
-                newExpr <<"_" << condType2Str_[cond->condType()] << "(";
-
+                newExpr << objType2Str_[(cond->objectType()).at(0)];
+                newExpr << "_" << condType2Str_[cond->condType()] << "(";
                 newExpr << conditionToIntegerMap_[conditions.at(i)] << ")";
                 dummy.findAndReplaceString(logicalExpr, conditions.at(i),
                         newExpr.str());

@@ -13,7 +13,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 namespace edm {
   class ConfigurationDescriptions;
@@ -22,18 +22,18 @@ namespace edm {
 //
 // class declaration
 //
-class TriggerSummaryAnalyzerAOD : public edm::EDAnalyzer {
+class TriggerSummaryAnalyzerAOD : public edm::stream::EDAnalyzer<> {
   
  public:
   explicit TriggerSummaryAnalyzerAOD(const edm::ParameterSet&);
-  ~TriggerSummaryAnalyzerAOD();
+  virtual ~TriggerSummaryAnalyzerAOD();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   /// InputTag of TriggerEvent to analyze
-  edm::InputTag                           inputTag_;
-  edm::EDGetTokenT<trigger::TriggerEvent> inputToken_;
+  const edm::InputTag                           inputTag_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> inputToken_;
 
 };
 #endif

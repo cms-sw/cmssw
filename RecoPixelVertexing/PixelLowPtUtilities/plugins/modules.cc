@@ -24,27 +24,6 @@ DEFINE_FWK_MODULE(TrackListCombiner);
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/PixelTripletLowPtGenerator.h"
 DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLowPtGenerator,"PixelTripletLowPtGenerator");
 
-// Filters
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
-DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, ClusterShapeTrackFilter, "ClusterShapeTrackFilter");
-
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
-DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, ValidHitPairFilter, "ValidHitPairFilter");
-
-// Fitter
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackFitter.h"
-DEFINE_EDM_PLUGIN(PixelFitterFactory, TrackFitter, "TrackFitter");
-
-// Cleaner
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackCleaner.h"
-DEFINE_EDM_PLUGIN(PixelTrackCleanerFactory, TrackCleaner, "TrackCleaner");
-
 // Seed
 //#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedProducer.h"
 //DEFINE_FWK_MODULE(SeedProducer);
@@ -66,3 +45,7 @@ DEFINE_FWK_EVENTSETUP_MODULE(ClusterShapeHitFilterESProducer);
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtClusterShapeSeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 DEFINE_EDM_PLUGIN(SeedComparitorFactory, LowPtClusterShapeSeedComparitor, "LowPtClusterShapeSeedComparitor");
+
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/StripSubClusterShapeTrajectoryFilter.h"
+DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, StripSubClusterShapeTrajectoryFilter, "StripSubClusterShapeTrajectoryFilter");
+DEFINE_EDM_PLUGIN(SeedComparitorFactory,   StripSubClusterShapeSeedFilter, "StripSubClusterShapeSeedFilter");

@@ -1,13 +1,6 @@
 #include <iostream>
 
-// Trick to expose all the class to be tested
-// ------------------------------------------
-#define protected public
-#define private public
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
-#undef protected
-#undef private
-// ------------------------------------------
 
 int main()
 {

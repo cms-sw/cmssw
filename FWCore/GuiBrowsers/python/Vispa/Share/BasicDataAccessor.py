@@ -101,5 +101,5 @@ class BasicDataAccessorInterface(object):
 
     def runScript(self, script):
         object = self
-        exec "result=" + str(script)
+        exec("result=" + str(script))
         return result

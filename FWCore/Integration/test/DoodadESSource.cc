@@ -32,7 +32,7 @@ class DoodadESSource :
 public:
    DoodadESSource(edm::ParameterSet const& pset);
    
-   std::auto_ptr<Doodad> produce(const GadgetRcd&) ;
+   std::unique_ptr<Doodad> produce(const GadgetRcd&) ;
 
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -82,9 +82,9 @@ DoodadESSource::DoodadESSource(edm::ParameterSet const& pset)
 // member functions
 //
 
-std::auto_ptr<Doodad> 
+std::unique_ptr<Doodad> 
 DoodadESSource::produce(const GadgetRcd&) {
-   std::auto_ptr<Doodad> data(new Doodad());
+   auto data = std::make_unique<Doodad>();
    data->a = nCalls_;
    ++nCalls_;
    return data;

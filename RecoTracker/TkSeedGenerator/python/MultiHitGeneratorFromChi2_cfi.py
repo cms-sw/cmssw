@@ -23,6 +23,8 @@ MultiHitGeneratorFromChi2 = cms.PSet(
     pt_interv = cms.vdouble(0.4,0.7,1.0,2.0),
     chi2_cuts = cms.vdouble(3.0,4.0,5.0,5.0),
     #debugging
-    debug = cms.bool(False),
     detIdsToDebug = cms.vint32(0,0,0)
 )
+
+from Configuration.Eras.Modifier_peripheralPbPb_cff import peripheralPbPb
+peripheralPbPb.toModify(MultiHitGeneratorFromChi2, maxElement = 1000000)

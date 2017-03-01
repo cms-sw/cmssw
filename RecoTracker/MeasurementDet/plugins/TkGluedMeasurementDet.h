@@ -16,7 +16,7 @@ class GluedGeomDet;
 #include "FWCore/Utilities/interface/Visibility.h"
 
 
-class TkGluedMeasurementDet GCC11_FINAL : public MeasurementDet {
+class dso_hidden TkGluedMeasurementDet final : public MeasurementDet {
 public:
 
   TkGluedMeasurementDet( const GluedGeomDet* gdet,const SiStripRecHitMatcher* matcher, const StripClusterParameterEstimator* cpe);
@@ -39,6 +39,9 @@ public:
 
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
+
+  unsigned int rawId() const { return  fastGeomDet().geographicalId(); }
+
 
   /// return TRUE if both mono and stereo components are active
   bool isActive(const MeasurementTrackerEvent & data) const {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
@@ -80,7 +83,7 @@ private:
     static bool filter() { return false;}   /// always fast as no estimator available here! 
     size_t size() const { return target_.size();}
 
-    static const MeasurementEstimator  & estimator() { static MeasurementEstimator * dummy=0; return *dummy;}
+    static const MeasurementEstimator  & estimator() { static const MeasurementEstimator * dummy=0; return *dummy;}
 
   private: 
     const GeomDet              * geomDet_;

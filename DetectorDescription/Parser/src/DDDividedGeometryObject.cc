@@ -1,14 +1,15 @@
-//
-// ********************************************************************
-// 25.04.04 - M.Case ported algorithm from G4VDivisionParameterisation.cc. to 
-//            DDD version
-// ********************************************************************
-
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
-#include <Math/RotationZ.h>
+#include <iostream>
+#include <utility>
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/RotationZ.h"
 
 DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv ) 
   : div_( div ),
@@ -26,11 +27,7 @@ DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision& div, DDCompa
     else 
       divisionType_ = DivWIDTH;
   } 
-  DCOUT_V( 'P', " DDDividedGeometryObject Divisions " << div_ << std::endl );
 }
-
-DDDividedGeometryObject::~DDDividedGeometryObject( void )
-{}
 
 DDRotationMatrix*
 DDDividedGeometryObject::changeRotMatrix( double rotZ ) const
@@ -42,15 +39,12 @@ DDDividedGeometryObject::changeRotMatrix( double rotZ ) const
 int
 DDDividedGeometryObject::calculateNDiv( double motherDim, double width, double offset ) const
 {
-  DCOUT_V('P', " DDDividedGeometryObject::calculateNDiv: " << ( motherDim - offset ) / width << " Motherdim: " <<  motherDim << ", Offset: " << offset << ", Width: " << width << std::endl);
   return int( ( motherDim - offset ) / width );
 }
 
 double
 DDDividedGeometryObject::calculateWidth( double motherDim, int nDiv, double offset ) const
 { 
-  DCOUT_V('P', " DDDividedGeometryObject::calculateWidth: " << ( motherDim - offset ) / nDiv << ", Motherdim: " << motherDim << ", Offset: " << offset << ", Number of divisions: " << nDiv << std::endl);
-
   return ( motherDim - offset ) / nDiv;
 }
 
@@ -74,7 +68,6 @@ DDDividedGeometryObject::checkOffset( double maxPar )
 {
   if( div_.offset() >= maxPar )
   {
-    DCOUT_V('P', "DDDividedGeometryObject::checkOffset() Division of LogicalPart " << div_.parent() << " offset=" << div_.offset() << " maxPar=" << maxPar << "\n");
     std::string s = "DDDividedGeometryObject::checkOffset() IllegalConstruct";
     s += "\nERROR - DDDividedGeometryObject::checkOffset()";
     s += "\n        failed.";
@@ -90,9 +83,9 @@ DDDividedGeometryObject::checkNDivAndWidth( double maxPar )
       && (div_.offset() + compWidth_*compNDiv_ - maxPar > tolerance() ) )
   {
     std::string s = "ERROR - DDDividedGeometryObject::checkNDivAndWidth()";
-    s+= "\n        Division of LogicalPart " + div_.parent();
+    s+= "\n        Division of LogicalPart " + div_.parent().name().name();
     s+= " has too big an offset.";
-    DCOUT_V('P', "DDDividedGeometryObject::checkNDivAndWidth has computed div_.offset() + compWidth_*compNDiv_ - maxPar =" << div_.offset() + compWidth_*compNDiv_ - maxPar << " and tolerance()=" << tolerance());
+
     std::cout << compWidth_ << std::endl;
     throw cms::Exception("DDException") << s;
   }
@@ -121,15 +114,8 @@ DDDividedGeometryObject::getType( void ) const
 void
 DDDividedGeometryObject::execute( void )
 {
-  DCOUT_V( 'D', "about to make " <<  compNDiv_ << " divisions." << std::endl );
   for( int i = theVoluFirstCopyNo_; i < compNDiv_+theVoluFirstCopyNo_; ++i )
   {
-    DCOUT_V( 'D',  "Parent Volume: " << div_.parent() << std::endl );
-    DCOUT_V( 'D',  "Child Volume: " << makeDDLogicalPart(i) << std::endl );
-    DCOUT_V( 'D',  "   copyNo:" << i << std::endl );
-    DCOUT_V( 'D',  "   Translation: " << makeDDTranslation(i) << std::endl );
-    DCOUT_V( 'D',  "   rotation=" << makeDDRotation(i) << std::endl );
-
     cpv_->position( makeDDLogicalPart( i ),
 		    div_.parent(),
 		    i,

@@ -44,7 +44,7 @@
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/fwPaths.h"
-
+#include "Fireworks/Core/interface/FWPartialConfig.h"
 
 CmsShowMainBase::CmsShowMainBase()
    : 
@@ -60,6 +60,7 @@ CmsShowMainBase::CmsShowMainBase()
      m_navigatorPtr(0),
      m_metadataManagerPtr(0),
      m_contextPtr(0),
+     m_autoSaveAllViewsHeight(-1),
      m_autoLoadTimerRunning(kFALSE),
      m_forward(true),
      m_isPlaying(false),
@@ -69,7 +70,7 @@ CmsShowMainBase::CmsShowMainBase()
    sendVersionInfo();
 }
 
-CmsShowMainBase::~CmsShowMainBase()
+CmsShowMainBase::~CmsShowMainBase() noexcept(false)
 {
 }
 
@@ -110,22 +111,22 @@ CmsShowMainBase::setupViewManagers()
 {
    guiManager()->updateStatus("Setting up view manager...");
 
-   boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
+   std::shared_ptr<FWViewManagerBase> eveViewManager = std::make_shared<FWEveViewManager>(guiManager());
    eveViewManager->setContext(m_contextPtr);
    viewManager()->add(eveViewManager);
 
-   boost::shared_ptr<FWTableViewManager> tableViewManager(new FWTableViewManager(guiManager()));
+   auto tableViewManager = std::make_shared<FWTableViewManager>(guiManager());
    configurationManager()->add(std::string("Tables"), tableViewManager.get());
    viewManager()->add(tableViewManager);
    eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
 
-   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
+   auto triggerTableViewManager = std::make_shared<FWTriggerTableViewManager>(guiManager());
    configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
    configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
    triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
 
-   boost::shared_ptr<FWGeometryTableViewManager> geoTableViewManager(new FWGeometryTableViewManager(guiManager(),  m_simGeometryFilename));
+   auto geoTableViewManager = std::make_shared<FWGeometryTableViewManager>(guiManager(),  m_simGeometryFilename);
    geoTableViewManager->setContext(m_contextPtr);
    viewManager()->add(geoTableViewManager);
 
@@ -213,9 +214,8 @@ CmsShowMainBase::draw()
    if (!m_autoSaveAllViewsFormat.empty())
    {
       m_guiManager->updateStatus("auto saving images ...");
-      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat);
+      m_guiManager->exportAllViews(m_autoSaveAllViewsFormat, m_autoSaveAllViewsHeight);
    }
-
    m_guiManager->clearStatus();
 }
 
@@ -247,6 +247,12 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
 
    m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration,
                                                                 this, _1));
+   m_guiManager->loadPartialFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialLoadConfiguration,
+                                                                this, _1));
+
+   m_guiManager->writePartialToConfigurationFile_.connect(boost::bind(&CmsShowMainBase::partialWriteToConfigFile,
+                                                                this,_1));
+
    std::string macPath(gSystem->Getenv("CMSSW_BASE"));
    macPath += "/src/Fireworks/Core/macros";
    const char* base = gSystem->Getenv("CMSSW_RELEASE_BASE");
@@ -273,6 +279,15 @@ CmsShowMainBase::writeToCurrentConfigFile()
 {
    m_configurationManager->writeToFile(m_configFileName);
 }
+
+void
+CmsShowMainBase::partialWriteToConfigFile(const std::string &name)
+{
+    std::string p =   (name == "current") ? m_configFileName.c_str() : name.c_str();
+    new FWPartialConfigSaveGUI( p.c_str() ,  m_configFileName.c_str(), m_configurationManager.get());
+
+}
+
 
 void
 CmsShowMainBase::reloadConfiguration(const std::string &config)
@@ -321,6 +336,13 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
    m_guiManager->updateStatus("");
 }
 
+
+void
+CmsShowMainBase::partialLoadConfiguration(const std::string &name)
+{
+    new FWPartialConfigLoadGUI(name.c_str(), m_configurationManager.get(), m_eiManager.get());
+}
+
 void
 CmsShowMainBase::setupAutoLoad(float x)
 {
@@ -352,58 +374,40 @@ void
 CmsShowMainBase::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
-   if(m_configFileName.empty() ) {
-      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
-      m_guiManager->getMainFrame()->MapSubwindows();
-      m_guiManager->getMainFrame()->Layout();
-      m_guiManager->getMainFrame()->MapRaised();
-      m_configFileName = "newconfig.fwc";
-      m_guiManager->createView("Rho Phi"); 
-      m_guiManager->createView("Rho Z"); 
-   }
-   else {
-      char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
-      if(0==whereConfig) {
-         fwLog(fwlog::kInfo) <<"unable to load configuration file '"<<m_configFileName<<"' will load default instead."<<std::endl;
-         whereConfig = gSystem->Which(TROOT::GetMacroPath(), "default.fwc", kReadPermission);
-         assert(whereConfig && "Default configuration cannot be found. Malformed Fireworks installation?");
-      }
-      m_configFileName = whereConfig;
 
-      delete [] whereConfig;
-      try
+   try
+   { 
+      gEve->DisableRedraw();
+      if (m_configFileName.empty())
       {
-         gEve->DisableRedraw();
+         m_configFileName = m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
+      }
+      else
+      {
+         char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
+         m_configFileName = whereConfig;
+         delete [] whereConfig;
          m_configurationManager->readFromFile(m_configFileName);
-         gEve->EnableRedraw();
       }
-      catch (SimpleSAXParser::ParserError &e)
-      {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "': " 
-                              << e.error()
-                              << std::endl;
-         exit(1);
-      }
-      catch (std::runtime_error &e)
-      {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
-                              << std::endl;
-         exit(1);
-      }
+      gEve->EnableRedraw();
    }
-   /* 
-      if(not m_configFileName.empty() ) {
-      //when the program quits we will want to save the configuration automatically
-      m_guiManager->goingToQuit_.connect(
-      boost::bind(&FWConfigurationManager::writeToFile,
-      m_configurationManager.get(),
-      m_configFileName));
-      }
-   */
+   catch (SimpleSAXParser::ParserError &e)
+   {
+      fwLog(fwlog::kError) <<"Unable to load configuration file '" 
+                           << m_configFileName 
+                           << "': " 
+                           << e.error()
+                           << std::endl;
+      exit(1);
+   }
+   catch (std::runtime_error &e)
+   {
+      fwLog(fwlog::kError) <<"Unable to load configuration file '" 
+                           << m_configFileName 
+                           << "' which was specified on command line. Quitting." 
+                           << std::endl;
+      exit(1);
+   }       
 }
 
 
@@ -456,12 +460,21 @@ CmsShowMainBase::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
    m_eiManager->add(iItem);
 }
 
+
+void
+CmsShowMainBase::stopPlaying()
+{
+    m_isPlaying = false;
+    checkKeyBindingsOnPLayEventsStateChanged();
+}
+
 void
 CmsShowMainBase::playForward()
 {
    m_forward = true;
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
+   checkKeyBindingsOnPLayEventsStateChanged();
    startAutoLoadTimer();
 }
 
@@ -472,6 +485,7 @@ CmsShowMainBase::playBackward()
    m_isPlaying = true;
    guiManager()->enableActions(kFALSE);
    startAutoLoadTimer();
+   checkKeyBindingsOnPLayEventsStateChanged();
 }
 
 void

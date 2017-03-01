@@ -365,7 +365,7 @@ private:
   struct ProcessDescription {
     std::string         name;
     std::string         first_path;             // the framework does not provide a pre/postPaths or pre/postEndPaths signal,
-    std::string         last_path;              // so we emulate them keeping track of the first and last Path and EndPath
+    std::string         last_path;              // so we emulate them keeping track of the first and last non-empty Path and EndPath
     std::string         first_endpath;
     std::string         last_endpath;
     edm::ParameterSetID pset;
@@ -758,6 +758,9 @@ private:
 
   // associate to a path all the modules it contains
   void fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules);
+
+  // find the first and last non-empty paths, optionally skipping the first one
+  std::pair<std::string,std::string> findFirstLast(unsigned int pid, std::vector<std::string> const & paths, bool skip = false);
 
   // print a timing summary for the run or job
   void printSummary(Timing const & summary, std::string const & label) const;

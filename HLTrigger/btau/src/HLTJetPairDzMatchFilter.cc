@@ -1,9 +1,7 @@
 
 #include "HLTrigger/btau/src/HLTJetPairDzMatchFilter.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -13,8 +11,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template<typename T>
 HLTJetPairDzMatchFilter<T>::HLTJetPairDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf)
@@ -45,7 +42,7 @@ HLTJetPairDzMatchFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("JetMinDR",0.2);
   desc.add<double>("JetMaxDZ",0.2);
   desc.add<int>("TriggerType",84);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetPairDzMatchFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetPairDzMatchFilter<T>>(), desc);
 }
 
 template<typename T>

@@ -300,7 +300,7 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
     if (tsos.isValid()) {
         float thisLocalPosDiff = (tsos.localPosition()-target.localPosition()).mag();
         float thisGlobalMomDeltaR = deltaR(tsos.globalMomentum(), target.globalMomentum());
-        float thisGlobalMomDeltaPhi = fabs(deltaPhi(tsos.globalMomentum().phi(), target.globalMomentum().phi()));
+        float thisGlobalMomDeltaPhi = fabs(deltaPhi(tsos.globalMomentum().barePhi(), target.globalMomentum().barePhi()));
         float thisGlobalMomDeltaEta = fabs(tsos.globalMomentum().eta() - target.globalMomentum().eta());
         float thisGlobalDPtRel = (tsos.globalMomentum().perp() - target.globalMomentum().perp())/target.globalMomentum().perp();
 
@@ -352,7 +352,7 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
     bool isBest = false;
     float thisLocalPosDiff = (tscp.position()-target.position()).mag();
     float thisGlobalMomDeltaR   = deltaR(tscp.momentum(), target.momentum());
-    float thisGlobalMomDeltaPhi = fabs(deltaPhi(tscp.momentum().phi(), target.momentum().phi()));
+    float thisGlobalMomDeltaPhi = fabs(deltaPhi(tscp.momentum().barePhi(), target.momentum().barePhi()));
     float thisGlobalMomDeltaEta = fabs(tscp.momentum().eta() - target.momentum().eta());
     float thisGlobalDPtRel = (tscp.momentum().perp() - target.momentum().perp())/target.momentum().perp();
 
@@ -401,7 +401,7 @@ MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &
     bool isBest = false;
     float thisLocalPosDiff = (start.position()-target.position()).mag();
     float thisGlobalMomDeltaR   = deltaR(start.momentum(), target.momentum());
-    float thisGlobalMomDeltaPhi = fabs(deltaPhi(start.momentum().phi(), target.momentum().phi()));
+    float thisGlobalMomDeltaPhi = fabs(deltaPhi(start.momentum().barePhi(), target.momentum().barePhi()));
     float thisGlobalMomDeltaEta = fabs(start.momentum().eta() - target.momentum().eta());
     float thisGlobalDPtRel = (start.momentum().perp() - target.momentum().perp())/target.momentum().perp();
 

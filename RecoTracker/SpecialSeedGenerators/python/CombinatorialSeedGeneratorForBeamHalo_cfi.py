@@ -7,12 +7,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+
 #extend the seeds to inner rings of TEC
 TECi = cms.PSet(
         minRing = cms.int32(1),
             matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
             useRingSlector = cms.bool(True),
             TTRHBuilder = cms.string('WithTrackAngle'),
+            clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
             rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
             maxRing = cms.int32(2)
             )
@@ -21,6 +24,7 @@ layerInfo = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(False),
         TTRHBuilder = cms.string('WithTrackAngle'),
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
     FPix = cms.PSet(
@@ -32,6 +36,7 @@ layerInfo = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         useRingSlector = cms.bool(False),
         TTRHBuilder = cms.string('WithTrackAngle'),
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone')),
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         maxRing = cms.int32(7)
     ),

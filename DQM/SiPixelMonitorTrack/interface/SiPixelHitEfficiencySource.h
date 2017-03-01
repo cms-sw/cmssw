@@ -32,6 +32,7 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
@@ -40,14 +41,15 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
+class SiPixelHitEfficiencySource : public DQMEDAnalyzer {
   public:
     explicit SiPixelHitEfficiencySource(const edm::ParameterSet&);
             ~SiPixelHitEfficiencySource();
 
-    virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup);
+    virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) override;
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void fillClusterProbability(int , int, bool, double );
 
   private: 
     edm::ParameterSet pSet_; 
@@ -72,7 +74,8 @@ class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
     bool firstRun;
     
     std::map<uint32_t, SiPixelHitEfficiencyModule*> theSiPixelStructure;
-    
+
+    std::string vtxsrc_;    
     int nmissing,nvalid; 
     
     int nvtx_;
@@ -85,6 +88,22 @@ class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
     double vtxchi2_;
 
     bool isUpgrade;
+
+    //MEs for cluster probability
+    MonitorElement* meClusterProbabilityL1_Plus_;
+    MonitorElement* meClusterProbabilityL1_Minus_;
+
+    MonitorElement* meClusterProbabilityL2_Plus_;
+    MonitorElement* meClusterProbabilityL2_Minus_;
+
+    MonitorElement* meClusterProbabilityL3_Plus_;
+    MonitorElement* meClusterProbabilityL3_Minus_;
+
+    MonitorElement* meClusterProbabilityD1_Plus_;
+    MonitorElement* meClusterProbabilityD1_Minus_;
+
+    MonitorElement* meClusterProbabilityD2_Plus_;
+    MonitorElement* meClusterProbabilityD2_Minus_;
 
 };
 

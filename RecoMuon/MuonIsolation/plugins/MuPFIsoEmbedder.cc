@@ -112,7 +112,7 @@ MuPFIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(muonToken_,muons);
 
 
-   std::auto_ptr<MuonCollection> out(new MuonCollection);
+   auto out = std::make_unique<MuonCollection>();
 
    for(unsigned int i=0;i<muons->size();++i) {
      MuonRef muonRef(muons,i);
@@ -121,7 +121,7 @@ MuPFIsoEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      out->push_back(muon);
    }
 
-   iEvent.put(out);
+   iEvent.put(std::move(out));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

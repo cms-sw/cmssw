@@ -34,7 +34,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,26 +62,24 @@
 // class decleration
 //
 
-class CATopJetTagger : public edm::EDProducer {
-   public:
-      explicit CATopJetTagger(const edm::ParameterSet&);
-      ~CATopJetTagger();
+class CATopJetTagger : public edm::global::EDProducer<> {
+ public:
+  explicit CATopJetTagger(const edm::ParameterSet&);
+  ~CATopJetTagger();
+  
+  
+ private:
+  virtual void produce( edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  
+  // ----------member data ---------------------------
+  
+  const edm::InputTag   src_;
+  
+  const double      TopMass_;
+  const double      WMass_;
+  const bool        verbose_;
 
-
-   private:
-      virtual void beginJob() ;
-      virtual void produce( edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
-
-  edm::InputTag   src_;
-
-  double      TopMass_;
-  double      WMass_;
-  bool        verbose_;
-
-  edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
+  const edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
 
 };
 

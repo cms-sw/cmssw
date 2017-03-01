@@ -109,7 +109,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es){
 				//int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
 				//int dtEndcap = stub->endcap()-1;
 				std::cout<<"   DT data: tbin="<<stub->BX()<<" (CSC) sector="<<stub->sector()<<" (CSC) subsector="<<stub->subsector()<<" station="<<stub->station()<<" endcap="<<stub->endcap()
-					<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" id="<<stub->getMPCLink()<<" mb_bxn="<<stub->cscid()<<std::cout;
+					<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" id="<<stub->getMPCLink()<<" mb_bxn="<<stub->cscid()<<std::endl;
 			}
 
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";

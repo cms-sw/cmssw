@@ -29,6 +29,10 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
+#process.load("MagneticField.Engine.volumeBasedMagneticField_130503_largeYE4_cfi")
+
+#process.VolumeBasedMagneticFieldESProducer.debugBuilder = True
+
 
 process.MessageLogger = cms.Service("MessageLogger",
     categories   = cms.untracked.vstring("MagneticField"),
@@ -40,7 +44,7 @@ process.MessageLogger = cms.Service("MessageLogger",
       limit = cms.untracked.int32(0)
     ),
     MagneticField = cms.untracked.PSet(
-     limit = cms.untracked.int32(10000000)
+     limit = cms.untracked.int32(1)
     )
   )
 )
@@ -48,3 +52,5 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.testField  = cms.EDAnalyzer("testMagneticField")
 process.p1 = cms.Path(process.testField)
 
+#process.testVolumeGeometry = cms.EDAnalyzer("MagGeometryAnalyzer")
+#process.p1 = cms.Path(process.testVolumeGeometry) 

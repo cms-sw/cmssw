@@ -73,7 +73,7 @@ void CSCSharesInputTest::analyze(const edm::Event &myEvent, const edm::EventSetu
 			float perRecHitData[7] = {0,0,0,0,0,0,0};
 			
 			// Kill us quickly if this is not a CSCRecHit.  Also allows us to use the CSCRecHit version of sharesInput, which we like.
-			const CSCRecHit2D *myHit = dynamic_cast<const CSCRecHit2D *>((*jHit).get());
+			const CSCRecHit2D *myHit = dynamic_cast<const CSCRecHit2D *>((*jHit));
 			if (myHit == 0) {
 				++counts_["NotMatchedRecHits"];
 				++perEventData[9];

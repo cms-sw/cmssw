@@ -2,12 +2,14 @@
   \class    pat::PATElectronSlimmer PATElectronSlimmer.h "PhysicsTools/PatAlgos/interface/PATElectronSlimmer.h"
   \brief    Slimmer of PAT Electrons 
 */
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
+#include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -21,25 +23,28 @@
 
 namespace pat {
 
-  class PATElectronSlimmer : public edm::EDProducer {
-    public:
-      explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATElectronSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
+  class PATElectronSlimmer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATElectronSlimmer() { }
+    
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override final;
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    
     private:
-      edm::EDGetTokenT<edm::View<pat::Electron> > src_;
-
-      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
-      StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_,dropClassifications_;
-
-      edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
-      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-      edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
-      bool linkToPackedPF_;
-      StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
-      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
+    const edm::EDGetTokenT<edm::View<pat::Electron> > src_;
+    
+    const StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+    const StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropSaturation_,dropExtrapolations_,dropClassifications_;
+    
+    const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
+    const edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
+    const bool linkToPackedPF_;
+    const StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
+    const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
+    const bool modifyElectron_;
+    std::unique_ptr<pat::ObjectModifier<pat::Electron> > electronModifier_;
   };
 
 } // namespace
@@ -55,21 +60,35 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     dropCorrections_(iConfig.getParameter<std::string>("dropCorrections")),
     dropIsolations_(iConfig.getParameter<std::string>("dropIsolations")),
     dropShapes_(iConfig.getParameter<std::string>("dropShapes")),
+    dropSaturation_(iConfig.getParameter<std::string>("dropSaturation")),
     dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
     dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
+    reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
+    pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
+    pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
     saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
     reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
-    reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")))
+    reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
+    modifyElectron_(iConfig.getParameter<bool>("modifyElectrons"))
 {
-    produces<std::vector<pat::Electron> >();
-    if (linkToPackedPF_) {
-        reco2pf_ = consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
-        pf2pc_   = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
-        pc_   = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+    edm::ConsumesCollector sumes(consumesCollector());
+    if( modifyElectron_ ) {
+      const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
+      electronModifier_.reset(new pat::ObjectModifier<pat::Electron>(mod_config) );
+      electronModifier_->setConsumes(sumes);
+    } else {
+      electronModifier_.reset(nullptr);
     }
+
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+
+    produces<std::vector<pat::Electron> >();
+}
+
+void 
+pat::PATElectronSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
 }
 
 void 
@@ -90,12 +109,19 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     }
     noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
-    auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
+    auto out = std::make_unique<std::vector<pat::Electron>>();
     out->reserve(src->size());
 
+    if( modifyElectron_ ) { electronModifier_->setEvent(iEvent); }
+    if( modifyElectron_ ) electronModifier_->setEventContent(iSetup);
+
+    std::vector<unsigned int> keys;
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Electron & electron = out->back();
+
+        if( modifyElectron_ ) { electronModifier_->modify(electron); }
+
         if (dropSuperClusters_(electron)) { electron.superCluster_.clear(); electron.embeddedSuperCluster_ = false; }
 	if (dropBasicClusters_(electron)) { electron.basicClusters_.clear();  }
 	if (dropSuperClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowSuperCluster_.clear(); electron.embeddedPflowSuperCluster_ = false; }
@@ -105,24 +131,25 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
         if (dropCorrections_(electron)) { electron.setCorrections(reco::GsfElectron::Corrections()); }
-        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); }
-        if (dropShapes_(electron)) { electron.setPfShowerShape(reco::GsfElectron::ShowerShape()); electron.setShowerShape(reco::GsfElectron::ShowerShape());  }
+        if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); electron.setEcalPFClusterIso(0); electron.setHcalPFClusterIso(0); }
+        if (dropShapes_(electron)) { electron.setShowerShape(reco::GsfElectron::ShowerShape()); }
+        if (dropSaturation_(electron)) { electron.setSaturationInfo(reco::GsfElectron::SaturationInfo()); }
         if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
         if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
         if (linkToPackedPF_) {
-            electron.setPackedPFCandidateCollection(edm::RefProd<pat::PackedCandidateCollection>(pc));
             //std::cout << " PAT  electron in  " << src.id() << " comes from " << electron.refToOrig_.id() << ", " << electron.refToOrig_.key() << std::endl;
-            edm::RefVector<pat::PackedCandidateCollection> origs;
-            for (const reco::PFCandidateRef & pf : (*reco2pf)[electron.refToOrig_]) {
-                if (pf2pc->contains(pf.id())) {
-                    origs.push_back((*pf2pc)[pf]);
-                } //else std::cerr << " Electron linked to a PFCand in " << pf.id() << " while we expect them in " << pf2pc->ids().front().first << "\n";
+            keys.clear();
+            for(auto const& pf: (*reco2pf)[electron.refToOrig_]) {
+              if( pf2pc->contains(pf.id()) ) {
+                keys.push_back( (*pf2pc)[pf].key());
+              }
             }
-            //std::cout << "Electron with pt " << electron.pt() << " associated to " << origs.size() << " PF Candidates\n";
-            electron.setAssociatedPackedPFCandidates(origs);
+            electron.setAssociatedPackedPFCandidates(edm::RefProd<pat::PackedCandidateCollection>(pc),
+                                                     keys.begin(), keys.end());
+            //std::cout << "Electron with pt " << electron.pt() << " associated to " << electron.associatedPackedFCandidateIndices_.size() << " PF Candidates\n";
             //if there's just one PF Cand then it's me, otherwise I have no univoque parent so my ref will be null 
-            if (origs.size() == 1) {
-                electron.refToOrig_ = refToPtr(origs[0]);
+            if (keys.size() == 1) {
+                electron.refToOrig_ = electron.sourceCandidatePtr(0);
             } else {
                 electron.refToOrig_ = reco::CandidatePtr(pc.id());
             }
@@ -131,10 +158,9 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
             std::vector<float> vCov = lazyToolsNoZS.localCovariances(*( electron.superCluster()->seed()));
             electron.full5x5_setSigmaIetaIphi(vCov[1]);
         }
-
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

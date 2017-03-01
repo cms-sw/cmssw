@@ -11,13 +11,17 @@
 #include <cmath>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
-  : verbose_(0), dvf_(0), ptMin_(1.0)
+  : verbose_(conf.getParameter<int>("Verbosity") ) // 0 silent, 1 chatty, 2 loud
+  , ptMin_  (conf.getParameter<double>("PtMin")  ) // 1.0 GeV
+  , method2 ( conf.getParameter<bool>("Method2") )
+  , trackCollName  ( conf.getParameter<edm::InputTag>("TrackCollection") )
+  , token_Tracks   ( consumes<reco::TrackCollection>(trackCollName) )
+  , token_BeamSpot ( consumes<reco::BeamSpot>       (conf.getParameter<edm::InputTag>("beamSpot") ) )
 {
   // Register my product
   produces<reco::VertexCollection>();
 
   // Setup shop
-  verbose_           = conf.getParameter<int>("Verbosity"); // 0 silent, 1 chatty, 2 loud
   std::string finder = conf.getParameter<std::string>("Finder"); // DivisiveVertexFinder
   bool useError      = conf.getParameter<bool>("UseError"); // true
   bool wtAverage     = conf.getParameter<bool>("WtAverage"); // true
@@ -25,11 +29,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   double zSeparation = conf.getParameter<double>("ZSeparation"); // 0.05 cm
   int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 3
   // Tracking requirements before sending a track to be considered for vtx
-  ptMin_ = conf.getParameter<double>("PtMin"); // 1.0 GeV
-  trackCollName = conf.getParameter<edm::InputTag>("TrackCollection");
-  token_Tracks = consumes<reco::TrackCollection>(trackCollName);
-  token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
-  method2 = conf.getParameter<bool>("Method2");
+  
 
   double track_pt_min   = ptMin_;
   double track_pt_max   = 10.;
@@ -41,7 +41,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
     track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");    
     if (track_pt_min != ptMin_) {
       if (track_pt_min < ptMin_)
-	edm::LogWarning("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
+	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
       else
 	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") !!!";
     }
@@ -87,7 +87,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (bsHandle.isValid()) myPoint = math::XYZPoint(bsHandle->x0(),bsHandle->y0(), 0. ); //FIXME: fix last coordinate with vertex.z() at same time
 
   // Third, ship these tracks off to be vertexed
-  std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
+  auto vertexes = std::make_unique<reco::VertexCollection>();
   bool ok;
   if (method2) {
     ok = dvf_->findVertexesAlt(trks,       // input
@@ -166,7 +166,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
     }
   
-  e.put(vertexes);
+  e.put(std::move(vertexes));
   
 }
 

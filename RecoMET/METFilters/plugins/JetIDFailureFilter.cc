@@ -81,7 +81,7 @@ bool JetIDFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSe
     }
   }
 
-  iEvent.put( std::auto_ptr<bool>(new bool(goodJetID)) );
+  iEvent.put(std::make_unique<bool>(goodJetID));
 
   return taggingMode_ || goodJetID;
 }

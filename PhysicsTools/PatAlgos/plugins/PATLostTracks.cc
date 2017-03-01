@@ -9,7 +9,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,24 +26,24 @@
 
 
 namespace pat {
-    class PATLostTracks : public edm::EDProducer {
-        public:
-            explicit PATLostTracks(const edm::ParameterSet&);
-            ~PATLostTracks();
-
-            virtual void produce(edm::Event&, const edm::EventSetup&);
-
-        private:
-            edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
-            edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
-            edm::EDGetTokenT<reco::TrackCollection>         Tracks_;
-            edm::EDGetTokenT<reco::VertexCollection>         Vertices_;
-            edm::EDGetTokenT<reco::VertexCollection>         PV_;
-            edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
-            double minPt_;
-            double minHits_;
-            double minPixelHits_;
-    };
+  class PATLostTracks : public edm::global::EDProducer<> {
+  public:
+    explicit PATLostTracks(const edm::ParameterSet&);
+    ~PATLostTracks();
+    
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    
+  private:
+    const edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
+    const edm::EDGetTokenT<reco::TrackCollection>         Tracks_;
+    const edm::EDGetTokenT<reco::VertexCollection>         Vertices_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PV_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
+    const double minPt_;
+    const double minHits_;
+    const double minPixelHits_;
+  };
 }
 
 pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
@@ -60,12 +60,11 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   produces< std::vector<reco::Track> > ();
   produces< std::vector<pat::PackedCandidate> > ();
   produces< edm::Association<pat::PackedCandidateCollection> > ();
-
 }
 
 pat::PATLostTracks::~PATLostTracks() {}
 
-void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
@@ -83,6 +82,7 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::Handle<reco::VertexCollection> pvs;
     iEvent.getByToken( PV_, pvs );
     reco::VertexRef PV(pvs.id());
+    reco::VertexRefProd PVRefProd(pvs);
     if (!pvs->empty()) {
         PV = reco::VertexRef(pvs, 0);
     }
@@ -90,10 +90,10 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken( PVOrigs_, PVOrigs );
     const reco::Vertex & PVOrig = (*PVOrigs)[0];
 
-    std::auto_ptr< std::vector<reco::Track> > outPtrP( new std::vector<reco::Track> );
+    auto outPtrP = std::make_unique<std::vector<reco::Track>>();
     std::vector<int> used(tracks->size(),0);
 
-    std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrC( new std::vector<pat::PackedCandidate> );
+    auto outPtrC = std::make_unique<std::vector<pat::PackedCandidate>>();
 
     //Mark all tracks used in candidates	
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
@@ -126,23 +126,23 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 		{
 			outPtrP->push_back(tr);
 			reco::Candidate::PolarLorentzVector p4(tr.pt(),tr.eta(),tr.phi(),0.13957018);
-			outPtrC->push_back(pat::PackedCandidate(p4,tr.vertex(),tr.phi(),211*tr.charge(),PV));
+			outPtrC->push_back(pat::PackedCandidate(p4,tr.vertex(),tr.phi(),211*tr.charge(),PVRefProd,PV.key()));
 			outPtrC->back().setTrackProperties((*tracks)[i]);
 		        if(PVOrig.trackWeight(edm::Ref<reco::TrackCollection>(tracks,i)) > 0.5) {
-		                outPtrC->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
+		                outPtrC->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
 			}
 
 			mapping[i]=j;
 			j++;
 		}
     } 
-    iEvent.put(outPtrP);
-    edm::OrphanHandle<pat::PackedCandidateCollection> oh =   iEvent.put(outPtrC);
-    std::auto_ptr<edm::Association<pat::PackedCandidateCollection> > tk2pc(new edm::Association<pat::PackedCandidateCollection>(oh   ));
+    iEvent.put(std::move(outPtrP));
+    edm::OrphanHandle<pat::PackedCandidateCollection> oh =   iEvent.put(std::move(outPtrC));
+    auto tk2pc = std::make_unique<edm::Association<pat::PackedCandidateCollection>>(oh);
     edm::Association<pat::PackedCandidateCollection>::Filler tk2pcFiller(*tk2pc);
     tk2pcFiller.insert(tracks, mapping.begin(), mapping.end());
     tk2pcFiller.fill() ; 
-    iEvent.put(tk2pc);
+    iEvent.put(std::move(tk2pc));
 
 }
 

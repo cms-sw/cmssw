@@ -14,7 +14,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 // user include files
@@ -36,7 +35,7 @@ public:
   L1MuTriggerPtScaleProducer(const edm::ParameterSet&);
   ~L1MuTriggerPtScaleProducer();
   
-  std::auto_ptr<L1MuTriggerPtScale> produceL1MuTriggerPtScale(const L1MuTriggerPtScaleRcd&);
+  std::unique_ptr<L1MuTriggerPtScale> produceL1MuTriggerPtScale(const L1MuTriggerPtScaleRcd&);
 
 private:
   // ----------member data ---------------------------

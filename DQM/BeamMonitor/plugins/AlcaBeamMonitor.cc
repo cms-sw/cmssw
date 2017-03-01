@@ -200,7 +200,7 @@ void AlcaBeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Validation");
   //Book histograms
-  hD0Phi0_ = dbe_->bookProfile("hD0Phi0","d_{0} vs. #phi_{0} (All Tracks)",63,-3.15,3.15,100,-0.1,0.1,"");
+  hD0Phi0_ = dbe_->bookProfile("hD0Phi0","d_{0} vs. #phi_{0} (All Tracks)",63,-3.15,3.15,100,-0.5,0.5,"");
   hD0Phi0_->setAxisTitle("#phi_{0} (rad)",1);
   hD0Phi0_->setAxisTitle("d_{0} (cm)",2);
 
@@ -282,7 +282,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
     iEvent.getByToken(trackLabel_, TrackCollection);
     const reco::TrackCollection *tracks = TrackCollection.product();
     for ( reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track ) {    
-      hD0Phi0_->Fill(track->phi(), -1*track->dxy(beamSpotsMap_["DB"].position()));
+      hD0Phi0_->Fill(track->phi(), -1*track->dxy());
       hDxyBS_->Fill(-1*track->dxy(beamSpotsMap_["DB"].position()));
     }
   }

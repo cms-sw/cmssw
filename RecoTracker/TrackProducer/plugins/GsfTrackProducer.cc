@@ -15,6 +15,9 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig):
   GsfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
 		       iConfig.getParameter<bool>("useHitsSplitting")),
@@ -44,11 +47,11 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::GsfTrackCollection> outputTColl(new reco::GsfTrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection> outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::GsfTrackCollection> outputTColl(new reco::GsfTrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
 
   //
   //declare and get stuff to be retrieved from ES
@@ -60,6 +63,9 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -80,6 +86,26 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   //put everything in the event
   putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
-	   outputTrajectoryColl, algoResults, theBuilder.product(), bs);
+	   outputTrajectoryColl, algoResults, theBuilder.product(), bs, httopo.product());
   LogDebug("GsfTrackProducer") << "end" << "\n";
+}
+
+void GsfTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src", edm::InputTag("CkfElectronCandidates"));
+  desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+  desc.add<std::string>("producer", std::string(""));
+  desc.add<std::string>("Fitter", std::string("GsfElectronFittingSmoother"));
+  desc.add<bool>("useHitsSplitting", false);
+  desc.add<bool>("TrajectoryInEvent", false);
+  desc.add<std::string>("TTRHBuilder", std::string("WithTrackAngle"));
+  desc.add<std::string>("Propagator", std::string("fwdElectronPropagator"));
+  desc.add<std::string>("NavigationSchool", std::string("SimpleNavigationSchool"));
+  desc.add<std::string>("MeasurementTracker", std::string(""));                   
+  desc.add<edm::InputTag>("MeasurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent")); 
+  desc.add<bool>("GeometricInnerState", false);
+  desc.add<std::string>("AlgorithmName", std::string("gsf"));
+
+  descriptions.add("gsfTrackProducer", desc);
 }

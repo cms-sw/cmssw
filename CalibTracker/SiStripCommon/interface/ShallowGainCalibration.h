@@ -60,7 +60,9 @@ class ShallowGainCalibration : public edm::EDProducer {
 public:
   explicit ShallowGainCalibration(const edm::ParameterSet&);
 private:
-  edm::InputTag theTracksLabel;
+	const edm::EDGetTokenT< edm::View<reco::Track> > tracks_token_;
+	const edm::EDGetTokenT< TrajTrackAssociationCollection > association_token_;
+	
   std::string Suffix;
   std::string Prefix;
 

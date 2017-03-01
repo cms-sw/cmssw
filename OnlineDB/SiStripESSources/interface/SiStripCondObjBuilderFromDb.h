@@ -29,6 +29,7 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
+#include <typeinfo>
 
 class SiStripFecCabling;
 class SiStripDetCabling;
@@ -39,6 +40,7 @@ class SiStripThreshold;
 class DcuDetIdMap;
 class SiStripApvGain;
 class SiStripLatency;
+class TrackerTopology;
 
 class SiStripCondObjBuilderFromDb {
   
@@ -59,6 +61,8 @@ class SiStripCondObjBuilderFromDb {
 			      const edm::ActivityRegistry&);
   virtual ~SiStripCondObjBuilderFromDb();
   
+  TrackerTopology * buildTrackerTopology();
+
   /** Returns database connection parameters. */
   inline const SiStripDbParams& dbParams() const {return db_->dbParams();} 
 
@@ -73,6 +77,7 @@ class SiStripCondObjBuilderFromDb {
   				
 
   bool checkForCompatibility(std::stringstream& input,std::stringstream& output,std::string& label);
+  std::string getConfigString(const std::type_info& typeInfo);
 
   SiStripFedCabling*  getFedCabling() {checkUpdate(); return fed_cabling_;}
   SiStripPedestals *  getPedestals()  {checkUpdate(); return pedestals_;}  
@@ -148,6 +153,7 @@ class SiStripCondObjBuilderFromDb {
   bool m_debug;
 
   //Data containers
+  TrackerTopology * tTopo;
   SiStripPedestals::InputVector inputPedestals;
   SiStripNoises::InputVector inputNoises;
   SiStripThreshold::InputVector inputThreshold;
@@ -162,6 +168,5 @@ class SiStripCondObjBuilderFromDb {
   trackercon v_trackercon;
 
  };
-
 #endif // OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
 

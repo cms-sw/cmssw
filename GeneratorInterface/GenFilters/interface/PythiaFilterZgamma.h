@@ -22,6 +22,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaFilterZgamma : public edm::EDFilter {
    public:
@@ -32,7 +35,7 @@ class PythiaFilterZgamma : public edm::EDFilter {
 
    private:
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        
        int selProc; // sel_Proc = 1 : ->Z->e+e-, sel_Proc = 2: Z->mu+mu-
        

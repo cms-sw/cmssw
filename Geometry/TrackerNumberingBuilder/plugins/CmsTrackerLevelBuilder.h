@@ -20,14 +20,34 @@ public:
   
   struct subDetByType{
     bool operator()(const GeometricDet* a, const GeometricDet* b) const {
-      return a->type() < b->type();
+      return a->type()%100 < b->type()%100; // it relies on the fact that the GeometricDet::GDEnumType enumerators used to identify the subdetectors in the upgrade geometries are equal to the ones of the present detector + n*100
     }
   };
   
+  // NP** Phase2 BarrelEndcap
+  struct PhiSortNP{
+    bool operator()(const GeometricDet* a,const GeometricDet* b) const {
+      if ( fabs(a->translation().rho() - b->translation().rho()) < 0.01 &&
+           (fabs(a->translation().phi() - b->translation().phi()) < 0.01 ||
+            fabs(a->translation().phi() - b->translation().phi()) > 6.27 ) &&
+           a->translation().z() * b->translation().z() > 0.0 ) {
+        return ( fabs(a->translation().z()) < fabs(b->translation().z()) );
+      }
+      else
+        return false;
+    }
+  };
+
+
   struct LessZ{
     bool operator()(const GeometricDet* a, const GeometricDet* b) const
     {
-      return a->translation().z() < b->translation().z();   
+      // NP** change for Phase 2 Tracker
+      if (a->translation().z() == b->translation().z())
+        {return a->translation().rho() < b->translation().rho();}
+      else{
+      // Original version
+      return a->translation().z() < b->translation().z();}   
     }
   };
   
@@ -38,7 +58,7 @@ public:
     }
   };
   
-  
+
   struct ExtractPhi:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;

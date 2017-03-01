@@ -1,5 +1,11 @@
-<use   name="RecoTracker/TkNavigation"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="Utilities/General"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/DetId"/>
 <use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="MagneticField/Engine"/>

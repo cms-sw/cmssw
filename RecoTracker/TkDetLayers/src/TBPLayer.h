@@ -5,15 +5,15 @@
 #include "TBLayer.h"
 #include "PixelRod.h"
 #include "TOBRod.h"
-
+#include "Phase2OTBarrelRod.h"
 
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
-/** A concrete implementation for TOB layer or PixelBarrel layer 
+/** A concrete implementation for TOB layer or PixelBarrel layer or a Phase 2 OT Barrel layer as long as it is similar to the previous ones
  *  
  */
 #pragma GCC visibility push(hidden)
-class TBPLayer GCC11_FINAL : public TBLayer {
+class TBPLayer : public TBLayer {
  public:
   typedef PeriodicBinFinderInPhi<float>   BinFinderType;
 
@@ -26,10 +26,16 @@ class TBPLayer GCC11_FINAL : public TBLayer {
 	   std::vector<const TOBRod*>& outer) __attribute__ ((cold)):  
     TBLayer(inner,outer, GeomDetEnumerators::TOB){construct();}
 
+  TBPLayer(std::vector<const Phase2OTBarrelRod*>& inner,
+	   std::vector<const Phase2OTBarrelRod*>& outer) __attribute__ ((cold)):  
+    TBLayer(inner,outer, GeomDetEnumerators::P2OTB){construct();}
+
   
   ~TBPLayer()  __attribute__ ((cold));
 
   
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const __attribute__ ((cold));
+
  
 
  private:
@@ -63,8 +69,6 @@ class TBPLayer GCC11_FINAL : public TBLayer {
   BinFinderType    theOuterBinFinder;
 
   
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const __attribute__ ((cold));
-
     
 };
 

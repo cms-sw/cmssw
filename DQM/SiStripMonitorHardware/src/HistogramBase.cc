@@ -84,7 +84,7 @@ void HistogramBase::getConfigForHistogram(HistogramConfig & aConfig,
   
 }
 
-void HistogramBase::bookHistogram(HistogramConfig & aConfig,
+void HistogramBase::bookHistogram(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				  const std::string& name, 
 				  const std::string& title,
 				  const unsigned int nBins, 
@@ -95,7 +95,7 @@ void HistogramBase::bookHistogram(HistogramConfig & aConfig,
 {
 
   if (aConfig.enabled) {
-    aConfig.monitorEle = dqm_->book1D(name,title,nBins,min,max);
+    aConfig.monitorEle = ibooker.book1D(name,title,nBins,min,max);
     aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
   } else {
     aConfig.monitorEle = 0;
@@ -103,7 +103,7 @@ void HistogramBase::bookHistogram(HistogramConfig & aConfig,
 
 }
 
-void HistogramBase::bookHistogram(HistogramConfig & aConfig,
+void HistogramBase::bookHistogram(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				  MonitorElement* & aHist,
 				  const std::string& name, 
 				  const std::string& title,
@@ -115,7 +115,7 @@ void HistogramBase::bookHistogram(HistogramConfig & aConfig,
 {
 
   if (aConfig.enabled) {
-    aHist = dqm_->book1D(name,title,nBins,min,max);
+    aHist = ibooker.book1D(name,title,nBins,min,max);
     aHist->setAxisTitle(xAxisTitle,1);
   } else {
     aHist = 0;
@@ -123,17 +123,17 @@ void HistogramBase::bookHistogram(HistogramConfig & aConfig,
 
 }
 
-void HistogramBase::bookHistogram(HistogramConfig & aConfig,
+void HistogramBase::bookHistogram(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				  const std::string& name, 
 				  const std::string& title, 
 				  const std::string& xAxisTitle
 				  )
 {
-  return bookHistogram(aConfig,name,title,aConfig.nBins,aConfig.min,aConfig.max,xAxisTitle);
+  return bookHistogram(ibooker , aConfig,name,title,aConfig.nBins,aConfig.min,aConfig.max,xAxisTitle);
   
 }
 
-void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
+void HistogramBase::book2DHistogram(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				    const std::string& name, 
 				    const std::string& title,
 				    const unsigned int nBins, 
@@ -147,7 +147,7 @@ void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
 				    )
 {
   if (aConfig.enabled) {
-    aConfig.monitorEle = dqm_->book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
+    aConfig.monitorEle = ibooker.book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
     aConfig.monitorEle->setAxisTitle(xAxisTitle,1);
     aConfig.monitorEle->setAxisTitle(yAxisTitle,2);
   } else {
@@ -156,7 +156,7 @@ void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
 }
 
 
-void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
+void HistogramBase::book2DHistogram(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				    MonitorElement* & aHist,
 				    const std::string& name, 
 				    const std::string& title,
@@ -171,7 +171,7 @@ void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
 				    )
 {
   if (aConfig.enabled) {
-    aHist = dqm_->book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
+    aHist = ibooker.book2D(name,title,nBins,min,max,nBinsY,minY,maxY);
     aHist->setAxisTitle(xAxisTitle,1);
     aHist->setAxisTitle(yAxisTitle,2);
   } else {
@@ -180,7 +180,7 @@ void HistogramBase::book2DHistogram(HistogramConfig & aConfig,
 }
 
 
-void HistogramBase::bookProfile(HistogramConfig & aConfig,
+void HistogramBase::bookProfile(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				const std::string& name,
 				const std::string& title,
 				const unsigned int nBins, 
@@ -194,7 +194,7 @@ void HistogramBase::bookProfile(HistogramConfig & aConfig,
 {
   
   if (aConfig.enabled) {
-    aConfig.monitorEle = dqm_->bookProfile(name,
+    aConfig.monitorEle = ibooker.bookProfile(name,
 					   title,
 					   nBins,
 					   min,
@@ -210,7 +210,7 @@ void HistogramBase::bookProfile(HistogramConfig & aConfig,
   }
 }
 
-void HistogramBase::bookProfile(HistogramConfig & aConfig,
+void HistogramBase::bookProfile(DQMStore::IBooker & ibooker , HistogramConfig & aConfig,
 				const std::string& name,
 				const std::string& title,
 				const double minY, 
@@ -220,7 +220,7 @@ void HistogramBase::bookProfile(HistogramConfig & aConfig,
 				)
 {
   
-  bookProfile(aConfig,
+  bookProfile(ibooker , aConfig,
 	      name,
 	      title,
 	      aConfig.nBins,
@@ -232,6 +232,6 @@ void HistogramBase::bookProfile(HistogramConfig & aConfig,
 	      yAxisTitle);
 
   //automatically set the axis range: will accomodate new values keeping the same number of bins.
-  if (aConfig.monitorEle) aConfig.monitorEle->getTProfile()->SetBit(TH1::kCanRebin);
+  if (aConfig.monitorEle) aConfig.monitorEle->getTProfile()->SetCanExtend(TH1::kAllAxes);
 }
  

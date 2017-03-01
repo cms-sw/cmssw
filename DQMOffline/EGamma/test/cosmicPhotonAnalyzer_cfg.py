@@ -4,7 +4,7 @@ process = cms.Process("TestPhotonValidator")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("DQMOffline.EGamma.cosmicPhotonAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 DQMStore = cms.Service("DQMStore")
 
 

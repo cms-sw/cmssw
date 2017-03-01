@@ -113,16 +113,16 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //iEvent.getByLabel("muonRPCDigis",rpcDigis);
   iEvent.getByLabel(m_label, rpcDigis);
 
-  std::auto_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
-  std::auto_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > candBarell(new std::vector<L1MuRegionalCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand> > candForward(new std::vector<L1MuRegionalCand>);
   if (!rpcDigis.isValid()) 
   {
      LogDebug("RPCTrigger")
           << "\nWarning: RPCDigiCollection with input tag " << m_label
           << "\nrequested in configuration, but not found in the event. Emulator will produce empty collection \n ";
 
-          iEvent.put(candBarell, "RPCb");
-          iEvent.put(candForward, "RPCf");
+          iEvent.put(std::move(candBarell), "RPCb");
+          iEvent.put(std::move(candForward), "RPCf");
  
           return;
   }
@@ -138,8 +138,8 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  std::auto_ptr<std::vector<RPCDigiL1Link> >  brlLinks(new std::vector<RPCDigiL1Link>);
-  std::auto_ptr<std::vector<RPCDigiL1Link> >  fwdLinks(new std::vector<RPCDigiL1Link>);
+  std::unique_ptr<std::vector<RPCDigiL1Link> >  brlLinks(new std::vector<RPCDigiL1Link>);
+  std::unique_ptr<std::vector<RPCDigiL1Link> >  fwdLinks(new std::vector<RPCDigiL1Link>);
     
   for (int iBx = -1; iBx < 2; ++ iBx) {
     
@@ -199,10 +199,10 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
   }  
 
-  iEvent.put(fwdLinks, "RPCf");
-  iEvent.put(brlLinks, "RPCb");
-  iEvent.put(candBarell, "RPCb");
-  iEvent.put(candForward, "RPCf");
+  iEvent.put(std::move(fwdLinks), "RPCf");
+  iEvent.put(std::move(brlLinks), "RPCb");
+  iEvent.put(std::move(candBarell), "RPCb");
+  iEvent.put(std::move(candForward), "RPCf");
   
 }
 ///////////////////////////////////////////////////////////////////////////////

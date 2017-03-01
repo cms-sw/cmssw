@@ -8,6 +8,10 @@
 #ifndef CSCTMBScope_h
 #define CSCTMBScope_h
 
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
+
 class CSCTMBScope {
 
 public:
@@ -26,7 +30,11 @@ private:
 
   unsigned int scope_ram[256][6];   //stores all scope data
   unsigned short size_;
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
 
 };
 

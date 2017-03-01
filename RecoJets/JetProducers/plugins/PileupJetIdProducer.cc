@@ -45,7 +45,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	}
 	for(std::vector<edm::ParameterSet>::iterator it=algos.begin(); it!=algos.end(); ++it) {
 		std::string label = it->getParameter<std::string>("label");
-		algos_.push_back( std::make_pair(label,new PileupJetIdAlgo(*it)) );
+		algos_.push_back( std::make_pair(label,new PileupJetIdAlgo(*it, runMvas_)) );
 		if( runMvas_ ) {
 			produces<edm::ValueMap<float> > (label+"Discriminant");
 			produces<edm::ValueMap<int> > (label+"Id");
@@ -64,6 +64,10 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 // ------------------------------------------------------------------------------------------
 PileupJetIdProducer::~PileupJetIdProducer()
 {
+  for(std::vector<std::pair<std::string,PileupJetIdAlgo *> >::iterator 
+	ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
+    delete ialgo->second;
+  }
 }
 
 
@@ -110,14 +114,18 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	
 	// Loop over input jets
+	bool ispat = true;
 	for ( unsigned int i=0; i<jets.size(); ++i ) {
 		// Pick the first algo to compute the input variables
 		vector<pair<string,PileupJetIdAlgo *> >::iterator algoi = algos_.begin();
 		PileupJetIdAlgo * ialgo = algoi->second;
 		
 		const Jet & jet = jets.at(i);
-		//const pat::Jet * patjet =  dynamic_cast<const pat::Jet *>(&jet);
-		//bool ispat = patjet != 0;
+		const pat::Jet * patjet = 0;
+		if(ispat) {
+		    patjet=dynamic_cast<const pat::Jet *>(&jet);
+		    ispat = patjet != 0;
+		}
 		
 		// Get jet energy correction
 		float jec = 0.;
@@ -131,38 +139,38 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			if( jecCor_ == 0 ) {
 				initJetEnergyCorrector( iSetup, iEvent.isRealData() );
 			}
-			//if( ispat ) {
-			//	jecCor_->setJetPt(patjet->correctedJet(0).pt());
-			//} else {
-			jecCor_->setJetPt(jet.pt());
-			//}
+			if( ispat ) {
+				jecCor_->setJetPt(patjet->correctedJet(0).pt());
+			} else {
+			        jecCor_->setJetPt(jet.pt());
+			}
 			jecCor_->setJetEta(jet.eta());
 			jecCor_->setJetA(jet.jetArea());
 			jecCor_->setRho(rho);
 			jec = jecCor_->getCorrection();
 		}
-		
-		// If it was requested or the input is an uncorrected jet apply the JEC
-		bool applyJec = applyJec_ || !inputIsCorrected_;  //( ! ispat && ! inputIsCorrected_ );
+		// If it was requested AND the input is an uncorrected jet apply the JEC
+		bool applyJec = applyJec_ && ( ispat || !inputIsCorrected_ );
 		reco::Jet * corrJet = 0;
+		
 		if( applyJec ) {
 			float scale = jec;
-			//if( ispat ) {
-			//	corrJet = new pat::Jet(patjet->correctedJet(0)) ;
-			//} else {
-			corrJet = dynamic_cast<reco::Jet *>( jet.clone() );
-			//}
+			if( ispat ) {
+				corrJet = new pat::Jet(patjet->correctedJet(0)) ;
+			} else {
+			        corrJet = dynamic_cast<reco::Jet *>( jet.clone() );
+			}
 			corrJet->scaleEnergy(scale);
 		}
 		const reco::Jet * theJet = ( applyJec ? corrJet : &jet );
-		
+	
 		PileupJetIdentifier puIdentifier;
 		if( produceJetIds_ ) {
-			// Compute the input variables
-			puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, runMvas_);
+		        // Compute the input variables
+		        puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, rho);
 			ids.push_back( puIdentifier );
 		} else {
-			// Or read it from the value map
+		        // Or read it from the value map
 			puIdentifier = (*vmap)[jets.refAt(i)]; 
 			puIdentifier.jetPt(theJet->pt());    // make sure JEC is applied when computing the MVA
 			puIdentifier.jetEta(theJet->eta());
@@ -170,9 +178,9 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			ialgo->set(puIdentifier); 
 			puIdentifier = ialgo->computeMva();
 		}
-		
+	
 		if( runMvas_ ) {
-			// Compute the MVA and WP
+		        // Compute the MVA and WP
 			mvas[algoi->first].push_back( puIdentifier.mva() );
 			idflags[algoi->first].push_back( puIdentifier.idFlag() );
 			for( ++algoi; algoi!=algos_.end(); ++algoi) {
@@ -193,29 +201,29 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		for(vector<pair<string,PileupJetIdAlgo *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
 			// MVA
 			vector<float> & mva = mvas[ialgo->first];
-			auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
+			auto mvaout = std::make_unique<ValueMap<float>>();
 			ValueMap<float>::Filler mvafiller(*mvaout);
 			mvafiller.insert(jetHandle,mva.begin(),mva.end());
 			mvafiller.fill();
-			iEvent.put(mvaout,ialgo->first+"Discriminant");
+			iEvent.put(std::move(mvaout),ialgo->first+"Discriminant");
 			
 			// WP
 			vector<int> & idflag = idflags[ialgo->first];
-			auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
+			auto idflagout = std::make_unique<ValueMap<int>>();
 			ValueMap<int>::Filler idflagfiller(*idflagout);
 			idflagfiller.insert(jetHandle,idflag.begin(),idflag.end());
 			idflagfiller.fill();
-			iEvent.put(idflagout,ialgo->first+"Id");
+			iEvent.put(std::move(idflagout),ialgo->first+"Id");
 		}
 	}
 	// input variables
 	if( produceJetIds_ ) {
 		assert( jetHandle->size() == ids.size() );
-		auto_ptr<ValueMap<StoredPileupJetIdentifier> > idsout(new ValueMap<StoredPileupJetIdentifier>());
+		auto idsout = std::make_unique<ValueMap<StoredPileupJetIdentifier>>();
 		ValueMap<StoredPileupJetIdentifier>::Filler idsfiller(*idsout);
 		idsfiller.insert(jetHandle,ids.begin(),ids.end());
 		idsfiller.fill();
-		iEvent.put(idsout);
+		iEvent.put(std::move(idsout));
 	}
 }
 

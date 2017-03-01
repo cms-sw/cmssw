@@ -12,7 +12,11 @@
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 #include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 
+#ifdef LOCAL_UNPACK
 bool CSCTMBData::debug =false;
+#else
+std::atomic<bool> CSCTMBData::debug{false};
+#endif
 
 CSCTMBData::CSCTMBData() 
   : theOriginalBuffer(0), 

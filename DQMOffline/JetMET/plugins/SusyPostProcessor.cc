@@ -67,6 +67,9 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
   metFolders.push_back("Uncleaned/");
   metFolders.push_back("Cleaned/");
 
+  //Need our own copy for thread safety
+  TF1 mygaus("mygaus","gaus");
+
   for (int i=0; i<int(Dirs.size()); i++) {
 
     std::string prefix = "dummy";
@@ -83,11 +86,11 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
       MEy = iget_.get(dirName + "/"+"MEy");
 
       if (MEx && MEx->kind() == MonitorElement::DQM_KIND_TH1F) {
-	if (MEx->getTH1F()->GetEntries() > 50) MEx->getTH1F()->Fit("gaus", "q");
+	if (MEx->getTH1F()->GetEntries() > 50) MEx->getTH1F()->Fit(&mygaus, "q");
       }
 
       if (MEy && MEy->kind() == MonitorElement::DQM_KIND_TH1F) {
-	if (MEy->getTH1F()->GetEntries() > 50) MEy->getTH1F()->Fit("gaus", "q");
+	if (MEy->getTH1F()->GetEntries() > 50) MEy->getTH1F()->Fit(&mygaus, "q");
       }
     }
   }

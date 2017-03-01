@@ -3,8 +3,10 @@
  <use name="DataFormats/VertexReco"/>
  <use name="Fireworks/Core"/>
  <use name="Fireworks/Vertices"/>
+ <use name="Fireworks/Candidates"/>
  <use name="roothistmatrix"/>
  <lib name="Eve"/>
  <lib name="Geom"/>
+ <lib name="Core"/>
  <flags EDM_PLUGIN="1"/>
 </library>

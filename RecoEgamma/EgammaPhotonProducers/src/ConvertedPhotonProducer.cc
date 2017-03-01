@@ -167,10 +167,10 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   //
   // Converted photon candidates
   reco::ConversionCollection outputConvPhotonCollection;
-  std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
+  auto outputConvPhotonCollection_p = std::make_unique<reco::ConversionCollection>();
   // Converted photon candidates
   reco::ConversionCollection cleanedConversionCollection;
-  std::auto_ptr<reco::ConversionCollection> cleanedConversionCollection_p(new reco::ConversionCollection);
+  auto cleanedConversionCollection_p = std::make_unique<reco::ConversionCollection>();
 
   
   // Get the Super Cluster collection in the Barrel
@@ -298,7 +298,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   // put the product in the event
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(),outputConvPhotonCollection.end());
   //LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Putting in the event    converted photon candidates " << (*outputConvPhotonCollection_p).size() << "\n";  
-  const edm::OrphanHandle<reco::ConversionCollection> conversionHandle= theEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  const edm::OrphanHandle<reco::ConversionCollection> conversionHandle= theEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
 
 
   // Loop over barrel and endcap SC collections and fill the  photon collection
@@ -311,7 +311,7 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 						
 
   cleanedConversionCollection_p->assign(cleanedConversionCollection.begin(),cleanedConversionCollection.end());   
-  theEvent.put( cleanedConversionCollection_p, CleanedConvertedPhotonCollection_);
+  theEvent.put(std::move(cleanedConversionCollection_p), CleanedConvertedPhotonCollection_);
 
   
 }

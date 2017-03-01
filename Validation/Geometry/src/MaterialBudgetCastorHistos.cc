@@ -12,6 +12,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <string>
+
 MaterialBudgetCastorHistos::MaterialBudgetCastorHistos(const edm::ParameterSet &p){
 
   binEta      = p.getUntrackedParameter<int>("NBinEta", 100);
@@ -183,7 +185,7 @@ void MaterialBudgetCastorHistos::book() {
 				 << "in phi from " << -maxPhi << " to " 
 				 << maxPhi;
   
-  char  name[10], title[80], tag1[10], tag2[15];
+  std::string tag1, tag2;
   // total X0
   for (int i=0; i<maxSet; i++) {
     double minEta=etaLow;
@@ -193,57 +195,46 @@ void MaterialBudgetCastorHistos::book() {
       minEta = -etaHigh;
       maxEta = -etaLow;
       ireg  -= 10;
-      sprintf (tag2, " (-ve Eta Side)");
+      tag2 = " (-ve Eta Side)";
     } else {
-      sprintf (tag2, " (+ve Eta Side)");
+      tag2 = " (+ve Eta Side)";
     }
     if ((i%2) == 0) {
       ireg  /= 2;
-      sprintf (tag1, " == Start");
+      tag1 = " == Start";
     } else {
       ireg   = (ireg-1)/2;
-      sprintf (tag1, " == End");
+      tag1 = " == End";
     }
-    sprintf(name, "%d", i+100);
-    sprintf(title, "MB(X0) prof Eta in region %d%s%s", ireg, tag1, tag2);
-    me100[i] =  tfile->make<TProfile>(name, title, binEta, minEta, maxEta);
-    sprintf(name, "%d", i+200);
-    sprintf(title, "MB(L0) prof Eta in region %d%s%s", ireg, tag1, tag2);
-    me200[i] = tfile->make<TProfile>(name, title, binEta, minEta, maxEta);
-    sprintf(name, "%d", i+300);
-    sprintf(title, "MB(Step) prof Eta in region %d%s%s", ireg, tag1, tag2);
-    me300[i] = tfile->make<TProfile>(name, title, binEta, minEta, maxEta);
-    sprintf(name, "%d", i+400);
-    sprintf(title, "Eta in region %d%s%s", ireg, tag1, tag2);
-    me400[i] = tfile->make<TH1F>(name, title, binEta, minEta, maxEta);
-    sprintf(name, "%d", i+500);
-    sprintf(title, "MB(X0) prof Ph in region %d%s%s", ireg, tag1, tag2);
-    me500[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+600);
-    sprintf(title, "MB(L0) prof Ph in region %d%s%s", ireg, tag1, tag2);
-    me600[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+700);
-    sprintf(title, "MB(Step) prof Ph in region %d%s%s", ireg, tag1, tag2);
-    me700[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+800);
-    sprintf(title, "Phi in region %d%s%s", ireg, tag1, tag2);
-    me800[i] = tfile->make<TH1F>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+900);
-    sprintf(title, "MB(X0) prof Eta Phi in region %d%s%s", ireg, tag1, tag2);
-    me900[i] = tfile->make<TProfile2D>(name, title, binEta/2, minEta, maxEta,
-				       binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1000);
-    sprintf(title, "MB(L0) prof Eta Phi in region %d%s%s", ireg, tag1, tag2);
-    me1000[i]= tfile->make<TProfile2D>(name, title, binEta/2, minEta, maxEta,
-				       binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1100);
-    sprintf(title, "MB(Step) prof Eta Phi in region %d%s%s", ireg, tag1, tag2);
-    me1100[i]= tfile->make<TProfile2D>(name, title, binEta/2, minEta, maxEta,
-				       binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1200);
-    sprintf(title, "Eta vs Phi in region %d%s%s", ireg, tag1, tag2);
-    me1200[i]= tfile->make<TH2F>(name, title, binEta/2, minEta, maxEta, 
-				 binPhi/2, -maxPhi, maxPhi);
+    std::string title = std::to_string(ireg) + tag1 + tag2;
+    me100[i] = tfile->make<TProfile>(std::to_string(i + 100).c_str(),
+                  ("MB(X0) prof Eta in region " + title).c_str(), binEta, minEta, maxEta);
+    me200[i] = tfile->make<TProfile>(std::to_string(i + 200).c_str(),
+                  ("MB(L0) prof Eta in region " + title).c_str(), binEta, minEta, maxEta);
+    me300[i] = tfile->make<TProfile>(std::to_string(i + 300).c_str(),
+                  ("MB(Step) prof Eta in region " + title).c_str(), binEta, minEta, maxEta);
+    me400[i] = tfile->make<TH1F>(std::to_string(i + 400).c_str(),
+                  ("Eta in region " + title).c_str(), binEta, minEta, maxEta);
+    me500[i] = tfile->make<TProfile>(std::to_string(i + 500).c_str(),
+                  ("MB(X0) prof Ph in region " + title).c_str(), binPhi, -maxPhi, maxPhi);
+    me600[i] = tfile->make<TProfile>(std::to_string(i + 600).c_str(),
+                  ("MB(L0) prof Ph in region " + title).c_str(), binPhi, -maxPhi, maxPhi);
+    me700[i] = tfile->make<TProfile>(std::to_string(i + 700).c_str(),
+                  ("MB(Step) prof Ph in region " + title).c_str(), binPhi, -maxPhi, maxPhi);
+    me800[i] = tfile->make<TH1F>(std::to_string(i + 800).c_str(),
+                  ("Phi in region " + title).c_str(), binPhi, -maxPhi, maxPhi);
+    me900[i] = tfile->make<TProfile2D>(std::to_string(i + 900).c_str(),
+                  ("MB(X0) prof Eta Phi in region " + title).c_str(), binEta/2, minEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1000[i]= tfile->make<TProfile2D>(std::to_string(i + 1000).c_str(),
+                  ("MB(L0) prof Eta Phi in region " + title).c_str(), binEta/2, minEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1100[i]= tfile->make<TProfile2D>(std::to_string(i + 1100).c_str(),
+                  ("MB(Step) prof Eta Phi in region " + title).c_str(), binEta/2, minEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1200[i]= tfile->make<TH2F>(std::to_string(i + 1200).c_str(),
+                  ("Eta vs Phi in region " + title).c_str(), binEta/2, minEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
   }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: Booking user "

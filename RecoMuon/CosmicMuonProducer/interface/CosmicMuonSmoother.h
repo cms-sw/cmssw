@@ -71,7 +71,7 @@ public:
                               const TrajectoryStateOnSurface& firstPredTsos) const;
 
 
-  virtual void setHitCloner(TkCloner const * hc) {}
+  virtual void setHitCloner(TkCloner const * hc) override {}
 
 private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;

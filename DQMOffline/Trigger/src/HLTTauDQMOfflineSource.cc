@@ -7,7 +7,6 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
-using namespace l1extra;
 using namespace trigger;
 
 //
@@ -26,7 +25,7 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   ptMax_(ps.getUntrackedParameter<double>("PtHistoMax",200)),
   highPtMax_(ps.getUntrackedParameter<double>("HighPtHistoMax",1000)),
   l1MatchDr_(ps.getUntrackedParameter<double>("L1MatchDeltaR", 0.5)),
-  hltMatchDr_(ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.2)),
+  hltMatchDr_(ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.5)),
   dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder")),
   counterEvt_(0),
   prescaleEvt_(ps.getUntrackedParameter<int>("prescaleEvt", -1))
@@ -147,6 +146,9 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
             }
             else if(refObj.objID == 15) {
               refC.taus.insert(refC.taus.end(), collHandle->begin(), collHandle->end());
+            }
+            else if(refObj.objID == 0) {
+              refC.met.insert(refC.met.end(), collHandle->begin(), collHandle->end());
             }
           }
         }

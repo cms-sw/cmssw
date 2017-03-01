@@ -2,6 +2,7 @@
 // Original Authors: Nicholas Wardle, Florian Beaudette
 //
 #include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
@@ -53,9 +54,6 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ele_maxEeleOverPout(ele_protectionsForJetMET.getParameter<double>("maxEeleOverPout")), 
   ele_maxDPhiIN(ele_protectionsForJetMET.getParameter<double>("maxDPhiIN"))
 {
-
-  ele_iso_mvaID_= new ElectronMVAEstimator(ele_iso_path_mvaWeightFile);
-
 }
 
 bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
@@ -101,18 +99,18 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
     double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
     double eleEta = fabs(electron.eta());
     if (eleEta <= 1.485 && isoDr03 < ele_iso_combIso_eb_) {
-      if( ele_iso_mvaID_->mva( electron, nVtx ) > ele_iso_mva_eb_ ) 
+      if( electron.mva_Isolated() > ele_iso_mva_eb_ ) 
 	passEleSelection = true;
     }
     else if (eleEta > 1.485  && isoDr03 < ele_iso_combIso_ee_) {
-      if( ele_iso_mvaID_->mva( electron, nVtx ) > ele_iso_mva_ee_ ) 
+      if( electron.mva_Isolated() > ele_iso_mva_ee_ ) 
 	passEleSelection = true;
     }
 
   }
 
   //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
-  if(electron.mva() > ele_noniso_mva_) {
+  if(electron.mva_e_pi() > ele_noniso_mva_) {
     passEleSelection = true; 
   }
   
@@ -121,7 +119,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
 bool PFEGammaFilters::isElectron(const reco::GsfElectron & electron) {
  
-  unsigned int nmisshits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int nmisshits = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   if(nmisshits > ele_missinghits_)
     return false;
 
@@ -132,7 +130,7 @@ bool PFEGammaFilters::isElectron(const reco::GsfElectron & electron) {
 bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron, 
 					      const reco::PFCandidate & pfcand,
 					      const reco::Vertex & primaryVertex,
-					      bool lockTracks) {
+					      bool& lockTracks) {
 
   bool debugSafeForJetMET = false;
   bool isSafeForJetMET = true;
@@ -191,10 +189,11 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       cout << " My track element number " <<  itrk->second << endl;
     if(pfele.type()==reco::PFBlockElement::TRACK) {
       reco::TrackRef trackref = pfele.trackRef();
-      unsigned int Algo = whichTrackAlgo(trackref);
+
+      bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
       // iter0, iter1, iter2, iter3 = Algo < 3
       // algo 4,5,6,7
-      int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+      int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS); 
       
       bool trackIsFromPrimaryVertex = false;
       for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
@@ -205,9 +204,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       }
       
       // probably we could now remove the algo request?? 
-      if(Algo < 3 && nexhits == 0 && trackIsFromPrimaryVertex) {
-
-
+      if(goodTrack && nexhits == 0 && trackIsFromPrimaryVertex) {
 	float p_trk = trackref->p();
 	SumExtraKfP += p_trk;
 	iextratrack++;
@@ -223,7 +220,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
 	}
 	if(debugSafeForJetMET) 
 	  cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" 
-	       << " Algo " << Algo
+	       << " Algo " << trackref->algo()
 	       << " nexhits " << nexhits
 	       << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
 	if(debugSafeForJetMET) 
@@ -233,7 +230,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron & electron
       else {
 	if(debugSafeForJetMET) 
 	  cout << " Tracks from PU " 
-	       << " Algo " << Algo
+	       << " Algo " << trackref->algo()
 	       << " nexhits " << nexhits
 	       << " trackIsFromPrimaryVertex " << trackIsFromPrimaryVertex << endl;
 	if(debugSafeForJetMET) 
@@ -364,31 +361,4 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon & photon, const r
 
   return isSafeForJetMET;
 }
-unsigned int PFEGammaFilters::whichTrackAlgo(const reco::TrackRef& trackRef) {
-  unsigned int Algo = 0; 
-  switch (trackRef->algo()) {
-  case TrackBase::ctf:
-  case TrackBase::iter0:
-  case TrackBase::iter1:
-  case TrackBase::iter2:
-  case TrackBase::iter7:
-    Algo = 0;
-    break;
-  case TrackBase::iter3:
-    Algo = 1;
-    break;
-  case TrackBase::iter4:
-    Algo = 2;
-    break;
-  case TrackBase::iter5:
-    Algo = 3;
-    break;
-  case TrackBase::iter6:
-    Algo = 4;
-    break;
-  default:
-    Algo = 5;
-    break;
-  }
-  return Algo;
-}
+

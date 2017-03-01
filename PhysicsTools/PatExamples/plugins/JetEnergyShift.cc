@@ -85,8 +85,8 @@ JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::MET> > mets;
   event.getByToken(inputMETsToken_, mets);
 
-  std::auto_ptr<std::vector<pat::Jet> > pJets(new std::vector<pat::Jet>);
-  std::auto_ptr<std::vector<pat::MET> > pMETs(new std::vector<pat::MET>);
+  auto pJets = std::make_unique<std::vector<pat::Jet>>();
+  auto pMETs = std::make_unique<std::vector<pat::MET>>();
 
   double dPx    = 0.;
   double dPy    = 0.;
@@ -112,8 +112,8 @@ JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup)
   double scaledMETPy = met.py() - dPy;
   pat::MET scaledMET(reco::MET(met.sumEt()+dSumEt, reco::MET::LorentzVector(scaledMETPx, scaledMETPy, 0, sqrt(scaledMETPx*scaledMETPx+scaledMETPy*scaledMETPy)), reco::MET::Point(0,0,0)));
   pMETs->push_back( scaledMET );
-  event.put(pJets, outputJets_);
-  event.put(pMETs, outputMETs_);
+  event.put(std::move(pJets), outputJets_);
+  event.put(std::move(pMETs), outputMETs_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

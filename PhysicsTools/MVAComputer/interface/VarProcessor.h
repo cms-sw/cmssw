@@ -86,6 +86,27 @@ class VarProcessor :
 		Context		*ctx;
 	};
 
+        
+	/** \class LoopCtx
+	 *
+	 * \short Hold context information for looping processors
+	 *
+	 * VarProcessor instances which allow looping need to keep
+	 * track of the state of the loop between calls.
+	 *
+	 ************************************************************/
+        class LoopCtx {
+           public:
+               LoopCtx(): index_(0), offset_(0), size_(0) {}
+               inline unsigned int& index() { return index_;}
+               inline unsigned int& offset() { return offset_;}
+               inline unsigned int& size() { return size_;}
+           private:
+               unsigned int index_;
+               unsigned int offset_;
+               unsigned int size_ ;
+        };
+
 	virtual ~VarProcessor();
 
 	/// called from the discriminator computer to configure processor
@@ -94,22 +115,23 @@ class VarProcessor :
 	/// run the processor evaluation pass on this processor
 	inline void
 	eval(double *input, int *conf, double *output, int *outConf,
-	     int *loop, unsigned int offset) const
+	     int *loop, LoopCtx& loopCtx, unsigned int offset) const
 	{
 		ValueIterator iter(inputVars.iter(), input, conf,
-		                   output, outConf, loop, offset);
+		                   output, outConf, loop, loopCtx, offset);
 		eval(iter, nInputVars);
 	}
 
 	/// run the processor evaluation pass on this processor and compute derivatives
 	void deriv(double *input, int *conf, double *output, int *outConf,
-	           int *loop, unsigned int offset, unsigned int in,
+	           int *loop, LoopCtx& ctx, unsigned int offset, unsigned int in,
 	           unsigned int out, std::vector<double> &deriv) const;
 
 	enum LoopStatus { kStop, kNext, kReset, kSkip };
 
 	virtual LoopStatus loop(double *output, int *outConf,
 	                        unsigned int nOutput,
+                                LoopCtx& ctx,
 	                        unsigned int &nOffset) const
 	{ return kStop; }
 
@@ -219,6 +241,8 @@ class VarProcessor :
 		/// test for end of input variable iterator
 		inline operator bool() const { return cur; }
 
+                inline LoopCtx& loopCtx() { return ctx;}
+
 		/// move to next input variable
 		ValueIterator &operator ++ ()
 		{
@@ -244,8 +268,8 @@ class VarProcessor :
 
 		ValueIterator(BitSet::Iterator cur, double *values,
 		              int *conf, double *output, int *outConf,
-		              int *loop, unsigned int offset) :
-			cur(cur), offset(offset), start(values + offset),
+		              int *loop, LoopCtx& ctx, unsigned int offset) :
+                        cur(cur), ctx(ctx), offset(offset), start(values + offset),
 			values(values), conf(conf), loop(loop),
 			output(output + offset), outConf(outConf)
 		{
@@ -259,6 +283,7 @@ class VarProcessor :
 
 	    private:
 		BitSet::Iterator	cur;
+                LoopCtx&                ctx;
 		const unsigned int	offset;
 		double			*const start;
 		double			*values;

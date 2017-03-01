@@ -126,7 +126,7 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
 
 
   // matching object
-  std::string::size_type locJet = matchingObjectCollection_.label().find("iterativeCone5GenJets",0) ;
+  std::string::size_type locJet = matchingObjectCollection_.label().find("ak4GenJets",0) ;
   std::string type_;
   if ( locJet != std::string::npos ) {
     std::cout << "Matching objects are GenJets " << std::endl;
@@ -1602,7 +1602,7 @@ GsfElectronMCFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
          if (bestGsfElectron.classification() == GsfElectron::SHOWERING)
 	  h_ele_PtinVsPtoutShowering_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
 
-        h_ele_mva->Fill(bestGsfElectron.mva());
+        h_ele_mva->Fill(bestGsfElectron.mva_e_pi());
 	if (bestGsfElectron.ecalDrivenSeed()) h_ele_provenance->Fill(1.);
 	if (bestGsfElectron.trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
 	if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h_ele_provenance->Fill(0.);

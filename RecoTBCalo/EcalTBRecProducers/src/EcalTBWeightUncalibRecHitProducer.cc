@@ -160,8 +160,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
    // collection of reco'ed ampltudes to put in the event
 
-   std::auto_ptr< EBUncalibratedRecHitCollection > EBuncalibRechits( new EBUncalibratedRecHitCollection );
-   std::auto_ptr< EEUncalibratedRecHitCollection > EEuncalibRechits( new EEUncalibratedRecHitCollection );
+   auto EBuncalibRechits = std::make_unique<EBUncalibratedRecHitCollection>();
+   auto EEuncalibRechits = std::make_unique<EEUncalibratedRecHitCollection>();
 
    EcalPedestalsMapIterator pedIter; // pedestal iterator
 
@@ -321,8 +321,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
        }
      }
-   // put the collection of recunstructed hits in the event
-   evt.put( EBuncalibRechits, EBhitCollection_ );
+   // put the collection of reconstructed hits in the event
+   evt.put(std::move(EBuncalibRechits), EBhitCollection_);
 
 
    if (EEdigis)
@@ -471,8 +471,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
        }
      }
-   // put the collection of recunstructed hits in the event
-   evt.put( EEuncalibRechits, EEhitCollection_ );
+   // put the collection of reconstructed hits in the event
+   evt.put(std::move(EEuncalibRechits), EEhitCollection_);
 }
 
 // HepMatrix

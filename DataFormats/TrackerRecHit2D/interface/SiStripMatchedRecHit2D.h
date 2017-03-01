@@ -5,7 +5,7 @@
 
 #include "TkCloner.h"
 
-class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
+class SiStripMatchedRecHit2D final : public BaseTrackerRecHit {
  public:
   typedef BaseTrackerRecHit Base;
 
@@ -42,7 +42,7 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
 
 
   virtual SiStripMatchedRecHit2D * clone() const {return new SiStripMatchedRecHit2D( * this);}
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const { return std::make_shared<SiStripMatchedRecHit2D>(*this);}
 #endif
 
@@ -64,9 +64,9 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
 private:
   // double dispatch
   virtual SiStripMatchedRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
-    return cloner(*this,tsos);
+    return cloner(*this,tsos).release();
   }
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner.makeShared(*this,tsos);
   }

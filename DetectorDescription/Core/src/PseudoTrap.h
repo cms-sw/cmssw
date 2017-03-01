@@ -2,6 +2,9 @@
 #define DDI_PseudoTrap_h
 
 #include <iostream>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "Solid.h"
 
 namespace DDI {

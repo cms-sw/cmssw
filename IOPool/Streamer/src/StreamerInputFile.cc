@@ -74,8 +74,8 @@ namespace edm {
     IOOffset size = -1;
     if(StorageFactory::get()->check(name.c_str(), &size)) {
       try {
-        storage_.reset(StorageFactory::get()->open(name.c_str(),
-                                                   IOFlags::OpenRead));
+        storage_ =StorageFactory::get()->open(name.c_str(),
+                                                   IOFlags::OpenRead);
       }
       catch(cms::Exception& e) {
         Exception ex(errors::FileOpenError, "", e);
@@ -162,7 +162,7 @@ namespace edm {
         << "Failed reading streamer file, init header size from data too small\n";
     }
 
-    startMsg_.reset(new InitMsgView(&headerBuf_[0]));
+    startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]); // propagate_const<T> has no reset() function
   }
 
   bool StreamerInputFile::next() {
@@ -256,7 +256,7 @@ namespace edm {
       eventRead = true;
       if(eventSkipperByID_) {
         EventHeader *evh = (EventHeader *)(&eventBuf_[0]);
-        if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert32(evh->event_))) {
+        if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert64(evh->event_))) {
           eventRead = false;
         }
       }
@@ -278,7 +278,7 @@ namespace edm {
         }
       }
     }
-    currentEvMsg_.reset(new EventMsgView((void*)&eventBuf_[0]));
+    currentEvMsg_ = std::make_shared<EventMsgView>((void*)&eventBuf_[0]); // propagate_const<T> has no reset() function
     return 1;
   }
 

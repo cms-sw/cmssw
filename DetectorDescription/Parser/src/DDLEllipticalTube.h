@@ -1,12 +1,12 @@
 #ifndef DDL_EllipticalTube_H
 #define DDL_EllipticalTube_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLEllipticalTube processes all EllipticalTube elements.
 /** @class DDLEllipticalTube
@@ -21,16 +21,13 @@
  *                                                                         
  */
 
-class DDLEllipticalTube : public DDLSolid
+class DDLEllipticalTube final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLEllipticalTube( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLEllipticalTube( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

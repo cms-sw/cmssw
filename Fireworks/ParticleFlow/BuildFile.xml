@@ -2,6 +2,7 @@
 <use name="Fireworks/Core"/>
 <use name="Fireworks/Candidates"/>
 <use name="Fireworks/Tracks"/>
+<use name="Fireworks/Calo"/>
 <lib name="Eve"/>
 <export>
   <lib name="1"/>

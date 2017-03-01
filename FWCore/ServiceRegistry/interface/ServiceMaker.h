@@ -46,25 +46,25 @@ namespace edm {
       template<typename T, typename TConcrete = T>
          struct AllArgsMaker : public MakerBase<T, TConcrete> {
 
-         std::auto_ptr<T> make(ParameterSet const& iPS,
+         std::unique_ptr<T> make(ParameterSet const& iPS,
                                ActivityRegistry& iAR) const {
-            return std::auto_ptr<T>(new TConcrete(iPS, iAR));
+            return std::make_unique<TConcrete>(iPS, iAR);
          }
       };
 
       template<typename T, typename TConcrete = T>
       struct ParameterSetMaker : public MakerBase<T, TConcrete> {
-         std::auto_ptr<T> make(ParameterSet const& iPS,
+         std::unique_ptr<T> make(ParameterSet const& iPS,
                                ActivityRegistry& /* iAR */) const {
-            return std::auto_ptr<T>(new TConcrete(iPS));
+            return std::make_unique<TConcrete>(iPS);
          }
       };
 
       template<typename T, typename TConcrete = T>
       struct NoArgsMaker : public MakerBase<T, TConcrete> {
-         std::auto_ptr<T> make(ParameterSet const& /* iPS */,
+         std::unique_ptr<T> make(ParameterSet const& /* iPS */,
                                ActivityRegistry& /* iAR */) const {
-            return std::auto_ptr<T>(new TConcrete());
+            return std::make_unique<TConcrete>();
          }
       };
 
@@ -82,8 +82,8 @@ public:
                            ActivityRegistry& iAR,
                            ServicesManager& oSM) const {
             TMaker maker;
-            std::auto_ptr<T> pService(maker.make(iPS, iAR));
-            auto ptr = std::make_shared<ServiceWrapper<T> >(pService);
+            std::unique_ptr<T> pService(maker.make(iPS, iAR));
+            auto ptr = std::make_shared<ServiceWrapper<T> >(std::move(pService));
             return oSM.put(ptr);
          }
 

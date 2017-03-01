@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -48,7 +48,7 @@ class SimTrack;
  ***/
 
 
-class TkConvValidator : public thread_unsafe::DQMEDAnalyzer
+class TkConvValidator : public DQMEDAnalyzer
 {
 
  public:
@@ -58,10 +58,10 @@ class TkConvValidator : public thread_unsafe::DQMEDAnalyzer
   virtual ~TkConvValidator();
 
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override ;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
-  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
-  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override ;
+  virtual void endRun (edm::Run const& r, edm::EventSetup const & es) override;
   virtual void endJob() ;
 
  private:
@@ -105,17 +105,17 @@ class TkConvValidator : public thread_unsafe::DQMEDAnalyzer
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> g4_simTk_Token_;
   edm::EDGetTokenT<edm::SimVertexContainer> g4_simVtx_Token_;
-  edm::EDGetTokenT<TrackingParticleCollection> tpSelForEff_Token_;
-  edm::EDGetTokenT<TrackingParticleCollection> tpSelForFake_Token_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpSelForEff_Token_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpSelForFake_Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_Token_;
 
   std::string dqmpath_;
 
   edm::InputTag label_tp_;
 
   PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
-  TrackAssociatorBase * theTrackAssociator_;
 
   bool isRunCentrally_;
 

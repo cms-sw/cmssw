@@ -26,6 +26,7 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
         "PresampleTask",
         "RawDataTask",
         "RecoSummaryTask",
+        "TimingTask",
         "TrigPrimTask"
     ),
     # task parameters (included from indivitual cfis)
@@ -45,7 +46,6 @@ ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     collectionTags = ecalDQMCollectionTags,
     allowMissingCollections = cms.untracked.bool(True),
     verbosity = cms.untracked.int32(0),
-    evaluateTime = cms.untracked.bool(False),
     resetInterval = cms.untracked.double(2.)
 )
 

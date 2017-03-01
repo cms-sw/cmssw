@@ -14,6 +14,10 @@ DEFINE_FWK_MODULE( trgMatchedMuonProducer );
 typedef TriggerCandProducer< reco::GsfElectron > trgMatchedGsfElectronProducer;
 DEFINE_FWK_MODULE( trgMatchedGsfElectronProducer );
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+typedef TriggerCandProducer< reco::GsfElectron > trgMatchedPatElectronProducer;
+DEFINE_FWK_MODULE( trgMatchedPatElectronProducer );
+
 #include "DataFormats/JetReco/interface/Jet.h"
 typedef TriggerCandProducer< reco::Jet > trgMatchedJetProducer;
 DEFINE_FWK_MODULE( trgMatchedJetProducer );

@@ -46,8 +46,6 @@ private:
 
   /// Get alignable surface from misalignments.db
   AlignableSurface getAlignableSurface(align::ID);
-  
-  const edm::ParameterSet theParameterSet;
 };
 
 #endif

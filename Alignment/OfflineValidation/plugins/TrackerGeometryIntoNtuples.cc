@@ -43,14 +43,17 @@
 
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h" 
+
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
@@ -81,7 +84,6 @@ private:
 	void addBranches();
 	
 	// ----------member data ---------------------------
-	const edm::ParameterSet theParameterSet; 
 	//std::vector<AlignTransform> m_align;
 	AlignableTracker* theCurrentTracker ;
 	
@@ -121,7 +123,6 @@ private:
 // constructors and destructor
 //
 TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
-  theParameterSet( iConfig ), 	
   theCurrentTracker(0),
   m_rawid(0),
   m_x(0.), m_y(0.), m_z(0.),
@@ -161,7 +162,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 {
         // retrieve tracker topology from geometry
         edm::ESHandle<TrackerTopology> tTopoHandle;
-        iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+        iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -170,17 +171,19 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	//accessing the initial geometry
 	edm::ESHandle<GeometricDet> theGeometricDet;
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
+	edm::ESHandle<PTrackerParameters> ptp;
+	iSetup.get<PTrackerParametersRcd>().get( ptp );
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,theParameterSet); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo ); 
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;
-	edm::ESHandle<AlignmentErrors> alignmentErrors;
+	edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 	edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
 	
 	iSetup.get<TrackerAlignmentRcd>().get(alignments);
-	iSetup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
+	iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
 	iSetup.get<TrackerSurfaceDeformationRcd>().get(surfaceDeformations);
 	
 	//apply the latest alignments
@@ -195,7 +198,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	theCurrentTracker = new AlignableTracker(&(*theCurTracker), tTopo);
 
 	Alignments* theAlignments = theCurrentTracker->alignments();
-	//AlignmentErrors* theAlignmentErrors = theCurrentTracker->alignmentErrors();	
+	//AlignmentErrorsExtended* theAlignmentErrorsExtended = theCurrentTracker->alignmentErrors();	
 	
 	//alignments
 	addBranches();
@@ -227,8 +230,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	
 	delete theAlignments;
 
-	std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
-	for (std::vector<AlignTransformError>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
+	std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
+	for (std::vector<AlignTransformErrorExtended>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
 
 		m_rawid = i->rawId();
 		CLHEP::HepSymMatrix errMatrix = i->matrix();

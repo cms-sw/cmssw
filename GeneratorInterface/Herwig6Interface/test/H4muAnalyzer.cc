@@ -71,7 +71,7 @@ H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get HepMC::GenEvent ...
    Handle<HepMCProduct> evt_h;
-   iEvent.getByLabel("generator", evt_h);
+   iEvent.getByLabel("VtxSmeared", evt_h);
    const HepMC::GenEvent *evt = evt_h->GetEvent();
 
    // look for stable muons

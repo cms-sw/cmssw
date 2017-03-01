@@ -5,7 +5,18 @@
 #include <iomanip>
 #include <ostream>
 
-std::vector<std::string> LumiDetails::m_algoNames;
+std::vector<std::string> const LumiDetails::m_algoNames = {
+    // If in the future additional algorithm names are added,
+    // it is important that they be added at the end of the list.
+    // The Algos enum in LumiDetails.h also would need to be
+    // updated to keep the list of names in sync.
+  {"OCC1"},
+  {"OCC2"},
+  {"ET"},
+  {"PLT"}
+};
+
+static std::vector<std::string> const s_dipalgoNames = {  {"DIP"} };
 
 LumiDetails::LumiDetails() :
   m_lumiVersion("-1"),
@@ -138,25 +149,13 @@ LumiDetails::lumiBeam2Intensities() const {
 
 std::vector<std::string> const&
 LumiDetails::algoNames() {
-  if (m_algoNames.size() != kMaxNumAlgos) {
-    assert(m_algoNames.size() == 0U);
-    // If in the future additional algorithm names are added,
-    // it is important that they be added at the end of the list.
-    // The Algos enum in LumiDetails.h also would need to be
-    // updated to keep the list of names in sync.
-    m_algoNames.push_back(std::string("OCC1"));
-    m_algoNames.push_back(std::string("OCC2"));
-    m_algoNames.push_back(std::string("ET"));
-    m_algoNames.push_back(std::string("PLT"));
-    assert(m_algoNames.size() == kMaxNumAlgos);
-  }
+  assert(m_algoNames.size() == kMaxNumAlgos);
   return m_algoNames;
 }
 
 std::vector<std::string> const&
 LumiDetails::dipalgoNames() {
-  m_algoNames.push_back(std::string("DIP"));
-  return m_algoNames;
+  return s_dipalgoNames;
 }
 bool
 LumiDetails::isProductEqual(LumiDetails const& lumiDetails) const {

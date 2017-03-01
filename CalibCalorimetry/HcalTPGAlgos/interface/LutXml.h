@@ -42,7 +42,7 @@ class LutXml : public XMLDOMBlock
   } Config;
   
   LutXml();
-  LutXml( InputSource & _source );
+  LutXml( XERCES_CPP_NAMESPACE::InputSource & _source );
   LutXml( std::string filename );
   virtual ~LutXml();
   
@@ -80,13 +80,13 @@ class LutXml : public XMLDOMBlock
 
   XMLCh * root;
   XMLCh * brick;
-  DOMElement * addParameter( std::string _name, std::string _type, std::string _value );
-  DOMElement * addParameter( std::string _name, std::string _type, int _value );
-  DOMElement * addData( std::string _elements, std::string _encoding, const std::vector<unsigned int>& _lut );
+  XERCES_CPP_NAMESPACE::DOMElement * addParameter( std::string _name, std::string _type, std::string _value );
+  XERCES_CPP_NAMESPACE::DOMElement * addParameter( std::string _name, std::string _type, int _value );
+  XERCES_CPP_NAMESPACE::DOMElement * addData( std::string _elements, std::string _encoding, const std::vector<unsigned int>& _lut );
 
-  DOMElement * add_checksum( DOMDocument * parent, Config & config );
+  XERCES_CPP_NAMESPACE::DOMElement * add_checksum(XERCES_CPP_NAMESPACE::DOMDocument * parent, Config & config );
 
-  DOMElement * brickElem;
+  XERCES_CPP_NAMESPACE::DOMElement * brickElem;
 
   //std::map<uint32_t,std::vector<unsigned int> > * lut_map;
   std::map<uint32_t,std::vector<unsigned int> > lut_map;

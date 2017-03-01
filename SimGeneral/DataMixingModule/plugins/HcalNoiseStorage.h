@@ -1,4 +1,4 @@
-#ifndef HcalNoiseStorage_h
+#ifndef SimHcalNoiseStorage_h
 #define SimHcalNoiseStorage_h
 
 /** \class HcalNoiseStorage
@@ -55,4 +55,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimHcalNoiseStorage_h

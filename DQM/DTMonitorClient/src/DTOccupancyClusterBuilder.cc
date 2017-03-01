@@ -31,17 +31,12 @@ void DTOccupancyClusterBuilder::addPoint(const DTOccupancyPoint& point) {
   for(set<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
     theDistances[(*pt).distance(point)] = make_pair(*pt, point);
   }
-  //   cout << "[DTOccupancyClusterBuilder] Add point with mean: " << point.mean()
-  //        << " RMS: " << point.rms() << endl;
   thePoints.insert(point);
 }
 
 
 void DTOccupancyClusterBuilder::buildClusters() {
-  //   cout << "[DTOccupancyClusterBuilder] buildClusters" << endl;
   while(buildNewCluster()) {
-    //     cout << "New cluster builded" << endl;
-    //     cout << "# of remaining points: " << thePoints.size() << endl;
     if(thePoints.size() <= 1) break;
   }
     
@@ -65,9 +60,6 @@ void DTOccupancyClusterBuilder::drawClusters(std::string canvasName) {
   int nBinsX = 100;
   int nBinsY = 100;
   int colorMap[12] = {632, 600, 800, 400, 820, 416, 432, 880, 616, 860, 900, 920};
-
-  //   cout << "Draw clusters: " << endl;
-  //   cout << "    max mean: " << maxMean << " max rms: " << maxRMS << endl;
 
   TCanvas *canvas = new TCanvas(canvasName.c_str(),canvasName.c_str()); 
   canvas->cd();
@@ -125,7 +117,6 @@ bool DTOccupancyClusterBuilder::buildNewCluster() {
     << " rms " << initialPair.second.rms() << endl;
   DTOccupancyCluster clusterCandidate(initialPair.first, initialPair.second);
   if(clusterCandidate.isValid()) {
-    //     cout <<   " cluster candidate is valid" << endl;
     // remove already used pair
     thePoints.erase(initialPair.first);
     thePoints.erase(initialPair.second);

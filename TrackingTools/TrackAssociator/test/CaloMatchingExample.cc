@@ -75,7 +75,6 @@
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "Utilities/Timing/interface/TimerStack.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -86,7 +85,6 @@ class CaloMatchingExample : public edm::EDAnalyzer {
  public:
    explicit CaloMatchingExample(const edm::ParameterSet&);
    virtual ~CaloMatchingExample(){
-      TimingReport::current()->dump(std::cout);
       file_->cd();
       tree_->Write();
       file_->Close();
@@ -202,25 +200,6 @@ CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig)
 void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   
-   TimerStack timers;
-   // test timer performance in various modes
-   timers.push("TimerStack::1000_push_and_pop::DetailedMonitoring");
-   for(int i=0; i<1000; ++i) {
-      timers.push("TimerStack::1000_push_and_pop::DetailedMonitoring::test",TimerStack::DetailedMonitoring);
-      timers.pop();
-   }
-   timers.pop_and_push("TimerStack::1000_push_and_pop::FastMonitoring");
-   for(int i=0; i<1000; ++i) {
-      timers.push("TimerStack::1000_push_and_pop::FastMonitoring::test",TimerStack::FastMonitoring);
-      timers.pop();
-   }
-   timers.pop_and_push("TimerStack::1000_push_and_pop::SuperFastMonitoring");
-   for(int i=0; i<1000; ++i) {
-      FastTimerStackPush( timers, "TimerStack::1000_push_and_pop::SuperFastMonitoring::test" );
-      timers.pop();
-   }
-   timers.clear_stack();
    
    // calo geometry
    edm::ESHandle<CaloGeometry> geometry;

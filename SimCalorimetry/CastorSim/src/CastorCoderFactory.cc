@@ -11,7 +11,7 @@ CastorCoderFactory::CastorCoderFactory(CoderType coderType)
 }
 
 
-std::auto_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
+std::unique_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
   CastorCoder * result = 0;
   if(theCoderType == DB) {
     assert(theDbService != 0);
@@ -24,6 +24,6 @@ std::auto_ptr<CastorCoder> CastorCoderFactory::coder(const DetId & id) const {
   else {
     result = new CastorNominalCoder();
   }
-  return std::auto_ptr<CastorCoder>(result);
+  return std::unique_ptr<CastorCoder>(result);
 }
 

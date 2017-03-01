@@ -161,14 +161,14 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
   for(int i1=0; i1<nMin; i1++) edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "min: " << i1 << " " << bestCB[i1] << " " << AllDist[i1][bestCB[i1]];
 
 /*
-  auto_ptr<CandViewMatchMap> matchMapSrMt( new CandViewMatchMap( CandViewMatchMap::ref_type( CandidateRefProd( source  ),
-                                                                                             CandidateRefProd( matched )  ) ) );
-  auto_ptr<CandViewMatchMap> matchMapMtSr( new CandViewMatchMap( CandViewMatchMap::ref_type( CandidateRefProd( matched ),
-                                                                                             CandidateRefProd( source  )  ) ) );
+  auto matchMapSrMt = std::make_unique<CandViewMatchMap>(CandViewMatchMap::ref_type( CandidateRefProd( source  ),
+                                                                                             CandidateRefProd( matched ) ) );
+  auto matchMapMtSr = std::make_unique<CandViewMatchMap>(CandViewMatchMap::ref_type( CandidateRefProd( matched ),
+                                                                                             CandidateRefProd( source ) ) );
 */
 
-  auto_ptr<CandViewMatchMap> matchMapSrMt( new CandViewMatchMap() );
-  auto_ptr<CandViewMatchMap> matchMapMtSr( new CandViewMatchMap() );
+  auto matchMapSrMt = std::make_unique<CandViewMatchMap>();
+  auto matchMapMtSr = std::make_unique<CandViewMatchMap>();
 
   for( int c = 0; c != nMin; c ++ ) {
     if( source->size() <= matched->size() ) {
@@ -191,8 +191,8 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     }
   }
 */
-  evt.put( matchMapSrMt, "src2mtc" );
-  evt.put( matchMapMtSr, "mtc2src" );
+  evt.put(std::move(matchMapSrMt), "src2mtc" );
+  evt.put(std::move(matchMapMtSr), "mtc2src" );
 
   AllDist.clear();
 }

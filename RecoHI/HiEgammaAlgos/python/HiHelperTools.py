@@ -158,12 +158,12 @@ class CloneSequenceVisitor(object):
             if self._waitForSequenceToClose == visitee.label():
                 self._waitForSequenceToClose = None
             if not isinstance(self._sequenceStack[-1], cms.Sequence):
-                raise StandardError, "empty Sequence encountered during cloneing. sequnece stack: %s"%self._sequenceStack
+                raise Exception("empty Sequence encountered during cloneing. sequnece stack: %s"%self._sequenceStack)
             self.__appendToTopSequence( self._sequenceStack.pop() )
 
     def clonedSequence(self):
         if not len(self._sequenceStack) == 1:
-            raise StandardError, "someting went wrong, the sequence stack looks like: %s"%self._sequenceStack
+            raise Exception("someting went wrong, the sequence stack looks like: %s"%self._sequenceStack)
         for label in self._moduleLabels:
             massSearchReplaceAnyInputTag(self._sequenceStack[-1], label, label+self._postfix, moduleLabelOnly=True, verbose=False)
         self._moduleLabels = [] #prevent the InputTag replacement next time this is called.
@@ -175,7 +175,7 @@ class CloneSequenceVisitor(object):
             newSequenceLabel = oldSequenceLabel + self._postfix
             self._sequenceStack.append(cms.Sequence(visitee))
             if hasattr(self._process, newSequenceLabel):
-                raise StandardError("Cloning the sequence "+self._sequenceStack[-1].label()+" would overwrite existing object." )
+                raise Exception("Cloning the sequence "+self._sequenceStack[-1].label()+" would overwrite existing object." )
             setattr(self._process, newSequenceLabel, self._sequenceStack[-1])
             self._sequenceLabels.append(oldSequenceLabel)
         else:

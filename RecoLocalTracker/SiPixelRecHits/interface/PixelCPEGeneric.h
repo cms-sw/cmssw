@@ -43,8 +43,6 @@
 #include <utility>
 #include <vector>
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
-
 #if 0
 /** \class PixelCPEGeneric
  * Perform the position and error evaluation of pixel hits using 
@@ -82,15 +80,9 @@ class PixelCPEGeneric : public PixelCPEBase
   float dx2   ; // CPE Generic x-bias for single double-pixel cluster
   };
 
-#ifdef NEW_CPEERROR
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
-		  const TrackerGeometry&, const SiPixelLorentzAngle *, 
+		  const TrackerGeometry&, const TrackerTopology&, const SiPixelLorentzAngle *, 
 		  const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
-#else
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
-		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
-		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
-#endif
 
   ~PixelCPEGeneric() {;}
 
@@ -164,11 +156,6 @@ private:
   //--- DB Error Parametrization object, new light templates 
   std::vector< SiPixelGenErrorStore > thePixelGenError_;
   //SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
-
-#ifndef NEW_CPEERROR
-  // For old template errors
-  std::vector< SiPixelTemplateStore > thePixelTemp_;
-#endif
 
 };
 

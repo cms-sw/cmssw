@@ -2,7 +2,6 @@
 #define CSCIndexerESProducer_H
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -12,7 +11,7 @@
 class CSCIndexerESProducer : public edm::ESProducer {
 
  public:
-  typedef boost::shared_ptr<CSCIndexerBase> BSP_TYPE;
+  typedef std::shared_ptr<CSCIndexerBase> BSP_TYPE;
 
   CSCIndexerESProducer(const edm::ParameterSet&);
   ~CSCIndexerESProducer();

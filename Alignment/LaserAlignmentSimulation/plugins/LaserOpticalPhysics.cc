@@ -24,9 +24,9 @@
 
 LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
 					 const HepPDT::ParticleDataTable * table_,
-					 sim::FieldBuilder *fieldBuilder_,
+					 sim::ChordFinderSetter *chordFinderSetter_,
 					 const edm::ParameterSet & p) 
-: PhysicsList(map, table_, fieldBuilder_, p)
+: PhysicsList(map, table_, chordFinderSetter_, p)
 {
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   G4DataQuestionaire it(photon);

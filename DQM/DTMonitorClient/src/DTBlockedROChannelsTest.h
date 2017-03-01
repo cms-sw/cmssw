@@ -15,13 +15,14 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 class DQMStore;
 class MonitorElement;
 class DTReadOutMapping;
 class DTTimeEvolutionHisto;
 
-class DTBlockedROChannelsTest: public edm::EDAnalyzer{
+class DTBlockedROChannelsTest: public DQMEDHarvester {
 
   public:
 
@@ -33,30 +34,20 @@ class DTBlockedROChannelsTest: public edm::EDAnalyzer{
 
   protected:
 
-    /// BeginJob
-    void beginJob();
-
     /// BeginRun
-    void beginRun(const edm::Run& run, const edm::EventSetup& c);
+    void beginRun(const edm::Run& , const edm::EventSetup&);
 
-    /// Analyze
-    void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void fillChamberMap( DQMStore::IGetter & igetter, const edm::EventSetup& c); 
 
-    /// Endjob
-    void endJob();
-
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
     /// DQM Client operations
-    void performClientDiagnostic();
+    void performClientDiagnostic(DQMStore::IGetter & igetter);
 
     /// DQM Client Diagnostic in online mode
-    void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); 
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
-    /// DQM Client Diagnostic in offline mode
-    void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  private:
+private:
     int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
 
   private:
@@ -66,7 +57,7 @@ class DTBlockedROChannelsTest: public edm::EDAnalyzer{
 
     // prescale on the # of LS to update the test
     int prescaleFactor;
-
+    bool offlineMode;
     int nevents;
     int neventsPrev;
     unsigned int nLumiSegs;
@@ -75,8 +66,6 @@ class DTBlockedROChannelsTest: public edm::EDAnalyzer{
 
     int run;
 
-
-    DQMStore* dbe;
     edm::ESHandle<DTReadOutMapping> mapping;
 
 
@@ -84,15 +73,13 @@ class DTBlockedROChannelsTest: public edm::EDAnalyzer{
     std::map<int, MonitorElement*> wheelHitos;
     MonitorElement *summaryHisto;
 
-    bool offlineMode;
-
     std::map<int, double> resultsPerLumi;
     DTTimeEvolutionHisto* hSystFractionVsLS;
 
 
     class DTRobBinsMap {
       public:
-        DTRobBinsMap(const int fed, const int ros, const DQMStore* dbe);
+        DTRobBinsMap(DQMStore::IGetter & igetter,const int fed, const int ros);
 
         DTRobBinsMap();
 
@@ -105,9 +92,9 @@ class DTBlockedROChannelsTest: public edm::EDAnalyzer{
 
         bool robChanged(int robBin);
 
-        double getChamberPercentage();
+        double getChamberPercentage(DQMStore::IGetter &);
 
-        void readNewValues();
+        void readNewValues(DQMStore::IGetter & igetter);
 
       private:
         int getValueRobBin(int robBin) const;
@@ -124,8 +111,6 @@ class DTBlockedROChannelsTest: public edm::EDAnalyzer{
 
         std::string rosHName;
         std::string dduHName;
-
-        const DQMStore* theDbe;
     };
 
     std::map<DTChamberId, DTRobBinsMap> chamberMap;

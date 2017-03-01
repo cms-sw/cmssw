@@ -25,6 +25,7 @@
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -50,13 +51,13 @@ namespace edm {
     
     template <typename F>
     void forAllModuleHolders(F iFunc) {
-      for(auto const& labelMod: labelToModule_) {
+      for(auto& labelMod: labelToModule_) {
         maker::ModuleHolder* t = labelMod.second.get();
         iFunc(t);
       }
     }
   private:
-    std::map<std::string,std::shared_ptr<maker::ModuleHolder>> labelToModule_;
+    std::map<std::string, edm::propagate_const<std::shared_ptr<maker::ModuleHolder>>> labelToModule_;
   };
 }
 

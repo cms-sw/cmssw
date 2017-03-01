@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
  
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 matchRecVtx = cms.EDProducer("MixEvtVtxGenerator",
-                             signalLabel = cms.InputTag("generator"), 
+                             signalLabel = cms.InputTag("generator","unsmeared"),
                              heavyIonLabel = cms.InputTag("offlinePrimaryVertices"),
                              useRecVertex = cms.bool(True),
                              vtxOffset = cms.vdouble(0.1475, 0.3782, 0.4847)

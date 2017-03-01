@@ -65,7 +65,7 @@ def getresultfromdb(schema,runnum):
         qCondition['runnum'].setData(runnum)
         qHandle.setCondition('RUNNUM=:runnum',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             lumils=cursor.currentRow()['LS'].data()
             cmsls=cursor.currentRow()['CMSLS'].data()
             beamstatus=cursor.currentRow()['BEAM_STATUS'].data()
@@ -90,7 +90,7 @@ def isdifferent(resultlist,resultmap):
     if len(resultlist)!=len(resultmap): return False
     for perlumidata in resultlist:
         [lumilsa,cmslsa,beamstatusa,beamenergya,delivereda,recordeda]=perlumidata
-        if not resultmap.has_key(lumilsa): return False
+        if lumilsa not in resultmap: return False
         [cmslsb,beamstatusb,beamenergyb,deliveredb,recordedb]=resultmap[lumilsa]
         if cmslsa!=cmslsb:
             print '[DEBUG] diff in number of ls ',cmslsa,cmslsb

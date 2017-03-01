@@ -51,9 +51,12 @@ Some examples of InputSource subclasses may be:
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
 #include <string>
+#include <chrono>
+#include <mutex>
 
 namespace edm {
   class ActivityRegistry;
@@ -66,7 +69,9 @@ namespace edm {
   class ProcessHistoryRegistry;
   class ProductRegistry;
   class StreamContext;
+  class ModuleCallingContext;
   class SharedResourcesAcquirer;
+  class ThinnedAssociationsHelper;
   namespace multicore {
     class MessageReceiverForSource;
   }
@@ -95,7 +100,7 @@ namespace edm {
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
 
     /// Destructor
-    virtual ~InputSource();
+    virtual ~InputSource() noexcept(false);
 
     InputSource(InputSource const&) = delete; // Disallow copying and moving
     InputSource& operator=(InputSource const&) = delete; // Disallow copying and moving
@@ -163,17 +168,21 @@ namespace edm {
     /// Register any produced products
     void registerProducts();
 
-    /// Accessor for product registry.
-    std::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+    /// Accessors for product registry
+    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
+    std::shared_ptr<ProductRegistry>& productRegistry() {return get_underlying_safe(productRegistry_);}
 
-    /// Const accessor for process history registry.
+    /// Accessors for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const {return *processHistoryRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistry() {return *processHistoryRegistry_;}
 
-    /// Non-const accessor for process history registry.
-    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
+    /// Accessors for branchIDListHelper
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
 
-    /// Accessor for branchIDListHelper
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return branchIDListHelper_;}
+    /// Accessors for thinnedAssociationsHelper
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -182,7 +191,7 @@ namespace edm {
     }
     
     /// Returns nullptr if no resource shared between the Source and a DelayedReader
-    SharedResourcesAcquirer* resourceSharedWithDelayedReader() const;
+    std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader();
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
@@ -205,9 +214,6 @@ namespace edm {
 
     /// Accessor for Process Configuration
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
-
-    /// Accessor for primary input source flag
-    bool primary() const {return primary_;}
 
     /// Accessor for global process identifier
     std::string const& processGUID() const {return processGUID_;}
@@ -337,14 +343,18 @@ namespace edm {
       bool usedFallback_;
     };
 
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preEventReadFromSourceSignal_;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postEventReadFromSourceSignal_;
+    
+
   protected:
     virtual void skip(int offset);
 
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    ProductRegistry& productRegistryUpdate() const {return *productRegistry_;}
-    ProcessHistoryRegistry& processHistoryRegistryUpdate() const {return *processHistoryRegistry_;}
+    ProductRegistry& productRegistryUpdate() {return *productRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
     ItemType state() const{return state_;}
     void setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
@@ -367,8 +377,6 @@ namespace edm {
       resetRunAuxiliary();
       state_ = IsInvalid;
     }
-    std::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
-    std::shared_ptr<RunPrincipal> const runPrincipal() const;
     bool newRun() const {return newRun_;}
     void setNewRun() {newRun_ = true;}
     void resetNewRun() {newRun_ = false;}
@@ -386,7 +394,14 @@ namespace edm {
 
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
-    bool lumiLimitReached() const {return remainingLumis_ == 0;}
+    bool lumiLimitReached() const {
+      if (remainingLumis_ == 0) {return true;}
+      if (maxSecondsUntilRampdown_ <= 0) {return false;}
+      auto end = std::chrono::steady_clock::now();
+      auto elapsed = end - processingStart_;
+      if (std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() > maxSecondsUntilRampdown_) {return true;}
+      return false;
+    }
     bool limitReached() const {return eventLimitReached() || lumiLimitReached();}
     virtual ItemType getNextItemType() = 0;
     ItemType nextItemType_();
@@ -408,7 +423,7 @@ namespace edm {
     virtual void endRun(Run&);
     virtual void beginJob();
     virtual void endJob();
-    virtual SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const;
+    virtual std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_();
 
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource>);
@@ -418,18 +433,20 @@ namespace edm {
 
   private:
 
-    std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     int maxEvents_;
     int remainingEvents_;
     int maxLumis_;
     int remainingLumis_;
     int readCount_;
+    int maxSecondsUntilRampdown_;
+    std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    std::shared_ptr<ProductRegistry> productRegistry_;
-    std::unique_ptr<ProcessHistoryRegistry> processHistoryRegistry_;
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    bool const primary_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;
     mutable bool newRun_;
@@ -441,7 +458,7 @@ namespace edm {
     std::string statusFileName_;
 
     //used when process has been forked
-    std::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
+    edm::propagate_const<std::shared_ptr<edm::multicore::MessageReceiverForSource>> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
   };
 }

@@ -14,6 +14,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include <iostream>
 #include <memory>
@@ -68,12 +69,13 @@ private:
   int                       addTower;
 
   // Private Tuples
-  std::auto_ptr<HcalTestHistoManager>    tuplesManager;
-  HcalTestHistoClass   *    tuples;
+  std::unique_ptr<HcalTestHistoManager>    tuplesManager;
+  HcalTestHistoClass        *tuples;
 
   // Numbering scheme
-  HcalNumberingFromDDD *    numberingFromDDD;
-  HcalTestNumberingScheme * org;
+  HcalNumberingFromDDD      *numberingFromDDD;
+  HcalDDDSimConstants       *hcons;
+  HcalTestNumberingScheme   *org;
 
   // Hits for qie analysis
   std::vector<CaloHit>      caloHitCache; 

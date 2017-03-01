@@ -27,7 +27,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -61,15 +61,13 @@
 //
 
 namespace pat {
-  class PATMHTProducer : public edm::EDProducer {
+  class PATMHTProducer : public edm::stream::EDProducer<> {
   public:
     explicit PATMHTProducer(const edm::ParameterSet&);
     ~PATMHTProducer();
 
   private:
-    virtual void beginJob() ;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() ;
 
     double getJets(edm::Event&, const edm::EventSetup&);
     double getElectrons(edm::Event&, const edm::EventSetup&);
@@ -99,8 +97,8 @@ namespace pat {
 
     class uncertaintyFunctions{
     public:
-      TF1 *etUncertainty;
-      TF1 *phiUncertainty;
+      std::unique_ptr<TF1> etUncertainty;
+      std::unique_ptr<TF1> phiUncertainty;
     };
 
     void setUncertaintyParameters();// fills the following uncertaintyFunctions objects:

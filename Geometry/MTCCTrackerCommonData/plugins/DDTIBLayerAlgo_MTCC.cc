@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -226,7 +225,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
       if (phideg != 0) {
 	double theta  = 90*CLHEP::deg;
 	double phiy   = phix + 90.*CLHEP::deg;
-	std::string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + std::to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
@@ -315,7 +314,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
       if (phideg != 0) {
 	double theta  = 90*CLHEP::deg;
 	double phiy   = phix + 90.*CLHEP::deg;
-	std::string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + std::to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
@@ -429,7 +428,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
   for (unsigned int i = 0; i < ribW.size(); i++) {
-    name = idName + "Rib" + dbl_to_string(i);
+    name = idName + "Rib" + std::to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
     double dz    = 0.25*(layerL - supportW);
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, rout, 
@@ -447,7 +446,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
       if (phideg != 0) {
 	double theta  = 90*CLHEP::deg;
 	double phiy   = phix + 90.*CLHEP::deg;
-	std::string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + std::to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
@@ -561,7 +560,7 @@ void DDTIBLayerAlgo_MTCC::execute(DDCompactView& cpv) {
       if (phideg != 0) {
 	double theta  = 90*CLHEP::deg;
 	double phiy   = phix + 90.*CLHEP::deg;
-	std::string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + std::to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "

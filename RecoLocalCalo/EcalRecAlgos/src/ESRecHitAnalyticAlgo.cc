@@ -12,8 +12,8 @@ ESRecHitAnalyticAlgo::~ESRecHitAnalyticAlgo() {
 
 double* ESRecHitAnalyticAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) const {
   
-  double *fitresults = new double[3];
-  double adc[3];  
+  double *fitresults = new double[3] {};
+  double adc[3] {};  
 
   for (int i=0; i<digi.size(); i++) 
     adc[i] = digi.sample(i).adc() - ped;

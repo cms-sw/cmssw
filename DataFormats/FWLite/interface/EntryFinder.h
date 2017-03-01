@@ -16,7 +16,6 @@
 //
 // Original Author:  Bill Tanenbaum
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 
 // user include files
@@ -36,12 +35,11 @@ namespace fwlite {
      EntryNumber_t findEvent(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi, edm::EventNumber_t const& event) const;
      EntryNumber_t findLumi(edm::RunNumber_t const& run, edm::LuminosityBlockNumber_t const& lumi) const;
      EntryNumber_t findRun(edm::RunNumber_t const& run) const;
-     void fillIndex(BranchMapReader const& branchMap);
+     void fillIndex(BranchMapReader& branchMap);
      static EntryNumber_t const invalidEntry = -1LL;
    private:
      edm::IndexIntoFile indexIntoFile_;
      edm::FileIndex fileIndex_;
    };
 }
-#endif /*__CINT__ */
 #endif

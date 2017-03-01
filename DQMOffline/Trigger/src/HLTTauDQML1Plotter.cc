@@ -29,11 +29,13 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::Consume
     return;
 
   //Process PSet
-  l1ExtraTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
-  l1ExtraTausToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraTaus_);
-  l1ExtraJets_      = ps.getUntrackedParameter<edm::InputTag>("L1Jets");
-  l1ExtraJetsToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraJets_);
-  l1JetMinEt_       = ps.getUntrackedParameter<double>("L1JetMinEt");
+  l1stage2Taus_     = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
+  l1stage2TausToken_= cc.consumes<l1t::TauBxCollection>(l1stage2Taus_);
+ 
+  l1stage2Sums_     = ps.getUntrackedParameter<edm::InputTag>("L1ETM");
+  l1stage2SumsToken_= cc.consumes<l1t::EtSumBxCollection>(l1stage2Sums_);
+  l1ETMMin_         = ps.getUntrackedParameter<double>("L1ETMMin");
+
   configValid_ = true;
 }
 
@@ -56,31 +58,26 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
   l1tauEt_ = iBooker.book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
   l1tauEta_ = iBooker.book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
   l1tauPhi_ = iBooker.book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
+
+  l1etmEt_  = iBooker.book1D("L1ETM","L1 ETM E_{T};L1 ETM E_{T};entries",binsEt_,0,maxPt_);
+  l1etmPhi_ = iBooker.book1D("L1ETMPhi","L1 ETM #phi;L1 ETM #phi;entries",binsPhi_,minPhi,maxPhi);
         
-  l1jetEt_ = iBooker.book1D("L1JetEt","L1 central jet E_{T};L1 jet E_{T};entries",binsEt_,0,maxPt_);
-  snprintf(buffer, BUFMAX, "L1 central jet #eta (E_{T} > %.1f);L1 jet #eta;entries", l1JetMinEt_);
-  l1jetEta_ = iBooker.book1D("L1JetEta", buffer, binsEta_, -maxEta_, maxEta_);
-  snprintf(buffer, BUFMAX, "L1 central jet #phi (E_{T} > %.1f);L1 jet #phi;entries", l1JetMinEt_);
-  l1jetPhi_ = iBooker.book1D("L1JetPhi", buffer, binsPhi_, minPhi, maxPhi);
-        
-  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 leading #tau E_{T};L1 #tau E_{T};entries");
   firstTauEt_ = iBooker.book1D("L1LeadTauEt", buffer, binsEt_, 0, maxPt_);
-  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 leading #tau #eta;L1 #tau #eta;entries");
   firstTauEta_ = iBooker.book1D("L1LeadTauEta", buffer, binsEta_, -maxEta_, maxEta_);
-  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 leading #tau #phi;L1 #tau #phi;entries");
   firstTauPhi_ = iBooker.book1D("L1LeadTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading #tau E_{T};L1 #tau E_{T};entries");
   secondTauEt_ = iBooker.book1D("L1SecondTauEt", buffer, binsEt_, 0, maxPt_);
-  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading #tau #eta;L1 #tau #eta;entries");
   secondTauEta_ = iBooker.book1D("L1SecondTauEta", buffer, binsEta_, -maxEta_, maxEta_);
-  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading #tau #phi;L1 #tau #phi;entries");
   secondTauPhi_ = iBooker.book1D("L1SecondTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
   if (doRefAnalysis_) {
     l1tauEtRes_ = iBooker.book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
-    snprintf(buffer, BUFMAX, "L1 central jet E_{T} resolution (E_{T} > %.1f);[L1 jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries", l1JetMinEt_);
-    l1jetEtRes_ = iBooker.book1D("L1JetEtResol", buffer, 60, -1, 4);
             
     iBooker.setCurrentFolder(triggerTag()+"/helpers");
             
@@ -95,24 +92,9 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
             
     l1tauPhiEffNum_ = iBooker.book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
     l1tauPhiEffDenom_ = iBooker.book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau #phi;Efficiency",binsPhi_,minPhi,maxPhi);
-            
-    l1jetEtEffNum_ = iBooker.book1D("L1JetEtEffNum","L1 central jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
-    l1jetHighEtEffNum_ = iBooker.book1D("L1JetHighEtEffNum","L1 central jet E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
-            
-    l1jetEtEffDenom_ = iBooker.book1D("L1JetEtEffDenom","L1 central jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
-    l1jetHighEtEffDenom_ = iBooker.book1D("L1JetHighEtEffDenom","L1 central jet E_{T} Denominator (high E_{T});Ref #tau E_{T};Efficiency",binsEt_,0,maxHighPt_);
-            
-    snprintf(buffer, BUFMAX, "L1 central jet #eta Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-    l1jetEtaEffNum_ = iBooker.book1D("L1JetEtaEffNum", buffer, binsEta_, -maxEta_, maxEta_);
-            
-    snprintf(buffer, BUFMAX, "L1 central jet #eta Denominator (E_{T} > %.1f);Ref #tau #eta;Efficiency", l1JetMinEt_);
-    l1jetEtaEffDenom_ = iBooker.book1D("L1JetEtaEffDenom", buffer, binsEta_, -maxEta_, maxEta_);
-            
-    snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #phi;entries", l1JetMinEt_);
-    l1jetPhiEffNum_ = iBooker.book1D("L1JetPhiEffNum", buffer, binsPhi_, minPhi, maxPhi);
-            
-    snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #phi;Efficiency", l1JetMinEt_);
-    l1jetPhiEffDenom_ = iBooker.book1D("L1JetPhiEffDenom", buffer, binsPhi_, minPhi, maxPhi);
+
+    l1etmEtEffNum_ = iBooker.book1D("L1ETMEtEffNum", "L1 ETM Efficiency;Ref MET;entries",binsEt_, 0, maxPt_);
+    l1etmEtEffDenom_ = iBooker.book1D("L1ETMEtEffDenom","L1 ETM Denominator;Ref MET;entries",binsEt_,0,maxPt_);
   }
 }
 
@@ -129,32 +111,30 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
         //Tau reference
         for ( LVColl::const_iterator iter = refC.taus.begin(); iter != refC.taus.end(); ++iter ) {
             l1tauEtEffDenom_->Fill(iter->pt());
-            l1jetEtEffDenom_->Fill(iter->pt());
             l1tauHighEtEffDenom_->Fill(iter->pt());
-            l1jetHighEtEffDenom_->Fill(iter->pt());
             
             l1tauEtaEffDenom_->Fill(iter->eta());
-            l1jetEtaEffDenom_->Fill(iter->eta());
             
             l1tauPhiEffDenom_->Fill(iter->phi());
-            l1jetPhiEffDenom_->Fill(iter->phi());
         }
+	if(refC.met.size() > 0) l1etmEtEffDenom_->Fill(refC.met[0].pt());
     }
-    
+
     //Analyze L1 Objects (Tau+Jets)
-    edm::Handle<l1extra::L1JetParticleCollection> taus;
-    edm::Handle<l1extra::L1JetParticleCollection> jets;
-    iEvent.getByToken(l1ExtraTausToken_, taus);
-    iEvent.getByToken(l1ExtraJetsToken_, jets);
-    
+    edm::Handle<l1t::TauBxCollection> taus;
+    iEvent.getByToken(l1stage2TausToken_, taus);  
+            
+    edm::Handle<l1t::EtSumBxCollection> sums;
+    iEvent.getByToken(l1stage2SumsToken_, sums);
+
     LVColl pathTaus;
     
     //Set Variables for the threshold plot
     LVColl l1taus;
-    LVColl l1jets;
+    LVColl l1met;
 
     if(taus.isValid()) {
-      for(l1extra::L1JetParticleCollection::const_iterator i = taus->begin(); i != taus->end(); ++i) {
+      for(l1t::TauBxCollection::const_iterator i = taus->begin(); i != taus->end(); ++i) {
         l1taus.push_back(i->p4());
         if(!doRefAnalysis_) {
           l1tauEt_->Fill(i->et());
@@ -165,26 +145,23 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
       }
     }
     else {
-      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection " << l1ExtraTaus_.encode();
+      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 tau collection " << l1stage2Taus_.encode();
     }
 
-    if(jets.isValid()) {
-      for(l1extra::L1JetParticleCollection::const_iterator i = jets->begin(); i != jets->end(); ++i) {
-        l1jets.push_back(i->p4());
-        if(!doRefAnalysis_) {
-          l1jetEt_->Fill(i->et());
-          if(i->et() >= l1JetMinEt_) {
-            l1jetEta_->Fill(i->eta());
-            l1jetPhi_->Fill(i->phi());
-            pathTaus.push_back(i->p4());
+    if(sums.isValid() && sums.product()->size() > 0) {
+      if(!doRefAnalysis_) {
+        for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
+          for (l1t::EtSumBxCollection::const_iterator it=sums->begin(ibx); it!=sums->end(ibx); it++) {
+            int type = static_cast<int>( it->getType() );
+            if(type == l1t::EtSum::EtSumType::kMissingEt) l1etmEt_->Fill(it->et());
           }
         }
       }
     }
     else {
-      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 jet collection " << l1ExtraJets_.encode();
+      edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 met collection " << l1stage2Sums_.encode();
     }
-    
+
     //Now do the efficiency matching
     if ( doRefAnalysis_ ) {
         for ( LVColl::const_iterator i = refC.taus.begin(); i != refC.taus.end(); ++i ) {
@@ -204,32 +181,26 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
                 pathTaus.push_back(m.second);
             }
         }
+
+        if(sums.isValid() && sums.product()->size() > 0) {
+          for (int ibx = sums->getFirstBX(); ibx <= sums->getLastBX(); ++ibx) {
+            for (l1t::EtSumBxCollection::const_iterator it=sums->begin(ibx); it!=sums->end(ibx); it++) {
+              int type = static_cast<int>( it->getType() );
+              if(type == l1t::EtSum::EtSumType::kMissingEt) {
+                l1etmEt_->Fill(it->et());
+                l1etmPhi_->Fill(it->phi());
         
-        for ( LVColl::const_iterator i = refC.taus.begin(); i != refC.taus.end(); ++i ) {
-            std::pair<bool,LV> m = match(*i,l1jets,matchDeltaR_);
-            if ( m.first ) {
-                l1jetEt_->Fill(m.second.pt());
-                if(m.second.pt() >= l1JetMinEt_) {
-                  l1jetEta_->Fill(m.second.eta());
-                  l1jetPhi_->Fill(m.second.phi());
-
-                  l1jetEtEffNum_->Fill(i->pt());
-                  l1jetHighEtEffNum_->Fill(i->pt());
-                  l1jetEtaEffNum_->Fill(i->eta());
-                  l1jetPhiEffNum_->Fill(i->phi());
-
-                  l1jetEtRes_->Fill((m.second.pt()-i->pt())/i->pt());
-
-                  pathTaus.push_back(m.second);
+                if( it->et() > l1ETMMin_){
+                  l1etmEtEffNum_->Fill(it->et());
                 }
+              }
             }
+          }
         }
     }
     
-    
     //Fill the Threshold Monitoring
     if(pathTaus.size() > 1) std::sort(pathTaus.begin(), pathTaus.end(), [](const LV& a, const LV& b) { return a.pt() > b.pt(); });
-    
     if ( pathTaus.size() > 0 ) {
         firstTauEt_->Fill(pathTaus[0].pt());
         firstTauEta_->Fill(pathTaus[0].eta());

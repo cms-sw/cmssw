@@ -24,6 +24,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"	// change log 4
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // system include files
 
@@ -112,9 +113,9 @@ public:
   CMS_THREAD_SAFE static bool infoAlwaysSuppressed;			// change log 9
   CMS_THREAD_SAFE static bool warningAlwaysSuppressed;			// change log 9
 private:
-  messagedrop::StringProducerWithPhase * spWithPhase;
-  messagedrop::StringProducerPath      * spPath;
-  messagedrop::StringProducerSinglet   * spSinglet;
+  edm::propagate_const<messagedrop::StringProducerWithPhase*> spWithPhase;
+  edm::propagate_const<messagedrop::StringProducerPath*> spPath;
+  edm::propagate_const<messagedrop::StringProducerSinglet*> spSinglet;
   messagedrop::StringProducer const    * moduleNameProducer;
 };
 

@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerAngularV1.h"
@@ -75,7 +74,7 @@ void DDTrackerAngularV1::execute(DDCompactView& cpv) {
 
     DDRotation rotation;
     if (phideg != 0) {
-      std::string rotstr = DDSplit(childName).first+dbl_to_string(phideg*10.);
+      std::string rotstr = DDSplit(childName).first + std::to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
 	LogDebug("TrackerGeom") << "DDTrackerAngularV1 test: Creating a new "

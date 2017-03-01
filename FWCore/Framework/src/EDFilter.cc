@@ -27,21 +27,16 @@ namespace edm {
   }
 
   bool
-  EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
+  EDFilter::doEvent(EventPrincipal const& ep, EventSetup const& c,
                     ActivityRegistry* act,
                     ModuleCallingContext const* mcc) {
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      {
-        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-        EventSignalsSentry sentry(act,mcc);
-        rc = this->filter(e, c);
-      }
-      commit_(e,&previousParentage_, &previousParentageId_);
-    }
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    rc = this->filter(e, c);
+    commit_(e,&previousParentage_, &previousParentageId_);
     return rc;
   }
 
@@ -58,7 +53,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+  EDFilter::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -69,7 +64,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doEndRun(RunPrincipal& rp, EventSetup const& c,
+  EDFilter::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                      ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -80,7 +75,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
@@ -90,7 +85,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);

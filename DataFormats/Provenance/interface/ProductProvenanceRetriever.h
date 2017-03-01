@@ -9,14 +9,12 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "boost/scoped_ptr.hpp"
-#include "boost/utility.hpp"
-
-#include <iosfwd>
+#include "tbb/concurrent_unordered_set.h"
 #include <memory>
 #include <set>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
+#include <atomic>
 
 /*
   ProductProvenanceRetriever
@@ -24,13 +22,42 @@ ProductProvenanceRetriever: Manages the per event/lumi/run per product provenanc
 
 namespace edm {
   class ProvenanceReaderBase;
+  class WaitingTask;
+  class ModuleCallingContext;
 
-  class ProductProvenanceRetriever : private boost::noncopyable {
+  struct ProductProvenanceHasher {
+    size_t operator()(ProductProvenance const& tid) const {
+      return tid.branchID().id();
+    }
+  };
+
+  struct ProductProvenanceEqual {
+    //The default operator== for ProductProvenance does not work for this case
+    // Since (a<b)==false  and (a>b)==false does not mean a==b for the operators
+    // defined for ProductProvenance
+    bool operator()(ProductProvenance const& iLHS, ProductProvenance const iRHS) const {
+      return iLHS.branchID().id()== iRHS.branchID().id();
+    }
+  };
+
+  class ProvenanceReaderBase {
+  public:
+    ProvenanceReaderBase() {}
+    virtual ~ProvenanceReaderBase();
+    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const = 0;
+    virtual void readProvenanceAsync(WaitingTask* task,
+                                     ModuleCallingContext const* moduleCallingContext,
+                                     unsigned int transitionIndex,
+                                     std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                     ) const = 0;
+  };
+
+  class ProductProvenanceRetriever {
   public:
     explicit ProductProvenanceRetriever(unsigned int iTransitionIndex);
-#ifndef __GCCXML__
     explicit ProductProvenanceRetriever(std::unique_ptr<ProvenanceReaderBase> reader);
-#endif
+    
+    ProductProvenanceRetriever& operator=(ProductProvenanceRetriever const&) = delete;
 
     ~ProductProvenanceRetriever();
 
@@ -40,29 +67,23 @@ namespace edm {
 
     void mergeProvenanceRetrievers(std::shared_ptr<ProductProvenanceRetriever> other);
 
-    void deepSwap(ProductProvenanceRetriever&);
+    void deepCopy(ProductProvenanceRetriever const&);
     
     void reset();
+    
+    void readProvenanceAsync(WaitingTask* task, ModuleCallingContext const* moduleCallingContext) const;
+    
   private:
     void readProvenance() const;
     void setTransitionIndex(unsigned int transitionIndex) {
       transitionIndex_=transitionIndex;
     }
 
-    typedef std::set<ProductProvenance> eiSet;
-
-    mutable eiSet entryInfoSet_;
-    std::shared_ptr<ProductProvenanceRetriever> nextRetriever_;
-    mutable std::shared_ptr<ProvenanceReaderBase> provenanceReader_;
+    mutable tbb::concurrent_unordered_set<ProductProvenance, ProductProvenanceHasher, ProductProvenanceEqual> entryInfoSet_;
+    mutable std::atomic<const std::set<ProductProvenance>*> readEntryInfoSet_;
+    edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> nextRetriever_;
+    std::shared_ptr<const ProvenanceReaderBase> provenanceReader_;
     unsigned int transitionIndex_;
-    mutable bool delayedRead_;
-  };
-
-  class ProvenanceReaderBase {
-  public:
-    ProvenanceReaderBase() {}
-    virtual ~ProvenanceReaderBase();
-    virtual void readProvenance(ProductProvenanceRetriever const& mapper, unsigned int transitionIndex) const = 0;
   };
   
 }

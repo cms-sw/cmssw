@@ -36,11 +36,11 @@ class PFRecoTauDiscriminationByFlightPathSignificance
     ~PFRecoTauDiscriminationByFlightPathSignificance(){}
 
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-    double discriminate(const reco::PFTauRef&) override;
+    double discriminate(const reco::PFTauRef&) const override;
 
   private:
-    double threeProngFlightPathSig(const PFTauRef&);
-    double vertexSignificance(reco::Vertex&,reco::Vertex&,GlobalVector&);
+    double threeProngFlightPathSig(const PFTauRef&) const ;
+    double vertexSignificance(reco::Vertex const&,reco::Vertex const &,GlobalVector const&) const;
 
     reco::tau::RecoTauVertexAssociator* vertexAssociator_;
 
@@ -63,14 +63,14 @@ void PFRecoTauDiscriminationByFlightPathSignificance::beginEvent(
 
 }
 
-double PFRecoTauDiscriminationByFlightPathSignificance::discriminate(const PFTauRef& tau){
+double PFRecoTauDiscriminationByFlightPathSignificance::discriminate(const PFTauRef& tau) const{
 
   if(booleanOutput) return ( threeProngFlightPathSig(tau) > flightPathSig ? 1. : 0. );
   return threeProngFlightPathSig(tau);
 }
 
 double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
-    const PFTauRef& tau){
+    const PFTauRef& tau) const {
   double flightPathSignificance = 0;
 
   reco::VertexRef primaryVertex = vertexAssociator_->associatedVertex(*tau);
@@ -110,7 +110,7 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
 }
 
 double PFRecoTauDiscriminationByFlightPathSignificance::vertexSignificance(
-    reco::Vertex& pv, Vertex& sv,GlobalVector& direction){
+    reco::Vertex const & pv, Vertex const & sv,GlobalVector const & direction) const {
   return SecondaryVertex::computeDist3d(pv,sv,direction,withPVError).significance();
 }
 

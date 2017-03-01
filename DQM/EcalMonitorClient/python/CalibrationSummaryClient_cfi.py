@@ -8,7 +8,7 @@ from DQM.EcalMonitorClient.PedestalClient_cfi import ecalPedestalClient
 
 from DQM.EcalCommon.CommonParams_cfi import *
 
-activeSources = ['Laser', 'Led', 'TestPulse']
+activeSources = ['Laser', 'Led']
 
 ecalCalibrationSummaryClient = cms.untracked.PSet(
     params = cms.untracked.PSet(

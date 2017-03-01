@@ -43,7 +43,7 @@ void RPCHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
     LogTrace("RPCHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<RPCsimhitsXFTag;
     e.getByLabel(RPCsimhitsXFTag, cf);
     
-    std::auto_ptr<MixCollection<PSimHit> > 
+    std::unique_ptr<MixCollection<PSimHit> > 
       RPCsimhits( new MixCollection<PSimHit>(cf.product()) );
     LogTrace("RPCHitAssociator") <<"... size = "<<RPCsimhits->size();
 
@@ -76,7 +76,7 @@ void RPCHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
 }
 // end of constructor
 
-std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(const TrackingRecHit & hit) {
+std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(const TrackingRecHit & hit) const {
   
   std::vector<SimHitIdpr> matched;
 
@@ -93,7 +93,7 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
     for(int i = fstrip; i < fstrip+cls; ++i) {
       std::set<RPCDigiSimLink> links = findRPCDigiSimLink(rpcDetId.rawId(),i,bx);
       
-      if (links.empty()) edm::LogWarning("RPCHitAssociator")
+      if (links.empty()) edm::LogInfo("RPCHitAssociator")
 	<<"*** WARNING in RPCHitAssociator::associateRecHit, RPCRecHit "<<*rpcrechit<<", strip "<<i<<" has no associated RPCDigiSimLink !"<<endl;
       
       for(std::set<RPCDigiSimLink>::iterator itlink = links.begin(); itlink != links.end(); ++itlink) {
@@ -108,7 +108,7 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
   return  matched;
 }
   
-std::set<RPCDigiSimLink>  RPCHitAssociator::findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx){
+std::set<RPCDigiSimLink>  RPCHitAssociator::findRPCDigiSimLink(uint32_t rpcDetId, int strip, int bx) const {
 
   std::set<RPCDigiSimLink> links;
 

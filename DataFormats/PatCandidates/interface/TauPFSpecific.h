@@ -63,7 +63,8 @@ struct TauPFSpecific {
   float phiphiMoment_;
   float etaphiMoment_;
   
-  
+  float bendCorrMass_;
+  float signalConeSize_;
 };
 
 } }

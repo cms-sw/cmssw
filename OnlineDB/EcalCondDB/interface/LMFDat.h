@@ -43,8 +43,8 @@ class LMFDat : public LMFUnique {
     return getLMFRunIOV().getSubRunStart();
   }
 
-  void getPrevious(LMFDat *dat) throw(std::runtime_error);
-  void getNext(LMFDat *dat) throw(std::runtime_error);
+  void getPrevious(LMFDat *dat) noexcept(false);
+  void getNext(LMFDat *dat) noexcept(false);
 
   virtual std::string getTableName() const {
     return m_tableName;
@@ -124,27 +124,26 @@ class LMFDat : public LMFUnique {
   void dump() const ;
   void dump(int n) const ;
   virtual void dump(int n, int max) const ;
-  std::map<int, std::vector<float> > fetchData() throw(std::runtime_error);
-  void fetch() throw(std::runtime_error);
-  void fetch(int logic_id) throw(std::runtime_error);
-  void fetch(int logic_id, const Tm &tm) throw(std::runtime_error);
-  void fetch(int logic_id, const Tm *timestamp, int dir) throw(std::runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm) throw(std::runtime_error);
-  void fetch(const EcalLogicID &id, const Tm &tm, int dir) throw(std::runtime_error);
-  void fetch(const EcalLogicID &id) 
-    throw(std::runtime_error);
+  std::map<int, std::vector<float> > fetchData() noexcept(false);
+  void fetch() noexcept(false);
+  void fetch(int logic_id) noexcept(false);
+  void fetch(int logic_id, const Tm &tm) noexcept(false);
+  void fetch(int logic_id, const Tm *timestamp, int dir) noexcept(false);
+  void fetch(const EcalLogicID &id, const Tm &tm) noexcept(false);
+  void fetch(const EcalLogicID &id, const Tm &tm, int dir) noexcept(false);
+  void fetch(const EcalLogicID &id) noexcept(false);
 
   virtual bool isValid();
   void setWhereClause(std::string w);
   void setWhereClause(std::string w, const std::vector<std::string>& p);
  protected:
-  void getNeighbour(LMFDat *dat, int which) throw(std::runtime_error);
-  int writeDB() throw(std::runtime_error);
+  void getNeighbour(LMFDat *dat, int which) noexcept(false);
+  int writeDB() noexcept(false);
   bool check();
   void adjustParameters(int n, std::string &sql, Statement *stmt);
   std::string buildInsertSql();
   std::string buildSelectSql(int logic_id = 0, int direction = 0);
-  void getKeyTypes() throw(std::runtime_error);
+  void getKeyTypes() noexcept(false);
 
   int m_max;
   std::vector<std::string> m_type;

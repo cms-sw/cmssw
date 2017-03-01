@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-trackAssociatorByHitsForPhotonValidation = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
-trackAssociatorByHitsForPhotonValidation.ComponentName = cms.string('trackAssociatorByHitsForPhotonValidation')
+import SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi as tabh
+trackAssociatorByHitsForPhotonValidation = tabh.trackAssociatorByHits.clone()
 trackAssociatorByHitsForPhotonValidation.Cut_RecoToSim = 0.5
 trackAssociatorByHitsForPhotonValidation.Quality_SimToReco = 0.5
 trackAssociatorByHitsForPhotonValidation.Purity_SimToReco = 0.5
@@ -140,4 +139,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
  
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+    photonValidation.fastSim = True
 

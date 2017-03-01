@@ -21,6 +21,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaFilterEMJet : public edm::EDFilter {
    public:
@@ -31,7 +34,7 @@ class PythiaFilterEMJet : public edm::EDFilter {
 
    private:
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        double etaMin;
        double eTSumMin;
        double pTMin;

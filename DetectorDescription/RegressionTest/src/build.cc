@@ -1,26 +1,33 @@
-using namespace std;
 
 #include <cmath>
 #include <iostream>
-#include <fstream>
+#include <string>
 #include <vector>
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/FIPConfiguration.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Math/GenVector/AxisAngle.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
+#include "Math/GenVector/RotationZ.h"
 
-#include <Math/RotationZ.h>
-#include <Math/AxisAngle.h>
+using namespace std;
 
 /*
 File setup.xml:
@@ -34,7 +41,7 @@ File elements.xml:
   Material(elem) Oxygen  
 */
 void regressionTest_setup() {
-   ClhepEvaluator & eval = ExprEval::instance();
+   ClhepEvaluator & eval = ExprEvalSingleton::instance();
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -111,11 +118,11 @@ void regressionTest_first( ) {
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
-  DDLParser myP(cpv);// = DDLParser::instance();
+  DDLParser myP(cpv);
   
   cout << "main::about to set configuration" << endl;
   
-  ClhepEvaluator & eval = ExprEval::instance();
+  ClhepEvaluator & eval = ExprEvalSingleton::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -184,10 +191,9 @@ void output(string filename)
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
-  DDLParser myP(cpv);// = DDLParser::instance();
+  DDLParser myP(cpv);
 
   cout << "main::about to set configuration" << endl;
-  //    myP->SetConfig("configuration.xml");
   FIPConfiguration cf(cpv);
   cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
@@ -225,10 +231,10 @@ void testParser()
     cout << "main:: initialize" << endl;
     DDCompactView cpv;
     cout << "main::initialize DDL parser" << endl;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser myP(cpv);
 
     cout << "main::about to set configuration" << endl;
-    //    myP->SetConfig("configuration.xml");
+
     FIPConfiguration cf(cpv);
     cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
@@ -250,7 +256,8 @@ void testParser()
 
 void printRot(const DDRotationMatrix & rot) {
   std::cout << "rot asis\n" << rot << std::endl;
-  DD3Vector x,y,z; const_cast<DDRotationMatrix &>(rot).GetComponents(x,y,z);
+  DD3Vector x,y,z;
+  rot.GetComponents(x,y,z);
   std::cout << "components\n" 
 	    << x << "\n"
 	    << y << "\n"

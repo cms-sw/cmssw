@@ -8,7 +8,7 @@ process = cms.Process("EventWithHistoryFilterTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -82,21 +82,22 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
 process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
-process.APVPhases.wantHistos = cms.untracked.bool(True)
+process.load("DPGAnalysis.SiStripTools.l1TSDebugger_cfi")
 
 process.load("DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_AlCaReco_cfi")
 
 process.load("DPGAnalysis.SiStripTools.eventtimedistribution_cfi")
 
-process.p0 = cms.Path(process.scalersRawToDigi + process.consecutiveHEs + process.APVPhases +
+process.p0 = cms.Path(process.scalersRawToDigi + process.consecutiveHEs + process.APVPhases + process.l1TSDebugger +
                       ~process.PotentialTIBTECHugeEvents +
                       process.eventtimedistribution
                       )
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 
 process.TFileService = cms.Service('TFileService',

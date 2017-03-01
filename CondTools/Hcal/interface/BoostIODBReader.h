@@ -1,12 +1,12 @@
-#ifndef RecoLocalCalo_HcalRecAlgos_BoostIODBReader_h
-#define RecoLocalCalo_HcalRecAlgos_BoostIODBReader_h
+#ifndef CondTools_Hcal_BoostIODBReader_h
+#define CondTools_Hcal_BoostIODBReader_h
 
 // -*- C++ -*-
 //
-// Package:    RecoLocalCalo/HcalRecAlgos
+// Package:    CondTools/Hcal
 // Class:      BoostIODBReader
 // 
-/**\class BoostIODBReader BoostIODBReader.h RecoLocalCalo/HcalRecAlgos/interface/BoostIODBReader.h
+/**\class BoostIODBReader BoostIODBReader.h CondTools/Hcal/interface/BoostIODBReader.h
 
  Description: reads an object from a database and puts it into a file using boost I/O
 
@@ -77,4 +77,4 @@ void BoostIODBReader<DataType,RecordType>::analyze(const edm::Event& iEvent,
     ar & *p;
 }
 
-#endif // RecoLocalCalo_HcalRecAlgos_BoostIODBReader_h
+#endif // CondTools_Hcal_BoostIODBReader_h

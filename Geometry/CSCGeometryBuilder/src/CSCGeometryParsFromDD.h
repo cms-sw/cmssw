@@ -10,7 +10,6 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <string>
-#include <boost/shared_ptr.hpp>
 
 class CSCGeometry;
 class DDCompactView;

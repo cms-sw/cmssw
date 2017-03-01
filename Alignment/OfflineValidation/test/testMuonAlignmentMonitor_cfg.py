@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MuonAlignmentMonitor")
 
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+process.load("Configuration.Geometry.GeometryPilot2_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 

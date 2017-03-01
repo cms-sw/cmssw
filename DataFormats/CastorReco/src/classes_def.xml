@@ -13,7 +13,9 @@
   <class name="edm::auto_ptr<edm::Ref<std::vector<reco::CastorCell>,reco::CastorCell,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorCell>,reco::CastorCell> > >"/>-->
 
 
-  <class name="reco::CastorTower" ClassVersion="10">
+  <class name="reco::CastorTower" ClassVersion="12">
+   <version ClassVersion="12" checksum="887582159"/>
+   <version ClassVersion="11" checksum="2444453847"/>
    <version ClassVersion="10" checksum="3103051284"/>
   </class>
   <class name="std::vector<reco::CastorTower>"/>
@@ -34,7 +36,8 @@
   <class name="edm::RefVector<std::vector<reco::CastorCluster>,reco::CastorCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorCluster>,reco::CastorCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CastorCluster>,reco::CastorCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorCluster>,reco::CastorCluster> > >"/>
 
-  <class name="reco::CastorEgamma" ClassVersion="10">
+  <class name="reco::CastorEgamma" ClassVersion="11">
+   <version ClassVersion="11" checksum="1535216887"/>
    <version ClassVersion="10" checksum="3872613361"/>
   </class>
   <class name="std::vector<reco::CastorEgamma>"/>
@@ -44,7 +47,8 @@
   <class name="edm::RefVector<std::vector<reco::CastorEgamma>,reco::CastorEgamma,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorEgamma>,reco::CastorEgamma> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CastorEgamma>,reco::CastorEgamma,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorEgamma>,reco::CastorEgamma> > >"/>
 
- <class name="reco::CastorJet" ClassVersion="10">
+ <class name="reco::CastorJet" ClassVersion="11">
+  <version ClassVersion="11" checksum="4125786936"/>
   <version ClassVersion="10" checksum="1872825180"/>
  </class>
   <class name="std::vector<reco::CastorJet>"/>

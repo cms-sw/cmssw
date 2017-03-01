@@ -5,11 +5,11 @@ void PSimHitMap::fill(const edm::Event & e)
 {
   theMap.clear();
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  LogTrace("MuonCSCDigis") << "getting CrossingFrame<PSimHit> collection ";
+  LogTrace("PSimHitMap") << "getting CrossingFrame<PSimHit> collection ";
   e.getByToken(sh_token, cf);
 
   MixCollection<PSimHit> simHits(cf.product());
-  LogTrace("MuonCSCDigis") <<"... size = "<<simHits.size();
+  LogTrace("PSimHitMap") <<"... size = "<<simHits.size();
 
   // arrange the hits by detUnit                                                                          
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();

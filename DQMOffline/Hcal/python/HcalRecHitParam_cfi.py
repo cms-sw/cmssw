@@ -11,6 +11,6 @@ hcalRecHitsAnalyzer = cms.EDAnalyzer("HcalRecHitsAnalyzer",
     eventype                  = cms.untracked.string('multi'),
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
-    useAllHistos              = cms.untracked.bool(False)                                 
+#    useAllHistos              = cms.untracked.bool(False)                                 
 )
 

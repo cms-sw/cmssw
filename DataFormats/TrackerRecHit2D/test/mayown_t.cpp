@@ -21,7 +21,8 @@ int main() {
   }
 
   VD vd2; std::swap(vd,vd2);  assert(10==vd2.size());
-  for (auto i=0U; i<vd2.size(); ++i) std::cout << *vd2[i] << ' '; std::cout << std::endl;
+  for (auto i=0U; i<vd2.size(); ++i) std::cout << *vd2[i] << ' '; 
+  std::cout << std::endl;
   for (auto i=0U; i<vd2.size(); ++i) if (i%2==0) assert(!vd2[i].isOwn()); else assert(vd2[i].isOwn());
 
   std::cout << "reset" << std::endl;
@@ -30,10 +31,12 @@ int main() {
 
   std::cout << "remove" << std::endl;
   auto last = std::remove_if(vd2.begin(),vd2.end(),[](PD const & p) {return p.empty();});
-  for (auto i=vd2.begin(); i!=last; ++i)  std::cout << **i<< ' '; std::cout << std::endl;
+  for (auto i=vd2.begin(); i!=last; ++i)  std::cout << **i<< ' '; 
+  std::cout << std::endl;
   vd2.resize(last-vd2.begin());
   assert(8==vd2.size());
-  for (auto i=0U; i<vd2.size(); ++i) std::cout << *vd2[i] << ' '; std::cout << std::endl;
+  for (auto i=0U; i<vd2.size(); ++i) std::cout << *vd2[i] << ' '; 
+  std::cout << std::endl;
 
 
   return 0;

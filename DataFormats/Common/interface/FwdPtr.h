@@ -104,7 +104,9 @@ namespace edm {
 
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {
-      if (ptr_.productGetter()) return ptr_.productGetter();
+      //another thread might cause productGetter() to change its value
+      EDProductGetter const* getter = ptr_.productGetter();
+      if (getter) return getter;
       else return backPtr_.productGetter();
     }
 

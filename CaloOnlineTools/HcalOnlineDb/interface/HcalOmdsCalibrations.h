@@ -41,20 +41,20 @@ protected:
 			      const edm::IOVSyncValue& , 
 			      edm::ValidityInterval&) ;
 
-  std::auto_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
-  std::auto_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
-  std::auto_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
-  std::auto_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
-  std::auto_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
-  std::auto_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
-  std::auto_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
+  std::unique_ptr<HcalPedestals> producePedestals (const HcalPedestalsRcd& rcd);
+  std::unique_ptr<HcalPedestalWidths> producePedestalWidths (const HcalPedestalWidthsRcd& rcd);
+  std::unique_ptr<HcalGains> produceGains (const HcalGainsRcd& rcd);
+  std::unique_ptr<HcalGainWidths> produceGainWidths (const HcalGainWidthsRcd& rcd);
+  std::unique_ptr<HcalQIEData> produceQIEData (const HcalQIEDataRcd& rcd);
+  std::unique_ptr<HcalChannelQuality> produceChannelQuality (const HcalChannelQualityRcd& rcd);
+  std::unique_ptr<HcalElectronicsMap> produceElectronicsMap (const HcalElectronicsMapRcd& rcd);
 
-  std::auto_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
-  std::auto_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
-  std::auto_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
-  std::auto_ptr<HcalValidationCorrs> produceValidationCorrs (const HcalValidationCorrsRcd& rcd);
-  std::auto_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
-  std::auto_ptr<HcalDcsValues> produceDcsValues (const HcalDcsRcd& rcd);
+  std::unique_ptr<HcalRespCorrs> produceRespCorrs (const HcalRespCorrsRcd& rcd);
+  std::unique_ptr<HcalZSThresholds> produceZSThresholds (const HcalZSThresholdsRcd& rcd);
+  std::unique_ptr<HcalL1TriggerObjects> produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd);
+  std::unique_ptr<HcalValidationCorrs> produceValidationCorrs (const HcalValidationCorrsRcd& rcd);
+  std::unique_ptr<HcalLutMetadata> produceLutMetadata (const HcalLutMetadataRcd& rcd);
+  std::unique_ptr<HcalDcsValues> produceDcsValues (const HcalDcsRcd& rcd);
 
  private:
   std::map <std::string, std::string> mInputs;

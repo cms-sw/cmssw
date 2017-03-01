@@ -22,16 +22,22 @@ namespace ecaldqm
     void fill(int, double = 1., double = 1., double = 0.) override;
     void fill(double, double = 1., double = 0.) override;
 
+    using MESetEcal::setBinContent;
     void setBinContent(DetId const&, double) override;
 
+    using MESetEcal::setBinError;
     void setBinError(DetId const&, double) override;
 
+    using MESetEcal::setBinEntries;
     void setBinEntries(DetId const&, double) override;
 
+    using MESetEcal::getBinContent;
     double getBinContent(DetId const&, int = 0) const override;
 
+    using MESetEcal::getBinError;
     double getBinError(DetId const&, int = 0) const override;
 
+    using MESetEcal::getBinEntries;
     double getBinEntries(DetId const&, int = 0) const override;
   };
 }

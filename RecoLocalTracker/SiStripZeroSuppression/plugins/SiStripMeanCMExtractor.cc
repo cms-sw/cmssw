@@ -50,7 +50,7 @@
 
 typedef std::map<uint32_t, std::vector<float> > CMMap;
 
-class SiStripMeanCMExtractor : public edm::EDProducer {
+class SiStripMeanCMExtractor : public edm::one::EDProducer<> {
    public:
       explicit SiStripMeanCMExtractor( const edm::ParameterSet&);
       ~SiStripMeanCMExtractor();
@@ -136,8 +136,7 @@ SiStripMeanCMExtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
 	
 	
-	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputMeanCM(new edm::DetSetVector<SiStripProcessedRawDigi>(meancm) );
-    iEvent.put( outputMeanCM,"MEANAPVCM");
+    iEvent.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(meancm),"MEANAPVCM");
    
 }
 

@@ -96,8 +96,8 @@ void GhostTrackPrediction::init(
 	jacobian(2, 5) = 1.;
 
 	Matrix6S origCov;
-	origCov.Place_at(priorError.matrix_new(), 0, 0);
-	origCov.Place_at(directionError.matrix_new() / perp2, 3, 3);
+	origCov.Place_at(priorError.matrix(), 0, 0);
+	origCov.Place_at(directionError.matrix() / perp2, 3, 3);
 
 	covariance_ =  ROOT::Math::Similarity(jacobian, origCov);
 }

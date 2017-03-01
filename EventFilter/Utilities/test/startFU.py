@@ -65,7 +65,7 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
 
 try:
   os.makedirs(options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
-except Exception, ex:
+except Exception as ex:
   print str(ex)
   pass
 
@@ -87,6 +87,9 @@ process.source = cms.Source("FedRawDataInputSource",
     runNumber = cms.untracked.uint32(options.runNumber),
     getLSFromFilename = cms.untracked.bool(True),
     testModeNoBuilderUnit = cms.untracked.bool(False),
+    verifyAdler32 = cms.untracked.bool(True),
+    verifyChecksum = cms.untracked.bool(True),
+    useL1EventID = cms.untracked.bool(True),
     eventChunkSize = cms.untracked.uint32(16),
     numBuffers = cms.untracked.uint32(2),
     eventChunkBlock = cms.untracked.uint32(1)

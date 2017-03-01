@@ -10,7 +10,7 @@ class StringResolutionProviderESProducer : public edm::ESProducer
                 StringResolutionProviderESProducer() { }
                 StringResolutionProviderESProducer(const edm::ParameterSet &iConfig) ;
 
-                std::auto_ptr<KinematicResolutionProvider>  produce(const KinematicResolutionRcd &rcd) ;
+                std::unique_ptr<KinematicResolutionProvider>  produce(const KinematicResolutionRcd &rcd) ;
 
         private:
                 edm::ParameterSet cfg_;
@@ -22,9 +22,9 @@ StringResolutionProviderESProducer::StringResolutionProviderESProducer(const edm
    setWhatProduced(this,myName);
 }
 
-std::auto_ptr<KinematicResolutionProvider> 
+std::unique_ptr<KinematicResolutionProvider> 
 StringResolutionProviderESProducer::produce(const KinematicResolutionRcd &rcd) {
-        return std::auto_ptr<KinematicResolutionProvider>(new StringResolutionProvider(cfg_));
+        return std::make_unique<StringResolutionProvider>(cfg_);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

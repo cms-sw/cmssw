@@ -15,16 +15,12 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::ParameterSet& config) : conf_(config) {
-  
-  // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  
-  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEB"));
-  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEE"));
-
-  EtaOrIeta_ = conf_.getParameter< bool > ("isIeta");
-
+EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::ParameterSet& config) : 
+  recoEcalCandidateProducer_(consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  ecalRechitEBToken_(consumes<EcalRecHitCollection>(config.getParameter< edm::InputTag > ("ecalRechitEB"))),
+  ecalRechitEEToken_(consumes<EcalRecHitCollection>(config.getParameter< edm::InputTag > ("ecalRechitEE"))),
+  EtaOrIeta_(config.getParameter< bool > ("isIeta")) {
+   
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
   produces < reco::RecoEcalCandidateIsolationMap >("sigmaIEtaIEta5x5");
@@ -43,7 +39,7 @@ void EgammaHLTClusterShapeProducer::fillDescriptions(edm::ConfigurationDescripti
   descriptions.add(("hltEgammaHLTClusterShapeProducer"), desc);  
 }
 
-void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void EgammaHLTClusterShapeProducer::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   
   // Get the HLT filtered objects
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
@@ -52,8 +48,8 @@ void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::Event
   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
   noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
 
-  reco::RecoEcalCandidateIsolationMap clshMap;
-  reco::RecoEcalCandidateIsolationMap clsh5x5Map;
+  reco::RecoEcalCandidateIsolationMap clshMap(recoecalcandHandle);
+  reco::RecoEcalCandidateIsolationMap clsh5x5Map(recoecalcandHandle);
   
  
   for(unsigned int iRecoEcalCand = 0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
@@ -79,10 +75,6 @@ void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::Event
   
   }
 
-  
-
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> clushMap(new reco::RecoEcalCandidateIsolationMap(clshMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> clush5x5Map(new reco::RecoEcalCandidateIsolationMap(clsh5x5Map));
-  iEvent.put(clushMap);
-  iEvent.put(clush5x5Map,"sigmaIEtaIEta5x5");
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clshMap));
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(clsh5x5Map),"sigmaIEtaIEta5x5");
 }

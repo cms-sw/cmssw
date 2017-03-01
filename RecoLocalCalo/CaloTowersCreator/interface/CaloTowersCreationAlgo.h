@@ -27,6 +27,7 @@
 
 
 #include <map>
+class CaloTowerTopology;
 class HcalTopology;
 class CaloGeometry;
 class CaloSubdetectorGeometry;
@@ -71,7 +72,8 @@ public:
     double momHBDepth,
     double momHEDepth,
     double momEBDepth,
-    double momEEDepth
+    double momEEDepth,
+	int hcalPhase=0
     );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -101,10 +103,11 @@ public:
     double momHBDepth,
     double momHEDepth,
     double momEBDepth,
-    double momEEDepth
+    double momEEDepth,
+	int hcalPhase=0
 );
   
-  void setGeometry(const CaloTowerConstituentsMap* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
+  void setGeometry(const CaloTowerTopology* cttopo, const CaloTowerConstituentsMap* ctmap, const HcalTopology* htopo, const CaloGeometry* geo);
 
   // pass the containers of channels status from the event record (stored in DB)
   // these are called in  CaloTowersCreator
@@ -270,6 +273,7 @@ private:
   double theHOEScale;
   double theHF1EScale;
   double theHF2EScale;
+  const CaloTowerTopology* theTowerTopology;
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
   const CaloTowerConstituentsMap* theTowerConstituentsMap;
@@ -334,7 +338,8 @@ private:
   HcalDropChMap hcalDropChMap;
 
   // Number of bad Ecal channel in each tower
-  unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
+  //unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
+  std::vector<unsigned short> ecalBadChs;
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
@@ -346,9 +351,16 @@ private:
    
   edm::Handle<EcalRecHitCollection> theEbHandle;
   edm::Handle<EcalRecHitCollection> theEeHandle;
+  
+  int theHcalPhase;
 
+  //store merged depths for tower 28/29 (for 2 types of RBX's)
+  std::vector<int> mergedDepths, mergedDepthsOne;
+  //Subdetector type and phi/depth for special RBX 
+  int              subdetOne;
+  std::vector<std::pair<int,int>> phizOne;
 
-
+  std::vector<HcalDetId>          ids_;
 };
 
 #endif

@@ -2,8 +2,8 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMaker.h"
-#include "RecoTracker/CkfPattern/interface/CkfTrajectoryMaker.h"
+#include "CkfTrackCandidateMaker.h"
+#include "CkfTrajectoryMaker.h"
 
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -17,7 +17,7 @@ DEFINE_FWK_MODULE(CkfTrajectoryMaker);
 
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
-#include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilder.h"
+#include "GroupedCkfTrajectoryBuilder.h"
 
 DEFINE_EDM_PLUGIN(BaseCkfTrajectoryBuilderFactory, CkfTrajectoryBuilder, "CkfTrajectoryBuilder");
 DEFINE_EDM_PLUGIN(BaseCkfTrajectoryBuilderFactory, GroupedCkfTrajectoryBuilder, "GroupedCkfTrajectoryBuilder");

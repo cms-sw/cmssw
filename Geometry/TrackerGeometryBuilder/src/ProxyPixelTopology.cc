@@ -167,7 +167,7 @@ float ProxyPixelTopology::localY(const float mpY,
 ////////////////////////////////////////////////////////////////////////////////
 void ProxyPixelTopology::setSurfaceDeformation(const SurfaceDeformation * deformation)
 { 
-  theSurfaceDeformation = deformation;
+  theSurfaceDeformation.reset(deformation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

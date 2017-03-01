@@ -6,55 +6,103 @@ from TkAlExceptions import AllInOneError
 
 
 class TrackSplittingValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config):
-        mandatories = ["trackcollection", "maxevents", "dataset"]
+    def __init__(self, valName, alignment, config,
+                 configBaseName = "TkAlTrackSplitting", scriptBaseName = "TkAlTrackSplitting", crabCfgBaseName = "TkAlTrackSplitting",
+                 resultBaseName = "TrackSplitting", outputBaseName = "TrackSplitting"):
+        mandatories = ["trackcollection"]
+        defaults = {}
+        self.configBaseName = configBaseName
+        self.scriptBaseName = scriptBaseName
+        self.crabCfgBaseName = crabCfgBaseName
+        self.resultBaseName = resultBaseName
+        self.outputBaseName = outputBaseName
+        self.needParentFiles = False
         GenericValidationData.__init__(self, valName, alignment, config,
-                                       "split", addMandatories = mandatories)
+                                       "split", addMandatories = mandatories, addDefaults = defaults)
 
     def createConfiguration(self, path ):
-        cfgName = "TkAlTrackSplitting.%s.%s_cfg.py"%(self.name,
-                                                     self.alignmentToValidate.name)
+        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
+                                     self.alignmentToValidate.name)
         repMap = self.getRepMap()
-        cfgs = {cfgName:replaceByMap(configTemplates.TrackSplittingTemplate,
-                                     repMap)}
+        cfgs = {cfgName: configTemplates.TrackSplittingTemplate}
         self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["resultFile"]
-        GenericValidationData.createConfiguration(self, cfgs, path)
+            repMap["finalResultFile"]
+        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
 
     def createScript(self, path):
-        scriptName = "TkAlTrackSplitting.%s.%s.sh"%(self.name,
-                                                    self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"]+= (repMap["CommandLineTemplate"]
-                                     %{"cfgFile":cfg, "postProcess":""})
+        return GenericValidationData.createScript(self, path)
 
-        scripts = {scriptName: replaceByMap(configTemplates.scriptTemplate,
-                                            repMap)}
-        return GenericValidationData.createScript(self, scripts, path)
-
-    def createCrabCfg(self, path, crabCfgBaseName = "TkAlTrackSplitting"):
-        return GenericValidationData.createCrabCfg(self, path, crabCfgBaseName)
+    def createCrabCfg(self, path):
+        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
         repMap = GenericValidationData.getRepMap(self)
+        if repMap["subdetector"] == "none":
+            subdetselection = ""
+        else:
+            subdetselection = "process.AlignmentTrackSelector.minHitsPerSubDet.in.oO[subdetector]Oo. = 2"
         repMap.update({ 
-            "resultFile": replaceByMap( ("/store/caf/user/$USER/.oO[eosdir]Oo."
-                                         "/TrackSplitting_"
-                                         + self.name +
-                                         "_.oO[name]Oo..root"),
-                                        repMap ),
-            "outputFile": replaceByMap( ("TrackSplitting_"
-                                         + self.name +
-                                         "_.oO[name]Oo..root"),
-                                        repMap ),
             "nEvents": self.general["maxevents"],
-            "TrackCollection": self.general["trackcollection"]
-            })
-        repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
-        repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
+            "TrackCollection": self.general["trackcollection"],
+            "subdetselection": subdetselection,
+        })
         # repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         # if self.jobmode.split( ',' )[0] == "crab":
         #     repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
         return repMap
+
+
+    def appendToExtendedValidation( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is
+        returned, else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+        comparestring = self.getCompareStrings("TrackSplittingValidation")
+        if validationsSoFar != "":
+            validationsSoFar += ',"\n              "'
+        validationsSoFar += comparestring
+        return validationsSoFar
+
+    def appendToMerge( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is returned,
+        else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+
+        parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
+
+        mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
+        validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
+        return validationsSoFar
+
+    def validsubdets(self):
+        filename = os.path.join(self.cmssw, "src/Alignment/CommonAlignmentProducer/python/AlignmentTrackSelector_cfi.py")
+        if not os.path.isfile(filename):
+            filename = os.path.join(self.cmsswreleasebase, "src/Alignment/CommonAlignmentProducer/python/AlignmentTrackSelector_cfi.py")
+        with open(filename) as f:
+            trackselector = f.read()
+
+        minhitspersubdet = trackselector.split("minHitsPerSubDet")[1].split("(",1)[1]
+
+        parenthesesdepth = 0
+        i = 0
+        for character in minhitspersubdet:
+            if character == "(":
+                parenthesesdepth += 1
+            if character == ")":
+                parenthesesdepth -= 1
+            if parenthesesdepth < 0:
+                break
+            i += 1
+        minhitspersubdet = minhitspersubdet[0:i]
+
+        results = minhitspersubdet.split(",")
+        empty = []
+        for i in range(len(results)):
+            results[i] = results[i].split("=")[0].strip().replace("in", "", 1)
+
+        results.append("none")
+
+        return [a for a in results if a]

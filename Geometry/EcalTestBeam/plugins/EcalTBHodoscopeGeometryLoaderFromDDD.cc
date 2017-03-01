@@ -1,7 +1,7 @@
 #include "Geometry/EcalTestBeam/plugins/EcalTBHodoscopeGeometryLoaderFromDDD.h"
 
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-//#include "DetectorDescription/Core/interface/DDInit.h"
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
@@ -37,7 +36,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
    const DDCompactView*     cpv ,
    CaloSubdetectorGeometry* ebg  )
 {
-   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( CaloTowerDetId::kSizeForDenseIndexing ) ;
+   if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
    if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
   
    DDFilter* filter = getDDFilter();
@@ -137,16 +136,16 @@ DDFilter* EcalTBHodoscopeGeometryLoaderFromDDD::getDDFilter()
    filter->setCriteria( DDValue( "SensitiveDetector",
 				 "EcalTBH4BeamDetector",
 				 0 ),
-			DDSpecificsFilter::equals,
-			DDSpecificsFilter::AND,
+			DDCompOp::equals,
+			DDLogOp::AND,
 			true,
 			true ) ;
 
    filter->setCriteria( DDValue( "ReadOutName",
 				 "EcalTBH4BeamHits",
 				 0 ),
-			DDSpecificsFilter::equals,
-			DDSpecificsFilter::AND,
+			DDCompOp::equals,
+			DDLogOp::AND,
 			true,
 			true ) ;
    return filter;

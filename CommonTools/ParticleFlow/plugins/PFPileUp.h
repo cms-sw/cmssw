@@ -50,6 +50,8 @@ class PFPileUp : public edm::stream::EDProducer<> {
 
   /// PFCandidates to be analyzed
   edm::EDGetTokenT<PFCollection>   tokenPFCandidates_;
+  /// fall-back token
+  edm::EDGetTokenT<PFView>   tokenPFCandidatesView_;
 
   /// vertices
   edm::EDGetTokenT<reco::VertexCollection>   tokenVertices_;

@@ -22,7 +22,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include <memory>
 #include <string>
+
+namespace coral {
+  class ISessionProxy;
+}
 
 namespace cond {
   namespace persistency {
@@ -70,11 +75,12 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   std::string dataTag;
   std::string onlineConnect;
   std::string onlineAuthentication;
+  int onlineAuthSys;
   std::string brickContainer;
   DTCCBConfig* ccbConfig;
   
   cond::persistency::ConnectionPool connection;
-  cond::persistency::Session isession;
+  std::shared_ptr<coral::ISessionProxy> isession;
   void chkConfigList();
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
                               const std::vector<DTConfigKey>& cfgr );

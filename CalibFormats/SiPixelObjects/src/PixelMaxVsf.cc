@@ -159,7 +159,7 @@ void PixelMaxVsf::writeASCII(std::string dir) const {
 
 
   std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
-  for(; irocs != rocs_.end() ; irocs++){
+  for(; irocs != rocs_.end() ; ++irocs){
     out << (irocs->first).rocname() << " " << irocs->second << endl ;
   }
   
@@ -220,7 +220,7 @@ void PixelMaxVsf::writeXML( std::ofstream *outstream,
   std::string mthn = "[PixelMaxVsf::writeXML()]\t\t\t    " ;
 
   std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
-  for(; irocs != rocs_.end() ; irocs++){
+  for(; irocs != rocs_.end() ; ++irocs){
     *outstream << "  <DATA>"                                                   << std::endl ;
     *outstream << "   <ROC_NAME>" << (irocs->first).rocname() << "</ROC_NAME>" << std::endl ;
     *outstream << "   <MAXVSF>"   << irocs->second            << "</MAXVSF>"   << std::endl ;

@@ -28,7 +28,7 @@ parser.add_option("--disks",
                   dest="disks")
 
 if len(sys.argv) < 4:
-    raise SystemError, "Too few arguments.\n\n"+parser.format_help()
+    raise SystemError("Too few arguments.\n\n"+parser.format_help())
 
 if sys.argv[2][-5:] == ".phiy": mode = "phiy"
 elif sys.argv[2][-7:] == ".phipos": mode = "phipos"

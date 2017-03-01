@@ -16,9 +16,9 @@
  */
 
 // system include files
-#include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <iomanip>
@@ -58,7 +58,7 @@ public:
     ~L1GtTriggerMenuConfigOnlineProd();
 
     /// public methods
-    virtual boost::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey);
+    virtual std::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey);
 
     /// initialize the class (mainly reserve/resize)
     void init(const int numberConditionChips);
@@ -98,8 +98,9 @@ private:
         short countIndex;
         short countThreshold;
 
-        // FIXME - Oracle / Coral pretends that chargeCorrelation is bool in OMDS
-        //         can not be - it has three values...
+        // Oracle / Coral pretends that chargeCorrelation is bool in OMDS
+        //   can not be - it has three values...
+        //   but it reads/writes correctly the numerical value from OMDS (1, 2...)
         bool chargeCorrelation;
         std::string objectParameter1FK;
         std::string objectParameter2FK;

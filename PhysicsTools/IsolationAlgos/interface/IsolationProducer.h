@@ -70,14 +70,14 @@ void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Even
   Setup::init( alg_, es );
 
   typename OutputCollection::refprod_type ref( src );
-  auto_ptr<OutputCollection> isolations( new OutputCollection( ref )  );
+  auto isolations = std::make_unique<OutputCollection>( ref );
 
   size_t i = 0;
   for( typename C1::const_iterator lep = src->begin(); lep != src->end(); ++ lep ) {
     typename Alg::value_type iso= alg_(*lep,*elements);
     isolations->setValue( i++, iso );
   }
-  evt.put( isolations );
+  evt.put(std::move(isolations) );
 }
 
 #endif

@@ -36,12 +36,12 @@
 #include <memory>
 #include <algorithm>
 
-
 using namespace pat;
 
 
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
-  useUserData_(iConfig.exists("userData"))
+  useUserData_(iConfig.exists("userData")),
+  printWarning_(true)
 {
   // initialize configurables
   jetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
@@ -64,7 +64,9 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   addPartonJetMatch_ = iConfig.getParameter<bool>( "addPartonJetMatch" );
 //   partonJetToken_ = mayConsume<reco::SomePartonJetType>(iConfig.getParameter<edm::InputTag>( "partonJetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
-  jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return mayConsume<edm::ValueMap<JetCorrFactors> >(tag);});
+  if( addJetCorrFactors_ ) {
+    jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<JetCorrFactors> >(tag);});
+  }
   addBTagInfo_ = iConfig.getParameter<bool>( "addBTagInfo" );
   addDiscriminators_ = iConfig.getParameter<bool>( "addDiscriminators" );
   discriminatorTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "discriminatorSources" );
@@ -96,6 +98,9 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
         std::string::size_type pos = label.find("JetTags");
         if ((pos !=  std::string::npos) && (pos != label.length() - 7)) {
             label.erase(pos+7); // trim a tail after "JetTags"
+        }
+        if(it->instance().size()) {
+            label = (label+std::string(":")+it->instance()); 
         }
         discriminatorLabels_.push_back(label);
     }
@@ -205,12 +210,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if ( addJetID_ ) iEvent.getByToken( jetIDMapToken_, hJetIDMap );
 
   // loop over jets
-  std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
+  auto patJets = std::make_unique<std::vector<Jet>>();
 
-  std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-  std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
-  std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
-  std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );
+  auto genJetsOut = std::make_unique<reco::GenJetCollection>();
+  auto caloTowersOut = std::make_unique<std::vector<CaloTower>>();
+  auto pfCandidatesOut = std::make_unique<reco::PFCandidateCollection>();
+  auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
 
   edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
@@ -218,7 +223,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
   edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
-  bool first=true; // this is introduced to issue warnings only for the first jet
   for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
@@ -290,10 +294,10 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
       else{
 	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"));
-	if(first){
-	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the correction applied jetCorrFactors \n"
-						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << " jets will remain"
-						  << " uncorrected."; first=false;
+	if(printWarning_){
+	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the jetCorrFactors\n"
+						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << ". Jets will remain"
+						  << " uncorrected."; printWarning_=false;
 	}
       }
     }
@@ -406,12 +410,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
-  iEvent.put(patJets);
+  iEvent.put(std::move(patJets));
 
-  iEvent.put( genJetsOut, "genJets" );
-  iEvent.put( caloTowersOut, "caloTowers" );
-  iEvent.put( pfCandidatesOut, "pfCandidates" );
-  iEvent.put( tagInfosOut, "tagInfos" );
+  iEvent.put(std::move(genJetsOut), "genJets" );
+  iEvent.put(std::move(caloTowersOut), "caloTowers" );
+  iEvent.put(std::move(pfCandidatesOut), "pfCandidates" );
+  iEvent.put(std::move(tagInfosOut), "tagInfos" );
 
 
 }
@@ -450,7 +454,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // track association
   iDesc.add<bool>("addAssociatedTracks", true);
-  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ic5JetTracksAssociatorAtVertex"));
+  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ak4JTA"));
 
   // tag info
   iDesc.add<bool>("addTagInfos", true);

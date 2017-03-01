@@ -1,14 +1,14 @@
 #ifndef KFBasedPixelFitter_H
 #define KFBasedPixelFitter_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class EventSetup;}
 namespace reco { class Track; class BeamSpot; }
 
 class TransientTrackingRecHitBuilder;
@@ -16,28 +16,30 @@ class TrackerGeometry;
 class MagneticField;
 class TrackingRegion;
 class TrackingRecHit;
+class Propagator;
 
 
-class KFBasedPixelFitter : public PixelFitter {
+class KFBasedPixelFitter : public PixelFitterBase {
 public:
-  KFBasedPixelFitter(  const edm::ParameterSet& cfg);
+  KFBasedPixelFitter(const edm::EventSetup *es, const Propagator *propagator, const Propagator *opropagator,
+                     const TransientTrackingRecHitBuilder *ttrhBuilder,
+                     const TrackerGeometry *tracker, const MagneticField *field,
+                     const reco::BeamSpot *beamSpot);
   virtual ~KFBasedPixelFitter() {}
-    virtual reco::Track* run(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const std::vector<const TrackingRecHit *>& hits,
-      const TrackingRegion& region) const;
+
+  std::unique_ptr<reco::Track> run(const std::vector<const TrackingRecHit *>& hits, const TrackingRegion& region) const override;
+
 private:
 
   //this two simple classes are copied from Alignment/ReferenceTrajectories in order to avoid dependencies 
-  class MyBeamSpotGeomDet GCC11_FINAL : public GeomDet {
+  class MyBeamSpotGeomDet final : public GeomDet {
     public:
     explicit MyBeamSpotGeomDet(const ReferenceCountingPointer<BoundPlane>& plane) :GeomDet(plane) { setDetId(0); }
     virtual ~MyBeamSpotGeomDet() { }
     virtual GeomDetEnumerators::SubDetector subDetector() const { return GeomDetEnumerators::invalidDet; }
     virtual std::vector< const GeomDet*> components() const { return std::vector< const GeomDet*>(); }
   };
-  class MyBeamSpotHit GCC11_FINAL :  public TValidTrackingRecHit {
+  class MyBeamSpotHit final :  public TValidTrackingRecHit {
     public:
     MyBeamSpotHit (const reco::BeamSpot &beamSpot, const GeomDet * geom);
     virtual ~MyBeamSpotHit(){}
@@ -55,14 +57,13 @@ private:
     LocalError localError_;
     virtual MyBeamSpotHit * clone() const { return new MyBeamSpotHit(*this); }
   };
-  
 
-  std::string thePropagatorLabel;
-  std::string thePropagatorOppositeLabel;
-  bool theUseBeamSpot; 
-  edm::InputTag theBeamSpot;
-  std::string theTTRHBuilderName;
-  
-
+  const edm::EventSetup *theES;
+  const Propagator *thePropagator;
+  const Propagator *theOPropagator;
+  const TransientTrackingRecHitBuilder *theTTRHBuilder;
+  const TrackerGeometry *theTracker;
+  const MagneticField *theField;
+  const reco::BeamSpot *theBeamSpot;
 };
 #endif

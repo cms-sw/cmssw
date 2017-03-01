@@ -4,7 +4,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -121,11 +120,6 @@ void L2MuonIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("hltL2MuonIsolations", desc);
 }
 
-///beginJob
-void L2MuonIsolationProducer::beginJob(){
-
-}
-
 /// build deposits
 void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "Muon|RecoMuon|L2MuonIsolationProducer";
@@ -139,9 +133,9 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
   // Find deposits and load into event
   LogDebug(metname)<<" Get energy around";
-  std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
-  std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
-  std::auto_ptr<edm::ValueMap<float> > isoFloatMap( new edm::ValueMap<float> ());
+  auto depMap = std::make_unique<reco::IsoDepositMap>();
+  auto isoMap = std::make_unique<edm::ValueMap<bool>>();
+  auto isoFloatMap = std::make_unique<edm::ValueMap<float>>();
 
   unsigned int nMuons = muons->size();
   std::vector<IsoDeposit> deps(nMuons);
@@ -176,19 +170,19 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   reco::IsoDepositMap::Filler depFiller(*depMap);
   depFiller.insert(muons, deps.begin(), deps.end());
   depFiller.fill();
-  event.put(depMap);
+  event.put(std::move(depMap));
 
   if (optOutputDecision){
     edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
     isoFiller.insert(muons, isos.begin(), isos.end());
     isoFiller.fill();//! annoying -- I will forget it at some point
-    event.put(isoMap);
+    event.put(std::move(isoMap));
 
     if (optOutputIsolatorFloat){
       edm::ValueMap<float> ::Filler isoFloatFiller(*isoFloatMap);
       isoFloatFiller.insert(muons, isoFloats.begin(), isoFloats.end());
       isoFloatFiller.fill();//! annoying -- I will forget it at some point
-      event.put(isoFloatMap);
+      event.put(std::move(isoFloatMap));
     }
   }
 

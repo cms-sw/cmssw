@@ -6,13 +6,14 @@
  */
 
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), count(0)
+  printProvenanceInfo(false), trackerHitAssociatorConfig_(iPSet, consumesCollector()), count(0)
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_GlobalRecHitsProducer";
 
@@ -65,7 +66,6 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
   EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProduc\
 er") + std::string("EcalHitsEE")));
-  conf_ = iPSet;
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -146,8 +146,8 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
   ++count;
 
   // get event id information
-  int nrun = iEvent.id().run();
-  int nevt = iEvent.id().event();
+  edm::RunNumber_t nrun = iEvent.id().run();
+  edm::EventNumber_t nevt = iEvent.id().event();
 
   if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
@@ -167,8 +167,8 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -217,7 +217,7 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
       << "Done gathering data from event.";
 
   // produce object to put into event
-  std::auto_ptr<PGlobalRecHit> pOut(new PGlobalRecHit);
+  std::unique_ptr<PGlobalRecHit> pOut(new PGlobalRecHit);
 
   if (verbosity > 2)
     edm::LogInfo (MsgLoggerCat)
@@ -234,7 +234,7 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
   storeMuon(*pOut);
 
   // store information in event
-  iEvent.put(pOut,label);
+  iEvent.put(std::move(pOut),label);
 
   return;
 }
@@ -284,10 +284,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
       << "Unable to find cal barrel crossingFrame in event!";
     return;
   }
-  //std::auto_ptr<MixCollection<PCaloHit> >
+  //std::unique_ptr<MixCollection<PCaloHit> >
   //  barrelHits(new MixCollection<PCaloHit>
   //	       (crossingFrame.product(), barrelHitsName));
-  std::auto_ptr<MixCollection<PCaloHit> >
+  std::unique_ptr<MixCollection<PCaloHit> >
     barrelHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
 
   // keep track of sum of simhit energy in each crystal
@@ -356,10 +356,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
       << "Unable to find cal endcap crossingFrame in event!";
     return;
   }
-  //std::auto_ptr<MixCollection<PCaloHit> >
+  //std::unique_ptr<MixCollection<PCaloHit> >
   //  endcapHits(new MixCollection<PCaloHit>
   //	       (crossingFrame.product(), endcapHitsName));
-  std::auto_ptr<MixCollection<PCaloHit> >
+  std::unique_ptr<MixCollection<PCaloHit> >
     endcapHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
 
   // keep track of sum of simhit energy in each crystal
@@ -420,10 +420,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
       << "Unable to find cal preshower crossingFrame in event!";
     return;
   }
-  //std::auto_ptr<MixCollection<PCaloHit> >
+  //std::unique_ptr<MixCollection<PCaloHit> >
   //  preshowerHits(new MixCollection<PCaloHit>
   //	       (crossingFrame.product(), preshowerHitsName));
-  std::auto_ptr<MixCollection<PCaloHit> >
+  std::unique_ptr<MixCollection<PCaloHit> >
     preshowerHits(new MixCollection<PCaloHit>(crossingFrame.product()));  
 
   // keep track of sum of simhit energy in each crystal
@@ -590,6 +590,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
     return;
   } 
   std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
+  const CaloGeometry* geo = geometry.product();
      
   int iHB = 0;
   int iHE = 0; 
@@ -603,10 +604,12 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
       
       if (cell.subdet() == sdHcalBrl) {
 	
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	const CaloCellGeometry* cellGeometry =
+//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 	if ( (jhbhe->energy()) > maxHBEnergy ) {
 	  maxHBEnergy = jhbhe->energy();
 	  maxHBPhi = fPhi;
@@ -618,10 +621,12 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	
       if (cell.subdet() == sdHcalEC) {
 	
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	const CaloCellGeometry* cellGeometry =
+//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 	if ( (jhbhe->energy()) > maxHEEnergy ) {
 	  maxHEEnergy = jhbhe->energy();
 	  maxHEPhi = fPhi;
@@ -639,10 +644,12 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHB;
 
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	const CaloCellGeometry* cellGeometry =
+//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 
 	float deltaphi = maxHBPhi - fPhi;
 	if (fPhi > maxHBPhi) { deltaphi = fPhi - maxHBPhi;}
@@ -659,10 +666,12 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
 	++iHE;
 
-	const CaloCellGeometry* cellGeometry =
-	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	double fEta = cellGeometry->getPosition().eta () ;
-	double fPhi = cellGeometry->getPosition().phi () ;
+	const HcalGeometry* cellGeometry = 
+	  (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,cell.subdet()));
+//	const CaloCellGeometry* cellGeometry =
+//	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition(cell).eta () ;
+	double fPhi = cellGeometry->getPosition(cell).phi () ;
 
 	float deltaphi = maxHEPhi - fPhi;
 	if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}
@@ -874,7 +883,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -893,7 +902,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     return;
   }  
 
-  TrackerHitAssociator associate(iEvent,conf_);
+  TrackerHitAssociator associate(iEvent, trackerHitAssociatorConfig_);
 
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get(pDD);

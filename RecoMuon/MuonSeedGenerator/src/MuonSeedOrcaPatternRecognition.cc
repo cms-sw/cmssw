@@ -47,11 +47,15 @@ using namespace std;
 MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::ParameterSet& pset,edm::ConsumesCollector& iC)
 : MuonSeedVPatternRecognition(pset),
   theCrackEtas(pset.getParameter<std::vector<double> >("crackEtas")),
-  theCrackWindow(pset.getParameter<double>("crackWindow"))
+  theCrackWindow(pset.getParameter<double>("crackWindow")),
+  theDeltaPhiWindow(pset.existsAs<double>("deltaPhiSearchWindow") ? pset.getParameter<double>("deltaPhiSearchWindow") : 0.25),
+  theDeltaEtaWindow(pset.existsAs<double>("deltaEtaSearchWindow") ? pset.getParameter<double>("deltaEtaSearchWindow") : 0.2),
+theDeltaCrackWindow(pset.existsAs<double>("deltaEtaCrackSearchWindow") ? pset.getParameter<double>("deltaEtaCrackSearchWindow") : 0.25)
 {
-  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
+
+  muonMeasurements = new MuonDetLayerMeasurements (theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),edm::InputTag(),edm::InputTag(),
 						   iC,
-						   enableDTMeasurement,enableCSCMeasurement,false);
+						   enableDTMeasurement,enableCSCMeasurement,false,false,false);
 }
 
 
@@ -59,6 +63,7 @@ MuonSeedOrcaPatternRecognition::MuonSeedOrcaPatternRecognition(const edm::Parame
 void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm::EventSetup& eSetup,
                                              std::vector<MuonRecHitContainer> & result)
 {
+    
   // divide the RecHits by DetLayer, in order to fill the
   // RecHitContainer like it was in ORCA
   
@@ -468,12 +473,12 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
     GlobalPoint ptg1(recHit->globalPosition());
     float deta = fabs (ptg1.eta()-ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]
-    float dphi = fabs( deltaPhi(ptg1.phi(), ptg2.phi()) );
+    float dphi = fabs( deltaPhi(ptg1.barePhi(), ptg2.barePhi()) );
     // be a little more lenient in cracks
     bool crack = isCrack(recHit) || isCrack(first);
     //float detaWindow = 0.3;
-    float detaWindow = crack ? 0.25 : 0.2;
-    if ( deta > detaWindow || dphi > .25 ) {
+    float detaWindow = crack ? theDeltaCrackWindow : theDeltaEtaWindow;
+    if ( deta > detaWindow || dphi > theDeltaPhiWindow ) {
       continue;
     }   // +vvp!!!
 
@@ -516,20 +521,20 @@ double MuonSeedOrcaPatternRecognition::discriminator(const ConstMuonRecHitPointe
   GlobalVector gd1 = first->globalDirection();
   GlobalVector gd2 = other->globalDirection();
   if(first->isDT() || other->isDT()) {
-    return fabs(deltaPhi(gd1.phi(), gd2.phi()));
+    return fabs(deltaPhi(gd1.barePhi(), gd2.barePhi()));
   }
 
   // penalize those 3-hit segments
   int nhits = other->recHits().size();
   int penalty = std::max(nhits-2, 1);
-  float dphig = deltaPhi(gp1.phi(), gp2.phi());
+  float dphig = deltaPhi(gp1.barePhi(), gp2.barePhi());
   // ME1A has slanted wires, so matching theta position doesn't work well.
   if(isME1A(first) || isME1A(other)) {
     return fabs(dphig/penalty);
   }
 
   float dthetag = gp1.theta()-gp2.theta();
-  float dphid2 = fabs(deltaPhi(gd2.phi(), gp2.phi()));
+  float dphid2 = fabs(deltaPhi(gd2.barePhi(), gp2.barePhi()));
   if (dphid2 > M_PI*.5) dphid2 = M_PI - dphid2;  //+v
   float dthetad2 = gp2.theta()-gd2.theta();
   // for CSC, make a big chi-squared of relevant variables
@@ -680,7 +685,7 @@ void MuonSeedOrcaPatternRecognition::filterOverlappingChambers(MuonRecHitContain
     {
       GlobalPoint pg2 = segments[j]->globalPosition();
       if(segments[i]->geographicalId().rawId() != segments[j]->geographicalId().rawId()
-         && fabs(deltaPhi(pg1.phi(), pg2.phi())) < dphiCut
+         && fabs(deltaPhi(pg1.barePhi(), pg2.barePhi())) < dphiCut
          && fabs(pg1.eta()-pg2.eta()) < detaCut)
       {
         LogTrace(metname) << "OVERLAP " << theDumper.dumpMuonId(segments[i]->geographicalId()) << " " <<

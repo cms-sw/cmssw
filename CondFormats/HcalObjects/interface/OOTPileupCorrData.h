@@ -87,6 +87,21 @@ public:
         }
     }
 
+    inline const OOTPileupCorrDataFcn& getCorrectionByID(const HcalDetId& id) const
+    {
+        const unsigned nLimits = iEtaLimits_.size();
+        unsigned which(0U);
+        if (nLimits)
+        {
+	    const uint32_t uEta = std::abs(id.ieta());
+	    const uint32_t* limits(&iEtaLimits_[0]);
+	    for (; which<nLimits; ++which)
+	        if (uEta < limits[which])
+	            break;
+        }
+        return corrs_.at(which);
+    }
+
 protected:
     // Comparison function must be implemented
     inline bool isEqual(const AbsOOTPileupCorrection& otherBase) const
@@ -101,10 +116,12 @@ protected:
                readjustTiming_ == r.readjustTiming_;
     }
 
-private:
-    // Default constructor needed for serialization
+public:
+    // Default constructor needed for serialization.
+    // Do not use in application code.
     inline OOTPileupCorrData() {}
 
+private:
     bool validate() const;
 
     std::vector<OOTPileupCorrDataFcn> corrs_;

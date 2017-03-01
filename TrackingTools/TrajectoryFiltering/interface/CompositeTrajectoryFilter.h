@@ -33,13 +33,13 @@ public:
     }
   }
 
-  virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
-  virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);}
+  virtual bool qualityFilter( const Trajectory& traj) const  override{ return QF<Trajectory>(traj);}
+  virtual bool qualityFilter( const TempTrajectory& traj) const  override{ return QF<TempTrajectory>(traj);}
  
-  virtual bool toBeContinued( Trajectory& traj) const { return TBC<Trajectory>(traj);}
-  virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
+  virtual bool toBeContinued( Trajectory& traj) const  override{ return TBC<Trajectory>(traj);}
+  virtual bool toBeContinued( TempTrajectory& traj) const  override{ return TBC<TempTrajectory>(traj);}
   
-  virtual std::string name() const { std::string rname="CompositeTrajectoryFilter";
+  virtual std::string name() const  override{ std::string rname="CompositeTrajectoryFilter";
     unsigned int i=0;
     unsigned int n=filters.size();
     for (;i<n;i++){ rname+="_"+filters[i]->name();}

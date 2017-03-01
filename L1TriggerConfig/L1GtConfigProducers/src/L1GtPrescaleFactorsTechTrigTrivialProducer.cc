@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -69,14 +68,12 @@ L1GtPrescaleFactorsTechTrigTrivialProducer::~L1GtPrescaleFactorsTechTrigTrivialP
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1GtPrescaleFactors> 
+std::shared_ptr<L1GtPrescaleFactors> 
     L1GtPrescaleFactorsTechTrigTrivialProducer::producePrescaleFactors(
         const L1GtPrescaleFactorsTechTrigRcd& iRecord)
 {
 
-    boost::shared_ptr<L1GtPrescaleFactors> pL1GtPrescaleFactors =
-            boost::shared_ptr<L1GtPrescaleFactors>(
-                    new L1GtPrescaleFactors(m_prescaleFactors) );
+    auto pL1GtPrescaleFactors = std::make_shared<L1GtPrescaleFactors>(m_prescaleFactors);
 
     return pL1GtPrescaleFactors;
 }

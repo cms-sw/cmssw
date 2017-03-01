@@ -7,10 +7,10 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/LuminosityBlock.h"
+//#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 
 RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
@@ -44,174 +44,149 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
 
 RPCEventSummary::~RPCEventSummary(){
   edm::LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Destructor ";
-  dbe_=0;
 }
 
 void RPCEventSummary::beginJob(){
  edm::LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job ";
- dbe_ = edm::Service<DQMStore>().operator->();
+ init_ = false;  
 }
 
-void RPCEventSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
- edm::LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
+void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & lb, edm::EventSetup const& setup){
+ 
+  edm::LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
   
-  init_ = false;  
-  lumiCounter_ = prescaleFactor_ ;
+  
+  if(!init_){
+    lumiCounter_ = prescaleFactor_ ;
+    
+    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+    
+    int defaultValue = 1;
+    isIn_ = true;
 
- edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
- 
- int defaultValue = 1;
- 
- if(0 != setup.find( recordKey ) ) {
-   defaultValue = -1;
-   //get fed summary information
-   edm::ESHandle<RunInfo> sumFED;
-   setup.get<RunInfoRcd>().get(sumFED);    
-   std::vector<int> FedsInIds= sumFED->m_fed_in;   
-   unsigned int f = 0;
-   bool flag = false;
-   while(!flag && f < FedsInIds.size()) {
-     int fedID=FedsInIds[f];
-     //make sure fed id is in allowed range  
-     if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
-       defaultValue = 1;
-       flag = true;
-     } 
-     f++;
-   }   
- }   
- 
-
- MonitorElement* me;
- dbe_->setCurrentFolder(eventInfoPath_);
-
- //a global summary float [0,1] providing a global summary of the status 
- //and showing the goodness of the data taken by the the sub-system 
- std::string histoName="reportSummary";
- me =0;
- me = dbe_->get(eventInfoPath_ +"/"+ histoName);
- if ( 0!=me) {
-    dbe_->removeElement(me->getName());
-  }
-
-  me = dbe_->bookFloat(histoName);
-  me->Fill(defaultValue);
-
-  //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
-  me =0;
-  me = dbe_->get(eventInfoPath_ +"/reportSummaryMap");
-  if ( 0!=me) {
-    dbe_->removeElement(me->getName());
-  }
- 
-  me = dbe_->book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
- 
-  //customize the 2d histo
-  std::stringstream BinLabel;
-  for (int i= 1 ; i<=15; i++){
-    BinLabel.str("");
-    if(i<13){
-      BinLabel<<"Sec"<<i;
-       me->setBinLabel(i,BinLabel.str(),2);
-    } 
-
-    BinLabel.str("");
-    if(i<5)
-      BinLabel<<"Disk"<<i-5;
-    else if(i>11)
-      BinLabel<<"Disk"<<i-11;
-    else if(i==11 || i==5)
+    if(0 != setup.find( recordKey ) ) {
+      defaultValue = -1;
+      //get fed summary information
+      edm::ESHandle<RunInfo> sumFED;
+      setup.get<RunInfoRcd>().get(sumFED);    
+      std::vector<int> FedsInIds= sumFED->m_fed_in;   
+      unsigned int f = 0;
+      isIn_ = false;
+      while(!isIn_ && f < FedsInIds.size()) {
+	int fedID=FedsInIds[f];
+	//make sure fed id is in allowed range  
+	if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
+	  defaultValue = 1;
+	  isIn_ = true;
+	} 
+      f++;
+      }   
+    }   
+    
+    MonitorElement* me;
+    ibooker.setCurrentFolder(eventInfoPath_);
+    
+    //a global summary float [0,1] providing a global summary of the status 
+    //and showing the goodness of the data taken by the the sub-system 
+    std::string histoName="reportSummary";
+    me=0;
+    me = ibooker.bookFloat(histoName);
+    me->Fill(defaultValue);
+    
+    //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
+    me=0;    
+    me = ibooker.book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
+    
+    //customize the 2d histo
+    std::stringstream BinLabel;
+    for (int i= 1 ; i<=15; i++){
       BinLabel.str("");
-    else
-      BinLabel<<"Wheel"<<i-8;
- 
-     me->setBinLabel(i,BinLabel.str(),1);
-  }
-
-  //fill the histo with "1" --- just for the moment
-  for(int i=1; i<=15; i++){
-     for (int j=1; j<=12; j++ ){
-       if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
-	 me->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
-       else
-	 me->setBinContent(i,j,defaultValue);
-     }
-   }
-
-  if(numberDisk_ < 4)
-    for (int j=1; j<=12; j++ ){
+      if(i<13){
+	BinLabel<<"Sec"<<i;
+	me->setBinLabel(i,BinLabel.str(),2);
+      } 
+      
+      BinLabel.str("");
+      if(i<5)
+	BinLabel<<"Disk"<<i-5;
+      else if(i>11)
+	BinLabel<<"Disk"<<i-11;
+      else if(i==11 || i==5)
+	BinLabel.str("");
+      else
+	BinLabel<<"Wheel"<<i-8;
+      
+      me->setBinLabel(i,BinLabel.str(),1);
+    }
+    
+    //fill the histo with "1" --- just for the moment
+    for(int i=1; i<=15; i++){
+      for (int j=1; j<=12; j++ ){
+	if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
+	  me->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
+	else
+	  me->setBinContent(i,j,defaultValue);
+      }
+    }
+    
+    if(numberDisk_ < 4)
+      for (int j=1; j<=12; j++ ){
 	me->setBinContent(1,j,-1);//bins that not correspond to subdetector parts
 	me->setBinContent(15,j,-1);
-    }
-
- //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
- // which describe the behavior of the respective subsystem sub-components.
-  dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
-  
-  std::stringstream segName;
-  std::vector<std::string> segmentNames;
-  for(int i=-4; i<=4; i++){
-    if(i>-3 && i<3) {
+      }
+    
+    //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
+    // which describe the behavior of the respective subsystem sub-components.
+    ibooker.setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
+    
+    std::stringstream segName;
+    std::vector<std::string> segmentNames;
+    for(int i=-2; i<=2; i++){
       segName.str("");
       segName<<"RPC_Wheel"<<i;
       segmentNames.push_back(segName.str());
     }
-    if(i==0) continue;
-    segName.str("");
-    segName<<"RPC_Disk"<<i;
-    segmentNames.push_back(segName.str());
-  }
-  
-
-  for(unsigned int i=0; i<segmentNames.size(); i++){
-    me =0;
-    me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]);
-    if ( 0!=me) {
-      dbe_->removeElement(me->getName());
+    
+    for(int i=-numberDisk_; i<=numberDisk_; i++){
+      if(i==0) continue;
+      segName.str("");
+      segName<<"RPC_Disk"<<i;
+      segmentNames.push_back(segName.str());
     }
-    me = dbe_->bookFloat(segmentNames[i]);
-    me->Fill(defaultValue);
+    
+    
+    for(unsigned int i=0; i<segmentNames.size(); i++){
+      me =0;
+      me = ibooker.bookFloat(segmentNames[i]);
+      me->Fill(defaultValue);
+    }
+    
+    lumiCounter_ = prescaleFactor_;
+    init_ = true;
   }
 
-  //excluded endcap parts
-  if(numberDisk_ < 4){
-    me=dbe_->get(eventInfoPath_ + "/reportSummaryContents/RPC_Disk4");
-    if(me)  me->Fill(-1);
-    me=dbe_->get(eventInfoPath_ + "/reportSummaryContents/RPC_Disk-4");
-    if(me)  me->Fill(-1);
-  }
-}
-
-void RPCEventSummary::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
-
-void RPCEventSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
-
-void RPCEventSummary::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {  
-  edm::LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
-
-  if(offlineDQM_) return;
-
-  if(!init_){
-    this->clientOperation();
-    return;
+  
+  
+  if(isIn_ && !offlineDQM_  && lumiCounter_%prescaleFactor_ == 0 ){
+    this->clientOperation(igetter);
   }
 
   lumiCounter_++;
-  if(lumiCounter_%prescaleFactor_ != 0) return;
-
-  this->clientOperation();
 
 }
 
-void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
+
+
+void RPCEventSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){ 
   
-  this->clientOperation();
+  if(isIn_) { this->clientOperation(igetter);}
 }
 
-void RPCEventSummary::clientOperation(){
+void RPCEventSummary::clientOperation( DQMStore::IGetter & igetter){
 
   float  rpcevents = minimumEvents_;
-  RPCEvents = dbe_->get( prefixFolder_  +"/RPCEvents");  
+  MonitorElement *  RPCEvents ;
+  RPCEvents = igetter.get( prefixFolder_  +"/RPCEvents");  
 
   if(RPCEvents) {
     rpcevents = RPCEvents ->getBinContent(1);
@@ -219,13 +194,12 @@ void RPCEventSummary::clientOperation(){
   
 
   if(rpcevents < minimumEvents_) return;
-  init_ = true;
   std::stringstream meName;
   MonitorElement * myMe;
    
   meName.str("");
   meName<<eventInfoPath_ + "/reportSummaryMap";
-  MonitorElement * reportMe = dbe_->get(meName.str());
+  MonitorElement * reportMe = igetter.get(meName.str());
   
   MonitorElement * globalMe;
   
@@ -236,7 +210,7 @@ void RPCEventSummary::clientOperation(){
     
     meName.str("");
     meName<<globalFolder_<<"/RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;
-    myMe = dbe_->get(meName.str());
+    myMe = igetter.get(meName.str());
     
        if(myMe){      
 	 float wheelFactor = 0;
@@ -268,7 +242,7 @@ void RPCEventSummary::clientOperation(){
 	 
 	 meName.str("");
 	 meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Wheel"<<w; 
-	 globalMe=dbe_->get(meName.str());
+	 globalMe=igetter.get(meName.str());
 	 if(globalMe) globalMe->Fill(wheelFactor);
 	 
 	 barrelFactor += wheelFactor;
@@ -288,7 +262,7 @@ void RPCEventSummary::clientOperation(){
 	 
 	 meName.str("");
 	 meName<<globalFolder_<<"/RPCChamberQuality_Ring_vs_Segment_Disk"<<d;
-	 myMe = dbe_->get(meName.str());
+	 myMe = igetter.get(meName.str());
 	 
 	 if(myMe){      
 	   float diskFactor = 0;
@@ -325,7 +299,7 @@ void RPCEventSummary::clientOperation(){
 	   
 	   meName.str("");
 	   meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Disk"<<d; 
-	   globalMe=dbe_->get(meName.str());
+	   globalMe=igetter.get(meName.str());
 	   if(globalMe) globalMe->Fill(diskFactor);
 	   
 	   endcapFactor += diskFactor;
@@ -341,7 +315,7 @@ void RPCEventSummary::clientOperation(){
      float rpcFactor = barrelFactor;
      if(doEndcapCertification_){ rpcFactor =  ( barrelFactor + endcapFactor)/2; }
      
-     globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
+     globalMe = igetter.get(eventInfoPath_ +"/reportSummary"); 
      if(globalMe) globalMe->Fill(rpcFactor);
      
      

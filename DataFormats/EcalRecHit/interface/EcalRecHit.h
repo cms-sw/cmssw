@@ -5,7 +5,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 /** \class EcalRecHit
  *  
@@ -68,6 +68,7 @@ public:
   float energy() const { return energy_; }
   void setEnergy(float energy) { energy_=energy; }
   float time() const { return time_; }
+  void setTime(float time) { time_ = time; }
   const DetId& detid() const { return id_; }
 
   /// get the id
@@ -104,10 +105,17 @@ public:
     return value;
   }
 
+  static inline int getPower10(float e) {
+    static constexpr float p10[] = {1.e-2f,1.e-1f,1.f,1.e1f,1.e2f,1.e3f,1.e4f,1.e5f,1.e6f};
+    int b = e<p10[4] ? 0 : 5;
+    for (;b<9;++b) if (e<p10[b]) break;
+    return b; 
+  }
+
 
   /* the new bit structure
    * 0..6   - chi2 in time events (chi2()), offset=0, width=7
-   * 8..20  - energy in out-of-time (outOfTimeEnergy()), offset=8, width=13
+   * 8..20  - energy uncertainty, offset=8, width=13
    * 24..31 - timeError(), offset=24, width=8
    */
   float chi2() const {
@@ -123,24 +131,32 @@ public:
     uint32_t rawChi2 = lround(chi2 / 64. * ((1<<7)-1));
     extra_ = setMasked(extra_, rawChi2, 0, 7);
   }
-
-
-  float outOfTimeEnergy() const {
+  
+  float energyError() const {
     uint32_t rawEnergy = getMasked(extra_, 8, 13);
     uint16_t exponent = rawEnergy >> 10;
     uint16_t significand = ~(0xE<<9) & rawEnergy;
     return (float) significand*pow(10,exponent-5);
   }
 
-  // set the energy for out of time events
+  // set the energy uncertainty
   // (only energy >= 0 will be stored)
-  void setOutOfTimeEnergy(float energy) {
+  void setEnergyError(float energy) {
     uint32_t rawEnergy = 0;
     if (energy > 0.001) {
-      uint16_t exponent = lround(floor(log10(energy))) + 3;
-      uint16_t significand = lround(energy/pow(10, exponent - 5));
+      uint16_t exponent = getPower10(energy);
+      static constexpr float ip10[] = {1.e5f,1.e4f,1.e3f,1.e2f,1.e1f,1.e0f,1.e-1f,1.e-2f,1.e-3f,1.e-4};
+      uint16_t significand = lround(energy*ip10[exponent]);
       // use 13 bits (3 exponent, 10 significand)
       rawEnergy = exponent << 10 | significand;
+      /* here for doc and regression test
+      uint16_t exponent_old = lround(floor(log10(energy))) + 3;  
+      uint16_t significand_old = lround(energy/pow(10, exponent - 5));
+      std::cout << energy << ' ' << exponent << ' ' << significand 
+                          << ' ' << exponent_old <<	' ' << significand_old << std::endl;
+      assert(exponent==exponent_old);
+      assert(significand==significand_old);
+      */
     }
 
     extra_ = setMasked(extra_, rawEnergy, 8, 13);
@@ -164,10 +180,7 @@ public:
   void setTimeError(uint8_t timeErrBits) {
     extra_ = setMasked(extra_, timeErrBits & 0xFF, 24, 8);
   }
-
-  float outOfTimeChi2() const { return 0; }
-  void setOutOfTimeChi2(short chi2) { /* not used */ }
-
+  
   /// set the flags (from Flags or ESFlags) 
   void setFlag(int flag) {flagBits_|= (0x1 << flag);}
   void unsetFlag(int flag) {flagBits_ &= ~(0x1 << flag);}
@@ -209,7 +222,7 @@ private:
   /// store rechit condition (see Flags enum) in a bit-wise way 
   uint32_t flagBits_;
 
-  // packed uint32_t for timeError, chi2, outOfTimeEnergy
+  // packed uint32_t for timeError, chi2, energyError
   uint32_t extra_;
 };
 

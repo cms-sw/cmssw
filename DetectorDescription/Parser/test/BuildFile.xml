@@ -27,6 +27,7 @@
    <use name="FWCore/PythonParameterSet"/>
    <use name="FWCore/ServiceRegistry"/>
    <use name="FWCore/Utilities"/>
+   <use name="Utilities/Xerces"/>
    <use name="boost_system"/>
 </bin>
 

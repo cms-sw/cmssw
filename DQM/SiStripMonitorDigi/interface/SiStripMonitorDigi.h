@@ -31,18 +31,16 @@ class EventWithHistory;
 class L1GlobalTriggerEvmReadoutRecord;
 class APVCyclePhaseCollection;
 
-class SiStripMonitorDigi : public thread_unsafe::DQMEDAnalyzer {
+class SiStripMonitorDigi : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   std::string topFolderName_;
 
@@ -173,7 +171,6 @@ class SiStripMonitorDigi : public thread_unsafe::DQMEDAnalyzer {
   bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
 
-  bool subdetswitchtotdigiproflson;
   bool subdetswitchtotdigifailureon;
 
   bool subdetswitchnapvshotson;

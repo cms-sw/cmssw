@@ -32,16 +32,16 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 #Special parameterization for cosmics
 #simSiPixelDigis.TofLowerCut = cms.double(18.5)
 #simSiPixelDigis.TofUpperCut = cms.double(43.5)
-#mix.digitizers.pixel.TofLowerCut = cms.double(18.5)
-#mix.digitizers.pixel.TofUpperCut = cms.double(43.5)
+#mix.digitizers.pixel.TofLowerCut = cms.double(18.5) moved to digitizersCosmics_cfi.py in the mixingmodule
+#mix.digitizers.pixel.TofUpperCut = cms.double(43.5) moved to digitizersCosmics_cfi.py in the mixingmodule
 
 #simSiStripDigis.CosmicDelayShift = cms.untracked.double(31)
-#mix.digitizers.strip.CosmicDelayShift = cms.untracked.double(31)
+#mix.digitizers.strip.CosmicDelayShift = cms.untracked.double(31) moved to digitizersCosmics_cfi.py in the mixingmodule
 
 #simEcalUnsuppressedDigis.cosmicsPhase = cms.bool(True)
 #simEcalUnsuppressedDigis.cosmicsShift = cms.double(1.)
-#mix.digitizers.ecal.cosmicsPhase = cms.bool(True)
-#mix.digitizers.ecal.cosmicsShift = cms.double(1.)
+#mix.digitizers.ecal.cosmicsPhase = cms.bool(True) moved to digitizersCosmics_cfi.py in the mixingmodule
+#mix.digitizers.ecal.cosmicsShift = cms.double(1.) moved to digitizersCosmics_cfi.py in the mixingmodule
 
 simEcalDigis.ebDccAdcToGeV = cms.double(0.00875)
 simEcalDigis.srpBarrelLowInterestChannelZS = cms.double(0.0153125)

@@ -48,7 +48,7 @@
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Random/Random.h"
+#include "Randomize.hh"
 
 //
 // constructors and destructor
@@ -124,9 +124,9 @@ HcalTB04Analysis::~HcalTB04Analysis() {
 
 void HcalTB04Analysis::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<PHcalTB04Info> product(new PHcalTB04Info);
+  std::unique_ptr<PHcalTB04Info> product(new PHcalTB04Info);
   fillEvent(*product);
-  e.put(product);
+  e.put(std::move(product));
 }
 
 void HcalTB04Analysis::init() {
@@ -371,7 +371,7 @@ void HcalTB04Analysis::update(const EndOfEvent * evt) {
   //QIE analysis
   LogDebug("HcalTBSim") << "HcalTB04Analysis::Do QIE analysis with " 
 			<< hcalHitCache.size() << " hits";
-  CLHEP::HepRandomEngine* engine = CLHEP::HepRandom::getTheEngine();
+  CLHEP::HepRandomEngine* engine = G4Random::getTheEngine();
   qieAnalysis(engine);
 
   //Energy in Crystal Matrix

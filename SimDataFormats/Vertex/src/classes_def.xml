@@ -3,12 +3,13 @@
   <class name="CoreSimVertex" ClassVersion="10">
    <version ClassVersion="10" checksum="4012086828"/>
   </class>
-  <class name="SimVertex" ClassVersion="11">
+  <class name="SimVertex" ClassVersion="12">
    <version ClassVersion="11" checksum="801220081"/>
+   <version ClassVersion="12" checksum="802888023"/>
   </class>
-  <class pattern="edm::Ref<std::vector<SimVertex>,*>" />
+  <class name="edm::SimVertexRef"/>
   <class name="std::vector<const SimVertex*>"/>
-  <class pattern="edm::RefVector<std::vector<SimVertex>,*>" />
+  <class name="edm::SimVertexRefVector"/>
   <class name="edm::RefProd<std::vector<SimVertex> >" /> 
   <class name="edm::Wrapper<std::vector<SimVertex> >" id="03CAAC2E-3EE1-ACA3-D11B-775772E05B18"/>
 </lcgdict>

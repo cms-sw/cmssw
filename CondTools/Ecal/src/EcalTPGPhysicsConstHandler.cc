@@ -431,6 +431,7 @@ void  popcon::EcalTPGPhysicsConstHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGPhysicsConstHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

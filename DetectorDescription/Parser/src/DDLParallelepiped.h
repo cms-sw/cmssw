@@ -1,12 +1,11 @@
 #ifndef DDL_Parallelepiped_H
 #define DDL_Parallelepiped_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLParallelepiped processes all Parallelepiped elements.
 /** @class DDLParallelepiped
@@ -21,16 +20,13 @@
  *                                                                         
  */
 
-class DDLParallelepiped : public DDLSolid
+class DDLParallelepiped final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLParallelepiped( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLParallelepiped( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

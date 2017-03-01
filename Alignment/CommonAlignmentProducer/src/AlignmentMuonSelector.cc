@@ -107,7 +107,7 @@ AlignmentMuonSelector::basicCuts(const Muons& muons) const
   Muons result;
 
   for(Muons::const_iterator it=muons.begin();
-      it!=muons.end();it++) {
+      it!=muons.end();++it) {
     const reco::Muon* muonp=*it;
     float p=muonp->p();
     float pt=muonp->pt();
@@ -163,7 +163,7 @@ AlignmentMuonSelector::theNHighestPtMuons(const Muons& muons) const
   // copy theMuonMult highest pt muons to result vector
   int n=0;
   for (Muons::const_iterator it=sortedMuons.begin();
-	   it!=sortedMuons.end(); it++) {
+	   it!=sortedMuons.end(); ++it) {
 	if (n<nHighestPt) { result.push_back(*it); n++; }
   }
 
@@ -188,9 +188,9 @@ AlignmentMuonSelector::theBestMassPairCombinationMuons(const Muons& muons) const
   // a) maxMassPair !=    minMassPair: the two highest pt muons with mass pair inside the given mass window
   // b) maxMassPair ==    minMassPair: the muon pair with massPair closest to given mass value
    for (Muons::const_iterator it1=sortedMuons.begin();
-	   it1!=sortedMuons.end(); it1++) {
+	   it1!=sortedMuons.end(); ++it1) {
 	   for (Muons::const_iterator it2=it1+1;
-	   it2!=sortedMuons.end(); it2++) {
+	   it2!=sortedMuons.end(); ++it2) {
 	   mu1 = TLorentzVector((*it1)->momentum().x(),(*it1)->momentum().y(),(*it1)->momentum().z(),(*it1)->p());
 	   mu2 = TLorentzVector((*it2)->momentum().x(),(*it2)->momentum().y(),(*it2)->momentum().z(),(*it2)->p());
 	   pair=mu1+mu2;

@@ -25,8 +25,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 //#include "FWCore/Utilities/interface/EDGetToken.h"  // not needed
 
-#include "DataFormats/Common/interface/EDProduct.h"
-
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -72,13 +70,15 @@
 #define NEW_ID
 #ifdef NEW_ID
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #else 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #endif 
 
 #define HISTOS
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 using namespace std;
 
@@ -89,10 +89,10 @@ class ReadPixClusters : public edm::EDAnalyzer {
   
   explicit ReadPixClusters(const edm::ParameterSet& conf);  
   virtual ~ReadPixClusters();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
@@ -157,7 +157,7 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf)
 ReadPixClusters::~ReadPixClusters() { }  
 
 // ------------ method called at the begining   ------------
-void ReadPixClusters::beginRun(const edm::EventSetup& iSetup) {
+void ReadPixClusters::beginRun(edm::Run const&,const edm::EventSetup& iSetup) {
   cout << "beginRun -  PixelClusterTest " <<printLocal<<endl;
 }
 
@@ -392,15 +392,15 @@ void ReadPixClusters::analyze(const edm::Event& e,
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  es.get<TrackerTopologyRcd>().get(tTopo);
 #endif
 
 
   countAllEvents++;
-  int run       = e.id().run();
-  int event     = e.id().event();
+  RunNumber_t const run       = e.id().run();
+  EventNumber_t const event     = e.id().event();
+  LuminosityBlockNumber_t const lumiBlock = e.luminosityBlock();
 
-  int lumiBlock = e.luminosityBlock();
   int bx        = e.bunchCrossing();
   int orbit     = e.orbitNumber();
 

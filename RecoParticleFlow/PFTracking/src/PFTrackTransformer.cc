@@ -177,8 +177,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      pftrack.addPoint(dummyMaxSh); 
    }
 
-
- 
    //HCAL entrance
    theOutParticle.propagateToHcalEntrance(false);
    if(theOutParticle.getSuccess()!=0)

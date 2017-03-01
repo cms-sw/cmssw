@@ -30,9 +30,6 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
   clusterInSubComponentsToken_ = consumes<std::map<uint,std::vector<SiStripCluster> > >(conf_.getParameter<std::string>("HLTProducer") );
 }
 
-void SiStripMonitorHLT::beginJob(){
-}
-
 void SiStripMonitorHLT::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & es)
 {
   ibooker.setCurrentFolder(HLTDirectory);
@@ -85,7 +82,7 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
       for(std::vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
         // calculate sum of amplitudes
         unsigned int amplclus=0;
-        for(std::vector<uint8_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
+        for(auto ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
           if ((*ia)>0) amplclus+=(*ia); // why should this be negative?
         }
         if(generalized_layer==31 || generalized_layer==32 || generalized_layer==33){ // you can also ask the detid here whether is TIB
@@ -104,22 +101,3 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
   }
 }
-
-void SiStripMonitorHLT::endJob(void){
-  edm::LogInfo("DQM|SiStripMonitorHLT")<<"Events rejected/accepted "<<HLTDecision->getBinContent(1)<<"/"<<HLTDecision->getBinContent(2);
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    dqmStore_->save(outputFileName);
-  }
-
-  // delete MEs
-//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<"pwd="<<dqmStore_->pwd();
-////  std::string folder_to_delete = dqmStore_->monitorDirName + "/" + HLTDirectory;
-//  dqmStore_->cd();
-//  std::string folder_to_delete = HLTDirectory;
-//  LogInfo("SiStripTkDQM|SiStripMonitorHLT")<<" Removing whole directory "<<folder_to_delete;
-//  dqmStore_->rmdir(folder_to_delete);
-
-}
-

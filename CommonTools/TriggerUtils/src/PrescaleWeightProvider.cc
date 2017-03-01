@@ -8,14 +8,18 @@
 #include <sstream>
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 
 PrescaleWeightProvider::PrescaleWeightProvider( const edm::ParameterSet & config, edm::ConsumesCollector & iC )
 // default values
-: verbosity_( 0 )
+: init_(false)
+, verbosity_( 0 )
 , triggerResultsTag_( "TriggerResults::HLT" )
 , triggerResultsToken_( iC.mayConsume< edm::TriggerResults >( triggerResultsTag_ ) )
 , l1GtTriggerMenuLiteTag_( "l1GtTriggerMenuLite" )
@@ -60,11 +64,12 @@ void PrescaleWeightProvider::initRun( const edm::Run & run, const edm::EventSetu
     return;
   }
 
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_->hltConfigProvider();
   bool hltChanged( false );
-  if ( ! hltConfig_.init( run, setup, triggerResultsTag_.process(), hltChanged ) ) {
+  if ( ! hltPrescaleProvider_->init( run, setup, triggerResultsTag_.process(), hltChanged ) ) {
     if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT config initialization error with process name \"" << triggerResultsTag_.process() << "\"";
     init_ = false;
-  } else if ( hltConfig_.size() <= 0 ) {
+  } else if ( hltConfig.size() <= 0 ) {
     if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT config size error";
     init_ = false;
   } else if ( hltChanged ) {
@@ -86,10 +91,11 @@ int PrescaleWeightProvider::prescaleWeight( const edm::Event & event, const edm:
   if ( ! init_ ) return 1;
 
   // L1
-  L1GtUtils l1GtUtils;
-  l1GtUtils.retrieveL1EventSetup( setup );
+  L1GtUtils const&  l1GtUtils = hltPrescaleProvider_->l1GtUtils();
 
   // HLT
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_->hltConfigProvider();
+
   edm::Handle< edm::TriggerResults > triggerResults;
   event.getByToken( triggerResultsToken_, triggerResults);
   if( ! triggerResults.isValid() ) {
@@ -102,14 +108,14 @@ int PrescaleWeightProvider::prescaleWeight( const edm::Event & event, const edm:
 
   for ( unsigned ui = 0; ui < hltPaths_.size(); ui++ ) {
     const std::string hltPath( hltPaths_.at( ui ) );
-    unsigned hltIndex( hltConfig_.triggerIndex( hltPath ) );
-    if ( hltIndex == hltConfig_.size() ) {
+    unsigned hltIndex( hltConfig.triggerIndex( hltPath ) );
+    if ( hltIndex == hltConfig.size() ) {
       if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider::prescaleWeight" ) << "HLT path \"" << hltPath << "\" does not exist";
       continue;
     }
     if ( ! triggerResults->accept( hltIndex ) ) continue;
 
-    const std::vector< std::pair < bool, std::string > > level1Seeds = hltConfig_.hltL1GTSeeds( hltPath );
+    const std::vector< std::pair < bool, std::string > > level1Seeds = hltConfig.hltL1GTSeeds( hltPath );
     if ( level1Seeds.size() != 1 ) {
       if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider::prescaleWeight" ) << "HLT path \"" << hltPath << "\" provides too many L1 seeds";
       return 1;
@@ -148,7 +154,7 @@ int PrescaleWeightProvider::prescaleWeight( const edm::Event & event, const edm:
       continue;
     }
 
-    int hltPrescale( hltConfig_.prescaleValue( event, setup, hltPath ) );
+    int hltPrescale( hltPrescaleProvider_->prescaleValue( event, setup, hltPath ) );
 
     if ( hltPrescale * l1Prescale > 0 ) {
       if ( weight == SENTINEL || weight > hltPrescale * l1Prescale ) {

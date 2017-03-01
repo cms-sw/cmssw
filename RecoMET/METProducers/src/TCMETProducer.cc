@@ -32,10 +32,9 @@ namespace cms
 //____________________________________________________________________________||
   void TCMETProducer::produce(edm::Event& event, const edm::EventSetup& setup)
   {
-    std::auto_ptr<reco::METCollection> tcmetcoll;
-    tcmetcoll.reset(new reco::METCollection);
+    auto tcmetcoll = std::make_unique<reco::METCollection>(); 
     tcmetcoll->push_back(tcMetAlgo_.CalculateTCMET(event, setup));
-    event.put(tcmetcoll);
+    event.put(std::move(tcmetcoll));
   }
 
 //____________________________________________________________________________||

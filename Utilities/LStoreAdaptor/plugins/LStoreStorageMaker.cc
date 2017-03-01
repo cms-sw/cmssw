@@ -12,12 +12,13 @@ class LStoreStorageMaker : public StorageMaker
   public:
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
              const std::string &path,
-             int mode) override
+             int mode,
+             const AuxSettings&) const override
   {
 	std::string fullpath = proto + ":" + path;
-    return new LStoreFile (fullpath, mode);
+    return std::make_unique<LStoreFile> (fullpath, mode);
   }
 
 /* I don't think this is necessary - Melo
@@ -36,7 +37,8 @@ class LStoreStorageMaker : public StorageMaker
 
   virtual bool check (const std::string &proto,
               const std::string &path,
-              IOOffset *size = 0) override
+              const AuxSettings&,
+              IOOffset *size = 0) const override
   {
 	std::string fullpath = proto + ":" + path;
 	try {

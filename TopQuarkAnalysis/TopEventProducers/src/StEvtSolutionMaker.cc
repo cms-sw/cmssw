@@ -122,8 +122,8 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     //store the vector of solutions to the event
-    std::auto_ptr<std::vector<StEvtSolution> > pOut(evtsols);
-    iEvent.put(pOut);
+    std::unique_ptr<std::vector<StEvtSolution> > pOut(evtsols);
+    iEvent.put(std::move(pOut));
   }
   else
     {
@@ -136,7 +136,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
       StEvtSolution asol;
       evtsols->push_back(asol);
-      std::auto_ptr<std::vector<StEvtSolution> > pOut(evtsols);
-      iEvent.put(pOut);
+      std::unique_ptr<std::vector<StEvtSolution> > pOut(evtsols);
+      iEvent.put(std::move(pOut));
     }
 }

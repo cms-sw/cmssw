@@ -77,19 +77,19 @@ SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());
-  std::auto_ptr<TrajectorySeedCollection> quadruplets( new TrajectorySeedCollection() );
+  auto triplets = std::make_unique<TrajectorySeedCollection>();
+  auto quadruplets = std::make_unique<TrajectorySeedCollection>();
 
   //protection for big ass events...
   size_t clustsOrZero = theClusterCheck.tooManyClusters(ev);
   if (clustsOrZero){
     if (!theSilentOnClusterCheck)
 	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
-    ev.put(triplets);
+    ev.put(std::move(triplets));
     return ;
   }
 
-  typedef std::vector<TrackingRegion* > Regions;
+  typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
   if (theMerger_)
@@ -112,13 +112,12 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
       }
     }
   }
-
-  // clear memory
-  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
+  triplets->shrink_to_fit();
+  quadruplets->shrink_to_fit();
 
   // put to event
   if ( theMerger_)
-    ev.put(quadruplets);
+    ev.put(std::move(quadruplets));
   else
-    ev.put(triplets);
+    ev.put(std::move(triplets));
 }

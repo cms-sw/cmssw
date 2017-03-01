@@ -44,22 +44,30 @@ public:
   void enterDetector( const G4VPhysicalVolume* volume, const GlobalPoint& position, double cosTheta );
   void leaveDetector( const G4VPhysicalVolume* volume, double cosTheta );
 
-  const MaterialAccountingStep& summary( void ) {
+  const MaterialAccountingStep& summary() const {
     return m_total;
   }
 
-  const std::vector<MaterialAccountingDetector> & detectors() {
+  const std::vector<MaterialAccountingDetector> & detectors() const {
     return m_detectors;
   }
 
-  const std::vector<MaterialAccountingStep> & steps() {
+  std::vector<MaterialAccountingDetector> & detectors() {
+    return m_detectors;
+  }
+
+  const std::vector<MaterialAccountingStep> & steps() const {
     return m_steps;
   }
   
-public:
+  std::vector<MaterialAccountingStep> & steps() {
+    return m_steps;
+  }
+
+private:
   MaterialAccountingStep                    m_total;            // cache position along track (length and material)
-  mutable const G4VPhysicalVolume *         m_current_volume;   // keep track of current G4 volume
-  mutable MaterialAccountingDetector        m_detector;         // keep track of current detector
+  const G4VPhysicalVolume *                 m_current_volume;   // keep track of current G4 volume
+  MaterialAccountingDetector                m_detector;         // keep track of current detector
   std::vector<MaterialAccountingStep>       m_steps;
   std::vector<MaterialAccountingDetector>   m_detectors;
 };

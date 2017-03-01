@@ -210,8 +210,8 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
              return;
 }
 //----------------------------------------------------------------------
-std::auto_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentSeeds() {
-   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+std::unique_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentSeeds() {
+   auto output = std::make_unique<TrajectorySeedCollection>();
    for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
        if(it_seed->isValid()) {
            output->push_back( it_seed->TrajSeed() );

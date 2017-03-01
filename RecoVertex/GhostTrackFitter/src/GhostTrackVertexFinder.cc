@@ -113,7 +113,7 @@ static TransientTrack transientGhostTrack(const GhostTrackPrediction &pred,
 
 static double vtxErrorLong(const GlobalError &error, const GlobalVector &dir)
 {
-	return ROOT::Math::Similarity(conv(dir), error.matrix_new());
+	return ROOT::Math::Similarity(conv(dir), error.matrix());
 }
 
 static GlobalPoint vtxMean(const GlobalPoint &p1, const GlobalError &e1,
@@ -190,10 +190,10 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 	Matrix3S cov = SMatrixIdentity();
 	cov *= 10000;
 	double chi2 = 0.;
-	if (!covarianceUpdate(cov, conv(pca1 - point), err1.matrix_new(), chi2,
+	if (!covarianceUpdate(cov, conv(pca1 - point), err1.matrix(), chi2,
 	                       linState[0]->predictedStateParameters()[1],
 	                       linState[0]->predictedStateParameters()[2]) ||
-	    !covarianceUpdate(cov, conv(pca2 - point), err2.matrix_new(), chi2,
+	    !covarianceUpdate(cov, conv(pca2 - point), err2.matrix(), chi2,
 	                       linState[1]->predictedStateParameters()[1],
 	                       linState[1]->predictedStateParameters()[2]))
 		return CachingVertex<5>();
@@ -241,8 +241,8 @@ double GhostTrackVertexFinder::vertexCompat(const CachingVertex<5> &vtx1,
                            double scale1, double scale2)
 {
 	Vector3 diff = conv(vtx2.position() - vtx1.position());
-	Matrix3S cov = scale1 * vtx1.error().matrix_new() +
-	               scale2 * vtx2.error().matrix_new();
+	Matrix3S cov = scale1 * vtx1.error().matrix() +
+	               scale2 * vtx2.error().matrix();
 
 	return sqr(ROOT::Math::Dot(diff, diff)) / ROOT::Math::Similarity(cov, diff);
 }
@@ -264,7 +264,7 @@ static double trackVertexCompat(const CachingVertex<5> &vtx,
 	GlobalPoint point1 = vtx.position();
 	GlobalPoint point2 = tsos.globalPosition();
 	Vector3 dir = conv(point2 - point1);
-	Matrix3S error = vtx.error().matrix_new() +
+	Matrix3S error = vtx.error().matrix() +
 	                 tsos.cartesianError().matrix().Sub<Matrix3S>(0, 0);
 	if (!error.Invert())
 		return 1.0e6;

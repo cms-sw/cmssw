@@ -16,7 +16,7 @@
 
 namespace {
 
-  std::string strue("true");
+  const std::string strue("true");
 
   template<typename DDView>
   double  getDouble(const  char * s,  DDView const & ev) {

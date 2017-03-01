@@ -1,0 +1,65 @@
+#! /bin/bash
+
+if [ ! "$CMSSW_VERSION" ]; then
+  echo "the CMSSW environment is not set, please run"
+  echo
+  echo "    cmsenv"
+  echo
+  echo "and try again."
+  exit 1
+fi
+
+if [ ! "$1" ]; then
+  echo "usage: $0 CONFIG"
+  echo 
+  echo "Check if the modules used by the CONFIG python file are 'legacy', 'global', 'stream' or 'one' modules, and if they implement the 'fillDescriptions()' method."
+  exit 1
+fi
+
+# use colors only if the output is sent to a terminal
+if [ -t 1 ] ; then
+  SETCOLOR_SUCCESS='\e[0;32m'
+  SETCOLOR_WARNING='\e[1;33m'
+  SETCOLOR_FAILURE='\e[0;31m'
+  SETCOLOR_NORMAL_='\e[0m'
+else
+  SETCOLOR_SUCCESS=''
+  SETCOLOR_WARNING=''
+  SETCOLOR_FAILURE=''
+  SETCOLOR_NORMAL_=''
+fi
+
+edmConfigDump "$1" | grep 'cms\.EDAnalyzer\|cms\.EDFilter\|cms\.EDProducer\|cms\.OutputModule' | cut -d'"' -f2 | sort -u | while read MODULE
+do
+  edmPluginHelp -p $MODULE | {
+    read N CLASS TYPE P
+    read
+    if [ ! "$CLASS" ]; then
+      FILL="--"
+      TYPE="--"
+      MT="--"
+      ED="--"
+    else
+      if grep -q "not implemented the function"; then
+        FILL="no"
+        SETCOLOR_FILL="$SETCOLOR_WARNING"
+      else
+        FILL="yes"
+        SETCOLOR_FILL="$SETCOLOR_SUCCESS"
+      fi
+      TYPE=`echo $TYPE | sed -e's/[()]//g'`
+      MT=`echo $TYPE | cut -s -d: -f1`
+      ED=`echo $TYPE | cut -s -d: -f3`
+      if ! [ "$MT" ]; then
+        MT="legacy"
+        ED="$TYPE"
+        SETCOLOR_MT="$SETCOLOR_FAILURE"
+      elif [ "$MT" == "one" ]; then
+        SETCOLOR_MT="$SETCOLOR_WARNING"
+      else
+        SETCOLOR_MT="$SETCOLOR_SUCCESS"
+      fi
+    fi
+    printf "%-64s%-16s%b%-16s%b%s$SETCOLOR_NORMAL_\n" "$MODULE" "$ED" "$SETCOLOR_MT" "$MT" "$SETCOLOR_FILL" "$FILL"
+  }
+done

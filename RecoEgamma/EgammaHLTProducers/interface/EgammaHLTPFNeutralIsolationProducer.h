@@ -34,7 +34,7 @@ class EgammaHLTPFNeutralIsolationProducer : public edm::EDProducer {
   explicit EgammaHLTPFNeutralIsolationProducer(const edm::ParameterSet&);
   ~EgammaHLTPFNeutralIsolationProducer() {};    
       
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
  private:

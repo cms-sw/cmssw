@@ -8,7 +8,6 @@
 #include <memory>
 
 #include <map>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // Change log
 //
@@ -45,9 +44,7 @@ public:
     MessageSender &
     operator<< ( T const & t )
   {
-#ifndef __GCCXML__
     if (valid()) (*errorobj_p) << t;
-#endif
     return *this;
   }
 

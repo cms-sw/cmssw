@@ -4,9 +4,12 @@
 
 /** \class DTLocalTriggerTPTest
  * *
- *  DQM Test Client
+ *  DQ Test Client
  *
  *  \author  C. Battilana S. Marcellini - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -27,16 +30,17 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
   /// Run client analysis
-  void runClientDiagnostic();
+
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:
+
+  bool bookingdone;
 
 };
 

@@ -25,9 +25,6 @@ ChargeDividerFP420::ChargeDividerFP420(double pit, double az420, double azD2, do
     std::cout << "ChargeDividerFP420.h: constructor" << std::endl;
     std::cout << "peakMode = " << peakMode << "fluctuateCharge=   "<< fluctuateCharge <<  "chargedivisionsPerHit = "  << chargedivisionsPerHit << "deltaCut=   "<< deltaCut << std::endl;
   }
-  // Initialization:
-  theFP420NumberingScheme = new FP420NumberingScheme();
-  
   
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution
   //  peakMode=true ; //     APVpeakmode
@@ -73,7 +70,6 @@ ChargeDividerFP420::~ChargeDividerFP420() {
   //  if(verbosity>0) {
   //    std::cout << "Destroying a ChargeDividerFP420" << std::endl;
   //  }
-  delete theFP420NumberingScheme;
   
 }  
 CDividerFP420::ionization_type 

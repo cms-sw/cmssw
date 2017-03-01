@@ -45,7 +45,7 @@ void DTT0Analyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) 
 void DTT0Analyzer::endJob() {
   // Loop over DB entries
   for(DTT0::const_iterator tzero = tZeroMap->begin();
-      tzero != tZeroMap->end(); tzero++) {
+      tzero != tZeroMap->end(); ++tzero) {
 // @@@ NEW DTT0 FORMAT
 //    DTWireId wireId((*tzero).first.wheelId,
 //		    (*tzero).first.stationId,
@@ -100,13 +100,13 @@ void DTT0Analyzer::endJob() {
   theFile->cd();
   for(map<DTLayerId, TH1D*>::const_iterator lHisto = theMeanHistoMap.begin();
       lHisto != theMeanHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->Write(); 
   }    
 
   for(map<DTLayerId, TH1D*>::const_iterator lHisto = theSigmaHistoMap.begin();
       lHisto != theSigmaHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->Write(); 
  }
 

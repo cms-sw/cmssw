@@ -1,5 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 namespace HFTimingTrust 
 {

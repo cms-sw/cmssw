@@ -38,8 +38,7 @@
 // ----------------------------------------------------------------------------------//
 
 TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) 
-    : dqmStore_( edm::Service<DQMStore>().operator->() )
-    , conf_ ( iConfig )
+    : conf_ ( iConfig )
     , theTrackBuildingAnalyzer( new TrackBuildingAnalyzer(conf_) )
     , NumberOfTracks(NULL)
     , NumberOfMeanRecHitsPerTrack(NULL)
@@ -50,15 +49,38 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , NumberOfSeeds_lumiFlag(NULL)
     , NumberOfTrackCandidates(NULL)
 				//    , NumberOfGoodTrkVsClus(NULL)
+    , NumberEventsOfVsLS(NULL)
     , NumberOfTracksVsLS(NULL)
 				//    , NumberOfGoodTracksVsLS(NULL)
     , GoodTracksFractionVsLS(NULL)
 				//    , GoodTracksNumberOfRecHitsPerTrackVsLS(NULL)
 				// ADD by Mia for PU monitoring
 				// vertex plots to be moved in ad hoc class
-    , NumberOfTracksVsGoodPVtx(NULL)
+    , NumberOfGoodPVtxVsLS(NULL)
+    , NumberOfGoodPVtxWO0VsLS(NULL)
+    , NumberEventsOfVsBX (NULL)
+    , NumberOfTracksVsBX(NULL)
+    , GoodTracksFractionVsBX(NULL)
+    , NumberOfRecHitsPerTrackVsBX(NULL)
+    , NumberOfGoodPVtxVsBX(NULL)
+    , NumberOfGoodPVtxWO0VsBX(NULL)
     , NumberOfTracksVsBXlumi(NULL)
-
+    , NumberOfTracksVsGoodPVtx(NULL)
+    , NumberOfTracksVsPUPVtx(NULL)
+    , NumberEventsOfVsGoodPVtx(NULL)
+    , GoodTracksFractionVsGoodPVtx(NULL)
+    , NumberOfRecHitsPerTrackVsGoodPVtx(NULL)
+    , NumberOfPVtxVsGoodPVtx(NULL)
+    , NumberOfPixelClustersVsGoodPVtx(NULL)
+    , NumberOfStripClustersVsGoodPVtx(NULL)
+    , NumberEventsOfVsLUMI(NULL)
+    , NumberOfTracksVsLUMI(NULL)
+    , GoodTracksFractionVsLUMI(NULL)
+    , NumberOfRecHitsPerTrackVsLUMI(NULL)
+    , NumberOfGoodPVtxVsLUMI(NULL)
+    , NumberOfGoodPVtxWO0VsLUMI(NULL)
+    , NumberOfPixelClustersVsLUMI(NULL)
+    , NumberOfStripClustersVsLUMI(NULL)
     , NumberOfTracks_lumiFlag(NULL)
 				//    , NumberOfGoodTracks_lumiFlag(NULL)
 
@@ -70,9 +92,10 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , doGeneralPropertiesPlots_( conf_.getParameter<bool>("doGeneralPropertiesPlots"))
     , doHitPropertiesPlots_    ( conf_.getParameter<bool>("doHitPropertiesPlots"))
     , doPUmonitoring_          ( conf_.getParameter<bool>("doPUmonitoring") )
-    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig,consumesCollector()))
+    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this))
     , numSelection_       (conf_.getParameter<std::string>("numCut"))
     , denSelection_       (conf_.getParameter<std::string>("denCut"))
+    , pvNDOF_             ( conf_.getParameter<int> ("pvNDOF") )
 {
 
   edm::ConsumesCollector c{ consumesCollector() };
@@ -84,12 +107,14 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   bsSrcToken_ = consumes<reco::BeamSpot>(bsSrc_);
   pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
 
+  lumiscalersToken_ = consumes<LumiScalersCollection>(conf_.getParameter<edm::InputTag>("scal") );
+
   edm::InputTag alltrackProducer = conf_.getParameter<edm::InputTag>("allTrackProducer");
   edm::InputTag trackProducer    = conf_.getParameter<edm::InputTag>("TrackProducer");
   edm::InputTag tcProducer       = conf_.getParameter<edm::InputTag>("TCProducer");
   edm::InputTag seedProducer     = conf_.getParameter<edm::InputTag>("SeedProducer");
-  allTrackToken_       = consumes<reco::TrackCollection>(alltrackProducer);
-  trackToken_          = consumes<reco::TrackCollection>(trackProducer);
+  allTrackToken_       = consumes<edm::View<reco::Track> >(alltrackProducer);
+  trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
 
@@ -104,22 +129,21 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   Quality_  = conf_.getParameter<std::string>("Quality");
   AlgoName_ = conf_.getParameter<std::string>("AlgoName");
   
+  // get flag from the configuration
+  doPlotsVsBXlumi_   = conf_.getParameter<bool>("doPlotsVsBXlumi");   
+  if ( doPlotsVsBXlumi_ )
+      theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
+  doPlotsVsGoodPVtx_ = conf_.getParameter<bool>("doPlotsVsGoodPVtx");
+  doPlotsVsLUMI_     = conf_.getParameter<bool>("doPlotsVsLUMI");
+  doPlotsVsBX_       = conf_.getParameter<bool>("doPlotsVsBX");
 
   if ( doPUmonitoring_ ) {
-    
-    // get flag from the configuration
-    doPlotsVsBXlumi_   = conf_.getParameter<bool>("doPlotsVsBXlumi");
-    doPlotsVsGoodPVtx_ = conf_.getParameter<bool>("doPlotsVsGoodPVtx");
-    
-    if ( doPlotsVsBXlumi_ )
-      theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
     
     std::vector<edm::InputTag> primaryVertexInputTags    = conf_.getParameter<std::vector<edm::InputTag> >("primaryVertexInputTags");
     std::vector<edm::InputTag> selPrimaryVertexInputTags = conf_.getParameter<std::vector<edm::InputTag> >("selPrimaryVertexInputTags");
     std::vector<std::string>   pvLabels                  = conf_.getParameter<std::vector<std::string> >  ("pvLabels");
      
     if (primaryVertexInputTags.size()==pvLabels.size() and primaryVertexInputTags.size()==selPrimaryVertexInputTags.size()) {
-      //      for (auto const& tag : primaryVertexInputTags) {
       for (size_t i=0; i<primaryVertexInputTags.size(); i++) {
  	edm::InputTag iPVinputTag    = primaryVertexInputTags[i];
  	edm::InputTag iSelPVinputTag = selPrimaryVertexInputTags[i];
@@ -261,23 +285,88 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   
      histname = "NumberOfTracksVsLS_"+ CategoryName;
      NumberOfTracksVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax, TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
-     NumberOfTracksVsLS->getTH1()->SetBit(TH1::kCanRebin);
+     NumberOfTracksVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
      NumberOfTracksVsLS->setAxisTitle("#Lumi section",1);
      NumberOfTracksVsLS->setAxisTitle("Number of  Tracks",2);
   
      histname = "NumberOfRecHitsPerTrackVsLS_" + CategoryName;
      NumberOfRecHitsPerTrackVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
-     NumberOfRecHitsPerTrackVsLS->getTH1()->SetBit(TH1::kCanRebin);
+     NumberOfRecHitsPerTrackVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
      NumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section",1);
-     NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of RecHits per track",2);
+     NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of Valid RecHits per track",2);
   
+     histname = "NumberEventsVsLS_" + CategoryName;
+     NumberEventsOfVsLS = ibooker.book1D(histname,histname, LSBin,LSMin,LSMax);
+     NumberEventsOfVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
+     NumberEventsOfVsLS->setAxisTitle("#Lumi section",1);
+     NumberEventsOfVsLS->setAxisTitle("Number of events",2);
+  
+     double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
+     double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
+
+     histname = "NumberOfGoodPVtxVsLS_" + CategoryName;
+     NumberOfGoodPVtxVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,GoodPVtxMin,GoodPVtxMax,"");
+     NumberOfGoodPVtxVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
+     NumberOfGoodPVtxVsLS->setAxisTitle("#Lumi section",1);
+     NumberOfGoodPVtxVsLS->setAxisTitle("Mean number of good PV",2);
+
+     histname = "NumberOfGoodPVtxWO0VsLS_" + CategoryName;
+     NumberOfGoodPVtxWO0VsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,GoodPVtxMin,GoodPVtxMax,"");
+     NumberOfGoodPVtxWO0VsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
+     NumberOfGoodPVtxWO0VsLS->setAxisTitle("#Lumi section",1);
+     NumberOfGoodPVtxWO0VsLS->setAxisTitle("Mean number of good PV",2);
+
      if (doFractionPlot_) {
        histname = "GoodTracksFractionVsLS_"+ CategoryName;
        GoodTracksFractionVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
-       GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
+       GoodTracksFractionVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
        GoodTracksFractionVsLS->setAxisTitle("#Lumi section",1);
        GoodTracksFractionVsLS->setAxisTitle("Fraction of Good Tracks",2);
      }
+
+     if ( doPlotsVsBX_ || doAllPlots ) {
+       ibooker.setCurrentFolder(MEFolderName+"/BXanalysis");
+       int BXBin = 3564; double BXMin = 0.5; double BXMax = 3564.5;
+       
+       histname = "NumberEventsVsBX_" + CategoryName;
+       NumberEventsOfVsBX = ibooker.book1D(histname,histname, BXBin,BXMin,BXMax);
+       NumberEventsOfVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberEventsOfVsBX->setAxisTitle("BX",1);
+       NumberEventsOfVsBX->setAxisTitle("Number of events",2);
+       
+       histname = "NumberOfTracksVsBX_"+ CategoryName;
+       NumberOfTracksVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax, TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
+       NumberOfTracksVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsBX->setAxisTitle("BX",1);
+       NumberOfTracksVsBX->setAxisTitle("Number of  Tracks",2);
+       
+       histname = "NumberOfRecHitsPerTrackVsBX_" + CategoryName;
+       NumberOfRecHitsPerTrackVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,0.,40.,"");
+       NumberOfRecHitsPerTrackVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfRecHitsPerTrackVsBX->setAxisTitle("BX",1);
+       NumberOfRecHitsPerTrackVsBX->setAxisTitle("Mean number of Valid RecHits per track",2);
+       
+       histname = "NumberOfGoodPVtxVsBX_" + CategoryName;
+       NumberOfGoodPVtxVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,GoodPVtxMin,GoodPVtxMax,"");
+       NumberOfGoodPVtxVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfGoodPVtxVsBX->setAxisTitle("BX",1);
+       NumberOfGoodPVtxVsBX->setAxisTitle("Mean number of good PV",2);
+       
+       histname = "NumberOfGoodPVtxWO0VsBX_" + CategoryName;
+       NumberOfGoodPVtxWO0VsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,GoodPVtxMin,GoodPVtxMax,"");
+       NumberOfGoodPVtxWO0VsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfGoodPVtxWO0VsBX->setAxisTitle("BX",1);
+       NumberOfGoodPVtxWO0VsBX->setAxisTitle("Mean number of good PV",2);
+       
+       if (doFractionPlot_) {
+	 histname = "GoodTracksFractionVsBX_"+ CategoryName;
+	 GoodTracksFractionVsBX = ibooker.bookProfile(histname,histname, BXBin,BXMin,BXMax,0,1.1,"");
+	 GoodTracksFractionVsBX->getTH1()->SetCanExtend(TH1::kAllAxes);
+	 GoodTracksFractionVsBX->setAxisTitle("BX",1);
+	 GoodTracksFractionVsBX->setAxisTitle("Fraction of Good Tracks",2);
+       }
+     }
+
    }
 
    // book PU monitoring plots :  
@@ -287,24 +376,140 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   
      for (size_t i=0; i<theVertexMonitor.size(); i++)
        theVertexMonitor[i]->initHisto(ibooker);
-  
-     ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
+   }
   
      if ( doPlotsVsGoodPVtx_ ) {
-       // get binning from the configuration
+      ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
+      // get binning from the configuration
        int    GoodPVtxBin   = conf_.getParameter<int>("GoodPVtxBin");
        double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
        double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
     
        histname = "NumberOfTracksVsGoodPVtx";
        NumberOfTracksVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
-       NumberOfTracksVsGoodPVtx->getTH1()->SetBit(TH1::kCanRebin);
+       NumberOfTracksVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Mean number of Tracks per Event",2);
-    
+
+       histname = "NumberOfTracksVsPUPVtx";
+       NumberOfTracksVsPUPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 100.,"");
+       NumberOfTracksVsPUPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsPUPVtx->setAxisTitle("Number of PU",1);
+       NumberOfTracksVsPUPVtx->setAxisTitle("Mean number of Tracks per PUvtx",2);
+
+       histname = "NumberEventsVsGoodPVtx";
+       NumberEventsOfVsGoodPVtx = ibooker.book1D(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax);
+       NumberEventsOfVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberEventsOfVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberEventsOfVsGoodPVtx->setAxisTitle("Number of events",2);
+
+       if (doFractionPlot_) {
+	 histname = "GoodTracksFractionVsGoodPVtx";
+	 GoodTracksFractionVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 400.,"");
+	 GoodTracksFractionVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+	 GoodTracksFractionVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+	 GoodTracksFractionVsGoodPVtx->setAxisTitle("Mean fraction of good tracks",2);
+       }
+
+       histname = "NumberOfRecHitsPerTrackVsGoodPVtx";
+       NumberOfRecHitsPerTrackVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 100.,"");
+       NumberOfRecHitsPerTrackVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfRecHitsPerTrackVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfRecHitsPerTrackVsGoodPVtx->setAxisTitle("Mean number of valid rechits per Tracks",2);
+
+       histname = "NumberOfPVtxVsGoodPVtx";
+       NumberOfPVtxVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 100.,"");
+       NumberOfPVtxVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPVtxVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfPVtxVsGoodPVtx->setAxisTitle("Mean number of vertices",2);
+
+       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       histname = "NumberOfPixelClustersVsGoodPVtx";
+       NumberOfPixelClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusPxMin,NClusPxMax,"");
+       NumberOfPixelClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfPixelClustersVsGoodPVtx->setAxisTitle("Mean number of pixel clusters",2);
+       
+       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       histname = "NumberOfStripClustersVsGoodPVtx";
+       NumberOfStripClustersVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,NClusStrMin,NClusStrMax,"");
+       NumberOfStripClustersVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsGoodPVtx->setAxisTitle("Number of good PV (PU)",1);
+       NumberOfStripClustersVsGoodPVtx->setAxisTitle("Mean number of strip clusters",2);
+  
      }
   
+
+     if ( doPlotsVsLUMI_ || doAllPlots ) {
+       ibooker.setCurrentFolder(MEFolderName+"/LUMIanalysis");
+       int LUMIBin = conf_.getParameter<int>("LUMIBin");
+       float LUMIMin = conf_.getParameter<double>("LUMIMin");
+       float LUMIMax = conf_.getParameter<double>("LUMIMax");
+       
+       histname = "NumberEventsVsLUMI";
+       NumberEventsOfVsLUMI = ibooker.book1D(histname,histname,LUMIBin,LUMIMin,LUMIMax);
+       NumberEventsOfVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberEventsOfVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberEventsOfVsLUMI->setAxisTitle("Number of events",2);
+       
+       histname = "NumberOfTracksVsLUMI";
+       NumberOfTracksVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,0., 400.,"");
+       NumberOfTracksVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfTracksVsLUMI->setAxisTitle("Mean number of vertices",2);
+       
+       if (doFractionPlot_) {
+	 histname = "GoodTracksFractionVsLUMI";
+	 GoodTracksFractionVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,0., 100.,"");
+	 GoodTracksFractionVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+	 GoodTracksFractionVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+	 GoodTracksFractionVsLUMI->setAxisTitle("Mean number of vertices",2);
+       }
+
+       histname = "NumberOfRecHitsPerTrackVsLUMI";
+       NumberOfRecHitsPerTrackVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,0., 20.,"");
+       NumberOfRecHitsPerTrackVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfRecHitsPerTrackVsLUMI->setAxisTitle("Mean number of vertices",2);
+
+       double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
+       double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
+       
+       histname = "NumberOfGoodPVtxVsLUMI";
+       NumberOfGoodPVtxVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,GoodPVtxMin,GoodPVtxMax,"");
+       NumberOfGoodPVtxVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfGoodPVtxVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfGoodPVtxVsLUMI->setAxisTitle("Mean number of vertices",2);
+
+       histname = "NumberOfGoodPVtxWO0VsLUMI";
+       NumberOfGoodPVtxWO0VsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,GoodPVtxMin,GoodPVtxMax,"");
+       NumberOfGoodPVtxWO0VsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfGoodPVtxWO0VsLUMI->setAxisTitle("Mean number of vertices",2);
+
+       double NClusPxMin = conf_.getParameter<double>("NClusPxMin");
+       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+       histname = "NumberOfPixelClustersVsGoodPVtx";
+       NumberOfPixelClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusPxMin,NClusPxMax,"");
+       NumberOfPixelClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfPixelClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfPixelClustersVsLUMI->setAxisTitle("Mean number of pixel clusters",2);
+       
+       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+       histname = "NumberOfStripClustersVsLUMI";
+       NumberOfStripClustersVsLUMI = ibooker.bookProfile(histname,histname,LUMIBin,LUMIMin,LUMIMax,NClusStrMin,NClusStrMax,"");
+       NumberOfStripClustersVsLUMI->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfStripClustersVsLUMI->setAxisTitle("scal lumi [10e30 Hz cm^{-2}]",1);
+       NumberOfStripClustersVsLUMI->setAxisTitle("Mean number of strip clusters",2);
+  
+     }
+     
+
      if ( doPlotsVsBXlumi_ ) {
+       ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
        // get binning from the configuration
        edm::ParameterSet BXlumiParameters = conf_.getParameter<edm::ParameterSet>("BXlumiSetup");
        int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
@@ -313,14 +518,14 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     
        histname = "NumberOfTracksVsBXlumi_"+ CategoryName;
        NumberOfTracksVsBXlumi = ibooker.bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, TKNoMax,"");
-       NumberOfTracksVsBXlumi->getTH1()->SetBit(TH1::kCanRebin);
+       NumberOfTracksVsBXlumi->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsBXlumi->setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
        NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks",2);
     
      }
-   }
+   
 
-   theTrackAnalyzer->initHisto(ibooker);
+     theTrackAnalyzer->initHisto(ibooker, iSetup);
 
    // book the Seed Property histograms
    // ---------------------------------------------------------------------------------//
@@ -378,6 +583,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 										 TKNoSeedBin, TKNoSeedMin, TKNoSeedMax)));
        SeedsVsClusters[i]->setAxisTitle("Number of Clusters", 1);
        SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
+       SeedsVsClusters[i]->getTH2F()->SetCanExtend(TH1::kAllAxes);
      }
    }
   
@@ -446,6 +652,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 	title = "# of Clusters in (Pixel+Strip) Detectors";
       NumberOfTrkVsClusters[i]->setAxisTitle(title, 1);
       NumberOfTrkVsClusters[i]->setAxisTitle("Number of Tracks", 2);
+      NumberOfTrkVsClusters[i]->getTH1()->SetCanExtend(TH1::kXaxis);
     }
   }
   
@@ -481,47 +688,86 @@ void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, con
 // ---------------------------------------------------------------------------------//
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
+  
     // Filter out events if Trigger Filtering is requested
     if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
+    float lumi = -1.;
+    edm::Handle<LumiScalersCollection> lumiScalers;
+    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    if ( lumiScalers.isValid() && lumiScalers->size() ) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      lumi = scalit->instantLumi();
+    } else 
+      lumi = -1.;
+
+    if (doPlotsVsLUMI_ || doAllPlots) 
+      NumberEventsOfVsLUMI->Fill(lumi);
+    
     //  Analyse the tracks
     //  if the collection is empty, do not fill anything
     // ---------------------------------------------------------------------------------//
 
+    size_t bx = iEvent.bunchCrossing();
+    if ( doPlotsVsBX_ || doAllPlots )
+      NumberEventsOfVsBX->Fill(bx);
+
     // get the track collection
-    edm::Handle<reco::TrackCollection> trackHandle;
+    edm::Handle<edm::View<reco::Track> > trackHandle;
     iEvent.getByToken(trackToken_, trackHandle);
 
-    //    int numberOfAllTracks = 0;
     int numberOfTracks_den = 0;
-    edm::Handle<reco::TrackCollection> allTrackHandle;
+    edm::Handle<edm::View<reco::Track> > allTrackHandle;
     iEvent.getByToken(allTrackToken_,allTrackHandle);
     if (allTrackHandle.isValid()) {
-      //      numberOfAllTracks = allTrackHandle->size();
-      for (reco::TrackCollection::const_iterator track = allTrackHandle->begin();
-	   track!=allTrackHandle->end(); ++track) {
+      for ( edm::View<reco::Track>::const_iterator track = allTrackHandle->begin();
+	    track != allTrackHandle->end(); ++track ) {
+
 	if ( denSelection_(*track) )
 	  numberOfTracks_den++;
       }
     }
       
+    edm::Handle< reco::VertexCollection > pvHandle;
+    iEvent.getByToken(pvSrcToken_, pvHandle );
+    reco::Vertex const * pv0 = nullptr;  
+    if (pvHandle.isValid()) {
+      pv0 = &pvHandle->front();
+      //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
+      if (   pv0->isFake() || pv0->tracksSize()==0
+      // definition of goodOfflinePrimaryVertex
+          || pv0->ndof() < pvNDOF_ || pv0->z() > 24.)  pv0 = nullptr;
+    }
+
+
     if (trackHandle.isValid()) {
       
       int numberOfTracks = trackHandle->size();
       int numberOfTracks_num = 0;
+      int numberOfTracks_pv0 = 0;
 
-      reco::TrackCollection trackCollection = *trackHandle;
+      const edm::View<reco::Track>& trackCollection = *trackHandle;
       // calculate the mean # rechits and layers
       int totalRecHits = 0, totalLayers = 0;
-      
-      for (reco::TrackCollection::const_iterator track = trackCollection.begin();
-	   track!=trackCollection.end(); ++track) {
-	
-	if ( numSelection_(*track) )
+
+      theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
+      theTrackAnalyzer->setBX(iEvent);
+      theTrackAnalyzer->setLumi(iEvent,iSetup);
+      for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+	    track != trackCollection.end(); ++track ) {
+
+	if ( doPlotsVsBX_ || doAllPlots )
+	  NumberOfRecHitsPerTrackVsBX->Fill(bx,track->numberOfValidHits());
+	if ( numSelection_(*track) ) {
 	  numberOfTracks_num++;
+          if (pv0 && std::abs(track->dz(pv0->position()))<0.15) ++numberOfTracks_pv0;
+        } 
 
 	if ( doProfilesVsLS_ || doAllPlots)
-	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
+	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->numberOfValidHits());
+
+	if (doPlotsVsLUMI_ || doAllPlots) 
+	  NumberOfRecHitsPerTrackVsLUMI->Fill(lumi,track->numberOfValidHits());
 
 	totalRecHits    += track->numberOfValidHits();
 	totalLayers     += track->hitPattern().trackerLayersWithMeasurement();
@@ -536,9 +782,20 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       
       if (doGeneralPropertiesPlots_ || doAllPlots){
 	NumberOfTracks       -> Fill(numberOfTracks);
-	if (doFractionPlot_)
-	  FractionOfGoodTracks -> Fill(frac);
+	if ( doPlotsVsBX_ || doAllPlots )
+	  NumberOfTracksVsBX   -> Fill(bx,numberOfTracks);
+	if (doPlotsVsLUMI_ || doAllPlots) 
+	  NumberOfTracksVsLUMI -> Fill(lumi,numberOfTracks);
+	if (doFractionPlot_) {
+	  FractionOfGoodTracks     -> Fill(frac);
 
+	  if (doFractionPlot_) {
+	    if ( doPlotsVsBX_ || doAllPlots )
+	      GoodTracksFractionVsBX   -> Fill(bx,  frac);
+	    if (doPlotsVsLUMI_ || doAllPlots) 
+	      GoodTracksFractionVsLUMI -> Fill(lumi,frac);
+	  }
+	}
 	if( numberOfTracks > 0 ) {
 	  double meanRecHits = static_cast<double>(totalRecHits) / static_cast<double>(numberOfTracks);
 	  double meanLayers  = static_cast<double>(totalLayers)  / static_cast<double>(numberOfTracks);
@@ -548,9 +805,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
       
       if ( doProfilesVsLS_ || doAllPlots) {
-	NumberOfTracksVsLS    ->Fill(static_cast<double>(iEvent.id().luminosityBlock()),numberOfTracks);
+	float nLS = static_cast<double>(iEvent.id().luminosityBlock());
+	NumberEventsOfVsLS    ->Fill(nLS);
+	NumberOfTracksVsLS    ->Fill(nLS,numberOfTracks);
 	if (doFractionPlot_) 
-	  GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
+	  GoodTracksFractionVsLS->Fill(nLS,frac);
       }
       
       if ( doLumiAnalysis ) {
@@ -659,12 +918,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	// do vertex monitoring
 	for (size_t i=0; i<theVertexMonitor.size(); i++)
 	  theVertexMonitor[i]->analyze(iEvent, iSetup);
-	
-	if ( doPlotsVsGoodPVtx_ ) {
+      }
+      if ( doPlotsVsGoodPVtx_ ) {
 	  
 	  size_t totalNumGoodPV = 0;
-	  edm::Handle< reco::VertexCollection > pvHandle;
-	  iEvent.getByToken(pvSrcToken_, pvHandle );
 	  if (pvHandle.isValid()) {
 	    
 	    for (reco::VertexCollection::const_iterator pv = pvHandle->begin();
@@ -674,19 +931,53 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      if (pv->isFake() || pv->tracksSize()==0) continue;
 	      
 	      // definition of goodOfflinePrimaryVertex
-	      if (pv->ndof() < 4. || pv->z() > 24.)  continue;
+	      if (pv->ndof() < pvNDOF_ || pv->z() > 24.)  continue;
 	      totalNumGoodPV++;
 	    }
 	    
-	    NumberOfTracksVsGoodPVtx       -> Fill( totalNumGoodPV, numberOfTracks      );
+	    NumberEventsOfVsGoodPVtx       -> Fill( float(totalNumGoodPV) );
+            NumberOfTracksVsGoodPVtx	   -> Fill( float(totalNumGoodPV), numberOfTracks	);
+	    if (totalNumGoodPV>1) NumberOfTracksVsPUPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
+	    NumberOfPVtxVsGoodPVtx          -> Fill(float(totalNumGoodPV),pvHandle->size());
+
+	    for ( edm::View<reco::Track>::const_iterator track = trackCollection.begin();
+		  track != trackCollection.end(); ++track ) {
+
+	      NumberOfRecHitsPerTrackVsGoodPVtx -> Fill(float(totalNumGoodPV), track->numberOfValidHits());
+	    }
+
+	    if ( doProfilesVsLS_ || doAllPlots)
+	      NumberOfGoodPVtxVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),totalNumGoodPV);
+	    if ( doPlotsVsBX_ || doAllPlots )
+	      NumberOfGoodPVtxVsBX->Fill(bx,  float(totalNumGoodPV));
+
+	    if (doFractionPlot_)
+	      GoodTracksFractionVsGoodPVtx->Fill(float(totalNumGoodPV),frac);
+
+	    if ( doPlotsVsLUMI_ || doAllPlots )	    
+	      NumberOfGoodPVtxVsLUMI->Fill(lumi,float(totalNumGoodPV));
 	  }
-	}
+      
+	  std::vector<int> NClus;
+	  setNclus(iEvent,NClus);
+	  for (uint  i=0; i< ClusterLabels.size(); i++){
+	    if ( doPlotsVsLUMI_ || doAllPlots )	{
+	      if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
+	    }
+	    if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	  }
 	
 	if ( doPlotsVsBXlumi_ ) {
 	  double bxlumi = theLumiDetails_->getValue(iEvent);
 	  NumberOfTracksVsBXlumi       -> Fill( bxlumi, numberOfTracks      );
 	}
 	
+	if ( doProfilesVsLS_ || doAllPlots ) if ( totalNumGoodPV != 0 ) NumberOfGoodPVtxWO0VsLS  -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),float(totalNumGoodPV));
+	if ( doPlotsVsBX_    || doAllPlots ) if ( totalNumGoodPV != 0 ) NumberOfGoodPVtxWO0VsBX  -> Fill(bx,  float(totalNumGoodPV));
+	if ( doPlotsVsLUMI_  || doAllPlots ) if ( totalNumGoodPV != 0 ) NumberOfGoodPVtxWO0VsLUMI-> Fill(lumi,float(totalNumGoodPV));
+
       } // PU monitoring
       
     } // trackHandle is valid
@@ -696,17 +987,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) 
 {
-}
-
-void TrackingMonitor::endJob(void) 
-{
-    bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
-    std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-    if(outputMEsInRootFile)
-    {
-        dqmStore_->showDirStructure();
-        dqmStore_->save(outputFileName);
-    }
 }
 
 void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<double> &arrayMax, std::vector<int> &arrayBin, double smin, double smax, int sbin, double pmin, double pmax, int pbin) 

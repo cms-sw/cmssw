@@ -123,7 +123,7 @@ class EventBrowserTabController(BrowserTabController):
         currentEvent=self.dataAccessor().eventNumber()
         allEvents=self.dataAccessor().numberOfEvents()
         if allEvents==None:
-            allEvents=sys.maxint
+            allEvents=sys.maxsize
         if currentEvent<allEvents:
             self.navigate(currentEvent+1)
 
@@ -135,7 +135,7 @@ class EventBrowserTabController(BrowserTabController):
         currentEvent=self.dataAccessor().eventNumber()
         allEvents=self.dataAccessor().numberOfEvents()
         if allEvents==None:
-            allEvents=sys.maxint
+            allEvents=sys.maxsize
         if currentEvent<allEvents:
             self.navigate(allEvents)
 
@@ -146,7 +146,7 @@ class EventBrowserTabController(BrowserTabController):
         if self._dataAccessor.numberOfEvents():
             max = self._dataAccessor.numberOfEvents()
         else:
-            max = sys.maxint
+            max = sys.maxsize
         if number!=None:
             ok=(number>=1, number<=max)
         else:

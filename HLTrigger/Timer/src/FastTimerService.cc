@@ -7,6 +7,7 @@
 #include <limits>
 #include <iostream>
 #include <iomanip>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <unordered_set>
@@ -14,6 +15,9 @@
 
 // boost headers
 #include <boost/format.hpp>
+
+// tbb headers
+#include <tbb/concurrent_vector.h>
 
 // CMSSW headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,15 +36,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
-
-
-// file-static methods to fill a vector of strings with "(dup.) (...)" entries
-static
-void fill_dups(std::vector<std::string> & dups, unsigned int size) {
-  dups.reserve(size);
-  for (unsigned int i = dups.size(); i < size; ++i)
-    dups.push_back( (boost::format("(dup.) (%d)") % i).str() );
-}
 
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
@@ -125,6 +120,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostSourceEvent(    this, & FastTimerService::postSourceEvent );
   registry.watchPreEvent(           this, & FastTimerService::preEvent );
   registry.watchPostEvent(          this, & FastTimerService::postEvent );
+  /* Disable until can handle more than one thread per event
   // watch per-path events
   registry.watchPrePathEvent(       this, & FastTimerService::prePathEvent );
   registry.watchPostPathEvent(      this, & FastTimerService::postPathEvent );
@@ -135,6 +131,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
     registry.watchPreModuleEventDelayedGet(  this, & FastTimerService::preModuleEventDelayedGet );
     registry.watchPostModuleEventDelayedGet( this, & FastTimerService::postModuleEventDelayedGet );
   }
+  */
 
   // if requested, reserve plots for timing vs. lumisection
   // there is no need to store the id, as it wil always be 0
@@ -188,27 +185,6 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
 
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
 
-  // cache the names of the first and last path and endpath
-  if (m_process.size() <= pid)
-    m_process.resize(pid+1);
-  m_process[pid].name = gc.processContext()->processName();
-  if (m_skip_first_path and pid == 0) {
-    // skip the first path
-    if (tns.getTrigPaths().size() > 1) {
-      m_process[pid].first_path = tns.getTrigPaths().at(1);
-      m_process[pid].last_path  = tns.getTrigPaths().back();
-    }
-  } else {
-    if (not tns.getTrigPaths().empty()) {
-      m_process[pid].first_path = tns.getTrigPaths().front();
-      m_process[pid].last_path  = tns.getTrigPaths().back();
-    }
-  }
-  if (not tns.getEndPaths().empty()) {
-    m_process[pid].first_endpath = tns.getEndPaths().front();
-    m_process[pid].last_endpath  = tns.getEndPaths().back();
-  }
-
   uint32_t size_p = tns.getTrigPaths().size();
   uint32_t size_e = tns.getEndPaths().size();
   uint32_t size = size_p + size_e;
@@ -258,6 +234,13 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
     fillPathMap( pid, tns.getTrigPath(i), tns.getTrigPathModules(i) );
   for (uint32_t i = 0; i < tns.getEndPaths().size(); ++i)
     fillPathMap( pid, tns.getEndPath(i), tns.getEndPathModules(i) );
+
+  // cache the names of the process, and of first and last non-empty path and endpath
+  if (m_process.size() <= pid)
+    m_process.resize(pid+1);
+  m_process[pid].name = gc.processContext()->processName();
+  std::tie(m_process[pid].first_path, m_process[pid].last_path) = findFirstLast(pid, tns.getTrigPaths(), m_skip_first_path and pid == 0);
+  std::tie(m_process[pid].first_endpath, m_process[pid].last_endpath) = findFirstLast(pid, tns.getEndPaths());
 }
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
@@ -356,6 +339,7 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
         stream.dqm_paths[pid].exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
         stream.dqm_paths[pid].interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       }
+      stream.dqm_paths[pid].interpaths       ->GetXaxis()->SetBinLabel(size+1, "");
     }
 
     // plots vs. instantaneous luminosity
@@ -462,9 +446,30 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
                                                      ((id = tns.findEndPath(pathname))  != tns.getEndPaths().size())  ? tns.getEndPathModules(id)  :
                                                      std::vector<std::string>();
 
-          static std::vector<std::string> dup;
-          if (modules.size() > dup.size())
-            fill_dups(dup, modules.size());
+          // use a mutex to prevent two threads from assigning to the same element at the same time 
+          static std::mutex                          dup_mutex;
+          // use a tbb::concurrent_vector because growing does not invalidate existing iterators and pointers
+          static tbb::concurrent_vector<std::string> dup;
+          // lock, and fill the first 32 elements
+          if (dup.empty()) {
+            std::lock_guard<std::mutex> lock(dup_mutex);
+            if (dup.empty()) {
+              dup.resize(32);
+              for (unsigned int i = 0; i < 32; ++i)
+                dup[i] = (boost::format("(dup.) (%d)") % i).str();
+            }
+          }
+          // lock, and fill as many elements as needed
+          if (modules.size() > dup.size()) {
+            std::lock_guard<std::mutex> lock(dup_mutex);
+            unsigned int old_size = dup.size();
+            unsigned int new_size = modules.size();
+            if (new_size > old_size) {
+              dup.resize(new_size);
+              for (unsigned int i = old_size; i < new_size; ++i)
+                dup[i] = (boost::format("(dup.) (%d)") % i).str();
+            }
+          }
 
           std::vector<const char *> labels(modules.size(), nullptr);
           for (uint32_t i = 0; i < modules.size(); ++i)
@@ -472,11 +477,11 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
           // book counter histograms
           if (m_enable_dqm_bypath_counters) {
-            pathinfo.dqm_module_counter = booker.book1D(pathname + "_module_counter", pathname + " module counter", modules.size(), -0.5, modules.size() - 0.5)->getTH1F();
+            pathinfo.dqm_module_counter = booker.book1D(pathname + "_module_counter", pathname + " module counter", modules.size() + 1, -0.5, modules.size() + 0.5)->getTH1F();
             // find module labels
-            for (uint32_t i = 0; i < modules.size(); ++i) {
+            for (uint32_t i = 0; i < modules.size(); ++i)
               pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( i+1, labels[i] );
-            }
+            pathinfo.dqm_module_counter->GetXaxis()->SetBinLabel( modules.size() + 1, "" );
           }
           // book detailed timing histograms
           if (m_enable_dqm_bypath_details) {
@@ -592,6 +597,13 @@ void
 FastTimerService::postStreamEndLumi(edm::StreamContext const & sc) {
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
+
+  if (m_enable_dqm) {
+    DQMStore * store = edm::Service<DQMStore>().operator->();
+    assert(store);
+    store->mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, m_module_id);
+  }
+
   stream.timer_last_transition = FastTimer::Clock::now();
 }
 
@@ -1261,6 +1273,29 @@ void FastTimerService::fillPathMap(unsigned int pid, std::string const & name, s
   }
 }
 
+// find the first and last non-empty paths, optionally skipping the first one
+std::pair<std::string,std::string> FastTimerService::findFirstLast(unsigned int pid, std::vector<std::string> const & paths, bool skip) {
+  std::vector<std::string const *> p(paths.size(), nullptr);
+
+  // mark the empty paths
+  auto address_if_non_empty = [&](std::string const & name){
+    return m_stream.front().paths[pid][name].modules.empty() ? nullptr : & name;
+  };
+  std::transform(paths.begin(), paths.end(), p.begin(), address_if_non_empty);
+
+  // optionally, skip the first path
+  if (skip and not p.empty())
+    p.erase(p.begin());
+
+  // remove the empty paths
+  p.erase(std::remove(p.begin(), p.end(), nullptr), p.end());
+
+  // return the first and last non-empty paths, if there are any
+  if (not p.empty())
+    return std::make_pair(* p.front(), * p.back());
+  else
+    return std::make_pair(std::string(), std::string());
+}
 
 // query the current module/path/event
 // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
@@ -1285,7 +1320,7 @@ double FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDes
   if (module.id() < m_stream[sid].fast_modules.size()) {
     return m_stream[sid].fast_modules[module.id()]->time_active;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
     return 0.;
   }
 }
@@ -1295,7 +1330,7 @@ double FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) con
   if (id < m_stream[sid].fast_modules.size()) {
     return m_stream[sid].fast_modules[id]->time_active;
   } else {
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module id " << id;
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module id " << id;
     return 0.;
   }
 }
@@ -1307,7 +1342,7 @@ double FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, const std::st
     return keyval->second.time_active;
   } else {
     // module not found
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByLabel: unexpected module " << label;
     return 0.;
   }
 }
@@ -1319,7 +1354,7 @@ double FastTimerService::queryModuleTimeByType(edm::StreamID sid, const std::str
     return keyval->second.time_active;
   } else {
     // module not found
-    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByType: unexpected module type " << type;
+    //edm::LogError("FastTimerService") << "FastTimerService::queryModuleTimeByType: unexpected module type " << type;
     return 0.;
   }
 }
@@ -1400,7 +1435,6 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
   desc.addUntracked<bool>(   "enableDQMbyModuleType",    false);
   desc.addUntracked<bool>(   "enableDQMSummary",         false);
-  desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false)->setComment("deprecated: this parameter is ignored");
   desc.addUntracked<bool>(   "enableDQMbyLumiSection",   false);
   desc.addUntracked<bool>(   "enableDQMbyProcesses",     false);
   desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
@@ -1409,12 +1443,8 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
   desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<double>( "dqmLuminosityRange",      1.e34  )->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<double>( "dqmLuminosityResolution", 1.e31  )->setComment("deprecated: this parameter is ignored");
   desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
-  desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"))->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", std::vector<unsigned int> { })->setComment("deprecated: this parameter is ignored");
   descriptions.add("FastTimerService", desc);
 }
 

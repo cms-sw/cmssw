@@ -1,7 +1,6 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
-//#include "RecoTracker/SpecialSeedGenerators/interface/CosmicLayerTriplets.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
@@ -43,11 +42,11 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
+    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
 }
 
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&){
     if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = 0; }
-    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
 }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup){
@@ -89,27 +88,7 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 	edm::ESHandle<Propagator>  propagatorOppositeHandle;
         iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",propagatorOppositeHandle);
 
-/*  	edm::ParameterSet hitsfactoryOutInPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryOutInPSet");
-  	std::string hitsfactoryOutInName = hitsfactoryOutInPSet.getParameter<std::string>("ComponentName");
-  	hitsGeneratorOutIn = OrderedHitsGeneratorFactory::get()->create( hitsfactoryOutInName, hitsfactoryOutInPSet);
-	std::string propagationDirection = hitsfactoryOutInPSet.getUntrackedParameter<std::string>("PropagationDirection", 
-											            "alongMomentum");
-	if (propagationDirection == "alongMomentum") outInPropagationDirection = alongMomentum;
-	else outInPropagationDirection = oppositeToMomentum;
-	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGeneratorOutIn done";
 
-	edm::ParameterSet hitsfactoryInOutPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryInOutPSet");
-        std::string hitsfactoryInOutName = hitsfactoryInOutPSet.getParameter<std::string>("ComponentName");
-        hitsGeneratorInOut = OrderedHitsGeneratorFactory::get()->create( hitsfactoryInOutName, hitsfactoryInOutPSet);
-
-	propagationDirection = hitsfactoryInOutPSet.getUntrackedParameter<std::string>("PropagationDirection",
-                                                                                        "alongMomentum");
-	if (propagationDirection == "alongMomentum") inOutPropagationDirection = alongMomentum;
-        else inOutPropagationDirection = oppositeToMomentum;
-	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGeneratorInOut done";
-	if (!hitsGeneratorOutIn || !hitsGeneratorInOut) 
-		throw cms::Exception("CtfSpecialSeedGenerator") << "Only corcrete implementation GenericPairOrTripletGenerator of OrderedHitsGenerator is allowed ";
-*/
 	std::vector<edm::ParameterSet> pSets = conf_.getParameter<std::vector<edm::ParameterSet> >("OrderedHitsFactoryPSets");
 	std::vector<edm::ParameterSet>::const_iterator iPSet;
 	for (iPSet = pSets.begin(); iPSet != pSets.end(); iPSet++){
@@ -145,7 +124,7 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
   // get Inputs
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   //check on the number of clusters
   if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
@@ -158,16 +137,15 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   
   
   edm::LogVerbatim("CtfSpecialSeedGenerator") << " number of seeds = "<< output->size();
-  e.put(output);
+  e.put(std::move(output));
 }
 
 bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
 					       const edm::Event& e,
 					       TrajectorySeedCollection& output){
-	std::vector<TrackingRegion*> regions = theRegionProducer->regions(e, iSetup);
-	std::vector<TrackingRegion*>::const_iterator iReg;
+	std::vector<std::unique_ptr<TrackingRegion>> regions = theRegionProducer->regions(e, iSetup);
         bool ok = true;
-	for (iReg = regions.begin(); iReg != regions.end(); iReg++){
+	for (auto iReg = regions.begin(); iReg != regions.end(); iReg++){
 		if(!theSeedBuilder->momentumFromPSet()) theSeedBuilder->setMomentumTo((*iReg)->ptMin());
 		int i = 0;
 		for (auto iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
@@ -181,10 +159,6 @@ bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
                   if (!ok) break;
 		}
                 if (!ok) break;
-	}
-	//clear memory
-	for (std::vector<TrackingRegion*>::iterator iReg = regions.begin(); iReg != regions.end(); iReg++){
-		delete *iReg;
 	}
         return ok;
 }
@@ -225,7 +199,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const edm::EventSetup &es ){
 
         edm::ESHandle<TrackerTopology> tTopo;
-        es.get<IdealGeometryRecord>().get(tTopo);
+        es.get<TrackerTopologyRcd>().get(tTopo);
 
 	std::vector<std::pair<unsigned int, unsigned int> > vSubdetLayer;
 	//std::vector<std::string> vSeedLayerNames;

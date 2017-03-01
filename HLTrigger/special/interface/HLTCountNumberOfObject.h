@@ -21,6 +21,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <class OColl>
 class HLTCountNumberOfObject : public HLTFilter {
@@ -42,7 +43,7 @@ public:
       desc.add<edm::InputTag>("src",edm::InputTag(""));
       desc.add<int>("MinN",0);
       desc.add<int>("MaxN",99999);
-      descriptions.add(std::string("hlt")+std::string(typeid(HLTCountNumberOfObject<OColl>).name()),desc);
+      descriptions.add(defaultModuleLabel<HLTCountNumberOfObject<OColl>>(), desc);
     }
 
 private:

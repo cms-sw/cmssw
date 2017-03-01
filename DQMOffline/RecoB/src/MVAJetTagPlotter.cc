@@ -17,8 +17,8 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
                                    const EtaPtBin &etaPtBin,
                                    const ParameterSet &pSet,
                                    const std::string& folderName,
-                                   const bool& update,
-                                   const unsigned int& mc, DQMStore::IBooker & ibook) :
+                                   const unsigned int& mc, const bool& willFinalize, 
+				   DQMStore::IBooker & ibook) :
 	BaseTagInfoPlotter(folderName, etaPtBin),
 	jetTagComputer(tagName), computer(0),
 	categoryVariable(btau::lastTaggingVariable)
@@ -29,16 +29,16 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
 		categoryVariable = getTaggingVariableName(
 			pSet.getParameter<string>("categoryVariable"));
 		pSets = pSet.getParameter<VParameterSet>("categories");
-	} else
-		pSets.push_back(pSet);
+	} 
+	else pSets.push_back(pSet);
 
 	for(unsigned int i = 0; i != pSets.size(); ++i) {
-		ostringstream ss;
-		ss << "CAT" << i;
-		categoryPlotters.push_back(
-			new TaggingVariablePlotter(folderName, etaPtBin,
-			                           pSets[i], update,mc, ibook,
-			                           i ? ss.str() : string()));
+	  ostringstream ss;
+	  ss << "CAT" << i;
+	  categoryPlotters.push_back(
+				     new TaggingVariablePlotter(folderName, etaPtBin,
+								pSets[i], mc, willFinalize, ibook,
+								i ? ss.str() : string()));
 	}
 }
 
@@ -72,9 +72,6 @@ void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfo
                                    const int &jetFlavour,
 				   const float & w)
 {
-	// taggingVariables() should not need EventSetup
-	// computer->setEventSetup(es);
-
 	const JetTagComputer::TagInfoHelper helper(baseTagInfos);
 	const TaggingVariableList& vars = computer->taggingVariables(helper);
 
@@ -87,10 +84,13 @@ void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfo
 	}
 }
 
-void MVAJetTagPlotter::finalize()
+void MVAJetTagPlotter::finalize(DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_)
 {
+  //nothing done here in principle and function below does not work
+  /*
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         boost::bind(&TaggingVariablePlotter::finalize, _1));
+		 boost::bind(&TaggingVariablePlotter::finalize, _1, boost::ref(ibook_), _2, boost::ref(igetter_)));
+  */
 }
 
 void MVAJetTagPlotter::psPlot(const std::string &name)
@@ -98,12 +98,6 @@ void MVAJetTagPlotter::psPlot(const std::string &name)
 	for_each(categoryPlotters.begin(), categoryPlotters.end(),
 	         boost::bind(&TaggingVariablePlotter::psPlot, _1, boost::ref(name)));
 }
-
-/*void MVAJetTagPlotter::write(const bool allHisto)
-{
-	for_each(categoryPlotters.begin(), categoryPlotters.end(),
-	         boost::bind(&TaggingVariablePlotter::write, _1, allHisto));
-}*/
 
 void MVAJetTagPlotter::epsPlot(const std::string &name)
 {

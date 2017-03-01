@@ -90,7 +90,7 @@ FWParameterSetterBase::update() const
 // static member functions
 //
 
-boost::shared_ptr<FWParameterSetterBase>
+std::shared_ptr<FWParameterSetterBase>
 FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
 {
    static std::map<edm::TypeID,edm::TypeWithDict> s_paramToSetterMap;
@@ -145,7 +145,7 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
    //make it into the base class
    FWParameterSetterBase* p = static_cast<FWParameterSetterBase*>(setterObj.address());
    //Make a shared pointer to the base class that uses a destructor for the derived class, in order to match the above construct call.
-   boost::shared_ptr<FWParameterSetterBase> ptr(p, boost::bind(&edm::TypeWithDict::destruct,itFind->second,setterObj.address(),true));
+   std::shared_ptr<FWParameterSetterBase> ptr(p, boost::bind(&edm::TypeWithDict::destruct,itFind->second,setterObj.address(),true));
    return ptr;
 }
 

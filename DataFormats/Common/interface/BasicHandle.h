@@ -25,23 +25,19 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/ProductData.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-
 #include <memory>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace cms {
   class Exception;
 }
 
 namespace edm {
+  class WrapperBase;
   template <typename T> class Wrapper;
 
   class BasicHandle {
@@ -55,23 +51,11 @@ namespace edm {
       prov_(h.prov_),
       whyFailedFactory_(h.whyFailedFactory_){}
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     BasicHandle(BasicHandle &&h) = default;
-#endif
     
-    BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
-      product_(WrapperHolder(iProd, iInterface)),
+    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) :
+      product_(iProd),
       prov_(iProv) {
-    }
-
-    BasicHandle(WrapperHolder const& iWrapperHolder, Provenance const* iProv) :
-      product_(iWrapperHolder),
-      prov_(iProv) {
-    }
-
-    BasicHandle(ProductData const& productData) :
-      product_(WrapperHolder(productData.wrapper_.get(), productData.getInterface())),
-      prov_(&productData.prov_) {
     }
 
     ///Used when the attempt to get the data failed
@@ -96,22 +80,14 @@ namespace edm {
     }
 
     bool isValid() const {
-      return product_.wrapper() != 0 && prov_ != 0;
+      return product_ && prov_;
     }
 
     bool failedToGet() const {
       return bool(whyFailedFactory_);
     }
 
-    WrapperInterfaceBase const* interface() const {
-      return product_.interface();
-    }
-
-    void const* wrapper() const {
-      return product_.wrapper();
-    }
-
-    WrapperHolder wrapperHolder() const {
+    WrapperBase const* wrapper() const {
       return product_;
     }
 
@@ -135,8 +111,14 @@ namespace edm {
       return whyFailedFactory_;
     }
 
+    void clear() {
+      product_ = nullptr;
+      prov_ = nullptr;
+      whyFailedFactory_.reset();
+    }
+
   private:
-    WrapperHolder product_;
+    WrapperBase const* product_;
     Provenance const* prov_;
     std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };

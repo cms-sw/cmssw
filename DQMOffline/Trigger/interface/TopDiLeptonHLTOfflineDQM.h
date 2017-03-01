@@ -99,7 +99,11 @@ namespace HLTOfflineDQMTopDiLepton {
 
       /// trigger table
       edm::EDGetTokenT< edm::TriggerResults > triggerTable_;
-      edm::EDGetTokenT< trigger::TriggerEventWithRefs > triggerEventWithRefsTag_;
+//      edm::EDGetTokenT< trigger::TriggerEventWithRefs > triggerEventWithRefsTag_;
+      edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenRAW;
+      edm::EDGetTokenT <trigger::TriggerEventWithRefs> triggerSummaryTokenAOD;
+      bool hasRawTriggerSummary;
+
       /// trigger paths for monitoring, expected 
       /// to be of form signalPath:MonitorPath
       std::vector<std::string> elecMuPaths_;
@@ -245,7 +249,7 @@ namespace HLTOfflineDQMTopDiLepton {
 /// define MonitorDiLepton to be used
 //using TopDiLeptonOffline::MonitorDiLepton;
 
-class TopDiLeptonHLTOfflineDQM : public thread_unsafe::DQMEDAnalyzer  {
+class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
@@ -256,8 +260,8 @@ class TopDiLeptonHLTOfflineDQM : public thread_unsafe::DQMEDAnalyzer  {
     }
 
     /// do this during the event loop
-    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
-    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
     void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:

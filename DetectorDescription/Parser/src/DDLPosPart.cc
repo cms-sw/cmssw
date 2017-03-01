@@ -1,29 +1,21 @@
-/***************************************************************************
-                          DDLPosPart.cc  -  description
-                             -------------------
-    begin                : Tue Oct 30 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLPosPart.h"
 
+#include <map>
+#include <utility>
+
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDLPosPart::DDLPosPart( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
-{}
-
-DDLPosPart::~DDLPosPart( void )
 {}
 
 // Upon encountering a PosPart, store the label, simple.
@@ -34,13 +26,9 @@ DDLPosPart::~DDLPosPart( void )
 void
 DDLPosPart::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLPosPart::preProcessElement started");
-
   // Clear out child elements.
   myRegistry_->getElement("Rotation")->clear();
   myRegistry_->getElement("ReflectionRotation")->clear();
-
-  DCOUT_V('P', "DDLPosPart::preProcessElement completed");
 }
 
 // Upon encountering the end tag of the PosPart we should have in the meantime
@@ -49,8 +37,6 @@ DDLPosPart::preProcessElement( const std::string& name, const std::string& nmspa
 void
 DDLPosPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLPosPart::processElement started");
-  
   // get all internal elements.
   DDXMLElement* myParent     = myRegistry_->getElement("rParent");
   DDXMLElement* myChild      = myRegistry_->getElement("rChild");
@@ -93,8 +79,6 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
     rotn = myrRefl->getDDName(nmspace);
   }
 
-  DCOUT_V('P', "DDLPosPart::processElement:  Final Rotation info: " << rotn);
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
 
   double x = 0.0, y = 0.0, z = 0.0;
@@ -105,8 +89,6 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
     y = ev.eval(nmspace, atts.find("y")->second);
     z = ev.eval(nmspace, atts.find("z")->second);
   }
-
-  DCOUT_V('P', "DDLPosPart::processElement:  Final Translation info x=" << x << " y=" << y << " z=" << z);
 
   DDRotation* myDDRotation;
   // if rotation is named ...
@@ -127,12 +109,6 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 
 
   DDTranslation myDDTranslation(x, y, z);
-
-  DCOUT_V('P', "about to make a PosPart ...");
-  DCOUT_V('p', "  myDDRotation    : " << *myDDRotation);
-  DCOUT_V('p', "  myDDTranslation : " << myDDTranslation);
-  DCOUT_V('p', "  parentDDName    : " << myParent->getDDName(nmspace));
-  DCOUT_V('p', "  selfDDName      : " << myChild->getDDName(nmspace));
 
   const DDXMLAttribute & atts = getAttributeSet();
   std::string copyno = "";
@@ -156,6 +132,4 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 
   // after a pos part is done, we know we can clear it.
   clear();
-
-  DCOUT_V('P', "DDLPosPart::processElement completed");
 }

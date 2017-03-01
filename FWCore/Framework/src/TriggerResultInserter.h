@@ -16,6 +16,7 @@
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <memory>
 
@@ -43,7 +44,7 @@ namespace edm
     void produce(StreamID id, edm::Event& e, edm::EventSetup const& c) const override final;
 
   private:
-    std::vector<TrigResPtr> resultsPerStream_;
+    std::vector<edm::propagate_const<TrigResPtr>> resultsPerStream_;
 
     ParameterSetID pset_id_;
   };

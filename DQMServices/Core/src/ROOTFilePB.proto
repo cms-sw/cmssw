@@ -6,6 +6,8 @@ message ROOTFilePB
     required string full_pathname = 1;
     required uint32 size = 2;
     required bytes  streamed_histo = 3;
+
+    required uint32 flags = 4;
   }
 
   repeated Histo histo = 1;

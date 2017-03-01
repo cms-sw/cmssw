@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="PixelFitter" persistent="false"/>
+  <class name="edm::Wrapper<PixelFitter>" persistent="false"/>
+
+  <class name="PixelTrackFilter" persistent="false"/>
+  <class name="edm::Wrapper<PixelTrackFilter>" persistent="false"/>
+</lcgdict>

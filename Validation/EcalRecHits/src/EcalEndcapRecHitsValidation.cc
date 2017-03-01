@@ -23,22 +23,6 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
   // verbosity switch 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
   
-  // ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();                   
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }                                                                  
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
-
   // ----------------------   
   meEEUncalibRecHitsOccupancyPlus_         = 0;
   meEEUncalibRecHitsOccupancyMinus_        = 0;
@@ -57,72 +41,65 @@ EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps)
   meEEUncalibRecHitsAmpFullMap_            = 0;
   meEEUncalibRecHitsPedFullMap_            = 0;
 
-  // ---------------------- 
-  Char_t histo[200];
-   
-  if ( dbe_ ) 
-    {
-      dbe_->setCurrentFolder("EcalRecHitsV/EcalEndcapRecHitsTask");
-      
-      sprintf (histo, "EE+ Occupancy" );  
-      meEEUncalibRecHitsOccupancyPlus_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-
-      sprintf (histo, "EE- Occupancy" );  
-      meEEUncalibRecHitsOccupancyMinus_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-      
-      sprintf (histo, "EE Amplitude" );
-      meEEUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 201, -20., 4000.);
-      
-      sprintf (histo, "EE Pedestal" );
-      meEEUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 190., 210.);
-      
-      sprintf (histo, "EE Jitter" );
-      meEEUncalibRecHitsJitter_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-      
-      sprintf (histo, "EE Chi2" );
-      meEEUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
-
-      sprintf (histo, "EE RecHit Max Sample Ratio"); 
-      meEEUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
-      
-      sprintf (histo, "EE+ Occupancy gt 60 adc counts" );  
-      meEEUncalibRecHitsOccupancyPlusGt60adc_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-
-      sprintf (histo, "EE- Occupancy gt 60 adc counts" );  
-      meEEUncalibRecHitsOccupancyMinusGt60adc_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-
-      sprintf (histo, "EE Amplitude gt 60 adc counts" );
-      meEEUncalibRecHitsAmplitudeGt60adc_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
-      
-      sprintf (histo, "EE Pedestal gt 60 adc counts" );
-      meEEUncalibRecHitsPedestalGt60adc_ = dbe_->book1D(histo, histo, 50, 190., 210.);
-      
-      sprintf (histo, "EE Jitter gt 60 adc counts" );
-      meEEUncalibRecHitsJitterGt60adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-      
-      sprintf (histo, "EE Chi2 gt 60 adc counts" );
-      meEEUncalibRecHitsChi2Gt60adc_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
-
-      sprintf (histo, "EE RecHit Max Sample Ratio gt 60 adc counts"); 
-      meEEUncalibRecHitMaxSampleRatioGt60adc_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
-
-      sprintf (histo, "EE Amplitude Full Map");
-      meEEUncalibRecHitsAmpFullMap_ = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 200, 0., 4000.);
-
-      sprintf (histo, "EE Pedestal Full Map");
-      meEEUncalibRecHitsPedFullMap_ = dbe_->bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 50, 194., 201.);
-    }
 }
 
 EcalEndcapRecHitsValidation::~EcalEndcapRecHitsValidation(){   
 
 }
 
-void EcalEndcapRecHitsValidation::beginJob(){  
+void EcalEndcapRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
+   
+  Char_t histo[200];
+   
+  ibooker.setCurrentFolder("EcalRecHitsV/EcalEndcapRecHitsTask");
 
-}
+  sprintf (histo, "EE+ Occupancy" );  
+  meEEUncalibRecHitsOccupancyPlus_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
-void EcalEndcapRecHitsValidation::endJob(){
+  sprintf (histo, "EE- Occupancy" );  
+  meEEUncalibRecHitsOccupancyMinus_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+  sprintf (histo, "EE Amplitude" );
+  meEEUncalibRecHitsAmplitude_ = ibooker.book1D(histo, histo, 201, -20., 4000.);
+
+  sprintf (histo, "EE Pedestal" );
+  meEEUncalibRecHitsPedestal_ = ibooker.book1D(histo, histo, 50, 190., 210.);
+
+  sprintf (histo, "EE Jitter" );
+  meEEUncalibRecHitsJitter_ = ibooker.book1D(histo, histo, 100, 0., 100.);
+
+  sprintf (histo, "EE Chi2" );
+  meEEUncalibRecHitsChi2_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
+
+  sprintf (histo, "EE RecHit Max Sample Ratio"); 
+  meEEUncalibRecHitMaxSampleRatio_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);
+
+  sprintf (histo, "EE+ Occupancy gt 60 adc counts" );  
+  meEEUncalibRecHitsOccupancyPlusGt60adc_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+  sprintf (histo, "EE- Occupancy gt 60 adc counts" );  
+  meEEUncalibRecHitsOccupancyMinusGt60adc_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+  sprintf (histo, "EE Amplitude gt 60 adc counts" );
+  meEEUncalibRecHitsAmplitudeGt60adc_ = ibooker.book1D(histo, histo, 200, 0., 4000.);
+
+  sprintf (histo, "EE Pedestal gt 60 adc counts" );
+  meEEUncalibRecHitsPedestalGt60adc_ = ibooker.book1D(histo, histo, 50, 190., 210.);
+
+  sprintf (histo, "EE Jitter gt 60 adc counts" );
+  meEEUncalibRecHitsJitterGt60adc_ = ibooker.book1D(histo, histo, 100, 0., 100.);
+
+  sprintf (histo, "EE Chi2 gt 60 adc counts" );
+  meEEUncalibRecHitsChi2Gt60adc_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
+
+  sprintf (histo, "EE RecHit Max Sample Ratio gt 60 adc counts"); 
+  meEEUncalibRecHitMaxSampleRatioGt60adc_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);
+
+  sprintf (histo, "EE Amplitude Full Map");
+  meEEUncalibRecHitsAmpFullMap_ = ibooker.bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 200, 0., 4000.);
+
+  sprintf (histo, "EE Pedestal Full Map");
+  meEEUncalibRecHitsPedFullMap_ = ibooker.bookProfile2D(histo, histo, 100, 0., 100., 100, 0., 100., 50, 194., 201.);
 
 }
 

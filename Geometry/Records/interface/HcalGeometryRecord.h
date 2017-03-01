@@ -12,9 +12,10 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorExtendedRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
@@ -23,12 +24,16 @@
 class HcalGeometryRecord : 
    public edm::eventsetup::DependentRecordImplementation<
    HcalGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		HcalAlignmentRcd, 
-		HcalAlignmentErrorRcd,
-		GlobalPositionRcd,
-                PHcalRcd               > > {};
+     boost::mpl::vector<
+     IdealGeometryRecord,
+     HcalParametersRcd,
+     HcalSimNumberingRecord,
+     HcalRecNumberingRecord,
+     HcalAlignmentRcd, 
+     HcalAlignmentErrorRcd,
+     HcalAlignmentErrorExtendedRcd,
+     GlobalPositionRcd,
+     PHcalRcd               > > {};
 
 #endif /* RECORDS_HCALGEOMETRYRECORD_H */
 

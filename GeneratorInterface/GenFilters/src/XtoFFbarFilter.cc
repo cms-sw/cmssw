@@ -9,7 +9,7 @@ XtoFFbarFilter::XtoFFbarFilter(const edm::ParameterSet& iConfig) :
   idDaughterF_(iConfig.getParameter<vector<int> >("idDaughterF")),
   idMotherY_(iConfig.getParameter<vector<int> >("idMotherY")),
   idDaughterG_(iConfig.getParameter<vector<int> >("idDaughterG")),
-  xTotal_(0), xSumPt_(0.), xSumR_(0.), totalEvents_(0),rejectedEvents_(0)
+  xTotal_(0), xSumPt_(0.), xSumR_(0.), xSumCtau_(0.), totalEvents_(0),rejectedEvents_(0)
 { 
   // Note if if not searching for Y --> g-gbar.
   requireY_ = (idMotherY_.size() > 0 && idDaughterG_.size() > 0);
@@ -76,6 +76,7 @@ bool XtoFFbarFilter::foundXtoFFbar(const GenParticleRef& moth,
       if (this->found(idDaughter,  pdgIdDau)) {foundF    = true; 
 
         // Just for statistics, get transverse decay length.
+        // (To be really accurate, should do it w.r.t. P.V., but couldn't be bothered ...)
 	// This is the normal case
         rho = dau->vertex().Rho();
         // Unfortunately, duplicate particles can appear in the event record. Handle this as follows:
@@ -93,6 +94,7 @@ bool XtoFFbarFilter::foundXtoFFbar(const GenParticleRef& moth,
     xTotal_++;
     xSumPt_ += moth->pt();
     xSumR_  += rho;
+    xSumCtau_ += rho*(moth->mass()/(moth->pt()+0.01)); // protection against unlikely case Pt = 0.
   }
 
   return isXtoFFbar;
@@ -102,7 +104,8 @@ void XtoFFbarFilter::endJob() {
   cout<<endl;
   cout<<"=== XtoFFbarFilter statistics of selected X->ffbar or Y->ggbar"<<endl;
   if (xTotal_ > 0) {
-    cout<<"===   mean X & Y Pt = "<<xSumPt_/xTotal_<<" and transverse decay length = "<<xSumR_/xTotal_<<endl;
+    cout<<"===   mean X & Y Pt = "<<xSumPt_/xTotal_<<" GeV and transverse decay length = "<<xSumR_/xTotal_<<" cm"<<endl;
+    cout<<"===   mean c*tau = "<<xSumCtau_/xTotal_<<" cm"<<endl;
   } else {
     cout<<"===   WARNING: NONE FOUND !"<<endl;
   }

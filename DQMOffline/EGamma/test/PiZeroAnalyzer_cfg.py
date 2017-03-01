@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("piZeroAnalysis")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("DQMOffline.EGamma.piZeroAnalyzer_cfi")
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 

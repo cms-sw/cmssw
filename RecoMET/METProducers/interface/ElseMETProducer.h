@@ -20,7 +20,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +31,7 @@
 //____________________________________________________________________________||
 namespace cms
 {
-  class ElseMETProducer: public edm::EDProducer
+  class ElseMETProducer: public edm::stream::EDProducer<>
     {
     public:
       explicit ElseMETProducer(const edm::ParameterSet&);

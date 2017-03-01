@@ -287,11 +287,11 @@ ostream& reco::operator<<(  ostream& out,
     out<<setiosflags(ios::fixed);
     out<<setprecision(1);      
   
-    for(unsigned i=0; i<block.elements_.size(); i++) {
+    for(unsigned i=0; i<block.elements().size(); i++) {
       if ( !toPrint[i] ) continue;
       out<<"\t";
       out <<setw(width) << elid[i];
-      for(unsigned j=0; j<block.elements_.size(); j++) {
+      for(unsigned j=0; j<block.elements().size(); j++) {
 	if ( !toPrint[j] ) continue;
         double Dist = block.dist(i,j, block.linkData());//,PFBlock::LINKTEST_ALL);
 
@@ -308,23 +308,23 @@ ostream& reco::operator<<(  ostream& out,
     out<<"\t" << setw(width) << " ";
     for(unsigned ie=0; ie<elid.size(); ie++) 
       if ( toPrint[ie] && 
-	   ( block.elements_[ie].type() == PFBlockElement::TRACK ||
-	     block.elements_[ie].type() == PFBlockElement::GSF )) 
+	   ( block.elements()[ie].type() == PFBlockElement::TRACK ||
+	     block.elements()[ie].type() == PFBlockElement::GSF )) 
 	out <<setw(width)<< elid[ie];
     out<<endl;  
     out<<setiosflags(ios::fixed);
     out<<setprecision(1);      
   
-    for(unsigned i=0; i<block.elements_.size(); i++) {
+    for(unsigned i=0; i<block.elements().size(); i++) {
       if ( !toPrint[i] || 
-	   (block.elements_[i].type() != PFBlockElement::TRACK &&
-	    block.elements_[i].type() != PFBlockElement::GSF )) continue;
+	   (block.elements()[i].type() != PFBlockElement::TRACK &&
+	    block.elements()[i].type() != PFBlockElement::GSF )) continue;
       out<<"\t";
       out <<setw(width) << elid[i];
-      for(unsigned j=0; j<block.elements_.size(); j++) {
+      for(unsigned j=0; j<block.elements().size(); j++) {
 	if ( !toPrint[j] || 
-	     (block.elements_[j].type() != PFBlockElement::TRACK &&
-	      block.elements_[j].type() != PFBlockElement::GSF )) continue;
+	     (block.elements()[j].type() != PFBlockElement::TRACK &&
+	      block.elements()[j].type() != PFBlockElement::GSF )) continue;
 	double Dist = block.dist(i,j, block.linkData());//,PFBlock::LINKTEST_ALL);
 
 	// out<<setw(width)<< Dist*1000.;

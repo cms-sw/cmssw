@@ -11,6 +11,8 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <EventFilter/DTRawToDigi/plugins/DTUnpackingModule.h>
 #include <DataFormats/DTDigi/interface/DTControlData.h>
@@ -76,6 +78,34 @@ DTUnpackingModule::~DTUnpackingModule(){
   delete unpacker;
 }
 
+void DTUnpackingModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("dataType","DDU");
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<bool>("useStandardFEDid",true);
+  desc.addUntracked<int>("minFEDid",770);
+  desc.addUntracked<int>("maxFEDid",779);
+  desc.addOptional<bool>("fedbyType");  // never used, only kept here for back-compatibility
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<bool>("debug",false);
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.addUntracked<bool>("writeSC",true);
+      psd1.addUntracked<bool>("readingDDU",true);
+      psd1.addUntracked<bool>("performDataIntegrityMonitor",false);
+      psd1.addUntracked<bool>("readDDUIDfromDDU",true);
+      psd1.addUntracked<bool>("debug",false);
+      psd1.addUntracked<bool>("localDAQ",false);
+      psd0.add<edm::ParameterSetDescription>("rosParameters",psd1);
+    }
+    psd0.addUntracked<bool>("performDataIntegrityMonitor",false);
+    psd0.addUntracked<bool>("localDAQ",false);
+    desc.add<edm::ParameterSetDescription>("readOutParameters",psd0);
+  }
+  desc.add<bool>("dqmOnly",false);
+  descriptions.add("dtUnpackingModule",desc);
+}
 
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
@@ -92,11 +122,11 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   context.get<DTReadOutMappingRcd>().get(mapping);
   
   // Create the result i.e. the collections of MB Digis and SC local triggers
-  auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
-  auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
+  auto detectorProduct = std::make_unique<DTDigiCollection>();
+  auto triggerProduct = std::make_unique<DTLocalTriggerCollection>();
 
-  auto_ptr<std::vector<DTDDUData> > dduProduct(new std::vector<DTDDUData>);
-  auto_ptr<DTROS25Collection> ros25Product(new DTROS25Collection);
+  auto dduProduct = std::make_unique<std::vector<DTDDUData>>();
+  auto ros25Product = std::make_unique<DTROS25Collection>();
   
   // Loop over the DT FEDs
   int FEDIDmin = 0, FEDIDMax = 0;
@@ -130,12 +160,12 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   // commit to the event  
   if(!dqmOnly) {
-    e.put(detectorProduct);
-    e.put(triggerProduct);
+    e.put(std::move(detectorProduct));
+    e.put(std::move(triggerProduct));
   }
   if(performDataIntegrityMonitor) {
-    e.put(dduProduct);
-    e.put(ros25Product);
+    e.put(std::move(dduProduct));
+    e.put(std::move(ros25Product));
   }
 }
 

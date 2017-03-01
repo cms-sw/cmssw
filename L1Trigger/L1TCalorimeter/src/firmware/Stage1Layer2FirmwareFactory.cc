@@ -15,7 +15,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessorFirmware.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2FirmwareFactory.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 using namespace std;
 using namespace edm;
@@ -23,8 +23,7 @@ using namespace edm;
 namespace l1t {
 
   Stage1Layer2FirmwareFactory::ReturnType
-  // Stage1Layer2FirmwareFactory::create(const FirmwareVersion & m_fwv /*,const CaloParams & dbPars*/){
-  Stage1Layer2FirmwareFactory::create(const int m_fwv ,CaloParams* dbPars){
+  Stage1Layer2FirmwareFactory::create(const int m_fwv ,CaloParamsHelper* dbPars){
     ReturnType p;
     //unsigned fwv = m_fwv.firmwareVersion();
     //unsigned fwv = 1;
@@ -35,9 +34,8 @@ namespace l1t {
 
     switch (m_fwv){
     case 1:
-      p = ReturnType(new Stage1Layer2MainProcessorFirmwareImp1(m_fwv, dbPars));
-      break;
     case 2:
+    case 3:
       p = ReturnType(new Stage1Layer2MainProcessorFirmwareImp1(m_fwv, dbPars));
       break;
     default:

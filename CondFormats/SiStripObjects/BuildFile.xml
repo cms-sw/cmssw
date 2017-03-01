@@ -1,4 +1,5 @@
 <use   name="CondFormats/Common"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="DataFormats/SiStripCommon"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/FEDRawData"/>
@@ -6,7 +7,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
 <use   name="boost_serialization"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

@@ -1,12 +1,16 @@
 #ifndef TrackingTools_TrackingRecHitPropagator_h
 #define TrackingTools_TrackingRecHitPropagator_h
 
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/KalmanUpdators/interface/TrackingRecHitPropagator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -23,25 +27,29 @@ class TrackingRecHitPropagator {
 
 	~TrackingRecHitPropagator() {delete thePropagator;}
 
-        /*
+        
 	template <class ResultingHit> TrackingRecHit::RecHitPointer project(const TrackingRecHit::ConstRecHitPointer hit,
                          					            const GeomDet& det,
-                         					            const TrajectoryStateOnSurface ts) const{
+                         					            const TrajectoryStateOnSurface ts,
+									    const TransientTrackingRecHitBuilder* builder) const{
+
+        TkClonerImpl hc = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
+
 	//1) propagate the best possible track parameters to the surface of the hit you want to "move" using a AnalyticalPropagator ;
 	//2) create LocalTrajectoryParameters with the local x,y of the hit and direction + momentum from the propagated track parameters;
 	//3) create a LocalTrajectoryError matrix which is 0 except for the local x,y submatrix, which is filled with the hit errors;
 	//4) create a TSOS from the result of 2) and 3) and propagate it to the reference surface;
 	//5) create a new hit with the local x,y subspace of the result of 4)
-	  if (!ts.isValid()) return InvalidTransientRecHit::build(hit->det());
+	  if (!ts.isValid()) return std::make_shared<InvalidTrackingRecHit>(*hit->det(), TrackingRecHit::missing);
 	  //	  LogTrace("SiTrackerMultiRecHitUpdator") << "the tsos is valid";	  
 		//check if the ts lays or not on the destination surface and in case propagate it
 		TrajectoryStateOnSurface propagated =ts;
 		if (hit->surface() != &(ts.surface())) propagated = thePropagator->propagate(ts, *(hit->surface()));
-		if (!propagated.isValid()) return InvalidTransientRecHit::build(hit->det());	
+		if (!propagated.isValid()) return std::make_shared<InvalidTrackingRecHit>(*hit->det(), TrackingRecHit::missing);	
 		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "the propagate tsos is valid";	  
 		//		LogTrace("SiTrackerMultiRecHitUpdator") << "Original: position: "<<hit->parameters()<<" error: "<<hit->parametersError()<<std::endl;
 		//clone the original hit with this state
-		TrackingRecHit::RecHitPointer updatedOriginal = hit->clone(propagated);
+		TrackingRecHit::RecHitPointer updatedOriginal = hc.makeShared(hit,propagated);
 		//		LogTrace("SiTrackerMultiRecHitUpdator") << "New: position: "<<updatedOriginal->parameters()<<" error: "<<updatedOriginal->parametersError()<<std::endl;
 		
 		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "rechit cloned";	  
@@ -55,7 +63,7 @@ class TrackingRecHitPropagator {
 		//		LogTrace("SiTrackerMultiRecHitUpdator") <<"Original cov matrix: "<<lte.matrix()<<std::endl;
 		TrajectoryStateOnSurface hit_state(ltp, lte, propagated.surface(), propagated.magneticField());
 		TrajectoryStateOnSurface projected_hit_state = thePropagator->propagate(hit_state, det.surface());
-		if (!projected_hit_state.isValid()) return InvalidTransientRecHit::build(hit->det());	
+		if (!projected_hit_state.isValid()) return std::make_shared<InvalidTrackingRecHit>(*hit->det(), TrackingRecHit::missing);	
 		LocalPoint p = projected_hit_state.localPosition();
 		LocalError e = projected_hit_state.localError().positionError();
 		//		LogTrace("SiTrackerMultiRecHitUpdator") << "position: "<<p<<" error: "<<e<<std::endl;
@@ -66,7 +74,7 @@ class TrackingRecHitPropagator {
 		return ResultingHit::build(p, e, &det, updatedOriginal->det(), updatedOriginal, this);
 	}
 	
-        */
+        
 	private:
 	const AnalyticalPropagator* thePropagator;
 };

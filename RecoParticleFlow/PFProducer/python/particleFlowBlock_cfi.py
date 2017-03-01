@@ -43,9 +43,10 @@ particleFlowBlock = cms.EDProducer(
                   muonSrc = cms.InputTag("muons1stStep"),
                   cleanBadConvertedBrems = cms.bool(True),
                   useIterativeTracking = cms.bool(True),
-                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
-                                                           1.0,1.0),
-                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
+                  maxDPtOPt      = cms.double(1.),                                 
+                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(10.0,10.0,10.0,
+                                                           10.0,10.0,5.0),
+                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3,3)
                   ),        
         # secondary GSF tracks are also turned off
         #cms.PSet( importerName = cms.string("GSFTrackImporter"),
@@ -62,9 +63,7 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterHO") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("particleFlowClusterHFEM") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("particleFlowClusterHFHAD") ),
+                  source = cms.InputTag("particleFlowClusterHF") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterPS") ),
         
@@ -137,4 +136,52 @@ particleFlowBlock = cms.EDProducer(
         )          
 )
 
+def _findIndicesByModule(name):
+   ret = []
+   for i, pset in enumerate(particleFlowBlock.elementImporters):
+        if pset.importerName.value() == name:
+            ret.append(i)
+   return ret
 
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+# kill tracks in the HGCal
+_insertGeneralTracksImporter = {}
+for idx in _findIndicesByModule('GeneralTracksImporter'):
+    _insertGeneralTracksImporter[idx] = dict(
+        importerName = cms.string('GeneralTracksImporterWithVeto'),
+        veto = cms.InputTag('hgcalTrackCollection:TracksInHGCal')
+    )
+phase2_hgcal.toModify(
+    particleFlowBlock,
+    elementImporters = _insertGeneralTracksImporter
+)
+### for later
+#_phase2_hgcal_Linkers.append( 
+#    cms.PSet( linkerName = cms.string("SCAndHGCalLinker"),
+#              linkType   = cms.string("SC:HGCAL"),
+#              useKDTree  = cms.bool(False),
+#              SuperClusterMatchByRef = cms.bool(True) ) 
+#)
+#_phase2_hgcal_Linkers.append(
+#    cms.PSet( linkerName = cms.string("HGCalAndBREMLinker"),
+#              linkType   = cms.string("HGCAL:BREM"),
+#              useKDTree  = cms.bool(False) )
+#)
+#_phase2_hgcal_Linkers.append(
+#    cms.PSet( linkerName = cms.string("GSFAndHGCalLinker"), 
+#                  linkType   = cms.string("GSF:HGCAL"),
+#                  useKDTree  = cms.bool(False) )
+#)
+
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+_addTiming = {}
+for idx in _findIndicesByModule('GeneralTracksImporter') + _findIndicesByModule('GeneralTracksImporterWithVeto'):
+    _addTiming[idx] = dict( 
+            timeValueMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModel"),
+            timeErrorMap = cms.InputTag("trackTimeValueMapProducer:generalTracksConfigurableFlatResolutionModelResolution")
+    ) 
+phase2_timing.toModify(
+    particleFlowBlock,
+    elementImporters = _addTiming
+)

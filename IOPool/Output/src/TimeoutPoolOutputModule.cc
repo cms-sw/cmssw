@@ -3,9 +3,9 @@
 
 namespace edm {
 
-  void TimeoutPoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+  void TimeoutPoolOutputModule::write(EventForOutput const& e) {
     eventsWrittenInCurrentFile++;
-    PoolOutputModule::write(e, mcc);
+    PoolOutputModule::write(e);
   }
   
   TimeoutPoolOutputModule::TimeoutPoolOutputModule(ParameterSet const& ps):

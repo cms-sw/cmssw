@@ -1,234 +1,75 @@
-##-----
-# Set job-specific inputs based on shell
-# the following enviromental variables
-# export COSMIC_MODE=True # or False
-# export JOB_NAME="CosmicStream112220"
-# export NEVENTS=1000
-# export ALL_HISTS=True
-# export TRIGGER_SET=HLT
-# export READ_LIST_FROM_FILE=False # or True
-# export INPUTFILES='' # root file(s)
-# export INPUTFILES_LIST='inputfile_BeamHaloExpress_120015.txt'
-# for details see https://twiki.cern.ch/twiki/bin/view/CMS/JetMETDQMPromptAnalysis
-##-----
 import os
 import FWCore.ParameterSet.Config as cms
-#
-# --- [cosmic sequence (default=True)?]
-iscosmics = (os.environ.get('COSMIC_MODE','False'))
-print 'iscosmics (default=True) = '+str(iscosmics)
-#
-# --- [name of job & output file (default=test)?]
-jobname = (os.environ.get('JOB_NAME','test'))
-print 'jobname (default=test) = '+str(jobname)
-#
-# --- [number of events (default=1000)]
-nevents = int(os.environ.get('NEVENTS','1000'))
-print 'nevents (default=1000) = '+str(nevents)
-#
-# --- [turn on all histograms (default=True)?]
-allhist = (os.environ.get('ALL_HISTS','True'))
-print 'allhist (default=True) = '+str(allhist)
-#
-#--- [read list of input files from a text file? or not (default=False)]
-read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
-print 'read list of input files from a text file (default=False) = '+str(read_from_file)
-#
-#--- [trigger set (default=HLT)]
-trigger_set = (os.environ.get('TRIGGER_SET','HLT'))
-print 'trigger set name (default=HLT) = '+str(trigger_set)
-#
-#--- [define list of input files]
-inputfiles = []
-if read_from_file=="True":
-  #--- [name of the text file (default=inputfile_list_default.txt)]
-  filename = (os.environ.get('INPUTFILES_LIST','inputfiles.txt'))
-  file=open(filename)
-  print file.read()
-  f = open(filename)
-  try:
-    for line in f:
-        inputfiles.append(line)
-  finally:
-    f.close()
-else:
-  inputfiles = os.environ.get('INPUTFILES',
-#'/store/relval/CMSSW_7_0_0_pre8/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PU_START70_V2_eg-v1/00000/FEFD7ED7-D952-E311-962B-0025905A605E.root'
-###'/store/relval/CMSSW_5_3_6-GR_R_53_V15_RelVal_jet2012B/JetHT/RECO/v2/00000/FEC61CBE-062A-E211-AA5D-0026189438E4.root').split(",")
-#'/store/relval/CMSSW_7_0_0_pre11/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/F0127B3E-8A6A-E311-9A07-002590593902.root'
-#'/store/relval/CMSSW_7_1_0_pre4_AK4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/7E11BD2A-5CB5-E311-B931-0025905A60A0.root'
-'/store/relval/CMSSW_7_1_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PRE_LS171_V7-v1/00000/BAD462A0-0CD1-E311-B8EA-02163E00E8E4.root'
-)
-print 'List of input files'
-print inputfiles
-#-----
 
-#
-#-----
-process = cms.Process("test")
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
+process = cms.Process("JetMETDQMOffline")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-#
-# DQM
-#
-#process.load("DQMServices.Core.DQM_cfg")
+from Configuration.StandardSequences.GeometryRecoDB_cff import *
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Services_cff')
 
-process.load("DQMServices.Components.MEtoEDMConverter_cfi")
-
-#
-# BeamHaloData producer
-#
-from Configuration.Geometry.GeometryIdeal_cff import *
-### process.load("Configuration/StandardSequences/Geometry_cff") ### Deprecated
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration/StandardSequences/MagneticField_cff")
-process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-#process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-#process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
-
-#process.GlobalTag.globaltag ='GR_P_V14::All'
-#process.GlobalTag.globaltag ='GR_R_52_V3::All'
-process.GlobalTag.globaltag ='GR_R_53_V1::All'
-
-##process.GlobalTag.toGet = cms.VPSet(
-##    cms.PSet(record = cms.string("AlCaRecoTriggerBitsRcd"),
-##        tag = cms.string("AlcaRecoTriggerBits_JetMET_DQM_v0_hlt"),
-##        connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_42X_DQM' )
-##        #connect = cms.untracked.string("sqlite_file:/tmp/sturdy/CMSSW_4_2_X_2011-09-30-1000/src/GenericTriggerEventFlag_JetMET_DQM_HLT_v0.db")
-##    )
-##)
-# the task - JetMET objects
-if iscosmics =="True":
-  process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
-else:
-  process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
-
-#change values for first jet and met analyzer parameterset -> all other parametersets are cloned from these
-process.jetDQMAnalyzerAk4CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
-process.jetDQMAnalyzerAk4CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.jetDQMAnalyzerAk4CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.jetDQMAnalyzerAk4CaloUncleaned.processname = cms.string(trigger_set)
-#process.tcMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
-#process.tcMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-#process.tcMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-#process.tcMetDQMAnalyzer.processname = cms.string(trigger_set)
-process.caloMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.caloMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.caloMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.caloMetDQMAnalyzer.processname = cms.string(trigger_set)
-#process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
-#process.jetMETAnalyzer.processname = cms.string("HLT8E29")
-
-#if allhist=="True":
-#  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(False)
-#  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(False)
-#  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(False)
-
-#process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
-
-
-################################################################################
-#
-# If allSelection = True, all the MET cleaning folders are filled.
-# If allSelection = False, only All, BasicCleanup and ExtraCleanup are filled.
-#
-################################################################################
-# if allhist=="True":
-#   process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
-#   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
-#   process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
-#   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
-#   process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
-#   process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)
-#   process.jetMETAnalyzer.mucorrMETAnalysis.allSelection     = cms.bool(True)
-
+#for data in 720pre7
+process.GlobalTag.globaltag ='76X_mcRun2_asymptotic_v5'
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
-# for igprof
-#process.IgProfService = cms.Service("IgProfService",
-#  reportFirstEvent            = cms.untracked.int32(0),
-#  reportEventInterval         = cms.untracked.int32(25),
-#  reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > igdqm.%I.gz")
-#)
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring() 
+process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+readFiles.extend( [
+       '/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/7E692CF1-2971-E511-9609-0025905A497A.root',
+       '/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/B4DD46D7-2971-E511-B4DD-0025905A4964.root' 
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/7CEB618B-8151-E511-8D05-002618943857.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/8A6ED13D-8351-E511-A6E1-0025905964C2.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/9A6F45A5-8251-E511-8BB5-0025905964A6.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/D6536366-7E51-E511-BC81-0025905A48F2.root',
+       #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/DE6F609B-8251-E511-940D-002618943916.root' 
+       ] );
 
-#
-# /Wmunu/Summer09-MC_31X_V3-v1/GEN-SIM-RECO
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(inputfiles))
 
-#
-process.source.inputCommands = cms.untracked.vstring('keep *', 'drop *_MEtoEDMConverter_*_*')
+secFiles.extend( [
+               ] )
 
 #
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( nevents )
-)
-process.Timing = cms.Service("Timing")
-
-## # Comment this out or reconfigure to see error messages 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('caloMetDQMAnalyzer'),
-    cout = cms.untracked.PSet(
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        jetMETAnalyzer = cms.untracked.PSet(
-            limit = cms.untracked.int32(1)
-        ),
-        noLineBreaks = cms.untracked.bool(True),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    categories = cms.untracked.vstring('jetMETAnalyzer'),
-    destinations = cms.untracked.vstring('cout')
+    input = cms.untracked.int32( -1 )
 )
 
+process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
 
-process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
+process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.dqmSaver.referenceHandling = cms.untracked.string('all')
-#
+#CMSSW expects same sequence name for different modes, comment out unneeded modes
+#pp MC
+#process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceMC_cff")
+#pp data
+process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
+#cosmic data
+#process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
+#cosmic MC
+#process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmicMC_cff")
+#for HI data
+#process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceHI_cff")
+#for HI MC
+#process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceHIMC_cff")
+
 cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/JetMET/'+str(cmssw_version)+'/Harvesting'
 process.dqmSaver.workflow = Workflow
 
-#process.load('RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi')
-
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
-)
-
-process.FEVT = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
-    #outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string("reco_DQM_%s.root" % jobname)
-)
-
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True) ## default is false
-
-)
-
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
-if iscosmics=="True":
-  process.p = cms.Path(#process.BeamHaloId
-#                       process.fixedGridRhoFastjetAllCalo
-                       process.jetMETDQMOfflineSourceCosmic
-                     * process.dqmStoreStats
-###                     * process.MEtoEDMConverter
+process.p = cms.Path(                    #process.dump*
+                     process.jetMETDQMOfflineSourceMiniAOD*
+                     #for cosmic data and MC
+                     #process.jetMETDQMOfflineSourceCosmic*
+                     #for Data and MC pp and HI
+                     #process.jetMETDQMOfflineSource*
+                     process.dataCertificationJetMETSequence*
+                     process.dqmSaver
                      )
-else:
-  process.p = cms.Path(#process.BeamHaloId
-#                       process.fixedGridRhoFastjetAllCalo
-                       process.jetMETDQMOfflineSource
-                     * process.dqmStoreStats* process.dqmSaver
-###                       * process.MEtoEDMConverter
-                     )
-
-process.outpath = cms.EndPath(process.FEVT)

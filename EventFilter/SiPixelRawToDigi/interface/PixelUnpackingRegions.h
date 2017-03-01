@@ -68,8 +68,6 @@ public:
 
   /// various informational accessors:
   unsigned int nFEDs() const { return feds_.size(); }
-  unsigned int nBarrelFEDs() const;
-  unsigned int nForwardFEDs() const;
   unsigned int nModules() const { return modules_.size(); }
   unsigned int nBarrelModules() const;
   unsigned int nForwardModules() const;

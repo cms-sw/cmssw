@@ -67,7 +67,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) edm::LogError(x)
 #define LOGDEBUG(x) LogDebug(x)
-static int theVerboseLevel = 2;
+static const int theVerboseLevel = 2;
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 #else
@@ -122,8 +122,7 @@ using namespace SiPixelTemplateReco;
 //! \param    zeropix - (input)  vector of index pairs pointing to the dead pixels
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& clust, 
-		    std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster,
 		    SiPixelTemplate& templ, 
 		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> >& zeropix,
 			 float& probQ)
@@ -160,10 +159,6 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	   return 20;
 	}
 	
-// Make a local copy of the cluster container so that we can muck with it
-	
-	array_2d cluster = clust;
-	
 // Check to see if Q probability is selected
 	
 	calc_probQ = false;
@@ -196,54 +191,37 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
     
 // Check that the cluster container is (up to) a 7x21 matrix and matches the dimensions of the double pixel flags
 
-	if(cluster.num_dimensions() != 2) {
-	   LOGERROR("SiPixelTemplateReco") << "input cluster container (BOOST Multiarray) has wrong number of dimensions" << ENDL;	
-	   return 3;
-	}
-	nclusx = (int)cluster.shape()[0];
-	nclusy = (int)cluster.shape()[1];
-	if(nclusx != (int)xdouble.size()) {
-	   LOGERROR("SiPixelTemplateReco") << "input cluster container x-size is not equal to double pixel flag container size" << ENDL;	
-	   return 4;
-	}
-	if(nclusy != (int)ydouble.size()) {
-	   LOGERROR("SiPixelTemplateReco") << "input cluster container y-size is not equal to double pixel flag container size" << ENDL;	
-	   return 5;
-	}
-	
-// enforce maximum size	
-	
-	if(nclusx > TXSIZE) {nclusx = TXSIZE;}
-	if(nclusy > TYSIZE) {nclusy = TYSIZE;}
-	
-// First, rescale all pixel charges       
+	nclusx = cluster.mrow;
+	nclusy = (int)cluster.mcol;
+	auto const xdouble = cluster.xdouble;
+	auto const ydouble = cluster.ydouble;
 
-	for(j=0; j<nclusx; ++j)
-    for(i=0; i<nclusy; ++i)
-		  if(cluster[j][i] > 0) {cluster[j][i] *= qscale;}
-	
+// First, rescale all pixel charges and compute total charge
+        qtotal = 0.f;
+	for(i=0; i<nclusx*nclusy; ++i) {
+	   cluster.matrix[i] *= qscale; 
+           qtotal +=cluster.matrix[i];
+	}
 // Next, sum the total charge and "decapitate" big pixels         
-
-	qtotal = 0.f;
-	minmax = templ.pixmax();
-	for(i=0; i<nclusy; ++i) {
-	   maxpix = minmax;
-	   if(ydouble[i]) {maxpix *=2.f;}
-	   for(j=0; j<nclusx; ++j) {
-		  qtotal += cluster[j][i];
-		  if(cluster[j][i] > maxpix) {cluster[j][i] = maxpix;}
+          minmax = templ.pixmax();
+	  for(j=0; j<nclusx; ++j) 
+             for(i=0; i<nclusy; ++i) {
+                maxpix = minmax;
+                if(ydouble[i]) {maxpix *=2.f;}
+		 if(cluster(j,i) > maxpix) {cluster(j,i) = maxpix;}
 	   }
-	}
+	
 	
 // Do the cluster repair here	
 	
     if(deadpix) {
 	   fypix = BYM3; lypix = -1;
-       for(i=0; i<nclusy; ++i) {
-	      ysum[i] = 0.f; nyzero[i] = 0;
+	memset(nyzero, 0, TYSIZE * sizeof(int));
+        memset(ysum, 0, BYSIZE * sizeof(float));
+	for(i=0; i<nclusy; ++i) {	   
 // Do preliminary cluster projection in y
 	      for(j=0; j<nclusx; ++j) {
-		     ysum[i] += cluster[j][i];
+		     ysum[i] += cluster(j,i);
 		  }
 		  if(ysum[i] > 0.f) {
 // identify ends of cluster to determine what the missing charge should be
@@ -281,7 +259,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 		  if(ydouble[i]) {maxpix *=2.;}
 		  if(nyzero[i] > 0 && nyzero[i] < 3) {qpixel = (maxpix - ysum[i])/(float)nyzero[i];} else {qpixel = 1.;}
 		  if(qpixel < 1.) {qpixel = 1.;}
-          cluster[j][i] = qpixel;
+          cluster(j,i) = qpixel;
 // Adjust the total cluster charge to reflect the charge of the "repaired" cluster
 		  qtotal += qpixel;
 	   }
@@ -295,7 +273,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	anyyd = false;
     for(i=0; i<nclusy; ++i) {
 	   for(j=0; j<nclusx; ++j) {
-		  ysum[k] += cluster[j][i];
+		  ysum[k] += cluster(j,i);
 	   }
     
 // If this is a double pixel, put 1/2 of the charge in 2 consective single pixels  
@@ -319,9 +297,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
     for(i=0; i<BXSIZE; ++i) { xsum[i] = 0.f; xd[i] = false;}
 	k=0;
 	anyxd = false;
-    for(j=0; j<nclusx; ++j) {
+        for(j=0; j<nclusx; ++j) {
 	   for(i=0; i<nclusy; ++i) {
-		  xsum[k] += cluster[j][i];
+		  xsum[k] += cluster(j,i);
 	   }
     
 // If this is a double pixel, put 1/2 of the charge in 2 consective single pixels  
@@ -1025,8 +1003,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, array_2d& cluster, 
-		    std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, ClusMatrix & cluster, 
 		    SiPixelTemplate& templ, 
 		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
 			 float& probQ)
@@ -1036,7 +1013,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	const bool deadpix = false;
 	std::vector<std::pair<int, int> > zeropix;
     
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
+	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, templ, 
 		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
 
 } // PixelTempReco2D
@@ -1069,8 +1046,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      4       fastest w/ Q prob, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster), calculates Q probability
 //! \param      probQ - (output) the Vavilov-distribution-based cluster charge probability
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-										 std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix& cluster, 
 										 SiPixelTemplate& templ, 
 										 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed,
 										 float& probQ)
@@ -1082,7 +1058,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	float locBz = -1.f;
 	if(cotbeta < 0.) {locBz = -locBz;}
     
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
+	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, templ, 
 												yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
 	
 } // PixelTempReco2D
@@ -1113,8 +1089,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 //!                      2       faster yet, searches same range as 1 but at 1/2 density
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, array_2d& cluster, 
-													  std::vector<bool>& ydouble, std::vector<bool>& xdouble, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, ClusMatrix & cluster, 
 													  SiPixelTemplate& templ, 
 													  float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
 
@@ -1128,7 +1103,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, float cotalpha, float cotbeta, 
 	if(speed < 0) speed = 0;
    if(speed > 3) speed = 3;
 	
-	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
+	return SiPixelTemplateReco::PixelTempReco2D(id, cotalpha, cotbeta, locBz, cluster, templ, 
 															  yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix, probQ);
 	
 } // PixelTempReco2D

@@ -52,7 +52,7 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   errin_( consumes<edm::DetSetVector<SiPixelRawDataError> >( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
-  dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
+  dirName_( conf_.getUntrackedParameter<string>("DirName","Pixel/FEDIntegrity/") )
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
@@ -107,7 +107,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::DetSet<SiPixelRawDataError>::const_iterator  di;
 
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-    if( ((*it)->subDetector()==GeomDetEnumerators::PixelBarrel) || ((*it)->subDetector()==GeomDetEnumerators::PixelEndcap) ){
+    if( GeomDetEnumerators::isTrackerPixel((*it)->subDetector())) {
       uint32_t detId = (*it)->geographicalId();
       edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(detId);
       if( isearch != errorinput->end() ) {
@@ -154,7 +154,7 @@ void SiPixelHLTSource::bookMEs(DQMStore::IBooker & iBooker){
 
   iBooker.cd();
   iBooker.setCurrentFolder(dirName_);
-
+  
   std::string rawhid;
   std::string errhid;
   // Get collection name and instantiate Histo Id builder

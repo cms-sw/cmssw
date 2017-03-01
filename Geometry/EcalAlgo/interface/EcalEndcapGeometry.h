@@ -17,7 +17,7 @@
 
 class TruncatedPyramid;
 
-class EcalEndcapGeometry GCC11_FINAL: public CaloSubdetectorGeometry 
+class EcalEndcapGeometry final: public CaloSubdetectorGeometry 
 {
    public:
 

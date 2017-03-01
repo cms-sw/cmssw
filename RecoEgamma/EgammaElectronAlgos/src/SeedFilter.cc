@@ -68,12 +68,11 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
   OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC);
 
   // start seed generator
-  // FIXME??
-  edm::ParameterSet creatorPSet;
-  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  edm::ParameterSet seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
   combinatorialSeedGenerator = new SeedGeneratorFromRegionHits(hitsGenerator,0,
-                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+							       SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 				                  	       );
   beamSpotTag_ = tokens.token_bs; ;
   if(hitsfactoryMode_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
@@ -88,7 +87,7 @@ SeedFilter::~SeedFilter() {
 void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRef &scRef, TrajectorySeedCollection *output) {
 
   setup.get<IdealMagneticFieldRecord>().get(theMagField);
-  std::auto_ptr<TrajectorySeedCollection> seedColl(new TrajectorySeedCollection());
+  auto seedColl = std::make_unique<TrajectorySeedCollection>();
 
   GlobalPoint vtxPos;
   double deltaZVertex;

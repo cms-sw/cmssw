@@ -123,8 +123,7 @@ static const char* const ttsNames[] = {
 //          gain setting:     sat  12       6    1  //index 0->saturation
 //          gain setting:  1(sat)     12      6        1
 //index 0->saturation
-double mgpaGainFactors[] = {10.63, 1., 10.63/5.43, 10.63};
-double fppaGainFactors[] = {0, 1., 16./1.,  0.};
+static const double mgpaGainFactors[] = {10.63, 1., 10.63/5.43, 10.63};
 
 EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   iEvent_(0),
@@ -148,8 +147,6 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
   orbit0Set_(false),
   bx_(-1),
   l1a_(-1),
-  l1amin_(numeric_limits<int>::max()),
-  l1amax_(-numeric_limits<int>::min()),
   simpleTrigType_(-1),
   detailedTrigType_(-1),
   //  histo_("hist.root", "RECREATE"),
@@ -188,6 +185,10 @@ EcalDumpRaw::EcalDumpRaw(const edm::ParameterSet& ps):
 
   writeDcc_ = ps.getUntrackedParameter<bool>("writeDCC",false);
   filename_  = ps.getUntrackedParameter<string>("filename","dump.bin");
+
+  fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
+  l1AcceptBunchCrossingCollectionToken_ = consumes<L1AcceptBunchCrossingCollection>(l1AcceptBunchCrossingCollectionTag_);
+
   if(writeDcc_){
     dumpFile_.open(filename_.c_str());
     if(dumpFile_.bad()){
@@ -225,7 +226,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   gettimeofday(&start, 0);
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByLabel(fedRawDataCollectionTag_, rawdata);
+  event.getByToken(fedRawDataCollectionToken_, rawdata);
 
   if(dump_ || l1aHistory_) cout << "\n======================================================================\n"
                                 << toNth(iEvent_)
@@ -236,7 +237,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
   
   if(l1aHistory_){
     edm::Handle<L1AcceptBunchCrossingCollection> l1aHist;
-    event.getByLabel(l1AcceptBunchCrossingCollectionTag_, l1aHist);
+    event.getByToken(l1AcceptBunchCrossingCollectionToken_, l1aHist);
     if(!l1aHist.isValid()) {
       cout << "L1A history not found.\n";
     } else if (l1aHist->size() == 0) {
@@ -440,10 +441,6 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
     cerr << "DCC ID discrepancy in detailed trigger type "
          << " of " << toNth(iEvent_) << " event." << endl;
   }
-
-  if(l1a_>0 && l1a_< l1amin_) l1amin_ = l1a_;
-  if(l1a_>l1amax_) l1amax_ = l1a_;
-
 
 #endif
 

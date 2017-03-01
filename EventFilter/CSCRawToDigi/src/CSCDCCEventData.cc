@@ -89,7 +89,8 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
   if (debug) LogTrace ("CSCDCCEventData|CSCRawToDigi") <<"decoding DCC trailer";
   memcpy(&theDCCTrailer, buf, theDCCTrailer.sizeInWords()*2);
   if (debug) LogTrace("CSCDCCEventData|CSCRawToDigi") << "checking DDU Trailer" << theDCCTrailer.check(); 
-  buf += theDCCTrailer.sizeInWords();
+ 
+  // buf += theDCCTrailer.sizeInWords(); /* =VB= Commented out to please static analyzer */ 
 
   //std::cout << " DCC Size: " << std::dec << theSizeInWords << std::endl;
   //std::cout << "LastBuf: "  << std::hex << inputBuf[theSizeInWords-4] << std::endl;

@@ -53,7 +53,10 @@ VertexFitterManager::VertexFitterManager ( const VertexFitterManager & o )
 
 VertexFitterManager & VertexFitterManager::Instance()
 {
-  static VertexFitterManager singleton;
+  //The singleton's internal structure only changes while
+  // this library is being loaded. All other methods are const.
+  
+  [[cms::thread_safe]] static VertexFitterManager singleton;
   return singleton;
 }
 

@@ -2,6 +2,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
@@ -64,16 +65,12 @@ namespace {
 ///
 ///
 ///
-namespace {
-  SeedCreator *createSeedCreator(const edm::ParameterSet& cfg) {
-    edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-    return SeedCreatorFactory::get()->create(creatorPSet.getParameter<std::string>("ComponentName") , creatorPSet);
-  }
-}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
   QuadrupletSeedMerger(iConfig, nullptr, iC) {}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC):
-  QuadrupletSeedMerger(iConfig, createSeedCreator(seedCreatorConfig), iC) {}
+  QuadrupletSeedMerger(iConfig,
+                       SeedCreatorFactory::get()->create(seedCreatorConfig.getParameter<std::string>("ComponentName") , seedCreatorConfig), 
+                       iC) {}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, SeedCreator *seedCreator, edm::ConsumesCollector& iC):
   theLayerBuilder_(iConfig, iC),
   theSeedCreator_(seedCreator)
@@ -114,7 +111,7 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<IdealGeometryRecord>().get(tTopoHand);
+  es.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
   
   // the list of layers on which quadruplets should be formed
@@ -676,7 +673,7 @@ bool SeedMergerPixelLayer::isValidName( const std::string& name ) {
   }
 
   else if( std::string::npos != name.find( "FPix" ) ) {
-    if( layer > 0 && layer < 4 ) {
+    if( layer > 0 && layer < 10 ) {
       if( std::string::npos != name.find( "pos", 6 ) || std::string::npos != name.find( "neg", 6 ) ) return true;
     }
 

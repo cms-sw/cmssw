@@ -84,7 +84,7 @@ pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
   if(theVerbosityLevel >= 2)
     option = "";
 
-  hTimeBox->Fit("IntGauss", option.c_str(), "",xFitMin, xFitMax);
+  hTimeBox->Fit(fIntGaus, option.c_str(), "",xFitMin, xFitMax);
 
   // Get fitted parameters
   double mean =  fIntGaus->GetParameter("Mean");
@@ -236,7 +236,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   int tbWidth = -1;
   for(vector< pair<int, int> >::const_iterator stAndL = startAndLenght.begin();
       stAndL != startAndLenght.end();
-      stAndL++) {
+      ++stAndL) {
     if(abs((*stAndL).second - tBoxWidth) < delta) {
       delta = abs((*stAndL).second - tBoxWidth);
       beginning = (*stAndL).first;

@@ -45,7 +45,7 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec
    XMLCh tempStr[100];
    
    XMLString::transcode ("Core",tempStr,99);
-   mDom = DOMImplementationRegistry::getDOMImplementation (tempStr);
+   unique_ptr<DOMImplementation> mDom( DOMImplementationRegistry::getDOMImplementation (tempStr));
 
    XMLString::transcode("CalibrationConstants", tempStr, 99);
    mDoc = mDom->createDocument(
@@ -54,8 +54,8 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec
                                 0);                   // document type object (DTD).
 
    StreamOutFormatTarget formTarget (fOut);
-   DOMWriter* domWriter = mDom->createDOMWriter();
-   domWriter->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+   DOMLSSerializer* domWriter = mDom->createLSSerializer();
+   domWriter->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
    DOMElement*   root = mDoc->getDocumentElement();
 
    XMLString::transcode("Hcal", tempStr, 99);
@@ -73,9 +73,13 @@ void HcalConstantsXMLWriter::writeXML(string& newfile0,const vector<int>& detvec
    }
  
    cout<<" Write Doc "<<theDOMVec.size()<<endl;
-   domWriter->writeNode (&formTarget, *mDoc);
+   DOMLSOutput* output= mDom->createLSOutput();
+   output->setByteStream(&formTarget);
+   domWriter->write (mDoc, output);
    cout<<" End of Writting "<<endl;
    mDoc->release ();
+   output->release();
+   domWriter->release();
 }
 
 void HcalConstantsXMLWriter::newCellLine(DOMElement* detelem, int det, int eta, int phi, int depth,  float scale)

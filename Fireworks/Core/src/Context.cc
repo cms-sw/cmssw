@@ -24,16 +24,12 @@
 #include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 
-using namespace fireworks;
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
 #include <boost/bind.hpp>
+
+using namespace fireworks;
+
+Context* Context::s_fwContext = NULL;
+
 const float Context::s_caloTransEta = 1.479; 
 const float Context::s_caloTransAngle = 2*atan(exp(-s_caloTransEta));
 
@@ -78,11 +74,14 @@ Context::Context(FWModelChangeManager* iCM,
   m_commonPrefs(0),
   m_maxEt(1.f),
   m_maxEnergy(1.f),
+  m_hidePFBuilders(false),
   m_caloData(0),
   m_caloDataHF(0)
 {
    if (iColorM) // unit test
      m_commonPrefs = new CmsShowCommon(this);
+
+   s_fwContext = this;
 }
 
 
@@ -239,4 +238,9 @@ float Context::caloTransAngle()
 double Context::caloMaxEta()
 {
    return fw3dlego::xbins_hf[fw3dlego::xbins_hf_n -1];
+}
+
+Context* Context::getInstance()
+{
+   return s_fwContext;
 }

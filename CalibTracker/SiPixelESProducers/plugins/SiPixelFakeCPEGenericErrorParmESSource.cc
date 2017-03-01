@@ -14,14 +14,14 @@ SiPixelFakeCPEGenericErrorParmESSource::~SiPixelFakeCPEGenericErrorParmESSource(
 {
 }
 
-std::auto_ptr<SiPixelCPEGenericErrorParm> SiPixelFakeCPEGenericErrorParmESSource::produce(const SiPixelCPEGenericErrorParmRcd & )
+std::unique_ptr<SiPixelCPEGenericErrorParm> SiPixelFakeCPEGenericErrorParmESSource::produce(const SiPixelCPEGenericErrorParmRcd & )
 {
 	using namespace edm::es;
 	SiPixelCPEGenericErrorParm * obj = new SiPixelCPEGenericErrorParm();
 	obj->fillCPEGenericErrorParm(version_, fp_.fullPath());
 	//std::cout << *obj << std::endl;
 
-	return std::auto_ptr<SiPixelCPEGenericErrorParm>(obj);
+	return std::unique_ptr<SiPixelCPEGenericErrorParm>(obj);
 }
 
 void SiPixelFakeCPEGenericErrorParmESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 

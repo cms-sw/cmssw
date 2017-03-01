@@ -10,6 +10,7 @@ from Configuration.DataProcessing.Impl.AlCa import AlCa
 
 class AlCaTestEnable(AlCa):
     def __init__(self):
+        AlCa.__init__(self)
         self.skims=['TkAlLAS']
     """
     _AlCaTestEnable_

@@ -3,10 +3,7 @@
   <use   name="DataFormats/EcalDetId"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondCore/DBCommon"/>
-  <use   name="CondCore/IOVService"/>
   <use   name="CondCore/DBOutputService"/>
-  <use   name="CondCore/MetaDataService"/>
   <library   file="stubs/EcalObjectAnalyzer.cc" name="EcalObjectAnalyzer">
     <flags   EDM_PLUGIN="1"/>
   </library>

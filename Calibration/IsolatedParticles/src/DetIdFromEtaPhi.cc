@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -12,11 +13,11 @@ namespace spr{
     double radius=0;
     int    subdet=0;
     double theta=2.0*std::atan(exp(-eta));
-    if (std::abs(eta) > 1.479) {
-      radius = 319.2/std::abs(std::cos(theta));
+    if (std::abs(eta) > spr::etaBEEcal) {
+      radius = spr::zFrontEE/std::abs(std::cos(theta));
       subdet = EcalEndcap;
     } else {
-      radius = 129.4/std::sin(theta);
+      radius = spr::rFrontEB/std::sin(theta);
       subdet = EcalBarrel;
     }
     const CaloSubdetectorGeometry* gECAL = geo->getSubdetectorGeometry(DetId::Ecal,subdet);
@@ -27,8 +28,10 @@ namespace spr{
   const DetId findDetIdHCAL( const CaloGeometry* geo, double eta, double phi, bool debug) {
     double radius=0;
     double theta=2.0*std::atan(exp(-eta));
-    if (std::abs(eta) > 1.392) radius = 402.7/std::abs(std::cos(theta));
-    else                       radius = 180.7/std::sin(theta);
+    if (std::abs(eta) > spr::etaBEHcal) 
+      radius = spr::zFrontHE/std::abs(std::cos(theta));
+    else
+      radius = spr::rFrontHB/std::sin(theta);
     const CaloSubdetectorGeometry* gHCAL = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
     if (debug) std::cout << "findDetIdHCAL: eta " << eta <<" theta "<<theta<< " phi " << phi << " radius " << radius << std::endl;
     return spr::findDetIdCalo (gHCAL, theta, phi, radius, debug);

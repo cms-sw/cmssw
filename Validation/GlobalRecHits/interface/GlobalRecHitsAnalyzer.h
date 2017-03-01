@@ -63,7 +63,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -136,9 +136,10 @@
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
-class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
+class GlobalRecHitsAnalyzer : public DQMEDAnalyzer 
 {
 
  public:
@@ -147,9 +148,10 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsAnalyzer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+ protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
 
@@ -175,8 +177,6 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
   std::string hitsProducer;
-
-  DQMStore *dbe;
 
   // Electromagnetic info
   // ECal info
@@ -221,7 +221,7 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
     projectHit( const PSimHit& hit,
 		const StripGeomDetUnit* stripDet,
 		const BoundPlane& plane);
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   // SiPxl
 

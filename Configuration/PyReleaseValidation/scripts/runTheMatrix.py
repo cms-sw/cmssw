@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
@@ -24,10 +23,10 @@ def runSelected(opt):
 
     ret = 0
     if opt.show:
-        mrd.show(opt.testList,opt.extended)
+        mrd.show(opt.testList, opt.extended, opt.cafVeto)
         if opt.testList : print 'testListected items:', opt.testList
     else:
-        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nThreads)
+        mRunnerHi = MatrixRunner(mrd.workFlows, opt.nProcs, opt.nThreads)
         ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
@@ -52,11 +51,19 @@ if __name__ == '__main__':
                      8, #BH/Cosmic MC
                      25, #MC ttbar
                      4.22, #cosmic data
-                     4.291, #hlt data
+                     4.53, #run1 data + miniAOD
                      1000, #data+prompt
                      1001, #data+express
-                     4.53, #HI data
-                     40, #HI MC
+                     136.731, #2016B Photon data
+                     140.53, #2011 HI data
+                     1330, #Run2 MC Zmm
+                     135.4, #Run 2 Zee ttbar
+                     10021.0, #2017 tenmu
+                     10024.0, #2017 ttbar
+                     10824.0, #2018 ttbar
+                     20034.0, #2023D7 ttbar (Run2 calo)
+                     23234.0, #2023D8 ttbar (HGCal + timing)
+                     21234.0, #2024D4 ttbar (TDR baseline Tracker)
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
@@ -69,11 +76,27 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage)
 
+    parser.add_option('-m','--memoryOffset',
+                      help='memory of the wf for single core',
+                      dest='memoryOffset',
+                      default=3000
+                     )
+    parser.add_option('--addMemPerCore',
+                      help='increase of memory per each n > 1 core:  memory(n_core) = memoryOffset + (n_core-1) * memPerCore',
+                      dest='memPerCore',
+                      default=1500
+                     )
     parser.add_option('-j','--nproc',
-                      help='number of threads. 0 Will use 4 threads, not execute anything but create the wfs',
-                      dest='nThreads',
+                      help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
+                      dest='nProcs',
                       default=4
                      )
+    parser.add_option('-t','--nThreads',
+                      help='number of threads per process to use in cmsRun.',
+                      dest='nThreads',
+                      default=1
+                     )
+
     parser.add_option('-n','--showMatrix',
                       help='Only show the worflows. Use --ext to show more',
                       dest='show',
@@ -169,6 +192,12 @@ if __name__ == '__main__':
                       dest='dryRun',
                       default=False
                       )
+    parser.add_option('--testbed',
+                      help='workflow injection to cmswebtest (you need dedicated rqmgr account)',
+                      dest='testbed',
+                      default=False,
+                      action='store_true'
+                      )
     parser.add_option('--noCafVeto',
                       help='Run from any source, ignoring the CAF label',
                       dest='cafVeto',
@@ -237,7 +266,10 @@ if __name__ == '__main__':
 
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
+    if opt.nProcs: opt.nProcs=int(opt.nProcs)
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
+    if (opt.memoryOffset): opt.memoryOffset=int(opt.memoryOffset)
+    if (opt.memPerCore): opt.memPerCore=int(opt.memPerCore)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)

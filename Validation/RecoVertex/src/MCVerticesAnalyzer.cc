@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -54,17 +54,13 @@
 //
 
 
-class MCVerticesAnalyzer : public edm::EDAnalyzer {
+class MCVerticesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit MCVerticesAnalyzer(const edm::ParameterSet&);
   ~MCVerticesAnalyzer();
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   
       // ----------member data ---------------------------
 
@@ -110,6 +106,7 @@ MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig)
 
 
 
+  usesResource("TFileService");
   edm::Service<TFileService> tfserv;
 
   m_hnvtx = tfserv->make<TH1F>("nvtx","Number of pileup vertices",60,-0.5,59.5);
@@ -237,30 +234,6 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
      }
    }
-}
-
-void 
-MCVerticesAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-void 
-MCVerticesAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MCVerticesAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MCVerticesAnalyzer::endJob() 
-{
 }
 
 //define this as a plug-in

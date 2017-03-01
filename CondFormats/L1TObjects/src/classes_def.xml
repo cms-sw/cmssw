@@ -1,4 +1,79 @@
 <lcgdict>
+
+  <class name="std::vector<L1TMuonOverlapParams::Node>"/>
+  <class name="L1TMuonOverlapParams">
+    <field name="pnode_" mapping="blob"/>  
+  </class>
+  <class name="L1TMuonOverlapParams::Node">
+    <field name="dparams_" mapping="blob"/>  
+    <field name="iparams_" mapping="blob"/>  
+    <field name="sparams_" mapping="blob"/>  
+    <field name="uparams_" mapping="blob"/>  
+  </class>
+
+  <class name="L1TMuonEndCapParams">
+  </class>
+
+  <class name="L1TMuonEndCapForest::DTree"/>
+  <class name="L1TMuonEndCapForest::DForest"/>
+  <class name="L1TMuonEndCapForest::DForestColl"/>
+  <class name="L1TMuonEndCapForest::DForestMap"/>
+  <class name="L1TMuonEndCapForest">
+    <field name="forest_coll_" mapping="blob"/>  
+    <field name="forest_map_" mapping="blob"/>  
+  </class>
+  
+  <class name="l1t::LUT">
+    <field name="data_" mapping="blob"/>  
+  </class>
+  <class name="std::vector<l1t::CaloParams::Node>"/>
+  <class name="l1t::CaloParams">
+    <field name="pnode_" mapping="blob"/>  
+    <field name="etSumEtaMin_" mapping="blob" />
+    <field name="etSumEtaMax_" mapping="blob" />
+    <field name="etSumEtThreshold_" mapping="blob" />
+  </class>
+  <class name="l1t::CaloParams::Node">
+    <field name="dparams_" mapping="blob"/>  
+    <field name="iparams_" mapping="blob"/>  
+    <field name="sparams_" mapping="blob"/>  
+    <field name="uparams_" mapping="blob"/>  
+  </class>
+  <class name="l1t::CaloParams::TowerParams"/>
+  <class name="l1t::CaloParams::EgParams"/>
+  <class name="l1t::CaloParams::JetParams"/>
+  <class name="l1t::CaloParams::TauParams"/>
+  <class name="l1t::CaloConfig"/>
+  <class name="L1TMuonGlobalParams">
+    <field name="pnodes_" mapping="blob"/>
+  </class>
+  <class name="L1TMuonGlobalParams::Node">
+    <field name="dparams_" mapping="blob"/>
+    <field name="iparams_" mapping="blob"/>
+    <field name="sparams_" mapping="blob"/>
+    <field name="uparams_" mapping="blob"/>
+  </class>
+  <class name="std::vector<L1TMuonBarrelParams::Node>"/>
+  <class name="L1TMuonBarrelParams">
+    <field name="pnodes_" mapping="blob"/>    
+  </class>
+  <class name="L1TMuonBarrelParams::Node">
+    <field name="dparams_" mapping="blob"/>
+    <field name="iparams_" mapping="blob"/>
+    <field name="sparams_" mapping="blob"/>
+    <field name="uparams_" mapping="blob"/>
+  </class>
+  <class name="std::vector<L1TMuonBarrelParams::LUT>"/>
+  <class name="L1TMuonBarrelParams::LUTParams::extLUT"/>
+  <class name="std::vector<L1TMuonBarrelParams::LUTParams::extLUT>"/>
+  <class name="L1TMuonBarrelParams::LUTParams">
+    <field name="pta_lut_" mapping="blob"/>
+    <field name="phi_lut_" mapping="blob"/>
+    <field name="pta_threshold_" mapping="blob"/>
+    <field name="qp_lut_" mapping="blob"/>
+    <field name="eta_lut_" mapping="blob"/>
+    <field name="ext_lut_" mapping="blob"/>
+  </class>
   <class name="L1MuScale"/>
   <class name="L1MuBinnedScale">
     <field name="m_Scale" mapping="blob" />
@@ -81,9 +156,16 @@
   <class name="L1TriggerKey">
     <field name="m_recordToKey" mapping="blob" />
   </class>
+  <class name="L1TriggerKeyExt">
+      <field name="m_recordToKey" mapping="blob" />
+  </class>
   <class name="L1TriggerKeyList">
     <field name="m_recordKeyToken" mapping="blob" />
     <field name="m_tscKeyToToken" mapping="blob" />
+  </class>
+  <class name="L1TriggerKeyListExt">
+      <field name="m_recordKeyToken" mapping="blob" />
+      <field name="m_tscKeyToToken" mapping="blob" />
   </class>
   <class name="L1RCTParameters">
     <field name="HoverE_smear_high_" mapping="blob" />
@@ -145,6 +227,8 @@
   <class name="std::map<int, std::vector<L1GtObject> >"/>  
   <class name="std::map<int, std::vector<L1GtObject> >::value_type"/>  
   <class name="L1GtCondition"/>
+  <enum name="L1GtConditionCategory"/>
+  <enum name="L1GtConditionType"/>
   <class name="L1GtMuonTemplate"/>
   <class name="L1GtMuonTemplate::ObjectParameter"/>
   <class name="std::vector<L1GtMuonTemplate::ObjectParameter>"/>
@@ -216,4 +300,66 @@
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
+  <enum name="L1GtBoard" />
+  <enum name="L1GtPsbQuad" />
+  <class name="std::vector<L1TUtmAlgorithm>"/>
+  <class name="std::map<std::string, L1TUtmAlgorithm>"/>
+  <class name="std::vector<L1TUtmBin>"/>
+  <class name="std::map<std::string, L1TUtmBin>"/>
+  <class name="std::vector<L1TUtmCondition>"/>
+  <class name="std::map<std::string, L1TUtmCondition>"/>
+  <class name="std::vector<L1TUtmCut>"/>
+  <class name="std::map<std::string, L1TUtmCut>"/>
+  <class name="std::vector<L1TUtmCutValue>"/>
+  <class name="std::map<std::string, L1TUtmCutValue>"/>
+  <class name="std::vector<L1TUtmObject>"/>
+  <class name="std::map<std::string, L1TUtmObject>"/>
+  <class name="std::vector<L1TUtmScale>"/>
+  <class name="std::map<std::string, L1TUtmScale>"/>
+  <class name="std::vector<L1TUtmTriggerMenu>"/>
+  <class name="std::map<std::string, L1TUtmTriggerMenu>"/>
+  <class name="L1TUtmAlgorithm">
+    <field name="rpn_vector_" mapping="blob" />
+  </class>
+  <class name="L1TUtmBin">
+  </class>
+  <class name="L1TUtmCondition">
+    <field name="objects_" mapping="blob" />
+    <field name="cuts_" mapping="blob" />
+  </class>
+  <class name="L1TUtmCut">
+  </class>
+  <class name="L1TUtmCutValue">
+  </class>
+  <class name="L1TUtmObject">
+    <field name="cuts_" mapping="blob" />
+  </class>
+  <class name="L1TUtmScale">
+    <field name="bins_" mapping="blob" />
+  </class>
+  <class name="L1TUtmTriggerMenu">
+    <field name="algorithm_map_" mapping="blob" />
+    <field name="condition_map_" mapping="blob" />
+    <field name="scale_map_" mapping="blob" />
+    <field name="external_map_" mapping="blob" />
+    <field name="token_to_condition_" mapping="blob" />
+  </class>    
+
+  <class name="L1TGlobalParameters">
+   <field name="m_orderOfChip" mapping="blob" />
+   <field name="m_exp_ints" mapping="blob" />
+   <field name="m_exp_doubles" mapping="blob" />
+  </class>
+
+  <class name="L1TGlobalPrescalesVetos">
+   <field name="prescale_table_" mapping="blob" />
+   <field name="bxmask_map_" mapping="blob" />
+   <field name="veto_" mapping="blob" />
+   <field name="exp_ints_" mapping="blob" />
+   <field name="exp_doubles_" mapping="blob" />
+  </class>
+
+
+
 </lcgdict>
+

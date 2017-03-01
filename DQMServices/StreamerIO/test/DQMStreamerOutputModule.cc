@@ -1,13 +1,13 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <sstream>
 #include <iomanip>
-#include "boost/filesystem.hpp"
-#include "boost/format.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -27,19 +27,21 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void start() const;
-  virtual void stop() const;
+  virtual void start() override;
+  virtual void stop() override;
 
   // no clue why the hell these are const in the parent class
   // so these can't be used - I will do some very bad mutable magic
-  virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
-  virtual void doOutputEvent(EventMsgBuilder const& msg) const;
+  //
+  // NOTE: these are no longer const in the parent class, (or here).
+  // So perhaps they can be used now?
+  //
+  virtual void doOutputHeader(InitMsgBuilder const& init_message) override;
+  virtual void doOutputEvent(EventMsgBuilder const& msg) override;
 
-  virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&,
-                                    edm::ModuleCallingContext const*);
+  virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
-  virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&,
-                                  edm::ModuleCallingContext const*);
+  virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
  private:
   std::string streamLabel_;
@@ -56,7 +58,8 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
 };  //end-of-class-def
 
 DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
-    : edm::StreamerOutputModuleBase(ps),
+    : edm::one::OutputModuleBase::OutputModuleBase(ps),
+      edm::StreamerOutputModuleBase(ps),
       streamLabel_(ps.getUntrackedParameter<std::string>("streamLabel")),
       runInputDir_(ps.getUntrackedParameter<std::string>("runInputDir", "")),
       processed_(0),
@@ -75,12 +78,12 @@ DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
 
 DQMStreamerOutputModule::~DQMStreamerOutputModule() {}
 
-void DQMStreamerOutputModule::doOutputHeader(InitMsgBuilder const& i) const {
+void DQMStreamerOutputModule::doOutputHeader(InitMsgBuilder const& i) {
 
   init_message_cache_.reset(new InitMsgView(i.startAddress()));
 }
 
-void DQMStreamerOutputModule::doOutputEvent(EventMsgBuilder const& msg) const {
+void DQMStreamerOutputModule::doOutputEvent(EventMsgBuilder const& msg) {
 
   ++processed_;
 
@@ -90,7 +93,7 @@ void DQMStreamerOutputModule::doOutputEvent(EventMsgBuilder const& msg) const {
 }
 
 void DQMStreamerOutputModule::beginLuminosityBlock(
-    edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*) {
+    edm::LuminosityBlockForOutput const& ls) {
 
   std::cout << "DQMStreamerOutputModule : begin lumi." << std::endl;
 
@@ -125,7 +128,7 @@ void DQMStreamerOutputModule::beginLuminosityBlock(
 }
 
 void DQMStreamerOutputModule::endLuminosityBlock(
-    edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*) {
+    edm::LuminosityBlockForOutput const& ls) {
 
   std::cout << "DQMStreamerOutputModule : end lumi " << std::endl;
   stream_writer_events_.reset();
@@ -159,9 +162,9 @@ void DQMStreamerOutputModule::endLuminosityBlock(
   file.close();
 }
 
-void DQMStreamerOutputModule::start() const {}
+void DQMStreamerOutputModule::start() {}
 
-void DQMStreamerOutputModule::stop() const {
+void DQMStreamerOutputModule::stop() {
   std::cout << "DQMStreamerOutputModule : end run" << std::endl;
   stream_writer_events_.reset();
 
@@ -174,15 +177,17 @@ void DQMStreamerOutputModule::stop() const {
   ptree pt;
   ptree data;
 
-  ptree child1, child2, child3;
+  ptree child1, child2, child3, child4;
 
   child1.put("", processed_);    // Processed
-  child2.put("", processed_);    // Accepted
-  child3.put("", currentLumi_);  // number of lumi
+  child2.put("", processed_);    // Processed
+  child3.put("", processed_);    // Accepted
+  child4.put("", currentLumi_);  // number of lumi
 
   data.push_back(std::make_pair("", child1));
   data.push_back(std::make_pair("", child2));
   data.push_back(std::make_pair("", child3));
+  data.push_back(std::make_pair("", child4));
 
   pt.add_child("data", data);
   pt.put("definition", "/non-existant/");

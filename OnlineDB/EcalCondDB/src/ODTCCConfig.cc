@@ -35,7 +35,7 @@ ODTCCConfig::~ODTCCConfig()
 {
 }
 
-int ODTCCConfig::fetchNextId()  throw(std::runtime_error) {
+int ODTCCConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -79,7 +79,7 @@ void ODTCCConfig::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODTCCConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -135,7 +135,7 @@ void ODTCCConfig::prepareWrite()
 }
 
 void ODTCCConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<<"updating the clob 2"<<std::endl;
@@ -178,7 +178,7 @@ void ODTCCConfig::writeDB()
 
 
 void ODTCCConfig::fetchData(ODTCCConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -253,7 +253,7 @@ void ODTCCConfig::fetchData(ODTCCConfig * result)
 
 
 
-int ODTCCConfig::fetchID()    throw(std::runtime_error)
+int ODTCCConfig::fetchID()    noexcept(false)
 {
   if (m_ID!=0) {
     return m_ID;

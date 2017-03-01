@@ -62,7 +62,7 @@ void LMFUnique::attach(std::string name, LMFUnique *u) {
 }
 
 boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const  
-  throw(std::runtime_error)
+  noexcept(false)
 {
   /*
     Returns a list of pointers to DB objects
@@ -211,7 +211,7 @@ int LMFUnique::getInt(std::string s) const {
 }
 
 int LMFUnique::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   /*
     This method fetch the ID of the object from the database according
@@ -284,7 +284,7 @@ int LMFUnique::fetchID()
 }
 
 void LMFUnique::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   /*
     Given the ID of an object setup it
@@ -321,7 +321,7 @@ void LMFUnique::setByID(int id)
 }
 
 int LMFUnique::writeForeignKeys() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.begin();
   std::map<std::string, LMFUnique*>::const_iterator e = m_foreignKeys.end();
@@ -337,7 +337,7 @@ int LMFUnique::writeForeignKeys()
 }
 
 int LMFUnique::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   clock_t start = 0;
   clock_t end = 0;

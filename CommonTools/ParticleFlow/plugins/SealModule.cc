@@ -7,6 +7,7 @@
 #include "CommonTools/ParticleFlow/plugins/PFJetFwdPtrProducer.h"
 #include "CommonTools/ParticleFlow/plugins/PFTauFwdPtrProducer.h"
 #include "CommonTools/ParticleFlow/plugins/PFCandidateFromFwdPtrProducer.h"
+#include "CommonTools/ParticleFlow/plugins/DeltaBetaWeights.h"
 
 DEFINE_FWK_MODULE(PFMET);
 DEFINE_FWK_MODULE(Type1PFMET);
@@ -20,3 +21,5 @@ DEFINE_FWK_MODULE(PFCandidateFromFwdPtrProducer);
 
 typedef edm::ProductFromFwdPtrProducer< reco::PFJet >  PFJetFromFwdPtrProducer;
 DEFINE_FWK_MODULE(PFJetFromFwdPtrProducer);
+
+DEFINE_FWK_MODULE(DeltaBetaWeights);

@@ -1,0 +1,3 @@
+<use   name="DQM/SiPixelPhase1Common"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<flags   EDM_PLUGIN="1"/>

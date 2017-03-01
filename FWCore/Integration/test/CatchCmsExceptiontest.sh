@@ -19,6 +19,10 @@ die 'Failed because expected exception was not thrown while running cmsRun Catch
 
 grep -q "Calling InputSource::beginRun" CatchCmsExceptionFromSource.log || die 'Failed to find string Calling InputSource::beginRun' $?
 
+# It is intentional that this test throws an exception. The test fails if it does not.
+cmsRun ${LOCAL_TEST_DIR}/testMissingDictionaryChecking_cfg.py &> testMissingDictionaryChecking.log && die 'Failed to get exception running testMissingDictionaryChecking_cfg.py' 1
+grep -q MissingDictionaryTestF testMissingDictionaryChecking.log || die 'Failed to print out exception message with missing dictionary listed' $?
+
 popd
 
 #grep -w ESProducer CatcheStdException.log

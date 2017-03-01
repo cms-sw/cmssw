@@ -25,8 +25,8 @@ bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset, bool TMB07):_endcap(endcap),_sector(sector),
-									   _subsector(subsector),
-									   _station(station),isTMB07(TMB07)
+                                                                                       _subsector(subsector),
+                                                                                       _station(station),isTMB07(TMB07)
 {
   LUTsFromFile = pset.getUntrackedParameter<bool>("ReadLUTs",false);
   useMiniLUTs = pset.getUntrackedParameter<bool>("UseMiniLUTs", true);
@@ -203,7 +203,7 @@ void CSCSectorReceiverLUT::fillLocalPhiLUT()
 }
 
 lclphidat CSCSectorReceiverLUT::localPhi(const int strip, const int pattern,
-					 const int quality, const int lr) const
+					 const int quality, const int lr, const bool gangedME1a) const
 {
   lclphiadd theadd;
 
@@ -214,17 +214,17 @@ lclphidat CSCSectorReceiverLUT::localPhi(const int strip, const int pattern,
   theadd.lr = lr;
   theadd.spare = 0;
 
-  return localPhi(theadd);
+  return localPhi(theadd, gangedME1a );
 }
 
-lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
+lclphidat CSCSectorReceiverLUT::localPhi(unsigned address, const bool gangedME1a) const
 {
   lclphidat result;
   lclphiadd theadd(address);
   
   if(useMiniLUTs && isTMB07)
     {
-      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address);
+      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address, gangedME1a);
     }
   else if(LUTsFromFile) result = me_lcl_phi[address];
   else result = calcLocalPhi(theadd);
@@ -232,13 +232,13 @@ lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
   return result;
 }
 
-lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
+lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address, const bool gangedME1a) const
 {
   lclphidat result;
 
   if(useMiniLUTs && isTMB07)
     {
-      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint()); 
+      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint(), gangedME1a); 
     }
   else if(LUTsFromFile) result = me_lcl_phi[address.toint()];
   else result = calcLocalPhi(address);
@@ -294,7 +294,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< " warning: cscId " << cscid << " is out of bounds ["
-	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
@@ -306,7 +306,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< " warning: cscId " << cscid << " is out of bounds ["
-	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
@@ -499,7 +499,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   return result;
 }
 
-gblphidat CSCSectorReceiverLUT::globalPhiME(int phi_local, int wire_group, int cscid) const
+gblphidat CSCSectorReceiverLUT::globalPhiME(int phi_local, int wire_group, int cscid, const bool gangedME1a) const
 {
   gblphidat result;
   gblphiadd theadd;
@@ -507,29 +507,29 @@ gblphidat CSCSectorReceiverLUT::globalPhiME(int phi_local, int wire_group, int c
   theadd.wire_group = ((1<<5)-1)&(wire_group >> 2); // want 2-7 of wg
   theadd.cscid = cscid;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(_endcap, _sector, _station, _subsector, theadd.toint());
+  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(_endcap, _sector, _station, _subsector, theadd.toint(), gangedME1a);
   else if(LUTsFromFile) result = me_global_phi[theadd.toint()];
   else result = calcGlobalPhiME(theadd);
 
   return result;
 }
 
-gblphidat CSCSectorReceiverLUT::globalPhiME(unsigned address) const
+gblphidat CSCSectorReceiverLUT::globalPhiME(unsigned address, const bool gangedME1a) const
 {
   gblphidat result;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(_endcap, _sector, _station, _subsector, address);
+  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(_endcap, _sector, _station, _subsector, address, gangedME1a);
   else if(LUTsFromFile) result = me_global_phi[address];
   else result = calcGlobalPhiME(gblphiadd(address));
 
   return result;
 }
 
-gblphidat CSCSectorReceiverLUT::globalPhiME(gblphiadd address) const
+gblphidat CSCSectorReceiverLUT::globalPhiME(gblphiadd address, const bool gangedME1a) const
 {
   gblphidat result;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(_endcap, _sector, _station, _subsector, address.toint());
+  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMEMini(_endcap, _sector, _station, _subsector, address.toint(), gangedME1a);
   else if(LUTsFromFile) result = me_global_phi[address.toint()];
   else result = calcGlobalPhiME(address);
 
@@ -565,7 +565,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiMB(const gblphidat &csclut) const
   return dtlut;
 }
 
-gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cscid) const
+gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cscid, const  bool gangedME1a) const
 {
   gblphiadd address;
   gblphidat result;
@@ -578,12 +578,12 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cs
   //  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
   //else 
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
-  else result = calcGlobalPhiMB(globalPhiME(address));
+  else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
   return result;
 }
 
-gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address) const
+gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address, const  bool gangedME1a) const
 {
   gblphidat result;
   gblphiadd theadd(address);
@@ -591,19 +591,19 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address) const
   //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address);
   //else 
   if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
-  else result = calcGlobalPhiMB(globalPhiME(address));
+  else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
   return result;
 }
 
-gblphidat CSCSectorReceiverLUT::globalPhiMB(gblphiadd address) const
+gblphidat CSCSectorReceiverLUT::globalPhiMB(gblphiadd address, const  bool gangedME1a) const
 {
   gblphidat result;
 
   //if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalPhiMBMini(_endcap, _sector, _subsector, address.toint());
   //else 
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
-  else result = calcGlobalPhiMB(globalPhiME(address));
+  else result = calcGlobalPhiMB(globalPhiME(address, gangedME1a));
 
   return result;
 }
@@ -716,12 +716,18 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 
 gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 {
+
+
   gbletadat result;
   double float_eta = getGlobalEtaValue(address.cscid, address.wire_group, address.phi_local);
   unsigned int_eta = 0;
   unsigned bend_global = 0; // not filled yet... will change when it is.
   const double etaPerBin = (CSCTFConstants::maxEta - CSCTFConstants::minEta)/CSCTFConstants::etaBins;
   const unsigned me12EtaCut = 56;
+
+
+
+
 
   if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta))
     {
@@ -769,7 +775,7 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
   return result;
 }
 
-gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int twire_group, int tcscid) const
+gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int twire_group, int tcscid, const bool gangedME1a) const
 {
   gbletadat result;
   gbletaadd theadd;
@@ -778,30 +784,30 @@ gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int t
   theadd.phi_local = (tphi_local>>(CSCBitWidths::kLocalPhiDataBitWidth - 2)) & 0x3; // want 2 msb of local phi
   theadd.wire_group = twire_group;
   theadd.cscid = tcscid;
-
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, theadd.toint());
+  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, theadd.toint(), gangedME1a);
   else if(LUTsFromFile) result = me_global_eta[theadd.toint()];
   else result = calcGlobalEtaME(theadd);
+
 
   return result;
 }
 
-gbletadat CSCSectorReceiverLUT::globalEtaME(unsigned address) const
+gbletadat CSCSectorReceiverLUT::globalEtaME(unsigned address, const bool gangedME1a ) const
 {
   gbletadat result;
   gbletaadd theadd(address);
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, address);
+  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, address,  gangedME1a);
   else if(LUTsFromFile) result = me_global_eta[address];
   else result = calcGlobalEtaME(theadd);
   return result;
 }
 
-gbletadat CSCSectorReceiverLUT::globalEtaME(gbletaadd address) const
+gbletadat CSCSectorReceiverLUT::globalEtaME(gbletaadd address, const bool gangedME1a) const
 {
   gbletadat result;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, address.toint());
+  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, address.toint(), gangedME1a);
   else if(LUTsFromFile) result = me_global_eta[address.toint()];
   else result = calcGlobalEtaME(address);
   return result;

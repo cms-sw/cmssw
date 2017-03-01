@@ -14,6 +14,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
@@ -54,6 +55,7 @@ class VarProcessor {
 
 	virtual ~VarProcessor() {}
 	virtual std::string getInstanceName() const;
+        virtual std::unique_ptr<VarProcessor> clone() const;
 
   COND_SERIALIZABLE;
 };
@@ -73,17 +75,21 @@ class Variable {
 
 class ProcOptional : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	std::vector<double>		neutralPos;
 
   COND_SERIALIZABLE;
 };
 
 class ProcCount : public VarProcessor {
+    public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
   COND_SERIALIZABLE;
 };
 
 class ProcClassed : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	unsigned int			nClasses;
 
   COND_SERIALIZABLE;
@@ -91,6 +97,7 @@ class ProcClassed : public VarProcessor {
 
 class ProcSplitter : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	unsigned int			nFirst;
 
   COND_SERIALIZABLE;
@@ -98,6 +105,7 @@ class ProcSplitter : public VarProcessor {
 
 class ProcForeach : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	unsigned int			nProcs;
 
   COND_SERIALIZABLE;
@@ -105,6 +113,7 @@ class ProcForeach : public VarProcessor {
 
 class ProcSort : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	unsigned int			sortByIndex;
 	bool				descending;
 
@@ -113,6 +122,7 @@ class ProcSort : public VarProcessor {
 
 class ProcCategory : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	typedef std::vector<double> BinLimits;
 
 	std::vector<BinLimits>		variableBinLimits;
@@ -123,6 +133,7 @@ class ProcCategory : public VarProcessor {
 
 class ProcNormalize : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	std::vector<HistogramF>		distr;
 	int				categoryIdx;
 
@@ -131,6 +142,7 @@ class ProcNormalize : public VarProcessor {
 
 class ProcLikelihood : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	class SigBkg {
 	    public:
 		HistogramF		background;
@@ -153,6 +165,7 @@ class ProcLikelihood : public VarProcessor {
 
 class ProcLinear : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	std::vector<double>		coeffs;
 	double				offset;
 
@@ -161,6 +174,7 @@ class ProcLinear : public VarProcessor {
 
 class ProcMultiply : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	typedef std::vector<unsigned int>	Config;
 
 	unsigned int			in;
@@ -171,6 +185,7 @@ class ProcMultiply : public VarProcessor {
 
 class ProcMatrix : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	Matrix				matrix;
 
   COND_SERIALIZABLE;
@@ -178,6 +193,7 @@ class ProcMatrix : public VarProcessor {
 
 class ProcExternal : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	virtual std::string getInstanceName() const;
 
 	std::string			method;
@@ -188,6 +204,7 @@ class ProcExternal : public VarProcessor {
 
 class ProcMLP : public VarProcessor {
     public:
+        virtual std::unique_ptr<VarProcessor> clone() const;
 	typedef std::pair<double, std::vector<double> >	Neuron;
 	typedef std::pair<std::vector<Neuron>, bool>	Layer;
 

@@ -58,7 +58,7 @@ class HcalChannelQualityXml : public HcalChannelDataXml
   int writeStatusWordToStdout(std::string base = "hex"); // status and detId in hex or dec
 
   // add dataset to the XML document
-  DOMNode * add_hcal_channel_dataset( int ieta, int iphi, int depth, std::string subdetector,
+  XERCES_CPP_NAMESPACE::DOMNode * add_hcal_channel_dataset( int ieta, int iphi, int depth, std::string subdetector,
 				      int _channel_status, int _on_off, std::string _comment );
 
   // add channel to the geomid_cq map (XML has not changed)
@@ -66,7 +66,7 @@ class HcalChannelQualityXml : public HcalChannelDataXml
 			     int _channel_status, int _on_off, std::string _comment );
 
   // add data tag inside a dataset tag
-  DOMElement * add_data( DOMNode * _dataset, int _channel_status, int _on_off, std::string _comment );
+  XERCES_CPP_NAMESPACE::DOMElement * add_data( XERCES_CPP_NAMESPACE::DOMNode * _dataset, int _channel_status, int _on_off, std::string _comment );
 
   // add XML for all HCAL channels onoff entries
   int set_all_channels_on_off( int _hb, int _he, int _hf, int _ho);

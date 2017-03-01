@@ -5,10 +5,13 @@
  *  Driver class for digi to raw data conversions 
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h" 
+#include "FWCore/Framework/interface/ESWatcher.h" 
 
 #include <vector> 
 
@@ -20,7 +23,7 @@ class FEDRawData;
 class RPCRecordFormatter;
 class RPCReadOutMapping;
 
-class RPCPackingModule : public edm::EDProducer {
+class RPCPackingModule : public edm::stream::EDProducer<> {
 public:
 
   /// ctor
@@ -30,18 +33,17 @@ public:
   virtual ~RPCPackingModule();
 
   /// get data, convert to raw event, attach again to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
   static std::vector<rpcrawtodigi::EventRecords> eventRecords(
       int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 
 
 private:
-  FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& );
+  FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& ) const;
 
 private:
   edm::EDGetTokenT<RPCDigiCollection> dataLabel_;
-  unsigned long eventCounter_;
+  edm::ESWatcher<RPCEMapRcd> recordWatcher_;
   const RPCReadOutMapping * theCabling; 
-
 };
 #endif

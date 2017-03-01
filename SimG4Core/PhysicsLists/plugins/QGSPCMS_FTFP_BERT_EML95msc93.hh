@@ -7,7 +7,7 @@
 class QGSPCMS_FTFP_BERT_EML95msc93: public PhysicsList {
 
 public:
-  QGSPCMS_FTFP_BERT_EML95msc93(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::FieldBuilder *fieldBuilder_, const edm::ParameterSet & p);
+  QGSPCMS_FTFP_BERT_EML95msc93(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
 };
 
 #endif

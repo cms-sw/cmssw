@@ -22,7 +22,6 @@
 #include "CondCore/CondDB/interface/Utils.h"
 // 
 // temporarely
-#include <boost/shared_ptr.hpp>
 
 // TO BE REMOVED AFTER THE TRANSITION
 namespace coral {
@@ -86,10 +85,14 @@ namespace cond {
       void createDatabase();
       
       // read access to the iov sequence. 
-      // by default ( full=false ) the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
-      // full=true will load the entire sequence in memory. Mainly for test/debugging.
+      // the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
+      IOVProxy readIov( const std::string& tag, bool full=false );
+
+      // read access to the iov sequence. 
+      // the iovs are lazy-loaded in groups when required, with repeatable queries ( for FronTier )
       IOVProxy readIov( const std::string& tag, 
-			bool full=false );//,const boost::posix_time::ptime& snapshottime )  
+			const boost::posix_time::ptime& snapshottime,
+			bool full=false );  
       
       // 
       bool existsIov( const std::string& tag );
@@ -100,15 +103,21 @@ namespace cond {
       template <typename T>
       IOVEditor createIov( const std::string& tag, 
 			   cond::TimeType timeType, 
-			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+			   cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
       IOVEditor createIov( const std::string& payloadType, 
 			   const std::string& tag, 
 			   cond::TimeType timeType,
-			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+			   cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
+
+      IOVEditor createIov( const std::string& payloadType, 
+			   const std::string& tag, 
+			   cond::TimeType timeType,
+			   cond::SynchronizationType synchronizationType,
+			   const boost::posix_time::ptime& creationTime );
 
       IOVEditor createIovForPayload( const Hash& payloadHash, 
 				     const std::string& tag, cond::TimeType timeType,
-				     cond::SynchronizationType synchronizationType=cond::OFFLINE );
+				     cond::SynchronizationType synchronizationType=cond::SYNCH_ANY );
 
       void clearIov( const std::string& tag );
       
@@ -119,10 +128,13 @@ namespace cond {
       // functions to store a payload in the database. return the identifier of the item in the db. 
       template <typename T> cond::Hash storePayload( const T& payload, 
 						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
-      template <typename T> boost::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
+
+      template <typename T> std::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
       
-      // low-level function to access the payload data as a blob. mainly used for the data migration and testing.
-      // the version for ROOT 
+      cond::Hash storePayloadData( const std::string& payloadObjectType,
+                                   const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
+                                   const boost::posix_time::ptime& creationTime );
+
       bool fetchPayloadData( const cond::Hash& payloadHash, 
 			     std::string& payloadType, 
 			     cond::Binary& payloadData,
@@ -143,31 +155,11 @@ namespace cond {
 			     const std::string& postFix  );
     public:
       
-      bool checkMigrationLog( const std::string& sourceAccount, 
-			      const std::string& sourceTag, 
-			      std::string& destinationTag,
-			      cond::MigrationStatus& status );
-      void addToMigrationLog( const std::string& sourceAccount, 
-			      const std::string& sourceTag, 
-			      const std::string& destinationTag,
-			      cond::MigrationStatus status);
-      void updateMigrationLog( const std::string& sourceAccount, 
-			       const std::string& sourceTag, 
-			       cond::MigrationStatus status);
-
-
       std::string connectionString();
 
       coral::ISessionProxy& coralSession();
       // TO BE REMOVED in the long term. The new code will use coralSession().
       coral::ISchema& nominalSchema();
-      
-      bool isOraSession(); 
-
-    private:
-      cond::Hash storePayloadData( const std::string& payloadObjectType, 
-				   const std::pair<Binary,Binary>& payloadAndStreamerInfoData, 
-				   const boost::posix_time::ptime& creationTime );
       
     private:
       
@@ -182,17 +174,31 @@ namespace cond {
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
       
       std::string payloadObjectType = cond::demangledName(typeid(payload));
-      return storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
+      cond::Hash ret; 
+      try{
+	ret = storePayloadData( payloadObjectType, serialize( payload ), creationTime ); 
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+	throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload"); 	
+      }
+      return ret;
     }
     
-    template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
+    template <typename T> inline std::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
       cond::Binary payloadData;
       cond::Binary streamerInfoData;
       std::string payloadType;
       if(! fetchPayloadData( payloadHash, payloadType, payloadData, streamerInfoData ) ) 
-	throwException( "Payload with id="+payloadHash+" has not been found in the database.",
+	throwException( "Payload with id "+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      return deserialize<T>(  payloadType, payloadData, streamerInfoData, isOraSession() );
+      std::shared_ptr<T> ret;
+      try{ 
+	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData );
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+	throwException( "Payload of type "+payloadType+" with id "+payloadHash+" could not be loaded. "+em,"Session::fetchPayload"); 
+      }
+      return ret;
     }
 
     class TransactionScope {

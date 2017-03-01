@@ -21,7 +21,7 @@ from Vispa.Views.WidgetView import WidgetView
 try:
     from pxl.algorithms import *
     import_autolayout_error=None
-except Exception,e:
+except Exception as e:
     import_autolayout_error=(str(e),exception_traceback())
 
 class LineDecayView(WidgetView):
@@ -1553,7 +1553,7 @@ class DecayLine(DecayObject):
     def slope(self):
         deltaX = self._endNode.x() - self._startNode.x()
         if deltaX == 0:
-            return sys.maxint
+            return sys.maxsize
         
         return 1.0 * (self._endNode.y() - self._startNode.y()) / deltaX
     

@@ -146,7 +146,7 @@ void CocoaToDDLMgr::writeRotations()
   newSectPre_ro("");
   std::vector<CLHEP::HepRotation>::const_iterator ite;
   int nc = 0;
-  for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {
+  for( ite = theRotationList.begin(); ite != theRotationList.end(); ++ite) {
     //-  std::cout << nc << " rot size " <<  theRotationList.size() << std::endl;
     ro( *ite, nc );
     nc++;
@@ -681,7 +681,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
   std::vector< Measurement* >::iterator mite;
   std::vector<ALIstring>::iterator site;
   std::multimap<OpticalObject*,Measurement*> optoMeasMap;
-  for( mite = measlist.begin(); mite != measlist.end(); mite++ ) {
+  for( mite = measlist.begin(); mite != measlist.end(); ++mite ) {
     auto &optolist = (*mite)->OptOList();
     OpticalObject* opto = optolist[optolist.size()-1];
     optoMeasMap.insert( std::multimap<OpticalObject*,Measurement*>::value_type(opto, *mite) );
@@ -692,11 +692,11 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
   std::pair<itemom, itemom > omitep;
   itemom omite2, omite3;
 
-  for( omite = optoMeasMap.begin(); omite != optoMeasMap.end(); omite++ ){
+  for( omite = optoMeasMap.begin(); omite != optoMeasMap.end(); ++omite ){
     omitep = optoMeasMap.equal_range( (*omite).first );
     if( omite != optoMeasMap.begin() && (*omite).first == (*omite3).first ) continue; // check that it is not the same OptO than previous one
     omite3 = omite;
-    for( omite2 = omitep.first; omite2 != omitep.second; omite2++ ){
+    for( omite2 = omitep.first; omite2 != omitep.second; ++omite2 ){
       OpticalObject* opto = (*(omite2)).first;
       Measurement* meas = (*(omite2)).second;
       std::vector<ALIstring> namelist = meas->OptONameList();
@@ -707,7 +707,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
 
       file_ << "   <Parameter name=\"" << std::string("meas_name") << "\" value=\"" << meas->name() << "\"  eval=\"false\" /> " << std::endl;
       file_ << "   <Parameter name=\"" << std::string("meas_type") << "\" value=\"" << meas->type() << "\"  eval=\"false\" /> " << std::endl;
-      for( site = namelist.begin(); site != namelist.end(); site++ ){     
+      for( site = namelist.begin(); site != namelist.end(); ++site ){     
 	file_ << "   <Parameter name=\"" << std::string("meas_object_name_")+meas->name() << "\" value=\"" << (*site) << "\"  eval=\"false\" /> " << std::endl;
       }
       for( ALIuint ii = 0; ii < meas->dim(); ii++ ){
@@ -770,7 +770,7 @@ ALIbool CocoaToDDLMgr::materialIsRepeated( CocoaMaterialElementary* ma )
   ALIbool isRepeated = false;
   std::vector<CocoaMaterialElementary*>::const_iterator ite;
 
-  for(ite = theMaterialList.begin(); ite != theMaterialList.end(); ite++ ){
+  for(ite = theMaterialList.begin(); ite != theMaterialList.end(); ++ite ){
     if( *(*ite) == *ma ){
       isRepeated = true;
       break;
@@ -786,7 +786,7 @@ std::string CocoaToDDLMgr::scrubString(const std::string& s)
   std::string::const_iterator ampat;
   static const std::string amp = "_"; //"&amp;";
   std::string ret = "";
-  for (ampat = s.begin(); ampat !=  s.end(); ampat++)
+  for (ampat = s.begin(); ampat !=  s.end(); ++ampat)
     {
      if (*ampat == '&')
        ret = ret + amp;
@@ -821,7 +821,7 @@ ALIint CocoaToDDLMgr::buildRotationNumber( OpticalObject* opto )
   std::vector<CLHEP::HepRotation>::const_iterator ite;
 
   int nc = 0;
-  for( ite = theRotationList.begin(); ite != theRotationList.end(); ite++) {
+  for( ite = theRotationList.begin(); ite != theRotationList.end(); ++ite) {
     if( (*ite) == opto->rmLocal() ) {
       rotnum = nc;
       break;

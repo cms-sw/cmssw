@@ -29,7 +29,7 @@ void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
   Handle<CaloTowerCollection> caloTowers;
   evt.getByToken( tok_src_, caloTowers );
   
-  auto_ptr<CandidateCollection> cands( new CandidateCollection );
+  auto cands = std::make_unique<CandidateCollection>();
   cands->reserve( caloTowers->size() );
   unsigned idx = 0;
   for (; idx < caloTowers->size (); idx++) {
@@ -53,5 +53,5 @@ void CaloTowerCandidateCreator::produce( Event& evt, const EventSetup& ) {
   if (mVerbose >= 1) {
     std::cout << "CaloTowerCandidateCreator::produce-> " << cands->size () << " candidates created" << std::endl;
   }
-  evt.put( cands );
+  evt.put(std::move(cands));
 }

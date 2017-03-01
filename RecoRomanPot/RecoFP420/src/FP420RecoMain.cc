@@ -60,7 +60,7 @@ FP420RecoMain::~FP420RecoMain() {
 
 
 
-void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<RecoCollectionFP420> &toutput, double VtxX, double VtxY, double VtxZ)  
+void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, RecoCollectionFP420 *toutput, double VtxX, double VtxY, double VtxZ)  
 {
   // initialization
   bool first = true;

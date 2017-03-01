@@ -7,9 +7,6 @@ import FWCore.ParameterSet.Config as cms
 
 TrackSplitMonitor = cms.EDAnalyzer("TrackSplittingMonitor",
                  
-    OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('MonitorTrackSplit.root'),
-
     FolderName = cms.string('TrackSplitMonitoring'),
 	
 	splitTrackCollection = cms.InputTag("splittedTracksP5"),

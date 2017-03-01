@@ -15,7 +15,7 @@ namespace ecaldqm
   public:
     enum ProcessType {
       kLumi,
-      kRun,
+      kJob,
       nProcessType
     };
 
@@ -26,13 +26,14 @@ namespace ecaldqm
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-    void bookMEs(DQMStore&) override;
+    void bookMEs(DQMStore::IBooker&) override;
     void releaseMEs() override;
 
     void releaseSource();
-    bool retrieveSource(DQMStore const&, ProcessType);
+    bool retrieveSource(DQMStore::IGetter&, ProcessType);
 
-    void resetMEs();
+    bool runsOn(ProcessType _type) const { return _type == kJob || hasLumiPlots_; }
+    virtual void resetMEs();
     virtual void producePlots(ProcessType) = 0;
 
     void setStatusManager(StatusManager const& _manager) { statusManager_ = &_manager; }
@@ -47,14 +48,14 @@ namespace ecaldqm
     };
 
   protected:
-    void setME(edm::ParameterSet const& _ps) final { DQWorker::setME(_ps); }
+    void setME(edm::ParameterSet const& _ps) final;
     void setSource(edm::ParameterSet const&) override;
 
-    bool using_(std::string const& _name, ProcessType _type = kRun) const
+    bool using_(std::string const& _name, ProcessType _type = kJob) const
     {
       MESetCollection::const_iterator itr(sources_.find(_name));
       if(itr == sources_.end()) return false;
-      if(_type == kRun) return true;
+      if(_type == kJob) return true;
       else return itr->second->getLumiFlag();
     }
 
@@ -62,6 +63,8 @@ namespace ecaldqm
 
     MESetCollection sources_;
     std::set<std::string> qualitySummaries_;
+
+    bool hasLumiPlots_;
 
     StatusManager const* statusManager_;
   };

@@ -4,7 +4,7 @@
 /**  \class L3MuonCombinedRelativeIsolationProducer
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -19,7 +19,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class L3MuonCombinedRelativeIsolationProducer : public edm::EDProducer {
+class L3MuonCombinedRelativeIsolationProducer : public edm::stream::EDProducer<> {
 
 public:
 
@@ -33,7 +33,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

@@ -70,7 +70,7 @@ void DTClusterer::produce(edm::Event& event, const edm::EventSetup& setup) {
   event.getByToken(recHits1DToken_, allHits);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecClusterCollection> clusters(new DTRecClusterCollection());
+  auto clusters = std::make_unique<DTRecClusterCollection>();
 
   // Iterate through all hit collections ordered by LayerId
   DTRecHitCollection::id_iterator dtLayerIt;
@@ -98,7 +98,7 @@ void DTClusterer::produce(edm::Event& event, const edm::EventSetup& setup) {
     if (clus.size() > 0 )
       clusters->put(sl->id(), clus.begin(), clus.end());
   }
-  event.put(clusters);
+  event.put(std::move(clusters));
 }
 
 vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl,

@@ -2,12 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load('GeneratorInterface.Core.genFilterSummary_cff')
 
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_upscope_cfi")
-
+process.load("Geometry.MuonCommonData.testMFXML_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 
-process.load("SimG4Core.Application.g4SimHits_cfi")
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
+
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -25,45 +35,43 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(12345)
-    ),
-    sourceSeed = cms.untracked.uint32(98765)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
-process.source = cms.Source("EmptySource",
-    firstRun        = cms.untracked.uint32(1),
-    firstEvent      = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(14),
-        MinEta = cms.double(-3.5),
-        MaxEta = cms.double(3.5),
+        PartID = cms.vint32(13),
+        MinEta = cms.double(1.6),
+        MaxEta = cms.double(2.5),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
-        MinE   = cms.double(9.99),
-        MaxE   = cms.double(10.01)
+        MinE   = cms.double(99.99),
+        MaxE   = cms.double(100.01)
     ),
     AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1),
     Verbosity       = cms.untracked.int32(0)
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(5)
 )
 
-process.p1 = cms.Path(process.generator*process.g4SimHits)
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(process.psim)
+process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+
+process.schedule = cms.Schedule(process.generation_step,
+                                process.genfiltersummary_step,
+                                process.simulation_step)
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
-process.g4SimHits.Physics.DummyEMPhysics = True
-process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
-    type       = cms.string('CheckOverlap'),
-    Resolution = cms.untracked.int32(1000),
-    NodeNames  = cms.untracked.vstring('MEP', 'MEN')
-))
+
+# filter all path with the production filter sequence
+for path in process.paths:
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 

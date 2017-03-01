@@ -1,0 +1,21 @@
+import FWCore.ParameterSet.Config as cms
+
+RecAnalyzerMinbias = cms.EDAnalyzer("RecAnalyzerMinbias",
+                                    RunNZS      = cms.bool(True),
+                                    Noise       = cms.bool(False),
+                                    ELowHB      = cms.double(4),
+                                    EHighHB     = cms.double(100),
+                                    ELowHE      = cms.double(4),
+                                    EHighHE     = cms.double(150),
+                                    ELowHF      = cms.double(10),
+                                    EHighHF     = cms.double(150),
+                                    TriggerBits = cms.untracked.vint32([]),
+                                    IgnoreL1    = cms.untracked.bool(False),
+                                    CorrFile    = cms.untracked.string('CorFactor.txt'),
+                                    FillHisto   = cms.untracked.bool(False),
+                                    HcalIeta    = cms.untracked.vint32([]),
+                                    HcalIphi    = cms.untracked.vint32([]),
+                                    HcalDepth   = cms.untracked.vint32([]),
+                                    hbheInputMB = cms.InputTag("hbherecoMB"),
+                                    hfInputMB   = cms.InputTag("hfrecoMB"),
+                                    )

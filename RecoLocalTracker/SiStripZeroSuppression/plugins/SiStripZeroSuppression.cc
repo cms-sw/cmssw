@@ -68,30 +68,25 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     e.getByToken(*inputToken,input);
 
-    if (input->size())
-      processRaw(*inputTag, *input);
+      if (input->size())
+        processRaw(*inputTag, *input);
     
-      std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
-      e.put( output, inputTag->instance() );
+      e.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(output_base), inputTag->instance());
     	
       if(produceRawDigis){
-	std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
-	e.put(outputraw, inputTag->instance() );
+        e.put(std::make_unique<edm::DetSetVector<SiStripRawDigi>>(output_base_raw), inputTag->instance());
       }
     
       if(produceCalculatedBaseline){
-	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
-	e.put(outputbaseline, "BADAPVBASELINE"+inputTag->instance() );
+        e.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(output_baseline), "BADAPVBASELINE"+inputTag->instance());
       }
   
       if(produceBaselinePoints){
-	std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
-	e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS"+inputTag->instance() );
+        e.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(output_baseline_points), "BADAPVBASELINEPOINTS"+inputTag->instance());
       }
   
       if(storeCM){
-	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputAPVCM(new edm::DetSetVector<SiStripProcessedRawDigi>(output_apvcm) );
-	e.put( outputAPVCM,"APVCM"+inputTag->instance());
+	e.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(output_apvcm), "APVCM"+inputTag->instance());
       }
     
   }
@@ -402,8 +397,7 @@ inline void SiStripZeroSuppression::MergeCollectionsZeroSuppression(edm::Event& 
 		
 		
 		std::cout << "write the output vector" << std::endl;
-		std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(outputdigi) );
-		e.put( output, "ZeroSuppressed" );  
+		e.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(outputdigi), "ZeroSuppressed" );  
 		
 		
     }//if inputraw.size
@@ -433,8 +427,7 @@ inline void SiStripZeroSuppression::CollectionMergedZeroSuppression(edm::Event& 
       output_base.push_back(*itinputdigi);	
     }
 	
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
-    e.put( output, inputTag->instance() );
+    e.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(output_base), inputTag->instance());
   	
   }
 

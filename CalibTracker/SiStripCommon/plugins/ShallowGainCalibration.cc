@@ -6,54 +6,54 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-
-
-
 ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
-  :  theTracksLabel( iConfig.getParameter<edm::InputTag>("Tracks") ),
+  :  tracks_token_( consumes< edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("Tracks")) ),
+		 association_token_( consumes< TrajTrackAssociationCollection >(iConfig.getParameter<edm::InputTag>("Tracks")) ),
      Suffix       ( iConfig.getParameter<std::string>("Suffix")    ),
      Prefix       ( iConfig.getParameter<std::string>("Prefix") )
 {
   produces <std::vector<int> >            ( Prefix + "trackindex"     + Suffix );
   produces <std::vector<unsigned int> >   ( Prefix + "rawid"          + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localdirx"      + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localdiry"      + Suffix );
-  produces <std::vector<float> >          ( Prefix + "localdirz"      + Suffix );
+  produces <std::vector<double> >         ( Prefix + "localdirx"      + Suffix );
+  produces <std::vector<double> >         ( Prefix + "localdiry"      + Suffix );
+  produces <std::vector<double> >         ( Prefix + "localdirz"      + Suffix );
   produces <std::vector<unsigned short> > ( Prefix + "firststrip"     + Suffix );
   produces <std::vector<unsigned short> > ( Prefix + "nstrips"        + Suffix );
   produces <std::vector<bool> >           ( Prefix + "saturation"     + Suffix );
   produces <std::vector<bool> >           ( Prefix + "overlapping"    + Suffix );
   produces <std::vector<bool> >           ( Prefix + "farfromedge"    + Suffix );
   produces <std::vector<unsigned int> >   ( Prefix + "charge"         + Suffix );
-  produces <std::vector<float> >          ( Prefix + "path"           + Suffix );
-  produces <std::vector<float> >          ( Prefix + "chargeoverpath" + Suffix );
+  produces <std::vector<double> >         ( Prefix + "path"           + Suffix );
+  produces <std::vector<double> >         ( Prefix + "chargeoverpath" + Suffix );
   produces <std::vector<unsigned char> >  ( Prefix + "amplitude"      + Suffix );
   produces <std::vector<double> >         ( Prefix + "gainused"       + Suffix );
+  produces <std::vector<double> >         ( Prefix + "gainusedTick"   + Suffix );
 }
 
 void ShallowGainCalibration::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<std::vector<int> >            trackindex    ( new std::vector<int>            );
-  std::auto_ptr<std::vector<unsigned int> >   rawid         ( new std::vector<unsigned int>   );
-  std::auto_ptr<std::vector<float>  >         localdirx     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         localdiry     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         localdirz     ( new std::vector<float>          );
-  std::auto_ptr<std::vector<unsigned short> > firststrip    ( new std::vector<unsigned short> );
-  std::auto_ptr<std::vector<unsigned short> > nstrips       ( new std::vector<unsigned short> );
-  std::auto_ptr<std::vector<bool> >           saturation    ( new std::vector<bool>           );
-  std::auto_ptr<std::vector<bool> >           overlapping   ( new std::vector<bool>           );
-  std::auto_ptr<std::vector<bool> >           farfromedge   ( new std::vector<bool>           );
-  std::auto_ptr<std::vector<unsigned int> >   charge        ( new std::vector<unsigned int>   );
-  std::auto_ptr<std::vector<float>  >         path          ( new std::vector<float>          );
-  std::auto_ptr<std::vector<float>  >         chargeoverpath( new std::vector<float>          );
-  std::auto_ptr<std::vector<unsigned char> >  amplitude     ( new std::vector<unsigned char>  );
-  std::auto_ptr<std::vector<double>  >        gainused      ( new std::vector<double>          );
+  auto         trackindex    = std::make_unique<std::vector<int>>            ();
+  auto         rawid         = std::make_unique<std::vector<unsigned int>>   ();
+  auto         localdirx     = std::make_unique<std::vector<double>>         ();
+  auto         localdiry     = std::make_unique<std::vector<double>>         ();
+  auto         localdirz     = std::make_unique<std::vector<double>>         ();
+  auto         firststrip    = std::make_unique<std::vector<unsigned short>> ();
+  auto         nstrips       = std::make_unique<std::vector<unsigned short>> ();
+  auto         saturation    = std::make_unique<std::vector<bool>>           ();
+  auto         overlapping   = std::make_unique<std::vector<bool>>           ();
+  auto         farfromedge   = std::make_unique<std::vector<bool>>           ();
+  auto         charge        = std::make_unique<std::vector<unsigned int>>   ();
+  auto         path          = std::make_unique<std::vector<double>>         ();
+  auto         chargeoverpath= std::make_unique<std::vector<double>>         ();
+  auto         amplitude     = std::make_unique<std::vector<unsigned char>>  ();
+  auto         gainused      = std::make_unique<std::vector<double>>         ();
+  auto         gainusedTick  = std::make_unique<std::vector<double>>         ();
 
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   m_tracker=&(* theTrackerGeometry );
   edm::ESHandle<SiStripGain> gainHandle;                     iSetup.get<SiStripGainRcd>().get(gainHandle);
-  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByLabel(theTracksLabel, tracks);	  
-  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
+  edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByToken(tracks_token_, tracks);	  
+  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(association_token_, associations);
 
   for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
        const Trajectory*  traj  = association->key.get();
@@ -68,71 +68,97 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
           const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
           const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+          const SiPixelRecHit*          sipixelhit          = dynamic_cast<const SiPixelRecHit*>(hit);
 
-          const SiStripCluster*   Cluster = NULL;
+          const SiPixelCluster*   PixelCluster = NULL;
+          const SiStripCluster*   StripCluster = NULL;
           uint32_t                DetId = 0;
 
           for(unsigned int h=0;h<2;h++){
             if(!sistripmatchedhit && h==1){
 	       continue;
             }else if(sistripmatchedhit  && h==0){
-               Cluster = &sistripmatchedhit->monoCluster();
+               StripCluster = &sistripmatchedhit->monoCluster();
 	       DetId = sistripmatchedhit->monoId();
             }else if(sistripmatchedhit  && h==1){
-               Cluster = &sistripmatchedhit->stereoCluster();;
+               StripCluster = &sistripmatchedhit->stereoCluster();;
 	       DetId = sistripmatchedhit->stereoId();
             }else if(sistripsimplehit){
-               Cluster = (sistripsimplehit->cluster()).get();
+               StripCluster = (sistripsimplehit->cluster()).get();
 	       DetId = sistripsimplehit->geographicalId().rawId();
             }else if(sistripsimple1dhit){
-               Cluster = (sistripsimple1dhit->cluster()).get();
+               StripCluster = (sistripsimple1dhit->cluster()).get();
 	       DetId = sistripsimple1dhit->geographicalId().rawId();
+            }else if(sipixelhit){
+               PixelCluster = (sipixelhit->cluster()).get();
+               DetId = sipixelhit->geographicalId().rawId();
             }else{
                continue;
             }
 
             LocalVector             trackDirection = trajState.localDirection();
             double                  cosine         = trackDirection.z()/trackDirection.mag();
-            const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
-	    int                     FirstStrip     = Cluster->firstStrip();
-            int                     APVId          = FirstStrip/128;
             bool                    Saturation     = false;
             bool                    Overlapping    = false;
             unsigned int            Charge         = 0;
             double                  Path           = (10.0*thickness(DetId))/fabs(cosine);
             double                  PrevGain       = -1;
+            double                  PrevGainTick   = -1;
+            int                     FirstStrip     = 0;
+            int                     NStrips        = 0;
 
-            if(gainHandle.isValid()){ 
-               SiStripApvGain::Range detGainRange = gainHandle->getRange(DetId);
-               PrevGain = *(detGainRange.first + APVId);
-            }
+            if(StripCluster){
+               const auto           &  Ampls          = StripCluster->amplitudes();
+   	                               FirstStrip     = StripCluster->firstStrip();
+                                       NStrips        = Ampls.size();
+               int                     APVId          = FirstStrip/128;
 
-            for(unsigned int a=0;a<Ampls.size();a++){               
-               Charge+=Ampls[a];
-               if(Ampls[a] >=254)Saturation =true;
-               amplitude->push_back( Ampls[a] );
+
+               if(gainHandle.isValid()){ 
+                  PrevGain     =  gainHandle->getApvGain(APVId,gainHandle->getRange(DetId, 1),1); 
+                  PrevGainTick =  gainHandle->getApvGain(APVId,gainHandle->getRange(DetId, 0),1);           
+               }
+
+               for(unsigned int a=0;a<Ampls.size();a++){               
+                  Charge+=Ampls[a];
+                  if(Ampls[a] >=254)Saturation =true;
+                  amplitude->push_back( Ampls[a] );
+               }
+
+               if(FirstStrip==0                                  )Overlapping=true;
+               if(FirstStrip==128                                )Overlapping=true;
+               if(FirstStrip==256                                )Overlapping=true;
+               if(FirstStrip==384                                )Overlapping=true;
+               if(FirstStrip==512                                )Overlapping=true;
+               if(FirstStrip==640                                )Overlapping=true;
+
+               if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
+               if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
+               if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlapping=true;
+               if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
+               if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
+
+               if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
+               if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
+               if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
+               if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
+               if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
+               if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
+            }else if(PixelCluster){
+               const auto&             Ampls          = PixelCluster->pixelADC();
+               int                     FirstRow       = PixelCluster->minPixelRow();
+               int                     FirstCol       = PixelCluster->minPixelCol();
+               FirstStrip                             = ((FirstRow/80)<<3 | (FirstCol/52)) * 128; //Hack to save the APVId
+               NStrips                                = 0;
+               Saturation                             = false;
+               Overlapping                            = false;
+
+               for(unsigned int a=0;a<Ampls.size();a++){
+                  Charge+=Ampls[a];
+                  if(Ampls[a] >=254)Saturation =true;
+               }
             }
             double                   ChargeOverPath = (double)Charge / Path ;
-
-            if(FirstStrip==0                                  )Overlapping=true;
-            if(FirstStrip==128                                )Overlapping=true;
-            if(FirstStrip==256                                )Overlapping=true;
-            if(FirstStrip==384                                )Overlapping=true;
-            if(FirstStrip==512                                )Overlapping=true;
-            if(FirstStrip==640                                )Overlapping=true;
-
-            if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
-            if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
-            if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlapping=true;
-            if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
-            if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
-
-            if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
-            if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
-            if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
-            if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
-            if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
-            if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
 
             trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
             rawid         ->push_back( DetId );         
@@ -140,33 +166,35 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             localdiry     ->push_back( trackDirection.y() );
             localdirz     ->push_back( trackDirection.z() );
             firststrip    ->push_back( FirstStrip );
-            nstrips       ->push_back( Ampls.size() );
+            nstrips       ->push_back( NStrips );
             saturation    ->push_back( Saturation );
             overlapping   ->push_back( Overlapping );
-            farfromedge   ->push_back( IsFarFromBorder(&trajState,DetId, &iSetup) );
+            farfromedge   ->push_back( StripCluster ? IsFarFromBorder(&trajState,DetId, &iSetup) : true );
             charge        ->push_back( Charge );
             path          ->push_back( Path );
             chargeoverpath->push_back( ChargeOverPath );
             gainused      ->push_back( PrevGain );  
+            gainusedTick  ->push_back( PrevGainTick );  
           }
        }
   }
 
-  iEvent.put(trackindex,    Prefix + "trackindex"    + Suffix );
-  iEvent.put(rawid     ,    Prefix + "rawid"         + Suffix );
-  iEvent.put(localdirx ,    Prefix + "localdirx"     + Suffix );
-  iEvent.put(localdiry ,    Prefix + "localdiry"     + Suffix );
-  iEvent.put(localdirz ,    Prefix + "localdirz"     + Suffix );
-  iEvent.put(firststrip,    Prefix + "firststrip"    + Suffix );
-  iEvent.put(nstrips,       Prefix + "nstrips"       + Suffix );
-  iEvent.put(saturation,    Prefix + "saturation"    + Suffix );
-  iEvent.put(overlapping,   Prefix + "overlapping"   + Suffix );
-  iEvent.put(farfromedge,   Prefix + "farfromedge"   + Suffix );
-  iEvent.put(charge,        Prefix + "charge"        + Suffix );
-  iEvent.put(path,          Prefix + "path"          + Suffix );
-  iEvent.put(chargeoverpath,Prefix + "chargeoverpath"+ Suffix );
-  iEvent.put(amplitude,     Prefix + "amplitude"     + Suffix );
-  iEvent.put(gainused,      Prefix + "gainused"      + Suffix );
+  iEvent.put(std::move(trackindex),    Prefix + "trackindex"    + Suffix );
+  iEvent.put(std::move(rawid     ),    Prefix + "rawid"         + Suffix );
+  iEvent.put(std::move(localdirx ),    Prefix + "localdirx"     + Suffix );
+  iEvent.put(std::move(localdiry ),    Prefix + "localdiry"     + Suffix );
+  iEvent.put(std::move(localdirz ),    Prefix + "localdirz"     + Suffix );
+  iEvent.put(std::move(firststrip),    Prefix + "firststrip"    + Suffix );
+  iEvent.put(std::move(nstrips),       Prefix + "nstrips"       + Suffix );
+  iEvent.put(std::move(saturation),    Prefix + "saturation"    + Suffix );
+  iEvent.put(std::move(overlapping),   Prefix + "overlapping"   + Suffix );
+  iEvent.put(std::move(farfromedge),   Prefix + "farfromedge"   + Suffix );
+  iEvent.put(std::move(charge),        Prefix + "charge"        + Suffix );
+  iEvent.put(std::move(path),          Prefix + "path"          + Suffix );
+  iEvent.put(std::move(chargeoverpath),Prefix + "chargeoverpath"+ Suffix );
+  iEvent.put(std::move(amplitude),     Prefix + "amplitude"     + Suffix );
+  iEvent.put(std::move(gainused),      Prefix + "gainused"      + Suffix );
+  iEvent.put(std::move(gainusedTick),  Prefix + "gainusedTick"  + Suffix );
 }
 
 /*

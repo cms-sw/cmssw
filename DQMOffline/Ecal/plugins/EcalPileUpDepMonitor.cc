@@ -345,7 +345,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
 
 		
     float e3x3 = EcalClusterTools::e3x3(seedCluster, eeRecHits, p_topology);
-    float r9 = e3x3 / itSC->energy();
+    float r9 = e3x3 / itSC->rawEnergy();
 		
     r9_EE->Fill(r9); 
     scSigmaIetaIeta_EE->Fill(sigmaIetaIeta);
@@ -390,7 +390,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
 
 		
     float e3x3 = EcalClusterTools::e3x3(seedCluster, ebRecHits, p_topology);
-    float r9 = e3x3 / itSC->energy();
+    float r9 = e3x3 / itSC->rawEnergy();
 		
     r9_EB->Fill(r9);
     scSigmaIetaIeta_EB->Fill(sigmaIetaIeta);

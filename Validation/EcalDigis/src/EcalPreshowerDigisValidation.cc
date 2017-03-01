@@ -14,45 +14,28 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const edm::ParameterS
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
                                                                                                                                            
-  dbe_ = 0;
-                                                                                                                                          
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
   meESDigiMultiplicity_=0;
 
   for (int i = 0; i < 3 ; i++ ) {
     meESDigiADC_[i] = 0;
   }
+ 
+}
+
+void EcalPreshowerDigisValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
 
   Char_t histo[200];
  
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
+  ibooker.setCurrentFolder("EcalDigisV/EcalDigiTask");
 
-    sprintf (histo, "EcalDigiTask Preshower digis multiplicity" ) ;
-    meESDigiMultiplicity_ = dbe_->book1D(histo, histo, 1000, 0., 137728);
-  
-    for ( int i = 0; i < 3 ; i++ ) {
-      
-      sprintf (histo, "EcalDigiTask Preshower ADC pulse %02d", i+1) ;
-      meESDigiADC_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5) ;
-    }
+  sprintf (histo, "EcalDigiTask Preshower digis multiplicity" ) ;
+  meESDigiMultiplicity_ = ibooker.book1D(histo, histo, 1000, 0., 137728);
 
+  for ( int i = 0; i < 3 ; i++ ) {
+
+    sprintf (histo, "EcalDigiTask Preshower ADC pulse %02d", i+1) ; 
+      meESDigiADC_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5) ;
   }
- 
 }
 
 void EcalPreshowerDigisValidation::analyze(const edm::Event& e, const edm::EventSetup& c){

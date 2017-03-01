@@ -73,7 +73,7 @@ namespace edm {
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & helper);
+                                     DocFormatHelper & helper) const;
 
     virtual void validateAllowedLabel_(std::string const& allowedLabel,
                                        ParameterSet & pset,
@@ -106,7 +106,7 @@ namespace edm {
 
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
-                                     DocFormatHelper & helper);
+                                     DocFormatHelper & helper) const;
 
     virtual void validateAllowedLabel_(std::string const& allowedLabel,
                                        ParameterSet & pset,

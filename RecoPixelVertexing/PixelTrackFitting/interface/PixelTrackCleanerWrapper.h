@@ -10,10 +10,9 @@
 
 class PixelTrackCleanerWrapper {
 public: 
-  PixelTrackCleanerWrapper(PixelTrackCleaner * tc) : theCleaner(tc) {}
+  PixelTrackCleanerWrapper(const PixelTrackCleaner * tc) : theCleaner(tc) {}
   pixeltrackfitting::TracksWithTTRHs clean(
-					   const pixeltrackfitting::TracksWithTTRHs & initialT_TTRHs,
-					   const TrackerTopology *tTopo) {
+					   const pixeltrackfitting::TracksWithTTRHs & initialT_TTRHs) const {
     
     pixeltrackfitting::TracksWithRecHits initialT_TRHs;
     std::map<const TrackingRecHit *, SeedingHitSet::ConstRecHitPointer> hitMap;
@@ -29,19 +28,22 @@ public:
       initialT_TRHs.push_back( pixeltrackfitting::TrackWithRecHits(it->first, trhs) );
     }
 
-    pixeltrackfitting::TracksWithRecHits finalT_TRHs = theCleaner->cleanTracks(initialT_TRHs, tTopo);
+    pixeltrackfitting::TracksWithRecHits finalT_TRHs = theCleaner->cleanTracks(initialT_TRHs);
     pixeltrackfitting::TracksWithTTRHs finalT_TTRHs;
 
     for (pixeltrackfitting::TracksWithRecHits::const_iterator it = finalT_TRHs.begin(), iend = finalT_TRHs.end(); it < iend; ++it) {
        const std::vector<const TrackingRecHit *> & trhs = it->second;
        assert(!(trhs.size()<2));
        if (trhs.size()<2) continue;
-       SeedingHitSet ttrhs( hitMap[trhs[0]], hitMap[trhs[1]], trhs.size()>2 ? hitMap[trhs[2]] : SeedingHitSet::nullPtr()); 
+       SeedingHitSet ttrhs( hitMap[trhs[0]], hitMap[trhs[1]], 
+               trhs.size()>2 ? hitMap[trhs[2]] : SeedingHitSet::nullPtr(),
+               trhs.size()>3 ? hitMap[trhs[3]] : SeedingHitSet::nullPtr() ); 
+
        finalT_TTRHs.push_back( pixeltrackfitting::TrackWithTTRHs(it->first, ttrhs));
     }
     return finalT_TTRHs;
   }
 private:
-  PixelTrackCleaner * theCleaner;
+  const PixelTrackCleaner * theCleaner;
 };
 #endif

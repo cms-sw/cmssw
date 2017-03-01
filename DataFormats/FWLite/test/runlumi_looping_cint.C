@@ -7,7 +7,7 @@ class loadFWLite {
    public:
       loadFWLite() {
          gSystem->Load("libFWCoreFWLite");
-         AutoLibraryLoader::enable();
+         FWLiteEnabler::enable();
       }
 };
 
@@ -43,8 +43,8 @@ void runlumi_looping_cint()
         returnValue = 1;
     }
 
-    int i =0;
-    int returnValue = 0;
+    i =0;
+    returnValue = 0;
     for( ;l.isValid();++l,++i) {
         cout << l.id().run() << " " << l.id().luminosityBlock() << endl;
         fwlite::Handle<vector<edmtest::Thing> > pThing;

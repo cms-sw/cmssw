@@ -35,9 +35,10 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class DQMStore;
 class TrackAnalyzer;
 class TrackBuildingAnalyzer;
 class VertexMonitor;
@@ -51,16 +52,15 @@ class TrackingMonitor : public DQMEDAnalyzer
         explicit TrackingMonitor(const edm::ParameterSet&);
         ~TrackingMonitor();
         virtual void beginJob(void);
-        virtual void endJob(void);
 
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );
 
-        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
+        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-        virtual void endRun(const edm::Run&, const edm::EventSetup&);
+        virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
 
     private:
         void doProfileX(TH2 * th2, MonitorElement* me);
@@ -71,7 +71,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         std::string histname;  //for naming the histograms according to algorithm used
 
-        DQMStore * dqmStore_;
+	//        DQMStore * dqmStore_;
 
         edm::ParameterSet conf_;
 
@@ -81,10 +81,12 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
 	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
-	edm::EDGetTokenT<reco::TrackCollection> allTrackToken_;
-	edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+	edm::EDGetTokenT<edm::View<reco::Track> > allTrackToken_;
+	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
+
+	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
 
 	edm::InputTag stripClusterInputTag_;
 	edm::InputTag pixelClusterInputTag_;
@@ -125,13 +127,42 @@ class TrackingMonitor : public DQMEDAnalyzer
         MonitorElement* NumberOfTrkVsPixelClus;
 
 	// Monitoring vs LS
+	MonitorElement* NumberEventsOfVsLS;
 	MonitorElement* NumberOfTracksVsLS;
 	MonitorElement* GoodTracksFractionVsLS;
 	MonitorElement* NumberOfRecHitsPerTrackVsLS;
+	MonitorElement* NumberOfGoodPVtxVsLS;
+	MonitorElement* NumberOfGoodPVtxWO0VsLS;
+
+	// Monitoring vs BX
+	MonitorElement* NumberEventsOfVsBX;
+	MonitorElement* NumberOfTracksVsBX;
+	MonitorElement* GoodTracksFractionVsBX;
+	MonitorElement* NumberOfRecHitsPerTrackVsBX;
+	MonitorElement* NumberOfGoodPVtxVsBX;
+	MonitorElement* NumberOfGoodPVtxWO0VsBX;
+
+	MonitorElement* NumberOfTracksVsBXlumi;
 
 	// Monitoring PU
-	MonitorElement* NumberOfTracksVsGoodPVtx;
-	MonitorElement* NumberOfTracksVsBXlumi;
+	MonitorElement *NumberOfTracksVsGoodPVtx;
+	MonitorElement* NumberOfTracksVsPUPVtx;
+	MonitorElement* NumberEventsOfVsGoodPVtx;
+	MonitorElement* GoodTracksFractionVsGoodPVtx;
+	MonitorElement* NumberOfRecHitsPerTrackVsGoodPVtx;
+	MonitorElement* NumberOfPVtxVsGoodPVtx;
+	MonitorElement* NumberOfPixelClustersVsGoodPVtx;
+	MonitorElement* NumberOfStripClustersVsGoodPVtx;
+
+	// Monitoring vs lumi
+	MonitorElement* NumberEventsOfVsLUMI;
+	MonitorElement* NumberOfTracksVsLUMI;
+	MonitorElement* GoodTracksFractionVsLUMI;
+	MonitorElement* NumberOfRecHitsPerTrackVsLUMI;
+	MonitorElement* NumberOfGoodPVtxVsLUMI;
+	MonitorElement* NumberOfGoodPVtxWO0VsLUMI;
+	MonitorElement* NumberOfPixelClustersVsLUMI;
+	MonitorElement* NumberOfStripClustersVsLUMI;
 
 	// add in order to deal with LS transitions
         MonitorElement * NumberOfTracks_lumiFlag;
@@ -156,12 +187,15 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doPUmonitoring_;
 	bool doPlotsVsBXlumi_;
 	bool doPlotsVsGoodPVtx_;
+	bool doPlotsVsLUMI_;
+	bool doPlotsVsBX_;
 	bool doFractionPlot_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
 
 	StringCutObjectSelector<reco::Track,true> numSelection_;
 	StringCutObjectSelector<reco::Track,true> denSelection_;
+	int pvNDOF_;
 
 };
 

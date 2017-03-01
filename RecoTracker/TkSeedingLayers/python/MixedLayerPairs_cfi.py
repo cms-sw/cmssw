@@ -34,13 +34,14 @@ MixedLayerPairs.TEC = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(1),
     maxRing = cms.int32(1)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 MixedLayerPairs.BPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 MixedLayerPairs.FPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 

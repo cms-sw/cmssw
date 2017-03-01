@@ -42,7 +42,7 @@ DataProxyProvider::DataProxyProvider() : recordProxies_(), description_()
 //    // do actual copying here;
 // }
 
-DataProxyProvider::~DataProxyProvider()
+DataProxyProvider::~DataProxyProvider() noexcept(false)
 {
 }
 

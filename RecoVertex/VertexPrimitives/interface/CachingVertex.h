@@ -34,6 +34,7 @@ public:
 
   /** Constructors
    */
+  // no time
   CachingVertex(const GlobalPoint & pos, const GlobalError & posErr, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
@@ -43,23 +44,51 @@ public:
   CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
 		const std::vector<RefCountedVertexTrack> & tks, 
-		float totalChiSq);
-
-  CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-  		const GlobalPoint & pos, const GlobalError & posErr, 
-		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
-
-  CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-  		const GlobalPoint & pos, const GlobalWeight & posWeight, 
-		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		float totalChiSq);  
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
   		const AlgebraicVector3 & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
 		const std::vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
+  
+  // with time (tracks must have time as well)
+  CachingVertex(const GlobalPoint & pos, const double time,
+                const GlobalError & posTimeErr, 
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
+  CachingVertex(const GlobalPoint & pos, const double time, 
+                const GlobalWeight & posTimeWeight, 
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
+  CachingVertex(const AlgebraicVector4 & weightTimesPosition, 
+		const GlobalWeight & posTimeWeight, 
+		const std::vector<RefCountedVertexTrack> & tks, 
+		float totalChiSq);
+  
+  CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
+  		const AlgebraicVector4 & weightTimesPosition, 
+		const GlobalWeight & posWeight, 
+		const std::vector<RefCountedVertexTrack> & tks, 
+		float totalChiSq);
+
+  // either time or no time (depends on if the tracks/vertex states have times)
+  CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
+  		const GlobalPoint & pos, const GlobalError & posErr, 
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
+
+  CachingVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr, 
+  		const GlobalPoint & pos, const double time, const GlobalError & posErr, 
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
+
+  CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
+  		const GlobalPoint & pos, const GlobalWeight & posWeight, 
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
+
+  CachingVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+  		const GlobalPoint & pos, const double time, const GlobalWeight & posWeight, 
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
+  
   CachingVertex(const VertexState & aVertexState, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
@@ -85,15 +114,22 @@ public:
   VertexState const & vertexState() const {return theVertexState;}
   VertexState const & priorVertexState() const {return thePriorVertexState;}
   GlobalPoint position() const;
+  double time() const;
   GlobalError error() const;
+  GlobalError error4D() const;
   GlobalWeight weight() const;
+  GlobalWeight weight4D() const;
   AlgebraicVector3 weightTimesPosition() const;
-  std::vector<RefCountedVertexTrack> const & tracks() const { return theTracks; }
-  std::vector<RefCountedVertexTrack> const & tracksRef() const { return theTracks; }
+  AlgebraicVector4 weightTimesPosition4D() const;
+  std::vector<RefCountedVertexTrack> tracks() const { return theTracks; }
+  const std::vector<RefCountedVertexTrack> &tracksRef() const { return theTracks; }
   GlobalPoint priorPosition() const {return priorVertexState().position();}
+  double priorTime() const { return priorVertexState().time(); }
   GlobalError priorError() const {return priorVertexState().error();}
+  GlobalError priorError4D() const {return priorVertexState().error4D();}
   bool hasPrior() const {return withPrior;}
   bool isValid() const {return theValid;}
+  bool is4D() const { return vertexIs4D; }
 
   /** Chi2, degrees of freedom. The latter may not be integer. 
    */
@@ -123,6 +159,7 @@ private:
   bool withPrior;
 
   bool theValid;
+  bool vertexIs4D;
 };
 
 

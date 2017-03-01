@@ -1,4 +1,4 @@
-#include "GeometryTester.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -29,389 +29,427 @@
 #include "Geometry/Records/interface/PEcalEndcapRcd.h"
 #include "Geometry/Records/interface/PEcalPreshowerRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
+#include "Geometry/Records/interface/PHGCalRcd.h"
 #include "Geometry/Records/interface/PCaloTowerRcd.h"
 #include "Geometry/Records/interface/PCastorRcd.h"
 #include "Geometry/Records/interface/PZdcRcd.h"
 
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 
-GeometryTester::GeometryTester(const edm::ParameterSet& iConfig)
-{
-  xmltest=iConfig.getUntrackedParameter<bool>("XMLTest", true);
-  tktest=iConfig.getUntrackedParameter<bool>("TrackerTest", true);
-  ecaltest=iConfig.getUntrackedParameter<bool>("EcalTest", true);
-  hcaltest=iConfig.getUntrackedParameter<bool>("HcalTest", true);
-  calotowertest=iConfig.getUntrackedParameter<bool>("CaloTowerTest", true);
-  castortest=iConfig.getUntrackedParameter<bool>("CastorTest", true);
-  zdctest=iConfig.getUntrackedParameter<bool>("ZDCTest", true);
-  csctest=iConfig.getUntrackedParameter<bool>("CSCTest", true);
-  dttest=iConfig.getUntrackedParameter<bool>("DTTest", true);
-  rpctest=iConfig.getUntrackedParameter<bool>("RPCTest", true);
-  geomLabel_ = iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended");
-}
+namespace {
 
-GeometryTester::~GeometryTester(){
+  class GeometryTester : public edm::one::EDAnalyzer<>
+  {
+  public:
+    
+    GeometryTester( edm::ParameterSet const& );
+    void beginJob() override {}
+    void analyze( edm::Event const& , edm::EventSetup const& ) override;
+    void endJob() override {}
+
+  private:
+
+    bool m_xmltest, m_tktest, m_ecaltest;
+    bool m_hcaltest, m_hgcaltest, m_calotowertest;
+    bool m_castortest, m_zdctest, m_csctest;
+    bool m_dttest, m_rpctest;
+    std::string m_geomLabel;
+  };
+}
+  
+GeometryTester::GeometryTester( const edm::ParameterSet& iConfig )
+{
+  m_xmltest=iConfig.getUntrackedParameter<bool>( "XMLTest", true );
+  m_tktest=iConfig.getUntrackedParameter<bool>( "TrackerTest", true );
+  m_ecaltest=iConfig.getUntrackedParameter<bool>( "EcalTest", true );
+  m_hcaltest=iConfig.getUntrackedParameter<bool>( "HcalTest", true );
+  m_hgcaltest=iConfig.getUntrackedParameter<bool>( "HGCalTest", true );
+  m_calotowertest=iConfig.getUntrackedParameter<bool>( "CaloTowerTest", true );
+  m_castortest=iConfig.getUntrackedParameter<bool>( "CastorTest", true );
+  m_zdctest=iConfig.getUntrackedParameter<bool>( "ZDCTest", true );
+  m_csctest=iConfig.getUntrackedParameter<bool>( "CSCTest", true );
+  m_dttest=iConfig.getUntrackedParameter<bool>( "DTTest", true );
+  m_rpctest=iConfig.getUntrackedParameter<bool>( "RPCTest", true );
+  m_geomLabel = iConfig.getUntrackedParameter<std::string>( "geomLabel", "Extended" );
 }
 
 void
-GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup) 
+GeometryTester::analyze( const edm::Event& , const edm::EventSetup& iSetup ) 
 {
-
-  if(xmltest){
-    edm::ESHandle<FileBlob> xmlgeo;
-    iSetup.get<GeometryFileRcd>().get(geomLabel_, xmlgeo);
-    std::cout<<"XML FILE"<<std::endl;
-    std::unique_ptr<std::vector<unsigned char> > tb = (*xmlgeo).getUncompressedBlob();
-    std::cout<<"SIZE FILE = "<<tb->size()<<std::endl;
-    for(uint32_t i=0; i<tb->size();i++){
-      std::cout<<(*tb)[i];
+  if( m_xmltest )
+  {
+    edm::ESHandle< FileBlob > xmlgeo;
+    iSetup.get< GeometryFileRcd >().get( m_geomLabel, xmlgeo );
+    std::cout << "XML FILE\n";
+    std::unique_ptr< std::vector< unsigned char > > tb = (*xmlgeo).getUncompressedBlob();
+    std::cout << "SIZE FILE = " << tb->size() << "\n";
+    for( auto it : *tb )
+    {
+      std::cout << it;
     }
-    std::cout<<""<<std::endl;
+    std::cout << "\n";
   }
-
   
-  if(tktest){
-    edm::ESHandle<PGeometricDet> tkgeo;
-    edm::ESHandle<PGeometricDetExtra> tkExtra;
-    iSetup.get<IdealGeometryRecord>().get(tkgeo);
-    iSetup.get<PGeometricDetExtraRcd>().get(tkExtra);
-    std::cout<<"TRACKER"<<std::endl;
+  if( m_tktest )
+  {
+    edm::ESHandle< PGeometricDet > tkGeo;
+    edm::ESHandle< PGeometricDetExtra > tkExtra;
+    iSetup.get< IdealGeometryRecord >().get( tkGeo );
+    iSetup.get< PGeometricDetExtraRcd >().get( tkExtra );
+    std::cout << "TRACKER\n";
+
     //helper map
-    std::map<uint32_t, uint32_t> diTogde;
-    for (uint32_t g=0; g<tkExtra->pgdes_.size();++g) {
+    std::map< uint32_t, uint32_t > diTogde;
+    for( uint32_t g = 0; g < tkExtra->pgdes_.size(); ++g )
+    {
       diTogde[tkExtra->pgdes_[g]._geographicalId] = g;
     }
     uint32_t tkeInd;
-    for(uint32_t i=0; i<tkgeo->pgeomdets_.size();i++){
-      std::cout<<tkgeo->pgeomdets_[i]._params0<<tkgeo->pgeomdets_[i]._params1<<tkgeo->pgeomdets_[i]._params2<<tkgeo->pgeomdets_[i]._params3<<tkgeo->pgeomdets_[i]._params4<<tkgeo->pgeomdets_[i]._params5<<tkgeo->pgeomdets_[i]._params6<<tkgeo->pgeomdets_[i]._params7<<tkgeo->pgeomdets_[i]._params8<<tkgeo->pgeomdets_[i]._params9<<tkgeo->pgeomdets_[i]._params10<<tkgeo->pgeomdets_[i]._x<<tkgeo->pgeomdets_[i]._y<<tkgeo->pgeomdets_[i]._z<<tkgeo->pgeomdets_[i]._phi<<tkgeo->pgeomdets_[i]._rho<<tkgeo->pgeomdets_[i]._a11<< tkgeo->pgeomdets_[i]._a12<< tkgeo->pgeomdets_[i]._a13<< tkgeo->pgeomdets_[i]._a21<< tkgeo->pgeomdets_[i]._a22<< tkgeo->pgeomdets_[i]._a23<< tkgeo->pgeomdets_[i]._a31<< tkgeo->pgeomdets_[i]._a32<< tkgeo->pgeomdets_[i]._a33<<tkgeo->pgeomdets_[i]._shape<<tkgeo->pgeomdets_[i]._name<< tkgeo->pgeomdets_[i]._ns;
-      tkeInd = diTogde[tkgeo->pgeomdets_[i]._geographicalID];
-      std::cout <<tkExtra->pgdes_[tkeInd]._volume<<tkExtra->pgdes_[tkeInd]._density<<tkExtra->pgdes_[tkeInd]._weight<<tkExtra->pgdes_[tkeInd]._copy<<tkExtra->pgdes_[tkeInd]._material;
-      std::cout <<tkgeo->pgeomdets_[i]._radLength<<tkgeo->pgeomdets_[i]._xi<<tkgeo->pgeomdets_[i]._pixROCRows<<tkgeo->pgeomdets_[i]._pixROCCols<<tkgeo->pgeomdets_[i]._pixROCx<<tkgeo->pgeomdets_[i]._pixROCy<<tkgeo->pgeomdets_[i]._stereo<<tkgeo->pgeomdets_[i]._siliconAPVNum<<tkgeo->pgeomdets_[i]._geographicalID<<tkgeo->pgeomdets_[i]._nt0<<tkgeo->pgeomdets_[i]._nt1<<tkgeo->pgeomdets_[i]._nt2<<tkgeo->pgeomdets_[i]._nt3<<tkgeo->pgeomdets_[i]._nt4<<tkgeo->pgeomdets_[i]._nt5<<tkgeo->pgeomdets_[i]._nt6<<tkgeo->pgeomdets_[i]._nt7<<tkgeo->pgeomdets_[i]._nt8<<tkgeo->pgeomdets_[i]._nt9<<tkgeo->pgeomdets_[i]._nt10<<std::endl;
+    for( auto it : tkGeo->pgeomdets_ )
+    {
+      std::cout << it._params0
+		<< it._params1
+		<< it._params2
+		<< it._params3
+		<< it._params4
+		<< it._params5
+		<< it._params6
+		<< it._params7
+		<< it._params8
+		<< it._params9
+		<< it._params10
+		<< it._x
+		<< it._y
+		<< it._z
+		<< it._phi
+		<< it._rho
+		<< it._a11
+		<< it._a12
+		<< it._a13
+		<< it._a21
+		<< it._a22
+		<< it._a23
+		<< it._a31
+		<< it._a32
+		<< it._a33
+		<< it._shape
+		<< it._name
+		<< it._ns;
+      tkeInd = diTogde[ it._geographicalID ];
+      std::cout << tkExtra->pgdes_[tkeInd]._volume
+		<< tkExtra->pgdes_[tkeInd]._density
+		<< tkExtra->pgdes_[tkeInd]._weight
+		<< tkExtra->pgdes_[tkeInd]._copy
+		<< tkExtra->pgdes_[tkeInd]._material;
+      std::cout << it._radLength
+		<< it._xi
+		<< it._pixROCRows
+		<< it._pixROCCols
+		<< it._pixROCx
+		<< it._pixROCy
+		<< it._stereo
+		<< it._siliconAPVNum
+		<< it._geographicalID
+		<< it._nt0
+		<< it._nt1
+		<< it._nt2
+		<< it._nt3
+		<< it._nt4
+		<< it._nt5
+		<< it._nt6
+		<< it._nt7
+		<< it._nt8
+		<< it._nt9
+		<< it._nt10 << "\n";
     }
   }
   
-  if( ecaltest )
+  if( m_ecaltest )
   {
-    edm::ESHandle<PCaloGeometry> ebgeo;
-    iSetup.get<PEcalBarrelRcd>().get(ebgeo);
-    std::cout<<"ECAL BARREL\n";
-    std::vector<float> tseb = ebgeo->getTranslation();
-    std::vector<float> dimeb = ebgeo->getDimension();
-    std::vector<uint32_t> indeb = ebgeo->getIndexes();
+    edm::ESHandle< PCaloGeometry > ebgeo;
+    iSetup.get< PEcalBarrelRcd >().get( ebgeo );
+    std::cout << "ECAL BARREL\n";
+    auto tseb = ebgeo->getTranslation();
+    auto dimeb = ebgeo->getDimension();
+    auto indeb = ebgeo->getIndexes();
     std::cout << "Translations " << tseb.size() << "\n";
     std::cout << "Dimensions " << dimeb.size() << "\n";
     std::cout << "Indices " << indeb.size() << "\n";
-    for( std::vector<float>::const_iterator it = tseb.begin(), end = tseb.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : tseb )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<float>::const_iterator it = dimeb.begin(), end = dimeb.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : dimeb )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indeb.begin(), end = indeb.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : indeb )
+      std::cout << it;
     std::cout << "\n";
 
-    edm::ESHandle<PCaloGeometry> eegeo;
-    iSetup.get<PEcalEndcapRcd>().get(eegeo);
-    std::cout<<"ECAL ENDCAP\n";
-    std::vector<float> tsee = eegeo->getTranslation();
-    std::vector<float> dimee = eegeo->getDimension();
-    std::vector<uint32_t> indee = eegeo->getIndexes();
+    edm::ESHandle< PCaloGeometry > eegeo;
+    iSetup.get< PEcalEndcapRcd >().get( eegeo );
+    std::cout << "ECAL ENDCAP\n";
+    auto tsee = eegeo->getTranslation();
+    auto dimee = eegeo->getDimension();
+    auto indee = eegeo->getIndexes();
     std::cout << "Translations " << tsee.size() << "\n";
     std::cout << "Dimensions " << dimee.size() << "\n";
     std::cout << "Indices " << indee.size() << "\n";
-    for( std::vector<float>::const_iterator it = tsee.begin(), end = tsee.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : tsee )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<float>::const_iterator it = dimee.begin(), end = dimee.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : dimee )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indee.begin(), end = indee.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : indee )
+      std::cout << it;
     std::cout << "\n";
 
-    edm::ESHandle<PCaloGeometry> epgeo;
-    iSetup.get<PEcalPreshowerRcd>().get(epgeo);
-    std::cout<<"ECAL PRESHOWER\n";
-    std::vector<float> tsep = epgeo->getTranslation();
-    std::vector<float> dimep = epgeo->getDimension();
-    std::vector<uint32_t> indep = epgeo->getIndexes();
+    edm::ESHandle< PCaloGeometry > epgeo;
+    iSetup.get< PEcalPreshowerRcd >().get( epgeo );
+    std::cout << "ECAL PRESHOWER\n";
+    auto tsep = epgeo->getTranslation();
+    auto dimep = epgeo->getDimension();
+    auto indep = epgeo->getIndexes();
     std::cout << "Translations " << tsep.size() << "\n";
     std::cout << "Dimensions " << dimep.size() << "\n";
     std::cout << "Indices " << indep.size() << "\n";
-    for( std::vector<float>::const_iterator it = tsep.begin(), end = tsep.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : tsep )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<float>::const_iterator it = dimep.begin(), end = dimep.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : dimep )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indep.begin(), end = indep.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : indep )
+      std::cout << it;
     std::cout << "\n";
   }
 
-  if( hcaltest )
+  if( m_hcaltest )
   {
-    edm::ESHandle<PCaloGeometry> hgeo;
-    iSetup.get<PHcalRcd>().get(hgeo);
+    edm::ESHandle< PCaloGeometry > hgeo;
+    iSetup.get< PHcalRcd >().get( hgeo );
     std::cout << "HCAL\n";
-    std::vector<float> tsh = hgeo->getTranslation();
-    std::vector<float> dimh = hgeo->getDimension();
-    std::vector<uint32_t> indh = hgeo->getIndexes();
-    std::vector<uint32_t> dindh = hgeo->getDenseIndices();
+    auto tsh = hgeo->getTranslation();
+    auto dimh = hgeo->getDimension();
+    auto indh = hgeo->getIndexes();
+    auto dindh = hgeo->getDenseIndices();
     std::cout << "Translations " << tsh.size() << "\n";
     std::cout << "Dimensions " << dimh.size() << "\n";
     std::cout << "Indices " << indh.size() << "\n";
     std::cout << "Dense Indices " << dindh.size() << "\n";
-    for( std::vector<float>::const_iterator it = tsh.begin(), end = tsh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : tsh )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<float>::const_iterator it = dimh.begin(), end = dimh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : dimh )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indh.begin(), end = indh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
-    for( std::vector<uint32_t>::const_iterator it = dindh.begin(), end = dindh.end(); it != end; ++it )
-    {
-	std::cout << (*it);
-    } 
+    for( auto it : indh )
+      std::cout << it;
+    for( auto it : dindh )
+      std::cout << it;
+    std::cout << "\n";
+  }
+  
+  if( m_hgcaltest )
+  {
+    edm::ESHandle< PCaloGeometry > hgcgeo;
+    iSetup.get< PHGCalRcd >().get( hgcgeo );
+    std::cout << "HGCAL\n";
+    auto tsh = hgcgeo->getTranslation();
+    auto dimh = hgcgeo->getDimension();
+    auto indh = hgcgeo->getIndexes();
+    auto dindh = hgcgeo->getDenseIndices();
+    std::cout << "Translations " << tsh.size() << "\n";
+    std::cout << "Dimensions " << dimh.size() << "\n";
+    std::cout << "Indices " << indh.size() << "\n";
+    std::cout << "Dense Indices " << dindh.size() << "\n";
+    for( auto it : tsh )
+      std::cout << it;
+    std::cout << "\n";
+    for( auto it : dimh )
+      std::cout << it;
+    std::cout << "\n";
+    for( auto it : indh )
+      std::cout << it;
+    for( auto it : dindh )
+      std::cout << it;
     std::cout << "\n";
   }
 
-  if( calotowertest )
+  if( m_calotowertest )
   {
-    edm::ESHandle<PCaloGeometry> ctgeo;
-    iSetup.get<PCaloTowerRcd>().get(ctgeo);
+    edm::ESHandle< PCaloGeometry > ctgeo;
+    iSetup.get< PCaloTowerRcd >().get( ctgeo );
     std::cout << "CALO TOWER:\n";
-    std::vector<float> tsct = ctgeo->getTranslation();
-    std::vector<float> dimct = ctgeo->getDimension();
-    std::vector<uint32_t> indct = ctgeo->getIndexes();
+    auto tsct = ctgeo->getTranslation();
+    auto dimct = ctgeo->getDimension();
+    auto indct = ctgeo->getIndexes();
     std::cout << "Translations " << tsct.size() << "\n";
     std::cout << "Dimensions " << dimct.size() << "\n";
     std::cout << "Indices " << indct.size() << "\n";
-
-    for( std::vector<float>::const_iterator it = tsct.begin(), end = tsct.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : tsct )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<float>::const_iterator it = dimct.begin(), end = dimct.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    } 
+    for( auto it : dimct )
+      std::cout << it;
     std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indct.begin(), end = indct.end(); it != end; ++it )
-    {
-      std::cout << (*it);
-    }
-    
+    for( auto it : indct )
+      std::cout << it;
     std::cout << "\n";
   }
 
-  if(castortest){
-    edm::ESHandle<PCaloGeometry> castgeo;
-    iSetup.get<PCastorRcd>().get(castgeo);
-    std::cout<<"CASTOR"<<std::endl;
-    std::vector<float> tscast = castgeo->getTranslation();
-    std::vector<float> dimcast = castgeo->getDimension();
-    std::vector<uint32_t> indcast = castgeo->getIndexes();
-    for(uint32_t i=0;i<tscast.size();i++){
-      std::cout<<tscast[i];
-    } 
-    std::cout<<""<<std::endl;
-    for(uint32_t i=0;i<dimcast.size();i++){
-      std::cout<<dimcast[i];
-    } 
-    std::cout<<""<<std::endl;
-    for(uint32_t i=0;i<indcast.size();i++){
-      std::cout<<indcast[i];
-    } 
-    std::cout<<""<<std::endl;
-
+  if( m_castortest )
+  {
+    edm::ESHandle< PCaloGeometry > castgeo;
+    iSetup.get< PCastorRcd >().get( castgeo );
+    std::cout << "CASTOR\n";
+    for( auto it : castgeo->getTranslation())
+      std::cout << it;
+    std::cout << "\n";
+    for( auto it : castgeo->getDimension())
+      std::cout << it;
+    std::cout << "\n";
+    for( auto it : castgeo->getIndexes())
+      std::cout << it;
+    std::cout << "\n";
   }
 
-  if(zdctest){
+  if( m_zdctest )
+  {
     edm::ESHandle<PCaloGeometry> zdcgeo;
     iSetup.get<PZdcRcd>().get(zdcgeo);
-    std::cout<<"ZDC"<<std::endl;
-    std::vector<float> tszdc = zdcgeo->getTranslation();
-    std::vector<float> dimzdc = zdcgeo->getDimension();
-    std::vector<uint32_t> indzdc = zdcgeo->getIndexes();
-    for(uint32_t i=0;i<tszdc.size();i++){
-      std::cout<<tszdc[i];
-    } 
-    std::cout<<""<<std::endl;
-    for(uint32_t i=0;i<dimzdc.size();i++){
-      std::cout<<dimzdc[i];
-    } 
-    std::cout<<""<<std::endl;
-    for(uint32_t i=0;i<indzdc.size();i++){
-      std::cout<<indzdc[i];
-    } 
-    std::cout<<""<<std::endl;
-
+    std::cout << "ZDC\n";
+    for( auto it : zdcgeo->getTranslation())
+      std::cout << it;
+    std::cout << "\n";
+    for( auto it : zdcgeo->getDimension())
+      std::cout << it;
+    std::cout << "\n";
+    for( auto it : zdcgeo->getIndexes())
+      std::cout << it;
+    std::cout << "\n";
   }
 
-  if(csctest){
-    edm::ESHandle<RecoIdealGeometry> cscgeo;
-    iSetup.get<CSCRecoGeometryRcd>().get(cscgeo);
+  if( m_csctest )
+  {
+    edm::ESHandle< RecoIdealGeometry > cscgeo;
+    iSetup.get< CSCRecoGeometryRcd >().get( cscgeo );
 
-    edm::ESHandle<CSCRecoDigiParameters> cscdigigeo;
-    iSetup.get<CSCRecoDigiParametersRcd>().get(cscdigigeo);
-    std::cout<<"CSC"<<std::endl;
+    edm::ESHandle< CSCRecoDigiParameters > cscdigigeo;
+    iSetup.get< CSCRecoDigiParametersRcd >().get( cscdigigeo );
+    std::cout << "CSC\n";
     
-    std::vector<int> obj1(cscdigigeo->pUserParOffset);
-    for(uint32_t i=0; i<obj1.size();i++){
-      std::cout<<obj1[i];
-    }
-    std::cout<<""<<std::endl;
+    std::vector<int> obj1( cscdigigeo->pUserParOffset );
+    for( auto it : obj1 )
+      std::cout << it;
+    std::cout << "\n";
 
-    std::vector<int> obj2(cscdigigeo->pUserParSize);
-    for(uint32_t i=0; i<obj2.size();i++){
-      std::cout<<obj2[i];
-    }
-    std::cout<<""<<std::endl;
+    std::vector<int> obj2( cscdigigeo->pUserParSize );
+    for( auto it : obj2 )
+      std::cout << it;
+    std::cout << "\n";
 
-    std::vector<int> obj3(cscdigigeo->pChamberType);
-    for(uint32_t i=0; i<obj3.size();i++){
-      std::cout<<obj3[i];
-    }
-    std::cout<<""<<std::endl;
+    std::vector<int> obj3( cscdigigeo->pChamberType );
+    for( auto it : obj3 )
+      std::cout << it;
+    std::cout << "\n";
 
-    std::vector<float> obj4(cscdigigeo->pfupars);
-    for(uint32_t i=0; i<obj4.size();i++){
-      std::cout<<obj4[i];
-    }
-    std::cout<<""<<std::endl;
+    std::vector<float> obj4( cscdigigeo->pfupars );
+    for( auto it : obj4 )
+      std::cout << it;
+    std::cout << "\n";
 
-    std::vector<DetId> myIdcsc(cscgeo->detIds());
-    for(uint32_t i=0; i<myIdcsc.size();i++){
-      std::cout<<myIdcsc[i];
-    }
-    std::cout<<""<<std::endl;
+    std::vector<DetId> myIdcsc( cscgeo->detIds());
+    for( auto it : myIdcsc )
+      std::cout << it;
+    std::cout << "\n";
+
     uint32_t cscsize = myIdcsc.size();
-    for(uint32_t i=0; i<cscsize;i++){
-      std::vector<double> trcsc(cscgeo->tranStart(i), cscgeo->tranEnd(i));
-      for(uint32_t j=0; j<trcsc.size();j++){
-        std::cout<<trcsc[j];
-      }
-      std::cout<<""<<std::endl;
+    for( uint32_t i = 0; i < cscsize; i++ )
+    {
+      std::vector<double> trcsc( cscgeo->tranStart( i ), cscgeo->tranEnd( i ));
+      for( auto it : trcsc )
+        std::cout << it;
+      std::cout << "\n";
     
-      std::vector<double> rotcsc(cscgeo->rotStart(i), cscgeo->rotEnd(i));
-      for(uint32_t j=0; j<rotcsc.size();j++){
-        std::cout<<rotcsc[j];
-      }
-      std::cout<<""<<std::endl;
+      std::vector<double> rotcsc( cscgeo->rotStart( i ), cscgeo->rotEnd( i ));
+      for( auto it : rotcsc )
+        std::cout << it;
+      std::cout << "\n";
 
-      std::vector<double> shapecsc(cscgeo->shapeStart(i), cscgeo->shapeEnd(i));
-      for(uint32_t j=0; j<shapecsc.size();j++){
-        std::cout<<shapecsc[j];
-      }
-      std::cout<<""<<std::endl;
+      std::vector<double> shapecsc( cscgeo->shapeStart( i ), cscgeo->shapeEnd( i ));
+      for( auto it : shapecsc )
+        std::cout << it;
+      std::cout << "\n";
     }
-  
   }
 
-
-  if(dttest){
-    edm::ESHandle<RecoIdealGeometry> dtgeo;
-    iSetup.get<DTRecoGeometryRcd>().get(dtgeo);
-    std::cout<<"DT"<<std::endl;
-    std::vector<DetId> myIddt(dtgeo->detIds());
-    for(uint32_t i=0; i<myIddt.size();i++){
-      std::cout<<myIddt[i];
-    }
-    std::cout<<""<<std::endl;
+  if( m_dttest )
+  {
+    edm::ESHandle< RecoIdealGeometry > dtgeo;
+    iSetup.get< DTRecoGeometryRcd >().get( dtgeo );
+    std::cout << "DT\n";
+    std::vector<DetId> myIddt( dtgeo->detIds());
+    for( auto it : myIddt )
+      std::cout << it;
+    std::cout << "\n";
+    
     uint32_t dtsize = myIddt.size();
-    for(uint32_t i=0; i<dtsize;i++){
-      std::vector<double> trdt(dtgeo->tranStart(i), dtgeo->tranEnd(i));
-      for(uint32_t j=0; j<trdt.size();j++){
-        std::cout<<trdt[j];
-      }
-      std::cout<<""<<std::endl;
+    for( uint32_t i = 0; i < dtsize; i++ )
+    {
+      std::vector<double> trdt( dtgeo->tranStart( i ), dtgeo->tranEnd( i ));
+      for( auto it : trdt )
+        std::cout << it;
+      std::cout << "\n";
     
-      std::vector<double> rotdt(dtgeo->rotStart(i), dtgeo->rotEnd(i));
-      for(uint32_t j=0; j<rotdt.size();j++){
-        std::cout<<rotdt[j];
-      }
-      std::cout<<""<<std::endl;
+      std::vector<double> rotdt( dtgeo->rotStart( i ), dtgeo->rotEnd( i ));
+      for( auto it : rotdt )
+        std::cout << it;
+      std::cout << "\n";
 
-      std::vector<double> shapedt(dtgeo->shapeStart(i), dtgeo->shapeEnd(i));
-      for(uint32_t j=0; j<shapedt.size();j++){
-        std::cout<<shapedt[j];
-      }
-      std::cout<<""<<std::endl;
-
+      std::vector<double> shapedt( dtgeo->shapeStart( i ), dtgeo->shapeEnd( i ));
+      for( auto it : shapedt )
+        std::cout << it;
+      std::cout << "\n";
     }
   }
 
-  if(rpctest){
-    edm::ESHandle<RecoIdealGeometry> rpcgeo;
-    iSetup.get<RPCRecoGeometryRcd>().get(rpcgeo);
-    std::cout<<"RPC"<<std::endl;
+  if( m_rpctest )
+  {
+    edm::ESHandle< RecoIdealGeometry > rpcgeo;
+    iSetup.get< RPCRecoGeometryRcd >().get( rpcgeo );
+    std::cout << "RPC\n";
     
-    std::vector<DetId> myIdrpc(rpcgeo->detIds());
-    for(uint32_t i=0; i<myIdrpc.size();i++){
-      std::cout<<myIdrpc[i];
-    }
-    std::cout<<""<<std::endl;
+    std::vector<DetId> myIdrpc( rpcgeo->detIds());
+    for( auto it : myIdrpc )
+      std::cout << it;
+    std::cout << "\n";
     uint32_t rpcsize = myIdrpc.size();
-    for(uint32_t i=0; i<rpcsize;i++){
-      std::vector<double> trrpc(rpcgeo->tranStart(i), rpcgeo->tranEnd(i));
-      for(uint32_t j=0; j<trrpc.size();j++){
-        std::cout<<trrpc[j];
-      }
-      std::cout<<""<<std::endl;
+    for( uint32_t i = 0; i < rpcsize; i++ )
+    {
+      std::vector<double> trrpc( rpcgeo->tranStart( i ), rpcgeo->tranEnd( i ));
+      for( auto it : trrpc )
+        std::cout << it;
+      std::cout << "\n";
   
-      std::vector<double> rotrpc(rpcgeo->rotStart(i), rpcgeo->rotEnd(i));
-      for(uint32_t j=0; j<rotrpc.size();j++){
-        std::cout<<rotrpc[j];
-      }
-      std::cout<<""<<std::endl;
+      std::vector<double> rotrpc( rpcgeo->rotStart( i ), rpcgeo->rotEnd( i ));
+      for( auto it : rotrpc )
+        std::cout << it;
+      std::cout << "\n";
       
-      std::vector<double> shaperpc(rpcgeo->shapeStart(i), rpcgeo->shapeEnd(i));
-      for(uint32_t j=0; j<shaperpc.size();j++){
-        std::cout<<shaperpc[j];
-      }
-      std::cout<<""<<std::endl;
+      std::vector<double> shaperpc( rpcgeo->shapeStart( i ), rpcgeo->shapeEnd( i ));
+      for( auto it : shaperpc )
+        std::cout << it;
+      std::cout << "\n";
       
-      std::vector<std::string> strrpc(rpcgeo->strStart(i), rpcgeo->strEnd(i));
-      for(uint32_t j=0; j<strrpc.size();j++){
-        std::cout<<strrpc[j];
-      }
-      std::cout<<""<<std::endl;
-      
+      std::vector<std::string> strrpc( rpcgeo->strStart( i ), rpcgeo->strEnd( i ));
+      for( auto it : strrpc )
+        std::cout << it;
+      std::cout << "\n";
     }
-
   }
-  
 }
 
 DEFINE_FWK_MODULE(GeometryTester);

@@ -1,12 +1,12 @@
 #ifndef DDL_Sphere_H
 #define DDL_Sphere_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSphere processes all Sphere elements.
 /** @class DDLSphere
@@ -21,16 +21,13 @@
  *                                                                         
  */
 
-class DDLSphere : public DDLSolid
+class DDLSphere final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLSphere( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLSphere( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

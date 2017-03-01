@@ -240,14 +240,11 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
   XMLCh tempStr[100];
   XMLString::transcode("LS", tempStr, 99);
   DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(tempStr);
-  DOMWriter* theSerializer = ((DOMImplementationLS*)impl)->createDOMWriter();
+  DOMLSSerializer* theSerializer = ((DOMImplementationLS*)impl)->createLSSerializer();
+  DOMConfiguration* dc = theSerializer->getDomConfig();
+  dc->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent, true);
+  dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
   
-  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true))
-    theSerializer->setFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true);
-  
-  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-    theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-    
   XMLFormatTarget * myFormTarget = 0;
   XMLCh * _string = 0;
   if ( target == "stdout" || target == "string" )
@@ -265,10 +262,12 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
   
   try {
     if ( target == "string" ){
-      _string = theSerializer->writeToString( *node );
+      _string = theSerializer->writeToString( node );
     }
     else{
-      theSerializer->writeNode(myFormTarget, *node);
+      DOMLSOutput* outputDesc = ((DOMImplementationLS*)impl)->createLSOutput();
+      outputDesc->setByteStream(myFormTarget);
+      theSerializer->write(node, outputDesc);
     }
   }
   catch (const XMLException& toCatch) {

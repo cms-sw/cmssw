@@ -27,10 +27,10 @@ public:
 
 //   /// Put produced collections in the event
 //   virtual void putInEvt(edm::Event&,
-// 			std::auto_ptr<TrackingRecHitCollection>&,
-// 			std::auto_ptr<TrackCollection>&,
-// 			std::auto_ptr<reco::TrackExtraCollection>&,
-// 			std::auto_ptr<std::vector<Trajectory> >&,
+// 			std::unique_ptr<TrackingRecHitCollection>&,
+// 			std::unique_ptr<TrackCollection>&,
+// 			std::unique_ptr<reco::TrackExtraCollection>&,
+// 			std::unique_ptr<std::vector<Trajectory> >&,
 // 			AlgoProductCollection&);
 
 private:

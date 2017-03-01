@@ -1,16 +1,13 @@
 #include "Validation/RecoMuon/src/RecoMuonValidator.h"
 
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
@@ -499,7 +496,9 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
   // Labels for sim-reco association
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
   muAssocLabel_ = pset.getParameter<InputTag>("muAssocLabel");
-  //  muAssocToken = consumes<>(muAssocLabel_);
+  if(doAssoc_) {
+    muAssocToken_ = consumes<reco::MuonToTrackingParticleAssociator>(muAssocLabel_);
+  }
  
 // Different momentum assignment and additional histos in case of PF muons
   usePFMuon_ = pset.getUntrackedParameter<bool>("usePFMuon");
@@ -509,10 +508,10 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
 
   //type of track
   std::string trackType = pset.getParameter< std::string >("trackType");
-  if (trackType == "inner") trackType_ = MuonAssociatorByHits::InnerTk;
-  else if (trackType == "outer") trackType_ = MuonAssociatorByHits::OuterTk;
-  else if (trackType == "global") trackType_ = MuonAssociatorByHits::GlobalTk;
-  else if (trackType == "segments") trackType_ = MuonAssociatorByHits::Segments;
+  if (trackType == "inner") trackType_ = reco::InnerTk;
+  else if (trackType == "outer") trackType_ = reco::OuterTk;
+  else if (trackType == "global") trackType_ = reco::GlobalTk;
+  else if (trackType == "segments") trackType_ = reco::Segments;
   else throw cms::Exception("Configuration") << "Track type '" << trackType << "' not supported.\n";
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
@@ -525,6 +524,7 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
                                          tpset.getParameter<double>("lip"),
                                          tpset.getParameter<int>("minHit"),
                                          tpset.getParameter<bool>("signalOnly"),
+                                         tpset.getParameter<bool>("intimeOnly"),
                                          tpset.getParameter<bool>("chargedOnly"),
                                          tpset.getParameter<bool>("stableOnly"),
                                          tpset.getParameter<std::vector<int> >("pdgId"));
@@ -615,20 +615,12 @@ RecoMuonValidator::~RecoMuonValidator()
 void RecoMuonValidator::dqmBeginRun(const edm::Run& , const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
-
-  if ( doAssoc_ ) {
-    edm::ESHandle<TrackAssociatorBase> associatorBase;
-    eventSetup.get<TrackAssociatorRecord>().get(muAssocLabel_.label(), associatorBase);
-    assoByHits = dynamic_cast<const MuonAssociatorByHits *>(associatorBase.product());
-    if (assoByHits == 0) throw cms::Exception("Configuration") << "The Track Associator with label '" << muAssocLabel_.label() << "' is not a MuonAssociatorByHits.\n";
-    }
-
 }
 
 //
 //End run
 //
-void RecoMuonValidator::endRun()
+void RecoMuonValidator::endRun(edm::Run const&, edm::EventSetup const&)
 {
   if ( dbe_ && ! outputFileName_.empty() ) dbe_->save(outputFileName_);
 }
@@ -677,10 +669,19 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   event.getByToken(muonToken_, muonHandle);
   View<Muon> muonColl = *(muonHandle.product());
 
+  reco::MuonToTrackingParticleAssociator const* assoByHits = nullptr;
+  if ( doAssoc_ ) {
+    edm::Handle<reco::MuonToTrackingParticleAssociator> associatorBase;
+    event.getByToken(muAssocToken_, associatorBase);
+    assoByHits = associatorBase.product();
+  }
+
   const TrackingParticleCollection::size_type nSim = simColl.size();
 
   edm::RefToBaseVector<reco::Muon> Muons;
-  Muons = muonHandle->refVector();
+  for (size_t i = 0; i < muonHandle->size(); ++i) {
+      Muons.push_back(muonHandle->refAt(i));
+  }
 
   edm::RefVector<TrackingParticleCollection> allTPs;
   for (size_t i = 0; i < nSim; ++i) {
@@ -691,12 +692,12 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   muonME_->hNSim_->Fill(nSim);
   muonME_->hNMuon_->Fill(muonColl.size());
 
-  MuonAssociatorByHits::MuonToSimCollection muonToSimColl;
-  MuonAssociatorByHits::SimToMuonCollection simToMuonColl;
+  reco::MuonToSimCollection muonToSimColl;
+  reco::SimToMuonCollection simToMuonColl;
 
 
   if ( doAssoc_ ) {
-  assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, allTPs, &event, &eventSetup);
+  assoByHits->associateMuons(muonToSimColl, simToMuonColl, Muons, trackType_, allTPs);
   } else {
 
 /*
@@ -811,9 +812,14 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     commonME_->hMuonPhi_->Fill(muonPhi);
 
     if (iMuon->isGlobalMuon()) {
-      double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfHits() - iMuon->globalTrack()->hitPattern().numberOfValidHits();
-      double itHitPat = iMuon->innerTrack()->hitPattern().numberOfHits() - iMuon->innerTrack()->hitPattern().numberOfValidHits();
-      double otHitPat = iMuon->outerTrack()->hitPattern().numberOfHits() - iMuon->outerTrack()->hitPattern().numberOfValidHits();
+      double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+        - iMuon->globalTrack()->hitPattern().numberOfValidHits();
+
+      double itHitPat = iMuon->innerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+        - iMuon->innerTrack()->hitPattern().numberOfValidHits();
+
+      double otHitPat = iMuon->outerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+        - iMuon->outerTrack()->hitPattern().numberOfValidHits();
       
       commonME_->hNInvalidHitsGTHitPattern_->Fill(gtHitPat);
       commonME_->hNInvalidHitsITHitPattern_->Fill(itHitPat);

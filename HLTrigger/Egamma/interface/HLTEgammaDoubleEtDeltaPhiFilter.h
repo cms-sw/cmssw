@@ -33,9 +33,7 @@ class HLTEgammaDoubleEtDeltaPhiFilter : public HLTFilter {
       double etcut_;           // Et threshold in GeV
       double minDeltaPhi_;    // minimum deltaPhi
  //   int    ncandcut_;        // number of egammas required
-      bool   relaxed_;
-      edm::InputTag L1IsoCollTag_;
-      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag l1EGTag_;
 };
 
 #endif //HLTEgammaDoubleEtDeltaPhiFilter_h

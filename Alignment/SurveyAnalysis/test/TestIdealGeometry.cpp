@@ -31,12 +31,12 @@
 /* #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"*/
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"*/
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
@@ -114,7 +114,7 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::LogInfo("TrackerAlignment") << "Starting!";
@@ -152,8 +152,8 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   // Retrieve alignment[Error]s from DBase
   // edm::ESHandle<Alignments> alignments;
   // iSetup.get<TrackerAlignmentRcd>().get( alignments );
-  // edm::ESHandle<AlignmentErrors> alignmentErrors;
-  // iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  // edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+  // iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
 
   int countDet = 0; 
 

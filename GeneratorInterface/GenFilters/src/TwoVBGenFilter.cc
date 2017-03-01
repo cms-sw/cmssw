@@ -6,7 +6,7 @@ using namespace std;
 TwoVBGenFilter::TwoVBGenFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
+  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator", "unsmeared"));
   
   eejj_     = iConfig.getParameter<bool>("eejj");
   enujj_    = iConfig.getParameter<bool>("enujj");

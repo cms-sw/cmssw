@@ -31,7 +31,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
  public:
   
   /// Constructor
@@ -40,7 +40,7 @@ class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   /// Destructor
   ~MuonKinVsEtaAnalyzer();
   
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
@@ -54,7 +54,7 @@ class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   std::string metname;
 
   //Vertex requirements
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
   
@@ -133,6 +133,14 @@ class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   std::vector<MonitorElement*> chi2LooseTrack;
   std::vector<MonitorElement*> chi2probLooseTrack;
 
+  // Medium muon;
+  std::vector<MonitorElement*> etaMediumTrack;
+  std::vector<MonitorElement*> phiMediumTrack;
+  std::vector<MonitorElement*> pMediumTrack;
+  std::vector<MonitorElement*> ptMediumTrack;
+  std::vector<MonitorElement*> chi2MediumTrack;
+  std::vector<MonitorElement*> chi2probMediumTrack;
+
   // Soft muon;
   std::vector<MonitorElement*> etaSoftTrack;
   std::vector<MonitorElement*> phiSoftTrack;
@@ -149,5 +157,6 @@ class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   std::vector<MonitorElement*> chi2HighPtTrack;
   std::vector<MonitorElement*> chi2probHighPtTrack;
 
+  std::string theFolder;
 };
 #endif

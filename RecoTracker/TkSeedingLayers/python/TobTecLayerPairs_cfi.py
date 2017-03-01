@@ -37,6 +37,7 @@ TobTecLayerPairs.layerList = cms.vstring('TOB1+TOB2',
 TobTecLayerPairs.TOB = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 TobTecLayerPairs.TEC = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -44,6 +45,7 @@ TobTecLayerPairs.TEC = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(5),
     maxRing = cms.int32(5)
+    ,clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 

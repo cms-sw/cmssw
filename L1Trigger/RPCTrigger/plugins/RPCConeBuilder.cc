@@ -121,7 +121,7 @@ RPCConeBuilder::produce(const L1RPCConeBuilderRcd& iRecord)
   
    //std::cout << " RPCConeBuilder::produce called " << std::endl;
    using namespace edm::es;
-   boost::shared_ptr<L1RPCConeBuilder> pL1RPCConeBuilder( ( new L1RPCConeBuilder ) );
+   auto pL1RPCConeBuilder = std::make_shared<L1RPCConeBuilder>();
    
    pL1RPCConeBuilder->setFirstTower(m_towerBeg);
    pL1RPCConeBuilder->setLastTower(m_towerEnd);
@@ -188,8 +188,7 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
   //std::cout << "    ---> buildCones called " << std::endl; 
   
   // fetch geometricall data
-  boost::shared_ptr<L1RPCConeBuilder::TConMap > uncompressedCons
-        = boost::shared_ptr<L1RPCConeBuilder::TConMap >(new L1RPCConeBuilder::TConMap());
+  auto uncompressedCons = std::make_shared<L1RPCConeBuilder::TConMap>();
   
   
   int rolls = 0;

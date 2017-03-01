@@ -22,8 +22,8 @@ namespace l1t {
     
   class Stage2Layer2JetSumAlgorithm { 
   public:
-    virtual void processEvent(const std::vector<l1t::Jet> & jets,
-			      std::vector<l1t::EtSum> & sums) = 0;    
+    virtual void processEvent(const std::vector<l1t::Jet> & alljets,
+			      std::vector<l1t::EtSum> & htsums) = 0;    
 
     virtual ~Stage2Layer2JetSumAlgorithm(){};
   }; 

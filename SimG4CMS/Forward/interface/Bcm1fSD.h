@@ -35,7 +35,7 @@ class Bcm1fSD : public SensitiveTkDetector,
 public:
 
   Bcm1fSD(std::string, const DDCompactView &, 
-		       SensitiveDetectorCatalog &, 
+		       const SensitiveDetectorCatalog &,
 		       edm::ParameterSet const &, const SimTrackManager*);
   virtual ~Bcm1fSD();
 

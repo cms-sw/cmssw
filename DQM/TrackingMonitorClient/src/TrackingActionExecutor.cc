@@ -1,12 +1,9 @@
 
 #include "DQM/TrackingMonitorClient/interface/TrackingActionExecutor.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -32,20 +29,20 @@ TrackingActionExecutor::TrackingActionExecutor(edm::ParameterSet const& ps):pSet
 TrackingActionExecutor::~TrackingActionExecutor() {
   //  std::cout << "[TrackingActionExecutor::~TrackingActionExecutor] .. starting" << std::endl;
   edm::LogInfo("TrackingActionExecutor") << " Deleting TrackingActionExecutor " << "\n" ;
-  //  if (qualityChecker_) delete qualityChecker_;
+  if (qualityChecker_) delete qualityChecker_;
 }
 
 //
 // -- Create Status Monitor Elements
 //
-void TrackingActionExecutor::createGlobalStatus(DQMStore* dqm_store){
+void TrackingActionExecutor::createGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
   if (!qualityChecker_) qualityChecker_ = new TrackingQualityChecker(pSet_);
-  qualityChecker_->bookGlobalStatus(dqm_store);
+  qualityChecker_->bookGlobalStatus(ibooker,igetter);
 }
 
-void TrackingActionExecutor::createLSStatus(DQMStore* dqm_store){
+void TrackingActionExecutor::createLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
   if (!qualityChecker_) qualityChecker_ = new TrackingQualityChecker(pSet_);
-  qualityChecker_->bookLSStatus(dqm_store);
+  qualityChecker_->bookLSStatus(ibooker,igetter);
 }
 
 //
@@ -62,14 +59,14 @@ void TrackingActionExecutor::fillDummyLSStatus(){
 //
 // -- Fill Status
 //
-void TrackingActionExecutor::fillGlobalStatus(DQMStore* dqm_store) {
-  qualityChecker_->fillGlobalStatus(dqm_store);
+void TrackingActionExecutor::fillGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  qualityChecker_->fillGlobalStatus(ibooker,igetter);
 }
 //
 // -- Fill Lumi Status
 //
-void TrackingActionExecutor::fillStatusAtLumi(DQMStore* dqm_store) {
-  qualityChecker_->fillLSStatus(dqm_store);
+void TrackingActionExecutor::fillStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  qualityChecker_->fillLSStatus(ibooker,igetter);
 }
 //
 // -- 
@@ -84,7 +81,7 @@ void TrackingActionExecutor::createDummyShiftReport(){
 //
 // -- Create Shift Report
 //
-void TrackingActionExecutor::createShiftReport(DQMStore * dqm_store){
+void TrackingActionExecutor::createShiftReport(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
   //  std::cout << "[TrackingActionExecutor::createShiftReport]" << std::endl;
 
@@ -109,7 +106,7 @@ void TrackingActionExecutor::createShiftReport(DQMStore * dqm_store){
   configWriter_->createElement("ReportSummary");
   
   shift_summary << std::endl;
-  printShiftHistoParameters(dqm_store, layout_map, shift_summary);
+  printShiftHistoParameters(ibooker,igetter, layout_map, shift_summary);
   
   std::ofstream report_file;
   report_file.open("tracking_shift_report.txt", std::ios::out);
@@ -137,7 +134,7 @@ void TrackingActionExecutor::printReportSummary(MonitorElement* me,
 //
 //  -- Print Shift Histogram Properties
 //
-void TrackingActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std::map<std::string, std::vector<std::string> >& layout_map, std::ostringstream& str_val) { 
+void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::map<std::string, std::vector<std::string> >& layout_map, std::ostringstream& str_val) { 
 
   //  std::cout << "[TrackingActionExecutor::printShiftHistoParameters]" << std::endl;
   str_val << std::endl;
@@ -155,7 +152,7 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
-      MonitorElement* me = dqm_store->get(path_name);
+      MonitorElement* me = igetter.get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);
       entry_str << setiosflags(std::ios::fixed);

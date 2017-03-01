@@ -16,8 +16,13 @@ options.register ('gainNorm',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.bool,          # string, int, or float
                   "has gain normalization to be applied?")
+options.register ('simGainNorm',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.bool,          # string, int, or float
+                  "has SIM gain normalization to be applied?")
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -95,7 +100,7 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-if options.globalTag == "DONOTEXIST::All":
+if options.globalTag == "DONOTEXIST":
     process.load('Configuration.Geometry.GeometryExtended_cff')
     process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
     process.poolDBESSource = cms.ESSource("PoolDBESSource",
@@ -113,9 +118,9 @@ if options.globalTag == "DONOTEXIST::All":
                                           )
 else:
     process.load("Configuration.StandardSequences.GeometryDB_cff")
-    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-    process.GlobalTag.globaltag = options.globalTag
-    
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag 
+    process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
     
 process.DQMStore = cms.Service("DQMStore",
                                referenceFileName = cms.untracked.string(''),
@@ -162,5 +167,6 @@ process.CondDataMonitoring.SiStripNoisesDQM_PSet.Cumul_NchX        = cms.int32(1
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.Cumul_LowX        = cms.double(0.0)
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.Cumul_HighX       = cms.double(15.0)
 process.CondDataMonitoring.SiStripNoisesDQM_PSet.GainRenormalisation               = cms.bool(options.gainNorm)
+process.CondDataMonitoring.SiStripNoisesDQM_PSet.SimGainRenormalisation               = cms.bool(options.simGainNorm)
 
 process.p1 = cms.Path(process.CondDataMonitoring)

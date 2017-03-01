@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
+class PixelForwardLayer final : public ForwardDetLayer {
  public:
   PixelForwardLayer(std::vector<const PixelBlade*>& blades);
   ~PixelForwardLayer();
@@ -29,7 +29,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
 			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::PixelEndcap];}
   
 
  private:  
@@ -37,7 +37,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
   static int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade);
 
   struct SubTurbineCrossings {
-    SubTurbineCrossings(): isValid(false){}
+    SubTurbineCrossings(): isValid(false), closestIndex(0), nextIndex(0), nextDistance(0.0f) {}
     SubTurbineCrossings( int ci, int ni, float nd) : 
       isValid(true),closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
     

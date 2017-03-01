@@ -11,6 +11,8 @@
  * DTHVStatus
  * DTCCBConfig
  * DTTPGParameters
+ * DTRecoUncertainties
+ * DTRecoConditions
  */
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
@@ -27,3 +29,4 @@
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"

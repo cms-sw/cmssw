@@ -18,6 +18,7 @@
 #include<stdlib.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class RPCGeometry;
 //class RPCSimSetUp;
@@ -44,7 +45,7 @@ class RPCSimAsymmetricCls : public RPCSim
   unsigned int slice(float posX); //??? CLHEP::HepRandomEngine*);
 
  private:
-  void init(){};
+  void init() override{};
  private:
   double aveEff;
   double aveCls;

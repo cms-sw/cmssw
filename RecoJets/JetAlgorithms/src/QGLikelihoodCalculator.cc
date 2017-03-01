@@ -11,30 +11,18 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
   float Q=1., G=1.;
   for(unsigned int varIndex = 0; varIndex < vars.size(); ++varIndex){
 
-    auto qgEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 0, varIndex); 
-    if(!qgEntry) return -1; 
-    float Qi = qgEntry->histogram.binContent(qgEntry->histogram.findBin(vars[varIndex]));
-    float mQ = qgEntry->mean;
+    auto quarkEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 0, varIndex);
+    auto gluonEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 1, varIndex);
+    if(!quarkEntry || !gluonEntry) return -2;
 
-    qgEntry = findEntry(QGLParamsColl->data, eta, pt, rho, 1, varIndex); 
-    if(!qgEntry) return -1;
-    float Gi = qgEntry->histogram.binContent(qgEntry->histogram.findBin(vars[varIndex]));
-    float mG = qgEntry->mean;
+    int binQ = quarkEntry->histogram.findBin(vars[varIndex]);
+    float Qi = quarkEntry->histogram.binContent(binQ);
 
-    float epsilon=0;
-    float delta=0.000001;
-    if(Qi <= epsilon && Gi <= epsilon){
-      if(mQ>mG){
-	if(vars[varIndex] > mQ){ Qi = 1-delta; Gi = delta;}
-	else if(vars[varIndex] < mG){ Qi = delta; Gi = 1-delta;}
-      }
-      else if(mQ<mG){
-	if(vars[varIndex]<mQ) { Qi = 1-delta; Gi = delta;}
-	else if(vars[varIndex]>mG){Qi = delta;Gi = 1-delta;}
-      }
-    } 
-    Q*=Qi;
-    G*=Gi;	
+    int binG = gluonEntry->histogram.findBin(vars[varIndex]);
+    float Gi = gluonEntry->histogram.binContent(binG);
+
+    Q *= Qi;
+    G *= Gi;
   }
 
   if(Q==0) return 0;

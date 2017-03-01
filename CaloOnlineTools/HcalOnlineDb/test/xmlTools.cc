@@ -1566,7 +1566,7 @@ int hardware( void )
 
   if ( infile . is_open() ){
   std::cout << "File is open" << std::endl;
-    while ( getline( infile, buf ) > 0 )
+    while (getline( infile, buf ))
       {
 	vector<std::string> _line = splitString( buf );
 	//std::cout << _line . size() << std::endl;

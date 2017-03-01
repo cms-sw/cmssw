@@ -11,7 +11,7 @@ namespace defaultRKPropagator {
   using RKPropagator = RKPropagatorInS;
 
   // not clear why we need all this
-  class TrivialFieldProvider GCC11_FINAL : public MagneticFieldProvider<float> {
+  class TrivialFieldProvider final : public MagneticFieldProvider<float> {
   public:
     
     TrivialFieldProvider (const MagneticField* field) : theField(field) {}
@@ -27,7 +27,7 @@ namespace defaultRKPropagator {
     const MagneticField* theField;
   };
   
-  class RKMagVolume GCC11_FINAL : public MagVolume {
+  class RKMagVolume final : public MagVolume {
   public:
     RKMagVolume( const PositionType& pos, const RotationType& rot, 
 		 DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :

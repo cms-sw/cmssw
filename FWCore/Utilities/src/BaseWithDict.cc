@@ -1,19 +1,20 @@
-
 #include "FWCore/Utilities/interface/BaseWithDict.h"
+
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "TBaseClass.h"
 
 namespace edm {
+
   BaseWithDict::BaseWithDict() : baseClass_(nullptr) {
   }
 
   BaseWithDict::BaseWithDict(TBaseClass* baseClass) : baseClass_(baseClass) {
   }
 
-  TypeWithDict
-  BaseWithDict::typeOf() const {
-    return TypeWithDict(baseClass_->GetClassPointer(), baseClass_->Property());
+  bool
+  BaseWithDict::isPublic() const {
+    return baseClass_->Property() & kIsPublic;
   }
 
   std::string
@@ -21,8 +22,14 @@ namespace edm {
     return baseClass_->GetName();
   }
 
-  bool
-  BaseWithDict::isPublic() const {
-    return (baseClass_->Property() & kIsPublic);
+  TypeWithDict
+  BaseWithDict::typeOf() const {
+    return TypeWithDict(baseClass_->GetClassPointer());
   }
-}
+
+  size_t
+  BaseWithDict::offset() const {
+    return static_cast<size_t>(baseClass_->GetDelta());
+  }
+
+} // namespace edm

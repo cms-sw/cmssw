@@ -7,10 +7,12 @@
  * based on H+ tau ID by Lauri Wendland
  */
 
+namespace {
+
 using namespace reco;
 using namespace std;
 
-class CaloRecoTauDiscriminationByNProngs
+class CaloRecoTauDiscriminationByNProngs final 
   : public CaloTauDiscriminationProducerBase  {
   public:
     explicit CaloRecoTauDiscriminationByNProngs(const edm::ParameterSet& iConfig)
@@ -19,7 +21,7 @@ class CaloRecoTauDiscriminationByNProngs
       booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
     }
     ~CaloRecoTauDiscriminationByNProngs(){}
-    double discriminate(const reco::CaloTauRef&) override;
+    double discriminate(const reco::CaloTauRef&) const override;
 
   private:
     uint32_t nprongs;
@@ -27,7 +29,7 @@ class CaloRecoTauDiscriminationByNProngs
 };
 
 
-double CaloRecoTauDiscriminationByNProngs::discriminate(const CaloTauRef& tau){
+double CaloRecoTauDiscriminationByNProngs::discriminate(const CaloTauRef& tau) const {
   bool accepted = false;
   int np = tau->signalTracks().size();
   if((np == 1 && (nprongs == 1 || nprongs == 0)) ||
@@ -37,4 +39,5 @@ double CaloRecoTauDiscriminationByNProngs::discriminate(const CaloTauRef& tau){
   return np;
 }
 
+}
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByNProngs);

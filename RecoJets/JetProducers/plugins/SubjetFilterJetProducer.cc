@@ -134,9 +134,9 @@ template< class T>
 void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
 						const edm::EventSetup& iSetup)
 {
-  auto_ptr<reco::BasicJetCollection> fatJets( new reco::BasicJetCollection() );
-  auto_ptr<vector<T> >  subJets( new vector<T>() );
-  auto_ptr<vector<T> >  filterJets( new vector<T>() );
+  auto fatJets = std::make_unique<reco::BasicJetCollection>();
+  auto subJets = std::make_unique< vector<T>>();
+  auto filterJets = std::make_unique< vector<T>>();
 
   edm::OrphanHandle< vector<T> > subJetsAfterPut;
   edm::OrphanHandle< vector<T> > filterJetsAfterPut;
@@ -194,8 +194,8 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
     }
   }
   
-  subJetsAfterPut    = iEvent.put(subJets,   "sub");
-  filterJetsAfterPut = iEvent.put(filterJets,"filter");
+  subJetsAfterPut    = iEvent.put(std::move(subJets),   "sub");
+  filterJetsAfterPut = iEvent.put(std::move(filterJets),"filter");
   
   vector<math::XYZTLorentzVector>::const_iterator itP4Begin(p4FatJets.begin());
   vector<math::XYZTLorentzVector>::const_iterator itP4End(p4FatJets.end());
@@ -228,7 +228,7 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
     fatJets->back().setJetArea(areaFatJets[fatIndex]);
   }
   
-  iEvent.put(fatJets,"fat");
+  iEvent.put(std::move(fatJets),"fat");
 }
 
 

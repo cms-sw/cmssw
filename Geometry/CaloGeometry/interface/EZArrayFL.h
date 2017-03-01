@@ -30,16 +30,16 @@ class EZArrayFL
       typedef typename MgrType::size_type       size_type ;
       typedef typename MgrType::value_type      value_type ;
 
-      EZArrayFL< T >() : m_begin ( 0 ) ,
+      EZArrayFL< T >() : m_begin (  ) ,
 			 m_mgr   (   ) {}
 
-      EZArrayFL< T >( MgrType* mgr  ) : m_begin ( 0 ) ,
+      EZArrayFL< T >( MgrType* mgr  ) : m_begin (  ) ,
 					      m_mgr   ( mgr )   {}
 
       EZArrayFL< T >( MgrType* mgr   , 
 		      const_iterator start ,
 		      const_iterator finis       ) :
-	 m_begin ( 0==finis-start ? (iterator)0 : mgr->assign() ) ,
+    m_begin ( 0==finis-start ? iterator() : mgr->assign() ) ,
 	 m_mgr   ( mgr )
       {
 	 assert( ( finis - start ) == m_mgr->subSize() ) ;
@@ -56,7 +56,7 @@ class EZArrayFL
 
       void assign( const T& t = T() ) 
       {
-	 assert( (iterator)0 == m_begin ) ;
+          assert( iterator() == m_begin ) ;
 	 m_begin = m_mgr->assign( t ) ;
       }
 
@@ -65,7 +65,7 @@ class EZArrayFL
 
       reference operator[]( const unsigned int i ) 
       {
-	 if( (iterator)0 == m_begin ) assign() ;
+	 if( iterator() == m_begin ) assign() ;
 	 return *( m_begin + i ) ; 
       }
 
@@ -74,7 +74,7 @@ class EZArrayFL
 	 return *( m_begin + i ) ;
       }
 
-      bool uninitialized() const { return ( (iterator)0 == m_begin ) ;  }
+      bool uninitialized() const { return ( iterator() == m_begin ) ;  }
 
       bool empty()         const { return ( 0 == size() ) ;  }
 

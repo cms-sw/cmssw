@@ -1,5 +1,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CondFormats/Common"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="DataFormats/EcalDetId"/>
@@ -7,7 +8,7 @@
 <use   name="boost"/>
 <use   name="boost_serialization"/>
 <use   name="rootmath"/>
-<use   name="rootrflx"/>
+
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

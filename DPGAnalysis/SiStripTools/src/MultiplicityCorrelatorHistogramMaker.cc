@@ -137,10 +137,10 @@ void MultiplicityCorrelatorHistogramMaker::fill(const edm::Event& iEvent, const 
 
   if(m_yvsxmultrun && *m_yvsxmultrun) (*m_yvsxmultrun)->Fill(xmult,ymult);
   if(m_atanyoverxrun && *m_atanyoverxrun) (*m_atanyoverxrun)->Fill(atan2(ymult*m_scfact,xmult));
-  if(m_atanyoverxvsbxrun && *m_atanyoverxvsbxrun) (*m_atanyoverxvsbxrun)->Fill(bx,atan2(ymult*m_scfact,xmult));
-  if(m_atanyoverxvsbxrun2D && *m_atanyoverxvsbxrun2D) (*m_atanyoverxvsbxrun2D)->Fill(bx,atan2(ymult*m_scfact,xmult));
+  if(m_atanyoverxvsbxrun && *m_atanyoverxvsbxrun) (*m_atanyoverxvsbxrun)->Fill(bx%3564,atan2(ymult*m_scfact,xmult));
+  if(m_atanyoverxvsbxrun2D && *m_atanyoverxvsbxrun2D) (*m_atanyoverxvsbxrun2D)->Fill(bx%3564,atan2(ymult*m_scfact,xmult));
 
-  if(m_yvsxmultprofvsbxrun && *m_yvsxmultprofvsbxrun) (*m_yvsxmultprofvsbxrun)->Fill(bx,xmult,ymult);
-  if(m_xvsymultprofvsbxrun && *m_xvsymultprofvsbxrun) (*m_xvsymultprofvsbxrun)->Fill(bx,ymult,xmult);
+  if(m_yvsxmultprofvsbxrun && *m_yvsxmultprofvsbxrun) (*m_yvsxmultprofvsbxrun)->Fill(bx%3564,xmult,ymult);
+  if(m_xvsymultprofvsbxrun && *m_xvsymultprofvsbxrun) (*m_xvsymultprofvsbxrun)->Fill(bx%3564,ymult,xmult);
 }
 

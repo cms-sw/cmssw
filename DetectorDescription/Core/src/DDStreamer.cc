@@ -1,30 +1,46 @@
 #include "DetectorDescription/Core/interface/DDStreamer.h"
 
-#include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Core/interface/DDConstant.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include <stddef.h>
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
 
-// Message logger.
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include<iomanip>
 
 DDStreamer::DDStreamer()
- : cpv_(0), o_(0), i_(0)
+ : o_(0), i_(0)
  {
  }
 
 DDStreamer::DDStreamer(std::ostream & os)
- :  cpv_(0), o_(0), i_(0)
+ :  o_(0), i_(0)
 {
   if (os) {
     o_ = &os;
@@ -35,7 +51,7 @@ DDStreamer::DDStreamer(std::ostream & os)
 }
 
 DDStreamer::DDStreamer(std::istream & is)
- :  cpv_(0), o_(0), i_(0)
+ :  o_(0), i_(0)
 {
   if (is) {
     i_ = &is;
@@ -169,7 +185,6 @@ void DDStreamer::read(std::istream & is)
 
 void DDStreamer::names_write()
 {
-  DCOUT('Y', "DDStreamer::names_write()");
   std::ostream & os = *o_;
   DDName::IdToName & ids = DDI::Singleton<DDName::IdToName>::instance();
   
@@ -188,7 +203,6 @@ void DDStreamer::names_write()
 
 void DDStreamer::names_read()
 {
-  DCOUT('Y', "DDStreamer::names_read()");
   std::istream & is = *i_;
   DDName::IdToName & ids = DDI::Singleton<DDName::IdToName>::instance();
   DDName::Registry & reg = DDI::Singleton<DDName::Registry>::instance();
@@ -254,7 +268,6 @@ inline std::istream & operator>>(std::istream & is, double_binary & b)
 
 void DDStreamer::materials_write()
 {
-  DCOUT('Y', "DDStreamer::materials_write()");
   std::ostream & os = *o_;
   DDMaterial::iterator<DDMaterial> it(DDMaterial::begin()), ed(DDMaterial::end());
   size_t no = dd_count(DDMaterial());
@@ -264,14 +277,12 @@ void DDStreamer::materials_write()
     const DDMaterial & m = *it;
     os << "--Material: " << m.name() << " @ " ;
     nameout(os,m.name()); 
-    DCOUT('y', "write-material=" << m.name());
     os << ' ' << m.z() << ' ' << m.a() << ' ' << m.density() << ' ';
     
     int noc = m.noOfConstituents();
     os << noc;
     int j=0;
     for (; j<noc; ++j) {
-      DCOUT('y', "  write-const-material=" << m.constituent(j).first.name());
       os << ' ';
       nameout(os,m.constituent(j).first.name());
       os << ' ' << m.constituent(j).second;
@@ -283,7 +294,6 @@ void DDStreamer::materials_write()
 
 void DDStreamer::materials_read()
 {
-  DCOUT('Y', "DDStreamer::materials_read()");
   std::istream & is = *i_;
   //DDMaterial::clear();
   size_t n=0;
@@ -300,20 +310,17 @@ void DDStreamer::materials_read()
     is >> comp; // composites
     if (comp) { // composite material
       DDMaterial m(dn,d);
-      DCOUT('y', "read-comp-material=" << m.name());
       int j=0;
       for(; j<comp; ++j) {
         DDName cname(dd_get_name(is));
 	double fm(0);
 	is >> fm;
 	DDMaterial constituent(cname);
-        DCOUT('y', "  read-composite=" << constituent.name());
 	m.addMaterial(constituent,fm);
       }
     }
     else { // elementary material
       DDMaterial m(dn,z,a,d);
-      DCOUT('y', "read-elem-material=" << m.name());
     }
   }
 }
@@ -344,7 +351,6 @@ void dd_stream_reflected(std::ostream & os, DDSolid s)
 
 void DDStreamer::solids_write()
 {
-  DCOUT('Y', "DDStreamer::solids_write()");
   std::ostream & os = *o_;
   DDSolid::iterator<DDSolid> it(DDSolid::begin()), ed(DDSolid::end());
   size_t no = dd_count(DDSolid());
@@ -352,7 +358,6 @@ void DDStreamer::solids_write()
   for (; it != ed; ++it) {
     if (! it->isDefined().second) continue;  
     const DDSolid & s = *it;
-    DCOUT('y', "write-solid=" << s << " enum=" << s.shape());
     os << "--Solid: " << s.name() << ' ' << DDSolidShapesName::name(s.shape()) << " @ ";
     nameout(os,s.name()); 
     os << ' ' << s.shape() << ' ';
@@ -399,12 +404,10 @@ void dd_get_boolean_params(std::istream & is, DDRotation & r, DDTranslation & t,
    a = DDSolid(n);
    n = dd_get_name(is);
    b = DDSolid(n);
-   DCOUT('y', "boolean-par: rot=" << r.name() << " t=" << t << " a=" << a.name() << " b=" << b.name());
 }
 
 void DDStreamer::solids_read()
 {
-  DCOUT('Y', "DDStreamer::solids_read()");
   std::istream & is = *i_;
   //DDSolid::clear();
   size_t n=0;
@@ -449,6 +452,7 @@ void DDStreamer::solids_read()
               (shape==ddtrap) ||
               (shape==ddcons) ||
               (shape==ddtubs) ||    
+              (shape==ddcuttubs) ||    
               (shape==ddpolycone_rz) ||
               (shape==ddpolycone_rrz) ||
               (shape==ddpolyhedra_rz) ||	      	          
@@ -480,7 +484,6 @@ void DDStreamer::solids_read()
         */
       }	
       DDSolid so = DDSolid(dn,shape,p);
-      DCOUT('y', "read-solid=" << so);     
     }
     else {
       edm::LogError("DDStreamer") << "wrong solid enum: " << shape << std::endl;
@@ -491,7 +494,6 @@ void DDStreamer::solids_read()
 
 void DDStreamer::parts_write()
 {
-  DCOUT('Y', "DDStreamer::parts_write()");
   std::ostream & os = *o_;
   DDLogicalPart::iterator<DDLogicalPart> it(DDLogicalPart::begin()), ed(DDLogicalPart::end());
   size_t no = dd_count(DDLogicalPart());
@@ -512,7 +514,6 @@ void DDStreamer::parts_write()
 
 void DDStreamer::parts_read()
 {
-  DCOUT('Y', "DDStreamer::parts_read()");
   std::istream & is = *i_;
   //DDLogicalPart::clear();
   size_t n=0;
@@ -527,7 +528,6 @@ void DDStreamer::parts_read()
     DDName mat = dd_get_name(is);
     DDName sol = dd_get_name(is);
     DDLogicalPart lp(dn,mat,sol,categ);
-    DCOUT('y', "read-lp=" << lp);
   }
 }
 
@@ -544,7 +544,6 @@ void dd_rot_out(std::ostream & os, const DDRotation & r) {
     nameout(os,r.name());
     os << ' ';
     const DDRotationMatrix & rm = *(r.rotation());
-    DCOUT('y', "write-rots=" << r.name());
 /*
     os << ' ' << B(rep.xx_) << ' ' << B(rep.xy_) << ' ' << B(rep.xz_) << ' '
               << B(rep.yx_) << ' ' << B(rep.yy_) << ' ' << B(rep.yz_) << ' '
@@ -556,7 +555,6 @@ void dd_rot_out(std::ostream & os, const DDRotation & r) {
 
 void DDStreamer::rots_write()
 { 
-  DCOUT('Y', "DDStreamer::rots_write()");
   std::ostream & os = *o_;
   DDRotation::iterator<DDRotation> it(DDRotation::begin()), ed(DDRotation::end());
   size_t no = dd_count(DDRotation());
@@ -585,7 +583,6 @@ void dd_rot_bin_in(std::istream & is, DDRotationMatrix & r)
 
 void DDStreamer::rots_read()
 {
-  DCOUT('Y', "DDStreamer::rots_read()");
   std::istream & is = *i_;
   //DDRotation::clear();
   size_t n=0;
@@ -602,13 +599,11 @@ void DDStreamer::rots_read()
     DDRotationMatrix * rm = new DDRotationMatrix();
     dd_rot_bin_in(is,*rm);
     DDRotation ddr = DDRotation(dn,rm);
-    DCOUT('y',"read-rots=" << ddr.name());
   }
 }
 
 void DDStreamer::pos_write()
 {
-  DCOUT('Y', "DDStreamer::pos_write()");
   DDCompactView cpv;
   const DDCompactView::graph_type & g = cpv.graph();
   DDCompactView::graph_type::const_iterator it = g.begin_iter();
@@ -674,12 +669,10 @@ void DDStreamer::pos_write()
 
 void DDStreamer::pos_read()
 {
-  DCOUT('Y', "DDStreamer::pos_read()");
   std::istream & is = *i_;
   is.ignore(1000,'@');
   DDName rtname = dd_get_name(is);
   DDLogicalPart root(rtname);
-  DCOUT('y', "root is: " << root.name());
   DDRootDef::instance().set(root);
   size_t n=0;
   is >> n;
@@ -731,7 +724,6 @@ void DDStreamer::pos_read()
       }	              	               
     //DDName rot(dd_get_name(is));
     cpv.position(DDLogicalPart(to),DDLogicalPart(from),cp,t,rot); 
-    DCOUT('y', " pos-read: f=" << from << " to=" << to << " t=" << t << " r=" << rot);
   }
 }
 
@@ -749,7 +741,6 @@ void dd_ps_out(std::ostream & os, DDPartSelection* p)
 
 void DDStreamer::specs_write()
 {
-  DCOUT('Y', "DDStreamer::parts_write()");
   std::ostream & os = *o_;
   DDLogicalPart::iterator<DDLogicalPart> it(DDLogicalPart::begin()), ed(DDLogicalPart::end());
   size_t no = DDLogicalPart::size();
@@ -772,7 +763,6 @@ void DDStreamer::specs_write()
 
 void DDStreamer::specs_write()
 {
-  DCOUT('Y', "DDStreamer::specs_write()");
   std::ostream & os = *o_;
   DDSpecifics::iterator<DDSpecifics> it(DDSpecifics::begin()), ed(DDSpecifics::end());
   size_t no = dd_count(DDSpecifics());
@@ -822,7 +812,6 @@ void DDStreamer::specs_write()
 
 void DDStreamer::specs_read()   
 {
-  DCOUT('Y', "DDStreamer::specs_read()");
   std::istream & is = *i_;
   //DDSpecifics::clear();
   size_t n=0;
@@ -839,7 +828,6 @@ void DDStreamer::specs_read()
     for (; ii < nps; ++ii) {
       std::string s;
       getline(is,s);
-      DCOUT('y', "specs-ps=" << s);
       ps.push_back(s);
     }
     is >> nps;
@@ -879,7 +867,6 @@ void DDStreamer::specs_read()
     }
     std::sort(sv.begin(),sv.end());
     DDSpecifics sp(sn,ps,sv,false);
-    DCOUT('y', " specs-read: " << sp);
   }  
 }
 
@@ -910,7 +897,6 @@ void DDStreamer::vars_write()
 
 void DDStreamer::vars_read()
 {
-  DCOUT('Y', "DDStreamer::vars_read()");
   std::istream & is = *i_;
   ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);

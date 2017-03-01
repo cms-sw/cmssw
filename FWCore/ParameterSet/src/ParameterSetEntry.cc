@@ -91,7 +91,7 @@ namespace edm {
 
   void ParameterSetEntry::fillPSet() const {
     if(nullptr == thePSet_.load()) {
-      std::unique_ptr<ParameterSet> tmp(new ParameterSet(getParameterSet(theID_)));
+      auto tmp = std::make_unique<ParameterSet>(getParameterSet(theID_));
       ParameterSet* expected = nullptr;
       if(thePSet_.compare_exchange_strong(expected, tmp.get())) {
         // thePSet_ was equal to nullptr and now is equal to tmp.get()

@@ -114,7 +114,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
    }
 
   // store
-  std::auto_ptr<GsfElectronCoreCollection> collection(new GsfElectronCoreCollection) ;
+  auto collection = std::make_unique<GsfElectronCoreCollection>();
   for ( eleCore = electrons.begin() ; eleCore != electrons.end() ; eleCore++ )
    {
     if ((*eleCore)->superCluster().isNull())
@@ -123,7 +123,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
      { collection->push_back(**eleCore) ; }
     delete (*eleCore) ;
    }
-  event.put(collection) ;
+  event.put(std::move(collection));
  }
 
 void GsfElectronCoreProducer::produceTrackerDrivenCore( const GsfTrackRef & gsfTrackRef, std::list<GsfElectronCore *> & electrons )

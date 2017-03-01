@@ -23,7 +23,8 @@ process.maxEvents = cms.untracked.PSet(
 
 #Populate ES
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
-process.SiStripBadModuleGenerator.BadComponentList = cms.untracked.VPSet(   cms.PSet(
+from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
+siStripBadModuleConfigurableFakeESSource.BadComponentList = cms.untracked.VPSet(   cms.PSet(
 ### To mask TOB:
 ##     SubDet = cms.string('TOB'),
 ##     layer = cms.uint32(3),    ## SELECTION: layer = 1..6, 0(ALL)	       

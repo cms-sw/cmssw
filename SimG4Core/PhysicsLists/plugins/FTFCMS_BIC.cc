@@ -16,8 +16,8 @@
 
 FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, 
 		       const HepPDT::ParticleDataTable * table_,
-		       sim::FieldBuilder *fieldBuilder_, 
-		       const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+		       sim::ChordFinderSetter *chordFinderSetter_, 
+		       const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -25,7 +25,6 @@ FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
-  bool munucl  = p.getParameter<bool>("FlagMuNucl");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTF_BIC with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
@@ -37,7 +36,6 @@ FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
-    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
     RegisterPhysics(gn);
   }
 
@@ -66,6 +64,6 @@ FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
+  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

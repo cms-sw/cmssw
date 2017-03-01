@@ -9,7 +9,7 @@ from Vispa.Main.Exceptions import NoCurrentTabControllerException,PluginIgnoredE
 
 try:
     from Vispa.Plugins.EdmBrowser.EdmDataAccessor import EdmDataAccessor
-except Exception,e:
+except Exception as e:
     raise PluginIgnoredException("cannot import CMSSW: " + str(e))
 
 from Vispa.Plugins.EdmBrowser.EdmBrowserTab import EdmBrowserTab

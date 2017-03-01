@@ -2,8 +2,6 @@
 #define CondCore_CondDB_Exception_h
 
 #include "FWCore/Utilities/interface/Exception.h"
-// to bw removed after the transition
-#include "CondCore/DBCommon/interface/Exception.h"
 
 namespace cond {
 
@@ -13,6 +11,8 @@ namespace cond {
     class Exception : public cms::Exception {
     public:
       /// Constructor
+      explicit Exception( const std::string& message );
+      /// Constructor
       Exception( const std::string& message, const std::string& methodName );
       /// Destructor
       virtual ~Exception() throw() {}
@@ -21,6 +21,11 @@ namespace cond {
     void throwException [[noreturn]] ( const std::string& message, const std::string& methodName );
 
   }
+
+  typedef persistency::Exception Exception;
+
+  void throwException [[noreturn]] ( const std::string& message, const std::string& methodName );
+
 }
 
 #endif

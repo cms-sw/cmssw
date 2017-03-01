@@ -12,7 +12,6 @@
 
 // system include files
 #include <algorithm>
-#include "boost/bind.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
@@ -45,7 +44,7 @@ namespace edm {
 //
 EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey) : key_(iKey),
     validityInterval_(), finder_(), providers_(),
-    multipleFinders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >()),
+    multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()),
     lastSyncWasBeginOfRun_(true)
 {
 }
@@ -75,24 +74,25 @@ EventSetupRecordProvider::~EventSetupRecordProvider()
 // member functions
 //
 void 
-EventSetupRecordProvider::add(boost::shared_ptr<DataProxyProvider> iProvider)
+EventSetupRecordProvider::add(std::shared_ptr<DataProxyProvider> iProvider)
 {
    assert(iProvider->isUsingRecord(key_));
-   assert(!search_all(providers_, iProvider));
-   providers_.push_back(iProvider);
+   edm::propagate_const<std::shared_ptr<DataProxyProvider>> pProvider(iProvider);
+   assert(!search_all(providers_, pProvider));
+   providers_.emplace_back(iProvider);
 }
 
 void 
-EventSetupRecordProvider::addFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
+EventSetupRecordProvider::addFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
 {
-   boost::shared_ptr<EventSetupRecordIntervalFinder> oldFinder = finder_;  
+   auto oldFinder = finder();
    finder_ = iFinder;
-   if (0 != multipleFinders_.get()) {
-     multipleFinders_->push_back(iFinder);
+   if (nullptr != multipleFinders_.get()) {
+     multipleFinders_->emplace_back(iFinder);
    } else {
      //dependent records set there finders after the multipleFinders_ has been released
      // but they also have never had a finder set
-     if(0 != oldFinder.get()) {
+     if(nullptr != oldFinder.get()) {
        cms::Exception("EventSetupMultipleSources")<<"An additional source has been added to the Record "
        <<key_.name()<<"'\n"
        <<"after all the other sources have been dealt with.  This is a logic error, please send email to the framework group.";
@@ -106,26 +106,27 @@ EventSetupRecordProvider::setValidityInterval(const ValidityInterval& iInterval)
 }
 
 void 
-EventSetupRecordProvider::setDependentProviders(const std::vector< boost::shared_ptr<EventSetupRecordProvider> >& iProviders)
+EventSetupRecordProvider::setDependentProviders(const std::vector< std::shared_ptr<EventSetupRecordProvider> >& iProviders)
 {
-   boost::shared_ptr< DependentRecordIntervalFinder > newFinder(
-                                                                new DependentRecordIntervalFinder(key()));
+   using std::placeholders::_1;
+   std::shared_ptr<DependentRecordIntervalFinder> newFinder = std::shared_ptr<DependentRecordIntervalFinder>(new DependentRecordIntervalFinder(key()));
    
-   boost::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
-   for_all(iProviders, boost::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
+   std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
+   for_all(iProviders, std::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
    //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
    // old finder does not update each time a dependent record does change
-   if(old.get() != 0) {
+   if(old.get() != nullptr) {
       newFinder->setAlternateFinder(old);
    }
 }
 void 
 EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 {
-  for_all(providers_, boost::bind(&EventSetupRecordProvider::addProxiesToRecord,this,_1,iMap));
+  using std::placeholders::_1;
+  for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper,this,_1,iMap));
   if (1 < multipleFinders_->size()) {
      
-     boost::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder(new IntersectingIOVRecordIntervalFinder(key_));
+     std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder = std::shared_ptr<IntersectingIOVRecordIntervalFinder>(new IntersectingIOVRecordIntervalFinder(key_));
      intFinder->swapFinders(*multipleFinders_);
      finder_ = intFinder;
   }
@@ -134,7 +135,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 }
 
 void 
-EventSetupRecordProvider::addProxiesToRecord(boost::shared_ptr<DataProxyProvider> iProvider,
+EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<DataProxyProvider> iProvider,
                                 const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
    typedef DataProxyProvider::KeyedProxies ProxyList ;
    typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
@@ -170,8 +171,10 @@ EventSetupRecordProvider::addRecordTo(EventSetupProvider& iEventSetupProvider) {
 void 
 EventSetupRecordProvider::resetTransients()
 {
-   if(checkResetTransients()) {
-      for_all(providers_, boost::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
+
+   using std::placeholders::_1;
+   if(checkResetTransients())  {
+      for_all(providers_, std::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
    }
 }
 
@@ -201,7 +204,7 @@ EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
    }
    bool returnValue = false;
    //need to see if we get a new interval
-   if(0 != finder_.get()) {
+   if(nullptr != finder_.get()) {
       IOVSyncValue oldFirst(validityInterval_.first());
       
       validityInterval_ = finder_->findIntervalFor(key_, iTime);
@@ -211,11 +214,8 @@ EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
          //did we actually change?
          if(oldFirst != validityInterval_.first()) {
             //tell all Providers to update
-            for(std::vector<boost::shared_ptr<DataProxyProvider> >::iterator itProvider = providers_.begin(),
-	        itProviderEnd = providers_.end();
-                itProvider != itProviderEnd;
-                ++itProvider) {
-               (*itProvider)->newInterval(key_, validityInterval_);
+            for(auto& provider : providers_) {
+               provider->newInterval(key_, validityInterval_);
             }
             cacheReset();
          }
@@ -227,12 +227,13 @@ EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
 void 
 EventSetupRecordProvider::resetProxies()
 {
+   using std::placeholders::_1;
    cacheReset();
-   for_all(providers_, boost::bind(&DataProxyProvider::resetProxies,_1,key_));
+   for_all(providers_, std::bind(&DataProxyProvider::resetProxies,_1,key_));
    //some proxies only clear if they were accessed transiently,
    // since resetProxies resets that flag, calling resetTransients
    // will force a clear
-   for_all(providers_, boost::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
+   for_all(providers_, std::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
 
 }
 
@@ -248,8 +249,9 @@ EventSetupRecordProvider::fillReferencedDataKeys(std::map<DataKey, ComponentDesc
 
 void
 EventSetupRecordProvider::resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap) {
+   using std::placeholders::_1;
    record().clearProxies();
-   for_all(providers_, boost::bind(&EventSetupRecordProvider::addProxiesToRecord, this, _1, iMap));
+   for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper, this, _1, iMap));
 }
 
 void 
@@ -274,38 +276,39 @@ EventSetupRecordProvider::dependentRecords() const
 std::set<ComponentDescription> 
 EventSetupRecordProvider::proxyProviderDescriptions() const
 {
+   using std::placeholders::_1;
    std::set<ComponentDescription> descriptions;
    std::transform(providers_.begin(), providers_.end(),
                   std::inserter(descriptions,descriptions.end()),
-                  boost::bind(&DataProxyProvider::description,_1));
+                  std::bind(&DataProxyProvider::description,_1));
    return descriptions;
 }
 
-boost::shared_ptr<DataProxyProvider> 
-EventSetupRecordProvider::proxyProvider(const ComponentDescription& iDesc) const {
-   std::vector<boost::shared_ptr<DataProxyProvider> >::const_iterator itFound =
-   std::find_if(providers_.begin(),providers_.end(),
-                boost::bind(std::equal_to<ComponentDescription>(), 
+std::shared_ptr<DataProxyProvider> 
+EventSetupRecordProvider::proxyProvider(ComponentDescription const& iDesc) {
+   using std::placeholders::_1;
+   auto itFound = std::find_if(providers_.begin(),providers_.end(),
+                std::bind(std::equal_to<ComponentDescription>(), 
                             iDesc, 
-                            boost::bind(&DataProxyProvider::description,_1)));
+                            std::bind(&DataProxyProvider::description,_1)));
    if(itFound == providers_.end()){
-      return boost::shared_ptr<DataProxyProvider>();
+      return std::shared_ptr<DataProxyProvider>();
    }
-   return *itFound;
+   return get_underlying_safe(*itFound);
 }
 
-boost::shared_ptr<DataProxyProvider> 
-EventSetupRecordProvider::proxyProvider(ParameterSetIDHolder const& psetID) const {
-   for (auto const& dataProxyProvider : providers_) {
+std::shared_ptr<DataProxyProvider> 
+EventSetupRecordProvider::proxyProvider(ParameterSetIDHolder const& psetID) {
+   for (auto& dataProxyProvider : providers_) {
       if (dataProxyProvider->description().pid_ == psetID.psetID()) {
-         return dataProxyProvider;
+         return get_underlying_safe(dataProxyProvider);
       }
    }
-   return boost::shared_ptr<DataProxyProvider>();
+   return std::shared_ptr<DataProxyProvider>();
 }
 
 void
-EventSetupRecordProvider::resetProxyProvider(ParameterSetIDHolder const& psetID, boost::shared_ptr<DataProxyProvider> const& sharedDataProxyProvider) {
+EventSetupRecordProvider::resetProxyProvider(ParameterSetIDHolder const& psetID, std::shared_ptr<DataProxyProvider> const& sharedDataProxyProvider) {
    for (auto& dataProxyProvider : providers_) {
       if (dataProxyProvider->description().pid_ == psetID.psetID()) {
          dataProxyProvider = sharedDataProxyProvider;

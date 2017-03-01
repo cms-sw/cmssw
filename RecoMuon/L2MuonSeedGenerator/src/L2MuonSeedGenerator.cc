@@ -84,7 +84,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   const std::string metname = "Muon|RecoMuon|L2MuonSeedGenerator";
   MuonPatternRecoDumper debug;
 
-  auto_ptr<L2MuonTrajectorySeedCollection> output(new L2MuonTrajectorySeedCollection());
+  auto output = std::make_unique<L2MuonTrajectorySeedCollection>();
   
   // Muon particles and GMT readout collection
   edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
@@ -315,7 +315,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
   
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 
 

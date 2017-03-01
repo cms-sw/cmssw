@@ -40,7 +40,7 @@ class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
       typedef std::vector<ComputerAndCut>    CutList;
       typedef std::map<int, CutList::iterator> DecayModeToCutMap;
 
-      double discriminate(const PFTauRef& thePFTau) override;
+      double discriminate(const PFTauRef& thePFTau) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
    private:
@@ -107,7 +107,7 @@ PFTauDecayModeCutMultiplexer::beginEvent(const edm::Event& iEvent, const edm::Ev
    iEvent.getByToken(discriminant_token, targetDiscriminant);
 }
 
-double PFTauDecayModeCutMultiplexer::discriminate(const PFTauRef& pfTau)
+double PFTauDecayModeCutMultiplexer::discriminate(const PFTauRef& pfTau) const
 {
    // get decay mode for current tau
    int decayMode = lrint( (*pfTauDecayModeIndices)[pfTau] ); //convert to int
@@ -116,7 +116,7 @@ double PFTauDecayModeCutMultiplexer::discriminate(const PFTauRef& pfTau)
    float valueToMultiplex = (*targetDiscriminant)[pfTau];
 
    // Get correct cut
-   DecayModeToCutMap::iterator iterToComputer = computerMap_.find(decayMode);
+   auto iterToComputer = computerMap_.find(decayMode);
    if(iterToComputer != computerMap_.end()) //if we don't have a MVA mapped to this decay mode, skip it, it fails.
    {
       // use the supplied cut to make a decision

@@ -2,18 +2,18 @@
 
 #include "IOPool/Output/src/RootOutputFile.h"
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
@@ -38,11 +38,7 @@ namespace edm {
     catalog_(pset.getUntrackedParameter<std::string>("catalog")),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize")),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel")),
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     compressionAlgorithm_(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
-#else
-    compressionAlgorithm_("ZLIB"),
-#endif
     basketSize_(pset.getUntrackedParameter<int>("basketSize")),
     eventAutoFlushSize_(pset.getUntrackedParameter<int>("eventAutoFlushCompressedSize")),
     splitLevel_(std::min<int>(pset.getUntrackedParameter<int>("splitLevel") + 1, 99)),
@@ -56,6 +52,8 @@ namespace edm {
     inputFileCount_(0),
     childIndex_(0U),
     numberOfDigitsInIndex_(0U),
+    branchParents_(),
+    branchChildren_(),
     overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
     rootOutputFile_(),
     statusFileName_() {
@@ -89,15 +87,6 @@ namespace edm {
   }
 
   void PoolOutputModule::beginJob() {
-    for(int i = InEvent; i < NumBranchTypes; ++i) {
-      BranchType branchType = static_cast<BranchType>(i);
-      SelectedProducts const& keptVector = keptProducts()[branchType];
-      for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-        BranchDescription const& prod = **it;
-        checkDictionaries(prod.fullClassName(), true);
-        checkDictionaries(wrappedClassName(prod.fullClassName()), true);
-      }
-    }
   }
 
   std::string const& PoolOutputModule::currentFileName() const {
@@ -109,12 +98,14 @@ namespace edm {
 
   PoolOutputModule::OutputItem::OutputItem() :
         branchDescription_(0),
+        token_(),
         product_(0),
         splitLevel_(BranchDescription::invalidSplitLevel),
         basketSize_(BranchDescription::invalidBasketSize) {}
 
-  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, int splitLevel, int basketSize) :
+  PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, EDGetToken const& token, int splitLevel, int basketSize) :
         branchDescription_(bd),
+        token_(token),
         product_(0),
         splitLevel_(splitLevel),
         basketSize_(basketSize) {}
@@ -122,7 +113,7 @@ namespace edm {
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
-    if(tree != 0) {
+    if(tree != nullptr) {
       TObjArray* branches = tree->GetListOfBranches();
       for(int i = 0; i < branches->GetEntries(); ++i) {
         TBranchElement* br = (TBranchElement*)branches->At(i);
@@ -159,7 +150,7 @@ namespace edm {
     AuxItem&   auxItem = auxItems_[branchType];
 
     // Fill AuxItem
-    if (theInputTree != 0 && !overrideInputFileSplitLevels_) {
+    if (theInputTree != nullptr && !overrideInputFileSplitLevels_) {
       TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
       if (auxBranch) {
         auxItem.basketSize_ = auxBranch->GetBasketSize();
@@ -171,21 +162,21 @@ namespace edm {
     }
 
     // Fill outputItemList with an entry for each branch.
-    for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+    for(auto const& kept : keptVector) {
       int splitLevel = BranchDescription::invalidSplitLevel;
       int basketSize = BranchDescription::invalidBasketSize;
 
-      BranchDescription const& prod = **it;
-      TBranch* theBranch = ((!prod.produced() && theInputTree != 0 && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
+      BranchDescription const& prod = *kept.first;
+      TBranch* theBranch = ((!prod.produced() && theInputTree != nullptr && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
 
-      if(theBranch != 0) {
+      if(theBranch != nullptr) {
         splitLevel = theBranch->GetSplitLevel();
         basketSize = theBranch->GetBasketSize();
       } else {
         splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
         basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
       }
-      outputItemList.emplace_back(&prod, splitLevel, basketSize);
+      outputItemList.emplace_back(&prod, kept.second, splitLevel, basketSize);
     }
 
     // Sort outputItemList to allow fast copying.
@@ -195,6 +186,30 @@ namespace edm {
 
   void PoolOutputModule::beginInputFile(FileBlock const& fb) {
     if(isFileOpen()) {
+      //Faster to read ChildrenBranches directly from input
+      // file than to do it every event
+      
+      //If this is not the first file, we should clear this list since
+      // we do not need to worry about branches from the previous file
+      branchChildrenReadFromInput_.clear();
+
+      
+      branchChildrenReadFromInput_.reserve(fb.branchChildren().childLookup().size());
+      
+      auto const& branchToChildMap = fb.branchChildren().childLookup();
+      SelectedProducts const& products = keptProducts()[InEvent];
+      for(auto const& product : products) {
+        BranchDescription const& bd = *product.first;
+        BranchID const& bid = bd.branchID();
+        auto it = branchToChildMap.find(bid);
+        if(it != branchToChildMap.end()) {
+          branchChildrenReadFromInput_.push_back(it->first);
+          branchChildren_.insertEmpty(it->first);
+          for(auto const& child: it->second) {
+            branchChildren_.insertChild(it->first,child);
+          }
+        }
+      }
       rootOutputFile_->beginInputFile(fb, remainingEvents());
     }
   }
@@ -239,8 +254,9 @@ namespace edm {
   PoolOutputModule::~PoolOutputModule() {
   }
 
-  void PoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
-    rootOutputFile_->writeOne(e, mcc);
+  void PoolOutputModule::write(EventForOutput const& e) {
+    updateBranchParents(e);
+    rootOutputFile_->writeOne(e);
       if (!statusFileName_.empty()) {
         std::ofstream statusFile(statusFileName_.c_str());
         statusFile << e.id() << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
@@ -248,15 +264,17 @@ namespace edm {
       }
   }
 
-  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
-    rootOutputFile_->writeLuminosityBlock(lb, mcc);
+  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockForOutput const& lb) {
+    rootOutputFile_->writeLuminosityBlock(lb);
   }
 
-  void PoolOutputModule::writeRun(RunPrincipal const& r, ModuleCallingContext const* mcc) {
-    rootOutputFile_->writeRun(r, mcc);
+  void PoolOutputModule::writeRun(RunForOutput const& r) {
+    rootOutputFile_->writeRun(r);
   }
 
   void PoolOutputModule::reallyCloseFile() {
+    fillDependencyGraph();
+    branchParents_.clear();
     startEndFile();
     writeFileFormatVersion();
     writeFileIdentifier();
@@ -266,14 +284,18 @@ namespace edm {
     writeProductDescriptionRegistry();
     writeParentageRegistry();
     writeBranchIDListRegistry();
-    writeProductDependencies();
+    writeThinnedAssociationsHelper();
+    writeProductDependencies(); //branchChildren used here
+    branchChildren_.clear();
+    branchChildrenReadFromInput_.clear();
     finishEndFile();
+
+    doExtrasAfterCloseFile();
   }
 
   
   // At some later date, we may move functionality from finishEndFile() to here.
   void PoolOutputModule::startEndFile() { }
-
 
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
@@ -283,12 +305,15 @@ namespace edm {
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
   void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
+  void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
-  void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
-  bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
+  void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_ = nullptr; } // propagate_const<T> has no reset() function
+  void PoolOutputModule::doExtrasAfterCloseFile() {}
+  bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != nullptr; }
   bool PoolOutputModule::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
-  void PoolOutputModule::reallyOpenFile() {
+  std::pair<std::string, std::string>
+  PoolOutputModule::physicalAndLogicalNameForNewFile() {
       if(inputFileCount_ == 0) {
         throw edm::Exception(errors::LogicError)
           << "Attempt to open output file before input file. "
@@ -316,14 +341,76 @@ namespace edm {
         }
       }
       ofilename << suffix;
-      rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
       ++outputFileCount_;
+
+      return std::make_pair(ofilename.str(), lfilename.str());
+  }
+
+  void PoolOutputModule::reallyOpenFile() {
+    auto names = physicalAndLogicalNameForNewFile();
+    rootOutputFile_ = std::make_unique<RootOutputFile>(this, names.first, names.second); // propagate_const<T> has no reset() function
   }
 
   void
-  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  PoolOutputModule::updateBranchParents(EventForOutput const& e) {
+    ProductProvenanceRetriever const* provRetriever = e.productProvenanceRetrieverPtr();
+    SelectedProducts const& products = keptProducts()[InEvent];
+    for(auto const& product : products) {
+      BranchDescription const& bd = *product.first;
+      BranchID const& bid = bd.branchID();
+      //Only need to keep track of data products made in this
+      // process since we copied the ones from the source when
+      // the input file was open
+      if(not std::binary_search(branchChildrenReadFromInput_.begin(),
+                            branchChildrenReadFromInput_.end(),bid)) {
+      
+        ProductProvenance const* provenance = provRetriever->branchIDToProvenance(bid);
+        if(provenance != nullptr) {
+          BranchParents::iterator it = branchParents_.find(bid);
+          if(it == branchParents_.end()) {
+            it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
+          }
+          it->second.insert(provenance->parentageID());
+          branchChildren_.insertEmpty(bid);
+        }
+      }
+    }
+  }
+
+  void
+  PoolOutputModule::preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {
+    if(DropAll != dropMetaData_ ) {
+      auto const* ep = dynamic_cast<EventPrincipal const*>(&iPrincipal);
+      if(ep)
+      {
+        auto pr = ep->productProvenanceRetrieverPtr();
+        if(pr) {
+          pr->readProvenanceAsync(iTask,&iModuleCallingContext);
+        }
+      }
+    }
+  }
+
+  void
+  PoolOutputModule::fillDependencyGraph() {
+    for(auto const& branchParent : branchParents_) {
+      BranchID const& child = branchParent.first;
+      std::set<ParentageID> const& eIds = branchParent.second;
+      for(auto const& eId : eIds) {
+        Parentage entryDesc;
+        ParentageRegistry::instance()->getMapped(eId, entryDesc);
+        std::vector<BranchID> const& parents = entryDesc.parents();
+        for(auto const& parent : parents) {
+          branchChildren_.insertChild(parent, child);
+        }
+      }
+    }
+  }
+
+  void
+  PoolOutputModule::fillDescription(ParameterSetDescription& desc) {
     std::string defaultString;
-    ParameterSetDescription desc;
+
     desc.setComment("Writes runs, lumis, and events into EDM/ROOT files.");
     desc.addUntracked<std::string>("fileName")
         ->setComment("Name of output file.");
@@ -336,10 +423,8 @@ namespace edm {
                      "If over maximum, new output file will be started at next input file transition.");
     desc.addUntracked<int>("compressionLevel", 7)
         ->setComment("ROOT compression level of output file.");
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
         ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
-#endif
     desc.addUntracked<int>("basketSize", 16384)
         ->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAutoFlushCompressedSize",-1)->setComment("Set ROOT auto flush stored data size (in bytes) for event TTree. The value sets how large the compressed buffer is allowed to get. The uncompressed buffer can be quite a bit larger than this depending on the average compression ratio. The value of -1 just uses ROOT's default value. The value of 0 turns off this feature.");
@@ -370,7 +455,12 @@ namespace edm {
      ->setComment("PSet is only used by Data Operations and not by this module.");
 
     OutputModule::fillDescription(desc);
+  }
 
+  void
+  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    PoolOutputModule::fillDescription(desc);
     descriptions.add("edmOutput", desc);
   }
 }

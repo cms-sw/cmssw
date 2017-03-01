@@ -149,7 +149,7 @@ class ReleaseComparison(object):
             files_with_urls1, files_with_urls2 = recursive_search_online(url, rel1, frags1, rel2, frags2)
             file_pairs = make_file_pairs(files_with_urls1, files_with_urls2)
             files_with_urls1.update(files_with_urls2)
-            files1, files2 = zip(*file_pairs)
+            files1, files2 = list(zip(*file_pairs))
             paired_files_with_urls = [(file, files_with_urls1[file]) for file in files1 + files2]
 
             if self.dry:

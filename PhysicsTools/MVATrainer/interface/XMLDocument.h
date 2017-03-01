@@ -60,17 +60,17 @@ class XMLDocument {
 		static unsigned int instances;
 	};
 
-	void openForRead(std::auto_ptr<std::istream> &inputStream);
+	void openForRead(std::unique_ptr<std::istream> &inputStream);
 	void openForWrite(const std::string &fileName);
 
-	std::auto_ptr<XercesPlatform>					platform;
-	std::auto_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource>	inputSource;
+	std::unique_ptr<XercesPlatform>					platform;
+	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource>	inputSource;
 
 	std::string							fileName;
 	bool								write;
 
-	std::auto_ptr<XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser>	parser;
-	std::auto_ptr<XERCES_CPP_NAMESPACE_QUALIFIER HandlerBase>	errHandler;
+	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser>	parser;
+	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER HandlerBase>	errHandler;
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementation		*impl;
 
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument			*doc;

@@ -10,8 +10,6 @@
 #include <TList.h>
 #include <TKey.h>
 
-#include <Cintex/Cintex.h>
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -160,12 +158,10 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	ROOT::Cintex::Cintex::Enable();
-
 	srandom(1);
 
 	try {
-		std::auto_ptr<TreeTrainer> treeTrainer;
+		std::unique_ptr<TreeTrainer> treeTrainer;
 		std::vector<TTree*> trees;
 		unsigned int nTarget = 0;
 		for(int i = 2; i < argc; i++) {
@@ -203,7 +199,7 @@ int main(int argc, char **argv)
 
 		treeTrainer->train(&trainer);
 
-		std::auto_ptr<Calibration::MVAComputer> calib(
+		std::unique_ptr<Calibration::MVAComputer> calib(
 						trainer.getCalibration());
 
 		MVAComputer::writeCalibration(args[1], calib.get());

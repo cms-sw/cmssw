@@ -117,7 +117,7 @@ class DCCEventBlock {
     bool memUnpacking_;
     bool forceToKeepFRdata_;
 
-    std::auto_ptr<EcalRawDataCollection> *  dccHeaders_;
+    std::unique_ptr<EcalRawDataCollection> *  dccHeaders_;
 	 
 
 };

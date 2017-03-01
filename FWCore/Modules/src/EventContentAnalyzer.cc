@@ -176,11 +176,11 @@ namespace edm {
        ObjectWithDict sizeObj;
        try {
           size_t temp; //used to hold the memory for the return value
+          FunctionWithDict sizeFunc = iObject.typeOf().functionMemberByName("size");
+          assert(sizeFunc.finalReturnType() == typeid(size_t));
           sizeObj = ObjectWithDict(TypeWithDict(typeid(size_t)), &temp);
-          iObject.typeOf().functionMemberByName("size").invoke(iObject, &sizeObj);
-          assert(iObject.typeOf().functionMemberByName("size").returnType().typeInfo() == typeid(size_t));
+          sizeFunc.invoke(iObject, &sizeObj);
           //std::cout << "size of type '" << sizeObj.name() << "' " << sizeObj.typeName() << std::endl;
-          assert(sizeObj.typeOf().typeInfo() == typeid(size_t));
           size_t size = *reinterpret_cast<size_t*>(sizeObj.address());
           FunctionWithDict atMember;
           try {
@@ -192,7 +192,7 @@ namespace edm {
           LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << "[size=" << size << "]";//"\n";
           ObjectWithDict contained;
           std::string indexIndent = iIndent + iIndentDelta;
-          TypeWithDict atReturnType(atMember.returnType());
+          TypeWithDict atReturnType(atMember.finalReturnType());
           //std::cout << "return type " << atReturnType.name() << " size of " << atReturnType.SizeOf()
           // << " pointer? " << atReturnType.isPointer() << " ref? " << atReturnType.isReference() << std::endl;
 
@@ -228,7 +228,7 @@ namespace edm {
                       << iEx.what() << ")>\n";
              }
              if(!isRef) {
-                atReturnType.destruct(contained.address(), true);
+                contained.destruct(true);
              }
           }
           return true;
@@ -333,10 +333,10 @@ namespace edm {
   // ------------ method called to produce the data  ------------
   void
   EventContentAnalyzer::analyze(Event const& iEvent, EventSetup const&) {
-     typedef std::vector<Provenance const*> Provenances;
+     typedef std::vector<StableProvenance const*> Provenances;
      Provenances provenances;
 
-     iEvent.getAllProvenance(provenances);
+     iEvent.getAllStableProvenance(provenances);
 
      if(listContent_) {
        LogAbsolute("EventContent") << "\n" << indentation_ << "Event " << std::setw(5) << evno_ << " contains "
@@ -346,21 +346,19 @@ namespace edm {
      }
 
      std::string startIndent = indentation_+verboseIndentation_;
-     for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
-                               itProv != itProvEnd;
-                             ++itProv) {
-         std::string const& className = (*itProv)->className();
+     for(auto const& provenance : provenances) {
+         std::string const& className = provenance->className();
 
-         std::string const& friendlyName = (*itProv)->friendlyClassName();
+         std::string const& friendlyName = provenance->friendlyClassName();
          //if(friendlyName.empty())  friendlyName = std::string("||");
 
-         std::string const& modLabel = (*itProv)->moduleLabel();
+         std::string const& modLabel = provenance->moduleLabel();
          //if(modLabel.empty()) modLabel = std::string("||");
 
-         std::string const& instanceName = (*itProv)->productInstanceName();
+         std::string const& instanceName = provenance->productInstanceName();
          //if(instanceName.empty()) instanceName = std::string("||");
 
-         std::string const& processName = (*itProv)->processName();
+         std::string const& processName = provenance->processName();
 
          bool doVerbose = verbose_ && (moduleLabels_.empty() ||
                                        binary_search_all(moduleLabels_, modLabel));
@@ -370,7 +368,7 @@ namespace edm {
                                        << " \"" << modLabel
                                        << "\" \"" << instanceName << "\" \""
                                        << processName << "\""
-                                       << " (productId = " << (*itProv)->productID() << ")"
+                                       << " (productId = " << provenance->productID() << ")"
                                        << std::endl;
          }
 

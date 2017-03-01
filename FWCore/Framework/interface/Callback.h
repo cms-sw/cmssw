@@ -22,6 +22,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/produce_helpers.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -109,7 +110,7 @@ namespace edm {
          const Callback& operator=(const Callback&); // stop default
 
          std::vector<void*> proxyData_;
-         T* producer_;
+         edm::propagate_const<T*> producer_;
          method_type method_;
          bool wasCalledForThisRecord_;
          TDecorator decorator_;

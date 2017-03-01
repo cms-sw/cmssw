@@ -18,15 +18,16 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 using namespace std;
-CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) : conf_(conf) { 
+CosmicTrajectoryBuilder::CosmicTrajectoryBuilder(const edm::ParameterSet& conf) {
   //minimum number of hits per tracks
 
-  theMinHits=conf_.getParameter<int>("MinHits");
+  theMinHits=conf.getParameter<int>("MinHits");
   //cut on chi2
-  chi2cut=conf_.getParameter<double>("Chi2Cut");
+  chi2cut=conf.getParameter<double>("Chi2Cut");
   edm::LogInfo("CosmicTrackFinder")<<"Minimum number of hits "<<theMinHits<<" Cut on Chi2= "<<chi2cut;
 
-  geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  geometry=conf.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
+  theBuilderName = conf.getParameter<std::string>("TTRHBuilder");
 }
 
 
@@ -59,8 +60,7 @@ void CosmicTrajectoryBuilder::init(const edm::EventSetup& es, bool seedplus){
   
 
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  es.get<TransientRecHitRecord>().get(builderName,theBuilder);
+  es.get<TransientRecHitRecord>().get(theBuilderName,theBuilder);
   
 
   RHBuilder=   theBuilder.product();
@@ -191,51 +191,29 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   }
 
   
-  if ((&collpixel)!=0){
-    SiPixelRecHitCollection::DataContainer::const_iterator ipix;
-    for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
-      float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*ipix));
-    }
-  } 
+  SiPixelRecHitCollection::DataContainer::const_iterator ipix;
+  for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
+    float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*ipix));
+  }
   
+  for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
+    float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*istrip));   
+  }
   
-
-  if ((&collrphi)!=0){
-    for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
-      float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*istrip));   
-    }
+  for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
+    float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*istrip));
   }
 
-
-
-
-  if ((&collstereo)!=0){
-    for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
-      float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*istrip));
-    }
-  }
-
-//   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripm;
-//   if ((&collmatched)!=0){
-//     for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++){
-//       float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
-//       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-// 	allHits.push_back(&(*istripm));
-//     }
-//   }
-
-  if (seed_plus){
+  if (seed_plus)
     stable_sort(allHits.begin(),allHits.end(),CompareHitY_plus(*tracker));
-  }
-  else {
+  else 
     stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
-  }
 
   return allHits;
 }

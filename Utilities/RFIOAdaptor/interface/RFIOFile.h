@@ -6,7 +6,7 @@
 # include <string>
 
 /** RFIO #Storage object.  */
-class RFIOFile : public Storage
+class RFIOFile final : public Storage
 {
 public:
   RFIOFile (void);
@@ -15,31 +15,31 @@ public:
   RFIOFile (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
   ~RFIOFile (void);
 
-  virtual void		create (const char *name,
+   void		create (const char *name,
 				bool exclusive = false,
-				int perms = 0666);
-  virtual void		create (const std::string &name,
+				int perms = 0666) ;
+   void		create (const std::string &name,
 				bool exclusive = false,
-				int perms = 0666);
-  virtual void		open (const char *name,
+				int perms = 0666) ;
+   void		open (const char *name,
 			      int flags = IOFlags::OpenRead,
-			      int perms = 0666);
-  virtual void		open (const std::string &name,
+			      int perms = 0666) ;
+   void		open (const std::string &name,
 			      int flags = IOFlags::OpenRead,
-			      int perms = 0666);
+			      int perms = 0666) ;
 
   using Storage::read;
   using Storage::readv;
   using Storage::write;
   using Storage::position;
 
-  virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	readv (IOPosBuffer *into, IOSize buffers);
-  virtual IOSize	write (const void *from, IOSize n);
-  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
-  virtual void		resize (IOOffset size);
-  virtual void		close (void);
-  virtual void		abort (void);
+  virtual IOSize	read (void *into, IOSize n) override;
+  virtual IOSize	readv (IOPosBuffer *into, IOSize buffers) override;
+  virtual IOSize	write (const void *from, IOSize n) override;
+  virtual IOOffset	position (IOOffset offset, Relative whence = SET) override;
+  virtual void		resize (IOOffset size) override;
+  virtual void		close (void) override;
+  void		abort (void) ;
 
 /*
  * Note: we used to implement prefetch for RFIOFile, but it never got used in

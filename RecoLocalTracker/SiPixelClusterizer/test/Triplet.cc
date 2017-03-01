@@ -50,12 +50,8 @@
 // To convert detId to subdet/layer number:
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 //#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -362,6 +358,11 @@ void Triplet::beginJob()
 // method called for each event:
 //
 void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
 
   using namespace std;
   using namespace edm;
@@ -573,9 +574,9 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
       if( mysubDet == PixelSubdetector::PixelBarrel ) {
 
-	cout << ": PXB layer " << PXBDetId(mydetId).layer();
-	cout << ", ladder " << PXBDetId(mydetId).ladder();
-	cout << ", module " << PXBDetId(mydetId).module();
+	cout << ": PXB layer " << tTopo->pxbLayer(mydetId);
+	cout << ", ladder " << tTopo->pxbLadder(mydetId);
+	cout << ", module " << tTopo->pxbModule(mydetId);
 	cout << ", at R " << (*idet)->position().perp();
 	cout << ", F " << (*idet)->position().barePhi()*wt;
 	cout << ", z " << (*idet)->position().z();
@@ -609,11 +610,11 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
       if( mysubDet == PixelSubdetector::PixelEndcap ) {
 
-	cout << ": PXD side " << PXFDetId(mydetId).side();
-	cout << ", disk " << PXFDetId(mydetId).disk();
-	cout << ", blade " << PXFDetId(mydetId).blade();
-	cout << ", panel " << PXFDetId(mydetId).panel();
-	cout << ", module " << PXFDetId(mydetId).module();
+	cout << ": PXD side " << tTopo->pxfSide(mydetId);
+	cout << ", disk " << tTopo->pxfDisk(mydetId);
+	cout << ", blade " << tTopo->pxfBlade(mydetId);
+	cout << ", panel " << tTopo->pxfPanel(mydetId);
+	cout << ", module " << tTopo->pxfModule(mydetId);
 	cout << ", at R " << (*idet)->position().perp();
 	cout << ", F " << (*idet)->position().barePhi()*wt;
 	cout << ", z " << (*idet)->position().z();
@@ -834,16 +835,16 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
       if( mysubDet != PixelSubdetector::PixelBarrel ) continue;
       /*
-	cout << ": PXB layer " << PXBDetId(mydetId).layer();
-	cout << ", ladder " << PXBDetId(mydetId).ladder();
-	cout << ", module " << PXBDetId(mydetId).module();
+	cout << ": PXB layer " << tTopo->pxbLayer(mydetId);
+	cout << ", ladder " << tTopo->pxbLadder(mydetId);
+	cout << ", module " << tTopo->pxbModule(mydetId);
 	cout << ", at R1 " << (*idet)->position().perp();
 	cout << ", F " << (*idet)->position().barePhi()*wt;
 	cout << ", z " << (*idet)->position().z();
 	cout << endl;
       */
 
-      if( PXBDetId(mydetId).layer() == 1 ) {
+      if( tTopo->pxbLayer(mydetId) == 1 ) {
 
 	double dz = zR1 - (*idet)->position().z();
 
@@ -1008,9 +1009,9 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	  if( subDet == PixelSubdetector::PixelBarrel ) {
 
-	    int ilay = PXBDetId(detId).layer();
-	    int ilad = PXBDetId(detId).ladder();
-	    int imod = PXBDetId(detId).module();
+	    int ilay = tTopo->pxbLayer(detId);
+	    int ilad = tTopo->pxbLadder(detId);
+	    int imod = tTopo->pxbModule(detId);
 	    bool halfmod = 0;
 
 	    h100->Fill( ilay ); // 1,2,3

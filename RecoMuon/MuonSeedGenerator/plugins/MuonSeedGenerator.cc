@@ -77,7 +77,7 @@ MuonSeedGenerator::~MuonSeedGenerator(){
 void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup)
 {
   // create the pointer to the Seed container
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
@@ -111,7 +111,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 
   theSeedCleaner->clean(*output);
 
-  event.put(output);
+  event.put(std::move(output));
 }
 
   

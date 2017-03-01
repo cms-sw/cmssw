@@ -44,7 +44,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class MuonRecoOneHLT : public thread_unsafe::DQMEDAnalyzer { 
+class MuonRecoOneHLT : public DQMEDAnalyzer { 
  public:
 
   /// Constructor
@@ -53,7 +53,7 @@ class MuonRecoOneHLT : public thread_unsafe::DQMEDAnalyzer {
   /// Destructor
   ~MuonRecoOneHLT();
 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:

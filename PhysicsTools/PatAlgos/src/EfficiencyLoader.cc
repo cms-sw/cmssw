@@ -20,7 +20,7 @@ EfficiencyLoader::EfficiencyLoader(const edm::ParameterSet &iConfig, edm::Consum
 }
 
 void
-EfficiencyLoader::newEvent(const edm::Event &iEvent) const {
+EfficiencyLoader::newEvent(const edm::Event &iEvent) {
     for (size_t i = 0, n = names_.size(); i < n; ++i) {
         iEvent.getByToken(tokens_[i], handles_[i]);
     }

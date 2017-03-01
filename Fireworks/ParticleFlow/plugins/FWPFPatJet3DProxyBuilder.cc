@@ -1,4 +1,5 @@
 #include "FWPFPatJet3DProxyBuilder.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 //______________________________________________________________________________
 template<class T> FWPFPatJet3DProxyBuilder<T>::FWPFPatJet3DProxyBuilder(){}
@@ -8,27 +9,31 @@ template<class T> FWPFPatJet3DProxyBuilder<T>::~FWPFPatJet3DProxyBuilder(){}
 template<class T> void
 FWPFPatJet3DProxyBuilder<T>::build(const T& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {
-   std::vector<reco::PFCandidatePtr> consts = iData.getPFConstituents();
+   try {
+      std::vector<reco::PFCandidatePtr> consts = iData.getPFConstituents();
+      typedef std::vector<reco::PFCandidatePtr>::const_iterator IC;
 
-   typedef std::vector<reco::PFCandidatePtr>::const_iterator IC;
+      for( IC ic = consts.begin();   // If consts has no constituents then the loop simply won't execute
+           ic != consts.end(); ic++ )   // and so no segmentation fault should occur
+      {
+         const reco::PFCandidatePtr pfCandPtr = *ic;
 
-   for( IC ic = consts.begin();   // If consts has no constituents then the loop simply won't execute
-        ic != consts.end(); ic++ )   // and so no segmentation fault should occur
-   {
-      const reco::PFCandidatePtr pfCandPtr = *ic;
+         TEveRecTrack t;
+         t.fBeta = 1;
+         t.fP = TEveVector( pfCandPtr->px(), pfCandPtr->py(), pfCandPtr->pz() );
+         t.fV = TEveVector( pfCandPtr->vertex().x(), pfCandPtr->vertex().y(), pfCandPtr->vertex().z() );
+         t.fSign = pfCandPtr->charge();
+         TEveTrack* trk = new TEveTrack(&t, FWProxyBuilderBase::context().getTrackPropagator());
+         trk->MakeTrack();
+         trk->SetLineWidth(3);
 
-      TEveRecTrack t;
-      t.fBeta = 1;
-      t.fP = TEveVector( pfCandPtr->px(), pfCandPtr->py(), pfCandPtr->pz() );
-      t.fV = TEveVector( pfCandPtr->vertex().x(), pfCandPtr->vertex().y(), pfCandPtr->vertex().z() );
-      t.fSign = pfCandPtr->charge();
-      TEveTrack* trk = new TEveTrack(&t, FWProxyBuilderBase::context().getTrackPropagator());
-      trk->MakeTrack();
-      trk->SetLineWidth(3);
+         fireworks::setTrackTypePF( *pfCandPtr, trk );
 
-      fireworks::setTrackTypePF( *pfCandPtr, trk );
-
-      FWProxyBuilderBase::setupAddElement( trk, &oItemHolder );
+         FWProxyBuilderBase::setupAddElement( trk, &oItemHolder );
+      }
+   }
+   catch (cms::Exception& iException) {
+      fwLog(fwlog::kError) << "FWPFPatJet3DProxyBuilder::build() Caught exception " << iException.what() << std::endl;
    }
 
 }

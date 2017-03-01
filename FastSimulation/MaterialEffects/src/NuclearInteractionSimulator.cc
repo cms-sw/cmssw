@@ -17,12 +17,16 @@
 #include "TTree.h"
 #include "TROOT.h"
 
+// Internal variable and vectors with name started frm "thePion" means
+// vectors/variable not only for pions but for all type of hadrons
+// treated inside this code
+
 NuclearInteractionSimulator::NuclearInteractionSimulator(
-  std::vector<double>& pionEnergies,
-  std::vector<int>& pionTypes,
-  std::vector<std::string>& pionNames,
-  std::vector<double>& pionMasses,
-  std::vector<double>& pionPMin,
+  std::vector<double>& hadronEnergies,
+  std::vector<int>& hadronTypes,
+  std::vector<std::string>& hadronNames,
+  std::vector<double>& hadronMasses,
+  std::vector<double>& hadronPMin,
   double pionEnergy,
   std::vector<double>& lengthRatio,
   std::vector< std::vector<double> >& ratios,
@@ -32,11 +36,11 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   double distCut)
   :
   MaterialEffectsSimulator(),
-  thePionEN(pionEnergies),
-  thePionID(pionTypes),
-  thePionNA(pionNames),
-  thePionMA(pionMasses),
-  thePionPMin(pionPMin),
+  thePionEN(hadronEnergies),
+  thePionID(hadronTypes),
+  thePionNA(hadronNames),
+  thePionMA(hadronMasses),
+  thePionPMin(hadronPMin),
   thePionEnergy(pionEnergy),
   theLengthRatio(lengthRatio),
   theRatios(ratios),
@@ -179,8 +183,18 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
   // without crashing, while trying to close these files from outside
   for ( unsigned ifile=0; ifile<theFiles.size(); ++ifile ) { 
     for ( unsigned iene=0; iene<theFiles[ifile].size(); ++iene ) {
+      auto file = theFiles[ifile][iene];
+      if(file) {
       // std::cout << "Closing file " << iene << " with name " << theFileNames[ifile][iene] << std::endl;
-      theFiles[ifile][iene]->Close(); 
+        file->Close();
+        delete file;
+      }
+    }
+  }
+
+  for(auto& vEvents: theNUEvents) {
+    for(auto evtPtr: vEvents) {
+      delete evtPtr;
     }
   }
 

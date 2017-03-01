@@ -42,10 +42,10 @@ HLTMuonMatchAndPlotContainer::HLTMuonMatchAndPlotContainer(ConsumesCollector && 
 
 /// Add a HLTMuonMatchAndPlot for a given path
 void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet &pset , std::string path,
-					      const std::vector<std::string>& labels)
+					      std::string label, bool islastfilter)
 {
 
-  plotters_.push_back(HLTMuonMatchAndPlot(pset,path,labels));
+  plotters_.push_back(HLTMuonMatchAndPlot(pset,path,label,islastfilter));
 
 }
 

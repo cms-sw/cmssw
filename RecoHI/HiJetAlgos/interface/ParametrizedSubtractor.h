@@ -5,14 +5,15 @@
 
 #include "RecoJets/JetProducers/interface/PileUpSubtractor.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "TH1D.h"
 
 #include "TF1.h"
 
+class CentralityBins;
+
 class ParametrizedSubtractor : public PileUpSubtractor {
  public:
-   ParametrizedSubtractor(const edm::ParameterSet& iConfig);
+  ParametrizedSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
    virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
    virtual void calculatePedestal( std::vector<fastjet::PseudoJet> const & coll );
    virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
@@ -34,7 +35,7 @@ class ParametrizedSubtractor : public PileUpSubtractor {
     int bin_;
     double centrality_;
     const CentralityBins * cbins_;
-    edm::InputTag centTag_;
+    edm::EDGetTokenT<reco::Centrality> centTag_;
     std::vector<TH1D*> hEta;
     std::vector<TH1D*> hEtaMean;
     std::vector<TH1D*> hEtaRMS;

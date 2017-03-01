@@ -19,9 +19,9 @@ class XMLIdealGeometryESSource : public edm::ESProducer,
 public:
     XMLIdealGeometryESSource(const edm::ParameterSet & p);
     virtual ~XMLIdealGeometryESSource(); 
-    std::auto_ptr<DDCompactView> produceGeom(const IdealGeometryRecord &);
-    std::auto_ptr<DDCompactView> produceMagField(const IdealMagneticFieldRecord &);
-    std::auto_ptr<DDCompactView> produce();
+    std::unique_ptr<DDCompactView> produceGeom(const IdealGeometryRecord &);
+    std::unique_ptr<DDCompactView> produceMagField(const IdealMagneticFieldRecord &);
+    std::unique_ptr<DDCompactView> produce();
 protected:
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
 				const edm::IOVSyncValue &,edm::ValidityInterval &);

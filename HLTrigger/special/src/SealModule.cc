@@ -3,6 +3,8 @@
 #include "HLTrigger/special/interface/HLTPixlMBFilt.h"
 #include "HLTrigger/special/interface/HLTPixlMBForAlignmentFilter.h"
 #include "HLTrigger/special/interface/HLTPixelIsolTrackFilter.h"
+#include "HLTrigger/special/interface/HLTPixelIsolTrackL1TFilter.h"
+#include "HLTrigger/special/interface/HLTEcalPixelIsolTrackFilter.h"
 #include "HLTrigger/special/interface/HLTEcalIsolationFilter.h"
 #include "HLTrigger/special/interface/HLTEcalPhiSymFilter.h"
 #include "HLTrigger/special/interface/HLTHcalPhiSymFilter.h"
@@ -25,14 +27,18 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "HLTrigger/special/interface/HLTEcalResonanceFilter.h"
+#include "HLTrigger/special/interface/HLTRegionalEcalResonanceFilter.h"
 
 #include "HLTrigger/special/interface/HLTPixelAsymmetryFilter.h"
+#include "HLTrigger/special/interface/HLTPixelActivityHFSumEnergyFilter.h"
 #include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
 #include "HLTrigger/special/interface/HLTTrackerHaloFilter.h"
 
 DEFINE_FWK_MODULE(HLTPixlMBFilt);
 DEFINE_FWK_MODULE(HLTPixlMBForAlignmentFilter);
 DEFINE_FWK_MODULE(HLTPixelIsolTrackFilter);
+DEFINE_FWK_MODULE(HLTPixelIsolTrackL1TFilter);
+DEFINE_FWK_MODULE(HLTEcalPixelIsolTrackFilter);
 DEFINE_FWK_MODULE(HLTEcalIsolationFilter);
 DEFINE_FWK_MODULE(HLTEcalPhiSymFilter);
 DEFINE_FWK_MODULE(HLTHcalPhiSymFilter);
@@ -59,7 +65,9 @@ DEFINE_FWK_MODULE(HLTTriggerTypeFilter);
 
 DEFINE_FWK_MODULE(HLTDTROMonitorFilter);
 DEFINE_FWK_MODULE(HLTEcalResonanceFilter);
+DEFINE_FWK_MODULE(HLTRegionalEcalResonanceFilter);
 
 DEFINE_FWK_MODULE(HLTPixelAsymmetryFilter);
+DEFINE_FWK_MODULE(HLTPixelActivityHFSumEnergyFilter);
 DEFINE_FWK_MODULE(HLTHFAsymmetryFilter);
 DEFINE_FWK_MODULE(HLTTrackerHaloFilter);

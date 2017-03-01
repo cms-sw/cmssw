@@ -52,7 +52,7 @@ void HLTMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::METCollection> result(new reco::METCollection());
+    std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
     edm::Handle<reco::JetView> jets;
     iEvent.getByToken(m_theJetToken, jets);
@@ -98,5 +98,5 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     result->push_back(mht);
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

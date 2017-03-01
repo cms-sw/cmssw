@@ -20,7 +20,7 @@
 
 #include "TkCloner.h"
 
-class SiPixelRecHit GCC11_FINAL : public TrackerSingleRecHit {
+class SiPixelRecHit final : public TrackerSingleRecHit {
   
 public:
   
@@ -37,12 +37,12 @@ public:
     TrackerSingleRecHit(pos,err,idet, clus){
     qualWord_=qual; }
 
-  virtual bool isPixel() const GCC11_OVERRIDE { return true;}
+  virtual bool isPixel() const override { return true;}
 
   
-  virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
-#ifdef NO_DICT
-  virtual RecHitPointer cloneSH() const { return std::make_shared<SiPixelRecHit>(*this);}
+  virtual SiPixelRecHit * clone() const override {return new SiPixelRecHit( * this); }
+#ifndef __GCCXML__
+  virtual RecHitPointer cloneSH() const override { return std::make_shared<SiPixelRecHit>(*this);}
 #endif
 
   
@@ -50,18 +50,18 @@ public:
 
   void setClusterRef(ClusterRef const & ref)  {setClusterPixelRef(ref);}
 
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  virtual int dimension() const override {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const override { getKfComponents2D(holder); }
   
   
-  virtual bool canImproveWithTrack() const {return true;}
+  virtual bool canImproveWithTrack() const override {return true;}
 private:
   // double dispatch
-  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
-    return cloner(*this,tsos);
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
+    return cloner(*this,tsos).release();
   }
-#ifdef NO_DICT
-  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+#ifndef __GCCXML__
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
     return cloner.makeShared(*this,tsos);
   }
 #endif  
@@ -73,6 +73,7 @@ public:
   //--- (and which was computed by the CPE).  The default of flags==0 returns
   //--- probabilityY() only (as that's the safest thing to do).
   //--- Flags are static and kept in the transient rec hit.
+  using BaseTrackerRecHit::clusterProbability;
   float clusterProbability(unsigned int flags = 0) const;
   
   

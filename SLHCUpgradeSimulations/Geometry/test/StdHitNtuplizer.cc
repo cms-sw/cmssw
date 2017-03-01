@@ -30,7 +30,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -66,6 +66,7 @@ using namespace reco;
 
 StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf) : 
   conf_(conf), 
+  trackerHitAssociatorConfig_(conf, consumesCollector()),
   src_( conf.getParameter<edm::InputTag>( "src" ) ),
   rphiRecHits_( conf.getParameter<edm::InputTag>("rphiRecHits") ),
   stereoRecHits_( conf.getParameter<edm::InputTag>("stereoRecHits") ),
@@ -121,7 +122,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -141,7 +142,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByLabel( src_, recHitColl);
 
   // for finding matched simhit
-  TrackerHitAssociator associate( e, conf_ );
+  TrackerHitAssociator associate( e, trackerHitAssociatorConfig_ );
 
 //  std::cout << " Step A: Standard RecHits found " << (recHitColl.product())->dataSize() << std::endl;
   if((recHitColl.product())->dataSize() > 0) {
@@ -705,11 +706,11 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   striprecHit_.subid = subid;
 }
 void StdHitNtuplizer::fillSRecHit(const int subid, 
-                                   SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
-                                   const GeomDet* theGeom)
+				  const FastTrackerRecHit & hit,
+				  const GeomDet* theGeom)
 {
-  LocalPoint lp = pixeliter->localPosition();
-  LocalError le = pixeliter->localPositionError();
+  LocalPoint lp = hit.localPosition();
+  LocalError le = hit.localPositionError();
 
   striprecHit_.x = lp.x();
   striprecHit_.y = lp.y();
@@ -719,7 +720,7 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   //MeasurementPoint mp = topol->measurementPosition(LocalPoint(striprecHit_.x, striprecHit_.y));
   //striprecHit_.row = mp.x();
   //striprecHit_.col = mp.y();
-  GlobalPoint GP = theGeom->surface().toGlobal(pixeliter->localPosition());
+  GlobalPoint GP = theGeom->surface().toGlobal(hit.localPosition());
   striprecHit_.gx = GP.x();
   striprecHit_.gy = GP.y();
   striprecHit_.gz = GP.z();

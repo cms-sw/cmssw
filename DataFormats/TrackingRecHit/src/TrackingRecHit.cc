@@ -40,7 +40,7 @@ namespace {
 
 const GeomDetUnit * TrackingRecHit::detUnit() const
 {
-  return dynamic_cast<const GeomDetUnit*>(det());
+  return det();
 }
 
 

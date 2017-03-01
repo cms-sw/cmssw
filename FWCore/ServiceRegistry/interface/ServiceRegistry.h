@@ -97,20 +97,20 @@ namespace edm {
                                     bool associate = true);
       /// create a service token that holds the service defined by iService
       template<typename T>
-      static ServiceToken createContaining(std::auto_ptr<T> iService){
+      static ServiceToken createContaining(std::unique_ptr<T> iService){
          std::vector<edm::ParameterSet> config;
          auto manager = std::make_shared<serviceregistry::ServicesManager>(config);
-         auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(iService);
+         auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
          manager->put(wrapper);
          return manager;
       }
       template<typename T>
-      static ServiceToken createContaining(std::auto_ptr<T> iService,
+      static ServiceToken createContaining(std::unique_ptr<T> iService,
                                            ServiceToken iToken,
                                            serviceregistry::ServiceLegacy iLegacy){
          std::vector<edm::ParameterSet> config;
          auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
-         auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(iService);
+         auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
          manager->put(wrapper);
          return manager;
       }

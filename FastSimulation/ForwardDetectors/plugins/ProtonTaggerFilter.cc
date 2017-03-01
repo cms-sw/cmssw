@@ -139,7 +139,7 @@ bool ProtonTaggerFilter::filter(edm::Event & iEvent, const edm::EventSetup & es)
   // ... get generated event
 
   edm::Handle<edm::HepMCProduct> evtSource;
-  iEvent.getByLabel("generator",evtSource);
+  iEvent.getByLabel("generatorSmeared",evtSource);
   const HepMC::GenEvent* genEvent = evtSource->GetEvent();
 
   //std::cout << "event contains " << genEvent->particles_size() << " particles " << std::endl;

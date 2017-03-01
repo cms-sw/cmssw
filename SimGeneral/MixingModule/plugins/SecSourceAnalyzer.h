@@ -19,7 +19,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,7 +30,6 @@
 
 #include "Mixing/Base/interface/PileUp.h"
 
-
 //
 // class declaration
 //
@@ -38,20 +37,20 @@ namespace edm {
 
   class ModuleCallingContext;
 
-  class SecSourceAnalyzer : public edm::EDAnalyzer {
+  class SecSourceAnalyzer : public edm::one::EDAnalyzer<> {
   public:
    
     explicit SecSourceAnalyzer(const edm::ParameterSet&);
-    ~SecSourceAnalyzer();
+    virtual ~SecSourceAnalyzer();
 
     virtual void getBranches(EventPrincipal const& ep,
                              ModuleCallingContext const*);
     virtual void dummyFunction(EventPrincipal const& ep) {}
 
   private:
-    virtual void beginJob() ;
+    virtual void beginJob() override ;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() ;
+    virtual void endJob() override ;
 
     // ----------member data ---------------------------
     int minBunch_;
@@ -60,7 +59,7 @@ namespace edm {
     bool dataStep2_;
     edm::InputTag label_;
       
-    std::vector<std::vector<edm::EventID> > vectorEventIDs_;
+    std::vector<std::vector<edm::SecondaryEventIDAndFileInfo> > vectorEventIDs_;
 
     std::shared_ptr<PileUp> input_;
     std::vector< float > TrueNumInteractions_[5];

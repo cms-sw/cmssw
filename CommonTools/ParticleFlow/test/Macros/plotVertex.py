@@ -6,10 +6,8 @@ gROOT.Macro( os.path.expanduser( '~/rootlogon.C' ) )
 
 def loadFWLite():
     gSystem.Load("libFWCoreFWLite")
-    gROOT.ProcessLine('AutoLibraryLoader::enable();')
+    gROOT.ProcessLine('FWLiteEnabler::enable();')
     gSystem.Load("libFWCoreFWLite")
-    gSystem.Load("libCintex")
-    gROOT.ProcessLine('ROOT::Cintex::Cintex::Enable();')
 
 
 

@@ -4,7 +4,7 @@
  * \author N.Terentiev, CMU
  */
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <stdint.h>
 
@@ -95,44 +95,52 @@ std::vector<int> CSCCFEBStatusDigi::getTRIG_TIME() const {
 
             /// Debug
 void CSCCFEBStatusDigi::print() const {
-    std::cout << "CSC CFEB # : " << getCFEBNmb() <<"\n";
-    std::cout << " SCAFullCond: ";
-    if(getSCAFullCond().size()!=0){
-    for (size_t i = 0; i<4; ++i ){
-        std::cout <<" " <<(getSCAFullCond())[i]; }
-	}
-    else {
-    std::cout << " " <<"BWORD is not valied";
-    }	
-    std::cout << "\n";
-    std::cout << " CRC: ";
-    for (size_t i = 0; i<getCRC().size(); ++i ){
-        std::cout <<" " <<(getCRC())[i]; }
-    std::cout<<"\n";
-    std::cout << " TS_FLAG: ";
-    for (size_t i = 0; i<getTS_FLAG().size(); ++i ){
-        std::cout <<" " <<(getTS_FLAG())[i]; }
-    std::cout<<"\n";
-    std::cout << " SCA_FULL: ";
-    for (size_t i = 0; i<getSCA_FULL().size(); ++i ){
-        std::cout <<" " <<(getSCA_FULL())[i]; }
-    std::cout<<"\n";
-    std::cout << " LCT_PHASE: ";
-    for (size_t i = 0; i<getLCT_PHASE().size(); ++i ){
-        std::cout <<" " <<(getLCT_PHASE())[i]; }
-    std::cout<<"\n";
-    std::cout << " L1A_PHASE: ";
-    for (size_t i = 0; i<getL1A_PHASE().size(); ++i ){
-        std::cout <<" " <<(getL1A_PHASE())[i]; }
-    std::cout<<"\n";
-    std::cout << " SCA_BLK: ";
-    for (size_t i = 0; i<getSCA_BLK().size(); ++i ){
-        std::cout <<" " <<(getSCA_BLK())[i]; }
-    std::cout<<"\n";
-    std::cout << " TRIG_TIME: ";
-    for (size_t i = 0; i<getTRIG_TIME().size(); ++i ){
-        std::cout <<" " <<(getTRIG_TIME())[i]; }
-    std::cout<<"\n";
+  edm::LogVerbatim("CSCDigi") << "CSC CFEB # : " << getCFEBNmb();
+  
+  std::ostringstream ost;
+  ost << " SCAFullCond: ";
+  if(getSCAFullCond().size()!=0){
+    for (size_t i = 0; i<4; ++i ){ ost << " " <<(getSCAFullCond())[i]; }
+  }
+  else {
+    ost << " " <<"BWORD is not valid";
+  }	
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " CRC: ";
+  for (size_t i = 0; i<getCRC().size(); ++i ){ ost << " " <<(getCRC())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " TS_FLAG: ";
+  for (size_t i = 0; i<getTS_FLAG().size(); ++i ){ ost << " " <<(getTS_FLAG())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " SCA_FULL: ";
+  for (size_t i = 0; i<getSCA_FULL().size(); ++i ){ ost << " " <<(getSCA_FULL())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " LCT_PHASE: ";
+  for (size_t i = 0; i<getLCT_PHASE().size(); ++i ){ ost << " " <<(getLCT_PHASE())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " L1A_PHASE: ";
+  for (size_t i = 0; i<getL1A_PHASE().size(); ++i ){ ost << " " <<(getL1A_PHASE())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " SCA_BLK: ";
+  for (size_t i = 0; i<getSCA_BLK().size(); ++i ){ ost << " " <<(getSCA_BLK())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
+
+  ost.clear();
+  ost << " TRIG_TIME: ";
+  for (size_t i = 0; i<getTRIG_TIME().size(); ++i ){ ost << " " <<(getTRIG_TIME())[i]; }
+  edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi) {

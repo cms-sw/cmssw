@@ -14,7 +14,7 @@
 #include <xercesc/util/BinInputStream.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/InputSource.hpp>
@@ -45,7 +45,7 @@ namespace { // anonymous
 	    public:
 		typedef typename T::Stream_t Stream_t;
 
-		XMLInputSourceWrapper(std::auto_ptr<Stream_t> &obj) : obj(obj) {}
+		XMLInputSourceWrapper(std::unique_ptr<Stream_t>& obj) : obj(obj) {}
 		virtual ~XMLInputSourceWrapper() {}
 
 		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
@@ -53,7 +53,7 @@ namespace { // anonymous
 		{ return new T(*obj); }
 
 	    private:
-		std::auto_ptr<Stream_t>	obj;
+		std::unique_ptr<Stream_t>&	obj;
 	};
 
 	class STLInputStream :
@@ -64,10 +64,12 @@ namespace { // anonymous
 	        STLInputStream(std::istream &in) : in(in) {}
 	        virtual ~STLInputStream() {}
 
-	        virtual unsigned int curPos() const override { return pos; }
+	        virtual XMLFilePos curPos() const override { return pos; }
 
-	        virtual unsigned int readBytes(XMLByte *const buf,
-	                                       const unsigned int size) override;
+	        virtual XMLSize_t readBytes(XMLByte *const buf,
+					    const XMLSize_t size) override;
+	  
+	        virtual const XMLCh* getContentType() const override { return 0; }
 
 	    private:
 	        std::istream    &in;
@@ -98,8 +100,8 @@ namespace { // anonymous
 	typedef XMLInputSourceWrapper<STLInputStream> STLInputSource;
 } // anonymous namespace
 
-unsigned int STLInputStream::readBytes(XMLByte* const buf,
-                                       const unsigned int size)
+XMLSize_t STLInputStream::readBytes(XMLByte* const buf,
+				    const XMLSize_t size)
 {
 	char *rawBuf = reinterpret_cast<char*>(buf);
 	unsigned int bytes = size * sizeof(XMLByte);
@@ -147,7 +149,7 @@ XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 	if (write)
 		openForWrite(fileName);
 	else {
-		std::auto_ptr<std::istream> inputStream(
+		std::unique_ptr<std::istream> inputStream(
 					new std::ifstream(fileName.c_str()));
 		if (!inputStream->good())
 			throw cms::Exception("XMLDocument")
@@ -170,7 +172,7 @@ XMLDocument::XMLDocument(const std::string &fileName,
 			   " command \"" << command << "\"."
 			<< std::endl;
 
-	std::auto_ptr<std::istream> inputStream(
+	std::unique_ptr<std::istream> inputStream(
 					new stdio_istream<pclose>(file));
 	if (!inputStream->good())
 		throw cms::Exception("XMLDocument")
@@ -186,37 +188,38 @@ XMLDocument::~XMLDocument()
 	if (!write)
 		return;
 
-	std::auto_ptr<DocReleaser> docReleaser(new DocReleaser(doc));
+	std::unique_ptr<DocReleaser> docReleaser(new DocReleaser(doc));
 
-	std::auto_ptr<DOMWriter> writer(static_cast<DOMImplementationLS*>(
-						impl)->createDOMWriter());
+	std::unique_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)impl)->createLSSerializer());
 	assert(writer.get());
 
-	writer->setEncoding(XMLUniStr("UTF-8"));
-        if (writer->canSetFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true))
-		writer->setFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true);
-	if (writer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-		writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+	if( writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true))
+	  writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
+	if( writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+	  writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
 
+	std::unique_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+ 	assert(outputDesc.get());
+	outputDesc->setEncoding(XMLUniStr("UTF-8"));
+	
 	try {
-		std::auto_ptr<XMLFormatTarget> target(
+		std::unique_ptr<XMLFormatTarget> target(
 				new LocalFileFormatTarget(fileName.c_str()));
-
-		writer->writeNode(target.get(), *doc);
+		outputDesc->setByteStream(target.get());
+		writer->write( doc, outputDesc.get());
 	} catch(...) {
 		std::remove(fileName.c_str());
 		throw;
 	}
 }
 
-void XMLDocument::openForRead(std::auto_ptr<std::istream> &stream)
+void XMLDocument::openForRead(std::unique_ptr<std::istream> &stream)
 {
 	parser.reset(new XercesDOMParser());
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
 	parser->setDoSchema(false);
 	parser->setValidationSchemaFullChecking(false);
-
 	errHandler.reset(new HandlerBase());
 	parser->setErrorHandler(errHandler.get());
 	parser->setCreateEntityReferenceNodes(false);

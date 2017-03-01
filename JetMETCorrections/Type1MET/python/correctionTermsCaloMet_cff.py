@@ -1,17 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3CorrectorChain, \
+                                                              ak4CaloL2RelativeCorrector, \
+                                                              ak4CaloL3AbsoluteCorrector, \
+                                                              ak4CaloL2L3Corrector, \
+                                                              ak4CaloL2L3ResidualCorrectorChain, \
+                                                              ak4CaloResidualCorrector, \
+                                                              ak4CaloL2L3ResidualCorrector
 
 corrCaloMetType1 = cms.EDProducer(
     "CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak4CaloJets'),
-    jetCorrLabel = cms.string("ak4CaloL2L3"), # NOTE: use "ak4CaloL2L3" for MC / "ak4CaloL2L3Residual" for Data
+    jetCorrLabel = cms.InputTag("ak4CaloL2L3Corrector"), # NOTE: use "ak4CaloL2L3Corrector" for MC / "ak4CaloL2L3ResidualCorrector" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
-    srcMET = cms.InputTag('corMetGlobalMuons')
+    srcMET = cms.InputTag('caloMetM')
 )
 
 ##____________________________________________________________________________||
@@ -25,7 +31,7 @@ corrCaloMetType2 = cms.EDProducer(
     "Type2CorrectionProducer",
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type2'),
-        cms.InputTag('muCaloMetCorr') # NOTE: use this for 'corMetGlobalMuons', do **not** use it for 'met' !!
+        cms.InputTag('muCaloMetCorr') # NOTE: use this for 'caloMetM', do **not** use it for 'met' !!
         ),
     type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
     type2CorrParameter = cms.PSet(
@@ -37,6 +43,7 @@ corrCaloMetType2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 correctionTermsCaloMet = cms.Sequence(
+    ak4CaloL2L3CorrectorChain + # NOTE: use "ak4CaloL2L3CorrectorChain" for MC / "ak4CaloL2L3ResidualCorrectorChain" for Data
     corrCaloMetType1 +
     muCaloMetCorr +
     corrCaloMetType2

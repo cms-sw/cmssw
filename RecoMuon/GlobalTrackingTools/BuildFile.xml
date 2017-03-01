@@ -16,6 +16,7 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/GEMGeometry"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="RecoMuon/Navigation"/>
 <use   name="RecoMuon/TrackingTools"/>
@@ -36,7 +37,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/RecoMuonObjects"/>
 <use   name="Utilities/General"/>
-<use   name="Utilities/Timing"/>
 <use   name="CondFormats/Alignment"/>
 <use   name="root"/>
 <export>

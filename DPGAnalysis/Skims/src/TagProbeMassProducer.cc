@@ -67,7 +67,7 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
    // We need the output Muon association collection to fill
-   std::auto_ptr<std::vector<float> > TPmass( new std::vector<float>);
+   std::unique_ptr<std::vector<float> > TPmass( new std::vector<float>);
 
    if ( !iEvent.getByLabel( tagCollection_, tags ) ) {
       edm::LogWarning("TagProbe") << "Could not extract tag muons with input tag "
@@ -87,8 +87,14 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Loop over Tag and associate with Probes
    if( tags.isValid() && probes.isValid() )
    {
-      const edm::RefToBaseVector<reco::Candidate>& vtags = tags->refVector();
-      const edm::RefToBaseVector<reco::Candidate>& vprobes = probes->refVector();
+      edm::RefToBaseVector<reco::Candidate> vtags;
+      for (size_t i = 0; i < tags->size(); ++i) {
+         vtags.push_back(tags->refAt(i));
+      }
+      edm::RefToBaseVector<reco::Candidate> vprobes;
+      for (size_t i = 0; i < probes->size(); ++i) {
+         vprobes.push_back(probes->refAt(i));
+      }
 
       int itag = 0;
       edm::RefToBaseVector<reco::Candidate>::const_iterator tag = vtags.begin();
@@ -120,7 +126,7 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // Finally put the tag probe collection in the event
-   iEvent.put( TPmass,"TPmass" );
+   iEvent.put(std::move(TPmass),"TPmass");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

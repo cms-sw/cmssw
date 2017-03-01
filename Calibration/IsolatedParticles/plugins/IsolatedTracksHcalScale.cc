@@ -14,7 +14,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) {
+IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfig) :
+   trackerHitAssociatorConfig_(consumesCollector()) {
 
   //now do what ever initialization is needed
   doMC                                = iConfig.getUntrackedParameter<bool>("DoMC", false); 
@@ -38,6 +39,18 @@ IsolatedTracksHcalScale::IsolatedTracksHcalScale(const edm::ParameterSet& iConfi
   tMinE_                              = iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.);
   tMaxE_                              = iConfig.getUntrackedParameter<double>("TimeMaxCutECAL",  500.);
   
+  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  tok_bs_       = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  tok_EB_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  tok_EE_       = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  tok_hbhe_     = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
+  tok_simTk_    = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tok_simVtx_   = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+  tok_caloEB_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
+  tok_caloEE_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
+  tok_caloHH_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+
   if (myverbose>=0) {
     std::cout <<"Parameters read from config file \n" 
 	      <<" doMC "              << doMC
@@ -80,24 +93,11 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
   const CaloTopology *caloTopology = theCaloTopology.product();
-  
-  /*  
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-  */
 
   // Retrieve the good/bad ECAL channels from the DB
   edm::ESHandle<EcalChannelStatus> ecalChStatus;
   iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
   const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
-
-  /*  
-  // Retrieve trigger tower map
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTtmap;
-  iSetup.get<IdealGeometryRecord>().get(hTtmap);
-  const EcalTrigTowerConstituentsMap& ttMap = *hTtmap;
-  */
 
   clearTreeVectors();
 
@@ -110,14 +110,14 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   if (myverbose>0) std::cout << nEventProc << " Run " << t_RunNo << " Event " << t_EvtNo << " Lumi " << t_Lumi << " Bunch " << t_Bunch << std::endl;
 
   edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByLabel("generalTracks", trkCollection);
+  iEvent.getByToken(tok_genTrack_, trkCollection);
 
   edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("offlinePrimaryVertices",recVtxs);  
+  iEvent.getByToken(tok_recVtx_,recVtxs);
 
   // Get the beamspot
   edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByLabel("offlineBeamSpot", beamSpotH);
+  iEvent.getByToken(tok_bs_, beamSpotH);
 
   math::XYZPoint leadPV(0,0,0);
   if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
@@ -138,18 +138,17 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
-  iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
+  iEvent.getByToken(tok_EB_,barrelRecHitsHandle);
+  iEvent.getByToken(tok_EE_,endcapRecHitsHandle);
 
   edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByLabel("hbhereco",hbhe);
+  iEvent.getByToken(tok_hbhe_, hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
   //get Handles to SimTracks and SimHits
   edm::Handle<edm::SimTrackContainer> SimTk;
   edm::SimTrackContainer::const_iterator simTrkItr;
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
@@ -157,15 +156,15 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<edm::PCaloHitContainer> pcalohh;
 
   //associates tracker rechits/simhits to a track
-  TrackerHitAssociator* associate=0;
+  std::unique_ptr<TrackerHitAssociator> associate;
  
   if (doMC) {
-    iEvent.getByLabel("g4SimHits",SimTk);
-    iEvent.getByLabel("g4SimHits",SimVtx);
-    iEvent.getByLabel("g4SimHits", "EcalHitsEB", pcaloeb);
-    iEvent.getByLabel("g4SimHits", "EcalHitsEE", pcaloee);
-    iEvent.getByLabel("g4SimHits", "HcalHits", pcalohh);
-    associate = new TrackerHitAssociator(iEvent);
+    iEvent.getByToken(tok_simTk_,SimTk);
+    iEvent.getByToken(tok_simVtx_,SimVtx);
+    iEvent.getByToken(tok_caloEB_, pcaloeb);
+    iEvent.getByToken(tok_caloEE_, pcaloee);
+    iEvent.getByToken(tok_caloHH_, pcalohh);
+    associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
   }
  
   unsigned int nTracks=0;
@@ -328,8 +327,6 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
     }
   }
 
-  //  delete associate;
-  if (associate) delete associate;
   tree->Fill();
 }
 

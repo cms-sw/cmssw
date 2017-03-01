@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
@@ -25,7 +25,7 @@ class LumiCorrectionParam;
 class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecordIntervalFinder{
  public:
   LumiCorrectionSource(const edm::ParameterSet&);
-  typedef boost::shared_ptr<LumiCorrectionParam> ReturnParamType;
+  typedef std::shared_ptr<LumiCorrectionParam> ReturnParamType;
   ReturnParamType produceLumiCorrectionParam(const LumiCorrectionParamRcd&);
   ~LumiCorrectionSource();
  protected:
@@ -46,11 +46,11 @@ class LumiCorrectionSource: public edm::ESProducer , public edm::EventSetupRecor
   std::string m_globaltag;
   std::string m_normtag;
   std::string m_siteconfpath;
-  std::map< unsigned int,boost::shared_ptr<LumiCorrectionParam> > m_paramcache;
+  std::map< unsigned int,std::shared_ptr<LumiCorrectionParam> > m_paramcache;
   bool m_isNullRun; //if lumi data exist for this run
   unsigned int m_paramcachedrun;
   unsigned int m_cachesize;
-  boost::shared_ptr<LumiCorrectionParam> m_paramresult;
+  std::shared_ptr<LumiCorrectionParam> m_paramresult;
   const edm::IOVSyncValue* m_pcurrentTime;
  private:
   void fillparamcache(unsigned int runnumber);

@@ -36,7 +36,7 @@ class CrabWatch(Thread):
                print "Relative percentage finished: %.0f%%" % statusNew['Finished']
                print "Relative percentage failed  : %.0f%%" % statusNew['Failed']
                print "Relative percentage running : %.0f%%" % statusNew['Running']
-               if statusNew['Failed'] > 50.0: raise RuntimeError,'Too many jobs have failed (%.0f%%).' % statusNew['Failed']
+               if statusNew['Failed'] > 50.0: raise RuntimeError('Too many jobs have failed (%.0f%%).' % statusNew['Failed'])
                if statusNew['Finished'] >= self.threshold: break
    
                self.lock.acquire()
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         if opt[:8] == 'project=':
             project = opt[8:] 
  
-    if not project: raise ValueError,'Need to set project' 
+    if not project: raise ValueError('Need to set project') 
 
     crab = CrabWatch(project)
     crab.start()

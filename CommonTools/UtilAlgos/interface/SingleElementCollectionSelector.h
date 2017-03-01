@@ -45,7 +45,7 @@ private:
   container selected_;
   selector select_;
   RefAdder addRef_;
-  friend class reco::modules::SingleElementCollectionSelectorEventSetupInit<SingleElementCollectionSelector>;
+  friend struct reco::modules::SingleElementCollectionSelectorEventSetupInit<SingleElementCollectionSelector>;
 };
 
 #include "CommonTools/UtilAlgos/interface/EventSetupInitTrait.h"

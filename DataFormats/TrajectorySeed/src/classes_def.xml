@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="TrajectorySeed" ClassVersion="10">
+  <class name="TrajectorySeed" ClassVersion="11">
+   <version ClassVersion="11" checksum="1603723857"/>
    <version ClassVersion="10" checksum="611162820"/>
   </class>
   <class name="edm::RefToBase<TrajectorySeed>"/>
@@ -12,9 +13,12 @@
   <class name="edm::RefProd<std::vector<TrajectorySeed> >"/>
   <class name="edm::RefVector<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
   <class name="edm::RefVectorIterator<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
-  <class pattern="std::iterator<*edm::Ref*TrajectorySeed*>"/>
+  <!-- Warning: Unused class rule: std::iterator<*edm::Ref*TrajectorySeed*> -->
+  <!-- <class pattern="std::iterator<*edm::Ref*TrajectorySeed*>"/> -->
 
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> > >"/>
+  <class name="edm::Ptr<TrajectorySeed>"/>
+  <class name="edm::reftobase::RefHolder<edm::Ptr<TrajectorySeed> >"/>
   <class name="edm::reftobase::Holder<TrajectorySeed,edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> > >"/>
 
 </lcgdict>

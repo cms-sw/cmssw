@@ -13,7 +13,7 @@
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalHardwareXml.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-
+XERCES_CPP_NAMESPACE_USE 
 HcalHardwareXml::HcalHardwareXml() : XMLDOMBlock()
 {
 

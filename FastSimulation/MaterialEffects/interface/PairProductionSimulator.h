@@ -1,5 +1,5 @@
 #ifndef PAIRPRODUCTIONSIMULATOR_H
-#define FPAIRPRODUCTIONSIMULATOR_H
+#define PAIRPRODUCTIONSIMULATOR_H
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
 
@@ -42,4 +42,4 @@ class PairProductionSimulator : public MaterialEffectsSimulator
   /// A universal angular distribution - still from GEANT.
   double gbteth(double ener,double partm,double efrac, RandomEngineAndDistribution const*);
 };
-#endif
+#endif // PAIRPRODUCTIONSIMULATOR

@@ -51,7 +51,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -64,17 +64,19 @@
 
        typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs(DQMStore::IBooker &);
+       virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
+
+       std::string topFolderName_;
 
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       edm::InputTag digisrc_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -96,19 +98,28 @@
        int bigEventSize;
        bool isUpgrade;
 
-  MonitorElement* meClPosLayer1;
-  MonitorElement* meClPosLayer2;
-  MonitorElement* meClPosLayer3;
-  MonitorElement* meClPosLayer4;
-  MonitorElement* meClPosDisk1pz;
-  MonitorElement* meClPosDisk2pz;
-  MonitorElement* meClPosDisk3pz;
-  MonitorElement* meClPosDisk1mz;
-  MonitorElement* meClPosDisk2mz;
-  MonitorElement* meClPosDisk3mz;
+       std::vector<MonitorElement*> meClPosLayer;
+       std::vector<MonitorElement*> meClPosDiskpz;
+       std::vector<MonitorElement*> meClPosDiskmz;
+  
+       MonitorElement* meClusBarrelProf;
+       MonitorElement* meClusFpixPProf;
+       MonitorElement* meClusFpixMProf;
+
+       std::vector<MonitorElement*> meZeroRocBPIX;
+       MonitorElement* meZeroRocFPIX;
+
+       int noOfLayers;
+       int noOfDisks;
+
+       void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> diginp,const TrackerTopology* const tTopo,
+			    std::vector<MonitorElement*> meinput);
+       void getrococcupancye(DetId detId,const edmNew::DetSetVector<SiPixelCluster> & clustColl, const TrackerTopology* const pTT,
+			     edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput);
 
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> >         digisrcToken_;
 };
 
 #endif

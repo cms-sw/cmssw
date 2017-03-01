@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -225,7 +224,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       double theta  = 90*CLHEP::deg;
       double phiy   = phix + 90.*CLHEP::deg;
-      std::string rotstr = idName + dbl_to_string(phideg*10.);
+      std::string rotstr = idName + std::to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -272,7 +271,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       double theta  = 90*CLHEP::deg;
       double phiy   = phix + 90.*CLHEP::deg;
-      std::string rotstr = idName + dbl_to_string(phideg*10.);
+      std::string rotstr = idName + std::to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -358,7 +357,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
   for (int i = 0; i < (int)(ribW.size()); i++) {
-    name = idName + "Rib" + dbl_to_string(i);
+    name = idName + "Rib" + std::to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
     double dz    = 0.5*layerL-2.*fillerDz;
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, 
@@ -377,7 +376,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       double theta  = 90*CLHEP::deg;
       double phiy   = phix + 90.*CLHEP::deg;
-      std::string rotstr = idName + dbl_to_string(phideg*10.);
+      std::string rotstr = idName + std::to_string(phideg*10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "
@@ -586,7 +585,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
       if (phideg != 0) {
 	double theta  = 90*CLHEP::deg;
 	double phiy   = phix + 90.*CLHEP::deg;
-	std::string   rotstr = idName+dbl_to_string(std::abs(dohmList[i])-1.);
+	std::string   rotstr = idName + std::to_string(std::abs(dohmList[i])-1.);
 	dohmRotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!dohmRotation) {
 	  LogDebug("TIBGeom") << "DDTIBLayerAlgo test: Creating a new "

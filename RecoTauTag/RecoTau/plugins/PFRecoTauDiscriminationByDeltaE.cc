@@ -25,10 +25,10 @@ class PFRecoTauDiscriminationByDeltaE : public PFTauDiscriminationProducerBase  
       	~PFRecoTauDiscriminationByDeltaE(){}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-	double discriminate(const reco::PFTauRef&) override;
+	double discriminate(const reco::PFTauRef&) const override;
 
     private:
-	double DeltaE(const PFTauRef&);
+	double DeltaE(const PFTauRef&) const ;
 
 	double chargedPionMass;
 
@@ -39,14 +39,14 @@ class PFRecoTauDiscriminationByDeltaE : public PFTauDiscriminationProducerBase  
 void PFRecoTauDiscriminationByDeltaE::beginEvent(const Event& iEvent, const EventSetup& iSetup){
 }
 
-double PFRecoTauDiscriminationByDeltaE::discriminate(const PFTauRef& tau){
+double PFRecoTauDiscriminationByDeltaE::discriminate(const PFTauRef& tau) const{
 
 	double dE = DeltaE(tau);
 	if(booleanOutput) return ( dE > deltaEmin && dE < deltaEmax ? 1. : 0. );
 	return dE;
 }
 
-double PFRecoTauDiscriminationByDeltaE::DeltaE(const PFTauRef& tau){
+double PFRecoTauDiscriminationByDeltaE::DeltaE(const PFTauRef& tau) const {
 	double tracksE = 0;
 	const std::vector<PFCandidatePtr>& signalTracks = tau->signalPFChargedHadrCands();
 	for(size_t i = 0; i < signalTracks.size(); ++i){

@@ -17,14 +17,14 @@
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
   theAmplifier(0), theCoderFactory(0), theElectronicsSim(0), 
-  theHitCorrection(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
+  theTimeSlewSim(0), theHBHEDigitizer(0), theHODigitizer(0), theHBHEHits(),
   theHOHits(), thisPhaseShift(0) {
   std::string const instance("simHcalDigis");
   mixMod.produces<HBHEDigiCollection>(instance);
@@ -38,20 +38,20 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::ED
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
   theHOResponse->setHitFilter(&theHOHitFilter);
 
-  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
-  if(doTimeSlew) {
-    // no time slewing for HF
-    theHitCorrection = new HcalHitCorrection(theParameterMap);
-    theHBHEResponse->setHitCorrection(theHitCorrection);
-    theHOResponse->setHitCorrection(theHitCorrection);
-  }
-
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool dummy1 = false; 
   bool dummy2 = false;  // extra arguments for premixing
   theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
-  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory);
+  theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory, dummy1);
+
+  double minFCToDelay= ps.getParameter<double>("minFCToDelay");
+  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  if(doTimeSlew) {
+    // no time slewing for HF
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
+    theAmplifier->setTimeSlewSim(theTimeSlewSim);
+  }
 
   theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise);
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
@@ -80,7 +80,7 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
   if (theElectronicsSim)      delete theElectronicsSim;
   if (theAmplifier)           delete theAmplifier;
   if (theCoderFactory)        delete theCoderFactory;
-  if (theHitCorrection)       delete theHitCorrection;
+  if (theTimeSlewSim)         delete theTimeSlewSim;
 }
 
 
@@ -118,9 +118,6 @@ void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > 
 
   if(hcalHandle.isValid()) {
     std::vector<PCaloHit> hits = *hcalHandle.product();
-    if(theHitCorrection != 0) {
-      theHitCorrection->fillChargeSums(hits);
-    }
     LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate Hits corrected";
     theHBHEDigitizer->add(hits, bunchCrossing, engine);
     theHODigitizer->add(hits, bunchCrossing, engine);
@@ -149,8 +146,8 @@ void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSet
 
 void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
   // Step B: Create empty output
-  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
-  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
+  std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
+  std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
   // Step C: Invoke the algorithm, getting back outputs.
   theHBHEDigitizer->run(*hbheResult, randomEngine(e.streamID()));
@@ -160,8 +157,8 @@ void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eve
 
   // Step D: Put outputs into event
   std::string const instance("simHcalDigis");
-  e.put(hbheResult, instance);
-  e.put(hoResult, instance);
+  e.put(std::move(hbheResult), instance);
+  e.put(std::move(hoResult), instance);
 
 }
 

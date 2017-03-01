@@ -8,21 +8,20 @@
 /** Concrete implementation for the state of one trajectory on a surface.
  */
 
-class BasicSingleTrajectoryState  GCC11_FINAL : public BasicTrajectoryState {
+class BasicSingleTrajectoryState  final : public BasicTrajectoryState {
 public:
   BasicSingleTrajectoryState() :  BasicTrajectoryState(){}
-#ifndef CMS_NOCXX11
   template<typename... Args>
     BasicSingleTrajectoryState(Args && ...args) : BasicTrajectoryState(std::forward<Args>(args)...){/* assert(weight()>0);*/}
 
-  pointer clone() const {
+  pointer clone() const override {
     return build<BasicSingleTrajectoryState>(*this);
   }
-#else
-  pointer clone() const { return nullptr;}
-#endif
 
-  std::vector<TrajectoryStateOnSurface> components() const GCC11_OVERRIDE;
+  using	Components = BasicTrajectoryState::Components;
+
+  Components const & components() const override;
+  bool singleState() const override { return true;}
 
 
 };

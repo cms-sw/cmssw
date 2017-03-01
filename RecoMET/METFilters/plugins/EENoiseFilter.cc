@@ -44,7 +44,7 @@ bool EENoiseFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 
   const bool pass = eeRHs->size() < slope_ * ebRHs->size() + intercept_;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 }

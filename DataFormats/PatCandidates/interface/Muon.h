@@ -28,7 +28,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 
-
 // Define typedefs for convenience
 namespace pat {
   class Muon;
@@ -161,6 +160,7 @@ namespace pat {
       /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
       bool isTightMuon(const reco::Vertex&) const;
       bool isLooseMuon() const;
+      bool isMediumMuon() const;
       bool isSoftMuon(const reco::Vertex&) const;
       bool isHighPtMuon(const reco::Vertex&) const;
 
@@ -204,21 +204,21 @@ namespace pat {
 	//    muon->edB(pat::Muon::PV2D);
 	//
 	// IpType defines the type of the impact parameter
-	// None is default and reverts to old behavior controlled by 
-	// patMuons.usePV = True/False
 	typedef enum IPTYPE 
 	  {
-	    None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4
+	    PV2D = 0, PV3D = 1, BS2D = 2, BS3D = 3, IpTypeSize = 4
 	  } IpType; 
 	void initImpactParameters(void); // init IP defaults in a constructor
-	double dB(IpType type = None) const;
-	double edB(IpType type = None) const;
-	void   setDB ( double dB, double edB, IpType type = None ) { 
-	  if (type == None) {
-	    dB_ = dB; edB_ = edB; 
-	    cachedDB_ = true;
-	  }
-	  ip_[type] = dB; eip_[type] = edB; cachedIP_[type] = true;
+	double dB(IPTYPE type) const;
+	double edB(IPTYPE type) const;
+
+        /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+	double dB() const { return std::abs(dB(PV2D)); }
+        /// the version without arguments returns PD2D, but with an absolute value (for backwards compatibility)
+	double edB() const { return std::abs(edB(PV2D)); }
+
+	void   setDB ( double dB, double edB, IPTYPE type = PV2D ) { 
+	  ip_[type] = dB; eip_[type] = edB; cachedIP_ |= (1 << int(type));
 	}
 
       /// numberOfValidHits returns the number of valid hits on the global track.
@@ -235,9 +235,12 @@ namespace pat {
       double segmentCompatibility(reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration) const ;
 
       /// pipe operator (introduced to use pat::Muon with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const Muon& obj);
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Muon& obj);
 
       friend class PATMuonSlimmer;
+
+      float pfEcalEnergy() const { return pfEcalEnergy_; }
+      void setPfEcalEnergy(float pfEcalEnergy) { pfEcalEnergy_ = pfEcalEnergy; }
 
     protected:
 
@@ -286,20 +289,18 @@ namespace pat {
 
       // V+Jets group selection variables. 
       bool    cachedNormChi2_;         /// has the normalized chi2 been cached?
-      bool    cachedDB_;               /// has the dB been cached?
+      double  normChi2_;               /// globalTrack->chi2() / globalTrack->ndof()
 
       bool    cachedNumberOfValidHits_;/// has the numberOfValidHits been cached?
-      double  normChi2_;               /// globalTrack->chi2() / globalTrack->ndof()
-      double  dB_;                     /// dB and edB are the impact parameter at the primary vertex,
-      double  edB_;                    // and its uncertainty as recommended by the tracking group
-
-      // ---- cached impact parameters ----
-      std::vector<bool>    cachedIP_;  // has the IP (former dB) been cached?
-      std::vector<double>  ip_;        // dB and edB are the impact parameter at the primary vertex,
-      std::vector<double>  eip_;       // and its uncertainty as recommended by the tracking group
-
       unsigned int  numberOfValidHits_;/// globalTrack->numberOfValidHits()
 
+      // ---- cached impact parameters ----
+      uint8_t  cachedIP_;  // has the IP (former dB) been cached?
+      float  ip_[IpTypeSize];        // dB and edB are the impact parameter at the primary vertex,
+      float  eip_[IpTypeSize];       // and its uncertainty as recommended by the tracking group
+
+
+      float pfEcalEnergy_;
   };
 
 

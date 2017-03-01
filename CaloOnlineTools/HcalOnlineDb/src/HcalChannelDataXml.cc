@@ -17,7 +17,7 @@
 #include <iconv.h>
 #include <sys/time.h>
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelDataXml.h"
-
+XERCES_CPP_NAMESPACE_USE 
 using namespace std;
 
 

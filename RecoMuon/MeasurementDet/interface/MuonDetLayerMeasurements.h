@@ -5,6 +5,10 @@
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
  *  \author C. Liu, R. Bellan, N. Amapane
+ *  \modified by C. Calabria to include GEMs
+ *  \modified by D. Nash to include ME0s
+ *
+ *  \modified by C. Calabria & A. Sharma to include GEMs
  *
  */
 
@@ -18,7 +22,9 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
+
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -43,11 +49,14 @@ class MuonDetLayerMeasurements {
   MuonDetLayerMeasurements(edm::InputTag dtlabel,
 			   edm::InputTag csclabel,
 			   edm::InputTag rpclabel,
+ 			   edm::InputTag gemlabel,
+			   edm::InputTag me0label,
 			   edm::ConsumesCollector& iC,
 			   bool enableDT = true,
 			   bool enableCSC = true,
-			   bool enableRPC = true
-			    );
+			   bool enableRPC = true,
+			   bool enableGEM = true,
+			   bool enableME0 = true);
   
   virtual ~MuonDetLayerMeasurements();
   
@@ -126,25 +135,35 @@ class MuonDetLayerMeasurements {
   edm::EDGetTokenT<DTRecSegment4DCollection> dtToken_;
   edm::EDGetTokenT<CSCSegmentCollection> cscToken_;
   edm::EDGetTokenT<RPCRecHitCollection> rpcToken_;
+  edm::EDGetTokenT<GEMRecHitCollection> gemToken_;
+  edm::EDGetTokenT<ME0SegmentCollection> me0Token_;
 
 
   bool enableDTMeasurement;
   bool enableCSCMeasurement;
   bool enableRPCMeasurement;
+  bool enableGEMMeasurement;
+  bool enableME0Measurement;
   
   // caches that should get filled once per event
   edm::Handle<DTRecSegment4DCollection> theDTRecHits;
   edm::Handle<CSCSegmentCollection>     theCSCRecHits;
   edm::Handle<RPCRecHitCollection>      theRPCRecHits;
+  edm::Handle<GEMRecHitCollection>      theGEMRecHits;
+  edm::Handle<ME0SegmentCollection>      theME0RecHits;
 
   void checkDTRecHits();
   void checkCSCRecHits();
   void checkRPCRecHits();
+  void checkGEMRecHits();
+  void checkME0RecHits();
 
   // keeps track of which event the cache holds
   edm::Event::CacheIdentifier_t theDTEventCacheID;
   edm::Event::CacheIdentifier_t theCSCEventCacheID;
   edm::Event::CacheIdentifier_t theRPCEventCacheID;
+  edm::Event::CacheIdentifier_t theGEMEventCacheID;
+  edm::Event::CacheIdentifier_t theME0EventCacheID;
 
   const edm::Event* theEvent;   
 

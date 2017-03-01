@@ -17,20 +17,30 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mPedestals (0), mPedestalWidths (0),
   mGains (0), mGainWidths (0),  
   mQIEData(0),
-  mElectronicsMap(0),
+  mQIETypes(0),
+  mElectronicsMap(0), mFrontEndMap(0),
   mRespCorrs(0),
   mL1TriggerObjects(0),
   mTimeCorrs(0),
   mLUTCorrs(0),
   mPFCorrs(0),
   mLutMetadata(0),
+  mSiPMParameters(0), mSiPMCharacteristics(0),
+  mTPChannelParameters(0), mTPParameters(0),
+  mMCParams(0),
   mCalibSet(nullptr), mCalibWidthSet(nullptr)
  {}
 
+HcalDbService::~HcalDbService() {
+    delete mCalibSet.load();
+    delete mCalibWidthSet.load();
+}
+
 const HcalTopology* HcalDbService::getTopologyUsed() const {
   if (mPedestals && mPedestals->topo()) return mPedestals->topo();
-  if (mGains && mGains->topo()) return mGains->topo();
+  if (mGains && mGains->topo())         return mGains->topo();
   if (mRespCorrs && mRespCorrs->topo()) return mRespCorrs->topo();
+  if (mQIETypes && mQIETypes->topo())   return mQIETypes->topo();
   if (mL1TriggerObjects && mL1TriggerObjects->topo()) return mL1TriggerObjects->topo();
   if (mLutMetadata && mLutMetadata->topo()) return mLutMetadata->topo();
   return 0;
@@ -49,9 +59,21 @@ const HcalCalibrationWidths& HcalDbService::getHcalCalibrationWidths(const HcalG
   return (*mCalibWidthSet.load(std::memory_order_acquire)).getCalibrationWidths(fId);
 }
 
+const HcalCalibrationsSet* HcalDbService::getHcalCalibrationsSet() const 
+{ 
+  buildCalibrations();
+  return mCalibSet.load(std::memory_order_acquire);
+}
+
+const HcalCalibrationWidthsSet* HcalDbService::getHcalCalibrationWidthsSet() const 
+{ 
+  buildCalibWidths();
+  return mCalibWidthSet.load(std::memory_order_acquire);
+}
+
 void HcalDbService::buildCalibrations() const {
   // we use the set of ids for pedestals as the master list
-  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
+  if ((!mPedestals) || (!mGains) || (!mQIEData) || (!mQIETypes) || (!mRespCorrs) || (!mTimeCorrs) || (!mLUTCorrs) ) return;
 
   if (!mCalibSet.load(std::memory_order_acquire)) {
 
@@ -70,10 +92,9 @@ void HcalDbService::buildCalibrations() const {
         if (ok) ptr->setCalibrations(*id,tool);
         //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
       }
-      ptr->sort();
-
-      HcalCalibrationsSet* expect = nullptr;
-      bool exchanged = mCalibSet.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
+      HcalCalibrationsSet const * cptr = ptr;
+      HcalCalibrationsSet const * expect = nullptr;
+      bool exchanged = mCalibSet.compare_exchange_strong(expect, cptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
@@ -101,10 +122,9 @@ void HcalDbService::buildCalibWidths() const {
         if (ok) ptr->setCalibrationWidths(*id,tool);
         //    std::cout << "Hcal calibrations built... detid no. " << HcalGenericDetId(*id) << std::endl;
       }
-      ptr->sort();
-
-      HcalCalibrationWidthsSet* expect = nullptr;
-      bool exchanged = mCalibWidthSet.compare_exchange_strong(expect, ptr, std::memory_order_acq_rel);
+      HcalCalibrationWidthsSet const *  cptr =	ptr;
+      HcalCalibrationWidthsSet const * expect = nullptr;
+      bool exchanged = mCalibWidthSet.compare_exchange_strong(expect, cptr, std::memory_order_acq_rel);
       if(!exchanged) {
           delete ptr;
       }
@@ -179,6 +199,12 @@ bool HcalDbService::makeHcalCalibrationWidth (const HcalGenericDetId& fId,
   return false;
 }  
 
+const HcalQIEType* HcalDbService::getHcalQIEType (const HcalGenericDetId& fId) const {
+  if (mQIETypes) {
+    return mQIETypes->getValues (fId);
+  }
+  return 0;
+}
 
 const HcalRespCorr* HcalDbService::getHcalRespCorr (const HcalGenericDetId& fId) const {
   if (mRespCorrs) {
@@ -223,22 +249,27 @@ const HcalQIECoder* HcalDbService::getHcalCoder (const HcalGenericDetId& fId) co
 }
 
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalGenericDetId& fId) const {
-  if (mQIEData) {
-    return &mQIEData->getShape (fId);
+  if (mQIEData && mQIETypes) {
+    //currently 3 types of QIEs exist: QIE8, QIE10, QIE11
+    int qieType = mQIETypes->getValues(fId)->getValue();
+    //QIE10 and QIE11 have same shape (ADC ladder)
+    if(qieType>0) qieType = 1;
+    return &mQIEData->getShape(qieType);
   }
   return 0;
 }
 
 const HcalQIEShape* HcalDbService::getHcalShape (const HcalQIECoder *coder) const {
-  if (mQIEData) {
-    return &mQIEData->getShape(coder);
-  }
-  return 0;
+  HcalGenericDetId fId(coder->rawId());
+  return getHcalShape(fId);
 }
-
 
 const HcalElectronicsMap* HcalDbService::getHcalMapping () const {
   return mElectronicsMap;
+}
+
+const HcalFrontEndMap* HcalDbService::getHcalFrontEndMapping () const {
+  return mFrontEndMap;
 }
 
 const HcalL1TriggerObject* HcalDbService::getHcalL1TriggerObject (const HcalGenericDetId& fId) const
@@ -279,6 +310,35 @@ const HcalPFCorr* HcalDbService::getHcalPFCorr (const HcalGenericDetId& fId) con
 
 const HcalLutMetadata* HcalDbService::getHcalLutMetadata () const {
   return mLutMetadata;
+}
+
+const HcalSiPMParameter* HcalDbService::getHcalSiPMParameter (const HcalGenericDetId& fId) const {
+  if (mSiPMParameters) {
+    return mSiPMParameters->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalSiPMCharacteristics* HcalDbService::getHcalSiPMCharacteristics () const {
+  return mSiPMCharacteristics;
+}
+
+const HcalTPChannelParameter* HcalDbService::getHcalTPChannelParameter (const HcalGenericDetId& fId) const {
+  if (mTPChannelParameters) {
+    return mTPChannelParameters->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalMCParam* HcalDbService::getHcalMCParam (const HcalGenericDetId& fId) const {
+  if (mMCParams) {
+    return mMCParams->getValues (fId);
+  }
+  return 0;
+}
+
+const HcalTPParameters* HcalDbService::getHcalTPParameters () const {
+  return mTPParameters;
 }
 
 TYPELOOKUP_DATA_REG(HcalDbService);

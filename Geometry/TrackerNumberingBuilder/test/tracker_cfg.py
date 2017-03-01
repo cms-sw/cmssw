@@ -11,13 +11,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
-process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModule")
-
-process.print = cms.OutputModule("AsciiOutputModule")
+process.TrackerGeometricDetESModule = cms.ESProducer("TrackerGeometricDetESModule",
+                                                     fromDDD = cms.bool(True))
 
 process.prod = cms.EDAnalyzer("GeometricDetAnalyzer")
 
 process.p1 = cms.Path(process.prod)
-process.ep = cms.EndPath(process.print)
-
 

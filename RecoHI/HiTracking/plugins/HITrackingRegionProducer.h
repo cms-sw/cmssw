@@ -72,7 +72,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     return numRecHits;
   }
   
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     int estMult = estimateMultiplicity(ev, es);
     
@@ -102,13 +102,13 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     }
     
     // tracking region selection
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
     if(estTracks>regTracking) {  // regional tracking
-      result.push_back( new RectangularEtaPhiTrackingRegion(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever, thePrecise) );
+      result.push_back( std::make_unique<RectangularEtaPhiTrackingRegion>(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever, thePrecise) );
     }
     else {                       // global tracking
       LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
-      result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
+      result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
     }
     return 
       result;

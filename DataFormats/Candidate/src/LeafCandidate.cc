@@ -4,22 +4,6 @@ using namespace reco;
 
 LeafCandidate::~LeafCandidate() { }
 
-Candidate::const_iterator LeafCandidate::begin() const { 
-  return const_iterator( new const_iterator_imp_specific ); 
-}
-
-Candidate::const_iterator LeafCandidate::end() const { 
-  return  const_iterator( new const_iterator_imp_specific ); 
-}
-
-Candidate::iterator LeafCandidate::begin() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
-Candidate::iterator LeafCandidate::end() { 
-  return iterator( new iterator_imp_specific ); 
-}
-
 const CandidateBaseRef & LeafCandidate::masterClone() const {
   throw cms::Exception("Invalid Reference")
     << "this Candidate has no master clone reference."
@@ -118,8 +102,3 @@ bool LeafCandidate::isPhoton() const { return false; }
 bool LeafCandidate::isConvertedPhoton() const { return false; }
 
 bool LeafCandidate::isJet() const { return false; }
-
-const unsigned int reco::LeafCandidate::longLivedTag = 65536;
-
-const unsigned int reco::LeafCandidate::massConstraintTag = 131072;
-

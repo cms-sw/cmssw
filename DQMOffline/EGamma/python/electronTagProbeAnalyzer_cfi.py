@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
 
     Verbosity = cms.untracked.int32(0),
-    FinalStep = cms.string("AtRunEnd"),
+    FinalStep = cms.string("AtJobEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
     InputFolderName = cms.string("Egamma/Electrons/TagAndProbe"),
@@ -88,4 +88,5 @@ dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
     NbinHoe = cms.int32(100), HoeMin = cms.double(0.0), HoeMax = cms.double(0.5)
 )
 
-
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( dqmElectronTagProbeAnalysis, ElectronCollection = cms.InputTag("ecalDrivenGsfElectrons") )

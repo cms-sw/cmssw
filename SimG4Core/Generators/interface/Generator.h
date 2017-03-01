@@ -14,6 +14,7 @@
     
 class G4Event;
 class G4PrimaryParticle;
+class LumiMonitorFilter;
 
 class Generator
 {
@@ -32,6 +33,7 @@ public:
 private:
 
   bool particlePassesPrimaryCuts(const G4ThreeVector& p) const;
+  bool isExotic(HepMC::GenParticle* p) const;
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 
@@ -53,6 +55,7 @@ private:
   double theEtaCutForHector; 
   double theDecLenCut;
   int verbose;
+  LumiMonitorFilter* fLumiFilter; 
   HepMC::GenEvent*  evt_;
   math::XYZTLorentzVector* vtx_;
   double weight_;    

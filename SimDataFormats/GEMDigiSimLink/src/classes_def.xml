@@ -1,0 +1,13 @@
+<lcgdict>
+
+<class name="GEMDigiSimLink" ClassVersion="10">
+   <version ClassVersion="10" checksum="665696725"/>
+ </class>
+ <class name="edm::DetSet<GEMDigiSimLink>"/>
+ <class name="std::vector<GEMDigiSimLink>"/>
+ <class name="edm::DetSetVector<GEMDigiSimLink>"/>
+ <class name="std::vector<edm::DetSet<GEMDigiSimLink> >"/>
+ <class name="edm::Wrapper< edm::DetSet<GEMDigiSimLink> >" splitLevel="0" />
+ <class name="edm::Wrapper< std::vector<edm::DetSet<GEMDigiSimLink> > >" splitLevel="0" />
+ <class name="edm::Wrapper< edm::DetSetVector<GEMDigiSimLink> >" splitLevel="0" />
+</lcgdict>

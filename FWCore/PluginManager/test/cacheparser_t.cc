@@ -17,7 +17,6 @@
 #include <sstream>
 
 // user include files
-#define private public
 #include "FWCore/PluginManager/interface/CacheParser.h"
 
 class TestCacheParser : public CppUnit::TestFixture

@@ -5,8 +5,7 @@ patEventContentNoCleaning = [
     'keep *_selectedPatElectrons*_*_*',
     'keep *_selectedPatMuons*_*_*',
     'keep *_selectedPatTaus*_*_*',
-    'keep *_selectedPatJets*_*_*',
-    'drop *_selectedPatJets_pfCandidates_*', ## drop for default patJets which are CaloJets
+    'keep *_selectedPatJets*_*_*',    
     'drop *_*PF_caloTowers_*',
     'drop *_*JPT_pfCandidates_*',
     'drop *_*Calo_pfCandidates_*',

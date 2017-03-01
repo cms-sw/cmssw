@@ -38,10 +38,12 @@ protected:
     // Comparison function must be implemented
     bool isEqual(const AbsOOTPileupCorrection& otherBase) const;
 
-private:
-    // Default constructor needed for serialization
+public:
+    // Default constructor needed for serialization.
+    // Do not use in application code.
     inline DummyOOTPileupCorrection() {}
 
+private:
     std::string descr_;
     double scale_;
 
@@ -52,7 +54,7 @@ private:
     {
         boost::serialization::base_object<AbsOOTPileupCorrection>(*this);
         ar & descr_ & scale_;
-    }    
+    }
 };
 
 BOOST_CLASS_VERSION(DummyOOTPileupCorrection, 1)

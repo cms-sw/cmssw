@@ -1,27 +1,9 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include<iostream>
-namespace {
-
-  struct Counter {
-    int empty;
-    int begin;
-    int end;
-    int middle;
-    int mixed;
-    ~Counter() {
-    }
-
-  };
-
-
-}
-
 
 void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =true */) {
-  static Counter counter = {0,0,0,0,0};
   if (target.empty()) {
-    ++counter.empty;
     target = sv; 
     return;
   }
@@ -29,25 +11,21 @@ void merge(DDsvalues_type & target, DDsvalues_type const & sv, bool sortit /* =t
   DDsvalues_type::const_iterator sed = sv.end();
   // fast merge
   if (target.back()<sv.front()) {
-    ++counter.end;
     target.insert(target.end(),sit,sed);
     return;
   }
   if (sv.back()<target.front()) {
-    ++counter.begin;
     target.insert(target.begin(),sit,sed);
     return;
   }
   {
     DDsvalues_type::iterator it = std::lower_bound(target.begin(),target.end(),sv.front()); 
     if (it == std::lower_bound(target.begin(),target.end(),sv.back())) {
-      ++counter.middle; 
       target.insert(it,sit,sed);
       return;
     }
   }
   // it nevers arrives here...
-  ++counter.mixed;
   target.reserve(target.size()+sv.size());
   DDsvalues_type::const_iterator ted = target.end();
   for (; sit != sed; ++sit) {
@@ -114,19 +92,11 @@ bool DDfetch(const DDsvalues_type * p, DDValue & v)
 unsigned int DDfetch(const std::vector<const DDsvalues_type *> & sp, DDValue & toFetch, std::vector<DDValue> & result)
 {
    unsigned int count = 0;
-   std::vector<const DDsvalues_type *>::const_iterator it(sp.begin()), ed(sp.end());
-   for (; it != ed; ++it) {
-     if (DDfetch(*it, toFetch)) {
+   for( const auto & it : sp ) {
+     if (DDfetch( it, toFetch)) {
        result.push_back(toFetch);
        ++count;
      }
    }    
    return count;
 }
-
-/*
-DDValue DDsvalues_type::operator[](const unsigned int& i) const
-{
-    return DDValue(i);
-}
-*/

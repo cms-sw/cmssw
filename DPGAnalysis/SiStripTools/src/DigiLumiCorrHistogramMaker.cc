@@ -13,11 +13,11 @@
 
 
 DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(edm::ConsumesCollector&& iC):
-  m_lumiProducerToken(iC.consumes<LumiDetails>(edm::InputTag("lumiProducer"))),   m_fhm(),  m_runHisto(false),
+  m_lumiProducerToken(iC.consumes<LumiDetails,edm::InLumi>(edm::InputTag("lumiProducer"))),   m_fhm(),  m_runHisto(false),
   m_hitname(), m_nbins(500), m_scalefact(), m_maxlumi(10.), m_binmax(), m_labels(), m_nmultvslumi(), m_nmultvslumiprof(), m_subdirs() { }
 
 DigiLumiCorrHistogramMaker::DigiLumiCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
-  m_lumiProducerToken(iC.consumes<LumiDetails>(iConfig.getParameter<edm::InputTag>("lumiProducer"))),
+  m_lumiProducerToken(iC.consumes<LumiDetails,edm::InLumi>(iConfig.getParameter<edm::InputTag>("lumiProducer"))),
   m_fhm(),
   m_runHisto(iConfig.getUntrackedParameter<bool>("runHisto",false)),
   m_hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
@@ -150,7 +150,7 @@ void DigiLumiCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map<u
 	  m_nmultvslumi[i]->Fill(bxlumi,digi->second);
 	  m_nmultvslumiprof[i]->Fill(bxlumi,digi->second);
 
-	  if(m_nmultvslumivsbxprofrun[i] && *m_nmultvslumivsbxprofrun[i]) (*m_nmultvslumivsbxprofrun[i])->Fill(iEvent.bunchCrossing(),bxlumi,digi->second);
+	  if(m_nmultvslumivsbxprofrun[i] && *m_nmultvslumivsbxprofrun[i]) (*m_nmultvslumivsbxprofrun[i])->Fill(iEvent.bunchCrossing()%3564,bxlumi,digi->second);
 
 	}
       }

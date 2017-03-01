@@ -121,15 +121,15 @@ class DQMcommunicator(object):
         
     #raw_folder=loads(self.get_data(url))
     for content_dict in raw_folder["contents"]:      
-      if content_dict.has_key("subdir"):
+      if "subdir" in content_dict:
         form_folder[content_dict["subdir"]]={"type":'dir'}
-      elif content_dict.has_key("obj"):
+      elif "obj" in content_dict:
         properties=content_dict["properties"]
         obj_name=content_dict["obj"]
         obj_type=properties["type"]
         obj_kind=properties["kind"]
         obj_as_string=''
-        if content_dict.has_key("rootobj"):
+        if "rootobj" in content_dict:
           obj_as_string=content_dict["rootobj"]
         form_folder[obj_name]={'type':obj_type,'obj_as_string':obj_as_string,"kind":obj_kind}
     #for k,v in form_folder.items():
@@ -157,7 +157,7 @@ class DQMcommunicator(object):
     len_args=len(args)
     full_url=""
     if len_args!=1 and len_args!=3:
-      raise(InvalidNumberOfArguments("3 or 1 args expected!"))
+      raise InvalidNumberOfArguments
     if len_args==3:
       dataset, run, folder = args    
       full_url='%s/data/json/archive/%s/%s/%s' % (self.server, dataset, run, folder)
@@ -594,7 +594,7 @@ class DirWalkerFile(object):
     contents={}
     self.different_histograms['file1']= {}
     self.different_histograms['file2']= {}
-    keys = filter(lambda key: contents1.has_key(key),contents2.keys()) #set of all possible contents from both files
+    keys = filter(lambda key: key in contents1,contents2.keys()) #set of all possible contents from both files
     #print " ## keys: %s" %(keys)
     for key in keys:  #iterate on all unique keys
       if contents1[key]!=contents2[key]:

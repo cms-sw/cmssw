@@ -3,11 +3,11 @@
 // edmtest is unknown at this point
 //if( TClass::GetClass("vector<edmtest::Thing>") ) {
 //   cout <<"class already exists!"<<endl;
-//   exit(1);
+//   exit(0);
 //}
 //cout <<"class not present yet"<<endl;
 gSystem->Load("libFWCoreFWLite");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 if( !TClass::GetClass("vector<edmtest::Thing>") ) {
    exit(1);
 }

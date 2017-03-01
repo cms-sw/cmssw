@@ -22,7 +22,7 @@ This example creates a histogram of Jet Pt, using Jets with Pt above 30 and ETA 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/RunLumiSelector.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
@@ -244,7 +244,7 @@ int main (int argc, char* argv[])
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
 
   cout << "Getting parameters" << endl;

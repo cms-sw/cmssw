@@ -1,0 +1,14 @@
+#### simple .gitignore ######
+*.[oa]
+*~
+
+####  Byte-compiled / optimized / DLL files
+__pycache__/
+__init__.py
+*.py[cod]
+
+####  C extensions
+*.so
+
+####  root files
+*.root

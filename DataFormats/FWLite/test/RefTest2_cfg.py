@@ -19,7 +19,7 @@ process.Thing = cms.EDProducer("ThingProducer",
 process.OtherThing = cms.EDProducer("OtherThingProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('good_delta5.root')
+    fileName = cms.untracked.string('good_delta5DataFormatsFWLite.root')
 )
 
 process.p = cms.Path(process.Thing*process.OtherThing)

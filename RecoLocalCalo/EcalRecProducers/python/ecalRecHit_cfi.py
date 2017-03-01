@@ -5,11 +5,12 @@ from RecoLocalCalo.EcalRecAlgos.ecalCleaningAlgo import cleaningAlgoConfig
 # rechit producer
 ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EErechitCollection = cms.string('EcalRecHitsEE'),
-    EEuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE"),
-    EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB"),
+    EEuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEE"),
+    EBuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
     # db statuses to be exluded from reconstruction (some will be recovered)
-    ChannelStatusToBeExcluded = cms.vstring(   'kNoisy',
+    ChannelStatusToBeExcluded = cms.vstring(   'kDAC',
+                                               'kNoisy',
                                                'kNNoisy',
                                                'kFixedG6',
                                                'kFixedG1',
@@ -29,6 +30,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMAX = cms.double(3.0),
     EELaserMAX = cms.double(8.0),
 
+    # useful if time is not calculated, as at HLT                        
+    skipTimeCalib = cms.bool(False),                         
 
     # apply laser corrections
     laserCorrection = cms.bool(True),
@@ -79,3 +82,4 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     cleaningConfig=cleaningAlgoConfig,
 
     )
+

@@ -28,12 +28,9 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -48,8 +45,8 @@ l1t::MuCondition::MuCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::MuCondition::MuCondition(const GtCondition* muonTemplate,
-        const GtBoard* ptrGTL, const int nrL1Mu,
+l1t::MuCondition::MuCondition(const GlobalCondition* muonTemplate,
+        const GlobalBoard* ptrGTL, const int nrL1Mu,
         const int ifMuEtaNumberBits) :
     ConditionEvaluation(),
     m_gtMuonTemplate(static_cast<const MuonTemplate*>(muonTemplate)),
@@ -104,7 +101,7 @@ void l1t::MuCondition::setGtMuonTemplate(const MuonTemplate* muonTempl) {
 }
 
 ///   set the pointer to GTL
-void l1t::MuCondition::setGtGTL(const GtBoard* ptrGTL) {
+void l1t::MuCondition::setGtGTL(const GlobalBoard* ptrGTL) {
 
     m_gtGTL = ptrGTL;
 
@@ -150,7 +147,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
     }
 
     int numberObjects = candVec->size(useBx);  //BLW Change for BXVector
-    //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
+    //LogTrace("L1TGlobal") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
         return false;
@@ -162,8 +159,14 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
         index[i] = i;
     }
 
+    int numberForFactorial = numberObjects - nObjInCond;
+
+    // TEMPORARY FIX UNTIL IMPLEMENT NEW MUON CONDITIONS
+    int myfactorial = 1;
+    for( int i=numberForFactorial; i>0; i-- ) myfactorial *= i;
+
     int jumpIndex = 1;
-    int jump = factorial(numberObjects - nObjInCond);
+    int jump = myfactorial;//factorial(numberObjects - nObjInCond);
 
     int totalLoops = 0;
     int passLoops = 0;
@@ -179,7 +182,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
     objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    combinationsInCond().clear();
 
     do {
 
@@ -201,12 +204,13 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 	    passCondition = checkObjectParameter(i,  *(candVec->at(useBx,index[i]) )); //BLW Change for BXVector
 	    tmpResult &= passCondition;
 	    if( passCondition ) 
-	      LogDebug("l1t|Global") << "===> MuCondition::evaluateCondition, CONGRATS!! This muon passed the condition." << std::endl;
+	      LogDebug("L1TGlobal") << "===> MuCondition::evaluateCondition, CONGRATS!! This muon passed the condition." << std::endl;
 	    else 
-	      LogDebug("l1t|Global") << "===> MuCondition::evaluateCondition, FAIL!! This muon failed the condition." << std::endl;
+	      LogDebug("L1TGlobal") << "===> MuCondition::evaluateCondition, FAIL!! This muon failed the condition." << std::endl;
             objectsInComb.push_back(index[i]);
 
         }
+
 
         // if permutation does not match particle conditions
         // skip charge correlation and spatial correlations
@@ -226,70 +230,62 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
         // charge ignore bit (D0) not set?
         if ((chargeCorr & 1) == 0) {
 
-            for (int i = 0; i < nObjInCond; i++) {
-                // check valid charge - skip if invalid charge
-                int chargeValid = (candVec->at(useBx,index[i]))->hwChargeValid(); //BLW Change for BXVector
-                tmpResult &= chargeValid;
 
-                if ( chargeValid==0) { //BLW type change for New Muon Class
-                    continue;
-                }
-            }
+          LogDebug("L1TGlobal") << "===> MuCondition:: Checking Charge Correlation" << std::endl;
 
-            if ( !tmpResult) {
-                continue;
-            }
+	  for (int i = 0; i < nObjInCond; i++) {
+	    // check valid charge - skip if invalid charge
+	    int chargeValid = (candVec->at(useBx,index[i]))->hwChargeValid(); //BLW Change for BXVector
+	    tmpResult &= chargeValid;
 
-            if (nObjInCond == 1) { // one object condition
+	    if ( chargeValid==0) { //BLW type change for New Muon Class
+	      continue;
+	    }
+	  }
 
-                // D2..enable pos, D1..enable neg
-                if ( ! ( ( (chargeCorr & 4) != 0 && (candVec->at(useBx,index[0]))->charge()> 0 )   //BLW Change for BXVector
-                    || ( (chargeCorr & 2) != 0 &&   (candVec->at(useBx,index[0]))->charge() < 0 ) )) {       //BLW Change for BXVector
+	  if ( !tmpResult) {
+	    LogDebug("L1TGlobal") << "===> MuCondition:: Charge Correlation Failed...No Valid Charges" << std::endl;
+	    continue;
+	  }
 
-                    continue;
-                }
 
-            }
-            else { // more objects condition
+	  if( nObjInCond > 1 ){ // more objects condition
 
-                // find out if signs are equal
-                bool equalSigns = true;
-                for (int i = 0; i < nObjInCond-1; i++) {
-                    if ((candVec->at(useBx,index[i]))->charge() != (candVec->at(useBx,index[i+1]))->charge()) { //BLW Change for BXVector
-                        equalSigns = false;
-                        break;
-                    }
-                }
+	    // find out if signs are equal
+	    bool equalSigns = true;
+	    for (int i = 0; i < nObjInCond-1; i++) {
+	      if ((candVec->at(useBx,index[i]))->hwCharge() != (candVec->at(useBx,index[i+1]))->hwCharge()) { //BLW Change for BXVector
+		equalSigns = false;
+		break;
+	      }
+	    }
+             
+	     
+	     LogDebug("L1TGlobal") << "===> MuCondition:: Checking Charge Correlation equalSigns = " << equalSigns << std::endl;
+	     
+	    // two or three particle condition
+	    if (nObjInCond == 2 || nObjInCond == 3) {
+	      if( !( ((chargeCorr & 2)!=0 && equalSigns) || ((chargeCorr & 4)!=0 && !equalSigns) ) ){
+	        LogDebug("L1TGlobal") << "===> MuCondition:: 2/3 Muon Fail Charge Correlation Condition =" << chargeCorr << std::endl;
+		continue;
+	      }
+	    }
+	    else if (nObjInCond == 4) {
+	      //counter to count positive charges to determine if there are pairs
+	      unsigned int posCount = 0;
 
-                // two or three particle condition
-                if (nObjInCond == 2 || nObjInCond == 3) {
-                    // D2..enable equal, D1..enable not equal
-                    if ( ! ( ( (chargeCorr & 4) != 0 && equalSigns ) || ( (chargeCorr & 2) != 0
-                        && !equalSigns ) )) {
+	      for (int i = 0; i < nObjInCond; i++) {
+		if ((candVec->at(useBx,index[i]))->hwCharge()> 0) {  //BLW Change for BXVector
+		  posCount++;
+		}
+	      }
 
-                        continue;
-                    }
-                }
-
-                // four particle condition
-                if (nObjInCond == 4) {
-                    //counter to count positive charges to determine if there are pairs
-                    unsigned int posCount = 0;
-
-                    for (int i = 0; i < nObjInCond; i++) {
-                        if ((candVec->at(useBx,index[i]))->charge()> 0) {  //BLW Change for BXVector
-                            posCount++;
-                        }
-                    }
-
-                    // D2..enable equal, D1..enable pairs
-                    if ( ! ( ( (chargeCorr & 4) != 0 && equalSigns ) || ( (chargeCorr & 2) != 0
-                        && posCount == 2 ) )) {
-
-                        continue;
-                    }
-                }
-            }
+	      if( !( ((chargeCorr & 2)!=0 && equalSigns) || ((chargeCorr & 4)!=0 && posCount==2) ) ){
+	        LogDebug("L1TGlobal") << "===> MuCondition:: 4 Muon Fail Charge Correlation Condition = " << chargeCorr << " posCnt " << posCount << std::endl;
+		continue;
+	      }
+	    }
+	  } // end require nObjInCond > 1
         } // end signchecks
 
 
@@ -301,7 +297,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             const int ObjInWscComb = 2;
             if (nObjInCond != ObjInWscComb) {
 
-                edm::LogError("L1GlobalTrigger") << "\n  Error: "
+                edm::LogError("L1TGlobal") << "\n  Error: "
                     << "number of particles in condition with spatial correlation = " << nObjInCond
                     << "\n  it must be = " << ObjInWscComb << std::endl;
                 // TODO Perhaps I should throw here an exception,
@@ -309,88 +305,18 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
                 continue;
             }
 
-            unsigned int candDeltaEta;
-            unsigned int candDeltaPhi;
+	    // check delta eta
+	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEta(), (candVec->at(useBx,1))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 8) ){
+	      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
+	      continue;
+	    }
 
-            // check candDeltaEta
-
-            // get eta index and the sign bit of the eta index (MSB is the sign)
-            //   signedEta[i] is the signed eta index of (*candVec)[index[i]]
-            int signedEta[ObjInWscComb];
-            int signBit[ObjInWscComb] = { 0, 0 };
-
-            int scaleEta = 1 << (m_ifMuEtaNumberBits - 1);
-
-            for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = ((candVec->at(useBx,index[i]))->hwEta() & scaleEta)>>(m_ifMuEtaNumberBits - 1);  //BLW Change for BXVector
-                signedEta[i] = ((candVec->at(useBx,index[i]))->hwEta() )%scaleEta;      //BLW Change for BXVector
-
-                if (signBit[i] == 1) {
-                    signedEta[i] = (-1)*signedEta[i];
-                }
-
-            }
-
-            // compute candDeltaEta - add 1 if signs are different (due to +0/-0 indices)
-            candDeltaEta = static_cast<int> (std::abs(signedEta[1] - signedEta[0]))
-                + static_cast<int> (signBit[1]^signBit[0]);
-
-            if ( !checkBit(corrPar.deltaEtaRange, candDeltaEta) ) {
-                continue;
-            }
-
-            // check candDeltaPhi
-
-            // calculate absolute value of candDeltaPhi
-            if ((candVec->at(useBx,index[0]))->hwPhi()> (candVec->at(useBx,index[1]))->hwPhi()) {     //BLW Change for BXVector
-                candDeltaPhi = (candVec->at(useBx,index[0]))->hwPhi() - (candVec->at(useBx,index[1]))->hwPhi();  //BLW Change for BXVector
-            }
-            else {
-                candDeltaPhi = (candVec->at(useBx,index[1]))->hwPhi() - (candVec->at(useBx,index[0]))->hwPhi();   //BLW Change for BXVector
-            }
-
-            // check if candDeltaPhi > 180 (via delta_phi_maxbits)
-            // delta_phi contains bits for 0..180 (0 and 180 included)
-            // protect also against infinite loop...
-
-            int nMaxLoop = 10;
-            int iLoop = 0;
-
-            while (candDeltaPhi >= m_corrParDeltaPhiNrBins) {
-
-                unsigned int candDeltaPhiInitial = candDeltaPhi;
-
-                // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
-                candDeltaPhi = (m_corrParDeltaPhiNrBins - 1) * 2 - candDeltaPhi;
-                if (m_verbosity) {
-                    LogTrace("L1GlobalTrigger")
-                            << "    Initial candDeltaPhi = "
-                            << candDeltaPhiInitial
-                            << " > m_corrParDeltaPhiNrBins = "
-                            << m_corrParDeltaPhiNrBins
-                            << "  ==> candDeltaPhi rescaled to: "
-                            << candDeltaPhi << " [ loop index " << iLoop
-                            << "; breaks after " << nMaxLoop << " loops ]\n"
-                            << std::endl;
-                }
-
-                iLoop++;
-                if (iLoop > nMaxLoop) {
-                    return false;
-                }
-            }
-
-            // delta_phi bitmask is saved in two boost::uint64_t words
-            if (candDeltaPhi < 64) {
-                if (!checkBit(corrPar.deltaPhiRange0Word, candDeltaPhi) ) {
-                    continue;
-                }
-            }
-            else {
-                if (!checkBit(corrPar.deltaPhiRange1Word, (candDeltaPhi - 64))) {
-                    continue;
-                }
-            }
+	    // check delta phi
+	    if( !checkRangeDeltaPhi( (candVec->at(useBx,0))->hwPhi(), (candVec->at(useBx,1))->hwPhi(), 
+				     corrPar.deltaPhiRangeLower, corrPar.deltaPhiRangeUpper) ){
+	      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
+	      continue;
+	    }
 
         } // end wsc check
 
@@ -403,7 +329,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 
     } while (std::next_permutation(index.begin(), index.end()) );
 
-    //LogTrace("L1GlobalTrigger")
+    //LogTrace("L1TGlobal")
     //    << "\n  MuCondition: total number of permutations found:          " << totalLoops
     //    << "\n  MuCondition: number of permutations passing requirements: " << passLoops
     //    << "\n" << std::endl;
@@ -469,121 +395,119 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     //   value >= high pt threshold & isolated muon:
     //       OK, trigger
 
-    LogDebug("l1t|Global")
-      << "\n MuonTemplate::ObjectParameter : "
-      << "\n\t ptHighThreshold = " << objPar.ptHighThreshold 
-      << "\n\t ptLowThreshold  = " << objPar.ptLowThreshold
-      << "\n\t requestIso      = " << objPar.requestIso
-      << "\n\t enableIso       = " << objPar.enableIso
-      << "\n\t etaRange        = " << objPar.etaRange
-      << "\n\t phiLow          = " << objPar.phiLow
-      << "\n\t phiHigh         = " << objPar.phiHigh
-      << "\n\t qualityRange    = " << objPar.qualityRange
-      << "\n\t enableMip       = " << objPar.enableMip
+    LogDebug("L1TGlobal")
+      << "\n MuonTemplate::ObjectParameter : " << std::hex
+      << "\n\t ptHighThreshold = 0x " << objPar.ptHighThreshold 
+      << "\n\t ptLowThreshold  = 0x " << objPar.ptLowThreshold
+      << "\n\t requestIso      = 0x " << objPar.requestIso
+      << "\n\t enableIso       = 0x " << objPar.enableIso
+      << "\n\t etaRange        = 0x " << objPar.etaRange
+      << "\n\t phiLow          = 0x " << objPar.phiLow
+      << "\n\t phiHigh         = 0x " << objPar.phiHigh
+      << "\n\t phiWindow1Lower = 0x " << objPar.phiWindow1Lower
+      << "\n\t phiWindow1Upper = 0x " << objPar.phiWindow1Upper
+      << "\n\t phiWindow2Lower = 0x " << objPar.phiWindow2Lower
+      << "\n\t phiWindow2Lower = 0x " << objPar.phiWindow2Lower
+      << "\n\t charge          = 0x " << objPar.charge
+      << "\n\t qualityLUT      = 0x " << objPar.qualityLUT
+      << "\n\t isolationLUT    = 0x " << objPar.isolationLUT
+      << "\n\t enableMip       = 0x " << objPar.enableMip
       << std::endl;
 
-    LogDebug("l1t|Global")
+    LogDebug("L1TGlobal")
       << "\n l1t::Muon : "
-      << "\n\t hwPt   = " <<  cand.hwPt()
-      << "\n\t hwEta  = " << cand.hwEta()
-      << "\n\t hwPhi  = " << cand.hwPhi()
-      << "\n\t hwQual = " << cand.hwQual()
-      << "\n\t hwIso  = " << cand.hwIso()
-      << "\n\t hwMip  = " << cand.hwMip()
+      << "\n\t hwPt     = 0x " <<  cand.hwPt()
+      << "\n\t hwEta    = 0x " << cand.hwEta()
+      << "\n\t hwPhi    = 0x " << cand.hwPhi()
+      << "\n\t hwCharge = 0x " << cand.hwCharge()
+      << "\n\t hwQual   = 0x " << cand.hwQual()
+      << "\n\t hwIso    = 0x " << cand.hwIso() << std::dec
       << std::endl;
 
 
-    if ( !checkThreshold(objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
-
-      if ( !checkThreshold(objPar.ptLowThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
-	LogDebug("l1t|Global") << "\t\t Muon Failed checkThreshold " << std::endl;
+      if ( !checkThreshold(objPar.ptLowThreshold, objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
+	LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;
 	return false;
       }
-      else {
-	// check isolation
-	if ( !cand.hwIso() ) {
-	  if (objPar.requestIso || objPar.enableIso) {
-	    LogDebug("l1t|Global") << "\t\t Muon Failed hwIso " << std::endl;
-	    return false;
-	  }
-	}
-      }
-    }
-    else {
 
-      if ( !cand.hwIso() ) {
-	if (objPar.requestIso) {
-	  LogDebug("l1t|Global") << "\t\t Muon Failed hwIso " << std::endl;
-	  return false;
-	}
-      }
-    }
 
     // check eta
-    // DP - Enable once muon conditions mature
-//     if( !checkRange(cand.hwEta(), objPar.etaRangeBegin, objPar.etaRangeEnd, objPar.etaRangeVetoBegin, objPar.etaRangeVetoEnd) ){
-//       return false;
-//     }
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 8) ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
+      return false;
+    }
 
-//     // check phi
-//     if( !checkRange(cand.hwPhi(), objPar.phiRangeBegin, objPar.phiRangeEnd, objPar.phiRangeVetoBegin, objPar.phiRangeVetoEnd) ){
-//       return false;
-//     }
+    // check phi
+    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
+      return false;
+    }
 
-///// DP OLD Legacy
-//     if (!checkBit(objPar.etaRange, cand.hwEta())) {
-//       LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(etaRange) " << std::endl;
-//       return false;
-//     }
+    // check charge
+    if( objPar.charge>=0 ){
+      if( cand.hwCharge() != objPar.charge ){
+	LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed charge requirement" << std::endl;
+	return false;
+      }
+    }
 
-//     // check phi  - in the requested range (no LUT used - LUT too big for hw chip)
-//     // for phiLow <= phiHigh takes [phiLow, phiHigh]
-//     // for phiLow >= phiHigh takes [phiLow, phiHigh] over zero angle!
-//     if (objPar.phiHigh >= objPar.phiLow) {
-//       if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) && ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
-// 	LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(phiRange) " << std::endl;
-// 	return false;
-//       }
-//     }
-//     else { // go over zero angle!!
-//       if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) || ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
-// 	LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(phiRange) " << std::endl;
-// 	return false;
-//       }
-//     }
 
-    // check quality ( bit check )
+
+    // check quality ( bit check ) with quality LUT
+    // sanity check on candidate quality
+    if( cand.hwQual()>16 ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
+      return false;
+    }
+    bool passQualLUT = ( (objPar.qualityLUT >> cand.hwQual()) & 1 );
+    if( !passQualLUT ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed quality requirement" << std::endl;
+      return false;
+    }
+
+
+    // check isolation ( bit check ) with isolation LUT
+    // sanity check on candidate isolation
+    if( cand.hwIso()>4 ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwIso = " << cand.hwIso() << std::endl;
+      return false;
+    }
+    bool passIsoLUT = ( (objPar.isolationLUT >> cand.hwIso()) & 1 );
+    if( !passIsoLUT ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
+      return false;
+    }
 
     // A number of values is required to trigger (at least one).
     // "Don’t care" means that all values are allowed.
     // Qual = 000 means then NO MUON (GTL module)
 
-    if (cand.hwQual() == 0) {
-	LogDebug("l1t|Global") << "\t\t Muon Failed hwQual() == 0" << std::endl;
-        return false;
-    }
+    // if (cand.hwQual() == 0) {
+    // 	LogDebug("L1TGlobal") << "\t\t Muon Failed hwQual() == 0" << std::endl;
+    //     return false;
+    // }
 
-    if (objPar.qualityRange == 0) {
-	LogDebug("l1t|Global") << "\t\t Muon Failed qualityRange == 0" << std::endl;
-        return false;
-    }
-    else {
-      if (!checkBit(objPar.qualityRange, cand.hwQual())) {
-	LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(qualityRange) " << std::endl;
-            return false;
-        }
-    }
+    // if (objPar.qualityRange == 0) {
+    // 	LogDebug("L1TGlobal") << "\t\t Muon Failed qualityRange == 0" << std::endl;
+    //     return false;
+    // }
+    // else {
+    //   if (!checkBit(objPar.qualityRange, cand.hwQual())) {
+    // 	LogDebug("L1TGlobal") << "\t\t Muon Failed checkBit(qualityRange) " << std::endl;
+    //         return false;
+    //     }
+    // }
 
     // check mip
     if (objPar.enableMip) {
-        if (!cand.hwMip()) {
-	  LogDebug("l1t|Global") << "\t\t Muon Failed enableMip" << std::endl;
-            return false;
-        }
+   //      if (!cand.hwMip()) {
+	  // LogDebug("L1TGlobal") << "\t\t Muon Failed enableMip" << std::endl;
+   //          return false;
+   //      }
     }
 
     // particle matches if we get here
-    //LogTrace("L1GlobalTrigger")
+    //LogTrace("L1TGlobal")
     //    << "  checkObjectParameter: muon object OK, passes all requirements\n" << std::endl;
 
     return true;

@@ -36,23 +36,11 @@ siStripQualityESProducerUnbiased.ListOfRecordToMerge = cms.VPSet(
 
 
 # Clusterizer #
-import RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi 
-
-ZeroBiasClusterizer = cms.PSet(
-    Algorithm = cms.string('ThreeThresholdAlgorithm'),
-    ChannelThreshold = cms.double(2.0),
-    SeedThreshold = cms.double(3.0),
-    ClusterThreshold = cms.double(5.0),
-    MaxSequentialHoles = cms.uint32(0),
-    MaxSequentialBad = cms.uint32(1),
-    MaxAdjacentBad = cms.uint32(0),
-    QualityLabel = cms.string('unbiased'),
-    RemoveApvShots     = cms.bool(True) 
-    )
+from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
 
 
-calZeroBiasClusters = RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi.siStripClusters.clone()
-calZeroBiasClusters.Clusterizer = ZeroBiasClusterizer
+calZeroBiasClusters = siStripClusters.clone()
+calZeroBiasClusters.Clusterizer.QualityLabel = 'unbiased'
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *

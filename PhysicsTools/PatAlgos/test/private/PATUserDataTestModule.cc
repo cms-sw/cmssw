@@ -119,7 +119,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        edm::Handle<View<pat::Muon> > muons;
        iEvent.getByToken(muonsToken_,muons);
 
-       std::auto_ptr<std::vector<pat::Muon> > output(new std::vector<pat::Muon>());
+       auto output = std::make_unique<std::vector<pat::Muon> >();
 
        for (View<pat::Muon>::const_iterator muon = muons->begin(), end = muons->end(); muon != end; ++muon) {
            if (mode_ == TestWrite) {
@@ -136,7 +136,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                // myMuon.addUserData("tmp self", *muon, true);
                // myMuon.addUserData("tmp crazy", CrazyDataType(), true);
 
-               output->push_back(myMuon);
+               output->push_back(std::move(myMuon));
            } else {
                std::cout << "Muon #" << (muon - muons->begin()) << ":" << std::endl;
                std::cout << "\tanswer   = " << muon->userInt("answer") << std::endl;
@@ -163,7 +163,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                }
            }
        }
-       iEvent.put(output);
+       iEvent.put(std::move(output));
    } else {
        using namespace std;
        Handle<View<reco::Muon> > recoMuons;
@@ -171,26 +171,26 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        std::cout << "Got " << recoMuons->size() << " muons" << std::endl;
 
        vector<int> ints(recoMuons->size(), 42);
-       auto_ptr<ValueMap<int> > answers(new ValueMap<int>());
+       auto answers = std::make_unique<ValueMap<int>>();
        ValueMap<int>::Filler intfiller(*answers);
        intfiller.insert(recoMuons, ints.begin(), ints.end());
        intfiller.fill();
-       iEvent.put(answers, label_);
+       iEvent.put(std::move(answers), label_);
        std::cout << "Filled in the answer" << std::endl;
 
        vector<float> floats(recoMuons->size(), 3.14);
-       auto_ptr<ValueMap<float> > pis(new ValueMap<float>());
+       auto pis = std::make_unique<ValueMap<float>>();
        ValueMap<float>::Filler floatfiller(*pis);
        floatfiller.insert(recoMuons, floats.begin(), floats.end());
        floatfiller.fill();
-       iEvent.put(pis);
+       iEvent.put(std::move(pis));
        std::cout << "Wrote useless floats into the event" << std::endl;
 
-       auto_ptr<OwnVector<pat::UserData> > halfp4s(new OwnVector<pat::UserData>());
+       auto halfp4s = std::make_unique<OwnVector<pat::UserData>>();
        for (size_t i = 0; i < recoMuons->size(); ++i) {
             halfp4s->push_back( pat::UserData::make( 0.5 * (*recoMuons)[i].p4() ) );
        }
-       OrphanHandle<OwnVector<pat::UserData> > handle = iEvent.put(halfp4s);
+       OrphanHandle<OwnVector<pat::UserData> > handle = iEvent.put(std::move(halfp4s));
        std::cout << "Wrote OwnVector of useless objects into the event" << std::endl;
        vector<Ptr<pat::UserData> > halfp4sPtr;
        for (size_t i = 0; i < recoMuons->size(); ++i) {
@@ -198,12 +198,12 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             halfp4sPtr.push_back(Ptr<pat::UserData>(handle, i));
        }
        std::cout << "   Made edm::Ptr<> to those useless objects" << std::endl;
-       auto_ptr<ValueMap<Ptr<pat::UserData> > > vmhalfp4s(new ValueMap<Ptr<pat::UserData> >());
+       auto vmhalfp4s = std::make_unique<ValueMap<Ptr<pat::UserData>>>();
        ValueMap<Ptr<pat::UserData> >::Filler filler(*vmhalfp4s);
        filler.insert(recoMuons, halfp4sPtr.begin(), halfp4sPtr.end());
        filler.fill();
        std::cout << "   Filled the ValueMap of edm::Ptr<> to those useless objects" << std::endl;
-       iEvent.put(vmhalfp4s);
+       iEvent.put(std::move(vmhalfp4s));
        std::cout << "   Wrote the ValueMap of edm::Ptr<> to those useless objects" << std::endl;
 
        std::cout << "So long, and thanks for all the muons.\n" << std::endl;

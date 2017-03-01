@@ -81,6 +81,8 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
 	"forwardJetSource" ) ),
      tauJetSource_( iConfig.getParameter< edm::InputTag >(
 	"tauJetSource" ) ),
+     isoTauJetSource_( iConfig.getParameter< edm::InputTag >(
+	"isoTauJetSource" ) ),
      etTotSource_( iConfig.getParameter< edm::InputTag >(
 	"etTotalSource" ) ),
      etHadSource_( iConfig.getParameter< edm::InputTag >(
@@ -104,6 +106,7 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
    produces< L1JetParticleCollection >( "Central" ) ;
    produces< L1JetParticleCollection >( "Forward" ) ;
    produces< L1JetParticleCollection >( "Tau" ) ;
+   produces< L1JetParticleCollection >( "IsoTau" ) ;
    produces< L1MuonParticleCollection >() ;
    produces< L1EtMissParticleCollection >( "MET" ) ;
    produces< L1EtMissParticleCollection >( "MHT" ) ;
@@ -116,6 +119,7 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
    consumes<L1GctJetCandCollection>(cenJetSource_);
    consumes<L1GctJetCandCollection>(forJetSource_);
    consumes<L1GctJetCandCollection>(tauJetSource_);
+   consumes<L1GctJetCandCollection>(isoTauJetSource_);
    consumes<L1GctEtTotalCollection>(etTotSource_);
    consumes<L1GctEtMissCollection>(etMissSource_);
    consumes<L1GctEtHadCollection>(etHadSource_);
@@ -151,7 +155,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
    // ~~~~~~~~~~~~~~~~~~~~ Muons ~~~~~~~~~~~~~~~~~~~~
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   auto_ptr< L1MuonParticleCollection > muColl(
+   unique_ptr< L1MuonParticleCollection > muColl(
      new L1MuonParticleCollection );
 
    if( produceMuonParticles_ )
@@ -245,35 +249,38 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
    }
    
    OrphanHandle< L1MuonParticleCollection > muHandle =
-     iEvent.put( muColl );
+     iEvent.put(std::move(muColl ));
 
 
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    // ~~~~~~~~~~~~~~~~~~~~ Calorimeter ~~~~~~~~~~~~~~~~~~~~
    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   auto_ptr< L1EmParticleCollection > isoEmColl(
+   unique_ptr< L1EmParticleCollection > isoEmColl(
       new L1EmParticleCollection );
 
-   auto_ptr< L1EmParticleCollection > nonIsoEmColl(
+   unique_ptr< L1EmParticleCollection > nonIsoEmColl(
       new L1EmParticleCollection );
 
-   auto_ptr< L1JetParticleCollection > cenJetColl(
+   unique_ptr< L1JetParticleCollection > cenJetColl(
       new L1JetParticleCollection );
 
-   auto_ptr< L1JetParticleCollection > forJetColl(
+   unique_ptr< L1JetParticleCollection > forJetColl(
       new L1JetParticleCollection );
 
-   auto_ptr< L1JetParticleCollection > tauJetColl(
+   unique_ptr< L1JetParticleCollection > tauJetColl(
       new L1JetParticleCollection );
 
-   auto_ptr< L1EtMissParticleCollection > etMissColl(
+   unique_ptr< L1JetParticleCollection > isoTauJetColl(
+      new L1JetParticleCollection );
+
+   unique_ptr< L1EtMissParticleCollection > etMissColl(
       new L1EtMissParticleCollection );
 
-   auto_ptr< L1EtMissParticleCollection > htMissColl(
+   unique_ptr< L1EtMissParticleCollection > htMissColl(
       new L1EtMissParticleCollection );
 
-   auto_ptr< L1HFRingsCollection > hfRingsColl( new L1HFRingsCollection );
+   unique_ptr< L1HFRingsCollection > hfRingsColl( new L1HFRingsCollection );
 
    if( produceCaloParticles_ )
    {
@@ -523,6 +530,54 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 		  tauJetColl->push_back(
 					L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
 						       Ref< L1GctJetCandCollection >( hwTauJetCands,
+										      i ),
+						       jetItr->bx() ) ) ;
+		}
+	    }
+	}
+
+
+      // Isolated Tau jets.
+//       cout << "HW tau jets" << endl ;
+      Handle< L1GctJetCandCollection > hwIsoTauJetCands ;
+      iEvent.getByLabel( isoTauJetSource_, hwIsoTauJetCands ) ;
+
+      if( !hwIsoTauJetCands.isValid() )
+	{
+	  LogDebug("L1ExtraParticlesProd")
+	    << "\nWarning: L1GctJetCandCollection with " << isoTauJetSource_
+	    << "\nrequested in configuration, but not found in the event."
+	    << std::endl;
+	}
+      else
+	{
+	  L1GctJetCandCollection::const_iterator jetItr = hwIsoTauJetCands->begin() ;
+	  L1GctJetCandCollection::const_iterator jetEnd = hwIsoTauJetCands->end() ;
+	  for( int i = 0 ; jetItr != jetEnd ; ++jetItr, ++i )
+	    {
+// 	 cout << "#" << i
+// 	      << " name " << jetItr->name()
+// 	      << " empty " << jetItr->empty()
+// 	      << " rank " << jetItr->rank()
+// 	      << " eta " << jetItr->etaIndex()
+// 	      << " sign " << jetItr->etaSign()
+// 	      << " phi " << jetItr->phiIndex()
+// 	      << " cen " << jetItr->isCentral()
+// 	      << " for " << jetItr->isForward()
+// 	      << " tau " << jetItr->isTau()
+// 	      << " bx " << jetItr->bx()
+// 	      << endl ;
+
+	      if( !jetItr->empty() &&
+		  ( !centralBxOnly_ || jetItr->bx() == 0 ) )
+		{
+		  double et = jetScale->et( jetItr->rank() ) ;
+
+// 	    cout << "L1Extra et " << et << endl ;
+
+		  isoTauJetColl->push_back(
+					L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
+						       Ref< L1GctJetCandCollection >( hwIsoTauJetCands,
 										      i ),
 						       jetItr->bx() ) ) ;
 		}
@@ -1046,28 +1101,31 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
    }
 
    OrphanHandle< L1EmParticleCollection > isoEmHandle =
-     iEvent.put( isoEmColl, "Isolated" ) ;
+     iEvent.put(std::move(isoEmColl), "Isolated" ) ;
 
    OrphanHandle< L1EmParticleCollection > nonIsoEmHandle =
-     iEvent.put( nonIsoEmColl, "NonIsolated" ) ;
+     iEvent.put(std::move(nonIsoEmColl), "NonIsolated" ) ;
 
    OrphanHandle< L1JetParticleCollection > cenJetHandle =
-     iEvent.put( cenJetColl, "Central" ) ;
+     iEvent.put(std::move(cenJetColl), "Central" ) ;
 
    OrphanHandle< L1JetParticleCollection > forJetHandle =
-     iEvent.put( forJetColl, "Forward" ) ;
+     iEvent.put(std::move(forJetColl), "Forward" ) ;
 
    OrphanHandle< L1JetParticleCollection > tauJetHandle =
-     iEvent.put( tauJetColl, "Tau" ) ;
+     iEvent.put(std::move(tauJetColl), "Tau" ) ;
+
+   OrphanHandle< L1JetParticleCollection > IsoTauJetHandle =
+     iEvent.put(std::move(isoTauJetColl), "IsoTau" ) ;
 
    OrphanHandle< L1EtMissParticleCollection > etMissCollHandle =
-     iEvent.put( etMissColl, "MET" ) ;
+     iEvent.put(std::move(etMissColl), "MET" ) ;
 
    OrphanHandle< L1EtMissParticleCollection > htMissCollHandle =
-     iEvent.put( htMissColl, "MHT" ) ;
+     iEvent.put(std::move(htMissColl), "MHT" ) ;
 
    OrphanHandle< L1HFRingsCollection > hfRingsCollHandle =
-     iEvent.put( hfRingsColl ) ;
+     iEvent.put(std::move(hfRingsColl )) ;
 }
 
 //math::XYZTLorentzVector

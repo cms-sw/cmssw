@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 
@@ -20,6 +21,7 @@ public:
   explicit CaloTowersReCreator(const edm::ParameterSet& ps);
   virtual ~CaloTowersReCreator() { }
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
 private:

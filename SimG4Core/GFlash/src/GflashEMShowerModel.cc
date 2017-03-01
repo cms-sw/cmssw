@@ -26,8 +26,6 @@ GflashEMShowerModel::GflashEMShowerModel(const G4String& modelName,
 					 const edm::ParameterSet& parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
 
-  //theWatcherOn = parSet.getParameter<bool>("watcherOn");
-
   theProfile = new GflashEMShowerProfile(parSet);
   theRegion  = const_cast<const G4Region*>(envelope); 
 
@@ -68,22 +66,7 @@ G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
   if(lv->GetRegion() != theRegion) { return false; }
-  //std::cout << "GflashEMShowerModel::ModelTrigger: LV " 
-  //	    << lv->GetRegion()->GetName() << std::endl;
-
-  // The parameterization starts inside crystals
-  //std::size_t pos1 = lv->GetName().find("EBRY");
-  //std::size_t pos2 = lv->GetName().find("EFRY");
-  
-  //std::size_t pos3 = lv->GetName().find("HVQ");
-  //std::size_t pos4 = lv->GetName().find("HF");
-  //if(pos1 == std::string::npos && pos2 == std::string::npos &&
-  //   pos3 == std::string::npos && pos4 == std::string::npos) return false;
-  //@@@for now, HF is not a part of Gflash Envelopes
-  //if(pos1 == std::string::npos && pos2 == std::string::npos ) return false;
-
   return true;
-
 }
 
 // -----------------------------------------------------------------------------------
@@ -128,12 +111,6 @@ void GflashEMShowerModel::makeHits(const G4FastTrack& fastTrack) {
       theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(spotIter->getPosition(),G4ThreeVector(0,0,0),
 								    theGflashTouchableHandle, false);
       updateGflashStep(spotIter->getPosition(),spotIter->getTime());
-
-      // if there is a watcher defined in a job and the flag is turned on
-      if(theWatcherOn) {
-      	SteppingAction* userSteppingAction = (SteppingAction*) G4EventManager::GetEventManager()->GetUserSteppingAction();
-      	userSteppingAction->m_g4StepSignal(theGflashStep);
-      }
 
       // Send G4Step information to Hit/Digi if the volume is sensitive
       // Copied from G4SteppingManager.cc

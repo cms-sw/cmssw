@@ -22,8 +22,6 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 /// vvv DEBUG
 // #include <iostream>
 
@@ -51,13 +49,8 @@ public:
   
   unsigned int references() const {return referenceCount_;}
 private :
-#ifdef CMS_NOCXX11
-  mutable unsigned int referenceCount_;
-  mutable unsigned int referenceMax_;
-#else
   mutable unsigned int referenceCount_=0;
   mutable unsigned int referenceMax_ =0;
-#endif
 };
 #endif
 
@@ -87,8 +80,6 @@ public:
   virtual ~BasicTrajectoryState();
 
   virtual pointer clone() const=0;
-
-#ifndef CMS_NOCXX11
 
   template<typename T, typename... Args>
   static std::shared_ptr<BTSOS> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
@@ -173,33 +164,6 @@ public:
   }
 
 
-#endif
-
-  /*
-  virtual void update( const GlobalTrajectoryParameters& par,
-		       const SurfaceType& aSurface,
-		       SurfaceSide side) GCC11_FINAL {
-    theFreeState = FreeTrajectoryState(par);
-    theLocalError = InvalidError();
-    theLocalParametersValid=false;
-    theValid=true;
-    theSurfaceSide=side;
-    theSurfaceP = &aSurface;
-    theWeight = 1.;
-  }
-  virtual void update( const GlobalTrajectoryParameters& par,
-		       const CurvilinearTrajectoryError& err,
-		       const SurfaceType& aSurface,
-		       SurfaceSide side) GCC11_FINAL {
-    theFreeState = FreeTrajectoryState(par,err);
-    theLocalError = InvalidError();
-    theLocalParametersValid=false;
-    theValid=true;
-    theSurfaceSide=side;
-    theSurfaceP = &aSurface;
-    theWeight = 1.;
-  }
-  */
 
   bool isValid() const { return theValid; }
 
@@ -310,7 +274,7 @@ public:
                        const SurfaceSide side ) ;
 
   // update in place and in the very same place
-  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) GCC11_FINAL;
+  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) final;
                        
 
 
@@ -324,14 +288,16 @@ public:
   // update in place and in the very same place
  virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
-                       const SurfaceSide side) GCC11_FINAL;
+                       const SurfaceSide side) final;
 
  CurvilinearTrajectoryError & setCurvilinearError() {
     return theFreeState.setCurvilinearError();
  }
 
 public:
-  virtual std::vector<TrajectoryStateOnSurface> components() const =0;
+  using Components = std::vector<TrajectoryStateOnSurface>;
+  virtual Components const & components() const =0;
+  virtual bool singleState() const=0;
 
 private:
 
@@ -363,11 +329,7 @@ private:
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<SurfaceType> theSurfaceP;
 
-#ifdef CMS_NOCXX11
-  double theWeight;
-#else
   double theWeight=0.;
-#endif
 };
 
 #endif

@@ -1,44 +1,47 @@
 #ifndef __PFClusterEMEnergyCorrector_H__
 #define __PFClusterEMEnergyCorrector_H__
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class PFClusterEMEnergyCorrector : public PFClusterEnergyCorrectorBase {
+class PFClusterEMEnergyCorrector {
  public:
-  PFClusterEMEnergyCorrector(const edm::ParameterSet& conf) :
-    PFClusterEnergyCorrectorBase(conf),
-    _applyCrackCorrections(conf.getParameter<bool>("applyCrackCorrections")),
-    _assoc(NULL),
-    _idx(0),
-    _calibrator(new PFEnergyCalibration) { }
+  PFClusterEMEnergyCorrector(const edm::ParameterSet& conf, edm::ConsumesCollector &&cc);
   PFClusterEMEnergyCorrector(const PFClusterEMEnergyCorrector&) = delete;
   PFClusterEMEnergyCorrector& operator=(const PFClusterEMEnergyCorrector&) = delete;
 
-  void setEEtoPSAssociation(const reco::PFCluster::EEtoPSAssociation& assoc) {
-    _assoc = &assoc;
-  }
-  void setClusterIndex(const unsigned i) { _idx = i; }
+  void correctEnergies(const edm::Event &evt, const edm::EventSetup &es, const reco::PFCluster::EEtoPSAssociation &assoc, reco::PFClusterCollection& cs);
 
-  void correctEnergy(reco::PFCluster& c) { correctEnergyActual(c,_idx); }
-  void correctEnergies(reco::PFClusterCollection& cs) {
-    for( unsigned i = 0; i < cs.size(); ++i ) correctEnergyActual(cs[i],i);
-  }
-
- private:  
-  const bool _applyCrackCorrections;
-  const reco::PFCluster::EEtoPSAssociation* _assoc;
-  unsigned _idx;
-  std::unique_ptr<PFEnergyCalibration> _calibrator;
+ private:    
+  bool _applyCrackCorrections;
+  bool _applyMVACorrections;
+  double _maxPtForMVAEvaluation;
+   
+  bool autoDetectBunchSpacing_;
+  int bunchSpacingManual_;
   
-  void correctEnergyActual(reco::PFCluster&, const unsigned) const;
+  edm::EDGetTokenT<unsigned int> bunchSpacing_; 
+  
+  edm::EDGetTokenT<EcalRecHitCollection> _recHitsEB;
+  edm::EDGetTokenT<EcalRecHitCollection> _recHitsEE;  
+  
+  std::vector<std::string> _condnames_mean_50ns;
+  std::vector<std::string> _condnames_sigma_50ns;
+  std::vector<std::string> _condnames_mean_25ns;
+  std::vector<std::string> _condnames_sigma_25ns;  
+  
+   std::unique_ptr<PFEnergyCalibration> _calibrator;
   
 };
-
-DEFINE_EDM_PLUGIN(PFClusterEnergyCorrectorFactory,
-		  PFClusterEMEnergyCorrector,
-		  "PFClusterEMEnergyCorrector");
 
 #endif

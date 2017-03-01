@@ -19,13 +19,13 @@
 # to generate and test PT and SR LUTs, 
 # please don't remove them
 
-#<library file="analysis/CSCMakeSRLUT.cc" name="CSCMakeSRLUT">
-#     <flags EDM_PLUGIN="1"/>
-#</library>
+<library file="analysis/CSCMakeSRLUT.cc" name="CSCMakeSRLUT">
+     <flags EDM_PLUGIN="1"/>
+</library>
 
-#<library file="analysis/CSCMakePTLUT.cc" name="CSCMakePTLUT">
-#     <flags EDM_PLUGIN="1"/>
-#</library>
+<library file="analysis/CSCMakePTLUT.cc" name="CSCMakePTLUT">
+     <flags EDM_PLUGIN="1"/>
+</library>
 
 #The following plugins require this library to be built
 

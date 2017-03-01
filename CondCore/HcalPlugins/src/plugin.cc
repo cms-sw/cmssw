@@ -13,8 +13,24 @@
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 
+#include "CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
+
+#include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionMapCollRcd.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrectionMapColl.h"
+
+#include "CondFormats/DataRecord/interface/HcalInterpolatedPulseCollRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
+
+#include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
+#include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
+
+#include "CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h"
+#include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"
+
 //
 #include "CondCore/CondDB/interface/Serialization.h"
+
 
 // required for compiling ( the only available constructor in this class ). Can't be used in persistency without this...
 namespace cond {
@@ -31,8 +47,10 @@ REGISTER_PLUGIN(HcalPedestalWidthsRcd,HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd,HcalGains);
 REGISTER_PLUGIN(HcalGainWidthsRcd,HcalGainWidths);
 REGISTER_PLUGIN(HcalElectronicsMapRcd,HcalElectronicsMap);
+REGISTER_PLUGIN(HcalFrontEndMapRcd,HcalFrontEndMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd,HcalChannelQuality);
 REGISTER_PLUGIN(HcalQIEDataRcd,HcalQIEData);
+REGISTER_PLUGIN(HcalQIETypesRcd,HcalQIETypes);
 REGISTER_PLUGIN(HcalCalibrationQIEDataRcd,HcalCalibrationQIEData);
 REGISTER_PLUGIN(HcalZSThresholdsRcd,HcalZSThresholds);
 REGISTER_PLUGIN(HcalRespCorrsRcd,HcalRespCorrs);
@@ -44,11 +62,19 @@ REGISTER_PLUGIN(HcalValidationCorrsRcd,HcalValidationCorrs);
 REGISTER_PLUGIN(HcalLutMetadataRcd,HcalLutMetadata);
 REGISTER_PLUGIN(HcalDcsRcd, HcalDcsValues);
 REGISTER_PLUGIN(HcalDcsMapRcd,HcalDcsMap);
-REGISTER_PLUGIN(HcalCholeskyMatricesRcd,HcalCholeskyMatrices);
-REGISTER_PLUGIN(HcalCovarianceMatricesRcd,HcalCovarianceMatrices);
 REGISTER_PLUGIN(HcalRecoParamsRcd,HcalRecoParams);
 REGISTER_PLUGIN(HcalLongRecoParamsRcd,HcalLongRecoParams);
+REGISTER_PLUGIN(HcalZDCLowGainFractionsRcd,HcalZDCLowGainFractions);
 REGISTER_PLUGIN(HcalMCParamsRcd,HcalMCParams);
 REGISTER_PLUGIN(HcalFlagHFDigiTimeParamsRcd,HcalFlagHFDigiTimeParams);
 REGISTER_PLUGIN(HcalTimingParamsRcd,HcalTimingParams);
 REGISTER_PLUGIN(HcalOOTPileupCorrectionRcd,OOTPileupCorrectionColl);
+REGISTER_PLUGIN(HcalOOTPileupCompatibilityRcd,OOTPileupCorrectionBuffer);
+REGISTER_PLUGIN(HcalOOTPileupCorrectionMapCollRcd,OOTPileupCorrectionMapColl);
+REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd,HcalInterpolatedPulseColl);
+REGISTER_PLUGIN(HBHENegativeEFilterRcd,HBHENegativeEFilter);
+REGISTER_PLUGIN(HcalSiPMParametersRcd,HcalSiPMParameters);
+REGISTER_PLUGIN(HcalSiPMCharacteristicsRcd,HcalSiPMCharacteristics);
+REGISTER_PLUGIN(HcalTPParametersRcd,HcalTPParameters);
+REGISTER_PLUGIN(HcalTPChannelParametersRcd,HcalTPChannelParameters);
+REGISTER_PLUGIN(HFPhase1PMTParamsRcd,HcalItemCollById<HFPhase1PMTData>);

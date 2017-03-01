@@ -53,7 +53,7 @@ parser.add_option("--filetype",
                   help="The type of the infile (EDM, LHE or MCDB).",
                   default=defaultOptions.filetype,
                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM']
+                  choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ']
                   )
 
 parser.add_option("-n", "--number",
@@ -115,6 +115,11 @@ expertSettings.add_option("--customise",
                           default=[],
                           action="append",
                           dest="customisation_file")
+expertSettings.add_option("--customise_unsch",
+                          help="Specify the file where the code to modify the process object is stored.",
+                          default=[],
+                          action="append",
+                          dest="customisation_file_unsch")
 expertSettings.add_option("--customise_commands",
                           help="Specify a string of commands",
                           default="",
@@ -195,6 +200,11 @@ expertSettings.add_option("--pileup_input",
                           default=None,
                           dest="pileup_input")
 
+expertSettings.add_option("--pileup_dasoption",
+                          help="Additional option for DAS query of pile up",
+                          default="",
+                          dest="pileup_dasoption")
+
 expertSettings.add_option("--datamix",
                   help="What datamix config to use. Default=DataOnSim.",
                   default=defaultOptions.datamix,
@@ -206,12 +216,6 @@ expertSettings.add_option("--gflash",
                   default=defaultOptions.gflash,
                   dest="gflash")
 
-expertSettings.add_option("--himix",
-                 help="Run the Heavy Ions signal mixing.",
-                 action="store_true",
-                 default=defaultOptions.himix,
-                 dest="himix")
-                                                    
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
                           default='',
@@ -261,6 +265,11 @@ expertSettings.add_option("--dasquery",
                           help="Allow to define the source.fileNames from the das search command",
                           default='',
                           dest="dasquery")
+
+expertSettings.add_option("--dasoption",
+                          help="Additional option for DAS query",
+                          default='',
+                          dest="dasoption")
 
 expertSettings.add_option("--dbsquery",
                           help="Deprecated. Please use dasquery option. Functions for backward compatibility",
@@ -336,10 +345,11 @@ expertSettings.add_option("--restoreRNDSeeds",
                           )
 threeValued.append( ('--restoreRNDSeeds',True) )
 
-expertSettings.add_option("--slhc",
-                          help="Specify the SLHC scenario version",
+
+expertSettings.add_option("--era",
+                          help="Specify which era to use (e.g. \"run2\")",
                           default=None,
-                          dest="slhc")
+                          dest="era")
 
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",
@@ -360,4 +370,16 @@ expertSettings.add_option("--lumiToProcess",
                           help="specify a certification json file in input to run on certified data",
                           default=None,
                           dest='lumiToProcess'
+                          )
+
+expertSettings.add_option("--timeoutOutput",
+                          help="use a TimeoutPoolOutputModule instead of a PoolOutputModule (needed for evt. display)",
+                          default=False,
+                          dest='timeoutOutput'
+                          )
+
+expertSettings.add_option("--nThreads",
+                          help="How many threads should CMSSW use (default is 1)",
+                          default="1",
+                          dest='nThreads'
                           )

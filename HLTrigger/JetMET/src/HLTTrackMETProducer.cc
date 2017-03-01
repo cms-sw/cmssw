@@ -65,7 +65,7 @@ void HLTTrackMETProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::METCollection> result(new reco::METCollection());
+    std::unique_ptr<reco::METCollection> result(new reco::METCollection());
 
     if (pfCandidatesLabel_.label() == "")
         excludePFMuons_ = false;
@@ -171,5 +171,5 @@ void HLTTrackMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     result->push_back(mht);
 
     // Put the products into the Event
-    iEvent.put(result);
+    iEvent.put(std::move(result));
 }

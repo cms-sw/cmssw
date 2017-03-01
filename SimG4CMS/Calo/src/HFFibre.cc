@@ -29,7 +29,7 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
   std::string value     = "HF";
   DDSpecificsFilter filter1;
   DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+  filter1.setCriteria(ddv1,DDCompOp::equals);
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   bool dodet = fv1.firstChild();
@@ -73,43 +73,26 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
     throw cms::Exception("Unknown", "HFFibre")
       << "cannot match " << attribute << " to " << name <<"\n";
   }
-
-  // Now geometry parameters
-  attribute = "ReadOutName";
-  value     = name;
-  DDSpecificsFilter filter2;
-  DDValue           ddv2(attribute,value,0);
-  filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
-  DDFilteredView fv2(cpv);
-  fv2.addFilter(filter2);
-  dodet     = fv2.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv2.mergedSpecifics());
-
-    //Special Geometry parameters
-    int nb    = -1;
-    gpar      = getDDDArray("gparHF",sv,nb);
-    edm::LogInfo("HFShower") << "HFFibre: " << nb <<" gpar (cm)";
-    for (int i=0; i<nb; i++)
-      edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
-			       << gpar[i]/cm << " cm";
-
-    nBinR     = -1;
-    radius    = getDDDArray("rTable",sv,nBinR);
-    edm::LogInfo("HFShower") << "HFFibre: " << nBinR <<" rTable (cm)";
-    for (int i=0; i<nBinR; i++)
-      edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "
-			       << radius[i]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFFibre: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFFibre")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
 }
 
 HFFibre::~HFFibre() {}
+
+void HFFibre::initRun(HcalDDDSimConstants* hcons) {
+
+  // Now geometry parameters
+  gpar      = hcons->getGparHF();
+  edm::LogInfo("HFShower") << "HFFibre: " << gpar.size() <<" gpar (cm)";
+  for (unsigned int i=0; i<gpar.size(); i++)
+    edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
+                             << gpar[i]/cm << " cm";
+
+  radius    = hcons->getRTableHF();
+  nBinR     = (int)(radius.size());
+  edm::LogInfo("HFShower") << "HFFibre: " << radius.size() <<" rTable (cm)";
+  for (unsigned int i=0; i<radius.size(); i++)
+    edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "
+                             << radius[i]/cm << " cm";
+}
 
 double HFFibre::attLength(double lambda) {
 

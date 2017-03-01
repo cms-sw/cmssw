@@ -186,7 +186,7 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   
     if(recoMu->isGlobalMuon())
       TransTrack = theB->build(recoMu->globalTrack());
-    if(recoMu->isTrackerMuon() && !(recoMu->isGlobalMuon()))
+    if((recoMu->isTrackerMuon() || recoMu->isRPCMuon()) && !(recoMu->isGlobalMuon()))
       TransTrack = theB->build(recoMu->innerTrack());
     if(recoMu->isStandAloneMuon() && !(recoMu->isGlobalMuon()))
       TransTrack = theB->build(recoMu->outerTrack());

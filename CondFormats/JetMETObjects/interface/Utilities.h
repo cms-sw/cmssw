@@ -4,7 +4,7 @@
 #ifdef STANDALONE
 #include <stdexcept>
 #else
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif
 
 #include <cstdlib>
@@ -22,7 +22,7 @@ namespace
     sserr<<fClass<<" ERROR: "<<fMessage;
     throw std::runtime_error(sserr.str());
 #else
-    throw cms::Exception(fClass)<<fMessage;
+    edm::LogError(fClass) << fMessage;
 #endif
   }
   //----------------------------------------------------------------------
@@ -48,6 +48,18 @@ namespace
         std::stringstream sserr;
         sserr<<"can't convert token "<<token<<" to unsigned value";
 	handleError("getUnsigned",sserr.str());
+      }
+    return result;
+  }
+  inline long int getSigned(const std::string& token)
+  {
+    char* endptr;
+    unsigned result = strtol (token.c_str(), &endptr, 0);
+    if (endptr == token.c_str())
+      {
+        std::stringstream sserr;
+        sserr<<"can't convert token "<<token<<" to signed value";
+	handleError("getSigned",sserr.str());
       }
     return result;
   }

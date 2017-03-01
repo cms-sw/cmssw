@@ -25,11 +25,10 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-const char * BeamMonitorBx::formatFitTime( const time_t & t )  {
+void BeamMonitorBx::formatFitTime(char *ts, const time_t & t )  {
 #define CET (+1)
 #define CEST (+2)
 
-  static char ts[] = "yyyy-Mm-dd hh:mm:ss";
   tm * ptm;
   ptm = gmtime ( &t );
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", ptm->tm_year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
@@ -38,8 +37,6 @@ const char * BeamMonitorBx::formatFitTime( const time_t & t )  {
   unsigned int b = strlen(ts);
   while (ts[--b] == ' ') {ts[b] = 0;}
 #endif
-  return ts;
-
 }
 
 //
@@ -232,7 +229,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
       string tmpDir_ = subDir_ + "/All_" + varName->first;
       dbe_->cd(monitorName_+tmpDir_);
       TString histTitle(varName->first);
-      string tmpName;
+      TString tmpName;
       if (prefix_ != "") tmpName = prefix_ + "_" + varName->first;
       if (suffix_ != "") tmpName = tmpName + "_" + suffix_;
       tmpName = tmpName + "_" + ss.str();
@@ -289,12 +286,12 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	break;
       }
       // check if already exist
-      if (dbe_->get(monitorName_+tmpDir_+"/"+string(histName))) continue;
+      if (dbe_->get(monitorName_+tmpDir_+"/"+string(histName.Data()))) continue;
 
       if (createHisto) {
 	edm::LogInfo("BX|BeamMonitorBx") << "histName = " << histName << "; histTitle = " << histTitle << std::endl;
 	hst[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-	hst[histName]->getTH1()->SetBit(TH1::kCanRebin);
+	hst[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
 	hst[histName]->setAxisTitle(xtitle,1);
 	hst[histName]->setAxisTitle(ytitle,2);
 	hst[histName]->getTH1()->SetOption("E1");
@@ -302,7 +299,9 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 	  hst[histName]->getTH1()->SetBins(3600,0.5,3600+0.5);
 	  hst[histName]->setAxisTimeDisplay(1);
 	  hst[histName]->setAxisTimeFormat("%H:%M:%S",1);
-	  const char* eventTime = formatFitTime(startTime);
+
+	  char eventTime[64];
+	  formatFitTime(eventTime, startTime);
 	  TDatime da(eventTime);
 	  if (debug_) {
 	    edm::LogInfo("BX|BeamMonitorBx") << "TimeOffset = ";
@@ -321,7 +320,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 
   hst[histName] = dbe_->book1D(histName,"Number of Good Reconstructed Vertices",40,0.5,40.5);
   hst[histName]->setAxisTitle(xtitle,1);
-  hst[histName]->getTH1()->SetBit(TH1::kCanRebin);
+  hst[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
   hst[histName]->getTH1()->SetOption("E1");
 
 }

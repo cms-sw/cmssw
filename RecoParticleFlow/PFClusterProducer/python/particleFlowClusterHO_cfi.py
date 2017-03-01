@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# Use this object to modify parameters specifically for Run 2
+
 #### PF CLUSTER HO ####
 
 #cleaning
@@ -83,3 +85,25 @@ particleFlowClusterHO = cms.EDProducer(
     energyCorrector = cms.PSet()
 )
 
+#
+# Need to change the quality tests for Run 2
+#
+def _modifyParticleFlowClusterHOForRun2( object ) :
+    """
+    Customises PFClusterProducer for Run 2.
+    """
+    for p in object.seedFinder.thresholdsByDetector:
+        p.seedingThreshold = cms.double(0.08)
+
+    for p in object.initialClusteringStep.thresholdsByDetector:
+        p.gatheringThreshold = cms.double(0.05)
+
+    for p in object.pfClusterBuilder.recHitEnergyNorms:
+        p.recHitEnergyNorm = cms.double(0.05)
+
+    object.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
+    object.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
+
+# Call the function above to modify particleFlowClusterHO only if the run2 era is active
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( particleFlowClusterHO, func=_modifyParticleFlowClusterHOForRun2 )

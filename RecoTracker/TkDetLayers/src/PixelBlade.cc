@@ -128,9 +128,9 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
   //Code for use of binfinder
   //int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.perp());  
-  //float innerDist = fabs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
+  //float innerDist = std::abs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
   int innerIndex = findBin(gInnerPoint.perp(),0);
-  float innerDist = fabs( findPosition(innerIndex,0).perp() - gInnerPoint.perp());
+  float innerDist = std::abs( findPosition(innerIndex,0).perp() - gInnerPoint.perp());
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   pair<bool,double> outerPath = crossing.pathLength( *theBackDiskSector);
@@ -139,9 +139,9 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
   //Code for use of binfinder
   //int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.perp());
-  //float outerDist = fabs( theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.perp());
+  //float outerDist = std::abs( theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.perp());
   int outerIndex  = findBin(gOuterPoint.perp(),1);
-  float outerDist = fabs( findPosition(outerIndex,1).perp() - gOuterPoint.perp());
+  float outerDist = std::abs( findPosition(outerIndex,1).perp() - gOuterPoint.perp());
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
 
   if (innerDist < outerDist) {
@@ -226,7 +226,7 @@ bool PixelBlade::overlap( const GlobalPoint& crossPoint, const GeomDet& det, flo
   const float relativeMargin = 1.01;
 
   LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
-  //   if (fabs(localCrossPoint.z()) > tolerance) {
+  //   if (std::abs(localCrossPoint.z()) > tolerance) {
   //     edm::LogInfo(TkDetLayers) << "PixelBlade::overlap calculation assumes point on surface, but it is off by "
   // 	 << localCrossPoint.z() ;
   //   }
@@ -237,7 +237,7 @@ bool PixelBlade::overlap( const GlobalPoint& crossPoint, const GeomDet& det, flo
   //   edm::LogInfo(TkDetLayers) << "PixelBlade::overlap: Det at " << det.position() << " hit at " << localY 
   //        << " Window " << window << " halflength "  << detHalfLength ;
   
-  if ( ( fabs(localX)-window) < relativeMargin*detHalfLength ) { // FIXME: margin hard-wired!
+  if ( ( std::abs(localX)-window) < relativeMargin*detHalfLength ) { // FIXME: margin hard-wired!
     return true;
   } else {
     return false;
@@ -250,9 +250,9 @@ PixelBlade::findBin( float R,int diskSectorIndex) const
   vector<const GeomDet*> localDets = diskSectorIndex==0 ? theFrontDets : theBackDets;
   
   int theBin = 0;
-  float rDiff = fabs( R - localDets.front()->surface().position().perp());;
+  float rDiff = std::abs( R - localDets.front()->surface().position().perp());;
   for (vector<const GeomDet*>::const_iterator i=localDets.begin(); i !=localDets.end(); i++){
-    float testDiff = fabs( R - (**i).surface().position().perp());
+    float testDiff = std::abs( R - (**i).surface().position().perp());
     if ( testDiff < rDiff) {
       rDiff = testDiff;
       theBin = i - localDets.begin();

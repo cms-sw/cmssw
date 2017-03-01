@@ -21,10 +21,10 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer( const edm::ParameterSet & cfg 
    outputCollectionLabel_ = cfg.getParameter<std::string>("outputCollectionLabel");
    edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet> ("pfIsolationValues"));
    
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPUPt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPUPt")));
 //   std::vector<std::string> isoNames = pfIsoVals.getParameterNamesForType<edm::InputTag>();
 //   for(const std::string& name : isoNames) {
 //     edm::InputTag tag = 
@@ -33,6 +33,18 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer( const edm::ParameterSet & cfg 
 //   }
 
    nDeps_ =  tokenElectronIsoVals_.size();
+
+   if( cfg.existsAs<edm::ParameterSet>("regressionConfig") ) {
+     const edm::ParameterSet& iconf = cfg.getParameterSet("regressionConfig");
+     const std::string& mname = iconf.getParameter<std::string>("modifierName");
+     ModifyObjectValueBase* plugin = 
+       ModifyObjectValueFactory::get()->create(mname,iconf);
+     gedRegression_.reset(plugin);
+     edm::ConsumesCollector sumes = consumesCollector();
+     gedRegression_->setConsumes(sumes);
+   } else {
+     gedRegression_.reset(nullptr);
+   }
 
    produces<reco::GsfElectronCollection> (outputCollectionLabel_);
 }
@@ -45,8 +57,13 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
  {
    
    // Output collection
-   std::auto_ptr<reco::GsfElectronCollection> outputElectrons_p(new reco::GsfElectronCollection);
+   auto outputElectrons_p = std::make_unique<reco::GsfElectronCollection>();
    
+   if( gedRegression_ ) {
+     gedRegression_->setEvent(event);
+     gedRegression_->setEventContent(setup);
+   }
+
    // read input collections
    // electrons
    edm::Handle<reco::GsfElectronCollection> gedElectronHandle;
@@ -56,7 +73,7 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
    edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
    event.getByToken(pfCandidates_,pfCandidateHandle);
    // value maps
-   std::vector< edm::Handle< edm::ValueMap<double> > > isolationValueMaps(nDeps_);
+   std::vector< edm::Handle< edm::ValueMap<float> > > isolationValueMaps(nDeps_);
 
    for(unsigned i=0; i < nDeps_ ; ++i) {
      event.getByToken(tokenElectronIsoVals_[i],isolationValueMaps[i]);
@@ -96,16 +113,22 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
        if(itcheck!=gsfPFMap.end()) {
 	 // it means that there is a PFCandidate with the same GsfTrack
 	 myMvaOutput.status = 3; //as defined in PFCandidateEGammaExtra.h
+	 newElectron.setPassPflowPreselection(true); //this is currently fully redundant with mvaOutput.stats so candidate for removal
        }
-       else
+       else{
 	 myMvaOutput.status = 4 ; //
-       
+	 newElectron.setPassPflowPreselection(false);//this is currently fully redundant with mvaOutput.stats so candidate for removal	 
+       }
        newElectron.setMvaOutput(myMvaOutput);
+     }
+     
+     if( gedRegression_ ) {
+       gedRegression_->modifyObject(newElectron);
      }
      outputElectrons_p->push_back(newElectron);
    }
    
-   event.put(outputElectrons_p,outputCollectionLabel_);
+   event.put(std::move(outputElectrons_p),outputCollectionLabel_);
  }
 
 

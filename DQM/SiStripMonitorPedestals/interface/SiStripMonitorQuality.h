@@ -43,15 +43,15 @@ class DQMStore;
 class SiStripDetCabling;
 class SiStripQuality;
 
-class SiStripMonitorQuality : public thread_unsafe::DQMEDAnalyzer {
+class SiStripMonitorQuality : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorQuality(const edm::ParameterSet&);
   ~SiStripMonitorQuality();
   
   virtual void beginJob() ;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   virtual void endJob() ;
   
   

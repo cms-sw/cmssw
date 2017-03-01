@@ -26,8 +26,9 @@ MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theDbe = edm::Service<DQMStore>().operator->();
 
-  theMuonCollectionLabel_  = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
+  theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
+
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
 
   // Parameters
@@ -60,6 +61,7 @@ MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
   etaOvlpMin = parameters.getParameter<double>("etaOvlpMin");
   etaOvlpMax = parameters.getParameter<double>("etaOvlpMax");
 
+  theFolder = parameters.getParameter<string>("folder");
 }
 MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() { 
   delete theService;
@@ -69,7 +71,7 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 					  edm::Run const & /*iRun*/,
 					  edm::EventSetup const& /*iSetup*/){
   ibooker.cd();
-  ibooker.setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
+  ibooker.setCurrentFolder(theFolder);
 
 
   std::string EtaName;
@@ -85,6 +87,7 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     etaStaTrack.push_back(ibooker.book1D("StaMuon_eta_"+EtaName, "#eta_{STA} "+EtaName, etaBin, etaMin, etaMax));
     etaTightTrack.push_back(ibooker.book1D("TightMuon_eta_"+EtaName, "#eta_{Tight} "+EtaName, etaBin, etaMin, etaMax));
     etaLooseTrack.push_back(ibooker.book1D("LooseMuon_eta_"+EtaName, "#eta_{Loose} "+EtaName, etaBin, etaMin, etaMax));
+    etaMediumTrack.push_back(ibooker.book1D("MediumMuon_eta_"+EtaName, "#eta_{Medium} "+EtaName, etaBin, etaMin, etaMax));
     etaSoftTrack.push_back(ibooker.book1D("SoftMuon_eta_"+EtaName, "#eta_{Soft} "+EtaName, etaBin, etaMin, etaMax));
     etaHighPtTrack.push_back(ibooker.book1D("HighPtMuon_eta_"+EtaName, "#eta_{HighPt} "+EtaName, etaBin, etaMin, etaMax));
     
@@ -94,6 +97,7 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     phiStaTrack.push_back(ibooker.book1D("StaMuon_phi_"+EtaName, "#phi_{STA}"+EtaName+" (rad)", phiBin, phiMin, phiMax));
     phiTightTrack.push_back(ibooker.book1D("TightMuon_phi_"+EtaName, "#phi_{Tight}_"+EtaName, phiBin, phiMin, phiMax));
     phiLooseTrack.push_back(ibooker.book1D("LooseMuon_phi_"+EtaName, "#phi_{Loose}_"+EtaName, phiBin, phiMin, phiMax));
+    phiMediumTrack.push_back(ibooker.book1D("MediumMuon_phi_"+EtaName, "#phi_{Medium}_"+EtaName, phiBin, phiMin, phiMax));
     phiSoftTrack.push_back(ibooker.book1D("SoftMuon_phi_"+EtaName, "#phi_{Soft}_"+EtaName, phiBin, phiMin, phiMax));
     phiHighPtTrack.push_back(ibooker.book1D("HighPtMuon_phi_"+EtaName, "#phi_{HighPt}_"+EtaName, phiBin, phiMin, phiMax));
     
@@ -103,6 +107,7 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     pStaTrack.push_back(ibooker.book1D("StaMuon_p"+EtaName, "p_{STA} "+EtaName, pBin, pMin, pMax));
     pTightTrack.push_back(ibooker.book1D("TightMuon_p_"+EtaName, "p_{Tight} "+EtaName, pBin, pMin, pMax));
     pLooseTrack.push_back(ibooker.book1D("LooseMuon_p_"+EtaName, "p_{Loose} "+EtaName, pBin, pMin, pMax));
+    pMediumTrack.push_back(ibooker.book1D("MediumMuon_p_"+EtaName, "p_{Medium} "+EtaName, pBin, pMin, pMax));
     pSoftTrack.push_back(ibooker.book1D("SoftMuon_p_"+EtaName, "p_{Soft} "+EtaName, pBin, pMin, pMax));
     pHighPtTrack.push_back(ibooker.book1D("HighPtMuon_p_"+EtaName, "p_{HighPt} "+EtaName, pBin, pMin, pMax));
 
@@ -112,6 +117,7 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     ptStaTrack.push_back(ibooker.book1D("StaMuon_pt_"+EtaName, "pt_{STA} "+EtaName, ptBin, ptMin, pMax));
     ptTightTrack.push_back(ibooker.book1D("TightMuon_pt_"+EtaName, "pt_{Tight} "+EtaName, ptBin, ptMin, ptMax));
     ptLooseTrack.push_back(ibooker.book1D("LooseMuon_pt_"+EtaName, "pt_{Loose} "+EtaName, ptBin, ptMin, ptMax));
+    ptMediumTrack.push_back(ibooker.book1D("MediumMuon_pt_"+EtaName, "pt_{Medium} "+EtaName, ptBin, ptMin, ptMax));
     ptSoftTrack.push_back(ibooker.book1D("SoftMuon_pt_"+EtaName, "pt_{Soft} "+EtaName, ptBin, ptMin, ptMax));
     ptHighPtTrack.push_back(ibooker.book1D("HighPtMuon_pt_"+EtaName, "pt_{HighPt} "+EtaName, ptBin, ptMin, ptMax));
 
@@ -125,7 +131,9 @@ void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     chi2TightTrack.push_back(ibooker.book1D("TightMuon_chi2_"+EtaName, "#chi^{2}_{Tight} " + EtaName, chiBin, chiMin, chiMax));
     chi2probTightTrack.push_back(ibooker.book1D("TightMuon_chi2prob_"+EtaName, "#chi^{2}_{Tight} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
     chi2LooseTrack.push_back(ibooker.book1D("LooseMuon_chi2_"+EtaName, "#chi^{2}_{Loose} " + EtaName, chiBin, chiMin, chiMax));
+    chi2MediumTrack.push_back(ibooker.book1D("MediumMuon_chi2_"+EtaName, "#chi^{2}_{Medium} " + EtaName, chiBin, chiMin, chiMax));
     chi2probLooseTrack.push_back(ibooker.book1D("LooseMuon_chi2prob_"+EtaName, "#chi^{2}_{Loose} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2probMediumTrack.push_back(ibooker.book1D("MediumMuon_chi2prob_"+EtaName, "#chi^{2}_{Medium} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
     chi2SoftTrack.push_back(ibooker.book1D("SoftMuon_chi2_"+EtaName, "#chi^{2}_{Soft} " + EtaName, chiBin, chiMin, chiMax));
     chi2probSoftTrack.push_back(ibooker.book1D("SoftMuon_chi2prob_"+EtaName, "#chi^{2}_{Soft} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
     chi2HighPtTrack.push_back(ibooker.book1D("HighPtMuon_chi2_"+EtaName, "#chi^{2}_{HighPt} " + EtaName, chiBin, chiMin, chiMax));
@@ -137,7 +145,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] Analyze the mu in different eta regions";
   theService->update(iSetup);
   
-  edm::Handle<reco::MuonCollection> muons;
+  edm::Handle<edm::View<reco::Muon> > muons; 
   iEvent.getByToken(theMuonCollectionLabel_,muons);
   
   // =================================================================================
@@ -182,8 +190,7 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 #endif
   if (!muons.isValid()) return;
   
-  for (reco::MuonCollection::const_iterator muonIt = muons->begin(); muonIt!=muons->end(); ++muonIt){
-    reco::Muon recoMu = *muonIt;
+  for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
     
     for(unsigned int iEtaRegion=0;iEtaRegion<4;iEtaRegion++){
       if (iEtaRegion==0) {EtaCutMin= etaBMin; EtaCutMax=etaBMax;}
@@ -191,12 +198,12 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       if (iEtaRegion==2) {EtaCutMin= etaOvlpMin; EtaCutMax=etaOvlpMax;} 
       if (iEtaRegion==3) {EtaCutMin= etaBMin; EtaCutMax=etaECMax;}
     
-      if(recoMu.isGlobalMuon()) {
+      if(muon->isGlobalMuon()) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is global... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is global - filling the histos";
-	reco::TrackRef recoCombinedGlbTrack = recoMu.combinedMuon();
+	reco::TrackRef recoCombinedGlbTrack = muon->combinedMuon();
 	// get the track combinig the information from both the glb fit"
 	if(fabs(recoCombinedGlbTrack->eta())>EtaCutMin && fabs(recoCombinedGlbTrack->eta())<EtaCutMax){
 	  etaGlbTrack[iEtaRegion]->Fill(recoCombinedGlbTrack->eta());
@@ -208,13 +215,13 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
       }
 
-      if(recoMu.isTrackerMuon()) {
+      if(muon->isTrackerMuon()) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is tracker... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is tracker - filling the histos";
 	// get the track using only the tracker data
-	reco::TrackRef recoTrack = recoMu.track();
+	reco::TrackRef recoTrack = muon->track();
 	if(fabs(recoTrack->eta())>EtaCutMin && fabs(recoTrack->eta())<EtaCutMax){
 	  etaTrack[iEtaRegion]->Fill(recoTrack->eta());
 	  phiTrack[iEtaRegion]->Fill(recoTrack->phi());
@@ -225,13 +232,13 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
       }
 
-      if(recoMu.isStandAloneMuon()) {
+      if(muon->isStandAloneMuon()) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is standlone... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is standalone - filling the histos";
 	// get the track using only the mu spectrometer data
-	reco::TrackRef recoStaTrack = recoMu.standAloneMuon();
+	reco::TrackRef recoStaTrack = muon->standAloneMuon();
 	if(fabs(recoStaTrack->eta())>EtaCutMin && fabs(recoStaTrack->eta())<EtaCutMax){
 	  etaStaTrack[iEtaRegion]->Fill(recoStaTrack->eta());
 	  phiStaTrack[iEtaRegion]->Fill(recoStaTrack->phi());
@@ -242,12 +249,12 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
       }
 
-      if ( muon::isTightMuon(recoMu, vtx) ) {
+      if ( muon::isTightMuon(*muon, vtx) ) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is tight... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is Tight - filling the histos";
-	reco::TrackRef recoTightTrack = recoMu.combinedMuon();
+	reco::TrackRef recoTightTrack = muon->combinedMuon();
 	if(fabs(recoTightTrack->eta())>EtaCutMin && fabs(recoTightTrack->eta())<EtaCutMax){
 	  etaTightTrack[iEtaRegion]->Fill(recoTightTrack->eta());
 	  phiTightTrack[iEtaRegion]->Fill(recoTightTrack->phi());
@@ -259,15 +266,15 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       }
 
 
-      if ( muon::isLooseMuon(recoMu) ) {
+      if ( muon::isLooseMuon(*muon) ) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is Loose... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is Loose - filling the histos";
 	reco::TrackRef recoLooseTrack; 
 
-	if ( recoMu.isGlobalMuon()) recoLooseTrack = recoMu.combinedMuon();
-	else recoLooseTrack = recoMu.track();
+	if ( muon->isGlobalMuon()) recoLooseTrack = muon->combinedMuon();
+	else recoLooseTrack = muon->track();
 
 	if(fabs(recoLooseTrack->eta())>EtaCutMin && fabs(recoLooseTrack->eta())<EtaCutMax){
 	  etaLooseTrack[iEtaRegion]->Fill(recoLooseTrack->eta());
@@ -279,12 +286,32 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
       }
 
-      if ( muon::isSoftMuon(recoMu, vtx) ) {
+      if ( muon::isMediumMuon(*muon) ) {
+#ifdef DEBUG
+	cout << "[MuonKinVsEtaAnalyzer]: The mu is Medium... Filling the histos" << endl;
+#endif
+	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is Medium - filling the histos";
+	reco::TrackRef recoMediumTrack; 
+
+	if ( muon->isGlobalMuon()) recoMediumTrack = muon->combinedMuon();
+	else recoMediumTrack = muon->track();
+
+	if(fabs(recoMediumTrack->eta())>EtaCutMin && fabs(recoMediumTrack->eta())<EtaCutMax){
+	  etaMediumTrack[iEtaRegion]->Fill(recoMediumTrack->eta());
+	  phiMediumTrack[iEtaRegion]->Fill(recoMediumTrack->phi());
+	  pMediumTrack[iEtaRegion]->Fill(recoMediumTrack->p());
+	  ptMediumTrack[iEtaRegion]->Fill(recoMediumTrack->pt());
+	  chi2MediumTrack[iEtaRegion]->Fill(recoMediumTrack->normalizedChi2());
+	  chi2probMediumTrack[iEtaRegion]->Fill(TMath::Prob(recoMediumTrack->normalizedChi2(),recoMediumTrack->ndof()));
+	}
+      }
+
+      if ( muon::isSoftMuon(*muon, vtx) ) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is Soft... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is Soft - filling the histos";
-	reco::TrackRef recoSoftTrack = recoMu.track();
+	reco::TrackRef recoSoftTrack = muon->track();
 	if(fabs(recoSoftTrack->eta())>EtaCutMin && fabs(recoSoftTrack->eta())<EtaCutMax){
 	  etaSoftTrack[iEtaRegion]->Fill(recoSoftTrack->eta());
 	  phiSoftTrack[iEtaRegion]->Fill(recoSoftTrack->phi());
@@ -295,12 +322,12 @@ void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	}
       }
 
-      if ( muon::isHighPtMuon(recoMu, vtx) ) {
+      if ( muon::isHighPtMuon(*muon, vtx) ) {
 #ifdef DEBUG
 	cout << "[MuonKinVsEtaAnalyzer]: The mu is HighPt... Filling the histos" << endl;
 #endif
 	LogTrace(metname)<<"[MuonKinVsEtaAnalyzer] The mu is HightPt - filling the histos";
-	reco::TrackRef recoHighPtTrack = recoMu.combinedMuon();
+	reco::TrackRef recoHighPtTrack = muon->combinedMuon();
 	if(fabs(recoHighPtTrack->eta())>EtaCutMin && fabs(recoHighPtTrack->eta())<EtaCutMax){
 	  etaHighPtTrack[iEtaRegion]->Fill(recoHighPtTrack->eta());
 	  phiHighPtTrack[iEtaRegion]->Fill(recoHighPtTrack->phi());

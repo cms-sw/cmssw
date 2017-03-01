@@ -80,9 +80,9 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
 
   int nRed = 0;
 
-  // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and
+  // create a unique_ptr to a EcalRecHitCollection, copy the RecHits into it and
   // put in the Event:
-  std::auto_ptr<EcalRecHitCollection> redCollection(new EcalRecHitCollection);
+  auto redCollection = std::make_unique<EcalRecHitCollection>();
 
   for (EcalRecHitCollection::const_iterator it = hit_collection->begin();
        it != hit_collection->end(); ++it) {
@@ -117,7 +117,7 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
     }
   }
 
-  iEvent.put(redCollection, reducedHitCollection_);
+  iEvent.put(std::move(redCollection), reducedHitCollection_);
 
 }
 

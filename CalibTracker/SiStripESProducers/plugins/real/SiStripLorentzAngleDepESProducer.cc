@@ -34,7 +34,7 @@ SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::Pa
 }
 
 
-boost::shared_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
+std::shared_ptr<SiStripLorentzAngle> SiStripLorentzAngleDepESProducer::produce(const SiStripLorentzAngleDepRcd& iRecord)
 {
 
   edm::LogInfo("SiStripLorentzAngleDepESProducer") << "Producer called" << std::endl;

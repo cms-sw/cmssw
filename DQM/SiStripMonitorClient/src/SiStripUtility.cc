@@ -4,7 +4,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 //
 // Get a list of MEs in a folder
 //
@@ -225,7 +225,8 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
     if (
 	(fname.find("Reference") != std::string::npos) ||
 	(fname.find("AlCaReco")  != std::string::npos) ||
-	(fname.find("HLT")       != std::string::npos) 
+	(fname.find("HLT")       != std::string::npos) ||
+	(fname.find("IsolatedBunches")       != std::string::npos) 
 	) continue;
     dqm_store->cd(fname);
     if (!goToDir(dqm_store, name))  dqm_store->goUp();

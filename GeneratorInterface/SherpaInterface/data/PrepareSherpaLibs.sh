@@ -31,6 +31,8 @@ function print_help() {
     echo "         -L  filename   (optional) name of library file       ( "${cflb}" )" && \
     echo "         -C  filename   (optional) name of cross section file ( "${cfcr}" )" && \
     echo "         -G  filename   (optional) name of MI grid file       ( "${cfgr}" )" && \
+    echo "         -e  filename   (optional) name of extended weight list file ( "${weightfile}" ) " && \
+    echo "             (example file in GeneratorInterface/SherpaInterface/python/ExtendedSherpaWeights_cfi.py)" && \
 ##    echo "         -P  SRM path   (CRAB) SE path for final results" && \
 ##    echo "                         -> ( "${MYSRMPATH}" )" && \
     echo "         -h             display this help and exit" && echo
@@ -52,6 +54,9 @@ function build_python_cff() {
 
   echo "import FWCore.ParameterSet.Config as cms"                          >> ${cfffilename}
   echo "import os"                                                         >> ${cfffilename} 
+  if [ ! $weightlist == "" ]; then
+    echo "from $weightlist import *"                                       >> ${cfffilename} 
+  fi
   echo ""                                                                  >> ${cfffilename}
   echo "source = cms.Source(\"EmptySource\")"                              >> ${cfffilename}
   echo ""                                                                  >> ${cfffilename}
@@ -72,6 +77,9 @@ function build_python_cff() {
 ##  fi
   echo "  SherpaResultDir = cms.string('Result'),"                         >> ${cfffilename}
   echo "  SherpaDefaultWeight = cms.double(1.0),"                          >> ${cfffilename}
+  if [ ! $weightlist == "" ]; then
+      echo "  SherpaWeightsBlock = SherpaWeightsBlock,"                    >> ${cfffilename}
+  fi
   echo "  SherpaParameters = cms.PSet(parameterSets = cms.vstring("        >> ${cfffilename}
   fcnt=0
   for file in `ls *.dat`; do
@@ -96,7 +104,8 @@ function build_python_cff() {
     mv ${file}.tmp2 ${file}.tmp1
     sed '/^$/d' < ${file}.tmp1 > ${file}.tmp2                      # remove empty lines
     mv ${file}.tmp2 ${file}.tmp1
-    sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
+    #sed -e 's/^/ /g;s/ (/(/;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
+    sed -e 's/^/ /g;s/ }/}/' < ${file}.tmp1 > ${file}.tmp2 # add single space in front of parameters
     mv ${file}.tmp2 ${file}.tmp1
 ###
     sed -e 's/\"/\\"/g' < ${file}.tmp1 > ${file}.tmp2              # protect existing '"' by '\"'
@@ -203,6 +212,15 @@ function file_copy() {
 }
 
 
+function parse_extended_weight() {
+ if [ -e $CMSSW_BASE/src/$weightlist ]
+ then
+     weightlist=$(echo "$weightlist" | sed 's:/python/:.:g' | sed 's:/:.:g' | sed 's:.py::g' )
+ else
+     echo '$CMSSW_BASE/src/$weightlist does not exist.'
+     exit 1
+ fi
+}
 
 
 
@@ -247,13 +265,14 @@ cfdc=""                                              # custom data card file nam
 cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
 cfgr=""                                              # custom MI grid file name
+weightfile=""                                        # sherpa weights ordering file
 ##MYSRMPATH="./"                                       # SRM path for storage of results
 TDIR=TMP
 
 
 # get & evaluate options
 ##while getopts :i:p:d:m:a:D:L:C:G:P:h OPT
-while getopts :i:p:d:D:L:C:G:h OPT
+while getopts :i:p:d:D:L:C:G:e:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;
@@ -264,6 +283,7 @@ do
   L) cflb=$OPTARG ;;
   C) cfcr=$OPTARG ;;
   G) cfgr=$OPTARG ;;
+  e) weightlist=$OPTARG && parse_extended_weight;;
 ##  P) MYSRMPATH=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)

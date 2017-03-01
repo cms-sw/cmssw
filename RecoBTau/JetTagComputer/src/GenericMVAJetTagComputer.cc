@@ -39,7 +39,8 @@ getCalibrationLabels(const edm::ParameterSet &params,
 
 GenericMVAJetTagComputer::GenericMVAJetTagComputer(
 					const edm::ParameterSet &params) :
-	computerCache(getCalibrationLabels(params, categorySelector))
+	computerCache_(getCalibrationLabels(params, categorySelector_)),
+        recordLabel_(params.getParameter<std::string>("recordLabel"))
 {
 }
 
@@ -53,11 +54,11 @@ void GenericMVAJetTagComputer::initialize(const JetTagComputerRecord & record) {
 
 	// retrieve MVAComputer calibration container
 	edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
-	dependentRecord.get(calibHandle);
+	dependentRecord.get(recordLabel_, calibHandle);
 	const Calibration::MVAComputerContainer *calib = calibHandle.product();
 
 	// check for updates
-	computerCache.update(calib);
+	computerCache_.update(calib);
 }
 
 float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const
@@ -66,13 +67,13 @@ float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const
 
 	// retrieve index of computer in case categories are used
 	int index = 0;
-	if (categorySelector.get()) {
-		index = categorySelector->findCategory(variables);
+	if (categorySelector_.get()) {
+		index = categorySelector_->findCategory(variables);
 		if (index < 0)
 			return -10.0;
 	}
 
-	GenericMVAComputer const* computer = computerCache.getComputer(index);
+	GenericMVAComputer const* computer = computerCache_.getComputer(index);
 
 	if (!computer)
 		return -10.0;

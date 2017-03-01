@@ -42,7 +42,7 @@ namespace ecaldqm
       });
   }
 
-  EcalDQMonitor::~EcalDQMonitor()
+  EcalDQMonitor::~EcalDQMonitor() noexcept(false)
   {
     if(verbosity_ > 2) edm::LogInfo("EcalDQM") << moduleName_ << ": Deleting workers";
 
@@ -94,14 +94,6 @@ namespace ecaldqm
       _es.get<CaloTopologyRecord>().get(topoHandle);
       setTopology(topoHandle.product());
     }
-  }
-
-  void
-  EcalDQMonitor::ecaldqmReleaseHistograms()
-  {
-    executeOnWorkers_([](DQWorker* worker){
-        worker->releaseMEs();
-      }, "releaseMEs", "releasing histograms");
   }
 
   void

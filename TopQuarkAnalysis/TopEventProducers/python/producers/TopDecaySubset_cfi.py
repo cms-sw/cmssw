@@ -13,6 +13,10 @@ decaySubset = cms.EDProducer("TopDecaySubset",
   ## 'kME'     : status 3 particles (from matrix element, before
   ##             parton shower) are saved (as status 3 particles)
   fillMode = cms.string("kStable"),
+  ## define run mode. The following run modes are available:
+  ## 'Run1' : will run the same code as during Run1
+  ## 'Run2' : will run new code that can deal with Pythia8
+  runMode = cms.string("Run1"),
   ## choose whether to save additionally radiated gluons in the
   ## decay chain or not
   addRadiation = cms.bool(True)

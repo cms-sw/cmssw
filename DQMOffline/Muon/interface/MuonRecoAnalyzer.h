@@ -26,7 +26,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
-class MuonRecoAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class MuonRecoAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor
@@ -36,7 +36,7 @@ class MuonRecoAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   virtual ~MuonRecoAnalyzer();
 
   /// Inizialize parameters for histo binning
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  
   //calculate residual & pull:
@@ -47,7 +47,7 @@ class MuonRecoAnalyzer : public thread_unsafe::DQMEDAnalyzer {
     MuonServiceProxy *theService;
   edm::ParameterSet parameters;
   
-  edm::EDGetTokenT<reco::MuonCollection> theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   // Switch for verbosity
   std::string metname;
     
@@ -109,6 +109,7 @@ class MuonRecoAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   std::vector<MonitorElement*> oneOverptResolution;
   std::vector<MonitorElement*> rhAnalysis;
   std::vector<MonitorElement*> muVStkSytemRotation;
+  std::vector<MonitorElement*> phiVsetaGlbTrack;
 
  
   MonitorElement* tunePResolution;
@@ -143,5 +144,7 @@ class MuonRecoAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   std::vector<MonitorElement*> etaEfficiency;
   std::vector<MonitorElement*> phiEfficiency;
 
+  bool IsminiAOD;
+  std::string theFolder;
 };
 #endif

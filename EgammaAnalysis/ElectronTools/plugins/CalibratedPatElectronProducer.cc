@@ -39,15 +39,9 @@
 
 #include <iostream>
 
-using namespace edm ;
-using namespace std ;
-using namespace reco ;
-using namespace pat ;
-
 CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::ParameterSet & cfg )
-// : PatElectronBaseProducer(cfg)
 {
-    produces<ElectronCollection>();
+  produces<pat::ElectronCollection>();
 
     inputPatElectronsToken = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("inputPatElectronsTag"));
     dataset = cfg.getParameter<std::string>("inputDataset");
@@ -160,9 +154,9 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
 
     edm::Handle<edm::View<reco::Candidate> > oldElectrons ;
     event.getByToken(inputPatElectronsToken,oldElectrons) ;
-    std::auto_ptr<ElectronCollection> electrons( new ElectronCollection ) ;
-    ElectronCollection::const_iterator electron ;
-    ElectronCollection::iterator ele ;
+    std::unique_ptr<pat::ElectronCollection> electrons( new pat::ElectronCollection ) ;
+    pat::ElectronCollection::const_iterator electron ;
+    pat::ElectronCollection::iterator ele ;
     // first clone the initial collection
     for
         (
@@ -194,7 +188,11 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
             double trackMomentum = ele->trackMomentumAtVtx().R();
             double trackMomentumError = ele->trackMomentumError();
             double combinedMomentum = ele->p();
-            double combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
+            double combinedMomentumError = 0;
+            if ( ele->candidateP4Kind() != reco::GsfElectron::P4_UNKNOWN )
+            {
+              combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
+            }
             // FIXME : p4Error not filled for pure tracker electrons
             // Recompute it using the parametrization implemented in
             // RecoEgamma/EgammaElectronAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty()
@@ -297,7 +295,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
                    oldMomentum.z()*mySimpleElectron.getCombinedMomentum()/oldMomentum.t(),
                    mySimpleElectron.getCombinedMomentum() ) ;
 
-                ele->correctMomentum
+                 ele->correctMomentum
                     (
                         newMomentum_,
                         mySimpleElectron.getTrackerMomentumError(),
@@ -320,7 +318,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
         }
     }
     // Save the electrons
-    event.put(electrons) ;
+    event.put(std::move(electrons));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -34,37 +34,39 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 class MonitorElement;
 
-class JetTester : public thread_unsafe::DQMEDAnalyzer {
+class JetTester : public DQMEDAnalyzer {
  public:
 
   JetTester (const edm::ParameterSet&);
   ~JetTester();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   
-  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt,
-		      const double RecoEta, const double RecoPhi, const double RecoPt);
+  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt, const double GenMass,
+		      const double RecoEta, const double RecoPhi, const double RecoPt, const double RecoMass);
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;
-  std::string     mOutputFile;
+  edm::InputTag   mJetCorrector;
   std::string     JetType;
 
   //Tokens
   edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
-  edm::EDGetTokenT<CaloTowerCollection > caloTowersToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
-  edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> evtToken_;
+  edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
   // Event variables
   MonitorElement* mNvtx;
@@ -77,8 +79,6 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mEnergy;
   MonitorElement* mMass;
   MonitorElement* mConstituents;
-  MonitorElement* mHadTiming;
-  MonitorElement* mEmTiming;
   MonitorElement* mJetArea;
 //  MonitorElement* mRho;
 
@@ -97,6 +97,9 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mPtCorrOverReco_Eta_200_600;
   MonitorElement* mPtCorrOverReco_Eta_600_1500;
   MonitorElement* mPtCorrOverReco_Eta_1500_3500;
+  MonitorElement* mPtCorrOverReco_Eta_3500_5000;
+  MonitorElement* mPtCorrOverReco_Eta_5000_6500;
+  MonitorElement* mPtCorrOverReco_Eta_3500;
   MonitorElement* mPtCorrOverGen_GenPt_B;
   MonitorElement* mPtCorrOverGen_GenPt_E;
   MonitorElement* mPtCorrOverGen_GenPt_F;
@@ -105,6 +108,9 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mPtCorrOverGen_GenEta_200_600;
   MonitorElement* mPtCorrOverGen_GenEta_600_1500;
   MonitorElement* mPtCorrOverGen_GenEta_1500_3500;
+  MonitorElement* mPtCorrOverGen_GenEta_3500_5000;
+  MonitorElement* mPtCorrOverGen_GenEta_5000_6500;
+  MonitorElement* mPtCorrOverGen_GenEta_3500;
 
   // Generation
   MonitorElement* mGenEta;
@@ -132,6 +138,42 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mPtRecoOverGen_B_1500_3500;
   MonitorElement* mPtRecoOverGen_E_1500_3500;
   MonitorElement* mPtRecoOverGen_F_1500_3500;
+  MonitorElement* mPtRecoOverGen_B_3500_5000;
+  MonitorElement* mPtRecoOverGen_E_3500_5000;
+  MonitorElement* mPtRecoOverGen_B_5000_6500;
+  MonitorElement* mPtRecoOverGen_E_5000_6500;
+
+  //jet mass resolution as function of gen-pt
+  MonitorElement* mMassRecoOverGen_B_20_40;
+  MonitorElement* mMassRecoOverGen_E_20_40;
+  MonitorElement* mMassRecoOverGen_F_20_40;
+  MonitorElement* mMassRecoOverGen_B_40_200;
+  MonitorElement* mMassRecoOverGen_E_40_200;
+  MonitorElement* mMassRecoOverGen_F_40_200;
+  MonitorElement* mMassRecoOverGen_B_200_500;
+  MonitorElement* mMassRecoOverGen_E_200_500;
+  MonitorElement* mMassRecoOverGen_F_200_500;
+  MonitorElement* mMassRecoOverGen_B_500_750;
+  MonitorElement* mMassRecoOverGen_E_500_750;
+  MonitorElement* mMassRecoOverGen_F_500_750;
+  MonitorElement* mMassRecoOverGen_B_750_1000;
+  MonitorElement* mMassRecoOverGen_E_750_1000;
+  MonitorElement* mMassRecoOverGen_F_750_1000;
+  MonitorElement* mMassRecoOverGen_B_1000_1500;
+  MonitorElement* mMassRecoOverGen_E_1000_1500;
+  MonitorElement* mMassRecoOverGen_F_1000_1500;
+  MonitorElement* mMassRecoOverGen_B_1500_3500;
+  MonitorElement* mMassRecoOverGen_E_1500_3500;
+  MonitorElement* mMassRecoOverGen_F_1500;
+  MonitorElement* mMassRecoOverGen_B_3500_5000;
+  MonitorElement* mMassRecoOverGen_E_3500_5000;
+  MonitorElement* mMassRecoOverGen_B_5000;
+  MonitorElement* mMassRecoOverGen_E_5000;
+
+
+  MonitorElement* mPtRecoOverGen_B_3500;
+  MonitorElement* mPtRecoOverGen_E_3500;
+  MonitorElement* mPtRecoOverGen_F_3500;
 
   // Generation profiles
   MonitorElement* mPtRecoOverGen_GenPt_B;
@@ -145,6 +187,10 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mPtRecoOverGen_GenEta_200_600;
   MonitorElement* mPtRecoOverGen_GenEta_600_1500;
   MonitorElement* mPtRecoOverGen_GenEta_1500_3500;
+  MonitorElement* mPtRecoOverGen_GenEta_3500_5000;
+  MonitorElement* mPtRecoOverGen_GenEta_5000_6500;
+  MonitorElement* mPtRecoOverGen_GenEta_3500;
+
 
   // Some jet algebra
   MonitorElement* mEtaFirst;
@@ -207,17 +253,23 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* chargedMuEnergy;
   MonitorElement* chargedMuEnergyFraction;
   MonitorElement* neutralMultiplicity;
+  MonitorElement* HOEnergy;
+  MonitorElement* HOEnergyFraction;
+
+  //contained in MiniAOD
+  MonitorElement* hadronFlavor;
+  MonitorElement* partonFlavor;
+  MonitorElement* genPartonPDGID;
 
   // Parameters
   double          mRecoJetPtThreshold;
   double          mMatchGenPtThreshold;
-  double          mGenEnergyFractionThreshold;
   double          mRThreshold;
   bool            isCaloJet;
   bool            isPFJet;
-  
+  bool            isMiniAODJet;
 
-  std::string     JetCorrectionService;
+
 };
 
 #endif

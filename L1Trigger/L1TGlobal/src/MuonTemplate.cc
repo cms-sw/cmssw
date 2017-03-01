@@ -26,14 +26,12 @@
 
 //   base class
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
 
 // constructors
 MuonTemplate::MuonTemplate()
-        : GtCondition()
+        : GlobalCondition()
 {
 
     m_condCategory = l1t::CondMuon;
@@ -41,7 +39,7 @@ MuonTemplate::MuonTemplate()
 }
 
 MuonTemplate::MuonTemplate(const std::string& cName)
-        : GtCondition(cName)
+        : GlobalCondition(cName)
 {
 
     m_condCategory = l1t::CondMuon;
@@ -49,7 +47,7 @@ MuonTemplate::MuonTemplate(const std::string& cName)
 }
 
 MuonTemplate::MuonTemplate(const std::string& cName, const l1t::GtConditionType& cType)
-        : GtCondition(cName, l1t::CondMuon, cType)
+        : GlobalCondition(cName, l1t::CondMuon, cType)
 {
 
     int nObjects = nrObjects();
@@ -58,14 +56,14 @@ MuonTemplate::MuonTemplate(const std::string& cName, const l1t::GtConditionType&
         m_objectParameter.reserve(nObjects);
 
         m_objectType.reserve(nObjects);
-        m_objectType.assign(nObjects, Mu);
+        m_objectType.assign(nObjects, l1t::gtMu);
     }
 
 }
 
 // copy constructor
 MuonTemplate::MuonTemplate(const MuonTemplate& cp)
-        : GtCondition(cp.m_condName)
+        : GlobalCondition(cp.m_condName)
 {
     copy(cp);
 }
@@ -101,7 +99,7 @@ void MuonTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  MuonTemplate print..." << std::endl;
 
-    GtCondition::print(myCout);
+    GlobalCondition::print(myCout);
 
     int nObjects = nrObjects();
 
@@ -118,14 +116,36 @@ void MuonTemplate::print(std::ostream& myCout) const
         << std::hex << m_objectParameter[i].enableIso << std::endl;
         myCout << "    requestIso        = "
         << std::hex << m_objectParameter[i].requestIso << std::endl;
-        myCout << "    qualityRange      = "
-        << std::hex << m_objectParameter[i].qualityRange << std::endl;
-        myCout << "    etaRange          = "
-        << std::hex << m_objectParameter[i].etaRange << std::endl;
-        myCout << "    phiHigh           = "
-        << std::hex << m_objectParameter[i].phiHigh << std::endl;
-        myCout << "    phiLow            = "
-        << std::hex << m_objectParameter[i].phiLow << std::endl;
+	myCout << "    charge            ="
+	<< std::dec << m_objectParameter[i].charge << std::endl;
+        myCout << "    qualityLUT        = "
+        << std::hex << m_objectParameter[i].qualityLUT << std::endl;
+        myCout << "    isolationLUT      = "
+        << std::hex << m_objectParameter[i].isolationLUT << std::endl;
+ //       myCout << "    etaRange          = "
+ //       << std::hex << m_objectParameter[i].etaRange << std::endl;
+ //       myCout << "    phiHigh           = "
+ //       << std::hex << m_objectParameter[i].phiHigh << std::endl;
+ //       myCout << "    phiLow            = "
+//        << std::hex << m_objectParameter[i].phiLow << std::endl;
+          myCout << "    phiWindow1Lower   ="
+	  << std::hex << m_objectParameter[i].phiWindow1Lower << std::endl;
+          myCout << "    phiWindow1Upper   ="
+	  << std::hex << m_objectParameter[i].phiWindow1Upper << std::endl;
+          myCout << "    phiWindow2Lower   ="
+	  << std::hex << m_objectParameter[i].phiWindow2Lower << std::endl;
+          myCout << "    phiWindow2Upper   ="
+	  << std::hex << m_objectParameter[i].phiWindow2Upper << std::endl;
+          myCout << "    etaWindow1Lower   ="
+	  << std::hex << m_objectParameter[i].etaWindow1Lower << std::endl;
+          myCout << "    etaWindow1Upper   ="
+	  << std::hex << m_objectParameter[i].etaWindow1Upper << std::endl;
+          myCout << "    etaWindow2Lower   ="
+	  << std::hex << m_objectParameter[i].etaWindow2Lower << std::endl;
+          myCout << "    etaWindow2Upper   ="
+	  << std::hex << m_objectParameter[i].etaWindow2Upper << std::endl;
+
+
     }
 
 

@@ -13,7 +13,7 @@ GBRTree::GBRTree()
 }
 
 //_______________________________________________________________________
-GBRTree::GBRTree(const TMVA::DecisionTree *tree)
+GBRTree::GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary)
 {
   
   //printf("boostweights size = %i, forest size = %i\n",bdt->GetBoostWeights().size(),bdt->GetForest().size());
@@ -29,7 +29,7 @@ GBRTree::GBRTree(const TMVA::DecisionTree *tree)
   fRightIndices.reserve(nIntermediate);
   fResponses.reserve(nTerminal);
 
-  AddNode((TMVA::DecisionTreeNode*)tree->GetRoot());
+  AddNode((TMVA::DecisionTreeNode*)tree->GetRoot(), scale, tree->DoRegression(), useyesnoleaf, adjustboundary);
 
   //special case, root node is terminal, create fake intermediate node at root
   if (fCutIndices.size()==0) {
@@ -73,17 +73,36 @@ unsigned int GBRTree::CountTerminalNodes(const TMVA::DecisionTreeNode *node) {
 
 
 //_______________________________________________________________________
-void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
+void GBRTree::AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary) {
 
   if (!node->GetLeft() || !node->GetRight() || node->IsTerminal()) {
-    fResponses.push_back(node->GetResponse());
+    double response = 0.;
+    if (isregression) {
+      response = node->GetResponse();
+    }
+    else {
+      if (useyesnoleaf) {
+        response = double(node->GetNodeType());
+      }
+      else {
+        response  = node->GetPurity();
+      }
+    }
+    response *= scale;
+    fResponses.push_back(response);
     return;
   }
   else {    
     int thisidx = fCutIndices.size();
     
     fCutIndices.push_back(node->GetSelector());
-    fCutVals.push_back(node->GetCutValue());
+    float cutval = node->GetCutValue();
+    //newer tmva versions use >= instead of > in decision tree splits, so adjust cut value
+    //to reproduce the correct behaviour
+    if (adjustboundary) {
+      cutval = std::nextafter(cutval,std::numeric_limits<float>::lowest());
+    }
+    fCutVals.push_back(cutval);
     fLeftIndices.push_back(0);   
     fRightIndices.push_back(0);
     
@@ -105,7 +124,7 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
     else {
       fLeftIndices[thisidx] = fCutIndices.size();
     }
-    AddNode(left);
+    AddNode(left, scale, isregression, useyesnoleaf, adjustboundary);
     
     if (!right->GetLeft() || !right->GetRight() || right->IsTerminal()) {
       fRightIndices[thisidx] = -fResponses.size();
@@ -113,7 +132,7 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
     else {
       fRightIndices[thisidx] = fCutIndices.size();
     }
-    AddNode(right);    
+    AddNode(right, scale, isregression, useyesnoleaf, adjustboundary);
     
   }
   

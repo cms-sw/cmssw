@@ -66,7 +66,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
       evt.getByLabel(src_, input);
       edm::Handle<AssocType> match;
       evt.getByLabel(matching_, match);
-      std::auto_ptr<OutputType> output(new OutputType);
+      auto output = std::make_unique<OutputType>();
       for (size_t i = 0; i < input->size(); ++i) {
         typename AssocType::reference_type matched = (*match)[input->refAt(i)];
         // Check if matched
@@ -77,7 +77,7 @@ class AssociationMatchRefSelector : public edm::EDFilter {
         }
       }
       bool notEmpty = output->size();
-      evt.put(output);
+      evt.put(std::move(output));
       // Filter if no events passed
       return ( !filter_ || notEmpty );
     }

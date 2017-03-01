@@ -8,6 +8,9 @@
  *  position / direction assignement
  *
  *  \author  D.Fasanella - INFN Bologna
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -28,14 +31,13 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
+
 
   /// Run client analysis
-  void runClientDiagnostic();
+  void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:
 
@@ -45,12 +47,14 @@ protected:
   /// Fill summary plots managing double MB4 chambers
   void fillWhPlot(MonitorElement *plot,int sect,int stat, float value, bool lessIsBest = true);
 
-  void bookCmsHistos1d(std::string hTag, std::string folder="");
+  void bookCmsHistos1d(DQMStore::IBooker &,std::string hTag, std::string folder="");
 
   double thresholdWarnPhi, thresholdErrPhi;
   double thresholdWarnPhiB, thresholdErrPhiB;
   double validRange;
   bool   detailedAnalysis;	
+  
+  bool bookingdone;
 	
 };
 

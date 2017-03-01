@@ -48,7 +48,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
@@ -326,7 +326,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
 
   using namespace std;  // so you can say "cout" and "endl"
@@ -965,7 +965,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(clust.isNonnull()) {
 	  //	  LogDebug("") << " barycenter " << clust->barycenter() ;
 	  //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
-	  const std::vector<uint8_t> amplitudes=clust->amplitudes();
+	  const auto & amplitudes=clust->amplitudes();
 	  for(size_t i = 0 ; i<amplitudes.size(); i++ ){
 	    Signal +=amplitudes[i] ;
 	    //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);
@@ -1073,7 +1073,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(clust.isNonnull()) {
 	  //	  LogDebug("") << " barycenter " << clust->barycenter() ;
 	  //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
-	  const std::vector<uint8_t> amplitudes=clust->amplitudes();
+	  const auto &  amplitudes=clust->amplitudes();
 	  for(size_t i = 0 ; i<amplitudes.size(); i++ ){
 	    Signal +=amplitudes[i] ;
 	    //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);

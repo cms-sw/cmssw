@@ -9,7 +9,7 @@ using namespace std;
 
 
 MCProcessRangeFilter::MCProcessRangeFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minProcessID(iConfig.getUntrackedParameter("MinProcessID",0)),
 maxProcessID(iConfig.getUntrackedParameter("MaxProcessID",500)),
 pthatMin(iConfig.getUntrackedParameter("MinPthat",0)),
@@ -34,7 +34,7 @@ bool MCProcessRangeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
    using namespace edm;
    bool accepted = false;
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
 
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 

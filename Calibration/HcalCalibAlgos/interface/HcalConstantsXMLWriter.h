@@ -10,7 +10,6 @@
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
 #include <xercesc/util/XMLString.hpp>
 
 #include <fstream>
@@ -27,7 +26,6 @@ class HcalConstantsXMLWriter
 
    private:   
      std::string hcalfileOut_;
-     xercesc::DOMImplementation* mDom;
      xercesc::DOMDocument* mDoc;
 };
 

@@ -130,7 +130,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(const edm::ParameterSet& pset, 
   : vertexSelector_(0),
     qcuts_(0),
     jetToVertexAssociation_(0),
-    lastEvent_(-1)
+    lastEvent_(0)
 {
   //std::cout << "<RecoTauVertexAssociator::RecoTauVertexAssociator>:" << std::endl;
 
@@ -227,7 +227,7 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt)
   if ( selectedVertices_.size() > 0 ) {
     qcuts_->setPV(selectedVertices_[0]);
   }
-  int currentEvent = evt.id().event();
+  edm::EventNumber_t currentEvent = evt.id().event();
   if ( currentEvent != lastEvent_ || !jetToVertexAssociation_ ) {
     if ( !jetToVertexAssociation_ ) jetToVertexAssociation_ = new std::map<const reco::PFJet*, reco::VertexRef>;
     else jetToVertexAssociation_->clear();

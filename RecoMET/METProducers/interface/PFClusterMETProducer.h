@@ -5,7 +5,7 @@
 //
 /**\class PFClusterMETProducer
 
- Description: An EDProducer for CaloMET
+ Description: An stream::EDProducer<> for CaloMET
 
  Implementation:
 
@@ -20,7 +20,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +32,7 @@
 //____________________________________________________________________________||
 namespace cms
 {
-  class PFClusterMETProducer: public edm::EDProducer
+  class PFClusterMETProducer: public edm::stream::EDProducer<>
     {
     public:
       explicit PFClusterMETProducer(const edm::ParameterSet&);

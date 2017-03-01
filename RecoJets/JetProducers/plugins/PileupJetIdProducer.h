@@ -25,7 +25,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,7 +46,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 // ------------------------------------------------------------------------------------------
-class PileupJetIdProducer : public edm::EDProducer {
+class PileupJetIdProducer : public edm::stream::EDProducer<> {
 public:
 	explicit PileupJetIdProducer(const edm::ParameterSet&);
 	~PileupJetIdProducer();

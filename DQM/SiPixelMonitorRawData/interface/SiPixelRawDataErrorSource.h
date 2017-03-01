@@ -45,7 +45,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/cstdint.hpp>
@@ -57,10 +57,9 @@
 
        typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &);
@@ -68,6 +67,8 @@
     private:
        edm::ParameterSet conf_;
        edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > src_;
+       edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
+       std::string topFolderName_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -82,6 +83,7 @@
        bool firstRun;
        MonitorElement* byLumiErrors; 
        MonitorElement* errorRate;
+       MonitorElement* fedcounter;
 
        MonitorElement* meErrorType_[40];
        MonitorElement* meNErrors_[40];
@@ -91,9 +93,9 @@
        MonitorElement* meEvtNbr_[40];
        MonitorElement* meEvtSize_[40];
 
-       MonitorElement* meFedChNErrArray_[1480];
-       MonitorElement* meFedChLErrArray_[1480];
-       MonitorElement* meFedETypeNErrArray_[840];
+       MonitorElement* meFedChNErr_[40];
+       MonitorElement* meFedChLErr_[40];
+       MonitorElement* meFedETypeNErr_[40];
 
        std::map<std::string,MonitorElement**> meMapFEDs_;
        

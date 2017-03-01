@@ -5,8 +5,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainerLooper.h"

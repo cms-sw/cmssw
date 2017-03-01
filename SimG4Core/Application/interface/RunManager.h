@@ -1,35 +1,36 @@
 #ifndef SimG4Core_RunManager_H
 #define SimG4Core_RunManager_H
 
-#include <memory>
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
-#include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "FWCore/Framework/interface/ESWatcher.h"
+#include <memory>
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+  class HepMCProduct;
+}
 
 namespace CLHEP {
   class HepJamesRandom;
 }
 
 namespace sim {
-  class FieldBuilder;
+  class ChordFinderSetter;
 }
 
 class PrimaryTransformer;
@@ -45,8 +46,11 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
+class CMSSteppingVerbose;
 
 class DDDWorld;
+class DDG4ProductionCuts;
+class CustomUIsession;
 
 class G4RunManagerKernel;
 class G4Run;
@@ -55,14 +59,12 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-//class ExceptionHandler;
 
 class RunManager
 {
 public:
 
-  //RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC);
-  RunManager(edm::ParameterSet const & p);
+  RunManager(edm::ParameterSet const & p, edm::ConsumesCollector&& i);
   ~RunManager();
   void initG4(const edm::EventSetup & es);
   void initializeUserActions();
@@ -84,7 +86,7 @@ public:
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { 
     return m_sensCaloDets; 
   }
-  std::vector<boost::shared_ptr<SimProducer> > producers() const {
+  std::vector<std::shared_ptr<SimProducer> > producers() const {
     return m_producers;
   }
 
@@ -105,24 +107,27 @@ private:
   G4RunManagerKernel * m_kernel;
     
   Generator * m_generator;
-  std::string m_InTag ;
+  edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
+  edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_LHCtr;
     
   bool m_nonBeam;
-  std::auto_ptr<PhysicsList> m_physicsList;
+  std::unique_ptr<CustomUIsession> m_UIsession;
+  std::unique_ptr<PhysicsList> m_physicsList;
   PrimaryTransformer * m_primaryTransformer;
+
   bool m_managerInitialized;
   bool m_runInitialized;
   bool m_runTerminated;
   bool m_runAborted;
   bool firstRun;
   bool m_pUseMagneticField;
+  bool m_hasWatchers;
+
   G4Run * m_currentRun;
   G4Event * m_currentEvent;
   G4SimEvent * m_simEvent;
   RunAction * m_userRunAction;
   SimRunInterface * m_runInterface;
-
-  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 
   std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
@@ -139,28 +144,29 @@ private:
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
+  edm::ParameterSet m_g4overlap;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  //ExceptionHandler* m_CustomExceptionHandler ;
 
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
+  std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
+  std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   SimActivityRegistry m_registry;
-  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-  std::vector<boost::shared_ptr<SimProducer> > m_producers;
+  std::vector<std::shared_ptr<SimWatcher> > m_watchers;
+  std::vector<std::shared_ptr<SimProducer> > m_producers;
     
-  std::auto_ptr<SimTrackManager> m_trackManager;
-  sim::FieldBuilder             *m_fieldBuilder;
+  std::unique_ptr<SimTrackManager> m_trackManager;
+  sim::ChordFinderSetter        *m_chordFinderSetter;
     
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
     
-  edm::InputTag m_theLHCTlinkTag;
-
   std::string m_FieldFile;
   std::string m_WriteFile;
+  std::string m_RegionFile;
 };
 
 #endif

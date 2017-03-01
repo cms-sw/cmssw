@@ -1765,4 +1765,3 @@ void PTrackerSimHit::putHits (const std::vector<int>& _sysID, const std::vector<
 
   return;
 }
-

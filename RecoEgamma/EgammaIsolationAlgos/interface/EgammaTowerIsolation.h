@@ -136,7 +136,11 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   
   // sort in eta  (kd-tree anoverkill,does not vectorize...)
   uint32_t index[nt];
+  #ifdef __clang__
+  std::vector<float> e(nt);
+  #else
   float e[nt];
+  #endif
   for (std::size_t k=0; k!=nt; ++k) {
     e[k]=towers[k].eta();
     index[k]=k;
@@ -236,9 +240,6 @@ public:
 
   
 private:
-  thread_local static EgammaTowerIsolationNew<1> * newAlgo;
-  thread_local static const CaloTowerCollection* oldTowers;
-  thread_local static uint32_t id15;
   signed int depth_;
   float extRadius;
   float intRadius;

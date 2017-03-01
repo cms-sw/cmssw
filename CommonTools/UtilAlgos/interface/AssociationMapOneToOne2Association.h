@@ -43,7 +43,7 @@ void AssociationMapOneToOne2Association<CKey, CVal>::produce(edm::Event& evt, co
   Handle<am_t> am;
   evt.getByToken(am_, am);
 
-  auto_ptr<as_t> as(new as_t);
+  unique_ptr<as_t> as(new as_t);
   typename as_t::Filler filler(*as);
   filler.fill();
   size_t size = am->size();
@@ -53,7 +53,7 @@ void AssociationMapOneToOne2Association<CKey, CVal>::produce(edm::Event& evt, co
     indices.push_back(i->val.key());
   }
   filler.insert(am->refProd().key, indices.begin(), indices.end());
-  evt.put(as);
+  evt.put(std::move(as));
 }
 
 #endif

@@ -631,10 +631,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 if isinstance(value,str) and\
                     not value[0]=="[" and\
                     not value[0:4]=="cms.":
-                    exec "object." + name + "='''" + value + "'''"
+                    exec("object." + name + "='''" + value + "'''")
                 else:
-                    exec "object." + name + "=" + str(value)
-            except Exception,e:
+                    exec("object." + name + "=" + str(value))
+            except Exception as e:
                 error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
                 return error

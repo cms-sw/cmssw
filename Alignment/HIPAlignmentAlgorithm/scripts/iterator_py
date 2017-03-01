@@ -12,20 +12,19 @@ cd Alignment/HIPAlignmentAlgorithm
 
 set odir = `cd $2; pwd` # get full output path
 
-
 # configure all of the scripts
-scripts/configure.pl $odir $3  
+scripts/configure.pl $odir $3 $4 
 cp scripts/runControl.csh $odir/main/
 
 # run initial job
-cmsRun $odir/main/initial_cfg.py >& $odir/main/initial.out
+#cmsRun $odir/main/initial_cfg.py >& $odir/main/initial.out
 #new
 
 
 # submit parallel jobs
-scripts/submitJobs_py $1 $2
+scripts/submitJobs_py $1 $2 $4
 #scripts/submitJobs_py2bis $1 $2
 
 # create DB objects
-cp $odir/main/IOAlignedPositions.root $odir/main/IOIteration.root $odir/
-cmsRun $odir/upload_cfg.py >& $odir/upload.out
+cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/
+#cmsRun $odir/upload_cfg.py >& $odir/upload.out

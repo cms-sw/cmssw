@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    
+    <RotationSection label="RP_Transformations.xml">
+        <Rotation name="RP_45_z_rot" phiX="45*deg" thetaX="90*deg" phiY="(90+45)*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_90_z_rot" phiX="90*deg" thetaX="90*deg" phiY="(90+90)*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_90_cw_z_rot" phiX="-90*deg" thetaX="90*deg" phiY="0*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_135_z_rot" phiX="135*deg" thetaX="90*deg" phiY="(90+135)*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_z_180_rot" phiX="180*deg" thetaX="90*deg" phiY="270*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+        <Rotation name="RP_x_90_rot" phiX="0*deg" thetaX="90*deg" phiY="0*deg" thetaY="180*deg" phiZ="90*deg" thetaZ="90*deg"/>
+        <Rotation name="RP_45_y_rot" phiX="0*deg" thetaX="(90+45)*deg" phiY="90*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="45*deg"/>
+        <Rotation name="RP_y_90_rot" phiX="0*deg" thetaX="(90+90)*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="90*deg"/>
+        <Rotation name="RP_y_180_rot" phiX="0*deg" thetaX="(90+180)*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="180*deg"/>
+        <Rotation name="RP_y_270_rot" phiX="0*deg" thetaX="(90+270)*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="270*deg"/>
+        <Rotation name="RP_45_z_180_y_rot" phiX="135*deg" thetaX="90*deg" phiY="45*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="180*deg"/>
+        <Rotation name="RP_y_90_z_90_rot" phiX="90*deg" thetaX="90*deg" phiY="0*deg" thetaY="180*deg" phiZ="180*deg" thetaZ="90*deg"/>
+        <Rotation name="RP_y_270_z_90_rot" phiX="90*deg" thetaX="90*deg" phiY="180*deg" thetaY="180*deg" phiZ="180*deg" thetaZ="90*deg"/>
+        <Rotation name="RP_180_z_180_y_rot" phiX="0*deg" thetaX="90*deg" phiY="(-90)*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="180*deg"/>
+        <Rotation name="RP_90_z_cw_180_y_rot" phiX="90*deg" thetaX="90*deg" phiY="0*deg" thetaY="90*deg"
+            phiZ="0*deg" thetaZ="180*deg"/>
+    </RotationSection>
+    
+</DDDefinition>

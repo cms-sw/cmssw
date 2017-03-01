@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <!-- These are the (phi, z_l, z_t) parameter tuples that describe the the
+      shape of the support rings. These values are used by the algorithms
+      instantiated in the disks.
+      The z_l and z_t arrays describe the -Z and +Z sides by giving the Z
+      value for each of the values of the Phi array. The z values are only
+      considered relatively, the object will be centered around the origin and
+      has to be placed using a PosPart tag. -->
+ <ConstantsSection  label="pixfwdSupportRingParameters" eval="true">
+  <!-- there are 4 distinct rings: (Inner|Outer)Disk(Inner|Outer)Ring. We have
+       another set of 4 rings for the other side (+Z/-Z) which should be the 
+       same but use different signs for z_*.
+       For the +X/-X half rings, we assue they are the same and rotate around
+       Z, so there is only one description each. -->
+
+
+  <Constant name="InnerDiskOuterRingRMin"        value="114.85*mm"/>
+  <Constant name="InnerDiskOuterRingRMax"        value="[InnerDiskOuterRingRMin]+2.50*mm"/>
+  <Constant name="InnerDiskOuterRingCFRMin"        value="[InnerDiskOuterRingRMax]"/>
+  <Constant name="InnerDiskOuterRingCFRMax"        value="[InnerDiskOuterRingCFRMin]+0.5*mm"/>
+  <Constant name="InnerDiskOuterRingHalfWidth"   value="49.0*mm/2.0"/>
+
+  <Vector  name="InnerDiskOuterRing_Phi" type="numeric" nEntries="12">
+  1.519*rad,1.657*rad,1.657*rad,1.932*rad,2.762*rad,2.960*rad,3.368*rad,3.531*rad,4.210*rad,4.626*rad,4.626*rad,4.764*rad
+  </Vector>
+
+  <!-- min: -364 max: -315 width: 49 -->
+  <Vector  name="InnerDiskOuterRing_z_t_Plus" type="numeric" nEntries="12">
+    336*mm,   336*mm,   345*mm,   347*mm,   357*mm,   358*mm,   345*mm,   347*mm,   359*mm,   364*mm,   364*mm,   357*mm
+  </Vector>
+  <Vector  name="InnerDiskOuterRing_z_l_Plus" type="numeric" nEntries="12">
+    325*mm,   316*mm,   315*mm,   315*mm,   328*mm,   328*mm,   315*mm,   315*mm,   329*mm,   333*mm,   340*mm,   340*mm
+  </Vector>
+
+  <Vector  name="InnerDiskOuterRing_z_l_Minus" type="numeric" nEntries="12">
+   -336*mm,  -336*mm,  -345*mm,  -347*mm,  -357*mm,  -358*mm,  -345*mm,  -347*mm,  -359*mm,  -364*mm,  -364*mm,  -357*mm
+  </Vector>
+  <Vector  name="InnerDiskOuterRing_z_t_Minus" type="numeric" nEntries="12">
+   -325*mm,  -316*mm,  -315*mm,  -315*mm,  -328*mm,  -328*mm,  -315*mm,  -315*mm,  -329*mm,  -333*mm,  -340*mm,  -340*mm
+  </Vector>
+
+
+  <Constant name="InnerDiskInnerRingRMax"        value="39.35*mm"/>
+  <Constant name="InnerDiskInnerRingRMin"        value="[InnerDiskInnerRingRMax]-2.5*mm"/>
+  <Constant name="InnerDiskInnerRingCFRMax"        value="[InnerDiskInnerRingRMin]"/>
+  <Constant name="InnerDiskInnerRingCFRMin"        value="[InnerDiskInnerRingCFRMax]-0.5*mm"/>
+  <Constant name="InnerDiskInnerRingHalfWidth"   value="43.0*mm/2.0"/>
+
+  <Vector  name="InnerDiskInnerRing_Phi" type="numeric" nEntries="9">
+  1.412*rad,2.180*rad,2.524*rad,2.792*rad,3.221*rad,3.221*rad,3.576*rad,4.284*rad,4.871*rad
+  </Vector>
+
+  <!-- min: -343 max: -300 width: 43 -->
+  <Vector  name="InnerDiskInnerRing_z_t_Plus" type="numeric" nEntries="9">
+    315*mm,   332*mm,   338*mm,   338*mm,   338*mm,   330*mm,   330*mm,   343*mm,   343*mm
+  </Vector>
+  <Vector  name="InnerDiskInnerRing_z_l_Plus" type="numeric" nEntries="9">
+    300*mm,   300*mm,   306*mm,   311*mm,   305*mm,   305*mm,   300*mm,   313*mm,   327*mm
+  </Vector>
+
+  <Vector  name="InnerDiskInnerRing_z_l_Minus" type="numeric" nEntries="9">
+   -315*mm,  -332*mm,  -338*mm,  -338*mm,  -338*mm,  -330*mm,  -330*mm,  -343*mm,  -343*mm
+  </Vector>
+  <Vector  name="InnerDiskInnerRing_z_t_Minus" type="numeric" nEntries="9">
+   -300*mm,  -300*mm,  -306*mm,  -311*mm,  -305*mm,  -305*mm,  -300*mm,  -313*mm,  -327*mm
+  </Vector>
+
+
+  <Constant name="OuterDiskOuterRingRMin"        value="165.3*mm"/>
+  <Constant name="OuterDiskOuterRingRMax"        value="[OuterDiskOuterRingRMin]+2.1*mm"/>
+  <Constant name="OuterDiskOuterRingCFRMin"      value="[OuterDiskOuterRingRMax]"/>
+  <Constant name="OuterDiskOuterRingCFRMax"      value="[OuterDiskOuterRingCFRMin]+0.5*mm"/>
+  <Constant name="OuterDiskOuterRingHalfWidth"   value="44.0*mm/2.0"/>
+
+  <Vector  name="OuterDiskOuterRing_Phi" type="numeric" nEntries="13">
+  1.547*rad,1.631*rad,1.631*rad,2.112*rad,2.787*rad,3.022*rad,3.202*rad,3.676*rad,3.985*rad,4.580*rad,4.658*rad,4.658*rad,4.736*rad
+  </Vector>
+
+  <!-- min: -335 max: -291 width: 44 -->
+  <Vector  name="OuterDiskOuterRing_z_t_Plus" type="numeric" nEntries="13">
+    308*mm,   310*mm,   317*mm,   324*mm,   331*mm,   329*mm,   318*mm,   323*mm,   329*mm,   335*mm,   330*mm,   330*mm,   325*mm
+  </Vector>
+  <Vector  name="OuterDiskOuterRing_z_l_Plus" type="numeric" nEntries="13">
+    298*mm,   291*mm,   291*mm,   291*mm,   300*mm,   303*mm,   291*mm,   291*mm,   294*mm,   304*mm,   305*mm,   310*mm,   313*mm
+  </Vector>
+
+  <Vector  name="OuterDiskOuterRing_z_l_Minus" type="numeric" nEntries="13">
+   -308*mm,  -310*mm,  -317*mm,  -324*mm,  -331*mm,  -329*mm,  -318*mm,  -323*mm,  -329*mm,  -335*mm,  -330*mm,  -330*mm,  -325*mm
+  </Vector>
+  <Vector  name="OuterDiskOuterRing_z_t_Minus" type="numeric" nEntries="13">
+   -298*mm,  -291*mm,  -291*mm,  -291*mm,  -300*mm,  -303*mm,  -291*mm,  -291*mm,  -294*mm,  -304*mm,  -305*mm,  -310*mm,  -313*mm
+  </Vector>
+
+
+  <Constant name="OuterDiskInnerRingRMax"      value="90.05*mm"/>
+  <Constant name="OuterDiskInnerRingRMin"      value="[OuterDiskInnerRingRMax]-2.5*mm"/>
+  <Constant name="OuterDiskInnerRingCFRMax"     value="[OuterDiskInnerRingRMin]"/>
+  <Constant name="OuterDiskInnerRingCFRMin"     value="[OuterDiskInnerRingCFRMax]-0.5*mm"/>
+  <Constant name="OuterDiskInnerRingHalfWidth"   value="38.0*mm/2.0"/>
+
+  <Vector  name="OuterDiskInnerRing_Phi" type="numeric" nEntries="12">
+  1.525*rad,1.628*rad,1.947*rad,2.487*rad,2.862*rad,3.119*rad,3.323*rad,3.323*rad,3.619*rad,4.115*rad,4.597*rad,4.597*rad,4.770*rad
+  </Vector>
+
+  <!-- min: -499 max: -461 width: 38 -->
+  <Vector  name="OuterDiskInnerRing_z_t_Plus" type="numeric" nEntries="12">
+    476*mm,   483*mm,   484*mm,   491*mm,   492*mm,   479*mm,   478*mm,   481*mm,   485*mm,   495*mm,   499*mm,   495*mm,   489*mm
+  </Vector>
+  <Vector  name="OuterDiskInnerRing_z_l_Plus" type="numeric" nEntries="12">
+    466*mm,   461*mm,   461*mm,   470*mm,   470*mm,   462*mm,   461*mm,   461*mm,   461*mm,   471*mm,   477*mm,   477*mm,   486*mm
+  </Vector>
+
+  <Vector  name="OuterDiskInnerRing_z_l_Minus" type="numeric" nEntries="12">
+   -476*mm,  -483*mm,  -484*mm,  -491*mm,  -492*mm,  -479*mm,  -478*mm,  -481*mm,  -485*mm,  -495*mm,  -499*mm,  -495*mm,  -489*mm
+  </Vector>
+  <Vector  name="OuterDiskInnerRing_z_t_Minus" type="numeric" nEntries="12">
+   -466*mm,  -461*mm,  -461*mm,  -470*mm,  -470*mm,  -462*mm,  -461*mm,  -461*mm,  -461*mm,  -471*mm,  -477*mm,  -477*mm,  -486*mm
+  </Vector>
+
+
+  <!-- Support arms (not rings, but related -->
+  <Constant name="SupportArmZ" value="13*mm" /> <!-- relative to disk origin -->
+  <Constant name="SupportArmAngle_1" value="97*deg" /> 
+  <Constant name="SupportArmAngle_2" value="83*deg" /> 
+  <Constant name="SupportArmAngle_3" value="0*deg" /> 
+
+  <Constant name="CoolingZ_inner" value="33*mm" />
+  <Constant name="CoolingZ_outer" value="-7.8*mm" />
+  <Constant name="CoolingAngle" value="0*deg" /> 
+ </ConstantsSection>
+
+ <RotationSection label="pixfwdSupportRingParameters.xml">
+    <Rotation name="rArm1a" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_1]-90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_1]"/>
+    <Rotation name="rArm2a" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_2]-90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_2]"/>
+    <Rotation name="rArm3a" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_3]-90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_3]"/>
+    <Rotation name="rArm1b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_1]+90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_1]+180*deg"/>
+    <Rotation name="rArm2b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_2]+90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_2]+180*deg"/>
+    <Rotation name="rArm3b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[SupportArmAngle_3]+90*deg" thetaZ="90*deg" phiZ="[SupportArmAngle_3]+180*deg"/>
+
+    <Rotation name="rCooling_a" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[CoolingAngle]-90*deg" thetaZ="90*deg" phiZ="[CoolingAngle]"/>
+    <Rotation name="rCooling_b" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="[CoolingAngle]+90*deg" thetaZ="90*deg" phiZ="[CoolingAngle]+180*deg"/>
+ </RotationSection>
+
+</DDDefinition>

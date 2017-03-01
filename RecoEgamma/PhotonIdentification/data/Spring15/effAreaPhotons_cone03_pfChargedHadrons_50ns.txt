@@ -1,0 +1,12 @@
+# This file contains Effective Area constants for 
+# computing pile-up corrections for the charged hadron isolation
+# for a photon object.
+#
+# |eta| min   |eta| max   effective area
+0.0000         1.0000     0.0157   
+1.0000         1.4790     0.0143   
+1.4790         2.0000     0.0115   
+2.0000         2.2000     0.0094   
+2.2000         2.3000     0.0095   
+2.3000         2.4000     0.0068   
+2.4000         5.0000     0.0053   

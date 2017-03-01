@@ -68,7 +68,7 @@ EventSetupRecordProviderFactoryManager::addFactory(const EventSetupRecordProvide
 //
 // const member functions
 //
-std::auto_ptr<EventSetupRecordProvider> 
+std::unique_ptr<EventSetupRecordProvider> 
 EventSetupRecordProviderFactoryManager::makeRecordProvider(const EventSetupRecordKey& iKey) const
 {
    std::map<EventSetupRecordKey, const EventSetupRecordProviderFactory*>::const_iterator itFound= factories_.find(iKey);
@@ -77,7 +77,7 @@ EventSetupRecordProviderFactoryManager::makeRecordProvider(const EventSetupRecor
    
    const EventSetupRecordProviderFactory* factory = itFound->second;
    assert(0 != factory);
-   return std::auto_ptr<EventSetupRecordProvider>(factory->makeRecordProvider());
+   return std::unique_ptr<EventSetupRecordProvider>(factory->makeRecordProvider());
 }
 
 //

@@ -3,6 +3,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -56,6 +57,8 @@ namespace ecaldqm
 
     MESet const& sTimeAllMap(sources_.at("TimeAllMap"));
     MESet const& sTimeMap(sources_.at("TimeMap"));
+    MESet const& sTimeMapByLS(sources_.at("TimeMapByLS"));
+    MESet const& sChStatus(sources_.at("ChStatus"));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
@@ -63,7 +66,11 @@ namespace ecaldqm
 
     MESet::iterator rItr(meRMSMap);
     MESet::const_iterator tItr(sTimeMap);
+    MESet::const_iterator tLSItr(sTimeMapByLS);
 
+    float EBentries(0.), EEentries(0.);
+    float EBmean(0.), EEmean(0.);
+    float EBrms(0.), EErms(0.);
     for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       tItr = qItr;
@@ -125,10 +132,44 @@ namespace ecaldqm
         meFwdvBkwd.fill(id, mean, posTime);
       }
 
-      if(abs(mean) > meanThresh || rms > rmsThresh)
+      if(std::abs(mean) > meanThresh || rms > rmsThresh)
         qItr->setBinContent(doMask ? kMBad : kBad);
       else
         qItr->setBinContent(doMask ? kMGood : kGood);
+
+      // For Trend plots:
+      tLSItr = qItr;
+      float entriesLS( tLSItr->getBinEntries() );
+      float meanLS( tLSItr->getBinContent() );
+      float rmsLS( tLSItr->getBinError() * sqrt(entriesLS) );
+      float chStatus( sChStatus.getBinContent(id) );
+      
+      if ( entriesLS < minChannelEntries ) continue;
+      if ( chStatus != EcalChannelStatusCode::kOk ) continue; // exclude problematic channels
+      
+      // Keep running count of timing mean, rms, and N_hits
+      if ( id.subdetId() == EcalBarrel ) {
+        EBmean += meanLS;
+        EBrms += rmsLS;
+        EBentries += entriesLS;
+      } else {
+        EEmean += meanLS;
+        EErms += rmsLS;
+        EEentries += entriesLS;
+      }
+
+    } // channel loop
+
+    // Fill Timing Trend plots at each LS
+    MESet& meTrendMean(MEs_.at("TrendMean"));
+    MESet& meTrendRMS(MEs_.at("TrendRMS"));
+    if ( EBentries > 0. ) {
+      if ( std::abs(EBmean) > 0. ) meTrendMean.fill( EcalBarrel, double(timestamp_.iLumi), EBmean/EBentries );
+      if ( std::abs(EBrms ) > 0. ) meTrendRMS.fill ( EcalBarrel, double(timestamp_.iLumi), EBrms/EBentries  );
+    }
+    if ( EEentries > 0. ) {
+      if ( std::abs(EEmean) > 0. ) meTrendMean.fill( EcalEndcap, double(timestamp_.iLumi), EEmean/EEentries );
+      if ( std::abs(EErms ) > 0. ) meTrendRMS.fill ( EcalEndcap, double(timestamp_.iLumi), EErms/EEentries  );
     }
 
     MESet::iterator qsEnd(meQualitySummary.end());
@@ -184,18 +225,17 @@ namespace ecaldqm
         if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
           quality = doMask ? kMBad : kBad;
         else{
-	  towerMean /= towerEntries;
-	  towerMean2 /= towerEntries;
+          towerMean /= towerEntries;
+          towerMean2 /= towerEntries;
 
-	  float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
+          float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
 
-	  if(abs(towerMean) > meanThresh || towerRMS > rmsThresh)
-	    quality = doMask ? kMBad : kBad;
+          if(std::abs(towerMean) > meanThresh || towerRMS > rmsThresh)
+            quality = doMask ? kMBad : kBad;
           else
             quality = doMask ? kMGood : kGood;
         }
       }
-
       qsItr->setBinContent(quality);
     }
   }

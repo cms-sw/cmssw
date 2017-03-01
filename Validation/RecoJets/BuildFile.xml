@@ -3,6 +3,8 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="JetMETCorrections/Objects"/>
+<use   name="RecoHI/HiJetAlgos"/>
+<use   name="RecoHI/HiCentralityAlgos"/>
 <use   name="rootgraphics"/>
 <export>
   <lib   name="1"/>

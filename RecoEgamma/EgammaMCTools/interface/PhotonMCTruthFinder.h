@@ -23,7 +23,7 @@ class PhotonMCTruthFinder {
 public:
 
  PhotonMCTruthFinder(); 
- virtual ~PhotonMCTruthFinder() {  std::cout << " PhotonMCTruthFinder DTOR" << std::endl;}
+ virtual ~PhotonMCTruthFinder() { }
 
  
  std::vector<PhotonMCTruth> find( const std::vector<SimTrack>& simTracks, const std::vector<SimVertex>& simVertices);  

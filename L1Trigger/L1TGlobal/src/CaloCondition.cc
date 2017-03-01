@@ -26,19 +26,9 @@
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-/*#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-*/
 
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
-
-#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
-#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -54,7 +44,7 @@ l1t::CaloCondition::CaloCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::CaloCondition::CaloCondition(const GtCondition* caloTemplate, const GtBoard* ptrGTB,
+l1t::CaloCondition::CaloCondition(const GlobalCondition* caloTemplate, const GlobalBoard* ptrGTB,
         const int nrL1EG,
         const int nrL1Jet,
         const int nrL1Tau,
@@ -73,21 +63,15 @@ l1t::CaloCondition::CaloCondition(const GtCondition* caloTemplate, const GtBoard
     // type for the first object
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             m_condMaxNumberObjects = nrL1EG;
             break;
-/*        case IsoEG:
-            m_condMaxNumberObjects = nrL1IsoEG;
-            break;
-*/
-        case CenJet:
+
+        case gtJet:
             m_condMaxNumberObjects = nrL1Jet;
             break;
-/*        case ForJet:
-            m_condMaxNumberObjects = nrL1ForJet;
-            break;
-*/
-        case TauJet:
+
+        case gtTau:
             m_condMaxNumberObjects = nrL1Tau;
             break;
         default:
@@ -141,8 +125,8 @@ void l1t::CaloCondition::setGtCaloTemplate(const CaloTemplate* caloTempl) {
 
 }
 
-///   set the pointer to uGT GtBoard
-void l1t::CaloCondition::setuGtB(const GtBoard* ptrGTB) {
+///   set the pointer to uGT GlobalBoard
+void l1t::CaloCondition::setuGtB(const GlobalBoard* ptrGTB) {
 
     m_uGtB = ptrGTB;
 
@@ -168,7 +152,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
-    //LogTrace("L1GlobalTrigger") << "  nObjInCond: " << nObjInCond
+    //LogTrace("L1TGlobal") << "  nObjInCond: " << nObjInCond
     //    << std::endl;
 
     // the candidates
@@ -180,15 +164,15 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     const BXVector<const l1t::L1Candidate*>* candVec;
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             candVec = m_uGtB->getCandL1EG();
             break;
 
-        case CenJet:
+        case gtJet:
             candVec = m_uGtB->getCandL1Jet();
             break;
 
-        case TauJet:
+        case gtTau:
             candVec = m_uGtB->getCandL1Tau();
             break;
 
@@ -208,7 +192,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
 
     int numberObjects = candVec->size(useBx);
-    //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
+    //LogTrace("L1TGlobal") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
         return false;
@@ -236,15 +220,16 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     // clear the m_combinationsInCond vector
     combinationsInCond().clear();
 
-
-
     ////// NEW Method
     if( nObjInCond==1 ){
 
       // clear the indices in the combination
-      objectsInComb.clear();
+      //objectsInComb.clear();
 
       for( int i=0; i<numberObjects; i++ ){
+
+       // clear the indices in the combination
+        objectsInComb.clear();
 
 	totalLoops++;
 	bool passCondition = checkObjectParameter(0, *(candVec->at(useBx,i)));
@@ -258,10 +243,8 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     }
     else if( nObjInCond==2 ){
 
-      // clear the indices in the combination
-      objectsInComb.clear();
-
       for( int i=0; i<numberObjects; i++ ){
+
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 
@@ -290,7 +273,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	      if (nObjInCond != ObjInWscComb) {
 
                 if (m_verbosity) {
-		  edm::LogError("L1GlobalTrigger")
+		  edm::LogError("L1TGlobal")
 		    << "\n  Error: "
 		    << "number of particles in condition with spatial correlation = "
 		    << nObjInCond << "\n  it must be = " << ObjInWscComb
@@ -304,22 +287,22 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
                 *(m_gtCaloTemplate->correlationParameter());
 
 	      // check delta eta
-	      if( !checkRangeDeltaEta( (candVec->at(useBx,i))->hwEta(), (candVec->at(useBx,j))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
-		LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
+	      if( !checkRangeDeltaEta( (candVec->at(useBx,i))->hwEta(), (candVec->at(useBx,j))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 7) ){
+		LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
 		continue;
 	      }
 
 	      // check delta phi
 	      if( !checkRangeDeltaPhi( (candVec->at(useBx,i))->hwPhi(), (candVec->at(useBx,j))->hwPhi(), 
 				       corrPar.deltaPhiRangeLower, corrPar.deltaPhiRangeUpper) ){
-		LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
+		LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
 		continue;
 	      }
 
 	    } // end wsc check
 
 
-
+	    objectsInComb.clear();
 	    objectsInComb.push_back(i);
 	    objectsInComb.push_back(j);
 	    condResult = true;
@@ -331,10 +314,9 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     }
     else if( nObjInCond==3 ){
 
-      // clear the indices in the combination
-      objectsInComb.clear();
-
       for( int i=0; i<numberObjects; i++ ){
+
+
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
@@ -369,6 +351,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 	    if( pass ){
 	      condResult = true;
 	      passLoops++;
+	      objectsInComb.clear();
 	      objectsInComb.push_back(i);
 	      objectsInComb.push_back(j);
 	      objectsInComb.push_back(k);
@@ -380,10 +363,9 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     } // end if condition has 3 objects
     else if( nObjInCond==4 ){
 
-      // clear the indices in the combination
-      objectsInComb.clear();
 
       for( int i=0; i<numberObjects; i++ ){
+
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
@@ -447,6 +429,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 			   (passCondition0m && passCondition1k && passCondition2j && passCondition3i)
 			   );
 	      if( pass ){
+		objectsInComb.clear();
 		objectsInComb.push_back(i);
 		objectsInComb.push_back(j);
 		objectsInComb.push_back(k);
@@ -462,7 +445,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     } // end if condition has 4 objects
 
 
-    LogTrace("L1GlobalTrigger")
+    LogTrace("L1TGlobal")
        << "\n  CaloCondition: total number of permutations found:          " << totalLoops
        << "\n  CaloCondition: number of permutations passing requirements: " << passLoops
        << "\n" << std::endl;
@@ -478,15 +461,15 @@ const l1t::L1Candidate* l1t::CaloCondition::getCandidate(const int bx, const int
     // but in a CondCalo all objects have the same type
     // take type from the type of the first object
     switch ((m_gtCaloTemplate->objectType())[0]) {
-        case NoIsoEG:
+        case gtEG:
             return (m_uGtB->getCandL1EG())->at(bx,indexCand);
             break;
 
-        case CenJet:
+        case gtJet:
             return (m_uGtB->getCandL1Jet())->at(bx,indexCand);
             break;
 
-       case TauJet:
+       case gtTau:
             return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:
@@ -522,16 +505,17 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
 
     const CaloTemplate::ObjectParameter objPar = ( *(m_gtCaloTemplate->objectParameter()) )[iCondition];
 
-    LogDebug("l1t|Global")
+    LogDebug("L1TGlobal")
       << "\n CaloTemplate: "
       << "\n\t condRelativeBx = " << m_gtCaloTemplate->condRelativeBx()
       << "\n ObjectParameter : "
-      << "\n\t etThreshold = " << objPar.etThreshold
+      << "\n\t etThreshold = " << objPar.etLowThreshold << " - " << objPar.etHighThreshold
       << "\n\t etaRange    = " << objPar.etaRange
       << "\n\t phiRange    = " << objPar.phiRange
+      << "\n\t isolationLUT= " << objPar.isolationLUT
       << std::endl;
 
-    LogDebug("l1t|Global")
+    LogDebug("L1TGlobal")
       << "\n l1t::Candidate : "
       << "\n\t hwPt   = " <<  cand.hwPt()
       << "\n\t hwEta  = " << cand.hwEta()
@@ -540,14 +524,14 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
 
 
     // check energy threshold
-    if ( !checkThreshold(objPar.etThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkThreshold" << std::endl;
+    if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkThreshold" << std::endl;
         return false;
     }
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower) ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 7) ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
 
@@ -556,17 +540,28 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
 //     }
 
     // check phi
-    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindowLower, objPar.phiWindowUpper, objPar.phiWindowVetoLower, objPar.phiWindowVetoLower) ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
+    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }
 
+    // check isolation ( bit check ) with isolation LUT
+    // sanity check on candidate isolation
+    if( cand.hwIso()>4 ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwIso = " << cand.hwIso() << std::endl;
+      return false;
+    }
+    bool passIsoLUT = ( (objPar.isolationLUT >> cand.hwIso()) & 1 );
+    if( !passIsoLUT ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
+      return false;
+    }
 //     if (!checkBit(objPar.phiRange, cand.hwPhi())) {
 //         return false;
 //     }
 
     // particle matches if we get here
-    //LogTrace("L1GlobalTrigger")
+    //LogTrace("L1TGlobal")
     //    << "  checkObjectParameter: calorimeter object OK, passes all requirements\n"
     //    << std::endl;
 

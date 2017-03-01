@@ -111,13 +111,13 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 	  //  1        1         1         2
 	  //  ------------------------------
 	  //  72       36        36        1
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset()+
+	  phibin = static_cast<int>((phi+hcalCells_[i].phiOffset()+
 				     0.5*hcalCells_[i].phiBinWidth())/
 				    hcalCells_[i].phiBinWidth());
 	  if (phibin == 0) phibin = hcalCells_[i].nPhiBins();
 	  phibin = phibin*4 - 1; 
 	} else {
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset())/
+	  phibin = static_cast<int>((phi+hcalCells_[i].phiOffset())/
 				    hcalCells_[i].phiBinWidth()) + 1;
 	  // convert to the convention of numbering 1,3,5, in 36 phi bins
 	  phibin = (phibin-1)*(hcalCells_[i].unitPhi()) + 1;
@@ -175,33 +175,24 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 
   HcalDetId hId(detId);
 
-  if( hId.subdet()==HcalBarrel )
-  {
+  if( hId.subdet()==HcalBarrel ) {
     m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-  }
-  else
-  {
-    if( hId.subdet()==HcalEndcap )
-    {
+  } else {
+    if( hId.subdet()==HcalEndcap ) {
       const unsigned int index ( din - m_hbCellVec.size() ) ;
       m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-    }
-    else
-    {
-      if( hId.subdet()==HcalOuter )
-      {
+    } else  {
+      if( hId.subdet()==HcalOuter )  {
 	const unsigned int index ( din 
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() ) ;
 	m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-      }
-      else
-      { // assuming HcalForward here!
+      } else { // assuming HcalForward here!
 	const unsigned int index ( din 
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() 
 				   - m_hoCellVec.size() ) ;
-	m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
+	m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm, hId.depth()==1 ? IdealZPrism::EM : IdealZPrism::HADR ) ;
       }
     }
   }

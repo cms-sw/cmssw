@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
 
 /**
@@ -33,7 +33,7 @@ lorentzVector fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
   return lorentzVector(px,py,pz,E);
 }
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
 
   if( argc != 3 ) {
@@ -53,8 +53,8 @@ int main(int argc, char* argv[])
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
-  
+  FWLiteEnabler::enable();
+
   // open input file (can be located on castor)
   TFile* inFile = TFile::Open(fileName.c_str());
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   // Create the RootTreeHandler to save the events in the root tree
   RootTreeHandler treeHandler;
   // treeHandler.readTree(-1, fileName, &pairVector, &genPairVector);
-  std::vector<std::pair<int, int> > evtRun;
+  std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   treeHandler.readTree(-1, fileName, &pairVector, -20, &evtRun, &genPairVector);
 
   if( (pairVector.size() != genPairVector.size()) && genInfo ) {
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
   MuonPairVector::const_iterator it = pairVector.begin();
   MuonPairVector::const_iterator genIt = genPairVector.begin();
-  std::vector<std::pair<int, int> >::iterator evtRunIt = evtRun.begin();
+  std::vector<std::pair<unsigned int, unsigned long long> >::iterator evtRunIt = evtRun.begin();
   for( ; it != pairVector.end(); ++it, ++genIt, ++evtRunIt ) {
     // Write the information to a txt file
     outputFile << it->first.pt()  << " " << it->first.eta()  << " " << it->first.phi()  << " "
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     outputFile << " " << evtRunIt->first << " " << evtRunIt->second;
     outputFile << std::endl;
   }
-  
+
   // size_t namePos = fileName.find_last_of("/");
   // treeHandler.writeTree(("tree_"+fileName.substr(namePos+1, fileName.size())).c_str(), &pairVector);
 

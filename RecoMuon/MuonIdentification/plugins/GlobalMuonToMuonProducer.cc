@@ -57,19 +57,19 @@ void GlobalMuonToMuonProducer::printTrackRecHits(const reco::Track &track,
 
 
 /// reconstruct muons
-void GlobalMuonToMuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
+void GlobalMuonToMuonProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& eventSetup) const {
 
    const std::string metname = "Muon|RecoMuon|MuonIdentification|GlobalMuonToMuonProducer";
 
    // the muon collection, it will be loaded in the event
-   std::auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
+   auto muonCollection = std::make_unique<reco::MuonCollection>();
    
 
    edm::Handle<reco::MuonTrackLinksCollection> linksCollection; 
    event.getByToken(trackLinkToken_,linksCollection);
 
    if(linksCollection->empty()) {
-     event.put(muonCollection);
+     event.put(std::move(muonCollection));
      return;
    }
    
@@ -112,5 +112,5 @@ void GlobalMuonToMuonProducer::produce(edm::Event& event, const edm::EventSetup&
      
    }
 
-   event.put(muonCollection);
+   event.put(std::move(muonCollection));
 }

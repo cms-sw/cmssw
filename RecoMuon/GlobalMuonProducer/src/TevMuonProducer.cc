@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "RecoMuon/GlobalMuonProducer/src/TevMuonProducer.h"
 
@@ -102,7 +103,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  eventSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  eventSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
@@ -110,7 +111,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   Handle<reco::TrackCollection> glbMuons;
   event.getByToken(glbMuonsToken,glbMuons);
 
-  std::auto_ptr<DYTestimators> dytInfo(new DYTestimators);
+  auto dytInfo = std::make_unique<DYTestimators>();
   DYTestimators::Filler filler(*dytInfo);
   size_t GLBmuonSize = glbMuons->size();
   vector<DYTInfo> dytTmp(GLBmuonSize);
@@ -147,12 +148,12 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 	miniMap.push_back(thisPair);
       }
     }
-    theTrackLoader->loadTracks(trajectories,event,miniMap,theRefits[ww]);
+    theTrackLoader->loadTracks(trajectories,event,miniMap,glbMuons, *tTopo, theRefits[ww]);
   }
 
   filler.insert(glbMuons, dytTmp.begin(), dytTmp.end());
   filler.fill();
-  event.put(dytInfo, "dytInfo");
+  event.put(std::move(dytInfo), "dytInfo");
     
   LogTrace(metname) << "Done." << endl;    
 }

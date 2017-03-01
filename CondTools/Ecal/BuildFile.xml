@@ -1,4 +1,3 @@
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DataRecord"/>

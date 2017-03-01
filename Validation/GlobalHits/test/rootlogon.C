@@ -1,9 +1,7 @@
 {
-gSystem->Load("libCintex");
-Cintex::Enable();
 cout << "Loading FWLite..." << endl;    // load CMSSW libraries
 gSystem->Load("libFWCoreFWLite");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 
 cout << "Setting Style to Plain..." << endl;
 gROOT->SetStyle("Plain");        // Switches off the ROOT default style

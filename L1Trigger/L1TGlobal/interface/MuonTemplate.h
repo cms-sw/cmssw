@@ -24,12 +24,12 @@
 // user include files
 
 //   base class
-#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GlobalCondition.h"
 
 // forward declarations
 
 // class declaration
-class MuonTemplate : public GtCondition
+class MuonTemplate : public GlobalCondition
 {
 
 public:
@@ -62,10 +62,23 @@ public:
         bool enableMip;
         bool enableIso;
         bool requestIso;
-        unsigned int qualityRange;
+        unsigned int qualityLUT;
+        unsigned int isolationLUT;
         unsigned long long etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
+
+	int charge;
+
+      unsigned int etaWindow1Lower;
+      unsigned int etaWindow1Upper;
+      unsigned int etaWindow2Lower;
+      unsigned int etaWindow2Upper;
+
+      unsigned int phiWindow1Lower;
+      unsigned int phiWindow1Upper;
+      unsigned int phiWindow2Lower;
+      unsigned int phiWindow2Upper;
     };
 
     // typedef for correlation parameters
@@ -74,11 +87,23 @@ public:
     struct CorrelationParameter
     {
         unsigned int chargeCorrelation;
-        unsigned long long deltaEtaRange;
+      //unsigned long long deltaEtaRange;
 
         unsigned long long deltaPhiRange0Word;
         unsigned long long deltaPhiRange1Word;
+      //unsigned int deltaPhiMaxbits;
+
+        unsigned long long deltaEtaRange;
+
+        unsigned long long deltaPhiRange;
         unsigned int deltaPhiMaxbits;
+
+      unsigned int deltaEtaRangeLower;
+      unsigned int deltaEtaRangeUpper;
+
+      unsigned int deltaPhiRangeLower;
+      unsigned int deltaPhiRangeUpper;
+
     };
 
 public:

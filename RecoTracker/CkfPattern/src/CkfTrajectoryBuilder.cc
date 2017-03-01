@@ -208,7 +208,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       // ---
 
       if ( meas.empty()) {
-	if ( qualityFilter( *traj)) addToResult(sharedSeed, *traj, result);
+	addToResult(sharedSeed, *traj, result);
       }
       else {
 	std::vector<TM>::const_iterator last;
@@ -228,7 +228,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	    newCand.push_back(std::move(newTraj));  std::push_heap(newCand.begin(),newCand.end(),trajCandLess);
 	  }
 	  else {
-	    if ( qualityFilter(newTraj))  addToResult(sharedSeed, newTraj, result);
+	    addToResult(sharedSeed, newTraj, result);
 	    //// don't know yet
 	  }
 	}
@@ -324,7 +324,8 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 						 std::vector<TrajectoryMeasurement> & result) const
 {
   int invalidHits = 0;
-  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(traj);
+  //Use findStateAndLayers which handles the hitless seed use case
+  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(seed,traj);
   if (stateAndLayers.second.empty()) return;
 
   auto layerBegin = stateAndLayers.second.begin();
@@ -336,7 +337,8 @@ CkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
     LogDebug("CkfPattern")<<"looping on a layer in findCompatibleMeasurements.\n last layer: "<<traj.lastLayer()<<" current layer: "<<(*il);
 
     TSOS stateToUse = stateAndLayers.first;
-    if unlikely ((*il)==traj.lastLayer()) {
+    //Added protection before asking for the lastLayer on the trajectory
+    if unlikely (!traj.empty() && (*il)==traj.lastLayer()) {
 	LogDebug("CkfPattern")<<" self propagating in findCompatibleMeasurements.\n from: \n"<<stateToUse;
 	//self navigation case
 	// go to a middle point first

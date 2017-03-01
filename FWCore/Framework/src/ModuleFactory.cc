@@ -28,19 +28,19 @@ namespace edm {
 //
       std::string ModuleMakerTraits::name() { return "CMS EDM Framework ESModule"; }
       void ModuleMakerTraits::addTo(EventSetupProvider& iProvider,
-                                    boost::shared_ptr<DataProxyProvider> iComponent,
+                                    std::shared_ptr<DataProxyProvider> iComponent,
                                     ParameterSet const&,
                                     bool) 
       {
          iProvider.add(iComponent);
       }
 
-      void ModuleMakerTraits::replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) 
+      void ModuleMakerTraits::replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<DataProxyProvider> iComponent) 
       {
          iProvider.replaceExisting(iComponent);
       }
 
-      boost::shared_ptr<ModuleMakerTraits::base_type>
+      std::shared_ptr<ModuleMakerTraits::base_type>
       ModuleMakerTraits::getComponentAndRegisterProcess(EventSetupsController& esController,
                                                         ParameterSet const& iConfiguration) {
          return esController.getESProducerAndRegisterProcess(iConfiguration, esController.indexOfNextProcess());
@@ -48,7 +48,7 @@ namespace edm {
 
       void ModuleMakerTraits::putComponent(EventSetupsController& esController,
                                            ParameterSet const& iConfiguration,
-                                           boost::shared_ptr<base_type> const& component) {
+                                           std::shared_ptr<base_type> const& component) {
          esController.putESProducer(iConfiguration, component, esController.indexOfNextProcess());
       }
    }

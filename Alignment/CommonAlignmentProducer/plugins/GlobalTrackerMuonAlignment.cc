@@ -758,10 +758,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 
     if( isolatedMuonMode_ ){      //------------------------------- Isolated Muon -----
       const Surface& refSurface = innerMuTSOS.surface(); 
-      ReferenceCountingPointer<TangentPlane> 
+      ConstReferenceCountingPointer<TangentPlane> 
 	tpMuLocal(refSurface.tangentPlane(innerMuTSOS.localPosition()));
       Nl = tpMuLocal->normalVector();
-      ReferenceCountingPointer<TangentPlane> 
+      ConstReferenceCountingPointer<TangentPlane> 
       tpMuGlobal(refSurface.tangentPlane(innerMuTSOS.globalPosition()));
       GlobalVector Ng = tpMuGlobal->normalVector();
       Surface* surf = (Surface*)&refSurface;
@@ -819,7 +819,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	if(debug_) std::cout<<" -----    Out - In -----"<<std::endl;
 
         const Surface& refSurface = innerMuTSOS.surface(); 
-	ReferenceCountingPointer<TangentPlane> 
+	ConstReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(innerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 
@@ -876,7 +876,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	if(debug_) std::cout<<" -----    In - Out -----"<<std::endl;
 
 	const Surface& refSurface = outerMuTSOS.surface(); 
-	ReferenceCountingPointer<TangentPlane> 
+	ConstReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(outerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 		
@@ -934,7 +934,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	continue;
 
 	const Surface& refSurface = outerMuTSOS.surface(); 
-	ReferenceCountingPointer<TangentPlane> 
+	ConstReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(outerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 		
@@ -1029,7 +1029,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     AlgebraicSymMatrix55 Cml(tsosMuon.localError().matrix() + extrapolationT.localError().matrix());
     bool ierrLoc = !m.Invert();
     if (ierrLoc && debug_ && info) { 
-      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::cout;
+      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::endl;
       continue;}
     double chi_Loc = ROOT::Math::Similarity(Vml,m);
     if(debug_)
@@ -1477,10 +1477,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     if( isolatedMuonMode_ ){      //------------------------------- Isolated Muon --- Out-In --
       if(debug_) std::cout<<" ------ Isolated (out-in) ----- "<<std::endl;
       const Surface& refSurface = innerMuTSOS.surface(); 
-      ReferenceCountingPointer<TangentPlane> 
+      ConstReferenceCountingPointer<TangentPlane> 
 	tpMuLocal(refSurface.tangentPlane(innerMuTSOS.localPosition()));
       Nl = tpMuLocal->normalVector();
-      ReferenceCountingPointer<TangentPlane> 
+      ConstReferenceCountingPointer<TangentPlane> 
       tpMuGlobal(refSurface.tangentPlane(innerMuTSOS.globalPosition()));
       GlobalVector Ng = tpMuGlobal->normalVector();
       Surface* surf = (Surface*)&refSurface;
@@ -1550,7 +1550,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	if(debug_) std::cout<<" -----    Out - In -----"<<std::endl;
 
         const Surface& refSurface = innerMuTSOS.surface(); 
-	ReferenceCountingPointer<TangentPlane> 
+	ConstReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(innerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 
@@ -1617,7 +1617,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	if(debug_) std::cout<<" -----    In - Out -----"<<std::endl;
 
 	const Surface& refSurface = outerMuTSOS.surface(); 
-	ReferenceCountingPointer<TangentPlane> 
+	ConstReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(outerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 		
@@ -1686,7 +1686,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	continue;
 
 	const Surface& refSurface = outerMuTSOS.surface(); 
-	ReferenceCountingPointer<TangentPlane> 
+	ConstReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(outerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 		
@@ -1802,7 +1802,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     AlgebraicSymMatrix55 Cml(tsosMuon.localError().matrix() + extrapolationT.localError().matrix());
     bool ierrLoc = !m.Invert();
     if (ierrLoc && debug_ && info) { 
-      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::cout;
+      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::endl;
       continue;}
     double chi_Loc = ROOT::Math::Similarity(Vml,m);
     if(debug_)

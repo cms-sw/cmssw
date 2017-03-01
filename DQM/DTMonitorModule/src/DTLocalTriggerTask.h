@@ -24,6 +24,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -43,7 +45,7 @@ class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
 
-class DTLocalTriggerTask: public edm::EDAnalyzer{
+class DTLocalTriggerTask: public DQMEDAnalyzer{
 
   friend class DTMonitorModule;
 
@@ -57,26 +59,26 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
 
  protected:
 
-  // BeginJob
-  void beginJob();
-
   ///Beginrun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Book the histograms
-  void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh, std::string folder, std::string histoTag );
 
   /// Book the histograms
-  void bookWheelHistos(int wh, std::string histoTag );
+  void bookWheelHistos(DQMStore::IBooker &, int wh, std::string histoTag );
 
   /// Book the histograms
-  void bookBarrelHistos(std::string histoTag);
+  void bookBarrelHistos(DQMStore::IBooker &, std::string histoTag);
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
+  void setQLabelsTheta(MonitorElement* me, short int iaxis);
 
-  /// Run analysis on DCC data
-  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
+  /// Run analysis on TM data
+  void runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phTrigs, std::vector<L1MuDTChambThDigi> const* thTrigs);
 
   /// Run analysis on ROS data
   void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
@@ -85,37 +87,37 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   void runSegmentAnalysis(edm::Handle<DTRecSegment4DCollection>& segments4D);
 
   /// Run analysis on ROS data
-  void runDDUvsDCCAnalysis(std::string& trigsrc);
+  void runDDUvsTMAnalysis(std::string& trigsrc);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-
-  /// EndJob
-  void endJob(void);
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
 
   /// Get the L1A source
   void triggerSource(const edm::Event& e);
 
-  /// Get the Top folder (different between Physics and TP and DCC/DDU)
-  std::string& topFolder(bool isDCC) { return isDCC ? baseFolderDCC : baseFolderDDU; }
+  /// Get the Top folder (different between Physics and TP and TM/DDU)
+  std::string& topFolder(bool isTM) { return isTM ? baseFolderTM : baseFolderDDU; }
 
  private:
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::InputTag tmTh_label_;
+
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> tmTh_Token_;    
   edm::EDGetTokenT<DTLocalTriggerCollection> ros_Token_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
   edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
 
-  bool useDCC, useDDU, useSEG;
+  bool useTM, useDDU, useSEG;
   std::string trigsrc;
   int nevents;
   bool tpMode;
-  std::string baseFolderDCC;
+  std::string baseFolderTM;
   std::string baseFolderDDU;
-  bool doDCCTheta;
+  bool doTMTheta;
   bool detailedAnalysis;
 
 
@@ -129,14 +131,13 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   const L1MuDTChambThDigi* ithbest[6][5][13];
   bool track_ok[6][5][15];
 
-  DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
   DTTrigGeomUtils* trigGeomUtils;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
   std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
 
-  MonitorElement* dcc_IDDataErrorPlot;
+  MonitorElement* tm_IDDataErrorPlot;
 
   bool isLocalRun;
 };

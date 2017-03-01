@@ -2,12 +2,14 @@
 #define CkfPattern_TempTrajectory_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -50,12 +52,7 @@ public:
    * copy vector<Trajectory> in the edm::Event
    */
   
-  TempTrajectory() : 
-    theChiSquared(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), 
-    theValid(false),theNLoops(0),theDPhiCache(0)
-  {}
+  TempTrajectory() {}
   
   
  
@@ -63,63 +60,50 @@ public:
    *  No check is made in the push method that measurements are
    *  added in the correct direction.
    */
-  explicit TempTrajectory(PropagationDirection dir) : 
-  theChiSquared(0), 
-  theNumberOfFoundHits(0), theNumberOfLostHits(0),
-  theDirection(dir), theDirectionValidity(true),
-  theValid(true),theNLoops(0),theDPhiCache(0)
+  TempTrajectory(PropagationDirection dir, unsigned char nhseed) : 
+  theDirection(dir),
+  theValid(true),
+  theNHseed(nhseed)
   {}
 
   
   
-  TempTrajectory(TempTrajectory const & rh) : 
-    theData(rh.theData),
-    theChiSquared(rh.theChiSquared), 
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),theValid(rh.theValid)
-    ,theNLoops(rh.theNLoops)
-    ,theDPhiCache(rh.theDPhiCache)
-  {}
-  
-  
-  TempTrajectory & operator=(TempTrajectory const & rh) {
-    DataContainer aData(rh.theData);
-    using std::swap;
-    swap(theData,aData);
-    theChiSquared=rh.theChiSquared;
-    theNumberOfFoundHits=rh.theNumberOfFoundHits;
-    theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection; 
-    theDirectionValidity=rh.theDirectionValidity;
-    theValid=rh.theValid;
-    theNLoops=rh.theNLoops;
-    theDPhiCache=rh.theDPhiCache;
- 
-    return *this;
-
-  }
+  TempTrajectory(TempTrajectory const & rh)  = default; 
+  TempTrajectory & operator=(TempTrajectory const & rh) = default;
   
 
   TempTrajectory(TempTrajectory && rh) noexcept :
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), 
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
+    theNumberOfFoundHits(rh.theNumberOfFoundHits),
+    theNumberOfFoundPixelHits(rh.theNumberOfFoundPixelHits),
+    theNumberOfLostHits(rh.theNumberOfLostHits),
+    theNumberOfTrailingFoundHits(rh.theNumberOfTrailingFoundHits),
+    theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
+    theDirection(rh.theDirection),
     theValid(rh.theValid),
+    theNHseed(rh.theNHseed),
     theNLoops(rh.theNLoops),
-    theDPhiCache(rh.theDPhiCache){}
+    theDPhiCache(rh.theDPhiCache),
+    theCCCThreshold_(rh.theCCCThreshold_),
+    stopReason_(rh.stopReason_){}
 
   TempTrajectory & operator=(TempTrajectory && rh) noexcept {
     using std::swap;
     swap(theData,rh.theData);
     theChiSquared=rh.theChiSquared;
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
+    theNumberOfFoundPixelHits=rh.theNumberOfFoundPixelHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
+    theNumberOfTrailingFoundHits=rh.theNumberOfTrailingFoundHits;
+    theNumberOfCCCBadHits_=rh.theNumberOfCCCBadHits_;
     theDirection=rh.theDirection;
-    theDirectionValidity=rh.theDirectionValidity;
-    theValid=rh.theValid;
+    theValid=rh.theValid;    
+    theNHseed=rh.theNHseed;
     theNLoops=rh.theNLoops;
     theDPhiCache=rh.theDPhiCache;
+    theCCCThreshold_=rh.theCCCThreshold_;
+    stopReason_=rh.stopReason_;
     return *this;
 
   }
@@ -223,11 +207,28 @@ public:
    */
   int foundHits() const { return theNumberOfFoundHits;}
 
+  /** Number of valid pixel RecHits used to determine the trajectory.
+   */
+  int foundPixelHits() const { return theNumberOfFoundPixelHits;}
+
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
   int lostHits() const { return theNumberOfLostHits;}
+
+  /** Number of valid RecHits at the end of the trajectory after last lost hit.
+   */
+   int trailingFoundHits() const { return theNumberOfTrailingFoundHits;}
+
+  /** Number of hits that are not compatible with the CCC used during
+   *  patter recognition. Used mainly as a criteria for abandoning a
+   *  trajectory candidate during trajectory building.
+   */
+  int cccBadHits() const { return theNumberOfCCCBadHits_;}
+
+  //number of hits in seed
+  unsigned int seedNHits() const { return theNHseed;}
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
@@ -282,12 +283,20 @@ public:
    void setNLoops(signed char value) { theNLoops=value;}
    void incrementLoops() {theNLoops++;}
 
+   StopReason stopReason() const {return stopReason_;}
+   void setStopReason(StopReason s) { stopReason_ = s; }
+
+   int numberOfCCCBadHits(float ccc_threshold);
+
+  static bool lost( const TrackingRecHit& hit) dso_internal;
 
 private:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
-  static bool lost( const TrackingRecHit& hit) dso_internal;
+  bool badForCCC(const TrajectoryMeasurement &tm) dso_internal;
+  void updateBadForCCC(float ccc_threshold) dso_internal;
+
 
 
   void pushAux(double chi2Increment);
@@ -296,19 +305,24 @@ private:
 
   DataContainer theData;
 
-  float theChiSquared;
+  float theChiSquared=0;
 
-  signed short theNumberOfFoundHits;
-  signed short theNumberOfLostHits;
+  signed short theNumberOfFoundHits=0;
+  signed short theNumberOfFoundPixelHits=0;
+  signed short theNumberOfLostHits=0;
+  signed short theNumberOfTrailingFoundHits=0;
+  signed short theNumberOfCCCBadHits_=0;
 
   // PropagationDirection 
-  signed char theDirection;
-  bool        theDirectionValidity;
-  bool theValid;
+  signed char theDirection=anyDirection;
+  bool theValid=false;
+ 
+  unsigned char theNHseed=0;
 
-  signed char theNLoops;
-  float theDPhiCache;
-
+  signed char theNLoops=0;
+  float theDPhiCache=0;
+  float theCCCThreshold_=std::numeric_limits<float>::max();
+  StopReason stopReason_=StopReason::UNINITIALIZED;
 
   void check() const;
 };

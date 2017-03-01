@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# This object modifies hcalSimParameters for different scenarios
+
 hcalSimParameters = cms.PSet(
     #  In HF, the SimHits energy is actually
     # the number of photoelectrons from the shower
@@ -9,24 +11,28 @@ hcalSimParameters = cms.PSet(
     # comes out to a 40% smearing of the single pe peak!
     #
     hf1 = cms.PSet(
-        readoutFrameSize = cms.int32(5),
+        readoutFrameSize = cms.int32(4),
         binOfMaximum = cms.int32(3),
         samplingFactor = cms.double(0.383),
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(2.79),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(14.0)        
+        timePhase = cms.double(14.0),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     hf2 = cms.PSet(
-        readoutFrameSize = cms.int32(5),
+        readoutFrameSize = cms.int32(4),
         binOfMaximum = cms.int32(3),
         samplingFactor = cms.double(0.368),
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(13.0)
+        timePhase = cms.double(13.0),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     ho = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -43,8 +49,10 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
         timeSmearing = cms.bool(False),
-        # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsufrom DB
-        siPMCode = cms.int32(2)
+        # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsu from DB
+        siPMCode = cms.int32(2),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(5.),
     ),
     hb = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -61,7 +69,8 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(6.0),
         timeSmearing = cms.bool(True),
-        siPMCells = cms.vint32()
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -76,7 +85,9 @@ hcalSimParameters = cms.PSet(
             190.90, 193.06, 188.42, 188.42),
         syncPhase = cms.bool(True),
         timePhase = cms.double(6.0),
-        timeSmearing = cms.bool(True)
+        timeSmearing = cms.bool(True),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
     zdc = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -86,14 +97,67 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
-        timePhase = cms.double(-4.0)
+        timePhase = cms.double(-4.0),
+        doSiPMSmearing = cms.bool(False),
+        sipmTau = cms.double(0.),
     ),
 )
 
 hcalSimParameters.hoZecotek = hcalSimParameters.ho.clone()
-hcalSimParameters.hoZecotek.pixels = cms.int32(36000)
 hcalSimParameters.hoZecotek.photoelectronsToAnalog = [3.0]*16
 
 hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
-hcalSimParameters.hoHamamatsu.pixels = cms.int32(960)
 hcalSimParameters.hoHamamatsu.photoelectronsToAnalog = [3.0]*16
+
+# Customises the HCal digitiser for post LS1 running
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( hcalSimParameters, 
+    ho = dict(
+        photoelectronsToAnalog = cms.vdouble([4.0]*16),
+        siPMCode = cms.int32(1)
+    ),
+    hf1 = dict( samplingFactor = cms.double(0.67) ),
+    hf2 = dict( samplingFactor = cms.double(0.67) )
+)
+
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+run2_HE_2017.toModify( hcalSimParameters,
+    he = dict(
+        doSiPMSmearing = cms.bool(True),
+        sipmTau = cms.double(10.),
+    )
+)
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify( hcalSimParameters,
+    hb = dict(
+        doSiPMSmearing = cms.bool(True),
+        sipmTau = cms.double(10.),
+    )
+)
+
+_newFactors = cms.vdouble(
+    210.55, 197.93, 186.12, 189.64, 189.63,
+    189.96, 190.03, 190.11, 190.18, 190.25,
+    190.32, 190.40, 190.47, 190.54, 190.61,
+    190.69, 190.83, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94,
+    190.94, 190.94, 190.94, 190.94, 190.94 )
+
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( hcalSimParameters,
+    he = dict(
+        samplingFactors = _newFactors,
+    )
+)

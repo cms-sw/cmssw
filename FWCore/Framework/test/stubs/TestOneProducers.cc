@@ -41,7 +41,7 @@ namespace one {
       ++m_count;
     }
        
-    ~SharedResourcesProducer() {
+    ~SharedResourcesProducer() noexcept(false) {
       if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "SharedResourcesProducer transitions " 
@@ -91,7 +91,7 @@ namespace one {
       er = true;
     }
      
-   ~WatchRunsProducer() {
+    ~WatchRunsProducer() noexcept(false) {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchRunsProducer transitions " 
@@ -140,7 +140,7 @@ namespace one {
       el = true;
     }
 
-    ~WatchLumiBlocksProducer() {
+    ~WatchLumiBlocksProducer() noexcept(false) {
        if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "WatchLumiBlockProducer transitions " 
@@ -179,7 +179,7 @@ namespace one {
     void endRun(edm::Run const&, edm::EventSetup const&) override { 
     }
 
-   ~TestBeginRunProducer() {
+    ~TestBeginRunProducer() noexcept(false) {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginRunProducer transitions "
@@ -218,7 +218,7 @@ namespace one {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
     }
 
-   ~TestBeginLumiBlockProducer() {
+    ~TestBeginLumiBlockProducer() noexcept(false) {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestBeginLumiBlockProducer transitions " 
@@ -258,7 +258,7 @@ namespace one {
     void endRun(edm::Run const&, edm::EventSetup const&) override { 
     }
 
-   ~TestEndRunProducer() {
+    ~TestEndRunProducer() noexcept(false) {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndRunProducer transitions "
@@ -298,7 +298,7 @@ namespace one {
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {
     }
      
-   ~TestEndLumiBlockProducer() {
+    ~TestEndLumiBlockProducer() noexcept(false) {
      if(m_count != trans_) {
         throw cms::Exception("transitions")
           << "TestEndLumiBlockProducer transitions " 

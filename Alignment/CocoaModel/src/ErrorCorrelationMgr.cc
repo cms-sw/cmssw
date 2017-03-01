@@ -102,7 +102,7 @@ ErrorCorrelation* ErrorCorrelationMgr::getCorrelation( ALIint ii )
 std::vector<ErrorCorrelation*>::iterator ErrorCorrelationMgr::findErrorCorrelation( pss& entry1, pss& entry2 )
 {
   std::vector<ErrorCorrelation*>::iterator itecorr;
-  for( itecorr = theCorrs.begin(); itecorr != theCorrs.end(); itecorr++ ) {
+  for( itecorr = theCorrs.begin(); itecorr != theCorrs.end(); ++itecorr ) {
     if( (*itecorr)->getEntry1() == entry1 &&  (*itecorr)->getEntry2() == entry2 ) {
       return itecorr;
     }

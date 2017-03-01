@@ -17,9 +17,9 @@ the classes_def.xml file if it is a member of a persistent class!
 // Original Author:  W. David Dagenhart
 //         Created:  20 March 2014
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <memory>
-#endif
+
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace edm {
 
@@ -42,9 +42,7 @@ namespace edm {
 
     bool isSet() const;
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     void set(std::unique_ptr<T> iNewValue);
-#endif
 
     T* release();
     void reset();
@@ -54,10 +52,8 @@ namespace edm {
     ConstRespectingPtr(ConstRespectingPtr<T> const&);
     ConstRespectingPtr& operator=(ConstRespectingPtr<T> const&);
 
-    T* m_data;
+    edm::propagate_const<T*> m_data;
   };
-
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 
   template<typename T>
   ConstRespectingPtr<T>::ConstRespectingPtr() : m_data(nullptr) {}
@@ -67,7 +63,7 @@ namespace edm {
 
   template<typename T>
   ConstRespectingPtr<T>::~ConstRespectingPtr() {
-    delete m_data;
+    delete m_data.get();
   }
 
   template<typename T>
@@ -91,6 +87,5 @@ namespace edm {
     delete m_data;
     m_data = nullptr;
   }
-#endif
 }
 #endif

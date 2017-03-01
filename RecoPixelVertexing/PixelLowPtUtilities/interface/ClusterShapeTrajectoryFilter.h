@@ -23,13 +23,13 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  virtual bool qualityFilter(const TempTrajectory&) const;
-  virtual bool qualityFilter(const Trajectory&) const;
+  virtual bool qualityFilter(const TempTrajectory&) const override;
+  virtual bool qualityFilter(const Trajectory&) const override;
  
-  virtual bool toBeContinued(TempTrajectory&) const;
-  virtual bool toBeContinued(Trajectory&) const;
+  virtual bool toBeContinued(TempTrajectory&) const override;
+  virtual bool toBeContinued(Trajectory&) const override;
 
-  virtual std::string name() const { return "ClusterShapeTrajectoryFilter"; }
+  virtual std::string name() const override { return "ClusterShapeTrajectoryFilter"; }
 
  private:
   edm::EDGetTokenT<SiPixelClusterShapeCache> theCacheToken;

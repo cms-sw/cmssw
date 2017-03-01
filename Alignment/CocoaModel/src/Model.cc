@@ -266,7 +266,7 @@ void Model::readSystemDescription()
         wordlist.pop_back();
       }
       //----- Loop objects looking for numbers to convert
-      for ( vsite=wordlist2.begin(); vsite!=wordlist2.end(); vsite++ ) {
+      for ( vsite=wordlist2.begin(); vsite!=wordlist2.end(); ++vsite ) {
         if( ALIUtils::IsNumber( *vsite ) ) {
           int nOpticalObjects = atoi( (*vsite).c_str() );
 	  //----- If number is 1 it is not necessary
@@ -306,7 +306,7 @@ void Model::readSystemDescription()
       if ( wordlist[0] == ALIstring("object") ) {
 	  //----- Check out repeated objects
         std::vector< std::vector<ALIstring> >::iterator vvsite; 
-        for ( vvsite = theOptODictionary.begin(); vvsite != theOptODictionary.end(); vvsite++) {
+        for ( vvsite = theOptODictionary.begin(); vvsite != theOptODictionary.end(); ++vvsite) {
 	  //-	  std::cout << " system" << vvsite << std::endl;
 
 	  if( *( (*vvsite).begin() ) == wordlist[1] ) {
@@ -347,9 +347,9 @@ void Model::readSystemDescription()
 	//---- Check if all the objects are here
         std::vector< std::vector<ALIstring> >::const_iterator vvscite, vvscite2; 
 	//	ALIint dictsizen = 0;
-        for( vvscite = theOptODictionary.begin(); vvscite != theOptODictionary.end(); vvscite++) {
+        for( vvscite = theOptODictionary.begin(); vvscite != theOptODictionary.end(); ++vvscite) {
           ALIbool ofound = 0;
-	  for( vvscite2 = OptODictionary2.begin(); vvscite2 != OptODictionary2.end(); vvscite2++) {
+	  for( vvscite2 = OptODictionary2.begin(); vvscite2 != OptODictionary2.end(); ++vvscite2) {
 	    if( *( (*vvscite).begin() ) == *( (*vvscite2).begin() ) ) {
               ofound = 1;
 	      break;
@@ -357,7 +357,7 @@ void Model::readSystemDescription()
 	  }
 	  if( !ofound  ) {
 	    std::cerr << "!!!SYSTEM_TREE_DESCRIPTION section: object " << *( (*vvscite).begin()) << " is not hanging from object 'system' " << std::endl;
-	    for (vvscite=OptODictionary().begin();vvscite!=OptODictionary().end();vvscite++){
+	    for (vvscite=OptODictionary().begin();vvscite!=OptODictionary().end();++vvscite){
 	      std::vector<ALIstring> ptemp = *vvscite;
 	      ALIUtils::dumpVS( ptemp, "OBJECT ", std::cerr );
 	    }	    
@@ -371,7 +371,7 @@ void Model::readSystemDescription()
         //------- Dump ordered OptOs
         if ( ALIUtils::debug >= 3) {
           std::vector< std::vector<ALIstring> >::iterator itevs;
-          for (itevs=OptODictionary().begin();itevs!=OptODictionary().end();itevs++){
+          for (itevs=OptODictionary().begin();itevs!=OptODictionary().end();++itevs){
             std::vector<ALIstring> ptemp = *itevs;
 	    ALIUtils::dumpVS( ptemp, " SYSTEM TREE DESCRIPTION: after ordering: OBJECT ", std::cout );
           }
@@ -547,7 +547,7 @@ void Model::buildMeasurementsLinksToOptOs(){
 
 //---------- Loop Measurements
   std::vector< Measurement* >::const_iterator vmcite;
-  for ( vmcite = MeasurementList().begin(); vmcite != MeasurementList().end(); vmcite++) {
+  for ( vmcite = MeasurementList().begin(); vmcite != MeasurementList().end(); ++vmcite) {
 //---------- Transform for each Measurement the Measured OptO names to Measured OptO pointers
     //     (*vmcite)->buildOptOList();
 
@@ -579,14 +579,14 @@ OpticalObject* Model::getOptOByName( const ALIstring& opto_name )
 {
   //---------- Look for Optical Object name in OptOList
   std::vector< OpticalObject* >::const_iterator vocite;
-  for( vocite = OptOList().begin(); vocite != OptOList().end(); vocite++ ) {
+  for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite ) {
     if( (*vocite)->name() == opto_name ) break;
   }
 
   if ( vocite == OptOList().end() ) {
     //---------- If opto_name not found, exit
     std::cerr << " LIST OF OpticalObjects " << std::endl;
-    for( vocite = OptOList().begin(); vocite != OptOList().end(); vocite++ ) {
+    for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite ) {
       std::cerr <<  (*vocite)->name() << std::endl;
     }
     std::cerr << "!!EXITING at getOptOByName: Optical Object " << opto_name << " doesn't exist!!" << std::endl;
@@ -611,7 +611,7 @@ OpticalObject* Model::getOptOByType( const ALIstring& opto_type )
 {
   //---------- Look for Optical Object type in OptOList
   std::vector< OpticalObject* >::const_iterator vocite;
-  for( vocite = OptOList().begin(); vocite != OptOList().end(); vocite++ ) {
+  for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite ) {
    //	std::cout << "OPTOList" << (*msocite).first << std::endl;
     if( (*vocite)->type() == opto_type ) break;
   }
@@ -634,7 +634,7 @@ Entry* Model::getEntryByName( const ALIstring& opto_name, const ALIstring& entry
 {
   //---------- Look for Entry name type in EntryList
   std::vector<Entry*>::const_iterator vecite;
-  for( vecite = EntryList().begin(); vecite != EntryList().end(); vecite++) {
+  for( vecite = EntryList().begin(); vecite != EntryList().end(); ++vecite) {
     if( ALIUtils::debug >= 4 ) std::cout <<  "getEntryByName: " <<(*vecite)->OptOCurrent()->name() 
 	 << " E " << (*vecite)->name() << " Searching: " << opto_name << " E " << entry_name << std::endl; 
     //-    std::cout << " optoName " << (*vecite)->OptOCurrent()->name()<< " " << (*vecite)->name() << std::endl;
@@ -654,7 +654,7 @@ Measurement* Model::getMeasurementByName( const ALIstring& meas_name, ALIbool ex
 {
   //---------- Look for Optical Object name in OptOList
   std::vector< Measurement* >::const_iterator vmcite;
-  for( vmcite = theMeasurementVector.begin(); vmcite != theMeasurementVector.end(); vmcite++ ) {
+  for( vmcite = theMeasurementVector.begin(); vmcite != theMeasurementVector.end(); ++vmcite ) {
     if( (*vmcite)->name() == meas_name ) break;
   }
   
@@ -665,7 +665,7 @@ Measurement* Model::getMeasurementByName( const ALIstring& meas_name, ALIbool ex
     if( exists ) {
       //---------- If opto_name not found, exit
       std::cerr << " LIST OF Measurements " << std::endl;
-      for( vmcite = theMeasurementVector.begin(); vmcite != theMeasurementVector.end(); vmcite++ ) {
+      for( vmcite = theMeasurementVector.begin(); vmcite != theMeasurementVector.end(); ++vmcite ) {
 	std::cerr << (*vmcite)->name() << std::endl;
       }
       std::cerr << "!!EXITING at getMeasurementByName: Measurement " << meas_name << " doesn't exist!!" << std::endl;
@@ -691,7 +691,7 @@ ALIbool Model::getComponentOptOTypes( const ALIstring& opto_type, std::vector<AL
 {
   //---------- clean std::vector in which you are going to store opto types
   std::vector<ALIstring>::iterator vsite;
-  for (vsite = vcomponents.begin(); vsite != vcomponents.end(); vsite++) {
+  for (vsite = vcomponents.begin(); vsite != vcomponents.end(); ++vsite) {
     vcomponents.pop_back();
   }
  
@@ -724,7 +724,7 @@ ALIbool Model::getComponentOptOs( const ALIstring& opto_name, std::vector<Optica
 {
   //---------- clean std::vector in which you are going to store opto pointers
   std::vector<OpticalObject*>::iterator voite;
-  for (voite = vcomponents.begin(); voite != vcomponents.end(); voite++) {
+  for (voite = vcomponents.begin(); voite != vcomponents.end(); ++voite) {
     vcomponents.pop_back();
   }
 
@@ -736,7 +736,7 @@ ALIbool Model::getComponentOptOs( const ALIstring& opto_name, std::vector<Optica
 
   if ( ALIUtils::debug >= 99) std::cout << "optolist size " << OptOList().size() << std::endl;
   ALIbool opto_found = 0; 
-  for (vocite = OptOList().begin(); vocite != OptOList().end(); vocite++) {
+  for (vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
     if( (*vocite)->parent() != 0 ) {
       //        std::cout << "looping OptOlist" << (*vocite)->name() << " parent " <<(*vocite)->parent()->name() << std::endl; 
       if( (*vocite)->parent()->name() == opto_name ) {
@@ -799,7 +799,7 @@ ALIbool Model::fillCopyComponentList( const OpticalObject* opto )
   
   //---------- Loop list of components of 'opto'
   std::vector<OpticalObject*>::const_iterator vocite;
-  for( vocite = vopto.begin(); vocite != vopto.end(); vocite++ ){
+  for( vocite = vopto.begin(); vocite != vopto.end(); ++vocite ){
     theOptOsToCopyList.push_back( *vocite );
     if(ALIUtils::debug >= 5) std::cout << "fillCopyOptOList " << (*vocite)->type() << " " << (*vocite)->name() << std::endl; 
     //---------- Add components of this component
@@ -816,7 +816,7 @@ ALIbool Model::fillCopyComponentList( const OpticalObject* opto )
 OpticalObject* Model::nextOptOToCopy()
 {
   if(ALIUtils::debug >= 5) std::cout << "entering nextOptOToCopy() " << std::endl;
-  theOptOsToCopyListIterator++;
+  ++theOptOsToCopyListIterator;
   //  if(ALIUtils::debug >= 5) std::cout <<" nextOptOToCopy " << (*(theOptOsToCopyListIterator-1))->name() << std::endl;
   return *(theOptOsToCopyListIterator-1);
 }
@@ -1162,7 +1162,7 @@ void Model::deleteOptO( OpticalObject* opto )
   std::vector<Entry*>::const_iterator vecite;
   std::vector<Entry*>::iterator veite2;
   if ( ALIUtils::debug >= 9) std::cout << "SIZE" << theEntryVector.size() <<std::endl;
-  for( vecite = opto->CoordinateEntryList().begin(); vecite != opto->CoordinateEntryList().end(); vecite++) {
+  for( vecite = opto->CoordinateEntryList().begin(); vecite != opto->CoordinateEntryList().end(); ++vecite) {
     //    ALIuint pos = FindItemInVector( (*veite), opto->CoordinateEntryList() );
     veite2 = find( theEntryVector.begin(), theEntryVector.end(), (*vecite) );
     //-  if ( ALIUtils::debug >= 9) std::cout << (*veite2) << "DELETE ENTRY " << (*vecite) <<(*veite2)->OptOCurrent()->name() << (*veite2)->name() << std::endl;
@@ -1170,7 +1170,7 @@ void Model::deleteOptO( OpticalObject* opto )
     theEntryVector.erase( veite2 );
   }
 
-  for( vecite = opto->ExtraEntryList().begin(); vecite != opto->ExtraEntryList().end(); vecite++) {
+  for( vecite = opto->ExtraEntryList().begin(); vecite != opto->ExtraEntryList().end(); ++vecite) {
     //    ALIuint pos = FindItemInVector( (*veite), opto->CoordinateEntryList() );
     veite2 = find( theEntryVector.begin(), theEntryVector.end(), (*vecite) );
     //-    if(ALIUtils::debug >= 9) std::cout << (*veite2) << "DELETE ENTRY " << (*veite2)->OptOCurrent()->name() << (*veite2)->name() << std::endl;
@@ -1179,7 +1179,7 @@ void Model::deleteOptO( OpticalObject* opto )
   }
 
  
-  for( vecite = theEntryVector.begin(); vecite != theEntryVector.end(); vecite++ ) {
+  for( vecite = theEntryVector.begin(); vecite != theEntryVector.end(); ++vecite ) {
     //     std::cout << (*vecite) << "ENTReY " << (*vecite)->OptOCurrent()->name() << (*vecite)->name() << std::endl;
   }
 
@@ -1187,10 +1187,10 @@ void Model::deleteOptO( OpticalObject* opto )
   std::vector<Measurement*> MeasToBeDeleted;
   std::vector<Measurement*>::const_iterator vmite;
   std::vector<OpticalObject*>::const_iterator vocite;
-  for( vmite = MeasurementList().begin(); vmite != MeasurementList().end(); vmite++ ) {
+  for( vmite = MeasurementList().begin(); vmite != MeasurementList().end(); ++vmite ) {
       if(ALIUtils::debug >= 5) std::cout << "Deleting Measurement" << (*vmite)->name() << std::endl;
     //----- If any of the OptO Measured is opto, delete this Measurement
-    for( vocite = (*vmite)->OptOList().begin(); vocite != (*vmite)->OptOList().end(); vocite++) {
+    for( vocite = (*vmite)->OptOList().begin(); vocite != (*vmite)->OptOList().end(); ++vocite) {
       if( (*vocite) == opto ) {
 	//-      std::cout << "MEASTBD" << (*vmite) << std::endl;
         MeasToBeDeleted.push_back( *vmite );
@@ -1204,7 +1204,7 @@ void Model::deleteOptO( OpticalObject* opto )
   std::vector<Measurement*>::const_iterator vmcite;
   std::vector<Measurement*>::iterator vmite2;
   if ( ALIUtils::debug >= 9) std::cout << "SIZEMEAS" << MeasToBeDeleted.size() <<std::endl;
-  for( vmcite = MeasToBeDeleted.begin(); vmcite != MeasToBeDeleted.end(); vmcite++) {
+  for( vmcite = MeasToBeDeleted.begin(); vmcite != MeasToBeDeleted.end(); ++vmcite) {
     vmite2 = find( theMeasurementVector.begin(), theMeasurementVector.end(), (*vmcite) );
     //    std::cout << (*vmite2) << "DELETE MSEASU " << (*vmcite) << (*vmite2)->name()[0] << std::endl;
     delete ( (*vmite2) );
@@ -1216,7 +1216,7 @@ void Model::deleteOptO( OpticalObject* opto )
   //  std::vector<OpticalObject*>::iterator voite;
   std::vector<OpticalObject*> vopto;
   //  ALIbool opto_found = getComponentOptOs( opto->name(), vopto );
-  for( vocite = vopto.begin(); vocite != vopto.end(); vocite++ ) {
+  for( vocite = vopto.begin(); vocite != vopto.end(); ++vocite ) {
     deleteOptO( *vocite );
   }
      
@@ -1386,7 +1386,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
 	exit(1);
       }
       std::vector< Measurement* >::const_iterator vmcite;
-      for( vmcite = MeasurementList().begin();  vmcite != MeasurementList().end(); vmcite++ ) {
+      for( vmcite = MeasurementList().begin();  vmcite != MeasurementList().end(); ++vmcite ) {
 	//-------- Measurement found, fill data
 	/*	ALIint last_slash =  (*vmcite)->name().rfind('/');
 	ALIstring oname = (*vmcite)->name();
@@ -1434,7 +1434,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
 	}
       }
       if( vmcite == MeasurementList().end() ) {
-	for( vmcite = MeasurementList().begin(); vmcite != MeasurementList().end(); vmcite++ ) {
+	for( vmcite = MeasurementList().begin(); vmcite != MeasurementList().end(); ++vmcite ) {
 	  std::cerr << "MEAS: " << (*vmcite)->name() << " " << (*vmcite)->type() << std::endl;
 	}
 	std::cerr << "!!! Reading measurement from file: measurement not found in list: type in file is "  << wordlist[1]  << std::endl;
@@ -1471,7 +1471,7 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
 
   std::vector< Measurement* > measToCopy;
   std::vector< Measurement* >::iterator mite;
-  for( mite = theMeasurementVector.begin(); mite != theMeasurementVector.end(); mite++) {
+  for( mite = theMeasurementVector.begin(); mite != theMeasurementVector.end(); ++mite) {
     Measurement* meas = (*mite);
     //improve this
     if( meas->name().find( querystr ) != std::string::npos ) {
@@ -1481,7 +1481,7 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
 
   //---- Build new measurements
   Measurement* meastemp = 0;
-  for( mite = measToCopy.begin(); mite != measToCopy.end(); mite++) {
+  for( mite = measToCopy.begin(); mite != measToCopy.end(); ++mite) {
     Measurement* meas = (*mite);
     std::vector<ALIstring> wlt;
     wlt.push_back( meas->type() );
@@ -1538,7 +1538,7 @@ void Model::SetValueDisplacementsFromReportOut()
     
     std::vector<Entry*>::const_iterator vecite; 
     for ( vecite = Model::EntryList().begin();
-	  vecite != Model::EntryList().end(); vecite++ ) {
+	  vecite != Model::EntryList().end(); ++vecite ) {
       //----- Find the EntryData corresponding to this entry
       entryData = entryMgr->findEntryByLongName( (*vecite)->OptOCurrent()->longName(), (*vecite)->name() );
       if( ALIUtils::debug >= 3 ) std::cout << "SetValueDisplacementsFromReportOut "<< (*vecite)->OptOCurrent()->longName() << " " <<  (*vecite)->name() << " " << entryData->valueDisplacement() << std::endl;
@@ -1600,7 +1600,7 @@ OpticalAlignInfo Model::FindOptAlignInfoByType( const ALIstring& type )
 
   ALIbool bFound = 0;
   std::vector<OpticalAlignInfo>::iterator ite;
-  for( ite = theOpticalAlignments.begin(); ite != theOpticalAlignments.end(); ite++ ){
+  for( ite = theOpticalAlignments.begin(); ite != theOpticalAlignments.end(); ++ite ){
     //    std::cout << " Model::FindOptAlignInfoByType " <<  (*ite).type_ << " =? " << type << std::endl;
     if( (*ite).type_ == type ) {
       if( !bFound ){ 
@@ -1629,7 +1629,7 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
 
   if( ALIUtils::debug >= 5 ) std::cout << " BuildMeasurementsFromOA " << std::endl;
   std::vector<OpticalAlignMeasurementInfo> measInfos = measList.oaMeasurements_;
-  for( mite = measInfos.begin(); mite != measInfos.end(); mite++ ) {
+  for( mite = measInfos.begin(); mite != measInfos.end(); ++mite ) {
     std::string measType = (*mite).type_;
     std::string measName = (*mite).name_;
   if( ALIUtils::debug >= 4 ) std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;

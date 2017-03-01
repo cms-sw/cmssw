@@ -10,7 +10,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,6 +20,7 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -31,12 +32,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 
 
 template<class T>
-class FakeTrackProducer : public edm::EDProducer {
+class FakeTrackProducer : public edm::stream::EDProducer<> {
     public:
       explicit FakeTrackProducer(const edm::ParameterSet & iConfig);
       virtual ~FakeTrackProducer() { }
@@ -44,14 +46,10 @@ class FakeTrackProducer : public edm::EDProducer {
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     private:
       /// Labels for input collections
-      edm::InputTag src_;
+      edm::EDGetTokenT<std::vector<T>> src_;
 
       /// Muon selection
       //StringCutObjectSelector<T> selector_;
-
-      // EventSetup
-      edm::ESHandle<TrackerGeometry> theGeometry;
-      edm::ESHandle<MagneticField>   theMagField;
 
       const PTrajectoryStateOnDet & getState(const TrajectorySeed &seed) const { return seed.startingState(); }
       const PTrajectoryStateOnDet & getState(const TrackCandidate &seed) const { return seed.trajectoryStateOnDet(); }
@@ -62,7 +60,7 @@ class FakeTrackProducer : public edm::EDProducer {
 
 template<typename T>
 FakeTrackProducer<T>::FakeTrackProducer(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src"))
+    src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src")))
     //,selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true)
 {
     produces<std::vector<reco::Track> >(); 
@@ -77,17 +75,22 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     using namespace std;
 
 
+    edm::ESHandle<TrackerGeometry> theGeometry;
     iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
+    edm::ESHandle<MagneticField>   theMagField;
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+    edm::ESHandle<TrackerTopology> httopo;
+    iSetup.get<TrackerTopologyRcd>().get(httopo);
+    const TrackerTopology& ttopo = *httopo;
 
     Handle<vector<T> > src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
-    auto_ptr<vector<reco::Track> > out(new vector<reco::Track>());
+    unique_ptr<vector<reco::Track> > out(new vector<reco::Track>());
     out->reserve(src->size());
-    auto_ptr<vector<reco::TrackExtra> > outEx(new vector<reco::TrackExtra>());
+    unique_ptr<vector<reco::TrackExtra> > outEx(new vector<reco::TrackExtra>());
     outEx->reserve(src->size());
-    auto_ptr<OwnVector<TrackingRecHit> > outHits(new OwnVector<TrackingRecHit>());
+    unique_ptr<OwnVector<TrackingRecHit> > outHits(new OwnVector<TrackingRecHit>());
 
     TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
     reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
@@ -105,7 +108,7 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         int charge = state.localParameters().charge();
         out->push_back(reco::Track(1.0,1.0,x,p,charge,reco::Track::CovarianceMatrix()));
         TrajectorySeed::range hits = getHits(mu);
-        out->back().setHitPattern(hits.first, hits.second);
+        out->back().appendHits(hits.first, hits.second, ttopo);
         // Now Track Extra
         const TrackingRecHit *hit0 =  &*hits.first;
         const TrackingRecHit *hit1 = &*(hits.second-1);
@@ -123,15 +126,16 @@ FakeTrackProducer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
                                 alongMomentum) );
         out->back().setExtra( reco::TrackExtraRef( rTrackExtras, outEx->size()-1 ) );
         reco::TrackExtra &ex = outEx->back();    
+        auto const firstHitIndex = outHits->size();
         for (OwnVector<TrackingRecHit>::const_iterator it2 = hits.first; it2 != hits.second; ++it2) {
             outHits->push_back(*it2);
-            ex.add( TrackingRecHitRef( rHits, outHits->size()-1 ) );
         } 
+        ex.setHits( rHits, firstHitIndex, outHits->size()-firstHitIndex);
     }
 
-    iEvent.put(out);
-    iEvent.put(outEx);
-    iEvent.put(outHits);
+    iEvent.put(std::move(out));
+    iEvent.put(std::move(outEx));
+    iEvent.put(std::move(outHits));
 }
 
 typedef  FakeTrackProducer<TrajectorySeed> FakeTrackProducerFromSeed;

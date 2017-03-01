@@ -27,7 +27,7 @@
 #include <cstring>
 
 
-class EVTColContainer;
+struct EVTColContainer;
 
 /// The HLTExoticaValidator module is the main module of the
 /// package. It books a vector of auxiliary classes
@@ -35,7 +35,7 @@ class EVTColContainer;
 /// of one single analysis. Each of those, in turn, books a
 /// vector if HLTExoticaPlotters to make plots for each
 /// HLT path
-class HLTExoticaValidator : public thread_unsafe::DQMEDAnalyzer {
+class HLTExoticaValidator : public DQMEDAnalyzer {
 public:
     /// Constructor and destructor
     HLTExoticaValidator(const edm::ParameterSet &);
@@ -48,10 +48,10 @@ protected:
 private:
     virtual void beginJob();
     /// Method called by the framework just before dqmBeginRun()
-    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup);
+    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup) override;
     /// Method called for each event.
-    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup);
-    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup);
+    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup) override;
     virtual void endJob();
 
     /// Copy (to be modified) of the input ParameterSet from configuration file.
@@ -64,6 +64,7 @@ private:
 
     /// Centralized point of access to all collections used
     EVTColContainer * _collections;
+
 };
 
 #endif

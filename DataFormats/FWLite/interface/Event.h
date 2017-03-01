@@ -21,7 +21,7 @@
     foos.getByLabel(ev, "myFoos");
  }
  \endcode
- The above example will work for both CINT and compiled code. However, it is possible to exactly
+ The above example will work for both ROOT and compiled code. However, it is possible to exactly
  match the full framework if you only intend to compile your code.  In that case the access
  would look like
 
@@ -41,7 +41,6 @@
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
@@ -62,11 +61,10 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -119,7 +117,6 @@ namespace fwlite {
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
          virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
@@ -145,11 +142,15 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
+         void getThinnedProducts(edm::ProductID const& pid,
+                                 std::vector<edm::WrapperBase const*>& foundContainers,
+                                 std::vector<unsigned int>& keys) const;
 
          virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
 
-         virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
+         virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const;
 
          virtual edm::ProcessHistory const& processHistory() const {return history();}
 
@@ -172,10 +173,10 @@ namespace fwlite {
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter(std::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
+         void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter);}
 
          // ---------- member data --------------------------------
-         TFile* file_;
+         mutable TFile* file_;
          // TTree* eventTree_;
          TTree* eventHistoryTree_;
          // Long64_t eventIndex_;
@@ -190,8 +191,8 @@ namespace fwlite {
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::EventAuxiliary aux_;
          mutable EntryFinder entryFinder_;
-         edm::EventAuxiliary* pAux_;
-         edm::EventAux* pOldAux_;
+         edm::EventAuxiliary const* pAux_;
+         edm::EventAux const* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;
@@ -201,5 +202,4 @@ namespace fwlite {
    };
 
 }
-#endif /*__CINT__ */
 #endif

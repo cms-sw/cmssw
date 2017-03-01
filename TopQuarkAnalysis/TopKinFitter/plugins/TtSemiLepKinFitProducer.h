@@ -173,19 +173,19 @@ bool TtSemiLepKinFitProducer<LeptonCollection>::doBTagging(bool& useBTag_, edm::
 template<typename LeptonCollection>
 void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsHadP( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsHadQ( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsHadB( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pPartonsLepB( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pLeptons    ( new std::vector<pat::Particle> );
-  std::auto_ptr< std::vector<pat::Particle> > pNeutrinos  ( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsHadP( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsHadQ( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsHadB( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pPartonsLepB( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pLeptons    ( new std::vector<pat::Particle> );
+  std::unique_ptr< std::vector<pat::Particle> > pNeutrinos  ( new std::vector<pat::Particle> );
 
-  std::auto_ptr< std::vector<std::vector<int> > > pCombi ( new std::vector<std::vector<int> > );
-  std::auto_ptr< std::vector<double>            > pChi2  ( new std::vector<double> );
-  std::auto_ptr< std::vector<double>            > pProb  ( new std::vector<double> );
-  std::auto_ptr< std::vector<int>               > pStatus( new std::vector<int> );
+  std::unique_ptr< std::vector<std::vector<int> > > pCombi ( new std::vector<std::vector<int> > );
+  std::unique_ptr< std::vector<double>            > pChi2  ( new std::vector<double> );
+  std::unique_ptr< std::vector<double>            > pProb  ( new std::vector<double> );
+  std::unique_ptr< std::vector<int>               > pStatus( new std::vector<int> );
 
-  std::auto_ptr<int> pJetsConsidered(new int);
+  std::unique_ptr<int> pJetsConsidered(new int);
 
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);
@@ -244,17 +244,17 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     // number of jets
     *pJetsConsidered = jets->size();
     // feed out all products
-    evt.put(pCombi);
-    evt.put(pPartonsHadP, "PartonsHadP");
-    evt.put(pPartonsHadQ, "PartonsHadQ");
-    evt.put(pPartonsHadB, "PartonsHadB");
-    evt.put(pPartonsLepB, "PartonsLepB");
-    evt.put(pLeptons    , "Leptons"    );
-    evt.put(pNeutrinos  , "Neutrinos"  );
-    evt.put(pChi2       , "Chi2"       );
-    evt.put(pProb       , "Prob"       );
-    evt.put(pStatus     , "Status"     );
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
+    evt.put(std::move(pCombi));
+    evt.put(std::move(pPartonsHadP), "PartonsHadP");
+    evt.put(std::move(pPartonsHadQ), "PartonsHadQ");
+    evt.put(std::move(pPartonsHadB), "PartonsHadB");
+    evt.put(std::move(pPartonsLepB), "PartonsLepB");
+    evt.put(std::move(pLeptons    ), "Leptons"    );
+    evt.put(std::move(pNeutrinos  ), "Neutrinos"  );
+    evt.put(std::move(pChi2       ), "Chi2"       );
+    evt.put(std::move(pProb       ), "Prob"       );
+    evt.put(std::move(pStatus     ), "Status"     );
+    evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
     return;
   }
 
@@ -374,17 +374,17 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
       pStatus->push_back( result->Status );
     }
   }
-  evt.put(pCombi);
-  evt.put(pPartonsHadP, "PartonsHadP");
-  evt.put(pPartonsHadQ, "PartonsHadQ");
-  evt.put(pPartonsHadB, "PartonsHadB");
-  evt.put(pPartonsLepB, "PartonsLepB");
-  evt.put(pLeptons    , "Leptons"    );
-  evt.put(pNeutrinos  , "Neutrinos"  );
-  evt.put(pChi2       , "Chi2"       );
-  evt.put(pProb       , "Prob"       );
-  evt.put(pStatus     , "Status"     );
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
+  evt.put(std::move(pCombi));
+  evt.put(std::move(pPartonsHadP), "PartonsHadP");
+  evt.put(std::move(pPartonsHadQ), "PartonsHadQ");
+  evt.put(std::move(pPartonsHadB), "PartonsHadB");
+  evt.put(std::move(pPartonsLepB), "PartonsLepB");
+  evt.put(std::move(pLeptons    ), "Leptons"    );
+  evt.put(std::move(pNeutrinos  ), "Neutrinos"  );
+  evt.put(std::move(pChi2       ), "Chi2"       );
+  evt.put(std::move(pProb       ), "Prob"       );
+  evt.put(std::move(pStatus     ), "Status"     );
+  evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 }
 
 template<typename LeptonCollection>

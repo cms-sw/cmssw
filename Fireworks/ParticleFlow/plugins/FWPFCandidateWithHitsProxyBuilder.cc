@@ -1,7 +1,4 @@
-
-#define protected public
 #include "TEveBoxSet.h"
-#undef protected
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveCompound.h"
@@ -235,7 +232,7 @@ namespace {
 TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
 {
    void* ud = ds->GetUserData(idx);
-   if (ud);
+   if (ud)
    {
       reco::PFRecHit* hit = (reco::PFRecHit*) ud;
       // printf("idx %d %p hit data %p\n", idx, (void*)hit, ud);
@@ -244,6 +241,7 @@ TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
       else
          return "ERROR";
    }
+   return "NULL";
 }
 }
 //______________________________________________________________________________
@@ -344,4 +342,4 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PF CandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PFCandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

@@ -19,8 +19,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "SimDataFormats/Associations/interface/MuonToTrackingParticleAssociator.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -30,16 +30,16 @@ class MonitorElement;
 class MuonServiceProxy;
 class TrackAssociatorBase;
 
-class RecoMuonValidator : public thread_unsafe::DQMEDAnalyzer
+class RecoMuonValidator : public DQMEDAnalyzer
 {
  public:
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator();
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup& eventSetup);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun();
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   virtual int countMuonHits(const reco::Track& track) const;
   virtual int countTrackerHits(const reco::Track& track) const;
 
@@ -53,8 +53,7 @@ class RecoMuonValidator : public thread_unsafe::DQMEDAnalyzer
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
   edm::InputTag muAssocLabel_;
-  const MuonAssociatorByHits * assoByHits;
-  //  edm::EDGetTokenT<> muAssocToken_;
+  edm::EDGetTokenT<reco::MuonToTrackingParticleAssociator> muAssocToken_;
   
   edm::InputTag beamspotLabel_;
   edm::InputTag primvertexLabel_;
@@ -77,7 +76,7 @@ class RecoMuonValidator : public thread_unsafe::DQMEDAnalyzer
   TrackingParticleSelector tpSelector_;
 
   // Track to use
-  MuonAssociatorByHits::MuonTrackType trackType_;
+  reco::MuonTrackType trackType_;
 
   struct MuonME;
   MuonME * muonME_;

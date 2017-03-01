@@ -7,7 +7,7 @@
 #include<cmath>
 
 PythiaFilterZJetWithOutBg::PythiaFilterZJetWithOutBg(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 etaMuMax(iConfig.getUntrackedParameter<double>("MaxMuonEta", 2.5)),
 ptMuMin(iConfig.getUntrackedParameter<double>("MinMuonPt", 3.5)),
 ptZMin(iConfig.getUntrackedParameter<double>("MinZPt")),
@@ -32,7 +32,7 @@ bool PythiaFilterZJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup
 
   bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 

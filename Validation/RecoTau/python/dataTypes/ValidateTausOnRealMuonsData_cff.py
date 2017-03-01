@@ -113,9 +113,9 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorRealMuonsData = cms.Sequence(
-                            MuPrimaryVertexFilter * MuBestPV *
-                            ( ( selectedMuons * selectedMuonsIso * MuonsFromPV ) +
-                              ( MuGoodTracks * MuIsoTracks * MuTrackFromPV * MuTrackCands ) ) *
+                            cms.ignore(MuPrimaryVertexFilter) * MuBestPV *
+                            ( ( cms.ignore(selectedMuons) * cms.ignore(selectedMuonsIso) * MuonsFromPV ) +
+                              ( cms.ignore(MuGoodTracks) * MuIsoTracks * MuTrackFromPV * MuTrackCands ) ) *
                             ZmmCandMuonTrack *
                             BestZmm *
                             MuZLegs 

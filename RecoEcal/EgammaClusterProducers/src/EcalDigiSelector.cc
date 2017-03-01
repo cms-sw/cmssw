@@ -101,8 +101,8 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
     }
   }
   
-  std::auto_ptr<EBDigiCollection> SEBDigiCol(new EBDigiCollection);
-  std::auto_ptr<EEDigiCollection> SEEDigiCol(new EEDigiCollection);
+  auto SEBDigiCol = std::make_unique<EBDigiCollection>();
+  auto SEEDigiCol = std::make_unique<EEDigiCollection>();
   int TotClus = saveBarrelSuperClusters.size() + saveEndcapSuperClusters.size();
 
   if (TotClus >= nclus_sel_ || meet_single_thresh){
@@ -235,7 +235,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
   //Empty collection, or full, still put in event.
   SEBDigiCol->sort();
   SEEDigiCol->sort();
-  evt.put(SEBDigiCol, selectedEcalEBDigiCollection_);
-  evt.put(SEEDigiCol, selectedEcalEEDigiCollection_);
+  evt.put(std::move(SEBDigiCol), selectedEcalEBDigiCollection_);
+  evt.put(std::move(SEEDigiCol), selectedEcalEEDigiCollection_);
   
 }

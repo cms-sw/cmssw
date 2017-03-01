@@ -1,6 +1,7 @@
 #ifndef DQMOffline_Trigger_HLTMuonMatchAndPlot_H
 #define DQMOffline_Trigger_HLTMuonMatchAndPlot_H
 
+
 /** \class HLTMuonMatchAndPlot
  *  Match reconstructed muons to HLT objects and plot efficiencies.
  *
@@ -63,8 +64,7 @@ class HLTMuonMatchAndPlot
  public:
 
   /// Constructor
-  HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,
-                      const std::vector<std::string>&);
+  HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,std::string, bool);
 
   // Analyzer Methods
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
@@ -92,10 +92,12 @@ class HLTMuonMatchAndPlot
     bool,    
     const StringCutObjectSelector<reco::Muon> &,
     double, double);
+
   trigger::TriggerObjectCollection selectedTriggerObjects(
     const trigger::TriggerObjectCollection &,
     const trigger::TriggerEvent &,
-    const edm::ParameterSet &);
+    bool hasTriggerCuts,
+    const StringCutObjectSelector<trigger::TriggerObject> triggerSelector);
  
   // Input from Configuration File
   std::string hltProcessName_;
@@ -110,7 +112,8 @@ class HLTMuonMatchAndPlot
   std::string triggerLevel_;
   unsigned int cutMinPt_;
   std::string hltPath_;
-  std::vector<std::string> moduleLabels_;
+  std::string moduleLabel_;
+  bool isLastFilter_;
   std::map<std::string, MonitorElement *> hists_;
   
   // Selectors
@@ -120,9 +123,14 @@ class HLTMuonMatchAndPlot
   StringCutObjectSelector<reco::Muon> targetMuonSelector_;
   double targetZ0Cut_; 
   double targetD0Cut_;
+  double targetptCutZ_;
+  double targetptCutJpsi_;
   StringCutObjectSelector<reco::Muon> probeMuonSelector_;
   double probeZ0Cut_; 
   double probeD0Cut_;
+
+  StringCutObjectSelector<trigger::TriggerObject> triggerSelector_;
+  bool hasTriggerCuts_;
 
 };
 

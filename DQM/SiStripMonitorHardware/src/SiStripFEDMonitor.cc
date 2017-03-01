@@ -25,7 +25,6 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,7 +40,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -53,24 +52,24 @@
 
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //
 // Class declaration
 //
 
-class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
+class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin();
  private:
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				    const edm::EventSetup& context) override;
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				  const edm::EventSetup& context) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -98,12 +97,6 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   bool fillWithEvtNum_;
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
-  //bool printDebug_;
-  //write the DQMStore to a root file at the end of the job
-  bool writeDQMStore_;
-  std::string dqmStoreFileName_;
-  //the DQMStore
-  DQMStore* dqm_;
   //FED cabling
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
@@ -119,6 +112,8 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //need class member for lumi histograms
   FEDErrors fedErrors_;
   unsigned int maxFedBufferSize_;
+
+  bool fullDebugMode_;
 };
 
 
@@ -132,12 +127,9 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
-    //printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
-    dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
-    dqm_(0),
     cablingCacheId_(0),
-    maxFedBufferSize_(0)
+    maxFedBufferSize_(0),
+    fullDebugMode_(iConfig.getUntrackedParameter<bool>("FullDebugMode",false))
 {
   std::string subFolderName = iConfig.getUntrackedParameter<std::string>("HistogramFolderName","ReadoutView");
   folderName_ = topFolderName_ + "/" + subFolderName;
@@ -154,9 +146,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
                 << "[SiStripFEDMonitorPlugin]\tHistogramFolderName: " << folderName_ << std::endl
                 << "[SiStripFEDMonitorPlugin]\tFillAllDetailedHistograms? " << (fillAllDetailedHistograms_ ? "yes" : "no") << std::endl
 		<< "[SiStripFEDMonitorPlugin]\tFillWithEventNumber?" << (fillWithEvtNum_ ? "yes" : "no") << std::endl
-                << "[SiStripFEDMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl
-                << "[SiStripFEDMonitorPlugin]\tWriteDQMStore? " << (writeDQMStore_ ? "yes" : "no") << std::endl;
-    if (writeDQMStore_) debugStream << "[SiStripFEDMonitorPlugin]\tDQMStoreFileName: " << dqmStoreFileName_ << std::endl;
+                << "[SiStripFEDMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl;
   }
   
   //don;t generate debug mesages if debug is disabled
@@ -172,17 +162,9 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 
   if (printDebug_) {
     LogTrace("SiStripMonitorHardware") << debugStream.str();
-
-    //debugStream.str("");
-
-    //debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
-    //	<< " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
-
-    //edm::LogError("SiStripMonitorHardware") << debugStream.str();
   }
 
   nEvt_ = 0;
-
 }
 
 SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin()
@@ -201,7 +183,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //update cabling
@@ -256,13 +238,12 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
     //create an object to fill all errors
     fedErrors_.initialiseFED(fedId,cabling_,tTopo);
-    bool lFullDebug = false;
  
     //Do detailed check
     //first check if data exists
     bool lDataExist = fedErrors_.checkDataPresent(fedData);
     if (!lDataExist) {
-      fedHists_.fillFEDHistograms(fedErrors_,0,lFullDebug);
+      fedHists_.fillFEDHistograms(fedErrors_,0,fullDebugMode_);
       continue;
     }
 
@@ -270,7 +251,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
  
     //check for problems and fill detailed histograms
     fedErrors_.fillFEDErrors(fedData,
-			     lFullDebug,
+			     fullDebugMode_,
 			     printDebug_,
 			     lNChannelMonitoring,
 			     lNChannelUnpacker,
@@ -291,7 +272,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     }
     //std::cout << " -- " << fedId << " " << lSize << std::endl;
 
-    fedHists_.fillFEDHistograms(fedErrors_,lSize,lFullDebug);
+    fedHists_.fillFEDHistograms(fedErrors_,lSize,fullDebugMode_);
 
     bool lFailMonitoringFEDcheck = fedErrors_.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
@@ -379,15 +360,26 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   }
 
-  //FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
-  //FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
   fedErrors_.getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
   fedErrors_.getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
-  //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
-  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
-  else fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
+  if (fillWithEvtNum_) {
+    // explicitely casting the event number unsigned long long to double here
+    double eventNumber = static_cast<double>(iEvent.id().event());
+    fedHists_.fillCountersHistograms(
+        fedErrors_.getFEDErrorsCounters(),
+        fedErrors_.getChannelErrorsCounters(),
+        maxFedBufferSize_,
+        eventNumber);
+  } else {
+    double aTime = iEvent.orbitNumber()/11223.;    
+    fedHists_.fillCountersHistograms(
+        fedErrors_.getFEDErrorsCounters(),
+        fedErrors_.getChannelErrorsCounters(),
+        maxFedBufferSize_,
+        aTime);
+  }
 
   nEvt_++;
 
@@ -466,45 +458,12 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripFEDMonitorPlugin::beginJob()
+void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
 {
-  //get DQM store
-  dqm_ = &(*edm::Service<DQMStore>());
-  dqm_->setCurrentFolder(folderName_);
-  
-  //this propagates dqm_ to the histoclass, must be called !
-  fedHists_.bookTopLevelHistograms(dqm_);
-  
-  if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms();
-
-  nEvt_ = 0;
-
-  //const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  //const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
-
-  //mark all channels as inactive until they have been 'locked' at least once
-  //   activeChannels_.resize(siStripFedIdMax+1);
-  //   for (unsigned int fedId = siStripFedIdMin; 
-  //        fedId <= siStripFedIdMax; 
-  //        fedId++) {
-  //     activeChannels_[fedId].resize(sistrip::FEDCH_PER_FED,false);
-  //   }
-  
-
-
-
+  ibooker.setCurrentFolder(folderName_);
+  fedHists_.bookTopLevelHistograms(ibooker);
+  if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms(ibooker , fullDebugMode_ );
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripFEDMonitorPlugin::endJob()
-{
-  if (writeDQMStore_) dqm_->save(dqmStoreFileName_);
-}
-
-
 
 void 
 SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 

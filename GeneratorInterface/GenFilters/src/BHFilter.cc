@@ -44,7 +44,7 @@ bool BHFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   edm::Handle<edm::HepMCProduct>HepMCEvt;
-  iEvent.getByLabel("generator","",HepMCEvt);
+  iEvent.getByLabel("generator","unsmeared",HepMCEvt);
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
 
   BaseParticlePropagator PP;

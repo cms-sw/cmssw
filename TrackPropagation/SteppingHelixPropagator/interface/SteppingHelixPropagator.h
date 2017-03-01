@@ -38,7 +38,7 @@ class MagneticField;
 class VolumeBasedMagneticField;
 class MagVolume;
 
-class SteppingHelixPropagator GCC11_FINAL : public Propagator {
+class SteppingHelixPropagator final : public Propagator {
  public:
   typedef CLHEP::Hep3Vector Vector;
   typedef CLHEP::Hep3Vector  Point;

@@ -74,7 +74,11 @@
 
 // constructors
 HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTStreamFilter(parSet),
-            //    seeding done via L1 trigger object maps, with objects that fired
+            // initialize the cache
+            m_l1GtMenu( nullptr ),
+            m_l1GtMenuCacheID( 0ULL ),
+
+            // seeding done via L1 trigger object maps, with objects that fired
             m_l1UseL1TriggerObjectMaps(parSet.getParameter<bool> (
                     "L1UseL1TriggerObjectMaps")),
 
@@ -126,6 +130,8 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTStreamFil
             m_l1ForJetToken(consumes<l1extra::L1JetParticleCollection>(m_l1ForJetTag)),
             m_l1TauJetTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau")),
             m_l1TauJetToken(consumes<l1extra::L1JetParticleCollection>(m_l1TauJetTag)),
+            m_l1IsoTauJetTag(edm::InputTag(m_l1CollectionsTag.label(), "IsoTau")),
+            m_l1IsoTauJetToken(consumes<l1extra::L1JetParticleCollection>(m_l1IsoTauJetTag)),
             m_l1EtMissMETTag(edm::InputTag(m_l1CollectionsTag.label(), "MET")),
             m_l1EtMissMETToken(consumes<l1extra::L1EtMissParticleCollection>(m_l1EtMissMETTag)),
             m_l1EtMissMHTTag(edm::InputTag(m_l1CollectionsTag.label(), "MHT")),
@@ -178,10 +184,6 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTStreamFil
             << m_l1CollectionsTag << " \n"
             << "Input tag for L1 muon  collections:            "
             << m_l1MuonCollectionTag << " \n" << std::endl;
-
-    // initialize cache
-    m_l1GtMenu = nullptr;
-    m_l1GtMenuCacheID = 0ULL;
 }
 
 // destructor
@@ -264,6 +266,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
         filterproduct.addCollectionTag(m_l1CenJetTag);
         filterproduct.addCollectionTag(m_l1ForJetTag);
         filterproduct.addCollectionTag(m_l1TauJetTag);
+        filterproduct.addCollectionTag(m_l1IsoTauJetTag);
         filterproduct.addCollectionTag(m_l1EtMissMETTag);
         filterproduct.addCollectionTag(m_l1EtMissMHTTag);
     }
@@ -345,10 +348,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
 
         edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
         evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-        // make a copy of the L1GtTriggerMenu in order to call buildGtConditionMap() (FIXME - is this really needed ?)
-        delete m_l1GtMenu;
-        m_l1GtMenu = new L1GtTriggerMenu(* l1GtMenu.product());
-        m_l1GtMenu->buildGtConditionMap();
+        m_l1GtMenu        = l1GtMenu.product();
         m_l1GtMenuCacheID = l1GtMenuCacheID;
 
         const AlgorithmMap& algorithmMap      = l1GtMenu->gtAlgorithmMap();
@@ -754,6 +754,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     std::list<int> listCenJet;
     std::list<int> listForJet;
     std::list<int> listTauJet;
+    std::list<int> listIsoTauJet;
 
     std::list<int> listETM;
     std::list<int> listETT;
@@ -925,6 +926,24 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                         }
 
                         break;
+                        case HfRingEtSums: {
+                            // Special treatment needed to match HFRingEtSums index (Ind) with corresponding l1extra item
+                            // Same ranking (Et) is assumed for both HFRingEtSums indexes and items in l1extra IsoTau collection
+                            // Each HFRingEtSums_IndN corresponds with one object (with (*itObject)=0); 
+                            // its index (hfInd) encodded by parsing algorithm name
+                            int hfInd = (*itObject);
+                            if(cndName.find("Ind0")!=std::string::npos)
+                              hfInd = 0;
+                            else if(cndName.find("Ind1")!=std::string::npos)
+                              hfInd = 1;
+                            else if(cndName.find("Ind2")!=std::string::npos)
+                              hfInd = 2;
+                            else if(cndName.find("Ind3")!=std::string::npos)
+                              hfInd = 3;
+                            listIsoTauJet.push_back(hfInd);
+                        }
+
+                        break;
                         case ETM: {
                             listETM.push_back(*itObject);
 
@@ -995,6 +1014,9 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     listTauJet.sort();
     listTauJet.unique();
+
+    listIsoTauJet.sort();
+    listIsoTauJet.unique();
 
     listETM.sort();
     listETM.unique();
@@ -1143,6 +1165,28 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
                 filterproduct.addObject(trigger::TriggerL1TauJet, l1extra::L1JetParticleRef(
                                 l1TauJet, *itObj));
+
+            }
+        }
+    }
+
+    // isotau jets
+    if (!listIsoTauJet.empty()) {
+        edm::Handle<l1extra::L1JetParticleCollection> l1IsoTauJet;
+        iEvent.getByToken(m_l1IsoTauJetToken, l1IsoTauJet);
+
+        if (!l1IsoTauJet.isValid()) {
+            edm::LogWarning("HLTLevel1GTSeed")
+            << "\nWarning: L1JetParticleCollection with input tag " << m_l1IsoTauJetTag
+            << "\nrequested in configuration, but not found in the event."
+            << "\nNo IsoTauJet added to filterproduct." << std::endl;
+
+        } else {
+            for (std::list<int>::const_iterator itObj = listIsoTauJet.begin(); itObj
+                    != listIsoTauJet.end(); ++itObj) {
+
+                filterproduct.addObject(trigger::TriggerL1TauJet, l1extra::L1JetParticleRef(
+                                l1IsoTauJet, *itObj));
 
             }
         }
@@ -1324,6 +1368,7 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
     bool includeCenJet = true;
     bool includeForJet = true;
     bool includeTauJet = true;
+    bool includeIsoTauJet = true;
 
     bool includeETM = true;
     bool includeETT = true;
@@ -1604,6 +1649,44 @@ bool HLTLevel1GTSeed::seedsL1Extra(edm::Event & iEvent, trigger::TriggerFilterOb
 
                     }
 
+                    case HfRingEtSums: {
+                        if (includeIsoTauJet) {
+                            edm::Handle<l1extra::L1JetParticleCollection> l1IsoTauJet;
+                            iEvent.getByToken(m_l1IsoTauJetToken, l1IsoTauJet);
+
+                            if (!l1IsoTauJet.isValid()) {
+                                edm::LogWarning("HLTLevel1GTSeed")
+                                        << "\nWarning: L1JetParticleCollection with input tag "
+                                        << m_l1IsoTauJetTag
+                                        << "\nrequested in configuration, but not found in the event."
+                                        << "\nNo IsoTauJet added to filterproduct."
+                                        << std::endl;
+
+                            } else {
+                                int iObj = -1;
+                                for (l1extra::L1JetParticleCollection::const_iterator
+                                        objIter = l1IsoTauJet->begin(); objIter
+                                        != l1IsoTauJet->end(); ++objIter) {
+
+                                    iObj++;
+
+                                    int bxNr = objIter->bx();
+                                    if ((bxNr >= minBxInEvent) && (bxNr <= maxBxInEvent)) {
+
+                                        objectsInFilter = true;
+                                        filterproduct.addObject(
+                                                trigger::TriggerL1TauJet,
+                                                l1extra::L1JetParticleRef(
+                                                        l1IsoTauJet, iObj));
+
+                                    }
+                                }
+                            }
+                            includeIsoTauJet = false;
+                        }
+
+                    }
+
                         break;
                     case ETM: {
                         if (includeETM) {
@@ -1834,6 +1917,7 @@ void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObje
     std::vector<l1extra::L1JetParticleRef> seedsL1CenJet;
     std::vector<l1extra::L1JetParticleRef> seedsL1ForJet;
     std::vector<l1extra::L1JetParticleRef> seedsL1TauJet;
+    std::vector<l1extra::L1JetParticleRef> seedsL1IsoTauJet;
 
     std::vector<l1extra::L1EtMissParticleRef> seedsL1ETM;
     std::vector<l1extra::L1EtMissParticleRef> seedsL1ETT;
@@ -1858,6 +1942,9 @@ void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObje
     filterproduct.getObjects(trigger::TriggerL1TauJet, seedsL1TauJet);
     const size_t sizeSeedsL1TauJet = seedsL1TauJet.size();
 
+    filterproduct.getObjects(trigger::TriggerL1TauJet, seedsL1IsoTauJet);
+    const size_t sizeSeedsL1IsoTauJet = seedsL1IsoTauJet.size();
+
     filterproduct.getObjects(trigger::TriggerL1ETM, seedsL1ETM);
     const size_t sizeSeedsL1ETM = seedsL1ETM.size();
 
@@ -1876,6 +1963,7 @@ void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObje
             << "  L1CenJet seeds:  " << sizeSeedsL1CenJet << "\n"
             << "  L1ForJet seeds:  " << sizeSeedsL1ForJet << "\n"
             << "  L1TauJet seeds:  " << sizeSeedsL1TauJet << "\n"
+            << "  L1IsoTauJet seeds:  " << sizeSeedsL1IsoTauJet << "\n"
             << "  L1ETM seeds:     " << sizeSeedsL1ETM << "\n"
             << "  L1ETT seeds:     " << sizeSeedsL1ETT << "\n"
             << "  L1HTT seeds:     " << sizeSeedsL1HTT << "\n"
@@ -1939,6 +2027,16 @@ void HLTLevel1GTSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObje
                 seedsL1TauJet[i]);
 
         LogTrace("HLTLevel1GTSeed") << "L1TauJet " << "\t" << "ET =   "
+                << obj->et() << "\t" << "eta =  " << obj->eta() << "\t"
+                << "phi =  " << obj->phi() << "\t" << "BX = " << obj->bx();
+    }
+
+    for (size_t i = 0; i != sizeSeedsL1IsoTauJet; i++) {
+
+        l1extra::L1JetParticleRef obj = l1extra::L1JetParticleRef(
+                seedsL1IsoTauJet[i]);
+
+        LogTrace("HLTLevel1GTSeed") << "L1IsoTauJet " << "\t" << "ET =   "
                 << obj->et() << "\t" << "eta =  " << obj->eta() << "\t"
                 << "phi =  " << obj->phi() << "\t" << "BX = " << obj->bx();
     }

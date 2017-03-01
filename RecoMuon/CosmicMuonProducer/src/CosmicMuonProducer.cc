@@ -86,5 +86,5 @@ CosmicMuonProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   // Update the services
   theService->update(iSetup);
-  theTrackFinder->reconstruct(seeds,iEvent);
+  theTrackFinder->reconstruct(seeds,iEvent,iSetup);
 }

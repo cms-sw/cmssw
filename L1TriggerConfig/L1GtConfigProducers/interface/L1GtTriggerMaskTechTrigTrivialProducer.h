@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -48,7 +47,7 @@ public:
 
     /// public methods
 
-    boost::shared_ptr<L1GtTriggerMask> produceTriggerMask(
+    std::shared_ptr<L1GtTriggerMask> produceTriggerMask(
         const L1GtTriggerMaskTechTrigRcd&);
 
 private:

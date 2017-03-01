@@ -1,10 +1,12 @@
 #ifndef RPCDigiProducer_h
 #define RPCDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
@@ -16,7 +18,7 @@ class RPCGeometry;
 class RPCSimSetUp;
 class RPCSynchronizer;
 
-class RPCDigiProducer : public edm::EDProducer
+class RPCDigiProducer : public edm::stream::EDProducer<>
 {
 public:
 

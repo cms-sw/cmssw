@@ -1,5 +1,4 @@
 <use   name="FWCore/MessageLogger"/>
-<use   name="Utilities/General"/>
 <use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>

@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +41,7 @@ class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetu
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
+  virtual std::unique_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
   
  protected:
   

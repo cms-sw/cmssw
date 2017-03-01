@@ -13,7 +13,7 @@
 
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace edm {class ParameterSet;}
 
@@ -28,7 +28,7 @@ public:
   virtual ~MuonTransientTrackingRecHitBuilderESProducer();
 
   // Operations
-  boost::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
+  std::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
 
 protected:
 

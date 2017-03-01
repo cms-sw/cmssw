@@ -1,0 +1,34 @@
+include Makefile.common
+OFILES += visualizeHFPhase1PMTParams.o
+
+ROOTCONFIG   := root-config
+
+ARCH         := $(shell $(ROOTCONFIG) --arch)
+PLATFORM     := $(shell $(ROOTCONFIG) --platform)
+
+CXX           = g++
+
+ROOTCFLAGS   := $(shell $(ROOTCONFIG) --cflags)
+ROOTLDFLAGS  := $(shell $(ROOTCONFIG) --ldflags)
+ROOTLIBS     := $(shell $(ROOTCONFIG) --libs)
+ROOTGLIBS    := $(shell $(ROOTCONFIG) --glibs)
+HASTHREAD    := $(shell $(ROOTCONFIG) --has-thread)
+
+BOOST_LIB = /usr/local/lib
+BOOST_INC = /usr/local/include
+
+CXXFLAGS     = -g $(ROOTCFLAGS) -I. -I$(BOOST_INC)
+
+LIBS = $(ROOTLIBS) -L$(BOOST_LIB) -lboost_serialization -L/usr/lib -ldl -lm
+LINKFLAGS = -g $(LIBS)
+
+all: makeHFPhase1PMTParamsPlots
+
+makeHFPhase1PMTParamsPlots: makeHFPhase1PMTParamsPlots.o $(OFILES)
+	$(CXX) -o $@ $^ $(LINKFLAGS)
+
+clean:
+	rm -f makeHFPhase1PMTParamsPlots core core.* *.o *.d *~
+
+-include $(OFILES:.o=.d)
+-include makeHFPhase1PMTParamsPlots.d

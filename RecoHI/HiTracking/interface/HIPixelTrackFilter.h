@@ -4,28 +4,25 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 
-namespace edm { class ParameterSet; class EventSetup; class Event;}
-class TrackerTopology;
+namespace edm { class EventSetup; }
 
 class HIPixelTrackFilter : public ClusterShapeTrackFilter {
 public:
-	HIPixelTrackFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
+	HIPixelTrackFilter(const SiPixelClusterShapeCache *cache, double ptMin, double ptMax, const edm::EventSetup& es,
+	                   const reco::VertexCollection *vertices,
+	                   double tipMax, double tipMaxTolerance,
+	                   double lipMax, double lipMaxTolerance,
+	                   double chi2max,
+	                   bool useClusterShape);
 	virtual ~HIPixelTrackFilter();
-	virtual bool operator() (const reco::Track*, const PixelTrackFilter::Hits & hits,
-				 const TrackerTopology *tTopo) const;
-	virtual void update(const edm::Event& ev, const edm::EventSetup& es) override;
+	virtual bool operator() (const reco::Track*, const PixelTrackFilterBase::Hits & hits) const override;
 private:
+	const reco::VertexCollection *theVertices;
 	double theTIPMax, theNSigmaTipMaxTolerance;
 	double theLIPMax, theNSigmaLipMaxTolerance;
 	double theChi2Max, thePtMin;
 	bool useClusterShape;
-	edm::InputTag theVertexCollection; 	
-	edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;
-	const reco::VertexCollection *theVertices;
-
 };
 
 #endif

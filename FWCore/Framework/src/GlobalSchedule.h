@@ -19,6 +19,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -52,7 +53,7 @@ namespace edm {
 
     private:
       // We own none of these resources.
-      ActivityRegistry* a_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       typename T::Context const* context_;
       bool allowThrow_;
     };
@@ -73,7 +74,7 @@ namespace edm {
     typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> Workers;
 
-    GlobalSchedule(TriggerResultInserter* inserter,
+    GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
                    std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
@@ -117,9 +118,31 @@ namespace edm {
     }
 
   private:
+    //Sentry class to only send a signal if an
+    // exception occurs. An exception is identified
+    // by the destructor being called without first
+    // calling completedSuccessfully().
+    class SendTerminationSignalIfException {
+    public:
+      SendTerminationSignalIfException(edm::ActivityRegistry* iReg, edm::GlobalContext const* iContext):
+      reg_(iReg),
+      context_(iContext){}
+      ~SendTerminationSignalIfException() {
+        if(reg_) {
+          reg_->preGlobalEarlyTerminationSignal_(*context_,TerminationOrigin::ExceptionFromThisContext);
+        }
+      }
+      void completedSuccessfully() {
+        reg_ = nullptr;
+      }
+    private:
+      edm::ActivityRegistry* reg_; // We do not use propagate_const because the registry itself is mutable.
+      GlobalContext const* context_;
+    };
+
     
     template<typename T>
-    void runNow(typename T::MyPrincipal& p, EventSetup const& es,
+    void runNow(typename T::MyPrincipal const& p, EventSetup const& es,
                 GlobalContext const* context);
 
     /// returns the action table
@@ -130,8 +153,8 @@ namespace edm {
     void addToAllWorkers(Worker* w);
     
     WorkerManager                         workerManager_;
-    std::shared_ptr<ActivityRegistry>   actReg_;
-    WorkerPtr                             results_inserter_;
+    std::shared_ptr<ActivityRegistry>     actReg_; // We do not use propagate_const because the registry itself is mutable.
+    edm::propagate_const<WorkerPtr>       results_inserter_;
 
 
     ProcessContext const*                 processContext_;
@@ -146,7 +169,14 @@ namespace edm {
     GlobalContext globalContext = T::makeGlobalContext(ep, processContext_);
 
     GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &globalContext);
+    
+    SendTerminationSignalIfException terminationSentry(actReg_.get(), &globalContext);
 
+    //If we are in an end transition, we need to reset failed items since they might
+    // be set this time around
+    if( not T::begin_) {
+      ep.resetFailedFromThisProcess();
+    }
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, StreamID::invalidStreamID(), &globalContext, &globalContext, cleaningUpAfterException);
 
@@ -163,38 +193,40 @@ namespace edm {
       }
       throw;
     }
+    terminationSentry.completedSuccessfully();
+    
     //If we got here no other exception has happened so we can propogate any Service related exceptions
     sentry.allowThrow();
   }
   template <typename T>
   void
-  GlobalSchedule::runNow(typename T::MyPrincipal& p, EventSetup const& es,
+  GlobalSchedule::runNow(typename T::MyPrincipal const& p, EventSetup const& es,
               GlobalContext const* context) {
     //do nothing for event since we will run when requested
     for(auto & worker: allWorkers()) {
       try {
         ParentContext parentContext(context);
-        worker->doWork<T>(p, es, nullptr,StreamID::invalidStreamID(), parentContext, context);
+        worker->doWork<T>(p, es,StreamID::invalidStreamID(), parentContext, context);
       }
       catch (cms::Exception & ex) {
         std::ostringstream ost;
         if (T::begin_ && T::branchType_ == InRun) {
-          ost << "Calling beginRun";
+          ost << "Calling global beginRun";
         }
         else if (T::begin_ && T::branchType_ == InLumi) {
-          ost << "Calling beginLuminosityBlock";
+          ost << "Calling global beginLuminosityBlock";
         }
         else if (!T::begin_ && T::branchType_ == InLumi) {
-          ost << "Calling endLuminosityBlock";
+          ost << "Calling global endLuminosityBlock";
         }
         else if (!T::begin_ && T::branchType_ == InRun) {
-          ost << "Calling endRun";
+          ost << "Calling global endRun";
         }
         else {
           // It should be impossible to get here ...
           ost << "Calling unknown function";
         }
-        ost << " for unscheduled module " << worker->description().moduleName()
+        ost << " for module " << worker->description().moduleName()
         << "/'" << worker->description().moduleLabel() << "'";
         ex.addContext(ost.str());
         ost.str("");

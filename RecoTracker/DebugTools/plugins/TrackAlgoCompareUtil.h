@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,14 +23,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-#include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
-//#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // Track Association Methods
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -54,7 +50,7 @@
 
 
 
-class TrackAlgoCompareUtil : public edm::EDProducer 
+class TrackAlgoCompareUtil : public edm::global::EDProducer<>
 {
  public:
    
@@ -63,28 +59,27 @@ class TrackAlgoCompareUtil : public edm::EDProducer
   
  private:
   
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob();
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT);
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP);
+  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const;
+  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const;
       
   // ----------member data ---------------------------
-  edm::InputTag trackLabel_algoA;
-  edm::InputTag trackLabel_algoB;
-  edm::InputTag trackingParticleLabel_fakes;
-  edm::InputTag trackingParticleLabel_effic;
-  edm::InputTag vertexLabel_algoA;
-  edm::InputTag vertexLabel_algoB;
-  edm::InputTag trackingVertexLabel;
-  edm::InputTag beamSpotLabel;
-  edm::InputTag associatormap_algoA;
-  edm::InputTag associatormap_algoB;
-  bool UseAssociators;
-  bool UseVertex;
-  std::string assocLabel_algoA;     
-  std::string assocLabel_algoB;     
+  edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoA;
+  edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoB;
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleLabel_fakes;
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleLabel_effic;
+  edm::EDGetTokenT<reco::VertexCollection> vertexLabel_algoA;
+  edm::EDGetTokenT<reco::VertexCollection> vertexLabel_algoB;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
+  edm::EDGetTokenT<reco::RecoToSimCollection> associatormap_algoA_recoToSim;
+  edm::EDGetTokenT<reco::RecoToSimCollection> associatormap_algoB_recoToSim;
+  edm::EDGetTokenT<reco::SimToRecoCollection> associatormap_algoA_simToReco;
+  edm::EDGetTokenT<reco::SimToRecoCollection> associatormap_algoB_simToReco;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> assocLabel_algoA;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> assocLabel_algoB;
+  const bool UseAssociators;
+  const bool UseVertex;
   
 };
 

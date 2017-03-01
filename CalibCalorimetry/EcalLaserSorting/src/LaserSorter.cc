@@ -1,6 +1,4 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
-/*
- */
 
 /***************************************************
  * TODO:  check Matacq                             *
@@ -25,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -32,13 +31,16 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "EventFilter/EcalRawToDigi/interface/MatacqRawEvent.h"
 
 using namespace std;
 
 const int LaserSorter::ecalDccFedIdMin_ = 601;
 const int LaserSorter::ecalDccFedIdMax_ = 654;
 
-size_t LaserSorter::OutStreamRecord::indexReserve_ = 2000;
+const size_t LaserSorter::OutStreamRecord::indexReserve_ = 2000;
+
+static const struct timeval nullTime = {0, 0};
 
 static const char* const detailedTrigNames[] = {
   "Inv0",//000
@@ -58,7 +60,7 @@ static const char* const colorNames[] = {
   "IR"
 };
 
-LaserSorter::stats_t LaserSorter::stats_init = {0, 0, 0, 0, 0};
+const LaserSorter::stats_t LaserSorter::stats_init = {0, 0, 0, 0, 0};
 const int LaserSorter::indexOffset32_ = 1;
 
 static std::string now(){
@@ -77,6 +79,7 @@ static std::string now(){
 
 LaserSorter::LaserSorter(const edm::ParameterSet& pset)
   : lumiBlock_(0),
+    lumiBlockPrev_(0),
     formatVersion_(5),
     outputDir_(pset.getParameter<std::string>("outputDir")),
     fedSubDirs_(pset.getParameter<std::vector<std::string> >("fedSubDirs")),
@@ -92,7 +95,11 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
     maxNoEcalDataMess_(pset.getParameter<int>("maxNoEcalDataMess")),
     lumiBlockSpan_(pset.getParameter<int>("lumiBlockSpan")),
     fedRawDataCollectionTag_(pset.getParameter<edm::InputTag>("fedRawDataCollectionTag")),
-    stats_(stats_init)
+    stats_(stats_init),
+    overWriteLumiBlockId_(pset.getParameter<bool>("overWriteLumiBlockId")),
+    orbitCountInALumiBlock_(pset.getParameter<int>("orbitCountInALumiBlock")),
+    orbit_(-1),
+    orbitZeroTime_(nullTime)
 {
 
   gettimeofday(&timer_, 0);
@@ -108,6 +115,8 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
       "subdirectories for FED ID 601 "
       "to FED ID 654 in increasing FED ID order)";
   }
+
+  fedRawDataCollectionToken_ = consumes<FEDRawDataCollection>(fedRawDataCollectionTag_);
   
   if(outputListFile_.size()!=0){
     outputList_.open(outputListFile_.c_str(), ios::app);
@@ -189,15 +198,49 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     runNumber_ = event.id().run();
     iNoFullReadoutDccError_ = 0;
     iNoEcalDataMess_ = 0;
+    lumiBlockPrev_ = 0;
+    lumiBlock_ = 0;
   }
   
   edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByLabel(fedRawDataCollectionTag_, rawdata);  
+  event.getByToken(fedRawDataCollectionToken_, rawdata);  
+
+  //orbit number
+  //FIXME: orbit from edm Event is currently wrong. Forcing to use of CMS orbit until
+  //it is fixed. See https://hypernews.cern.ch/HyperNews/CMS/get/commissioning/5343/2.html
+#if 0
+  orbit_ = event.orbitNumber();
+#else
+  orbit_ = -1;
+#endif
+
+  //  std::cerr << "Orbit ID CMS, ECAL: " << orbit_ << "\t" << getOrbitFromDcc(rawdata) << "\n";
+
+  if(orbit_ < 0){ //For local run CMSSW failed to find the orbit number
+    //    cout << "Look for orbit from DCC headers....\n";
+    orbit_ = getOrbitFromDcc(rawdata);
+  }
+
   
   //The "detailed trigger type DCC field content:
   double dttProba = 0;
-  detailedTrigType_ = getDetailedTriggerType(rawdata, &dttProba);
-  
+  int dtt = getDetailedTriggerType(rawdata, &dttProba);
+
+  if(overWriteLumiBlockId_){
+    edm::LuminosityBlockNumber_t lb = lumiBlock_;
+    lumiBlock_ = orbit_ / orbitCountInALumiBlock_;
+    if(lb!=lumiBlock_){
+      std::cout << "[LaserSorter " << now() << "] Overwrite LB mode. LB number changed from: " << lb << " to " <<lumiBlock_<< "\n";
+    }
+  } else{
+    edm::LuminosityBlockNumber_t lb = lumiBlock_;
+    lumiBlock_ = event.luminosityBlock();
+    if(lb!=lumiBlock_){
+      std::cout << "[LaserSorter " << now() << "] Standard LB mode. LB number changed from: " << lb << " to " <<lumiBlock_<< "\n";
+     }
+  }
+
+  detailedTrigType_ = dtt;
   const int trigType =   (detailedTrigType_ >>8 ) & 0x7;
   const int color    =   (detailedTrigType_ >>6 ) & 0x3;
   const int dccId    =   (detailedTrigType_ >>0 ) & 0x3F;
@@ -238,7 +281,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     if(verbosity_>1) cout << "\n----------------------------------------------------------------------\n"
                           << "Event id: " 
                           << " " << event.id() << "\n"
-                          << "Lumin block: " << event.luminosityBlock() << "\n"
+                          << "Lumin block: " << lumiBlock_ << "\n"
                           << "TrigType: " << detailedTrigNames[trigType&0x7]
                           << " Color: " << colorNames[color&0x3]
                           <<  " FED: " << triggeredFedId
@@ -249,13 +292,13 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
     if(verbosity_>1) cout << "\n----------------------------------------------------------------------\n"
                           << "Event id: " 
                           << " " << event.id() << "\n"
-                          << "Lumin block: " << event.luminosityBlock() << "\n"
+                          << "Lumin block: " << lumiBlock_ << "\n"
                           << "No ECAL data\n"
                           << "\n----------------------------------------------------------------------\n";
   }
   
   logFile_ << event.id().run() << "\t"
-           << event.luminosityBlock() << "\t" 
+           << lumiBlock_ << "\t" 
            << event.id().event() << "\t" 
            << trigType << "\t"
            << triggeredFedId << "\t"
@@ -264,30 +307,39 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
   bool written = false;
   int assignedLB = -1;
   
-  if(event.luminosityBlock()!=lumiBlock_){
+  if(lumiBlock_!=lumiBlockPrev_){
     //lumi block change => need for stream garbage collection
-    const int lb = event.luminosityBlock();
+    const int lb = lumiBlock_;
     closeOldStreams(lb);
-    int minLumi = event.luminosityBlock() - lumiBlockSpan_;
-    int maxLumi = event.luminosityBlock() + lumiBlockSpan_;
+    int minLumi = lumiBlock_ - lumiBlockSpan_;
+    int maxLumi = lumiBlock_ + lumiBlockSpan_;
     for(int lb1 = minLumi; lb1 <= maxLumi; ++lb1){
       restoreStreamsOfLumiBlock(lb1);
     }
   }
+    
+//     if(lumiBlock_ < lumiBlockPrev_){
+//       throw cms::Exception("LaserSorter") 
+//         << "Process event has a lumi block (" << lumiBlock_ << ")"
+//         << "older than previous one (" << lumiBlockPrev_ << "). "
+//         << "This can be due by wrong input file ordering or bad luminosity "
+//         << "block indication is the event header. "
+//         << "Event cannot be processed";
+//     }
 
     if(disableOutput_){
       /* NO OP*/
     } else{
-      OutStreamRecord* out = getStream(triggeredFedId, event.luminosityBlock());
+      OutStreamRecord* out = getStream(triggeredFedId, lumiBlock_);
 
       if(out!=0){
         assignedLB = out->startingLumiBlock();
-        if(out->excludedOrbit().find(event.orbitNumber())
+        if(out->excludedOrbit().find(orbit_)
            ==out->excludedOrbit().end()){
           if(verbosity_ > 1) cout << "[LaserSorter " << now() << "] "
                               << "Writing out event from FED " << triggeredFedId 
-                              << " LB " << event.luminosityBlock()
-                              << " orbit " << event.orbitNumber() << "\n";
+                              << " LB " << lumiBlock_
+                              << " orbit " << orbit_ << "\n";
           int dtt = (detailedTrigType_ >=0) ? detailedTrigType_ : -1; //shall we use -1 or 0 for undefined value?
           written = written
             || writeEvent(*out, event, dtt, *rawdata);
@@ -297,13 +349,13 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
                               << "File " << out->finalFileName() << " "
                               << "already contains calibration event from FED "
                               << triggeredFedId << ", LB = "
-                              << event.luminosityBlock()
+                              << lumiBlock_
                               << " with orbit ID "
-                              << event.orbitNumber() << ". Event skipped.\n";
+                              << orbit_ << ". Event skipped.\n";
         }
       }
     }
-    lumiBlock_ = event.luminosityBlock();
+    lumiBlockPrev_ = lumiBlock_;
     
     logFile_ << "\t";
     if(assignedLB>=0) logFile_ << assignedLB; else logFile_ << "-";
@@ -348,6 +400,28 @@ int LaserSorter::dcc2Lme(int dcc, int side){
     }
   }
   return lmes.size()==0?-1:lmes[min(lmes.size(), (size_t)side)];
+}
+
+int LaserSorter::getOrbitFromDcc(const edm::Handle<FEDRawDataCollection>& rawdata) const{
+  const int orbit32 = 6;
+  for(int id=ecalDccFedIdMin_; id<=ecalDccFedIdMax_; ++id){
+    if(!FEDNumbering::inRange(id)) continue;
+    const FEDRawData& data = rawdata->FEDData(id);
+    if(data.size() >= 4*(orbit32+1)){
+      const uint32_t* pData32 = (const uint32_t*) data.data();
+//      cout << "Found a DCC header: "
+//           << pData32[0] << " "
+//           << pData32[1] << " "
+//           << pData32[2] << " "
+//           << pData32[3] << " "
+//           << pData32[4] << " "
+//           << pData32[5] << " "
+//           << pData32[6] << " "
+//           << "\n";
+      return pData32[orbit32];
+    }
+  }
+  return -1;
 }
 
 int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>& rawdata,
@@ -465,19 +539,40 @@ bool LaserSorter::writeEvent(OutStreamRecord& outRcd, const edm::Event& event,
   out.clear();
   uint32_t evtStart = out.tellp();
   if(out.bad()) evtStart = 0;
-  //  cout << "------> fedIds.size() = " << fedIds.size() << endl;
   rc &= writeEventHeader(out, event, dtt, fedIds.size());
   
+  if(orbitZeroTime_.tv_sec==0 && data.FEDData(matacqFedId_).size()!=0){
+    struct timeval ts = {0, 0};
+    MatacqRawEvent mre(data.FEDData(matacqFedId_).data(), data.FEDData(matacqFedId_).size());
+    mre.getTimeStamp(ts);
+    uint32_t orb = mre.getOrbitId();
+      if(ts.tv_sec!=0){
+        div_t dt = div(orb * 89.1, 1000*1000); //an orbit lasts 89.1 microseconds
+        orbitZeroTime_.tv_sec = ts.tv_sec - dt.quot;
+        orbitZeroTime_.tv_usec = ts.tv_usec - dt.rem;
+        if(orbitZeroTime_.tv_usec < 0){
+          orbitZeroTime_.tv_usec += 1000*1000;
+          orbitZeroTime_.tv_sec -= 1;
+        }
+      }
+  }
+
   for(unsigned iFed = 0; iFed < fedIds.size() && rc; ++iFed){
-//     cout << "------> data.FEDData(" << fedIds[iFed] << ").size = "
-//          << data.FEDData(fedIds[iFed]).size() << "\n";
+    if(verbosity_>3) cout << "[LaserSorter " << now() << "] " 
+                          << "Writing data block of FED " << fedIds[iFed] << ". Data size: "  
+                          <<  data.FEDData(fedIds[iFed]).size() << "\n"; 
     rc  &= writeFedBlock(out, data.FEDData(fedIds[iFed]));
   }
 
   if(rc){
     //update index table for this file:
     vector<IndexRecord>& indices = *outRcd.indices();
-    IndexRecord indexRcd = {event.orbitNumber(), evtStart};
+    if(verbosity_ > 2){
+      std::cout << "Event " << " written successfully. "
+                << "Orbit: " << orbit_
+                << "\tFile index: " << evtStart << "\n";
+    }
+    IndexRecord indexRcd = {(uint32_t)orbit_, evtStart};
     indices.push_back(indexRcd);
   }
   return rc;
@@ -488,7 +583,7 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
   bool rc = false;
   if (data.size()>4){
     const uint32_t * pData
-      = reinterpret_cast<uint32_t*>(const_cast<unsigned char*> ( data.data()));
+      = reinterpret_cast<const uint32_t*>(data.data());
     
     uint32_t dccLen64 = pData[2] & 0x00FFFFFF; //in 32-byte unit
 
@@ -524,7 +619,8 @@ bool LaserSorter::renameAsBackup(const std::string& fileName,
                                  std::string& newFileName){
   int i = 0;
   int err;
-  static const int maxTries = 100;
+  //  static int maxTries = 100;
+  int maxTries = 20;
   stringstream newFileName_;
   do{
     newFileName_.str("");
@@ -699,12 +795,25 @@ bool LaserSorter::writeEventHeader(std::ofstream& out,
                                    int dtt,
                                    unsigned nFeds){
   uint32_t data[10];
-  
-  data[0] = evt.time().value() & 0xFFFFFFFF;
-  data[1] = evt.time().value() >>32;
+  timeval tt = {0, 0};
+  if((evt.time().value() >>32)){
+    tt.tv_usec = evt.time().value() & 0xFFFFFFFF;
+    tt.tv_sec = evt.time().value() >>32;
+  } else if(orbitZeroTime_.tv_sec){
+    div_t dt = div(orbit_*89.1, 1000*1000); //one orbit lasts 89.1 microseconds
+    tt.tv_sec = orbitZeroTime_.tv_sec + dt.quot;
+    tt.tv_usec = orbitZeroTime_.tv_usec + dt.rem;
+    if(tt.tv_usec > 1000*1000){
+      tt.tv_usec -= 1000*1000;
+      tt.tv_sec += 1;
+    }
+  }
+    
+  data[0] = tt.tv_usec;
+  data[1] = tt.tv_sec;
   data[2] = evt.luminosityBlock();
   data[3] = evt.run();     
-  data[4] = evt.orbitNumber();
+  data[4] = orbit_;
   data[5] = evt.bunchCrossing();
   data[6] = evt.id().event();
   data[7] = dtt;
@@ -722,7 +831,7 @@ bool LaserSorter::writeEventHeader(std::ofstream& out,
          << " (" << detailedTrigNames[(dtt>>8)&0x7]  << ", "
          << colorNames[(dtt>>6)&0x3] << ", DCC " << (dtt&0x3f)
          << ", side " << ((dtt>>10) &0x1) << ")"
-         << ", number of FEDs: " << nFeds
+         << ", number of FEDs: "
          << "\n";
   }
     
@@ -855,7 +964,7 @@ bool LaserSorter::isDccEventEmpty(const FEDRawData& data, size_t* dccLen,
     return true;
   }
   for(unsigned iWord32 = 0; iWord32 < nWord32; iWord32 += 2){
-    uint32_t* data32 = ((uint32_t*)(data.data())) + iWord32;
+    const uint32_t* data32 = ((const uint32_t*)(data.data())) + iWord32;
     int dataType = (data32[1] >>28) & 0xF;
     //     cout << hex << "0x" << setfill('0')
     //          << setw(8) << data32[1] << "'" << setw(8) << data32[0]
@@ -889,11 +998,10 @@ void LaserSorter::getOutputFedList(const edm::Event& event,
                                    const FEDRawDataCollection& data,
                                    std::vector<unsigned>& fedIds) const{
   fedIds.erase(fedIds.begin(), fedIds.end());
-  for(int id=ecalDccFedIdMin_; id<=ecalDccFedIdMax_; ++id){
-    size_t dccLen = 0;
+  for(int id = ecalDccFedIdMin_; id <= ecalDccFedIdMax_; ++id){
+    size_t dccLen;
     const FEDRawData& dccEvent = data.FEDData(id);
-    if(id==matacqFedId_
-       || !isDccEventEmpty(dccEvent, &dccLen)){
+    if(!isDccEventEmpty(dccEvent, &dccLen)){
       fedIds.push_back(id);
     }
     if(dccLen*sizeof(uint64_t)!=dccEvent.size()){
@@ -917,7 +1025,7 @@ std::vector<int>
 LaserSorter::getFullyReadoutDccs(const FEDRawDataCollection& data) const{
   int nTowers;
   vector<int> result;
-  for(int fed = ecalDccFedIdMin_; fed < ecalDccFedIdMax_; ++fed){
+  for(int fed = ecalDccFedIdMin_; fed <= ecalDccFedIdMax_; ++fed){
     const FEDRawData& fedData = data.FEDData(fed);
     isDccEventEmpty(fedData, 0, &nTowers);
     if(nTowers>=68) result.push_back(fed);
@@ -934,7 +1042,7 @@ bool LaserSorter::writeIndexTable(std::ofstream& out,
   out.clear();
   out.write((char*)&nevts, sizeof(nevts));
   const uint32_t reserved = 0;
-  out.write((char*)&reserved, sizeof(reserved));
+  out.write((const char*)&reserved, sizeof(reserved));
   
   if(out.bad()) return false;
 
@@ -1104,4 +1212,8 @@ void LaserSorter::restoreStreamsOfLumiBlock(int lumiBlock){
       getStream(fedId_, lumiBlock);
     }
   }
+}
+
+void LaserSorter::beginRun(edm::Run const& run, edm::EventSetup const& es){
+  //  cout << "Run starts at :" << run.runAuxiliary().beginTime().value() << "\n";
 }

@@ -4,21 +4,20 @@
 
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "CLHEP/Vector/ThreeVector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace cms{
 
-class CosmicTIFTrigFilter : public edm::EDFilter {
+  class CosmicTIFTrigFilter : public edm::stream::EDFilter<> {
   public:
   CosmicTIFTrigFilter(const edm::ParameterSet& conf);
   virtual ~CosmicTIFTrigFilter() {}
   bool filter(edm::Event & iEvent, edm::EventSetup const& c);
   bool Sci_trig(const HepMC::FourVector&, const  HepMC::FourVector&,const  HepMC::FourVector&);
-  //  bool Sci_trig(CLHEP::Hep3Vector,  CLHEP::Hep3Vector, CLHEP::Hep3Vector);
 
  private:
   edm::ParameterSet conf_;
@@ -28,6 +27,7 @@ class CosmicTIFTrigFilter : public edm::EDFilter {
   int tottrig;
   int trig1, trig2, trig3;
   std::vector<double> trigS1, trigS2, trigS3, trigS4;
+  edm::EDGetTokenT<edm::HepMCProduct> m_Token;
   };
 }
 #endif 

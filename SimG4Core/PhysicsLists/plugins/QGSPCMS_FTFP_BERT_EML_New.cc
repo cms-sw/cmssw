@@ -18,9 +18,9 @@
 
 QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
-			   sim::FieldBuilder *fieldBuilder_, 
+			   sim::ChordFinderSetter *chordFinderSetter_, 
 			   const edm::ParameterSet & p) 
-  : PhysicsList(map, table_, fieldBuilder_, p) {
+  : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -28,11 +28,12 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
-  bool munucl  = p.getParameter<bool>("FlagMuNucl");
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML_New with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EML_New \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
-			      << hadPhys << " and tracking cut " << tracking;
+			      << hadPhys << " and tracking cut " << tracking
+			      << "   t(ns)= " << timeLimit/ns;
 
   if (emPhys) {
     // EM Physics
@@ -41,7 +42,6 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
-    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
     RegisterPhysics(gn);
   }
 
@@ -65,11 +65,13 @@ QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalP
 
     // Neutron tracking cut
     if (tracking) {
-      RegisterPhysics( new G4NeutronTrackingCut(ver));
+      G4NeutronTrackingCut* ncut= new G4NeutronTrackingCut(ver);
+      ncut->SetTimeLimit(timeLimit);
+      RegisterPhysics(ncut);
     }
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
+  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

@@ -1,7 +1,10 @@
 #include "DetectorDescription/Core/interface/DDNumberingScheme.h"
+
+#include <ostream>
+#include <utility>
+
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

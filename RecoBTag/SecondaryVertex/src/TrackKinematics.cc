@@ -4,11 +4,11 @@
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
 
 using namespace reco;
@@ -32,6 +32,22 @@ TrackKinematics::TrackKinematics(const TrackRefVector &tracks) :
 	for(TrackRefVector::const_iterator iter = tracks.begin();
 	    iter != tracks.end(); iter++)
 		add(**iter);
+}
+
+TrackKinematics::TrackKinematics(const std::vector<CandidatePtr> &tracks) :
+	n(0), sumWeights(0)
+{
+	for(std::vector<CandidatePtr>::const_iterator iter = tracks.begin();
+	    iter != tracks.end(); iter++)
+		add(*iter);
+}
+
+TrackKinematics::TrackKinematics(const CandidatePtrVector &tracks) :
+	n(0), sumWeights(0)
+{
+	for(CandidatePtrVector::const_iterator iter = tracks.begin();
+	    iter != tracks.end(); iter++)
+		add(*iter);
 }
 
 TrackKinematics::TrackKinematics(const Vertex &vertex) :
@@ -71,4 +87,14 @@ void TrackKinematics::add(const Track &track, double weight)
 	sumWeights += weight;
 	sum += vec;
 	weightedSum += weight * vec;
+}
+
+void TrackKinematics::add(const CandidatePtr &track)
+{
+	double weight = 1.0;
+
+	n++;
+	sumWeights += weight;
+	sum += track->p4();
+	weightedSum += weight * track->p4();
 }

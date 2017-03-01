@@ -52,5 +52,20 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 # disable adding noise to HCAL cells with no MC signal
 #mixData.doEmpty = False
 
-pdatamix = cms.Sequence(mixData+postDMDigi)
+#
+# TrackingParticle Producer is now part of the mixing module, so
+# it is no longer run here.
+#
+from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
 
+
+
+pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+    # pretend these digis have been through digi2raw and raw2digi, by using the approprate aliases
+    # use an alias to make the mixed track collection available under the usual label
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
+    loadDigiAliases(premix = True)
+    from FastSimulation.Configuration.DigiAliases_cff import generalTracks,ecalPreshowerDigis,ecalDigis,hcalDigis,muonDTDigis,muonCSCDigis,muonRPCDigis

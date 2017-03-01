@@ -167,7 +167,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
-      std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
+      std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
       theUpdator->update(superPhi.get(),0);
       if(debug) cout << "superPhi: " << *superPhi << endl;
@@ -303,11 +303,11 @@ DTRecSegment4D* DTCombinatorialPatternReco4D::segmentSpecialZed(const DTRecSegme
   LocalPoint posInMiddleLayer = posInSL+dirInSL*(-posInSL.z())/cos(dirInSL.theta());
 
   // create a hit with position and error as the Zed projection one's
-  auto_ptr<DTRecHit1D> hit(new DTRecHit1D( middle.wireId(),
-                                           middle.lrSide(),
-                                           middle.digiTime(),
-                                           posInMiddleLayer,
-                                           zedSeg->localPositionError()));
+  auto hit = std::make_unique<DTRecHit1D>(middle.wireId(),
+                                          middle.lrSide(),
+                                          middle.digiTime(),
+                                          posInMiddleLayer,
+                                          zedSeg->localPositionError());
 
   std::vector<DTRecHit1D> newHits(1,*hit);
 
@@ -317,12 +317,12 @@ DTRecSegment4D* DTCombinatorialPatternReco4D::segmentSpecialZed(const DTRecSegme
   AlgebraicSymMatrix cov(zedSeg->covMatrix());
   double chi2(zedSeg->chi2());
   //cout << "zed " << *zedSeg << endl;
-  auto_ptr<DTSLRecSegment2D> newZed(new DTSLRecSegment2D(zedSeg->superLayerId(),
-                                                         pos,
-                                                         dir,
-                                                         cov,
-                                                         chi2,
-                                                         newHits));
+  auto newZed = std::make_unique<DTSLRecSegment2D>(zedSeg->superLayerId(),
+                                                   pos,
+                                                   dir,
+                                                   cov,
+                                                   chi2,
+                                                   newHits);
   //cout << "newZed " << *newZed << endl;
 
   // create a 4d segment with the special zed

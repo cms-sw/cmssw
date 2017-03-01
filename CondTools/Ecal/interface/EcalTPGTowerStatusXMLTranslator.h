@@ -8,12 +8,8 @@
 #define __EcalTPGTowerStatusXMLTranslator_h_
 
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
 
 class EcalTPGTowerStatusXMLTranslator {
 
@@ -26,7 +22,8 @@ public:
   static  int writeXML(const std::string& filename, 
 		       const EcalCondHeader& header,
 		       const EcalTPGTowerStatus& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalTPGTowerStatus& record);
 

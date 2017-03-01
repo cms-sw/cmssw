@@ -1,5 +1,8 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+## switch to uncheduled mode
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 
 # load the PAT config
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
@@ -31,12 +34,6 @@ process.patMuons.genParticleMatch = cms.VInputTag(
 ## dump event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.options.allowUnscheduled = cms.untracked.bool(True)
-#process.Tracer = cms.Service("Tracer")
-process.p = cms.Path(
-    process.selectedPatCandidates
-    )
-
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
@@ -45,8 +42,8 @@ process.p = cms.Path(
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 ## switch to RECO input
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-process.source.fileNames = filesRelValProdTTbarGENSIMRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+process.source.fileNames = filesRelValTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

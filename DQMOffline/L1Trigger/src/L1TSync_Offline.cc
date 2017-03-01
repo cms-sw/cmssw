@@ -48,8 +48,8 @@
 //#include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 // L1TMonitor includes
-///#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
-#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
+//#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
 
 #include "TList.h"
 
@@ -58,7 +58,8 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
-L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset){
+L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset) :
+  m_l1GtUtils(pset, consumesCollector(), false, *this) {
 
   m_parameters = pset;
   
@@ -201,12 +202,6 @@ L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset){
 
   }
 
-
-  if (pset.getUntrackedParameter < bool > ("dqmStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
-
   m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile","");
 
   if (m_outputFile.size() != 0) {
@@ -215,9 +210,6 @@ L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset){
 
   bool disable = pset.getUntrackedParameter < bool > ("disableROOToutput", false);
   if (disable) {m_outputFile = "";}
-
-  if (dbe != NULL) {dbe->setCurrentFolder("L1T/L1TSync");}
-
 }
 
 //-------------------------------------------------------------------------------------
@@ -225,39 +217,14 @@ L1TSync_Offline::L1TSync_Offline(const ParameterSet & pset){
 L1TSync_Offline::~L1TSync_Offline(){}
 
 //-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TSync_Offline::beginJob(void){
 
-  if (m_verbose){cout << "[L1TSync_Offline] Called beginJob." << endl;}
-
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TSync");
-    dbe->rmdir("L1T/L1TSync");
-  }
- 
-}
-
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TSync_Offline::endJob(void){
-
-  if (m_verbose){cout << "[L1TSync_Offline] Called endJob." << endl;}
-
-  if (m_outputFile.size() != 0 && dbe)
-    dbe->save(m_outputFile);
-
-  return;
+void L1TSync_Offline::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
 
 }
-
 //-------------------------------------------------------------------------------------
 /// BeginRun
 //-------------------------------------------------------------------------------------
-void L1TSync_Offline::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
+void L1TSync_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& iSetup){
 
   if (m_verbose){cout << "[L1TSync_Offline] Called beginRun." << endl;}
 
@@ -293,12 +260,13 @@ void L1TSync_Offline::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
          
   m_selectedTriggers = myMenuHelper.testAlgos(m_selectedTriggers);
 
-  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect,m_refPrescaleSet);
+  m_l1GtUtils.retrieveL1EventSetup(iSetup);
+  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect, m_refPrescaleSet, m_l1GtUtils);
   m_selectedTriggers.insert(tAutoSelTrig.begin(),tAutoSelTrig.end());
 
   // Initializing DQM Monitor Elements
-  dbe->setCurrentFolder("L1T/L1TSync");
-  m_ErrorMonitor = dbe->book1D("ErrorMonitor","ErrorMonitor",7,0,7);
+  ibooker.setCurrentFolder("L1T/L1TSync");
+  m_ErrorMonitor = ibooker.book1D("ErrorMonitor","ErrorMonitor",7,0,7);
   m_ErrorMonitor->setBinLabel(UNKNOWN                      ,"UNKNOWN");
   m_ErrorMonitor->setBinLabel(WARNING_DB_CONN_FAILED       ,"WARNING_DB_CONN_FAILED");        // Errors from L1TOMDSHelper
   m_ErrorMonitor->setBinLabel(WARNING_DB_QUERY_FAILED      ,"WARNING_DB_QUERY_FAILED");       // Errors from L1TOMDSHelper
@@ -318,16 +286,15 @@ void L1TSync_Offline::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
     m_certLastLS [(*i).second] = 0;
 
     // Initializing DQM Monitors 
-    dbe->setCurrentFolder("L1T/L1TSync/AlgoVsBunchStructure/");
-    m_algoVsBunchStructure[tTrigger] = dbe->book2D(tCategory,"min #Delta("+tTrigger+",Bunch)",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
+    ibooker.setCurrentFolder("L1T/L1TSync/AlgoVsBunchStructure/");
+    m_algoVsBunchStructure[tTrigger] = ibooker.book2D(tCategory,"min #Delta("+tTrigger+",Bunch)",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
     m_algoVsBunchStructure[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     
-    dbe->setCurrentFolder("L1T/L1TSync/Certification/");
-    m_algoCertification[tTrigger] = dbe->book1D(tCategory, "fraction of in sync: "+tTrigger,maxNbins,-0.5,double(maxNbins)-0.5);
+    ibooker.setCurrentFolder("L1T/L1TSync/Certification/");
+    m_algoCertification[tTrigger] = ibooker.book1D(tCategory, "fraction of in sync: "+tTrigger,maxNbins,-0.5,double(maxNbins)-0.5);
     m_algoCertification[tTrigger] ->setAxisTitle("Lumi Section" ,1);
 
  }   
-
 }
 
  //_____________________________________________________________________
@@ -341,20 +308,6 @@ void L1TSync_Offline::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
  
  }
  
-
-//_____________________________________________________________________
-void L1TSync_Offline::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
-  if(m_verbose){cout << "[L1TSync_Offline] Called endRun." << endl;}
-  
-  // When the run end for closing of the LS certification blocks and evaluation
-  // of synchronization for that block
-
-  // This will be for Harvesting
-  //  doFractionInSync(true,false);    
-
-}
-
 //_____________________________________________________________________
 void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetup){
 

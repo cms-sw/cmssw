@@ -228,7 +228,7 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
 
     // Create the output collection
     const unsigned nJets = jets->size();
-    std::auto_ptr<MyCollection> coll(new MyCollection());
+    auto coll = std::make_unique<MyCollection>();
     coll->reserve(nJets);
 
     // Cycle over jets and apply the corrector sequences
@@ -340,7 +340,7 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
     // Create the uncertainty sequence
     if (writeUncertainties)
     {
-        std::auto_ptr<std::vector<float> > unc(new std::vector<float>());
+        auto unc = std::make_unique<std::vector<float>>();
         unc->reserve(nJets);
         for (unsigned ijet=0; ijet<nJets; ++ijet)
         {
@@ -348,10 +348,10 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
             unc->push_back(j.pileup());
             j.setPileup(0.f);
         }
-        iEvent.put(unc, outputLabel);
+        iEvent.put(std::move(unc), outputLabel);
     }
 
-    iEvent.put(coll, outputLabel);
+    iEvent.put(std::move(coll), outputLabel);
     ++eventCount;
 }
 

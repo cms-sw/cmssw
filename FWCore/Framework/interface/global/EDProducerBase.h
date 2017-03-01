@@ -36,7 +36,10 @@ namespace edm {
   class StreamID;
   class GlobalSchedule;
   class ActivityRegistry;
-  
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+  class WaitingTask;
+
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -64,7 +67,7 @@ namespace edm {
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
     private:
-      bool doEvent(EventPrincipal& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
@@ -74,48 +77,56 @@ namespace edm {
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id,
-                            RunPrincipal& ep,
+                            RunPrincipal const& ep,
                             EventSetup const& c,
                             ModuleCallingContext const*);
       void doStreamEndRun(StreamID id,
-                          RunPrincipal& ep,
+                          RunPrincipal const& ep,
                           EventSetup const& c,
                           ModuleCallingContext const*);
       void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal& ep,
+                                        LuminosityBlockPrincipal const& ep,
                                         EventSetup const& c,
                                         ModuleCallingContext const*);
       void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal& ep,
+                                      LuminosityBlockPrincipal const& ep,
                                       EventSetup const& c,
                                       ModuleCallingContext const*);
 
       
-      void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+      void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                       ModuleCallingContext const*);
-      void doEndRun(RunPrincipal& rp, EventSetup const& c,
+      void doEndRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
       
+      void doPreForkReleaseResources();
+      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-      
-      
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&) { }
+
       void registerProductsAndCallbacks(EDProducerBase* module, ProductRegistry* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
       std::string workerType() const {return "WorkerT<EDProducer>";}
       
       virtual void produce(StreamID, Event&, EventSetup const&) const= 0;
+      //For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
       virtual void beginJob() {}
       virtual void endJob(){}
 
+      virtual void preForkReleaseResources() {}
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+      
       virtual void preallocStreams(unsigned int);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);

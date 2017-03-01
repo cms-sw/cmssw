@@ -81,7 +81,7 @@ DTHitPairForFit::isCompatible(const LocalPoint& posIni,
 
 bool DTHitPairForFit::operator<(const DTHitPairForFit& hit) const {
   //SL if same layer use x() for strict ordering
-  if (id()==hit.id()) 
+  if (id()==hit.id())
     return (theLeftPos.x() < hit.localPosition(DTEnums::Left).x());
   return (id() < hit.id());
 }

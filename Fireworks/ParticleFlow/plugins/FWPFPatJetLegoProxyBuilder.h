@@ -1,4 +1,4 @@
-#ifndef _FWPFAPATJETLEGOPROXYBUILDER_H_
+#ifndef _FWPFPATJETLEGOPROXYBUILDER_H_
 #define _FWPFPATJETLEGOPROXYBUILDER_H_
 
 // -*- C++ -*-
@@ -51,5 +51,5 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
    // --------------------- Member Functions --------------------------
 
 };
-#endif
+#endif // FWPFPATJETLEGOPROXYBUILDER
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

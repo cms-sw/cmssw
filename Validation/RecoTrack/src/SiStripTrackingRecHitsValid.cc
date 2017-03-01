@@ -8,16 +8,14 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -46,6 +44,7 @@ class TFile;
 SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet& ps) : 
   dbe_(edm::Service<DQMStore>().operator->()),	
   conf_(ps),
+  trackerHitAssociatorConfig_(ps, consumesCollector()),
   m_cacheID_(0)
   // trajectoryInput_( ps.getParameter<edm::InputTag>("trajectoryInput") )
 {
@@ -57,7 +56,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   outputFileName = conf_.getParameter<std::string>("outputFile");
   
-  trajectoryInputToken_ = consumes<std::vector<Trajectory> >( conf_.getParameter<edm::InputTag>("trajectoryInput") ); 
+  tracksInputToken_ = consumes<std::vector<reco::Track> >( conf_.getParameter<edm::InputTag>("tracksInput") ); 
 
   edm::ParameterSet ParametersResolx_LF =  conf_.getParameter<edm::ParameterSet>("TH1Resolx_LF");
   layerswitchResolx_LF = ParametersResolx_LF.getParameter<bool>("layerswitchon");
@@ -424,7 +423,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   edm::ParameterSet ParametersPullyMatched =  conf_.getParameter<edm::ParameterSet>("TH1PullyMatched");
   layerswitchPullyMatched = ParametersPullyMatched.getParameter<bool>("layerswitchon");
- 
+
 }
 
 //Destructor
@@ -469,12 +468,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
   DetId detid;
   uint32_t myid;
 
-  TrackerHitAssociator associate(e, conf_);
-  PSimHit closest;
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::ESHandle < TrackerGeometry > pDD;
@@ -497,209 +495,180 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 
   // Mangano's
 
-  edm::Handle < std::vector<Trajectory> > trajCollectionHandle;
-  e.getByToken(trajectoryInputToken_, trajCollectionHandle);
+  edm::Handle < std::vector<reco::Track> > trackCollectionHandle;
+  e.getByToken(tracksInputToken_, trackCollectionHandle);
 
-  edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size();
+  edm::LogVerbatim("TrajectoryAnalyzer") << "trackColl->size(): " << trackCollectionHandle->size();
+  auto const & tracks = *trackCollectionHandle;
+  for (auto const & track : tracks) {
 
-  for (vector < Trajectory >::const_iterator it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); it++) {
-
-    edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits" << " , " << "isValid: " << it->isValid();
-
-    vector < TrajectoryMeasurement > tmColl = it->measurements();
-    for (vector < TrajectoryMeasurement >::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
-      if (!itTraj->updatedState().isValid()) continue;
-      
-      rechitrphi.clear();
-      rechitstereo.clear();
-      rechitmatched.clear();
-      
-      //edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " <<
-      //   (itTraj - tmColl.begin()) + 1<< " , " << "tm.backwardState.pt: " <<
-      //   itTraj->backwardPredictedState().globalMomentum().perp() << " , " <<
-      //   "tm.forwardState.pt:  " << itTraj->forwardPredictedState().globalMomentum().perp() <<
-      //   " , " << "tm.updatedState.pt:  " << itTraj->updatedState().globalMomentum().perp() <<
-      //   " , " << "tm.globalPos.perp: "   << itTraj->updatedState().globalPosition().perp();
-
-      if (itTraj->updatedState().globalMomentum().perp() < 0.5)	continue;
-
-      TrajectoryStateOnSurface tsos = itTraj->updatedState();
-
-      DetId detid2 = itTraj->recHit()->geographicalId();
-
-      const TransientTrackingRecHit::ConstRecHitPointer thit2 = itTraj->recHit();
-      const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >((*thit2).hit());
-      const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >((*thit2).hit());
-      const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >((*thit2).hit());
-      //if(matchedhit) cout<<"manganomatchedhit"<<endl;
-      //if(hit) cout<<"manganosimplehit"<<endl;
-      //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
-      const TrackingRecHit *thit = (*thit2).hit();
-
-      detid = (thit)->geographicalId();
-      myid = ((thit)->geographicalId()).rawId();
-      //Here due to the fact that the SiStripHistoId::getSubdetid complains when 
-      //a subdet of 1 or 2 appears we add an if statement. 
-      if(detid.subdetId()==1 ||detid.subdetId()==2 ){
-	continue;
-      }
-      SiStripHistoId hidmanager;
-      std::string label = hidmanager.getSubdetid(myid,tTopo,true);
-      // std::cout<< "label " << label << " and id " << detid.subdetId() << std::endl;
-
-      StripSubdetector StripSubdet = (StripSubdetector) detid;
-      //Variable to define the case we are dealing with
-      std::string matchedmonorstereo;
-
-      isrechitmatched = 0;
+    if (track.pt()<0.5) continue;
+    edm::LogVerbatim("TrajectoryAnalyzer") << "this track has " << track.found() << " valid hits";
   
-      if (matchedhit) {
-	
-  	isrechitmatched = 1;
-	const GluedGeomDet *gluedDet = (const GluedGeomDet *) tracker.idToDet(matchedhit->geographicalId());
-	//Analysis
-	matchedmonorstereo = "matched";
-	rechitanalysis_matched(tsos, thit2, gluedDet, associate, stripcpe, matchedmonorstereo );
-	// rechitmatched.push_back(rechitpro);
+    auto const & trajParams = track.extra()->trajParams();
+    assert(trajParams.size()==track.recHitsSize());
+    auto hb = track.recHitsBegin();
+    for(unsigned int h=0;h<track.recHitsSize();h++){
+      auto recHit = *(hb+h);
+      if(!recHit->isValid()) continue;
+      auto ldir = trajParams[h].direction();
+      auto gmom = recHit->surface()->toGlobal(trajParams[h].momentum());
+      if (gmom.perp() < 0.5)	continue; // redundant...
+      {  
 
-      }
+        auto thit2 = recHit;
+        DetId detid2 = thit2->geographicalId();
+        const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >(thit2);
+        const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >(thit2);
+        const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >(thit2);
 
-      std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+        auto thit = thit2;
 
-      //Filling Histograms for Matched hits
+        detid = (thit)->geographicalId();
+        myid = detid.rawId();
+        //Here due to the fact that the SiStripHistoId::getSubdetid complains when 
+        //a subdet of 1 or 2 appears we add an if statement. 
+        if(detid.subdetId()==1 ||detid.subdetId()==2 ){
+	  continue;
+        }
+        SiStripHistoId hidmanager;
+        std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+        // std::cout<< "label " << label << " and id " << detid.subdetId() << std::endl;
 
-      if (isrechitmatched) {
+        StripSubdetector StripSubdet = (StripSubdetector) detid;
+        //Variable to define the case we are dealing with
+        std::string matchedmonorstereo;
 
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
-	  fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
-	  fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
-	  fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
-	  fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
-	  fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
-	  fillME(iStereoAndMatchedME->second.mePullxMatched,rechitpro.pullx);
-	  fillME(iStereoAndMatchedME->second.mePullyMatched,rechitpro.pully);
-	}
-	
-      }
+        isrechitmatched = 0;
+  
+        if (matchedhit) {
+  	  isrechitmatched = 1;
+	  const GluedGeomDet *gluedDet = (const GluedGeomDet *) tracker.idToDet(matchedhit->geographicalId());
+	  //Analysis
+	  rechitanalysis_matched(ldir, thit2, gluedDet, associate, stripcpe, MatchStatus::matched);
+	  // rechitmatched.push_back(rechitpro);
+        }
+
+        std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+
+        //Filling Histograms for Matched hits
+
+        if (isrechitmatched) {
+
+	  if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+	    fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
+	    fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
+	    fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
+	    fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
+	    fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
+	    fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
+	    fillME(iStereoAndMatchedME->second.mePullxMatched,rechitpro.pullx);
+	    fillME(iStereoAndMatchedME->second.mePullyMatched,rechitpro.pully);
+	  }
+        }
     
-      //Reset Variables here for the current event
-      isrechitrphi    = 0;
-      isrechitsas     = 0;
+        //Reset Variables here for the current event
+        isrechitrphi    = 0;
+        isrechitsas     = 0;
      
-      ///////////////////////////////////////////////////////
-      // simple hits from matched hits
-      ///////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////
+        // simple hits from matched hits
+        ///////////////////////////////////////////////////////
  
-      if (tsos.globalDirection().transverse() != 0) {
-	track_rapidity = tsos.globalDirection().eta();
-      } else {
-	track_rapidity = -999.0;
-      }
+        if (gmom.transverse() != 0) {
+	  track_rapidity = gmom.eta();
+        } else {
+	  track_rapidity = -999.0;
+        }
 
-      GluedGeomDet *gdet;
-      const SiStripRecHit2D *monohit;
-
-      if (matchedhit) {
-	auto hm = matchedhit->monoHit();
-	monohit = &hm;
-	//      const GeomDetUnit * monodet=gdet->monoDet();
-	gdet = (GluedGeomDet *) tracker2->idToDet(matchedhit->geographicalId());
+        if (matchedhit) {
+          auto hm = matchedhit->monoHit();
+	  const SiStripRecHit2D *monohit = &hm;
+	  //      const GeomDetUnit * monodet=gdet->monoDet();
+	  GluedGeomDet *gdet = (GluedGeomDet *) tracker2->idToDet(matchedhit->geographicalId());
 	  
-	if (monohit) {
+	  if (monohit) {
 
-	  isrechitrphi = 1;
+	    isrechitrphi = 1;
 	  
-	  //Analysis
-	  matchedmonorstereo = "monoHit";
-	  rechitanalysis_matched(tsos, thit2, gdet, associate, stripcpe, matchedmonorstereo );
+	    //Analysis
+	    rechitanalysis_matched(ldir, thit2, gdet, associate, stripcpe, MatchStatus::monoHit);
 
-	}
+	  }
 
-	auto s = matchedhit->stereoHit();
-	const SiStripRecHit2D *stereohit = &s;
+	  auto s = matchedhit->stereoHit();
+	  const SiStripRecHit2D *stereohit = &s;
 	
-	if (stereohit) {
+	  if (stereohit) {
 	
-	  isrechitsas = 1;
+	    isrechitsas = 1;
 	  
-	  //Analysis
-	  matchedmonorstereo = "stereoHit";
-	  rechitanalysis_matched(tsos, thit2, gdet, associate, stripcpe, matchedmonorstereo );
-	}
-      }
+	    //Analysis
+	    rechitanalysis_matched(ldir, thit2, gdet, associate, stripcpe, MatchStatus::stereoHit);
+	  }
+        }
       
-      if (hit1d) {
-	// simple hits are mono or stereo
-	//      cout<<"simple hit"<<endl;
-	if (StripSubdet.stereo() == 0) {
-	  isrechitrphi = 1;
-	  //      cout<<"simple hit mono"<<endl;
+        if (hit1d) {
+	  // simple hits are mono or stereo
+	  //      cout<<"simple hit"<<endl; 
+	  if (StripSubdet.stereo()) {
 
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+	    //cout<<"simple hit stereo"<<endl;
+	    isrechitsas = 1;
+
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+
+	    //Analysis for hit1d stereo
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
+	  } else {
+	    isrechitrphi = 1;
+	    //      cout<<"simple hit mono"<<endl;
+
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 	  
-	  //Analysis for hit1d mono
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, true);
+	    //Analysis for hit1d mono
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
 
-	}
-
-	if (StripSubdet.stereo() == 1) {
-
-	  //cout<<"simple hit stereo"<<endl;
-	  isrechitsas = 1;
-
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
-
-	  //Analysis for hit1d stereo
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, true);
-
-	}
-      }
+	  }
+        }
     
+        if (hit2d) {
+	  // simple hits are mono or stereo
+	  //      cout<<"simple hit"<<endl;
+	  if (StripSubdet.stereo()) {
 
-      if (hit2d) {
-	// simple hits are mono or stereo
-	//      cout<<"simple hit"<<endl;
-	if (StripSubdet.stereo() == 0) {
-	  isrechitrphi = 1;
-	  //      cout<<"simple hit mono"<<endl;
+	    //cout<<"simple hit stereo"<<endl;
+	    isrechitsas = 1;
 
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
-	  //Analysis for hit2d mono
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, false);
+	    //Analysis for hit2d stereo
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
 
-	}
+	  } else {
+	    isrechitrphi = 1;
+	    //      cout<<"simple hit mono"<<endl;
 
-	if (StripSubdet.stereo() == 1) {
+	    const GeomDetUnit *det = tracker.idToDetUnit(detid2);
+	    const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
 
-	  //cout<<"simple hit stereo"<<endl;
-	  isrechitsas = 1;
+	    //Analysis for hit2d mono
+	    rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
 
-	  const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-	  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (det);
+	  }
+        }
 
-	  //Analysis for hit2d stereo
-	  rechitanalysis(tsos, thit2, stripdet, stripcpe, associate, false);
+//------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	}
-      }
+        //Filling Histograms for simple hits
+        //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
 
-      //Filling Histograms for simple hits
-      //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
-
-      std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-
-      if (isrechitrphi > 0 || isrechitsas > 0) {
-
-
-
-	if (isrechitrphi > 0) {
-
-	  fillME(simplehitsMEs.meCategory,rechitpro.category);
+        std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
+        if (isrechitrphi) {
+          fillME(simplehitsMEs.meCategory,rechitpro.category);
 	  fillME(simplehitsMEs.meTrackwidth,rechitpro.trackwidth);
 	  fillME(simplehitsMEs.meExpectedwidth,rechitpro.expectedwidth);
 	  fillME(simplehitsMEs.meClusterwidth,rechitpro.clusiz);
@@ -712,19 +681,16 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  if (rechitpro.clusiz == 1) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, fabs(rechitpro.resxMF));
-	  }
-	  if (rechitpro.clusiz == 2) {
+	  } else if (rechitpro.clusiz == 2) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus21,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus22,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus23,rechitpro.trackwidth,fabs(rechitpro.resxMF));
-	  }
-	  if (rechitpro.clusiz == 3) {
+	  } else if (rechitpro.clusiz == 3) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, fabs(rechitpro.resxMF));
-	  }
-	  if (rechitpro.clusiz == 4) {
+	  } else if (rechitpro.clusiz == 4) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	  }
@@ -732,14 +698,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  if (rechitpro.category == 1) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
 	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 2) {
+	  } else if (rechitpro.category == 2) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 3) {
+	  } else if (rechitpro.category == 3) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 4) {
+	  } else if (rechitpro.category == 4) {
 	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	  }
 
@@ -750,66 +713,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
 	  fillME(simplehitsMEs.mePullLF,rechitpro.pullx);
 
-	}
-
-	if (isrechitsas > 0) {
-
-	  fillME(simplehitsMEs.meCategory,rechitpro.category);
-	  fillME(simplehitsMEs.meTrackwidth,rechitpro.trackwidth);
-	  fillME(simplehitsMEs.meExpectedwidth,rechitpro.expectedwidth);
-	  fillME(simplehitsMEs.meClusterwidth,rechitpro.clusiz);
-	  fillME(simplehitsMEs.meTrackanglealpha,rechitpro.trackangle);
-	  fillME(simplehitsMEs.meTrackanglebeta,rechitpro.trackanglebeta);
-
-	  fillME(simplehitsMEs.meResolxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-
-	  if (rechitpro.clusiz == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-
-	  if (rechitpro.clusiz == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-	  if (rechitpro.clusiz == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-	  if (rechitpro.clusiz == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, rechitpro.resxMF);
-	  }
-	  if (rechitpro.category == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-	  if (rechitpro.category == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	  }
-
-	  fillME(simplehitsMEs.meResolxMF,sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxLF,sqrt(rechitpro.resolxx));
-	  fillME(simplehitsMEs.meResMF,rechitpro.resxMF);
-	  fillME(simplehitsMEs.meResLF,rechitpro.resx);
-	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
-	  fillME(simplehitsMEs.mePullLF,rechitpro.pullx);
-
-	}
-
-
-	
-	if(iLayerME != LayerMEsMap.end()){
-
-	  if (isrechitrphi > 0) {
-
+          if(iLayerME != LayerMEsMap.end()){
 	    fillME(iLayerME->second.meWclusRphi,rechitpro.clusiz);
 	    fillME(iLayerME->second.meAdcRphi,rechitpro.cluchg);
 	    fillME(iLayerME->second.meResolxLFRphi,sqrt(rechitpro.resolxx));
@@ -819,6 +723,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.meResolxMFRphiwclus2,sqrt(rechitpro.resolxxMF));}
 	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meResolxMFRphiwclus3,sqrt(rechitpro.resolxxMF));}
 	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meResolxMFRphiwclus4,sqrt(rechitpro.resolxxMF));}
+
 
 	    fillME(iLayerME->second.meResLFRphi,rechitpro.resx);
 	    fillME(iLayerME->second.meResMFRphi,rechitpro.resxMF);
@@ -873,16 +778,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	      fillME(iLayerME->second.meResolxMFClusterwidthProfileCategory1Rphi,rechitpro.clusiz,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 2) {
+	    } else if(rechitpro.category == 2) {
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 3) {
+	    } else if (rechitpro.category == 3) {
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 4) {
+	    } else if (rechitpro.category == 4) {
 	      fillME(iLayerME->second.mePullTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
 	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    }
@@ -894,13 +796,50 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    fillME(iLayerME->second.meResolxMFTrackwidthProfileRphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(iLayerME->second.meResolxMFAngleProfileRphi,rechitpro.trackangle,sqrt(rechitpro.resolxxMF));
 	  }
+        }
 
-	}
+        if (isrechitsas > 0) {
+          fillME(simplehitsMEs.meCategory,rechitpro.category);
+	  fillME(simplehitsMEs.meTrackwidth,rechitpro.trackwidth);
+	  fillME(simplehitsMEs.meExpectedwidth,rechitpro.expectedwidth);
+	  fillME(simplehitsMEs.meClusterwidth,rechitpro.clusiz);
+	  fillME(simplehitsMEs.meTrackanglealpha,rechitpro.trackangle);
+	  fillME(simplehitsMEs.meTrackanglebeta,rechitpro.trackanglebeta);
 
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  
-	  if (isrechitsas > 0) {
+	  fillME(simplehitsMEs.meResolxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.resolxxMF));
+	  fillME(simplehitsMEs.meResolxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
 
+	  if (rechitpro.clusiz == 1) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, rechitpro.resxMF);
+	  } else if (rechitpro.clusiz == 2) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, rechitpro.resxMF);
+	  } else if (rechitpro.clusiz == 3) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, rechitpro.resxMF);
+	  } else if (rechitpro.clusiz == 4) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, rechitpro.resxMF);
+	  } if (rechitpro.category == 1) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
+	  } else if (rechitpro.category == 2) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	  } else if (rechitpro.category == 3) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	  } else if (rechitpro.category == 4) {
+	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	  }
+
+	  fillME(simplehitsMEs.meResolxMF,sqrt(rechitpro.resolxxMF));
+	  fillME(simplehitsMEs.meResolxLF,sqrt(rechitpro.resolxx));
+	  fillME(simplehitsMEs.meResMF,rechitpro.resxMF);
+	  fillME(simplehitsMEs.meResLF,rechitpro.resx);
+	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
+	  fillME(simplehitsMEs.mePullLF,rechitpro.pullx);
+
+	  if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
 	    fillME(iStereoAndMatchedME->second.meWclusSas,rechitpro.clusiz);
 	    fillME(iStereoAndMatchedME->second.meAdcSas,rechitpro.cluchg);
 	    fillME(iStereoAndMatchedME->second.meResolxLFSas,sqrt(rechitpro.resolxx));
@@ -916,16 +855,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory1Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory1Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	      fillME(iStereoAndMatchedME->second.meResolxMFClusterwidthProfileCategory1Sas,rechitpro.clusiz,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 2) {
+	    } else if (rechitpro.category == 2) {
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory2Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory2Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 3) {
+	    } else if (rechitpro.category == 3) {
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory3Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory3Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 4) {
+	    } else if (rechitpro.category == 4) {
 	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory4Sas,rechitpro.trackwidth,rechitpro.pullxMF);
 	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory4Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    }
@@ -936,19 +872,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileSas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
 	    fillME(iStereoAndMatchedME->second.meResolxMFAngleProfileSas,rechitpro.trackangle, rechitpro.resolxxMF);
 	  }
-	
-	}
-	
-
-      }                     //simplehits
-      //cout<<"DebugLine301"<<endl;
-
+        } 
+      }
     }
-    //cout<<"DebugLine302"<<endl;
-
   }
-  //cout<<"DebugLine303"<<endl;
-
 }
 
 
@@ -987,13 +914,10 @@ std::pair < LocalPoint, LocalVector > SiStripTrackingRecHitsValid::projectHit(co
   return std::pair < LocalPoint, LocalVector > (projectedPos, localStripDir);
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, std::string matchedmonorstereo){
+void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, const MatchStatus matchedmonorstereo){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.;   rechitpro.resolyy = -999999.; 
-  rechitpro.resolxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
-  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.; 
-  rechitpro.trackangle2 = -999999.; rechitpro.trackwidth = -999999.; rechitpro.expectedwidth = -999999.; rechitpro.category = -999999.; rechitpro.thickness = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; 
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
+  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.;
 
   const GeomDetUnit *monodet = gluedDet->monoDet(); 
   const GeomDetUnit *stereodet = gluedDet->stereoDet();
@@ -1001,16 +925,16 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   //and it will change value in the stereoHit case. The matched case do not use this
   const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *) (monodet) ; 
 
-  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * >((*thit).hit());
-  const SiStripRecHit2D *monohit;
-  const SiStripRecHit2D *stereohit;
-
-  if (matchedmonorstereo == "monoHit"){
+  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast < const SiStripMatchedRecHit2D * > (rechit);
+  const SiStripRecHit2D *monohit = nullptr;
+  const SiStripRecHit2D *stereohit = nullptr;
+  SiStripRecHit2D::ClusterRef clust;
+ 
+  if (matchedmonorstereo == MatchStatus::monoHit){
     auto hm = matchedhit->monoHit();
     monohit = &hm;
     stripdet = (const StripGeomDetUnit *) (monodet);
-  } 
-  if (matchedmonorstereo == "stereoHit"){
+  } else if (matchedmonorstereo == MatchStatus::stereoHit){
     auto s = matchedhit->stereoHit();
     stereohit = &s;
     stripdet = (const StripGeomDetUnit *) (stereodet);
@@ -1019,47 +943,41 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   //if(hit) cout<<"manganosimplehit"<<endl;
   //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
-  const TrackingRecHit *rechit = (*thit).hit();
 
+  LocalVector trackdirection = ldir;
+
+  GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
+  LocalVector monotkdir = monodet->toLocal(gtrkdir);
+  LocalVector stereotkdir = stereodet->toLocal(gtrkdir);
+ 
   LocalPoint position;
   LocalError error;
   MeasurementPoint Mposition;
   MeasurementError Merror;
 
-  if (matchedmonorstereo == "matched"){
+  if (matchedmonorstereo == MatchStatus::matched){
     position=rechit->localPosition();
     error=rechit->localPositionError();
-  }
-  if(matchedmonorstereo == "monoHit"){
+  } else if(matchedmonorstereo == MatchStatus::monoHit){
     position = monohit->localPosition();
     error = monohit->localPositionError();
     Mposition = topol.measurementPosition(position);
     Merror = topol.measurementError(position, error);
-  } 
-  if (matchedmonorstereo == "stereoHit"){
+    if (monotkdir.z()) {
+      rechitpro.trackangle = atan(monotkdir.x() / monotkdir.z()) * TMath::RadToDeg();
+      rechitpro.trackanglebeta = atan(monotkdir.y() / monotkdir.z()) * TMath::RadToDeg();
+    }
+    clust = monohit->cluster(); 
+  } else if (matchedmonorstereo == MatchStatus::stereoHit){
     position = stereohit->localPosition();
     error = stereohit->localPositionError();
     Mposition = topol.measurementPosition(position);
     Merror = topol.measurementError(position, error);
-  }
-
-  LocalVector trackdirection = tsos.localDirection();
-
-  GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
-  LocalVector monotkdir = monodet->toLocal(gtrkdir);
-  LocalVector stereotkdir = stereodet->toLocal(gtrkdir);
-  
-  if(matchedmonorstereo == "monoHit"){
-    if (monotkdir.z() != 0) {
-      rechitpro.trackangle = atan(monotkdir.x() / monotkdir.z()) * TMath::RadToDeg();
-      rechitpro.trackanglebeta = atan(monotkdir.y() / monotkdir.z()) * TMath::RadToDeg();
-    }
-  }
-  if (matchedmonorstereo == "stereoHit"){
-    if (stereotkdir.z() != 0) {
+    if (stereotkdir.z()) {
       rechitpro.trackangle = atan(stereotkdir.x() / stereotkdir.z()) * TMath::RadToDeg();
       rechitpro.trackanglebeta = atan(stereotkdir.y() / stereotkdir.z()) * TMath::RadToDeg();
     }
+    clust = stereohit->cluster();
   }
 
   LocalVector drift = stripcpe->driftDirection(stripdet);
@@ -1073,15 +991,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   int Sm = int (position.x() / pitch + SLorentz - 0.5 * rechitpro.trackwidth);
   rechitpro.expectedwidth = 1 + Sp - Sm;
 
-  SiStripRecHit2D::ClusterRef clust;
-  if(matchedmonorstereo == "monoHit"){clust = monohit->cluster();}
-  if(matchedmonorstereo == "stereoHit"){clust = stereohit->cluster();}
-
-  int clusiz=0;
+  const auto & amplitudes=clust->amplitudes();
+  rechitpro.clusiz = amplitudes.size();
   int totcharge=0;
-  clusiz = clust->amplitudes().size();
-  const std::vector<uint8_t> amplitudes=clust->amplitudes();
-  for(size_t ia=0; ia<amplitudes.size();ia++){
+  for(size_t ia=0; ia<amplitudes.size();++ia){
     totcharge+=amplitudes[ia];
   }
 
@@ -1092,97 +1005,105 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
   rechitpro.resolxxMF = Merror.uu();
-  rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
  
-  unsigned int iopt;
   if (rechitpro.clusiz > rechitpro.expectedwidth + 2) {
-    iopt = 1;
+    rechitpro.category = 1;
   } else if (rechitpro.expectedwidth == 1) {
-    iopt = 2;
+    rechitpro.category = 2;
   } else if (rechitpro.clusiz <= rechitpro.expectedwidth) {
-    iopt = 3;
+    rechitpro.category = 3;
   } else {
-    iopt = 4;
+    rechitpro.category = 4;
   }
-  rechitpro.category = iopt;
 
-  if(matchedmonorstereo == "matched"){matched.clear();matched = associate.associateHit(*matchedhit);}
-  if(matchedmonorstereo == "monoHit"){matched.clear();matched = associate.associateHit(*monohit);}
-  if(matchedmonorstereo == "stereoHit"){matched.clear();matched = associate.associateHit(*stereohit);}
-
-  double mindist = 999999;
-  double dist = 999999;
-  double distx = 999999;
-  double disty = 999999;
-  std::pair<LocalPoint,LocalVector> closestPair;
-  PSimHit closest;
+  if(matchedmonorstereo == MatchStatus::matched){matched.clear();matched = associate.associateHit(*matchedhit);}
+  else if(matchedmonorstereo == MatchStatus::monoHit){matched.clear();matched = associate.associateHit(*monohit);}
+  else if(matchedmonorstereo == MatchStatus::stereoHit){matched.clear();matched = associate.associateHit(*stereohit);}
 
   if(!matched.empty()){
+    float mindist = std::numeric_limits<float>::max();
+    float dist = std::numeric_limits<float>::max();
+    float distx = std::numeric_limits<float>::max();
+    float disty = std::numeric_limits<float>::max();
+    std::pair<LocalPoint,LocalVector> closestPair;
+    PSimHit* closest = NULL;
 
-    const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
+    const StripGeomDetUnit* partnerstripdet = static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet());
     std::pair<LocalPoint,LocalVector> hitPair;
-    
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      //project simhit;
-      if(matchedmonorstereo == "matched"){
-	hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
+   
+    if (matchedmonorstereo ==MatchStatus::matched) {
+      for(auto &m : matched){
+        //project simhit;
+ 	hitPair= projectHit(m,partnerstripdet,gluedDet->surface());
 	distx = fabs(rechitpro.x - hitPair.first.x());
 	disty = fabs(rechitpro.y - hitPair.first.y());
 	dist = sqrt(distx*distx+disty*disty);
+	if(dist<mindist){
+	  mindist = dist;
+	  closestPair = hitPair;
+	  closest = &m;
+        }
       }
-      if(matchedmonorstereo == "monoHit"){dist = abs((monohit)->localPosition().x() - (*m).localPosition().x());}
-      if(matchedmonorstereo == "stereoHit"){dist = abs((stereohit)->localPosition().x() - (*m).localPosition().x());}
-
-      // std::cout << " Simhit position x = " << hitPair.first.x() 
-      //      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;
-      if(dist<mindist){
-	mindist = dist;
-	closestPair = hitPair;
-	closest = (*m);
-      }
-    }  
-    
-    if(matchedmonorstereo == "matched"){
-      rechitpro.resx = rechitpro.x - closestPair.first.x();
+      float closestX = closestPair.first.x();
+      float closestY = closestPair.first.y();
+      rechitpro.resx = rechitpro.x - closestX;
       rechitpro.resy = rechitpro.y - closestPair.first.y();
-      rechitpro.pullx = ((rechit)->localPosition().x() - (closestPair.first.x())) / sqrt(error.xx());
-      rechitpro.pully = ((rechit)->localPosition().y() - (closestPair.first.y())) / sqrt(error.yy());
-    }
-    
-    if( (matchedmonorstereo == "monoHit") || (matchedmonorstereo == "stereoHit") ){
-      rechitpro.resx = rechitpro.x - closest.localPosition().x();
-      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
-      rechitpro.pullx = (rechit->localPosition().x() - (closest).localPosition().x()) / sqrt(error.xx());
+      rechitpro.pullx = ((rechit)->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pully = ((rechit)->localPosition().y() - closestY) / sqrt(error.yy());
+    } else if(matchedmonorstereo == MatchStatus::monoHit){
+      for(auto &m : matched ){
+        //project simhit;
+        dist = abs((monohit)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closestPair = hitPair;
+	  closest = &m;
+        }
+      }
+      float closestX = closest->localPosition().x();
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
+     } else if(matchedmonorstereo == MatchStatus::stereoHit){
+      for(auto &m : matched){
+        //project simhit;
+        dist = abs((stereohit)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closestPair = hitPair;
+	  closest = &m;
+        }
+      }
+      float closestX =  closest->localPosition().x();
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
       rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
     }
-
   }
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
+void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
 
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.;   rechitpro.resolyy = -999999.; 
-  rechitpro.resolxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
-  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.; 
-  rechitpro.trackangle2 = -999999.; rechitpro.trackwidth = -999999.; rechitpro.expectedwidth = -999999.; rechitpro.category = -999999.; rechitpro.thickness = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; 
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
+  rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.;
   
   //If simplehit1or2D is true we are dealing with hit1d, false is for hit2d
-  const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >((*thit).hit());;
-  const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >((*thit).hit());;
+  const SiStripRecHit2D *hit2d = dynamic_cast < const SiStripRecHit2D * >(rechit);
+  const SiStripRecHit1D *hit1d = dynamic_cast < const SiStripRecHit1D * >(rechit);
 
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
-  const TrackingRecHit *rechit = (*thit).hit();
 
   LocalPoint position = rechit->localPosition();
   LocalError error = rechit->localPositionError();
   MeasurementPoint Mposition = topol.measurementPosition(position);
   MeasurementError Merror = topol.measurementError(position,error);
  
-  LocalVector trackdirection = tsos.localDirection();
-  rechitpro.trackangle = atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
-  rechitpro.trackanglebeta = atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
+  LocalVector trackdirection = ldir;
+  rechitpro.trackangle = std::atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
+  rechitpro.trackanglebeta = std::atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
 
   LocalVector drift = stripcpe->driftDirection(stripdet);
   rechitpro.thickness = stripdet->surface().bounds().thickness();
@@ -1195,24 +1116,22 @@ void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, 
   int Sm = int (position.x() / pitch + SLorentz - 0.5 * rechitpro.trackwidth);
   rechitpro.expectedwidth = 1 + Sp - Sm;
 
-  SiStripRecHit1D::ClusterRef clust1d;
-  SiStripRecHit2D::ClusterRef clust2d;
-  int clusiz=0;
   int totcharge=0;
- 
-  if(!simplehit1or2D){
-    clust2d = hit2d->cluster();
-    clusiz = clust2d->amplitudes().size();
-    const std::vector<uint8_t> amplitudes2d = clust2d->amplitudes();
-    for(size_t ia=0; ia<amplitudes2d.size();ia++){
-      totcharge+=amplitudes2d[ia];
-    }
-  } else {
+  if(simplehit1or2D){ 
+    SiStripRecHit1D::ClusterRef clust1d;
     clust1d = hit1d->cluster();
-    clusiz = clust1d->amplitudes().size();
-    const std::vector<uint8_t> amplitudes1d = clust1d->amplitudes();
-    for(size_t ia=0; ia<amplitudes1d.size();ia++){
+    const auto & amplitudes1d = clust1d->amplitudes();
+    rechitpro.clusiz = amplitudes1d.size();
+    for(size_t ia=0; ia<amplitudes1d.size();++ia){
       totcharge+=amplitudes1d[ia];
+    }
+  } else {    
+    SiStripRecHit2D::ClusterRef clust2d;
+    clust2d = hit2d->cluster();
+    const auto & amplitudes2d = clust2d->amplitudes();
+    rechitpro.clusiz = amplitudes2d.size();
+    for(size_t ia=0; ia<amplitudes2d.size();++ia){
+      totcharge+=amplitudes2d[ia];
     }
   }
 
@@ -1223,61 +1142,63 @@ void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, 
   rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
   rechitpro.resolxxMF = Merror.uu();
-  rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
 
-  unsigned int iopt;
   if (rechitpro.clusiz > rechitpro.expectedwidth + 2) {
-    iopt = 1;
+    rechitpro.category = 1;
   } else if (rechitpro.expectedwidth == 1) {
-    iopt = 2;
+    rechitpro.category = 2;
   } else if (rechitpro.clusiz <= rechitpro.expectedwidth) {
-    iopt = 3;
+    rechitpro.category = 3;
   } else {
-    iopt = 4;
+    rechitpro.category = 4;
   }
-  rechitpro.category = iopt;
-
 
   matched.clear();
-  if(!simplehit1or2D){
-    matched = associate.associateHit(*hit2d);
-  } else {
+  float mindist = std::numeric_limits<float>::max();
+  float dist = std::numeric_limits<float>::max();
+  PSimHit* closest = NULL;
+ 
+  if(simplehit1or2D){
     matched = associate.associateHit(*hit1d);
-  }
-
-  double mindist = 999999;
-  double dist = 999999;
-  PSimHit closest;
-  
-  if(!matched.empty()){
-
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      if(!simplehit1or2D){
-	dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
-      } else {
-	dist = abs((hit1d)->localPosition().x() - (*m).localPosition().x());
+    if(!matched.empty()){
+      for(auto &m : matched ){
+        dist = abs((hit1d)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closest = &m;
+        }
+      } 
+      float closestX = closest->localPosition().x();
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
+    }
+  } else {
+    matched = associate.associateHit(*hit2d);
+    if(!matched.empty()){
+      for(auto &m : matched ){
+        dist = abs((hit2d)->localPosition().x() - m.localPosition().x());
+        if(dist<mindist){
+	  mindist = dist;
+	  closest = &m;
+        }
       }
-	  
-      if(dist<mindist){
-	mindist = dist;
-	closest = (*m);
-      }
-    }  
-    rechitpro.resx = rechitpro.x - closest.localPosition().x();
-    rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest.localPosition())).x();
-    rechitpro.pullx = (rechit->localPosition().x() - (closest).localPosition().x()) / sqrt(error.xx());
-    rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
-    
+      float closestX = closest->localPosition().x(); 
+      rechitpro.resx = rechitpro.x - closestX;
+      rechitpro.resxMF = Mposition.x() - (topol.measurementPosition(closest->localPosition())).x();
+      rechitpro.pullx = (rechit->localPosition().x() - closestX) / sqrt(error.xx());
+      rechitpro.pullxMF = (rechitpro.resxMF)/sqrt(Merror.uu());
+    }
   }
-
 }
 //--------------------------------------------------------------------------------------------
 void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -1301,7 +1222,8 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const ed
 
   // loop over detectors and book MEs
   edm::LogInfo("SiStripTrackingRecHitsValid|SiStripTrackingRecHitsValid")<<"nr. of activeDets:  "<<activeDets.size();
-  for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); detid_iterator++){
+  const std::string& tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB";
+  for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(), detid_end = activeDets.end(); detid_iterator!=detid_end; ++detid_iterator){
     uint32_t detid = (*detid_iterator);
     // remove any eventual zero elements - there should be none, but just in case
     if(detid == 0) {
@@ -1321,19 +1243,24 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const ed
       // get detids for the layer
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       int32_t lnumber = det_layer_pair.second;
+      const std::string& lname = det_layer_pair.first;
       std::vector<uint32_t> layerDetIds;        
-      if (det_layer_pair.first == "TIB") {
-	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
-      } else if (det_layer_pair.first == "TOB") {
+      if (lname.compare(tec) == 0) { 
+        if (lnumber > 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
+        }
+      } else if (lname.compare(tid) == 0) {
+        if (lnumber > 0) {
+	  substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
+        }
+      } else if (lname.compare(tob) == 0) {
 	substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
-      } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
+      } else if (lname.compare(tib) == 0) {
+	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
       }
       LayerDetMap[label] = layerDetIds;
 
@@ -1352,27 +1279,33 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const ed
       // get detids for the stereo and matched layer. We are going to need a bool for these layers
       bool isStereo = false;
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
-      int32_t stereolnumber = det_layer_pair.second;
       std::vector<uint32_t> stereoandmatchedDetIds;        
-      if ( (det_layer_pair.first == "TIB") &&  (TIBDetId(detid).stereo()== 1) ) {
-	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TOB") &&  (TOBDetId(detid).stereo()== 1) ) {
-	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber > 0) && (TIDDetId(detid).stereo()== 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber < 0) && (TIDDetId(detid).stereo()== 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber > 0) && (TECDetId(detid).stereo()== 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber < 0) && (TECDetId(detid).stereo()== 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
+      int32_t stereolnumber = det_layer_pair.second;
+      const std::string& stereolname = det_layer_pair.first;
+      if ( stereolname.compare(tec) == 0 && (tTopo->tecIsStereo(detid)) ) {
+        if ( stereolnumber > 0 ) {
+          substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
+          isStereo = true;
+        } else if ( stereolnumber < 0 ) {
+          substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
+          isStereo = true;
+        }
+      } else if ( stereolname.compare(tid) == 0 && (tTopo->tidIsStereo(detid)) ) {
+        if ( stereolnumber > 0 ) {
+          substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
+          isStereo = true;
+        } else if ( stereolnumber < 0 ) {
+          substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
+          isStereo = true;
+        }
+      } else if ( stereolname.compare(tob) == 0 && (tTopo->tobIsStereo(detid)) ) {
+        substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
+        isStereo = true;
+      } else if ( stereolname.compare(tib) == 0 && (tTopo->tibIsStereo(detid)) ) {
+        substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
+        isStereo = true;
       }
+
       StereoAndMatchedDetMap[label] = stereoandmatchedDetIds;
 
       // book StereoAndMatched MEs 
@@ -1885,8 +1818,8 @@ void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std
   }
   if(layerswitchResolxMFTrackwidthProfileCategory4Rphi) {
     layerMEs.meResolxMFTrackwidthProfileCategory4Rphi = bookMEProfile(ibooker,"TProfResolxMFTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 4");
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 4 in "+ label).c_str(),2);
+    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
+    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi->setAxisTitle(("Resolution in MF for Category 4 in "+ label).c_str(),2);
   }
   if(layerswitchResolxMFClusterwidthProfileCategory1Rphi) {
     layerMEs.meResolxMFClusterwidthProfileCategory1Rphi = bookMEProfile(ibooker,"TProfResolxMFClusterwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width for Category 1");
@@ -2131,7 +2064,7 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & 
  
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+inline MonitorElement* SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,HistoTitle,
@@ -2141,7 +2074,7 @@ MonitorElement* SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker & ibooke
 		      );
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripTrackingRecHitsValid::bookMEProfile(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+inline MonitorElement* SiStripTrackingRecHitsValid::bookMEProfile(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   //The number of channels in Y is disregarded in a profile plot.

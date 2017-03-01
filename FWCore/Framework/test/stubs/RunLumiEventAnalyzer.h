@@ -3,8 +3,14 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <vector>
+
+namespace edm {
+  class TriggerResults;
+}
 
 namespace edmtest {
 
@@ -25,15 +31,16 @@ namespace edmtest {
 
   private:
 
-    std::vector<unsigned int> expectedRunLumisEvents0_;
-    std::vector<unsigned int> expectedRunLumisEvents1_;
-    std::vector<unsigned int> *expectedRunLumisEvents_;
+    std::vector<unsigned long long> expectedRunLumisEvents0_;
+    std::vector<unsigned long long> expectedRunLumisEvents1_;
+    edm::propagate_const<std::vector<unsigned long long>*> expectedRunLumisEvents_;
     int index_;
     bool verbose_;
     bool dumpTriggerResults_;
     int expectedEndingIndex0_;
     int expectedEndingIndex1_;
     int expectedEndingIndex_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   };
 }
 

@@ -16,7 +16,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -81,7 +80,7 @@ L3MuonCandidateProducer::~L3MuonCandidateProducer(){
 
 
 /// reconstruct muons
-void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup){
+void L3MuonCandidateProducer::produce(StreamID, Event& event, const EventSetup& eventSetup) const{
   // Take the L3 container
   LogTrace(category)<<" Taking the L3/GLB muons: "<<theL3CollectionLabel.label();
   Handle<TrackCollection> tracks;
@@ -93,7 +92,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
 
   // Create a RecoChargedCandidate collection
   LogTrace(category)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
   LogDebug(category) << " size = " << tracks->size();
   for (unsigned int i=0; i<tracks->size(); i++) {
     TrackRef inRef(tracks,i);
@@ -151,7 +150,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
     candidates->push_back(cand);
   }
 
-  event.put(candidates);
+  event.put(std::move(candidates));
 
   LogTrace(category)<<" Event loaded"
                    <<"================================";

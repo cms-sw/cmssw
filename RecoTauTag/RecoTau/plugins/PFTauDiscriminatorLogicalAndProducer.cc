@@ -20,7 +20,7 @@ class PFTauDiscriminatorLogicalAndProducer : public PFTauDiscriminationProducerB
    public:
       explicit PFTauDiscriminatorLogicalAndProducer(const edm::ParameterSet&);
       ~PFTauDiscriminatorLogicalAndProducer(){};
-      double discriminate(const PFTauRef& pfTau) override;
+      double discriminate(const PFTauRef& pfTau) const override;
    private:
       double passResult_;
 };
@@ -32,7 +32,7 @@ PFTauDiscriminatorLogicalAndProducer::PFTauDiscriminatorLogicalAndProducer(const
 }
 
 double
-PFTauDiscriminatorLogicalAndProducer::discriminate(const PFTauRef& pfTau)
+PFTauDiscriminatorLogicalAndProducer::discriminate(const PFTauRef& pfTau) const 
 {
    // if this function is called on a tau, it is has passed (in the base class)
    // the set of prediscriminants, using the prescribed boolean operation.  thus 

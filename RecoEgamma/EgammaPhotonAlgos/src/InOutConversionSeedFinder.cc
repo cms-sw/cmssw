@@ -205,6 +205,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     }
     
     //PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, &(*theMF_) );
+    assert(myPointer);
     const FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
     
    //std::cout << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) << " Z " << fts->position().z() << " phi " << fts->position().phi() << " fts parameters " << fts->parameters() << "\n";

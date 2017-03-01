@@ -68,7 +68,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     sign = cms.untracked.string('*'),
     hcalselector = cms.untracked.string('noise'),
     ecalselector = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(True) 
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
@@ -137,7 +136,7 @@ process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient",
      DQMDirName = cms.string("/") # root directory
 )
 
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'
+process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared'
 process.p = cms.Path(
  process.VtxSmeared *
  process.g4SimHits * 

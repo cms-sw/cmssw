@@ -741,6 +741,30 @@
 		<Name>All_DDUs_Format_Errors</Name>
 	</Histogram>
 	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetGridx>1</SetGridx>
+                <SetGridy>1</SetGridy>
+                <SetLabelSizeX>0.03</SetLabelSizeX>
+                <SetLabelSizeY>0.04</SetLabelSizeY>
+                <SetLabelSizeZ>0.02</SetLabelSizeZ>
+                <SetLeftMargin>0.3</SetLeftMargin>
+                <SetNdivisionsX>40</SetNdivisionsX>
+                <SetOption>colz</SetOption>
+                <SetOptStat>e</SetOptStat>
+                <SetStats>0</SetStats>
+                <SetYLabels>1='No Errors'|2='Any errors'|3='DCC Link is Not ready: 01'|4='GbE/SPY FIFO is Not Empty: 02'|5='GbE/SPY Path was Not Enabled: 03'|6='GbE/SPY FIFO is Full: 04'|7='Not Ready is set by DDU S-Link: 05'|8='Link Full (LFF) is set by DDU S-Link: 06'|9='DAQ Wait is set by DCC/S-Link: 07'|10='DDU Buffer Overflow caused by DAQ Wait: 08'|11='GbE/SPY Fiber Connection Error: 09'|12='GbE/SPY FIFO Always Empty: 10'|13='GbE/SPY Event skipped to prevent overflow: 11'|14='GbE/SPY FIFO Overflow occured: 12'|15='DDU S-Link Never Ready: 13'|16='Link Full (LFF) was asserted by S-Link: 14'|17='DAQWait was asserted by S-Link or DCC: 15'|18='DDU Output-Limited Buffer Overflow: 16'|</SetYLabels>
+                <Title>DDU Output Path Status</Title>
+                <Type>h2</Type>
+                <XBins>36</XBins>
+                <XMax>37</XMax>
+                <XMin>1</XMin>
+                <XTitle>DDU IDs</XTitle>
+                <YBins>18</YBins>
+                <YMax>18</YMax>
+                <YMin>0</YMin>
+                <Name>All_DDUs_Output_Path_Status</Name>
+	</Histogram>
+	<Histogram>
 		<Prefix>EMU</Prefix>
 		<SetLabelSizeX>0.03</SetLabelSizeX>
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
@@ -839,7 +863,7 @@
 		<SetOption>textcolz</SetOption>
 		<SetOptStat>e</SetOptStat>
 		<SetStats>0</SetStats>
-		<SetYLabels>1='1'|2='2'|3='3'|4='4'|5='5'|6='6'|7='7'|8='8'|9='9'|10='10'|11='11'|12='12'|13='13'|14='14'|15='15</SetYLabels>
+		<SetYLabels>1='1'|2='2'|3='3'|4='4'|5='5'|6='6'|7='7'|8='8'|9='9'|10='10'|11='11'|12='12'|13='13'|14='14'|15='15|</SetYLabels>
 		<Title>DDU Inputs with data (DAV)</Title>
 		<Type>h2</Type>
 		<XBins>36</XBins>
@@ -982,9 +1006,9 @@
                 <SetOptStat>emruo</SetOptStat>
                 <Title>Plus Endcap CLCT0 BXN - CLCT_L1A BXN difference</Title>
                 <Type>h1</Type>
-                <XBins>30</XBins>
+                <XBins>60</XBins>
                 <XMax>-140</XMax>
-                <XMin>-170</XMin>
+                <XMin>-200</XMin>
                 <XTitle>CLCT0 BXN - CLCT_L1A BXN</XTitle>
                 <YTitle>Number of events</YTitle>
                 <Name>Plus_endcap_CLCT0_dTime</Name>
@@ -996,9 +1020,9 @@
                 <SetOptStat>emruo</SetOptStat>
                 <Title>Minus Endcap CLCT0 BXN - CLCT_L1A BXN difference</Title>
                 <Type>h1</Type>
-                <XBins>30</XBins>
+                <XBins>60</XBins>
                 <XMax>-140</XMax>
-                <XMin>-170</XMin>
+                <XMin>-200</XMin>
                 <XTitle>CLCT0 BXN - CLCT_L1A BXN</XTitle>
                 <YTitle>Number of events</YTitle>
                 <Name>Minus_endcap_CLCT0_dTime</Name>
@@ -2029,9 +2053,9 @@
                 <XMax>224</XMax>
                 <XMin>0</XMin>
                 <XTitle>Key Half Strip</XTitle>
-		<YBins>30</YBins>
+		<YBins>60</YBins>
                 <YMax>-140</YMax>
-                <YMin>-170</YMin>
+                <YMin>-200</YMin>
                 <YTitle>Average (CLCT%d BXN - L1A BXN)</YTitle>
                 <Name from="0" to="1">CLCT%d_dTime_Profile</Name>
         </Histogram>
@@ -2583,9 +2607,9 @@
 		<SetOptStat>emuo</SetOptStat>
 		<Title>CLCT%d BXN - TMB_L1A BXN Difference</Title>
 		<Type>h1</Type>
-		<XBins>30</XBins>
+		<XBins>60</XBins>
                 <XMax>-140</XMax>
-                <XMin>-170</XMin>
+                <XMin>-200</XMin>
 		<XTitle>CLCT%d BXN - TMB_L1A BXN</XTitle>
 		<YTitle>Number of events</YTitle>
 		<Name from="0" to="1">CLCT%d_dTime</Name>
@@ -2601,9 +2625,9 @@
 		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
-		<YBins>30</YBins>
+		<YBins>60</YBins>
                 <YMax>-140</YMax>
-                <YMin>-170</YMin>
+                <YMin>-200</YMin>
 		<YTitle>CLCT%d BXN - TMB_L1A BXN</YTitle>
 		<Name from="0" to="1">CLCT%d_dTime_vs_DiStrip</Name>
 	</Histogram>
@@ -2618,9 +2642,9 @@
 		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
-		<YBins>30</YBins>
+		<YBins>60</YBins>
                 <YMax>-140</YMax>
-                <YMin>-170</YMin>
+                <YMin>-200</YMin>
 		<YTitle>CLCT%d BXN - TMB_L1A BXN</YTitle>
 		<Name from="0" to="1">CLCT%d_dTime_vs_Half_Strip</Name>
 	</Histogram>

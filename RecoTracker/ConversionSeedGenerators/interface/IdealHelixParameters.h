@@ -29,11 +29,11 @@ class IdealHelixParameters{
     _MomentumAtTangentPoint(math::XYZVector(0,0,0)){};
   ~IdealHelixParameters(){};
 
-  void setMagnField(const MagneticField* magnField){_magnField=magnField;}
-  void setData(const reco::Track* track, const math::XYZVector& refPoint=math::XYZVector(0,0,0));
-  void setData(const reco::Track* track, const math::XYZPoint& ref);
+  inline void setMagnField(const MagneticField* magnField){_magnField=magnField;}
+  inline void setData(const reco::Track* track, const math::XYZVector& refPoint=math::XYZVector(0,0,0));
+  inline void setData(const reco::Track* track, const math::XYZPoint& ref);
 
-  bool isTangentPointDistanceLessThan(float rmax, const reco::Track* track, const math::XYZVector& refPoint);
+  inline bool isTangentPointDistanceLessThan(float rmax, const reco::Track* track, const math::XYZVector& refPoint);
 
   math::XYZVector   GetCircleCenter() const {return _circleCenter;}
   math::XYZVector   GetTangentPoint() const {return _tangentPoint;}
@@ -43,10 +43,10 @@ class IdealHelixParameters{
   
  private:
 
-  void calculate();
-  void evalCircleCenter();
-  void evalTangentPoint();
-  void evalMomentumatTangentPoint();
+  inline void calculate();
+  inline void evalCircleCenter();
+  inline void evalTangentPoint();
+  inline void evalMomentumatTangentPoint();
 
   const MagneticField *_magnField;
   const reco::Track   *_track;
@@ -61,4 +61,6 @@ class IdealHelixParameters{
   //  std::stringstream ss;
 
 };
+#include "IdealHelixParameters.icc"
+
 #endif

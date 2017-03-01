@@ -137,14 +137,18 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
     if(dynamic_cast<SamplingAnalysis*>( it->second ) &&
        dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::PARTITION       )
+      {
       anal = dynamic_cast<SamplingAnalysis*>( it->second );
       latency = uint16_t(ceil(anal->maximum()/(-25.)))>latency ? uint16_t(ceil(anal->maximum()/(-25.))) : latency;
+      }
   }
   for( CommissioningHistograms::Analysis it = data().begin(); it!=data().end();++it) {
     if(dynamic_cast<SamplingAnalysis*>( it->second ) &&
        dynamic_cast<SamplingAnalysis*>( it->second )->granularity()==sistrip::PARTITION       )
+      {
       anal = dynamic_cast<SamplingAnalysis*>( it->second );
       shift[SiStripFecKey(anal->fecKey()).fecCrate()] = anal->maximum()-(latency*(-25));
+      }
   }
   if(!perPartition_) {
     latency = globalLatency;

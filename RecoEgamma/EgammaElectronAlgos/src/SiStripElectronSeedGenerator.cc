@@ -185,7 +185,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
   int chargeHypothesis;
   double chargeSelector = sCenergy - (int)sCenergy;
   if(chargeSelector >= 0.5) chargeHypothesis = -1;
-  if(chargeSelector < 0.5) chargeHypothesis = 1;
+  else {chargeHypothesis = 1;}
 
   //Use BeamSpot and SC position to estimate 3rd point
   double rFake = 25.;

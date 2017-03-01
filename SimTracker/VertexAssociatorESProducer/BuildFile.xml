@@ -1,8 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Records"/>
-<use   name="SimTracker/Records"/>
-<use   name="SimTracker/VertexAssociation"/>
-<use   name="boost"/>
-<flags   EDM_PLUGIN="1"/>

@@ -11,13 +11,13 @@
  *
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include <string>
 
 
-class CaloTowerCandidateCreator : public edm::EDProducer {
+class CaloTowerCandidateCreator : public edm::stream::EDProducer<> {
  public:
   /// constructor from parameter set
   CaloTowerCandidateCreator( const edm::ParameterSet & );

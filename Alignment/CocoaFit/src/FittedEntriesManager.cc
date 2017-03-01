@@ -65,13 +65,13 @@ void FittedEntriesManager::MakeHistos()
   std::vector< FittedEntriesSet* >::const_iterator vfescite;
   std::vector< FittedEntry* >::const_iterator vfecite;
   ALIint jj = 1;
-  for( vfescite = theFittedEntriesSets.begin(); vfescite != theFittedEntriesSets.end(); vfescite++) {
+  for( vfescite = theFittedEntriesSets.begin(); vfescite != theFittedEntriesSets.end(); ++vfescite) {
     //---------- Loop entries
     if( vfescite == theFittedEntriesSets.begin() ) {
     //----- dump entries names if first set 
       fout << "  ";
       ALIint ii = 0;
-      for( vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); vfecite++) {
+      for( vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); ++vfecite) {
 	ALIstring filename = createFileName( (*vfecite)->getOptOName(), (*vfecite)->getEntryName() );  
 	fout << ii << ": " << std::setw(13) << filename << " ";; 
 	if(ALIUtils::debug >= 3) std::cout << ii << ": " << std::setw(13) << filename << " = " << (*vfecite)->getName() << std::endl; 
@@ -94,7 +94,7 @@ void FittedEntriesManager::MakeHistos()
     }
 
     ALIint ii = 0;
-    for( vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); vfecite++) {
+    for( vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); ++vfecite) {
       //      std::cout << ii << *vfescite << " FITTEDENTRY: "   << vfecite << " " <<*vfecite << " " << (*vfecite)->Value() << std::endl;
       //      if( ii == 2 || ii == 4 ) {
       fout << std::setprecision(8) << std::setw(10) << (*vfecite)->getValue() << " " << (*vfecite)->getSigma() << "  ";  
@@ -130,7 +130,7 @@ void FittedEntriesManager::GetDifferentBetweenLasers()
   std::vector< OpticalObject* >::const_iterator ite;
   std::map< ALIstring, LightRay* > lrays;
 
-  for( ite = optoList.begin(); ite != optoList.end(); ite++ ){
+  for( ite = optoList.begin(); ite != optoList.end(); ++ite ){
     if( (*ite)->type() == "laser" ){
       LightRay* lightray = new LightRay;  
       lightray->startLightRay( *ite );
@@ -139,9 +139,9 @@ void FittedEntriesManager::GetDifferentBetweenLasers()
   }
   
   std::map< ALIstring, LightRay* >::const_iterator lite1, lite2;
-  for( lite1 = lrays.begin(); lite1 != lrays.end(); lite1++ ){
-    lite2 = lite1; lite2++;
-    for( ; lite2 != lrays.end(); lite2++ ){
+  for( lite1 = lrays.begin(); lite1 != lrays.end(); ++lite1 ){
+    lite2 = lite1; ++lite2;
+    for( ; lite2 != lrays.end(); ++lite2 ){
       if( lite1 == lite2 ) continue;
       CLHEP::Hep3Vector dirdiff = ((*lite1).second->direction() - (*lite2).second->direction());
       if(ALIUtils::debug >= 0) {

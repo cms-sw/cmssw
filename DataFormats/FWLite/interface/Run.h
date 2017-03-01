@@ -17,7 +17,6 @@
 // Original Author:  Eric Vaandering
 //         Created:  Wed Jan 13 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
@@ -36,11 +35,10 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -79,7 +77,6 @@ namespace fwlite {
          // This function should only be called by fwlite::Handle<>
          using fwlite::RunBase::getByLabel;
          virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          bool isValid() const;
@@ -96,7 +93,7 @@ namespace fwlite {
 
 //       void setGetter(//Copy from Event if needed
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
 
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
@@ -123,8 +120,8 @@ namespace fwlite {
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::RunAuxiliary aux_;
          mutable EntryFinder entryFinder_;
-         edm::RunAuxiliary* pAux_;
-         edm::RunAux* pOldAux_;
+         edm::RunAuxiliary const* pAux_;
+         edm::RunAux const* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
 
@@ -132,5 +129,4 @@ namespace fwlite {
    };
 
 }
-#endif /*__CINT__ */
 #endif

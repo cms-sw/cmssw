@@ -114,7 +114,7 @@ class Sample:
       scriptFile = open( scriptPath, "w" )
       scriptFile.write( scriptTemplate%repMap )
       scriptFile.close()
-      os.chmod(scriptPath, 0755)
+      os.chmod(scriptPath, 0o755)
       return scriptPath
    
    def createDQMExtract(self, path):
@@ -167,7 +167,7 @@ def getCommandOutput2(command):
     data = child.read()
     err = child.close()
     if err:
-        raise RuntimeError, '%s failed w/ exit code %d' % (command, err)
+        raise RuntimeError('%s failed w/ exit code %d' % (command, err))
     return data
  
 def runJob(jobName, script, config):

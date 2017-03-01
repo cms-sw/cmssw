@@ -1,11 +1,10 @@
-#ifndef GEMDigi_GEMDigi_h
-#define GEMDigi_GEMDigi_h
+#ifndef DataFormats_GEMDigi_GEMDigi_h
+#define DataFormats_GEMDigi_GEMDigi_h
 
 /** \class GEMDigi
  *
  * Digi for GEM
  *  
- *
  * \author Vadim Khotilovich
  *
  */
@@ -20,8 +19,10 @@ public:
   GEMDigi ();
 
   bool operator==(const GEMDigi& digi) const;
+  bool operator!=(const GEMDigi& digi) const;
   bool operator<(const GEMDigi& digi) const;
 
+  // return the strip number. counts from 1.
   int strip() const { return strip_; }
   int bx() const {return bx_; }
 

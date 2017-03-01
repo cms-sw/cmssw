@@ -1,15 +1,20 @@
 #ifndef __DataFormats_PatCandidates_PackedCandidate_h__
 #define __DataFormats_PatCandidates_PackedCandidate_h__
 
+#include <atomic>
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaPhi.h" 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 /* #include "DataFormats/Math/interface/PtEtaPhiMass.h" */
+
+//forward declare testing structure
+class testPackedCandidate;
 
 namespace pat {
   class PackedCandidate : public reco::Candidate {
@@ -27,31 +32,242 @@ namespace pat {
 
     typedef unsigned int index;
 
-    /// default constructor  
-  PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { }
-  explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0){ packBoth(); }
+    /// default constructor
+    PackedCandidate() :
+      packedPt_(0), packedEta_(0),
+      packedPhi_(0), packedM_(0),
+      packedDxy_(0), packedDz_(0), packedDPhi_(0),
+      packedCovarianceDxyDxy_(0),packedCovarianceDxyDz_(0),
+      packedCovarianceDzDz_(0),
+      packedCovarianceDlambdaDz_(0),
+      packedCovarianceDphiDxy_(0),
+      packedCovarianceDptDpt_(0),
+      packedCovarianceDetaDeta_(0),
+      packedCovarianceDphiDphi_(0),
+      packedPuppiweight_(0),
+      packedPuppiweightNoLepDiff_(0),
+      hcalFraction_(0),
+      p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
+      vertex_(new Point(0,0,0)), dphi_(0), track_(nullptr), pdgId_(0),
+      qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
+      dxydxy_(0),
+      dzdz_(0),dxydz_(0),dlambdadz_(0), dphidxy_(0),dptdpt_(0),detadeta_(0),
+      dphidphi_(0), packedHits_(0), packedLayers_(0), normalizedChi2_(0) { }
 
-  explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
+    explicit PackedCandidate( const reco::Candidate & c,
+                              const reco::VertexRefProd &pvRefProd,
+                              reco::VertexRef::key_type pvRefKey) :
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
+      p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), dphi_(0), 
+      track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
+      pvRefKey_(pvRefKey),dxydxy_(0),dzdz_(0),dxydz_(0), dlambdadz_(0),
+      dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0), packedHits_(0), packedLayers_(0),
+      normalizedChi2_(0) {
+      packBoth();
+    }
 
-  explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
- 
- 
-    
-    
+    explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx,
+                              float phiAtVtx, int pdgId,
+                              const reco::VertexRefProd &pvRefProd,
+                              reco::VertexRef::key_type pvRefKey) :
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
+      vertex_( new Point(vtx) ), dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
+      track_(nullptr), pdgId_(pdgId),
+      qualityFlags_(0), pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
+            dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),dptdpt_(0),
+      detadeta_(0),dphidphi_(0),packedHits_(0),packedLayers_(0),normalizedChi2_(0) {
+      packBoth();
+    }
+
+    explicit PackedCandidate( const LorentzVector &p4, const Point &vtx,
+                              float phiAtVtx, int pdgId,
+                              const reco::VertexRefProd &pvRefProd,
+                              reco::VertexRef::key_type pvRefKey) :
+      packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), hcalFraction_(0),
+      p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
+      p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
+      dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
+      track_(nullptr), pdgId_(pdgId), qualityFlags_(0),
+      pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
+      dxydxy_(0),dzdz_(0),dxydz_(0),
+      dlambdadz_(0),dphidxy_(0),dptdpt_(0), detadeta_(0),dphidphi_(0),
+      packedHits_(0),packedLayers_(0),normalizedChi2_(0) {
+      packBoth();
+    }
+
+    PackedCandidate( const PackedCandidate& iOther) :
+      packedPt_(iOther.packedPt_), packedEta_(iOther.packedEta_),
+      packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
+      packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), packedDPhi_(iOther.packedDPhi_),
+      packedCovarianceDxyDxy_(iOther.packedCovarianceDxyDxy_),packedCovarianceDxyDz_(iOther.packedCovarianceDxyDz_),
+      packedCovarianceDzDz_(iOther.packedCovarianceDzDz_),
+      packedCovarianceDlambdaDz_(iOther.packedCovarianceDlambdaDz_),
+      packedCovarianceDphiDxy_(iOther.packedCovarianceDphiDxy_),
+      packedCovarianceDptDpt_(iOther.packedCovarianceDptDpt_),
+      packedCovarianceDetaDeta_(iOther.packedCovarianceDetaDeta_),
+      packedCovarianceDphiDphi_(iOther.packedCovarianceDphiDphi_),
+      packedPuppiweight_(iOther.packedPuppiweight_), 
+      packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
+      hcalFraction_(iOther.hcalFraction_),
+      //Need to trigger unpacking in iOther
+      p4_( new PolarLorentzVector(iOther.polarP4() ) ),
+      p4c_( new LorentzVector(iOther.p4())), vertex_( new Point(iOther.vertex())),
+      dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_), 
+      track_( iOther.track_ ? new reco::Track(*iOther.track_) : nullptr),
+      pdgId_(iOther.pdgId_), qualityFlags_(iOther.qualityFlags_), 
+      pvRefProd_(iOther.pvRefProd_),pvRefKey_(iOther.pvRefKey_),
+      dxydxy_(iOther.dxydxy_),dzdz_(iOther.dzdz_),dxydz_(iOther.dxydz_), dlambdadz_(iOther.dlambdadz_),
+      dphidxy_(iOther.dphidxy_),dptdpt_(iOther.dptdpt_), detadeta_(iOther.detadeta_),
+      dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_), normalizedChi2_(iOther.normalizedChi2_) {
+      }
+
+    PackedCandidate( PackedCandidate&& iOther) :
+      packedPt_(iOther.packedPt_), packedEta_(iOther.packedEta_),
+      packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
+      packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), packedDPhi_(iOther.packedDPhi_),
+      packedCovarianceDxyDxy_(iOther.packedCovarianceDxyDxy_),packedCovarianceDxyDz_(iOther.packedCovarianceDxyDz_),
+      packedCovarianceDzDz_(iOther.packedCovarianceDzDz_),
+      packedCovarianceDlambdaDz_(iOther.packedCovarianceDlambdaDz_),
+      packedCovarianceDphiDxy_(iOther.packedCovarianceDphiDxy_),
+      packedCovarianceDptDpt_(iOther.packedCovarianceDptDpt_),
+      packedCovarianceDetaDeta_(iOther.packedCovarianceDetaDeta_),
+      packedCovarianceDphiDphi_(iOther.packedCovarianceDphiDphi_),
+      packedPuppiweight_(iOther.packedPuppiweight_), 
+      packedPuppiweightNoLepDiff_(iOther.packedPuppiweightNoLepDiff_),
+      hcalFraction_(iOther.hcalFraction_),
+      p4_( iOther.p4_.exchange(nullptr) ) ,
+      p4c_( iOther.p4c_.exchange(nullptr)), vertex_(iOther.vertex_.exchange(nullptr)),
+      dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_), 
+      track_( iOther.track_.exchange(nullptr) ),
+      pdgId_(iOther.pdgId_), qualityFlags_(iOther.qualityFlags_), 
+      pvRefProd_(std::move(iOther.pvRefProd_)),pvRefKey_(iOther.pvRefKey_),
+      dxydxy_(iOther.dxydxy_),dzdz_(iOther.dzdz_),dxydz_(iOther.dxydz_), dlambdadz_(iOther.dlambdadz_),
+      dphidxy_(iOther.dphidxy_),dptdpt_(iOther.dptdpt_), detadeta_(iOther.detadeta_),
+      dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_), normalizedChi2_(iOther.normalizedChi2_) {
+      }
+
+
+    PackedCandidate& operator=(const PackedCandidate& iOther) {
+      if(this == &iOther) {
+        return *this;
+      }
+      packedPt_ =iOther.packedPt_;
+      packedEta_=iOther.packedEta_;
+      packedPhi_=iOther.packedPhi_; 
+      packedM_=iOther.packedM_;
+      packedDxy_=iOther.packedDxy_; 
+      packedDz_=iOther.packedDz_; 
+      packedDPhi_=iOther.packedDPhi_;
+      packedCovarianceDxyDxy_=iOther.packedCovarianceDxyDxy_;
+      packedCovarianceDxyDz_=iOther.packedCovarianceDxyDz_;
+      packedCovarianceDzDz_=iOther.packedCovarianceDzDz_;
+      packedCovarianceDlambdaDz_=iOther.packedCovarianceDlambdaDz_;
+      packedCovarianceDphiDxy_=iOther.packedCovarianceDphiDxy_;
+      packedCovarianceDptDpt_=iOther.packedCovarianceDptDpt_;
+      packedCovarianceDetaDeta_=iOther.packedCovarianceDetaDeta_;
+      packedCovarianceDphiDphi_=iOther.packedCovarianceDphiDphi_;
+      packedPuppiweight_=iOther.packedPuppiweight_; 
+      packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
+      hcalFraction_=iOther.hcalFraction_;
+      //Need to trigger unpacking in iOther
+      if(p4_) {
+        *p4_ = iOther.polarP4();
+      } else {
+        p4_.store( new PolarLorentzVector(iOther.polarP4() ) ) ;
+      }
+      if(p4c_) {
+        *p4c_ = iOther.p4();
+      } else {
+        p4c_.store( new LorentzVector(iOther.p4()));
+      }
+      if(vertex_) {
+        *vertex_ = iOther.vertex();
+      } else {
+        vertex_.store( new Point(iOther.vertex()));
+      }
+      dxy_=iOther.dxy_;
+      dz_ = iOther.dz_;
+      dphi_=iOther.dphi_; 
+      
+      if(!iOther.track_) {
+        delete track_.exchange(nullptr);
+      } else {
+        if(!track_) {
+          track_.store( new reco::Track(*iOther.track_));
+        } else {
+          *track_ = *(iOther.track_);
+        }
+      }
+
+      pdgId_=iOther.pdgId_; 
+      qualityFlags_=iOther.qualityFlags_; 
+      pvRefProd_=iOther.pvRefProd_;
+      pvRefKey_=iOther.pvRefKey_;
+      dxydxy_=iOther.dxydxy_;
+      dzdz_=iOther.dzdz_;
+      dxydz_=iOther.dxydz_; 
+      dlambdadz_=iOther.dlambdadz_;
+      dphidxy_=iOther.dphidxy_;
+      dptdpt_=iOther.dptdpt_; 
+      detadeta_=iOther.detadeta_;
+      dphidphi_=iOther.dphidphi_; 
+      packedHits_=iOther.packedHits_; 
+      packedLayers_=iOther.packedLayers_; 
+      normalizedChi2_=iOther.normalizedChi2_;
+      return *this;
+    }
+
+    PackedCandidate& operator=(PackedCandidate&& iOther) {
+      if(this == &iOther) {
+        return *this;
+      }
+      packedPt_ =iOther.packedPt_;
+      packedEta_=iOther.packedEta_;
+      packedPhi_=iOther.packedPhi_; 
+      packedM_=iOther.packedM_;
+      packedDxy_=iOther.packedDxy_; 
+      packedDz_=iOther.packedDz_; 
+      packedDPhi_=iOther.packedDPhi_;
+      packedCovarianceDxyDxy_=iOther.packedCovarianceDxyDxy_;
+      packedCovarianceDxyDz_=iOther.packedCovarianceDxyDz_;
+      packedCovarianceDzDz_=iOther.packedCovarianceDzDz_;
+      packedCovarianceDlambdaDz_=iOther.packedCovarianceDlambdaDz_;
+      packedCovarianceDphiDxy_=iOther.packedCovarianceDphiDxy_;
+      packedCovarianceDptDpt_=iOther.packedCovarianceDptDpt_;
+      packedCovarianceDetaDeta_=iOther.packedCovarianceDetaDeta_;
+      packedCovarianceDphiDphi_=iOther.packedCovarianceDphiDphi_;
+      packedPuppiweight_=iOther.packedPuppiweight_; 
+      packedPuppiweightNoLepDiff_=iOther.packedPuppiweightNoLepDiff_;
+      hcalFraction_=iOther.hcalFraction_;
+      delete p4_.exchange(iOther.p4_.exchange(nullptr));
+      delete p4c_.exchange(iOther.p4c_.exchange(nullptr));
+      delete vertex_.exchange(iOther.vertex_.exchange(nullptr));
+      dxy_=iOther.dxy_;
+      dz_ = iOther.dz_;
+      dphi_=iOther.dphi_; 
+      delete track_.exchange(iOther.track_.exchange( nullptr));
+      pdgId_=iOther.pdgId_; 
+      qualityFlags_=iOther.qualityFlags_; 
+      pvRefProd_=iOther.pvRefProd_;
+      pvRefKey_=iOther.pvRefKey_;
+      dxydxy_=iOther.dxydxy_;
+      dzdz_=iOther.dzdz_;
+      dxydz_=iOther.dxydz_; 
+      dlambdadz_=iOther.dlambdadz_;
+      dphidxy_=iOther.dphidxy_;
+      dptdpt_=iOther.dptdpt_; 
+      detadeta_=iOther.detadeta_;
+      dphidphi_=iOther.dphidphi_; 
+      packedHits_=iOther.packedHits_; 
+      packedLayers_=iOther.packedLayers_; 
+      normalizedChi2_=iOther.normalizedChi2_;
+      return *this;
+    }
+
     /// destructor
     virtual ~PackedCandidate();
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
     /// return daughter at a given position (throws an exception)
@@ -79,10 +295,10 @@ namespace pat {
     virtual int charge() const {
       switch (abs(pdgId_)) {
       case 211: return (pdgId_>0)-(pdgId_<0);
-      case 11:  return (-1)*(pdgId_>0)-(pdgId_<0); //e
-      case 13:  return (-1)*(pdgId_>0)-(pdgId_<0); //mu
-      case 15:  return (-1)*(pdgId_>0)-(pdgId_<0); //tau
-      case 24:  return (-1)*(pdgId_>0)-(pdgId_<0); //W
+      case 11:  return (-1)*(pdgId_>0)+(pdgId_<0); //e
+      case 13:  return (-1)*(pdgId_>0)+(pdgId_<0); //mu
+      case 15:  return (-1)*(pdgId_>0)+(pdgId_<0); //tau
+      case 24:  return (pdgId_>0)-(pdgId_<0); //W
       default:  return 0;  //FIXME: charge is not defined
       }
     }
@@ -93,81 +309,88 @@ namespace pat {
     /// set electric charge                                                               
     virtual void setThreeCharge( int threecharge) {}
     /// four-momentum Lorentz vecto r                                                      
-    virtual const LorentzVector & p4() const { if (!unpacked_) unpack(); return p4c_; }  
+    virtual const LorentzVector & p4() const { if (!p4c_) unpack(); return *p4c_; }  
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const { if (!unpacked_) unpack(); return p4_; }
+    virtual const PolarLorentzVector & polarP4() const { if (!p4c_) unpack(); return *p4_; }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const  { if (!unpacked_) unpack(); return p4c_.Vect(); }
+    virtual Vector momentum() const  { if (!p4c_) unpack(); return p4c_.load()->Vect(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const { if (!unpacked_) unpack(); return p4c_.BoostToCM(); }
+    virtual Vector boostToCM() const { if (!p4c_) unpack(); return p4c_.load()->BoostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const { if (!unpacked_) unpack(); return p4c_.P(); }
+    virtual double p() const { if (!p4c_) unpack(); return p4c_.load()->P(); }
     /// energy                                                                            
-    virtual double energy() const { if (!unpacked_) unpack(); return p4c_.E(); }
-    /// transverse energy                                                                 
-    virtual double et() const { if (!unpacked_) unpack(); return p4_.Et(); }
+    virtual double energy() const { if (!p4c_) unpack(); return p4c_.load()->E(); }
+   /// transverse energy 
+    double et() const { return (pt()<=0) ? 0 : p4c_.load()->Et(); }  
+    /// transverse energy squared (use this for cuts)!
+    double et2() const { return (pt()<=0) ? 0 : p4c_.load()->Et2(); }   
     /// mass                                                                              
-    virtual float mass() const { if (!unpacked_) unpack(); return p4_.M(); }
+    virtual double mass() const { if (!p4c_) unpack(); return p4_.load()->M(); }
     /// mass squared                                                                      
-    virtual float massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
+    virtual double massSqr() const { if (!p4c_) unpack(); auto m = p4_.load()->M(); return m*m;}
 
     /// transverse mass                                                                   
-    virtual double mt() const { if (!unpacked_) unpack(); return p4_.Mt(); }
+    virtual double mt() const { if (!p4c_) unpack(); return p4_.load()->Mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const { if (!unpacked_) unpack(); return p4_.Mt2(); }
+    virtual double mtSqr() const { if (!p4c_) unpack(); return p4_.load()->Mt2(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const { if (!unpacked_) unpack(); return p4c_.Px(); }
+    virtual double px() const { if (!p4c_) unpack(); return p4c_.load()->Px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const { if (!unpacked_) unpack(); return p4c_.Py(); }
+    virtual double py() const { if (!p4c_) unpack(); return p4c_.load()->Py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const { if (!unpacked_) unpack(); return p4c_.Pz(); }
+    virtual double pz() const { if (!p4c_) unpack(); return p4c_.load()->Pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
+    virtual double pt() const { if (!p4c_) unpack(); return p4_.load()->Pt();}
     /// momentum azimuthal angle                                                          
-    virtual float phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    virtual double phi() const { if (!p4c_) unpack(); return p4_.load()->Phi(); }
     /// momentum azimuthal angle from the track (normally identical to phi())
     virtual float phiAtVtx() const { 
         maybeUnpackBoth(); 
-        float ret = p4_.Phi() + dphi_; 
+        float ret = p4_.load()->Phi() + dphi_; 
         while (ret >  float(M_PI)) ret -= 2*float(M_PI); 
         while (ret < -float(M_PI)) ret += 2*float(M_PI); 
         return ret; 
     }
     /// momentum polar angle                                                              
-    virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
+    virtual double theta() const { if (!p4c_) unpack(); return p4_.load()->Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
+    virtual double eta() const { if (!p4c_) unpack(); return p4_.load()->Eta(); }
     /// rapidity                                                                          
-    virtual double rapidity() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
+    virtual double rapidity() const { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
+    virtual double y() const { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
     /// set 4-momentum                                                                    
     virtual void setP4( const LorentzVector & p4 ) { 
         maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-        p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
+        *p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
         packBoth();
     }
     /// set 4-momentum                                                                    
     virtual void setP4( const PolarLorentzVector & p4 ) { 
         maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-        p4_ = p4; 
+        *p4_ = p4; 
         packBoth();
     }
     /// set particle mass                                                                 
     virtual void setMass( double m ) {
-      if (!unpacked_) unpack(); 
-      p4_ = PolarLorentzVector(p4_.Pt(), p4_.Eta(), p4_.Phi(), m); 
+      if (!p4c_) unpack(); 
+      *p4_ = PolarLorentzVector(p4_.load()->Pt(), p4_.load()->Eta(), p4_.load()->Phi(), m); 
       pack();
     }
     virtual void setPz( double pz ) {
       maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-      p4c_ = LorentzVector(p4c_.Px(), p4c_.Py(), pz, p4c_.E());
-      p4_  = PolarLorentzVector(p4c_.Pt(), p4c_.Eta(), p4c_.Phi(), p4c_.M());
+      *p4c_ = LorentzVector(p4c_.load()->Px(), p4c_.load()->Py(), pz, p4c_.load()->E());
+      *p4_  = PolarLorentzVector(p4c_.load()->Pt(), p4c_.load()->Eta(), p4c_.load()->Phi(), p4c_.load()->M());
       packBoth();
     }
     /// set impact parameters covariance
 
+    // Note: mask is also the maximum value
+    enum trackHitShiftsAndMasks {
+      trackPixelHitsMask = 7,
+      trackStripHitsMask = 31, trackStripHitsShift = 3
+    };
     virtual void setTrackProperties( const reco::Track & tk, const reco::Track::CovarianceMatrix & covariance) {
       dxydxy_ = covariance(3,3);
       dxydz_ = covariance(3,4);
@@ -179,11 +402,19 @@ namespace pat {
       dphidphi_ = covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
-      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
-      if (numberOfPixelHits_ > 7) numberOfPixelHits_ = 7;
-      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_;
-      if (numberOfStripHits_ > 31) numberOfStripHits_ = 31;
-      packedHits_ = (numberOfPixelHits_&0x7) | (numberOfStripHits_ << 3);
+      // first we count the number of layers with hits
+      int numberOfPixelLayers_ = tk.hitPattern().pixelLayersWithMeasurement();
+      if (numberOfPixelLayers_ > trackPixelHitsMask) numberOfPixelLayers_ = trackPixelHitsMask;
+      int numberOfStripLayers_ = tk.hitPattern().stripLayersWithMeasurement();
+      if (numberOfStripLayers_ > trackStripHitsMask) numberOfStripLayers_ = trackStripHitsMask;
+      packedLayers_ = (numberOfPixelLayers_&trackPixelHitsMask) | (numberOfStripLayers_ << trackStripHitsShift);
+      // now we count number of additional hits, beyond the one-per-layer implied by packedLayers_
+      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits() - numberOfPixelLayers_;
+      if (numberOfPixelHits_ > trackPixelHitsMask) numberOfPixelHits_ = trackPixelHitsMask;
+      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_ - numberOfPixelLayers_ - numberOfStripLayers_;
+      if (numberOfStripHits_ > trackStripHitsMask) numberOfStripHits_ = trackStripHitsMask;
+      packedHits_ = (numberOfPixelHits_&trackPixelHitsMask) | (numberOfStripHits_ << trackStripHitsShift);
+ 
       packBoth();
     }
 
@@ -191,32 +422,48 @@ namespace pat {
 	setTrackProperties(tk,tk.covariance());
     }	
  
-    int numberOfPixelHits() const { return packedHits_ & 0x7; }
-    int numberOfHits() const { return (packedHits_ >> 3) + numberOfPixelHits(); }
+    int numberOfPixelHits() const { return (packedHits_ & trackPixelHitsMask) + pixelLayersWithMeasurement(); }
+    int numberOfHits() const { return (packedHits_ >> trackStripHitsShift) + stripLayersWithMeasurement() + numberOfPixelHits(); }
+    int pixelLayersWithMeasurement() const { return packedLayers_ & trackPixelHitsMask; }
+    int stripLayersWithMeasurement() const { return (packedLayers_ >> trackStripHitsShift); }
+    int trackerLayersWithMeasurement() const { return stripLayersWithMeasurement() + pixelLayersWithMeasurement(); }
 	
     /// vertex position
-    virtual const Point & vertex() const { maybeUnpackBoth(); return vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
+    virtual const Point & vertex() const { maybeUnpackBoth(); return *vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const  { maybeUnpackBoth(); return vertex_.X(); }//{ return 0; }
+    virtual double vx() const  { maybeUnpackBoth(); return vertex_.load()->X(); }//{ return 0; }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const  { maybeUnpackBoth(); return vertex_.Y(); }//{ return 0; }
+    virtual double vy() const  { maybeUnpackBoth(); return vertex_.load()->Y(); }//{ return 0; }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const  { maybeUnpackBoth(); return vertex_.Z(); }//{ if (fromPV_) return 0; else return 100; }
+    virtual double vz() const  { maybeUnpackBoth(); return vertex_.load()->Z(); }//{ if (fromPV_) return 0; else return 100; }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); vertex_ = vertex; packVtx(); }
+    virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); *vertex_ = vertex; packVtx(); }
 
+    ///This refers to the association to PV=ipv. >=PVLoose corresponds to JME definition, >=PVTight to isolation definition
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
-    const PVAssoc fromPV() const { return PVAssoc((qualityFlags_ & fromPVMask)>>fromPVShift); }
-    void setFromPV( PVAssoc fromPV )   {  qualityFlags_ = (qualityFlags_ & ~fromPVMask) | ((fromPV << fromPVShift) & fromPVMask);  }
+    const PVAssoc fromPV(size_t ipv=0) const {
+        reco::VertexRef pvRef = vertexRef();
+        if(pvAssociationQuality()==UsedInFitTight and pvRef.key()==ipv) return PVUsedInFit;
+        if(pvRef.key()==ipv or abs(pdgId())==13 or abs(pdgId())==11 ) return PVTight;
+        if(pvAssociationQuality() == CompatibilityBTag and std::abs(dzAssociatedPV()) >  std::abs(dz(ipv))) return PVTight; // it is not closest, but at least prevents the B assignment stealing
+        if(pvAssociationQuality() < UsedInFitLoose or pvRef->ndof() < 4.0 ) return PVLoose;
+        return NoPV;
+    }
 
-    /// set reference to the primary vertex                                                                        
-    void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
-    const reco::VertexRef vertexRef() const { return pvRef_; }
+    /// The following contains information about how the association to the PV, given in vertexRef, is obtained.
+    ///
+    enum PVAssociationQuality { NotReconstructedPrimary=0,OtherDeltaZ=1,CompatibilityBTag=4,CompatibilityDz=5,UsedInFitLoose=6,UsedInFitTight=7};
+    const PVAssociationQuality pvAssociationQuality() const { return PVAssociationQuality((qualityFlags_ & assignmentQualityMask)>>assignmentQualityShift); }
+    void setAssociationQuality( PVAssociationQuality q )   {  qualityFlags_ = (qualityFlags_ & ~assignmentQualityMask) | ((q << assignmentQualityShift) & assignmentQualityMask);  }
+
+    const reco::VertexRef vertexRef() const { return reco::VertexRef(pvRefProd_, pvRefKey_); }
 
     /// dxy with respect to the PV ref
     virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
+    /// dz with respect to the PV[ipv]
+    virtual float dz(size_t ipv=0)  const { maybeUnpackBoth(); return dz_ + (*pvRefProd_)[pvRefKey_].position().z()-(*pvRefProd_)[ipv].position().z(); }
     /// dz with respect to the PV ref
-    virtual float dz()  const { maybeUnpackBoth(); return dz_; }
+    virtual float dzAssociatedPV()  const { maybeUnpackBoth(); return dz_; }
     /// dxy with respect to another point
     virtual float dxy(const Point &p) const ;
     /// dz  with respect to another point
@@ -228,8 +475,18 @@ namespace pat {
     virtual float dxyError() const { maybeUnpackBoth(); return sqrt(dxydxy_); }
 
 
-    /// Return by value (no caching heavy function) a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
-    virtual reco::Track pseudoTrack() const;
+    /// Return reference to a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
+    virtual const reco::Track & pseudoTrack() const { if (!track_) unpackTrk(); return *track_; }
+
+    /// return a pointer to the track if present. otherwise, return a null pointer
+    virtual const reco::Track * bestTrack() const {
+      if (packedHits_!=0 || packedLayers_ !=0) {
+        if (!track_) unpackTrk();
+        return track_.load();
+      }
+      else
+        return nullptr;
+    }
 
     /// true if the track had the highPurity quality bit
     bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask)>>trackHighPurityShift; }
@@ -317,52 +574,6 @@ namespace pat {
     /// cast master clone reference to a concrete type
     template<typename Ref>
       Ref masterRef() const { return masterClone().template castTo<Ref>(); }
-    /// get a component
-
-    /* template<typename T> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>(); */
-    /*   else return reco::get<T>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>(); */
-    /*   else return reco::get<T, Tag>( * this ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T>( i ); */
-    /*   else return reco::get<T>( * this, i ); */
-    /* } */
-    /* /// get a component                                                                                                 */
-    /* template<typename T, typename Tag> T get( size_type i ) const { */
-    /*   if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i ); */
-    /*   else return reco::get<T, Tag>( * this, i ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T>(); */
-    /*   else return reco::numberOf<T>( * this ); */
-    /* } */
-    /* /// number of components                                                                                            */
-    /* template<typename T, typename Tag> size_type numberOf() const { */
-    /*   if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>(); */
-    /*   else return reco::numberOf<T, Tag>( * this ); */
-    /* } */
-
-    /* template<typename S> */
-    /*   struct daughter_iterator   { */
-    /*     typedef boost::filter_iterator<S, const_iterator> type; */
-    /*   }; */
-
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type beginFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, begin(), end()); */
-    /* } */
-    /* template<typename S> */
-    /*   typename daughter_iterator<S>::type endFilter( const S & s ) const { */
-    /*   return boost::make_filter_iterator(s, end(), end()); */
-    /* } */
-
 
     virtual bool isElectron() const { return false; }
     virtual bool isMuon() const { return false; }
@@ -374,7 +585,19 @@ namespace pat {
     virtual bool isConvertedPhoton() const { return false; }
     virtual bool isJet() const { return false; }
 
+    // puppiweights
+    void setPuppiWeight(float p, float p_nolep = 0.0);  /// Set both weights at once (with option for only full PUPPI)
+    float puppiWeight() const;                          /// Weight from full PUPPI
+    float puppiWeightNoLep() const;                     /// Weight from PUPPI removing leptons
+    
+    // for teh neutral fraction
+    void setHcalFraction(float p);                      /// Set the fraction of Ecal and Hcal needed for HF and neutral hadrons
+    float hcalFraction() const { return (hcalFraction_/100.); }    /// Fraction of Ecal and Hcal for HF and neutral hadrons
+
+
   protected:
+    friend class ::testPackedCandidate;
+
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
     uint16_t packedDxy_, packedDz_, packedDPhi_;
     uint16_t packedCovarianceDxyDxy_,packedCovarianceDxyDz_,packedCovarianceDzDz_;
@@ -384,27 +607,32 @@ namespace pat {
     void unpack() const ;
     void packVtx(bool unpackAfterwards=true) ;
     void unpackVtx() const ;
-    void maybeUnpackBoth() const { if (!unpacked_) unpack(); if (!unpackedVtx_) unpackVtx(); }
-    void packBoth() { pack(false); packVtx(false); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
- 
+    void maybeUnpackBoth() const { if (!p4c_) unpack(); if (!vertex_) unpackVtx(); }
+    void packBoth() { pack(false); packVtx(false); delete p4_.exchange(nullptr); delete p4c_.exchange(nullptr); delete vertex_.exchange(nullptr); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
+    void unpackTrk() const ;
+
+    int8_t packedPuppiweight_;
+    int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
+    int8_t hcalFraction_;
+
     /// the four vector                                                 
-    mutable PolarLorentzVector p4_;
-    mutable LorentzVector p4c_;
+    mutable std::atomic<PolarLorentzVector*> p4_;
+    mutable std::atomic<LorentzVector*> p4c_;
     /// vertex position                                                                   
-    mutable Point vertex_;
-    mutable float dxy_, dz_, dphi_;
+    mutable std::atomic<Point*> vertex_;
+    CMS_THREAD_GUARD(vertex_) mutable float dxy_, dz_, dphi_;
+    /// reco::Track                                                                   
+    mutable std::atomic<reco::Track*> track_;
     /// PDG identifier                                                                    
     int pdgId_;
     uint16_t qualityFlags_;
-    /// Ref to primary vertex
-    edm::Ref<reco::VertexCollection> pvRef_;
-    // is the momentum p4 unpacked
-    mutable bool unpacked_;
-    // are the dxy, dz and vertex unpacked
-    mutable bool unpackedVtx_;
+    /// Use these to build a Ref to primary vertex
+    reco::VertexRefProd pvRefProd_;
+    reco::VertexRef::key_type pvRefKey_;
+
     /// IP covariance	
-    mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
-    uint8_t packedHits_;
+    CMS_THREAD_GUARD(vertex_) mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
+    uint8_t packedHits_, packedLayers_; // packedLayers_ -> layers with valid hits; packedHits_ -> extra hits beyond the one-per-layer implied by packedLayers_
     /// track quality information
     uint8_t normalizedChi2_; 
 //    uint8_t numberOfPixelHits_;
@@ -418,16 +646,11 @@ namespace pat {
     friend class ShallowClonePtrCandidate;
 
     enum qualityFlagsShiftsAndMasks {
-        fromPVMask = 0x3, fromPVShift = 0,
-        trackHighPurityMask  = 0x4, trackHighPurityShift=2,
-        lostInnerHitsMask = 0x18, lostInnerHitsShift=3,
-        muonFlagsMask = 0x0300, muonFlagsShift=8
+        assignmentQualityMask = 0x7, assignmentQualityShift = 0,
+        trackHighPurityMask  = 0x8, trackHighPurityShift=3,
+        lostInnerHitsMask = 0x30, lostInnerHitsShift=4,
+        muonFlagsMask = 0x0600, muonFlagsShift=9
     };
-  private:
-    // const iterator implementation
-    typedef reco::candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef reco::candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
   typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;

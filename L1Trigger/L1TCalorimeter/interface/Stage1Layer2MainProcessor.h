@@ -22,6 +22,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -33,8 +34,12 @@ namespace l1t {
 			      const std::vector<CaloRegion> &,
 			      std::vector<EGamma> * egammas,
 			      std::vector<Tau> * taus,
+			      std::vector<Tau> * isoTaus,
 			      std::vector<Jet> * jets,
-			      std::vector<EtSum> * etsums) = 0;
+			      std::vector<Jet> * preGtJets,
+			      std::vector<EtSum> * etsums,
+			      CaloSpare * hfSums,
+			      CaloSpare *hfCounts) = 0;
 
     virtual ~Stage1Layer2MainProcessor(){};
   };

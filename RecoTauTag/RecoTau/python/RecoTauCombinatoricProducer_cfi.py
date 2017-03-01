@@ -67,8 +67,46 @@ combinatoricDecayModeConfigs = cms.PSet(
         nPiZeros = cms.uint32(0),
         maxTracks = cms.uint32(6),
         maxPiZeros = cms.uint32(0),
+    ),
+    config3prong1pi0 = cms.PSet( # suggestions made by CV
+        # Three prong one pizero mode
+        nCharged = cms.uint32(3),
+        nPiZeros = cms.uint32(1),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(3),
     )
 )
+
+combinatoricModifierConfigs = [
+    cms.PSet(
+        name = cms.string("sipt"),
+        plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
+        qualityCuts = PFTauQualityCuts,
+    ),
+    # Electron rejection
+    cms.PSet(
+        name = cms.string("elec_rej"),
+        plugin = cms.string("RecoTauElectronRejectionPlugin"),
+        #Electron rejection parameters
+        ElectronPreIDProducer                = cms.InputTag("elecpreid"),
+        EcalStripSumE_deltaPhiOverQ_minValue = cms.double(-0.1),
+        EcalStripSumE_deltaPhiOverQ_maxValue = cms.double(0.5),
+        EcalStripSumE_minClusEnergy          = cms.double(0.1),
+        EcalStripSumE_deltaEta               = cms.double(0.03),
+        ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
+        maximumForElectrionPreIDOutput       = cms.double(-0.1),
+        DataType = cms.string("AOD"),
+    ),
+    # Tau energy reconstruction
+    # (to avoid double-counting of energy carried by neutral PFCandidates
+    #  in case PFRecoTauChargedHadrons are built from reco::Tracks)                                          
+    cms.PSet(
+        pfTauEnergyAlgorithmPlugin,
+        name = cms.string("tau_en_reconstruction"),
+        plugin = cms.string("PFRecoTauEnergyAlgorithmPlugin"),
+        verbosity = cms.int32(0)                                              
+    )
+]
 
 _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
@@ -82,8 +120,14 @@ _combinatoricTauConfig = cms.PSet(
         combinatoricDecayModeConfigs.config1prong2pi0,
         combinatoricDecayModeConfigs.config2prong0pi0,
         combinatoricDecayModeConfigs.config2prong1pi0,
-        combinatoricDecayModeConfigs.config3prong0pi0
-    )
+        combinatoricDecayModeConfigs.config3prong0pi0,
+	combinatoricDecayModeConfigs.config3prong1pi0
+    ),
+    signalConeSize = cms.string("max(min(0.1, 3.0/pt()), 0.05)"),
+    minAbsPhotonSumPt_insideSignalCone = cms.double(2.5),
+    minRelPhotonSumPt_insideSignalCone = cms.double(0.10),
+    minAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9), # CV: always require at least some photon energy inside signal cone 
+    minRelPhotonSumPt_outsideSignalCone = cms.double(1.e+9)  #     for a tau to be reconstructed in a decay mode with pi0s
 )
 
 combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
@@ -100,33 +144,6 @@ combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
         _combinatoricTauConfig
     ),
     modifiers = cms.VPSet(
-        cms.PSet(
-            name = cms.string("sipt"),
-            plugin = cms.string("RecoTauImpactParameterSignificancePlugin"),
-            qualityCuts = PFTauQualityCuts,
-        ),
-        # Electron rejection
-        cms.PSet(
-            name = cms.string("elec_rej"),
-            plugin = cms.string("RecoTauElectronRejectionPlugin"),
-            #Electron rejection parameters
-            ElectronPreIDProducer                = cms.InputTag("elecpreid"),
-            EcalStripSumE_deltaPhiOverQ_minValue = cms.double(-0.1),
-            EcalStripSumE_deltaPhiOverQ_maxValue = cms.double(0.5),
-            EcalStripSumE_minClusEnergy          = cms.double(0.1),
-            EcalStripSumE_deltaEta               = cms.double(0.03),
-            ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
-            maximumForElectrionPreIDOutput       = cms.double(-0.1),
-            DataType = cms.string("AOD"),
-        ),
-        # Tau energy reconstruction
-        # (to avoid double-counting of energy carried by neutral PFCandidates
-        #  in case PFRecoTauChargedHadrons are built from reco::Tracks)                                          
-        cms.PSet(
-            pfTauEnergyAlgorithmPlugin,
-            name = cms.string("tau_en_reconstruction"),
-            plugin = cms.string("PFRecoTauEnergyAlgorithmPlugin"),
-            verbosity = cms.int32(0)                                              
-        )
+        combinatoricModifierConfigs
     )
 )

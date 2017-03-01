@@ -1,4 +1,4 @@
-#ifndef RecoLocalMuon_DTLinearDrifFromDBtAlgo_H
+#ifndef RecoLocalMuon_DTLinearDriftFromDBAlgo_H
 #define RecoLocalMuon_DTLinearDriftFromDBAlgo_H
 
 /** \class DTLinearDriftFromDBAlgo
@@ -12,7 +12,8 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 class DTMtime;
-class DTRecoUncertainties;
+class DTRecoConditions;
+class MagneticField;
 
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
  public:
@@ -83,8 +84,12 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
   //Map of meantimes
   const DTMtime *mTimeMap;
 
+  // MF field
+  const MagneticField* field;
+  int nominalB;
+
   // Map of hit uncertainties
-  const DTRecoUncertainties *uncertMap;
+  const DTRecoConditions *uncertMap;
  
   // Times below MinTime (ns) are considered as coming from previous BXs.
   const float minTime;
@@ -106,6 +111,4 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
   // Switch on/off the verbosity
   const bool debug;
 };
-#endif
-
-
+#endif // RecoLocalMuon_DTLinearDriftFromDBAlgo_H

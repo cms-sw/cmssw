@@ -90,8 +90,7 @@ GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   bool foundMuon = false;
 
-  auto_ptr< reco::PFCandidateCollection >
-    pOutputCandidateCollection( new reco::PFCandidateCollection );
+  auto pOutputCandidateCollection = std::make_unique<reco::PFCandidateCollection>();
 
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
 
@@ -122,11 +121,11 @@ GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
     }
   }
 
-  iEvent.put( pOutputCandidateCollection, "muons" );
+  iEvent.put(std::move(pOutputCandidateCollection), "muons");
 
   bool pass = !foundMuon;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 

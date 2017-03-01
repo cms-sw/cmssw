@@ -56,7 +56,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       edm::Handle<reco::GenParticleCollection> genParticles;
       iEvent.getByToken(genToken_, genParticles);
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set a default weight to start with
       (*weight) = 1.;
@@ -119,7 +119,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
 
 
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 double FSRWeightProducer::alphaRatio(double pt) {

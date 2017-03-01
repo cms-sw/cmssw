@@ -1,13 +1,15 @@
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigi.h"
 #include <iostream>
 
-GEMCoPadDigi::GEMCoPadDigi(GEMPadDigi f, GEMPadDigi s):
+GEMCoPadDigi::GEMCoPadDigi(uint8_t roll, GEMPadDigi f, GEMPadDigi s):
+  roll_(roll),
   first_(f),
   second_(s)
 {}
 
 
 GEMCoPadDigi::GEMCoPadDigi():
+  roll_(0),
   first_(GEMPadDigi()),
   second_(GEMPadDigi())
 {}
@@ -16,14 +18,14 @@ GEMCoPadDigi::GEMCoPadDigi():
 // Comparison
 bool GEMCoPadDigi::operator == (const GEMCoPadDigi& digi) const
 {
-  return digi.first() == first_ and digi.second() == second_;
+  return digi.first() == first_ and digi.second() == second_ and digi.roll() == roll_;
 }
 
 
 // Comparison
 bool GEMCoPadDigi::operator != (const GEMCoPadDigi& digi) const
 {
-  return digi.first() != first_ or digi.second() != second_;
+  return digi.first() != first_ or digi.second() != second_ or digi.roll() != roll_;
 }
 
 
@@ -45,12 +47,12 @@ int GEMCoPadDigi::bx(int l) const
 
 void GEMCoPadDigi::print() const
 {
-  std::cout << "Pad1 " << first_.pad() << " bx1 " << first_.bx() 
+  std::cout << "Roll " << roll_ << ", pad1 " << first_.pad() << " bx1 " << first_.bx() 
             << ", Pad2 " << second_.pad() << " bx2 " << second_.bx() << std::endl;
 }
 
 
 std::ostream & operator<<(std::ostream & o, const GEMCoPadDigi& digi)
 {
-  return o << " 1:" << digi.first() << ", 2:" << digi.second();
+  return o << "Roll: " << digi.roll() << " 1:" << digi.first() << ", 2:" << digi.second();
 }

@@ -59,7 +59,7 @@ namespace pat {
             /// Items are considered to overlap if distance(x1,x2) < 1
             /// both Collections can be vectors, Views, or anything with the same interface
             template <typename Collection, typename OtherCollection>
-            std::auto_ptr< OverlapList >
+            std::unique_ptr< OverlapList >
             find(const Collection &items, const OtherCollection &other) const ;
 
         private:
@@ -70,12 +70,12 @@ namespace pat {
 
 template<typename Distance>
 template<typename Collection, typename OtherCollection>
-std::auto_ptr< pat::OverlapList >
+std::unique_ptr< pat::OverlapList >
 pat::GenericOverlapFinder<Distance>::find(const Collection &items, const OtherCollection &other) const 
 {
     size_t size = items.size(), size2 = other.size();
 
-    std::auto_ptr< OverlapList > ret(new OverlapList());
+    auto ret = std::make_unique<OverlapList>();
     
     for (size_t ie = 0; ie < size; ++ie) {
         double dmin   = 1.0;

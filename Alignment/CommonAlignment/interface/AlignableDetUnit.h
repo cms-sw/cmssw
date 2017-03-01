@@ -2,8 +2,8 @@
 #define Alignment_CommonAlignment_AlignableDetUnit_H
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-class GeomDetUnit;
 
 /// A concrete class that allows to (mis)align a DetUnit.
 ///
@@ -68,7 +68,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// Return surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;

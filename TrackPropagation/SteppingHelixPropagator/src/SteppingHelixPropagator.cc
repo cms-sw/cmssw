@@ -689,6 +689,11 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
     svCurrent.isValid_ = false;
     return;
   }
+  if (pmag2 < 1e-18f ) {
+    LogTrace(metname)<<"Initial momentum is too low";
+    svCurrent.isValid_ = false;
+    return;
+  }
   if (! (gpmag == gpmag) ) {
     LogTrace(metname)<<"Initial point is a nan";
     edm::LogWarning("SteppingHelixPropagatorNAN")<<"Initial point is a nan";
@@ -909,25 +914,21 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
     double oneLessCosPhi=0;
     double oneLessCosPhiOPhi=0;
-    double sinPhiOPhi=0;
     double phiLessSinPhiOPhi=0;
 
     if (phiSmall){
       double phi2 = phi*phi;
       double phi3 = phi2*phi;
       double phi4 = phi3*phi;
-      sinPhi = phi - phi3/6. + phi4*phi/120.;
-      cosPhi = 1. -phi2/2. + phi4/24.;
       oneLessCosPhi = phi2/2. - phi4/24. + phi2*phi4/720.; // 0.5*phi*phi;//*(1.- phi*phi/12.);
       oneLessCosPhiOPhi = 0.5*phi - phi3/24. + phi2*phi3/720.;//*(1.- phi*phi/12.);
-      sinPhiOPhi = 1. - phi*phi/6. + phi4/120.;
       phiLessSinPhiOPhi = phi*phi/6. - phi4/120. + phi4*phi2/5040.;//*(1. - phi*phi/20.);
     } else {
       cosPhi = cos(phi);
       sinPhi = sin(phi);
       oneLessCosPhi = 1.-cosPhi;
       oneLessCosPhiOPhi = oneLessCosPhi/phi;
-      sinPhiOPhi = sinPhi/phi;
+      double sinPhiOPhi = sinPhi/phi;
       phiLessSinPhiOPhi = 1 - sinPhiOPhi;
     }
 
@@ -1004,14 +1005,13 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       cosPhi = 1. -phi2/2. + phi4/24.;
       oneLessCosPhi = phi2/2. - phi4/24. + phi2*phi4/720.; // 0.5*phi*phi;//*(1.- phi*phi/12.);
       oneLessCosPhiOPhi = 0.5*phi - phi3/24. + phi2*phi3/720.;//*(1.- phi*phi/12.);
-      sinPhiOPhi = 1. - phi*phi/6. + phi4/120.;
       phiLessSinPhiOPhi = phi*phi/6. - phi4/120. + phi4*phi2/5040.;//*(1. - phi*phi/20.);
     }else {
       cosPhi = cos(phi); 
       sinPhi = sin(phi);
       oneLessCosPhi = 1.-cosPhi;
       oneLessCosPhiOPhi = oneLessCosPhi/phi;
-      sinPhiOPhi = sinPhi/phi;
+      double sinPhiOPhi = sinPhi/phi;
       phiLessSinPhiOPhi = 1. - sinPhiOPhi;
     }
 

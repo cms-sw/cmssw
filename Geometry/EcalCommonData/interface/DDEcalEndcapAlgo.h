@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -111,9 +110,9 @@ class DDEcalEndcapAlgo : public DDAlgorithm {
       double                     eePFFifth()     const { return m_PFfifth ; }
       double                     eePF45()        const { return m_PF45 ; }
 
-      DDName  envName( unsigned int i )    const { return ddname( m_envName + int_to_string(i)  ) ; }
-      DDName  alvName( unsigned int i )    const { return ddname( m_alvName + int_to_string(i)  ) ; }
-      DDName  intName( unsigned int i )    const { return ddname( m_intName + int_to_string(i)  ) ; }
+      DDName  envName( unsigned int i )    const { return ddname( m_envName + std::to_string(i)  ) ; }
+      DDName  alvName( unsigned int i )    const { return ddname( m_alvName + std::to_string(i)  ) ; }
+      DDName  intName( unsigned int i )    const { return ddname( m_intName + std::to_string(i)  ) ; }
       DDName                     cryName()    const { return ddname( m_cryName ) ; }
 
       DDName                     addTmp( DDName aName ) const { return ddname( aName.name() + "Tmp" ) ; }

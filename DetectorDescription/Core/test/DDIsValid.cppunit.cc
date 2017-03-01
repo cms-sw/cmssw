@@ -1,17 +1,21 @@
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-
 #include <cppunit/extensions/HelperMacros.h>
-#include <fstream>
-#include <string>
-#include <sstream>
+#include <ext/alloc_traits.h>
+#include <regex.h>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
-#include <regex.h>
-#include <set>
+#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "cppunit/TestAssert.h"
+#include "cppunit/TestFixture.h"
 
 namespace {
 

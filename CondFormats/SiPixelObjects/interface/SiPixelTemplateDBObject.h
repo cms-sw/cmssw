@@ -15,6 +15,55 @@
 
 class SiPixelTemplateDBObject {
 public:
+       struct Reader {
+           explicit Reader(SiPixelTemplateDBObject const & idb) : index_(0), isInvalid_(false), db(idb){}
+
+        //- Fills integer from dbobject
+        Reader & operator>>( int& i)
+                {
+                        isInvalid_ = false;
+                        if(index_<=db.maxIndex()) {
+                                i = (int) db.sVector()[index_];
+                                index_++;
+                        }
+                        else
+                           setInvalid();
+                        return *this;
+                }
+        //- Fills float from dbobject
+        Reader & operator>>( float& f)
+                {
+                        isInvalid_ = false;
+                        if(index_<=db.maxIndex()) {
+                                f = db.sVector()[index_];
+                                index_++;
+                        }
+                        else
+                           setInvalid();
+                        return *this;
+                }
+
+
+
+        //- Functions to monitor integrity of dbobject
+        void setInvalid() {isInvalid_ = true;}
+        bool fail() {return isInvalid_;}
+        int index() const {return index_;}
+        int numOfTempl() const {return db.numOfTempl();}
+        float version() const {return db.version();}
+        std::vector<float> const & sVector() const {return db.sVector();}
+
+
+        //- Able to set the index for template header
+        void incrementIndex(int i) {index_+=i;}
+
+        int  index_;
+        bool isInvalid_;
+        SiPixelTemplateDBObject const & db;
+       };
+
+       Reader reader() const { return Reader(*this);}
+
 	SiPixelTemplateDBObject():index_(0),maxIndex_(0),numOfTempl_(1),version_(-99.9),isInvalid_(false),sVector_(0) {
 		sVector_.reserve(1000000);
 	}
@@ -64,7 +113,7 @@ public:
 	int maxIndex() const {return maxIndex_;}
 	int numOfTempl() const {return numOfTempl_;}
 	float version() const {return version_;}
-	std::vector<float> sVector() const {return sVector_;}
+	std::vector<float> const & sVector() const {return sVector_;}
 
 	//- Able to set the index for template header 
 	void incrementIndex(int i) {index_+=i;}

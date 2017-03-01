@@ -16,7 +16,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 # Magnetic fiuld: force mag field to be 0.0 tesla
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 

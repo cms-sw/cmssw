@@ -28,20 +28,15 @@ namespace edm {
   EDProducer::~EDProducer() { }
 
   bool
-  EDProducer::doEvent(EventPrincipal& ep, EventSetup const& c,
+  EDProducer::doEvent(EventPrincipal const& ep, EventSetup const& c,
                       ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      {
-        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-        EventSignalsSentry sentry(act,mcc);
-        this->produce(e, c);
-      }
-      commit_(e, &previousParentage_, &previousParentageId_);
-    }
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    this->produce(e, c);
+    commit_(e, &previousParentage_, &previousParentageId_);
     return true;
   }
 
@@ -58,7 +53,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+  EDProducer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                          ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -68,7 +63,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doEndRun(RunPrincipal& rp, EventSetup const& c,
+  EDProducer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -78,7 +73,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                      ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
@@ -88,7 +83,7 @@ namespace edm {
   }
 
   void
-  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);

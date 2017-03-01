@@ -47,6 +47,8 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   T_HcalPhiWedgeToF = (float)iConfig.getParameter<double>("t_HcalPhiWedgeToF");
   T_HcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("t_HcalPhiWedgeConfidence");
 
+  problematicStripMinLength = (int)iConfig.getParameter<int>("problematicStripMinLength");
+
   cschalodata_token_ = consumes<CSCHaloData>(IT_CSCHaloData);
   ecalhalodata_token_ = consumes<EcalHaloData>(IT_EcalHaloData);
   hcalhalodata_token_ = consumes<HcalHaloData>(IT_HcalHaloData);
@@ -58,7 +60,7 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
 void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   // BeamHaloSummary object 
-  std::auto_ptr<BeamHaloSummary> TheBeamHaloSummary( new BeamHaloSummary() );
+  auto TheBeamHaloSummary = std::make_unique<BeamHaloSummary>();
 
   // CSC Specific Halo Data
   Handle<CSCHaloData> TheCSCHaloData;
@@ -93,6 +95,23 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
       (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[3] = 1;
+
+  //CSCTight Id for 2015
+  if( (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers_TrkMuUnVeto() ) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks() ) ||
+      CSCData.GetSegmentsInBothEndcaps_Loose_TrkMuUnVeto() ||
+      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks() ) ||
+      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() || CSCData.NumberOfHaloTracks()) ))
+    TheBeamHaloSummary->GetCSCHaloReport()[4] = 1;
+
+  //Update
+  if(  (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NFlatHaloSegments_TrkMuUnVeto() ) ||
+       CSCData.GetSegmentsInBothEndcaps_Loose_dTcut_TrkMuUnVeto() ||
+       CSCData.GetSegmentIsCaloMatched()
+       )
+    TheBeamHaloSummary->GetCSCHaloReport()[5] = 1;
+  
 
 
   //Ecal Specific Halo Data
@@ -143,7 +162,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Access selected SuperClusters
   for(unsigned int n = 0 ; n < EcalData.GetSuperClusters().size() ; n++ )
     {
-      edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters(), n );
+      edm::Ref<SuperClusterCollection> cluster(EcalData.GetSuperClusters()[n] );
       
       float angle = vm_Angle[cluster];
       float roundness = vm_Roundness[cluster];
@@ -210,6 +229,15 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   if( HcalTightId ) 
     TheBeamHaloSummary->GetHcalHaloReport()[1] = 1;
 
+
+  for( unsigned int i = 0 ; i < HcalData.getProblematicStrips().size() ; i++ ) {
+    auto const& problematicStrip = HcalData.getProblematicStrips()[i];
+    if(problematicStrip.cellTowerIds.size() < (unsigned int)problematicStripMinLength) continue;
+
+    TheBeamHaloSummary->getProblematicStrips().push_back(problematicStrip);
+  }
+
+
   // Global Halo Data
   Handle<GlobalHaloData> TheGlobalHaloData;
   //  iEvent.getByLabel(IT_GlobalHaloData, TheGlobalHaloData);
@@ -230,7 +258,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     {
       if( iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents )
         GlobalTightId = true;
-      if( std::abs(iWedge->ZDirectionConfidence() > T_EcalPhiWedgeConfidence) )
+      if( std::abs(iWedge->ZDirectionConfidence()) > T_EcalPhiWedgeConfidence )
 	GlobalTightId = true;
     }
 
@@ -246,8 +274,26 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TheBeamHaloSummary->GetGlobalHaloReport()[0] = 1;
   if( GlobalTightId )
     TheBeamHaloSummary->GetGlobalHaloReport()[1] = 1;
+  
+  //GlobalTight Id for 2016
+  if((GlobalData.GetSegmentIsEBCaloMatched() || GlobalData.GetHaloPatternFoundEB() ) ||
+     (GlobalData.GetSegmentIsEECaloMatched() || GlobalData.GetHaloPatternFoundEE() ) ||
+     (GlobalData.GetSegmentIsHBCaloMatched() || GlobalData.GetHaloPatternFoundHB() ) ||
+     (GlobalData.GetSegmentIsHECaloMatched() || GlobalData.GetHaloPatternFoundHE() ) 
+     )
+    TheBeamHaloSummary->GetGlobalHaloReport()[2] = 1;
+
+  //Global SuperTight Id for 2016 
+  if((GlobalData.GetSegmentIsEBCaloMatched() && GlobalData.GetHaloPatternFoundEB() ) ||
+     (GlobalData.GetSegmentIsEECaloMatched() && GlobalData.GetHaloPatternFoundEE() ) ||
+     (GlobalData.GetSegmentIsHBCaloMatched() && GlobalData.GetHaloPatternFoundHB() ) ||
+     (GlobalData.GetSegmentIsHECaloMatched() && GlobalData.GetHaloPatternFoundHE() ) 
+     ) 
+    TheBeamHaloSummary->GetGlobalHaloReport()[3] = 1;
  
-  iEvent.put(TheBeamHaloSummary);
+
+
+  iEvent.put(std::move(TheBeamHaloSummary));
   return;
 }
 

@@ -1,16 +1,12 @@
 #ifndef  PopConSourceHandler_H
 #define  PopConSourceHandler_H
 
-//#include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/DBCommon/interface/DbTransaction.h"
-
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Time.h"
-//#include "CondCore/DBCommon/interface/TagInfo.h"
-//#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -87,7 +83,7 @@ namespace popcon {
     private:
       
       cond::persistency::Session m_dbsession;
-      boost::shared_ptr<T> m_d;
+      std::shared_ptr<T> m_d;
     };
     
     

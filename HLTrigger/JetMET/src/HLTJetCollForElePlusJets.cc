@@ -9,8 +9,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "TVector3.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <typename T>
 HLTJetCollForElePlusJets<T>::HLTJetCollForElePlusJets(const edm::ParameterSet& iConfig):
@@ -51,7 +50,7 @@ void HLTJetCollForElePlusJets<T>::fillDescriptions(edm::ConfigurationDescription
     //Only for VBF
     desc.add<double> ("MinSoftJetPt", 25.);
     desc.add<double> ("MinDeltaEta", -1.);    
-    descriptions.add(std::string("hlt")+std::string(typeid(HLTJetCollForElePlusJets<T>).name()), desc);
+    descriptions.add(defaultModuleLabel<HLTJetCollForElePlusJets<T>>(), desc);
 }
 
 //
@@ -76,11 +75,15 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(m_theElectronToken,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
+  // Electrons can be stored as objects of types TriggerCluster, TriggerElectron, or TriggerPhoton
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > clusCands;
   PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
 
   std::vector<edm::Ref<reco::ElectronCollection> > eleCands;
   PrevFilterOutput->getObjects(trigger::TriggerElectron,eleCands);
+  
+  trigger::VRphoton photonCands;
+  PrevFilterOutput->getObjects(trigger::TriggerPhoton, photonCands);
   
   //prepare the collection of 3-D vector for electron momenta
   std::vector<TVector3> ElePs;
@@ -102,15 +105,24 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
       ElePs.push_back(positionVector);
     }
   }
+  else if(!photonCands.empty()){ // try trigger photons
+    for(size_t candNr=0;candNr<photonCands.size();candNr++){
+      TVector3 positionVector(
+                  photonCands[candNr]->superCluster()->position().x(),
+                  photonCands[candNr]->superCluster()->position().y(),
+                  photonCands[candNr]->superCluster()->position().z());
+      ElePs.push_back(positionVector);
+    }
+  }
   
   edm::Handle<TCollection> theJetCollectionHandle;
   iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
  
   const TCollection & theJetCollection = *theJetCollectionHandle;
   
-  std::auto_ptr< TCollection >  theFilteredJetCollection(new TCollection);
+  std::unique_ptr< TCollection >  theFilteredJetCollection(new TCollection);
   
-  std::auto_ptr < TCollectionVector > allSelections(new TCollectionVector());
+  std::unique_ptr < TCollectionVector > allSelections(new TCollectionVector());
   
   bool foundSolution(false);
 
@@ -171,7 +183,7 @@ HLTJetCollForElePlusJets<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
     
   }
   
-  iEvent.put(theFilteredJetCollection);
+  iEvent.put(std::move(theFilteredJetCollection));
   
   return;
   

@@ -1,0 +1,8 @@
+<lcgdict>
+ <class name="AutoLibraryLoader" ClassVersion="10">
+   <version ClassVersion="10" checksum="981711899"/>
+ </class>
+ <class name="FWLiteEnabler" ClassVersion="10">
+   <version ClassVersion="10" checksum="60237984"/>
+ </class>
+</lcgdict>

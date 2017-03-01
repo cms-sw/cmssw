@@ -49,21 +49,21 @@ void PFClusterShapeProducer::produce(edm::Event & evt, const edm::EventSetup & e
   const CaloSubdetectorGeometry * endcapGeo_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorTopology * endcapTop_p = new EcalEndcapTopology(geoHandle);
 
-  std::auto_ptr<reco::ClusterShapeCollection> 
+  std::unique_ptr<reco::ClusterShapeCollection>
     csCollection_ap(csAlgo_p->makeClusterShapes(clusterHandle, rechitHandle, 
 						barrelGeo_p, barrelTop_p,
 						endcapGeo_p, endcapTop_p));
   
-  edm::OrphanHandle<reco::ClusterShapeCollection> shape_h = evt.put(csCollection_ap, shapesLabel_);
+  edm::OrphanHandle<reco::ClusterShapeCollection> shape_h = evt.put(std::move(csCollection_ap), shapesLabel_);
   
-  std::auto_ptr<reco::PFClusterShapeAssociationCollection> association_ap(new reco::PFClusterShapeAssociationCollection);
+  auto association_ap = std::make_unique<reco::PFClusterShapeAssociationCollection>();
  
   for (unsigned int i = 0; i < clusterHandle->size(); i++){
     association_ap->insert(edm::Ref<reco::PFClusterCollection>(clusterHandle, i), 
 			   edm::Ref<reco::ClusterShapeCollection>(shape_h, i));
   } 
   
-  evt.put(association_ap, shapesLabel_);
+  evt.put(std::move(association_ap), shapesLabel_);
 
   delete barrelTop_p;
   delete endcapTop_p;

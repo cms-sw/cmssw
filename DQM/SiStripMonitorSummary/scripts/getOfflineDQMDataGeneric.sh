@@ -77,7 +77,7 @@ do
     # This has not any real data
     if [[ $fileName != "${baseName}1.txt" ]] ;
     then
-      if [[ $fileName =~ "^${baseName}"  && $(( `wc -l "$workdir/$fileName" | awk '{print $1}'` - 51 )) > 0 ]] ; # File name must start with this string and must have at least that many lines
+      if [[ $fileName == "${baseName}"*  && $(( `wc -l "$workdir/$fileName" | awk '{print $1}'` - 51 )) > 0 ]] ; # File name must start with this string and must have at least that many lines
       then
         # Extract run number from first row of file
 # AV runNumber of line definition changed to be less dependent on the details of the log file

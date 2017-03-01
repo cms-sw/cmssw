@@ -39,48 +39,36 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 // Trigger Headers
-
-
-
-
-
 //
 // class declaration
 //
 
-class L1TdeRCT : public edm::EDAnalyzer {
+class L1TdeRCT : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
-  L1TdeRCT(const edm::ParameterSet& ps);
+ L1TdeRCT(const edm::ParameterSet& ps);
 
 // Destructor
  virtual ~L1TdeRCT();
 
 protected:
 // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  // BeginJob
-  void beginJob(void);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  //For FED vector monitoring 
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+//For FED vector monitoring 
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void readFEDVector(MonitorElement*,const edm::EventSetup&); 
-
-
-
-
-// EndJob
-void endJob(void);
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // begin GT decision information
   MonitorElement *triggerAlgoNumbers_;
@@ -261,7 +249,7 @@ private:
 
 
   //begin fed vector information
-  static const int crateFED[90];
+  static const int crateFED[108];
   MonitorElement *fedVectorMonitorRUN_;
   MonitorElement *fedVectorMonitorLS_;
   ///////////////////////////////
@@ -280,6 +268,8 @@ private:
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
   edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_rgnData_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceData_emData_;
+  edm::EDGetTokenT<L1CaloRegionCollection> gctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> gctSourceData_emData_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
@@ -288,6 +278,9 @@ private:
 
   /// filter TriggerType
   int filterTriggerType_;
+  int selectBX_;
+
+  std::string dataInputTagName_;
 
 
   int trigCount,notrigCount;

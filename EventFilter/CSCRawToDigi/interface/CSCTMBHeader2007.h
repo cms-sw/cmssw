@@ -22,6 +22,10 @@ struct CSCTMBHeader2007 : public CSCVTMBHeaderFormat {
   virtual uint16_t NCFEBs() const {return bits.nCFEBs;}
   virtual void setNCFEBs(uint16_t ncfebs) {bits.nCFEBs = ncfebs & 0x1F;}
   virtual uint16_t firmwareRevision() const {return bits.firmRevCode;}
+  virtual uint16_t syncError() const {return bits.syncError;}
+  virtual uint16_t syncErrorCLCT() const {return (bits.clct0_sync_err | bits.clct1_sync_err);}
+  virtual uint16_t syncErrorMPC0() const {return bits.MPC_Muon0_SyncErr_;}
+  virtual uint16_t syncErrorMPC1() const {return bits.MPC_Muon1_SyncErr_;}
 
   ///returns CLCT digis
   virtual std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer);

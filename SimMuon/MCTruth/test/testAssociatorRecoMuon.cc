@@ -6,8 +6,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-
-#include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
+#include "SimMuon/MCTruth/interface/MuonToSimAssociatorBase.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 
 #include <iostream>
@@ -27,7 +26,7 @@ class testAssociatorRecoMuon : public edm::EDAnalyzer {
 
   std::string associatorLabel_;
  
-  MuonAssociatorByHits::MuonTrackType trackType_;
+  MuonToSimAssociatorBase::MuonTrackType trackType_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,10 +41,10 @@ testAssociatorRecoMuon::testAssociatorRecoMuon(const edm::ParameterSet& parset) 
   associatorLabel_(parset.getParameter< std::string >("associatorLabel"))
 {
     std::string trackType = parset.getParameter< std::string >("trackType");
-    if (trackType == "inner") trackType_ = MuonAssociatorByHits::InnerTk;
-    else if (trackType == "outer") trackType_ = MuonAssociatorByHits::OuterTk;
-    else if (trackType == "global") trackType_ = MuonAssociatorByHits::GlobalTk;
-    else if (trackType == "segments") trackType_ = MuonAssociatorByHits::Segments;
+    if (trackType == "inner") trackType_ = MuonToSimAssociatorBase::InnerTk;
+    else if (trackType == "outer") trackType_ = MuonToSimAssociatorBase::OuterTk;
+    else if (trackType == "global") trackType_ = MuonToSimAssociatorBase::GlobalTk;
+    else if (trackType == "segments") trackType_ = MuonToSimAssociatorBase::Segments;
     else throw cms::Exception("Configuration") << "Track type '" << trackType << "' not supported.\n";
 }
 
@@ -54,9 +53,9 @@ testAssociatorRecoMuon::~testAssociatorRecoMuon() {
 
 void testAssociatorRecoMuon::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {  
-  edm::ESHandle<TrackAssociatorBase> associatorBase;
+  edm::ESHandle<MuonToSimAssociatorBase> associatorBase;
   setup.get<TrackAssociatorRecord>().get(associatorLabel_, associatorBase);
-  const MuonAssociatorByHits * assoByHits = dynamic_cast<const MuonAssociatorByHits *>(associatorBase.product());
+  const MuonToSimAssociatorBase* assoByHits = associatorBase.product();
   if (assoByHits == 0) throw cms::Exception("Configuration") << "The Track Associator with label '" << associatorLabel_ << "' is not a MuonAssociatorByHits.\n";
 
   edm::Handle<edm::View<reco::Muon> > muonCollectionH;
@@ -78,8 +77,8 @@ void testAssociatorRecoMuon::analyze(const edm::Event& event, const edm::EventSe
   edm::LogVerbatim("testAssociatorRecoMuon") 
     << "\n                      ****************** Reco To Sim ****************** ";
 
-  MuonAssociatorByHits::MuonToSimCollection recSimColl;
-  MuonAssociatorByHits::SimToMuonCollection simRecColl;
+  MuonToSimAssociatorBase::MuonToSimCollection recSimColl;
+  MuonToSimAssociatorBase::SimToMuonCollection simRecColl;
 
   assoByHits->associateMuons(recSimColl, simRecColl, muonCollectionH, trackType_, TPCollectionH, &event, &setup);
 

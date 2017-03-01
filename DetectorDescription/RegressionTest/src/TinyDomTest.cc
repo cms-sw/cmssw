@@ -1,5 +1,10 @@
 #include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
 
+#include <utility>
+
+#include "DetectorDescription/Core/interface/adjgraph.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
+
 
 TinyDomTest::TinyDomTest(const TinyDom & d) 
  : dom_(d) 

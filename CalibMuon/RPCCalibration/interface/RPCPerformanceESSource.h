@@ -23,7 +23,7 @@ class RPCPerformanceESSource : public edm::ESProducer, public edm::EventSetupRec
   RPCPerformanceESSource( const edm::ParameterSet& );
   virtual ~RPCPerformanceESSource() {;}
   
-  std::auto_ptr<RPCStripNoises> produce( const RPCStripNoisesRcd& );
+  std::unique_ptr<RPCStripNoises> produce( const RPCStripNoisesRcd& );
   
   // protected:
 

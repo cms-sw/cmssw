@@ -1,20 +1,3 @@
-<library   file="testTrackingIterations.cc" name="testTrackingIterations">
-  <use   name="root"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="SimDataFormats/Track"/>
-  <use   name="DataFormats/TrackReco"/>
-  <use   name="DataFormats/Provenance"/>
-  <use   name="FastSimulation/Event"/>
-  <use   name="FastSimulation/Particle"/>
-  <use   name="FastSimulation/Utilities"/>
-  <use   name="FastSimulation/Tracking"/>
-  <use   name="DQMServices/Core"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="testGeneralTracks.cc" name="testGeneralTracks">
   <use   name="root"/>
   <use   name="FWCore/Framework"/>
@@ -30,27 +13,5 @@
   <use   name="FastSimulation/Utilities"/>
   <use   name="FastSimulation/Tracking"/>
   <use   name="DQMServices/Core"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   name="FastTrackAnalyzer" file="FastTrackAnalyzer.cc">
-  <use   name="DataFormats/SiPixelDetId"/>
-  <use   name="DataFormats/SiStripDetId"/>
-  <use   name="DataFormats/TrackCandidate"/>
-  <use   name="DataFormats/TrackReco"/>
-  <use   name="DataFormats/TrackerRecHit2D"/>
-  <use   name="DataFormats/TrackingRecHit"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="Geometry/CommonDetUnit"/>
-  <use   name="Geometry/CommonTopologies"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="SimDataFormats/CrossingFrame"/>
-  <use   name="SimDataFormats/Track"/>
-  <use   name="SimDataFormats/TrackingHit"/>
-  <use   name="SimDataFormats/Vertex"/>
-  <use   name="TrackingTools/Records"/>
-  <use   name="TrackingTools/TrajectoryState"/>
-  <use   name="rootcore"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

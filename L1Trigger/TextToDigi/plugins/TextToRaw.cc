@@ -51,10 +51,10 @@ TextToRaw::~TextToRaw()
 
 /// Append empty digi collection
 void TextToRaw::putEmptyDigi(edm::Event& iEvent) {
-  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+  std::unique_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
   //FEDRawData& feddata=rawColl->FEDData(fedId_);
   //feddata.data()[0] = 0;
-  iEvent.put(rawColl);
+  iEvent.put(std::move(rawColl));
 }
 
 
@@ -127,7 +127,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    unsigned evtSize = i * 4;
 
    // create the collection
-   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+   std::unique_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
    // retrieve the target buffer
    FEDRawData& feddata=rawColl->FEDData(fedId_);
    // Allocate space for header+trailer+payload
@@ -139,7 +139,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // put the collection in the event
-   iEvent.put(rawColl);
+   iEvent.put(std::move(rawColl));
      
 }
 

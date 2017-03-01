@@ -22,38 +22,27 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTNxNClusterProducer.h"
 #include "TVector3.h"
 
-EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps) {
-  
-  doBarrel_   = ps.getParameter<bool>("doBarrel");
-  doEndcaps_   = ps.getParameter<bool>("doEndcaps");
-  
-  barrelHitProducer_ = consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("barrelHitProducer"));
-  endcapHitProducer_ = consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("endcapHitProducer"));
-  
-  clusEtaSize_ = ps.getParameter<int> ("clusEtaSize");
-  clusPhiSize_ = ps.getParameter<int> ("clusPhiSize");
-  
-  // The names of the produced cluster collections
-  barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
-  endcapClusterCollection_  = ps.getParameter<std::string>("endcapClusterCollection");
-    
-  clusSeedThr_ = ps.getParameter<double> ("clusSeedThr");
-  clusSeedThrEndCap_ = ps.getParameter<double> ("clusSeedThrEndCap");
-  
-  useRecoFlag_ = ps.getParameter<bool>("useRecoFlag");
-  flagLevelRecHitsToUse_ = ps.getParameter<int>("flagLevelRecHitsToUse"); 
-  
-  useDBStatus_ = ps.getParameter<bool>("useDBStatus");
-  statusLevelRecHitsToUse_ = ps.getParameter<int>("statusLevelRecHitsToUse"); 
-  
-    // Parameters for the position calculation:
-  posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
+#include <memory>
 
-  //max number of seeds / clusters, once reached, then return 0 
-  maxNumberofSeeds_    = ps.getParameter<int> ("maxNumberofSeeds");
-  maxNumberofClusters_ = ps.getParameter<int> ("maxNumberofClusters");
-  
-  debug_ = ps.getParameter<int> ("debugLevel");
+EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps):
+  doBarrel_               (ps.getParameter<bool>("doBarrel")),
+  doEndcaps_              (ps.getParameter<bool>("doEndcaps")),
+  barrelHitProducer_      (consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("barrelHitProducer"))),
+  endcapHitProducer_      (consumes<EcalRecHitCollection>(ps.getParameter< edm::InputTag > ("endcapHitProducer"))),
+  clusEtaSize_            (ps.getParameter<int> ("clusEtaSize")),
+  clusPhiSize_            (ps.getParameter<int> ("clusPhiSize")),
+  barrelClusterCollection_(ps.getParameter<std::string>("barrelClusterCollection")),
+  endcapClusterCollection_(ps.getParameter<std::string>("endcapClusterCollection")),
+  clusSeedThr_            (ps.getParameter<double> ("clusSeedThr")),
+  clusSeedThrEndCap_      (ps.getParameter<double> ("clusSeedThrEndCap")),
+  useRecoFlag_            (ps.getParameter<bool>("useRecoFlag")),
+  flagLevelRecHitsToUse_  (ps.getParameter<int>("flagLevelRecHitsToUse")), 
+  useDBStatus_            (ps.getParameter<bool>("useDBStatus")),
+  statusLevelRecHitsToUse_(ps.getParameter<int>("statusLevelRecHitsToUse")), 
+  maxNumberofSeeds_       (ps.getParameter<int> ("maxNumberofSeeds")),
+  maxNumberofClusters_    (ps.getParameter<int> ("maxNumberofClusters")),
+  debug_                  (ps.getParameter<int> ("debugLevel")),
+  posCalculator_          (PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters"))) {
   
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
@@ -192,13 +181,13 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
   es.get<CaloGeometryRecord>().get(geoHandle);
   
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
   if (detector == reco::CaloID::DET_ECAL_BARREL) {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-    topology_p = new EcalBarrelTopology(geoHandle);
+    topology_p.reset(new EcalBarrelTopology(geoHandle));
   }else {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    topology_p = new EcalEndcapTopology(geoHandle); 
+    topology_p.reset(new EcalEndcapTopology(geoHandle)); 
   }
   
   const CaloSubdetectorGeometry *geometryES_p;
@@ -260,15 +249,15 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
   
   
   //Create empty output collections
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   if (detector == reco::CaloID::DET_ECAL_BARREL){
     if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in barrel"<<std::endl;
-    evt.put(clusters_p, barrelClusterCollection_);
+    evt.put(std::move(clusters_p), barrelClusterCollection_);
   }
   else {
     if(debug_>=1) LogDebug("")<<"nxnclusterProducer: "<<clusters_p->size() <<" made in endcap"<<std::endl;
-    evt.put(clusters_p, endcapClusterCollection_);
+    evt.put(std::move(clusters_p), endcapClusterCollection_);
   }
   
 }

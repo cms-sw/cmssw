@@ -25,7 +25,7 @@ import smtplib
 # Constants
 
 # numbers
-OCT_rwx_r_r          = 0744
+OCT_rwx_r_r          = 0o744
 LFLOAT_valueMagField = [0.0,2.0,3.0,3.5,3.8,4.0]
 TD_shiftUTC          = datetime.timedelta(hours = 2) # positive for timezones with later time than UTC
 # strings
@@ -325,7 +325,7 @@ if len(LSTR_wordArgument) == 0:
 int_nFunctionLetters = 0
 for str_argument in LSTR_wordArgument:
   if str_argument in LSTR_functionLetters       or\
-     DICT_functionLetters.has_key(str_argument)   :
+     str_argument in DICT_functionLetters   :
     int_nFunctionLetters += 1
 if int_nFunctionLetters == 0:
   print '> submitDQMOfflineCAF.py > no or unknown function letter used'
@@ -339,8 +339,8 @@ elif int_nFunctionLetters > 1:
 str_argumentFormer = ''
 bool_standBy       = False
 for str_argument in LSTR_wordArgument:
-  if not ( str_argument in LSTR_functionLetters or DICT_functionLetters.has_key(str_argument) or\
-           str_argument in LSTR_optionLetters   or DICT_optionLetters.has_key(str_argument)     ):
+  if not ( str_argument in LSTR_functionLetters or str_argument in DICT_functionLetters or\
+           str_argument in LSTR_optionLetters   or str_argument in DICT_optionLetters     ):
     if str_argument[0] == '-':
       print '> submitDQMOfflineCAF.py > unknown option used'
       Func_ExitUsage()
@@ -353,19 +353,19 @@ for str_argument in LSTR_wordArgument:
     if bool_standBy:
       Dict_arguments[str_argumentFormer] = STR_default
       if str_argumentFormer in LSTR_optionLetters or\
-         DICT_optionLetters.has_key(str_argumentFormer):
+         str_argumentFormer in DICT_optionLetters:
         print '> submitDQMOfflineCAF.py > option "%s" w/o value' %(str_argumentFormer)
         print '                           default used'
         print
     bool_standBy = not ( str_argument in LSTR_functionLetters       or\
-                         DICT_functionLetters.has_key(str_argument)   )
+                         str_argument in DICT_functionLetters   )
     if not bool_standBy:
       Dict_arguments[str_argument] = STR_default
   str_argumentFormer = str_argument
 if bool_standBy:
   Dict_arguments[str_argumentFormer] = STR_default
   if str_argumentFormer in LSTR_optionLetters       or\
-     DICT_optionLetters.has_key(str_argumentFormer)   :
+     str_argumentFormer in DICT_optionLetters   :
     print '> submitDQMOfflineCAF.py > option "%s" w/o value' %(str_argumentFormer)
     print '                           default used'
     print
@@ -383,21 +383,21 @@ for str_key, str_value in dict_arguments.items():
     
 # Help (exit)
 
-if Dict_arguments.has_key(LSTR_functionLetters[2]):
+if LSTR_functionLetters[2] in Dict_arguments:
   Func_Usage()
   sys.exit(0)
   
 # Check and assign arguments
 
 # run number
-if Dict_arguments.has_key(LSTR_optionLetters[0])        and\
+if LSTR_optionLetters[0] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[0]] != STR_default    :
   Str_run = Dict_arguments[LSTR_optionLetters[0]]
 else:   
   print '> submitDQMOfflineCAF.py > no run number given'
   Func_Exit()
 # use CRAB
-if Dict_arguments.has_key(LSTR_optionLetters[1])        and\
+if LSTR_optionLetters[1] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[1]] != STR_default    :
   if Dict_arguments[LSTR_optionLetters[1]] in LSTR_true:
     Bool_CRAB = True
@@ -406,19 +406,19 @@ if Dict_arguments.has_key(LSTR_optionLetters[1])        and\
   else:
     Func_ExitBool(1)
 # name of CRAB server
-if Dict_arguments.has_key(LSTR_optionLetters[2])        and\
+if LSTR_optionLetters[2] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[2]] != STR_default    :
   Str_server = Dict_arguments[LSTR_optionLetters[2]]
 # email address to be used by CRAB server
-if Dict_arguments.has_key(LSTR_optionLetters[3])        and\
+if LSTR_optionLetters[3] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[3]] != STR_default    :
   Str_email = Dict_arguments[LSTR_optionLetters[3]]
 # number of jobs to create
-if Dict_arguments.has_key(LSTR_optionLetters[4])        and\
+if LSTR_optionLetters[4] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[4]] != STR_default    :
   Int_jobs  = int(Dict_arguments[LSTR_optionLetters[4]])
 # magnetic field
-if Dict_arguments.has_key(LSTR_optionLetters[5])        and\
+if LSTR_optionLetters[5] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[5]] != STR_default    :
   Str_magField = Dict_arguments[LSTR_optionLetters[5]]
 if Str_magField in LSTR_auto:
@@ -426,11 +426,11 @@ if Str_magField in LSTR_auto:
   print '> submitDQMOfflineCAF.py > automatic determination of magnetic field disabled at the moment'
   Func_Exit()
 # global tag
-if Dict_arguments.has_key(LSTR_optionLetters[6])        and\
+if LSTR_optionLetters[6] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[6]] != STR_default    :
   Str_globalTag  = Dict_arguments[LSTR_optionLetters[6]]
 # use HLT to filter events
-if Dict_arguments.has_key(LSTR_optionLetters[7])        and\
+if LSTR_optionLetters[7] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[7]] != STR_default    :
   if Dict_arguments[LSTR_optionLetters[7]] in LSTR_true:
     Bool_filter = True
@@ -439,18 +439,18 @@ if Dict_arguments.has_key(LSTR_optionLetters[7])        and\
   else:
     Func_ExitBool(7)
 # primary dataset
-if Dict_arguments.has_key(LSTR_optionLetters[8])        and\
+if LSTR_optionLetters[8] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[8]] != STR_default    :
   Str_dataset = Dict_arguments[LSTR_optionLetters[8]]
 else:   
   print '> submitDQMOfflineCAF.py > no primary dataset given'
   Func_Exit()
 # path for job output
-if Dict_arguments.has_key(LSTR_optionLetters[9])        and\
+if LSTR_optionLetters[9] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[9]] != STR_default    :
   Str_outpath = Dict_arguments[LSTR_optionLetters[9]]
 # path for merged output
-if Dict_arguments.has_key(LSTR_optionLetters[10])        and\
+if LSTR_optionLetters[10] in Dict_arguments        and\
    Dict_arguments[LSTR_optionLetters[10]] != STR_default    :
   Str_mergepath = Dict_arguments[LSTR_optionLetters[10]]
   
@@ -809,7 +809,7 @@ if Int_jobsNew != Int_jobs:
 
 # Submit jobs
 
-if Dict_arguments.has_key(LSTR_functionLetters[0]):
+if LSTR_functionLetters[0] in Dict_arguments:
   os.chdir(Str_nameRun)
   if Bool_CRAB:
     str_crabCommand = 'crab -submit -c crab' + Str_nameRun
@@ -837,7 +837,7 @@ if Dict_arguments.has_key(LSTR_functionLetters[0]):
 
 # Send reminder email to submitter (not needed for CRAB)
     
-if Dict_arguments.has_key(LSTR_functionLetters[0]) and not Bool_CRAB:
+if LSTR_functionLetters[0] in Dict_arguments and not Bool_CRAB:
   str_mailFrom    = os.getenv('USER') + STR_mailServer
   str_mailTo      = [str_mailFrom,
                      'volker.adler@cern.ch',

@@ -68,15 +68,71 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   ev.getByToken( w_token, wireDigis);
 
   // Create empty collection of rechits  
-  std::auto_ptr<CSCRecHit2DCollection> oc( new CSCRecHit2DCollection );
+  auto oc = std::make_unique<CSCRecHit2DCollection>();
 
   // Fill the CSCRecHit2DCollection
   recHitBuilder_->build( stripDigis.product(), wireDigis.product(), *oc);
 
   // Put collection in event
   LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event.";
-  ev.put( oc );
+  ev.put(std::move(oc));
 
+}
+
+void CSCRecHitDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+   edm::ParameterSetDescription desc;
+   desc.add<double>("CSCStripPeakThreshold",10.0);
+   desc.add<double>("CSCStripClusterChargeCut",25.0);
+   desc.add<double>("CSCStripxtalksOffset",0.03);
+   desc.add<bool>("UseAverageTime",false);
+   desc.add<bool>("UseParabolaFit",false);
+   desc.add<bool>("UseFivePoleFit",true);
+   desc.add<int>("CSCWireClusterDeltaT",1);
+   desc.add<bool>("CSCUseCalibrations",true);
+   desc.add<bool>("CSCUseStaticPedestals",false);
+   desc.add<int>("CSCNoOfTimeBinsForDynamicPedestal",2);
+   desc.add<edm::InputTag>("wireDigiTag",edm::InputTag("muonCSCDigis","MuonCSCWireDigi"));
+   desc.add<edm::InputTag>("stripDigiTag",edm::InputTag("muonCSCDigis","MuonCSCStripDigi"));
+   desc.add<bool>("readBadChannels",true);
+   desc.add<bool>("readBadChambers",true);
+   desc.add<bool>("CSCUseTimingCorrections",true);
+   desc.add<bool>("CSCUseGasGainCorrections",true);
+   desc.addUntracked<bool>("CSCDebug",false);
+   desc.add<int>("CSCstripWireDeltaTime",8);
+   desc.addUntracked<int>("CSCStripClusterSize",3); 
+
+   desc.add<double>("XTasymmetry_ME1a",0.023),
+   desc.add<double>("XTasymmetry_ME1b",0.01),
+   desc.add<double>("XTasymmetry_ME12",0.015),
+   desc.add<double>("XTasymmetry_ME13",0.02),
+   desc.add<double>("XTasymmetry_ME21",0.023),
+   desc.add<double>("XTasymmetry_ME22",0.023),
+   desc.add<double>("XTasymmetry_ME31",0.023),
+   desc.add<double>("XTasymmetry_ME32",0.023),
+   desc.add<double>("XTasymmetry_ME41",0.023),
+   desc.add<double>("ConstSyst_ME1a",0.01),
+   desc.add<double>("ConstSyst_ME1b",0.02),
+   desc.add<double>("ConstSyst_ME12",0.02),
+   desc.add<double>("ConstSyst_ME13",0.03),
+   desc.add<double>("ConstSyst_ME21",0.03),
+   desc.add<double>("ConstSyst_ME22",0.03),
+   desc.add<double>("ConstSyst_ME31",0.03),
+   desc.add<double>("ConstSyst_ME32",0.03),
+   desc.add<double>("ConstSyst_ME41",0.03),
+   desc.add<double>("NoiseLevel_ME1a",9.0),
+   desc.add<double>("NoiseLevel_ME1b",6.0),
+   desc.add<double>("NoiseLevel_ME12",7.0),
+   desc.add<double>("NoiseLevel_ME13",4.0),
+   desc.add<double>("NoiseLevel_ME21",5.0),
+   desc.add<double>("NoiseLevel_ME22",7.0),
+   desc.add<double>("NoiseLevel_ME31",5.0),
+   desc.add<double>("NoiseLevel_ME32",7.0),
+   desc.add<double>("NoiseLevel_ME41",5.0);
+
+   desc.add<bool>("CSCUseReducedWireTimeWindow", false);
+   desc.add<int>("CSCWireTimeWindowLow", 0);
+   desc.add<int>("CSCWireTimeWindowHigh", 15);
+   descriptions.add("configWireTimeWindow", desc);
 }
 
 //define this as a plug-in

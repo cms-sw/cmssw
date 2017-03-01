@@ -240,7 +240,7 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
           sprintf (name,"XTL%04d_GAIN%02d",endcapCrystalNumbers[xtl],gainHuman) ;
           graph.GetXaxis()->SetTitle("DAC value");
           graph.GetYaxis()->SetTitle("Average pedestal ADC");
-          graph.Fit("fitFunction","RWQ");
+          graph.Fit(&fitFunction,"RWQ");
           graph.Write (name);
           
           double slope1 = fitFunction.GetParameter(0);

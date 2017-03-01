@@ -17,16 +17,19 @@ dtTriggerSynchMonitor.rangeWithinBX  = False
 dtTriggerSynchMonitor.nBXHigh        = 3
 dtTriggerSynchMonitor.nBXLow         = -2
 
-from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
+#from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
 from CalibMuon.DTCalibration.ALCARECODtCalib_cff import ALCARECODtCalibHLTFilter
-ALCARECODtCalibHLTDQM = hltMonBitSummary.clone(
-    directory = 'AlCaReco/DtCalibSynch/HLTSummary',
-    histLabel = 'DtCalibSynch',
-    HLTPaths = ["HLT_.*Mu.*"],
-    eventSetupPathsKey =  ALCARECODtCalibHLTFilter.eventSetupPathsKey.value()
-)
+#ALCARECODtCalibHLTDQM = hltMonBitSummary.clone(
+#    directory = 'AlCaReco/DtCalibSynch/HLTSummary',
+#    histLabel = 'DtCalibSynch',
+#    HLTPaths = ["HLT_.*Mu.*"],
+#    eventSetupPathsKey =  ALCARECODtCalibHLTFilter.eventSetupPathsKey.value()
+#)
 
+#ALCARECODTCalibSynchDQM = cms.Sequence( dtPreCalibrationTaskAlca +
+#                                        dtAlcaResolutionMonitor + 
+#                                        dtTriggerSynchMonitor +
+#                                        ALCARECODtCalibHLTDQM )
 ALCARECODTCalibSynchDQM = cms.Sequence( dtPreCalibrationTaskAlca +
-                                        dtAlcaResolutionMonitor + 
-                                        dtTriggerSynchMonitor +
-                                        ALCARECODtCalibHLTDQM )
+                                        dtAlcaResolutionMonitor +
+                                        dtTriggerSynchMonitor )

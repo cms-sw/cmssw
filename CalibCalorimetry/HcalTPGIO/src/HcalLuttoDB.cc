@@ -47,7 +47,7 @@ using namespace edm;
 using namespace std;
 #include <iostream>
 #include <fstream>
-#include "FWCore/Utilities/interface/md5.h"
+#include "md5.h"
 
 //
 // class decleration
@@ -274,7 +274,6 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iSetup.get<HcalTPGRecord>().get(inputCoder);
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   iSetup.get<CaloTPGRecord>().get(outTranscoder);
-  outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
 
   std::vector<HcalElectronicsId> allEID = Map_->allElectronicsId();
   std::vector<HcalElectronicsId>::iterator itreid;
@@ -284,7 +283,7 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   for (int crate=0; crate<20; crate++) {
     edm::LogInfo("Hcal") << "Beginning crate " << crate;
-    for(itreid  = allEID.begin(); itreid != allEID.end(); itreid++)
+    for(itreid  = allEID.begin(); itreid != allEID.end(); ++itreid)
       {
 	if (itreid->readoutVMECrateId()!=crate) continue;
 	if (itreid->isTriggerChainId()) { // lut2
@@ -318,7 +317,6 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   *oc_ << "</CFGBrick>\n";
   delete oc_;
 
-  outTranscoder->releaseSetup();
 }
 
 

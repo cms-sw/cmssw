@@ -59,8 +59,7 @@ EcalTBHodoscopeGeometryEP::produce(const IdealGeometryRecord& iRecord)
    iRecord.get( cpv );
    
    std::cout << "[EcalTBHodoscopeGeometryEP]::Constructing EcalTBHodoscopeGeometry" <<  std::endl;
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load(&(*cpv))) ;
-   return pCaloSubdetectorGeometry ;
+   return std::unique_ptr<CaloSubdetectorGeometry>(loader_->load(&(*cpv)));
 }
 
 

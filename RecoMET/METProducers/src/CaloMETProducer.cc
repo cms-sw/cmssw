@@ -64,6 +64,7 @@ namespace cms
     CaloSpecificAlgo calospecalgo;
     reco::CaloMET calomet = calospecalgo.addInfo(input, commonMETdata, noHF_, globalThreshold_);
 
+    /*
     if( calculateSignificance_ )
       {
 	SignCaloSpecificAlgo signcalospecalgo;
@@ -71,11 +72,10 @@ namespace cms
 	calomet.SetMetSignificance(signcalospecalgo.getSignificance());
 	calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
       }
-
-    std::auto_ptr<reco::CaloMETCollection> calometcoll;
-    calometcoll.reset(new reco::CaloMETCollection);
+*/
+    auto calometcoll = std::make_unique<reco::CaloMETCollection>();
     calometcoll->push_back(calomet);
-    event.put(calometcoll);
+    event.put(std::move(calometcoll));
   }
 
 //____________________________________________________________________________||

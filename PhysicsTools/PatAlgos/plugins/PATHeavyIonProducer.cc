@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,23 +43,20 @@ using namespace std;
 // class decleration
 //
 
-class PATHeavyIonProducer : public edm::EDProducer {
-   public:
-      explicit PATHeavyIonProducer(const edm::ParameterSet&);
-      ~PATHeavyIonProducer();
-
-   private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      
-      // ----------member data ---------------------------
-
-   bool doMC_;
-   bool doReco_;
-   std::vector<std::string> hepmcSrc_;
-   edm::InputTag centSrc_;
-   edm::InputTag evtPlaneSrc_;
+class PATHeavyIonProducer : public edm::global::EDProducer<> {
+public:
+  explicit PATHeavyIonProducer(const edm::ParameterSet&);
+  ~PATHeavyIonProducer();
+  
+private:
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  // ----------member data ---------------------------
+  
+  const bool doMC_;
+  const bool doReco_;
+  const std::vector<std::string> hepmcSrc_;
+  const edm::InputTag centSrc_;
+  const edm::InputTag evtPlaneSrc_;
 
 };
 
@@ -75,23 +72,15 @@ class PATHeavyIonProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
-PATHeavyIonProducer::PATHeavyIonProducer(const edm::ParameterSet& iConfig)
+PATHeavyIonProducer::PATHeavyIonProducer(const edm::ParameterSet& iConfig) :
+  doMC_(iConfig.getParameter<bool>("doMC")),
+  doReco_(iConfig.getParameter<bool>("doReco")),
+  hepmcSrc_( doMC_ ? iConfig.getParameter<std::vector<std::string> >("generators") : std::vector<std::string>() ),
+  centSrc_( doReco_ ? iConfig.getParameter<edm::InputTag>("centrality") : edm::InputTag() ),
+  evtPlaneSrc_(doReco_ ? iConfig.getParameter<edm::InputTag>("evtPlane") : edm::InputTag() )
 {
    //register your products
-   produces<pat::HeavyIon>();
-
-   //now do what ever other initialization is needed
-   doReco_ = iConfig.getParameter<bool>("doReco");
-   if(doReco_){
-      centSrc_ = iConfig.getParameter<edm::InputTag>("centrality");
-      evtPlaneSrc_ = iConfig.getParameter<edm::InputTag>("evtPlane");
-   }
-
-   doMC_ = iConfig.getParameter<bool>("doMC");
-   if(doMC_){
-      hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
-   }
-  
+   produces<pat::HeavyIon>();   
 }
 
 
@@ -110,20 +99,8 @@ PATHeavyIonProducer::~PATHeavyIonProducer()
 
 // ------------ method called to produce the data  ------------
 void
-PATHeavyIonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+PATHeavyIonProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-PATHeavyIonProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-PATHeavyIonProducer::endJob() {
 }
 
 //define this as a plug-in

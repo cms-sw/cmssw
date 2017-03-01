@@ -1,5 +1,6 @@
 <use   name="DataFormats/Common"/>
-<use   name="rootrflx"/>
+<use   name="DataFormats/GeometrySurface"/>
+
 <export>
   <lib   name="1"/>
 </export>

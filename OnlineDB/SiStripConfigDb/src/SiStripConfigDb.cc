@@ -10,11 +10,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-uint32_t SiStripConfigDb::cntr_ = 0;
+std::atomic<uint32_t> SiStripConfigDb::cntr_{0};
 
 // -----------------------------------------------------------------------------
 // 
-bool SiStripConfigDb::allowCalibUpload_ = false;
+std::atomic<bool> SiStripConfigDb::allowCalibUpload_{ false };
 
 // -----------------------------------------------------------------------------
 // 
@@ -41,11 +41,11 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   usingStrips_(true),
   openConnection_(false)
 {
-  cntr_++;
+  auto count = ++cntr_;
   edm::LogVerbatim(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Constructing database service..."
-    << " (Class instance: " << cntr_ << ")";
+    << " (Class instance: " << count << ")";
   
   // Set DB connection parameters
   dbParams_.reset();
@@ -64,7 +64,7 @@ SiStripConfigDb::~SiStripConfigDb() {
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Destructing object...";
-  if ( cntr_ ) { cntr_--; }
+  --cntr_;
 }
 
 // -----------------------------------------------------------------------------

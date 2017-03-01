@@ -38,8 +38,8 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
   
 
-  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
-  iEvent.put(selectedTaus);
+  unique_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
+  iEvent.put(std::move(selectedTaus));
 
 
 }

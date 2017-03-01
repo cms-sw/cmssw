@@ -102,6 +102,8 @@ namespace reco
     int T_HcalPhiWedgeConstituents;
     float T_HcalPhiWedgeToF;
     float T_HcalPhiWedgeConfidence;
+    
+    int problematicStripMinLength;
   };
 }
 

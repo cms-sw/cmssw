@@ -7,10 +7,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-
 #include <cmath>
 
 //#include "FastSimulation/Utilities/interface/Histos.h"
@@ -22,7 +18,6 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
                    GammaFunctionGenerator* gamma,
 		   EMECALShowerParametrization* const myParam, 
 		   vector<const RawParticle*>* const myPart, 
-		   DQMStore * const dbeIn,
 		   EcalHitMaker * const myGrid,
 		   PreshowerHitMaker * const myPresh,
 		   bool bFixedLength)
@@ -50,22 +45,11 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
   double fotos = theECAL->photoStatistics() 
                * theECAL->lightCollectionEfficiency();
 
-  dbe = dbeIn;
-
   nPart = thePart->size();
   totalEnergy = 0.;
   globalMaximum = 0.;
   double meanDepth=0.;
   // Initialize the shower parameters for each particle
-
-  if (dbe) {
-    dbe->cd();             
-    if (!dbe->get("EMShower/NumberOfParticles")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	else {
-	  dbe->get("EMShower/NumberOfParticles")->Fill(nPart);
-	}
-    }
-
 
   for ( unsigned int i=0; i<nPart; ++i ) {
     //    std::cout << " AAA " << *(*thePart)[i] << std::endl;
@@ -74,22 +58,6 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
     E.push_back(((*thePart)[i])->e());
     totalEnergy+=E[i];
     
-
-
-    if (dbe) {
-	dbe->cd();             
-	if (!dbe->get("EMShower/ParticlesEnergy")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	else {
-	  dbe->get("EMShower/ParticlesEnergy")->Fill(log10(E[i]));
-	}
-    }
-
-
-
-
-
-
-
     double lny = std::log ( E[i] / theECAL->criticalEnergy() );
 
     // Average and Sigma for T and alpha
@@ -304,15 +272,6 @@ void EMShower::prepareSteps()
 void
 EMShower::compute() {
 
-  double samplingWidth = theECAL->da() + theECAL->dp();
-  double theECALX0 = theECAL->radLenIncm();
-
-  //  double one_over_resoSquare = 1./(theECAL->resE()*theECAL->resE());
-
-
-
-
-
   double t = 0.;
   double dt = 0.;
   if(!stepsCalculated) prepareSteps();
@@ -458,66 +417,6 @@ EMShower::compute() {
 
       totECalc +=dE;
       
-      if (dbe && fabs(dt-1.)< 1e-5 && ecal) {
-	dbe->cd();             
-	if (!dbe->get("EMShower/LongitudinalShape")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-	else {
-	  double dx = 1.;
-	  // dE is aready in relative units from 0 to 1
-	  dbe->get("EMShower/LongitudinalShape")->Fill(t, dE/dx);
-
-	  double step = theECALX0/samplingWidth;
-	  double binMin = abs((t-1)*step)+1;
-	  double binMax = abs(t*step)+1;
-	  double dBins = binMax-binMin;
-
-	  /*
-	  std::cout << "X0 = " << theECALX0 << " Sampling Width = " << samplingWidth << " t = " << t 
-		    << " binMin = " << binMin << " binMax = " << binMax << " (t-1)*step = " 
-		    << (t-1)*step+1 << " t*step = " << t*step+1 << std::endl;
-	  */
-
-	  if ( dBins < 1) {
-	    dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMin, dE/dx);
-	    //	    std::cout << "bin " << binMin << " filled" << std::endl;
-	  }
-	  else {
-
-
-	    double w1 = (binMin + 1 - (t-1)*step - 1)/step;
-	    double w2 = 1./step;
-	    double w3 = (t*step+1-binMax)/step;
-
-	    //double Esum = 0;
-
-	    /*
-	    std::cout <<" ((t-1)*step - binMin) = " << (binMin + 1 - (t-1)*step - 1) 
-		      <<" w1 = " << w1 << " w2 = " << w2 << " w3 = " << w3
-		      << " (t*step+1 - binMax) = " << (t*step+1 - binMax) << std::endl;
-
-	    std::cout << "fill bin = " << binMin << std::endl;
-	    */
-
-	    dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMin, dE/dx*w1);
-	    //Esum = dE/dx*w1;
-
-	    for (int iBin = 1; iBin < dBins; iBin++){
-	      //	      std::cout << "fill bin = " << binMin+iBin << std::endl;
-	      dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMin+iBin, dE/dx*w2);
-	      //	      Esum += dE/dx*w2;
-	    }
-
-	    //	    std::cout << "fill bin = " << binMax << std::endl;
-	    dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMax, dE/dx*w3);	    
-	    //	    Esum += dE/dx*w3;	   
-	    //	    std::cout << "Esum = " << Esum << " dE/dx = " << dE/dx << std::endl;
-	  }
-
-
-	}
-	//(dbe->get("TransverseShape"))->Fill(ri,log10(1./1000.*eSpot/0.2));
-
-      }
  
       // The number of energy spots (or mips)
       double nS = 0;
@@ -671,33 +570,6 @@ EMShower::compute() {
 		 {
 		   double z3=random->flatShoot(umin,umax);
 		   double ri=theR * std::sqrt(z3/(1.-z3)) ;
-
-
-
-		   //Fig. 12
-		   /*
-		   if ( 2. < t && t < 3. ) 
-		     dbe->fill("h401",ri,1./1000.*eSpot/dE/0.2);
-		   if ( 6. < t && t < 7. ) 
-		     dbe->fill("h402",ri,1./1000.*eSpot/dE/0.2);
-		   if ( 19. < t && t < 20. ) 
-		     dbe->fill("h403",ri,1./1000.*eSpot/dE/0.2);
-		   */
-		   // Fig. 13 (top)
-		   if (dbe && fabs(dt-1.)< 1e-5 && ecal) {
-		     dbe->cd();             
-		     if (!dbe->get("EMShower/TransverseShape")) {}//std::cout << "NOT FOUND IN Shower.cc" << std::endl;}
-		     else {
-		       double drho = 0.1;
-		       double dx = 1;
-		       // spote is a real energy we have to normalise it by E[i] which is the energy of the particle i
-		       dbe->get("EMShower/TransverseShape")->Fill(ri,1/E[i]*spote/drho);
-		       dbe->get("EMShower/ShapeRhoZ")->Fill(ri, t, 1/E[i]*spote/(drho*dx));
-		     }
-		   } else {
-		     //		     std::cout << "dt =  " << dt << " length = " << t << std::endl;  
-		   }
-	       
 
 		   // Generate phi
 		   double phi = 2.*M_PI*random->flatShoot();

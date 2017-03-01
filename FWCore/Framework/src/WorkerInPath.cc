@@ -4,7 +4,6 @@
 
 namespace edm {
   WorkerInPath::WorkerInPath(Worker* w, FilterAction theFilterAction, unsigned int placeInPath):
-    stopwatch_(),
     timesVisited_(),
     timesPassed_(),
     timesFailed_(),
@@ -13,12 +12,7 @@ namespace edm {
     worker_(w),
     placeInPathContext_(placeInPath)
   {
+    w->addedToPath();
   }
-
-   void 
-   WorkerInPath::useStopwatch() {
-      stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
-   }
-
 
 }

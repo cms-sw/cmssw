@@ -3,6 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // I believe the below are not needed:
 
@@ -49,7 +50,7 @@ public:
 
 private:
 
-   std::shared_ptr<ThreadQueue>   m_queue;
+   edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;
 };  // MainThreadMLscribe
 
 

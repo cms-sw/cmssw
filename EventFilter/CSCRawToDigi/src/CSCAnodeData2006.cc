@@ -2,8 +2,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string.h> // for bzero
-
-bool debug = false;
 #include <iostream>
 
 CSCAnodeDataFrame2006::CSCAnodeDataFrame2006(unsigned chip, unsigned tbin, unsigned data)
@@ -74,8 +72,7 @@ std::vector<CSCWireDigi> CSCAnodeData2006::wireDigis(int layer) const {
             uint32_t wireGroupBX=alctBX_;
             wireGroup = wireGroup | (wireGroupBX << 16);
 	    CSCWireDigi digi(wireGroup, tbinbits);
-	    if (debug)
-	      LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
+	    LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
 	    digis.push_back(digi);
 	    tbinbits=0;
 	  }

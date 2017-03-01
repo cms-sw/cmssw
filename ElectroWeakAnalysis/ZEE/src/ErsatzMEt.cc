@@ -318,10 +318,10 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		for(reco::GenParticleCollection::const_iterator McP = McCand->begin(); McP != McCand->end(); ++McP)
 		{
 			const reco::Candidate* mum = McP->mother();
-			if(abs(McP->pdgId())==11 && abs(mum->pdgId()) == 23)
+			if(std::abs(McP->pdgId())==11 && abs(mum->pdgId()) == 23)
 			{
 				McElecs.push_back(McP->p4());
-				if(abs(mum->pdgId() == 23)) Zboson = mum->p4();
+				if(std::abs(mum->pdgId()) == 23) Zboson = mum->p4();
 
 				std::cout <<"Found electron, ID = "<< McP->pdgId() <<"\t status = "<< McP->status()<<std::endl;
 				if(McP->status() != 1)
@@ -337,7 +337,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 						{
 							const reco::Candidate *d = McPD->daughter( j );
 							std::cout <<"Daughter "<< j <<"\t id = "<< d->pdgId() << std::endl;
-							if(abs(d->pdgId()) == 11)
+							if(std::abs(d->pdgId()) == 11)
 							{
 								McPD = d;
 								break;

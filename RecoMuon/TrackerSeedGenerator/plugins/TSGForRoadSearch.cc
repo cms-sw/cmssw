@@ -15,7 +15,7 @@
 
 #include <RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h>
 
-#include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h"
+#include "RecoTracker/MeasurementDet/interface/StartingLayerFinder.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -160,7 +160,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
-    switch ( inLayer->subDetector() ) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
     case GeomDetEnumerators::TOB:
@@ -251,7 +251,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
-    switch ( inLayer->subDetector() ) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
     case GeomDetEnumerators::TIB:
@@ -364,7 +364,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
     if (!dynamic_cast<const ForwardDetLayer*>(inLayer)) layerIt =pxlBegin--;
     
     while (compatible.size()==0) {
-      switch ( (*layerIt)->subDetector() ) {
+      switch ( GeomDetEnumerators::subDetGeom[(*layerIt)->subDetector()] ) {
       case GeomDetEnumerators::PixelEndcap:
 	{
 	  layerIt++;
@@ -431,7 +431,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
 	  LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
 	  //copy the muon rechit into the seed
 	  for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-	    rhContainer.push_back( (*trit).get()->clone() );  }}
+	    rhContainer.push_back( (*trit)->clone() );  }}
 	
 	if ( hit->isValid()) {
 	  TrajectoryStateOnSurface upState(theUpdator->update(predState,*hit));
@@ -477,7 +477,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
       LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
       //copy the muon rechit into the seed
       for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-	rhContainer.push_back( (*trit).get()->clone() );  }}
+	rhContainer.push_back( (*trit)->clone() );  }}
     
     //add this seed to the list and return it
     result.push_back(TrajectorySeed(PTSOD,rhContainer,direction));

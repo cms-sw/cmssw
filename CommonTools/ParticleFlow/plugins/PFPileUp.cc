@@ -19,6 +19,8 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
 
   tokenPFCandidates_
     = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
+  tokenPFCandidatesView_
+    = mayConsume<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
 
   tokenVertices_
     = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
@@ -59,10 +61,10 @@ void PFPileUp::produce(Event& iEvent,
 
   // get PFCandidates
 
-  auto_ptr< PFCollection >
+  unique_ptr< PFCollection >
     pOutput( new PFCollection );
 
-  auto_ptr< PFCollectionByValue >
+  unique_ptr< PFCollectionByValue >
     pOutputByValue ( new PFCollectionByValue );
 
   if(enable_) {
@@ -87,7 +89,7 @@ void PFPileUp::produce(Event& iEvent,
     // then we can pass it to the PFPileupAlgo.
     else {
       Handle<PFView> pfView;
-      bool getFromView = iEvent.getByToken( tokenPFCandidates_, pfView );
+      bool getFromView = iEvent.getByToken( tokenPFCandidatesView_, pfView );
       if ( ! getFromView ) {
 	throw cms::Exception("PFPileUp is misconfigured. This needs to be either vector<FwdPtr<PFCandidate> >, or View<PFCandidate>");
       }
@@ -116,7 +118,7 @@ void PFPileUp::produce(Event& iEvent,
 
   } // end if enabled
   // outsize of the loop to fill the collection anyway even when disabled
-  iEvent.put( pOutput );
-  // iEvent.put( pOutputByValue );
+  iEvent.put(std::move(pOutput));
+  // iEvent.put(std::move(pOutputByValue));
 }
 

@@ -20,7 +20,8 @@ namespace ecaldqm
     minChannelEntries_(0),
     expectedMean_(0.),
     toleranceMean_(0.),
-    toleranceRMS_(0),
+    toleranceRMSEB_(0),
+    toleranceRMSEE_(0),
     expectedPNMean_(0.),
     tolerancePNMean_(0.),
     tolerancePNRMS_(0)
@@ -61,9 +62,11 @@ namespace ecaldqm
       pnGainToME_[gain] = pnPedestal.getIndex(repl);
     }
 
-    toleranceRMS_.resize(nG);
+    toleranceRMSEB_.resize(nG);
+    toleranceRMSEE_.resize(nG);
 
-    std::vector<double> inToleranceRMS(_params.getUntrackedParameter<std::vector<double> >("toleranceRMS"));
+    std::vector<double> inToleranceRMSEB(_params.getUntrackedParameter<std::vector<double> >("toleranceRMSEB"));
+    std::vector<double> inToleranceRMSEE(_params.getUntrackedParameter<std::vector<double> >("toleranceRMSEE"));
 
     for(std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
       unsigned iME(gainItr->second);
@@ -77,7 +80,8 @@ namespace ecaldqm
         iGain = 2; break;
       }
 
-      toleranceRMS_[iME] = inToleranceRMS[iGain];
+      toleranceRMSEB_[iME] = inToleranceRMSEB[iGain];
+      toleranceRMSEE_[iME] = inToleranceRMSEE[iGain];
     }
 
     tolerancePNRMS_.resize(nGPN);
@@ -166,7 +170,9 @@ namespace ecaldqm
         meMean.fill(id, mean);
         meRMS.fill(id, rms);
 
-        if(abs(mean - expectedMean_) > toleranceMean_ || rms > toleranceRMS_[gainItr->second])
+        float toleranceRMS_ = ( id.subdetId() == EcalBarrel ) ? toleranceRMSEB_[gainItr->second] : toleranceRMSEE_[gainItr->second];
+
+        if(abs(mean - expectedMean_) > toleranceMean_ || rms > toleranceRMS_)
           qItr->setBinContent(doMask ? kMBad : kBad);
         else
           qItr->setBinContent(doMask ? kMGood : kGood);

@@ -1,6 +1,6 @@
 #ifndef GeometryVector_oldBasic3DVector_h
 #define GeometryVector_oldBasic3DVector_h
-#if ( defined(IN_DICTBUILD) || defined(__CINT__) )  && !defined(__REFLEX__)
+#if ( defined(__CLING__) || defined(__CINT__) )  && !defined(__REFLEX__)
 #define __REFLEX__
 #endif
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"

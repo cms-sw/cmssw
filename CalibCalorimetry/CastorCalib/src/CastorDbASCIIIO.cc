@@ -115,7 +115,7 @@ bool dumpCastorObject (std::ostream& fOutput, const T& fObject) {
   //std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       dumpId (fOutput, *channel);
@@ -162,7 +162,7 @@ bool dumpCastorSingleFloatObject (std::ostream& fOutput, const T& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const float value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
     sprintf (buffer, " %8.5f %10X\n",
@@ -207,7 +207,7 @@ bool dumpCastorSingleIntObject (std::ostream& fOutput, const T& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const int value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
     sprintf (buffer, " %15d %10X\n",
@@ -309,7 +309,7 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestals& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const float* values = fObject.getValues (*channel)->getValues ();
     if (values) {
       dumpId (fOutput, *channel);
@@ -372,7 +372,7 @@ bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const int value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
     sprintf (buffer, " %15X %10X\n",
@@ -494,7 +494,7 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const CastorPedestalWidth* item = fObject.getValues (*channel);
     if (item) {
       dumpId (fOutput, *channel);
@@ -580,7 +580,7 @@ bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject) {
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const CastorQIECoder* coder = fObject.getCoder (*channel);
     dumpId (fOutput, *channel);
     for (unsigned capid = 0; capid < 4; capid++) {
@@ -641,7 +641,7 @@ bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject)
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   for (std::vector<DetId>::iterator channel = channels.begin ();
        channel !=  channels.end ();
-       channel++) {
+       ++channel) {
     const CastorCalibrationQIECoder* coder = fObject.getCoder (*channel);
     if (coder) {
       dumpId (fOutput, *channel);
@@ -796,7 +796,7 @@ bool dumpObject (std::ostream& fOutput, const CastorRecoParams& fObject) {
 	fOutput << buffer;
 	std::vector<DetId> channels = fObject.getAllChannels ();
 	std::sort (channels.begin(), channels.end(), DetIdLess ());
-	for (std::vector<DetId>::iterator channel = channels.begin();channel != channels.end();channel++) {
+	for (std::vector<DetId>::iterator channel = channels.begin();channel != channels.end();++channel) {
 		dumpId (fOutput, *channel);
 		sprintf (buffer, " %15d %15d %16X\n",
 		fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());

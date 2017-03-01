@@ -16,7 +16,9 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
@@ -26,33 +28,35 @@ namespace edm {
   class ParameterSet;
 }
 
-class CaloTowerCreatorForTauHLT : public edm::EDProducer {
+class CaloTowerCreatorForTauHLT : public edm::global::EDProducer<> {
  public:
   /// constructor from parameter set
   CaloTowerCreatorForTauHLT( const edm::ParameterSet & );
   /// destructor
   ~CaloTowerCreatorForTauHLT();
+  /// 
+  static void fillDescriptions( edm::ConfigurationDescriptions& desc );
 
  private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup& ) override;
+  void produce( edm::StreamID sid, edm::Event& evt, const edm::EventSetup& stp ) const override;
+
   /// verbosity
-  int mVerbose;
+  const int mVerbose;
   /// label of source collection
-  edm::EDGetTokenT<CaloTowerCollection> mtowers_token;
+  const edm::EDGetTokenT<CaloTowerCollection> mtowers_token;
   /// use only towers in cone mCone around L1 candidate for regional jet reco
-  double mCone;
+  const double mCone;
   /// label of tau trigger type analysis
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> mTauTrigger_token;
+  const edm::EDGetTokenT<l1extra::L1JetParticleCollection> mTauTrigger_token;
   /// imitator of L1 seeds
   //edm::InputTag ml1seeds;
   /// ET threshold
-  double mEtThreshold;
+  const double mEtThreshold;
   /// E threshold
-  double mEThreshold;
-
+  const double mEThreshold;
   //
-  int mTauId;
+  const int mTauId;
 
 };
 

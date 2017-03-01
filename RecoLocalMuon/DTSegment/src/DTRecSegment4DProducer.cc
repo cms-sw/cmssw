@@ -64,7 +64,7 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
     event.getByToken(recHits2DToken_, all2DSegments);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());
+  auto segments4DCollection = std::make_unique<DTRecSegment4DCollection>();
 
   // get the geometry
   ESHandle<DTGeometry> theGeom;
@@ -110,5 +110,5 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
       segments4DCollection->put(chId, segments4D.begin(),segments4D.end());
   }
   // Load the output in the Event
-  event.put(segments4DCollection);
+  event.put(std::move(segments4DCollection));
 }

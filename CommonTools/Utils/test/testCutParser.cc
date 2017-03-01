@@ -8,7 +8,6 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <typeinfo>
-#include "Cintex/Cintex.h"
 
 
 
@@ -42,7 +41,7 @@ class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {ROOT::Cintex::Cintex::Enable();}
+  void setUp() {}
   void tearDown() {}
   void checkAll(); 
   void check(const std::string &, bool);
@@ -108,7 +107,7 @@ void testCutParser::checkAll() {
                  1.5, 2.5, 3.5, 4.5, 5.5 };
   reco::TrackBase::CovarianceMatrix cov(e, e + 15);
   trk = reco::Track(chi2, ndof, v, p, -1, cov);
-
+  trk.setQuality(reco::Track::highPurity);
 
   GlobalPoint gp(0,0,0);
   BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
@@ -180,6 +179,15 @@ void testCutParser::checkAll() {
   check( "test_bit(4, 2)", true  );
   check( "test_bit(4, 3)", false );
 
+  // check quality
+  check("quality('highPurity')", true );
+  check("quality('loose')", false );
+  check("quality('tight')", false );
+  check("quality('confirmed')", false );
+  check("quality('goodIterative')", true);
+  check("quality('looseSetWithPV')", false);
+  check("quality('highPuritySetWithPV')", false);
+
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
   for (int lazy = 0; lazy <= 1; ++lazy) {
@@ -219,6 +227,8 @@ void testCutParser::checkAll() {
   CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("pt.pt < 1",sel, true));  // same for this
   CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                     // it throws wen called
 
+  sel.reset();
+  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("quality('notAnEnum')",sel, false), edm::Exception);
 
   // check hits (for re-implemented virtual functions and exception handling)
   CPPUNIT_ASSERT(hitOk.hasPositionAndError());

@@ -6,6 +6,11 @@ from RecoJets.Configuration.CaloTowersRec_cff import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 from RecoHI.HiJetAlgos.HiCaloJetParameters_cff import *
 
+## Calo Towers
+CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilder",
+    MapFile = cms.untracked.string('Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz')
+)
+
 caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     src = cms.InputTag("towerMaker"),
     e = cms.double(0.0),
@@ -15,6 +20,24 @@ caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     minimumEt = cms.double(0.0),
     et = cms.double(0.0)
 )
+
+## background for HF/Voronoi-style subtraction
+voronoiBackgroundCalo = cms.EDProducer('VoronoiBackgroundProducer',
+                                       src = cms.InputTag('towerMaker'),
+                                       tableLabel = cms.string("UETable_Calo"),
+                                       doEqualize = cms.bool(False),
+                                       equalizeThreshold0 = cms.double(5.0),
+                                       equalizeThreshold1 = cms.double(35.0),
+                                       equalizeR = cms.double(0.4),
+				       useTextTable = cms.bool(False),
+				       jetCorrectorFormat = cms.bool(True),
+                                       isCalo = cms.bool(True),
+                                       etaBins = cms.int32(15),
+                                       fourierOrder = cms.int32(5)
+                                       )
+
+
+## Noise reducing PU subtraction algos
 
 ## Iterative Cone
 iterativeConePu5CaloJets = cms.EDProducer(
@@ -26,16 +49,6 @@ iterativeConePu5CaloJets = cms.EDProducer(
     rParam       = cms.double(0.5)
     )
 iterativeConePu5CaloJets.radiusPU = 0.5
-
-iterativeConePu7CaloJets = cms.EDProducer(
-    "FastjetJetProducer",
-    HiCaloJetParameters,
-    AnomalousCellParameters,
-    MultipleAlgoIteratorBlock,
-    jetAlgorithm = cms.string("IterativeCone"),
-    rParam       = cms.double(0.7)
-    )
-iterativeConePu7CaloJets.radiusPU = 0.7
 
 ## kT
 ktPu4CaloJets = cms.EDProducer(
@@ -79,35 +92,66 @@ akPu7CaloJets = cms.EDProducer(
     )
 akPu7CaloJets.radiusPU = 0.7
 
-## Algos without offset pileup correction
-ic5CaloJets = iterativeConePu5CaloJets.clone()
-ic5CaloJets.doRhoFastjet = True
-ic5CaloJets.doPUOffsetCorr = False
 
-ic7CaloJets = iterativeConePu7CaloJets.clone()
-ic7CaloJets.doRhoFastjet = True
-ic7CaloJets.doPUOffsetCorr = False
+## HF/Vornoi background subtracton algos
 
-ak4CaloJets = akPu5CaloJets.clone()
-ak4CaloJets.doRhoFastjet = True
-ak4CaloJets.doPUOffsetCorr = False
+akVs5CaloJets = akPu5CaloJets.clone(
+    subtractorName = cms.string("VoronoiSubtractor"),
+    bkg = cms.InputTag("voronoiBackgroundCalo"),
+    dropZeros = cms.bool(True),
+    doAreaFastjet = False
+    )
 
-ak7CaloJets = akPu7CaloJets.clone()
-ak7CaloJets.doRhoFastjet = True
-ak7CaloJets.doPUOffsetCorr = False
+#
+akVs1CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.1))
+akVs2CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.2))
+akVs3CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.3))
+akVs4CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.4))
+akVs6CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.6))
+akVs7CaloJets = akVs5CaloJets.clone(rParam       = cms.double(0.7))
 
-kt4CaloJets = ktPu4CaloJets.clone()
-kt4CaloJets.doRhoFastjet = True
-kt4CaloJets.doPUOffsetCorr = False
+akPu5CaloJets.puPtMin = cms.double(10)
+akPu1CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.1), puPtMin = 4)
+akPu2CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.2), puPtMin = 4)
+akPu3CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.3), puPtMin = 6)
+akPu4CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.4), puPtMin = 8)
+akPu6CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.6), puPtMin = 12)
+akPu7CaloJets = akPu5CaloJets.clone(rParam       = cms.double(0.7), puPtMin = 14)
 
-kt6CaloJets = ktPu6CaloJets.clone()
-kt6CaloJets.doRhoFastjet = True
-kt6CaloJets.doPUOffsetCorr = False
+ak5CaloJets = cms.EDProducer(
+    "FastjetJetProducer",
+    HiCaloJetParameters,
+    AnomalousCellParameters,
+    MultipleAlgoIteratorBlock,
+    jetAlgorithm = cms.string("AntiKt"),
+    rParam       = cms.double(0.5)
+    )
+ak5CaloJets.doPUOffsetCorr = False
+ak1CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.1))
+ak2CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.2))
+ak3CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.3))
+ak4CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.4))
+ak6CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.6))
+ak7CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.7))
+
 
 ## Default Sequence
-hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
+hiRecoJets = cms.Sequence(
+    caloTowersRec*caloTowers*
+    iterativeConePu5CaloJets*
+    akPu3CaloJets*akPu4CaloJets*akPu5CaloJets*
+    voronoiBackgroundCalo*
+    akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs5CaloJets
+    )
 
 ## Extended Sequence
-hiRecoAllJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak4CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
+hiRecoAllJets = cms.Sequence(
+    caloTowersRec*caloTowers*iterativeConePu5CaloJets
+    *ak1CaloJets*ak2CaloJets*ak3CaloJets*ak4CaloJets*ak5CaloJets*ak6CaloJets*ak7CaloJets
+    *akPu1CaloJets*akPu2CaloJets*akPu3CaloJets*akPu4CaloJets*akPu5CaloJets*akPu6CaloJets*akPu7CaloJets*
+    ktPu4CaloJets*ktPu6CaloJets
+    *voronoiBackgroundCalo
+    *akVs1CaloJets*akVs2CaloJets*akVs3CaloJets*akVs4CaloJets*akVs5CaloJets*akVs6CaloJets*akVs7CaloJets    
+    )
 
 

@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -26,6 +27,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //
 // class declaration
@@ -46,6 +48,9 @@ private:
   virtual void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   
   std::string filterPath;
 
@@ -54,8 +59,14 @@ private:
   std::string thisProcess;
   unsigned int pathIndex;
 
-  int numEventsTotal;
-  int numEventsPassed;
+  unsigned int numEventsPassPos_;
+  unsigned int numEventsPassNeg_;
+  unsigned int numEventsTotalPos_;
+  unsigned int numEventsTotalNeg_;
+  double sumpass_w_;
+  double sumpass_w2_;
+  double sumtotal_w_;
+  double sumtotal_w2_;
 
 };
 

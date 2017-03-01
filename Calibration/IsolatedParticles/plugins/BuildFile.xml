@@ -10,6 +10,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/Luminosity"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
@@ -33,15 +34,18 @@
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="HLTrigger/Timer"/>
 <use   name="Calibration/IsolatedParticles"/>
 <flags   EDM_PLUGIN="1"/>
-<library   name="CalibrationIsolatedTracksNxN" file="IsolatedTracksNxN.cc">
-</library>
-<library   name="CalibrationIsolatedTracksCone" file="IsolatedTracksCone.cc">
-</library>
-<library   name="CalibrationIsolatedParticlesGeneratedJets" file="IsolatedParticlesGeneratedJets.cc">
-</library>
-<library   name="CalibrationIsolatedGenParticles" file="IsolatedGenParticles.cc">
-</library>
-<library   name="CalibrationElectronStudy" file="ElectronStudy.cc">
-</library>
+<library   name="CalibrationIsolatedTracksNxN" file="IsolatedTracksNxN.cc"> </library>
+<library   name="CalibrationIsolatedTracksCone" file="IsolatedTracksCone.cc"> </library>
+<library   name="CalibrationIsolatedParticlesGeneratedJets" file="IsolatedParticlesGeneratedJets.cc"> </library>
+<library   name="CalibrationIsolatedGenParticles" file="IsolatedGenParticles.cc"> </library>
+<library   name="CalibrationIsolatedTracksHcalScale" file="IsolatedTracksHcalScale.cc"> </library>
+<library   name="CalibrationElectronStudy" file="ElectronStudy.cc"> </library>
+<library   name="CalibrationStudyHLT" file="StudyHLT.cc"> </library>
+<library   name="CalibrationIsoTrig" file="IsoTrig.cc"> </library>
+<library   name="CalibrationIsoTrackCalib" file="IsoTrackCalib.cc"> </library>
+<library   name="CalibrationIsoTrackCalibration" file="IsoTrackCalibration.cc"> </library>
+<library   name="CalibrationHcalRaddamMuon" file="HcalRaddamMuon.cc"> </library>

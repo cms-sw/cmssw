@@ -21,7 +21,6 @@
 // system include files
 #include <map>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
@@ -115,17 +114,19 @@ public:
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
+   void initEmpty();
 
    TGVerticalFrame* createList(TGCompositeFrame *p);
    void createViews(TEveWindowSlot *slot);
    void exportImageOfMainView();
    void exportImagesOfAllViews();
-   void exportAllViews(const std::string& format);
+   void exportAllViews(const std::string& format, int height);
 
    void createEDIFrame();
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
    
+   void open3DRegion();
    void showCommonPopup();
    
    void createModelPopup();
@@ -205,7 +206,9 @@ public:
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
+   sigc::signal<void, const std::string&> writePartialToConfigurationFile_;
    sigc::signal<void, const std::string&> loadFromConfigurationFile_;
+   sigc::signal<void, const std::string&> loadPartialFromConfigurationFile_;
    sigc::signal<void, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
@@ -224,7 +227,10 @@ private:
 
    bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
    void promptForSaveConfigurationFile();
+   void promptForPartialSaveConfigurationFile();
    void promptForLoadConfigurationFile();
+   void promptForPartialLoadConfigurationFile();
+   void savePartialToConfigurationFile();
    
    void delaySliderChanged(Int_t);
    
@@ -275,7 +281,7 @@ private:
    sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
-
+    std::vector<FWViewBase*> m_regionViews;
    int m_WMOffsetX, m_WMOffsetY, m_WMDecorH;
 };
 

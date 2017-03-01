@@ -19,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -91,17 +92,17 @@ private:
   edm::ProcessConfiguration m_procConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   std::shared_ptr<edm::RunPrincipal> m_rp;
-  std::shared_ptr<edm::ActivityRegistry> m_actReg;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg; // We do not use propagate_const because the registry itself is mutable.
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
-  edm::CPUTimer* m_timer = nullptr;
   
   template<typename T, typename U>
-  void testTransitions(U* iMod, Expectations const& iExpect);
+  void testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect);
   
   template<typename T>
   void runTest(Expectations const& iExpect);
@@ -122,7 +123,7 @@ private:
     static unsigned int m_count;
     
     static std::unique_ptr<int> initializeGlobalCache(edm::ParameterSet const&) {
-      return std::unique_ptr<int>{new int{1}};
+      return std::make_unique<int>(1);
     }
     GlobalProd(edm::ParameterSet const&, const int* iGlobal) { CPPUNIT_ASSERT(*iGlobal == 1); }
     
@@ -367,12 +368,13 @@ static const edm::StreamID s_streamID0 = makeID();
 testStreamModule::testStreamModule():
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
+m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
 m_ep()
 {
   //Setup the principals
   m_prodReg->setFrozen();
   m_idHelper->updateFromRegistry(*m_prodReg);
-  edm::EventID eventID;
+  edm::EventID eventID = edm::EventID::firstValidEvent();
   
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
@@ -391,6 +393,7 @@ m_ep()
   
   m_ep.reset(new edm::EventPrincipal(m_prodReg,
                                      m_idHelper,
+                                     m_associationsHelper,
                                      m_procConfig,nullptr,*pID));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
@@ -406,45 +409,45 @@ m_ep()
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, parentContext, nullptr); };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, parentContext, nullptr); };
   
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, parentContext, nullptr); };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, parentContext, nullptr); };
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext parentContext(&streamContext);
     iBase->setActivityRegistry(m_actReg);
-    iBase->doWork<Traits>(*m_ep,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_ep,*m_es, s_streamID0, parentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, parentContext, nullptr); };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, parentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, parentContext, nullptr); };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, parentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, parentContext, nullptr); };
 
   m_transToFunc[Trans::kEndStream] = [this](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
@@ -455,12 +458,11 @@ m_ep()
 
 namespace {
   template<typename T>
-  std::unique_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
+  std::shared_ptr<edm::stream::EDProducerAdaptorBase> createModule() {
     edm::ParameterSet pset;
-    std::unique_ptr<edm::stream::EDProducerAdaptorBase> retValue(new edm::stream::EDProducerAdaptor<T>(pset));
-    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue.get(),nullptr);
+    std::shared_ptr<edm::stream::EDProducerAdaptorBase> retValue = std::make_shared<edm::stream::EDProducerAdaptor<T>>(pset);
+    edm::maker::ModuleHolderT<edm::stream::EDProducerAdaptorBase> h(retValue,nullptr);
     h.preallocate(edm::PreallocationConfiguration{});
-    h.release();
     return retValue;
   }
   template<typename T>
@@ -480,7 +482,7 @@ namespace {
 
 template<typename T, typename U>
 void
-testStreamModule::testTransitions(U* iMod, Expectations const& iExpect) {
+testStreamModule::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::stream::EDProducerAdaptorBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition<T>(&w,keyVal.first,iExpect,keyVal.second);
@@ -491,7 +493,7 @@ void
 testStreamModule::runTest(Expectations const& iExpect) {
   auto mod = createModule<T>();
   CPPUNIT_ASSERT(0 == T::m_count);
-  testTransitions<T>(mod.get(),iExpect);
+  testTransitions<T>(mod,iExpect);
 }
 
 

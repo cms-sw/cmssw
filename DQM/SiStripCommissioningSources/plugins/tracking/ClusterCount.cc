@@ -21,6 +21,10 @@ ClusterCount::~ClusterCount()
 
 }
 
+void ClusterCount::bookHistograms(DQMStore::IBooker & iBooker,
+                                  edm::Run const &,
+                                  edm::EventSetup const &) {
+}
 
 //
 // member functions

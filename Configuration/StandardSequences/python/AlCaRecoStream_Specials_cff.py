@@ -27,7 +27,6 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
 pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib*ALCARECOEcalCalPi0CalibDQM)
 
@@ -42,31 +41,8 @@ ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-
-# ECAL calibration with phi symmetry 
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_cff import *
-
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
-
-pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
-
-from Configuration.EventContent.AlCaRecoOutput_cff import *
-
-ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
-        responsible = 'Stefano Argiro',
-        name = 'ALCARECOEcalCalPhiSym',
-        paths  = (pathALCARECOEcalCalPhiSym),
-        content = OutALCARECOEcalCalPhiSym.outputCommands,
-        selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents,
-        dataTier = cms.untracked.string('ALCARECO')
-        )
-
-
-
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
-
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
 pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
 
@@ -81,7 +57,21 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
+# HCAL Pedestals
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
 
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
+ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
+        responsible = 'Olga Kodolova',
+        name = 'ALCARECOHcalCalPedestal',
+        paths  = (pathALCARECOHcalCalPedestal),
+        content = OutALCARECOHcalCalPedestal.outputCommands,
+        selectEvents = OutALCARECOHcalCalPedestal.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
 
 # AlCaReco for LumiPixel stream
 from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_cff import *

@@ -11,7 +11,7 @@ genMetIC5GenJets = cms.EDProducer("ElseMETProducer",
 
     METType = cms.string('MET'), ## Output MET type		  
 
-    alias = cms.string('GenMETIC5'), ## Alias  for FWLite		  
+    alias = cms.string('genMetIC5GenJets'), ## Alias for FWLite
 
     noHF = cms.bool(False), ## do not exclude HF
 

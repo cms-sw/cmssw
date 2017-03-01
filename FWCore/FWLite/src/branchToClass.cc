@@ -33,9 +33,9 @@ private:
 TClass*
 BranchToClass::doit( const TBranch* iBranch )
 {
-  TClass* contained = 0;
+  TClass* contained = nullptr;
   TClass* type = TVirtualBranchBrowsable::GetCollectionContainedType(iBranch,0,contained);
-  if( type == 0) {
+  if( type == nullptr) {
     type = contained;
   }
   return type;  

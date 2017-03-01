@@ -9,7 +9,7 @@
 #include <vector>
 class Bounds;
 
-class NavCylinder GCC11_FINAL : public NavSurface {
+class NavCylinder final : public NavSurface {
 public:
 
 /*     NavCylinder( const PositionType& pos, const RotationType& rot, Scalar radius) : */

@@ -1,0 +1,11 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoBTag.CTagging.pfInclusiveSecondaryVertexFinderCvsLTagInfos_cfi import *
+
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos = pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone()
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.extSVDeltaRToJet = cms.double(-0.3)
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distVal2dMin = -2.5
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distVal2dMax = -0.01
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distSig2dMin = -99999.9
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.distSig2dMax = -1.5
+pfInclusiveSecondaryVertexFinderNegativeCvsLTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5

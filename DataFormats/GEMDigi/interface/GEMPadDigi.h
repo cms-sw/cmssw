@@ -1,5 +1,5 @@
-#ifndef GEMDigi_GEMPadDigi_h
-#define GEMDigi_GEMPadDigi_h
+#ifndef DataFormats_GEMDigi_GEMPadDigi_h
+#define DataFormats_GEMDigi_GEMPadDigi_h
 
 /** \class GEMPadDigi
  *
@@ -22,6 +22,7 @@ public:
   bool operator!=(const GEMPadDigi& digi) const;
   bool operator<(const GEMPadDigi& digi) const;
 
+  // return the pad number. counts from 1.
   int pad() const { return pad_; }
   int bx() const { return bx_; }
 

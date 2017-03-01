@@ -78,18 +78,9 @@ public:
     m_deltaEta         = regPSet.getParameter<double>("deltaEta");
     m_deltaPhi         = regPSet.getParameter<double>("deltaPhi");
     m_precise          = regPSet.getParameter<bool>("precise");
-    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
-    if (regPSet.exists("measurementTrackerName"))
-    {
-      // FIXME: when next time altering the configuration of this
-      // class, please change the types of the following parameters:
-      // - whereToUseMeasurementTracker to at least int32 or to a string
-      //   corresponding to the UseMeasurementTracker enumeration
-      // - measurementTrackerName to InputTag
-      if (regPSet.exists("whereToUseMeasurementTracker"))
-        m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regPSet.getParameter<double>("whereToUseMeasurementTracker"));
-      if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever)
-        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<std::string>("measurementTrackerName"));
+    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regPSet.getParameter<std::string>("whereToUseMeasurementTracker"));
+    if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+      token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
     m_searchOpt = false;
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");
@@ -108,10 +99,44 @@ public:
   
   virtual ~CandidateSeededTrackingRegionsProducer() {}
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const
+    desc.add<std::string>("mode", "BeamSpotFixed");
+
+    desc.add<edm::InputTag>("input", edm::InputTag(""));
+    desc.add<int>("maxNRegions", 10);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    desc.add<int>("maxNVertices", 1);
+
+    desc.add<double>("ptMin", 0.9);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("zErrorBeamSpot", 24.2);
+    desc.add<double>("deltaEta", 0.5);
+    desc.add<double>("deltaPhi", 0.5);
+    desc.add<bool>("precise", true);
+
+    desc.add<double>("nSigmaZVertex", 3.);
+    desc.add<double>("zErrorVetex", 0.2);
+    desc.add<double>("nSigmaZBeamSpot", 4.);
+
+    desc.add<std::string>("whereToUseMeasurementTracker", "ForSiStrips");
+    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
+
+    desc.add<bool>("searchOpt", false);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("seededTrackingRegionsFromBeamSpotFixedZLength", descRegion);
+  }
+
+
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // pick up the candidate objects of interest
     edm::Handle< reco::CandidateView > objects;
@@ -180,7 +205,7 @@ public:
 
       for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j)
       {
-        result.push_back( new RectangularEtaPhiTrackingRegion(
+        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
           direction,
           origins[j].first,
           m_ptMin,

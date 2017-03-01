@@ -41,7 +41,6 @@ class SeedGeneratorForCosmics{
 	      const TrackingRegion& region);
  
  private:
-  edm::ParameterSet conf_;
   int32_t           maxSeeds_;
   GlobalTrackingRegion region;
   CosmicHitPairGenerator* thePairGenerator;

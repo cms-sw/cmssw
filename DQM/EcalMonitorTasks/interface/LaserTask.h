@@ -31,6 +31,13 @@ namespace ecaldqm {
     void runOnPnDigis(EcalPnDiodeDigiCollection const&);
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
+    enum Wavelength{
+      kGreen,
+      kBlue,
+      kIRed,
+      nWavelength
+    };
+
   private:
     void setParams(edm::ParameterSet const&) override;
 
@@ -43,6 +50,7 @@ namespace ecaldqm {
 
     int emptyLS_;
     int emptyLSLimit_;
+    int maxPedestal_;
   };
 
   inline bool LaserTask::analyze(void const* _p, Collections _collection){

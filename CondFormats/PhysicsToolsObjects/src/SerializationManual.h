@@ -1,6 +1,8 @@
 
 #include "boost/serialization/assume_abstract.hpp"
 
+// take care of instantiating the concrete templates:
+
 COND_SERIALIZATION_INSTANTIATE(PhysicsTools::Calibration::Histogram<double, double>);
 COND_SERIALIZATION_INSTANTIATE(PhysicsTools::Calibration::Histogram<float, float>);
 
@@ -13,7 +15,15 @@ COND_SERIALIZATION_INSTANTIATE(PhysicsTools::Calibration::Histogram3D<float, flo
 COND_SERIALIZATION_INSTANTIATE(PhysicsTools::Calibration::Range<double>);
 COND_SERIALIZATION_INSTANTIATE(PhysicsTools::Calibration::Range<float>);
 
-//-ap not really sure that one is needed:
+// take care of inhertitance chains:
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(PerformancePayload);
+
+COND_SERIALIZABLE_POLYMORPHIC(PerformancePayloadFromTable)
+COND_SERIALIZABLE_POLYMORPHIC(PerformancePayloadFromTFormula)
+COND_SERIALIZABLE_POLYMORPHIC(PerformancePayloadFromBinnedTFormula)
+
+
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(PhysicsTools::Calibration::VarProcessor); 
 
 COND_SERIALIZABLE_POLYMORPHIC(PhysicsTools::Calibration::VarProcessor)

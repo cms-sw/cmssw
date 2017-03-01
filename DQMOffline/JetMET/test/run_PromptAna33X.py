@@ -66,7 +66,7 @@ print inputfiles
 process = cms.Process("test")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -88,7 +88,7 @@ process.hcalnoise.requirePedestals = cms.bool(False)
 #
 # BeamHaloData producer
 #
-process.load("Configuration/StandardSequences/Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")

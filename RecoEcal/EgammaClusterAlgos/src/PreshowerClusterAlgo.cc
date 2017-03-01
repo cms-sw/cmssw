@@ -232,7 +232,6 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   LogTrace("PreShowerClusterAlgo") << " radius =" << cluster.position().r();
   LogTrace("PreShowerClusterAlgo") << " (x,y,z) =" << "(" << cluster.x() <<", "<< cluster.y() <<","<< cluster.z()<<")" ;
  
-  used_strips = used_s;
 
   // return the cluster if its energy is greater a threshold
   if( cluster.energy() > preshClusterEnergyCut_ ) 

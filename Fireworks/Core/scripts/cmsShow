@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #set -x
 
+
 checkOS()
 {
    # Only 64-bit arch supported, and OSX version 10.6 or more.
@@ -15,18 +16,11 @@ checkOS()
            exit 1;
        fi
        osv=`sw_vers -productVersion |awk '{split($0,a,"\."); print a[1]a[2];}' `
-       if [ "$osv" -lt "106" ]; then
+       if [ "$osv" -lt "108" ]; then
            echo "#######################################"
-           echo "Only version 10.6 or greater supported!"
+           echo "Only version 10.8 or greater supported!"
            echo "#######################################"
    	   exit 1;
-       fi
-       support_106=`awk -F', '   '{ if ($1 ~/CMSSW_[0-5]_[0-2]_/ ) print $1 }' $CMSSW_BASE/src/Fireworks/Core/data/version.txt`
-       if [ "$osv" == "106" ] && [ -z "$support_106" ]; then
-           echo "#######################################"
-           echo "Only version 10.7 supported!"
-           echo "#######################################"
-           exit 1
        fi
    else
        arch=`uname -m`
@@ -98,11 +92,11 @@ setupEnv()
    # see if we are running in standalone mode
    if [ ! -d $SHELLDIR/../../.SCRAM ] ; then
      export CMSSW_BASE=$SHELLDIR
-     export CMSSW_SEARCH_PATH="."
+     export CMSSW_SEARCH_PATH=".:$CMSSW_BASE"
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
-     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
-     export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
+     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib
+     export DYLD_FALLBACK_LIBRARY_PATH=/opt/X11/lib:${LD_LIBRARY_PATH}
 
      if [ -n "$DYLD_LIBRARY_PATH" ]; then
         echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
@@ -110,11 +104,21 @@ setupEnv()
      fi
      export  DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
      export PATH=${ROOTSYS}/bin:$PATH
+     export ROOT_INCLUDE_PATH=${CMSSW_BASE}/external/gcc/include:${CMSSW_BASE}/external/gcc/include/x86_64-redhat-linux-gnu:${CMSSW_BASE}/external/gcc/include/backward:${CMSSW_BASE}/external/var-inc:$CMSSW_BASE/external/var-inc/sigc++:$CMSSW_BASE/external/var-inc/HepMC/include:${CMSSW_BASE}/src
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
    else
      export FROM_RELEASE=true
    fi
+}
+
+printEnv()
+{
+   # Needed only for debugging of a standalone version
+   for i in CMSSW_BASE CMSSW_SEARCH_PATH CMSSW_DATA_PATH LD_LIBRARY_PATH  DYLD_FALLBACK_LIBRARY_PATH PATH SHELLDIR; do
+       echo export $i=`eval echo \\$$i`
+   done
+   exit;
 }
 
 parseOptions()
@@ -186,8 +190,12 @@ fi
 
 # Developers cases -- run from gdb or valgrind.
 if [ "X$debuginteractiveflag" = Xon ] ; then
-  gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
-  exit;
+  if [[ `uname` == 'Linux' ]]; then
+      gdbCmd="gdb --args $SHELLDIR/cmsShow.exe $originalOptions"
+  else
+      gdbCmd="lldb -- $SHELLDIR/cmsShow.exe $originalOptions"
+  fi
+  exec $gdbCmd 
 elif [ "X$valgrindflag" = Xon ] ; then
   # MT: This should supposedly get rid of ROOT dicitonary reports etc. but it
   # didn't seem to work very well when I tried it (so I disabled error limit).

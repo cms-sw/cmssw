@@ -9,7 +9,7 @@
 /** Calculates intersections of a helix with planes perpendicular to the z-axis.
  */
 
-class HelixForwardPlaneCrossing GCC11_FINAL : public HelixPlaneCrossing {
+class HelixForwardPlaneCrossing final : public HelixPlaneCrossing {
 public:
   /** Constructor using point, direction and (transverse!) curvature.
    */

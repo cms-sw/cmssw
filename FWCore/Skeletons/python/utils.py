@@ -89,7 +89,7 @@ capture()\n"""
     # define execution namespace
     namespace = {}
     # execute compiled python code in given namespace
-    exec obj in namespace
+    exec(obj, namespace)
     # located generated function object, run it and return its results
     return namespace['capture']()
 

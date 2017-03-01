@@ -5,9 +5,10 @@
 #include "DuplicateChecker.h"
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
+#include "RunHelper.h"
 
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -18,6 +19,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -26,11 +28,13 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -38,6 +42,10 @@
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
+
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 //used for backward compatibility
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -45,7 +53,6 @@
 #include "DataFormats/Provenance/interface/RunAux.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 
-#include "TROOT.h"
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TString.h"
@@ -67,7 +74,7 @@ namespace edm {
     MakeOldProvenanceReader(std::unique_ptr<EntryDescriptionMap>&& entryDescriptionMap) : MakeProvenanceReader(), entryDescriptionMap_(std::move(entryDescriptionMap)) {}
     virtual std::unique_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const override;
   private:
-    std::unique_ptr<EntryDescriptionMap> entryDescriptionMap_;
+    edm::propagate_const<std::unique_ptr<EntryDescriptionMap>> entryDescriptionMap_;
   };
   class MakeFullProvenanceReader : public MakeProvenanceReader {
   public:
@@ -82,21 +89,6 @@ namespace edm {
   };
 
   namespace {
-    int
-    forcedRunOffset(RunNumber_t const& forcedRunNumber, IndexIntoFile::IndexIntoFileItr inxBegin, IndexIntoFile::IndexIntoFileItr inxEnd) {
-      if(inxBegin == inxEnd) return 0;
-      int defaultOffset = (inxBegin.run() != 0 ? 0 : 1);
-      int offset = (forcedRunNumber != 0U ? forcedRunNumber - inxBegin.run() : defaultOffset);
-      if(offset < 0) {
-        throw Exception(errors::Configuration)
-          << "The value of the 'setRunNumber' parameter must not be\n"
-          << "less than the first run number in the first input file.\n"
-          << "'setRunNumber' was " << forcedRunNumber <<", while the first run was "
-          << forcedRunNumber - offset << ".\n";
-      }
-      return offset;
-    }
-
     void
     checkReleaseVersion(std::vector<ProcessHistory> processHistoryVector, std::string const& fileName) {
       std::string releaseVersion = getReleaseVersion();
@@ -147,17 +139,20 @@ namespace edm {
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
-                     RunNumber_t const& forcedRunNumber,
+                     RunHelperBase* runHelper,
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
                      std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
+                     std::vector<BranchID> const* associationsFromSecondary,
                      std::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      ProcessHistoryRegistry& processHistoryRegistry,
                      std::vector<std::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                      std::vector<std::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+                     bool bypassVersionCheck,
                      bool labelRawDataLikeMC,
                      bool usingGoToEvent,
                      bool enablePrefetching) :
@@ -184,16 +179,18 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, nStreams, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching, inputType),
-      lumiTree_(filePtr_, InLumi, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching, inputType),
-      runTree_(filePtr_, InRun, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching, inputType),
+      eventTree_(filePtr, InEvent, nStreams, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching, inputType),
+      lumiTree_(filePtr, InLumi, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching, inputType),
+      runTree_(filePtr, InRun, 1, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching, inputType),
       treePointers_(),
       lastEventEntryNumberRead_(IndexIntoFile::invalidEntry),
       productRegistry_(),
       branchIDLists_(),
       branchIDListHelper_(branchIDListHelper),
+      fileThinnedAssociationsHelper_(),
+      thinnedAssociationsHelper_(thinnedAssociationsHelper),
       processingMode_(processingMode),
-      forcedRunOffset_(0),
+      runHelper_(runHelper),
       newBranchToOldBranch_(),
       eventHistoryTree_(nullptr),
       eventSelectionIDs_(),
@@ -205,7 +202,8 @@ namespace edm {
       provenanceReaderMaker_(),
       eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
-      daqProvenanceHelper_() {
+      daqProvenanceHelper_(),
+      edProductClass_(TClass::GetClass("edm::WrapperBase")) {
 
     hasNewlyDroppedBranch_.fill(false);
 
@@ -299,10 +297,18 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
 
-    std::unique_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDLists);
+    auto branchIDListsAPtr = std::make_unique<BranchIDLists>();
     BranchIDLists* branchIDListsPtr = branchIDListsAPtr.get();
     if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
+    }
+
+    if(inputType != InputType::SecondarySource) {
+      fileThinnedAssociationsHelper_ = std::make_unique<ThinnedAssociationsHelper>(); // propagate_const<T> has no reset() function
+      ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
+      if(metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
+        metaDataTree->SetBranchAddress(poolNames::thinnedAssociationsHelperBranchName().c_str(), &thinnedAssociationsHelperPtr);
+      }
     }
 
     BranchChildren* branchChildrenBuffer = branchChildren_.get();
@@ -349,15 +355,17 @@ namespace edm {
     }
     if(!fileFormatVersion().splitProductIDs()) {
       // Old provenance format input file.  Create a provenance adaptor.
-      provenanceAdaptor_.reset(new ProvenanceAdaptor(
-            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, true));
+      // propagate_const<T> has no reset() function
+      provenanceAdaptor_ = std::make_unique<ProvenanceAdaptor>(
+            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, true);
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
       if(!fileFormatVersion().triggerPathsTracked()) {
         // New provenance format, but change in ParameterSet Format. Create a provenance adaptor.
-        provenanceAdaptor_.reset(new ProvenanceAdaptor(
-            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, false));
+        // propagate_const<T> has no reset() function
+        provenanceAdaptor_ = std::make_unique<ProvenanceAdaptor>(
+            inputProdDescReg, pHistMap, pHistVector, processConfigurations, psetIdConverter, false);
       }
       // New provenance format input file. The branchIDLists branch was read directly from the input file.
       if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == nullptr) {
@@ -367,7 +375,16 @@ namespace edm {
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
 
-    checkReleaseVersion(pHistVector, file());
+    if(fileFormatVersion().hasThinnedAssociations()) {
+      if(metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) == nullptr) {
+        throw Exception(errors::EventCorruption)
+          << "Failed to find thinnedAssociationsHelper branch in metaData tree.\n";
+      }
+    }
+
+    if(!bypassVersionCheck) {
+      checkReleaseVersion(pHistVector, file());
+    }
 
     if(labelRawDataLikeMC) {
       std::string const rawData("FEDRawDataCollection");
@@ -380,7 +397,8 @@ namespace edm {
         // We need to change the module label and process name.
         // Create helper.
         it->second.init();
-        daqProvenanceHelper_.reset(new DaqProvenanceHelper(it->second.unwrappedTypeID()));
+        // propagate_const<T> has no reset() function
+        daqProvenanceHelper_ = std::make_unique<DaqProvenanceHelper>(it->second.unwrappedTypeID());
         // Create the new branch description
         BranchDescription const& newBD = daqProvenanceHelper_->branchDescription();
         // Save info from the old and new branch descriptions
@@ -406,18 +424,19 @@ namespace edm {
     }
 
     eventTree_.trainCache(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-        
+
     // Update the branch id info. This has to be done before validateFile since
     // depending on the file format, the branchIDListHelper_ may have its fixBranchListIndexes call made
-    if(inputType == InputType::Primary || inputType == InputType::SecondarySource) {
+    if(inputType == InputType::Primary) {
       branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
     }
-        
+
     validateFile(inputType, usingGoToEvent);
 
     // Here, we make the class that will make the ProvenanceReader
     // It reads whatever trees it needs.
-    provenanceReaderMaker_.reset(makeProvenanceReaderMaker(inputType).release());
+    // propagate_const<T> has no reset() function
+    provenanceReaderMaker_ = std::unique_ptr<MakeProvenanceReader>(makeProvenanceReaderMaker(inputType).release());
 
     // Merge into the hashed registries.
     if(eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
@@ -427,7 +446,7 @@ namespace edm {
     initializeDuplicateChecker(indexesIntoFiles, currentIndexIntoFile);
     indexIntoFileIter_ = indexIntoFileBegin_ = indexIntoFile_.begin(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
     indexIntoFileEnd_ = indexIntoFile_.end(noEventSort ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
-    forcedRunOffset_ = forcedRunOffset(forcedRunNumber, indexIntoFileBegin_, indexIntoFileEnd_);
+    runHelper_->setForcedRunOffset(indexIntoFileBegin_ == indexIntoFileEnd_ ? 1 : indexIntoFileBegin_.run());
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     // Set product presence information in the product registry.
@@ -438,7 +457,7 @@ namespace edm {
       treePointers_[prod.branchType()]->setPresence(prod, newBranchToOldBranch(prod.branchName()));
     }
 
-    std::unique_ptr<ProductRegistry> newReg(new ProductRegistry);
+    auto newReg = std::make_unique<ProductRegistry>();
 
     // Do the translation from the old registry to the new one
     {
@@ -452,7 +471,7 @@ namespace edm {
           if(fileFormatVersion().splitProductIDs()) {
             throw Exception(errors::UnimplementedFeature)
               << "Cannot change friendly class name algorithm without more development work\n"
-              << "to update BranchIDLists.  Contact the framework group.\n";
+              << "to update BranchIDLists and ThinnedAssociationsHelper.  Contact the framework group.\n";
           }
           BranchDescription newBD(prod);
           newBD.updateFriendlyClassName();
@@ -461,6 +480,12 @@ namespace edm {
         }
       }
       dropOnInput(*newReg, productSelectorRules, dropDescendants, inputType);
+      if(inputType == InputType::SecondaryFile) {
+        thinnedAssociationsHelper->updateFromSecondaryInput(*fileThinnedAssociationsHelper_,
+                                                            *associationsFromSecondary);
+      } else if (inputType == InputType::Primary) {
+        thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
+      }
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
       productRegistry_.reset(newReg.release());
@@ -614,14 +639,6 @@ namespace edm {
     if(remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) {
       whyNotFastClonable_ += FileBlock::MaxLumisTooSmall;
     }
-    // We no longer fast copy the EventAuxiliary branch, so there
-    // is no longer any need to disable fast copying because the run
-    // number is being modified.   Also, this check did not work anyway
-    // because this function is called before forcedRunOffset_ is set.
-
-    // if(forcedRunOffset_ != 0) {
-    //   whyNotFastClonable_ += FileBlock::RunNumberModified;
-    // }
     if(duplicateChecker_ &&
       !duplicateChecker_->checkDisabled() &&
       !duplicateChecker_->noDuplicatesInFile()) {
@@ -631,19 +648,19 @@ namespace edm {
 
   std::unique_ptr<FileBlock>
   RootFile::createFileBlock() const {
-    return std::unique_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
-                                                     eventTree_.tree(),
-                                                     eventTree_.metaTree(),
-                                                     lumiTree_.tree(),
-                                                     lumiTree_.metaTree(),
-                                                     runTree_.tree(),
-                                                     runTree_.metaTree(),
-                                                     whyNotFastClonable(),
-                                                     hasNewlyDroppedBranch(),
-                                                     file_,
-                                                     branchListIndexesUnchanged(),
-                                                     modifiedIDs(),
-                                                     branchChildren_));
+    return std::make_unique<FileBlock>(fileFormatVersion(),
+                                       eventTree_.tree(),
+                                       eventTree_.metaTree(),
+                                       lumiTree_.tree(),
+                                       lumiTree_.metaTree(),
+                                       runTree_.tree(),
+                                       runTree_.metaTree(),
+                                       whyNotFastClonable(),
+                                       hasNewlyDroppedBranch(),
+                                       file_,
+                                       branchListIndexesUnchanged(),
+                                       modifiedIDs(),
+                                       branchChildren());
   }
 
   std::string const&
@@ -663,6 +680,11 @@ namespace edm {
   void
   RootFile::setPosition(IndexIntoFile::IndexIntoFileItr const& position) {
     indexIntoFileIter_.copyPosition(position);
+  }
+
+  void
+  RootFile::initAssociationsFromSecondary(std::vector<BranchID> const& associationsFromSecondary) {
+    thinnedAssociationsHelper_->initAssociationsFromSecondary(associationsFromSecondary, *fileThinnedAssociationsHelper_);
   }
 
   bool
@@ -746,6 +768,7 @@ namespace edm {
     }
     if(entryType == IndexIntoFile::kRun) {
       run = indexIntoFileIter_.run();
+      runHelper_->checkForNewRun(run);
       return IndexIntoFile::kRun;
     } else if(processingMode_ == InputSource::Runs) {
       indexIntoFileIter_.advanceToNextRun();
@@ -1135,7 +1158,7 @@ namespace edm {
       treePointer = nullptr;
     }
     filePtr_->Close();
-    filePtr_.reset();
+    filePtr_ = nullptr; // propagate_const<T> has no reset() function
   }
 
   void
@@ -1220,7 +1243,9 @@ namespace edm {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
       provenanceAdaptor_->branchListIndexes(branchListIndexes_);
     }
-    branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
+    if(branchIDListHelper_) {
+      branchIDListHelper_->fixBranchListIndexes(branchListIndexes_);
+    }
   }
 
   std::shared_ptr<LuminosityBlockAuxiliary>
@@ -1362,9 +1387,9 @@ namespace edm {
   // EventPrincipal.
   //
   //   1. create an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one ProductHolder,
+  //   2. For each entry in the provenance, put in one ProductResolver,
   //      holding the Provenance for the corresponding EDProduct.
-  //   3. set up the the EventPrincipal to know about this ProductHolder.
+  //   3. set up the the EventPrincipal to know about this ProductResolver.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
@@ -1380,8 +1405,8 @@ namespace edm {
     // read the event
     readCurrentEvent(principal);
 
-    assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
-    assert(eventAux().luminosityBlock() == indexIntoFileIter_.lumi());
+    runHelper_->checkRunConsistency(eventAux().run(), indexIntoFileIter_.run());
+    runHelper_->checkLumiConsistency(eventAux().luminosityBlock(), indexIntoFileIter_.lumi());
 
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
     // The IndexIntoFile should guarantee that it never fails.
@@ -1405,7 +1430,7 @@ namespace edm {
         eventAux_.resetObsoleteInfo();
     }
     fillEventHistory();
-    overrideRunNumber(eventAux_.id(), eventAux().isRealData());
+    runHelper_->overrideRunNumber(eventAux_.id(), eventAux().isRealData());
 
     // We're not done ... so prepare the EventPrincipal
     eventTree_.insertEntryForIndex(principal.transitionIndex());
@@ -1414,7 +1439,7 @@ namespace edm {
                                  std::move(eventSelectionIDs_),
                                  std::move(branchListIndexes_),
                                  *(makeProductProvenanceRetriever(principal.streamID().value())),
-                                 eventTree_.rootDelayedReader());
+                                 eventTree_.resetAndGetRootDelayedReader());
 
     // report event read from file
     filePtr_->eventReadFromFile();
@@ -1428,6 +1453,10 @@ namespace edm {
 
   std::shared_ptr<RunAuxiliary>
   RootFile::readRunAuxiliary_() {
+    if(runHelper_->fakeNewRun()) {
+      runHelper_->overrideRunNumber(savedRunAuxiliary_->id());
+      return savedRunAuxiliary();
+    }
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
 
@@ -1442,14 +1471,15 @@ namespace edm {
       fillEventAuxiliary(eventEntry);
 
       RunID run = RunID(indexIntoFileIter_.run());
-      overrideRunNumber(run);
-      return std::make_shared<RunAuxiliary>(run.run(), eventAux().time(), Timestamp::invalidTimestamp());
+      runHelper_->overrideRunNumber(run);
+      savedRunAuxiliary_ = std::make_shared<RunAuxiliary>(run.run(), eventAux().time(), Timestamp::invalidTimestamp());
+      return savedRunAuxiliary();
     }
     // End code for backward compatibility before the existence of run trees.
     runTree_.setEntryNumber(indexIntoFileIter_.entry());
     std::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
     assert(runAuxiliary->run() == indexIntoFileIter_.run());
-    overrideRunNumber(runAuxiliary->id());
+    runHelper_->overrideRunNumber(runAuxiliary->id());
     filePtr_->reportInputRunNumber(runAuxiliary->run());
     // If RunAuxiliary did not contain a valid begin timestamp, invalidate any end timestamp.
     if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
@@ -1480,32 +1510,31 @@ namespace edm {
         if(!fileFormatVersion().processHistorySameWithinRun()) {
           fillEventHistory();
           runAuxiliary->setProcessHistoryID(eventAux().processHistoryID());
-          savedRunAuxiliary_ = runAuxiliary;
         }
-      } else {
-        // No valid event, just use what is there, because it is the best we can do.
-        savedRunAuxiliary_ = runAuxiliary;
       }
     }
+    savedRunAuxiliary_ = runAuxiliary;
     return runAuxiliary;
   }
 
   void
   RootFile::readRun_(RunPrincipal& runPrincipal) {
-    assert(indexIntoFileIter_ != indexIntoFileEnd_);
-    assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
+    if(!runHelper_->fakeNewRun()) {
+      assert(indexIntoFileIter_ != indexIntoFileEnd_);
+      assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
+      ++indexIntoFileIter_;
+    }
     // Begin code for backward compatibility before the existence of run trees.
     if(!runTree_.isValid()) {
-      ++indexIntoFileIter_;
       return;
     }
     // End code for backward compatibility before the existence of run trees.
     runTree_.insertEntryForIndex(runPrincipal.transitionIndex());
-    runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.rootDelayedReader());
+    runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
-    runPrincipal.readImmediate();
-    ++indexIntoFileIter_;
+    runPrincipal.readAllFromSourceAndMergeImmediately();
   }
+
 
   std::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::readLuminosityBlockAuxiliary_() {
@@ -1519,7 +1548,7 @@ namespace edm {
       fillEventAuxiliary(eventEntry);
 
       LuminosityBlockID lumi = LuminosityBlockID(indexIntoFileIter_.run(), indexIntoFileIter_.lumi());
-      overrideRunNumber(lumi);
+      runHelper_->overrideRunNumber(lumi);
       return std::make_shared<LuminosityBlockAuxiliary>(lumi.run(), lumi.luminosityBlock(), eventAux().time(), Timestamp::invalidTimestamp());
     }
     // End code for backward compatibility before the existence of lumi trees.
@@ -1527,7 +1556,7 @@ namespace edm {
     std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary = fillLumiAuxiliary();
     assert(lumiAuxiliary->run() == indexIntoFileIter_.run());
     assert(lumiAuxiliary->luminosityBlock() == indexIntoFileIter_.lumi());
-    overrideRunNumber(lumiAuxiliary->id());
+    runHelper_->overrideRunNumber(lumiAuxiliary->id());
     filePtr_->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
     if(lumiAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
       IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisLumi();
@@ -1557,9 +1586,9 @@ namespace edm {
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
     lumiTree_.insertEntryForIndex(lumiPrincipal.transitionIndex());
-    lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.rootDelayedReader());
+    lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
-    lumiPrincipal.readImmediate();
+    lumiPrincipal.readAllFromSourceAndMergeImmediately();
     ++indexIntoFileIter_;
   }
 
@@ -1601,41 +1630,10 @@ namespace edm {
   }
 
   void
-  RootFile::overrideRunNumber(RunID& id) {
-    if(forcedRunOffset_ != 0) {
-      id = RunID(id.run() + forcedRunOffset_);
-    }
-    if(id < RunID::firstValidRun()) id = RunID::firstValidRun();
-  }
-
-  void
-  RootFile::overrideRunNumber(LuminosityBlockID& id) {
-    if(forcedRunOffset_ != 0) {
-      id = LuminosityBlockID(id.run() + forcedRunOffset_, id.luminosityBlock());
-    }
-    if(RunID(id.run()) < RunID::firstValidRun()) id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
-  }
-
-  void
-  RootFile::overrideRunNumber(EventID& id, bool isRealData) {
-    if(forcedRunOffset_ != 0) {
-      if(isRealData) {
-        throw Exception(errors::Configuration, "RootFile::RootFile()")
-          << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
-      }
-      id = EventID(id.run() + forcedRunOffset_, id.luminosityBlock(), id.event());
-    }
-    if(RunID(id.run()) < RunID::firstValidRun()) {
-      id = EventID(RunID::firstValidRun().run(), LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock(), id.event());
-    }
-  }
-
-
-  void
   RootFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
     if(fileFormatVersion().eventHistoryTree()) {
-      history_.reset(new History);
+      history_ = std::make_unique<History>(); // propagate_const<T> has no reset() function
       eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
       if(!eventHistoryTree_) {
         throw Exception(errors::EventCorruption)
@@ -1661,23 +1659,81 @@ namespace edm {
   }
 
   void
+  RootFile::markBranchToBeDropped(bool dropDescendants, BranchID const& branchID, std::set<BranchID>& branchesToDrop) const {
+   if(dropDescendants) {
+     branchChildren_->appendToDescendants(branchID, branchesToDrop);
+    } else {
+      branchesToDrop.insert(branchID);
+    }
+  }
+
+  void
   RootFile::dropOnInput (ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType) {
-    // This is the selector for drop on input.
+
+  // This is the selector for drop on input.
     ProductSelector productSelector;
     productSelector.initialize(rules, reg.allBranchDescriptions());
+
+    std::vector<BranchDescription const*> associationDescriptions;
 
     ProductRegistry::ProductList& prodList = reg.productListUpdator();
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
     std::set<BranchID> branchesToDrop;
     for(auto const& product : prodList) {
       BranchDescription const& prod = product.second;
-      if(!productSelector.selected(prod)) {
-        if(dropDescendants) {
-          branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
+      // Special handling for ThinnedAssociations
+      if(prod.unwrappedType() == typeid(ThinnedAssociation) && prod.present()) {
+        if(inputType != InputType::SecondarySource) {
+          associationDescriptions.push_back(&prod);
         } else {
-          branchesToDrop.insert(prod.branchID());
+          markBranchToBeDropped(dropDescendants, prod.branchID(), branchesToDrop);
+        }
+      } else if(!productSelector.selected(prod)) {
+        markBranchToBeDropped(dropDescendants, prod.branchID(), branchesToDrop);
+      }
+    }
+
+    if(inputType != InputType::SecondarySource) {
+
+      // Decide whether to keep the thinned associations and corresponding
+      // entries in the helper. For secondary source they are all dropped,
+      // but in other cases we look for thinned collections the associations
+      // redirect a Ref or Ptr to when dereferencing them.
+
+      // Need a list of kept products in order to determine which thinned associations
+      // are kept.
+      std::set<BranchID> keptProductsInEvent;
+      for(auto const& product : prodList) {
+        BranchDescription const& prod = product.second;
+        if( branchesToDrop.find(prod.branchID()) == branchesToDrop.end() &&
+            prod.present() &&
+            prod.branchType() == InEvent) {
+          keptProductsInEvent.insert(prod.branchID());
         }
       }
+
+      // Decide which ThinnedAssociations to keep and store the decision in keepAssociation
+      std::map<BranchID, bool> keepAssociation;
+      fileThinnedAssociationsHelper_->selectAssociationProducts(associationDescriptions,
+                                                              keptProductsInEvent,
+                                                              keepAssociation);
+
+      for(auto association : associationDescriptions) {
+        if(!keepAssociation[association->branchID()]) {
+          markBranchToBeDropped(dropDescendants, association->branchID(), branchesToDrop);
+        }
+      }
+
+      // Also delete the dropped associations from the ThinnedAssociationsHelper
+      auto temp = std::make_unique<ThinnedAssociationsHelper>();
+      for(auto const& associationBranches : fileThinnedAssociationsHelper_->data()) {
+        auto iter = keepAssociation.find(associationBranches.association());
+        if(iter != keepAssociation.end() && iter->second) {
+          temp->addAssociation(associationBranches);
+        }
+      }
+      // propagate_const<T> has no reset() function
+      fileThinnedAssociationsHelper_ = std::unique_ptr<ThinnedAssociationsHelper>(temp.release());
     }
 
     // On this pass, actually drop the branches.
@@ -1686,7 +1742,7 @@ namespace edm {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
-        if(productSelector.selected(prod)) {
+        if(productSelector.selected(prod) && prod.unwrappedType() != typeid(ThinnedAssociation)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"
@@ -1708,9 +1764,11 @@ namespace edm {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
-          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          WrapperOwningHolder edp(cp->New(), prod.getInterface());
-          if(edp.isMergeable()) {
+          TClass* cp = TClass::GetClass(prod.wrappedName().c_str());
+          void* p = cp->New();
+          int offset = cp->GetBaseClassOffset(edProductClass_);
+          std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
+          if(edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;
             ++it;
@@ -1723,21 +1781,28 @@ namespace edm {
       }
     }
   }
+  
+  void 
+  RootFile::setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource) {
+    eventTree_.setSignals(preEventReadSource,postEventReadSource);
+  }
+
 
   std::unique_ptr<MakeProvenanceReader>
   RootFile::makeProvenanceReaderMaker(InputType inputType) {
     if(fileFormatVersion_.storedProductProvenanceUsed()) {
       readParentageTree(inputType);
-      return std::unique_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
+      return std::make_unique<MakeReducedProvenanceReader>(parentageIDLookup_);
     } else if(fileFormatVersion_.splitProductIDs()) {
       readParentageTree(inputType);
-      return std::unique_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
+      return std::make_unique<MakeFullProvenanceReader>();
     } else if(fileFormatVersion_.perEventProductIDs()) {
-      std::unique_ptr<EntryDescriptionMap> entryDescriptionMap(new EntryDescriptionMap);
+      auto entryDescriptionMap = std::make_unique<EntryDescriptionMap>();
       readEntryDescriptionTree(*entryDescriptionMap, inputType);
-      return std::unique_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader(std::move(entryDescriptionMap)));
+      return std::make_unique<MakeOldProvenanceReader>(std::move(entryDescriptionMap));
     } else {
-      return std::unique_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
+      return std::make_unique<MakeDummyProvenanceReader>();
     }
   }
 
@@ -1747,24 +1812,33 @@ namespace edm {
       eventProductProvenanceRetrievers_.resize(iStreamID+1);
     }
     if(!eventProductProvenanceRetrievers_[iStreamID]) {
-      eventProductProvenanceRetrievers_[iStreamID].reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+      // propagate_const<T> has no reset() function
+      eventProductProvenanceRetrievers_[iStreamID] = std::make_shared<ProductProvenanceRetriever>(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get()));
     }
     eventProductProvenanceRetrievers_[iStreamID]->reset();
-    return eventProductProvenanceRetrievers_[iStreamID];
+    return eventProductProvenanceRetriever(iStreamID);
   }
 
   class ReducedProvenanceReader : public ProvenanceReaderBase {
   public:
     ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup, DaqProvenanceHelper const* daqProvenanceHelper);
-  private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int) const override;
-    RootTree* rootTree_;
-    TBranch* provBranch_;
+
+    virtual std::set<ProductProvenance> readProvenance(unsigned int) const override;
+private:
+    virtual void readProvenanceAsync(WaitingTask* task,
+                                     ModuleCallingContext const* moduleCallingContext,
+                                     unsigned int transitionIndex,
+                                     std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                     ) const override;
+
+    edm::propagate_const<RootTree*> rootTree_;
+    edm::propagate_const<TBranch*> provBranch_;
     StoredProductProvenanceVector provVector_;
-    StoredProductProvenanceVector* pProvVector_;
+    StoredProductProvenanceVector const* pProvVector_;
     std::vector<ParentageID> const& parentageIDLookup_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
-    mutable SharedResourcesAcquirer resourceAcquirer_;
+    std::shared_ptr<std::recursive_mutex> mutex_;
+    SharedResourcesAcquirer acquirer_;
   };
 
   ReducedProvenanceReader::ReducedProvenanceReader(
@@ -1776,24 +1850,93 @@ namespace edm {
       pProvVector_(&provVector_),
       parentageIDLookup_(iParentageIDLookup),
       daqProvenanceHelper_(daqProvenanceHelper),
-      resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader())
+      mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
+      acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first)
   {
     provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
   }
 
+  namespace {
+    using SignalType = signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)>;
+    template<typename R>
+    void readProvenanceAsyncImpl(R const* iThis,
+                                 SerialTaskQueueChain& chain,
+                                 WaitingTask* task,
+                                 unsigned int transitionIndex,
+                                 std::atomic<const std::set<ProductProvenance>*>& writeTo,
+                                 ModuleCallingContext const* iContext,
+                                 SignalType const* pre,
+                                 SignalType const* post) {
+      if(nullptr == writeTo.load()) {
+        //need to be sure the task isn't run until after the read
+        task->increment_ref_count();
+        auto pWriteTo = &writeTo;
+        
+        auto serviceToken = ServiceRegistry::instance().presentToken();
+
+        chain.push([task,pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() {
+          WaitingTaskHolder holder(task);
+          //the holder is now responsible for the task
+          // and has already incremented the count
+          task->decrement_ref_count();
+          
+          ServiceRegistry::Operate operate(serviceToken);
+
+          if(nullptr == pWriteTo->load()) {
+            std::unique_ptr<const std::set<ProductProvenance>> prov;
+            try {
+              if(pre) {pre->emit(*(iContext->getStreamContext()),*iContext);}
+              prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
+              if(post) {post->emit(*(iContext->getStreamContext()),*iContext);}
+
+            }catch(...) {
+              if(post) {post->emit(*(iContext->getStreamContext()),*iContext);}
+
+              holder.doneWaiting(std::current_exception());
+              return;
+            }
+            const std::set<ProductProvenance>* expected = nullptr;
+            
+            if(pWriteTo->compare_exchange_strong(expected,prov.get())) {
+              prov.release();
+            }
+          }
+          holder.doneWaiting(std::exception_ptr());
+        });
+      }
+    }
+  }
+  
   void
-  ReducedProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+  ReducedProvenanceReader::readProvenanceAsync(WaitingTask* task,
+                                   ModuleCallingContext const* moduleCallingContext,
+                                   unsigned int transitionIndex,
+                                   std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                               ) const {
+    readProvenanceAsyncImpl(this,
+                            acquirer_.serialQueueChain(),
+                            task,
+                            transitionIndex,
+                            writeTo,
+                            moduleCallingContext,
+                            rootTree_->rootDelayedReader()->preEventReadFromSourceSignal(),
+                            rootTree_->rootDelayedReader()->postEventReadFromSourceSignal());
+  }
+
+  std::set<ProductProvenance>
+  ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
-      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
       me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
       setRefCoreStreamer(true);
     }
+    std::set<ProductProvenance> retValue;
     if(daqProvenanceHelper_) {
       for(auto const& prov : provVector_) {
         BranchID bid(prov.branchID_);
-        provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(BranchID(prov.branchID_)),
-                                                      daqProvenanceHelper_->mapParentageID(parentageIDLookup_[prov.parentageIDIndex_])));
+        retValue.emplace(daqProvenanceHelper_->mapBranchID(BranchID(prov.branchID_)),
+                         daqProvenanceHelper_->mapParentageID(parentageIDLookup_[prov.parentageIDIndex_]));
       }
     } else {
       for(auto const& prov : provVector_) {
@@ -1804,22 +1947,30 @@ namespace edm {
             << "This should never happen.\n"
             << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
         }
-        provRetriever.insertIntoSet(ProductProvenance(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]));
+        retValue.emplace(BranchID(prov.branchID_), parentageIDLookup_[prov.parentageIDIndex_]);
       }
     }
+    return retValue;
   }
 
   class FullProvenanceReader : public ProvenanceReaderBase {
   public:
     explicit FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~FullProvenanceReader() {}
+    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
+    virtual void readProvenanceAsync(WaitingTask* task,
+                                     ModuleCallingContext const* moduleCallingContext,
+                                     unsigned int transitionIndex,
+                                     std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                     ) const override;
+
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
-    mutable SharedResourcesAcquirer resourceAcquirer_;
+    std::shared_ptr<std::recursive_mutex> mutex_;
+    SharedResourcesAcquirer acquirer_;
   };
 
   FullProvenanceReader::FullProvenanceReader(RootTree* rootTree, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1828,40 +1979,67 @@ namespace edm {
          infoVector_(),
          pInfoVector_(&infoVector_),
          daqProvenanceHelper_(daqProvenanceHelper),
-         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
+         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
+         acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first)
+{
   }
 
   void
-  FullProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+  FullProvenanceReader::readProvenanceAsync(WaitingTask* task,
+                                            ModuleCallingContext const* moduleCallingContext,
+                                            unsigned int transitionIndex,
+                                            std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                               ) const {
+    readProvenanceAsyncImpl(this,
+                            acquirer_.serialQueueChain(),
+                            task,
+                            transitionIndex,
+                            writeTo,
+                            moduleCallingContext,
+                            rootTree_->rootDelayedReader()->preEventReadFromSourceSignal(),
+                            rootTree_->rootDelayedReader()->postEventReadFromSourceSignal());
+  }
+
+  std::set<ProductProvenance>
+  FullProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
-      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      std::lock_guard<std::recursive_mutex> guard(*mutex_);
       rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
       setRefCoreStreamer(true);
     }
+    std::set<ProductProvenance> retValue;
     if(daqProvenanceHelper_) {
       for(auto const& info : infoVector_) {
-        provRetriever.insertIntoSet(ProductProvenance(daqProvenanceHelper_->mapBranchID(info.branchID()),
-                                               daqProvenanceHelper_->mapParentageID(info.parentageID())));
+        retValue.emplace(daqProvenanceHelper_->mapBranchID(info.branchID()),
+                         daqProvenanceHelper_->mapParentageID(info.parentageID()));
       }
     } else {
       for(auto const& info : infoVector_) {
-        provRetriever.insertIntoSet(info);
+        retValue.emplace(info);
       }
     }
+    return retValue;
   }
 
   class OldProvenanceReader : public ProvenanceReaderBase {
   public:
     explicit OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper);
     virtual ~OldProvenanceReader() {}
+    virtual std::set<ProductProvenance> readProvenance(unsigned int transitionIndex) const override;
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const override;
-    RootTree* rootTree_;
+    virtual void readProvenanceAsync(WaitingTask* task,
+                                     ModuleCallingContext const* moduleCallingContext,
+                                     unsigned int transitionIndex,
+                                     std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                     ) const override;
+
+    edm::propagate_const<RootTree*> rootTree_;
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> *pInfoVector_;
     EntryDescriptionMap const& entryDescriptionMap_;
     DaqProvenanceHelper const* daqProvenanceHelper_;
-    mutable SharedResourcesAcquirer resourceAcquirer_;
+    std::shared_ptr<std::recursive_mutex> mutex_;
+    SharedResourcesAcquirer acquirer_;
   };
 
   OldProvenanceReader::OldProvenanceReader(RootTree* rootTree, EntryDescriptionMap const& theMap, DaqProvenanceHelper const* daqProvenanceHelper) :
@@ -1871,31 +2049,48 @@ namespace edm {
          pInfoVector_(&infoVector_),
          entryDescriptionMap_(theMap),
          daqProvenanceHelper_(daqProvenanceHelper),
-         resourceAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) {
+         mutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
+         acquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first)
+{
   }
 
   void
-  OldProvenanceReader::readProvenance(ProductProvenanceRetriever const& provRetriever, unsigned int transitionIndex) const {
+  OldProvenanceReader::readProvenanceAsync(WaitingTask* task,
+                                            ModuleCallingContext const* moduleCallingContext,
+                                            unsigned int transitionIndex,
+                                            std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                            ) const {
+    readProvenanceAsyncImpl(this,
+                            acquirer_.serialQueueChain(),
+                            task,
+                            transitionIndex,
+                            writeTo,
+                            moduleCallingContext,
+                            rootTree_->rootDelayedReader()->preEventReadFromSourceSignal(),
+                            rootTree_->rootDelayedReader()->postEventReadFromSourceSignal());
+  }
+
+  std::set<ProductProvenance>
+  OldProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
-      std::lock_guard<SharedResourcesAcquirer> guard(resourceAcquirer_);
+      std::lock_guard<std::recursive_mutex> guard(*mutex_);
       rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
       roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
       setRefCoreStreamer(true);
     }
+    std::set<ProductProvenance> retValue;
     for(auto const& info : infoVector_) {
       EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
       assert(iter != entryDescriptionMap_.end());
       Parentage parentage(iter->second.parents());
       if(daqProvenanceHelper_) {
-        ProductProvenance entry(daqProvenanceHelper_->mapBranchID(info.branchID()),
+        retValue.emplace(daqProvenanceHelper_->mapBranchID(info.branchID()),
                                 daqProvenanceHelper_->mapParentageID(parentage.id()));
-        provRetriever.insertIntoSet(entry);
       } else {
-        ProductProvenance entry(info.branchID(), parentage.id());
-        provRetriever.insertIntoSet(entry);
+        retValue.emplace(info.branchID(), parentage.id());
       }
-    
     }
+    return retValue;
   }
 
   class DummyProvenanceReader : public ProvenanceReaderBase {
@@ -1903,35 +2098,55 @@ namespace edm {
     DummyProvenanceReader();
     virtual ~DummyProvenanceReader() {}
   private:
-    virtual void readProvenance(ProductProvenanceRetriever const& provRetriever,unsigned int) const override;
+    virtual std::set<ProductProvenance> readProvenance(unsigned int) const override;
+    virtual void readProvenanceAsync(WaitingTask* task,
+                                     ModuleCallingContext const* moduleCallingContext,
+                                     unsigned int transitionIndex,
+                                     std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                     ) const override;
   };
 
   DummyProvenanceReader::DummyProvenanceReader() :
       ProvenanceReaderBase() {
   }
 
-  void
-  DummyProvenanceReader::readProvenance(ProductProvenanceRetriever const&, unsigned int) const {
+  std::set<ProductProvenance>
+  DummyProvenanceReader::readProvenance(unsigned int) const {
     // Not providing parentage!!!
+    return std::set<ProductProvenance>{};
   }
-
+  void
+  DummyProvenanceReader::readProvenanceAsync(WaitingTask* task,
+                                             ModuleCallingContext const* moduleCallingContext,
+                                             unsigned int transitionIndex,
+                                             std::atomic<const std::set<ProductProvenance>*>& writeTo
+                                             ) const {
+    if(nullptr == writeTo.load()) {
+      auto emptyProv = std::make_unique<const std::set<ProductProvenance>>();
+      const std::set<ProductProvenance>* expected = nullptr;
+      if(writeTo.compare_exchange_strong(expected,emptyProv.get())) {
+        emptyProv.release();
+      }
+    }
+  }
+  
   std::unique_ptr<ProvenanceReaderBase>
   MakeDummyProvenanceReader::makeReader(RootTree&, DaqProvenanceHelper const*) const {
-     return std::unique_ptr<ProvenanceReaderBase>(new DummyProvenanceReader);
+     return std::make_unique<DummyProvenanceReader>();
   }
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeOldProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree, *entryDescriptionMap_, daqProvenanceHelper));
+    return std::make_unique<OldProvenanceReader>(&rootTree, *entryDescriptionMap_, daqProvenanceHelper);
   }
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeFullProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new FullProvenanceReader(&rootTree, daqProvenanceHelper));
+    return std::make_unique<FullProvenanceReader>(&rootTree, daqProvenanceHelper);
   }
 
   std::unique_ptr<ProvenanceReaderBase>
   MakeReducedProvenanceReader::makeReader(RootTree& rootTree, DaqProvenanceHelper const* daqProvenanceHelper) const {
-    return std::unique_ptr<ProvenanceReaderBase>(new ReducedProvenanceReader(&rootTree, parentageIDLookup_, daqProvenanceHelper));
+    return std::make_unique<ReducedProvenanceReader>(&rootTree, parentageIDLookup_, daqProvenanceHelper);
   }
 }

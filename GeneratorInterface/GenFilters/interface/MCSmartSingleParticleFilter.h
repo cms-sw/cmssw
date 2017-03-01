@@ -32,6 +32,9 @@
 //
 // class declaration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class MCSmartSingleParticleFilter : public edm::EDFilter {
    public:
@@ -43,7 +46,7 @@ class MCSmartSingleParticleFilter : public edm::EDFilter {
    private:
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> particleID;  
        std::vector<double> pMin;
        std::vector<double> ptMin;

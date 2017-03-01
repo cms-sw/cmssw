@@ -47,7 +47,7 @@ Create default config file by running with no arguments:
     sys.exit(0)
 try:
     from ROOT import TFile, TTree, TH1F, TH2F, TH3F, gROOT
-except Exception, e:
+except Exception as e:
     print e
     print ("Use a python that has PyROOT installed.")
     sys.exit(0)
@@ -231,7 +231,7 @@ def tree2hists_main(config_file):
             sys.exit(1)
         if path.isfile(output_filename):
             print "Warning: %s exists" % output_filename
-    except Exception, e:
+    except Exception as e:
         print e
         print "Error with %s" % config_file
         sys.exit(1)

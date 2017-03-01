@@ -43,7 +43,7 @@ SiPixelFakeLorentzAngleESSource::~SiPixelFakeLorentzAngleESSource()
 
 }
 
-std::auto_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(const SiPixelLorentzAngleRcd & )
+std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(const SiPixelLorentzAngleRcd & )
 {
 
 	using namespace edm::es;
@@ -63,7 +63,7 @@ std::auto_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(cons
 	
 	//std::cout << "Modules = " << nmodules << std::endl;
 
-	return std::auto_ptr<SiPixelLorentzAngle>(obj);
+	return std::unique_ptr<SiPixelLorentzAngle>(obj);
 	
 
 }

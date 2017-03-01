@@ -1,9 +1,14 @@
 #include "DetectorDescription/Core/src/Sphere.h"
-#include <DataFormats/GeometryVector/interface/Pi.h>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <cmath>
 #include <ostream>
+#include <vector>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 DDI::Sphere::Sphere(double innerRadius,
 		    double outerRadius,

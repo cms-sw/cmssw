@@ -43,7 +43,7 @@ SiPixelFakeQualityESSource::~SiPixelFakeQualityESSource()
 
 }
 
-std::auto_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixelQualityFromDbRcd & )
+std::unique_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixelQualityFromDbRcd & )
 {
 
 
@@ -59,7 +59,7 @@ std::auto_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixelQ
     SiPixelQuality::disabledModuleType BadModule;
     BadModule.DetID = 1; BadModule.errorType = 0; BadModule.BadRocs = 65535; obj->addDisabledModule(BadModule);
 
-    return std::auto_ptr<SiPixelQuality>(obj);
+    return std::unique_ptr<SiPixelQuality>(obj);
 
 }
 

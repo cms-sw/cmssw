@@ -1,5 +1,5 @@
 <use   name="DataFormats/Common"/>
-<use   name="rootrflx"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="clhepheader"/>
 <export>
   <lib   name="1"/>

@@ -12,7 +12,7 @@ using namespace std;
 
 PythiaDauVFilter::PythiaDauVFilter(const edm::ParameterSet& iConfig) :
   fVerbose(iConfig.getUntrackedParameter("verbose",0)),
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
   motherID(iConfig.getUntrackedParameter("MotherID", 0)),
   chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),
@@ -67,7 +67,7 @@ bool PythiaDauVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   bool accepted = false;
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   int OK(1); 
   vector<int> vparticles; 

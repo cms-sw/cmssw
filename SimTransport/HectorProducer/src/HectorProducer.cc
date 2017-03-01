@@ -1,4 +1,6 @@
 // Framework headers
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -27,26 +29,18 @@
 
 class TRandom3;
 
-using std::cout;
-using std::endl;
+HectorProducer::HectorProducer(edm::ParameterSet const & p):
+  m_HepMC(consumes<edm::HepMCProduct>(p.getParameter<std::string>("HepMCProductLabel")))
+{
+  m_verbosity      = p.getParameter<bool>("Verbosity");
+  m_FP420Transport = p.getParameter<bool>("FP420Transport");
+  m_ZDCTransport   = p.getParameter<bool>("ZDCTransport");
+  m_evtAnalysed    = 0;
 
-HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnalysed(0) {
-  
-  
-  // TransportHector
-  
-  m_InTag          = parameters.getParameter<std::string>("HepMCProductLabel") ;
-  m_verbosity      = parameters.getParameter<bool>("Verbosity");
-  m_FP420Transport = parameters.getParameter<bool>("FP420Transport");
-  m_ZDCTransport   = parameters.getParameter<bool>("ZDCTransport");
-  
   produces<edm::HepMCProduct>();
   produces<edm::LHCTransportLinkContainer>();
 
-  hector = new Hector(parameters, 
-		      m_verbosity,
-		      m_FP420Transport,
-		      m_ZDCTransport);
+  m_Hector = new Hector(p, m_verbosity, m_FP420Transport, m_ZDCTransport);
   
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
@@ -55,34 +49,32 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
          "which is not present in the configuration file.  You must add the service\n"
          "in the configuration file or remove the modules that require it.";
   }
+  edm::LogInfo("SimTransportHectorProducer") << "Hector is created"; 
 }
 
-HectorProducer::~HectorProducer(){
-  
-  if(m_verbosity) {
-    LogDebug("HectorSetup") << "Delete HectorProducer"  
-                            << "Number of events analysed: " << eventsAnalysed;
-  }
+HectorProducer::~HectorProducer() {}
 
-}
+void HectorProducer::beginRun(const edm::Run & r,const edm::EventSetup& c) {}
+
+void HectorProducer::endRun(const edm::Run & r,const edm::EventSetup& c) {}
 
 void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
-
-  using namespace edm;
-  using namespace std;
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
   if ( engine->name() != "TRandom3" ) {
     throw cms::Exception("Configuration")
-      << "The TRandom3 engine type must be used with HectorProducer, Random Number Generator Service not correctly configured!";
+      << "The TRandom3 engine type must be used with HectorProducer, "
+      << "Random Number Generator Service not correctly configured!";
   }
   TRandom3* rootEngine = ( (edm::TRandomAdaptor*) engine )->getRootEngine();
 
-  eventsAnalysed++;
+  ++m_evtAnalysed;
+
+  edm::LogInfo("SimTransportHectorProducer") << "produce evt " << m_evtAnalysed; 
   
-  Handle<HepMCProduct>  HepMCEvt;   
-  iEvent.getByLabel( m_InTag, HepMCEvt ) ;
+  edm::Handle<edm::HepMCProduct>  HepMCEvt;   
+  iEvent.getByToken(m_HepMC, HepMCEvt);
   
   if ( !HepMCEvt.isValid() )
     {
@@ -97,33 +89,36 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
     }
 
   evt_ = new HepMC::GenEvent( *HepMCEvt->GetEvent() );
-  hector->clearApertureFlags();
+  m_Hector->clearApertureFlags();
   if(m_FP420Transport) {
-    hector->clear();
-    hector->add( evt_ ,es);
-    hector->filterFP420(rootEngine);
+    m_Hector->clear();
+    m_Hector->add( evt_ ,es);
+    m_Hector->filterFP420(rootEngine);
   }
   if(m_ZDCTransport) {
-    hector->clear();
-    hector->add( evt_ ,es);
-    hector->filterZDC(rootEngine);
+    m_Hector->clear();
+    m_Hector->add( evt_ ,es);
+    m_Hector->filterZDC(rootEngine);
     
-    hector->clear();
-    hector->add( evt_ ,es);
-    hector->filterD1(rootEngine);
+    m_Hector->clear();
+    m_Hector->add( evt_ ,es);
+    m_Hector->filterD1(rootEngine);
   }
-  evt_ = hector->addPartToHepMC( evt_ );
+  evt_ = m_Hector->addPartToHepMC( evt_ );
   if (m_verbosity) {
     evt_->print();
   }
+
+  edm::LogInfo("SimTransportHectorProducer") << "new HepMC product "; 
   
-  auto_ptr<HepMCProduct> NewProduct(new HepMCProduct()) ;
+  unique_ptr<edm::HepMCProduct> NewProduct(new edm::HepMCProduct());
   NewProduct->addHepMCData( evt_ ) ;
   
-  iEvent.put( NewProduct ) ;
+  iEvent.put(std::move(NewProduct));
 
-  auto_ptr<LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer() );
-  edm::LHCTransportLinkContainer thisLink(hector->getCorrespondenceMap());
+  edm::LogInfo("SimTransportHectorProducer") << "new LHCTransportLinkContainer "; 
+  unique_ptr<edm::LHCTransportLinkContainer> NewCorrespondenceMap(new edm::LHCTransportLinkContainer());
+  edm::LHCTransportLinkContainer thisLink(m_Hector->getCorrespondenceMap());
   (*NewCorrespondenceMap).swap(thisLink);
 
   if ( m_verbosity ) {
@@ -131,7 +126,9 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
       LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 
-  iEvent.put( NewCorrespondenceMap );
+  iEvent.put(std::move(NewCorrespondenceMap));
+  edm::LogInfo("SimTransportHectorProducer") << "produce end "; 
 
 }
 
+DEFINE_FWK_MODULE (HectorProducer);

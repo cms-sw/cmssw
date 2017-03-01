@@ -10,7 +10,7 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,17 +26,17 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-class StripClusterSelectorTopBottom : public edm::EDProducer {
+class StripClusterSelectorTopBottom : public edm::global::EDProducer<> {
 
  public:
   explicit StripClusterSelectorTopBottom( const edm::ParameterSet& cfg) :
-    label_( cfg.getParameter<edm::InputTag>( "label" ) ),
+    token_( consumes<edmNew::DetSetVector<SiStripCluster>>(cfg.getParameter<edm::InputTag>( "label" ) )),
     y_( cfg.getParameter<double>( "y" ) ) { produces<edmNew::DetSetVector<SiStripCluster> >(); }
   
-  void produce( edm::Event& event, const edm::EventSetup& setup);
+  void produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
   
  private:
-  edm::InputTag label_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> token_;
   double y_;
 };
 

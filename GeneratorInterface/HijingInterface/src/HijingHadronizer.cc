@@ -270,10 +270,8 @@ bool HijingHadronizer::initializeForInternalPartons(){
 
   //initialize pythia5
 
-  if(0){
-    std::string dumstr = "";
-    call_pygive(dumstr);
-  }
+   // std::string dumstr = "";
+   // call_pygive(dumstr);
 
    // initialize hijing
    LogInfo("HIJINGinAction") << "##### Calling HIJSET(" << efrm_ << "," <<frame_<<","<<proj_<<","<<targ_<<","<<iap_<<","<<izp_<<","<<iat_<<","<<izt_<<") ####";

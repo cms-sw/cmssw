@@ -116,6 +116,9 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                       interestingDetIds = cms.VInputTag(
                                         cms.InputTag("interestingEcalDetIdPFES"),
                                         cms.InputTag("interestingEcalDetIdRefinedES"), 
+                                      ),
+                                      interestingDetIdsNotToClean = cms.VInputTag(
+                                          cms.InputTag("interestingGedEgammaIsoESDetId"),
                                       )
 )
 
@@ -137,3 +140,10 @@ reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(interestingEcalDetIdEB*interes
                                           reducedEcalRecHitsEB*
                                           reducedEcalRecHitsEE*
                                           seldigis)                                          
+
+
+_phase2_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copy()
+_phase2_reducedEcalRecHitsSequence.remove(reducedEcalRecHitsES)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith( reducedEcalRecHitsSequence , _phase2_reducedEcalRecHitsSequence )

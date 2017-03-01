@@ -1,7 +1,7 @@
 #ifndef RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSCREATOR_H
 #define RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSCREATOR_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,11 +22,12 @@
 // rejected hists as well: requested by the MET group
 // for studies of the effect of noise clean up.
 
-class CaloTowersCreator : public edm::EDProducer {
+class CaloTowersCreator : public  edm::stream::EDProducer<> {
 public:
   explicit CaloTowersCreator(const edm::ParameterSet& ps);
   virtual ~CaloTowersCreator() { }
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
 

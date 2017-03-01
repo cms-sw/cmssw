@@ -427,6 +427,12 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 	    case MuonSubdetId::RPC:
 	       name = "RPC";
 	       break;
+	    case MuonSubdetId::GEM:
+	       name = "GEM";
+	       break;
+	    case MuonSubdetId::ME0:
+	       name = "ME0";
+	       break;	       
 	    default:
 	       break;
 	    }
@@ -448,6 +454,8 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 		  shape->SetMainColor( iItem->defaultDisplayProperties().color());
 		  break;
 	       case TrackingRecHit::missing:
+	       case TrackingRecHit::missing_inner:
+	       case TrackingRecHit::missing_outer:
 		  name += "LOST ";
 		  shape->SetMainColor( kRed );
 		  break;

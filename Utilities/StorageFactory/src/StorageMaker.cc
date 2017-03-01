@@ -3,29 +3,17 @@
 #include "Utilities/StorageFactory/interface/IOFlags.h"
 #include <cstdlib>
 
-StorageMaker::StorageMaker (void)
-{}
-
-StorageMaker::~StorageMaker (void)
-{}
-
 void
 StorageMaker::stagein (const std::string &/*proto*/,
-                       const std::string &/*path*/)
-{}
-
-void
-StorageMaker::setTimeout (unsigned int /*timeout*/)
-{}
-
-void
-StorageMaker::setDebugLevel (unsigned int /*level*/)
+                       const std::string &/*path*/,
+                       const AuxSettings& ) const
 {}
 
 bool
 StorageMaker::check (const std::string &proto,
 		     const std::string &path,
-		     IOOffset *size /* = 0 */)
+         const AuxSettings& aux,
+		     IOOffset *size /* = 0 */) const
 {
   // Fallback method is to open the file and check its
   // size.  Because grid jobs run in a directory where
@@ -36,13 +24,12 @@ StorageMaker::check (const std::string &proto,
   // destructor or close method.
   bool found = false;
   int mode = IOFlags::OpenRead | IOFlags::OpenUnbuffered;
-  if (Storage *s = open (proto, path, mode))
+  if (auto s = open (proto, path, mode, aux))
   {
     if (size)
       *size = s->size ();
 
     s->close ();
-    delete s;
 
     found = true;
   }

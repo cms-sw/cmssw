@@ -53,7 +53,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmaker2);
 void testmaker2::maker2Test()
 //int main()
 {
-  std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
+  std::unique_ptr<Maker> f = std::make_unique<WorkerMaker<TestMod>>();
 
   ParameterSet p1;
   p1.addParameter("@module_type",std::string("TestMod") );

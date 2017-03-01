@@ -1,10 +1,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitFakeNavigator.h"
+
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitDualNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigatorWithTime.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFECALHashNavigator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/HGCRecHitNavigator.h"
 
 class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EBDetId,EcalBarrelTopology> {
  public:
@@ -36,7 +39,7 @@ class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
   }
 };
 
-class PFRecHitEcalBarrelNavigator : public PFRecHitCaloNavigator<EBDetId,EcalBarrelTopology> {
+class PFRecHitEcalBarrelNavigator final : public PFRecHitCaloNavigator<EBDetId,EcalBarrelTopology> {
  public:
   PFRecHitEcalBarrelNavigator(const edm::ParameterSet& iConfig) {
 
@@ -49,7 +52,7 @@ class PFRecHitEcalBarrelNavigator : public PFRecHitCaloNavigator<EBDetId,EcalBar
   }
 };
 
-class PFRecHitEcalEndcapNavigator : public PFRecHitCaloNavigator<EEDetId,EcalEndcapTopology> {
+class PFRecHitEcalEndcapNavigator final : public PFRecHitCaloNavigator<EEDetId,EcalEndcapTopology> {
  public:
   PFRecHitEcalEndcapNavigator(const edm::ParameterSet& iConfig) {
 
@@ -62,7 +65,7 @@ class PFRecHitEcalEndcapNavigator : public PFRecHitCaloNavigator<EEDetId,EcalEnd
   }
 };
 
-class PFRecHitPreshowerNavigator : public PFRecHitCaloNavigator<ESDetId,EcalPreshowerTopology> {
+class PFRecHitPreshowerNavigator final : public PFRecHitCaloNavigator<ESDetId,EcalPreshowerTopology> {
  public:
   PFRecHitPreshowerNavigator(const edm::ParameterSet& iConfig) {
 
@@ -77,7 +80,7 @@ class PFRecHitPreshowerNavigator : public PFRecHitCaloNavigator<ESDetId,EcalPres
 };
 
 
-class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopology,false> {
+class PFRecHitHCALNavigator final : public PFRecHitCaloNavigator<HcalDetId,HcalTopology,false> {
  public:
   PFRecHitHCALNavigator(const edm::ParameterSet& iConfig) {
 
@@ -86,7 +89,23 @@ class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopolog
 
   void beginEvent(const edm::EventSetup& iSetup) {    
       edm::ESHandle<HcalTopology> hcalTopology;
-      iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+      iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
+      topology_.release();
+      topology_.reset(hcalTopology.product());
+  }
+};
+class PFRecHitHCALNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<HcalDetId,HcalTopology,false> {
+ public:
+  PFRecHitHCALNavigatorWithTime(const edm::ParameterSet& iConfig):
+    PFRecHitCaloNavigatorWithTime(iConfig)
+  {
+    
+  }
+
+
+  void beginEvent(const edm::EventSetup& iSetup) {    
+      edm::ESHandle<HcalTopology> hcalTopology;
+      iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
       topology_.release();
       topology_.reset(hcalTopology.product());
   }
@@ -101,7 +120,10 @@ class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,C
 
 
   void beginEvent(const edm::EventSetup& iSetup) {
-    topology_.reset( new CaloTowerTopology() );
+    edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+    iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
+    topology_.release();
+    topology_.reset(caloTowerTopology.product());
   }
 };
 
@@ -115,6 +137,43 @@ typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,
 			       PFLayer::ECAL_ENDCAP,
 	   PFRecHitEcalEndcapNavigatorWithTime> PFRecHitECALNavigatorWithTime;
 
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+
+class PFRecHitHGCEENavigator : public PFRecHitFakeNavigator<HGCEEDetId> {
+public:
+  PFRecHitHGCEENavigator(const edm::ParameterSet& iConfig) {
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {      
+  }
+};
+
+class PFRecHitHGCHENavigator : public PFRecHitFakeNavigator<HGCHEDetId> {
+public:
+  PFRecHitHGCHENavigator(const edm::ParameterSet& iConfig) {
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {      
+  }
+};
+
+class PFRecHitHGCHexNavigator : public PFRecHitFakeNavigator<HGCalDetId> {
+public:
+  PFRecHitHGCHexNavigator(const edm::ParameterSet& iConfig) {
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {      
+  }
+};
+
+typedef HGCRecHitNavigator<HGCEE,
+			   PFRecHitHGCHexNavigator,
+			   HGCHEF,
+			   PFRecHitHGCHexNavigator,
+			   HGCHEB,
+			   PFRecHitHGCHENavigator> PFRecHitHGCNavigator;
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
 
@@ -128,3 +187,8 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigatorWithTime, "PFR
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecHitCaloTowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigator, "PFRecHitHCALNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigatorWithTime, "PFRecHitHCALNavigatorWithTime");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEENavigator, "PFRecHitHGCEENavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCHENavigator, "PFRecHitHGCHENavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCNavigator, "PFRecHitHGCNavigator");
+

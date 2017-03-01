@@ -36,17 +36,15 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
     unsigned int amplclus=0;
     for (edm::DetSetVector<SiStripCluster>::const_iterator it=h->begin();it!=h->end();it++) {
       for(std::vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++){
-	for(std::vector<uint8_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+	for(auto ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
         {
             if  ((*ia)>0){ amplclus+=(*ia); }
         }
       }
     }
     bool decision= (amplclus>ChargeThreshold) ? true : false;
-    std::auto_ptr< unsigned int > output( new unsigned int(amplclus) );
-    std::auto_ptr< int > output_dec( new int(decision) );
-    e.put(output);
-    e.put(output_dec);
+    e.put(std::make_unique<unsigned int>(amplclus));
+    e.put(std::make_unique<int>(decision));
     return decision;
   }
  }

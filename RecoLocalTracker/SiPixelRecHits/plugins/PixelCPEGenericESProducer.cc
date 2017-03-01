@@ -4,6 +4,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,8 +18,6 @@
 
 #include <string>
 #include <memory>
-
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 using namespace edm;
 
@@ -32,17 +32,20 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
     p.getParameter<bool>("useLAAlignmentOffsets"):false;
   magname_ = p.existsAs<edm::ESInputTag>("MagneticFieldRecord")?
     p.getParameter<edm::ESInputTag>("MagneticFieldRecord"):edm::ESInputTag("");
+  UseErrorsFromTemplates_    = p.getParameter<bool>("UseErrorsFromTemplates");
+
 
   pset_ = p;
   setWhatProduced(this,myname);
 
-  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<std::endl; //dk
+  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<" "
+  //	   <<UseErrorsFromTemplates_<<std::endl; //dk
 
 }
 
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
 
-boost::shared_ptr<PixelClusterParameterEstimator>
+std::shared_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -50,6 +53,9 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
+
+  edm::ESHandle<TrackerTopology> hTT;
+  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<TrackerTopologyRcd>().get(hTT);
 
   // Lorant angle for offsets
   ESHandle<SiPixelLorentzAngle> lorentzAngle;
@@ -69,33 +75,18 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
   const SiPixelGenErrorDBObject * genErrorDBObjectProduct = 0;
 
-#ifdef NEW_CPEERROR
   // Errors take only from new GenError
   ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
-  iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); //needs new TKPixelCPERecord.h
-  genErrorDBObjectProduct = genErrorDBObject.product();
-
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-          lorentzAngleWidthProduct) );
-
-#else
-  // Errors can be used from tempaltes or from GenError, for testing only
-  const bool useNewSimplerErrors = false;
-  if(useNewSimplerErrors) { // new genError object
-    ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
-    iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); //needs new TKPixelCPERecord.h
+  if(UseErrorsFromTemplates_) {  // do only when generrors are needed
+    iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); 
     genErrorDBObjectProduct = genErrorDBObject.product();
+    //} else {
+    //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
-
-  // errors come from templates
-  ESHandle<SiPixelTemplateDBObject> templateDBobject;
-  iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
-
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-          templateDBobject.product(),lorentzAngleWidthProduct) );
-#endif
+  cpe_  = std::make_shared<PixelCPEGeneric>(
+                         pset_,magfield.product(),*pDD.product(),
+			 *hTT.product(),lorentzAngle.product(),
+			 genErrorDBObjectProduct,lorentzAngleWidthProduct);
 
   return cpe_;
 }

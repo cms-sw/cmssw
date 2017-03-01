@@ -1,7 +1,6 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -9,6 +8,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <iomanip>
 
 
@@ -161,11 +161,16 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
   if ( nhits == 4 ) quality = 3 + Nchi2;
   if ( nhits == 3 ) quality = 5 + Nchi2;
 
-  float dPhiGloDir = fabs ( deltaPhi(segment->globalPosition().phi(), segment->globalDirection().phi()) );
+  float dPhiGloDir = fabs ( deltaPhi(segment->globalPosition().barePhi(), segment->globalDirection().barePhi()) );
 
   if ( dPhiGloDir > .2 ) ++quality;
-  // add a penalty for being ME1A
-  if(segment->isCSC() && CSCDetId(segment->geographicalId()).ring() == 4) ++quality;
+  // add a penalty for being ME1A if the chamber is ganged
+  if ( segment->isCSC() and CSCDetId(segment->geographicalId()).ring() == 4 )
+  {
+    const auto chamber = dynamic_cast<const CSCChamber*>(segment->det());
+    if ( chamber->specs()->gangedStrips() ) ++quality;
+  }
+
   return quality;
 }
 
@@ -188,7 +193,7 @@ MuonCSCSeedFromRecHits::bestEndcapHit(const MuonRecHitContainer & endcapHits) co
 
     quality = segmentQuality(meit);
 
-    dPhiGloDir = fabs ( deltaPhi(meit->globalPosition().phi(), meit->globalDirection().phi()) );
+    dPhiGloDir = fabs ( deltaPhi(meit->globalPosition().barePhi(), meit->globalDirection().barePhi()) );
 
     if(!me1){
       me1 = meit;
@@ -263,7 +268,7 @@ void MuonCSCSeedFromRecHits::analyze() const
 
       CSCDetId cscId1((*iter)->geographicalId().rawId());
       CSCDetId cscId2((*iter2)->geographicalId().rawId());
-      double dphi = deltaPhi((**iter).globalPosition().phi(), (**iter2).globalPosition().phi());
+      double dphi = deltaPhi((**iter).globalPosition().barePhi(), (**iter2).globalPosition().barePhi());
 
       int type1 = cscId1.iChamberType();
       int type2 = cscId2.iChamberType();

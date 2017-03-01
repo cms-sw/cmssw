@@ -273,6 +273,7 @@ myOnDemandExample = cms.EDAnalyzer("SiStripMonitorCondDataOnDemandExample",
       CondObj_name      = cms.string('noise'),
 
       GainRenormalisation               = cms.bool(False),
+      SimGainRenormalisation               = cms.bool(False),
       
       FillSummaryAtLayerLevel           = cms.bool(True),
       FillSummaryProfileAtLayerLevel    = cms.bool(False),

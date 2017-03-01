@@ -20,10 +20,8 @@
 
 // system include files
 #ifdef __linux__
-//NOTE: clock_gettime is not available on OS X and is slower
-// than getrusage and gettimeofday on linux but gives greater
-// timing accuracy so we may want to revisit this in the future
-//#define USE_CLOCK_GETTIME
+//clock_gettime is not available on OS X
+#define USE_CLOCK_GETTIME
 #endif
 
 #ifdef USE_CLOCK_GETTIME
@@ -41,8 +39,9 @@ class CPUTimer
 
    public:
       CPUTimer();
-      virtual ~CPUTimer();
-
+      ~CPUTimer();
+      CPUTimer(CPUTimer&&) = default;
+  
       struct Times {
          Times():real_(0),cpu_(0) {}
          double real_;
@@ -63,9 +62,9 @@ class CPUTimer
       
       void add(const Times& t);
    private:
-      CPUTimer(const CPUTimer&); // stop default
+      CPUTimer(const CPUTimer&) = delete; // stop default
 
-      const CPUTimer& operator=(const CPUTimer&); // stop default
+      const CPUTimer& operator=(const CPUTimer&) = delete; // stop default
 
       Times calculateDeltaTime() const;
       

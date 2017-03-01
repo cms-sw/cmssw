@@ -19,10 +19,11 @@ TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset,edm::Consum
   OrderedHitsGenerator*  hitsGenerator =
         OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
-  edm::ParameterSet creatorPSet;
-  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+  std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
+
   theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, 0, 
-						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+						 SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 						 );
 
 }

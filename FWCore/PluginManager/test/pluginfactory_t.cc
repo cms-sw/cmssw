@@ -20,7 +20,6 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#define private public
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class TestPluginFactory : public CppUnit::TestFixture
@@ -63,7 +62,7 @@ TestPluginFactory::test()
 {
   using namespace edmplugin;
   
-  std::auto_ptr<edmplugintest::DummyBase> p(FactoryType::get()->create("Dummy"));
+  std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->create("Dummy"));
   CPPUNIT_ASSERT(0 != p.get());
 }  
 
@@ -73,6 +72,6 @@ TestPluginFactory::testTry()
   using namespace edmplugin;
   CPPUNIT_ASSERT(0 == FactoryType::get()->tryToCreate("ThisDoesNotExist"));
   
-  std::auto_ptr<edmplugintest::DummyBase> p(FactoryType::get()->tryToCreate("Dummy"));
+  std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->tryToCreate("Dummy"));
   CPPUNIT_ASSERT(0 != p.get());
 }  

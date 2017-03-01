@@ -19,15 +19,14 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
 
   MVAJetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
 		    const edm::ParameterSet& pSet, const std::string& folderName, 
-		    const bool& update, const unsigned int& mc, DQMStore::IBooker & ibook);
+		    const unsigned int& mc, const bool& willFinalize, DQMStore::IBooker & ibook);
 
   ~MVAJetTagPlotter ();
 
   virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const double & jec, const int & jetFlavour);
   virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const double & jec, const int & jetFlavour, const float & w);
 
-  virtual void finalize ();
-
+  virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
   void epsPlot(const std::string & name);
 

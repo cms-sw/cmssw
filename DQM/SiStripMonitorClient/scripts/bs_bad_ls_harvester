@@ -73,7 +73,7 @@ if [ "$SEND_EMAIL" -gt 0 -a "$HARVESTING_EXISTS" -eq 1 ]
 then
     SUBJECT="Beamspot Bad LS Notification"
 # Email To ?
-    EMAIL="burkett@fnal.gov,Leonard.Spiegel@cern.ch,vimartin@fnal.gov,threus@cern.ch"
+    #EMAIL="burkett@fnal.gov,Leonard.Spiegel@cern.ch,vimartin@fnal.gov,threus@cern.ch"
 #    EMAIL="threus@cern.ch"
 # Email text/message
     EMAILMESSAGE="bs_bad_ls_summary.email"

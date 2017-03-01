@@ -11,7 +11,7 @@
   <use   name="SimDataFormats/ValidationFormats"/>
   <use   name="SimG4Core/Watcher"/>
   <use   name="boost"/>
-  <use   name="geant4"/>
+  <use   name="geant4core"/>
   <use   name="rootgpad"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

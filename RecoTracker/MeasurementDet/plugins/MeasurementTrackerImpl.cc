@@ -6,7 +6,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -30,7 +31,9 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TkStripMeasurementDet.h"
 #include "TkPixelMeasurementDet.h"
+#include "TkPhase2OTMeasurementDet.h"
 #include "TkGluedMeasurementDet.h"
+#include "TkStackMeasurementDet.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
@@ -46,6 +49,12 @@
 using namespace std;
 
 namespace {
+
+  class StrictWeakOrdering{
+    public:
+     bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
+  };
+
 
   struct CmpTKD {
     bool operator()(MeasurementDet const* rh, MeasurementDet const * lh) {
@@ -80,12 +89,14 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
                                        const SiPixelQuality *pixelQuality,
                                        const SiPixelFedCabling *pixelCabling,
                                        int   pixelQualityFlags,
-                                       int   pixelQualityDebugFlags) :
+                                       int   pixelQualityDebugFlags,
+		                       const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE):
   MeasurementTracker(trackerGeom,geometricSearchTracker),
   pset_(conf),
   name_(conf.getParameter<std::string>("ComponentName")),
   theStDetConditions(hitMatcher,stripCPE),
-  thePxDetConditions(pixelCPE)
+  thePxDetConditions(pixelCPE),
+  thePhase2DetConditions(phase2OTCPE)
 {
   this->initialize();
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
@@ -98,14 +109,45 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
 
 
 void MeasurementTrackerImpl::initialize()
-{  
-  addPixelDets( theTrackerGeom->detsPXB());
-  addPixelDets( theTrackerGeom->detsPXF());
+{ 
 
-  addStripDets( theTrackerGeom->detsTIB());
-  addStripDets( theTrackerGeom->detsTID());
-  addStripDets( theTrackerGeom->detsTOB());
-  addStripDets( theTrackerGeom->detsTEC());  
+  bool subIsPixel = false;
+  //FIXME:just temporary solution for phase2 :
+  //the OT is defined as PixelSubDetector!
+  bool subIsOT = false;
+
+  //if the TkGeometry has the subDet vector filled, the theDetMap is filled, otherwise nothing should happen
+  if(theTrackerGeom->detsPXB().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXB().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsPXB(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsPXF().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXF().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsPXF(), subIsPixel, subIsOT);
+  }
+
+  subIsOT = true;
+
+  if(theTrackerGeom->detsTIB().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTIB().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTIB(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsTID().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTID().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTID(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsTOB().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTOB().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTOB(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsTEC().size()!=0) { 
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTEC().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTEC(), subIsPixel, subIsOT);
+  }
 
   // fist all stripdets
   sortTKD(theStripDets);
@@ -118,11 +160,25 @@ void MeasurementTrackerImpl::initialize()
   for (unsigned int i=0; i!=theGluedDets.size(); ++i)
     initGluedDet(theGluedDets[i]);
 
-  // and then the pixels, at last
+  // then the pixels
   sortTKD(thePixelDets);
   initPxMeasurementConditionSet(thePixelDets);
   for (unsigned int i=0; i!=thePixelDets.size(); ++i)
     theDetMap[thePxDetConditions.id(i)] = &thePixelDets[i];
+
+  // then the phase2 dets
+  sortTKD(thePhase2Dets);
+  initPhase2OTMeasurementConditionSet(thePhase2Dets);
+  for (unsigned int i=0; i!=thePhase2Dets.size(); ++i)
+    theDetMap[thePhase2DetConditions.id(i)] = &thePhase2Dets[i];
+
+  // and then the stack dets, at last
+  sortTKD(theStackDets);
+  for (unsigned int i=0; i!=theStackDets.size(); ++i)
+    initStackDet(theStackDets[i]);
+
+  if(!checkDets())
+    throw MeasurementDetException("Number of dets in MeasurementTracker not consistent with TrackerGeometry!");
 
 }
 
@@ -155,40 +211,61 @@ void MeasurementTrackerImpl::initPxMeasurementConditionSet(std::vector<TkPixelMe
   }
 }
 
-
-
-
-void MeasurementTrackerImpl::addPixelDets( const TrackingGeometry::DetContainer& dets)
+void MeasurementTrackerImpl::initPhase2OTMeasurementConditionSet(std::vector<TkPhase2OTMeasurementDet> & phase2Dets)
 {
-  for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
-       gd != dets.end(); gd++) {
-    addPixelDet(*gd);
-  }  
+  // assume vector is full and ordered!
+  int size = phase2Dets.size();
+  thePhase2DetConditions.init(size);
+
+  for (int i=0; i!=size; ++i) {
+    auto & mdet =  phase2Dets[i]; 
+    mdet.setIndex(i);
+    thePhase2DetConditions.id_[i] = mdet.specificGeomDet().geographicalId().rawId();
+  }
 }
 
-void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer& dets)
-{
+void MeasurementTrackerImpl::addDets( const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT){
+
+  //in phase2, we can have composed subDetector made by Pixel or Strip
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
 
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
 
-    //    StripSubdetector stripId( (**gd).geographicalId());
-    //     bool isDetUnit( gdu != 0);
-    //     cout << "StripSubdetector glued? " << stripId.glued() 
-    // 	 << " is DetUnit? " << isDetUnit << endl;
-
-    if (gdu != 0) {
-      addStripDet(*gd);
-    }
-    else {
-      const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
-      if (gluedDet == 0) {
-	throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet");
+    //Pixel or Strip GeomDetUnit
+    if (gdu->isLeaf()) {
+      if(subIsPixel) {
+        if(!subIsOT) {
+          addPixelDet(*gd);
+        } else {
+          addPhase2Det(*gd);
+        }
+      } else {
+        addStripDet(*gd);
       }
-      addGluedDet(gluedDet);
-    }  
+    } else {
+
+      //Glued or Stack GeomDet
+      const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
+      const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(*gd);
+
+      if ((gluedDet == 0 && stackDet == 0) || (gluedDet != 0 && stackDet != 0)) {
+        throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet nor StackDet");
+      }
+      if(gluedDet != 0)
+        addGluedDet(gluedDet);
+      else
+        addStackDet(stackDet);
+
+    }
   }
+
+}
+
+bool MeasurementTrackerImpl::checkDets(){
+  if(theTrackerGeom->dets().size() == theDetMap.size())
+    return true;
+  return false;
 }
 
 void MeasurementTrackerImpl::addStripDet( const GeomDet* gd)
@@ -211,9 +288,26 @@ void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd)
   }
 }
 
+void MeasurementTrackerImpl::addPhase2Det( const GeomDet* gd)
+{
+  try {
+    thePhase2Dets.push_back(TkPhase2OTMeasurementDet( gd, thePhase2DetConditions ));
+  }
+  catch(MeasurementDetException& err){
+    edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what() ;
+  }
+}
+
 void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 {
   theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDetConditions.matcher(), theStDetConditions.stripCPE() ));
+}
+
+void MeasurementTrackerImpl::addStackDet( const StackGeomDet* gd)
+{
+  //since the Stack will be composed by PS or 2S, 
+  //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
+  theStackDets.push_back(TkStackMeasurementDet( gd, thePxDetConditions.pixelCPE() ));
 }
 
 void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
@@ -226,6 +320,19 @@ void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
   }
   det.init(monoDet,stereoDet);
+  theDetMap[gd.geographicalId()] = &det;
+}
+
+void MeasurementTrackerImpl::initStackDet( TkStackMeasurementDet & det)
+{
+  const StackGeomDet& gd = det.specificGeomDet();
+  const MeasurementDet* lowerDet = findDet( gd.lowerDet()->geographicalId());
+  const MeasurementDet* upperDet = findDet( gd.upperDet()->geographicalId());
+  if (lowerDet == 0 || upperDet == 0) {
+    edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: StackDet components not found as MeasurementDets ";
+    throw MeasurementDetException("MeasurementTracker ERROR: StackDet components not found as MeasurementDets");
+  }
+  det.init(lowerDet,upperDet);
   theDetMap[gd.geographicalId()] = &det;
 }
 

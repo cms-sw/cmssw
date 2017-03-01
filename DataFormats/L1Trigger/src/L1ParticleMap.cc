@@ -184,7 +184,7 @@ L1ParticleMap::L1ParticleMap(
    const L1IndexComboVector& indexCombos )
    : triggerType_( triggerType ),
      triggerDecision_( triggerDecision ),
-     indexCombosState_{static_cast<char>(indexCombos.size()>0? kSet:kUnset)},
+     indexCombosState_{static_cast<char>(indexCombos.size()>0? kSet:IndexComboStates::kUnset)},
      objectTypes_( objectTypes ),
      emParticles_( emParticles ),
      jetParticles_( jetParticles ),
@@ -197,7 +197,7 @@ L1ParticleMap::L1ParticleMap(
 L1ParticleMap::L1ParticleMap(const L1ParticleMap& rhs):
   triggerType_(rhs.triggerType_),
   triggerDecision_(rhs.triggerDecision_),
-  indexCombosState_(kUnset),
+  indexCombosState_(IndexComboStates::kUnset),
   objectTypes_(rhs.objectTypes_),
   emParticles_(rhs.emParticles_),
   jetParticles_(rhs.jetParticles_),
@@ -324,7 +324,7 @@ L1ParticleMap::setIndexCombos() const {
       tempIndexCombos.push_back( tmpCombo ) ;
     }
   }
-  char expected = kUnset;
+  char expected = IndexComboStates::kUnset;
   if(indexCombosState_.compare_exchange_strong(expected,kSetting,std::memory_order_acq_rel)) {
     //If this was read from an old file, it is possible that indexCombos_ is already set.
     // This is the only safe place to check since we know no other thread can be attempting 

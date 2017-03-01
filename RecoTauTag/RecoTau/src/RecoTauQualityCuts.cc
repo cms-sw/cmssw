@@ -349,7 +349,7 @@ bool RecoTauQualityCuts::filterTrack_(const T& trackRef) const
   if(minTrackPt_ >= 0 && !(track->pt() > minTrackPt_)) return false;
   if(maxTrackChi2_ >= 0 && !(track->normalizedChi2() <= maxTrackChi2_)) return false;
   if(checkHitPattern_) {
-    const reco::HitPattern hitPattern = track->hitPattern();
+    const reco::HitPattern &hitPattern = track->hitPattern();
     if(minTrackPixelHits_ > 0 && !(hitPattern.numberOfValidPixelHits() >= minTrackPixelHits_)) return false;
     if(minTrackHits_ > 0 && !(hitPattern.numberOfValidHits() >= minTrackHits_)) return false;
   }

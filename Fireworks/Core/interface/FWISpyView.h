@@ -27,11 +27,12 @@
 
 class FWISpyView : public FW3DViewBase
 {
-
 public:
-   FWISpyView(TEveWindowSlot*, FWViewType::EType);
+   FWISpyView(TEveWindowSlot*, FWViewType::EType, unsigned int version=9);
    virtual ~FWISpyView();
+   virtual void setContext(const fireworks::Context& x);
 
+   virtual void populateController(ViewerParameterGUI&) const;
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -43,9 +44,7 @@ private:
 
    const FWISpyView& operator=(const FWISpyView&); // stop default
 
-   // ---------- member data --------------------------------
-
+   // ---------- member data --------------------------------};
 };
-
 
 #endif

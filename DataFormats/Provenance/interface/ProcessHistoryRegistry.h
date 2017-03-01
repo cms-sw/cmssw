@@ -22,10 +22,8 @@ namespace edm {
     typedef ProcessHistoryVector vector_type;
 
     ProcessHistoryRegistry();
-#ifndef __GCCXML__
     ProcessHistoryRegistry(ProcessHistoryRegistry const&) = delete; // Disallow copying and moving
     ProcessHistoryRegistry& operator=(ProcessHistoryRegistry const&) = delete; // Disallow copying and moving
-#endif
     bool registerProcessHistory(ProcessHistory const& processHistory);
     bool getMapped(ProcessHistoryID const& key, ProcessHistory& value) const;
     ProcessHistory const* getMapped(ProcessHistoryID const& key) const;

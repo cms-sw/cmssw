@@ -20,7 +20,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
-#include "THashList.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -66,33 +65,6 @@
 #include "format.h"
 
 namespace {
-  //utility function to check the consistency of the axis labels
-  //taken from TH1::CheckBinLabels
-  bool CheckBinLabels(const TAxis* a1, const TAxis * a2)
-  {
-    // check that axis have same labels
-    THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
-    THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
-    
-    if (!l1 && !l2 )
-      return true;
-    if (!l1 ||  !l2 ) {
-      return false;
-    }
-    // check now labels sizes  are the same
-    if (l1->GetSize() != l2->GetSize() ) {
-      return false;
-    }
-    for (int i = 1; i <= a1->GetNbins(); ++i) {
-      TString label1 = a1->GetBinLabel(i);
-      TString label2 = a2->GetBinLabel(i);
-      if (label1 != label2) {
-	return false;
-      }
-    }
-    return true;
-  }
-      
   //adapter functions
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1F* iHist) {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
@@ -100,7 +72,7 @@ namespace {
   }
   //NOTE: the merge logic comes from DataFormats/Histograms/interface/MEtoEDMFormat.h
   void mergeTogether(TH1* iOriginal,TH1* iToAdd) {
-    if(iOriginal->TestBit(TH1::kCanRebin)==true && iToAdd->TestBit(TH1::kCanRebin) ==true) {
+    if(iOriginal->CanExtendAllAxes() && iToAdd->CanExtendAllAxes()) {
       TList list;
       list.Add(iToAdd);
       if( -1 == iOriginal->Merge(&list)) {
@@ -116,9 +88,9 @@ namespace {
           iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
           iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
           iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
-	  CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
-	  CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
-	  CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
+	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
 	iOriginal->Add(iToAdd);
       } else {
 	edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
@@ -722,18 +694,20 @@ void DQMRootSource::readElements() {
     while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
       ++m_presentIndexItr;
 
-    if(runLumiRange.m_type == kNoTypesStored) {continue;}
-    boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
-    ULong64_t index = runLumiRange.m_firstIndex;
-    ULong64_t endIndex = runLumiRange.m_lastIndex+1;
-    for (; index != endIndex; ++index)
-    {
-      bool isLumi = runLumiRange.m_lumi !=0;
-      if (m_shouldReadMEs)
-        reader->read(index,*store,isLumi);
+    if(runLumiRange.m_type != kNoTypesStored) {
+      boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
+      ULong64_t index = runLumiRange.m_firstIndex;
+      ULong64_t endIndex = runLumiRange.m_lastIndex+1;
+      for (; index != endIndex; ++index)
+      {
+        bool isLumi = runLumiRange.m_lumi !=0;
+        if (m_shouldReadMEs)
+          reader->read(index,*store,isLumi);
 
-      //std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi <<" "<<index<< " " << runLumiRange.m_type << std::endl;
+        //std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi <<" "<<index<< " " << runLumiRange.m_type << std::endl;
+      }
     }
+
     if (m_presentIndexItr != m_orderedIndices.end())
     {
       //are there more parts to this same run/lumi?
@@ -896,7 +870,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     std::string* pPassID = &passID;
     processHistoryTree->SetBranchAddress(kProcessConfigurationPassID,&pPassID);
 
-    edm::ProcessHistoryRegistry& phr = processHistoryRegistryUpdate();
+    edm::ProcessHistoryRegistry& phr = processHistoryRegistryForUpdate();
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
     m_historyIDs.clear();

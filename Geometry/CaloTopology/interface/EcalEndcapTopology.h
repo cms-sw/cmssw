@@ -8,7 +8,7 @@
 #include <vector>
 #include <iostream>
 
-class EcalEndcapTopology GCC11_FINAL : public CaloSubdetectorTopology {
+class EcalEndcapTopology final : public CaloSubdetectorTopology {
 
  public:
   /// create a new Topology

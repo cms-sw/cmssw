@@ -1,14 +1,12 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 
 
 SiStripHotStripAlgorithmFromClusterOccupancy::SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig, const TrackerTopology* theTopo):
     prob_(1.E-7),
+    ratio_(1.5),
     MinNumEntries_(0),
     MinNumEntriesPerStrip_(0),
     Nevents_(0),
@@ -59,7 +57,9 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
   striptree->Branch("StripOccupancy",       &stripOccupancy,    "StripOccupancy/D");
   striptree->Branch("StripHits",            &stripHits,         "StripHits/I");
   striptree->Branch("PoissonProb",          &poissonProb,       "PoissonProb/D");
-  }
+  striptree->Branch("MedianAPVHits",        &medianAPVHits,     "MedianAPVHits/D");
+  striptree->Branch("AvgAPVHits",           &avgAPVHits,        "AvgAPVHits/D");
+}
 
   
   HistoMap::iterator it=DM.begin();
@@ -83,13 +83,12 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     detrawid = detid;
     subdetid = detectorId.subdetId();
     number_strips = (int)(it->second.get())->GetNbinsX();
-    if (SiStripDetId(detrawid).stereo() !=0 ) isstereo = 1; // It's a stereo module
-    else                                      isstereo = 0; // It's an rphi module
     switch (detectorId.subdetId())
       {
       case StripSubdetector::TIB :
 	layer_ring = tTopo->tibLayer(detrawid);
 	disc       = -1;
+	isstereo = tTopo->tibIsStereo(detrawid);
 	isback     = -1;
 	if (tTopo->tibIsExternalString(detrawid)) isexternalstring = 1;
 	else                                       isexternalstring = 0;
@@ -102,6 +101,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       case StripSubdetector::TID :
 	layer_ring = tTopo->tidRing(detrawid);
 	disc       = tTopo->tidWheel(detrawid);
+	isstereo = tTopo->tidIsStereo(detrawid);
 	if (tTopo->tidIsBackRing(detrawid)) isback = 1;
 	else                                 isback = 0;
 	if (tTopo->tidIsZMinusSide(detrawid)) iszminusside = 1;
@@ -114,6 +114,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       case StripSubdetector::TOB :
 	layer_ring = tTopo->tobLayer(detrawid);
 	disc       = -1;
+	isstereo = tTopo->tobIsStereo(detrawid);
 	isback     = -1;
 	if (tTopo->tobIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
@@ -125,6 +126,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       case StripSubdetector::TEC :
 	layer_ring = tTopo->tecRing(detrawid);
 	disc       = tTopo->tecWheel(detrawid);
+	isstereo = tTopo->tecIsStereo(detrawid);
 	if (tTopo->tecIsBackPetal(detrawid)) isback = 1;
 	else                                  isback = 0;
 	if (tTopo->tecIsZMinusSide(detrawid)) iszminusside = 1;
@@ -178,6 +180,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
 
       phisto._th1f->SetEntries(NumberEntriesPerAPV);
       phisto._NEntries=(int)phisto._th1f->GetEntries();
+      phisto._NEmptyBins=0;
 
       LogTrace("SiStripHotStrip") << "Number of clusters in APV " << apv << ": " << NumberEntriesPerAPV << std::endl;
 
@@ -197,6 +200,8 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
 	stripOccupancy = stripoccupancy[strip];
 	stripHits      = striphits[strip];
 	poissonProb    = poissonprob[strip];
+	medianAPVHits  = medianapvhits[strip/128];
+	avgAPVHits     = avgapvhits[strip/128];
 
 	hotStripsPerModule = hotstripspermodule;
 	hotStripsPerAPV    = hotstripsperapv[strip/128];
@@ -248,6 +253,17 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
   long double meanVal=1.*histo._NEntries/(1.*Nbins-histo._NEmptyBins); 
   evaluatePoissonian(vPoissonProbs,meanVal);
 
+  // Find median occupancy, taking into account only good strips
+  unsigned int goodstripentries[128];
+  int nGoodStrips = 0;
+  for (size_t i=ibinStart; i<ibinStop; ++i){
+    if (ishot[(apv*128)+i-1]==0){
+      goodstripentries[nGoodStrips] = (unsigned int)histo._th1f->GetBinContent(i);
+      nGoodStrips++;
+    }
+  }
+  double median = TMath::Median(nGoodStrips,goodstripentries);
+
   for (size_t i=ibinStart; i<ibinStop; ++i){
     unsigned int entries= (unsigned int)histo._th1f->GetBinContent(i);
 
@@ -255,10 +271,10 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
       stripoccupancy[(apv*128)+i-1] = entries/(double) Nevents_;
       striphits[(apv*128)+i-1]      = entries;
       poissonprob[(apv*128)+i-1]    = 1-vPoissonProbs[entries];
+      medianapvhits[apv]  = median;
+      avgapvhits[apv] = meanVal;
     }
-
-    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_)
-      continue;
+    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_ || entries / median < ratio_) continue;
 
     if(diff<vPoissonProbs[entries]){
       ishot[(apv*128)+i-1] = 1;

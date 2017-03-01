@@ -45,7 +45,20 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theInputType = ioPSet.getParameter<std::string>("InputType");
   theExtractForCandidate = ioPSet.getParameter<bool>("ExtractForCandidate");
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
-  theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
+
+  bool readFromRecoTrack = theInputType == "TrackCollection";
+  bool readFromRecoMuon = theInputType == "MuonCollection";
+  bool readFromCandidateView = theInputType == "CandidateView";
+  if(readFromRecoTrack){
+    theMuonCollectionTag = consumes<View<Track>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else if(readFromRecoMuon) {
+    theMuonCollectionTag = consumes<View<RecoCandidate>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else if (readFromCandidateView) {
+    theMuonCollectionTag = consumes<View<Candidate>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else {
+    throw cms::Exception("Configuration")<<"Inconsistent configuration or failure to read Candidate-muon view";
+  }
+
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
 
 
@@ -60,6 +73,15 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
+
+  if (!theExtractor) {
+    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
+    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
+    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+    LogDebug(metname)<<" Load extractor..."<<extractorName;
+  }
+
+
 }
 
 //! destructor
@@ -74,14 +96,6 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 
   LogDebug(metname)<<" Muon Deposit producing..."
 		   <<" BEGINING OF EVENT " <<"================================";
-
-  if (!theExtractor) {
-    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
-    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
-    LogDebug(metname)<<" Load extractor..."<<extractorName;
-  }
-
 
   unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
@@ -101,18 +115,18 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   bool readFromCandidateView = theInputType == "CandidateView";
 
   if (readFromRecoMuon){
-    event.getByLabel(theMuonCollectionTag,muons);
+    event.getByToken(theMuonCollectionTag,muons);
     nMuons = muons->size();
     LogDebug(metname) <<"Got Muons of size "<<nMuons;
 
   }
   if (readFromRecoTrack){
-    event.getByLabel(theMuonCollectionTag,tracks);
+    event.getByToken(theMuonCollectionTag,tracks);
     nMuons = tracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
   if (readFromCandidateView || theExtractForCandidate){
-    event.getByLabel(theMuonCollectionTag,cands);
+    event.getByToken(theMuonCollectionTag,cands);
     unsigned int nCands = cands->size();
     if (readFromRecoMuon && theExtractForCandidate){
       //! expect nMuons set already
@@ -123,11 +137,11 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   }
 
   static const unsigned int MAX_DEPS=10;
-  std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
+  std::unique_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
 
   if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits";
   for (unsigned int i =0;i<nDeps; ++i){
-    depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
+    depMaps[i] = std::make_unique<reco::IsoDepositMap>();
   }
 
   //! OK, now we know how many deps for how many muons each we will create
@@ -194,7 +208,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
       //! fill the maps here
       reco::IsoDepositMap::Filler filler(*depMaps[iDep]);
 
-      //!now figure out the source handle (see getByLabel above)
+      //!now figure out the source handle (see getByToken above)
       if (readFromRecoMuon){
 	filler.insert(muons, deps2D[iDep].begin(), deps2D[iDep].end());
       } else if (readFromRecoTrack){
@@ -215,7 +229,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     LogTrace(metname)<<"About to put a deposit named "<<theDepositNames[iMap]
 		     <<" of size "<<depMaps[iMap]->size()
 		     <<" into edm::Event";
-    event.put(depMaps[iMap], theDepositNames[iMap]);
+    event.put(std::move(depMaps[iMap]), theDepositNames[iMap]);
   }
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";

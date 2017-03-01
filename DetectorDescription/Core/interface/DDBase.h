@@ -2,14 +2,10 @@
 #define DDCore_DDBase_h
 
 #include <utility>
-#include <string>
 #include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 
-/**
-   your comment here
-*/
 template <class N, class C>
 class DDBase
 {
@@ -21,7 +17,7 @@ public:
     //! C is, for example, a DDLogicalPart or a DDMaterial or a DDSolid ....
     typedef D value_type;
 
-    explicit iterator( const typename DDI::Store<N,C>::iterator & it) : it_(it) { }
+    explicit iterator( const typename DDI::Store<N,C>::iterator it) : it_(it) { }
         
     iterator() : it_(StoreT::instance().begin()) {  }
   
@@ -66,8 +62,8 @@ public:
   };
    
 public:
-  static typename DDI::Store<N,C>::iterator end()   { return StoreT::instance().end(); }
-  static typename DDI::Store<N,C>::iterator begin() { return StoreT::instance().begin(); }
+  static auto end()   { return StoreT::instance().end(); }
+  static auto begin() { return StoreT::instance().begin(); }
   // dangerous stuff!!
   static void clear() { StoreT::instance().clear(); }
   static size_t size() { return StoreT::instance().size(); }
@@ -84,7 +80,6 @@ public:
   const N & ddname() const { return prep_->name(); }
   
   std::string toString() const { return prep_->name().fullname(); }
-    
 
   const typename DDI::rep_traits<N,C>::reference rep() const 
     { return *(prep_->second); }
@@ -129,9 +124,6 @@ public:
   
 protected: 
   prep_type prep_; 
-private:
-  //bool operator==(const DDBase &);
-  //bool operator<(const DDBase &) const ;  
 };
 
 #endif

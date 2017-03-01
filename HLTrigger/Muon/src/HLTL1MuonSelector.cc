@@ -54,11 +54,11 @@ HLTL1MuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   descriptions.add("hltL1MuonSelector",desc);
 }
 
-void HLTL1MuonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HLTL1MuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   const std::string metname = "Muon|RecoMuon|HLTL1MuonSelector";
 
-  auto_ptr<L1MuonParticleCollection> output(new L1MuonParticleCollection());
+  unique_ptr<L1MuonParticleCollection> output(new L1MuonParticleCollection());
   
   // Muon particles 
   edm::Handle<L1MuonParticleCollection> muColl;
@@ -112,6 +112,6 @@ void HLTL1MuonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
   } // loop over L1MuonParticleCollection
   
-  iEvent.put(output);
+  iEvent.put(std::move(output));
 }
 

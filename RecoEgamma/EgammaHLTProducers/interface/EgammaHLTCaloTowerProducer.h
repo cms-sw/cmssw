@@ -9,7 +9,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -21,22 +21,20 @@ namespace edm {
 }
 
 
-class EgammaHLTCaloTowerProducer : public edm::EDProducer {
+class EgammaHLTCaloTowerProducer : public edm::global::EDProducer<> {
  public:
 
   EgammaHLTCaloTowerProducer( const edm::ParameterSet & );
   ~EgammaHLTCaloTowerProducer() {};
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override final;
 
- private:
-  void produce( edm::Event& e, const edm::EventSetup& ) override;
-
-  edm::EDGetTokenT<CaloTowerCollection> towers_;
-  double cone_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1isoseeds_;
-  edm::EDGetTokenT<l1extra::L1EmParticleCollection> l1nonisoseeds_;
-  double EtThreshold_;
-  double EThreshold_;
+  const edm::EDGetTokenT<CaloTowerCollection> towers_;
+  const double cone_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> l1isoseeds_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> l1nonisoseeds_;
+  const double EtThreshold_;
+  const double EThreshold_;
 };
 
 #endif

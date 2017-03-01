@@ -1,214 +1,275 @@
 # "PIon" menu
-HLT_Activity_Ecal_SC7_v*                           # sr 131577
-HLT_BeamGas_HF_Beam1_v*                            # sr 131577
-HLT_BeamGas_HF_Beam2_v*                            # sr 131577
-HLT_BeamHalo_v*                                    # sr 131577
-#HLT_HcalPhiSym_v*                                 # sr 131577
-#HLT_HcalNZS_v*                                    # sr 131577
-HLT_PAHcalPhiSym_v*                                # renamed
-HLT_PAHcalNZS_v*                                   # renamed
-HLT_PAHcalUTCA_v*                                  # sr 134910
-HLT_GlobalRunHPDNoise_v*                           # sr 131577
-HLT_Physics_v*                                     # sr 131577
-DST_Physics_v*                                     # sr 131577
-HLT_DTCalibration_v*                               # sr 131577
-HLT_EcalCalibration_v*                             # sr 131577
-HLT_HcalCalibration_v*                             # sr 131577
-HLT_TrackerCalibration_v*                          # sr 131577
-#AlCa_EcalPi0EBonly_v*                             # sr 131577
-#AlCa_EcalPi0EEonly_v*                             # sr 131577
-#AlCa_EcalEtaEBonly_v*                             # sr 131577
-#AlCa_EcalEtaEEonly_v*                             # sr 131577
-AlCa_PAEcalPi0EBonly_v*                            # renamed
-AlCa_PAEcalPi0EEonly_v*                            # renamed
-AlCa_PAEcalEtaEBonly_v*                            # renamed
-AlCa_PAEcalEtaEEonly_v*                            # renamed
-AlCa_EcalPhiSym_v*                                 # sr 131577
-AlCa_RPCMuonNoTriggers_v*                          # sr 131577
-AlCa_RPCMuonNoHits_v*                              # sr 131577
-AlCa_RPCMuonNormalisation_v*                       # sr 131577
-AlCa_LumiPixels_v*                                 # sr 131577
-AlCa_LumiPixels_ZeroBias_v*                        # sr 131577
-AlCa_LumiPixels_Random_v*                          # sr 131577
-HLT_PAL1SingleJet16_v*                             # sr 131577, sr 133528
-HLT_PAL1SingleJet36_v*                             # sr 131577, sr 133528
-HLT_PASingleForJet15_v*                            # sr 131577, sr 133528
-HLT_PASingleForJet25_v*                            # sr 131577, sr 133528
-HLT_PAJet20_NoJetID_v*                             # sr 133388, removed by #134379, recovered by sr #134483
-HLT_PAJet40_NoJetID_v*                             # sr 133388
-HLT_PAJet60_NoJetID_v*                             # sr 133388
-HLT_PAJet80_NoJetID_v*                             # sr 133388
-HLT_PAJet100_NoJetID_v*                            # sr 133388
-HLT_PAForJet40Eta2_v*                              # sr 133388
-HLT_PAForJet60Eta2_v*                              # sr 133388
-HLT_PAForJet80Eta2_v*                              # sr 133388
-HLT_PAForJet40Eta3_v*                              # sr 133388
-HLT_PAForJet60Eta3_v*                              # sr 133388
-HLT_PAForJet80Eta3_v*                              # sr 133388
-HLT_PATripleJet40_20_20_v*                         # sr 133388
-HLT_PATripleJet60_20_20_v*                         # sr 133388
-HLT_PATripleJet80_20_20_v*                         # sr 133388
-HLT_PAJet40ETM30_v*                                # sr 133388
-HLT_PAJet120_NoJetID_v*				   # sr 134483
-HLT_PAForJet20Eta2_v*				   # sr 134483
-HLT_PAForJet100Eta2_v*				   # sr 134483
-HLT_PAForJet20Eta3_v*				   # sr 134483
-HLT_PAForJet100Eta3_v*				   # sr 134483
-HLT_PATripleJet20_20_20_v*			   # sr 134483
-HLT_PATripleJet100_20_20_v*			   # sr 134483
-HLT_PAJet60ETM30_v*				   # sr 134483
-#HLT_PAL1SingleMuOpen_v*                           # sr 131577, removed by #134379
-#HLT_PAL1SingleMu3_v*                              # sr 131577, removed by #134379
-#HLT_PAL1SingleMu7_v*                              # sr 131577, removed by #134379
-#HLT_PAL1SingleMu12_v*                             # sr 131577, removed by #134379
-HLT_PAL1DoubleMu0_v*                               # sr 131577, sr 133528
-HLT_PADimuon0_NoVertexing_v*                       # sr 131577, sr 133528
-#HLT_PAMu5_v*                                      # sr 131577, removed by #134379
-#HLT_PAMu8_v*                                      # sr 131577, removed by #134379
-HLT_PAL1DoubleMuOpen_v*                            # sr 133325
-HLT_PAL1DoubleMu0_HighQ_v*                         # sr 133325
-#HLT_PAMu1_Track1_Mass2_v*                         # sr 133325, removed by #134379
-#HLT_PAMu3_Track1_Mass2_v*                         # sr 133325, removed by #134379
-HLT_PAL2DoubleMu3_v*                               # sr 133325
-HLT_PAMu3_v*                                       # sr 133325
-HLT_PAMu7_v*                                       # sr 133325
-HLT_PAMu12_v*                                      # sr 133325
-HLT_PABTagMu_Jet20_Mu4_v*                          # sr 133325
-HLT_PAMu3PFJet20_v*                                # sr 133325
-HLT_PAMu3PFJet40_v*                                # sr 133325
-HLT_PAMu7PFJet20_v*                                # sr 133325
-#HLT_PAL1SingleEG5_v*                              # sr 131577, removed by #134379
-#HLT_PAL1SingleEG7_v*                              # sr 131577, removed by #134379
-#HLT_PAL1SingleEG12_v*                             # sr 131577, removed by #134379
-#HLT_PAPhoton10_CaloIdVL_v*                        # sr 131577, removed by #134379
-#HLT_PAPhoton15_CaloIdVL_v*                        # sr 131577, removed by #134379
-#HLT_PAPhoton20_CaloIdVL_v*                        # sr 131577, removed by #134379
-#HLT_PAPhoton30_CaloIdVL_v*                        # sr 131577, removed by #134379
-HLT_PAPhoton10_NoCaloIdVL_v*			   # sr 133321
-HLT_PAPhoton20_NoCaloIdVL_v*			   # sr 133321, modified by #134440
-HLT_PAPhoton30_NoCaloIdVL_v*			   # sr 133321
-HLT_PAPhoton40_NoCaloIdVL_v*			   # sr 133321
-HLT_PAPhoton60_NoCaloIdVL_v*			   # sr 133321
-HLT_PAPhoton10_Photon10_NoCaloIdVL_v*		   # sr 133321
-HLT_PAPhoton15_Photon10_NoCaloIdVL_v*		   # sr 133321
-HLT_PAPhoton20_Photon15_NoCaloIdVL_v*		   # sr 133321
-HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
-HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
-HLT_PAPhoton10_TightCaloIdVL_v*			   # sr 134440
-#HLT_PAPhoton10_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
-HLT_PAPhoton15_NoCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton15_TightCaloIdVL_v*			   # sr 134440
-#HLT_PAPhoton15_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728
-HLT_PAPhoton20_TightCaloIdVL_v*			   # sr 134440
-#HLT_PAPhoton20_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
-HLT_PAPhoton30_TightCaloIdVL_v*			   # sr 134440
-#HLT_PAPhoton30_TightCaloIdVL_Iso50_v*		   # sr 134440, remove from the pp menu (sr 135728)
-HLT_PAPhoton40_TightCaloIdVL_v*			   # sr 134440
-HLT_PAPhoton10_Photon10_TightCaloIdVL_v*	   # sr 134440
-#HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v*	   # sr 134440, remove from the pp menu (sr 135728)
-HLT_PAPhoton15_Photon10_TightCaloIdVL_v*	   # sr 134440
-HLT_PAPhoton20_Photon15_TightCaloIdVL_v*	   # sr 134440
-#HLT_PASingleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
-#HLT_PASingleEle6_CaloIdNone_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
-#HLT_PASingleEle8_CaloIdNone_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
-#HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v*	   # sr 134440, remove from the pp menu (sr 135728)
-#HLT_PADoubleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
-#HLT_PADoubleEle8_CaloIdT_TrkIdVL_v*		   # sr 134440, remove from the pp menu (sr 135728)
-#HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
-#HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
-#HLT_PAPixelTracks_Multiplicity70_v*               # sr 131577, removed by #134440
-#HLT_PAPixelTracks_Multiplicity90_v*               # sr 131577, removed by #134440
-HLT_PAPixelTracks_Multiplicity100_v*               # sr 132927
-HLT_PAPixelTracks_Multiplicity130_v*               # sr 132927
-HLT_PAPixelTracks_Multiplicity160_v*               # sr 132927
-HLT_PAPixelTracks_Multiplicity190_v*               # sr 132927
-HLT_PAPixelTracks_Multiplicity220_v*               # sr 132927
-HLT_PAPixelTrackMultiplicity100_FullTrack12_v*     # sr 133420
-HLT_PAPixelTrackMultiplicity130_FullTrack12_v*     # sr 133420
-HLT_PAPixelTrackMultiplicity160_FullTrack12_v*     # sr 133420
-HLT_PAFullTrack12_v*                               # sr 133420
-HLT_PAFullTrack20_v*                               # sr 133420
-HLT_PAFullTrack30_v*                               # sr 133420
-HLT_PAFullTrack50_v*                               # sr 133420
-HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v*   # sr 135195
-HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v*	   # sr 135195
-HLT_PPPixelTrackMultiplicity55_FullTrack12_v*	   # sr 134848
-HLT_PPPixelTrackMultiplicity70_FullTrack12_v*	   # sr 134848
-HLT_PPPixelTracks_Multiplicity55_v*		   # sr 134848
-HLT_PPPixelTracks_Multiplicity70_v*		   # sr 134848
-HLT_PPPixelTracks_Multiplicity85_v*		   # sr 134848
-HLT_PAHFSumET100_v*				   # sr 134996
-HLT_PAHFSumET140_v*				   # sr 134996
-HLT_PAHFSumET170_v*				   # sr 134996
-HLT_PAHFSumET210_v*				   # sr 134996
-HLT_PARomanPots_Tech52_v*                          # sr 131577
-HLT_PAL1Tech53_MB_v*                               # sr 131577
-HLT_PAL1Tech53_MB_SingleTrack_v*                   # sr 131577
-HLT_PAL1Tech54_ZeroBias_v*                         # sr 131577
-HLT_PAT1minbias_Tech55_v*                          # sr 131577
-HLT_PAL1Tech_HBHEHO_totalOR_v*                     # sr 131577
-HLT_PAMinBiasHF_v*                                 # sr 131577
-HLT_PAMinBiasHF_OR_v*                              # sr 131577
-HLT_PAMinBiasBHC_v*                                # sr 131577, renamed by sr 134920
-HLT_PAMinBiasBHC_OR_v*                             # sr 131577, renamed by sr 134920
-HLT_PAMinBiasHfOrBHC_v*                            # sr 131577, renamed by sr 134920
-HLT_PABptxPlusNotBptxMinus_v*			   # sr 134440
-HLT_PABptxMinusNotBptxPlus_v*			   # sr 134440
-HLT_PAZeroBias_v*                                  # sr 131577
-HLT_PAZeroBiasPixel_SingleTrack_v*                 # sr 131577 
-# HLT_PAZeroBiasPixel_SingleTrack_ExpressStream_v* # sr 131577 removed sr 131770
-HLT_PAHFOR_SingleTrack_v*                          # sr 131577
-# HLT_PAHFOR_SingleTrack_ExpressStream_v*          # sr 131577 removed sr 131770
-HLT_PAZeroBiasPixel_DoubleTrack_v*                 # sr 131577
-HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577, sr 133528
-HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
-HLT_PAExclDijet35_HFOR_v*                          # sr 135728
-HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
-#HLT_PAL1DoubleJet20_RomanPotsOR_v*                # sr 131577, sr 133528
-HLT_PAL1DoubleJet20_TotemDiffractive_v*            # renamed
-HLT_PAL1SingleMu20_TotemDiffractive_v*             # sr 135617
-HLT_PAL1SingleEG20_TotemDiffractive_v*             # sr 135617
-HLT_PAL1SingleJet52_TotemDiffractive_v*            # sr 135617
-HLT_PAL1DoubleJetC36_TotemDiffractive_v*           # sr 135252, sr 135617
-HLT_PAL1DoubleMu5_TotemDiffractive_v*		   # sr 135252, sr 135617
-HLT_PAL1DoubleEG5_TotemDiffractive_v*		   # sr 135252, sr 135617
-HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
-HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
-#HLT_PAUpcSingleEG5Pixel_TrackVeto_v*              # sr 133308, remove from the pp menu (sr 135728)
-#HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*           # sr 133308, remove from the pp menu (sr 135728)
-#HLT_PAUpcSingleMuOpenTkMu_Onia_v*                 # sr 133308, remove from the pp menu (sr 135728)
-#HLT_PAUpcSingleEG5Full_TrackVeto7_v*		   # sr 134900, remove from the pp menu (sr 135728)
-#HLT_PAUpcSingleMuOpenFull_TrackVeto7_v*	   # sr 134900, remove from the pp menu (sr 135728)
-HLT_PPL1DoubleJetC36_v*				   # sr 135728
-HLT_L1SingleMuOpen_AntiBPTX_v*                     # sr 133348
-HLT_L1TrackerCosmics_v*                            # sr 133348
-HLT_PAL1Tech63_CASTORHaloMuon_v*		   # sr 134945, renamed by sr #135011
-HLT_PACastorEmTotemLowMultiplicity_*		   # sr 134945
-HLT_PACastorEmNotHfCoincidencePm_v*		   # sr 134945
-HLT_PACastorEmNotHfSingleChannel_v*		   # sr 134945
-HLT_PAL1CastorTotalTotemLowMultiplicity_v*	   # sr 134945
-HLT_PATech35_v*					   # sr 135130
-HLT_PATech35_HFSumET100_v*			   # sr 135130
-HLT_Mu15_eta2p1_v*				   # sr 135728 (pp run)
-HLT_Ele22_CaloIdL_CaloIsoVL_v*			   # sr 135728 (pp run)
-HLT_PARandom_v*                                    # sr 131577
-DQM_FEDIntegrity_v*                                # sr 131577
-HLT_LogMonitor_v*                                  # sr 131577
+
+HLT_PAFullTracks_Multiplicity120_v*                                     #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity150_v*                                     #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity110_HighPt8_v*                             #CMSHLT-1059
+HLT_PAFullTracks_Multiplicity110_HighPt16_v*                            #CMSHLT-1059
+HLT_PAFullTracks_Multiplicity185_part1_v*                               #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part2_v*                               #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part3_v*                               #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part4_v*                               #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part5_v*                               #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity185_part6_v*                               #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity220_v*                                     #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity250_v*                                     #CMSHLT-1000
+HLT_PAFullTracks_Multiplicity280_v*                                     #CMSHLT-1000
+
+HLT_PAFullTracks_HighPt20_v*                                            #CMSHLT-1088
+HLT_PAFullTracks_HighPt30_v*                                            #CMSHLT-1088
+HLT_PAFullTracks_HighPt40_v*                                            #CMSHLT-1088
+HLT_PAFullTracks_HighPt50_v*                                            #
+
+HLT_PAL1DoubleMu0_MGT1_v*                                               #CMSHLT-1013
+HLT_PAL1DoubleMu0_HighQ_v*                                              #CMSHLT-1013
+HLT_PAL1DoubleMu0_v*                                                    #CMSHLT-1013
+HLT_PAL1DoubleMu10_v*                                                   #CMSHLT-1013
+HLT_PAL1DoubleMuOpen_OS_v*                                              #CMSHLT-1013
+HLT_PAL1DoubleMuOpen_SS_v*                                              #CMSHLT-1013
+HLT_PAL1DoubleMuOpen_v*                                                 #CMSHLT-1013
+HLT_PAL2DoubleMu10_v*                                                   #CMSHLT-1013
+#HLT_PAL2DoubleMuOpen_v*                                                #CMSHLT-1013, removed CMSHLT-1075
+HLT_PAL3DoubleMu10_v*                                                   #CMSHLT-1013
+#HLT_PAL3DoubleMuOpen_HIon_v*                                           #CMSHLT-1013, removed CMSHLT-1075
+#HLT_PAL3DoubleMuOpen_v*                                                #CMSHLT-1013, removed CMSHLT-1075
+HLT_PAL2Mu15_v*                                                         #CMSHLT-1013
+HLT_PAL2Mu12_v*                                                         #CMSHLT-1013
+HLT_PAL3Mu12_v*                                                         #CMSHLT-1013
+HLT_PAL3Mu15_v*                                                         #CMSHLT-1013
+HLT_PAL3Mu3_v*                                                          #CMSHLT-1013
+HLT_PAL3Mu5_v*                                                          #CMSHLT-1013
+HLT_PAL3Mu7_v*                                                          #CMSHLT-1013
+
+HLT_PAL2DoubleMu0*                                                      #CMSHLT-1075
+HLT_PAL3DoubleMu0*                                                      #CMSHLT-1075
+HLT_PAL3DoubleMu0_HIon*                                                 #CMSHLT-1075
+
+
+HLT_PASinglePhoton10_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton15_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton15_Eta3p1_SeededWithMB_v*                             #
+HLT_PASinglePhoton20_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton20_Eta3p1_SeededWithMB_v*                             #
+HLT_PASinglePhoton30_Eta3p1_v*                                          #CMSHLT-1028
+HLT_PASinglePhoton30_L1EGJet_Eta3p1_v*                                  #
+HLT_PADoublePhoton15_Eta3p1_Mass50_1000_v*                              #CMSHLT-1028
+HLT_PASinglePhoton40_L1EGJet_Eta3p1_v*                                  #
+
+HLT_PASinglePhoton10_Eta3p1_PAL3Mu3_v*                                  #CMSHLT-1028
+HLT_PASinglePhoton10_Eta3p1_PAL3Mu5_v*                                  #CMSHLT-1028
+HLT_PASinglePhoton15_Eta3p1_PAL3Mu3_v*                                  #CMSHLT-1028
+HLT_PASinglePhoton15_Eta3p1_PAL3Mu5_v*                                  #CMSHLT-1028
+HLT_PASinglePhoton20_Eta3p1_PAL3Mu3_v*                                  #CMSHLT-1028
+HLT_PASinglePhoton20_Eta3p1_PAL3Mu5_v*                                  #CMSHLT-1028
+
+HLT_PADmesonPPTrackingGlobal_Dpt5_v*                                    #CMSHLT-1030
+HLT_PADmesonPPTrackingGlobal_Dpt8_v*                                    #CMSHLT-1030
+HLT_PADmesonPPTrackingGlobal_Dpt15_v*                                   #CMSHLT-1030
+HLT_PADmesonPPTrackingGlobal_Dpt30_v*                                   #CMSHLT-1030
+HLT_PADmesonPPTrackingGlobal_Dpt50_v*                                   #CMSHLT-1030
+HLT_PADmesonPPTrackingGlobal_Dpt55_v*                                   #
+
+HLT_PADmesonPPTrackingGlobal_Dpt5_part2_v*                              #CMSHLT-1098
+HLT_PADmesonPPTrackingGlobal_Dpt5_part3_v*                              #CMSHLT-1098
+
+HLT_PAFullTracks_HFSumEt005_HighPt8_v*                                  #CMSHLT-1069
+HLT_PAFullTracks_HFSumEt005_HighPt16_v*                                 #CMSHLT-1069
+
+HLT_PADoubleEG2_HFOneTowerVeto_SingleTrack_v*                           #CMSHLT-1073
+HLT_PADoubleEG2_HFOneTowerVeto_v*                                       #CMSHLT-1073
+HLT_PADoubleEG2_HFTwoTowerVeto_SingleTrack_v*                           #CMSHLT-1073
+HLT_PADoubleEG2_HFTwoTowerVeto_v*                                       #CMSHLT-1073
+HLT_PASingleEG5_HFOneTowerVeto_SingleTrack_v*                           #CMSHLT-1073
+HLT_PASingleEG5_HFOneTowerVeto_v*                                       #CMSHLT-1073
+HLT_PASingleEG5_HFTwoTowerVeto_SingleTrack_v*                           #CMSHLT-1073
+HLT_PASingleEG5_HFTwoTowerVeto_v*                                       #CMSHLT-1073
+HLT_PASingleEG5_HFThreeTowerVeto_v*                                     #
+HLT_PASingleEG5_HFThreeTowerVeto_SingleTrack_v*                         #
+HLT_PASingleMuOpen_v*                                                   #
+HLT_PASingleMuOpen_HFOneTowerVeto_SingleTrack_v*                        #CMSHLT-1073
+HLT_PASingleMuOpen_HFOneTowerVeto_v*                                    #CMSHLT-1073
+HLT_PASingleMuOpen_HFTwoTowerVeto_SingleTrack_v*                        #CMSHLT-1073
+HLT_PASingleMuOpen_HFTwoTowerVeto_v*                                    #CMSHLT-1073
+HLT_PASingleMuOpen_HFThreeTowerVeto_v*                                  #
+HLT_PASingleMuOpen_HFThreeTowerVeto_SingleTrack_v*                      #
+HLT_PADoubleMuOpen_HFOneTowerVeto_SingleTrack_v*                        #CMSHLT-1073
+HLT_PADoubleMuOpen_HFOneTowerVeto_v*                                    #CMSHLT-1073
+HLT_PADoubleMuOpen_HFTwoTowerVeto_SingleTrack_v*                        #CMSHLT-1073
+HLT_PADoubleMuOpen_HFThreeTowerVeto_v*                                  #
+HLT_PADoubleMuOpen_HFThreeTowerVeto_SingleTrack_v*                      #
+HLT_PADoubleMuOpen_HFTwoTowerVeto_v*                                    #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt10_v*                       #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0_FullTrackLt15_v*                       #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0Lt10_v*                                 #CMSHLT-1073
+HLT_PASingleMuOpen_PixelTrackGt0Lt15_v*                                 #CMSHLT-1073
+
+HLT_PAL1CastorHaloMuon_v*                                               #CMSHLT-1074
+HLT_PAL1CastorMediumJet_BptxAND_v*                                      #CMSHLT-1074
+HLT_PAL1CastorMediumJet_v*                                              #CMSHLT-1074
+
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_FirstCollisionAfterAbortGap_v*#CMSHLT-1084
+HLT_PAZeroBias_IsolatedBunches_v*                                       #CMSHLT-1099
+
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part1_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part2_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part3_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part4_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part5_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part6_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part7_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_part8_v*                      #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_ForExpress_v*                 #CMSHLT-1076
+
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_v*                            #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_ForSkim_v*                    #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_OR_v*                                             #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_AND_v*                                            #CMSHLT-1076
+HLT_PAL1MinimumBiasHF_AND_SinglePixelTrack_v*                           #CMSHLT-1076
+HLT_PAZeroBias_SinglePixelTrack_v*                                      #CMSHLT-1076
+HLT_PAZeroBias_DoublePixelTrack_v*                                      #CMSHLT-1076
+HLT_PAZeroBias_v*                                                       #CMSHLT-1099
+HLT_PAL1BptxMinus_v*                                                    #CMSHLT-1076
+HLT_PAL1BptxPlus_v*                                                     #CMSHLT-1076
+
+HLT_PAL1BptxMinusNotBptxPlus_v*                                         #CMSHLT-1076
+HLT_PAL1BptxPlusNotBptxMinus_v*                                         #CMSHLT-1076
+HLT_PABptxXOR_v*                                                        #CMSHLT-1076
+HLT_PARandom_v*                                                         #CMSHLT-1099
+HLT_L1FatEvents_v*                                                      #CMSHLT-1099
+
+HLT_PAAK4CaloJet40_Eta5p1_v*                                            #CMSHLT-1078
+HLT_PAAK4CaloJet60_Eta5p1_v*                                            #CMSHLT-1078
+HLT_PAAK4CaloJet80_Eta5p1_v*                                            #CMSHLT-1078
+HLT_PAAK4CaloJet100_Eta5p1_v*                                           #CMSHLT-1078
+HLT_PAAK4PFJet40_Eta5p1_v*                                              #
+HLT_PAAK4PFJet60_Eta5p1_v*                                              #CMSHLT-1078
+HLT_PAAK4PFJet80_Eta5p1_v*                                              #CMSHLT-1078
+HLT_PAAK4PFJet100_Eta5p1_v*                                             #CMSHLT-1078
+HLT_PAAK4PFJet120_Eta5p1_v*                                             #
+
+HLT_PAAK4CaloJet40_Eta1p9toEta5p1_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet60_Eta1p9toEta5p1_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet40_Eta2p9toEta5p1_v*                                    #CMSHLT-1078
+HLT_PAAK4PFJet40_Eta1p9toEta5p1_v*                                      #CMSHLT-1078
+HLT_PAAK4PFJet60_Eta1p9toEta5p1_v*                                      #CMSHLT-1078
+HLT_PAAK4PFJet40_Eta2p9toEta5p1_v*                                      #CMSHLT-1078
+HLT_PAAK4PFJet40_Eta2p9toEta5p1_ForExpress_v*                           #
+
+HLT_PADiAK4CaloJetAve40_Eta5p1_v*                                       #CMSHLT-1078
+HLT_PADiAK4CaloJetAve60_Eta5p1_v*                                       #CMSHLT-1078
+HLT_PADiAK4CaloJetAve80_Eta5p1_v*                                       #CMSHLT-1078
+HLT_PADiAK4PFJetAve40_Eta5p1_v*                                         #CMSHLT-1078
+HLT_PADiAK4PFJetAve60_Eta5p1_v*                                         #CMSHLT-1078
+HLT_PADiAK4PFJetAve80_Eta5p1_v*                                         #CMSHLT-1078
+
+HLT_PAAK4CaloBJetCSV40_Eta2p1_v*                                        #CMSHLT-1078
+HLT_PAAK4CaloBJetCSV60_Eta2p1_v*                                        #CMSHLT-1078
+HLT_PAAK4CaloBJetCSV80_Eta2p1_v*                                        #CMSHLT-1078
+HLT_PAAK4PFBJetCSV40_Eta2p1_v*                                          #CMSHLT-1078
+HLT_PAAK4PFBJetCSV60_Eta2p1_v*                                          #CMSHLT-1078
+HLT_PAAK4PFBJetCSV80_Eta2p1_v*                                          #CMSHLT-1078
+HLT_PAAK4PFBJetCSV40_CommonTracking_Eta2p1_v*                           #CMSHLT-1078
+HLT_PAAK4PFBJetCSV60_CommonTracking_Eta2p1_v*                           #CMSHLT-1078
+HLT_PAAK4PFBJetCSV80_CommonTracking_Eta2p1_v*                           #CMSHLT-1078
+
+HLT_PASinglePhoton40_Eta3p1_v*                                          #CMSHLT-1078
+HLT_PASingleIsoPhoton20_Eta3p1_v*                                       #CMSHLT-1078
+
+HLT_PAPhoton10_Eta3p1_PPStyle_v*                                        #CMSHLT-1078
+HLT_PAPhoton15_Eta3p1_PPStyle_v*                                        #CMSHLT-1078
+HLT_PAPhoton20_Eta3p1_PPStyle_v*                                        #CMSHLT-1078
+HLT_PAPhoton30_Eta3p1_PPStyle_v*                                        #CMSHLT-1078
+HLT_PAPhoton40_Eta3p1_PPStyle_v*                                        #CMSHLT-1078
+HLT_PAIsoPhoton20_Eta3p1_PPStyle_v*                                     #CMSHLT-1078
+
+HLT_PAAK4CaloJet30_Eta5p1_PAL3Mu3_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet30_Eta5p1_PAL3Mu5_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu3_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet40_Eta5p1_PAL3Mu5_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu3_v*                                    #CMSHLT-1078
+HLT_PAAK4CaloJet60_Eta5p1_PAL3Mu5_v*                                    #CMSHLT-1078
+
+HLT_PADiAK4CaloJetAve40_Eta5p1_EvtTagging_v*                            #CMSHLT-1109
+HLT_PAAK4CaloJet40_Eta5p1_EvtTagging_v*                                 #CMSHLT-1109
+HLT_PAAK4PFJet40_Eta5p1_EvtTagging_v*                                   #CMSHLT-1109
+HLT_PASinglePhoton10_Eta3p1_EvtTagging_v*                               #CMSHLT-1109
+HLT_PAPhoton10_Eta3p1_PPStyle_EvtTagging_v*                             #CMSHLT-1109
+HLT_PAFullTracks_Multiplicity120_EvtTagging_v*                          #CMSHLT-1109
+HLT_PAFullTracks_Multiplicity185_EvtTagging_v*                          #CMSHLT-1109
+HLT_PAFullTracks_Multiplicity110_HighPt8_EvtTagging_v*                  #CMSHLT-1109
+HLT_PAFullTracks_HFSumEt005_HighPt8_EvtTagging_v*                       #CMSHLT-1109
+HLT_PAFullTracks_HighPt20_EvtTagging_v*                                 #CMSHLT-1109
+HLT_PADmesonPPTrackingGlobal_Dpt8_EvtTagging_v*                         #CMSHLT-1109
+HLT_PADmesonPPTrackingGlobal_Dpt15_EvtTagging_v*                        #CMSHLT-1109
+HLT_PAL3Mu3_EvtTagging_v*                                               #CMSHLT-1109
+
+HLT_PAEle20_WPLoose_Gsf_v*                                              #CMSHLT-1078
+
+HLT_PAHcalCalibration_v*                                                #CMSHLT-1086
+HLT_PAEcalCalibration_v*                                                #CMSHLT-1082
+
+HLT_PAHcalPhiSym_v*                                                     #CMSHLT-1086
+HLT_PAHcalNZS_v*                                                        #CMSHLT-1086
+
+HLT_PAAK4CaloJet40_Eta5p1_SeededWithMB_v*                               #CMSHLT-1110
+HLT_PAAK4PFJet40_Eta5p1_SeededWithMB_v*                                 #CMSHLT-1110
+
+HLT_Physics_v*
+
 HLTriggerFirstPath
-HLTriggerFinalPath                                 # sr 131577
-#HLTAnalyzerEndpath                                # only in 'PIon', not in 'online'
-AOutput                                            # sr 131577
-#BOutput                                           # sr 131577, removed by sr #135006
-ALCAP0Output                                       # sr 131577
-ALCAPHISYMOutput                                   # sr 131577
-ALCALUMIPIXELSOutput                               # sr 131577
-CalibrationOutput                                  # sr 131577
-DQMOutput                                          # sr 131577
-EcalCalibrationOutput                              # sr 131577
-ExpressOutput                                      # sr 131577
-HLTDQMOutput                                       # sr 131577
-#HLTMONOutput                                      # sr 131577, removed by sr #134906 
-NanoDSTOutput                                      # sr 131577
-#PhysicsDSTOutput                                  # sr 131577, removed by sr #135006
-RPCMONOutput                                       # sr 131577
-TrackerCalibrationOutput                           # sr 131577
+HLTriggerFinalPath
+
+AlCa_RPCMuonNoTriggersForPA_v*              #CMSHLT-1083
+AlCa_RPCMuonNoHitsForPA_v*                  #CMSHLT-1083
+AlCa_RPCMuonNormalisationForPA_v*           #CMSHLT-1083
+
+AlCa_EcalPhiSymForPA_v*                     #CMSHLT-1082
+AlCa_EcalPi0EEonlyForPA_v*                  #CMSHLT-1082
+AlCa_EcalPi0EBonlyForPA_v*                  #CMSHLT-1082
+AlCa_EcalEtaEEonlyForPA_v*                  #CMSHLT-1082
+AlCa_EcalEtaEBonlyForPA_v*                  #CMSHLT-1082
+ 
+AlCa_LumiPixels_Random_v*                   #CMSHLT-1087
+AlCa_LumiPixels_ZeroBias_v*                 #CMSHLT-1087
+AlCa_PAL1MinimumBiasHF_OR_SinglePixelTrack_v*#
+
+ExpressPAOutput                             #CMSHLT-1084
+
+DQMCalibrationOutput                        #CMSHLT-1082
+CalibrationOutput                           #CMSHLT-1082
+EcalCalibrationOutput                       #CMSHLT-1082
+ALCAPHISYMOutput                            #CMSHLT-1082
+ALCAP0Output                                #CMSHLT-1082
+
+RPCMONOutput                                #CMSHLT-1083
+
+ALCALUMIPIXELSOutput                        #CMSHLT-1087
+
+HLTMonitorPAOutput                          #CMSHLT-1092
+
+PhysicsCommissioningOutput
+PhysicsPAMuonsOutput                        #CMSHLT-1013
+PhysicsPAHighMultiplicity0Output            #CMSHLT-1000
+PhysicsPAHighMultiplicity1Output            #CMSHLT-1000
+PhysicsPAHighMultiplicity2Output            #CMSHLT-1000
+PhysicsPACastorOutput                       #CMSHLT-1074
+PhysicsPAMinimumBias0Output                 #CMSHLT-1076
+PhysicsPAMinimumBias1Output                 #CMSHLT-1076
+PhysicsPAMinimumBias2Output                 #CMSHLT-1076
+PhysicsPAMinimumBias3Output                 #CMSHLT-1076
+
+#PhysicsPAJetsEGOutput                       #CMSHLT-1028, removed by CMSHLT-1106
+#PhysicsPAMesonDOutput                       #CMSHLT-1030, removed by CMSHLT-1106
+#PhysicsPAMesonD2Output                      #CMSHLT-1098, removed by CMSHLT-1106
+
+PhysicsPAHighPt1Output                       #CMSHLT-1106
+PhysicsPAHighPt2Output                       #CMSHLT-1106
+
+DQMOutput                                   #CMSHLT-1099
+DQMCalibrationOutput                        #CMSHLT-1099
+DQMEventDisplayOutput                       #CMSHLT-1099
+
+######## paths that are different between PIon and online_pion ################################
+
+#HLTAnalyzerEndpath			# only in 'GRun', not in 'online'
+RatesMonitoring						# only in 'online'
+DQMHistograms

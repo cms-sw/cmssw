@@ -26,7 +26,7 @@ class GenericBenchmark{
  public:
 
   GenericBenchmark();
-  virtual ~GenericBenchmark();
+  virtual ~GenericBenchmark() noexcept(false);
 
   void setup(DQMStore *DQM = NULL, 
 	     bool PlotAgainstReco_=true, 

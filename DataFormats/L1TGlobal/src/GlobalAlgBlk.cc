@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+
 // constructors
 
 // empty constructor, all members set to zero;
@@ -33,16 +34,17 @@ GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
 
     //Clear out the header data
     m_finalOR=0;
+    m_preScColumn=0;
 
     // Reserve/Clear out the decision words
-    m_algoDecisionInitial.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionInitial.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionInitial.reserve(maxPhysicsTriggers);
+    m_algoDecisionInitial.assign(maxPhysicsTriggers,false);
     
-    m_algoDecisionPreScaled.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionPreScaled.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionPreScaled.reserve(maxPhysicsTriggers);
+    m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
 
-    m_algoDecisionFinal.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionFinal.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionFinal.reserve(maxPhysicsTriggers);
+    m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 }
 
@@ -56,16 +58,19 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_bxNr=0;
     m_bxInEvent=0;
     m_finalOR=0;
+    m_finalORPreVeto = 0;
+    m_finalORVeto = 0;    
+    m_preScColumn=0;
 
     // Reserve/Clear out the decision words
-    m_algoDecisionInitial.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionInitial.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionInitial.reserve(maxPhysicsTriggers);
+    m_algoDecisionInitial.assign(maxPhysicsTriggers,false);
     
-    m_algoDecisionPreScaled.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionPreScaled.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionPreScaled.reserve(maxPhysicsTriggers);
+    m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
 
-    m_algoDecisionFinal.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionFinal.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionFinal.reserve(maxPhysicsTriggers);
+    m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 }
 
@@ -80,24 +85,40 @@ GlobalAlgBlk::~GlobalAlgBlk()
 
 
 /// Set decision bits
-void GlobalAlgBlk::setAlgoDecisionInitial(int bit, bool val)   
+void GlobalAlgBlk::setAlgoDecisionInitial(unsigned int bit, bool val)   
 { 
-//   if(bit < m_algoDecisionInitial.size()) {
+   if(bit < m_algoDecisionInitial.size()) {
        
       m_algoDecisionInitial.at(bit) = val;   
    
- //  } 
-   // Need some erorr checking here.
-   
+   } else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set an algorithm bit " << bit << " beyond limit " << m_algoDecisionInitial.size();
+   }
    
 }
-void GlobalAlgBlk::setAlgoDecisionPreScaled(int bit, bool val) 
+void GlobalAlgBlk::setAlgoDecisionInterm(unsigned int bit, bool val) 
 { 
-   m_algoDecisionPreScaled.at(bit) = val; 
+
+   if(bit < m_algoDecisionPreScaled.size()) {
+
+     m_algoDecisionPreScaled.at(bit) = val; 
+   } else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set an algorithm bit " << bit << " beyond limit " << m_algoDecisionPreScaled.size();
+   }
+
 }
-void GlobalAlgBlk::setAlgoDecisionFinal(int bit, bool val)     
+void GlobalAlgBlk::setAlgoDecisionFinal(unsigned int bit, bool val)     
 { 
-   m_algoDecisionFinal.at(bit) = val; 
+
+   if(bit < m_algoDecisionFinal.size()) {
+     m_algoDecisionFinal.at(bit) = val; 
+   } else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set an algorithm bit " << bit << " beyond limit " << m_algoDecisionFinal.size();
+   }
+
 }
 
 /// Get decision bits
@@ -106,7 +127,7 @@ bool GlobalAlgBlk::getAlgoDecisionInitial(unsigned int bit) const
    if(bit>=m_algoDecisionInitial.size()) return false;
    return m_algoDecisionInitial.at(bit); 
 }
-bool GlobalAlgBlk::getAlgoDecisionPreScaled(unsigned int bit) const
+bool GlobalAlgBlk::getAlgoDecisionInterm(unsigned int bit) const
 { 
    if(bit>=m_algoDecisionPreScaled.size()) return false;
    return m_algoDecisionPreScaled.at(bit); 
@@ -127,12 +148,15 @@ void GlobalAlgBlk::reset()
     m_bxNr=0;
     m_bxInEvent=0;
     m_finalOR=0;
+    m_finalORPreVeto = 0;
+    m_finalORVeto = 0;
+    m_preScColumn=0;
 
     // Clear out the decision words
     // but leave the vector intact 
-    m_algoDecisionInitial.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
-    m_algoDecisionPreScaled.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
-    m_algoDecisionFinal.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionInitial.assign(maxPhysicsTriggers,false);
+    m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
+    m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 
 }
@@ -140,17 +164,20 @@ void GlobalAlgBlk::reset()
 // pretty print the content of a GlobalAlgBlk
 void GlobalAlgBlk::print(std::ostream& myCout) const
 {
-
     
     myCout << " uGtGlobalAlgBlk: " << std::endl;
-    
-    myCout << "    Orbit Number (hex):  0x" << std::hex << std::setw(8) << std::setfill('0') << m_orbitNr << std::endl;
 
-    myCout << "    Bx Number (hex):     0x" << std::hex << std::setw(4) << std::setfill('0') << m_bxNr << std::endl;
+    myCout << "    L1 Menu Name (hash):  0x" << std::hex << m_orbitNr << std::endl;
+
+    myCout << "    L1 firmware (hash):   0x" << std::hex << m_bxNr << std::endl;
 
     myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
-
-    myCout << "    Final OR (hex):      Ox" << std::hex << std::setw(1) << std::setfill('0') << m_finalOR << std::endl;
+    
+    myCout << "    PreScale Column:     "   <<std::setw(2) << m_preScColumn << std::endl;
+    
+    myCout << "    Final OR Veto:       " << std::hex << std::setw(1) << std::setfill('0') << m_finalORVeto << std::endl;
+    
+    myCout << "    Final OR:            " << std::hex << std::setw(1) << std::setfill('0') << m_finalOR << std::endl;
     
     // Loop through bits to create a hex word of algorithm bits.
     int lengthWd = m_algoDecisionInitial.size();
@@ -161,6 +188,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
@@ -174,6 +202,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
@@ -188,6 +217,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;

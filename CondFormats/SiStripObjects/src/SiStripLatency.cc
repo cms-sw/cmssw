@@ -16,7 +16,7 @@ bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const uint16
     error << "of the writing of this class was 47017836 as defined in CalibTracker/SiStripCommon/data/SiStripDetInfo.dat." << std::endl;
     error << "If the maximum value has changed a revision of this calss is needed, possibly changing the detIdAndApv value from" << std::endl;
     error << "from uint32_t to uint64_t." << std::endl;
-    edm::LogError("SiStripLatency::put") << error;
+    edm::LogError("SiStripLatency::put") << error.str();
     throw cms::Exception("InsertFailure");
   }
 

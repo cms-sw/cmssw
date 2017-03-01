@@ -19,4 +19,6 @@ earlyMuons.TrackAssociatorParameters.useHO   = cms.bool(False)
 earlyMuons.TrackAssociatorParameters.useEcal = cms.bool(False)
 earlyMuons.TrackAssociatorParameters.useHcal = cms.bool(False)
 
-
+earlyDisplacedMuons = earlyMuons.clone(
+    inputCollectionLabels = cms.VInputTag(cms.InputTag("earlyGeneralTracks"),cms.InputTag("displacedStandAloneMuons","")),
+    )

@@ -1,30 +1,32 @@
-/***************************************************************************
-                          testDoc.cpp  -  description
-                             -------------------
-    Author               : Michael Case
-    email                : case@ucdhep.ucdavis.edu
-
-    Last Updated         : Jan 9, 2004
- ***************************************************************************/
-
-#include <string>
-#include <vector>
+#include <stdlib.h>
+#include <exception>
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
-#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Parser/src/StrX.h"
-
-#include "FWCore/PluginManager/interface/standard.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
+#include "xercesc/util/XMLException.hpp"
+#include "xercesc/util/XercesVersion.hpp"
+
+using namespace cms::xerces;
 
 class DDLTestDoc : public DDLDocumentProvider
 {
@@ -164,7 +166,7 @@ DDLTestDoc::readConfig( const std::string& filename )
   catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
 	      << "Exception message is: \n"
-	      << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
+	      << cStr(toCatch.getMessage()).ptr() << "\n" ;
     return 1;
   }
   catch (...)

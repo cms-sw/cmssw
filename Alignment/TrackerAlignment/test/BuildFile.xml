@@ -15,3 +15,13 @@
   <use   name="FWCore/ServiceRegistry"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library name="TrackerGeometryAnalyzerPlugin" file="TrackerGeometryAnalyzer.cc">
+  <!-- contains TrackerTopology class -->
+  <use name="DataFormats/TrackerCommon"/>
+  <!-- for IdealGeometryRecord registration
+  <use name="Geometry/Records"/> -->
+  <!-- for PTrackerParametersRcd registration -->
+  <use name="CondFormats/GeometryObjects"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -16,7 +16,7 @@ class RFIOStorageMaker : public StorageMaker
   /** Normalise new RFIO TURL style.  Handle most obvious mis-spellings
       like excess '/' characters and /dpm vs. /castor syntax
       differences.  */
-  std::string normalise (const std::string &path)
+  std::string normalise (const std::string &path) const
   {
     std::string prefix;
     // look for options
@@ -97,11 +97,12 @@ public:
     Cthread_init();
   }
 
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 		         const std::string &path,
-			 int mode) override
+			       int mode,
+             const AuxSettings&) const override
   {
-    StorageFactory *f = StorageFactory::get();
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -111,12 +112,13 @@ public:
     else
       mode |= IOFlags::OpenUnbuffered;
 
-    Storage *file = new RFIOFile(normalise(path), mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<RFIOFile>(normalise(path), mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
   virtual void stagein (const std::string &proto,
-		        const std::string &path) override
+		        const std::string &path,
+            const AuxSettings&) const override
   {
     std::string npath = normalise(path);
     size_t castor = npath.find("?path=/castor/");
@@ -167,7 +169,8 @@ public:
 
   virtual bool check (const std::string &/*proto*/,
 		      const std::string &path,
-		      IOOffset *size = 0) override
+          const AuxSettings&,
+		      IOOffset *size = 0) const override
   {
     std::string npath = normalise(path);
     if (rfio_access(npath.c_str (), R_OK) != 0)

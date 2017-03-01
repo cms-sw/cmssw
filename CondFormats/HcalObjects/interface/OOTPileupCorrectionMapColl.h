@@ -1,0 +1,9 @@
+#ifndef CondFormats_HcalObjects_OOTPileupCorrectionMapColl_h
+#define CondFormats_HcalObjects_OOTPileupCorrectionMapColl_h
+
+#include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
+#include "CondFormats/HcalObjects/interface/StorableDoubleMap.h"
+
+typedef StorableDoubleMap<AbsOOTPileupCorrection> OOTPileupCorrectionMapColl;
+
+#endif // CondFormats_HcalObjects_OOTPileupCorrectionMapColl_h

@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -24,16 +23,18 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/IdealZPrism.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloTowerNavigator.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
@@ -141,11 +142,15 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
   iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
   const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
+  // Get Hcal Topology
+  edm::ESHandle<HcalTopology> hcalTopology;
+  iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
+  theHcalTopology = hcalTopology.product();
 
-  auto_ptr< vector<reco::PFRecHit> > rechits( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > rechitsCleaned( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > HFHADRecHits( new vector<reco::PFRecHit> ); 
-  auto_ptr< vector<reco::PFRecHit> > HFEMRecHits( new vector<reco::PFRecHit> ); 
+  auto rechits = std::make_unique<std::vector<reco::PFRecHit>>(); 
+  auto rechitsCleaned = std::make_unique<std::vector<reco::PFRecHit>>(); 
+  auto HFHADRecHits = std::make_unique<std::vector<reco::PFRecHit>>(); 
+  auto HFEMRecHits = std::make_unique<std::vector<reco::PFRecHit>>(); 
 
   edm::Handle<CaloTowerCollection> caloTowers; 
   iEvent.getByToken(towersToken_,caloTowers);
@@ -185,6 +190,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
       if(hits[i].det()==DetId::Hcal) { 
 	foundHCALConstituent = true;
 	detid = hits[i];
+	if (theHcalTopology->withSpecialRBXHBHE() && 
+	    detid.subdet() == HcalEndcap) {
+	  detid = theHcalTopology->idFront(detid);
+	}
 	// An HCAL tower was found: Look for dead ECAL channels in the same CaloTower.
 	if ( ECAL_Compensate_ && energy > ECAL_Threshold_ ) {
 	  for(unsigned int j=0;j<allConstituents.size();++j) { 
@@ -585,7 +594,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 			      << ". Short fibres were cleaned." << std::endl;
 		    */
 		    shortFibre -= theShortHitEnergy29;
-		    theShortHitEnergy29 = 0.;
+		    theShortHitEnergy29 = 0;
 		  }
 
 		  // Some energy must be in the long fibres is there is some energy in the short fibres ! 
@@ -625,7 +634,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		      theShortHitEnergy29 = 0.;
 		    }	    
 		  }
-		  
+				  
 		  // Some energy must be in the short fibres is there is some energy in the long fibres ! 
 		  if ( theLongHitEnergy29 > longFibre_Cut && 
 		       ( theShortHitEnergy29/theLongHitEnergy29 < shortFibre_Fraction || 
@@ -664,6 +673,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		    }
 		  }
 
+		
 		  // Check that the energy in tower 29 is smaller than in tower 30
 		  // First in long fibres
 		  if ( theLongHitEnergy29 > std::max(theLongHitEnergy,shortFibre_Cut/2) ) { 
@@ -702,7 +712,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		    theShortHitEnergy29 = 0.;
 		  }
 		}
-
+	      
 
 		// Determine EM and HAD after cleaning of short and long fibres
 		energyhadHF = 2.*shortFibre;
@@ -811,10 +821,10 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
       }
     }
 
-  iEvent.put( rechits,"" );	
-  iEvent.put( rechitsCleaned,"Cleaned" );	
-  iEvent.put( HFEMRecHits,"HFEM" );	
-  iEvent.put( HFHADRecHits,"HFHAD" );	
+  iEvent.put(std::move(rechits),"");
+  iEvent.put(std::move(rechitsCleaned),"Cleaned");
+  iEvent.put(std::move(HFEMRecHits),"HFEM");
+  iEvent.put(std::move(HFHADRecHits),"HFHAD");
 
 }
 
@@ -828,7 +838,7 @@ PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
   // Get cleaned channels in the HCAL and HF 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
-  es.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  es.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   theHcalChStatus = hcalChStatus.product();
 
   // Retrieve the good/bad ECAL channels from the DB
@@ -837,7 +847,7 @@ PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
   theEcalChStatus = ecalChStatus.product();
 
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  es.get<IdealGeometryRecord>().get(cttopo);
+  es.get<CaloGeometryRecord>().get(cttopo);
   theTowerConstituentsMap = cttopo.product();
 }
 
@@ -856,36 +866,22 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
       <<layer<<endl;
     return 0;
   }
-  
-  const GlobalPoint& position = thisCell->getPosition();
-  
-  double depth_correction = 0.;
+    
   switch ( layer ) { 
   case PFLayer::HF_EM:
-    depth_correction = position.z() > 0. ? EM_Depth_ : -EM_Depth_;
-    break;
   case PFLayer::HF_HAD:
-    depth_correction = position.z() > 0. ? HAD_Depth_ : -HAD_Depth_;
+  {
+    auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+    assert(zp);
+    thisCell = zp->forPF();
+  }
     break;
   default:
     break;
   }
 
   reco::PFRecHit *rh = 
-    new reco::PFRecHit( newDetId.rawId(),  layer, energy, 
-			position.x(), position.y(), position.z()+depth_correction, 
-			0,0,0 );
- 
-  
-  
-  
-  // set the corners
-  const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-
-  rh->setNECorner( corners[0].x(), corners[0].y(),  corners[0].z()+depth_correction );
-  rh->setSECorner( corners[1].x(), corners[1].y(),  corners[1].z()+depth_correction );
-  rh->setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z()+depth_correction );
-  rh->setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z()+depth_correction );
+    new reco::PFRecHit(thisCell, newDetId.rawId(),  layer, energy);
  
   return rh;
 }

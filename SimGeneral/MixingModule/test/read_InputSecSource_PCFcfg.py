@@ -23,7 +23,7 @@ process.Analyzer = cms.EDAnalyzer("SecSourceAnalyzer",
      dataStep2 = cms.bool(True),
      collPCF = cms.InputTag("CFWriter"),
 	
-     input = cms.SecSource("PoolSource",
+     input = cms.SecSource("EmbeddedRootSource",
         type = cms.string('fixed'),
         nbPileupEvents = cms.PSet(
         averageNumber = cms.double(1.0)

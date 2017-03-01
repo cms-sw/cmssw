@@ -15,6 +15,7 @@
 
 #include <string>
 #include <functional>
+#include <memory>
 
 template <typename DetIdT> class EcalDeadChannelRecoveryNN {
  public:
@@ -61,8 +62,8 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
  private:
   struct MultiLayerPerceptronContext {
     Double_t tmp[9];
-    TTree *tree;
-    TMultiLayerPerceptron *mlp;
+    std::unique_ptr<TTree> tree;
+    std::unique_ptr<TMultiLayerPerceptron> mlp;
   };
 
   const CaloSubdetectorTopology* topology_;

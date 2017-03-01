@@ -1,0 +1,2 @@
+cmsRun Geometry/HGCalCommonData/test/dumpExtended2023HGCalGeometry_cfg.py
+cmsShow -c Geometry/HGCalCommonData/test/hgc.fwc --sim-geom-file ./cmsSimGeom-4.root

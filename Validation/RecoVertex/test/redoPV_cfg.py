@@ -13,7 +13,7 @@ process.source = cms.Source("PoolSource",
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.GlobalTag.globaltag= "START3X_V25B::All"
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
@@ -86,10 +86,10 @@ process.offlinePrimaryVerticesDA.TkClusParameters=cms.PSet(
 
 
 # the analyzer 
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-process.load("Validation.RecoVertex.PrimaryVertexAnalyzer4PU_cfi") 
+process.load("SimTracker.TrackAssociatiorProducer.trackAssociatorByHits_cfi")
+process.load("Validation.RecoVertex.VertexValidation_cff")
 
 
 
-process.p = cms.Path(process.vertexreco*process.vertexAnalysis)
+process.p = cms.Path(process.vertexreco*process.vertexValidation)
 

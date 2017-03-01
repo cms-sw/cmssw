@@ -36,9 +36,12 @@
 #include <TH2F.h>
 #include <TTree.h>
 #include <TGraph.h>
-
+#include "tdrstyle.C"
 
 using namespace RooFit;
+
+void makeSignalPdf();
+void makeBkgPdf();
 
 // The signal & background Pdf 
 RooRealVar *rooMass_;
@@ -146,12 +149,12 @@ void ThreeCategorySimZFitter()
 
   // Define background yield variables: they are not related to each other  
   float numBkgHighPurity=11.8;
-  if(selection=="WP80") numBkgHighPurity=3.0; 
+  if(!strcmp(selection,"WP80")) numBkgHighPurity=3.0; 
   RooRealVar nBkgTT("nBkgTT","nBkgTT", numBkgHighPurity);
   RooRealVar nBkgTF_BB("nBkgTF_BB","nBkgTF_BB", 58.0,     0.0, 500.);
   RooRealVar nBkgTF_End("nBkgTF_End","nBkgTF_End", 110.2, 0.0, 500.);
-   if(FIX_NUIS_PARS) nBkgTF_BB->setConstant(true);
-   if(FIX_NUIS_PARS) nBkgTF_End->setConstant(true);
+   if(FIX_NUIS_PARS) nBkgTF_BB.setConstant(true);
+   if(FIX_NUIS_PARS) nBkgTF_End.setConstant(true);
 
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
@@ -159,7 +162,7 @@ void ThreeCategorySimZFitter()
   // They are linked together by the total cross section:  e.g. 
   //          Nbb = sigma*L*Abb*effB
 
-  char* formula;
+  const char* formula = 0;
   RooArgList* args;
   formula="lumi*xsec*(acc_BB*eff_B*eff_B + acc_EB*eff_B*eff_E + acc_EE*eff_E*eff_E)+nBkgTT";
   args = new RooArgList(lumi,xsec,acc_BB,acc_EB,acc_EE,eff_B,eff_E,nBkgTT);
@@ -301,7 +304,7 @@ void ThreeCategorySimZFitter()
 //   c->SaveAs( cname + TString(".C"));
 
 
-  TString cname = Form("Zmass_TF_BB%dnb", (int)(1000*intLumi) );
+  cname = Form("Zmass_TF_BB%dnb", (int)(1000*intLumi) );
   c = new TCanvas(cname,cname,500,500);
   RooPlot* frame2 = Mass.frame(60., 120., 12);
   data_TF_BB->plotOn(frame2,RooFit::DataError(errorType));
@@ -314,31 +317,31 @@ void ThreeCategorySimZFitter()
   frame2->SetMinimum(0);
   frame2->Draw("e0");
   frame2->GetYaxis()->SetNdivisions(505);
-  TPaveText *plotlabel = new TPaveText(0.23,0.87,0.43,0.92,"NDC");
+  plotlabel = new TPaveText(0.23,0.87,0.43,0.92,"NDC");
    plotlabel->SetTextColor(kBlack);
    plotlabel->SetFillColor(kWhite);
    plotlabel->SetBorderSize(0);
    plotlabel->SetTextAlign(12);
    plotlabel->SetTextSize(0.03);
    plotlabel->AddText("CMS Preliminary 2010");
-  TPaveText *plotlabel2 = new TPaveText(0.23,0.82,0.43,0.87,"NDC");
+  plotlabel2 = new TPaveText(0.23,0.82,0.43,0.87,"NDC");
    plotlabel2->SetTextColor(kBlack);
    plotlabel2->SetFillColor(kWhite);
    plotlabel2->SetBorderSize(0);
    plotlabel2->SetTextAlign(12);
    plotlabel2->SetTextSize(0.03);
    plotlabel2->AddText("#sqrt{s} = 7 TeV");
-  TPaveText *plotlabel3 = new TPaveText(0.23,0.75,0.43,0.80,"NDC");
+  plotlabel3 = new TPaveText(0.23,0.75,0.43,0.80,"NDC");
    plotlabel3->SetTextColor(kBlack);
    plotlabel3->SetFillColor(kWhite);
    plotlabel3->SetBorderSize(0);
    plotlabel3->SetTextAlign(12);
    plotlabel3->SetTextSize(0.03);
-  char temp[100];
-  sprintf(temp, "%.1f", intLumi);
+  char temp2[100];
+  sprintf(temp2, "%.1f", intLumi);
   plotlabel3->AddText((string("#int#font[12]{L}dt = ") + 
-  temp + string(" pb^{ -1}")).c_str());
-  TPaveText *plotlabel4 = new TPaveText(0.6,0.87,0.8,0.92,"NDC");
+  temp2 + string(" pb^{ -1}")).c_str());
+  plotlabel4 = new TPaveText(0.6,0.87,0.8,0.92,"NDC");
    plotlabel4->SetTextColor(kBlack);
    plotlabel4->SetFillColor(kWhite);
    plotlabel4->SetBorderSize(0);
@@ -346,32 +349,32 @@ void ThreeCategorySimZFitter()
    plotlabel4->SetTextSize(0.03);
    nsig = nSigTF_BB.getVal();
    nsigerr = nSigTF_BB.getPropagatedError(*fitResult) ;
-   sprintf(temp, "Signal = %.2f #pm %.2f", nsig, nsigerr);
-   plotlabel4->AddText(temp);
-  TPaveText *plotlabel5 = new TPaveText(0.6,0.82,0.8,0.87,"NDC");
+   sprintf(temp2, "Signal = %.2f #pm %.2f", nsig, nsigerr);
+   plotlabel4->AddText(temp2);
+  plotlabel5 = new TPaveText(0.6,0.82,0.8,0.87,"NDC");
    plotlabel5->SetTextColor(kBlack);
    plotlabel5->SetFillColor(kWhite);
    plotlabel5->SetBorderSize(0);
    plotlabel5->SetTextAlign(12);
    plotlabel5->SetTextSize(0.03);
-   sprintf(temp, "Bkg = %.2f #pm %.2f", nBkgTF_BB.getVal(), nBkgTF_BB.getError());
-   plotlabel5->AddText(temp);
-  TPaveText *plotlabel6 = new TPaveText(0.6,0.77,0.8,0.82,"NDC");
+   sprintf(temp2, "Bkg = %.2f #pm %.2f", nBkgTF_BB.getVal(), nBkgTF_BB.getError());
+   plotlabel5->AddText(temp2);
+  plotlabel6 = new TPaveText(0.6,0.77,0.8,0.82,"NDC");
    plotlabel6->SetTextColor(kBlack);
    plotlabel6->SetFillColor(kWhite);
    plotlabel6->SetBorderSize(0);
    plotlabel6->SetTextAlign(12);
    plotlabel6->SetTextSize(0.03);
-   sprintf(temp, "#epsilon_{EB} = %.3f #pm %.3f", eff_B.getVal(), eff_B.getError() );
-   plotlabel6->AddText(temp);
-  TPaveText *plotlabel7 = new TPaveText(0.6,0.72,0.8,0.77,"NDC");
+   sprintf(temp2, "#epsilon_{EB} = %.3f #pm %.3f", eff_B.getVal(), eff_B.getError() );
+   plotlabel6->AddText(temp2);
+   plotlabel7 = new TPaveText(0.6,0.72,0.8,0.77,"NDC");
    plotlabel7->SetTextColor(kBlack);
    plotlabel7->SetFillColor(kWhite);
    plotlabel7->SetBorderSize(0);
    plotlabel7->SetTextAlign(12);
    plotlabel7->SetTextSize(0.03);
-   sprintf(temp, "#epsilon_{EE} = %.3f #pm %.3f", eff_E.getVal(), eff_E.getError() );
-   plotlabel7->AddText(temp);
+   sprintf(temp2, "#epsilon_{EE} = %.3f #pm %.3f", eff_E.getVal(), eff_E.getError() );
+   plotlabel7->AddText(temp2);
 
   plotlabel->Draw();
   plotlabel2->Draw();
@@ -390,7 +393,7 @@ void ThreeCategorySimZFitter()
 
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-  TString cname = Form("Zmass_TF_EndCaps%dnb", (int)(1000*intLumi) );
+  cname = Form("Zmass_TF_EndCaps%dnb", (int)(1000*intLumi) );
   c = new TCanvas(cname,cname,500,500);
   RooPlot* frame3 = Mass.frame(60., 120., 12);
   data_TF_End->plotOn(frame3,RooFit::DataError(errorType));
@@ -403,31 +406,31 @@ void ThreeCategorySimZFitter()
   frame3->SetMinimum(0);
   frame3->Draw("e0");
   frame3->GetYaxis()->SetNdivisions(505);
-  TPaveText *plotlabel = new TPaveText(0.23,0.87,0.43,0.92,"NDC");
+  plotlabel = new TPaveText(0.23,0.87,0.43,0.92,"NDC");
    plotlabel->SetTextColor(kBlack);
    plotlabel->SetFillColor(kWhite);
    plotlabel->SetBorderSize(0);
    plotlabel->SetTextAlign(12);
    plotlabel->SetTextSize(0.03);
    plotlabel->AddText("CMS Preliminary 2010");
-  TPaveText *plotlabel2 = new TPaveText(0.23,0.82,0.43,0.87,"NDC");
+  plotlabel2 = new TPaveText(0.23,0.82,0.43,0.87,"NDC");
    plotlabel2->SetTextColor(kBlack);
    plotlabel2->SetFillColor(kWhite);
    plotlabel2->SetBorderSize(0);
    plotlabel2->SetTextAlign(12);
    plotlabel2->SetTextSize(0.03);
    plotlabel2->AddText("#sqrt{s} = 7 TeV");
-  TPaveText *plotlabel3 = new TPaveText(0.23,0.75,0.43,0.80,"NDC");
+  plotlabel3 = new TPaveText(0.23,0.75,0.43,0.80,"NDC");
    plotlabel3->SetTextColor(kBlack);
    plotlabel3->SetFillColor(kWhite);
    plotlabel3->SetBorderSize(0);
    plotlabel3->SetTextAlign(12);
    plotlabel3->SetTextSize(0.03);
-  char temp[100];
-  sprintf(temp, "%.1f", intLumi);
+  char temp3[100];
+  sprintf(temp3, "%.1f", intLumi);
   plotlabel3->AddText((string("#int#font[12]{L}dt = ") + 
-  temp + string(" pb^{ -1}")).c_str());
-  TPaveText *plotlabel4 = new TPaveText(0.6,0.87,0.8,0.92,"NDC");
+  temp3 + string(" pb^{ -1}")).c_str());
+  plotlabel4 = new TPaveText(0.6,0.87,0.8,0.92,"NDC");
    plotlabel4->SetTextColor(kBlack);
    plotlabel4->SetFillColor(kWhite);
    plotlabel4->SetBorderSize(0);
@@ -435,32 +438,32 @@ void ThreeCategorySimZFitter()
    plotlabel4->SetTextSize(0.03);
    nsig = nSigTF_End.getVal();
    nsigerr = nSigTF_End.getPropagatedError(*fitResult) ;
-   sprintf(temp, "Signal = %.2f #pm %.2f", nsig, nsigerr);
-   plotlabel4->AddText(temp);
-  TPaveText *plotlabel5 = new TPaveText(0.6,0.82,0.8,0.87,"NDC");
+   sprintf(temp3, "Signal = %.2f #pm %.2f", nsig, nsigerr);
+   plotlabel4->AddText(temp3);
+  plotlabel5 = new TPaveText(0.6,0.82,0.8,0.87,"NDC");
    plotlabel5->SetTextColor(kBlack);
    plotlabel5->SetFillColor(kWhite);
    plotlabel5->SetBorderSize(0);
    plotlabel5->SetTextAlign(12);
    plotlabel5->SetTextSize(0.03);
-   sprintf(temp, "Bkg = %.2f #pm %.2f", nBkgTF_End.getVal(), nBkgTF_End.getError());
-   plotlabel5->AddText(temp);
-  TPaveText *plotlabel6 = new TPaveText(0.6,0.77,0.8,0.82,"NDC");
+   sprintf(temp3, "Bkg = %.2f #pm %.2f", nBkgTF_End.getVal(), nBkgTF_End.getError());
+   plotlabel5->AddText(temp3);
+  plotlabel6 = new TPaveText(0.6,0.77,0.8,0.82,"NDC");
    plotlabel6->SetTextColor(kBlack);
    plotlabel6->SetFillColor(kWhite);
    plotlabel6->SetBorderSize(0);
    plotlabel6->SetTextAlign(12);
    plotlabel6->SetTextSize(0.03);
-   sprintf(temp, "#epsilon_{EB} = %.3f #pm %.3f", eff_B.getVal(), eff_B.getError() );
-   plotlabel6->AddText(temp);
-  TPaveText *plotlabel7 = new TPaveText(0.6,0.72,0.8,0.77,"NDC");
+   sprintf(temp3, "#epsilon_{EB} = %.3f #pm %.3f", eff_B.getVal(), eff_B.getError() );
+   plotlabel6->AddText(temp3);
+  plotlabel7 = new TPaveText(0.6,0.72,0.8,0.77,"NDC");
    plotlabel7->SetTextColor(kBlack);
    plotlabel7->SetFillColor(kWhite);
    plotlabel7->SetBorderSize(0);
    plotlabel7->SetTextAlign(12);
    plotlabel7->SetTextSize(0.03);
-   sprintf(temp, "#epsilon_{EE} = %.3f #pm %.3f", eff_E.getVal(), eff_E.getError() );
-   plotlabel7->AddText(temp);
+   sprintf(temp3, "#epsilon_{EE} = %.3f #pm %.3f", eff_E.getVal(), eff_E.getError() );
+   plotlabel7->AddText(temp3);
 
   plotlabel->Draw();
   plotlabel2->Draw();

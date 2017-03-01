@@ -19,7 +19,7 @@ public:
 
 private:
   edm::Event * theEvent;
-  std::auto_ptr<edm::PSimHitContainer> theHits;
+  std::unique_ptr<edm::PSimHitContainer> theHits;
 };
 
 #endif

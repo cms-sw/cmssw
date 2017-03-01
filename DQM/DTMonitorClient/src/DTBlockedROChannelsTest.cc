@@ -1,4 +1,3 @@
-
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
@@ -48,45 +47,15 @@ DTBlockedROChannelsTest::~DTBlockedROChannelsTest() {
 }
 
 
-
-// book histos
-void DTBlockedROChannelsTest::beginJob() {
-  LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-    << "[DTBlockedROChannelsTest]: BeginJob";
+void DTBlockedROChannelsTest::beginRun(const Run& run, const EventSetup& setup)
+{
 
   nupdates = 0;
-  run=0;
-
-  dbe = Service<DQMStore>().operator->();
-
-  // book the summary histogram
-  dbe->setCurrentFolder("DT/00-ROChannels");
-  summaryHisto = dbe->book2D("ROChannelSummary","Summary Blocked RO Channels",12,1,13,5,-2,3);
-  summaryHisto->setAxisTitle("Sector",1);
-  summaryHisto->setAxisTitle("Wheel",2);
-
-  for(int wheel = -2; wheel != 3; ++wheel) {
-    stringstream namestream;  namestream << "ROChannelSummary_W" << wheel;
-    stringstream titlestream; titlestream << "Blocked RO Channels (Wh " << wheel << ")";
-    wheelHitos[wheel] = dbe->book2D(namestream.str().c_str(),titlestream.str().c_str(),12,1,13,4,1,5);
-    wheelHitos[wheel]->setAxisTitle("Sector",1);
-    wheelHitos[wheel]->setBinLabel(1,"MB1",2);
-    wheelHitos[wheel]->setBinLabel(2,"MB2",2);
-    wheelHitos[wheel]->setBinLabel(3,"MB3",2);
-    wheelHitos[wheel]->setBinLabel(4,"MB4",2);
-  }
-
-  if(!offlineMode) {
-    hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
-        500, 5, true, 3);
-  }
-
+  return;
 }
 
 
-
-
-void DTBlockedROChannelsTest::beginRun(const Run& run, const EventSetup& context) {
+void DTBlockedROChannelsTest::fillChamberMap( DQMStore::IGetter & igetter, const EventSetup& context) {
   // get the RO mapping
   context.get<DTReadOutMappingRcd>().get(mapping);
 
@@ -102,7 +71,7 @@ void DTBlockedROChannelsTest::beginRun(const Run& run, const EventSetup& context
             !mapping->readOutToGeometry(dduId,ros,rob-1,0,16,wheel,station,sector,dummy,dummy,dummy)) {
           DTChamberId chId(wheel, station, sector);
           if(chamberMap.find(chId) == chamberMap.end()) {
-            chamberMap[chId] = DTRobBinsMap(dduId, ros, dbe);
+            chamberMap[chId] = DTRobBinsMap(igetter, dduId, ros);
             chamberMap[chId].addRobBin(rob);
           } 
           chamberMap[chId].addRobBin(rob);
@@ -122,38 +91,46 @@ void DTBlockedROChannelsTest::beginRun(const Run& run, const EventSetup& context
 }
 
 
+void DTBlockedROChannelsTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                                    edm::LuminosityBlock const & lumiSeg, edm::EventSetup const& context){
 
-void DTBlockedROChannelsTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg,
-    EventSetup const& context) {
-  LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-    <<"[DTBlockedROChannelsTest]: Begin of LS transition";
+  //FR moved the following from beginJob!
 
-  // Get the run number
+  // book the summary histogram
+
+  if (wheelHitos.size()==0) { // this is an attempt to make these bookings only once!
+
+    ibooker.setCurrentFolder("DT/00-ROChannels");
+    summaryHisto = ibooker.book2D("ROChannelSummary","Summary Blocked RO Channels",12,1,13,5,-2,3);
+    summaryHisto->setAxisTitle("Sector",1);
+    summaryHisto->setAxisTitle("Wheel",2);
+
+    for(int wheel = -2; wheel != 3; ++wheel) {
+      stringstream namestream;  namestream << "ROChannelSummary_W" << wheel;
+      stringstream titlestream; titlestream << "Blocked RO Channels (Wh " << wheel << ")";
+      wheelHitos[wheel] = ibooker.book2D(namestream.str().c_str(),titlestream.str().c_str(),12,1,13,4,1,5);
+      wheelHitos[wheel]->setAxisTitle("Sector",1);
+      wheelHitos[wheel]->setBinLabel(1,"MB1",2);
+      wheelHitos[wheel]->setBinLabel(2,"MB2",2);
+      wheelHitos[wheel]->setBinLabel(3,"MB3",2);
+      wheelHitos[wheel]->setBinLabel(4,"MB4",2);
+    }
+
+    if(!offlineMode) {
+      hSystFractionVsLS = new DTTimeEvolutionHisto(ibooker, "EnabledROChannelsVsLS", "% RO channels",
+        500, 5, true, 3);
+    }
+  }  // end attempt to make these bookings only once!
+
+
+  //FR moved here from beginRun
+
+  if (chamberMap.size() == 0) fillChamberMap(igetter, context);
+
+  //FR moved here from beginLuminosityBlock
   run = lumiSeg.run();
-  nevents = 0;
-
-  //   // loop over all chambers and read the values at the beginning of the LS
-  //   for(map<DTChamberId, DTRobBinsMap>::iterator chAndRobs = chamberMap.begin();
-  //       chAndRobs != chamberMap.end(); ++chAndRobs) {
-  //     (*chAndRobs).second.readNewValues(); 
-  //   }
-
-}
-
-
-
-void DTBlockedROChannelsTest::analyze(const Event& e, const EventSetup& context){
-  // count the analyzed events
-  nevents++;
-  if(nevents%1000 == 0)
-    LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-      << "[DTBlockedROChannelsTest]: "<<nevents<<" events";
-}
-
-
-
-void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
+ 
+  //FR moved here from endLuminosityBlock
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
 
@@ -162,26 +139,37 @@ void DTBlockedROChannelsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
     <<"[DTBlockedROChannelsTest]: End of LS " << nLumiSegs << ". Client called in online mode, performing client operations";
-  performClientDiagnostic();
+
+  performClientDiagnostic(igetter);
 
   // counts number of updats 
   nupdates++;
-
+ 
 }
 
+void DTBlockedROChannelsTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
-void DTBlockedROChannelsTest::performClientDiagnostic() {
-
-  // skip empty LSs
-
-  if(nevents == 0) { // hack to work also in offline DQM
-    MonitorElement *procEvt =  dbe->get("DT/EventInfo/processedEvents");
-    if(procEvt != 0) {
-      int procEvents = procEvt->getIntValue();
-      nevents = procEvents - neventsPrev;
-      neventsPrev = procEvents;
-    }
+  if (offlineMode) {
+    LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
+      <<"[DTBlockedROChannelsTest] endRun called. Client called in offline mode, performing operations.";
+    performClientDiagnostic(igetter);
   }
+}
+
+void DTBlockedROChannelsTest::performClientDiagnostic(DQMStore::IGetter & igetter) {
+
+  //FR: I've commented the if below. Either in online mode or in offline mode, when the diagnostic is called
+  // compute first the number of events. It will be: event/lumisection in the online case, it will be: total number
+  // of events (neventsPrev=0) in the offline case, when the diagnostic is called only once from the dqmEndJob
+
+  //if(nevents == 0) { // hack to work also in offline DQM
+   MonitorElement *procEvt =  igetter.get("DT/EventInfo/processedEvents");
+   if(procEvt != 0) {
+     int procEvents = procEvt->getIntValue();
+     nevents = procEvents - neventsPrev;
+     neventsPrev = procEvents;
+   }
+   //}
 
   double totalPerc = prevTotalPerc;
   // check again!
@@ -210,37 +198,15 @@ void DTBlockedROChannelsTest::performClientDiagnostic() {
       }
 
       // NOTE: can be called only ONCE per event per each chamber
-      double chPercent = (*chAndRobs).second.getChamberPercentage(); 
+      double chPercent = (*chAndRobs).second.getChamberPercentage(igetter); 
       wheelHitos[chId.wheel()]->Fill(sectorForPlot, chId.station(),
           scale*chPercent);
       totalPerc += chPercent*scale*1./240.; // CB has to be 240 as double stations are taken into account by scale factor
-      //       if(chPercent != 1.) {
-      // 	cout << "Ch: " << (*chAndRobs).first << endl;
-      // 	cout << "      perc: " << chPercent << endl;
-      //       }
+
       // Fill the summary
       summaryHisto->Fill(sectorForPlot, chId.wheel(), 0.25*scale*chPercent);
     }
   }
-
-  // commented out since trend plots need to be updated in by lumi certification  
-  //   // this part is executed even if no events were processed in order to include the last LS 
-  //   if(offlineMode) { // save the results in a map and draw them in the end-run
-  //     if(resultsPerLumi.size() == 0) { // the first 2 LS are analyzed together
-  // //       cout << "LS: " << nLumiSegs << " total %: " << totalPerc << endl;
-  //       resultsPerLumi[nLumiSegs] = totalPerc;
-  //     } else {
-  // //       cout << "LS: " << nLumiSegs << " total %: " << prevTotalPerc << endl;
-  //       resultsPerLumi[nLumiSegs] = prevTotalPerc;
-  //     }
-  //     prevTotalPerc = totalPerc;
-  //     prevNLumiSegs = nLumiSegs;
-
-  //   } else { // directly fill the histo
-  //     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
-  //     hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
-  //     prevTotalPerc = totalPerc;
-  //   }
 
   if(!offlineMode) { // fill trend histo only in online
     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
@@ -250,43 +216,6 @@ void DTBlockedROChannelsTest::performClientDiagnostic() {
 
 }
 
-
-
-void DTBlockedROChannelsTest::endJob(){
-  LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-    <<"[DTBlockedROChannelsTest] endjob called!";
-}
-
-
-
-
-void DTBlockedROChannelsTest::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-
-  if (offlineMode) {
-    LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
-      <<"[DTBlockedROChannelsTest] endRun called. Client called in offline mode, performing operations.";
-    performClientDiagnostic();
-  }
-  // commented out since trend plots need to be updated in by lumi certification  
-  //   if(offlineMode) {
-  //     // fill a trend plot based on the results stored in the map
-  //     float fBin = resultsPerLumi.begin()->first;
-  //     float lBin = resultsPerLumi.rbegin()->first;
-  //     dbe->setCurrentFolder("DT/00-ROChannels");
-
-  //     //   MonitorElement* hSystFractionVsLS =  dbe->book1D("EnabledROChannelsVsLS", "% RO channels vs LS", nBins,fBin,lBin);
-  //     hSystFractionVsLS = new DTTimeEvolutionHisto(dbe, "EnabledROChannelsVsLS", "% RO channels",
-  // 						 (int)lBin-(int)fBin, fBin, 1, false, 2);
-
-  //     for(map<int, double>::const_iterator bin = resultsPerLumi.begin();
-  // 	bin != resultsPerLumi.end(); ++bin) {
-  //       hSystFractionVsLS->setTimeSlotValue((*bin).second, (*bin).first);
-  //     }
-  //   }
-}
-
-
-
 int DTBlockedROChannelsTest::readOutToGeometry(int dduId, int ros, int& wheel, int& sector){
 
   int dummy;
@@ -294,11 +223,8 @@ int DTBlockedROChannelsTest::readOutToGeometry(int dduId, int ros, int& wheel, i
 
 }
 
-
-
-
-
-DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap(const int fed, const int ros, const DQMStore* dbe) : rosBin(ros),
+DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap(DQMStore::IGetter & igetter, const int fed, const int ros) : 
+  rosBin(ros),
   init_(true),
   rosValue(0)
 {
@@ -312,10 +238,8 @@ DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap(const int fed, const int ros
     << "/FED" << fed << "_ROSStatus";
   dduHName = whname.str();
 
-  meROS = dbe->get(rosHName);
-  meDDU = dbe->get(dduHName);
-
-  theDbe = dbe;
+  meROS = igetter.get(rosHName);
+  meDDU = igetter.get(dduHName);
 }
 
 DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap() : init_(true),
@@ -379,9 +303,9 @@ bool DTBlockedROChannelsTest::DTRobBinsMap::robChanged(int robBin) {
 
 
 
-double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage() {
-  meROS = theDbe->get(rosHName);
-  meDDU = theDbe->get(dduHName);
+double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage(DQMStore::IGetter & igetter) {
+  meROS = igetter.get(rosHName);
+  meDDU = igetter.get(dduHName);
   int nChangedROBs = 0;
 
   // check if ros status has changed
@@ -399,9 +323,9 @@ double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage() {
 }
 
 
-void DTBlockedROChannelsTest::DTRobBinsMap::readNewValues() {
-  meROS = theDbe->get(rosHName);
-  meDDU = theDbe->get(dduHName);
+void DTBlockedROChannelsTest::DTRobBinsMap::readNewValues(DQMStore::IGetter & igetter) {
+  meROS = igetter.get(rosHName);
+  meDDU = igetter.get(dduHName);
 
   rosValue = getValueRos();
   for(map<int, int>::const_iterator robAndValue = robsAndValues.begin();

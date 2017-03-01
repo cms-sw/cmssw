@@ -3,7 +3,6 @@
   <use   name="root"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ServiceRegistry"/>
-  <use   name="CondCore/DBCommon"/>
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/PopCon"/>
   <use   name="CondFormats/DQMObjects"/>

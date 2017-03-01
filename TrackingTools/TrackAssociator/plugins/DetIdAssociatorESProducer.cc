@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -40,7 +39,7 @@ public:
   DetIdAssociatorESProducer(const edm::ParameterSet&);
   ~DetIdAssociatorESProducer();
   
-  typedef boost::shared_ptr<DetIdAssociator> ReturnType;
+  typedef std::shared_ptr<DetIdAssociator> ReturnType;
   
   ReturnType produce(const DetIdAssociatorRecord&);
 private:

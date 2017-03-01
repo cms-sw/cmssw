@@ -8,13 +8,27 @@
 //to be removed
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
-			     const GlobalError & posErr, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq) 
+                                const GlobalError & posErr, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
   : theVertexState(pos, posErr),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), withPrior(false), 
-    theValid(true)
+    theValid(true), vertexIs4D(false)
+
+{}
+
+//to be removed
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
+                                const double time,
+                                const GlobalError & posTimeErr, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
+  : theVertexState(pos, time, posTimeErr),
+    theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true), vertexIs4D(true)
 
 {}
 
@@ -22,101 +36,177 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & pos,
 //to be removed
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
-			     const GlobalWeight & posWeight, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq) 
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
   : theVertexState(pos, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), withPrior(false), 
-    theValid(true)
+    theValid(true), vertexIs4D(false)
+{}
+
+//to be removed
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
+                                const double time,
+                                const GlobalWeight & posTimeWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
+  : theVertexState(pos, time, posTimeWeight),
+    theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true), vertexIs4D(true)
 {}
 
 
 //to be removed
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
-			     const GlobalWeight & posWeight, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq)
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq)
   : theVertexState(weightTimesPosition, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), withPrior(false), 
-    theValid(true)
+    theValid(true), vertexIs4D(false)
+{}
+
+//to be removed
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const AlgebraicVector4 & weightTimesPosition, 
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq)
+  : theVertexState(weightTimesPosition, posWeight),
+    theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
+    theTracks(tks), theCovMapAvailable(false), withPrior(false), 
+    theValid(true), vertexIs4D(false)
 {}
 
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & aVertexState, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq)
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq)
   : theVertexState(aVertexState),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), withPrior(false), 
-    theValid(true)
+    theValid(true),
+    vertexIs4D( aVertexState.is4D() )
 {}
 
 
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & aVertexState,
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq, 
-			     const TrackToTrackMap & covMap)
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq, 
+                                const TrackToTrackMap & covMap)
   : theVertexState(aVertexState),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false),
     theTracks(tks), theCovMap(covMap), theCovMapAvailable(true), 
-    withPrior(false), theValid(true)
+    withPrior(false), theValid(true),
+    vertexIs4D( aVertexState.is4D() )
 {
   if (theCovMap.empty()) theCovMapAvailable = false;
 }
 
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & priorVertexState, 
-			     const VertexState & aVertexState, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq)
+                                const VertexState & aVertexState, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq)
   : theVertexState(aVertexState), theChiSquared(totalChiSq),
     theNDF(0), theNDFAvailable(false), theTracks(tks),
     theCovMapAvailable(false), thePriorVertexState(priorVertexState),
-    withPrior(true), theValid(true)
+    withPrior(true), theValid(true), 
+    vertexIs4D( priorVertexState.is4D() && aVertexState.is4D() )
 {}
 
 //to be removed
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos, 
-			     const GlobalError & priorErr,
-			     const GlobalPoint & pos, 
-			     const GlobalError & posErr, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq) 
+                                const GlobalError & priorErr,
+                                const GlobalPoint & pos, 
+                                const GlobalError & posErr, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
   : theVertexState(pos, posErr),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), 
-    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true)
+    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true), vertexIs4D(false)
+{}
+
+//to be removed
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
+                                const double priorTime,
+                                const GlobalError & priorErr,
+                                const GlobalPoint & pos, 
+                                const double time,
+                                const GlobalError & posErr, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
+  : theVertexState(pos, time,posErr),
+    theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
+    theTracks(tks), theCovMapAvailable(false), 
+    thePriorVertexState(priorPos, priorTime, priorErr), withPrior(true), 
+    theValid(true), vertexIs4D(true)
 {}
 
 
 //to be removed
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
-			     const GlobalError & priorErr, 
-			     const GlobalPoint & pos, 
-			     const GlobalWeight & posWeight, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq) 
+                                const GlobalError & priorErr, 
+                                const GlobalPoint & pos, 
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
   : theVertexState(pos, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), 
-    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true)
+    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true), vertexIs4D(false)
+{}
+
+//to be removed
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
+                                const double priorTime,
+                                const GlobalError & priorErr, 
+                                const GlobalPoint & pos, 
+                                const double time,
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq) 
+  : theVertexState(pos, priorTime, posWeight),
+    theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
+    theTracks(tks), theCovMapAvailable(false), 
+    thePriorVertexState(priorPos, priorTime, priorErr), withPrior(true), 
+    theValid(true), vertexIs4D(true)
 {}
 
 
 //to be removed
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos, 
-			     const GlobalError & priorErr,
-			     const AlgebraicVector3 & weightTimesPosition, 
-			     const GlobalWeight & posWeight, 
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq)
+                                const GlobalError & priorErr,
+                                const AlgebraicVector3 & weightTimesPosition, 
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq)
+  : theVertexState(weightTimesPosition, posWeight),
+    theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
+    theTracks(tks), theCovMapAvailable(false), 
+    thePriorVertexState(priorPos, priorErr), withPrior(true), theValid(true)
+{}
+
+//to be removed
+template <unsigned int N>
+CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos, 
+                                const GlobalError & priorErr,
+                                const AlgebraicVector4 & weightTimesPosition, 
+                                const GlobalWeight & posWeight, 
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq)
   : theVertexState(weightTimesPosition, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
     theTracks(tks), theCovMapAvailable(false), 
@@ -126,14 +216,15 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
 
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & priorVertexState, 
-  			     const VertexState & aVertexState,
-			     const std::vector<RefCountedVertexTrack> & tks, 
-			     float totalChiSq, 
-			     const TrackToTrackMap & covMap)
+                                const VertexState & aVertexState,
+                                const std::vector<RefCountedVertexTrack> & tks, 
+                                float totalChiSq, 
+                                const TrackToTrackMap & covMap)
   : theVertexState(aVertexState), theChiSquared(totalChiSq),
     theNDF(0), theNDFAvailable(false), theTracks(tks),
     theCovMap(covMap), theCovMapAvailable(true), 
-    thePriorVertexState(priorVertexState), withPrior(true), theValid(true)
+    thePriorVertexState(priorVertexState), withPrior(true), theValid(true),
+    vertexIs4D( priorVertexState.is4D() && aVertexState.is4D() )
 {
   if (theCovMap.empty()) theCovMapAvailable = false;
 }
@@ -142,7 +233,7 @@ template <unsigned int N>
 CachingVertex<N>::CachingVertex() 
   : theChiSquared(-1), theNDF(0), theNDFAvailable(false), theTracks(),
     theCovMapAvailable(false), withPrior(false), 
-    theValid(false)
+    theValid(false), vertexIs4D(false)
 {}
 
 template <unsigned int N>
@@ -151,11 +242,22 @@ GlobalPoint CachingVertex<N>::position() const
   return theVertexState.position();
 }
 
+template <unsigned int N>
+double CachingVertex<N>::time() const 
+{
+  return theVertexState.time();
+}
 
 template <unsigned int N>
 GlobalError CachingVertex<N>::error() const 
 {
   return theVertexState.error();
+}
+
+template <unsigned int N>
+GlobalError CachingVertex<N>::error4D() const 
+{
+  return theVertexState.error4D();
 }
 
 
@@ -165,6 +267,12 @@ GlobalWeight CachingVertex<N>::weight() const
   return theVertexState.weight();
 }
 
+template <unsigned int N>
+GlobalWeight CachingVertex<N>::weight4D() const 
+{
+  return theVertexState.weight4D();
+}
+
 
 template <unsigned int N>
 AlgebraicVector3 CachingVertex<N>::weightTimesPosition() const 
@@ -172,6 +280,11 @@ AlgebraicVector3 CachingVertex<N>::weightTimesPosition() const
   return theVertexState.weightTimesPosition();
 }
 
+template <unsigned int N>
+AlgebraicVector4 CachingVertex<N>::weightTimesPosition4D() const 
+{
+  return theVertexState.weightTimesPosition4D();
+}
 
 template <unsigned int N>
 float CachingVertex<N>::degreesOfFreedom() const 
@@ -190,7 +303,8 @@ void CachingVertex<N>::computeNDF() const
     theNDF += (**itk).weight(); // adds up weights
   }
   theNDF *= 2.; // times 2df for each track
-  if (!withPrior) theNDF -= 3.; // 3 position coordinates fitted
+  const double adjust = ( vertexIs4D ? 4 : 3 ); // ndf adjust is 3 or 4
+  if (!withPrior) theNDF -= adjust;  
   theNDFAvailable = true;
 }
 
@@ -198,7 +312,7 @@ void CachingVertex<N>::computeNDF() const
 template <unsigned int N>
 typename CachingVertex<N>::AlgebraicMatrixMM
 CachingVertex<N>::tkToTkCovariance(const RefCountedVertexTrack t1, 
-				const RefCountedVertexTrack t2) const
+                                   const RefCountedVertexTrack t2) const
 {
   if (!tkToTkCovarianceIsAvailable()) {
    throw VertexException("CachingVertex::TkTkCovariance requested before been calculated");

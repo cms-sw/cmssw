@@ -13,18 +13,15 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
-//I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#undef private
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "boost/regex.hpp"
+#include <regex>
 
 #include <exception>
 #include <iostream>
@@ -50,11 +47,11 @@ class testeventprocessor: public CppUnit::TestFixture {
   void setUp() {
     //std::cout << "setting up testeventprocessor" << std::endl;
     doInit();
-    m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    m_handler = std::make_unique<edm::AssertHandler>(); // propagate_const<T> has no reset() function
     sleep_secs_ = 0;
   }
 
-  void tearDown() { m_handler.reset();}
+  void tearDown() { m_handler = nullptr; }
   void parseTest();
   void beginEndTest();
   void cleanupJobTest();
@@ -64,7 +61,7 @@ class testeventprocessor: public CppUnit::TestFixture {
   void serviceConfigSaveTest();
 
  private:
-  std::auto_ptr<edm::AssertHandler> m_handler;
+  edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
   void work() {
     //std::cout << "work in testeventprocessor" << std::endl;
     std::string configuration(
@@ -455,7 +452,7 @@ testeventprocessor::activityRegistryTest() {
 static
 bool
 findModuleName(std::string const& iMessage) {
-  static boost::regex const expr("TestFailuresAnalyzer");
+  static std::regex const expr("TestFailuresAnalyzer");
   return regex_search(iMessage, expr);
 }
 
@@ -557,7 +554,7 @@ testeventprocessor::moduleFailureTest() {
 
         threw = false;
       } catch(cms::Exception const& iException) {
-        static boost::regex const expr("m1");
+        static std::regex const expr("m1");
         if(!regex_search(iException.explainSelf(), expr)) {
           std::cout << iException.explainSelf() << std::endl;
           CPPUNIT_ASSERT(0 == "module name not in exception message");
@@ -585,7 +582,8 @@ testeventprocessor::serviceConfigSaveTest() {
                              "process.p1 = cms.Path(process.m1)\n");
 
    edm::EventProcessor proc(configuration, true);
-   edm::ParameterSet topPset(edm::getProcessParameterSet());
+   edm::ProcessConfiguration const& processConfiguration = proc.processConfiguration();
+   edm::ParameterSet const& topPset(edm::getParameterSet(processConfiguration.parameterSetID()));
    CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService", true));
 }
 

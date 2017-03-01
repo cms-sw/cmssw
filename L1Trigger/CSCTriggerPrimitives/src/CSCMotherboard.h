@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboard_h
-#define CSCTriggerPrimitives_CSCMotherboard_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboard_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboard_h
 
 /** \class CSCMotherboard
  *
@@ -34,9 +34,9 @@
  *
  */
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCAnodeLCTProcessor.h"
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 
 class CSCMotherboard
 {
@@ -54,8 +54,8 @@ class CSCMotherboard
 
   /** Test version of run function. */
   void run(const std::vector<int> w_time[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES],
-	   const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
-	   const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+	   const std::vector<int> hs_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS],
+	   const std::vector<int> ds_times[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]);
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
@@ -75,10 +75,10 @@ class CSCMotherboard
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** Anode LCT processor. */
-  CSCAnodeLCTProcessor* alct;
+  std::unique_ptr<CSCAnodeLCTProcessor> alct;
 
   /** Cathode LCT processor. */
-  CSCCathodeLCTProcessor* clct;
+  std::unique_ptr<CSCCathodeLCTProcessor> clct;
 
  // VK: change to protected, to allow inheritance
  protected:
@@ -93,6 +93,7 @@ class CSCMotherboard
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+  unsigned theRing;
 
   /** Flag for MTCC data. */
   bool isMTCC;
@@ -107,6 +108,9 @@ class CSCMotherboard
   unsigned int mpc_block_me1a;
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
+
+  /** Central BX */
+  int lct_central_bx;
 
   /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
@@ -147,5 +151,9 @@ class CSCMotherboard
 
   // Method for tests
   void testLCT();
+
+  // utilities for sorting
+  static bool sortByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
+  static bool sortByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
 };
 #endif

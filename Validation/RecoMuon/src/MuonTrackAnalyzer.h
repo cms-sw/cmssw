@@ -45,7 +45,7 @@ class MuonUpdatorAtVertex;
 class DQMStore;
 
 
-class MuonTrackAnalyzer: public thread_unsafe::DQMEDAnalyzer {
+class MuonTrackAnalyzer: public DQMEDAnalyzer {
  public:
   enum EtaRange{all,barrel,endcap};
 
@@ -58,7 +58,7 @@ class MuonTrackAnalyzer: public thread_unsafe::DQMEDAnalyzer {
 
   // Operations
 
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   void tracksAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
 		      edm::Handle<edm::SimTrackContainer> simTracks);
   void seedsAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,

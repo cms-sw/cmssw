@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoTrack.cutsTPEffic_cfi import *
 from Validation.RecoTrack.cutsTPFake_cfi import *
 
-from SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi import *
-from SimTracker.TrackAssociation.TrackAssociatorByHits_cfi import *
-from SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi import *
+from SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi import *
+from SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi import *
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
 
 
 quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
@@ -32,7 +32,7 @@ trackValidator.label=cms.VInputTag(	cms.InputTag("generalTracks")#,
                                   #      cms.InputTag("cutsRecoTracksThirdHpUpg"),
                                   #      cms.InputTag("cutsRecoTracksFourthHpUpg")
                                         )
-trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
+trackValidator.associators = ['quickTrackAssociatorByHits']
 trackValidator.UseAssociators = True
 trackValidator.histoProducerAlgoBlock.nintEta = cms.int32(20)
 trackValidator.histoProducerAlgoBlock.nintPt = cms.int32(100)
@@ -69,6 +69,7 @@ slhcTracksValidation = cms.Sequence(cutsRecoTracksHp*
                                  #cutsRecoTracksSecondHpUpg*
                                  #cutsRecoTracksThirdHpUpg*
                                  #cutsRecoTracksFourthHpUpg*
+                                 quickTrackAssociatorByHits*
                                  trackValidator)
 
 

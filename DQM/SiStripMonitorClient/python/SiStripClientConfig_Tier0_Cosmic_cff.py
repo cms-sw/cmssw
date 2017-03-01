@@ -13,21 +13,6 @@ siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
                   LowerCut = cms.double(0.0),
                   UpperCut = cms.double(100.0),
                ),
-    TrackChi2PSet            = cms.PSet(
-           Name     = cms.string("Chi2oNDF_"),
-                  LowerCut = cms.double(0.0),
-                  UpperCut = cms.double(25.0),
-               ),
-    TrackHitPSet            = cms.PSet(
-           Name     = cms.string("NumberOfRecHitsPerTrack_"),
-                  LowerCut = cms.double(3.0),
-                  UpperCut = cms.double(35.0),
-               ),
-    GoodTrackFractionPSet   = cms.PSet(
-           Name     = cms.string("FractionOfGoodTracks_"),
-                  LowerCut = cms.double(-1.),
-                  UpperCut = cms.double(1.),
-               )           
 )
 
 siStripQTester = cms.EDAnalyzer("QualityTester",
@@ -36,14 +21,10 @@ siStripQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-from DQM.TrackingMonitor.TrackEfficiencyClient_cfi import *
-TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
-TrackEffClient.AlgoName   = 'CKFTk'
-
 # Sequence
-SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*TrackEffClient)
+SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser)
 #removed modules using TkDetMap
-#SiStripCosmicDQMClient = cms.Sequence(siStripQTester*TrackEffClient)
+#SiStripCosmicDQMClient = cms.Sequence(siStripQTester)
 
 
 # Services needed for TkHistoMap

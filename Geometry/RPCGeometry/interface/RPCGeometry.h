@@ -17,7 +17,7 @@
 
 
 class GeomDetType;
-class GeomDetUnit;
+
 
 class RPCGeometry : public TrackingGeometry {
 

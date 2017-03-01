@@ -1,63 +1,104 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-#include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
-   : dqmStore_( edm::Service<DQMStore>().operator->() )
-   , conf_(iConfig), m_cacheID_(0)
-   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector())) {
+template<TrackerType pixel_or_strip>
+MonitorTrackResidualsBase<pixel_or_strip>::MonitorTrackResidualsBase(const edm::ParameterSet& iConfig)
+   : conf_(iConfig), m_cacheID_(0)
+   , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this))
+   , avalidator_(iConfig, consumesCollector()) {
   ModOn = conf_.getParameter<bool>("Mod_On");
+  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
 }
 
-MonitorTrackResiduals::~MonitorTrackResiduals() {
+template<TrackerType pixel_or_strip>
+MonitorTrackResidualsBase<pixel_or_strip>::~MonitorTrackResidualsBase() {
   if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 }
 
-
-void MonitorTrackResiduals::beginJob(void) {
-}
-
-void MonitorTrackResiduals::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
 {
-  unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
+  unsigned long long cacheID = iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;
     this->createMEs( ibooker , iSetup);
   }
 }
 
-void MonitorTrackResiduals::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
 
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( run, iSetup );
 }
 
-void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::EventSetup& iSetup){
+template<TrackerType pixel_or_strip>
+std::pair<std::string, int32_t> MonitorTrackResidualsBase<pixel_or_strip>::findSubdetAndLayer(uint32_t ModuleID, const TrackerTopology* tTopo) {
+      std::string subdet = "";
+      int32_t layer = 0;
+      auto id = DetId(ModuleID);
+      switch (id.subdetId()) {
+        // Pixel Barrel, Endcap
+	case 1:
+	  subdet = "BPIX";
+          layer = tTopo->pxbLayer(id);
+	  break;
+        case 2:
+	  subdet = "FPIX";
+          layer = tTopo->pxfDisk(id) * ( tTopo->pxfSide(ModuleID)==1 ? -1 : +1);
+	  break;
+	// Strip TIB, TID, TOB, TEC
+	case 3:
+	  subdet = "TIB";
+          layer = tTopo->tibLayer(id);
+	  break;
+	case 4:
+	  subdet = "TID";
+          layer = tTopo->tidWheel(id) * ( tTopo->tidSide(ModuleID)==1 ? -1 : +1);
+	  break;
+	case 5:
+	  subdet = "TOB";
+          layer = tTopo->tobLayer(id);
+	  break;
+	case 6:
+	  subdet = "TEC";
+          layer = tTopo->tecWheel(id) * ( tTopo->tecSide(ModuleID)==1 ? -1 : +1);
+	  break;
+	default:
+	  // TODO: Fail loudly.
+	  subdet = "UNKNOWN";
+	  layer = 0;
+      }
+      return std::make_pair(subdet, layer);
+}
 
-  //Retrieve tracker topology from geometry
+
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::createMEs( DQMStore::IBooker & ibooker , const edm::EventSetup& iSetup){
+
+  //Retrieve tracker topology and geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
+  edm::ESHandle<TrackerGeometry> TG;
+  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+ 
   Parameters = conf_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins =  Parameters.getParameter<int32_t>("Nbinx");
   double d_residual_xmin = Parameters.getParameter<double>("xmin");
@@ -70,117 +111,165 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
 
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
-  folder_organizer.setSiStripFolder(); // top SiStrip folder
 
-  // take from eventSetup the SiStripDetCabling object
-  edm::ESHandle<SiStripDetCabling> tkmechstruct;
-  iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
+  SiStripFolderOrganizer strip_organizer;
+  auto pixel_organizer = SiPixelFolderOrganizer(false);
 
-  // get list of active detectors from SiStripDetCabling
-  std::vector<uint32_t> activeDets;
-  activeDets.clear(); // just in case
-  tkmechstruct->addActiveDetectorsRawIds(activeDets);
-
-  // use SiStripSubStructure for selecting certain regions
-  SiStripSubStructure substructure;
-  std::vector<uint32_t> DetIds = activeDets;
-
+  // Collect list of modules from Tracker Geometry
   // book histo per each detector module
-  for (std::vector<uint32_t>::const_iterator DetItr=activeDets.begin(),
-	 DetItrEnd = activeDets.end(); DetItr!=DetItrEnd; ++DetItr)
+  auto ids = TG->detIds(); // or detUnitIds?
+  for (DetId id : ids) 
     {
-      uint ModuleID = (*DetItr);
+      auto ModuleID = id.rawId();
+      auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
+      if (isPixel != (pixel_or_strip == TRACKERTYPE_PIXEL)) continue; 
 
-      // is this a StripModule?
-      if( SiStripDetId(ModuleID).subDetector() != 0 ) {
-
-	folder_organizer.setDetectorFolder(ModuleID, tTopo); //  detid sets appropriate detector folder
-	// Book module histogramms?
-	if (ModOn) {
-	  std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
-	  std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
-	  HitResidual[ModuleID] = ibooker.book1D(hid, hid,
-						 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	  NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
-							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	  NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+      // Book module histogramms?
+      if (ModOn) {
+	switch (id.subdetId()) {
+	  case 1:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 0); break;
+	  case 2:   pixel_organizer.setModuleFolder(ibooker, ModuleID, 0); break;
+	  default:  strip_organizer.setDetectorFolder(ModuleID,tTopo);
 	}
-	// book layer level histogramms
-	std::pair<std::string,int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(ModuleID, tTopo);
-	folder_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
-	if(! m_SubdetLayerResiduals[subdetandlayer ] ) {
-	  // book histogramms on layer level, check for barrel for correct labeling
-	  std::string histoname = Form(subdetandlayer.first.find("B") != std::string::npos ?
-				       "HitResiduals_%s__Layer__%d" : "HitResiduals_%s__wheel__%d" ,
-				       subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
-	  std::string normhistoname =
-	    Form(subdetandlayer.first.find("B") != std::string::npos ?
-		 "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
-		 subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
-	  m_SubdetLayerResiduals[subdetandlayer] =
-	    ibooker.book1D(histoname.c_str(),histoname.c_str(),
-			   i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
-	  m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	  m_SubdetLayerNormedResiduals[subdetandlayer] =
-	    ibooker.book1D(normhistoname.c_str(),normhistoname.c_str(),
+	{
+	  // this sounds strip specific but also works for pixel
+	  std::string hid = hidmanager.createHistoId("HitResidualsX","det",ModuleID);
+	  std::string normhid = hidmanager.createHistoId("NormalizedHitResidualsX","det",ModuleID);
+	  auto& histos = m_ModuleResiduals[std::make_pair("", ModuleID)];
+	  histos.x.base = ibooker.book1D(hid, hid, i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	  histos.x.base->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+	  histos.x.normed = ibooker.book1D(normhid, normhid, i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	  histos.x.normed->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+	}{ 
+	  std::string hid = hidmanager.createHistoId("HitResidualsY","det",ModuleID);
+	  std::string normhid = hidmanager.createHistoId("NormalizedHitResidualsY","det",ModuleID);
+	  auto& histos = m_ModuleResiduals[std::make_pair("", ModuleID)];
+	  histos.y.base = ibooker.book1D(hid, hid, i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	  histos.y.base->setAxisTitle("(y_{pred} - y_{rec})' [cm]");
+	  histos.y.normed = ibooker.book1D(normhid, normhid, i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	  histos.y.normed->setAxisTitle("(y_{pred} - y_{rec})'/#sigma");
+	}
+      }
+
+      auto subdetandlayer = findSubdetAndLayer(ModuleID, tTopo);
+      if(m_SubdetLayerResiduals.find(subdetandlayer) == m_SubdetLayerResiduals.end()) {
+	// add new histograms
+	auto& histos = m_SubdetLayerResiduals[subdetandlayer];
+	switch (id.subdetId()) {
+	  // Pixel Barrel, Endcap
+	  // We can't use the folder organizer here (SiPixelActionExecutor.cc#1638 does the same)
+	  case 1:   ibooker.setCurrentFolder("Pixel/Barrel"); break;
+	  case 2:   ibooker.setCurrentFolder("Pixel/Endcap"); break;
+	  // All strip
+	  default:  strip_organizer.setLayerFolder(ModuleID,tTopo,subdetandlayer.second);
+	}
+      
+	auto isBarrel = subdetandlayer.first.find("B") != std::string::npos;
+	
+	auto xy = std::vector<std::pair<HistoPair&, const char*> >
+      		{ std::make_pair(std::ref(histos.x), "X"),
+	          std::make_pair(std::ref(histos.y), "Y") };
+	for (auto& histopair : xy) {
+	  // book histogramms on layer level, check for barrel/pixel only for correct labeling
+
+	  // Skip the Y plots for strips.
+	  if (!isPixel && histopair.second[0] == 'Y') continue;
+
+	  std::string histoname = isPixel ? ( // Pixel name
+	        Form("HitResiduals%s_%s%d",
+	        histopair.second,
+	        isBarrel ? "L" : (subdetandlayer.second > 0 ? "Dp" : "Dm"),
+	        std::abs(subdetandlayer.second)))
+	     : (Form("HitResiduals_%s__%s__%d", // Strip TODO: We use a legacy name. 
+	        subdetandlayer.first.c_str(),
+	        isBarrel ? "Layer" : "wheel",
+	        std::abs(subdetandlayer.second)));
+
+	  std::string histotitle = Form("HitResiduals %s on %s%s full %s %d",
+		histopair.second,
+		subdetandlayer.first.c_str(),
+		isBarrel ? "" : (subdetandlayer.second > 0 ? "+" : "-"),
+		isBarrel ? "Layer" : (isPixel ? "Disk" : "Wheel"),
+		std::abs(subdetandlayer.second));
+	
+
+	  std::string normhistoname = Form("Normalized%s", histoname.c_str());
+	  std::string normhistotitle = Form("Normalized%s", histotitle.c_str());
+
+	  //std::cout << "##### Booking: " << ibooker.pwd() << " title " << histoname << std::endl;
+	  
+	  histopair.first.base =
+	    ibooker.book1D(histoname.c_str(),histotitle.c_str(),
+			 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	  histopair.first.base->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
+
+	  histopair.first.normed =
+	    ibooker.book1D(normhistoname.c_str(),normhistotitle.c_str(),
 			   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
-	  m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
+	  histopair.first.normed->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	}
-      } // end 'is strip module'
+      }      
     } // end loop over activeDets
 }
 
+template<TrackerType pixel_or_strip>
+void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-void MonitorTrackResiduals::endRun(const edm::Run&, const edm::EventSetup&){
-}
-
-
-void MonitorTrackResiduals::endJob(void){
-
-  //dqmStore_->showDirStructure();
-  bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-  if(outputMEsInRootFile){
-    dqmStore_->save(outputFileName);
-  }
-}
-
-
-void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  auto vtracks = std::vector<TrackerValidationVariables::AVTrackStruct>();
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+  if (!vertices.isValid() || vertices->size() == 0) return;
+  const auto primaryVertex = vertices->at(0); 
+
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  TrackerValidationVariables avalidator_(iSetup,conf_);
-  std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;
-  avalidator_.fillHitQuantities(iEvent,v_hitstruct);
-  for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = v_hitstruct.begin(),
-       itEnd = v_hitstruct.end(); it != itEnd; ++it) {
-    uint RawId = it->rawDetId;
+  avalidator_.fillTrackQuantities(iEvent, iSetup, 
+                  // tell the validator to only look at good tracks
+                  [&](const reco::Track& track) -> bool { 
+                    return track.pt() > 0.75
+                        && abs( track.dxy(primaryVertex.position()) ) < 5*track.dxyError();
+                  }, vtracks);
 
-    // fill if hit belongs to StripDetector and its error is not zero
-    if( it->resXprimeErr != 0 && SiStripDetId(RawId).subDetector()  != 0 )  {
-      if (ModOn && HitResidual[RawId]) {
-	HitResidual[RawId]->Fill(it->resXprime);
-	NormedHitResiduals[RawId]->Fill(it->resXprime/it->resXprimeErr);
+  for (auto& track : vtracks) {
+    for (auto& it : track.hits) {
+      uint RawId = it.rawDetId;
+
+      auto id = DetId(RawId);
+      auto isPixel = id.subdetId() == 1 || id.subdetId() == 2;
+      if (isPixel != (pixel_or_strip == TRACKERTYPE_PIXEL)) continue; 
+      
+
+      if (ModOn) {
+	auto& mod_histos = m_ModuleResiduals[std::make_pair("",RawId)];
+	mod_histos.x.base->Fill(it.resXprime);
+	mod_histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+	mod_histos.y.base->Fill(it.resYprime);
+	mod_histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
       }
-      std::pair<std::string, int32_t> subdetandlayer = folder_organizer.GetSubDetAndLayer(RawId, tTopo);
-      if(m_SubdetLayerResiduals[subdetandlayer]) {
-	m_SubdetLayerResiduals[subdetandlayer]->Fill(it->resXprime);
-	m_SubdetLayerNormedResiduals[subdetandlayer]->Fill(it->resXprime/it->resXprimeErr);
+
+      auto subdetandlayer = findSubdetAndLayer(RawId, tTopo);
+      auto histos = m_SubdetLayerResiduals[subdetandlayer];
+      // fill if its error is not zero
+      if(it.resXprimeErr != 0 && histos.x.base) {
+	histos.x.base->Fill(it.resXprime);
+	histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+      }
+      if(it.resYprimeErr != 0 && histos.y.base) {
+	histos.y.base->Fill(it.resYprime);
+	histos.y.normed->Fill(it.resYprime/it.resYprimeErr);
       }
     }
   }
-
 }
 
 
 
 DEFINE_FWK_MODULE(MonitorTrackResiduals);
-
+DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals);
+ 

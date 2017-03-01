@@ -1,13 +1,381 @@
-# /dev/CMSSW_7_1_1/HIon/V46 (CMSSW_7_1_0_HLT2)
+# /dev/CMSSW_9_0_0/HIon/V8 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
+fragment = cms.ProcessFragment( "HLT" )
 
-HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HIon/V46')
+fragment.HLTConfigVersion = cms.PSet(
+  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V8')
 )
 
-HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 4 ),
+  seedPairPenalty = cms.int32( 0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.1 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 999 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  pixelSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) )
+)
+fragment.HLTPSetJetCoreStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetJetCoreStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetJetCoreStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 50 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.HLTPSetInitialStepTrajectoryFilterBase = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.2 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 999 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  maxCCCLostHits = cms.int32( 2 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  seedPairPenalty = cms.int32( 0 ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetInitialStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetInitialStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetInitialStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 3 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPInitialStepChi2ChargeMeasurementEstimator30" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.HLTPSetDetachedStepTrajectoryFilterBase = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.075 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 999 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  maxCCCLostHits = cms.int32( 2 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  seedPairPenalty = cms.int32( 0 ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetDetachedStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 3 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.HLTPSetPixelPairStepTrajectoryFilterBase = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.1 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 999 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  maxCCCLostHits = cms.int32( 2 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  seedPairPenalty = cms.int32( 0 ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetPixelPairStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 3 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.HLTPSetMixedStepTrajectoryFilterBase = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  seedPairPenalty = cms.int32( 0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.05 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 0 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetMixedStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialForMixedStep" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMixedStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMixedStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 2 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPChi2ChargeTightMeasurementEstimator16" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialForMixedStepOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.HLTPSetPixelLessStepTrajectoryFilterBase = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 4 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.05 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 0 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetPixelLessStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelLessStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelLessStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 2 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPChi2ChargeTightMeasurementEstimator16" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 4 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.transferSystem = cms.PSet( 
+  destinations = cms.vstring( 'Tier0',
+    'DQM',
+    'ECAL',
+    'EventDisplay',
+    'Lustre',
+    'None' ),
+  transferModes = cms.vstring( 'default',
+    'test',
+    'emulator' ),
+  streamA = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'Lustre' )
+  ),
+  streamCalibration = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamDQM = cms.PSet( 
+    default = cms.vstring( 'DQM' ),
+    test = cms.vstring( 'DQM',
+      'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamDQMCalibration = cms.PSet( 
+    default = cms.vstring( 'DQM' ),
+    test = cms.vstring( 'DQM',
+      'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamEcalCalibration = cms.PSet( 
+    default = cms.vstring( 'ECAL' ),
+    test = cms.vstring( 'ECAL' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamEventDisplay = cms.PSet( 
+    default = cms.vstring( 'EventDisplay',
+      'Tier0' ),
+    test = cms.vstring( 'EventDisplay',
+      'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamExpressCosmics = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'Lustre' )
+  ),
+  streamNanoDST = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamRPCMON = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  streamTrackerCalibration = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  ),
+  default = cms.PSet( 
+    default = cms.vstring( 'Tier0' ),
+    test = cms.vstring( 'Lustre' ),
+    emulator = cms.vstring( 'Lustre' ),
+    streamLookArea = cms.PSet(  )
+  ),
+  streamLookArea = cms.PSet( 
+    default = cms.vstring( 'DQM' ),
+    test = cms.vstring( 'DQM',
+      'Lustre' ),
+    emulator = cms.vstring( 'None' )
+  )
+)
+fragment.HLTPSetTrajectoryBuilderForGsfElectrons = cms.PSet( 
+  propagatorAlong = cms.string( "hltESPFwdElectronPropagator" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterForElectrons" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 90.0 )
+)
+fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.3 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -16,9 +384,20 @@ HLTIter4PSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 6 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTIter3PSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTIter3PSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.3 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -27,9 +406,20 @@ HLTIter3PSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 3 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTIter2PSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTIter2PSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.3 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -38,9 +428,20 @@ HLTIter2PSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 3 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 0 ),
+  seedExtension = cms.int32( 1 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTIter1PSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTIter1PSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.2 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -49,9 +450,20 @@ HLTIter1PSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 3 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 0 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetbJetRegionalTrajectoryFilter = cms.PSet( 
+fragment.HLTPSetbJetRegionalTrajectoryFilter = cms.PSet( 
   minPt = cms.double( 1.0 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -60,9 +472,20 @@ HLTPSetbJetRegionalTrajectoryFilter = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 5 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetTrajectoryFilterL3 = cms.PSet( 
+fragment.HLTPSetTrajectoryFilterL3 = cms.PSet( 
   minPt = cms.double( 0.5 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -71,9 +494,20 @@ HLTPSetTrajectoryFilterL3 = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 5 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTPSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.3 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -82,9 +516,20 @@ HLTPSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 3 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetTrajectoryFilterForElectrons = cms.PSet( 
+fragment.HLTPSetTrajectoryFilterForElectrons = cms.PSet( 
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
   minPt = cms.double( 2.0 ),
   minHitsMinPt = cms.int32( -1 ),
@@ -93,9 +538,20 @@ HLTPSetTrajectoryFilterForElectrons = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   nSigmaMinPt = cms.double( 5.0 ),
   minimumNumberOfHits = cms.int32( 5 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetMuonCkfTrajectoryFilter = cms.PSet( 
+fragment.HLTPSetMuonCkfTrajectoryFilter = cms.PSet( 
   minPt = cms.double( 0.9 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -104,9 +560,20 @@ HLTPSetMuonCkfTrajectoryFilter = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   chargeSignificance = cms.double( -1.0 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  minimumNumberOfHits = cms.int32( 5 )
+  minimumNumberOfHits = cms.int32( 5 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetMuTrackJpsiTrajectoryFilter = cms.PSet( 
+fragment.HLTPSetMuTrackJpsiTrajectoryFilter = cms.PSet( 
   minPt = cms.double( 10.0 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -115,9 +582,20 @@ HLTPSetMuTrackJpsiTrajectoryFilter = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 5 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetMuTrackJpsiEffTrajectoryFilter = cms.PSet( 
+fragment.HLTPSetMuTrackJpsiEffTrajectoryFilter = cms.PSet( 
   minPt = cms.double( 1.0 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -126,9 +604,20 @@ HLTPSetMuTrackJpsiEffTrajectoryFilter = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 5 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetCkfTrajectoryFilter = cms.PSet( 
+fragment.HLTPSetCkfTrajectoryFilter = cms.PSet( 
   minPt = cms.double( 0.9 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -137,9 +626,20 @@ HLTPSetCkfTrajectoryFilter = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 5 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetCkf3HitTrajectoryFilter = cms.PSet( 
+fragment.HLTPSetCkf3HitTrajectoryFilter = cms.PSet( 
   minPt = cms.double( 0.9 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -148,16 +648,27 @@ HLTPSetCkf3HitTrajectoryFilter = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 3 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
+fragment.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter4PSetTrajectoryFilterIT" ) ),
   maxCand = cms.int32( 1 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -165,161 +676,91 @@ HLTIter4PSetTrajectoryBuilderIT = cms.PSet(
   lostHitPenalty = cms.double( 30.0 ),
   minNrOfHitsForRebuild = cms.untracked.int32( 4 )
 )
-HLTIter3PSetTrajectoryBuilderIT = cms.PSet( 
+fragment.HLTIter3PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter3PSetTrajectoryFilterIT" ) ),
   maxCand = cms.int32( 1 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTIter2PSetTrajectoryBuilderIT = cms.PSet( 
+fragment.HLTIter2PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2PSetTrajectoryFilterIT" ) ),
   maxCand = cms.int32( 2 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
+fragment.HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
   maxCand = cms.int32( 2 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
   MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTPSetbJetRegionalTrajectoryBuilder = cms.PSet( 
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetbJetRegionalTrajectoryFilter" ) ),
-  maxCand = cms.int32( 1 ),
-  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-HLTPSetTrajectoryBuilderL3 = cms.PSet( 
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterL3" ) ),
-  maxCand = cms.int32( 5 ),
-  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-HLTPSetTrajectoryBuilderIT = cms.PSet( 
-  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
-  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterIT" ) ),
-  maxCand = cms.int32( 2 ),
-  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-HLTPSetTrajectoryBuilderForElectrons = cms.PSet( 
+fragment.HLTPSetTrajectoryBuilderForElectrons = cms.PSet( 
   propagatorAlong = cms.string( "hltESPFwdElectronPropagator" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterForElectrons" ) ),
   maxCand = cms.int32( 5 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( True ),
   intermediateCleaning = cms.bool( False ),
   lostHitPenalty = cms.double( 90.0 )
 )
-HLTPSetMuTrackJpsiTrajectoryBuilder = cms.PSet( 
+fragment.HLTPSetMuTrackJpsiTrajectoryBuilder = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuTrackJpsiTrajectoryFilter" ) ),
   maxCand = cms.int32( 1 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet( 
+fragment.HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuTrackJpsiEffTrajectoryFilter" ) ),
   maxCand = cms.int32( 1 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
   MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTPSetCkfTrajectoryBuilder = cms.PSet( 
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilter" ) ),
-  maxCand = cms.int32( 5 ),
-  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-HLTPSetCkf3HitTrajectoryBuilder = cms.PSet( 
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkf3HitTrajectoryFilter" ) ),
-  maxCand = cms.int32( 5 ),
-  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet( 
+fragment.HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryFilter" ) ),
   maxCand = cms.int32( 5 ),
@@ -328,7 +769,7 @@ HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet(
   useSeedLayer = cms.bool( True ),
   deltaEta = cms.double( -1.0 ),
   deltaPhi = cms.double( -1.0 ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   rescaleErrorIfFail = cms.double( 1.0 ),
   propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
   updator = cms.string( "hltESPKFUpdator" ),
@@ -338,7 +779,7 @@ HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet(
   intermediateCleaning = cms.bool( False ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTPSetMuonCkfTrajectoryBuilder = cms.PSet( 
+fragment.HLTPSetMuonCkfTrajectoryBuilder = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryFilter" ) ),
   maxCand = cms.int32( 5 ),
@@ -347,7 +788,7 @@ HLTPSetMuonCkfTrajectoryBuilder = cms.PSet(
   useSeedLayer = cms.bool( False ),
   deltaEta = cms.double( -1.0 ),
   deltaPhi = cms.double( -1.0 ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   rescaleErrorIfFail = cms.double( 1.0 ),
   propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
   updator = cms.string( "hltESPKFUpdator" ),
@@ -357,26 +798,26 @@ HLTPSetMuonCkfTrajectoryBuilder = cms.PSet(
   intermediateCleaning = cms.bool( False ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTPSetPvClusterComparer = cms.PSet( 
+fragment.HLTPSetPvClusterComparer = cms.PSet( 
   track_pt_min = cms.double( 2.5 ),
   track_pt_max = cms.double( 10.0 ),
   track_chi2_max = cms.double( 9999999.0 ),
   track_prob_min = cms.double( -1.0 )
 )
-HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
+fragment.HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter0PSetTrajectoryFilterIT" ) ),
   maxCand = cms.int32( 2 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-HLTIter0PSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTIter0PSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.3 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -385,47 +826,52 @@ HLTIter0PSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 1 ),
   minimumNumberOfHits = cms.int32( 3 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 0 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-HLTPSetPvClusterComparerForBTag = cms.PSet( 
+fragment.HLTPSetPvClusterComparerForBTag = cms.PSet( 
   track_pt_min = cms.double( 0.1 ),
   track_pt_max = cms.double( 20.0 ),
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
 )
-HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
+fragment.HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
   ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-)
-HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
-  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
   propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
   SeedMomentumForBOFF = cms.double( 5.0 ),
   OriginTransverseErrorMultiplier = cms.double( 1.0 ),
   MinOneOverPtError = cms.double( 1.0 ),
-  SimpleMagneticField = cms.string( "ParabolicMf" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
-)
-HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
-  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
-  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter0PSetTrajectoryFilterIT" ) ),
-  maxCand = cms.int32( 4 ),
-  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  magneticField = cms.string( "ParabolicMf" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
+  forceKinematicWithRegionDirection = cms.bool( False )
 )
-HLTIter2HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
+fragment.HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterial" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  forceKinematicWithRegionDirection = cms.bool( False ),
+  magneticField = cms.string( "" )
+)
+fragment.HLTIter2HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2HighPtTkMuPSetTrajectoryFilterIT" ) ),
   maxCand = cms.int32( 2 ),
   ComponentType = cms.string( "CkfTrajectoryBuilder" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
   TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
   updator = cms.string( "hltESPKFUpdator" ),
   alwaysUseInvalidHits = cms.bool( False ),
@@ -433,7 +879,7 @@ HLTIter2HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet(
   lostHitPenalty = cms.double( 30.0 ),
   MeasurementTrackerName = cms.string( "hltIter2HighPtTkMuESPMeasurementTracker" )
 )
-HLTIter2HighPtTkMuPSetTrajectoryFilterIT = cms.PSet( 
+fragment.HLTIter2HighPtTkMuPSetTrajectoryFilterIT = cms.PSet( 
   minPt = cms.double( 0.3 ),
   minHitsMinPt = cms.int32( 3 ),
   ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
@@ -442,89 +888,1208 @@ HLTIter2HighPtTkMuPSetTrajectoryFilterIT = cms.PSet(
   maxConsecLostHits = cms.int32( 3 ),
   minimumNumberOfHits = cms.int32( 5 ),
   nSigmaMinPt = cms.double( 5.0 ),
-  chargeSignificance = cms.double( -1.0 )
+  chargeSignificance = cms.double( -1.0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
 )
-streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
-datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1' ) )
+fragment.HLTPSetPvClusterComparerForIT = cms.PSet( 
+  track_pt_min = cms.double( 1.0 ),
+  track_pt_max = cms.double( 20.0 ),
+  track_chi2_max = cms.double( 20.0 ),
+  track_prob_min = cms.double( -1.0 )
+)
+fragment.HLTSiStripClusterChargeCutNone = cms.PSet(  value = cms.double( -1.0 ) )
+fragment.HLTSiStripClusterChargeCutLoose = cms.PSet(  value = cms.double( 1620.0 ) )
+fragment.HLTSiStripClusterChargeCutTight = cms.PSet(  value = cms.double( 1945.0 ) )
+fragment.HLTSeedFromConsecutiveHitsCreatorIT = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  forceKinematicWithRegionDirection = cms.bool( False )
+)
+fragment.HLTSeedFromProtoTracks = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  magneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  forceKinematicWithRegionDirection = cms.bool( False )
+)
+fragment.HLTPSetMuonTrackingRegionBuilder8356 = cms.PSet( 
+  Rescale_eta = cms.double( 3.0 ),
+  Rescale_phi = cms.double( 3.0 ),
+  Rescale_Dz = cms.double( 3.0 ),
+  EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
+  EtaR_UpperLimit_Par2 = cms.double( 0.15 ),
+  PhiR_UpperLimit_Par1 = cms.double( 0.6 ),
+  PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
+  UseVertex = cms.bool( False ),
+  Pt_fixed = cms.bool( False ),
+  Z_fixed = cms.bool( True ),
+  Phi_fixed = cms.bool( False ),
+  Eta_fixed = cms.bool( False ),
+  Pt_min = cms.double( 1.5 ),
+  Phi_min = cms.double( 0.1 ),
+  Eta_min = cms.double( 0.1 ),
+  DeltaZ = cms.double( 15.9 ),
+  DeltaR = cms.double( 0.2 ),
+  DeltaEta = cms.double( 0.2 ),
+  DeltaPhi = cms.double( 0.2 ),
+  maxRegions = cms.int32( 2 ),
+  precise = cms.bool( True ),
+  OnDemand = cms.int32( -1 ),
+  MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTracker" ),
+  beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+  vertexCollection = cms.InputTag( "pixelVertices" ),
+  input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
+)
+fragment.HLTPSetDetachedCkfTrajectoryBuilderForHI = cms.PSet( 
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryFilterForHI" ) ),
+  maxCand = cms.int32( 2 ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryFilterForHI" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 0.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.0 ),
+  bestHitOnly = cms.bool( True )
+)
+fragment.HLTPSetDetachedCkfTrajectoryFilterForHI = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 6 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  constantValueForLostHitsFractionFilter = cms.double( 0.701 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetPixelPairCkfTrajectoryFilterForHI = cms.PSet( 
+  minPt = cms.double( 1.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 6 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetPixelPairCkfTrajectoryBuilderForHI = cms.PSet( 
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairCkfTrajectoryFilterForHI" ) ),
+  maxCand = cms.int32( 3 ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9ForHI" ),
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairCkfTrajectoryFilterForHI" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  bestHitOnly = cms.bool( True )
+)
+fragment.HLTSiStripClusterChargeCutForHI = cms.PSet(  value = cms.double( 2069.0 ) )
+fragment.HLTPSetDetachedCkfTrajectoryFilterForHIGlobalPt8 = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 6 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 8.0 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  constantValueForLostHitsFractionFilter = cms.double( 0.701 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetDetachedCkfTrajectoryBuilderForHIGlobalPt8 = cms.PSet( 
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryFilterForHIGlobalPt8" ) ),
+  maxCand = cms.int32( 2 ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryFilterForHIGlobalPt8" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 0.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.0 ),
+  bestHitOnly = cms.bool( True )
+)
+fragment.HLTPSetPixelPairCkfTrajectoryFilterForHIGlobalPt8 = cms.PSet( 
+  minPt = cms.double( 8.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 6 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetPixelPairCkfTrajectoryBuilderForHIGlobalPt8 = cms.PSet( 
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairCkfTrajectoryFilterForHIGlobalPt8" ) ),
+  maxCand = cms.int32( 3 ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9ForHI" ),
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairCkfTrajectoryFilterForHIGlobalPt8" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  bestHitOnly = cms.bool( True )
+)
+fragment.HLTPSetInitialCkfTrajectoryBuilderForHI = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetInitialCkfTrajectoryFilterForHI" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  intermediateCleaning = cms.bool( False ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+fragment.HLTPSetInitialCkfTrajectoryFilterForHI = cms.PSet( 
+  minimumNumberOfHits = cms.int32( 6 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 999 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  chargeSignificance = cms.double( -1.0 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minPt = cms.double( 0.9 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTSiStripClusterChargeCutTiny = cms.PSet(  value = cms.double( 800.0 ) )
+fragment.HLTPSetTobTecStepTrajectoryBuilder = cms.PSet( 
+  MeasurementTrackerName = cms.string( "" ),
+  useSameTrajFilter = cms.bool( False ),
+  minNrOfHitsForRebuild = cms.int32( 4 ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  maxCand = cms.int32( 2 ),
+  estimator = cms.string( "hltESPChi2ChargeTightMeasurementEstimator16" ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTobTecStepTrajectoryFilterBase" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTobTecStepInOutTrajectoryFilterBase" ) ),
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" )
+)
+fragment.HLTPSetTobTecStepTrajectoryFilterBase = cms.PSet( 
+  maxLostHits = cms.int32( 0 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  seedPairPenalty = cms.int32( 1 ),
+  minPt = cms.double( 0.1 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  chargeSignificance = cms.double( -1.0 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  strictSeedExtension = cms.bool( False ),
+  seedExtension = cms.int32( 0 ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetTobTecStepInOutTrajectoryFilterBase = cms.PSet( 
+  maxLostHits = cms.int32( 0 ),
+  minimumNumberOfHits = cms.int32( 4 ),
+  seedPairPenalty = cms.int32( 1 ),
+  minPt = cms.double( 0.1 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  chargeSignificance = cms.double( -1.0 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  strictSeedExtension = cms.bool( False ),
+  seedExtension = cms.int32( 0 ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetLowPtStepTrajectoryBuilder = cms.PSet( 
+  ComponentType = cms.string( "GroupedCkfTrajectoryBuilder" ),
+  bestHitOnly = cms.bool( True ),
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetLowPtStepTrajectoryFilter" ) ),
+  inOutTrajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetLowPtStepTrajectoryFilter" ) ),
+  useSameTrajFilter = cms.bool( True ),
+  maxCand = cms.int32( 4 ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  MeasurementTrackerName = cms.string( "" ),
+  lockHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  foundHitBonus = cms.double( 5.0 ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  requireSeedHitsInRebuild = cms.bool( True ),
+  keepOriginalIfRebuildFails = cms.bool( False ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  minNrOfHitsForRebuild = cms.int32( 5 ),
+  maxDPhiForLooperReconstruction = cms.double( 2.0 ),
+  maxPtForLooperReconstruction = cms.double( 0.7 )
+)
+fragment.HLTPSetDetachedStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CompositeTrajectoryFilter" ),
+  filters = cms.VPSet( 
+    cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedStepTrajectoryFilterBase" )    )
+  )
+)
+fragment.HLTPSetInitialStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CompositeTrajectoryFilter" ),
+  filters = cms.VPSet( 
+    cms.PSet(  refToPSet_ = cms.string( "HLTPSetInitialStepTrajectoryFilterBase" )    )
+  )
+)
+fragment.HLTPSetPixelPairStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CompositeTrajectoryFilter" ),
+  filters = cms.VPSet( 
+    cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairStepTrajectoryFilterBase" )    )
+  )
+)
+fragment.HLTPSetLowPtStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  seedPairPenalty = cms.int32( 0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.075 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 999 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxCCCLostHits = cms.int32( 1 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetMixedStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  seedPairPenalty = cms.int32( 0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.1 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 999 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.4 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTPSetPixelLessStepTrajectoryFilter = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minimumNumberOfHits = cms.int32( 4 ),
+  seedPairPenalty = cms.int32( 1 ),
+  chargeSignificance = cms.double( -1.0 ),
+  minPt = cms.double( 0.1 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  maxLostHits = cms.int32( 0 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxLostHitsFraction = cms.double( 0.1 ),
+  constantValueForLostHitsFractionFilter = cms.double( 2.0 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTIter0HighPtTkMuPSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 ),
+  maxCCCLostHits = cms.int32( 9999 ),
+  seedExtension = cms.int32( 0 ),
+  strictSeedExtension = cms.bool( False ),
+  minNumberOfHitsForLoopers = cms.int32( 13 ),
+  minNumberOfHitsPerLoop = cms.int32( 4 ),
+  extraNumberOfHitsBeforeTheFirstLoop = cms.int32( 4 ),
+  maxLostHitsFraction = cms.double( 999.0 ),
+  constantValueForLostHitsFractionFilter = cms.double( 1.0 ),
+  seedPairPenalty = cms.int32( 0 ),
+  minGoodStripCharge = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  pixelSeedExtension = cms.bool( False )
+)
+fragment.HLTIter0HighPtTkMuPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter0HighPtTkMuPSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 4 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  estimator = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+fragment.streams = cms.PSet( 
+  ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
+  Calibration = cms.vstring( 'TestEnablesEcalHcal' ),
+  DQM = cms.vstring( 'OnlineMonitor' ),
+  DQMCalibration = cms.vstring( 'TestEnablesEcalHcalDQM' ),
+  DQMEventDisplay = cms.vstring( 'EventDisplay' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  HIExpress = cms.vstring( 'HIExpressPhysics' ),
+  HIPhysicsHardProbes = cms.vstring( 'HIFlowCorr',
+    'HIHardProbes',
+    'HIHardProbesPeripheral',
+    'HIPhoton40AndZ' ),
+  HIPhysicsMinBiasUPC = cms.vstring( 'HIForward',
+    'HIMinimumBias1',
+    'HIMinimumBias2' ),
+  HIPhysicsMuons = cms.vstring( 'HIEWQExo',
+    'HIOniaCentral30L2L3',
+    'HIOniaL1DoubleMu0',
+    'HIOniaPeripheral30100',
+    'HIOniaTnP' ),
+  NanoDST = cms.vstring( 'L1Accept' ),
+  RPCMON = cms.vstring( 'RPCMonitor' )
+)
+fragment.datasets = cms.PSet( 
+  AlCaLumiPixels = cms.vstring( 'AlCa_LumiPixels_Random_v2',
+    'AlCa_LumiPixels_ZeroBias_v5' ),
+  AlCaPhiSym = cms.vstring( 'AlCa_EcalPhiSymForHI_v5' ),
+  EcalLaser = cms.vstring( 'HLT_EcalCalibration_v3' ),
+  EventDisplay = cms.vstring( 'HLT_HIPuAK4CaloJet150_Eta5p1_v4',
+    'HLT_HISinglePhoton60_Eta3p1_v4' ),
+  HIEWQExo = cms.vstring( 'HLT_HIL1DoubleMu10_v2',
+    'HLT_HIL2Mu15_2HF0_v3',
+    'HLT_HIL2Mu15_2HF_v4',
+    'HLT_HIL2Mu15_v4',
+    'HLT_HIL2Mu20_2HF0_v3',
+    'HLT_HIL2Mu20_2HF_v4',
+    'HLT_HIL2Mu20_v3',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5_v6',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5_v6',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v6',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v5',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v5',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v5',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v6',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet60Eta2p1_v5',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet80Eta2p1_v5',
+    'HLT_HIL3Mu15_2HF0_v3',
+    'HLT_HIL3Mu15_2HF_v4',
+    'HLT_HIL3Mu15_v3',
+    'HLT_HIL3Mu20_2HF0_v3',
+    'HLT_HIL3Mu20_2HF_v4',
+    'HLT_HIL3Mu20_v3' ),
+  HIExpressPhysics = cms.vstring( 'HLT_HICentralityVeto_v2',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_v4',
+    'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut_v4',
+    'HLT_HIFullTrack34_v4',
+    'HLT_HIL1DoubleMu10_v2',
+    'HLT_HIL1MinimumBiasHF1AND_v2',
+    'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v4',
+    'HLT_HIL2Mu20_2HF_v4',
+    'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v3',
+    'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet120_Eta5p1_v4',
+    'HLT_HIRandom_v2',
+    'HLT_HISinglePhoton60_Eta1p5_v4',
+    'HLT_HISinglePhoton60_Eta3p1_v4',
+    'HLT_HIUCC020_v5',
+    'HLT_HIUPCDoubleMuNotHF2Pixel_SingleTrack_v3',
+    'HLT_HIZeroBias_v3' ),
+  HIFlowCorr = cms.vstring( 'HLT_HIQ2Bottom005_Centrality1030_v4',
+    'HLT_HIQ2Bottom005_Centrality3050_v4',
+    'HLT_HIQ2Bottom005_Centrality5070_v4',
+    'HLT_HIQ2Top005_Centrality1030_v4',
+    'HLT_HIQ2Top005_Centrality3050_v4',
+    'HLT_HIQ2Top005_Centrality5070_v4',
+    'HLT_HIUCC020_v5',
+    'HLT_HIUCC100_v5' ),
+  HIForward = cms.vstring( 'HLT_HICastorMediumJetPixel_SingleTrack_v2',
+    'HLT_HIL1CastorMediumJetAK4CaloJet20_v4',
+    'HLT_HIL1CastorMediumJet_v2',
+    'HLT_HIUPCDoubleEG2NotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCDoubleMuNotHF1Pixel_SingleTrack_v3',
+    'HLT_HIUPCDoubleMuNotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCEG2NotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1DoubleEG2NotHF2_v3',
+    'HLT_HIUPCL1DoubleEG2NotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1DoubleEG2NotZDCAND_v2',
+    'HLT_HIUPCL1DoubleMuOpenNotHF1_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotHF2_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1DoubleMuOpenNotZDCAND_v2',
+    'HLT_HIUPCL1EG2NotZDCAND_v2',
+    'HLT_HIUPCL1MuOpenNotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1MuOpenNotZDCAND_v2',
+    'HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3',
+    'HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0_v3',
+    'HLT_HIUPCL1NotHFplusANDminusTH0BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1NotHFplusANDminusTH0BptxAND_v2',
+    'HLT_HIUPCL1NotMinimumBiasHF2_ANDPixel_SingleTrack_v3',
+    'HLT_HIUPCL1NotMinimumBiasHF2_AND_v3',
+    'HLT_HIUPCL1NotZdcOR_BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1NotZdcOR_BptxAND_v2',
+    'HLT_HIUPCL1SingleEG2NotHF2_v3',
+    'HLT_HIUPCL1SingleEG5NotHF2_v3',
+    'HLT_HIUPCL1SingleMuOpenNotHF2_v3',
+    'HLT_HIUPCL1ZdcOR_BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1ZdcOR_BptxAND_v2',
+    'HLT_HIUPCL1ZdcXOR_BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1ZdcXOR_BptxAND_v2',
+    'HLT_HIUPCSingleEG2NotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCSingleEG5NotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCSingleMuNotHF2Pixel_SingleTrack_v3' ),
+  HIHardProbes = cms.vstring( 'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent0_10_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_Cent0_10_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_Cent30_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_Cent0_10_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_Cent30_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt50_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_Cent30_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt70_v4',
+    'HLT_HIFullTrack12_L1Centrality010_v5',
+    'HLT_HIFullTrack12_L1Centrality30100_v4',
+    'HLT_HIFullTrack12_L1MinimumBiasHF1_AND_v4',
+    'HLT_HIFullTrack18_L1Centrality010_v5',
+    'HLT_HIFullTrack18_L1Centrality30100_v4',
+    'HLT_HIFullTrack18_L1MinimumBiasHF1_AND_v4',
+    'HLT_HIFullTrack24_L1Centrality30100_v4',
+    'HLT_HIFullTrack24_v4',
+    'HLT_HIFullTrack34_L1Centrality30100_v4',
+    'HLT_HIFullTrack34_v4',
+    'HLT_HIFullTrack45_L1Centrality30100_v4',
+    'HLT_HIFullTrack45_v4',
+    'HLT_HIPuAK4CaloBJetCSV60_Eta2p1_v4',
+    'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloBJetSSV60_Eta2p1_v4',
+    'HLT_HIPuAK4CaloBJetSSV80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloDJet60_Eta2p1_v4',
+    'HLT_HIPuAK4CaloDJet80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet100_Jet35_Eta0p7_v4',
+    'HLT_HIPuAK4CaloJet100_Jet35_Eta1p1_v4',
+    'HLT_HIPuAK4CaloJet110_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet120_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet150_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet40_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet40_Eta5p1_v5',
+    'HLT_HIPuAK4CaloJet60_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet60_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet80_45_45_Eta2p1_v4',
+    'HLT_HIPuAK4CaloJet80_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet80_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet80_Jet35_Eta0p7_v4',
+    'HLT_HIPuAK4CaloJet80_Jet35_Eta1p1_v4',
+    'HLT_HISinglePhoton10_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton10_Eta1p5_v5',
+    'HLT_HISinglePhoton10_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton10_Eta3p1_v5',
+    'HLT_HISinglePhoton15_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton15_Eta1p5_v5',
+    'HLT_HISinglePhoton15_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton15_Eta3p1_v5',
+    'HLT_HISinglePhoton20_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton20_Eta1p5_v5',
+    'HLT_HISinglePhoton20_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton20_Eta3p1_v5',
+    'HLT_HISinglePhoton30_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton30_Eta1p5_v4',
+    'HLT_HISinglePhoton30_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton40_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton40_Eta3p1_Cent30_100_v4' ),
+  HIHardProbesPeripheral = cms.vstring( 'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_Cent50_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_Cent50_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet40_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet60_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet80_Eta5p1_Cent50_100_v4',
+    'HLT_HISinglePhoton10_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton10_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton15_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton15_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton20_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton20_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton30_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton30_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton40_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton40_Eta3p1_Cent50_100_v4' ),
+  HIMinimumBias1 = cms.vstring( 'HLT_HICentralityVeto_v2',
+    'HLT_HIL1Centralityext30100MinimumumBiasHF1ANDPixel_SingleTrack_v3',
+    'HLT_HIL1Centralityext30100MinimumumBiasHF1AND_v3',
+    'HLT_HIL1Centralityext50100MinimumumBiasHF1ANDPixel_SingleTrack_v3',
+    'HLT_HIL1Centralityext50100MinimumumBiasHF1AND_v3',
+    'HLT_HIL1Centralityext70100MinimumumBiasHF1ANDPixel_SingleTrack_v3',
+    'HLT_HIL1Centralityext70100MinimumumBiasHF1AND_v3',
+    'HLT_HIL1MinimumBiasHF1ANDPixel_SingleTrack_v2',
+    'HLT_HIL1MinimumBiasHF1OR_v2',
+    'HLT_HIL1MinimumBiasHF2AND_v2',
+    'HLT_HIL1MinimumBiasHF2OR_v2',
+    'HLT_HIL1Tech5_BPTX_PlusOnly_v2',
+    'HLT_HIL1Tech6_BPTX_MinusOnly_v2',
+    'HLT_HIL1Tech7_NoBPTX_v3',
+    'HLT_HIPhysics_v2',
+    'HLT_HIRandom_v2',
+    'HLT_HIZeroBiasPixel_SingleTrack_v3',
+    'HLT_HIZeroBias_v3' ),
+  HIMinimumBias2 = cms.vstring( 'HLT_HIL1MinimumBiasHF1AND_v2' ),
+  HIOniaCentral30L2L3 = cms.vstring( 'HLT_HIL1DoubleMu0_Cent30_v3',
+    'HLT_HIL2DoubleMu0_Cent30_NHitQ_v4',
+    'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v4',
+    'HLT_HIL3DoubleMu0_Cent30_OS_m2p5to4p5_v4',
+    'HLT_HIL3DoubleMu0_Cent30_OS_m7to14_v4',
+    'HLT_HIL3DoubleMu0_Cent30_v4' ),
+  HIOniaL1DoubleMu0 = cms.vstring( 'HLT_HIL1DoubleMu0_2HF0_v2',
+    'HLT_HIL1DoubleMu0_2HF_v3',
+    'HLT_HIL1DoubleMu0_v2',
+    'HLT_HIL2DoubleMu0_NHitQ_2HF0_v3',
+    'HLT_HIL2DoubleMu0_NHitQ_2HF_v4',
+    'HLT_HIL2DoubleMu0_NHitQ_v4',
+    'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v3',
+    'HLT_HIL3DoubleMu0_OS_m7to14_v3' ),
+  HIOniaPeripheral30100 = cms.vstring( 'HLT_HIL1DoubleMu0_2HF0_Cent30100_v2',
+    'HLT_HIL1DoubleMu0_2HF_Cent30100_v3',
+    'HLT_HIL2DoubleMu0_2HF0_Cent30100_NHitQ_v3',
+    'HLT_HIL2DoubleMu0_2HF_Cent30100_NHitQ_v4' ),
+  HIOniaTnP = cms.vstring( 'HLT_HIL2Mu3_NHitQ10_2HF0_v3',
+    'HLT_HIL2Mu3_NHitQ10_2HF_v4',
+    'HLT_HIL2Mu5_NHitQ10_2HF0_v3',
+    'HLT_HIL2Mu5_NHitQ10_2HF_v4',
+    'HLT_HIL2Mu7_NHitQ10_2HF0_v3',
+    'HLT_HIL2Mu7_NHitQ10_2HF_v4',
+    'HLT_HIL3Mu3_NHitQ15_2HF0_v3',
+    'HLT_HIL3Mu3_NHitQ15_2HF_v4',
+    'HLT_HIL3Mu5_NHitQ15_2HF0_v3',
+    'HLT_HIL3Mu5_NHitQ15_2HF_v4',
+    'HLT_HIL3Mu7_NHitQ15_2HF0_v3',
+    'HLT_HIL3Mu7_NHitQ15_2HF_v4' ),
+  HIPhoton40AndZ = cms.vstring( 'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut_v4',
+    'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_v4',
+    'HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9Cut_v4',
+    'HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECut_v4',
+    'HLT_HISinglePhoton40_Eta1p5_v4',
+    'HLT_HISinglePhoton40_Eta2p1_v4',
+    'HLT_HISinglePhoton40_Eta3p1_v4',
+    'HLT_HISinglePhoton50_Eta1p5_v4',
+    'HLT_HISinglePhoton50_Eta3p1_v4',
+    'HLT_HISinglePhoton60_Eta1p5_v4',
+    'HLT_HISinglePhoton60_Eta3p1_v4' ),
+  L1Accept = cms.vstring( 'DST_Physics_v5' ),
+  OnlineMonitor = cms.vstring( 'HLT_HICastorMediumJetPixel_SingleTrack_v2',
+    'HLT_HICentralityVeto_v2',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent0_10_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt20_v5',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_Cent0_10_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_Cent30_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_Cent50_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt30_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_Cent0_10_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_Cent30_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_Cent50_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt40_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt50_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_Cent30_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_Cent50_100_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt60_v4',
+    'HLT_HIDmesonHITrackingGlobal_Dpt70_v4',
+    'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut_v4',
+    'HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_v4',
+    'HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9Cut_v4',
+    'HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECut_v4',
+    'HLT_HIFullTrack12_L1Centrality010_v5',
+    'HLT_HIFullTrack12_L1Centrality30100_v4',
+    'HLT_HIFullTrack12_L1MinimumBiasHF1_AND_v4',
+    'HLT_HIFullTrack18_L1Centrality010_v5',
+    'HLT_HIFullTrack18_L1Centrality30100_v4',
+    'HLT_HIFullTrack18_L1MinimumBiasHF1_AND_v4',
+    'HLT_HIFullTrack24_L1Centrality30100_v4',
+    'HLT_HIFullTrack24_v4',
+    'HLT_HIFullTrack34_L1Centrality30100_v4',
+    'HLT_HIFullTrack34_v4',
+    'HLT_HIFullTrack45_L1Centrality30100_v4',
+    'HLT_HIFullTrack45_v4',
+    'HLT_HIL1CastorMediumJetAK4CaloJet20_v4',
+    'HLT_HIL1CastorMediumJet_v2',
+    'HLT_HIL1Centralityext30100MinimumumBiasHF1ANDPixel_SingleTrack_v3',
+    'HLT_HIL1Centralityext30100MinimumumBiasHF1AND_v3',
+    'HLT_HIL1Centralityext50100MinimumumBiasHF1ANDPixel_SingleTrack_v3',
+    'HLT_HIL1Centralityext50100MinimumumBiasHF1AND_v3',
+    'HLT_HIL1Centralityext70100MinimumumBiasHF1ANDPixel_SingleTrack_v3',
+    'HLT_HIL1Centralityext70100MinimumumBiasHF1AND_v3',
+    'HLT_HIL1DoubleMu0_2HF0_Cent30100_v2',
+    'HLT_HIL1DoubleMu0_2HF0_v2',
+    'HLT_HIL1DoubleMu0_2HF_Cent30100_v3',
+    'HLT_HIL1DoubleMu0_2HF_v3',
+    'HLT_HIL1DoubleMu0_Cent30_v3',
+    'HLT_HIL1DoubleMu0_v2',
+    'HLT_HIL1DoubleMu10_v2',
+    'HLT_HIL1MinimumBiasHF1ANDPixel_SingleTrack_v2',
+    'HLT_HIL1MinimumBiasHF1AND_v2',
+    'HLT_HIL1MinimumBiasHF1OR_v2',
+    'HLT_HIL1MinimumBiasHF2AND_v2',
+    'HLT_HIL1MinimumBiasHF2OR_v2',
+    'HLT_HIL1Tech5_BPTX_PlusOnly_v2',
+    'HLT_HIL1Tech6_BPTX_MinusOnly_v2',
+    'HLT_HIL1Tech7_NoBPTX_v3',
+    'HLT_HIL2DoubleMu0_2HF0_Cent30100_NHitQ_v3',
+    'HLT_HIL2DoubleMu0_2HF_Cent30100_NHitQ_v4',
+    'HLT_HIL2DoubleMu0_Cent30_NHitQ_v4',
+    'HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v4',
+    'HLT_HIL2DoubleMu0_NHitQ_2HF0_v3',
+    'HLT_HIL2DoubleMu0_NHitQ_2HF_v4',
+    'HLT_HIL2DoubleMu0_NHitQ_v4',
+    'HLT_HIL2Mu15_2HF0_v3',
+    'HLT_HIL2Mu15_2HF_v4',
+    'HLT_HIL2Mu15_v4',
+    'HLT_HIL2Mu20_2HF0_v3',
+    'HLT_HIL2Mu20_2HF_v4',
+    'HLT_HIL2Mu20_v3',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5_v6',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5_v6',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v6',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v5',
+    'HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v5',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v5',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v6',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet60Eta2p1_v5',
+    'HLT_HIL2Mu3Eta2p5_PuAK4CaloJet80Eta2p1_v5',
+    'HLT_HIL2Mu3_NHitQ10_2HF0_v3',
+    'HLT_HIL2Mu3_NHitQ10_2HF_v4',
+    'HLT_HIL2Mu5_NHitQ10_2HF0_v3',
+    'HLT_HIL2Mu5_NHitQ10_2HF_v4',
+    'HLT_HIL2Mu7_NHitQ10_2HF0_v3',
+    'HLT_HIL2Mu7_NHitQ10_2HF_v4',
+    'HLT_HIL3DoubleMu0_Cent30_OS_m2p5to4p5_v4',
+    'HLT_HIL3DoubleMu0_Cent30_OS_m7to14_v4',
+    'HLT_HIL3DoubleMu0_Cent30_v4',
+    'HLT_HIL3DoubleMu0_OS_m2p5to4p5_v3',
+    'HLT_HIL3DoubleMu0_OS_m7to14_v3',
+    'HLT_HIL3Mu15_2HF0_v3',
+    'HLT_HIL3Mu15_2HF_v4',
+    'HLT_HIL3Mu15_v3',
+    'HLT_HIL3Mu20_2HF0_v3',
+    'HLT_HIL3Mu20_2HF_v4',
+    'HLT_HIL3Mu20_v3',
+    'HLT_HIL3Mu3_NHitQ15_2HF0_v3',
+    'HLT_HIL3Mu3_NHitQ15_2HF_v4',
+    'HLT_HIL3Mu5_NHitQ15_2HF0_v3',
+    'HLT_HIL3Mu5_NHitQ15_2HF_v4',
+    'HLT_HIL3Mu7_NHitQ15_2HF0_v3',
+    'HLT_HIL3Mu7_NHitQ15_2HF_v4',
+    'HLT_HIPhysics_v2',
+    'HLT_HIPuAK4CaloBJetCSV60_Eta2p1_v4',
+    'HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloBJetSSV60_Eta2p1_v4',
+    'HLT_HIPuAK4CaloBJetSSV80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloDJet60_Eta2p1_v4',
+    'HLT_HIPuAK4CaloDJet80_Eta2p1_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet100_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet100_Jet35_Eta0p7_v4',
+    'HLT_HIPuAK4CaloJet100_Jet35_Eta1p1_v4',
+    'HLT_HIPuAK4CaloJet110_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet120_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet150_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet40_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet40_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet40_Eta5p1_v5',
+    'HLT_HIPuAK4CaloJet60_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet60_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet60_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet80_45_45_Eta2p1_v4',
+    'HLT_HIPuAK4CaloJet80_Eta5p1_Cent30_100_v4',
+    'HLT_HIPuAK4CaloJet80_Eta5p1_Cent50_100_v4',
+    'HLT_HIPuAK4CaloJet80_Eta5p1_v4',
+    'HLT_HIPuAK4CaloJet80_Jet35_Eta0p7_v4',
+    'HLT_HIPuAK4CaloJet80_Jet35_Eta1p1_v4',
+    'HLT_HIQ2Bottom005_Centrality1030_v4',
+    'HLT_HIQ2Bottom005_Centrality3050_v4',
+    'HLT_HIQ2Bottom005_Centrality5070_v4',
+    'HLT_HIQ2Top005_Centrality1030_v4',
+    'HLT_HIQ2Top005_Centrality3050_v4',
+    'HLT_HIQ2Top005_Centrality5070_v4',
+    'HLT_HIRandom_v2',
+    'HLT_HISinglePhoton10_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton10_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton10_Eta1p5_v5',
+    'HLT_HISinglePhoton10_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton10_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton10_Eta3p1_v5',
+    'HLT_HISinglePhoton15_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton15_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton15_Eta1p5_v5',
+    'HLT_HISinglePhoton15_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton15_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton15_Eta3p1_v5',
+    'HLT_HISinglePhoton20_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton20_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton20_Eta1p5_v5',
+    'HLT_HISinglePhoton20_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton20_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton20_Eta3p1_v5',
+    'HLT_HISinglePhoton30_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton30_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton30_Eta1p5_v4',
+    'HLT_HISinglePhoton30_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton30_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton30_Eta3p1_v4',
+    'HLT_HISinglePhoton40_Eta1p5_Cent30_100_v4',
+    'HLT_HISinglePhoton40_Eta1p5_Cent50_100_v4',
+    'HLT_HISinglePhoton40_Eta1p5_v4',
+    'HLT_HISinglePhoton40_Eta2p1_v4',
+    'HLT_HISinglePhoton40_Eta3p1_Cent30_100_v4',
+    'HLT_HISinglePhoton40_Eta3p1_Cent50_100_v4',
+    'HLT_HISinglePhoton40_Eta3p1_v4',
+    'HLT_HISinglePhoton50_Eta1p5_v4',
+    'HLT_HISinglePhoton50_Eta3p1_v4',
+    'HLT_HISinglePhoton60_Eta1p5_v4',
+    'HLT_HISinglePhoton60_Eta3p1_v4',
+    'HLT_HIUCC020_v5',
+    'HLT_HIUCC100_v5',
+    'HLT_HIUPCDoubleEG2NotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCDoubleMuNotHF1Pixel_SingleTrack_v3',
+    'HLT_HIUPCDoubleMuNotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCEG2NotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1DoubleEG2NotHF2_v3',
+    'HLT_HIUPCL1DoubleEG2NotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1DoubleEG2NotZDCAND_v2',
+    'HLT_HIUPCL1DoubleMuOpenNotHF1_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotHF2_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0_v3',
+    'HLT_HIUPCL1DoubleMuOpenNotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1DoubleMuOpenNotZDCAND_v2',
+    'HLT_HIUPCL1EG2NotZDCAND_v2',
+    'HLT_HIUPCL1MuOpenNotZDCANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1MuOpenNotZDCAND_v2',
+    'HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3',
+    'HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0_v3',
+    'HLT_HIUPCL1NotHFplusANDminusTH0BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1NotHFplusANDminusTH0BptxAND_v2',
+    'HLT_HIUPCL1NotMinimumBiasHF2_ANDPixel_SingleTrack_v3',
+    'HLT_HIUPCL1NotMinimumBiasHF2_AND_v3',
+    'HLT_HIUPCL1NotZdcOR_BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1NotZdcOR_BptxAND_v2',
+    'HLT_HIUPCL1SingleEG2NotHF2_v3',
+    'HLT_HIUPCL1SingleEG5NotHF2_v3',
+    'HLT_HIUPCL1SingleMuOpenNotHF2_v3',
+    'HLT_HIUPCL1ZdcOR_BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1ZdcOR_BptxAND_v2',
+    'HLT_HIUPCL1ZdcXOR_BptxANDPixel_SingleTrack_v2',
+    'HLT_HIUPCL1ZdcXOR_BptxAND_v2',
+    'HLT_HIUPCSingleEG2NotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCSingleEG5NotHF2Pixel_SingleTrack_v3',
+    'HLT_HIUPCSingleMuNotHF2Pixel_SingleTrack_v3',
+    'HLT_HIZeroBiasPixel_SingleTrack_v3',
+    'HLT_HIZeroBias_v3' ),
+  RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHitsForHI_v2',
+    'AlCa_RPCMuonNoTriggersForHI_v2',
+    'AlCa_RPCMuonNormalisationForHI_v2' ),
+  TestEnablesEcalHcal = cms.vstring( 'HLT_EcalCalibration_v3',
+    'HLT_HcalCalibration_v4' ),
+  TestEnablesEcalHcalDQM = cms.vstring( 'HLT_EcalCalibration_v3',
+    'HLT_HcalCalibration_v4' )
+)
 
-hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
-  iovIsRunNotTime = cms.bool( True ),
-  recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
-  firstValid = cms.vuint32( 1 )
+fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "CSCChannelMapperRecord" ),
+    firstValid = cms.vuint32( 1 )
 )
-hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
-  iovIsRunNotTime = cms.bool( True ),
-  recordName = cms.string( "EcalSeverityLevelAlgoRcd" ),
-  firstValid = cms.vuint32( 1 )
+fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "CSCIndexerRecord" ),
+    firstValid = cms.vuint32( 1 )
 )
-hltESSBTagRecord = cms.ESSource( "EmptyESSource",
-  iovIsRunNotTime = cms.bool( True ),
-  recordName = cms.string( "JetTagComputerRecord" ),
-  firstValid = cms.vuint32( 1 )
+fragment.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalParametersRcd" ),
+    firstValid = cms.vuint32( 1 )
 )
-CSCINdexerESSource = cms.ESSource( "EmptyESSource",
-  iovIsRunNotTime = cms.bool( True ),
-  recordName = cms.string( "CSCIndexerRecord" ),
-  firstValid = cms.vuint32( 1 )
+fragment.StableParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalStableParametersRcd" ),
+    firstValid = cms.vuint32( 1 )
 )
-CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
-  iovIsRunNotTime = cms.bool( True ),
-  recordName = cms.string( "CSCChannelMapperRecord" ),
-  firstValid = cms.vuint32( 1 )
+fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "JetTagComputerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "EcalSeverityLevelAlgoRcd" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
+    firstValid = cms.vuint32( 1 )
 )
 
-MaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
-  SimpleMagneticField = cms.string( "ParabolicMf" ),
-  PropagationDirection = cms.string( "alongMomentum" ),
-  ComponentName = cms.string( "PropagatorWithMaterialParabolicMf" ),
-  Mass = cms.double( 0.105 ),
-  ptMin = cms.double( -1.0 ),
-  MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( False )
+fragment.hltPixelTracksCleanerBySharedHits = cms.ESProducer( "PixelTrackCleanerBySharedHitsESProducer",
+  useQuadrupletAlgo = cms.bool( False ),
+  ComponentName = cms.string( "hltPixelTracksCleanerBySharedHits" ),
+  appendToDataLabel = cms.string( "" )
 )
-OppositeMaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
-  SimpleMagneticField = cms.string( "ParabolicMf" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  ComponentName = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
-  Mass = cms.double( 0.105 ),
-  ptMin = cms.double( -1.0 ),
-  MaxDPhi = cms.double( 1.6 ),
-  useRungeKutta = cms.bool( False )
+fragment.hltTrackCleaner = cms.ESProducer( "TrackCleanerESProducer",
+  ComponentName = cms.string( "hltTrackCleaner" ),
+  appendToDataLabel = cms.string( "" )
 )
-ParabolicParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
-  version = cms.string( "Parabolic" ),
-  parameters = cms.PSet(  BValue = cms.string( "" ) ),
-  label = cms.untracked.string( "ParabolicMf" )
+fragment.hltESPPixelLessStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPPixelLessStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.11 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
 )
-hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 30.0 ),
+fragment.hltESPTobTecStepFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+  EstimateCut = cms.double( 30.0 ),
+  appendToDataLabel = cms.string( "" ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
+  Fitter = cms.string( "hltESPTobTecStepRKFitter" ),
+  MinNumberOfHits = cms.int32( 7 ),
+  Smoother = cms.string( "hltESPTobTecStepRKSmoother" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  MaxFractionOutliers = cms.double( 0.3 ),
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  ComponentName = cms.string( "hltESPTobTecStepFitterSmoother" ),
+  RejectTracks = cms.bool( True )
+)
+fragment.hltESPTobTecStepFittingSmootherForLoopers = cms.ESProducer( "KFFittingSmootherESProducer",
+  EstimateCut = cms.double( 30.0 ),
+  appendToDataLabel = cms.string( "" ),
+  LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
+  Fitter = cms.string( "hltESPTobTecStepRKFitterForLoopers" ),
+  MinNumberOfHits = cms.int32( 7 ),
+  Smoother = cms.string( "hltESPTobTecStepRKSmootherForLoopers" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  MaxFractionOutliers = cms.double( 0.3 ),
+  NoInvalidHitsBeginEnd = cms.bool( False ),
+  ComponentName = cms.string( "hltESPTobTecStepFitterSmootherForLoopers" ),
+  RejectTracks = cms.bool( True )
+)
+fragment.hltESPLowPtStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPLowPtStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.16 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
+fragment.hltESPTobTecStepRKTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  errorRescaling = cms.double( 10.0 ),
+  minHits = cms.int32( 7 ),
+  ComponentName = cms.string( "hltESPTobTecStepRKSmoother" ),
+  appendToDataLabel = cms.string( "" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+fragment.hltESPTobTecStepRKTrajectorySmootherForLoopers = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  errorRescaling = cms.double( 10.0 ),
+  minHits = cms.int32( 7 ),
+  ComponentName = cms.string( "hltESPTobTecStepRKSmootherForLoopers" ),
+  appendToDataLabel = cms.string( "" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "PropagatorWithMaterialForLoopers" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+fragment.hltESPTobTecStepRKTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
+  minHits = cms.int32( 7 ),
+  ComponentName = cms.string( "hltESPTobTecStepRKFitter" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+fragment.hltESPTobTecStepRKTrajectoryFitterForLoopers = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
+  minHits = cms.int32( 7 ),
+  ComponentName = cms.string( "hltESPTobTecStepRKFitterForLoopers" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "PropagatorWithMaterialForLoopers" ),
+  RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
+)
+fragment.hltESPTobTecStepFlexibleKFFittingSmoother = cms.ESProducer( "FlexibleKFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltESPTobTecStepFlexibleKFFittingSmoother" ),
+  appendToDataLabel = cms.string( "" ),
+  standardFitter = cms.string( "hltESPTobTecStepFitterSmoother" ),
+  looperFitter = cms.string( "hltESPTobTecStepFitterSmootherForLoopers" )
+)
+fragment.hltESPTobTecStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPTobTecStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.09 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
+fragment.hltESPChi2ChargeTightMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPChi2ChargeTightMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
   nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" )
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 16.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
-AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+fragment.hltESPInitialStepChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTiny" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPInitialStepChi2ChargeMeasurementEstimator30" ),
+  pTChargeCutThreshold = cms.double( 15.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 30.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPTobTecStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
+  ComponentName = cms.string( "hltESPTobTecStepClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
+)
+fragment.hltESPPixelLessStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
+  ComponentName = cms.string( "hltESPPixelLessStepClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
+)
+fragment.hltESPMixedStepClusterShapeHitFilter = cms.ESProducer( "ClusterShapeHitFilterESProducer",
+  ComponentName = cms.string( "hltESPMixedStepClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutTight" ) ),
+  PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
+)
+fragment.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
   PropagationDirection = cms.string( "anyDirection" )
 )
-CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
-  AlgoName = cms.string( "CSCChannelMapperStartup" )
+fragment.CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
+  AlgoName = cms.string( "CSCChannelMapperPostls1" )
 )
-CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
-  AlgoName = cms.string( "CSCIndexerStartup" )
+fragment.CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
+  AlgoName = cms.string( "CSCIndexerPostls1" )
 )
-CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
-CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
-  appendToDataLabel = cms.string( "" ),
-  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
-)
-CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+fragment.CSCObjectMapESProducer = cms.ESProducer( "CSCObjectMapESProducer",
   appendToDataLabel = cms.string( "" )
 )
-ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
+fragment.CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder" )
+fragment.CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
+  appendToDataLabel = cms.string( "" ),
+  MapAuto = cms.untracked.bool( False ),
+  SkipHE = cms.untracked.bool( False ),
+  MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
+)
+fragment.CaloTowerTopologyEP = cms.ESProducer( "CaloTowerTopologyEP",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProducer",
   ComponentName = cms.string( "ClusterShapeHitFilter" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
   PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
 )
-MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+fragment.DTObjectMapESProducer = cms.ESProducer( "DTObjectMapESProducer",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterial" ),
@@ -533,7 +2098,25 @@ MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False )
 )
-OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+fragment.MaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialForHI" ),
+  Mass = cms.double( 0.139 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.MaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  Mass = cms.double( 0.105 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterialOpposite" ),
@@ -542,7 +2125,93 @@ OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False )
 )
-SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+fragment.OppositeMaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  Mass = cms.double( 0.139 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.OppositeMaterialPropagatorParabolicMF = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialParabolicMfOpposite" ),
+  Mass = cms.double( 0.105 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.OppositePropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialForMixedStepOpposite" ),
+  Mass = cms.double( 0.105 ),
+  ptMin = cms.double( 0.1 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.PropagatorWithMaterialForLoopers = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialForLoopers" ),
+  Mass = cms.double( 0.1396 ),
+  ptMin = cms.double( -1.0 ),
+  MaxDPhi = cms.double( 4.0 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.PropagatorWithMaterialForMixedStep = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  PropagationDirection = cms.string( "alongMomentum" ),
+  ComponentName = cms.string( "PropagatorWithMaterialForMixedStep" ),
+  Mass = cms.double( 0.105 ),
+  ptMin = cms.double( 0.1 ),
+  MaxDPhi = cms.double( 1.6 ),
+  useRungeKutta = cms.bool( False )
+)
+fragment.SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
+  EtaDivisions = cms.untracked.uint32( 20 ),
+  PhiDivisions = cms.untracked.uint32( 20 ),
+  EtaMax = cms.untracked.double( 2.5 )
+)
+fragment.SimpleSecondaryVertex3TrkComputer = cms.ESProducer( "SimpleSecondaryVertexESProducer",
+  minTracks = cms.uint32( 3 ),
+  minVertices = cms.uint32( 1 ),
+  use3d = cms.bool( True ),
+  unBoost = cms.bool( False ),
+  useSignificance = cms.bool( True )
+)
+fragment.StableParameters = cms.ESProducer( "StableParametersTrivialProducer",
+  NumberL1JetCounts = cms.uint32( 12 ),
+  NumberL1NoIsoEG = cms.uint32( 4 ),
+  NumberL1CenJet = cms.uint32( 4 ),
+  NumberL1Tau = cms.uint32( 8 ),
+  NumberConditionChips = cms.uint32( 1 ),
+  NumberL1EGamma = cms.uint32( 12 ),
+  TotalBxInEvent = cms.int32( 5 ),
+  NumberL1Mu = cms.uint32( 4 ),
+  PinsOnConditionChip = cms.uint32( 512 ),
+  WordLength = cms.int32( 64 ),
+  PinsOnChip = cms.uint32( 512 ),
+  OrderOfChip = cms.vint32( 1 ),
+  IfMuEtaNumberBits = cms.uint32( 6 ),
+  OrderConditionChip = cms.vint32( 1 ),
+  appendToDataLabel = cms.string( "" ),
+  NumberL1TauJet = cms.uint32( 4 ),
+  NumberL1Jet = cms.uint32( 12 ),
+  NumberPhysTriggers = cms.uint32( 512 ),
+  NumberL1Muon = cms.uint32( 12 ),
+  UnitLength = cms.int32( 8 ),
+  NumberL1IsoEG = cms.uint32( 4 ),
+  NumberTechnicalTriggers = cms.uint32( 64 ),
+  NumberL1ForJet = cms.uint32( 4 ),
+  IfCaloEtaNumberBits = cms.uint32( 4 ),
+  NumberPsbBoards = cms.int32( 7 ),
+  NumberChips = cms.uint32( 5 ),
+  NumberPhysTriggersExtended = cms.uint32( 64 )
+)
+fragment.SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -562,30 +2231,41 @@ SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer"
   useMagVolumes = cms.bool( True ),
   ComponentName = cms.string( "SteppingHelixPropagatorAny" )
 )
-TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
+fragment.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
 )
-caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+fragment.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "CaloDetIdAssociator" ),
+  hcalRegion = cms.int32( 2 ),
   etaBinSize = cms.double( 0.087 ),
   nEta = cms.int32( 70 ),
   nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
+  includeBadChambers = cms.bool( False ),
+  includeME0 = cms.bool( False ),
+  includeGEM = cms.bool( False )
 )
-cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
+fragment.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "CosmicNavigationSchool" ),
   SimpleMagneticField = cms.string( "" )
 )
-ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+fragment.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
+  hcalRegion = cms.int32( 2 ),
   etaBinSize = cms.double( 0.02 ),
   nEta = cms.int32( 300 ),
   nPhi = cms.int32( 360 ),
-  includeBadChambers = cms.bool( False )
+  includeBadChambers = cms.bool( False ),
+  includeME0 = cms.bool( False ),
+  includeGEM = cms.bool( False )
 )
-ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
+fragment.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   dbstatusMask = cms.PSet( 
+    kBad = cms.vstring( 'kNonRespondingIsolated',
+      'kDeadVFE',
+      'kDeadFE',
+      'kNoDataNoTP' ),
     kGood = cms.vstring( 'kOk' ),
+    kRecovered = cms.vstring(  ),
     kProblematic = cms.vstring( 'kDAC',
       'kNoLaser',
       'kNoisy',
@@ -596,91 +2276,95 @@ ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
       'kFixedG6',
       'kFixedG1',
       'kFixedG0' ),
-    kRecovered = cms.vstring(  ),
-    kTime = cms.vstring(  ),
     kWeird = cms.vstring(  ),
-    kBad = cms.vstring( 'kNonRespondingIsolated',
-      'kDeadVFE',
-      'kDeadFE',
-      'kNoDataNoTP' )
+    kTime = cms.vstring(  )
   ),
   timeThresh = cms.double( 2.0 ),
   flagMask = cms.PSet( 
+    kBad = cms.vstring( 'kFaultyHardware',
+      'kDead',
+      'kKilled' ),
     kGood = cms.vstring( 'kGood' ),
+    kRecovered = cms.vstring( 'kLeadingEdgeRecovered',
+      'kTowerRecovered' ),
     kProblematic = cms.vstring( 'kPoorReco',
       'kPoorCalib',
       'kNoisy',
       'kSaturated' ),
-    kRecovered = cms.vstring( 'kLeadingEdgeRecovered',
-      'kTowerRecovered' ),
-    kTime = cms.vstring( 'kOutOfTime' ),
     kWeird = cms.vstring( 'kWeird',
       'kDiWeird' ),
-    kBad = cms.vstring( 'kFaultyHardware',
-      'kDead',
-      'kKilled' )
+    kTime = cms.vstring( 'kOutOfTime' )
   )
 )
-hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+fragment.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hcalDDDSimConstants = cms.ESProducer( "HcalDDDSimConstantsESModule",
+  appendToDataLabel = cms.string( "" )
+)
+fragment.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "HcalDetIdAssociator" ),
+  hcalRegion = cms.int32( 2 ),
   etaBinSize = cms.double( 0.087 ),
   nEta = cms.int32( 70 ),
   nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
+  includeBadChambers = cms.bool( False ),
+  includeME0 = cms.bool( False ),
+  includeGEM = cms.bool( False )
 )
-hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
+fragment.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
     'TimingSubtractedBit' ),
   SeverityLevels = cms.VPSet( 
-    cms.PSet(  RecHitFlags = cms.vstring(  ),
-      ChannelStatus = cms.vstring(  ),
+    cms.PSet(  ChannelStatus = cms.vstring(  ),
+      RecHitFlags = cms.vstring(  ),
       Level = cms.int32( 0 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring(  ),
-      ChannelStatus = cms.vstring( 'HcalCellCaloTowerProb' ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerProb' ),
+      RecHitFlags = cms.vstring(  ),
       Level = cms.int32( 1 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring( 'HSCP_R1R2',
-  'HSCP_FracLeader',
-  'HSCP_OuterEnergy',
-  'HSCP_ExpFit',
-  'ADCSaturationBit',
-  'HBHEIsolatedNoise',
-  'AddedSimHcalNoise' ),
-      ChannelStatus = cms.vstring( 'HcalCellExcludeFromHBHENoiseSummary' ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellExcludeFromHBHENoiseSummary' ),
+      RecHitFlags = cms.vstring( 'HSCP_R1R2',
+        'HSCP_FracLeader',
+        'HSCP_OuterEnergy',
+        'HSCP_ExpFit',
+        'ADCSaturationBit',
+        'HBHEIsolatedNoise',
+        'AddedSimHcalNoise' ),
       Level = cms.int32( 5 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
-  'HBHEPulseShape',
-  'HOBit',
-  'HFInTimeWindow',
-  'ZDCBit',
-  'CalibrationBit',
-  'TimingErrorBit',
-  'HBHETriangleNoise',
-  'HBHETS4TS5Noise' ),
-      ChannelStatus = cms.vstring(  ),
+    cms.PSet(  ChannelStatus = cms.vstring(  ),
+      RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
+        'HBHEPulseShape',
+        'HOBit',
+        'HFInTimeWindow',
+        'ZDCBit',
+        'CalibrationBit',
+        'TimingErrorBit',
+        'HBHETriangleNoise',
+        'HBHETS4TS5Noise' ),
       Level = cms.int32( 8 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring( 'HFLongShort',
-  'HFPET',
-  'HFS8S1Ratio',
-  'HFDigiTime' ),
-      ChannelStatus = cms.vstring(  ),
+    cms.PSet(  ChannelStatus = cms.vstring(  ),
+      RecHitFlags = cms.vstring( 'HFLongShort',
+        'HFPET',
+        'HFS8S1Ratio',
+        'HFDigiTime' ),
       Level = cms.int32( 11 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring( 'HBHEFlatNoise',
-  'HBHESpikeNoise' ),
-      ChannelStatus = cms.vstring( 'HcalCellCaloTowerMask' ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerMask' ),
+      RecHitFlags = cms.vstring( 'HBHEFlatNoise',
+        'HBHESpikeNoise' ),
       Level = cms.int32( 12 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring(  ),
-      ChannelStatus = cms.vstring( 'HcalCellHot' ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellHot' ),
+      RecHitFlags = cms.vstring(  ),
       Level = cms.int32( 15 )
     ),
-    cms.PSet(  RecHitFlags = cms.vstring(  ),
-      ChannelStatus = cms.vstring( 'HcalCellOff',
-        'HcalCellDead' ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellOff',
+  'HcalCellDead' ),
+      RecHitFlags = cms.vstring(  ),
       Level = cms.int32( 20 )
     )
   ),
@@ -688,142 +2372,182 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellOff',
     'HcalCellDead' )
 )
-hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+fragment.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
+  charmCut = cms.double( 1.5 ),
+  recordLabel = cms.string( "HLT" ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
-  trackSelection = cms.PSet( 
-    totalHitsMin = cms.uint32( 0 ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    qualityClass = cms.string( "any" ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    normChi2Max = cms.double( 99999.9 ),
+  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPseudoSelection = cms.PSet( 
     maxDistToAxis = cms.double( 0.07 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    maxDecayLen = cms.double( 5.0 ),
+    totalHitsMin = cms.uint32( 0 ),
     ptMin = cms.double( 0.0 ),
     sip2dSigMax = cms.double( 99999.9 ),
-    sip2dSigMin = cms.double( -99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
     sip3dValMax = cms.double( 99999.9 ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    normChi2Max = cms.double( 99999.9 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip2dSigMin = cms.double( 2.0 ),
     sip2dValMin = cms.double( -99999.9 ),
+    sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
   trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
-  charmCut = cms.double( 1.5 ),
+  correctVertexMass = cms.bool( True ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
   pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
   trackMultiplicityMin = cms.uint32( 3 ),
-  trackPseudoSelection = cms.PSet( 
-    totalHitsMin = cms.uint32( 0 ),
-    jetDeltaRMax = cms.double( 0.3 ),
-    qualityClass = cms.string( "any" ),
-    pixelHitsMin = cms.uint32( 0 ),
-    sip3dSigMin = cms.double( -99999.9 ),
-    sip3dSigMax = cms.double( 99999.9 ),
-    normChi2Max = cms.double( 99999.9 ),
+  trackSelection = cms.PSet( 
     maxDistToAxis = cms.double( 0.07 ),
-    sip2dValMax = cms.double( 99999.9 ),
-    maxDecayLen = cms.double( 5.0 ),
+    totalHitsMin = cms.uint32( 0 ),
     ptMin = cms.double( 0.0 ),
     sip2dSigMax = cms.double( 99999.9 ),
-    sip2dSigMin = cms.double( 2.0 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
     sip3dValMax = cms.double( 99999.9 ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    normChi2Max = cms.double( 99999.9 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip2dSigMin = cms.double( -99999.9 ),
     sip2dValMin = cms.double( -99999.9 ),
+    sip3dSigMin = cms.double( -99999.9 ),
     sip3dValMin = cms.double( -99999.9 )
   ),
   trackSort = cms.string( "sip2dSig" ),
+  SoftLeptonFlip = cms.bool( False ),
   trackFlip = cms.bool( False )
 )
-hltESPAK4CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK5L1FastJetCorrectionESProducer',
-    'hltESPAK5L2RelativeCorrectionESProducer',
-    'hltESPAK5L3AbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+fragment.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
+  charmCut = cms.double( 1.5 ),
+  recordLabel = cms.string( "HLT" ),
+  useTrackWeights = cms.bool( True ),
+  useCategories = cms.bool( True ),
+  pseudoMultiplicityMin = cms.uint32( 2 ),
+  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPseudoSelection = cms.PSet( 
+    max_pT_dRcut = cms.double( 0.1 ),
+    b_dR = cms.double( 0.6263 ),
+    min_pT = cms.double( 120.0 ),
+    b_pT = cms.double( 0.3684 ),
+    ptMin = cms.double( 0.0 ),
+    max_pT_trackPTcut = cms.double( 3.0 ),
+    max_pT = cms.double( 500.0 ),
+    useVariableJTA = cms.bool( False ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    normChi2Max = cms.double( 99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 ),
+    a_dR = cms.double( -0.001053 ),
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    a_pT = cms.double( 0.005263 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    min_pT_dRcut = cms.double( 0.5 ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip2dSigMin = cms.double( 2.0 )
+  ),
+  calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
+    'CombinedSVIVFV2PseudoVertex',
+    'CombinedSVIVFV2NoVertex' ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
+  vertexFlip = cms.bool( False ),
+  minimumTrackWeight = cms.double( 0.5 ),
+  pseudoVertexV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+  trackMultiplicityMin = cms.uint32( 3 ),
+  trackSelection = cms.PSet( 
+    max_pT_dRcut = cms.double( 0.1 ),
+    b_dR = cms.double( 0.6263 ),
+    min_pT = cms.double( 120.0 ),
+    b_pT = cms.double( 0.3684 ),
+    ptMin = cms.double( 0.0 ),
+    max_pT_trackPTcut = cms.double( 3.0 ),
+    max_pT = cms.double( 500.0 ),
+    useVariableJTA = cms.bool( False ),
+    maxDecayLen = cms.double( 5.0 ),
+    qualityClass = cms.string( "any" ),
+    normChi2Max = cms.double( 99999.9 ),
+    sip2dValMin = cms.double( -99999.9 ),
+    sip3dValMin = cms.double( -99999.9 ),
+    a_dR = cms.double( -0.001053 ),
+    maxDistToAxis = cms.double( 0.07 ),
+    totalHitsMin = cms.uint32( 0 ),
+    a_pT = cms.double( 0.005263 ),
+    sip2dSigMax = cms.double( 99999.9 ),
+    sip2dValMax = cms.double( 99999.9 ),
+    sip3dSigMax = cms.double( 99999.9 ),
+    sip3dValMax = cms.double( 99999.9 ),
+    min_pT_dRcut = cms.double( 0.5 ),
+    jetDeltaRMax = cms.double( 0.3 ),
+    pixelHitsMin = cms.uint32( 0 ),
+    sip3dSigMin = cms.double( -99999.9 ),
+    sip2dSigMin = cms.double( -99999.9 )
+  ),
+  trackSort = cms.string( "sip2dSig" ),
+  SoftLeptonFlip = cms.bool( False ),
+  trackFlip = cms.bool( False )
 )
-hltESPAK4CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK5L2RelativeCorrectionESProducer',
-    'hltESPAK5L3AbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+fragment.hltDisplacedDijethltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
+  maxImpactParameterSig = cms.double( 999999.0 ),
+  deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( -1.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  impactParameterType = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  deltaRmin = cms.double( 0.0 ),
+  maxImpactParameter = cms.double( 0.1 ),
+  useSignedImpactParameterSig = cms.bool( True ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
+  nthTrack = cms.int32( -1 )
 )
-hltESPAK4PFL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK5L1PFFastJetCorrectionESProducer',
-    'hltESPAK5L2PFRelativeCorrectionESProducer',
-    'hltESPAK5L3PFAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
+fragment.hltDisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
+  b_pT = cms.double( 0.3684 ),
+  deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( 0.05 ),
+  a_dR = cms.double( -0.001053 ),
+  min_pT = cms.double( 120.0 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
+  max_pT = cms.double( 500.0 ),
+  impactParameterType = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  useVariableJTA = cms.bool( False ),
+  min_pT_dRcut = cms.double( 0.5 ),
+  max_pT_trackPTcut = cms.double( 3.0 ),
+  max_pT_dRcut = cms.double( 0.1 ),
+  b_dR = cms.double( 0.6263 ),
+  a_pT = cms.double( 0.005263 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  nthTrack = cms.int32( 1 ),
+  useSignedImpactParameterSig = cms.bool( False )
 )
-hltESPAK4PFNoPUL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
-  correctors = cms.vstring( 'hltESPAK5L1PFNoPUFastJetCorrectionESProducer',
-    'hltESPAK5L2PFNoPURelativeCorrectionESProducer',
-    'hltESPAK5L3PFNoPUAbsoluteCorrectionESProducer' ),
-  appendToDataLabel = cms.string( "" )
-)
-hltESPAK5L1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAllCalo" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-hltESPAK5L1PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
-  algorithm = cms.string( "AK5PFHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-hltESPAK5L1PFNoPUFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  srcRho = cms.InputTag( "hltFixedGridRhoFastjetAll" ),
-  algorithm = cms.string( "AK5PFchsHLT" ),
-  level = cms.string( "L1FastJet" )
-)
-hltESPAK5L2PFNoPURelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFchsHLT" ),
-  level = cms.string( "L2Relative" )
-)
-hltESPAK5L2PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFHLT" ),
-  level = cms.string( "L2Relative" )
-)
-hltESPAK5L2RelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
-  level = cms.string( "L2Relative" )
-)
-hltESPAK5L3AbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5CaloHLT" ),
-  level = cms.string( "L3Absolute" )
-)
-hltESPAK5L3PFAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFHLT" ),
-  level = cms.string( "L3Absolute" )
-)
-hltESPAK5L3PFNoPUAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
-  appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5PFchsHLT" ),
-  level = cms.string( "L3Absolute" )
-)
-hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+fragment.hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPAnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" )
 )
-hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
+fragment.hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPBwdAnalyticalPropagator" ),
   PropagationDirection = cms.string( "oppositeToMomentum" )
 )
-hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+fragment.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "hltESPBwdElectronPropagator" ),
@@ -832,43 +2556,191 @@ hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False )
 )
-hltESPChi2EstimatorForRefit = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 100000.0 ),
+fragment.hltESPChi2ChargeLooseMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPChi2ChargeLooseMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
   nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPChi2EstimatorForRefit" )
-)
-hltESPChi2MeasurementEstimator = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 30.0 ),
-  nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPChi2MeasurementEstimator" )
-)
-hltESPChi2MeasurementEstimator16 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  MaxSagitta = cms.double( 2.0 ),
   MaxChi2 = cms.double( 16.0 ),
-  nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPChi2MeasurementEstimator16" )
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
-hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+fragment.hltESPChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
+  MaxChi2 = cms.double( 16.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPChi2ChargeMeasurementEstimator2000 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 2000.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPChi2ChargeMeasurementEstimator30 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator30" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 30.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPChi2ChargeMeasurementEstimator9 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  MinimalTolerance = cms.double( 0.5 ),
+  MaxDisplacement = cms.double( 0.5 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator9" ),
+  pTChargeCutThreshold = cms.double( 15.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( 2.0 ),
   MaxChi2 = cms.double( 9.0 ),
-  nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPChi2MeasurementEstimator9" )
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
-hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerESProducer5D",
+fragment.hltESPChi2ChargeMeasurementEstimator9ForHI = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutForHI" ) ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator9ForHI" ),
+  pTChargeCutThreshold = cms.double( 15.0 ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPChi2MeasurementEstimator16 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 16.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPChi2MeasurementEstimator30 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 30.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPChi2MeasurementEstimator9" ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 9.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerESProducer5D",
   ComponentName = cms.string( "hltESPCloseComponentsMerger5D" ),
   MaxComponents = cms.int32( 12 ),
   DistanceMeasure = cms.string( "hltESPKullbackLeiblerDistance5D" )
 )
-hltESPDummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
+fragment.hltESPDetachedStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPDetachedStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.13 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
+fragment.hltESPDisplacedDijethltPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
+  maxImpactParameterSig = cms.double( 999999.0 ),
+  deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( -1.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  impactParameterType = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  deltaRmin = cms.double( 0.0 ),
+  maxImpactParameter = cms.double( 0.1 ),
+  useSignedImpactParameterSig = cms.bool( True ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
+  nthTrack = cms.int32( -1 )
+)
+fragment.hltESPDisplacedDijethltPromptTrackCountingESProducerLong = cms.ESProducer( "PromptTrackCountingESProducer",
+  maxImpactParameterSig = cms.double( 999999.0 ),
+  deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( -1.0 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  impactParameterType = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  deltaRmin = cms.double( 0.0 ),
+  maxImpactParameter = cms.double( 0.2 ),
+  useSignedImpactParameterSig = cms.bool( True ),
+  maximumDistanceToJetAxis = cms.double( 999999.0 ),
+  nthTrack = cms.int32( -1 )
+)
+fragment.hltESPDisplacedDijethltTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
+  b_pT = cms.double( 0.3684 ),
+  deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( 0.05 ),
+  a_dR = cms.double( -0.001053 ),
+  min_pT = cms.double( 120.0 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
+  max_pT = cms.double( 500.0 ),
+  impactParameterType = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  useVariableJTA = cms.bool( False ),
+  min_pT_dRcut = cms.double( 0.5 ),
+  max_pT_trackPTcut = cms.double( 3.0 ),
+  max_pT_dRcut = cms.double( 0.1 ),
+  b_dR = cms.double( 0.6263 ),
+  a_pT = cms.double( 0.005263 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  nthTrack = cms.int32( 1 ),
+  useSignedImpactParameterSig = cms.bool( False )
+)
+fragment.hltESPDisplacedDijethltTrackCounting2D2ndLong = cms.ESProducer( "TrackCountingESProducer",
+  b_pT = cms.double( 0.3684 ),
+  deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( 0.2 ),
+  a_dR = cms.double( -0.001053 ),
+  min_pT = cms.double( 120.0 ),
+  maximumDistanceToJetAxis = cms.double( 9999999.0 ),
+  max_pT = cms.double( 500.0 ),
+  impactParameterType = cms.int32( 1 ),
+  trackQualityClass = cms.string( "any" ),
+  useVariableJTA = cms.bool( False ),
+  min_pT_dRcut = cms.double( 0.5 ),
+  max_pT_trackPTcut = cms.double( 3.0 ),
+  max_pT_dRcut = cms.double( 0.1 ),
+  b_dR = cms.double( 0.6263 ),
+  a_pT = cms.double( 0.005263 ),
+  maximumDecayLength = cms.double( 999999.0 ),
+  nthTrack = cms.int32( 2 ),
+  useSignedImpactParameterSig = cms.bool( True )
+)
+fragment.hltESPDummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
   ComponentName = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
-  esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
-)
-hltESPElectronChi2 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 2000.0 ),
-  nSigma = cms.double( 3.0 ),
-  ComponentName = cms.string( "hltESPElectronChi2" )
-)
-hltESPElectronMaterialEffects = cms.ESProducer( "GsfMaterialEffectsESProducer",
+fragment.hltESPElectronMaterialEffects = cms.ESProducer( "GsfMaterialEffectsESProducer",
   BetheHeitlerParametrization = cms.string( "BetheHeitler_cdfmom_nC6_O5.par" ),
   EnergyLossUpdator = cms.string( "GsfBetheHeitlerUpdator" ),
   ComponentName = cms.string( "hltESPElectronMaterialEffects" ),
@@ -876,7 +2748,7 @@ hltESPElectronMaterialEffects = cms.ESProducer( "GsfMaterialEffectsESProducer",
   Mass = cms.double( 5.11E-4 ),
   BetheHeitlerCorrection = cms.int32( 2 )
 )
-hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+fragment.hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
   PropagationDirection = cms.string( "anyDirection" ),
@@ -896,7 +2768,7 @@ hltESPFastSteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorE
   useMagVolumes = cms.bool( True ),
   ComponentName = cms.string( "hltESPFastSteppingHelixPropagatorAny" )
 )
-hltESPFastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+fragment.hltESPFastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
@@ -916,29 +2788,45 @@ hltESPFastSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropag
   useMagVolumes = cms.bool( True ),
   ComponentName = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" )
 )
-hltESPFittingSmootherIT = cms.ESProducer( "KFFittingSmootherESProducer",
+fragment.hltESPFittingSmootherIT = cms.ESProducer( "KFFittingSmootherESProducer",
   EstimateCut = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" ),
   LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
   Fitter = cms.string( "hltESPTrajectoryFitterRK" ),
   MinNumberOfHits = cms.int32( 3 ),
   Smoother = cms.string( "hltESPTrajectorySmootherRK" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( True ),
-  ComponentName = cms.string( "hltESPFittingSmootherIT" ),
+  MaxFractionOutliers = cms.double( 0.3 ),
   NoInvalidHitsBeginEnd = cms.bool( True ),
+  ComponentName = cms.string( "hltESPFittingSmootherIT" ),
   RejectTracks = cms.bool( True )
 )
-hltESPFittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
+fragment.hltESPFittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   EstimateCut = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" ),
   LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
   Fitter = cms.string( "hltESPTrajectoryFitterRK" ),
   MinNumberOfHits = cms.int32( 5 ),
   Smoother = cms.string( "hltESPTrajectorySmootherRK" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  ComponentName = cms.string( "hltESPFittingSmootherRK" ),
+  MaxFractionOutliers = cms.double( 0.3 ),
   NoInvalidHitsBeginEnd = cms.bool( False ),
+  ComponentName = cms.string( "hltESPFittingSmootherRK" ),
   RejectTracks = cms.bool( True )
 )
-hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+fragment.hltESPFlexibleKFFittingSmoother = cms.ESProducer( "FlexibleKFFittingSmootherESProducer",
+  ComponentName = cms.string( "hltESPFlexibleKFFittingSmoother" ),
+  appendToDataLabel = cms.string( "" ),
+  standardFitter = cms.string( "hltESPKFFittingSmootherWithOutliersRejectionAndRK" ),
+  looperFitter = cms.string( "hltESPKFFittingSmootherForLoopers" )
+)
+fragment.hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "hltESPFwdElectronPropagator" ),
@@ -947,28 +2835,33 @@ hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( False )
 )
-hltESPGlobalDetLayerGeometry = cms.ESProducer( "GlobalDetLayerGeometryESProducer",
+fragment.hltESPGlobalDetLayerGeometry = cms.ESProducer( "GlobalDetLayerGeometryESProducer",
   ComponentName = cms.string( "hltESPGlobalDetLayerGeometry" )
 )
-hltESPGsfElectronFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+fragment.hltESPGsfElectronFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   EstimateCut = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" ),
   LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
   Fitter = cms.string( "hltESPGsfTrajectoryFitter" ),
   MinNumberOfHits = cms.int32( 5 ),
   Smoother = cms.string( "hltESPGsfTrajectorySmoother" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( True ),
-  ComponentName = cms.string( "hltESPGsfElectronFittingSmoother" ),
+  MaxFractionOutliers = cms.double( 0.3 ),
   NoInvalidHitsBeginEnd = cms.bool( True ),
+  ComponentName = cms.string( "hltESPGsfElectronFittingSmoother" ),
   RejectTracks = cms.bool( True )
 )
-hltESPGsfTrajectoryFitter = cms.ESProducer( "GsfTrajectoryFitterESProducer",
+fragment.hltESPGsfTrajectoryFitter = cms.ESProducer( "GsfTrajectoryFitterESProducer",
   Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
   ComponentName = cms.string( "hltESPGsfTrajectoryFitter" ),
   MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" ),
   RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" ),
   GeometricalPropagator = cms.string( "hltESPAnalyticalPropagator" )
 )
-hltESPGsfTrajectorySmoother = cms.ESProducer( "GsfTrajectorySmootherESProducer",
+fragment.hltESPGsfTrajectorySmoother = cms.ESProducer( "GsfTrajectorySmootherESProducer",
   ErrorRescaling = cms.double( 100.0 ),
   RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" ),
   Merger = cms.string( "hltESPCloseComponentsMerger5D" ),
@@ -976,40 +2869,82 @@ hltESPGsfTrajectorySmoother = cms.ESProducer( "GsfTrajectorySmootherESProducer",
   GeometricalPropagator = cms.string( "hltESPBwdAnalyticalPropagator" ),
   MaterialEffectsUpdator = cms.string( "hltESPElectronMaterialEffects" )
 )
-hltESPKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
+fragment.hltESPInitialStepChi2MeasurementEstimator36 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPInitialStepChi2MeasurementEstimator36" ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 36.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
+)
+fragment.hltESPKFFittingSmoother = cms.ESProducer( "KFFittingSmootherESProducer",
   EstimateCut = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" ),
   LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
   Fitter = cms.string( "hltESPKFTrajectoryFitter" ),
   MinNumberOfHits = cms.int32( 5 ),
   Smoother = cms.string( "hltESPKFTrajectorySmoother" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  ComponentName = cms.string( "hltESPKFFittingSmoother" ),
+  MaxFractionOutliers = cms.double( 0.3 ),
   NoInvalidHitsBeginEnd = cms.bool( False ),
+  ComponentName = cms.string( "hltESPKFFittingSmoother" ),
   RejectTracks = cms.bool( True )
 )
-hltESPKFFittingSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
+fragment.hltESPKFFittingSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   EstimateCut = cms.double( -1.0 ),
+  appendToDataLabel = cms.string( "" ),
   LogPixelProbabilityCut = cms.double( -16.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
   Fitter = cms.string( "hltESPKFTrajectoryFitterForL2Muon" ),
   MinNumberOfHits = cms.int32( 5 ),
   Smoother = cms.string( "hltESPKFTrajectorySmootherForL2Muon" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
-  ComponentName = cms.string( "hltESPKFFittingSmootherForL2Muon" ),
+  MaxFractionOutliers = cms.double( 0.3 ),
   NoInvalidHitsBeginEnd = cms.bool( False ),
+  ComponentName = cms.string( "hltESPKFFittingSmootherForL2Muon" ),
   RejectTracks = cms.bool( True )
 )
-hltESPKFFittingSmootherWithOutliersRejectionAndRK = cms.ESProducer( "KFFittingSmootherESProducer",
+fragment.hltESPKFFittingSmootherForLoopers = cms.ESProducer( "KFFittingSmootherESProducer",
   EstimateCut = cms.double( 20.0 ),
+  appendToDataLabel = cms.string( "" ),
   LogPixelProbabilityCut = cms.double( -14.0 ),
-  Fitter = cms.string( "hltESPRKFitter" ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
+  Fitter = cms.string( "hltESPKFTrajectoryFitterForLoopers" ),
   MinNumberOfHits = cms.int32( 3 ),
-  Smoother = cms.string( "hltESPRKSmoother" ),
+  Smoother = cms.string( "hltESPKFTrajectorySmootherForLoopers" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
   BreakTrajWith2ConsecutiveMissing = cms.bool( True ),
-  ComponentName = cms.string( "hltESPKFFittingSmootherWithOutliersRejectionAndRK" ),
+  MaxFractionOutliers = cms.double( 0.3 ),
   NoInvalidHitsBeginEnd = cms.bool( True ),
+  ComponentName = cms.string( "hltESPKFFittingSmootherForLoopers" ),
   RejectTracks = cms.bool( True )
 )
-hltESPKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+fragment.hltESPKFFittingSmootherWithOutliersRejectionAndRK = cms.ESProducer( "KFFittingSmootherESProducer",
+  EstimateCut = cms.double( 20.0 ),
+  appendToDataLabel = cms.string( "" ),
+  LogPixelProbabilityCut = cms.double( -14.0 ),
+  MinDof = cms.int32( 2 ),
+  NoOutliersBeginEnd = cms.bool( False ),
+  Fitter = cms.string( "hltESPRKTrajectoryFitter" ),
+  MinNumberOfHits = cms.int32( 3 ),
+  Smoother = cms.string( "hltESPRKTrajectorySmoother" ),
+  MaxNumberOfOutliers = cms.int32( 3 ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( True ),
+  MaxFractionOutliers = cms.double( 0.3 ),
+  NoInvalidHitsBeginEnd = cms.bool( True ),
+  ComponentName = cms.string( "hltESPKFFittingSmootherWithOutliersRejectionAndRK" ),
+  RejectTracks = cms.bool( True )
+)
+fragment.hltESPKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPKFTrajectoryFitter" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
@@ -1017,7 +2952,8 @@ hltESPKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPKFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
+fragment.hltESPKFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPKFTrajectoryFitterForL2Muon" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
@@ -1025,41 +2961,64 @@ hltESPKFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProduce
   Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPKFTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+fragment.hltESPKFTrajectoryFitterForLoopers = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
+  minHits = cms.int32( 3 ),
+  ComponentName = cms.string( "hltESPKFTrajectoryFitterForLoopers" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "PropagatorWithMaterialForLoopers" ),
+  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
+)
+fragment.hltESPKFTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPKFTrajectorySmoother" ),
+  appendToDataLabel = cms.string( "" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPKFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
+fragment.hltESPKFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPKFTrajectorySmootherForL2Muon" ),
+  appendToDataLabel = cms.string( "" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPKFTrajectorySmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
+fragment.hltESPKFTrajectorySmootherForLoopers = cms.ESProducer( "KFTrajectorySmootherESProducer",
+  errorRescaling = cms.double( 10.0 ),
+  minHits = cms.int32( 3 ),
+  ComponentName = cms.string( "hltESPKFTrajectorySmootherForLoopers" ),
+  appendToDataLabel = cms.string( "" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
+  Updator = cms.string( "hltESPKFUpdator" ),
+  Propagator = cms.string( "PropagatorWithMaterialForLoopers" ),
+  RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
+)
+fragment.hltESPKFTrajectorySmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 10.0 ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" ),
+  appendToDataLabel = cms.string( "" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPKFUpdator = cms.ESProducer( "KFUpdatorESProducer",
+fragment.hltESPKFUpdator = cms.ESProducer( "KFUpdatorESProducer",
   ComponentName = cms.string( "hltESPKFUpdator" )
 )
-hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenComponentsESProducer5D",
+fragment.hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenComponentsESProducer5D",
   ComponentName = cms.string( "hltESPKullbackLeiblerDistance5D" ),
   DistanceMeasure = cms.string( "KullbackLeibler" )
 )
-hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+fragment.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
@@ -1067,7 +3026,7 @@ hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "hltESPSmartPropagatorAny" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
+fragment.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripStripQualityDB = cms.bool( True ),
   StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   UsePixelROCQualityDB = cms.bool( True ),
@@ -1075,20 +3034,20 @@ hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripAPVFiberQualityDB = cms.bool( True ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TID = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TEC = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
+      maxBad = cms.uint32( 4 ),
+      maxConsecutiveBad = cms.uint32( 2 )
     ),
     TIB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
+      maxBad = cms.uint32( 4 ),
+      maxConsecutiveBad = cms.uint32( 2 )
+    ),
+    TID = cms.PSet( 
+      maxBad = cms.uint32( 4 ),
+      maxConsecutiveBad = cms.uint32( 2 )
+    ),
+    TEC = cms.PSet( 
+      maxBad = cms.uint32( 4 ),
+      maxConsecutiveBad = cms.uint32( 2 )
     )
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
@@ -1103,46 +3062,18 @@ hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripModuleQualityDB = cms.bool( True ),
   MaskBadAPVFibers = cms.bool( True )
 )
-hltESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
-  UseStripStripQualityDB = cms.bool( True ),
-  StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  UsePixelROCQualityDB = cms.bool( True ),
-  DebugPixelROCQualityDB = cms.untracked.bool( False ),
-  UseStripAPVFiberQualityDB = cms.bool( True ),
-  badStripCuts = cms.PSet( 
-    TOB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TID = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TEC = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    ),
-    TIB = cms.PSet( 
-      maxConsecutiveBad = cms.uint32( 9999 ),
-      maxBad = cms.uint32( 9999 )
-    )
-  ),
-  DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  ComponentName = cms.string( "hltESPMeasurementTrackerReg" ),
-  DebugPixelModuleQualityDB = cms.untracked.bool( False ),
-  UsePixelModuleQualityDB = cms.bool( True ),
-  DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
-  HitMatcher = cms.string( "StandardMatcher" ),
-  DebugStripStripQualityDB = cms.untracked.bool( False ),
-  PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
-  SiStripQualityLabel = cms.string( "" ),
-  UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True )
+fragment.hltESPMixedStepTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPMixedStepTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.11 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
 )
-hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
+fragment.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
 )
-hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
+fragment.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   useLAAlignmentOffsets = cms.bool( False ),
   DoCosmics = cms.bool( False ),
   eff_charge_cut_highX = cms.double( 1.0 ),
@@ -1163,10 +3094,11 @@ hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   EdgeClusterErrorY = cms.double( 85.0 ),
   LoadTemplatesFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
+  MagneticFieldRecord = cms.ESInputTag( "" ),
   IrradiationBiasCorrection = cms.bool( False )
 )
-hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
-  DoLorentz = cms.bool( False ),
+fragment.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
+  DoLorentz = cms.bool( True ),
   DoCosmics = cms.bool( False ),
   LoadTemplatesFromDB = cms.bool( True ),
   ComponentName = cms.string( "hltESPPixelCPETemplateReco" ),
@@ -1175,35 +3107,44 @@ hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProducer",
   speed = cms.int32( -2 ),
   UseClusterSplitter = cms.bool( False )
 )
-hltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
-  maxImpactParameterSig = cms.double( 999999.0 ),
-  deltaR = cms.double( -1.0 ),
-  maximumDecayLength = cms.double( 999999.0 ),
-  impactParameterType = cms.int32( 0 ),
-  trackQualityClass = cms.string( "any" ),
-  deltaRmin = cms.double( 0.0 ),
-  maxImpactParameter = cms.double( 0.03 ),
-  maximumDistanceToJetAxis = cms.double( 999999.0 ),
-  nthTrack = cms.int32( -1 )
+fragment.hltESPPixelPairStepChi2MeasurementEstimator25 = cms.ESProducer( "Chi2MeasurementEstimatorESProducer",
+  appendToDataLabel = cms.string( "" ),
+  MinimalTolerance = cms.double( 10.0 ),
+  MaxDisplacement = cms.double( 100.0 ),
+  ComponentName = cms.string( "hltESPPixelPairStepChi2MeasurementEstimator25" ),
+  nSigma = cms.double( 3.0 ),
+  MaxSagitta = cms.double( -1.0 ),
+  MaxChi2 = cms.double( 25.0 ),
+  MinPtForHitRecoveryInGluedDet = cms.double( 1000000.0 )
 )
-hltESPRKTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+fragment.hltESPPixelPairTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+  ComponentName = cms.string( "hltESPPixelPairTrajectoryCleanerBySharedHits" ),
+  fractionShared = cms.double( 0.19 ),
+  ValidHitBonus = cms.double( 5.0 ),
+  ComponentType = cms.string( "TrajectoryCleanerBySharedHits" ),
+  MissingHitPenalty = cms.double( 20.0 ),
+  allowSharedFirstHit = cms.bool( True )
+)
+fragment.hltESPRKTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
   minHits = cms.int32( 3 ),
-  ComponentName = cms.string( "hltESPRKFitter" ),
-  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  ComponentName = cms.string( "hltESPRKTrajectoryFitter" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
 )
-hltESPRKTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
+fragment.hltESPRKTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
-  ComponentName = cms.string( "hltESPRKSmoother" ),
-  Estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  ComponentName = cms.string( "hltESPRKTrajectorySmoother" ),
+  appendToDataLabel = cms.string( "" ),
+  Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
 )
-hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+fragment.hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
@@ -1212,46 +3153,31 @@ hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESPro
   MaxDPhi = cms.double( 1.6 ),
   useRungeKutta = cms.bool( True )
 )
-hltESPSiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
-  EtaDivisions = cms.untracked.uint32( 20 ),
-  PhiDivisions = cms.untracked.uint32( 20 ),
-  EtaMax = cms.untracked.double( 2.5 )
-)
-hltESPSmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
+fragment.hltESPSmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
   MuonPropagator = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "hltESPSmartPropagator" )
 )
-hltESPSmartPropagatorAny = cms.ESProducer( "SmartPropagatorESProducer",
+fragment.hltESPSmartPropagatorAny = cms.ESProducer( "SmartPropagatorESProducer",
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterial" ),
   MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "hltESPSmartPropagatorAny" )
 )
-hltESPSmartPropagatorAnyOpposite = cms.ESProducer( "SmartPropagatorESProducer",
+fragment.hltESPSmartPropagatorAnyOpposite = cms.ESProducer( "SmartPropagatorESProducer",
   Epsilon = cms.double( 5.0 ),
   TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
   MuonPropagator = cms.string( "SteppingHelixPropagatorAny" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "hltESPSmartPropagatorAnyOpposite" )
 )
-hltESPSmartPropagatorOpposite = cms.ESProducer( "SmartPropagatorESProducer",
-  Epsilon = cms.double( 5.0 ),
-  TrackerPropagator = cms.string( "PropagatorWithMaterialOpposite" ),
-  MuonPropagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
-  PropagationDirection = cms.string( "oppositeToMomentum" ),
-  ComponentName = cms.string( "hltESPSmartPropagatorOpposite" )
-)
-hltESPSoftLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
+fragment.hltESPSoftLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
   distance = cms.double( 0.5 )
 )
-hltESPSoftLeptonByPt = cms.ESProducer( "LeptonTaggerByPtESProducer",
-  ipSign = cms.string( "any" )
-)
-hltESPSteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+fragment.hltESPSteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -1271,7 +3197,7 @@ hltESPSteppingHelixPropagatorAlong = cms.ESProducer( "SteppingHelixPropagatorESP
   useMagVolumes = cms.bool( True ),
   ComponentName = cms.string( "hltESPSteppingHelixPropagatorAlong" )
 )
-hltESPSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
+fragment.hltESPSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagatorESProducer",
   NoErrorPropagation = cms.bool( False ),
   endcapShiftInZPos = cms.double( 0.0 ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
@@ -1291,85 +3217,54 @@ hltESPSteppingHelixPropagatorOpposite = cms.ESProducer( "SteppingHelixPropagator
   useMagVolumes = cms.bool( True ),
   ComponentName = cms.string( "hltESPSteppingHelixPropagatorOpposite" )
 )
-hltESPStraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProducer",
-  ComponentName = cms.string( "hltESPStraightLinePropagator" ),
-  PropagationDirection = cms.string( "alongMomentum" )
-)
-hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
-  TanDiffusionAngle = cms.double( 0.01 ),
-  UncertaintyScaling = cms.double( 1.42 ),
-  ThicknessRelativeUncertainty = cms.double( 0.02 ),
-  MaybeNoiseThreshold = cms.double( 3.5 ),
-  ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
-  MinimumUncertainty = cms.double( 0.01 ),
+fragment.hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
   ComponentType = cms.string( "StripCPEfromTrackAngle" ),
-  NoiseThreshold = cms.double( 2.3 )
+  ComponentName = cms.string( "hltESPStripCPEfromTrackAngle" ),
+  parameters = cms.PSet( 
+    mTIB_P1 = cms.double( 0.202 ),
+    maxChgOneMIP = cms.double( 6000.0 ),
+    mTEC_P0 = cms.double( -1.885 ),
+    mTOB_P1 = cms.double( 0.253 ),
+    mTEC_P1 = cms.double( 0.471 ),
+    mLC_P2 = cms.double( 0.3 ),
+    mLC_P1 = cms.double( 0.618 ),
+    mTOB_P0 = cms.double( -1.026 ),
+    mLC_P0 = cms.double( -0.326 ),
+    useLegacyError = cms.bool( False ),
+    mTIB_P0 = cms.double( -0.742 ),
+    mTID_P1 = cms.double( 0.433 ),
+    mTID_P0 = cms.double( -1.427 )
+  )
 )
-hltESPTTRHBWithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+fragment.hltESPTTRHBWithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   ComponentName = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
-hltESPTTRHBuilderAngleAndTemplate = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+fragment.hltESPTTRHBuilderAngleAndTemplate = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   StripCPE = cms.string( "hltESPStripCPEfromTrackAngle" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPETemplateReco" ),
   ComponentName = cms.string( "hltESPTTRHBuilderAngleAndTemplate" )
 )
-hltESPTTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+fragment.hltESPTTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   StripCPE = cms.string( "Fake" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   ComponentName = cms.string( "hltESPTTRHBuilderPixelOnly" )
 )
-hltESPTTRHBuilderWithoutAngle4PixelTriplets = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+fragment.hltESPTTRHBuilderWithoutAngle4PixelTriplets = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   StripCPE = cms.string( "Fake" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   ComponentName = cms.string( "hltESPTTRHBuilderWithoutAngle4PixelTriplets" )
 )
-hltESPTrackCounting3D1st = cms.ESProducer( "TrackCountingESProducer",
-  b_pT = cms.double( 0.3684 ),
-  deltaR = cms.double( -1.0 ),
-  a_dR = cms.double( -0.001053 ),
-  min_pT = cms.double( 120.0 ),
-  maximumDecayLength = cms.double( 5.0 ),
-  max_pT = cms.double( 500.0 ),
-  impactParameterType = cms.int32( 0 ),
-  trackQualityClass = cms.string( "any" ),
-  useVariableJTA = cms.bool( False ),
-  min_pT_dRcut = cms.double( 0.5 ),
-  max_pT_trackPTcut = cms.double( 3.0 ),
-  max_pT_dRcut = cms.double( 0.1 ),
-  b_dR = cms.double( 0.6263 ),
-  a_pT = cms.double( 0.005263 ),
-  maximumDistanceToJetAxis = cms.double( 0.07 ),
-  nthTrack = cms.int32( 1 )
-)
-hltESPTrackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
-  b_pT = cms.double( 0.3684 ),
-  deltaR = cms.double( -1.0 ),
-  a_dR = cms.double( -0.001053 ),
-  min_pT = cms.double( 120.0 ),
-  maximumDecayLength = cms.double( 5.0 ),
-  max_pT = cms.double( 500.0 ),
-  impactParameterType = cms.int32( 0 ),
-  trackQualityClass = cms.string( "any" ),
-  useVariableJTA = cms.bool( False ),
-  min_pT_dRcut = cms.double( 0.5 ),
-  max_pT_trackPTcut = cms.double( 3.0 ),
-  max_pT_dRcut = cms.double( 0.1 ),
-  b_dR = cms.double( 0.6263 ),
-  a_pT = cms.double( 0.005263 ),
-  maximumDistanceToJetAxis = cms.double( 0.07 ),
-  nthTrack = cms.int32( 2 )
-)
-hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
+fragment.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
   ValidHitBonus = cms.double( 100.0 ),
@@ -1377,7 +3272,7 @@ hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProduc
   MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( False )
 )
-hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
+fragment.hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
   fractionShared = cms.double( 0.5 ),
   ValidHitBonus = cms.double( 100.0 ),
@@ -1385,7 +3280,8 @@ hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleanerESProdu
   MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( True )
 )
-hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
+fragment.hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
+  appendToDataLabel = cms.string( "" ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPTrajectoryFitterRK" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
@@ -1393,41 +3289,51 @@ hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
+fragment.hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   ComponentName = cms.string( "hltESPTrajectorySmootherRK" ),
+  appendToDataLabel = cms.string( "" ),
   Estimator = cms.string( "hltESPChi2MeasurementEstimator30" ),
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
 )
-hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+fragment.hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "HODetIdAssociator" ),
+  hcalRegion = cms.int32( 2 ),
   etaBinSize = cms.double( 0.087 ),
   nEta = cms.int32( 30 ),
   nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
+  includeBadChambers = cms.bool( False ),
+  includeME0 = cms.bool( False ),
+  includeGEM = cms.bool( False )
 )
-muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+fragment.muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "MuonDetIdAssociator" ),
+  hcalRegion = cms.int32( 2 ),
   etaBinSize = cms.double( 0.125 ),
   nEta = cms.int32( 48 ),
   nPhi = cms.int32( 48 ),
-  includeBadChambers = cms.bool( False )
+  includeBadChambers = cms.bool( False ),
+  includeME0 = cms.bool( False ),
+  includeGEM = cms.bool( False )
 )
-navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
+fragment.navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
   ComponentName = cms.string( "SimpleNavigationSchool" ),
   SimpleMagneticField = cms.string( "ParabolicMf" )
 )
-preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+fragment.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "PreshowerDetIdAssociator" ),
+  hcalRegion = cms.int32( 2 ),
   etaBinSize = cms.double( 0.1 ),
   nEta = cms.int32( 60 ),
   nPhi = cms.int32( 30 ),
-  includeBadChambers = cms.bool( False )
+  includeBadChambers = cms.bool( False ),
+  includeME0 = cms.bool( False ),
+  includeGEM = cms.bool( False )
 )
-siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
+fragment.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
   ListOfRecordToMerge = cms.VPSet( 
     cms.PSet(  record = cms.string( "SiPixelQualityFromDbRcd" ),
       tag = cms.string( "" )
@@ -1437,176 +3343,98 @@ siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
     )
   )
 )
-siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer" )
-siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPlaneCorrectionDepESProducer",
+fragment.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer" )
+fragment.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPlaneCorrectionDepESProducer",
   LatencyRecord = cms.PSet( 
-    record = cms.string( "SiStripLatencyRcd" ),
-    label = cms.untracked.string( "" )
+    label = cms.untracked.string( "" ),
+    record = cms.string( "SiStripLatencyRcd" )
   ),
   BackPlaneCorrectionDeconvMode = cms.PSet( 
-    record = cms.string( "SiStripBackPlaneCorrectionRcd" ),
-    label = cms.untracked.string( "deconvolution" )
+    label = cms.untracked.string( "deconvolution" ),
+    record = cms.string( "SiStripBackPlaneCorrectionRcd" )
   ),
   BackPlaneCorrectionPeakMode = cms.PSet( 
-    record = cms.string( "SiStripBackPlaneCorrectionRcd" ),
-    label = cms.untracked.string( "peak" )
+    label = cms.untracked.string( "peak" ),
+    record = cms.string( "SiStripBackPlaneCorrectionRcd" )
   )
 )
-siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProducer",
+fragment.siStripLorentzAngleDepESProducer = cms.ESProducer( "SiStripLorentzAngleDepESProducer",
   LatencyRecord = cms.PSet( 
-    record = cms.string( "SiStripLatencyRcd" ),
-    label = cms.untracked.string( "" )
+    label = cms.untracked.string( "" ),
+    record = cms.string( "SiStripLatencyRcd" )
   ),
   LorentzAngleDeconvMode = cms.PSet( 
-    record = cms.string( "SiStripLorentzAngleRcd" ),
-    label = cms.untracked.string( "deconvolution" )
+    label = cms.untracked.string( "deconvolution" ),
+    record = cms.string( "SiStripLorentzAngleRcd" )
   ),
   LorentzAnglePeakMode = cms.PSet( 
-    record = cms.string( "SiStripLorentzAngleRcd" ),
-    label = cms.untracked.string( "peak" )
+    label = cms.untracked.string( "peak" ),
+    record = cms.string( "SiStripLorentzAngleRcd" )
   )
 )
-trackerTopologyConstants = cms.ESProducer( "TrackerTopologyEP",
-  pxb_layerMask = cms.uint32( 15 ),
-  tib_str_int_extStartBit = cms.uint32( 10 ),
-  tib_layerMask = cms.uint32( 7 ),
-  tib_str_fw_bwStartBit = cms.uint32( 12 ),
-  pxf_bladeMask = cms.uint32( 63 ),
-  pxb_moduleStartBit = cms.uint32( 2 ),
-  pxb_ladderStartBit = cms.uint32( 8 ),
-  pxb_layerStartBit = cms.uint32( 16 ),
-  tec_wheelStartBit = cms.uint32( 14 ),
-  tib_str_fw_bwMask = cms.uint32( 3 ),
-  tec_ringStartBit = cms.uint32( 5 ),
-  tib_moduleStartBit = cms.uint32( 2 ),
-  tib_sterMask = cms.uint32( 3 ),
-  tid_sideStartBit = cms.uint32( 13 ),
-  tid_wheelStartBit = cms.uint32( 11 ),
-  tid_ringMask = cms.uint32( 3 ),
-  tid_sterMask = cms.uint32( 3 ),
-  tec_petal_fw_bwStartBit = cms.uint32( 12 ),
-  tec_ringMask = cms.uint32( 7 ),
-  tib_strMask = cms.uint32( 63 ),
-  tec_sterMask = cms.uint32( 3 ),
-  tec_sideStartBit = cms.uint32( 18 ),
-  pxb_moduleMask = cms.uint32( 63 ),
-  pxf_panelStartBit = cms.uint32( 8 ),
-  tid_sideMask = cms.uint32( 3 ),
-  tob_moduleMask = cms.uint32( 7 ),
-  tid_ringStartBit = cms.uint32( 9 ),
-  pxf_sideMask = cms.uint32( 3 ),
-  appendToDataLabel = cms.string( "" ),
-  pxf_diskStartBit = cms.uint32( 16 ),
-  tib_str_int_extMask = cms.uint32( 3 ),
-  tec_moduleMask = cms.uint32( 7 ),
-  tob_sterMask = cms.uint32( 3 ),
-  tob_rod_fw_bwMask = cms.uint32( 3 ),
-  tob_layerStartBit = cms.uint32( 14 ),
-  tec_petal_fw_bwMask = cms.uint32( 3 ),
-  tib_layerStartBit = cms.uint32( 14 ),
-  tec_sterStartBit = cms.uint32( 0 ),
-  tid_moduleMask = cms.uint32( 31 ),
-  tib_sterStartBit = cms.uint32( 0 ),
-  tid_sterStartBit = cms.uint32( 0 ),
-  pxf_moduleStartBit = cms.uint32( 2 ),
-  pxf_diskMask = cms.uint32( 15 ),
-  pxf_sideStartBit = cms.uint32( 23 ),
-  tid_module_fw_bwStartBit = cms.uint32( 7 ),
-  tob_layerMask = cms.uint32( 7 ),
-  tid_module_fw_bwMask = cms.uint32( 3 ),
-  tob_rod_fw_bwStartBit = cms.uint32( 12 ),
-  tec_petalMask = cms.uint32( 15 ),
-  pxb_ladderMask = cms.uint32( 255 ),
-  tec_moduleStartBit = cms.uint32( 2 ),
-  tec_sideMask = cms.uint32( 3 ),
-  tob_rodMask = cms.uint32( 127 ),
-  tib_strStartBit = cms.uint32( 4 ),
-  tec_wheelMask = cms.uint32( 15 ),
-  tob_rodStartBit = cms.uint32( 5 ),
-  pxf_panelMask = cms.uint32( 3 ),
-  tib_moduleMask = cms.uint32( 3 ),
-  pxf_bladeStartBit = cms.uint32( 10 ),
-  tid_wheelMask = cms.uint32( 3 ),
-  tob_sterStartBit = cms.uint32( 0 ),
-  tid_moduleStartBit = cms.uint32( 2 ),
-  tec_petalStartBit = cms.uint32( 8 ),
-  tob_moduleStartBit = cms.uint32( 2 ),
-  pxf_moduleMask = cms.uint32( 63 )
+
+fragment.ThroughputService = cms.Service( "ThroughputService",
+    dqmPath = cms.untracked.string( "HLT/Throughput" ),
+    timeRange = cms.untracked.double( 60000.0 ),
+    timeResolution = cms.untracked.double( 5.828 )
 )
 
-hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
+fragment.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
     ),
     verbose = cms.untracked.bool( False )
 )
-hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+fragment.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
-hltBoolFalse = cms.EDFilter( "HLTBool",
+fragment.hltBoolFalse = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
 )
-hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
+fragment.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 1 )
 )
-hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
-    DaqGtFedId = cms.untracked.int32( 813 ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
-    UnpackBxInEvent = cms.int32( 5 ),
-    ActiveBoardsMask = cms.uint32( 0xffff )
+fragment.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
+    lenSlinkTrailer = cms.untracked.int32( 8 ),
+    lenAMC13Header = cms.untracked.int32( 8 ),
+    CTP7 = cms.untracked.bool( False ),
+    lenAMC13Trailer = cms.untracked.int32( 8 ),
+    Setup = cms.string( "stage2::GTSetup" ),
+    MinFeds = cms.uint32( 0 ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    lenSlinkHeader = cms.untracked.int32( 8 ),
+    MTF7 = cms.untracked.bool( False ),
+    FWId = cms.uint32( 0 ),
+    debug = cms.untracked.bool( False ),
+    FedIds = cms.vint32( 1404 ),
+    lenAMCHeader = cms.untracked.int32( 8 ),
+    lenAMCTrailer = cms.untracked.int32( 0 ),
+    FWOverride = cms.bool( False )
 )
-hltGctDigis = cms.EDProducer( "GctRawToDigi",
-    unpackSharedRegions = cms.bool( False ),
-    numberOfGctSamplesToUnpack = cms.uint32( 1 ),
-    verbose = cms.untracked.bool( False ),
-    numberOfRctSamplesToUnpack = cms.uint32( 1 ),
-    inputLabel = cms.InputTag( "rawDataCollector" ),
-    unpackerVersion = cms.uint32( 0 ),
-    gctFedId = cms.untracked.int32( 745 ),
-    hltMode = cms.bool( True )
-)
-hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
-    TechnicalTriggersUnprescaled = cms.bool( True ),
-    ProduceL1GtObjectMapRecord = cms.bool( True ),
-    AlgorithmTriggersUnmasked = cms.bool( False ),
+fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
+    L1DataBxInEvent = cms.int32( 5 ),
+    JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    AlgorithmTriggersUnmasked = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
     AlgorithmTriggersUnprescaled = cms.bool( True ),
-    ProduceL1GtDaqRecord = cms.bool( False ),
-    ReadTechnicalTriggerRecords = cms.bool( True ),
-    RecordLength = cms.vint32( 3, 0 ),
-    TechnicalTriggersUnmasked = cms.bool( False ),
-    ProduceL1GtEvmRecord = cms.bool( False ),
-    GmtInputTag = cms.InputTag( "hltGtDigis" ),
-    TechnicalTriggersVetoUnmasked = cms.bool( True ),
-    AlternativeNrBxBoardEvm = cms.uint32( 0 ),
-    TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' ),
-    CastorInputTag = cms.InputTag( "castorL1Digis" ),
-    GctInputTag = cms.InputTag( "hltGctDigis" ),
+    PrintL1Menu = cms.untracked.bool( False ),
+    Verbosity = cms.untracked.int32( 0 ),
+    EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    ProduceL1GtDaqRecord = cms.bool( True ),
+    PrescaleSet = cms.uint32( 1 ),
+    ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    TriggerMenuLuminosity = cms.string( "startup" ),
+    ProduceL1GtObjectMapRecord = cms.bool( True ),
     AlternativeNrBxBoardDaq = cms.uint32( 0 ),
-    WritePsbL1GtDaqRecord = cms.bool( False ),
-    BstLengthBytes = cms.int32( -1 )
+    PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
+    TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    BstLengthBytes = cms.int32( -1 ),
+    MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
 )
-hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
-    tauJetSource = cms.InputTag( 'hltGctDigis','tauJets' ),
-    etHadSource = cms.InputTag( "hltGctDigis" ),
-    etTotalSource = cms.InputTag( "hltGctDigis" ),
-    centralBxOnly = cms.bool( True ),
-    centralJetSource = cms.InputTag( 'hltGctDigis','cenJets' ),
-    etMissSource = cms.InputTag( "hltGctDigis" ),
-    hfRingEtSumsSource = cms.InputTag( "hltGctDigis" ),
-    produceMuonParticles = cms.bool( True ),
-    forwardJetSource = cms.InputTag( 'hltGctDigis','forJets' ),
-    ignoreHtMiss = cms.bool( False ),
-    htMissSource = cms.InputTag( "hltGctDigis" ),
-    produceCaloParticles = cms.bool( True ),
-    muonSource = cms.InputTag( "hltGtDigis" ),
-    isolatedEmSource = cms.InputTag( 'hltGctDigis','isoEm' ),
-    nonIsolatedEmSource = cms.InputTag( 'hltGctDigis','nonIsoEm' ),
-    hfRingBitCountsSource = cms.InputTag( "hltGctDigis" )
-)
-hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
+fragment.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
-hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
+fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     maxZ = cms.double( 40.0 ),
     src = cms.InputTag( "hltScalersRawToDigi" ),
     gtEvmLabel = cms.InputTag( "" ),
@@ -1614,58 +3442,93 @@ hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     setSigmaZ = cms.double( 0.0 ),
     maxRadius = cms.double( 2.0 )
 )
-hltL1sL1SingleJet128 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet128" ),
-    saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
-hltPreCaloJet260 = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+fragment.hltPreDSTPhysics = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
-    tccUnpacking = cms.bool( True ),
+fragment.hltBoolEnd = cms.EDFilter( "HLTBool",
+    result = cms.bool( True )
+)
+fragment.hltL1sV0MinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet40Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
+    orderedDCCIdList = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 ),
     FedLabel = cms.InputTag( "listfeds" ),
+    eventPut = cms.bool( True ),
     srpUnpacking = cms.bool( True ),
     syncCheck = cms.bool( True ),
-    feIdCheck = cms.bool( True ),
-    silentMode = cms.untracked.bool( True ),
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    orderedFedList = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-    eventPut = cms.bool( True ),
-    numbTriggerTSamples = cms.int32( 1 ),
-    numbXtalTSamples = cms.int32( 10 ),
-    orderedDCCIdList = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 ),
-    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-    DoRegional = cms.bool( False ),
-    feUnpacking = cms.bool( True ),
-    forceToKeepFRData = cms.bool( False ),
     headerUnpacking = cms.bool( True ),
+    feUnpacking = cms.bool( True ),
+    orderedFedList = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
+    tccUnpacking = cms.bool( True ),
+    numbTriggerTSamples = cms.int32( 1 ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    numbXtalTSamples = cms.int32( 10 ),
+    feIdCheck = cms.bool( True ),
+    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
+    silentMode = cms.untracked.bool( True ),
+    DoRegional = cms.bool( False ),
+    forceToKeepFRData = cms.bool( False ),
     memUnpacking = cms.bool( True )
 )
-hltEcalUncalibRecHit = cms.EDProducer( "EcalUncalibRecHitProducer",
+fragment.hltEcalUncalibRecHit50nsMultiFit = cms.EDProducer( "EcalUncalibRecHitProducer",
     EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
-    alphaEB = cms.double( 1.138 ),
-    alphaEE = cms.double( 1.89 ),
     EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
     EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-    AlphaBetaFilename = cms.untracked.string( "NOFILE" ),
-    betaEB = cms.double( 1.655 ),
-    MinAmplEndcap = cms.double( 14.0 ),
-    MinAmplBarrel = cms.double( 8.0 ),
-    algo = cms.string( "EcalUncalibRecHitWorkerWeights" ),
-    betaEE = cms.double( 1.4 ),
-    UseDynamicPedestal = cms.bool( True ),
-    EBhitCollection = cms.string( "EcalUncalibRecHitsEB" )
+    EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
+    algoPSet = cms.PSet( 
+      ebSpikeThreshold = cms.double( 1.042 ),
+      EBtimeFitLimits_Upper = cms.double( 1.4 ),
+      EEtimeFitLimits_Lower = cms.double( 0.2 ),
+      timealgo = cms.string( "None" ),
+      EEtimeNconst = cms.double( 31.8 ),
+      EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
+      EBtimeNconst = cms.double( 28.5 ),
+      prefitMaxChiSqEE = cms.double( 10.0 ),
+      outOfTimeThresholdGain12mEB = cms.double( 5.0 ),
+      chi2ThreshEE_ = cms.double( 50.0 ),
+      EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
+      outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
+      outOfTimeThresholdGain12pEB = cms.double( 5.0 ),
+      prefitMaxChiSqEB = cms.double( 100.0 ),
+      outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
+      ampErrorCalculation = cms.bool( False ),
+      amplitudeThresholdEB = cms.double( 10.0 ),
+      kPoorRecoFlagEB = cms.bool( True ),
+      amplitudeThresholdEE = cms.double( 10.0 ),
+      EBtimeFitLimits_Lower = cms.double( 0.2 ),
+      kPoorRecoFlagEE = cms.bool( False ),
+      EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
+      useLumiInfoRunHeader = cms.bool( False ),
+      EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
+      doPrefitEE = cms.bool( False ),
+      EEtimeFitLimits_Upper = cms.double( 1.4 ),
+      outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
+      outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
+      outOfTimeThresholdGain61pEB = cms.double( 5.0 ),
+      EEtimeConstantTerm = cms.double( 1.0 ),
+      EBtimeConstantTerm = cms.double( 0.6 ),
+      chi2ThreshEB_ = cms.double( 65.0 ),
+      activeBXs = cms.vint32( -4, -2, 0, 2, 4 ),
+      outOfTimeThresholdGain61mEB = cms.double( 5.0 ),
+      doPrefitEB = cms.bool( False )
+    )
 )
-hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
+fragment.hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
     ebIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
     ebDetIdToBeRecovered = cms.string( "ebDetId" ),
     integrityTTIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
@@ -1677,11 +3540,11 @@ hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
     eeIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
     ebIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
     ebSrFlagCollection = cms.InputTag( "hltEcalDigis" ),
-    eeFEToBeRecovered = cms.string( "eeFE" ),
+    eeSrFlagCollection = cms.InputTag( "hltEcalDigis" ),
     integrityBlockSizeErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
-    eeSrFlagCollection = cms.InputTag( "hltEcalDigis" )
+    eeFEToBeRecovered = cms.string( "eeFE" )
 )
-hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
+fragment.hltEcalRecHit50nsMultiFit = cms.EDProducer( "EcalRecHitProducer",
     recoverEEVFE = cms.bool( False ),
     EErechitCollection = cms.string( "EcalRecHitsEE" ),
     recoverEBIsolatedChannels = cms.bool( False ),
@@ -1690,71 +3553,84 @@ hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     EBLaserMIN = cms.double( 0.5 ),
     killDeadChannels = cms.bool( True ),
     dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
-    dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit50nsMultiFit','EcalUncalibRecHitsEE' ),
+    EBLaserMAX = cms.double( 3.0 ),
     EELaserMIN = cms.double( 0.5 ),
     ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
-    cleaningConfig = cms.PSet( 
-      e6e2thresh = cms.double( 0.04 ),
-      tightenCrack_e6e2_double = cms.double( 3.0 ),
-      e4e1Threshold_endcap = cms.double( 0.3 ),
-      tightenCrack_e4e1_single = cms.double( 3.0 ),
-      tightenCrack_e1_double = cms.double( 2.0 ),
-      cThreshold_barrel = cms.double( 4.0 ),
-      e4e1Threshold_barrel = cms.double( 0.08 ),
-      tightenCrack_e1_single = cms.double( 2.0 ),
-      e4e1_b_barrel = cms.double( -0.024 ),
-      e4e1_a_barrel = cms.double( 0.04 ),
-      ignoreOutOfTimeThresh = cms.double( 1.0E9 ),
-      cThreshold_endcap = cms.double( 15.0 ),
-      e4e1_b_endcap = cms.double( -0.0125 ),
-      e4e1_a_endcap = cms.double( 0.02 ),
-      cThreshold_double = cms.double( 10.0 )
-    ),
-    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    EELaserMAX = cms.double( 8.0 ),
+    recoverEEIsolatedChannels = cms.bool( False ),
     eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
     recoverEBFE = cms.bool( True ),
-    eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
     ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
     singleChannelRecoveryThreshold = cms.double( 8.0 ),
     ChannelStatusToBeExcluded = cms.vstring(  ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-    triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigis','EcalTriggerPrimitives' ),
-    recoverEEFE = cms.bool( True ),
     singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
-    EBLaserMAX = cms.double( 3.0 ),
+    recoverEEFE = cms.bool( True ),
+    triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigis','EcalTriggerPrimitives' ),
+    dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
     flagsMapDBReco = cms.PSet( 
+      kDead = cms.vstring( 'kNoDataNoTP' ),
       kGood = cms.vstring( 'kOk',
         'kDAC',
         'kNoLaser',
         'kNoisy' ),
-      kNeighboursRecovered = cms.vstring( 'kFixedG0',
-        'kNonRespondingIsolated',
-        'kDeadVFE' ),
-      kDead = cms.vstring( 'kNoDataNoTP' ),
+      kTowerRecovered = cms.vstring( 'kDeadFE' ),
       kNoisy = cms.vstring( 'kNNoisy',
         'kFixedG6',
         'kFixedG1' ),
-      kTowerRecovered = cms.vstring( 'kDeadFE' )
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' )
     ),
-    EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
+    EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit50nsMultiFit','EcalUncalibRecHitsEB' ),
+    skipTimeCalib = cms.bool( True ),
     algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
-    algo = cms.string( "EcalRecHitWorkerSimple" ),
-    EELaserMAX = cms.double( 8.0 ),
+    eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
+    cleaningConfig = cms.PSet( 
+      cThreshold_endcap = cms.double( 15.0 ),
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e6e2thresh = cms.double( 0.04 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_double = cms.double( 10.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      ignoreOutOfTimeThresh = cms.double( 1.0E9 )
+    ),
     logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-    recoverEEIsolatedChannels = cms.bool( False )
+    logWarningEtThreshold_EE_FE = cms.double( 50.0 )
 )
-hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
-    UnpackZDC = cms.untracked.bool( True ),
+fragment.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
+    ExpectedOrbitMessageTime = cms.untracked.int32( -1 ),
     FilterDataQuality = cms.bool( True ),
+    silent = cms.untracked.bool( True ),
+    HcalFirstFED = cms.untracked.int32( 700 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ComplainEmptyData = cms.untracked.bool( False ),
+    ElectronicsMap = cms.string( "" ),
     UnpackCalib = cms.untracked.bool( True ),
+    UnpackUMNio = cms.untracked.bool( True ),
+    FEDs = cms.untracked.vint32(  ),
+    UnpackerMode = cms.untracked.int32( 0 ),
     UnpackTTP = cms.untracked.bool( False ),
     lastSample = cms.int32( 9 ),
+    UnpackZDC = cms.untracked.bool( True ),
     firstSample = cms.int32( 0 )
 )
-hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
+fragment.hltHbherecoMethod0 = cms.EDProducer( "HcalHitReconstructor",
+    pedestalUpperLimit = cms.double( 2.7 ),
+    timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
+    respCorrM3 = cms.double( 0.95 ),
+    timeSlewParsType = cms.int32( 3 ),
+    applyTimeSlewM3 = cms.bool( True ),
     digiTimeFromDB = cms.bool( True ),
     mcOOTCorrectionName = cms.string( "" ),
     S9S1stat = cms.PSet(  ),
@@ -1763,15 +3639,17 @@ hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     samplesToAdd = cms.int32( 4 ),
     mcOOTCorrectionCategory = cms.string( "MC" ),
     dataOOTCorrectionName = cms.string( "" ),
+    puCorrMethod = cms.int32( 0 ),
     correctionPhaseNS = cms.double( 13.0 ),
     HFInWindowStat = cms.PSet(  ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     setHSCPFlags = cms.bool( False ),
     firstAuxTS = cms.int32( 4 ),
-    setSaturationFlags = cms.bool( False ),
+    digistat = cms.PSet(  ),
     hfTimingTrustParameters = cms.PSet(  ),
     PETstat = cms.PSet(  ),
-    digistat = cms.PSet(  ),
+    setSaturationFlags = cms.bool( False ),
+    setNegativeFlags = cms.bool( False ),
     useLeakCorrection = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
     S8S1stat = cms.PSet(  ),
@@ -1779,58 +3657,82 @@ hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     correctForTimeslew = cms.bool( True ),
     setNoiseFlags = cms.bool( False ),
     correctTiming = cms.bool( False ),
-    recoParamsFromDB = cms.bool( True ),
+    setPulseShapeFlags = cms.bool( False ),
     Subdetector = cms.string( "HBHE" ),
     dataOOTCorrectionCategory = cms.string( "Data" ),
     dropZSmarkedPassed = cms.bool( True ),
-    setPulseShapeFlags = cms.bool( False ),
+    recoParamsFromDB = cms.bool( True ),
     firstSample = cms.int32( 4 ),
+    noiseHPD = cms.double( 1.0 ),
+    pulseJitter = cms.double( 1.0 ),
+    pedSigmaSiPM = cms.double( 6.5E-4 ),
+    timeMin = cms.double( -15.0 ),
     setTimingShapedCutsFlags = cms.bool( False ),
+    applyPulseJitter = cms.bool( False ),
+    applyTimeSlew = cms.bool( True ),
+    applyTimeConstraint = cms.bool( True ),
     timingshapedcutsParameters = cms.PSet( 
-      ignorelowest = cms.bool( True ),
-      win_offset = cms.double( 0.0 ),
       ignorehighest = cms.bool( False ),
-      win_gain = cms.double( 1.0 ),
-      tfilterEnvelope = cms.vdouble( 4.0, 12.04, 13.0, 10.56, 23.5, 8.82, 37.0, 7.38, 56.0, 6.3, 81.0, 5.64, 114.5, 5.44, 175.5, 5.38, 350.5, 5.14 )
+      win_offset = cms.double( 0.0 ),
+      ignorelowest = cms.bool( True ),
+      tfilterEnvelope = cms.vdouble( 4.0, 12.04, 13.0, 10.56, 23.5, 8.82, 37.0, 7.38, 56.0, 6.3, 81.0, 5.64, 114.5, 5.44, 175.5, 5.38, 350.5, 5.14 ),
+      win_gain = cms.double( 1.0 )
     ),
+    ts4chi2 = cms.vdouble( 15.0 ),
+    ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet(  ),
+    timeSigmaSiPM = cms.double( 2.5 ),
+    applyPedConstraint = cms.bool( True ),
+    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    noiseSiPM = cms.double( 1.0 ),
+    meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet( 
-      nominalPedestal = cms.double( 3.0 ),
-      hitMultiplicityThreshold = cms.int32( 17 ),
       hitEnergyMinimum = cms.double( 1.0 ),
       pulseShapeParameterSets = cms.VPSet( 
         cms.PSet(  pulseShapeParameters = cms.vdouble( 0.0, 100.0, -50.0, 0.0, -15.0, 0.15 )        ),
         cms.PSet(  pulseShapeParameters = cms.vdouble( 100.0, 2000.0, -50.0, 0.0, -5.0, 0.05 )        ),
         cms.PSet(  pulseShapeParameters = cms.vdouble( 2000.0, 1000000.0, -50.0, 0.0, 95.0, 0.0 )        ),
         cms.PSet(  pulseShapeParameters = cms.vdouble( -1000000.0, 1000000.0, 45.0, 0.1, 1000000.0, 0.0 )        )
-      )
+      ),
+      nominalPedestal = cms.double( 3.0 ),
+      hitMultiplicityThreshold = cms.int32( 17 )
     ),
+    pedSigmaHPD = cms.double( 0.5 ),
+    fitTimes = cms.int32( 1 ),
+    timeMax = cms.double( 10.0 ),
+    timeSigmaHPD = cms.double( 5.0 ),
+    meanPed = cms.double( 0.0 ),
     hscpParameters = cms.PSet( 
-      slopeMax = cms.double( -0.6 ),
-      r1Max = cms.double( 1.0 ),
-      r1Min = cms.double( 0.15 ),
-      TimingEnergyThreshold = cms.double( 30.0 ),
-      slopeMin = cms.double( -1.5 ),
+      fracLeaderMax = cms.double( 0.7 ),
       outerMin = cms.double( 0.0 ),
-      outerMax = cms.double( 0.1 ),
-      fracLeaderMin = cms.double( 0.4 ),
       r2Min = cms.double( 0.1 ),
-      r2Max = cms.double( 0.5 ),
-      fracLeaderMax = cms.double( 0.7 )
+      slopeMin = cms.double( -1.5 ),
+      r1Min = cms.double( 0.15 ),
+      fracLeaderMin = cms.double( 0.4 ),
+      slopeMax = cms.double( -0.6 ),
+      TimingEnergyThreshold = cms.double( 30.0 ),
+      outerMax = cms.double( 0.1 ),
+      r1Max = cms.double( 1.0 ),
+      r2Max = cms.double( 0.5 )
     )
 )
-hltHfreco = cms.EDProducer( "HcalHitReconstructor",
+fragment.hltHfrecoMethod0 = cms.EDProducer( "HcalHitReconstructor",
+    pedestalUpperLimit = cms.double( 2.7 ),
+    timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
+    respCorrM3 = cms.double( 0.95 ),
+    timeSlewParsType = cms.int32( 3 ),
+    applyTimeSlewM3 = cms.bool( True ),
     digiTimeFromDB = cms.bool( True ),
     mcOOTCorrectionName = cms.string( "" ),
     S9S1stat = cms.PSet( 
-      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
-      flagsToSkip = cms.int32( 24 ),
       shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
-      short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
-      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      flagsToSkip = cms.int32( 24 ),
       long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       isS8S1 = cms.bool( False ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
       HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
@@ -1838,72 +3740,98 @@ hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     samplesToAdd = cms.int32( 2 ),
     mcOOTCorrectionCategory = cms.string( "MC" ),
     dataOOTCorrectionName = cms.string( "" ),
+    puCorrMethod = cms.int32( 0 ),
     correctionPhaseNS = cms.double( 13.0 ),
     HFInWindowStat = cms.PSet( 
-      hflongEthresh = cms.double( 40.0 ),
-      hflongMinWindowTime = cms.vdouble( -10.0 ),
-      hfshortEthresh = cms.double( 40.0 ),
-      hflongMaxWindowTime = cms.vdouble( 10.0 ),
       hfshortMaxWindowTime = cms.vdouble( 10.0 ),
+      hflongMaxWindowTime = cms.vdouble( 10.0 ),
+      hflongEthresh = cms.double( 40.0 ),
+      hfshortEthresh = cms.double( 40.0 ),
+      hflongMinWindowTime = cms.vdouble( -10.0 ),
       hfshortMinWindowTime = cms.vdouble( -12.0 )
     ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     setHSCPFlags = cms.bool( False ),
     firstAuxTS = cms.int32( 1 ),
-    setSaturationFlags = cms.bool( False ),
+    digistat = cms.PSet( 
+      HFdigiflagCoef = cms.vdouble( 0.93, -0.012667, -0.38275 ),
+      HFdigiflagMinEthreshold = cms.double( 40.0 ),
+      HFdigiflagFirstSample = cms.int32( 1 ),
+      HFdigiflagSamplesToAdd = cms.int32( 3 ),
+      HFdigiflagExpectedPeak = cms.int32( 2 )
+    ),
     hfTimingTrustParameters = cms.PSet( 
-      hfTimingTrustLevel2 = cms.int32( 4 ),
-      hfTimingTrustLevel1 = cms.int32( 1 )
+      hfTimingTrustLevel1 = cms.int32( 1 ),
+      hfTimingTrustLevel2 = cms.int32( 4 )
     ),
     PETstat = cms.PSet( 
-      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
-      short_R_29 = cms.vdouble( 0.8 ),
       shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
-      flagsToSkip = cms.int32( 0 ),
-      short_R = cms.vdouble( 0.8 ),
       shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       long_R_29 = cms.vdouble( 0.8 ),
+      flagsToSkip = cms.int32( 0 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      short_R_29 = cms.vdouble( 0.8 ),
       long_R = cms.vdouble( 0.98 ),
+      short_R = cms.vdouble( 0.8 ),
       HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
-    digistat = cms.PSet( 
-      HFdigiflagFirstSample = cms.int32( 1 ),
-      HFdigiflagMinEthreshold = cms.double( 40.0 ),
-      HFdigiflagSamplesToAdd = cms.int32( 3 ),
-      HFdigiflagExpectedPeak = cms.int32( 2 ),
-      HFdigiflagCoef = cms.vdouble( 0.93, -0.012667, -0.38275 )
-    ),
+    setSaturationFlags = cms.bool( False ),
+    setNegativeFlags = cms.bool( False ),
     useLeakCorrection = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
     S8S1stat = cms.PSet( 
-      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
       shortEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
-      flagsToSkip = cms.int32( 16 ),
       shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
-      short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
-      longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      flagsToSkip = cms.int32( 16 ),
       long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
       isS8S1 = cms.bool( True ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
       HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     correctForPhaseContainment = cms.bool( False ),
     correctForTimeslew = cms.bool( False ),
     setNoiseFlags = cms.bool( True ),
     correctTiming = cms.bool( False ),
-    recoParamsFromDB = cms.bool( True ),
+    setPulseShapeFlags = cms.bool( False ),
     Subdetector = cms.string( "HF" ),
     dataOOTCorrectionCategory = cms.string( "Data" ),
     dropZSmarkedPassed = cms.bool( True ),
-    setPulseShapeFlags = cms.bool( False ),
+    recoParamsFromDB = cms.bool( True ),
     firstSample = cms.int32( 2 ),
+    noiseHPD = cms.double( 1.0 ),
+    pulseJitter = cms.double( 1.0 ),
+    pedSigmaSiPM = cms.double( 6.5E-4 ),
+    timeMin = cms.double( -15.0 ),
     setTimingShapedCutsFlags = cms.bool( False ),
+    applyPulseJitter = cms.bool( False ),
+    applyTimeSlew = cms.bool( True ),
+    applyTimeConstraint = cms.bool( True ),
     timingshapedcutsParameters = cms.PSet(  ),
+    ts4chi2 = cms.vdouble( 15.0 ),
+    ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet(  ),
+    timeSigmaSiPM = cms.double( 2.5 ),
+    applyPedConstraint = cms.bool( True ),
+    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    noiseSiPM = cms.double( 1.0 ),
+    meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet(  ),
+    pedSigmaHPD = cms.double( 0.5 ),
+    fitTimes = cms.int32( 1 ),
+    timeMax = cms.double( 10.0 ),
+    timeSigmaHPD = cms.double( 5.0 ),
+    meanPed = cms.double( 0.0 ),
     hscpParameters = cms.PSet(  )
 )
-hltHoreco = cms.EDProducer( "HcalHitReconstructor",
+fragment.hltHorecoMethod0 = cms.EDProducer( "HcalHitReconstructor",
+    pedestalUpperLimit = cms.double( 2.7 ),
+    timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
+    respCorrM3 = cms.double( 0.95 ),
+    timeSlewParsType = cms.int32( 3 ),
+    applyTimeSlewM3 = cms.bool( True ),
     digiTimeFromDB = cms.bool( True ),
     mcOOTCorrectionName = cms.string( "" ),
     S9S1stat = cms.PSet(  ),
@@ -1912,15 +3840,17 @@ hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     samplesToAdd = cms.int32( 4 ),
     mcOOTCorrectionCategory = cms.string( "MC" ),
     dataOOTCorrectionName = cms.string( "" ),
+    puCorrMethod = cms.int32( 0 ),
     correctionPhaseNS = cms.double( 13.0 ),
     HFInWindowStat = cms.PSet(  ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     setHSCPFlags = cms.bool( False ),
     firstAuxTS = cms.int32( 4 ),
-    setSaturationFlags = cms.bool( False ),
+    digistat = cms.PSet(  ),
     hfTimingTrustParameters = cms.PSet(  ),
     PETstat = cms.PSet(  ),
-    digistat = cms.PSet(  ),
+    setSaturationFlags = cms.bool( False ),
+    setNegativeFlags = cms.bool( False ),
     useLeakCorrection = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
     S8S1stat = cms.PSet(  ),
@@ -1928,23 +3858,42 @@ hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     correctForTimeslew = cms.bool( True ),
     setNoiseFlags = cms.bool( False ),
     correctTiming = cms.bool( False ),
-    recoParamsFromDB = cms.bool( True ),
+    setPulseShapeFlags = cms.bool( False ),
     Subdetector = cms.string( "HO" ),
     dataOOTCorrectionCategory = cms.string( "Data" ),
     dropZSmarkedPassed = cms.bool( True ),
-    setPulseShapeFlags = cms.bool( False ),
+    recoParamsFromDB = cms.bool( True ),
     firstSample = cms.int32( 4 ),
+    noiseHPD = cms.double( 1.0 ),
+    pulseJitter = cms.double( 1.0 ),
+    pedSigmaSiPM = cms.double( 6.5E-4 ),
+    timeMin = cms.double( -15.0 ),
     setTimingShapedCutsFlags = cms.bool( False ),
+    applyPulseJitter = cms.bool( False ),
+    applyTimeSlew = cms.bool( True ),
+    applyTimeConstraint = cms.bool( True ),
     timingshapedcutsParameters = cms.PSet(  ),
+    ts4chi2 = cms.vdouble( 15.0 ),
+    ts4Min = cms.double( 5.0 ),
     pulseShapeParameters = cms.PSet(  ),
+    timeSigmaSiPM = cms.double( 2.5 ),
+    applyPedConstraint = cms.bool( True ),
+    ts4Max = cms.vdouble( 100.0, 70000.0 ),
+    noiseSiPM = cms.double( 1.0 ),
+    meanTime = cms.double( -2.5 ),
     flagParameters = cms.PSet(  ),
+    pedSigmaHPD = cms.double( 0.5 ),
+    fitTimes = cms.int32( 1 ),
+    timeMax = cms.double( 10.0 ),
+    timeSigmaHPD = cms.double( 5.0 ),
+    meanPed = cms.double( 0.0 ),
     hscpParameters = cms.PSet(  )
 )
-hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
+fragment.hltTowerMakerHcalMethod050nsMultiFitForAll = cms.EDProducer( "CaloTowersCreator",
     EBSumThreshold = cms.double( 0.2 ),
     MomHBDepth = cms.double( 0.2 ),
     UseEtEBTreshold = cms.bool( False ),
-    hfInput = cms.InputTag( "hltHfreco" ),
+    hfInput = cms.InputTag( "hltHfrecoMethod0" ),
     AllowMissingInputs = cms.bool( False ),
     MomEEDepth = cms.double( 0.0 ),
     EESumThreshold = cms.double( 0.45 ),
@@ -1967,14 +3916,13 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HF1Weight = cms.double( 1.0 ),
     HF2Grid = cms.vdouble(  ),
     HEDWeights = cms.vdouble(  ),
-    HEDGrid = cms.vdouble(  ),
     EBWeight = cms.double( 1.0 ),
     HF1Grid = cms.vdouble(  ),
     EBWeights = cms.vdouble(  ),
     HOWeight = cms.double( 1.0E-99 ),
     HESWeight = cms.double( 1.0 ),
     HESThreshold = cms.double( 0.8 ),
-    hbheInput = cms.InputTag( "hltHbhereco" ),
+    hbheInput = cms.InputTag( "hltHbherecoMethod0" ),
     HF2Weight = cms.double( 1.0 ),
     HF2Threshold = cms.double( 0.85 ),
     HcalAcceptSeverityLevel = cms.uint32( 9 ),
@@ -1982,42 +3930,44 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HOThresholdPlus1 = cms.double( 3.5 ),
     HOThresholdPlus2 = cms.double( 3.5 ),
     HF1Weights = cms.vdouble(  ),
-    hoInput = cms.InputTag( "hltHoreco" ),
+    hoInput = cms.InputTag( "hltHorecoMethod0" ),
     HF1Threshold = cms.double( 0.5 ),
-    HOThresholdMinus1 = cms.double( 3.5 ),
+    HcalPhase = cms.int32( 0 ),
     HESGrid = cms.vdouble(  ),
     EcutTower = cms.double( -1000.0 ),
     UseRejectedRecoveredEcalHits = cms.bool( False ),
     UseEtEETreshold = cms.bool( False ),
     HESWeights = cms.vdouble(  ),
+    HOThresholdMinus1 = cms.double( 3.5 ),
     EcalRecHitSeveritiesToBeExcluded = cms.vstring( 'kTime',
       'kWeird',
       'kBad' ),
     HEDWeight = cms.double( 1.0 ),
     UseSymEETreshold = cms.bool( False ),
     HEDThreshold = cms.double( 0.8 ),
-    EBThreshold = cms.double( 0.07 ),
     UseRejectedHitsOnly = cms.bool( False ),
+    EBThreshold = cms.double( 0.07 ),
+    HEDGrid = cms.vdouble(  ),
     UseHcalRecoveredHits = cms.bool( False ),
     HOThresholdMinus2 = cms.double( 3.5 ),
     HOThreshold0 = cms.double( 3.5 ),
-    ecalInputs = cms.VInputTag( 'hltEcalRecHit:EcalRecHitsEB','hltEcalRecHit:EcalRecHitsEE' ),
+    ecalInputs = cms.VInputTag( 'hltEcalRecHit50nsMultiFit:EcalRecHitsEB','hltEcalRecHit50nsMultiFit:EcalRecHitsEE' ),
     UseRejectedRecoveredHcalHits = cms.bool( False ),
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
     EBGrid = cms.vdouble(  )
 )
-hltAntiKT4CaloJets = cms.EDProducer( "FastjetJetProducer",
-    Active_Area_Repeats = cms.int32( 5 ),
-    doAreaFastjet = cms.bool( False ),
-    voronoiRfact = cms.double( 0.9 ),
+fragment.hltPuAK4CaloJets50nsMultiFit = cms.EDProducer( "FastjetJetProducer",
+    Active_Area_Repeats = cms.int32( 1 ),
+    doAreaFastjet = cms.bool( True ),
+    voronoiRfact = cms.double( -0.9 ),
     maxBadHcalCells = cms.uint32( 9999999 ),
-    doAreaDiskApprox = cms.bool( True ),
+    doAreaDiskApprox = cms.bool( False ),
     maxRecoveredEcalCells = cms.uint32( 9999999 ),
     jetType = cms.string( "CaloJet" ),
     minSeed = cms.uint32( 14327 ),
-    Ghost_EtaMax = cms.double( 6.0 ),
+    Ghost_EtaMax = cms.double( 6.5 ),
     doRhoFastjet = cms.bool( False ),
     jetAlgorithm = cms.string( "AntiKt" ),
     nSigmaPU = cms.double( 1.0 ),
@@ -2030,108 +3980,8644 @@ hltAntiKT4CaloJets = cms.EDProducer( "FastjetJetProducer",
     rParam = cms.double( 0.4 ),
     maxProblematicHcalCells = cms.uint32( 9999999 ),
     doOutputJets = cms.bool( True ),
-    src = cms.InputTag( "hltTowerMakerForAll" ),
+    src = cms.InputTag( "hltTowerMakerHcalMethod050nsMultiFitForAll" ),
     inputEtMin = cms.double( 0.3 ),
     puPtMin = cms.double( 10.0 ),
     srcPVs = cms.InputTag( "NotUsed" ),
-    jetPtMin = cms.double( 1.0 ),
-    radiusPU = cms.double( 0.4 ),
+    jetPtMin = cms.double( 10.0 ),
+    radiusPU = cms.double( 0.5 ),
     maxProblematicEcalCells = cms.uint32( 9999999 ),
-    doPUOffsetCorr = cms.bool( False ),
+    doPUOffsetCorr = cms.bool( True ),
     inputEMin = cms.double( 0.0 ),
-    subtractorName = cms.string( "" ),
+    useMassDropTagger = cms.bool( False ),
+    muMin = cms.double( -1.0 ),
+    subtractorName = cms.string( "MultipleAlgoIterator" ),
+    muCut = cms.double( -1.0 ),
+    subjetPtMin = cms.double( -1.0 ),
+    useTrimming = cms.bool( False ),
+    muMax = cms.double( -1.0 ),
+    yMin = cms.double( -1.0 ),
+    useFiltering = cms.bool( False ),
+    rFilt = cms.double( -1.0 ),
+    yMax = cms.double( -1.0 ),
+    zcut = cms.double( -1.0 ),
     MinVtxNdof = cms.int32( 5 ),
     MaxVtxZ = cms.double( 15.0 ),
     UseOnlyVertexTracks = cms.bool( False ),
-    UseOnlyOnePV = cms.bool( False ),
+    dRMin = cms.double( -1.0 ),
+    nFilt = cms.int32( -1 ),
+    usePruning = cms.bool( False ),
+    maxDepth = cms.int32( -1 ),
+    yCut = cms.double( -1.0 ),
     DzTrVtxMax = cms.double( 0.0 ),
+    UseOnlyOnePV = cms.bool( False ),
+    rcut_factor = cms.double( -1.0 ),
     sumRecHits = cms.bool( False ),
-    DxyTrVtxMax = cms.double( 0.0 )
+    trimPtFracMin = cms.double( -1.0 ),
+    dRMax = cms.double( -1.0 ),
+    DxyTrVtxMax = cms.double( 0.0 ),
+    useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
 )
-hltCaloJetIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
+fragment.hltPuAK4CaloJetsIDPassed50nsMultiFit = cms.EDProducer( "HLTCaloJetIDProducer",
     min_N90 = cms.int32( -2 ),
     min_N90hits = cms.int32( 2 ),
     min_EMF = cms.double( 1.0E-6 ),
-    jetsInput = cms.InputTag( "hltAntiKT4CaloJets" ),
+    jetsInput = cms.InputTag( "hltPuAK4CaloJets50nsMultiFit" ),
     JetIDParams = cms.PSet( 
+      hfRecHitsColl = cms.InputTag( "hltHfrecoMethod0" ),
+      hoRecHitsColl = cms.InputTag( "hltHorecoMethod0" ),
+      ebRecHitsColl = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+      hbheRecHitsColl = cms.InputTag( "hltHbherecoMethod0" ),
       useRecHits = cms.bool( True ),
-      hbheRecHitsColl = cms.InputTag( "hltHbhereco" ),
-      hoRecHitsColl = cms.InputTag( "hltHoreco" ),
-      hfRecHitsColl = cms.InputTag( "hltHfreco" ),
-      ebRecHitsColl = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-      eeRecHitsColl = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' )
+      eeRecHitsColl = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' )
     ),
     max_EMF = cms.double( 999.0 )
 )
-hltCaloJetCorrected = cms.EDProducer( "CaloJetCorrectionProducer",
-    src = cms.InputTag( "hltCaloJetIDPassed" ),
-    correctors = cms.vstring( 'hltESPAK4CaloL2L3' )
+fragment.hltFixedGridRhoFastjetAllCalo50nsMultiFitHcalMethod0 = cms.EDProducer( "FixedGridRhoProducerFastjet",
+    gridSpacing = cms.double( 0.55 ),
+    maxRapidity = cms.double( 5.0 ),
+    pfCandidatesTag = cms.InputTag( "hltTowerMakerHcalMethod050nsMultiFitForAll" )
 )
-hltSingleJet260 = cms.EDFilter( "HLT1CaloJet",
+fragment.hltAK4CaloRelativeCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L2Relative" )
+)
+fragment.hltAK4CaloAbsoluteCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L3Absolute" )
+)
+fragment.hltAK4CaloResidualCorrector = cms.EDProducer( "LXXXCorrectorProducer",
+    algorithm = cms.string( "AK4CaloHLT" ),
+    level = cms.string( "L2L3Residual" )
+)
+fragment.hltPuAK4CaloCorrector = cms.EDProducer( "ChainedJetCorrectorProducer",
+    correctors = cms.VInputTag( 'hltAK4CaloRelativeCorrector','hltAK4CaloAbsoluteCorrector','hltAK4CaloResidualCorrector' )
+)
+fragment.hltPuAK4CaloJetsCorrected50nsMultiFit = cms.EDProducer( "CorrectedCaloJetProducer",
+    src = cms.InputTag( "hltPuAK4CaloJets50nsMultiFit" ),
+    correctors = cms.VInputTag( 'hltPuAK4CaloCorrector' )
+)
+fragment.hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit = cms.EDProducer( "CorrectedCaloJetProducer",
+    src = cms.InputTag( "hltPuAK4CaloJetsIDPassed50nsMultiFit" ),
+    correctors = cms.VInputTag( 'hltPuAK4CaloCorrector' )
+)
+fragment.hltSinglePuAK4CaloJet40Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
-    MinPt = cms.double( 260.0 ),
+    MinPt = cms.double( 40.0 ),
     MinN = cms.int32( 1 ),
-    MaxEta = cms.double( 5.0 ),
+    MaxEta = cms.double( 5.1 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltCaloJetCorrected" ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-hltBoolEnd = cms.EDFilter( "HLTBool",
-    result = cms.bool( True )
+fragment.hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
+    UseDaqRegister = cms.bool( False ),
+    ProductLabel = cms.InputTag( "rawDataCollector" ),
+    MarkModulesOnMissingFeds = cms.bool( True ),
+    UnpackCommonModeValues = cms.bool( False ),
+    AppendedBytes = cms.int32( 0 ),
+    UseFedKey = cms.bool( False ),
+    LegacyUnpacker = cms.bool( False ),
+    ErrorThreshold = cms.uint32( 7174 ),
+    TriggerFedId = cms.int32( 0 ),
+    DoAPVEmulatorCheck = cms.bool( False ),
+    UnpackBadChannels = cms.bool( False ),
+    DoAllCorruptBufferChecks = cms.bool( False )
 )
-hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
+fragment.hltSiStripZeroSuppression = cms.EDProducer( "SiStripZeroSuppression",
+    fixCM = cms.bool( False ),
+    DigisToMergeVR = cms.InputTag( 'hltSiStripRawToDigi','VirginRaw' ),
+    produceCalculatedBaseline = cms.bool( False ),
+    produceBaselinePoints = cms.bool( False ),
+    RawDigiProducersList = cms.VInputTag( 'hltSiStripRawToDigi:VirginRaw','hltSiStripRawToDigi:ProcessedRaw','hltSiStripRawToDigi:ScopeMode' ),
+    storeInZScollBadAPV = cms.bool( True ),
+    mergeCollections = cms.bool( False ),
+    Algorithms = cms.PSet( 
+      SelfSelectRestoreAlgo = cms.bool( False ),
+      ApplyBaselineCleaner = cms.bool( True ),
+      nSigmaNoiseDerTh = cms.uint32( 4 ),
+      filteredBaselineMax = cms.double( 6.0 ),
+      minStripsToFit = cms.uint32( 4 ),
+      CommonModeNoiseSubtractionMode = cms.string( "IteratedMedian" ),
+      ApplyBaselineRejection = cms.bool( True ),
+      APVRestoreMode = cms.string( "BaselineFollower" ),
+      useCMMeanMap = cms.bool( False ),
+      doAPVRestore = cms.bool( True ),
+      SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
+      hitStripThreshold = cms.uint32( 40 ),
+      consecThreshold = cms.uint32( 5 ),
+      restoreThreshold = cms.double( 0.5 ),
+      useRealMeanCM = cms.bool( False ),
+      CleaningSequence = cms.uint32( 1 ),
+      APVInspectMode = cms.string( "BaselineFollower" ),
+      nSaturatedStrip = cms.uint32( 2 ),
+      ForceNoRestore = cms.bool( False ),
+      DeltaCMThreshold = cms.uint32( 20 ),
+      PedestalSubtractionFedMode = cms.bool( False ),
+      Fraction = cms.double( 0.2 ),
+      TruncateInSuppressor = cms.bool( True ),
+      MeanCM = cms.int32( 0 ),
+      slopeY = cms.int32( 4 ),
+      slopeX = cms.int32( 3 ),
+      CutToAvoidSignal = cms.double( 2.0 ),
+      distortionThreshold = cms.uint32( 20 ),
+      Iterations = cms.int32( 3 ),
+      Deviation = cms.uint32( 25 ),
+      filteredBaselineDerivativeSumSquare = cms.double( 30.0 ),
+      nSmooth = cms.uint32( 9 )
+    ),
+    DigisToMergeZS = cms.InputTag( 'hltSiStripRawToDigi','ZeroSuppressed' ),
+    storeCM = cms.bool( True ),
+    produceRawDigis = cms.bool( True )
+)
+fragment.hltSiStripDigiToZSRaw = cms.EDProducer( "SiStripDigiToRawModule",
+    CopyBufferHeader = cms.bool( False ),
+    InputDigiLabel = cms.string( "VirginRaw" ),
+    InputModuleLabel = cms.string( "hltSiStripZeroSuppression" ),
+    UseFedKey = cms.bool( False ),
+    RawDataTag = cms.InputTag( "rawDataCollector" ),
+    FedReadoutMode = cms.string( "ZERO_SUPPRESSED" ),
+    UseWrongDigiType = cms.bool( False )
+)
+fragment.hltSiStripRawDigiToVirginRaw = cms.EDProducer( "SiStripDigiToRawModule",
+    CopyBufferHeader = cms.bool( False ),
+    InputDigiLabel = cms.string( "VirginRaw" ),
+    InputModuleLabel = cms.string( "hltSiStripZeroSuppression" ),
+    UseFedKey = cms.bool( False ),
+    RawDataTag = cms.InputTag( "rawDataCollector" ),
+    FedReadoutMode = cms.string( "VIRGIN_RAW" ),
+    UseWrongDigiType = cms.bool( False )
+)
+fragment.virginRawDataRepacker = cms.EDProducer( "RawDataCollectorByLabel",
+    verbose = cms.untracked.int32( 0 ),
+    RawCollectionList = cms.VInputTag( 'hltSiStripRawDigiToVirginRaw' )
+)
+fragment.rawDataRepacker = cms.EDProducer( "RawDataCollectorByLabel",
+    verbose = cms.untracked.int32( 0 ),
+    RawCollectionList = cms.VInputTag( 'hltSiStripDigiToZSRaw','source','rawDataCollector' )
+)
+fragment.hltL1sSingleS1Jet28BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet28_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet60Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet60Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 60.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltL1sSingleJet44BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet44_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet80Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet80Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 80.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltL1sSingleS1Jet56BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet56_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet100Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet100Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 100.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloJet110Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet110Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 110.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloJet120Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet120Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 120.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltL1sSingleS1Jet64BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet64_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet150Eta5p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet150Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 150.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltL1sSingleS1Jet16Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet16_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet40Eta5p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet28Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet28_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet60Eta5p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet44Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet44_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet80Eta5p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIPuAK4CaloJet100Eta5p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet16Centralityext50100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet16_Centrality_ext50_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet40Eta5p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet28Centralityext50100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet28_Centrality_ext50_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet60Eta5p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet44Centralityext50100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet44_Centrality_ext50_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIPuAK4CaloJet80Eta5p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIPuAK4CaloJet100Eta5p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIPuAK4CaloJet80Jet35Eta1p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet80Eta1p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 80.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltDoublePuAK4CaloJet35Eta1p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 35.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 1.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloJet80Jet35Eta0p7 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet80Eta0p750nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 80.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 0.7 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltDoublePuAK4CaloJet35Eta0p750nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 35.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 0.7 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloJet100Jet35Eta1p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet100Eta1p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 100.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloJet100Jet35Eta0p7 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet100Eta0p750nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 100.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 0.7 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloJet804545Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltTriplePuAK4CaloJet45Eta2p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 45.0 ),
+    MinN = cms.int32( 3 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltSinglePuAK4CaloJet80Eta2p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 80.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIPuAK4CaloDJet60Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet60Eta2p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 60.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltHIEta2CaloJetsEta2p1ForJets = cms.EDFilter( "CaloJetSelector",
+    filter = cms.bool( False ),
+    src = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    cut = cms.string( "abs(eta)<2.1" )
+)
+fragment.hltReduceJetMultEta2p1Forjets = cms.EDFilter( "LargestEtCaloJetSelector",
+    maxNumber = cms.uint32( 3 ),
+    filter = cms.bool( False ),
+    src = cms.InputTag( "hltHIEta2CaloJetsEta2p1ForJets" )
+)
+fragment.hltJets4bTaggerCaloJet60Eta2p1Forjets = cms.EDFilter( "EtMinCaloJetSelector",
+    filter = cms.bool( False ),
+    src = cms.InputTag( "hltReduceJetMultEta2p1Forjets" ),
+    etMin = cms.double( 60.0 )
+)
+fragment.hltHIJetsForCoreTracking = cms.EDFilter( "CandPtrSelector",
+    src = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    cut = cms.string( "pt > 100 && abs(eta) < 2.4" )
+)
+fragment.hltHISiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
+    UseQualityInfo = cms.bool( False ),
+    UsePilotBlade = cms.bool( False ),
+    UsePhase1 = cms.bool( False ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    IncludeErrors = cms.bool( False ),
+    ErrorList = cms.vint32(  ),
+    Regions = cms.PSet(  ),
+    Timing = cms.untracked.bool( False ),
+    CablingMapLabel = cms.string( "" ),
+    UserErrorList = cms.vint32(  )
+)
+fragment.hltHISiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
+    src = cms.InputTag( "hltHISiPixelDigis" ),
+    ChannelThreshold = cms.int32( 1000 ),
+    maxNumberOfClusters = cms.int32( -1 ),
+    VCaltoElectronGain = cms.int32( 65 ),
+    MissCalibrate = cms.untracked.bool( True ),
+    SplitClusters = cms.bool( False ),
+    VCaltoElectronOffset = cms.int32( -414 ),
+    payloadType = cms.string( "HLT" ),
+    SeedThreshold = cms.int32( 1000 ),
+    ClusterThreshold = cms.double( 4000.0 )
+)
+fragment.hltHISiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltHISiPixelClusters" ),
+    onDemand = cms.bool( False )
+)
+fragment.hltHISiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
+    VerboseLevel = cms.untracked.int32( 0 ),
+    src = cms.InputTag( "hltHISiPixelClusters" ),
+    CPE = cms.string( "hltESPPixelCPEGeneric" )
+)
+fragment.hltHIPixelClusterVertices = cms.EDProducer( "HIPixelClusterVtxProducer",
+    maxZ = cms.double( 30.0 ),
+    zStep = cms.double( 0.1 ),
+    minZ = cms.double( -30.0 ),
+    pixelRecHits = cms.string( "hltHISiPixelRecHits" )
+)
+fragment.hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+      'BPix1+BPix2+FPix1_pos',
+      'BPix1+BPix2+FPix1_neg',
+      'BPix1+FPix1_pos+FPix2_pos',
+      'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHits" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHits" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltHIPixel3ProtoTracksFilter = cms.EDProducer( "HIProtoTrackFilterProducer",
+    doVariablePtMin = cms.bool( True ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    chi2 = cms.double( 1000.0 ),
+    ptMin = cms.double( 1.0 ),
+    siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
+    tipMax = cms.double( 1.0 )
+)
+fragment.hltHIPixel3ProtoTracksFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIPixel3ProtoTracksTrackingRegions = cms.EDProducer( "HITrackingRegionForPrimaryVtxEDProducer",
+    RegionPSet = cms.PSet( 
+      directionYCoord = cms.double( 1.0 ),
+      useFixedError = cms.bool( True ),
+      doVariablePtMin = cms.bool( True ),
+      nSigmaZ = cms.double( 3.0 ),
+      VertexCollection = cms.InputTag( "hltHIPixelClusterVertices" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      useFoundVertices = cms.bool( True ),
+      fixedError = cms.double( 3.0 ),
+      siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
+      sigmaZVertex = cms.double( 3.0 ),
+      useFakeVertices = cms.bool( False ),
+      ptMin = cms.double( 0.7 ),
+      directionZCoord = cms.double( 0.0 ),
+      directionXCoord = cms.double( 1.0 ),
+      originRadius = cms.double( 0.2 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltHIPixel3ProtoTracksHitPairs = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixel3ProtoTracksTrackingRegions" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerTriplets" )
+)
+fragment.hltHIPixel3ProtoTracksHitTriplets = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 100000 ),
+    SeedComparitorPSet = cms.PSet( 
+      ComponentName = cms.string( "none" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCache" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.032 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIPixel3ProtoTracksHitPairs" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.037 )
+)
+fragment.hltHIPixel3ProtoTracks = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIPixel3ProtoTracksFilter" ),
+    Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
+    passLabel = cms.string( "Pixel triplet tracks for vertexing" ),
+    Fitter = cms.InputTag( "hltHIPixel3ProtoTracksFitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIPixel3ProtoTracksHitTriplets" )
+)
+fragment.hltHIPixelMedianVertex = cms.EDProducer( "HIPixelMedianVtxProducer",
+    PeakFindThreshold = cms.uint32( 100 ),
+    PeakFindMaxZ = cms.double( 30.0 ),
+    FitThreshold = cms.int32( 5 ),
+    TrackCollection = cms.InputTag( "hltHIPixel3ProtoTracks" ),
+    PtMin = cms.double( 0.075 ),
+    PeakFindBinsPerCm = cms.int32( 10 ),
+    FitMaxZ = cms.double( 0.1 ),
+    FitBinsPerCm = cms.int32( 500 )
+)
+fragment.hltHISelectedProtoTracks = cms.EDFilter( "HIProtoTrackSelection",
+    src = cms.InputTag( "hltHIPixel3ProtoTracks" ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    maxD0Significance = cms.double( 5.0 ),
+    minZCut = cms.double( 0.2 ),
+    VertexCollection = cms.InputTag( "hltHIPixelMedianVertex" ),
+    ptMin = cms.double( 0.0 ),
+    nSigmaZ = cms.double( 5.0 )
+)
+fragment.hltHIPixelAdaptiveVertex = cms.EDProducer( "PrimaryVertexProducer",
+    vertexCollections = cms.VPSet( 
+      cms.PSet(  label = cms.string( "" ),
+        useBeamConstraint = cms.bool( False ),
+        minNdof = cms.double( 0.0 ),
+        maxDistanceToBeam = cms.double( 0.1 ),
+        algorithm = cms.string( "AdaptiveVertexFitter" )
+      )
+    ),
+    verbose = cms.untracked.bool( False ),
+    TkFilterParameters = cms.PSet( 
+      minPt = cms.double( 0.0 ),
+      minSiliconLayersWithHits = cms.int32( 0 ),
+      numTracksThreshold = cms.int32( 2 ),
+      minPixelLayersWithHits = cms.int32( 2 ),
+      maxNormalizedChi2 = cms.double( 5.0 ),
+      trackQuality = cms.string( "any" ),
+      algorithm = cms.string( "filterWithThreshold" ),
+      maxD0Significance = cms.double( 3.0 )
+    ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    TrackLabel = cms.InputTag( "hltHISelectedProtoTracks" ),
+    TkClusParameters = cms.PSet( 
+      TkGapClusParameters = cms.PSet(  zSeparation = cms.double( 1.0 ) ),
+      algorithm = cms.string( "gap" )
+    )
+)
+fragment.hltHIBestAdaptiveVertex = cms.EDFilter( "HIBestVertexSelection",
+    maxNumber = cms.uint32( 1 ),
+    src = cms.InputTag( "hltHIPixelAdaptiveVertex" )
+)
+fragment.hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
+    adaptiveVertexCollection = cms.InputTag( "hltHIBestAdaptiveVertex" ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" )
+)
+fragment.hltHISiPixelClustersAfterSplitting = cms.EDProducer( "JetCoreClusterSplitter",
+    verbose = cms.bool( False ),
+    chargeFractionMin = cms.double( 2.0 ),
+    forceXError = cms.double( 100.0 ),
+    vertices = cms.InputTag( "hltHISelectedVertex" ),
+    chargePerUnit = cms.double( 2000.0 ),
+    centralMIPCharge = cms.double( 26000.0 ),
+    forceYError = cms.double( 150.0 ),
+    pixelClusters = cms.InputTag( "hltHISiPixelClusters" ),
+    ptMin = cms.double( 100.0 ),
+    deltaRmax = cms.double( 0.1 ),
+    cores = cms.InputTag( "hltHIJetsForCoreTracking" ),
+    fractionalWidth = cms.double( 0.4 ),
+    pixelCPE = cms.string( "hltESPPixelCPEGeneric" )
+)
+fragment.hltHISiPixelClustersCacheAfterSplitting = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    onDemand = cms.bool( False )
+)
+fragment.hltHISiPixelRecHitsAfterSplitting = cms.EDProducer( "SiPixelRecHitConverter",
+    VerboseLevel = cms.untracked.int32( 0 ),
+    src = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    CPE = cms.string( "hltESPPixelCPEGeneric" )
+)
+fragment.hltHIPixelClusterVerticesAfterSplitting = cms.EDProducer( "HIPixelClusterVtxProducer",
+    maxZ = cms.double( 30.0 ),
+    zStep = cms.double( 0.1 ),
+    minZ = cms.double( -30.0 ),
+    pixelRecHits = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+)
+fragment.hltHIPixelLayerTripletsAfterSplitting = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+      'BPix1+BPix2+FPix1_pos',
+      'BPix1+BPix2+FPix1_neg',
+      'BPix1+FPix1_pos+FPix2_pos',
+      'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltHIPixel3ProtoTracksAfterSplittingFilter = cms.EDProducer( "HIProtoTrackFilterProducer",
+    doVariablePtMin = cms.bool( True ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    chi2 = cms.double( 1000.0 ),
+    ptMin = cms.double( 1.0 ),
+    siPixelRecHits = cms.InputTag( "hltHISiPixelRecHitsAfterSplitting" ),
+    tipMax = cms.double( 1.0 )
+)
+fragment.hltHIPixel3ProtoTracksAfterSplittingFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIPixel3ProtoTracksAfterSplittingTrackingRegions = cms.EDProducer( "HITrackingRegionForPrimaryVtxEDProducer",
+    RegionPSet = cms.PSet( 
+      directionYCoord = cms.double( 1.0 ),
+      useFixedError = cms.bool( True ),
+      doVariablePtMin = cms.bool( True ),
+      nSigmaZ = cms.double( 3.0 ),
+      VertexCollection = cms.InputTag( "hltHIPixelClusterVerticesAfterSplitting" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      useFoundVertices = cms.bool( True ),
+      fixedError = cms.double( 3.0 ),
+      siPixelRecHits = cms.InputTag( "hltHISiPixelRecHitsAfterSplitting" ),
+      sigmaZVertex = cms.double( 3.0 ),
+      useFakeVertices = cms.bool( False ),
+      ptMin = cms.double( 0.7 ),
+      directionZCoord = cms.double( 0.0 ),
+      directionXCoord = cms.double( 1.0 ),
+      originRadius = cms.double( 0.2 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltHIPixel3ProtoTracksAfterSplittingHitPairs = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplittingTrackingRegions" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerTripletsAfterSplitting" )
+)
+fragment.hltHIPixel3ProtoTracksAfterSplittingHitTriplets = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 100000 ),
+    SeedComparitorPSet = cms.PSet( 
+      ComponentName = cms.string( "none" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCache" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.032 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplittingHitPairs" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.037 )
+)
+fragment.hltHIPixel3ProtoTracksAfterSplitting = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplittingFilter" ),
+    Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
+    passLabel = cms.string( "Pixel triplet tracks for vertexing" ),
+    Fitter = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplittingFitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplittingHitTriplets" )
+)
+fragment.hltHIPixelMedianVertexAfterSplitting = cms.EDProducer( "HIPixelMedianVtxProducer",
+    PeakFindThreshold = cms.uint32( 100 ),
+    PeakFindMaxZ = cms.double( 30.0 ),
+    FitThreshold = cms.int32( 5 ),
+    TrackCollection = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplitting" ),
+    PtMin = cms.double( 0.075 ),
+    PeakFindBinsPerCm = cms.int32( 10 ),
+    FitMaxZ = cms.double( 0.1 ),
+    FitBinsPerCm = cms.int32( 500 )
+)
+fragment.hltHISelectedProtoTracksAfterSplitting = cms.EDFilter( "HIProtoTrackSelection",
+    src = cms.InputTag( "hltHIPixel3ProtoTracksAfterSplitting" ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    maxD0Significance = cms.double( 5.0 ),
+    minZCut = cms.double( 0.2 ),
+    VertexCollection = cms.InputTag( "hltHIPixelMedianVertexAfterSplitting" ),
+    ptMin = cms.double( 0.0 ),
+    nSigmaZ = cms.double( 5.0 )
+)
+fragment.hltHIPixelAdaptiveVertexAfterSplitting = cms.EDProducer( "PrimaryVertexProducer",
+    vertexCollections = cms.VPSet( 
+      cms.PSet(  label = cms.string( "" ),
+        useBeamConstraint = cms.bool( False ),
+        minNdof = cms.double( 0.0 ),
+        maxDistanceToBeam = cms.double( 0.1 ),
+        algorithm = cms.string( "AdaptiveVertexFitter" )
+      )
+    ),
+    verbose = cms.untracked.bool( False ),
+    TkFilterParameters = cms.PSet( 
+      minPt = cms.double( 0.0 ),
+      minSiliconLayersWithHits = cms.int32( 0 ),
+      numTracksThreshold = cms.int32( 2 ),
+      minPixelLayersWithHits = cms.int32( 2 ),
+      maxNormalizedChi2 = cms.double( 5.0 ),
+      trackQuality = cms.string( "any" ),
+      algorithm = cms.string( "filterWithThreshold" ),
+      maxD0Significance = cms.double( 3.0 )
+    ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    TrackLabel = cms.InputTag( "hltHISelectedProtoTracksAfterSplitting" ),
+    TkClusParameters = cms.PSet( 
+      TkGapClusParameters = cms.PSet(  zSeparation = cms.double( 1.0 ) ),
+      algorithm = cms.string( "gap" )
+    )
+)
+fragment.hltHIBestAdaptiveVertexAfterSplitting = cms.EDFilter( "HIBestVertexSelection",
+    maxNumber = cms.uint32( 1 ),
+    src = cms.InputTag( "hltHIPixelAdaptiveVertexAfterSplitting" )
+)
+fragment.hltHISelectedVertexAfterSplitting = cms.EDProducer( "HIBestVertexProducer",
+    adaptiveVertexCollection = cms.InputTag( "hltHIBestAdaptiveVertex" ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" )
+)
+fragment.hltHITrackingSiStripRawToClustersFacilityZeroSuppression = cms.EDProducer( "SiStripClusterizer",
+    DigiProducersList = cms.VInputTag( 'hltSiStripRawToDigi:ZeroSuppressed','hltSiStripZeroSuppression:VirginRaw','hltSiStripZeroSuppression:ProcessedRaw','hltSiStripZeroSuppression:ScopeMode' ),
+    Clusterizer = cms.PSet( 
+      QualityLabel = cms.string( "" ),
+      ClusterThreshold = cms.double( 5.0 ),
+      SeedThreshold = cms.double( 3.0 ),
+      Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
+      ChannelThreshold = cms.double( 2.0 ),
+      MaxAdjacentBad = cms.uint32( 0 ),
+      MaxSequentialHoles = cms.uint32( 0 ),
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+      MaxSequentialBad = cms.uint32( 1 )
+    )
+)
+fragment.hltHISiStripClustersZeroSuppression = cms.EDProducer( "MeasurementTrackerEventProducer",
+    inactivePixelDetectorLabels = cms.VInputTag(  ),
+    stripClusterProducer = cms.string( "hltHITrackingSiStripRawToClustersFacilityZeroSuppression" ),
+    pixelClusterProducer = cms.string( "hltHISiPixelClustersAfterSplitting" ),
+    switchOffPixelsIfEmpty = cms.bool( True ),
+    inactiveStripDetectorLabels = cms.VInputTag(  ),
+    skipClusters = cms.InputTag( "" ),
+    measurementTracker = cms.string( "hltESPMeasurementTracker" )
+)
+fragment.hltHIPixel3PrimTracksForjetsFilter = cms.EDProducer( "HIPixelTrackFilterProducer",
+    nSigmaLipMaxTolerance = cms.double( 0.0 ),
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 6.0 ),
+    clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" ),
+    VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    useClusterShape = cms.bool( False ),
+    lipMax = cms.double( 0.3 ),
+    ptMax = cms.double( 999999.0 ),
+    tipMax = cms.double( 0.0 ),
+    ptMin = cms.double( 0.9 )
+)
+fragment.hltHIPixel3PrimTracksForjetsFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIPixel3PrimTracksForjetsTrackingRegions = cms.EDProducer( "CandidateSeededTrackingRegionsEDProducer",
+    RegionPSet = cms.PSet( 
+      vertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+      zErrorVetex = cms.double( 0.1 ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      zErrorBeamSpot = cms.double( 15.0 ),
+      maxNVertices = cms.int32( 100 ),
+      maxNRegions = cms.int32( 100 ),
+      nSigmaZVertex = cms.double( 3.0 ),
+      nSigmaZBeamSpot = cms.double( 3.0 ),
+      ptMin = cms.double( 0.9 ),
+      mode = cms.string( "VerticesFixed" ),
+      input = cms.InputTag( "hltReduceJetMultEta2p1Forjets" ),
+      searchOpt = cms.bool( True ),
+      whereToUseMeasurementTracker = cms.string( "ForSiStrips" ),
+      originRadius = cms.double( 0.1 ),
+      measurementTrackerName = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+      precise = cms.bool( True ),
+      deltaEta = cms.double( 0.5 ),
+      deltaPhi = cms.double( 0.5 )
+    )
+)
+fragment.hltHIPixel3PrimTracksForjetsHitPairs = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixel3PrimTracksForjetsTrackingRegions" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerTripletsAfterSplitting" )
+)
+fragment.hltHIPixel3PrimTracksForjetsHitTriplets = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 1000000 ),
+    SeedComparitorPSet = cms.PSet( 
+      ComponentName = cms.string( "none" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.032 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIPixel3PrimTracksForjetsHitPairs" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.037 )
+)
+fragment.hltHIPixel3PrimTracksForjets = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIPixel3PrimTracksForjetsFilter" ),
+    Cleaner = cms.string( "hltTrackCleaner" ),
+    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
+    Fitter = cms.InputTag( "hltHIPixel3PrimTracksForjetsFitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIPixel3PrimTracksForjetsHitTriplets" )
+)
+fragment.hltHIPixelTrackSeedsForjets = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
+    useEventsWithNoVertex = cms.bool( True ),
+    originHalfLength = cms.double( 1.0E9 ),
+    useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
+    SeedCreatorPSet = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      SeedMomentumForBOFF = cms.double( 5.0 ),
+      propagator = cms.string( "PropagatorWithMaterialForHI" ),
+      forceKinematicWithRegionDirection = cms.bool( False ),
+      magneticField = cms.string( "ParabolicMf" ),
+      OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      MinOneOverPtError = cms.double( 1.0 )
+    ),
+    InputVertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    InputCollection = cms.InputTag( "hltHIPixel3PrimTracksForjets" ),
+    originRadius = cms.double( 1.0E9 )
+)
+fragment.hltHIPrimTrackCandidatesForjets = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltHIPixelTrackSeedsForjets" ),
+    maxSeedsBeforeCleaning = cms.uint32( 5000 ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterialForHI" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOppositeForHI" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
+    RedundantSeedCleaner = cms.string( "none" ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    maxNSeeds = cms.uint32( 500000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetInitialCkfTrajectoryBuilderForHI" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" )
+)
+fragment.hltHIGlobalPrimTracksForjets = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIPrimTrackCandidatesForjets" ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+    Fitter = cms.string( "hltESPKFFittingSmootherWithOutliersRejectionAndRK" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "initialStep" ),
+    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    GeometricInnerState = cms.bool( False ),
+    useSimpleMF = cms.bool( True ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
+)
+fragment.hltHIIter0TrackSelectionForjets = cms.EDProducer( "HIMultiTrackSelector",
+    src = cms.InputTag( "hltHIGlobalPrimTracksForjets" ),
+    trackSelectors = cms.VPSet( 
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 0.4, 4.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.2 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -1.0 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "loose" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 9999.0 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 0.4, 4.0 ),
+        name = cms.string( "hiInitialStepLoose" ),
+        useMVA = cms.bool( False ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiInitialStepLoose" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 5.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.075 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.77 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "tight" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.25 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 5.0, 0.0 ),
+        name = cms.string( "hiInitialStepTight" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiInitialStepTight" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 3.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.05 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.77 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "highPurity" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.15 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 3.0, 0.0 ),
+        name = cms.string( "hiInitialStep" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      )
+    ),
+    GBRForestLabel = cms.string( "HIMVASelectorIter4" ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    GBRForestVars = cms.vstring( 'chi2perdofperlayer',
+      'dxyperdxyerror',
+      'dzperdzerror',
+      'nhits',
+      'nlayers',
+      'eta' ),
+    useVtxError = cms.bool( True ),
+    useAnyMVA = cms.bool( True ),
+    useVertices = cms.bool( True )
+)
+fragment.hltHIIter1ClustersRefRemovalForjets = cms.EDProducer( "HITrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    trajectories = cms.InputTag( "hltHIGlobalPrimTracksForjets" ),
+    oldClusterRemovalInfo = cms.InputTag( "" ),
+    stripClusters = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityZeroSuppression" ),
+    overrideTrkQuals = cms.InputTag( 'hltHIIter0TrackSelectionForjets','hiInitialStep' ),
+    pixelClusters = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
+    Strip = cms.PSet( 
+      maxSize = cms.uint32( 2 ),
+      maxChi2 = cms.double( 9.0 )
+    ),
+    TrackQuality = cms.string( "highPurity" ),
+    clusterLessSolution = cms.bool( True )
+)
+fragment.hltHIIter1MaskedMeasurementTrackerEventForjets = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
+    clustersToSkip = cms.InputTag( "hltHIIter1ClustersRefRemovalForjets" ),
+    OnDemand = cms.bool( False ),
+    src = cms.InputTag( "hltHISiStripClustersZeroSuppression" )
+)
+fragment.hltHIDetachedPixelLayerTripletsForjets = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+      'BPix1+BPix2+FPix1_pos',
+      'BPix1+BPix2+FPix1_neg',
+      'BPix1+FPix1_pos+FPix2_pos',
+      'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      skipClusters = cms.InputTag( "hltHIIter1ClustersRefRemovalForjets" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      skipClusters = cms.InputTag( "hltHIIter1ClustersRefRemovalForjets" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltHIDetachedPixelTracksForjetsFilter = cms.EDProducer( "HIPixelTrackFilterProducer",
+    nSigmaLipMaxTolerance = cms.double( 0.0 ),
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" ),
+    VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    useClusterShape = cms.bool( False ),
+    lipMax = cms.double( 1.0 ),
+    ptMax = cms.double( 999999.0 ),
+    tipMax = cms.double( 1.0 ),
+    ptMin = cms.double( 0.95 )
+)
+fragment.hltHIDetachedPixelTracksForjetsFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIDetachedPixelTracksTrackingRegionsForjets = cms.EDProducer( "CandidateSeededTrackingRegionsEDProducer",
+    RegionPSet = cms.PSet( 
+      vertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+      zErrorVetex = cms.double( 0.1 ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      zErrorBeamSpot = cms.double( 15.0 ),
+      maxNVertices = cms.int32( 100 ),
+      maxNRegions = cms.int32( 100 ),
+      nSigmaZVertex = cms.double( 3.0 ),
+      nSigmaZBeamSpot = cms.double( 3.0 ),
+      ptMin = cms.double( 0.9 ),
+      mode = cms.string( "VerticesFixed" ),
+      input = cms.InputTag( "hltReduceJetMultEta2p1Forjets" ),
+      searchOpt = cms.bool( True ),
+      whereToUseMeasurementTracker = cms.string( "ForSiStrips" ),
+      originRadius = cms.double( 0.5 ),
+      measurementTrackerName = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+      precise = cms.bool( True ),
+      deltaEta = cms.double( 0.5 ),
+      deltaPhi = cms.double( 0.5 )
+    )
+)
+fragment.hltHIDetachedPixelTracksHitDoubletsForjets = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIDetachedPixelTracksTrackingRegionsForjets" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIDetachedPixelLayerTripletsForjets" )
+)
+fragment.hltHIDetachedPixelTracksHitTripletsForjets = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 1000000 ),
+    SeedComparitorPSet = cms.PSet( 
+      clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
+      ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.0 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIDetachedPixelTracksHitDoubletsForjets" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.0 )
+)
+fragment.hltHIDetachedPixelTracksForjets = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIDetachedPixelTracksForjetsFilter" ),
+    Cleaner = cms.string( "hltTrackCleaner" ),
+    passLabel = cms.string( "Pixel detached tracks with vertex constraint" ),
+    Fitter = cms.InputTag( "hltHIDetachedPixelTracksForjetsFitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIDetachedPixelTracksHitTripletsForjets" )
+)
+fragment.hltHIDetachedPixelTrackSeedsForjets = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
+    useEventsWithNoVertex = cms.bool( True ),
+    originHalfLength = cms.double( 1.0E9 ),
+    useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
+    SeedCreatorPSet = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      SeedMomentumForBOFF = cms.double( 5.0 ),
+      propagator = cms.string( "PropagatorWithMaterialForHI" ),
+      forceKinematicWithRegionDirection = cms.bool( False ),
+      magneticField = cms.string( "ParabolicMf" ),
+      OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      MinOneOverPtError = cms.double( 1.0 )
+    ),
+    InputVertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    InputCollection = cms.InputTag( "hltHIDetachedPixelTracksForjets" ),
+    originRadius = cms.double( 1.0E9 )
+)
+fragment.hltHIDetachedTrackCandidatesForjets = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltHIDetachedPixelTrackSeedsForjets" ),
+    maxSeedsBeforeCleaning = cms.uint32( 5000 ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterialForHI" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOppositeForHI" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter1MaskedMeasurementTrackerEventForjets" ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    doSeedingRegionRebuilding = cms.bool( True ),
+    maxNSeeds = cms.uint32( 500000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryBuilderForHI" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" )
+)
+fragment.hltHIDetachedGlobalPrimTracksForjets = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIDetachedTrackCandidatesForjets" ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter1MaskedMeasurementTrackerEventForjets" ),
+    Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "detachedTripletStep" ),
+    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    GeometricInnerState = cms.bool( False ),
+    useSimpleMF = cms.bool( True ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
+)
+fragment.hltHIIter1TrackSelectionForjets = cms.EDProducer( "HIMultiTrackSelector",
+    src = cms.InputTag( "hltHIDetachedGlobalPrimTracksForjets" ),
+    trackSelectors = cms.VPSet( 
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 0.4, 4.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.2 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -1.0 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( False ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "loose" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 9999.0 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 0.4, 4.0 ),
+        name = cms.string( "hiDetachedTripletStepLoose" ),
+        useMVA = cms.bool( False ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiDetachedTripletStepLoose" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 5.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.075 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.2 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( False ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "tight" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.25 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 5.0, 0.0 ),
+        name = cms.string( "hiDetachedTripletStepTight" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiDetachedTripletStepTight" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 3.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.05 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.09 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( False ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "highPurity" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.15 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 3.0, 0.0 ),
+        name = cms.string( "hiDetachedTripletStep" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      )
+    ),
+    GBRForestLabel = cms.string( "HIMVASelectorIter7" ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    GBRForestVars = cms.vstring( 'chi2perdofperlayer',
+      'nhits',
+      'nlayers',
+      'eta' ),
+    useVtxError = cms.bool( True ),
+    useAnyMVA = cms.bool( True ),
+    useVertices = cms.bool( True )
+)
+fragment.hltHIIter2ClustersRefRemovalForjets = cms.EDProducer( "HITrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    trajectories = cms.InputTag( "hltHIDetachedGlobalPrimTracksForjets" ),
+    oldClusterRemovalInfo = cms.InputTag( "hltHIIter1ClustersRefRemovalForjets" ),
+    stripClusters = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityZeroSuppression" ),
+    overrideTrkQuals = cms.InputTag( 'hltHIIter1TrackSelectionForjets','hiDetachedTripletStep' ),
+    pixelClusters = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
+    Strip = cms.PSet( 
+      maxSize = cms.uint32( 2 ),
+      maxChi2 = cms.double( 9.0 )
+    ),
+    TrackQuality = cms.string( "highPurity" ),
+    clusterLessSolution = cms.bool( True )
+)
+fragment.hltHIIter2MaskedMeasurementTrackerEventForjets = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
+    clustersToSkip = cms.InputTag( "hltHIIter2ClustersRefRemovalForjets" ),
+    OnDemand = cms.bool( False ),
+    src = cms.InputTag( "hltHISiStripClustersZeroSuppression" )
+)
+fragment.hltHIPixelLayerPairsForjets = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2',
+      'BPix1+BPix3',
+      'BPix2+BPix3',
+      'BPix1+FPix1_pos',
+      'BPix1+FPix1_neg',
+      'BPix2+FPix1_pos',
+      'BPix2+FPix1_neg',
+      'FPix1_pos+FPix2_pos',
+      'FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      skipClusters = cms.InputTag( "hltHIIter2ClustersRefRemovalForjets" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      skipClusters = cms.InputTag( "hltHIIter2ClustersRefRemovalForjets" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltHIPixelPairTrackingRegionsForjets = cms.EDProducer( "CandidateSeededTrackingRegionsEDProducer",
+    RegionPSet = cms.PSet( 
+      vertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+      zErrorVetex = cms.double( 0.1 ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      zErrorBeamSpot = cms.double( 15.0 ),
+      maxNVertices = cms.int32( 100 ),
+      maxNRegions = cms.int32( 100 ),
+      nSigmaZVertex = cms.double( 3.0 ),
+      nSigmaZBeamSpot = cms.double( 3.0 ),
+      ptMin = cms.double( 1.0 ),
+      mode = cms.string( "VerticesFixed" ),
+      input = cms.InputTag( "hltReduceJetMultEta2p1Forjets" ),
+      searchOpt = cms.bool( True ),
+      whereToUseMeasurementTracker = cms.string( "ForSiStrips" ),
+      originRadius = cms.double( 0.005 ),
+      measurementTrackerName = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+      precise = cms.bool( True ),
+      deltaEta = cms.double( 0.5 ),
+      deltaPhi = cms.double( 0.5 )
+    )
+)
+fragment.hltHIPixelPairClusterCheckForjets = cms.EDProducer( "ClusterCheckerEDProducer",
+    cut = cms.string( "" ),
+    silentClusterCheck = cms.untracked.bool( False ),
+    MaxNumberOfCosmicClusters = cms.uint32( 50000000 ),
+    PixelClusterCollectionLabel = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    doClusterCheck = cms.bool( True ),
+    MaxNumberOfPixelClusters = cms.uint32( 500000 ),
+    ClusterCollectionLabel = cms.InputTag( "hltHISiStripClustersZeroSuppression" )
+)
+fragment.hltHIPixelPairHitDoubletsForjets = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixelPairTrackingRegionsForjets" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "hltHIPixelPairClusterCheckForjets" ),
+    produceSeedingHitSets = cms.bool( True ),
+    produceIntermediateHitDoublets = cms.bool( False ),
+    maxElement = cms.uint32( 5000000 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerPairsForjets" )
+)
+fragment.hltHIPixelPairSeedsForjets = cms.EDProducer( "SeedCreatorFromRegionConsecutiveHitsEDProducer",
+    SeedComparitorPSet = cms.PSet( 
+      FilterStripHits = cms.bool( False ),
+      FilterPixelHits = cms.bool( True ),
+      ClusterShapeHitFilterName = cms.string( "ClusterShapeHitFilter" ),
+      FilterAtHelixStage = cms.bool( True ),
+      ComponentName = cms.string( "PixelClusterShapeSeedComparitor" ),
+      ClusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" )
+    ),
+    forceKinematicWithRegionDirection = cms.bool( False ),
+    magneticField = cms.string( "ParabolicMf" ),
+    SeedMomentumForBOFF = cms.double( 5.0 ),
+    OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    MinOneOverPtError = cms.double( 1.0 ),
+    seedingHitSets = cms.InputTag( "hltHIPixelPairHitDoubletsForjets" ),
+    propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
+)
+fragment.hltHIPixelPairTrackCandidatesForjets = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltHIPixelPairSeedsForjets" ),
+    maxSeedsBeforeCleaning = cms.uint32( 5000 ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterialForHI" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOppositeForHI" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter2MaskedMeasurementTrackerEventForjets" ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    doSeedingRegionRebuilding = cms.bool( True ),
+    maxNSeeds = cms.uint32( 500000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairCkfTrajectoryBuilderForHI" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" )
+)
+fragment.hltHIPixelPairGlobalPrimTracksForjets = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIPixelPairTrackCandidatesForjets" ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter2MaskedMeasurementTrackerEventForjets" ),
+    Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "pixelPairStep" ),
+    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( True ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
+)
+fragment.hltHIIter2TrackSelectionForjets = cms.EDProducer( "HIMultiTrackSelector",
+    src = cms.InputTag( "hltHIPixelPairGlobalPrimTracksForjets" ),
+    trackSelectors = cms.VPSet( 
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 0.4, 4.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.2 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -1.0 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "loose" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 9999.0 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 0.4, 4.0 ),
+        name = cms.string( "hiPixelPairStepLoose" ),
+        useMVA = cms.bool( False ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiPixelPairStepLoose" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 5.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.075 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.58 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "tight" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.25 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 5.0, 0.0 ),
+        name = cms.string( "hiPixelPairStepTight" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiPixelPairStepTight" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 3.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.05 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( 0.77 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "highPurity" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.15 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 3.0, 0.0 ),
+        name = cms.string( "hiPixelPairStep" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      )
+    ),
+    GBRForestLabel = cms.string( "HIMVASelectorIter6" ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    GBRForestVars = cms.vstring( 'chi2perdofperlayer',
+      'dxyperdxyerror',
+      'dzperdzerror',
+      'nhits',
+      'nlayers',
+      'eta' ),
+    useVtxError = cms.bool( True ),
+    useAnyMVA = cms.bool( True ),
+    useVertices = cms.bool( True )
+)
+fragment.hltHIIterTrackingMergedHighPurityForjets = cms.EDProducer( "TrackListMerger",
+    ShareFrac = cms.double( 0.19 ),
+    writeOnlyTrkQuals = cms.bool( False ),
+    MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
+    copyExtras = cms.untracked.bool( False ),
+    Epsilon = cms.double( -0.001 ),
+    selectedTrackQuals = cms.VInputTag( 'hltHIIter0TrackSelectionForjets:hiInitialStep','hltHIIter1TrackSelectionForjets:hiDetachedTripletStep','hltHIIter2TrackSelectionForjets:hiPixelPairStep' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0, 1.0 ),
+    MaxNormalizedChisq = cms.double( 1000.0 ),
+    copyMVA = cms.bool( True ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( True ),
+        tLists = cms.vint32( 0, 1, 2 )
+      )
+    ),
+    MinFound = cms.int32( 3 ),
+    hasSelector = cms.vint32( 1, 1, 1 ),
+    TrackProducers = cms.VInputTag( 'hltHIGlobalPrimTracksForjets','hltHIDetachedGlobalPrimTracksForjets','hltHIPixelPairGlobalPrimTracksForjets' ),
+    LostHitPenalty = cms.double( 20.0 ),
+    newQuality = cms.string( "confirmed" )
+)
+fragment.hltHIIterTrackingMergedTightForjets = cms.EDProducer( "TrackListMerger",
+    ShareFrac = cms.double( 0.19 ),
+    writeOnlyTrkQuals = cms.bool( False ),
+    MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
+    copyExtras = cms.untracked.bool( False ),
+    Epsilon = cms.double( -0.001 ),
+    selectedTrackQuals = cms.VInputTag( 'hltHIIter0TrackSelectionForjets:hiInitialStepTight','hltHIIter1TrackSelectionForjets:hiDetachedTripletStepTight','hltHIIter2TrackSelectionForjets:hiPixelPairStepTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0, 1.0 ),
+    MaxNormalizedChisq = cms.double( 1000.0 ),
+    copyMVA = cms.bool( True ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( True ),
+        tLists = cms.vint32( 0, 1, 2 )
+      )
+    ),
+    MinFound = cms.int32( 3 ),
+    hasSelector = cms.vint32( 1, 1, 1 ),
+    TrackProducers = cms.VInputTag( 'hltHIGlobalPrimTracksForjets','hltHIDetachedGlobalPrimTracksForjets','hltHIPixelPairGlobalPrimTracksForjets' ),
+    LostHitPenalty = cms.double( 20.0 ),
+    newQuality = cms.string( "confirmed" )
+)
+fragment.hltHIFullTrackCandsForDmesonjets = cms.EDProducer( "ConcreteChargedCandidateProducer",
+    src = cms.InputTag( "hltHIIterTrackingMergedTightForjets" ),
+    particleType = cms.string( "pi+" )
+)
+fragment.hltHIFullTrackFilterForDmesonjets = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 0 ),
+    MinPt = cms.double( 2.5 ),
+    MaxVz = cms.double( 9999.0 ),
+    MaxEta = cms.double( 99999.0 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForDmesonjets" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertex" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 999.0 )
+)
+fragment.hltTktkVtxForDmesonjetsCaloJet60 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonjets" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonjets" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.17 ),
+    MinPtPair = cms.double( 7.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.57 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonjetsCaloJet60 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonjets" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonjetsCaloJet60" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.95 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 2.5 )
+)
+fragment.hltPreHIPuAK4CaloDJet80Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltJets4bTaggerCaloJet80Eta2p1Forjets = cms.EDFilter( "EtMinCaloJetSelector",
+    filter = cms.bool( False ),
+    src = cms.InputTag( "hltReduceJetMultEta2p1Forjets" ),
+    etMin = cms.double( 80.0 )
+)
+fragment.hltTktkVtxForDmesonjetsCaloJet80 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonjets" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonjets" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.17 ),
+    MinPtPair = cms.double( 7.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.57 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonjetsCaloJet80 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonjets" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonjetsCaloJet80" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.95 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 2.5 )
+)
+fragment.hltPreHIPuAK4CaloBJetCSV60Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIVerticesL3 = cms.EDProducer( "PrimaryVertexProducer",
+    vertexCollections = cms.VPSet( 
+      cms.PSet(  label = cms.string( "" ),
+        useBeamConstraint = cms.bool( False ),
+        minNdof = cms.double( 0.0 ),
+        maxDistanceToBeam = cms.double( 1.0 ),
+        algorithm = cms.string( "AdaptiveVertexFitter" )
+      ),
+      cms.PSet(  label = cms.string( "WithBS" ),
+        useBeamConstraint = cms.bool( True ),
+        minNdof = cms.double( 0.0 ),
+        maxDistanceToBeam = cms.double( 1.0 ),
+        algorithm = cms.string( "AdaptiveVertexFitter" )
+      )
+    ),
+    verbose = cms.untracked.bool( False ),
+    TkFilterParameters = cms.PSet( 
+      minPt = cms.double( 0.0 ),
+      minSiliconLayersWithHits = cms.int32( 5 ),
+      minPixelLayersWithHits = cms.int32( 2 ),
+      maxNormalizedChi2 = cms.double( 20.0 ),
+      trackQuality = cms.string( "any" ),
+      algorithm = cms.string( "filter" ),
+      maxD0Significance = cms.double( 999.0 )
+    ),
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    TrackLabel = cms.InputTag( "hltHIIterTrackingMergedTightForjets" ),
+    TkClusParameters = cms.PSet( 
+      TkDAClusParameters = cms.PSet( 
+        d0CutOff = cms.double( 999.0 ),
+        dzCutOff = cms.double( 4.0 ),
+        vertexSize = cms.double( 0.15 ),
+        coolingFactor = cms.double( 0.6 ),
+        Tmin = cms.double( 4.0 ),
+        use_vdt = cms.untracked.bool( True )
+      ),
+      algorithm = cms.string( "DA_vect" )
+    )
+)
+fragment.hltFastPixelBLifetimeL3AssociatorCaloJet60Eta2p1 = cms.EDProducer( "JetTracksAssociatorAtVertex",
+    jets = cms.InputTag( "hltJets4bTaggerCaloJet60Eta2p1Forjets" ),
+    tracks = cms.InputTag( "hltHIIterTrackingMergedTightForjets" ),
+    useAssigned = cms.bool( False ),
+    coneSize = cms.double( 0.4 ),
+    pvSrc = cms.InputTag( "" )
+)
+fragment.hltFastPixelBLifetimeL3TagInfosCaloJet60Eta2p1 = cms.EDProducer( "TrackIPProducer",
+    maximumTransverseImpactParameter = cms.double( 0.2 ),
+    minimumNumberOfHits = cms.int32( 8 ),
+    minimumTransverseMomentum = cms.double( 1.0 ),
+    primaryVertex = cms.InputTag( 'hltHIVerticesL3','WithBS' ),
+    maximumLongitudinalImpactParameter = cms.double( 17.0 ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
+    jetTracks = cms.InputTag( "hltFastPixelBLifetimeL3AssociatorCaloJet60Eta2p1" ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
+    minimumNumberOfPixelHits = cms.int32( 2 ),
+    jetDirectionUsingTracks = cms.bool( False ),
+    computeProbabilities = cms.bool( False ),
+    useTrackQuality = cms.bool( False ),
+    maximumChiSquared = cms.double( 20.0 )
+)
+fragment.hltL3SecondaryVertexTagInfosCaloJet60Eta2p1 = cms.EDProducer( "SecondaryVertexProducer",
+    extSVDeltaRToJet = cms.double( 0.3 ),
+    beamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertexReco = cms.PSet( 
+      primcut = cms.double( 1.8 ),
+      seccut = cms.double( 6.0 ),
+      finder = cms.string( "avr" ),
+      weightthreshold = cms.double( 0.001 ),
+      minweight = cms.double( 0.5 ),
+      smoothing = cms.bool( False )
+    ),
+    vertexSelection = cms.PSet(  sortCriterium = cms.string( "dist3dError" ) ),
+    constraint = cms.string( "BeamSpot" ),
+    trackIPTagInfos = cms.InputTag( "hltFastPixelBLifetimeL3TagInfosCaloJet60Eta2p1" ),
+    vertexCuts = cms.PSet( 
+      distSig2dMin = cms.double( 3.0 ),
+      useTrackWeights = cms.bool( True ),
+      distVal3dMax = cms.double( 99999.9 ),
+      massMax = cms.double( 6.5 ),
+      distSig3dMax = cms.double( 99999.9 ),
+      distVal2dMin = cms.double( 0.01 ),
+      minimumTrackWeight = cms.double( 0.5 ),
+      v0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+      distSig2dMax = cms.double( 99999.9 ),
+      distSig3dMin = cms.double( -99999.9 ),
+      fracPV = cms.double( 0.65 ),
+      maxDeltaRToJetAxis = cms.double( 0.5 ),
+      distVal2dMax = cms.double( 2.5 ),
+      distVal3dMin = cms.double( -99999.9 ),
+      multiplicityMin = cms.uint32( 2 )
+    ),
+    useExternalSV = cms.bool( False ),
+    minimumTrackWeight = cms.double( 0.5 ),
+    usePVError = cms.bool( True ),
+    trackSelection = cms.PSet( 
+      maxDistToAxis = cms.double( 0.2 ),
+      totalHitsMin = cms.uint32( 2 ),
+      ptMin = cms.double( 1.0 ),
+      sip2dSigMax = cms.double( 99999.9 ),
+      sip2dValMax = cms.double( 99999.9 ),
+      sip3dSigMax = cms.double( 99999.9 ),
+      sip3dValMax = cms.double( 99999.9 ),
+      maxDecayLen = cms.double( 99999.9 ),
+      qualityClass = cms.string( "any" ),
+      jetDeltaRMax = cms.double( 0.3 ),
+      normChi2Max = cms.double( 99999.9 ),
+      pixelHitsMin = cms.uint32( 2 ),
+      sip2dSigMin = cms.double( -99999.9 ),
+      sip2dValMin = cms.double( -99999.9 ),
+      sip3dSigMin = cms.double( -99999.9 ),
+      sip3dValMin = cms.double( -99999.9 )
+    ),
+    trackSort = cms.string( "sip3dSig" ),
+    extSVCollection = cms.InputTag( "secondaryVertices" )
+)
+fragment.hltL3CombinedSecondaryVertexBJetTagsCaloJet60Eta2p1 = cms.EDProducer( "JetTagProducer",
+    jetTagComputer = cms.string( "hltCombinedSecondaryVertex" ),
+    tagInfos = cms.VInputTag( 'hltFastPixelBLifetimeL3TagInfosCaloJet60Eta2p1','hltL3SecondaryVertexTagInfosCaloJet60Eta2p1' )
+)
+fragment.hltBLifetimeL3FilterCSVCaloJet60Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
+    saveTags = cms.bool( True ),
+    MinJets = cms.int32( 1 ),
+    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTagsCaloJet60Eta2p1" ),
+    TriggerType = cms.int32( 86 ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet60Eta2p1Forjets" ),
+    MinTag = cms.double( 0.7 ),
+    MaxTag = cms.double( 99999.0 )
+)
+fragment.hltPreHIPuAK4CaloBJetCSV80Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltFastPixelBLifetimeL3AssociatorCaloJet80Eta2p1 = cms.EDProducer( "JetTracksAssociatorAtVertex",
+    jets = cms.InputTag( "hltJets4bTaggerCaloJet80Eta2p1Forjets" ),
+    tracks = cms.InputTag( "hltHIIterTrackingMergedTightForjets" ),
+    useAssigned = cms.bool( False ),
+    coneSize = cms.double( 0.4 ),
+    pvSrc = cms.InputTag( "" )
+)
+fragment.hltFastPixelBLifetimeL3TagInfosCaloJet80Eta2p1 = cms.EDProducer( "TrackIPProducer",
+    maximumTransverseImpactParameter = cms.double( 0.2 ),
+    minimumNumberOfHits = cms.int32( 8 ),
+    minimumTransverseMomentum = cms.double( 1.0 ),
+    primaryVertex = cms.InputTag( 'hltHIVerticesL3','WithBS' ),
+    maximumLongitudinalImpactParameter = cms.double( 17.0 ),
+    computeGhostTrack = cms.bool( False ),
+    ghostTrackPriorDeltaR = cms.double( 0.03 ),
+    jetTracks = cms.InputTag( "hltFastPixelBLifetimeL3AssociatorCaloJet80Eta2p1" ),
+    jetDirectionUsingGhostTrack = cms.bool( False ),
+    minimumNumberOfPixelHits = cms.int32( 2 ),
+    jetDirectionUsingTracks = cms.bool( False ),
+    computeProbabilities = cms.bool( False ),
+    useTrackQuality = cms.bool( False ),
+    maximumChiSquared = cms.double( 20.0 )
+)
+fragment.hltL3SecondaryVertexTagInfosCaloJet80Eta2p1 = cms.EDProducer( "SecondaryVertexProducer",
+    extSVDeltaRToJet = cms.double( 0.3 ),
+    beamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertexReco = cms.PSet( 
+      primcut = cms.double( 1.8 ),
+      seccut = cms.double( 6.0 ),
+      finder = cms.string( "avr" ),
+      weightthreshold = cms.double( 0.001 ),
+      minweight = cms.double( 0.5 ),
+      smoothing = cms.bool( False )
+    ),
+    vertexSelection = cms.PSet(  sortCriterium = cms.string( "dist3dError" ) ),
+    constraint = cms.string( "BeamSpot" ),
+    trackIPTagInfos = cms.InputTag( "hltFastPixelBLifetimeL3TagInfosCaloJet80Eta2p1" ),
+    vertexCuts = cms.PSet( 
+      distSig2dMin = cms.double( 3.0 ),
+      useTrackWeights = cms.bool( True ),
+      distVal3dMax = cms.double( 99999.9 ),
+      massMax = cms.double( 6.5 ),
+      distSig3dMax = cms.double( 99999.9 ),
+      distVal2dMin = cms.double( 0.01 ),
+      minimumTrackWeight = cms.double( 0.5 ),
+      v0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.05 ) ),
+      distSig2dMax = cms.double( 99999.9 ),
+      distSig3dMin = cms.double( -99999.9 ),
+      fracPV = cms.double( 0.65 ),
+      maxDeltaRToJetAxis = cms.double( 0.5 ),
+      distVal2dMax = cms.double( 2.5 ),
+      distVal3dMin = cms.double( -99999.9 ),
+      multiplicityMin = cms.uint32( 2 )
+    ),
+    useExternalSV = cms.bool( False ),
+    minimumTrackWeight = cms.double( 0.5 ),
+    usePVError = cms.bool( True ),
+    trackSelection = cms.PSet( 
+      maxDistToAxis = cms.double( 0.2 ),
+      totalHitsMin = cms.uint32( 2 ),
+      ptMin = cms.double( 1.0 ),
+      sip2dSigMax = cms.double( 99999.9 ),
+      sip2dValMax = cms.double( 99999.9 ),
+      sip3dSigMax = cms.double( 99999.9 ),
+      sip3dValMax = cms.double( 99999.9 ),
+      maxDecayLen = cms.double( 99999.9 ),
+      qualityClass = cms.string( "any" ),
+      jetDeltaRMax = cms.double( 0.3 ),
+      normChi2Max = cms.double( 99999.9 ),
+      pixelHitsMin = cms.uint32( 2 ),
+      sip2dSigMin = cms.double( -99999.9 ),
+      sip2dValMin = cms.double( -99999.9 ),
+      sip3dSigMin = cms.double( -99999.9 ),
+      sip3dValMin = cms.double( -99999.9 )
+    ),
+    trackSort = cms.string( "sip3dSig" ),
+    extSVCollection = cms.InputTag( "secondaryVertices" )
+)
+fragment.hltL3CombinedSecondaryVertexBJetTagsCaloJet80Eta2p1 = cms.EDProducer( "JetTagProducer",
+    jetTagComputer = cms.string( "hltCombinedSecondaryVertex" ),
+    tagInfos = cms.VInputTag( 'hltFastPixelBLifetimeL3TagInfosCaloJet80Eta2p1','hltL3SecondaryVertexTagInfosCaloJet80Eta2p1' )
+)
+fragment.hltBLifetimeL3FilterCSVCaloJet80Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
+    saveTags = cms.bool( True ),
+    MinJets = cms.int32( 1 ),
+    JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTagsCaloJet80Eta2p1" ),
+    TriggerType = cms.int32( 86 ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet80Eta2p1Forjets" ),
+    MinTag = cms.double( 0.7 ),
+    MaxTag = cms.double( 99999.0 )
+)
+fragment.hltPreHIPuAK4CaloBJetSSV60Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL3SimpleSecondaryVertexBJetTagsCaloJet60Eta2p1 = cms.EDProducer( "JetTagProducer",
+    jetTagComputer = cms.string( "SimpleSecondaryVertex3TrkComputer" ),
+    tagInfos = cms.VInputTag( 'hltL3SecondaryVertexTagInfosCaloJet60Eta2p1' )
+)
+fragment.hltBLifetimeL3FilterSSVCaloJet60Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
+    saveTags = cms.bool( True ),
+    MinJets = cms.int32( 1 ),
+    JetTags = cms.InputTag( "hltL3SimpleSecondaryVertexBJetTagsCaloJet60Eta2p1" ),
+    TriggerType = cms.int32( 86 ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet60Eta2p1Forjets" ),
+    MinTag = cms.double( 0.01 ),
+    MaxTag = cms.double( 99999.0 )
+)
+fragment.hltPreHIPuAK4CaloBJetSSV80Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL3SimpleSecondaryVertexBJetTagsCaloJet80Eta2p1 = cms.EDProducer( "JetTagProducer",
+    jetTagComputer = cms.string( "SimpleSecondaryVertex3TrkComputer" ),
+    tagInfos = cms.VInputTag( 'hltL3SecondaryVertexTagInfosCaloJet80Eta2p1' )
+)
+fragment.hltBLifetimeL3FilterSSVCaloJet80Eta2p1 = cms.EDFilter( "HLTCaloJetTag",
+    saveTags = cms.bool( True ),
+    MinJets = cms.int32( 1 ),
+    JetTags = cms.InputTag( "hltL3SimpleSecondaryVertexBJetTagsCaloJet80Eta2p1" ),
+    TriggerType = cms.int32( 86 ),
+    Jets = cms.InputTag( "hltJets4bTaggerCaloJet80Eta2p1Forjets" ),
+    MinTag = cms.double( 0.01 ),
+    MaxTag = cms.double( 99999.0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt20 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPixel3PrimTracksForGlobalPt8Filter = cms.EDProducer( "HIPixelTrackFilterProducer",
+    nSigmaLipMaxTolerance = cms.double( 0.0 ),
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 6.0 ),
+    clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" ),
+    VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    useClusterShape = cms.bool( False ),
+    lipMax = cms.double( 0.3 ),
+    ptMax = cms.double( 999999.0 ),
+    tipMax = cms.double( 0.0 ),
+    ptMin = cms.double( 8.0 )
+)
+fragment.hltHIPixel3PrimTracksForGlobalPt8Fitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIPixel3PrimTracksForGlobalPt8TrackingRegions = cms.EDProducer( "GlobalTrackingRegionWithVerticesEDProducer",
+    RegionPSet = cms.PSet( 
+      useFixedError = cms.bool( True ),
+      nSigmaZ = cms.double( 3.0 ),
+      VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      useFoundVertices = cms.bool( True ),
+      fixedError = cms.double( 0.2 ),
+      sigmaZVertex = cms.double( 3.0 ),
+      useFakeVertices = cms.bool( False ),
+      ptMin = cms.double( 4.0 ),
+      originRadius = cms.double( 0.1 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltHIPixel3PrimTracksForGlobalPt8HitPairs = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixel3PrimTracksForGlobalPt8TrackingRegions" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerTripletsAfterSplitting" )
+)
+fragment.hltHIPixel3PrimTracksForGlobalPt8HitTriplets = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 1000000 ),
+    SeedComparitorPSet = cms.PSet( 
+      ComponentName = cms.string( "none" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.032 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIPixel3PrimTracksForGlobalPt8HitPairs" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.037 )
+)
+fragment.hltHIPixel3PrimTracksForGlobalPt8 = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIPixel3PrimTracksForGlobalPt8Filter" ),
+    Cleaner = cms.string( "hltTrackCleaner" ),
+    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
+    Fitter = cms.InputTag( "hltHIPixel3PrimTracksForGlobalPt8Fitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIPixel3PrimTracksForGlobalPt8HitTriplets" )
+)
+fragment.hltHIPixelTrackSeedsForGlobalPt8 = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
+    useEventsWithNoVertex = cms.bool( True ),
+    originHalfLength = cms.double( 1.0E9 ),
+    useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
+    SeedCreatorPSet = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      SeedMomentumForBOFF = cms.double( 5.0 ),
+      propagator = cms.string( "PropagatorWithMaterialForHI" ),
+      forceKinematicWithRegionDirection = cms.bool( False ),
+      magneticField = cms.string( "ParabolicMf" ),
+      OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      MinOneOverPtError = cms.double( 1.0 )
+    ),
+    InputVertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    InputCollection = cms.InputTag( "hltHIPixel3PrimTracksForGlobalPt8" ),
+    originRadius = cms.double( 1.0E9 )
+)
+fragment.hltHIPrimTrackCandidatesForGlobalPt8 = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltHIPixelTrackSeedsForGlobalPt8" ),
+    maxSeedsBeforeCleaning = cms.uint32( 5000 ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterialForHI" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOppositeForHI" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedSeeds" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
+    RedundantSeedCleaner = cms.string( "none" ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    maxNSeeds = cms.uint32( 500000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetInitialCkfTrajectoryBuilderForHI" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" )
+)
+fragment.hltHIGlobalPrimTracksForGlobalPt8 = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIPrimTrackCandidatesForGlobalPt8" ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClustersZeroSuppression" ),
+    Fitter = cms.string( "hltESPKFFittingSmootherWithOutliersRejectionAndRK" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "initialStep" ),
+    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    GeometricInnerState = cms.bool( False ),
+    useSimpleMF = cms.bool( True ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
+)
+fragment.hltHIIter0TrackSelectionForGlobalPt8 = cms.EDProducer( "HIMultiTrackSelector",
+    src = cms.InputTag( "hltHIGlobalPrimTracksForGlobalPt8" ),
+    trackSelectors = cms.VPSet( 
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 0.4, 4.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.2 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -1.0 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "loose" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 9999.0 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 0.4, 4.0 ),
+        name = cms.string( "hiInitialStepLoose" ),
+        useMVA = cms.bool( False ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiInitialStepLoose" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 5.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.075 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.77 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "tight" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.25 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 5.0, 0.0 ),
+        name = cms.string( "hiInitialStepTight" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiInitialStepTight" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 3.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.05 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.77 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "highPurity" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.15 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 3.0, 0.0 ),
+        name = cms.string( "hiInitialStep" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      )
+    ),
+    GBRForestLabel = cms.string( "HIMVASelectorIter4" ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    GBRForestVars = cms.vstring( 'chi2perdofperlayer',
+      'dxyperdxyerror',
+      'dzperdzerror',
+      'nhits',
+      'nlayers',
+      'eta' ),
+    useVtxError = cms.bool( True ),
+    useAnyMVA = cms.bool( True ),
+    useVertices = cms.bool( True )
+)
+fragment.hltHIIter1ClustersRefRemovalForGlobalPt8 = cms.EDProducer( "HITrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    trajectories = cms.InputTag( "hltHIGlobalPrimTracksForGlobalPt8" ),
+    oldClusterRemovalInfo = cms.InputTag( "" ),
+    stripClusters = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityZeroSuppression" ),
+    overrideTrkQuals = cms.InputTag( 'hltHIIter0TrackSelectionForGlobalPt8','hiInitialStep' ),
+    pixelClusters = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
+    Strip = cms.PSet( 
+      maxSize = cms.uint32( 2 ),
+      maxChi2 = cms.double( 9.0 )
+    ),
+    TrackQuality = cms.string( "highPurity" ),
+    clusterLessSolution = cms.bool( True )
+)
+fragment.hltHIIter1MaskedMeasurementTrackerEventForGlobalPt8 = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
+    clustersToSkip = cms.InputTag( "hltHIIter1ClustersRefRemovalForGlobalPt8" ),
+    OnDemand = cms.bool( False ),
+    src = cms.InputTag( "hltHISiStripClustersZeroSuppression" )
+)
+fragment.hltHIDetachedPixelLayerTripletsForGlobalPt8 = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+      'BPix1+BPix2+FPix1_pos',
+      'BPix1+BPix2+FPix1_neg',
+      'BPix1+FPix1_pos+FPix2_pos',
+      'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      skipClusters = cms.InputTag( "hltHIIter1ClustersRefRemovalForGlobalPt8" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      skipClusters = cms.InputTag( "hltHIIter1ClustersRefRemovalForGlobalPt8" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltHIDetachedPixelTracksForGlobalPt8Filter = cms.EDProducer( "HIPixelTrackFilterProducer",
+    nSigmaLipMaxTolerance = cms.double( 0.0 ),
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" ),
+    VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    useClusterShape = cms.bool( False ),
+    lipMax = cms.double( 1.0 ),
+    ptMax = cms.double( 999999.0 ),
+    tipMax = cms.double( 1.0 ),
+    ptMin = cms.double( 8.0 )
+)
+fragment.hltHIDetachedPixelTracksForGlobalPt8Fitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIDetachedPixelTracksTrackingRegionsForGlobalPt8 = cms.EDProducer( "GlobalTrackingRegionWithVerticesEDProducer",
+    RegionPSet = cms.PSet( 
+      useFixedError = cms.bool( True ),
+      nSigmaZ = cms.double( 4.0 ),
+      VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      useFoundVertices = cms.bool( True ),
+      fixedError = cms.double( 0.5 ),
+      sigmaZVertex = cms.double( 4.0 ),
+      useFakeVertices = cms.bool( False ),
+      ptMin = cms.double( 4.0 ),
+      originRadius = cms.double( 0.5 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltHIDetachedPixelTracksHitDoubletsForGlobalPt8 = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIDetachedPixelTracksTrackingRegionsForGlobalPt8" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIDetachedPixelLayerTripletsForGlobalPt8" )
+)
+fragment.hltHIDetachedPixelTracksHitTripletsForGlobalPt8 = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 1000000 ),
+    SeedComparitorPSet = cms.PSet( 
+      clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
+      ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.0 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIDetachedPixelTracksHitDoubletsForGlobalPt8" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.0 )
+)
+fragment.hltHIDetachedPixelTracksForGlobalPt8 = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIDetachedPixelTracksForGlobalPt8Filter" ),
+    Cleaner = cms.string( "hltTrackCleaner" ),
+    passLabel = cms.string( "Pixel detached tracks with vertex constraint" ),
+    Fitter = cms.InputTag( "hltHIDetachedPixelTracksForGlobalPt8Fitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIDetachedPixelTracksHitTripletsForGlobalPt8" )
+)
+fragment.hltHIDetachedPixelTrackSeedsForGlobalPt8 = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
+    useEventsWithNoVertex = cms.bool( True ),
+    originHalfLength = cms.double( 1.0E9 ),
+    useProtoTrackKinematics = cms.bool( False ),
+    usePV = cms.bool( False ),
+    SeedCreatorPSet = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      SeedMomentumForBOFF = cms.double( 5.0 ),
+      propagator = cms.string( "PropagatorWithMaterialForHI" ),
+      forceKinematicWithRegionDirection = cms.bool( False ),
+      magneticField = cms.string( "ParabolicMf" ),
+      OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+      MinOneOverPtError = cms.double( 1.0 )
+    ),
+    InputVertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    InputCollection = cms.InputTag( "hltHIDetachedPixelTracksForGlobalPt8" ),
+    originRadius = cms.double( 1.0E9 )
+)
+fragment.hltHIDetachedTrackCandidatesForGlobalPt8 = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltHIDetachedPixelTrackSeedsForGlobalPt8" ),
+    maxSeedsBeforeCleaning = cms.uint32( 5000 ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterialForHI" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOppositeForHI" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter1MaskedMeasurementTrackerEventForGlobalPt8" ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    doSeedingRegionRebuilding = cms.bool( True ),
+    maxNSeeds = cms.uint32( 500000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetDetachedCkfTrajectoryBuilderForHIGlobalPt8" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" )
+)
+fragment.hltHIDetachedGlobalPrimTracksForGlobalPt8 = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIDetachedTrackCandidatesForGlobalPt8" ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter1MaskedMeasurementTrackerEventForGlobalPt8" ),
+    Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "detachedTripletStep" ),
+    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    GeometricInnerState = cms.bool( False ),
+    useSimpleMF = cms.bool( True ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
+)
+fragment.hltHIIter1TrackSelectionForGlobalPt8 = cms.EDProducer( "HIMultiTrackSelector",
+    src = cms.InputTag( "hltHIDetachedGlobalPrimTracksForGlobalPt8" ),
+    trackSelectors = cms.VPSet( 
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 0.4, 4.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.2 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -1.0 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( False ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "loose" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 9999.0 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 0.4, 4.0 ),
+        name = cms.string( "hiDetachedTripletStepLoose" ),
+        useMVA = cms.bool( False ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiDetachedTripletStepLoose" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 5.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.075 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.2 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( False ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "tight" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.25 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 5.0, 0.0 ),
+        name = cms.string( "hiDetachedTripletStepTight" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiDetachedTripletStepTight" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 3.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.05 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.09 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( False ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "highPurity" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.15 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 3.0, 0.0 ),
+        name = cms.string( "hiDetachedTripletStep" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      )
+    ),
+    GBRForestLabel = cms.string( "HIMVASelectorIter7" ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    GBRForestVars = cms.vstring( 'chi2perdofperlayer',
+      'nhits',
+      'nlayers',
+      'eta' ),
+    useVtxError = cms.bool( True ),
+    useAnyMVA = cms.bool( True ),
+    useVertices = cms.bool( True )
+)
+fragment.hltHIIter2ClustersRefRemovalForGlobalPt8 = cms.EDProducer( "HITrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    trajectories = cms.InputTag( "hltHIDetachedGlobalPrimTracksForGlobalPt8" ),
+    oldClusterRemovalInfo = cms.InputTag( "hltHIIter1ClustersRefRemovalForGlobalPt8" ),
+    stripClusters = cms.InputTag( "hltHITrackingSiStripRawToClustersFacilityZeroSuppression" ),
+    overrideTrkQuals = cms.InputTag( 'hltHIIter1TrackSelectionForGlobalPt8','hiDetachedTripletStep' ),
+    pixelClusters = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
+    Strip = cms.PSet( 
+      maxSize = cms.uint32( 2 ),
+      maxChi2 = cms.double( 9.0 )
+    ),
+    TrackQuality = cms.string( "highPurity" ),
+    clusterLessSolution = cms.bool( True )
+)
+fragment.hltHIIter2MaskedMeasurementTrackerEventForGlobalPt8 = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
+    clustersToSkip = cms.InputTag( "hltHIIter2ClustersRefRemovalForGlobalPt8" ),
+    OnDemand = cms.bool( False ),
+    src = cms.InputTag( "hltHISiStripClustersZeroSuppression" )
+)
+fragment.hltHIPixelLayerPairsForGlobalPt8 = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2',
+      'BPix1+BPix3',
+      'BPix2+BPix3',
+      'BPix1+FPix1_pos',
+      'BPix1+FPix1_neg',
+      'BPix2+FPix1_pos',
+      'BPix2+FPix1_neg',
+      'FPix1_pos+FPix2_pos',
+      'FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      skipClusters = cms.InputTag( "hltHIIter2ClustersRefRemovalForGlobalPt8" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      skipClusters = cms.InputTag( "hltHIIter2ClustersRefRemovalForGlobalPt8" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHitsAfterSplitting" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltHIPixelPairTrackingRegionsForGlobalPt8 = cms.EDProducer( "GlobalTrackingRegionWithVerticesEDProducer",
+    RegionPSet = cms.PSet( 
+      useFixedError = cms.bool( False ),
+      nSigmaZ = cms.double( 4.0 ),
+      VertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      useFoundVertices = cms.bool( True ),
+      fixedError = cms.double( 0.2 ),
+      sigmaZVertex = cms.double( 4.0 ),
+      useFakeVertices = cms.bool( False ),
+      ptMin = cms.double( 4.0 ),
+      originRadius = cms.double( 0.005 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltHIPixelPairClusterCheckForGlobalPt8 = cms.EDProducer( "ClusterCheckerEDProducer",
+    cut = cms.string( "" ),
+    silentClusterCheck = cms.untracked.bool( False ),
+    MaxNumberOfCosmicClusters = cms.uint32( 50000000 ),
+    PixelClusterCollectionLabel = cms.InputTag( "hltHISiPixelClustersAfterSplitting" ),
+    doClusterCheck = cms.bool( True ),
+    MaxNumberOfPixelClusters = cms.uint32( 500000 ),
+    ClusterCollectionLabel = cms.InputTag( "hltHISiStripClustersZeroSuppression" )
+)
+fragment.hltHIPixelPairHitDoubletsForGlobalPt8 = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixelPairTrackingRegionsForGlobalPt8" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "hltHIPixelPairClusterCheckForGlobalPt8" ),
+    produceSeedingHitSets = cms.bool( True ),
+    produceIntermediateHitDoublets = cms.bool( False ),
+    maxElement = cms.uint32( 5000000 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerPairsForGlobalPt8" )
+)
+fragment.hltHIPixelPairSeedsForGlobalPt8 = cms.EDProducer( "SeedCreatorFromRegionConsecutiveHitsEDProducer",
+    SeedComparitorPSet = cms.PSet( 
+      FilterStripHits = cms.bool( False ),
+      FilterPixelHits = cms.bool( True ),
+      ClusterShapeHitFilterName = cms.string( "ClusterShapeHitFilter" ),
+      FilterAtHelixStage = cms.bool( True ),
+      ComponentName = cms.string( "PixelClusterShapeSeedComparitor" ),
+      ClusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCacheAfterSplitting" )
+    ),
+    forceKinematicWithRegionDirection = cms.bool( False ),
+    magneticField = cms.string( "ParabolicMf" ),
+    SeedMomentumForBOFF = cms.double( 5.0 ),
+    OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    MinOneOverPtError = cms.double( 1.0 ),
+    seedingHitSets = cms.InputTag( "hltHIPixelPairHitDoubletsForGlobalPt8" ),
+    propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
+)
+fragment.hltHIPixelPairTrackCandidatesForGlobalPt8 = cms.EDProducer( "CkfTrackCandidateMaker",
+    src = cms.InputTag( "hltHIPixelPairSeedsForGlobalPt8" ),
+    maxSeedsBeforeCleaning = cms.uint32( 5000 ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterialForHI" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOppositeForHI" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter2MaskedMeasurementTrackerEventForGlobalPt8" ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    doSeedingRegionRebuilding = cms.bool( True ),
+    maxNSeeds = cms.uint32( 500000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetPixelPairCkfTrajectoryBuilderForHIGlobalPt8" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" )
+)
+fragment.hltHIPixelPairGlobalPrimTracksForGlobalPt8 = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIPixelPairTrackCandidatesForGlobalPt8" ),
+    SimpleMagneticField = cms.string( "ParabolicMf" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltHIIter2MaskedMeasurementTrackerEventForGlobalPt8" ),
+    Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "pixelPairStep" ),
+    alias = cms.untracked.string( "ctfWithMaterialTracks" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( True ),
+    Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
+)
+fragment.hltHIIter2TrackSelectionForGlobalPt8 = cms.EDProducer( "HIMultiTrackSelector",
+    src = cms.InputTag( "hltHIPixelPairGlobalPrimTracksForGlobalPt8" ),
+    trackSelectors = cms.VPSet( 
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 0.4, 4.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.2 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -1.0 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "loose" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 9999.0 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 0.4, 4.0 ),
+        name = cms.string( "hiPixelPairStepLoose" ),
+        useMVA = cms.bool( False ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiPixelPairStepLoose" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 5.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.075 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( -0.58 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "tight" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.25 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 5.0, 0.0 ),
+        name = cms.string( "hiPixelPairStepTight" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      ),
+      cms.PSet(  copyExtras = cms.untracked.bool( True ),
+        preFilterName = cms.string( "hiPixelPairStepTight" ),
+        applyAbsCutsIfNoPV = cms.bool( False ),
+        d0_par2 = cms.vdouble( 3.0, 0.0 ),
+        minNumber3DLayers = cms.uint32( 0 ),
+        d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+        keepAllTracks = cms.bool( False ),
+        min_nhits = cms.uint32( 8 ),
+        max_relpterr = cms.double( 0.05 ),
+        max_d0 = cms.double( 100.0 ),
+        copyTrajectories = cms.untracked.bool( True ),
+        min_eta = cms.double( -9999.0 ),
+        minHitsToBypassChecks = cms.uint32( 999 ),
+        maxNumberLostLayers = cms.uint32( 999 ),
+        minMVA = cms.double( 0.77 ),
+        vtxNumber = cms.int32( -1 ),
+        vertexCut = cms.string( "" ),
+        applyAdaptedPVCuts = cms.bool( True ),
+        max_eta = cms.double( 9999.0 ),
+        qualityBit = cms.string( "highPurity" ),
+        res_par = cms.vdouble( 99999.0, 99999.0 ),
+        nSigmaZ = cms.double( 9999.0 ),
+        max_minMissHitOutOrIn = cms.int32( 99 ),
+        chi2n_par = cms.double( 0.3 ),
+        chi2n_no1Dmod_par = cms.double( 0.15 ),
+        max_lostHitFraction = cms.double( 1.0 ),
+        dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+        minNumberLayers = cms.uint32( 0 ),
+        dz_par2 = cms.vdouble( 3.0, 0.0 ),
+        name = cms.string( "hiPixelPairStep" ),
+        useMVA = cms.bool( True ),
+        max_z0 = cms.double( 100.0 )
+      )
+    ),
+    GBRForestLabel = cms.string( "HIMVASelectorIter6" ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    GBRForestVars = cms.vstring( 'chi2perdofperlayer',
+      'dxyperdxyerror',
+      'dzperdzerror',
+      'nhits',
+      'nlayers',
+      'eta' ),
+    useVtxError = cms.bool( True ),
+    useAnyMVA = cms.bool( True ),
+    useVertices = cms.bool( True )
+)
+fragment.hltHIIterTrackingMergedHighPurityForGlobalPt8 = cms.EDProducer( "TrackListMerger",
+    ShareFrac = cms.double( 0.19 ),
+    writeOnlyTrkQuals = cms.bool( False ),
+    MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
+    copyExtras = cms.untracked.bool( True ),
+    Epsilon = cms.double( -0.001 ),
+    selectedTrackQuals = cms.VInputTag( 'hltHIIter0TrackSelectionForGlobalPt8:hiInitialStep','hltHIIter1TrackSelectionForGlobalPt8:hiDetachedTripletStep','hltHIIter2TrackSelectionForGlobalPt8:hiPixelPairStep' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0, 1.0 ),
+    MaxNormalizedChisq = cms.double( 1000.0 ),
+    copyMVA = cms.bool( True ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( True ),
+        tLists = cms.vint32( 0, 1, 2 )
+      )
+    ),
+    MinFound = cms.int32( 3 ),
+    hasSelector = cms.vint32( 1, 1, 1 ),
+    TrackProducers = cms.VInputTag( 'hltHIGlobalPrimTracksForGlobalPt8','hltHIDetachedGlobalPrimTracksForGlobalPt8','hltHIPixelPairGlobalPrimTracksForGlobalPt8' ),
+    LostHitPenalty = cms.double( 20.0 ),
+    newQuality = cms.string( "confirmed" )
+)
+fragment.hltHIIterTrackingMergedTightForGlobalPt8 = cms.EDProducer( "TrackListMerger",
+    ShareFrac = cms.double( 0.19 ),
+    writeOnlyTrkQuals = cms.bool( False ),
+    MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
+    copyExtras = cms.untracked.bool( True ),
+    Epsilon = cms.double( -0.001 ),
+    selectedTrackQuals = cms.VInputTag( 'hltHIIter0TrackSelectionForGlobalPt8:hiInitialStepTight','hltHIIter1TrackSelectionForGlobalPt8:hiDetachedTripletStepTight','hltHIIter2TrackSelectionForGlobalPt8:hiPixelPairStepTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0, 1.0 ),
+    MaxNormalizedChisq = cms.double( 1000.0 ),
+    copyMVA = cms.bool( True ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( True ),
+        tLists = cms.vint32( 0, 1, 2 )
+      )
+    ),
+    MinFound = cms.int32( 3 ),
+    hasSelector = cms.vint32( 1, 1, 1 ),
+    TrackProducers = cms.VInputTag( 'hltHIGlobalPrimTracksForGlobalPt8','hltHIDetachedGlobalPrimTracksForGlobalPt8','hltHIPixelPairGlobalPrimTracksForGlobalPt8' ),
+    LostHitPenalty = cms.double( 20.0 ),
+    newQuality = cms.string( "confirmed" )
+)
+fragment.hltHIFullTrackCandsForDmesonGlobalPt8 = cms.EDProducer( "ConcreteChargedCandidateProducer",
+    src = cms.InputTag( "hltHIIterTrackingMergedTightForGlobalPt8" ),
+    particleType = cms.string( "pi+" )
+)
+fragment.hltHIFullTrackFilterForDmesonGlobalPt8 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 0 ),
+    MinPt = cms.double( 0.0 ),
+    MaxVz = cms.double( 9999.0 ),
+    MaxEta = cms.double( 99999.0 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertex" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 999.0 )
+)
+fragment.hltTktkVtxForDmesonGlobal8Dpt20 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonGlobalPt8" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.27 ),
+    MinPtPair = cms.double( 20.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.47 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonGlobal8Dp20 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonGlobal8Dpt20" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.8 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 1.0 )
+)
+fragment.hltL1sCentralityext30100MinimumumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_Centrality_ext30_100_MinimumumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt20Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sCentralityext50100MinimumumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_Centrality_ext50_100_MinimumumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt20Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet16BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet16_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt30 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltTktkVtxForDmesonGlobal8Dpt30 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonGlobalPt8" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.27 ),
+    MinPtPair = cms.double( 30.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.47 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonGlobal8Dp30 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonGlobal8Dpt30" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.8 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 1.0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt30Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt30Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt40 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltTktkVtxForDmesonGlobal8Dpt40 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonGlobalPt8" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.27 ),
+    MinPtPair = cms.double( 40.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.47 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonGlobal8Dp40 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonGlobal8Dpt40" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.8 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 1.0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt40Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt40Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleS1Jet32BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet32_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt50 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltTktkVtxForDmesonGlobal8Dpt50 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonGlobalPt8" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.27 ),
+    MinPtPair = cms.double( 50.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.47 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonGlobal8Dp50 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonGlobal8Dpt50" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.8 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 1.0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt60 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltTktkVtxForDmesonGlobal8Dpt60 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonGlobalPt8" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.27 ),
+    MinPtPair = cms.double( 60.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.47 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonGlobal8Dp60 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonGlobal8Dpt60" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.8 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 1.0 )
+)
+fragment.hltL1sSingleS1Jet52BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet52_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt70 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltTktkVtxForDmesonGlobal8Dpt70 = cms.EDProducer( "HLTDisplacedtktkVtxProducer",
+    Src = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    massParticle1 = cms.double( 0.1396 ),
+    PreviousCandTag = cms.InputTag( "hltHIFullTrackFilterForDmesonGlobalPt8" ),
+    massParticle2 = cms.double( 0.4937 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 2.27 ),
+    MinPtPair = cms.double( 70.0 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinInvMass = cms.double( 1.47 ),
+    MinPt = cms.double( 0.0 )
+)
+fragment.hltTktkFilterForDmesonGlobal8Dp70 = cms.EDFilter( "HLTDisplacedtktkFilter",
+    saveTags = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0 ),
+    MaxLxySignificance = cms.double( 0.0 ),
+    TrackTag = cms.InputTag( "hltHIFullTrackCandsForDmesonGlobalPt8" ),
+    DisplacedVertexTag = cms.InputTag( "hltTktkVtxForDmesonGlobal8Dpt70" ),
+    MaxNormalisedChi2 = cms.double( 999.0 ),
+    FastAccept = cms.bool( False ),
+    MinCosinePointingAngle = cms.double( 0.8 ),
+    triggerTypeDaughters = cms.int32( 91 ),
+    MinLxySignificance = cms.double( 1.0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt60Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt60Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sCentralityext010MinimumumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_Centrality_ext0_10_MinimumumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt20Cent010 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt30Cent010 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDmesonHITrackingGlobalDpt40Cent010 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton10Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltIslandBasicClusters50nsMultiFitHI = cms.EDProducer( "IslandClusterProducer",
+    endcapHits = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' ),
+    IslandEndcapSeedThr = cms.double( 0.18 ),
+    posCalcParameters = cms.PSet( 
+      T0_barl = cms.double( 7.4 ),
+      T0_endcPresh = cms.double( 1.2 ),
+      LogWeighted = cms.bool( True ),
+      T0_endc = cms.double( 3.1 ),
+      X0 = cms.double( 0.89 ),
+      W0 = cms.double( 4.2 )
+    ),
+    barrelShapeAssociation = cms.string( "islandBarrelShapeAssoc" ),
+    endcapShapeAssociation = cms.string( "islandEndcapShapeAssoc" ),
+    barrelHits = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+    clustershapecollectionEE = cms.string( "islandEndcapShape" ),
+    clustershapecollectionEB = cms.string( "islandBarrelShape" ),
+    VerbosityLevel = cms.string( "ERROR" ),
+    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" ),
+    endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
+    IslandBarrelSeedThr = cms.double( 0.5 )
+)
+fragment.hltHiIslandSuperClusters50nsMultiFitHI = cms.EDProducer( "HiSuperClusterProducer",
+    barrelSuperclusterCollection = cms.string( "islandBarrelSuperClustersHI" ),
+    endcapEtaSearchRoad = cms.double( 0.14 ),
+    barrelClusterCollection = cms.string( "islandBarrelBasicClustersHI" ),
+    endcapClusterProducer = cms.string( "hltIslandBasicClusters50nsMultiFitHI" ),
+    barrelPhiSearchRoad = cms.double( 0.8 ),
+    endcapPhiSearchRoad = cms.double( 0.6 ),
+    endcapBCEnergyThreshold = cms.double( 0.0 ),
+    VerbosityLevel = cms.string( "ERROR" ),
+    seedTransverseEnergyThreshold = cms.double( 1.0 ),
+    barrelEtaSearchRoad = cms.double( 0.07 ),
+    endcapSuperclusterCollection = cms.string( "islandEndcapSuperClustersHI" ),
+    barrelBCEnergyThreshold = cms.double( 0.0 ),
+    doBarrel = cms.bool( True ),
+    doEndcaps = cms.bool( True ),
+    endcapClusterCollection = cms.string( "islandEndcapBasicClustersHI" ),
+    barrelClusterProducer = cms.string( "hltIslandBasicClusters50nsMultiFitHI" )
+)
+fragment.hltHiCorrectedIslandBarrelSuperClusters50nsMultiFitHI = cms.EDProducer( "HiEgammaSCCorrectionMaker",
+    corectedSuperClusterCollection = cms.string( "" ),
+    sigmaElectronicNoise = cms.double( 0.03 ),
+    superClusterAlgo = cms.string( "Island" ),
+    etThresh = cms.double( 0.0 ),
+    rawSuperClusterProducer = cms.InputTag( 'hltHiIslandSuperClusters50nsMultiFitHI','islandBarrelSuperClustersHI' ),
+    applyEnergyCorrection = cms.bool( True ),
+    isl_fCorrPset = cms.PSet( 
+      fEtEtaVect = cms.vdouble( 0.9497, 0.006985, 1.03754, -0.0142667, -0.0233993, 0.0, 0.0, 0.908915, 0.0137322, 16.9602, -29.3093, 19.8976, -5.92666, 0.654571 ),
+      fBremVect = cms.vdouble( -0.773799, 2.73438, -1.07235, 0.986821, -0.0101822, 3.06744E-4, 1.00595, -0.0495958, 0.00451986, 1.00595, -0.0495958, 0.00451986 ),
+      brLinearHighThr = cms.double( 0.0 ),
+      maxR9 = cms.double( 1.5 ),
+      minR9Barrel = cms.double( 0.94 ),
+      brLinearLowThr = cms.double( 0.0 ),
+      fBremThVect = cms.vdouble( 1.2, 1.2 ),
+      minR9Endcap = cms.double( 0.95 ),
+      fEtaVect = cms.vdouble( 0.993, 0.0, 0.00546, 1.165, -0.180844, 0.040312 )
+    ),
+    VerbosityLevel = cms.string( "ERROR" ),
+    recHitProducer = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' )
+)
+fragment.hltHiCorrectedIslandEndcapSuperClusters50nsMultiFitHI = cms.EDProducer( "HiEgammaSCCorrectionMaker",
+    corectedSuperClusterCollection = cms.string( "" ),
+    sigmaElectronicNoise = cms.double( 0.15 ),
+    superClusterAlgo = cms.string( "Island" ),
+    etThresh = cms.double( 0.0 ),
+    rawSuperClusterProducer = cms.InputTag( 'hltHiIslandSuperClusters50nsMultiFitHI','islandEndcapSuperClustersHI' ),
+    applyEnergyCorrection = cms.bool( True ),
+    isl_fCorrPset = cms.PSet( 
+      fEtEtaVect = cms.vdouble( 0.9497, 0.006985, 1.03754, -0.0142667, -0.0233993, 0.0, 0.0, 0.908915, 0.0137322, 16.9602, -29.3093, 19.8976, -5.92666, 0.654571 ),
+      fBremVect = cms.vdouble( -0.773799, 2.73438, -1.07235, 0.986821, -0.0101822, 3.06744E-4, 1.00595, -0.0495958, 0.00451986, 1.00595, -0.0495958, 0.00451986 ),
+      brLinearHighThr = cms.double( 0.0 ),
+      maxR9 = cms.double( 1.5 ),
+      minR9Barrel = cms.double( 0.94 ),
+      brLinearLowThr = cms.double( 0.0 ),
+      fBremThVect = cms.vdouble( 1.2, 1.2 ),
+      minR9Endcap = cms.double( 0.95 ),
+      fEtaVect = cms.vdouble( 0.993, 0.0, 0.00546, 1.165, -0.180844, 0.040312 )
+    ),
+    VerbosityLevel = cms.string( "ERROR" ),
+    recHitProducer = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' )
+)
+fragment.hltCleanedHiCorrectedIslandBarrelSuperClusters50nsMultiFitHI = cms.EDProducer( "HiSpikeCleaner",
+    originalSuperClusterProducer = cms.InputTag( "hltHiCorrectedIslandBarrelSuperClusters50nsMultiFitHI" ),
+    recHitProducerEndcap = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' ),
+    TimingCut = cms.untracked.double( 9999999.0 ),
+    swissCutThr = cms.untracked.double( 0.95 ),
+    recHitProducerBarrel = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+    etCut = cms.double( 8.0 ),
+    outputColl = cms.string( "" )
+)
+fragment.hltRecoHIEcalWithCleaningCandidate50nsMultiFit = cms.EDProducer( "EgammaHLTRecoEcalCandidateProducers",
+    scIslandEndcapProducer = cms.InputTag( "hltHiCorrectedIslandEndcapSuperClusters50nsMultiFitHI" ),
+    scHybridBarrelProducer = cms.InputTag( "hltCleanedHiCorrectedIslandBarrelSuperClusters50nsMultiFitHI" ),
+    recoEcalCandidateCollection = cms.string( "" )
+)
+fragment.hltHIPhoton10Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 10.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton15Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton15Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton20Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton20Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltL1sSingleEG7BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG7_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton30Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton30Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 30.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltL1sSingleEG21BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG21_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton40Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton40Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 40.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton50Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton50Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 50.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltL1sSingleEG30BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG30_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton60Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton60Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 60.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltL1sSingleEG3Centralityext50100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG3_Centrality_ext50_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton10Eta1p5Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton15Eta1p5Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton20Eta1p5Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleEG7Centralityext50100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG7_Centrality_ext50_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton30Eta1p5Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleEG21Centralityext50100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG21_Centrality_ext50_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton40Eta1p5Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleEG3Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG3_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton10Eta1p5Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton15Eta1p5Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton20Eta1p5Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleEG7Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG7_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton30Eta1p5Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleEG21Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG21_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHISinglePhoton40Eta1p5Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton40Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton40Eta2p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 40.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton10Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton10Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 10.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton15Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton15Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton20Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton20Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton30Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton30Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 30.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton40Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton40Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 40.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton50Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton50Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 50.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton60Eta3p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPhoton60Eta3p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 60.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 3.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltPreHISinglePhoton10Eta3p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton15Eta3p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton20Eta3p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton30Eta3p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton40Eta3p1Cent50100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton10Eta3p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton15Eta3p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton20Eta3p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton30Eta3p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHISinglePhoton40Eta3p1Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIDoublePhoton15Eta1p5Mass501000 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoublePhoton15Eta1p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 1.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltHIDoublePhoton15Eta1p5GlobalMass501000Filter = cms.EDFilter( "HLTPMMassFilter",
+    saveTags = cms.bool( True ),
+    lowerMassCut = cms.double( 50.0 ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    isElectron1 = cms.untracked.bool( False ),
+    isElectron2 = cms.untracked.bool( False ),
+    l1EGCand = cms.InputTag( "" ),
+    upperMassCut = cms.double( 1000.0 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta1p550nsMultiFit" ),
+    reqOppCharge = cms.untracked.bool( False ),
+    nZcandcut = cms.int32( 1 )
+)
+fragment.hltPreHIDoublePhoton15Eta1p5Mass501000R9HECut = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIEgammaR9ID50nsMultiFit = cms.EDProducer( "EgammaHLTR9IDProducer",
+    recoEcalCandidateProducer = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ecalRechitEB = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+    ecalRechitEE = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' )
+)
+fragment.hltHIEgammaR9IDDoublePhoton15Eta1p550nsMultiFit = cms.EDFilter( "HLTEgammaGenericFilter",
+    thrOverE2EE = cms.double( -1.0 ),
+    saveTags = cms.bool( True ),
+    useEt = cms.bool( False ),
+    thrOverE2EB = cms.double( -1.0 ),
+    thrRegularEE = cms.double( 0.6 ),
+    thrOverEEE = cms.double( -1.0 ),
+    varTag = cms.InputTag( "hltHIEgammaR9ID50nsMultiFit" ),
+    thrOverEEB = cms.double( -1.0 ),
+    thrRegularEB = cms.double( 0.6 ),
+    lessThan = cms.bool( False ),
+    l1EGCand = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ncandcut = cms.int32( 1 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta1p550nsMultiFit" )
+)
+fragment.hltHIEgammaHoverE50nsMultiFit = cms.EDProducer( "EgammaHLTBcHcalIsolationProducersRegional",
+    effectiveAreas = cms.vdouble( 0.105, 0.17 ),
+    doRhoCorrection = cms.bool( False ),
+    outerCone = cms.double( 0.14 ),
+    caloTowerProducer = cms.InputTag( "hltTowerMakerHcalMethod050nsMultiFitForAll" ),
+    innerCone = cms.double( 0.0 ),
+    useSingleTower = cms.bool( False ),
+    rhoProducer = cms.InputTag( "hltFixedGridRhoFastjetAllCaloForMuons" ),
+    depth = cms.int32( -1 ),
+    absEtaLowEdges = cms.vdouble( 0.0, 1.479 ),
+    recoEcalCandidateProducer = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    rhoMax = cms.double( 9.9999999E7 ),
+    etMin = cms.double( 0.0 ),
+    rhoScale = cms.double( 1.0 ),
+    doEtSum = cms.bool( False )
+)
+fragment.hltHIEgammaHOverEDoublePhoton15Eta1p550nsMultiFit = cms.EDFilter( "HLTEgammaGenericFilter",
+    thrOverE2EE = cms.double( -1.0 ),
+    saveTags = cms.bool( True ),
+    useEt = cms.bool( False ),
+    thrOverE2EB = cms.double( -1.0 ),
+    thrRegularEE = cms.double( -1.0 ),
+    thrOverEEE = cms.double( 0.25 ),
+    varTag = cms.InputTag( "hltHIEgammaHoverE50nsMultiFit" ),
+    thrOverEEB = cms.double( 0.25 ),
+    thrRegularEB = cms.double( -1.0 ),
+    lessThan = cms.bool( True ),
+    l1EGCand = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ncandcut = cms.int32( 1 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta1p550nsMultiFit" )
+)
+fragment.hltPreHIDoublePhoton15Eta2p1Mass501000R9Cut = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoublePhoton15Eta2p150nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltHIDoublePhoton15Eta2p1GlobalMass501000Filter = cms.EDFilter( "HLTPMMassFilter",
+    saveTags = cms.bool( True ),
+    lowerMassCut = cms.double( 50.0 ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    isElectron1 = cms.untracked.bool( False ),
+    isElectron2 = cms.untracked.bool( False ),
+    l1EGCand = cms.InputTag( "" ),
+    upperMassCut = cms.double( 1000.0 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta2p150nsMultiFit" ),
+    reqOppCharge = cms.untracked.bool( False ),
+    nZcandcut = cms.int32( 1 )
+)
+fragment.hltHIEgammaR9IDDoublePhoton15Eta2p150nsMultiFit = cms.EDFilter( "HLTEgammaGenericFilter",
+    thrOverE2EE = cms.double( -1.0 ),
+    saveTags = cms.bool( True ),
+    useEt = cms.bool( False ),
+    thrOverE2EB = cms.double( -1.0 ),
+    thrRegularEE = cms.double( 0.4 ),
+    thrOverEEE = cms.double( -1.0 ),
+    varTag = cms.InputTag( "hltHIEgammaR9ID50nsMultiFit" ),
+    thrOverEEB = cms.double( -1.0 ),
+    thrRegularEB = cms.double( 0.4 ),
+    lessThan = cms.bool( False ),
+    l1EGCand = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ncandcut = cms.int32( 2 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta2p150nsMultiFit" )
+)
+fragment.hltPreHIDoublePhoton15Eta2p5Mass501000R9SigmaHECut = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLT1Photon",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 81 )
+)
+fragment.hltHIDoublePhoton15Eta2p5GlobalMass501000Filter = cms.EDFilter( "HLTPMMassFilter",
+    saveTags = cms.bool( True ),
+    lowerMassCut = cms.double( 50.0 ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    isElectron1 = cms.untracked.bool( False ),
+    isElectron2 = cms.untracked.bool( False ),
+    l1EGCand = cms.InputTag( "" ),
+    upperMassCut = cms.double( 1000.0 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta2p550nsMultiFit" ),
+    reqOppCharge = cms.untracked.bool( False ),
+    nZcandcut = cms.int32( 1 )
+)
+fragment.hltHIEgammaR9IDDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLTEgammaGenericFilter",
+    thrOverE2EE = cms.double( -1.0 ),
+    saveTags = cms.bool( True ),
+    useEt = cms.bool( False ),
+    thrOverE2EB = cms.double( -1.0 ),
+    thrRegularEE = cms.double( 0.5 ),
+    thrOverEEE = cms.double( -1.0 ),
+    varTag = cms.InputTag( "hltHIEgammaR9ID50nsMultiFit" ),
+    thrOverEEB = cms.double( -1.0 ),
+    thrRegularEB = cms.double( 0.4 ),
+    lessThan = cms.bool( False ),
+    l1EGCand = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ncandcut = cms.int32( 2 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta2p550nsMultiFit" )
+)
+fragment.hltHIEgammaSigmaIEtaIEta50nsMultiFitProducer = cms.EDProducer( "EgammaHLTClusterShapeProducer",
+    recoEcalCandidateProducer = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ecalRechitEB = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+    ecalRechitEE = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' ),
+    isIeta = cms.bool( True )
+)
+fragment.hltHIEgammaSigmaIEtaIEtaDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLTEgammaGenericFilter",
+    thrOverE2EE = cms.double( -1.0 ),
+    saveTags = cms.bool( True ),
+    useEt = cms.bool( False ),
+    thrOverE2EB = cms.double( -1.0 ),
+    thrRegularEE = cms.double( 0.045 ),
+    thrOverEEE = cms.double( -1.0 ),
+    varTag = cms.InputTag( 'hltHIEgammaSigmaIEtaIEta50nsMultiFitProducer','sigmaIEtaIEta5x5' ),
+    thrOverEEB = cms.double( -1.0 ),
+    thrRegularEB = cms.double( 0.02 ),
+    lessThan = cms.bool( True ),
+    l1EGCand = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ncandcut = cms.int32( 2 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta2p550nsMultiFit" )
+)
+fragment.hltHIEgammaHOverEDoublePhoton15Eta2p550nsMultiFit = cms.EDFilter( "HLTEgammaGenericFilter",
+    thrOverE2EE = cms.double( -1.0 ),
+    saveTags = cms.bool( True ),
+    useEt = cms.bool( False ),
+    thrOverE2EB = cms.double( -1.0 ),
+    thrRegularEE = cms.double( -1.0 ),
+    thrOverEEE = cms.double( 0.2 ),
+    varTag = cms.InputTag( "hltHIEgammaHoverE50nsMultiFit" ),
+    thrOverEEB = cms.double( 0.3 ),
+    thrRegularEB = cms.double( -1.0 ),
+    lessThan = cms.bool( True ),
+    l1EGCand = cms.InputTag( "hltRecoHIEcalWithCleaningCandidate50nsMultiFit" ),
+    ncandcut = cms.int32( 2 ),
+    candTag = cms.InputTag( "hltHIDoublePhoton15Eta2p550nsMultiFit" )
+)
+fragment.hltL1sSingleMu3MinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_MinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet40Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu3MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu3MinimumBiasHF1AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
+    useStandardFEDid = cms.bool( True ),
+    maxFEDid = cms.untracked.int32( 779 ),
+    inputLabel = cms.InputTag( "rawDataCollector" ),
+    minFEDid = cms.untracked.int32( 770 ),
+    dataType = cms.string( "DDU" ),
+    readOutParameters = cms.PSet( 
+      localDAQ = cms.untracked.bool( False ),
+      debug = cms.untracked.bool( False ),
+      rosParameters = cms.PSet( 
+        localDAQ = cms.untracked.bool( False ),
+        debug = cms.untracked.bool( False ),
+        writeSC = cms.untracked.bool( True ),
+        readDDUIDfromDDU = cms.untracked.bool( True ),
+        readingDDU = cms.untracked.bool( True ),
+        performDataIntegrityMonitor = cms.untracked.bool( False )
+      ),
+      performDataIntegrityMonitor = cms.untracked.bool( False )
+    ),
+    dqmOnly = cms.bool( False )
+)
+fragment.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
+    debug = cms.untracked.bool( False ),
+    recAlgoConfig = cms.PSet( 
+      maxTime = cms.double( 420.0 ),
+      debug = cms.untracked.bool( False ),
+      stepTwoFromDigi = cms.bool( False ),
+      tTrigModeConfig = cms.PSet( 
+        debug = cms.untracked.bool( False ),
+        tofCorrType = cms.int32( 0 ),
+        tTrigLabel = cms.string( "" ),
+        wirePropCorrType = cms.int32( 0 ),
+        doTOFCorrection = cms.bool( True ),
+        vPropWire = cms.double( 24.4 ),
+        doT0Correction = cms.bool( True ),
+        doWirePropCorrection = cms.bool( True )
+      ),
+      useUncertDB = cms.bool( True ),
+      doVdriftCorr = cms.bool( True ),
+      minTime = cms.double( -3.0 ),
+      tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+    ),
+    dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
+    recAlgo = cms.string( "DTLinearDriftFromDBAlgo" )
+)
+fragment.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
+    debug = cms.untracked.bool( False ),
+    Reco4DAlgoName = cms.string( "DTCombinatorialPatternReco4D" ),
+    recHits2DLabel = cms.InputTag( "dt2DSegments" ),
+    recHits1DLabel = cms.InputTag( "hltDt1DRecHits" ),
+    Reco4DAlgoConfig = cms.PSet( 
+      Reco2DAlgoConfig = cms.PSet( 
+        AlphaMaxPhi = cms.double( 1.0 ),
+        debug = cms.untracked.bool( False ),
+        segmCleanerMode = cms.int32( 2 ),
+        AlphaMaxTheta = cms.double( 0.9 ),
+        hit_afterT0_resolution = cms.double( 0.03 ),
+        performT0_vdriftSegCorrection = cms.bool( False ),
+        recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
+        recAlgoConfig = cms.PSet( 
+          maxTime = cms.double( 420.0 ),
+          debug = cms.untracked.bool( False ),
+          stepTwoFromDigi = cms.bool( False ),
+          tTrigModeConfig = cms.PSet( 
+            debug = cms.untracked.bool( False ),
+            tofCorrType = cms.int32( 0 ),
+            tTrigLabel = cms.string( "" ),
+            wirePropCorrType = cms.int32( 0 ),
+            doTOFCorrection = cms.bool( True ),
+            vPropWire = cms.double( 24.4 ),
+            doT0Correction = cms.bool( True ),
+            doWirePropCorrection = cms.bool( True )
+          ),
+          useUncertDB = cms.bool( True ),
+          doVdriftCorr = cms.bool( True ),
+          minTime = cms.double( -3.0 ),
+          tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+        ),
+        MaxAllowedHits = cms.uint32( 50 ),
+        nUnSharedHitsMin = cms.int32( 2 ),
+        nSharedHitsMax = cms.int32( 2 ),
+        performT0SegCorrection = cms.bool( False ),
+        perform_delta_rejecting = cms.bool( False )
+      ),
+      Reco2DAlgoName = cms.string( "DTCombinatorialPatternReco" ),
+      debug = cms.untracked.bool( False ),
+      segmCleanerMode = cms.int32( 2 ),
+      AllDTRecHits = cms.bool( True ),
+      hit_afterT0_resolution = cms.double( 0.03 ),
+      performT0_vdriftSegCorrection = cms.bool( False ),
+      recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
+      recAlgoConfig = cms.PSet( 
+        maxTime = cms.double( 420.0 ),
+        debug = cms.untracked.bool( False ),
+        stepTwoFromDigi = cms.bool( False ),
+        tTrigModeConfig = cms.PSet( 
+          debug = cms.untracked.bool( False ),
+          tofCorrType = cms.int32( 0 ),
+          tTrigLabel = cms.string( "" ),
+          wirePropCorrType = cms.int32( 0 ),
+          doTOFCorrection = cms.bool( True ),
+          vPropWire = cms.double( 24.4 ),
+          doT0Correction = cms.bool( True ),
+          doWirePropCorrection = cms.bool( True )
+        ),
+        useUncertDB = cms.bool( True ),
+        doVdriftCorr = cms.bool( True ),
+        minTime = cms.double( -3.0 ),
+        tTrigMode = cms.string( "DTTTrigSyncFromDB" )
+      ),
+      nUnSharedHitsMin = cms.int32( 2 ),
+      nSharedHitsMax = cms.int32( 2 ),
+      performT0SegCorrection = cms.bool( False ),
+      perform_delta_rejecting = cms.bool( False )
+    )
+)
+fragment.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
+    PrintEventNumber = cms.untracked.bool( False ),
+    SuppressZeroLCT = cms.untracked.bool( True ),
+    UseExaminer = cms.bool( True ),
+    Debug = cms.untracked.bool( False ),
+    ErrorMask = cms.uint32( 0 ),
+    InputObjects = cms.InputTag( "rawDataCollector" ),
+    ExaminerMask = cms.uint32( 535557110 ),
+    runDQM = cms.untracked.bool( False ),
+    UnpackStatusDigis = cms.bool( False ),
+    VisualFEDInspect = cms.untracked.bool( False ),
+    FormatedEventDump = cms.untracked.bool( False ),
+    UseFormatStatus = cms.bool( True ),
+    UseSelectiveUnpacking = cms.bool( True ),
+    VisualFEDShort = cms.untracked.bool( False )
+)
+fragment.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
+    XTasymmetry_ME1b = cms.double( 0.0 ),
+    XTasymmetry_ME1a = cms.double( 0.0 ),
+    ConstSyst_ME1a = cms.double( 0.022 ),
+    ConstSyst_ME41 = cms.double( 0.0 ),
+    CSCWireTimeWindowHigh = cms.int32( 15 ),
+    CSCStripxtalksOffset = cms.double( 0.03 ),
+    CSCUseCalibrations = cms.bool( True ),
+    CSCUseTimingCorrections = cms.bool( True ),
+    CSCNoOfTimeBinsForDynamicPedestal = cms.int32( 2 ),
+    XTasymmetry_ME22 = cms.double( 0.0 ),
+    UseFivePoleFit = cms.bool( True ),
+    XTasymmetry_ME21 = cms.double( 0.0 ),
+    ConstSyst_ME21 = cms.double( 0.0 ),
+    ConstSyst_ME12 = cms.double( 0.0 ),
+    ConstSyst_ME31 = cms.double( 0.0 ),
+    ConstSyst_ME22 = cms.double( 0.0 ),
+    ConstSyst_ME13 = cms.double( 0.0 ),
+    ConstSyst_ME32 = cms.double( 0.0 ),
+    readBadChambers = cms.bool( True ),
+    CSCWireTimeWindowLow = cms.int32( 0 ),
+    NoiseLevel_ME13 = cms.double( 8.0 ),
+    XTasymmetry_ME41 = cms.double( 0.0 ),
+    NoiseLevel_ME32 = cms.double( 9.0 ),
+    NoiseLevel_ME31 = cms.double( 9.0 ),
+    CSCStripClusterChargeCut = cms.double( 25.0 ),
+    ConstSyst_ME1b = cms.double( 0.007 ),
+    CSCStripClusterSize = cms.untracked.int32( 3 ),
+    CSCStripPeakThreshold = cms.double( 10.0 ),
+    readBadChannels = cms.bool( False ),
+    NoiseLevel_ME12 = cms.double( 9.0 ),
+    UseParabolaFit = cms.bool( False ),
+    CSCUseReducedWireTimeWindow = cms.bool( False ),
+    XTasymmetry_ME13 = cms.double( 0.0 ),
+    XTasymmetry_ME12 = cms.double( 0.0 ),
+    wireDigiTag = cms.InputTag( 'hltMuonCSCDigis','MuonCSCWireDigi' ),
+    CSCDebug = cms.untracked.bool( False ),
+    CSCUseGasGainCorrections = cms.bool( False ),
+    XTasymmetry_ME31 = cms.double( 0.0 ),
+    XTasymmetry_ME32 = cms.double( 0.0 ),
+    UseAverageTime = cms.bool( False ),
+    NoiseLevel_ME1a = cms.double( 7.0 ),
+    NoiseLevel_ME1b = cms.double( 8.0 ),
+    CSCWireClusterDeltaT = cms.int32( 1 ),
+    CSCUseStaticPedestals = cms.bool( False ),
+    stripDigiTag = cms.InputTag( 'hltMuonCSCDigis','MuonCSCStripDigi' ),
+    CSCstripWireDeltaTime = cms.int32( 8 ),
+    NoiseLevel_ME21 = cms.double( 9.0 ),
+    NoiseLevel_ME22 = cms.double( 9.0 ),
+    NoiseLevel_ME41 = cms.double( 9.0 )
+)
+fragment.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
+    inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
+    algo_psets = cms.VPSet( 
+      cms.PSet(  parameters_per_chamber_type = cms.vint32( 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+        algo_psets = cms.VPSet( 
+          cms.PSet(  dYclusBoxMax = cms.double( 8.0 ),
+            hitDropLimit4Hits = cms.double( 0.6 ),
+            maxRatioResidualPrune = cms.double( 3.0 ),
+            curvePenaltyThreshold = cms.double( 0.85 ),
+            maxRecHitsInCluster = cms.int32( 20 ),
+            useShowering = cms.bool( False ),
+            BPMinImprovement = cms.double( 10000.0 ),
+            curvePenalty = cms.double( 2.0 ),
+            ForceCovariance = cms.bool( False ),
+            yweightPenalty = cms.double( 1.5 ),
+            dPhiFineMax = cms.double( 0.025 ),
+            SeedBig = cms.double( 0.0015 ),
+            NormChi2Cut3D = cms.double( 10.0 ),
+            Covariance = cms.double( 0.0 ),
+            CSCDebug = cms.untracked.bool( False ),
+            tanThetaMax = cms.double( 1.2 ),
+            Pruning = cms.bool( True ),
+            tanPhiMax = cms.double( 0.5 ),
+            onlyBestSegment = cms.bool( False ),
+            dXclusBoxMax = cms.double( 4.0 ),
+            maxDTheta = cms.double( 999.0 ),
+            preClustering = cms.bool( True ),
+            preClusteringUseChaining = cms.bool( True ),
+            yweightPenaltyThreshold = cms.double( 1.0 ),
+            hitDropLimit6Hits = cms.double( 0.3333 ),
+            prePrun = cms.bool( True ),
+            CorrectTheErrors = cms.bool( True ),
+            ForceCovarianceAll = cms.bool( False ),
+            NormChi2Cut2D = cms.double( 20.0 ),
+            SeedSmall = cms.double( 2.0E-4 ),
+            minHitsPerSegment = cms.int32( 3 ),
+            dRPhiFineMax = cms.double( 8.0 ),
+            maxDPhi = cms.double( 999.0 ),
+            hitDropLimit5Hits = cms.double( 0.8 ),
+            BrutePruning = cms.bool( True ),
+            prePrunLimit = cms.double( 3.17 )
+          ),
+          cms.PSet(  dYclusBoxMax = cms.double( 8.0 ),
+            hitDropLimit4Hits = cms.double( 0.6 ),
+            maxRatioResidualPrune = cms.double( 3.0 ),
+            curvePenaltyThreshold = cms.double( 0.85 ),
+            maxRecHitsInCluster = cms.int32( 24 ),
+            useShowering = cms.bool( False ),
+            BPMinImprovement = cms.double( 10000.0 ),
+            curvePenalty = cms.double( 2.0 ),
+            ForceCovariance = cms.bool( False ),
+            yweightPenalty = cms.double( 1.5 ),
+            dPhiFineMax = cms.double( 0.025 ),
+            SeedBig = cms.double( 0.0015 ),
+            NormChi2Cut3D = cms.double( 10.0 ),
+            Covariance = cms.double( 0.0 ),
+            CSCDebug = cms.untracked.bool( False ),
+            tanThetaMax = cms.double( 1.2 ),
+            Pruning = cms.bool( True ),
+            tanPhiMax = cms.double( 0.5 ),
+            onlyBestSegment = cms.bool( False ),
+            dXclusBoxMax = cms.double( 4.0 ),
+            maxDTheta = cms.double( 999.0 ),
+            preClustering = cms.bool( True ),
+            preClusteringUseChaining = cms.bool( True ),
+            yweightPenaltyThreshold = cms.double( 1.0 ),
+            hitDropLimit6Hits = cms.double( 0.3333 ),
+            prePrun = cms.bool( True ),
+            CorrectTheErrors = cms.bool( True ),
+            ForceCovarianceAll = cms.bool( False ),
+            NormChi2Cut2D = cms.double( 20.0 ),
+            SeedSmall = cms.double( 2.0E-4 ),
+            minHitsPerSegment = cms.int32( 3 ),
+            dRPhiFineMax = cms.double( 8.0 ),
+            maxDPhi = cms.double( 999.0 ),
+            hitDropLimit5Hits = cms.double( 0.8 ),
+            BrutePruning = cms.bool( True ),
+            prePrunLimit = cms.double( 3.17 )
+          )
+        ),
+        algo_name = cms.string( "CSCSegAlgoST" ),
+        chamber_types = cms.vstring( 'ME1/a',
+          'ME1/b',
+          'ME1/2',
+          'ME1/3',
+          'ME2/1',
+          'ME2/2',
+          'ME3/1',
+          'ME3/2',
+          'ME4/1',
+          'ME4/2' )
+      )
+    ),
+    algo_type = cms.int32( 1 )
+)
+fragment.hltMuonRPCDigis = cms.EDProducer( "RPCUnpackingModule",
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    doSynchro = cms.bool( False )
+)
+fragment.hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
+    recAlgoConfig = cms.PSet(  ),
+    deadvecfile = cms.FileInPath( "RecoLocalMuon/RPCRecHit/data/RPCDeadVec.dat" ),
+    rpcDigiLabel = cms.InputTag( "hltMuonRPCDigis" ),
+    maskvecfile = cms.FileInPath( "RecoLocalMuon/RPCRecHit/data/RPCMaskVec.dat" ),
+    recAlgo = cms.string( "RPCRecHitStandardAlgo" ),
+    deadSource = cms.string( "File" ),
+    maskSource = cms.string( "File" )
+)
+fragment.hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
+    SMB_21 = cms.vdouble( 1.043, -0.124, 0.0, 0.183, 0.0, 0.0 ),
+    SMB_20 = cms.vdouble( 1.011, -0.052, 0.0, 0.188, 0.0, 0.0 ),
+    SMB_22 = cms.vdouble( 1.474, -0.758, 0.0, 0.185, 0.0, 0.0 ),
+    OL_2213 = cms.vdouble( 0.117, 0.0, 0.0, 0.044, 0.0, 0.0 ),
+    SME_11 = cms.vdouble( 3.295, -1.527, 0.112, 0.378, 0.02, 0.0 ),
+    SME_13 = cms.vdouble( -1.286, 1.711, 0.0, 0.356, 0.0, 0.0 ),
+    SME_12 = cms.vdouble( 0.102, 0.599, 0.0, 0.38, 0.0, 0.0 ),
+    DT_34_2_scale = cms.vdouble( -11.901897, 0.0 ),
+    OL_1213_0_scale = cms.vdouble( -4.488158, 0.0 ),
+    OL_1222_0_scale = cms.vdouble( -5.810449, 0.0 ),
+    DT_13 = cms.vdouble( 0.315, 0.068, -0.127, 0.051, -0.002, 0.0 ),
+    DT_12 = cms.vdouble( 0.183, 0.054, -0.087, 0.028, 0.002, 0.0 ),
+    DT_14 = cms.vdouble( 0.359, 0.052, -0.107, 0.072, -0.004, 0.0 ),
+    CSC_13_3_scale = cms.vdouble( -1.701268, 0.0 ),
+    CSC_23 = cms.vdouble( -0.081, 0.113, -0.029, 0.015, 0.008, 0.0 ),
+    CSC_24 = cms.vdouble( 0.004, 0.021, -0.002, 0.053, 0.0, 0.0 ),
+    OL_2222 = cms.vdouble( 0.107, 0.0, 0.0, 0.04, 0.0, 0.0 ),
+    DT_14_2_scale = cms.vdouble( -4.808546, 0.0 ),
+    SMB_10 = cms.vdouble( 1.387, -0.038, 0.0, 0.19, 0.0, 0.0 ),
+    SMB_11 = cms.vdouble( 1.247, 0.72, -0.802, 0.229, -0.075, 0.0 ),
+    SMB_12 = cms.vdouble( 2.128, -0.956, 0.0, 0.199, 0.0, 0.0 ),
+    SME_21 = cms.vdouble( -0.529, 1.194, -0.358, 0.472, 0.086, 0.0 ),
+    SME_22 = cms.vdouble( -1.207, 1.491, -0.251, 0.189, 0.243, 0.0 ),
+    DT_13_2_scale = cms.vdouble( -4.257687, 0.0 ),
+    CSC_34 = cms.vdouble( 0.062, -0.067, 0.019, 0.021, 0.003, 0.0 ),
+    SME_22_0_scale = cms.vdouble( -3.457901, 0.0 ),
+    DT_24_1_scale = cms.vdouble( -7.490909, 0.0 ),
+    OL_1232_0_scale = cms.vdouble( -5.964634, 0.0 ),
+    SMB_32 = cms.vdouble( 0.67, -0.327, 0.0, 0.22, 0.0, 0.0 ),
+    SME_13_0_scale = cms.vdouble( 0.104905, 0.0 ),
+    SMB_22_0_scale = cms.vdouble( 1.346681, 0.0 ),
+    CSC_12_1_scale = cms.vdouble( -6.434242, 0.0 ),
+    DT_34 = cms.vdouble( 0.044, 0.004, -0.013, 0.029, 0.003, 0.0 ),
+    SME_32 = cms.vdouble( -0.901, 1.333, -0.47, 0.41, 0.073, 0.0 ),
+    SME_31 = cms.vdouble( -1.594, 1.482, -0.317, 0.487, 0.097, 0.0 ),
+    SMB_32_0_scale = cms.vdouble( -3.054156, 0.0 ),
+    crackEtas = cms.vdouble( 0.2, 1.6, 1.7 ),
+    SME_11_0_scale = cms.vdouble( 1.325085, 0.0 ),
+    SMB_20_0_scale = cms.vdouble( 1.486168, 0.0 ),
+    DT_13_1_scale = cms.vdouble( -4.520923, 0.0 ),
+    CSC_24_1_scale = cms.vdouble( -6.055701, 0.0 ),
+    CSC_01_1_scale = cms.vdouble( -1.915329, 0.0 ),
+    DT_23 = cms.vdouble( 0.13, 0.023, -0.057, 0.028, 0.004, 0.0 ),
+    DT_24 = cms.vdouble( 0.176, 0.014, -0.051, 0.051, 0.003, 0.0 ),
+    SMB_12_0_scale = cms.vdouble( 2.283221, 0.0 ),
+    deltaPhiSearchWindow = cms.double( 0.25 ),
+    SMB_30_0_scale = cms.vdouble( -3.629838, 0.0 ),
+    SME_42 = cms.vdouble( -0.003, 0.005, 0.005, 0.608, 0.076, 0.0 ),
+    SME_41 = cms.vdouble( -0.003, 0.005, 0.005, 0.608, 0.076, 0.0 ),
+    deltaEtaSearchWindow = cms.double( 0.2 ),
+    CSC_12_2_scale = cms.vdouble( -1.63622, 0.0 ),
+    DT_34_1_scale = cms.vdouble( -13.783765, 0.0 ),
+    CSC_34_1_scale = cms.vdouble( -11.520507, 0.0 ),
+    OL_2213_0_scale = cms.vdouble( -7.239789, 0.0 ),
+    CSC_13_2_scale = cms.vdouble( -6.077936, 0.0 ),
+    CSC_12_3_scale = cms.vdouble( -1.63622, 0.0 ),
+    deltaEtaCrackSearchWindow = cms.double( 0.25 ),
+    SME_21_0_scale = cms.vdouble( -0.040862, 0.0 ),
+    OL_1232 = cms.vdouble( 0.184, 0.0, 0.0, 0.066, 0.0, 0.0 ),
+    DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
+    SMB_10_0_scale = cms.vdouble( 2.448566, 0.0 ),
+    EnableDTMeasurement = cms.bool( True ),
+    DT_24_2_scale = cms.vdouble( -6.63094, 0.0 ),
+    CSC_23_2_scale = cms.vdouble( -6.079917, 0.0 ),
+    scaleDT = cms.bool( True ),
+    DT_12_2_scale = cms.vdouble( -3.518165, 0.0 ),
+    OL_1222 = cms.vdouble( 0.848, -0.591, 0.0, 0.062, 0.0, 0.0 ),
+    CSC_23_1_scale = cms.vdouble( -19.084285, 0.0 ),
+    OL_1213 = cms.vdouble( 0.96, -0.737, 0.0, 0.052, 0.0, 0.0 ),
+    CSC_02 = cms.vdouble( 0.612, -0.207, 0.0, 0.067, -0.001, 0.0 ),
+    CSC_03 = cms.vdouble( 0.787, -0.338, 0.029, 0.101, -0.008, 0.0 ),
+    CSC_01 = cms.vdouble( 0.166, 0.0, 0.0, 0.031, 0.0, 0.0 ),
+    DT_23_1_scale = cms.vdouble( -5.320346, 0.0 ),
+    SMB_30 = cms.vdouble( 0.505, -0.022, 0.0, 0.215, 0.0, 0.0 ),
+    SMB_31 = cms.vdouble( 0.549, -0.145, 0.0, 0.207, 0.0, 0.0 ),
+    crackWindow = cms.double( 0.04 ),
+    CSC_14_3_scale = cms.vdouble( -1.969563, 0.0 ),
+    SMB_31_0_scale = cms.vdouble( -3.323768, 0.0 ),
+    DT_12_1_scale = cms.vdouble( -3.692398, 0.0 ),
+    SMB_21_0_scale = cms.vdouble( 1.58384, 0.0 ),
+    DT_23_2_scale = cms.vdouble( -5.117625, 0.0 ),
+    SME_12_0_scale = cms.vdouble( 2.279181, 0.0 ),
+    DT_14_1_scale = cms.vdouble( -5.644816, 0.0 ),
+    beamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    SMB_11_0_scale = cms.vdouble( 2.56363, 0.0 ),
+    CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+    CSC_13 = cms.vdouble( 0.901, -1.302, 0.533, 0.045, 0.005, 0.0 ),
+    CSC_14 = cms.vdouble( 0.606, -0.181, -0.002, 0.111, -0.003, 0.0 ),
+    OL_2222_0_scale = cms.vdouble( -7.667231, 0.0 ),
+    EnableCSCMeasurement = cms.bool( True ),
+    CSC_12 = cms.vdouble( -0.161, 0.254, -0.047, 0.042, -0.007, 0.0 )
+)
+fragment.hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGeneratorFromL1T",
+    OfflineSeedLabel = cms.untracked.InputTag( "hltL2OfflineMuonSeeds" ),
+    ServiceParameters = cms.PSet( 
+      RPCLayers = cms.bool( True ),
+      UseMuonNavigation = cms.untracked.bool( True ),
+      Propagators = cms.untracked.vstring( 'SteppingHelixPropagatorAny' )
+    ),
+    CentralBxOnly = cms.bool( True ),
+    InputObjects = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1MaxEta = cms.double( 2.5 ),
+    EtaMatchingBins = cms.vdouble( 0.0, 2.5 ),
+    L1MinPt = cms.double( 0.0 ),
+    L1MinQuality = cms.uint32( 7 ),
+    GMTReadoutCollection = cms.InputTag( "" ),
+    UseUnassociatedL1 = cms.bool( False ),
+    UseOfflineSeed = cms.untracked.bool( True ),
+    MatchDR = cms.vdouble( 0.3 ),
+    Propagator = cms.string( "SteppingHelixPropagatorAny" )
+)
+fragment.hltL2Muons = cms.EDProducer( "L2MuonProducer",
+    ServiceParameters = cms.PSet( 
+      RPCLayers = cms.bool( True ),
+      UseMuonNavigation = cms.untracked.bool( True ),
+      Propagators = cms.untracked.vstring( 'hltESPFastSteppingHelixPropagatorAny',
+        'hltESPFastSteppingHelixPropagatorOpposite' )
+    ),
+    InputObjects = cms.InputTag( "hltL2MuonSeeds" ),
+    SeedTransformerParameters = cms.PSet( 
+      Fitter = cms.string( "hltESPKFFittingSmootherForL2Muon" ),
+      NMinRecHits = cms.uint32( 2 ),
+      RescaleError = cms.double( 100.0 ),
+      Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+      UseSubRecHits = cms.bool( False ),
+      MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
+    ),
+    L2TrajBuilderParameters = cms.PSet( 
+      BWFilterParameters = cms.PSet( 
+        DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
+        CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+        BWSeedType = cms.string( "fromGenerator" ),
+        RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
+        EnableRPCMeasurement = cms.bool( True ),
+        MuonTrajectoryUpdatorParameters = cms.PSet( 
+          ExcludeRPCFromFit = cms.bool( False ),
+          Granularity = cms.int32( 0 ),
+          MaxChi2 = cms.double( 25.0 ),
+          RescaleError = cms.bool( False ),
+          RescaleErrorFactor = cms.double( 100.0 ),
+          UseInvalidHits = cms.bool( True )
+        ),
+        EnableCSCMeasurement = cms.bool( True ),
+        MaxChi2 = cms.double( 100.0 ),
+        FitDirection = cms.string( "outsideIn" ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+        NumberOfSigma = cms.double( 3.0 ),
+        EnableDTMeasurement = cms.bool( True )
+      ),
+      DoSeedRefit = cms.bool( False ),
+      FilterParameters = cms.PSet( 
+        DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
+        CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+        RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
+        EnableRPCMeasurement = cms.bool( True ),
+        MuonTrajectoryUpdatorParameters = cms.PSet( 
+          ExcludeRPCFromFit = cms.bool( False ),
+          Granularity = cms.int32( 0 ),
+          MaxChi2 = cms.double( 25.0 ),
+          RescaleError = cms.bool( False ),
+          RescaleErrorFactor = cms.double( 100.0 ),
+          UseInvalidHits = cms.bool( True )
+        ),
+        EnableCSCMeasurement = cms.bool( True ),
+        MaxChi2 = cms.double( 1000.0 ),
+        FitDirection = cms.string( "insideOut" ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+        NumberOfSigma = cms.double( 3.0 ),
+        EnableDTMeasurement = cms.bool( True )
+      ),
+      SeedPosition = cms.string( "in" ),
+      DoBackwardFilter = cms.bool( True ),
+      DoRefit = cms.bool( False ),
+      NavigationType = cms.string( "Standard" ),
+      SeedTransformerParameters = cms.PSet( 
+        Fitter = cms.string( "hltESPKFFittingSmootherForL2Muon" ),
+        NMinRecHits = cms.uint32( 2 ),
+        RescaleError = cms.double( 100.0 ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+        UseSubRecHits = cms.bool( False ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
+      ),
+      SeedPropagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" )
+    ),
+    DoSeedRefit = cms.bool( False ),
+    TrackLoaderParameters = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      DoSmoothing = cms.bool( False ),
+      VertexConstraint = cms.bool( True ),
+      MuonUpdatorAtVertexParameters = cms.PSet( 
+        MaxChi2 = cms.double( 1000000.0 ),
+        BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 ),
+        BeamSpotPosition = cms.vdouble( 0.0, 0.0, 0.0 ),
+        Propagator = cms.string( "hltESPFastSteppingHelixPropagatorOpposite" )
+      ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" )
+    ),
+    MuonTrajectoryBuilder = cms.string( "Exhaustive" )
+)
+fragment.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
+    InputObjects = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
+)
+fragment.hltHIL2Mu3N10HitQL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3MinBiasFiltered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet40Eta2p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 40.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltL1sSingleMu3SingleCenJet28 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_SingleCenJet28" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet60Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu3CenJet28Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu3SingleCenJet28" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu3N10HitQL2FilteredWithJet28 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3CenJet28Filtered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu3SingleCenJet40 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_SingleCenJet40" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet80Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu3CenJet40Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu3SingleCenJet40" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu3N10HitQL2FilteredWithJet40 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3CenJet40Filtered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet100Eta2p1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSinglePuAK4CaloJet100Eta2p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 100.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHIL2Mu3Eta2p5HIPhoton10Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL2Mu3Eta2p5HIPhoton15Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL2Mu3Eta2p5HIPhoton20Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleMu3SingleEG12 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_SingleEG12" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu3Eta2p5HIPhoton30Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu3EG12Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu3SingleEG12" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu3N10HitQL2FilteredWithEG12 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3EG12Filtered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu3SingleEG20 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_SingleEG20" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu3Eta2p5HIPhoton40Eta1p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu3EG20Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu3SingleEG20" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu3N10HitQL2FilteredWithEG20 = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3EG20Filtered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIUCC100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
+    pedestalUpperLimit = cms.double( 2.7 ),
+    timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
+    respCorrM3 = cms.double( 0.95 ),
+    timeSlewParsType = cms.int32( 3 ),
+    applyTimeSlewM3 = cms.bool( True ),
+    digiTimeFromDB = cms.bool( True ),
+    mcOOTCorrectionName = cms.string( "" ),
+    S9S1stat = cms.PSet( 
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 24 ),
+      long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      isS8S1 = cms.bool( False ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
+    ),
+    saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
+    tsFromDB = cms.bool( True ),
+    samplesToAdd = cms.int32( 2 ),
+    mcOOTCorrectionCategory = cms.string( "MC" ),
+    dataOOTCorrectionName = cms.string( "" ),
+    puCorrMethod = cms.int32( 0 ),
+    correctionPhaseNS = cms.double( 13.0 ),
+    HFInWindowStat = cms.PSet( 
+      hfshortMaxWindowTime = cms.vdouble( 10.0 ),
+      hflongMaxWindowTime = cms.vdouble( 10.0 ),
+      hflongEthresh = cms.double( 40.0 ),
+      hfshortEthresh = cms.double( 40.0 ),
+      hflongMinWindowTime = cms.vdouble( -10.0 ),
+      hfshortMinWindowTime = cms.vdouble( -12.0 )
+    ),
+    digiLabel = cms.InputTag( "hltHcalDigis" ),
+    setHSCPFlags = cms.bool( False ),
+    firstAuxTS = cms.int32( 1 ),
+    digistat = cms.PSet( 
+      HFdigiflagCoef = cms.vdouble( 0.93, -0.012667, -0.38275 ),
+      HFdigiflagMinEthreshold = cms.double( 40.0 ),
+      HFdigiflagFirstSample = cms.int32( 1 ),
+      HFdigiflagSamplesToAdd = cms.int32( 3 ),
+      HFdigiflagExpectedPeak = cms.int32( 2 )
+    ),
+    hfTimingTrustParameters = cms.PSet( 
+      hfTimingTrustLevel1 = cms.int32( 1 ),
+      hfTimingTrustLevel2 = cms.int32( 4 )
+    ),
+    PETstat = cms.PSet( 
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_R_29 = cms.vdouble( 0.8 ),
+      flagsToSkip = cms.int32( 0 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      short_R_29 = cms.vdouble( 0.8 ),
+      long_R = cms.vdouble( 0.98 ),
+      short_R = cms.vdouble( 0.8 ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
+    ),
+    setSaturationFlags = cms.bool( False ),
+    setNegativeFlags = cms.bool( False ),
+    useLeakCorrection = cms.bool( False ),
+    setTimingTrustFlags = cms.bool( False ),
+    S8S1stat = cms.PSet( 
+      shortEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 16 ),
+      long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      isS8S1 = cms.bool( True ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      HcalAcceptSeverityLevel = cms.int32( 9 )
+    ),
+    correctForPhaseContainment = cms.bool( False ),
+    correctForTimeslew = cms.bool( False ),
+    setNoiseFlags = cms.bool( True ),
+    correctTiming = cms.bool( False ),
+    setPulseShapeFlags = cms.bool( False ),
+    Subdetector = cms.string( "HF" ),
+    dataOOTCorrectionCategory = cms.string( "Data" ),
+    dropZSmarkedPassed = cms.bool( True ),
+    recoParamsFromDB = cms.bool( True ),
+    firstSample = cms.int32( 2 ),
+    noiseHPD = cms.double( 1.0 ),
+    pulseJitter = cms.double( 1.0 ),
+    pedSigmaSiPM = cms.double( 6.5E-4 ),
+    timeMin = cms.double( -15.0 ),
+    setTimingShapedCutsFlags = cms.bool( False ),
+    applyPulseJitter = cms.bool( False ),
+    applyTimeSlew = cms.bool( True ),
+    applyTimeConstraint = cms.bool( True ),
+    timingshapedcutsParameters = cms.PSet(  ),
+    ts4chi2 = cms.vdouble( 15.0, 15.0 ),
+    ts4Min = cms.double( 5.0 ),
+    pulseShapeParameters = cms.PSet(  ),
+    timeSigmaSiPM = cms.double( 2.5 ),
+    applyPedConstraint = cms.bool( True ),
+    ts4Max = cms.vdouble( 100.0, 45000.0 ),
+    noiseSiPM = cms.double( 1.0 ),
+    meanTime = cms.double( -2.5 ),
+    flagParameters = cms.PSet(  ),
+    pedSigmaHPD = cms.double( 0.5 ),
+    fitTimes = cms.int32( 1 ),
+    timeMax = cms.double( 10.0 ),
+    timeSigmaHPD = cms.double( 5.0 ),
+    meanPed = cms.double( 0.0 ),
+    hscpParameters = cms.PSet(  )
+)
+fragment.hltTowerMakerForHf = cms.EDProducer( "CaloTowersCreator",
+    EBSumThreshold = cms.double( 0.2 ),
+    MomHBDepth = cms.double( 0.2 ),
+    UseEtEBTreshold = cms.bool( False ),
+    hfInput = cms.InputTag( "hltHfreco" ),
+    AllowMissingInputs = cms.bool( True ),
+    MomEEDepth = cms.double( 0.0 ),
+    EESumThreshold = cms.double( 0.45 ),
+    HBGrid = cms.vdouble(  ),
+    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    HBThreshold = cms.double( 0.7 ),
+    EcalSeveritiesToBeUsedInBadTowers = cms.vstring(  ),
+    UseEcalRecoveredHits = cms.bool( False ),
+    MomConstrMethod = cms.int32( 1 ),
+    MomHEDepth = cms.double( 0.4 ),
+    HcalThreshold = cms.double( -1000.0 ),
+    HF2Weights = cms.vdouble(  ),
+    HOWeights = cms.vdouble(  ),
+    EEGrid = cms.vdouble(  ),
+    UseSymEBTreshold = cms.bool( False ),
+    EEWeights = cms.vdouble(  ),
+    EEWeight = cms.double( 1.0E-99 ),
+    UseHO = cms.bool( False ),
+    HBWeights = cms.vdouble(  ),
+    HF1Weight = cms.double( 1.0 ),
+    HF2Grid = cms.vdouble(  ),
+    HEDWeights = cms.vdouble(  ),
+    EBWeight = cms.double( 1.0E-99 ),
+    HF1Grid = cms.vdouble(  ),
+    EBWeights = cms.vdouble(  ),
+    HOWeight = cms.double( 1.0E-99 ),
+    HESWeight = cms.double( 1.0 ),
+    HESThreshold = cms.double( 0.8 ),
+    hbheInput = cms.InputTag( "" ),
+    HF2Weight = cms.double( 1.0 ),
+    HF2Threshold = cms.double( 0.85 ),
+    HcalAcceptSeverityLevel = cms.uint32( 9 ),
+    EEThreshold = cms.double( 0.3 ),
+    HOThresholdPlus1 = cms.double( 3.5 ),
+    HOThresholdPlus2 = cms.double( 3.5 ),
+    HF1Weights = cms.vdouble(  ),
+    hoInput = cms.InputTag( "" ),
+    HF1Threshold = cms.double( 0.5 ),
+    HcalPhase = cms.int32( 0 ),
+    HESGrid = cms.vdouble(  ),
+    EcutTower = cms.double( -1000.0 ),
+    UseRejectedRecoveredEcalHits = cms.bool( False ),
+    UseEtEETreshold = cms.bool( False ),
+    HESWeights = cms.vdouble(  ),
+    HOThresholdMinus1 = cms.double( 3.5 ),
+    EcalRecHitSeveritiesToBeExcluded = cms.vstring( 'kTime',
+      'kWeird',
+      'kBad' ),
+    HEDWeight = cms.double( 1.0 ),
+    UseSymEETreshold = cms.bool( False ),
+    HEDThreshold = cms.double( 0.8 ),
+    UseRejectedHitsOnly = cms.bool( False ),
+    EBThreshold = cms.double( 0.07 ),
+    HEDGrid = cms.vdouble(  ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    HOThresholdMinus2 = cms.double( 3.5 ),
+    HOThreshold0 = cms.double( 3.5 ),
+    ecalInputs = cms.VInputTag(  ),
+    UseRejectedRecoveredHcalHits = cms.bool( False ),
+    MomEBDepth = cms.double( 0.3 ),
+    HBWeight = cms.double( 1.0 ),
+    HOGrid = cms.vdouble(  ),
+    EBGrid = cms.vdouble(  )
+)
+fragment.hltMetForHf = cms.EDProducer( "CaloMETProducer",
+    alias = cms.string( "RawCaloMET" ),
+    calculateSignificance = cms.bool( False ),
+    globalThreshold = cms.double( 0.5 ),
+    noHF = cms.bool( False ),
+    src = cms.InputTag( "hltTowerMakerForHf" )
+)
+fragment.hltGlobalSumETHfFilter4470 = cms.EDFilter( "HLTGlobalSumsCaloMET",
+    saveTags = cms.bool( True ),
+    observable = cms.string( "sumEt" ),
+    MinN = cms.int32( 1 ),
+    Min = cms.double( 4470.0 ),
+    Max = cms.double( 6400.0 ),
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
+)
+fragment.hltPixelActivityFilter40000 = cms.EDFilter( "HLTPixelActivityFilter",
+    maxClusters = cms.uint32( 1000000 ),
+    saveTags = cms.bool( True ),
+    inputTag = cms.InputTag( "hltHISiPixelClusters" ),
+    minClusters = cms.uint32( 40000 )
+)
+fragment.hltPreHIUCC020 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltGlobalSumETHfFilter4680 = cms.EDFilter( "HLTGlobalSumsCaloMET",
+    saveTags = cms.bool( True ),
+    observable = cms.string( "sumEt" ),
+    MinN = cms.int32( 1 ),
+    Min = cms.double( 4680.0 ),
+    Max = cms.double( 6400.0 ),
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
+)
+fragment.hltPixelActivityFilter60000 = cms.EDFilter( "HLTPixelActivityFilter",
+    maxClusters = cms.uint32( 1000000 ),
+    saveTags = cms.bool( True ),
+    inputTag = cms.InputTag( "hltHISiPixelClusters" ),
+    minClusters = cms.uint32( 60000 )
+)
+fragment.hltL1sMinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIQ2Bottom005Centrality1030 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltGlobalSumETHfFilterCentrality1030 = cms.EDFilter( "HLTGlobalSumsCaloMET",
+    saveTags = cms.bool( True ),
+    observable = cms.string( "sumEt" ),
+    MinN = cms.int32( 1 ),
+    Min = cms.double( 1200.0 ),
+    Max = cms.double( 3380.0 ),
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
+)
+fragment.hltEvtPlaneProducer = cms.EDProducer( "EvtPlaneProducer",
+    maxet = cms.double( -1.0 ),
+    caloCentRefWidth = cms.double( 5.0 ),
+    dzerr = cms.double( 10.0 ),
+    centralityVariable = cms.string( "HFtowers" ),
+    NumFlatBins = cms.int32( 40 ),
+    minpt = cms.double( 0.3 ),
+    caloCentRef = cms.double( 80.0 ),
+    chi2 = cms.double( 40.0 ),
+    minet = cms.double( -1.0 ),
+    trackTag = cms.InputTag( "hiGeneralTracksDummy" ),
+    centralityBinTag = cms.InputTag( 'centralityBin','HFtowersDummy' ),
+    FlatOrder = cms.int32( 9 ),
+    maxpt = cms.double( 3.0 ),
+    minvtx = cms.double( -9999.0 ),
+    caloTag = cms.InputTag( "hltTowerMakerHcalMethod050nsMultiFitForAll" ),
+    vertexTag = cms.InputTag( "hiSelectedVertexDummy" ),
+    castorTag = cms.InputTag( "CastorTowerRecoDummy" ),
+    maxvtx = cms.double( 9999.0 ),
+    CentBinCompression = cms.int32( 5 ),
+    loadDB = cms.bool( False ),
+    nonDefaultGlauberModel = cms.string( "" )
+)
+fragment.hltEvtPlaneFilterB005Cent1030 = cms.EDFilter( "EvtPlaneFilter",
+    EPlabel = cms.InputTag( "hltEvtPlaneProducer" ),
+    EPlvl = cms.int32( 0 ),
+    EPidx = cms.int32( 8 ),
+    Vnhigh = cms.double( 0.01 ),
+    Vnlow = cms.double( 0.0 )
+)
+fragment.hltPreHIQ2Top005Centrality1030 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltEvtPlaneFilterT005Cent1030 = cms.EDFilter( "EvtPlaneFilter",
+    EPlabel = cms.InputTag( "hltEvtPlaneProducer" ),
+    EPlvl = cms.int32( 0 ),
+    EPidx = cms.int32( 8 ),
+    Vnhigh = cms.double( 1.0 ),
+    Vnlow = cms.double( 0.145 )
+)
+fragment.hltPreHIQ2Bottom005Centrality3050 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltGlobalSumETHfFilterCentrality3050 = cms.EDFilter( "HLTGlobalSumsCaloMET",
+    saveTags = cms.bool( True ),
+    observable = cms.string( "sumEt" ),
+    MinN = cms.int32( 1 ),
+    Min = cms.double( 400.0 ),
+    Max = cms.double( 1500.0 ),
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
+)
+fragment.hltEvtPlaneFilterB005Cent3050 = cms.EDFilter( "EvtPlaneFilter",
+    EPlabel = cms.InputTag( "hltEvtPlaneProducer" ),
+    EPlvl = cms.int32( 0 ),
+    EPidx = cms.int32( 8 ),
+    Vnhigh = cms.double( 0.01 ),
+    Vnlow = cms.double( 0.0 )
+)
+fragment.hltPreHIQ2Top005Centrality3050 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltEvtPlaneFilterT005Cent3050 = cms.EDFilter( "EvtPlaneFilter",
+    EPlabel = cms.InputTag( "hltEvtPlaneProducer" ),
+    EPlvl = cms.int32( 0 ),
+    EPidx = cms.int32( 8 ),
+    Vnhigh = cms.double( 1.0 ),
+    Vnlow = cms.double( 0.183 )
+)
+fragment.hltPreHIQ2Bottom005Centrality5070 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltGlobalSumETHfFilterCentrality5070 = cms.EDFilter( "HLTGlobalSumsCaloMET",
+    saveTags = cms.bool( True ),
+    observable = cms.string( "sumEt" ),
+    MinN = cms.int32( 1 ),
+    Min = cms.double( 60.0 ),
+    Max = cms.double( 600.0 ),
+    inputTag = cms.InputTag( "hltMetForHf" ),
+    triggerType = cms.int32( 88 )
+)
+fragment.hltEvtPlaneFilterB005Cent5070 = cms.EDFilter( "EvtPlaneFilter",
+    EPlabel = cms.InputTag( "hltEvtPlaneProducer" ),
+    EPlvl = cms.int32( 0 ),
+    EPidx = cms.int32( 8 ),
+    Vnhigh = cms.double( 0.01 ),
+    Vnlow = cms.double( 0.0 )
+)
+fragment.hltPreHIQ2Top005Centrality5070 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltEvtPlaneFilterT005Cent5070 = cms.EDFilter( "EvtPlaneFilter",
+    EPlabel = cms.InputTag( "hltEvtPlaneProducer" ),
+    EPlvl = cms.int32( 0 ),
+    EPidx = cms.int32( 8 ),
+    Vnhigh = cms.double( 1.0 ),
+    Vnlow = cms.double( 0.223 )
+)
+fragment.hltPreHIFullTrack12L1MinimumBiasHF1AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIFullTrackSelectedTracks = cms.EDProducer( "AnalyticalTrackSelector",
+    max_d0 = cms.double( 100.0 ),
+    minNumber3DLayers = cms.uint32( 0 ),
+    max_lostHitFraction = cms.double( 1.0 ),
+    applyAbsCutsIfNoPV = cms.bool( False ),
+    qualityBit = cms.string( "highPurity" ),
+    minNumberLayers = cms.uint32( 0 ),
+    chi2n_par = cms.double( 9999.0 ),
+    useVtxError = cms.bool( True ),
+    nSigmaZ = cms.double( 100.0 ),
+    dz_par2 = cms.vdouble( 3.5, 0.0 ),
+    applyAdaptedPVCuts = cms.bool( True ),
+    min_eta = cms.double( -9999.0 ),
+    dz_par1 = cms.vdouble( 9999.0, 0.0 ),
+    copyTrajectories = cms.untracked.bool( False ),
+    vtxNumber = cms.int32( -1 ),
+    max_d0NoPV = cms.double( 100.0 ),
+    keepAllTracks = cms.bool( False ),
+    maxNumberLostLayers = cms.uint32( 999 ),
+    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
+    max_relpterr = cms.double( 0.1 ),
+    copyExtras = cms.untracked.bool( True ),
+    max_z0NoPV = cms.double( 100.0 ),
+    vertexCut = cms.string( "" ),
+    max_z0 = cms.double( 100.0 ),
+    useVertices = cms.bool( True ),
+    min_nhits = cms.uint32( 10 ),
+    src = cms.InputTag( "hltHIIterTrackingMergedHighPurityForGlobalPt8" ),
+    max_minMissHitOutOrIn = cms.int32( 99 ),
+    chi2n_no1Dmod_par = cms.double( 0.25 ),
+    vertices = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    max_eta = cms.double( 9999.0 ),
+    d0_par2 = cms.vdouble( 3.5, 0.0 ),
+    d0_par1 = cms.vdouble( 9999.0, 0.0 ),
+    res_par = cms.vdouble( 9999.0, 9999.0 ),
+    minHitsToBypassChecks = cms.uint32( 20 )
+)
+fragment.hltHIFullTrackCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandidateProducer",
+    src = cms.InputTag( "hltHIFullTrackSelectedTracks" ),
+    particleType = cms.string( "pi+" )
+)
+fragment.hltHIFullTrackFilter12 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 1 ),
+    MinPt = cms.double( 12.0 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 1.05 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForHITrackTrigger" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 0.2 )
+)
+fragment.hltPreHIFullTrack12L1Centrality010 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleTrack12Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleTrack12_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIFullTrack12L1Centrality30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIFullTrack18L1MinimumBiasHF1AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIFullTrackFilter18 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 1 ),
+    MinPt = cms.double( 18.0 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 1.05 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForHITrackTrigger" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 0.2 )
+)
+fragment.hltPreHIFullTrack18L1Centrality010 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIFullTrack18L1Centrality30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleTrack16BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleTrack16_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIFullTrack24 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIFullTrackFilter24 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 1 ),
+    MinPt = cms.double( 24.0 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 1.05 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForHITrackTrigger" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertexAfterSplitting" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 0.2 )
+)
+fragment.hltL1sSingleTrack16Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleTrack16_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIFullTrack24L1Centrality30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleTrack24BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleTrack24_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIFullTrack34 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIFullTrackFilter34 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 1 ),
+    MinPt = cms.double( 34.0 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 1.05 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForHITrackTrigger" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertex" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 0.2 )
+)
+fragment.hltL1sSingleTrack24Centralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleTrack24_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIFullTrack34L1Centrality30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIFullTrack45 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIFullTrackFilter45 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( True ),
+    MinTrks = cms.int32( 1 ),
+    MinPt = cms.double( 45.0 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 1.05 ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForHITrackTrigger" ),
+    vertexCollection = cms.InputTag( "hltHISelectedVertex" ),
+    MaxPt = cms.double( 10000.0 ),
+    MinSep = cms.double( 0.2 )
+)
+fragment.hltPreHIFullTrack45L1Centrality30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sDoubleMu0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu0L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltL1sDoubleMu0MinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_MinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu02HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu0MinBiasL1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu0MinimumBiasHF1AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltL1sDoubleMu0HFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_HFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu02HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu0HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu0HFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltL1sDoubleMu10BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu10_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu10 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu10L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu10BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIL2DoubleMu0NHitQ = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu0NHitQFiltered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0L1Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltPreHIL2DoubleMu0NHitQ2HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu0NHitQ2HFFiltered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0MinBiasL1Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltPreHIL2DoubleMu0NHitQ2HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu0NHitQ2HF0Filtered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0HFTower0Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltPreHIL2Mu3NHitQ102HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2Mu3N10HitQ2HFL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3MinBiasFiltered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu3HFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu3_HFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu3NHitQ102HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu3HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu3HFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu3N10HitQ2HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu3HFTower0Filtered" ),
+    MinPt = cms.double( 3.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIL3Mu3NHitQ152HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
+    UseQualityInfo = cms.bool( False ),
+    UsePilotBlade = cms.bool( False ),
+    UsePhase1 = cms.bool( False ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    IncludeErrors = cms.bool( False ),
+    ErrorList = cms.vint32(  ),
+    Regions = cms.PSet(  ),
+    Timing = cms.untracked.bool( False ),
+    CablingMapLabel = cms.string( "" ),
+    UserErrorList = cms.vint32(  )
+)
+fragment.hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
+    src = cms.InputTag( "hltSiPixelDigis" ),
+    ChannelThreshold = cms.int32( 1000 ),
+    maxNumberOfClusters = cms.int32( 20000 ),
+    VCaltoElectronGain = cms.int32( 65 ),
+    MissCalibrate = cms.untracked.bool( True ),
+    SplitClusters = cms.bool( False ),
+    VCaltoElectronOffset = cms.int32( -414 ),
+    payloadType = cms.string( "HLT" ),
+    SeedThreshold = cms.int32( 1000 ),
+    ClusterThreshold = cms.double( 4000.0 )
+)
+fragment.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltSiPixelClusters" ),
+    onDemand = cms.bool( False )
+)
+fragment.hltSiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
+    VerboseLevel = cms.untracked.int32( 0 ),
+    src = cms.InputTag( "hltSiPixelClusters" ),
+    CPE = cms.string( "hltESPPixelCPEGeneric" )
+)
+fragment.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
+    ProductLabel = cms.InputTag( "rawDataCollector" )
+)
+fragment.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFromRaw",
+    ProductLabel = cms.InputTag( "rawDataCollector" ),
+    DoAPVEmulatorCheck = cms.bool( False ),
+    Algorithms = cms.PSet( 
+      CommonModeNoiseSubtractionMode = cms.string( "Median" ),
+      useCMMeanMap = cms.bool( False ),
+      TruncateInSuppressor = cms.bool( True ),
+      doAPVRestore = cms.bool( False ),
+      SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
+      PedestalSubtractionFedMode = cms.bool( True )
+    ),
+    Clusterizer = cms.PSet( 
+      QualityLabel = cms.string( "" ),
+      ClusterThreshold = cms.double( 5.0 ),
+      SeedThreshold = cms.double( 3.0 ),
+      Algorithm = cms.string( "ThreeThresholdAlgorithm" ),
+      ChannelThreshold = cms.double( 2.0 ),
+      MaxAdjacentBad = cms.uint32( 0 ),
+      setDetId = cms.bool( True ),
+      MaxSequentialHoles = cms.uint32( 0 ),
+      RemoveApvShots = cms.bool( True ),
+      clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutNone" ) ),
+      MaxSequentialBad = cms.uint32( 1 )
+    ),
+    onDemand = cms.bool( True )
+)
+fragment.hltSiStripClusters = cms.EDProducer( "MeasurementTrackerEventProducer",
+    inactivePixelDetectorLabels = cms.VInputTag(  ),
+    stripClusterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
+    pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
+    switchOffPixelsIfEmpty = cms.bool( True ),
+    inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
+    skipClusters = cms.InputTag( "" ),
+    measurementTracker = cms.string( "hltESPMeasurementTracker" )
+)
+fragment.hltHIL3TrajSeedOIState = cms.EDProducer( "TSGFromL2Muon",
+    TkSeedGenerator = cms.PSet( 
+      copyMuonRecHit = cms.bool( False ),
+      propagatorName = cms.string( "hltESPSteppingHelixPropagatorAlong" ),
+      MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
+      errorMatrixPset = cms.PSet( 
+        atIP = cms.bool( True ),
+        action = cms.string( "use" ),
+        errorMatrixValuesPSet = cms.PSet( 
+          xAxis = cms.vdouble( 0.0, 13.0, 30.0, 70.0, 1000.0 ),
+          zAxis = cms.vdouble( -3.14159, 3.14159 ),
+          yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
+          pf3_V14 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V25 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V13 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V24 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V35 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V12 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V23 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V34 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V45 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V11 = cms.PSet( 
+            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V22 = cms.PSet( 
+            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V33 = cms.PSet( 
+            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V44 = cms.PSet( 
+            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V55 = cms.PSet( 
+            values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+            action = cms.string( "scale" )
+          ),
+          pf3_V15 = cms.PSet( 
+            values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+            action = cms.string( "scale" )
+          )
+        )
+      ),
+      ComponentName = cms.string( "TSGForRoadSearch" ),
+      maxChi2 = cms.double( 40.0 ),
+      manySeeds = cms.bool( False ),
+      propagatorCompatibleName = cms.string( "hltESPSteppingHelixPropagatorOpposite" ),
+      option = cms.uint32( 3 )
+    ),
+    ServiceParameters = cms.PSet( 
+      RPCLayers = cms.bool( True ),
+      UseMuonNavigation = cms.untracked.bool( True ),
+      Propagators = cms.untracked.vstring( 'hltESPSteppingHelixPropagatorOpposite',
+        'hltESPSteppingHelixPropagatorAlong' )
+    ),
+    MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
+    MuonTrackingRegionBuilder = cms.PSet(  ),
+    PCut = cms.double( 2.5 ),
+    TrackerSeedCleaner = cms.PSet(  ),
+    PtCut = cms.double( 1.0 )
+)
+fragment.hltHIL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
+    src = cms.InputTag( "hltHIL3TrajSeedOIState" ),
+    reverseTrajectories = cms.bool( True ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    useHitsSplitting = cms.bool( False ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    trackCandidateAlso = cms.bool( True ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryBuilder" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" ),
+    maxNSeeds = cms.uint32( 100000 )
+)
+fragment.hltHIL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIL3TrackCandidateFromL2OIState" ),
+    SimpleMagneticField = cms.string( "" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "hltIterX" ),
+    alias = cms.untracked.string( "" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
+    Propagator = cms.string( "PropagatorWithMaterial" )
+)
+fragment.hltHIL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
+    ServiceParameters = cms.PSet( 
+      RPCLayers = cms.bool( True ),
+      UseMuonNavigation = cms.untracked.bool( True ),
+      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
+        'SteppingHelixPropagatorAny',
+        'hltESPSmartPropagator',
+        'hltESPSteppingHelixPropagatorOpposite' )
+    ),
+    L3TrajBuilderParameters = cms.PSet( 
+      PtCut = cms.double( 1.0 ),
+      TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+      GlobalMuonTrackMatcher = cms.PSet( 
+        Chi2Cut_3 = cms.double( 200.0 ),
+        DeltaDCut_2 = cms.double( 10.0 ),
+        Eta_threshold = cms.double( 1.2 ),
+        Quality_2 = cms.double( 15.0 ),
+        DeltaDCut_1 = cms.double( 40.0 ),
+        Quality_3 = cms.double( 7.0 ),
+        DeltaDCut_3 = cms.double( 15.0 ),
+        Quality_1 = cms.double( 20.0 ),
+        Pt_threshold1 = cms.double( 0.0 ),
+        DeltaRCut_2 = cms.double( 0.2 ),
+        DeltaRCut_1 = cms.double( 0.1 ),
+        Pt_threshold2 = cms.double( 9.99999999E8 ),
+        Chi2Cut_1 = cms.double( 50.0 ),
+        Chi2Cut_2 = cms.double( 50.0 ),
+        DeltaRCut_3 = cms.double( 1.0 ),
+        LocChi2Cut = cms.double( 0.001 ),
+        Propagator = cms.string( "hltESPSmartPropagator" ),
+        MinPt = cms.double( 1.0 ),
+        MinP = cms.double( 2.5 )
+      ),
+      ScaleTECxFactor = cms.double( -1.0 ),
+      tkTrajUseVertex = cms.bool( False ),
+      MuonTrackingRegionBuilder = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonTrackingRegionBuilder8356" ) ),
+      TrackTransformer = cms.PSet( 
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        RefitDirection = cms.string( "insideOut" ),
+        RefitRPCHits = cms.bool( True ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
+        DoPredictionsOnly = cms.bool( False ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+        Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" )
+      ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      RefitRPCHits = cms.bool( True ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      GlbRefitterParameters = cms.PSet( 
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
+        SkipStation = cms.int32( -1 ),
+        Chi2CutRPC = cms.double( 1.0 ),
+        PropDirForCosmics = cms.bool( False ),
+        CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+        HitThreshold = cms.int32( 1 ),
+        DYTthrs = cms.vint32( 30, 15 ),
+        TrackerSkipSystem = cms.int32( -1 ),
+        RefitDirection = cms.string( "insideOut" ),
+        Chi2CutCSC = cms.double( 150.0 ),
+        Chi2CutDT = cms.double( 10.0 ),
+        RefitRPCHits = cms.bool( True ),
+        TrackerSkipSection = cms.int32( -1 ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
+        DoPredictionsOnly = cms.bool( False ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonHitsOption = cms.int32( 1 ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
+      ),
+      PCut = cms.double( 2.5 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 0.2 ),
+      TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      tkTrajMaxChi2 = cms.double( 9999.0 ),
+      MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+      ScaleTECyFactor = cms.double( -1.0 ),
+      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2OIState" )
+    ),
+    TrackLoaderParameters = cms.PSet( 
+      MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      DoSmoothing = cms.bool( True ),
+      SmoothTkTrack = cms.untracked.bool( False ),
+      VertexConstraint = cms.bool( False ),
+      MuonUpdatorAtVertexParameters = cms.PSet( 
+        MaxChi2 = cms.double( 1000000.0 ),
+        BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 ),
+        Propagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" )
+      ),
+      PutTkTrackIntoEvent = cms.untracked.bool( False ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" )
+    ),
+    MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
+)
+fragment.hltHIL3TrajSeedOIHit = cms.EDProducer( "TSGFromL2Muon",
+    TkSeedGenerator = cms.PSet( 
+      iterativeTSG = cms.PSet( 
+        MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+        beamSpot = cms.InputTag( "unused" ),
+        MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
+        SelectState = cms.bool( False ),
+        ErrorRescaling = cms.double( 3.0 ),
+        UseVertexState = cms.bool( True ),
+        SigmaZ = cms.double( 25.0 ),
+        MaxChi2 = cms.double( 40.0 ),
+        errorMatrixPset = cms.PSet( 
+          atIP = cms.bool( True ),
+          action = cms.string( "use" ),
+          errorMatrixValuesPSet = cms.PSet( 
+            xAxis = cms.vdouble( 0.0, 13.0, 30.0, 70.0, 1000.0 ),
+            zAxis = cms.vdouble( -3.14159, 3.14159 ),
+            yAxis = cms.vdouble( 0.0, 1.0, 1.4, 10.0 ),
+            pf3_V14 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V25 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V13 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V24 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V35 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V12 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V23 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V34 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V45 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V11 = cms.PSet( 
+              values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V22 = cms.PSet( 
+              values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V33 = cms.PSet( 
+              values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V44 = cms.PSet( 
+              values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V55 = cms.PSet( 
+              values = cms.vdouble( 3.0, 3.0, 3.0, 5.0, 4.0, 5.0, 10.0, 7.0, 10.0, 10.0, 10.0, 10.0 ),
+              action = cms.string( "scale" )
+            ),
+            pf3_V15 = cms.PSet( 
+              values = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ),
+              action = cms.string( "scale" )
+            )
+          )
+        ),
+        Propagator = cms.string( "hltESPSmartPropagatorAnyOpposite" ),
+        ComponentName = cms.string( "TSGFromPropagation" ),
+        UpdateState = cms.bool( True ),
+        ResetMethod = cms.string( "matrix" )
+      ),
+      PSetNames = cms.vstring( 'skipTSG',
+        'iterativeTSG' ),
+      skipTSG = cms.PSet(  ),
+      ComponentName = cms.string( "DualByL2TSG" ),
+      L3TkCollectionA = cms.InputTag( "hltHIL3MuonsOIState" )
+    ),
+    ServiceParameters = cms.PSet( 
+      RPCLayers = cms.bool( True ),
+      UseMuonNavigation = cms.untracked.bool( True ),
+      Propagators = cms.untracked.vstring( 'PropagatorWithMaterial',
+        'hltESPSmartPropagatorAnyOpposite' )
+    ),
+    MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
+    MuonTrackingRegionBuilder = cms.PSet(  ),
+    PCut = cms.double( 2.5 ),
+    TrackerSeedCleaner = cms.PSet( 
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      cleanerFromSharedHits = cms.bool( True ),
+      directionCleaner = cms.bool( True ),
+      ptCleaner = cms.bool( True )
+    ),
+    PtCut = cms.double( 1.0 )
+)
+fragment.hltHIL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
+    src = cms.InputTag( "hltHIL3TrajSeedOIHit" ),
+    reverseTrajectories = cms.bool( True ),
+    TransientInitialStateEstimatorParameters = cms.PSet( 
+      propagatorAlongTISE = cms.string( "PropagatorWithMaterial" ),
+      numberMeasurementsForFit = cms.int32( 4 ),
+      propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
+    ),
+    TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
+    cleanTrajectoryAfterInOut = cms.bool( False ),
+    useHitsSplitting = cms.bool( False ),
+    RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
+    doSeedingRegionRebuilding = cms.bool( False ),
+    trackCandidateAlso = cms.bool( True ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryBuilder" ) ),
+    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
+    TrajectoryBuilder = cms.string( "" ),
+    maxNSeeds = cms.uint32( 100000 )
+)
+fragment.hltHIL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
+    src = cms.InputTag( "hltHIL3TrackCandidateFromL2OIHit" ),
+    SimpleMagneticField = cms.string( "" ),
+    clusterRemovalInfo = cms.InputTag( "" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
+    Fitter = cms.string( "hltESPKFFittingSmoother" ),
+    useHitsSplitting = cms.bool( False ),
+    MeasurementTracker = cms.string( "" ),
+    AlgorithmName = cms.string( "hltIterX" ),
+    alias = cms.untracked.string( "" ),
+    NavigationSchool = cms.string( "" ),
+    TrajectoryInEvent = cms.bool( False ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
+    Propagator = cms.string( "PropagatorWithMaterial" )
+)
+fragment.hltHIL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
+    ServiceParameters = cms.PSet( 
+      RPCLayers = cms.bool( True ),
+      UseMuonNavigation = cms.untracked.bool( True ),
+      Propagators = cms.untracked.vstring( 'hltESPSmartPropagatorAny',
+        'SteppingHelixPropagatorAny',
+        'hltESPSmartPropagator',
+        'hltESPSteppingHelixPropagatorOpposite' )
+    ),
+    L3TrajBuilderParameters = cms.PSet( 
+      PtCut = cms.double( 1.0 ),
+      TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
+      GlobalMuonTrackMatcher = cms.PSet( 
+        Chi2Cut_3 = cms.double( 200.0 ),
+        DeltaDCut_2 = cms.double( 10.0 ),
+        Eta_threshold = cms.double( 1.2 ),
+        Quality_2 = cms.double( 15.0 ),
+        DeltaDCut_1 = cms.double( 40.0 ),
+        Quality_3 = cms.double( 7.0 ),
+        DeltaDCut_3 = cms.double( 15.0 ),
+        Quality_1 = cms.double( 20.0 ),
+        Pt_threshold1 = cms.double( 0.0 ),
+        DeltaRCut_2 = cms.double( 0.2 ),
+        DeltaRCut_1 = cms.double( 0.1 ),
+        Pt_threshold2 = cms.double( 9.99999999E8 ),
+        Chi2Cut_1 = cms.double( 50.0 ),
+        Chi2Cut_2 = cms.double( 50.0 ),
+        DeltaRCut_3 = cms.double( 1.0 ),
+        LocChi2Cut = cms.double( 0.001 ),
+        Propagator = cms.string( "hltESPSmartPropagator" ),
+        MinPt = cms.double( 1.0 ),
+        MinP = cms.double( 2.5 )
+      ),
+      ScaleTECxFactor = cms.double( -1.0 ),
+      tkTrajUseVertex = cms.bool( False ),
+      MuonTrackingRegionBuilder = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonTrackingRegionBuilder8356" ) ),
+      TrackTransformer = cms.PSet( 
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        RefitDirection = cms.string( "insideOut" ),
+        RefitRPCHits = cms.bool( True ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
+        DoPredictionsOnly = cms.bool( False ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+        Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" )
+      ),
+      tkTrajBeamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      RefitRPCHits = cms.bool( True ),
+      tkTrajVertex = cms.InputTag( "pixelVertices" ),
+      GlbRefitterParameters = cms.PSet( 
+        Fitter = cms.string( "hltESPL3MuKFTrajectoryFitter" ),
+        DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
+        SkipStation = cms.int32( -1 ),
+        Chi2CutRPC = cms.double( 1.0 ),
+        PropDirForCosmics = cms.bool( False ),
+        CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+        HitThreshold = cms.int32( 1 ),
+        DYTthrs = cms.vint32( 30, 15 ),
+        TrackerSkipSystem = cms.int32( -1 ),
+        RefitDirection = cms.string( "insideOut" ),
+        Chi2CutCSC = cms.double( 150.0 ),
+        Chi2CutDT = cms.double( 10.0 ),
+        RefitRPCHits = cms.bool( True ),
+        TrackerSkipSection = cms.int32( -1 ),
+        Propagator = cms.string( "hltESPSmartPropagatorAny" ),
+        DoPredictionsOnly = cms.bool( False ),
+        TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+        MuonHitsOption = cms.int32( 1 ),
+        MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
+      ),
+      PCut = cms.double( 2.5 ),
+      tkTrajMaxDXYBeamSpot = cms.double( 0.2 ),
+      TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      tkTrajMaxChi2 = cms.double( 9999.0 ),
+      MuonRecHitBuilder = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" ),
+      ScaleTECyFactor = cms.double( -1.0 ),
+      tkTrajLabel = cms.InputTag( "hltHIL3TkTracksFromL2OIHit" )
+    ),
+    TrackLoaderParameters = cms.PSet( 
+      MuonSeededTracksInstance = cms.untracked.string( "L2Seeded" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      DoSmoothing = cms.bool( True ),
+      SmoothTkTrack = cms.untracked.bool( False ),
+      VertexConstraint = cms.bool( False ),
+      MuonUpdatorAtVertexParameters = cms.PSet( 
+        MaxChi2 = cms.double( 1000000.0 ),
+        BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 ),
+        Propagator = cms.string( "hltESPSteppingHelixPropagatorOpposite" )
+      ),
+      PutTkTrackIntoEvent = cms.untracked.bool( False ),
+      Smoother = cms.string( "hltESPKFTrajectorySmootherForMuonTrackLoader" )
+    ),
+    MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
+)
+fragment.hltHIL3TkFromL2OICombination = cms.EDProducer( "L3TrackCombiner",
+    labels = cms.VInputTag( 'hltHIL3MuonsOIState','hltHIL3MuonsOIHit' )
+)
+fragment.hltHIL3TrajectorySeed = cms.EDProducer( "L3MuonTrajectorySeedCombiner",
+    labels = cms.VInputTag( 'hltHIL3TrajSeedOIState','hltHIL3TrajSeedOIHit' )
+)
+fragment.hltHIL3TrackCandidateFromL2 = cms.EDProducer( "L3TrackCandCombiner",
+    labels = cms.VInputTag( 'hltHIL3TrackCandidateFromL2OIHit','hltHIL3TrackCandidateFromL2OIState' )
+)
+fragment.hltHIL3MuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
+    labels = cms.VInputTag( 'hltHIL3MuonsOIState','hltHIL3MuonsOIHit' )
+)
+fragment.hltHIL3Muons = cms.EDProducer( "L3TrackCombiner",
+    labels = cms.VInputTag( 'hltHIL3MuonsOIState','hltHIL3MuonsOIHit' )
+)
+fragment.hltHIL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
+    InputLinksObjects = cms.InputTag( "hltHIL3MuonsLinksCombination" ),
+    InputObjects = cms.InputTag( "hltHIL3Muons" ),
+    MuonPtOption = cms.string( "Tracker" )
+)
+fragment.hltHISingleMu3NHit152HFL3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL2Mu3N10HitQ2HFL2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 15 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 3.0 )
+)
+fragment.hltPreHIL3Mu3NHitQ152HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHISingleMu3NHit152HF0L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL2Mu3N10HitQ2HF0L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 15 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 3.0 )
+)
+fragment.hltL1sSingleMu5MinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5_MinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu5NHitQ102HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu5MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu5MinimumBiasHF1AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu5N10HitQ2HFL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu5MinBiasFiltered" ),
+    MinPt = cms.double( 5.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu5HFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu5_HFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu5NHitQ102HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu5HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu5HFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu5N10HitQ2HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu5HFTower0Filtered" ),
+    MinPt = cms.double( 5.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIL3Mu5NHitQ152HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHISingleMu5NHit152HFL3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL2Mu5N10HitQ2HFL2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 15 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 5.0 )
+)
+fragment.hltPreHIL3Mu5NHitQ152HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHISingleMu5NHit152HF0L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL2Mu5N10HitQ2HF0L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 15 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 5.0 )
+)
+fragment.hltL1sSingleMu7MinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu7_MinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu7NHitQ102HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu7MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu7MinimumBiasHF1AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu7N10HitQ2HFL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu7MinBiasFiltered" ),
+    MinPt = cms.double( 7.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu7HFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu7_HFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu7NHitQ102HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu7HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu7HFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu7N10HitQ2HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu7HFTower0Filtered" ),
+    MinPt = cms.double( 7.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 10 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIL3Mu7NHitQ152HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHISingleMu7NHit152HFL3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL2Mu7N10HitQ2HFL2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 15 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 7.0 )
+)
+fragment.hltPreHIL3Mu7NHitQ152HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHISingleMu7NHit152HF0L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL2Mu7N10HitQ2HF0L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 15 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 7.0 )
+)
+fragment.hltL1sSingleMu12BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu12_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu15 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu12Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu12BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu15L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu12Filtered" ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu12MinimumBiasHF1ANDBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu12_MinimumBiasHF1_AND_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu152HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu12MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu12MinimumBiasHF1ANDBptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu152HFFiltered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu12MinBiasFiltered" ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu12HFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu12_HFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu152HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu12HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu12HFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu15N10HitQ2HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu12HFTower0Filtered" ),
+    MinPt = cms.double( 15.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIL3Mu15 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL3Mu15L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu12Filtered" ),
+    MinPt = cms.double( 12.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHISingleMu15L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL3Mu15L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 15.0 )
+)
+fragment.hltPreHIL3Mu152HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL3Mu152HFL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu12MinBiasFiltered" ),
+    MinPt = cms.double( 12.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHISingleMu152HFL3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL3Mu152HFL2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 15.0 )
+)
+fragment.hltPreHIL3Mu152HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL3Mu152HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu12HFTower0Filtered" ),
+    MinPt = cms.double( 12.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHISingleMu152HF0L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL3Mu152HF0L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 15.0 )
+)
+fragment.hltL1sSingleMu16BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu20 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu16Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu16BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu20L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16Filtered" ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu16MinimumBiasHF1ANDBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16_MinimumBiasHF1_AND_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu202HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu16MinBiasFiltered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu16MinimumBiasHF1ANDBptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu202HFL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16MinBiasFiltered" ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltL1sSingleMu16HFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMu16_HFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL2Mu202HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL1SingleMu16HFTower0Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMu16HFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltHIL2Mu202HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16HFTower0Filtered" ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltPreHIL3Mu20 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL3Mu20L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16Filtered" ),
+    MinPt = cms.double( 16.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHIL3SingleMu20L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL3Mu20L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 20.0 )
+)
+fragment.hltPreHIL3Mu202HF = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL3Mu202HFL2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16MinBiasFiltered" ),
+    MinPt = cms.double( 16.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHISingleMu202HFL3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL3Mu202HFL2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 20.0 )
+)
+fragment.hltPreHIL3Mu202HF0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL3Mu202HF0L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIL1SingleMu16HFTower0Filtered" ),
+    MinPt = cms.double( 16.0 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHISingleMu202HF0L3Filtered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIL3Mu202HF0L2Filtered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    InputLinks = cms.InputTag( "" ),
+    MinPt = cms.double( 20.0 )
+)
+fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_MinimumBiasHF1_AND_Centrality_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu02HFCent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu0MinBiasCent30to100L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext30100BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltL1sDoubleMu0HFplusANDminusTH0Centrliatiyext30100BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_HFplusANDminusTH0_Centrliatiy_ext30_100_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu02HF0Cent30100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu0HFTower0Cent30to100L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu0HFplusANDminusTH0Centrliatiyext30100BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIL2DoubleMu02HFCent30100NHitQ = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu02HFcent30100NHitQFiltered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0MinBiasCent30to100L1Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu0_MinimumBiasHF1_AND_Centrality_ext0_30_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1DoubleMu0Cent30 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDoubleMu0MinBiasCent30L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIL2DoubleMu02HF0Cent30100NHitQ = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu02HF0cent30100NHitQFiltered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0HFTower0Cent30to100L1Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltPreHIL2DoubleMu0Cent30OSNHitQ = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu0cent30OSNHitQFiltered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( -1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0MinBiasCent30L1Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltPreHIL2DoubleMu0Cent30NHitQ = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIL2DoubleMu0cent30NHitQFiltered = cms.EDFilter( "HLTMuonDimuonL2FromL1TFilter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MinNchambers = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0MinBiasCent30L1Filtered" ),
+    MinAngle = cms.double( -999.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtMin = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinPtMax = cms.double( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxAngle = cms.double( 2.5 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MaxDr = cms.double( 100.0 ),
+    MinAcop = cms.double( -1.0 ),
+    MinNstations = cms.int32( 0 ),
+    MinNhits = cms.int32( 1 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MinInvMass = cms.double( 1.6 )
+)
+fragment.hltPreHIL3DoubleMu0Cent30 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDimuonOpenCentrality30L2Filtered = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0MinBiasCent30L1Filtered" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHIDimuonOpenCentrality30L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( 0 ),
+    MaxPtMin = cms.vdouble( 1.0E125 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIDimuonOpenCentrality30L2Filtered" ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxPtPair = cms.vdouble( 1.0E125 ),
+    MaxAcop = cms.double( 999.0 ),
+    MinPtMin = cms.vdouble( 0.0 ),
+    MaxInvMass = cms.vdouble( 300.0 ),
+    MinPtMax = cms.vdouble( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.vdouble( 0.0 ),
+    MaxDr = cms.double( 20.0 ),
+    MinAcop = cms.double( -999.0 ),
+    MaxDCAMuMu = cms.double( 999.0 ),
+    MinNhits = cms.int32( 0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
+    CutCowboys = cms.bool( False ),
+    MinInvMass = cms.vdouble( 0.0 )
+)
+fragment.hltPreHIL3DoubleMu0Cent30OSm2p5to4p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDimuonOpenCentrality30OSm2p5to4p5L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxPtMin = cms.vdouble( 1.0E125 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIDimuonOpenCentrality30L2Filtered" ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxPtPair = cms.vdouble( 1.0E125 ),
+    MaxAcop = cms.double( 999.0 ),
+    MinPtMin = cms.vdouble( 0.0 ),
+    MaxInvMass = cms.vdouble( 4.5 ),
+    MinPtMax = cms.vdouble( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.vdouble( 0.0 ),
+    MaxDr = cms.double( 20.0 ),
+    MinAcop = cms.double( -999.0 ),
+    MaxDCAMuMu = cms.double( 999.0 ),
+    MinNhits = cms.int32( 0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
+    CutCowboys = cms.bool( False ),
+    MinInvMass = cms.vdouble( 2.5 )
+)
+fragment.hltPreHIL3DoubleMu0Cent30OSm7to14 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDimuonOpenCentrality30OSm7to14L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxPtMin = cms.vdouble( 1.0E125 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIDimuonOpenCentrality30L2Filtered" ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxPtPair = cms.vdouble( 1.0E125 ),
+    MaxAcop = cms.double( 999.0 ),
+    MinPtMin = cms.vdouble( 0.0 ),
+    MaxInvMass = cms.vdouble( 14.0 ),
+    MinPtMax = cms.vdouble( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.vdouble( 0.0 ),
+    MaxDr = cms.double( 20.0 ),
+    MinAcop = cms.double( -999.0 ),
+    MaxDCAMuMu = cms.double( 999.0 ),
+    MinNhits = cms.int32( 0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
+    CutCowboys = cms.bool( False ),
+    MinInvMass = cms.vdouble( 7.0 )
+)
+fragment.hltPreHIL3DoubleMu0OSm2p5to4p5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDimuonOpenL2FilteredNoMBHFgated = cms.EDFilter( "HLTMuonL2FromL1TPreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltHIDoubleMu0L1Filtered" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+fragment.hltHIDimuonOpenOSm2p5to4p5L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxPtMin = cms.vdouble( 1.0E125 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIDimuonOpenL2FilteredNoMBHFgated" ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxPtPair = cms.vdouble( 1.0E125 ),
+    MaxAcop = cms.double( 999.0 ),
+    MinPtMin = cms.vdouble( 0.0 ),
+    MaxInvMass = cms.vdouble( 4.5 ),
+    MinPtMax = cms.vdouble( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.vdouble( 0.0 ),
+    MaxDr = cms.double( 20.0 ),
+    MinAcop = cms.double( -999.0 ),
+    MaxDCAMuMu = cms.double( 999.0 ),
+    MinNhits = cms.int32( 0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
+    CutCowboys = cms.bool( False ),
+    MinInvMass = cms.vdouble( 2.5 )
+)
+fragment.hltPreHIL3DoubleMu0OSm7to14 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIDimuonOpenOSm7to14L3Filter = cms.EDFilter( "HLTMuonDimuonL3Filter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxPtMin = cms.vdouble( 1.0E125 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltHIL3MuonCandidates" ),
+    PreviousCandIsL2 = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltHIDimuonOpenL2FilteredNoMBHFgated" ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxPtPair = cms.vdouble( 1.0E125 ),
+    MaxAcop = cms.double( 999.0 ),
+    MinPtMin = cms.vdouble( 0.0 ),
+    MaxInvMass = cms.vdouble( 14.0 ),
+    MinPtMax = cms.vdouble( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinN = cms.int32( 1 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.vdouble( 0.0 ),
+    MaxDr = cms.double( 20.0 ),
+    MinAcop = cms.double( -999.0 ),
+    MaxDCAMuMu = cms.double( 999.0 ),
+    MinNhits = cms.int32( 0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxRapidityPair = cms.double( 999999.0 ),
+    CutCowboys = cms.bool( False ),
+    MinInvMass = cms.vdouble( 7.0 )
+)
+fragment.hltL1sMuOpenNotMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MuOpen_NotMinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1SingleMuOpenNotHF2 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1MuOpenNotHF2L1Filtered0 = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sMuOpenNotMinimumBiasHF2AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIUPCSingleMuNotHF2PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPixelLayerTripletsForUPC = cms.EDProducer( "SeedingLayersEDProducer",
+    layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+      'BPix1+BPix2+FPix1_pos',
+      'BPix1+BPix2+FPix1_neg',
+      'BPix1+FPix1_pos+FPix2_pos',
+      'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
+    TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
+    FPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0051 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.0036 ),
+      HitProducer = cms.string( "hltHISiPixelRecHits" )
+    ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltHISiPixelRecHits" )
+    ),
+    TIB = cms.PSet(  )
+)
+fragment.hltPixelTracksForUPCFilter = cms.EDProducer( "PixelTrackFilterByKinematicsProducer",
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.1 ),
+    nSigmaInvPtTolerance = cms.double( 0.0 ),
+    tipMax = cms.double( 1.0 )
+)
+fragment.hltPixelTracksForUPCFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltPixelTracksTrackingRegionsForUPC = cms.EDProducer( "GlobalTrackingRegionFromBeamSpotEDProducer",
+    RegionPSet = cms.PSet( 
+      nSigmaZ = cms.double( 0.0 ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      ptMin = cms.double( 0.1 ),
+      originHalfLength = cms.double( 24.0 ),
+      originRadius = cms.double( 0.2 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltPixelTracksHitDoubletsForUPC = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltPixelTracksTrackingRegionsForUPC" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltPixelLayerTripletsForUPC" )
+)
+fragment.hltPixelTracksHitTripletsForUPC = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 100000 ),
+    SeedComparitorPSet = cms.PSet( 
+      clusterShapeHitFilter = cms.string( "ClusterShapeHitFilter" ),
+      ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCache" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.06 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltPixelTracksHitDoubletsForUPC" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.06 )
+)
+fragment.hltPixelTracksForUPC = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltPixelTracksForUPCFilter" ),
+    Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
+    passLabel = cms.string( "" ),
+    Fitter = cms.InputTag( "hltPixelTracksForUPCFitter" ),
+    SeedingHitSets = cms.InputTag( "hltPixelTracksHitTripletsForUPC" )
+)
+fragment.hltPixelCandsForUPC = cms.EDProducer( "ConcreteChargedCandidateProducer",
+    src = cms.InputTag( "hltPixelTracksForUPC" ),
+    particleType = cms.string( "pi+" )
+)
+fragment.hltSinglePixelTrackForUPC = cms.EDFilter( "CandViewCountFilter",
+    src = cms.InputTag( "hltPixelCandsForUPC" ),
+    minNumber = cms.uint32( 1 )
+)
+fragment.hltL1sDoubleMuOpenNotMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_NotMinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1DoubleMuOpenNotHF2 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1MuOpenNotHF2L1Filtered2 = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMuOpenNotMinimumBiasHF2AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIUPCDoubleMuNotHF2PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sEG2NotMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_EG2_NotMinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1SingleEG2NotHF2 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCSingleEG2NotHF2PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sDoubleEG2NotMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG2_NotMinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1DoubleEG2NotHF2 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCDoubleEG2NotHF2PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sEG5NotMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_EG5_NotMinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1SingleEG5NotHF2 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCSingleEG5NotHF2PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sDoubleMuOpenNotMinimumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_NotMinimumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1DoubleMuOpenNotHF1 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1MuOpenL1Filtered2 = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMuOpenNotMinimumBiasHF1AND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIUPCDoubleMuNotHF1PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sDoubleEG2NotZdcANDBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG2_NotZdc_AND_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1DoubleEG2NotZDCAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1DoubleEG2NotZDCANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sDoubleMuOpenNotZdcANDBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpen_NotZdc_AND_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1DoubleMuOpenNotZDCAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1MuOpenL1Filtered3 = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMuOpenNotZdcANDBptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIUPCL1DoubleMuOpenNotZDCANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sSingleEG2NotZDCANDBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG2_NotZDC_AND_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1EG2NotZDCAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCEG2NotZDCANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sMuOpenNotZdcANDBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MuOpen_NotZdc_AND_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1MuOpenNotZDCAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1MuOpenL1Filtered4 = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sMuOpenNotZdcANDBptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIUPCL1MuOpenNotZDCANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sV0NotHFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_NotHFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1NotHFplusANDminusTH0BptxAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1NotHFplusANDminusTH0BptxANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sNotHFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_NotHFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1NotHFMinimumbiasHFplusANDminustTH0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1NotHFMinimumbiasHFplusANDminustTH0PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sDoubleMuOpenNotHFplusANDminusTH0BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMuOpenNotHFplusANDminusTH0_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1DoubleMuOpenTH0L1Filtered = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sDoubleMuOpenNotHFplusANDminusTH0BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreHIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0PixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sCastorMediumJetBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_CastorMediumJet_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1CastorMediumJet = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1CastorMediumJetAK4CaloJet20 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPuAK4CaloJetsUPC = cms.EDProducer( "FastjetJetProducer",
+    Active_Area_Repeats = cms.int32( 1 ),
+    doAreaFastjet = cms.bool( True ),
+    voronoiRfact = cms.double( -0.9 ),
+    maxBadHcalCells = cms.uint32( 9999999 ),
+    doAreaDiskApprox = cms.bool( False ),
+    maxRecoveredEcalCells = cms.uint32( 9999999 ),
+    jetType = cms.string( "CaloJet" ),
+    minSeed = cms.uint32( 14327 ),
+    Ghost_EtaMax = cms.double( 6.5 ),
+    doRhoFastjet = cms.bool( False ),
+    jetAlgorithm = cms.string( "AntiKt" ),
+    nSigmaPU = cms.double( 1.0 ),
+    GhostArea = cms.double( 0.01 ),
+    Rho_EtaMax = cms.double( 4.4 ),
+    maxBadEcalCells = cms.uint32( 9999999 ),
+    useDeterministicSeed = cms.bool( True ),
+    doPVCorrection = cms.bool( False ),
+    maxRecoveredHcalCells = cms.uint32( 9999999 ),
+    rParam = cms.double( 0.4 ),
+    maxProblematicHcalCells = cms.uint32( 9999999 ),
+    doOutputJets = cms.bool( True ),
+    src = cms.InputTag( "hltTowerMakerHcalMethod050nsMultiFitForAll" ),
+    inputEtMin = cms.double( 0.3 ),
+    puPtMin = cms.double( 8.0 ),
+    srcPVs = cms.InputTag( "NotUsed" ),
+    jetPtMin = cms.double( 10.0 ),
+    radiusPU = cms.double( 0.5 ),
+    maxProblematicEcalCells = cms.uint32( 9999999 ),
+    doPUOffsetCorr = cms.bool( True ),
+    inputEMin = cms.double( 0.0 ),
+    useMassDropTagger = cms.bool( False ),
+    muMin = cms.double( -1.0 ),
+    subtractorName = cms.string( "MultipleAlgoIterator" ),
+    muCut = cms.double( -1.0 ),
+    subjetPtMin = cms.double( -1.0 ),
+    useTrimming = cms.bool( False ),
+    muMax = cms.double( -1.0 ),
+    yMin = cms.double( -1.0 ),
+    useFiltering = cms.bool( False ),
+    rFilt = cms.double( -1.0 ),
+    yMax = cms.double( -1.0 ),
+    zcut = cms.double( -1.0 ),
+    MinVtxNdof = cms.int32( 5 ),
+    MaxVtxZ = cms.double( 15.0 ),
+    UseOnlyVertexTracks = cms.bool( False ),
+    dRMin = cms.double( -1.0 ),
+    nFilt = cms.int32( -1 ),
+    usePruning = cms.bool( False ),
+    maxDepth = cms.int32( -1 ),
+    yCut = cms.double( -1.0 ),
+    DzTrVtxMax = cms.double( 0.0 ),
+    UseOnlyOnePV = cms.bool( False ),
+    rcut_factor = cms.double( -1.0 ),
+    sumRecHits = cms.bool( False ),
+    trimPtFracMin = cms.double( -1.0 ),
+    dRMax = cms.double( -1.0 ),
+    DxyTrVtxMax = cms.double( 0.0 ),
+    useCMSBoostedTauSeedingAlgorithm = cms.bool( False )
+)
+fragment.hltPuAK4CaloJetsUPCIDPassed = cms.EDProducer( "HLTCaloJetIDProducer",
+    min_N90 = cms.int32( -2 ),
+    min_N90hits = cms.int32( 2 ),
+    min_EMF = cms.double( 1.0E-6 ),
+    jetsInput = cms.InputTag( "hltPuAK4CaloJetsUPC" ),
+    JetIDParams = cms.PSet( 
+      hfRecHitsColl = cms.InputTag( "hltHfrecoMethod0" ),
+      hoRecHitsColl = cms.InputTag( "hltHorecoMethod0" ),
+      ebRecHitsColl = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+      hbheRecHitsColl = cms.InputTag( "hltHbherecoMethod0" ),
+      useRecHits = cms.bool( True ),
+      eeRecHitsColl = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' )
+    ),
+    max_EMF = cms.double( 999.0 )
+)
+fragment.hltPuAK4CaloJetsUPCCorrected = cms.EDProducer( "CorrectedCaloJetProducer",
+    src = cms.InputTag( "hltPuAK4CaloJetsUPC" ),
+    correctors = cms.VInputTag( 'hltPuAK4CaloCorrector' )
+)
+fragment.hltPuAK4CaloJetsUPCCorrectedIDPassed = cms.EDProducer( "CorrectedCaloJetProducer",
+    src = cms.InputTag( "hltPuAK4CaloJetsUPCIDPassed" ),
+    correctors = cms.VInputTag( 'hltPuAK4CaloCorrector' )
+)
+fragment.hltSinglePuAK4CaloJet20Eta5p150nsMultiFit = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.1 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltPuAK4CaloJetsUPCCorrectedIDPassed" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+fragment.hltPreHICastorMediumJetPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1CastorMediumJetFiltered0UPC = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sCastorMediumJetBptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltL1sNotMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_NotMinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1NotMinimumBiasHF2AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1NotMinimumBiasHF2ANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sZdcORBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ZdcOR_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1ZdcORBptxAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1ZdcORBptxANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sZdcXORBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ZdcXOR_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1ZdcXORBptxAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1ZdcXORBptxANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sNotZdcORBptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_NotZdcOR_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIUPCL1NotZdcORBptxAND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIUPCL1NotZdcORBptxANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIZeroBias = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHICentralityVeto = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPixelActivityFilterCentralityVeto = cms.EDFilter( "HLTPixelActivityFilter",
+    maxClusters = cms.uint32( 1000 ),
+    saveTags = cms.bool( True ),
+    inputTag = cms.InputTag( "hltHISiPixelClusters" ),
+    minClusters = cms.uint32( 3 )
+)
+fragment.hltL1sL1Tech5 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1Tech5BPTXPlusOnly = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sL1Tech6 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1Tech6BPTXMinusOnly = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sL1Tech7 = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1Tech7NoBPTX = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sMinimumBiasHF1OR = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF1_OR" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1MinimumBiasHF1OR = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sMinimumBiasHF2OR = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF2_OR" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1MinimumBiasHF2OR = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1MinimumBiasHF1AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sMinimumBiasHF2AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_MinimumBiasHF2_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1MinimumBiasHF2AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1MinimumBiasHF1ANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHIPixel3ProtoTracksForHITrackTriggerFilter = cms.EDProducer( "HIProtoTrackFilterProducer",
+    doVariablePtMin = cms.bool( True ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    chi2 = cms.double( 1000.0 ),
+    ptMin = cms.double( 0.4 ),
+    siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
+    tipMax = cms.double( 1.0 )
+)
+fragment.hltHIPixel3ProtoTracksForHITrackTriggerFitter = cms.EDProducer( "PixelFitterByHelixProjectionsProducer" )
+fragment.hltHIPixel3ProtoTracksForHITrackTriggerTrackingRegions = cms.EDProducer( "HITrackingRegionForPrimaryVtxEDProducer",
+    RegionPSet = cms.PSet( 
+      directionYCoord = cms.double( 1.0 ),
+      useFixedError = cms.bool( True ),
+      doVariablePtMin = cms.bool( True ),
+      nSigmaZ = cms.double( 3.0 ),
+      VertexCollection = cms.InputTag( "hltHIPixelClusterVertices" ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      useFoundVertices = cms.bool( True ),
+      fixedError = cms.double( 3.0 ),
+      siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
+      sigmaZVertex = cms.double( 3.0 ),
+      useFakeVertices = cms.bool( False ),
+      ptMin = cms.double( 0.4 ),
+      directionZCoord = cms.double( 0.0 ),
+      directionXCoord = cms.double( 1.0 ),
+      originRadius = cms.double( 0.2 ),
+      precise = cms.bool( True ),
+      useMultipleScattering = cms.bool( False )
+    )
+)
+fragment.hltHIPixel3ProtoTracksForHITrackTriggerHitPairs = cms.EDProducer( "HitPairEDProducer",
+    trackingRegions = cms.InputTag( "hltHIPixel3ProtoTracksForHITrackTriggerTrackingRegions" ),
+    layerPairs = cms.vuint32( 0 ),
+    clusterCheck = cms.InputTag( "" ),
+    produceSeedingHitSets = cms.bool( False ),
+    produceIntermediateHitDoublets = cms.bool( True ),
+    maxElement = cms.uint32( 0 ),
+    seedingLayers = cms.InputTag( "hltHIPixelLayerTriplets" )
+)
+fragment.hltHIPixel3ProtoTracksForHITrackTriggerHitTriplets = cms.EDProducer( "PixelTripletHLTEDProducer",
+    useBending = cms.bool( True ),
+    useFixedPreFiltering = cms.bool( False ),
+    produceIntermediateHitTriplets = cms.bool( False ),
+    maxElement = cms.uint32( 100000 ),
+    SeedComparitorPSet = cms.PSet( 
+      ComponentName = cms.string( "none" ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCache" )
+    ),
+    extraHitRPhitolerance = cms.double( 0.032 ),
+    produceSeedingHitSets = cms.bool( True ),
+    doublets = cms.InputTag( "hltHIPixel3ProtoTracksForHITrackTriggerHitPairs" ),
+    useMultScattering = cms.bool( True ),
+    phiPreFiltering = cms.double( 0.3 ),
+    extraHitRZtolerance = cms.double( 0.037 )
+)
+fragment.hltHIPixel3ProtoTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
+    Filter = cms.InputTag( "hltHIPixel3ProtoTracksForHITrackTriggerFilter" ),
+    Cleaner = cms.string( "hltPixelTracksCleanerBySharedHits" ),
+    passLabel = cms.string( "Pixel triplet tracks for vertexing" ),
+    Fitter = cms.InputTag( "hltHIPixel3ProtoTracksForHITrackTriggerFitter" ),
+    SeedingHitSets = cms.InputTag( "hltHIPixel3ProtoTracksForHITrackTriggerHitTriplets" )
+)
+fragment.hltPixelCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandidateProducer",
+    src = cms.InputTag( "hltHIPixel3ProtoTracksForHITrackTrigger" ),
+    particleType = cms.string( "pi+" )
+)
+fragment.hltHISinglePixelTrackFilter = cms.EDFilter( "HLTPixlMBFilt",
+    pixlTag = cms.InputTag( "hltPixelCandsForHITrackTrigger" ),
+    saveTags = cms.bool( True ),
+    MinTrks = cms.uint32( 1 ),
+    MinPt = cms.double( 0.0 ),
+    MinSep = cms.double( 1.0 )
+)
+fragment.hltPreHIZeroBiasPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltL1sCentralityext70100MinimumumBiasHF1AND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_Centrality_ext70_100_MinimumumBiasHF1_AND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreHIL1Centralityext70100MinimumumBiasHF1AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1Centralityext70100MinimumumBiasHF1ANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1Centralityext50100MinimumumBiasHF1AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1Centralityext50100MinimumumBiasHF1ANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1Centralityext30100MinimumumBiasHF1AND = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIL1Centralityext30100MinimumumBiasHF1ANDPixelSingleTrack = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltPreHIPhysics = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
+    SelectedTriggerType = cms.int32( 3 )
+)
+fragment.hltPreHIRandom = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltCalibrationEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
+    SelectedTriggerType = cms.int32( 2 )
+)
+fragment.hltPreEcalCalibration = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltEcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
-    fedList = cms.vuint32( 1023 )
+    fedList = cms.vuint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654, 1024 )
 )
-hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+fragment.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
+    InputTag = cms.InputTag( "rawDataCollector" ),
+    CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 ),
+    FilterSummary = cms.untracked.bool( False )
+)
+fragment.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 1024, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1197, 1198, 1199 )
+)
+fragment.hltPreAlCaEcalPhiSymForHI = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
+    sourceTag = cms.InputTag( "rawDataCollector" ),
+    debugMode = cms.untracked.bool( False ),
+    InstanceES = cms.string( "" ),
+    ESdigiCollection = cms.string( "" ),
+    LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" )
+)
+fragment.hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
+    ESRecoAlgo = cms.int32( 0 ),
+    ESrechitCollection = cms.string( "EcalRecHitsES" ),
+    algo = cms.string( "ESRecHitWorker" ),
+    ESdigiCollection = cms.InputTag( "hltEcalPreshowerDigis" )
+)
+fragment.hltEcal50nsMultifitPhiSymFilter = cms.EDFilter( "HLTEcalPhiSymFilter",
+    ampCut_endcapM = cms.vdouble( 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 ),
+    phiSymBarrelDigiCollection = cms.string( "phiSymEcalDigisEB" ),
+    phiSymEndcapDigiCollection = cms.string( "phiSymEcalDigisEE" ),
+    barrelDigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
+    barrelUncalibHitCollection = cms.InputTag( 'hltEcalUncalibRecHit50nsMultiFit','EcalUncalibRecHitsEB' ),
+    statusThreshold = cms.uint32( 3 ),
+    useRecoFlag = cms.bool( False ),
+    endcapUncalibHitCollection = cms.InputTag( 'hltEcalUncalibRecHit50nsMultiFit','EcalUncalibRecHitsEE' ),
+    endcapHitCollection = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEE' ),
+    ampCut_barrelM = cms.vdouble( 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0 ),
+    endcapDigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
+    barrelHitCollection = cms.InputTag( 'hltEcalRecHit50nsMultiFit','EcalRecHitsEB' ),
+    ampCut_endcapP = cms.vdouble( 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 ),
+    ampCut_barrelP = cms.vdouble( 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0 )
+)
+fragment.hltL1sSingleMuOpenIorSingleMu12BptxAND = cms.EDFilter( "HLTL1TSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen OR L1_SingleMu12_BptxAND" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
+    saveTags = cms.bool( True ),
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
+)
+fragment.hltPreAlCaRPCMuonNoTriggersForHI = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltRPCMuonNoTriggersL1Filtered0ForHI = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMuOpenIorSingleMu12BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.6 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32( 6 ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreAlCaRPCMuonNoHitsForHI = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
+    cscSegments = cms.InputTag( "hltCscSegments" ),
+    rangestripsRB4 = cms.untracked.double( 4.0 ),
+    TrackTransformer = cms.PSet(  ),
+    tracks = cms.InputTag( "NotUsed" ),
+    rangestrips = cms.untracked.double( 4.0 ),
+    incltrack = cms.untracked.bool( False ),
+    MinCosAng = cms.untracked.double( 0.95 ),
+    MaxDrb4 = cms.untracked.double( 150.0 ),
+    inclcsc = cms.untracked.bool( True ),
+    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
+    ExtrapolatedRegion = cms.untracked.double( 0.5 ),
+    incldt = cms.untracked.bool( True ),
+    debug = cms.untracked.bool( False ),
+    MaxD = cms.untracked.double( 80.0 )
+)
+fragment.hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
+    rangestrips = cms.untracked.double( 1.0 ),
+    rpcDTPoints = cms.InputTag( 'hltRPCPointProducer','RPCDTExtrapolatedPoints' ),
+    rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
+    rpcCSCPoints = cms.InputTag( 'hltRPCPointProducer','RPCCSCExtrapolatedPoints' )
+)
+fragment.hltPreAlCaRPCMuonNormalisationForHI = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltRPCMuonNormaL1Filtered0ForHI = cms.EDFilter( "HLTMuonL1TFilter",
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltL1sSingleMuOpenIorSingleMu12BptxAND" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 1.6 ),
+    CentralBxOnly = cms.bool( True ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
+)
+fragment.hltPreAlCaLumiPixelsRandom = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltFEDSelectorLumiPixels = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39 )
+)
+fragment.hltPreAlCaLumiPixelsZeroBias = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
+)
+fragment.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 1023, 1024 )
+)
+fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    moduleLabelPatternsToSkip = cms.vstring(  ),
+    processName = cms.string( "@" ),
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
+)
+fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
+fragment.hltPreHLTAnalyzerEndpath = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
+    offset = cms.uint32( 0 )
 )
-hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
-    PrintVerbosity = cms.untracked.int32( 10 ),
-    UseL1GlobalTriggerRecord = cms.bool( False ),
-    PrintOutput = cms.untracked.int32( 3 ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+fragment.hltL1TGlobalSummary = cms.EDAnalyzer( "L1TGlobalSummary",
+    ExtInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    MaxBx = cms.int32( 0 ),
+    DumpRecord = cms.bool( False ),
+    AlgInputTag = cms.InputTag( "hltGtStage2Digis" ),
+    MinBx = cms.int32( 0 ),
+    DumpTrigResults = cms.bool( False ),
+    DumpTrigSummary = cms.bool( True )
 )
-hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
     ReferenceRate = cms.untracked.double( 100.0 ),
     serviceBy = cms.untracked.string( "never" ),
     resetBy = cms.untracked.string( "never" ),
     reportBy = cms.untracked.string( "job" ),
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLTFULL' )
 )
 
-HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
-HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOnlineBeamSpot )
-HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBeamSpot )
-HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( hltEcalDigis + hltEcalUncalibRecHit + hltEcalDetIdToBeRecovered + hltEcalRecHit )
-HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
-HLTDoCaloSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + HLTDoLocalHcalSequence + hltTowerMakerForAll )
-HLTRecoJetSequenceAK4Corrected = cms.Sequence( HLTDoCaloSequence + hltAntiKT4CaloJets + hltCaloJetIDPassed + hltCaloJetCorrected )
-HLTEndSequence = cms.Sequence( hltBoolEnd )
+fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragment.hltGtStage2ObjectMap )
+fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
+fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
+fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
+fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshower50nsMultiFitSequence = cms.Sequence( fragment.hltEcalDigis + fragment.hltEcalUncalibRecHit50nsMultiFit + fragment.hltEcalDetIdToBeRecovered + fragment.hltEcalRecHit50nsMultiFit )
+fragment.HLTDoLocalHcalMethod0Sequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbherecoMethod0 + fragment.hltHfrecoMethod0 + fragment.hltHorecoMethod0 )
+fragment.HLTDoCaloHcalMethod050nsMultiFitSequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshower50nsMultiFitSequence + fragment.HLTDoLocalHcalMethod0Sequence + fragment.hltTowerMakerHcalMethod050nsMultiFitForAll )
+fragment.HLTPuAK4CaloJetsReconstruction50nsMultiFitSequence = cms.Sequence( fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltPuAK4CaloJets50nsMultiFit + fragment.hltPuAK4CaloJetsIDPassed50nsMultiFit )
+fragment.HLTPuAK4CaloCorrectorProducersSequence = cms.Sequence( fragment.hltAK4CaloRelativeCorrector + fragment.hltAK4CaloAbsoluteCorrector + fragment.hltAK4CaloResidualCorrector + fragment.hltPuAK4CaloCorrector )
+fragment.HLTPuAK4CaloJetsCorrection50nsMultiFitSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo50nsMultiFitHcalMethod0 + fragment.HLTPuAK4CaloCorrectorProducersSequence + fragment.hltPuAK4CaloJetsCorrected50nsMultiFit + fragment.hltPuAK4CaloJetsCorrectedIDPassed50nsMultiFit )
+fragment.HLTPuAK4CaloJets50nsMultiFitSequence = cms.Sequence( fragment.HLTPuAK4CaloJetsReconstruction50nsMultiFitSequence + fragment.HLTPuAK4CaloJetsCorrection50nsMultiFitSequence )
+fragment.HLTDoHIStripZeroSuppression = cms.Sequence( fragment.hltSiStripRawToDigi + fragment.hltSiStripZeroSuppression + fragment.hltSiStripDigiToZSRaw + fragment.hltSiStripRawDigiToVirginRaw + fragment.virginRawDataRepacker + fragment.rawDataRepacker )
+fragment.HLTDoHILocalPixelSequence = cms.Sequence( fragment.hltHISiPixelDigis + fragment.hltHISiPixelClusters + fragment.hltHISiPixelClustersCache + fragment.hltHISiPixelRecHits )
+fragment.HLTHIRecopixelvetexingSequence = cms.Sequence( fragment.hltHIPixelClusterVertices + fragment.hltHIPixelLayerTriplets + fragment.hltHIPixel3ProtoTracksFilter + fragment.hltHIPixel3ProtoTracksFitter + fragment.hltHIPixel3ProtoTracksTrackingRegions + fragment.hltHIPixel3ProtoTracksHitPairs + fragment.hltHIPixel3ProtoTracksHitTriplets + fragment.hltHIPixel3ProtoTracks + fragment.hltHIPixelMedianVertex + fragment.hltHISelectedProtoTracks + fragment.hltHIPixelAdaptiveVertex + fragment.hltHIBestAdaptiveVertex + fragment.hltHISelectedVertex )
+fragment.HLTDoHILocalPixelSequenceAfterSplitting = cms.Sequence( fragment.hltHISiPixelClustersAfterSplitting + fragment.hltHISiPixelClustersCacheAfterSplitting + fragment.hltHISiPixelRecHitsAfterSplitting )
+fragment.HLTHIRecopixelvetexingSequenceAfterSplitting = cms.Sequence( fragment.hltHIPixelClusterVerticesAfterSplitting + fragment.hltHIPixelLayerTripletsAfterSplitting + fragment.hltHIPixel3ProtoTracksAfterSplittingFilter + fragment.hltHIPixel3ProtoTracksAfterSplittingFitter + fragment.hltHIPixel3ProtoTracksAfterSplittingTrackingRegions + fragment.hltHIPixel3ProtoTracksAfterSplittingHitPairs + fragment.hltHIPixel3ProtoTracksAfterSplittingHitTriplets + fragment.hltHIPixel3ProtoTracksAfterSplitting + fragment.hltHIPixelMedianVertexAfterSplitting + fragment.hltHISelectedProtoTracksAfterSplitting + fragment.hltHIPixelAdaptiveVertexAfterSplitting + fragment.hltHIBestAdaptiveVertexAfterSplitting + fragment.hltHISelectedVertexAfterSplitting )
+fragment.HLTHIPixelClusterSplitting = cms.Sequence( fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltHIJetsForCoreTracking + fragment.HLTDoHILocalPixelSequence + fragment.HLTHIRecopixelvetexingSequence + fragment.HLTDoHILocalPixelSequenceAfterSplitting + fragment.HLTHIRecopixelvetexingSequenceAfterSplitting )
+fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression = cms.Sequence( fragment.hltSiStripRawToDigi + fragment.hltSiStripZeroSuppression + fragment.hltHITrackingSiStripRawToClustersFacilityZeroSuppression + fragment.hltHISiStripClustersZeroSuppression )
+fragment.HLTHIIterativeTrackingIteration0Forjets = cms.Sequence( fragment.hltHIPixel3PrimTracksForjetsFilter + fragment.hltHIPixel3PrimTracksForjetsFitter + fragment.hltHIPixel3PrimTracksForjetsTrackingRegions + fragment.hltHIPixel3PrimTracksForjetsHitPairs + fragment.hltHIPixel3PrimTracksForjetsHitTriplets + fragment.hltHIPixel3PrimTracksForjets + fragment.hltHIPixelTrackSeedsForjets + fragment.hltHIPrimTrackCandidatesForjets + fragment.hltHIGlobalPrimTracksForjets + fragment.hltHIIter0TrackSelectionForjets )
+fragment.HLTHIIterativeTrackingIteration1Forjets = cms.Sequence( fragment.hltHIIter1ClustersRefRemovalForjets + fragment.hltHIIter1MaskedMeasurementTrackerEventForjets + fragment.hltHIDetachedPixelLayerTripletsForjets + fragment.hltHIDetachedPixelTracksForjetsFilter + fragment.hltHIDetachedPixelTracksForjetsFitter + fragment.hltHIDetachedPixelTracksTrackingRegionsForjets + fragment.hltHIDetachedPixelTracksHitDoubletsForjets + fragment.hltHIDetachedPixelTracksHitTripletsForjets + fragment.hltHIDetachedPixelTracksForjets + fragment.hltHIDetachedPixelTrackSeedsForjets + fragment.hltHIDetachedTrackCandidatesForjets + fragment.hltHIDetachedGlobalPrimTracksForjets + fragment.hltHIIter1TrackSelectionForjets )
+fragment.HLTHIIterativeTrackingIteration2Forjets = cms.Sequence( fragment.hltHIIter2ClustersRefRemovalForjets + fragment.hltHIIter2MaskedMeasurementTrackerEventForjets + fragment.hltHIPixelLayerPairsForjets + fragment.hltHIPixelPairTrackingRegionsForjets + fragment.hltHIPixelPairClusterCheckForjets + fragment.hltHIPixelPairHitDoubletsForjets + fragment.hltHIPixelPairSeedsForjets + fragment.hltHIPixelPairTrackCandidatesForjets + fragment.hltHIPixelPairGlobalPrimTracksForjets + fragment.hltHIIter2TrackSelectionForjets )
+fragment.HLTHIIterativeTrackingForJets = cms.Sequence( fragment.HLTHIIterativeTrackingIteration0Forjets + fragment.HLTHIIterativeTrackingIteration1Forjets + fragment.HLTHIIterativeTrackingIteration2Forjets + fragment.hltHIIterTrackingMergedHighPurityForjets + fragment.hltHIIterTrackingMergedTightForjets )
+fragment.HLTDoHIStripZeroSuppressionRepacker = cms.Sequence( fragment.hltSiStripDigiToZSRaw + fragment.hltSiStripRawDigiToVirginRaw + fragment.virginRawDataRepacker + fragment.rawDataRepacker )
+fragment.HLTBtagCSVSequenceL3CaloJet60Eta2p1 = cms.Sequence( fragment.hltHIVerticesL3 + fragment.hltFastPixelBLifetimeL3AssociatorCaloJet60Eta2p1 + fragment.hltFastPixelBLifetimeL3TagInfosCaloJet60Eta2p1 + fragment.hltL3SecondaryVertexTagInfosCaloJet60Eta2p1 + fragment.hltL3CombinedSecondaryVertexBJetTagsCaloJet60Eta2p1 )
+fragment.HLTBtagCSVSequenceL3CaloJet80Eta2p1 = cms.Sequence( fragment.hltHIVerticesL3 + fragment.hltFastPixelBLifetimeL3AssociatorCaloJet80Eta2p1 + fragment.hltFastPixelBLifetimeL3TagInfosCaloJet80Eta2p1 + fragment.hltL3SecondaryVertexTagInfosCaloJet80Eta2p1 + fragment.hltL3CombinedSecondaryVertexBJetTagsCaloJet80Eta2p1 )
+fragment.HLTBtagSSVSequenceL3CaloJet60Eta2p1 = cms.Sequence( fragment.hltHIVerticesL3 + fragment.hltFastPixelBLifetimeL3AssociatorCaloJet60Eta2p1 + fragment.hltFastPixelBLifetimeL3TagInfosCaloJet60Eta2p1 + fragment.hltL3SecondaryVertexTagInfosCaloJet60Eta2p1 + fragment.hltL3SimpleSecondaryVertexBJetTagsCaloJet60Eta2p1 )
+fragment.HLTBtagSSVSequenceL3CaloJet80Eta2p1 = cms.Sequence( fragment.hltHIVerticesL3 + fragment.hltFastPixelBLifetimeL3AssociatorCaloJet80Eta2p1 + fragment.hltFastPixelBLifetimeL3TagInfosCaloJet80Eta2p1 + fragment.hltL3SecondaryVertexTagInfosCaloJet80Eta2p1 + fragment.hltL3SimpleSecondaryVertexBJetTagsCaloJet80Eta2p1 )
+fragment.HLTHIIterativeTrackingIteration0ForGlobalPt8 = cms.Sequence( fragment.hltHIPixel3PrimTracksForGlobalPt8Filter + fragment.hltHIPixel3PrimTracksForGlobalPt8Fitter + fragment.hltHIPixel3PrimTracksForGlobalPt8TrackingRegions + fragment.hltHIPixel3PrimTracksForGlobalPt8HitPairs + fragment.hltHIPixel3PrimTracksForGlobalPt8HitTriplets + fragment.hltHIPixel3PrimTracksForGlobalPt8 + fragment.hltHIPixelTrackSeedsForGlobalPt8 + fragment.hltHIPrimTrackCandidatesForGlobalPt8 + fragment.hltHIGlobalPrimTracksForGlobalPt8 + fragment.hltHIIter0TrackSelectionForGlobalPt8 )
+fragment.HLTHIIterativeTrackingIteration1ForGlobalPt8 = cms.Sequence( fragment.hltHIIter1ClustersRefRemovalForGlobalPt8 + fragment.hltHIIter1MaskedMeasurementTrackerEventForGlobalPt8 + fragment.hltHIDetachedPixelLayerTripletsForGlobalPt8 + fragment.hltHIDetachedPixelTracksForGlobalPt8Filter + fragment.hltHIDetachedPixelTracksForGlobalPt8Fitter + fragment.hltHIDetachedPixelTracksTrackingRegionsForGlobalPt8 + fragment.hltHIDetachedPixelTracksHitDoubletsForGlobalPt8 + fragment.hltHIDetachedPixelTracksHitTripletsForGlobalPt8 + fragment.hltHIDetachedPixelTracksForGlobalPt8 + fragment.hltHIDetachedPixelTrackSeedsForGlobalPt8 + fragment.hltHIDetachedTrackCandidatesForGlobalPt8 + fragment.hltHIDetachedGlobalPrimTracksForGlobalPt8 + fragment.hltHIIter1TrackSelectionForGlobalPt8 )
+fragment.HLTHIIterativeTrackingIteration2ForGlobalPt8 = cms.Sequence( fragment.hltHIIter2ClustersRefRemovalForGlobalPt8 + fragment.hltHIIter2MaskedMeasurementTrackerEventForGlobalPt8 + fragment.hltHIPixelLayerPairsForGlobalPt8 + fragment.hltHIPixelPairTrackingRegionsForGlobalPt8 + fragment.hltHIPixelPairClusterCheckForGlobalPt8 + fragment.hltHIPixelPairHitDoubletsForGlobalPt8 + fragment.hltHIPixelPairSeedsForGlobalPt8 + fragment.hltHIPixelPairTrackCandidatesForGlobalPt8 + fragment.hltHIPixelPairGlobalPrimTracksForGlobalPt8 + fragment.hltHIIter2TrackSelectionForGlobalPt8 )
+fragment.HLTHIIterativeTrackingForGlobalPt8 = cms.Sequence( fragment.HLTHIIterativeTrackingIteration0ForGlobalPt8 + fragment.HLTHIIterativeTrackingIteration1ForGlobalPt8 + fragment.HLTHIIterativeTrackingIteration2ForGlobalPt8 + fragment.hltHIIterTrackingMergedHighPurityForGlobalPt8 + fragment.hltHIIterTrackingMergedTightForGlobalPt8 )
+fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence = cms.Sequence( fragment.hltIslandBasicClusters50nsMultiFitHI + fragment.hltHiIslandSuperClusters50nsMultiFitHI + fragment.hltHiCorrectedIslandBarrelSuperClusters50nsMultiFitHI + fragment.hltHiCorrectedIslandEndcapSuperClusters50nsMultiFitHI + fragment.hltCleanedHiCorrectedIslandBarrelSuperClusters50nsMultiFitHI + fragment.hltRecoHIEcalWithCleaningCandidate50nsMultiFit )
+fragment.HLTMuonLocalRecoSequence = cms.Sequence( fragment.hltMuonDTDigis + fragment.hltDt1DRecHits + fragment.hltDt4DSegments + fragment.hltMuonCSCDigis + fragment.hltCsc2DRecHits + fragment.hltCscSegments + fragment.hltMuonRPCDigis + fragment.hltRpcRecHits )
+fragment.HLTL2muonrecoNocandSequence = cms.Sequence( fragment.HLTMuonLocalRecoSequence + fragment.hltL2OfflineMuonSeeds + fragment.hltL2MuonSeeds + fragment.hltL2Muons )
+fragment.HLTL2muonrecoSequence = cms.Sequence( fragment.HLTL2muonrecoNocandSequence + fragment.hltL2MuonCandidates )
+fragment.HLTDoLocalHfSequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHfreco + fragment.hltTowerMakerForHf )
+fragment.HLTRecoMETHfSequence = cms.Sequence( fragment.HLTDoLocalHfSequence + fragment.hltMetForHf )
+fragment.HLTDoHILocalPixelClustersSequence = cms.Sequence( fragment.hltHISiPixelDigis + fragment.hltHISiPixelClusters )
+fragment.HLTDoLocalPixelSequence = cms.Sequence( fragment.hltSiPixelDigis + fragment.hltSiPixelClusters + fragment.hltSiPixelClustersCache + fragment.hltSiPixelRecHits )
+fragment.HLTDoLocalStripSequence = cms.Sequence( fragment.hltSiStripExcludedFEDListProducer + fragment.hltSiStripRawToClustersFacility + fragment.hltSiStripClusters )
+fragment.HLTHIL3muonTkCandidateSequence = cms.Sequence( fragment.HLTDoLocalPixelSequence + fragment.HLTDoLocalStripSequence + fragment.hltHIL3TrajSeedOIState + fragment.hltHIL3TrackCandidateFromL2OIState + fragment.hltHIL3TkTracksFromL2OIState + fragment.hltHIL3MuonsOIState + fragment.hltHIL3TrajSeedOIHit + fragment.hltHIL3TrackCandidateFromL2OIHit + fragment.hltHIL3TkTracksFromL2OIHit + fragment.hltHIL3MuonsOIHit + fragment.hltHIL3TkFromL2OICombination + fragment.hltHIL3TrajectorySeed + fragment.hltHIL3TrackCandidateFromL2 )
+fragment.HLTHIL3muonrecoNocandSequence = cms.Sequence( fragment.HLTHIL3muonTkCandidateSequence + fragment.hltHIL3MuonsLinksCombination + fragment.hltHIL3Muons )
+fragment.HLTHIL3muonrecoSequence = cms.Sequence( fragment.HLTHIL3muonrecoNocandSequence + fragment.hltHIL3MuonCandidates )
+fragment.HLTRecopixelvertexingSequenceForUPC = cms.Sequence( fragment.hltPixelLayerTripletsForUPC + fragment.hltPixelTracksForUPCFilter + fragment.hltPixelTracksForUPCFitter + fragment.hltPixelTracksTrackingRegionsForUPC + fragment.hltPixelTracksHitDoubletsForUPC + fragment.hltPixelTracksHitTripletsForUPC + fragment.hltPixelTracksForUPC )
+fragment.HLTPuAK4CaloJetsUPCReconstructionSequence = cms.Sequence( fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltPuAK4CaloJetsUPC + fragment.hltPuAK4CaloJetsUPCIDPassed )
+fragment.HLTPuAK4CaloJetsUPCCorrectionSequence = cms.Sequence( fragment.hltFixedGridRhoFastjetAllCalo50nsMultiFitHcalMethod0 + fragment.HLTPuAK4CaloCorrectorProducersSequence + fragment.hltPuAK4CaloJetsUPCCorrected + fragment.hltPuAK4CaloJetsUPCCorrectedIDPassed )
+fragment.HLTPuAK4CaloJetsUPCSequence = cms.Sequence( fragment.HLTPuAK4CaloJetsUPCReconstructionSequence + fragment.HLTPuAK4CaloJetsUPCCorrectionSequence )
+fragment.HLTPixelTrackingForHITrackTrigger = cms.Sequence( fragment.hltHIPixelClusterVertices + fragment.hltHIPixelLayerTriplets + fragment.hltHIPixel3ProtoTracksForHITrackTriggerFilter + fragment.hltHIPixel3ProtoTracksForHITrackTriggerFitter + fragment.hltHIPixel3ProtoTracksForHITrackTriggerTrackingRegions + fragment.hltHIPixel3ProtoTracksForHITrackTriggerHitPairs + fragment.hltHIPixel3ProtoTracksForHITrackTriggerHitTriplets + fragment.hltHIPixel3ProtoTracksForHITrackTrigger + fragment.hltPixelCandsForHITrackTrigger )
+fragment.HLTBeginSequenceRandom = cms.Sequence( fragment.hltRandomEventsFilter + fragment.hltGtStage2Digis )
+fragment.HLTBeginSequenceCalibration = cms.Sequence( fragment.hltCalibrationEventsFilter + fragment.hltGtStage2Digis )
+fragment.HLTDoFullUnpackingEgammaEcal50nsMultiFitSequence = cms.Sequence( fragment.hltEcalDigis + fragment.hltEcalPreshowerDigis + fragment.hltEcalUncalibRecHit50nsMultiFit + fragment.hltEcalDetIdToBeRecovered + fragment.hltEcalRecHit50nsMultiFit + fragment.hltEcalPreshowerRecHit )
 
-HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
-HLT_CaloJet260_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreCaloJet260 + HLTRecoJetSequenceAK4Corrected + hltSingleJet260 + HLTEndSequence )
-HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW )
-HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
+fragment.HLTriggerFirstPath = cms.Path( fragment.hltGetConditions + fragment.hltGetRaw + fragment.hltBoolFalse )
+fragment.DST_Physics_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreDSTPhysics + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet40_Eta5p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHIPuAK4CaloJet40Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet40Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet60_Eta5p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28BptxAND + fragment.hltPreHIPuAK4CaloJet60Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet80_Eta5p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloJet80Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet100_Eta5p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet56BptxAND + fragment.hltPreHIPuAK4CaloJet100Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet100Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet110_Eta5p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet56BptxAND + fragment.hltPreHIPuAK4CaloJet110Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet110Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet120_Eta5p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet56BptxAND + fragment.hltPreHIPuAK4CaloJet120Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet120Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet150_Eta5p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet64BptxAND + fragment.hltPreHIPuAK4CaloJet150Eta5p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet150Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet40_Eta5p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet16Centralityext30100BptxAND + fragment.hltPreHIPuAK4CaloJet40Eta5p1Cent30100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet40Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet60_Eta5p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28Centralityext30100BptxAND + fragment.hltPreHIPuAK4CaloJet60Eta5p1Cent30100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet80_Eta5p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet44Centralityext30100BptxAND + fragment.hltPreHIPuAK4CaloJet80Eta5p1Cent30100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet100_Eta5p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet44Centralityext30100BptxAND + fragment.hltPreHIPuAK4CaloJet100Eta5p1Cent30100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet100Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet40_Eta5p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet16Centralityext50100BptxAND + fragment.hltPreHIPuAK4CaloJet40Eta5p1Cent50100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet40Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet60_Eta5p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28Centralityext50100BptxAND + fragment.hltPreHIPuAK4CaloJet60Eta5p1Cent50100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet80_Eta5p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet44Centralityext50100BptxAND + fragment.hltPreHIPuAK4CaloJet80Eta5p1Cent50100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet100_Eta5p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet44Centralityext50100BptxAND + fragment.hltPreHIPuAK4CaloJet100Eta5p1Cent50100 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet100Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet80_Jet35_Eta1p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloJet80Jet35Eta1p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta1p150nsMultiFit + fragment.hltDoublePuAK4CaloJet35Eta1p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet80_Jet35_Eta0p7_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloJet80Jet35Eta0p7 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta0p750nsMultiFit + fragment.hltDoublePuAK4CaloJet35Eta0p750nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet100_Jet35_Eta1p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet56BptxAND + fragment.hltPreHIPuAK4CaloJet100Jet35Eta1p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet100Eta1p150nsMultiFit + fragment.hltDoublePuAK4CaloJet35Eta1p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet100_Jet35_Eta0p7_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet56BptxAND + fragment.hltPreHIPuAK4CaloJet100Jet35Eta0p7 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet100Eta0p750nsMultiFit + fragment.hltDoublePuAK4CaloJet35Eta0p750nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloJet80_45_45_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloJet804545Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltTriplePuAK4CaloJet45Eta2p150nsMultiFit + fragment.hltSinglePuAK4CaloJet80Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloDJet60_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28BptxAND + fragment.hltPreHIPuAK4CaloDJet60Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta2p150nsMultiFit + fragment.hltHIEta2CaloJetsEta2p1ForJets + fragment.hltReduceJetMultEta2p1Forjets + fragment.hltJets4bTaggerCaloJet60Eta2p1Forjets + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForJets + fragment.hltHIFullTrackCandsForDmesonjets + fragment.hltHIFullTrackFilterForDmesonjets + fragment.hltTktkVtxForDmesonjetsCaloJet60 + fragment.hltTktkFilterForDmesonjetsCaloJet60 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloDJet80_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloDJet80Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta2p150nsMultiFit + fragment.hltHIEta2CaloJetsEta2p1ForJets + fragment.hltReduceJetMultEta2p1Forjets + fragment.hltJets4bTaggerCaloJet80Eta2p1Forjets + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForJets + fragment.hltHIFullTrackCandsForDmesonjets + fragment.hltHIFullTrackFilterForDmesonjets + fragment.hltTktkVtxForDmesonjetsCaloJet80 + fragment.hltTktkFilterForDmesonjetsCaloJet80 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloBJetCSV60_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28BptxAND + fragment.hltPreHIPuAK4CaloBJetCSV60Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta2p150nsMultiFit + fragment.hltHIEta2CaloJetsEta2p1ForJets + fragment.hltReduceJetMultEta2p1Forjets + fragment.hltJets4bTaggerCaloJet60Eta2p1Forjets + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForJets + fragment.HLTBtagCSVSequenceL3CaloJet60Eta2p1 + fragment.hltBLifetimeL3FilterCSVCaloJet60Eta2p1 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloBJetCSV80Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta2p150nsMultiFit + fragment.hltHIEta2CaloJetsEta2p1ForJets + fragment.hltReduceJetMultEta2p1Forjets + fragment.hltJets4bTaggerCaloJet80Eta2p1Forjets + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForJets + fragment.HLTBtagCSVSequenceL3CaloJet80Eta2p1 + fragment.hltBLifetimeL3FilterCSVCaloJet80Eta2p1 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloBJetSSV60_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28BptxAND + fragment.hltPreHIPuAK4CaloBJetSSV60Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta2p150nsMultiFit + fragment.hltHIEta2CaloJetsEta2p1ForJets + fragment.hltReduceJetMultEta2p1Forjets + fragment.hltJets4bTaggerCaloJet60Eta2p1Forjets + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForJets + fragment.HLTBtagSSVSequenceL3CaloJet60Eta2p1 + fragment.hltBLifetimeL3FilterSSVCaloJet60Eta2p1 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIPuAK4CaloBJetSSV80_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIPuAK4CaloBJetSSV80Eta2p1 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta2p150nsMultiFit + fragment.hltHIEta2CaloJetsEta2p1ForJets + fragment.hltReduceJetMultEta2p1Forjets + fragment.hltJets4bTaggerCaloJet80Eta2p1Forjets + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForJets + fragment.HLTBtagSSVSequenceL3CaloJet80Eta2p1 + fragment.hltBLifetimeL3FilterSSVCaloJet80Eta2p1 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHIDmesonHITrackingGlobalDpt20 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt20 + fragment.hltTktkFilterForDmesonGlobal8Dp20 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext30100MinimumumBiasHF1AND + fragment.hltPreHIDmesonHITrackingGlobalDpt20Cent30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt20 + fragment.hltTktkFilterForDmesonGlobal8Dp20 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext50100MinimumumBiasHF1AND + fragment.hltPreHIDmesonHITrackingGlobalDpt20Cent50100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt20 + fragment.hltTktkFilterForDmesonGlobal8Dp20 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet16BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt30 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt30 + fragment.hltTktkFilterForDmesonGlobal8Dp30 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet16Centralityext30100BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt30Cent30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt30 + fragment.hltTktkFilterForDmesonGlobal8Dp30 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet16Centralityext50100BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt30Cent50100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt30 + fragment.hltTktkFilterForDmesonGlobal8Dp30 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt40 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt40 + fragment.hltTktkFilterForDmesonGlobal8Dp40 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28Centralityext30100BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt40Cent30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt40 + fragment.hltTktkFilterForDmesonGlobal8Dp40 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet28Centralityext50100BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt40Cent50100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt40 + fragment.hltTktkFilterForDmesonGlobal8Dp40 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt50_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet32BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt50 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt50 + fragment.hltTktkFilterForDmesonGlobal8Dp50 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt60_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleJet44BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt60 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt60 + fragment.hltTktkFilterForDmesonGlobal8Dp60 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt70_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet52BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt70 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt70 + fragment.hltTktkFilterForDmesonGlobal8Dp70 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt60_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet44Centralityext30100BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt60Cent30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt60 + fragment.hltTktkFilterForDmesonGlobal8Dp60 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt60_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleS1Jet44Centralityext50100BptxAND + fragment.hltPreHIDmesonHITrackingGlobalDpt60Cent50100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt60 + fragment.hltTktkFilterForDmesonGlobal8Dp60 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_Cent0_10_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIDmesonHITrackingGlobalDpt20Cent010 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt20 + fragment.hltTktkFilterForDmesonGlobal8Dp20 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_Cent0_10_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIDmesonHITrackingGlobalDpt30Cent010 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt30 + fragment.hltTktkFilterForDmesonGlobal8Dp30 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_Cent0_10_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIDmesonHITrackingGlobalDpt40Cent010 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackCandsForDmesonGlobalPt8 + fragment.hltHIFullTrackFilterForDmesonGlobalPt8 + fragment.hltTktkVtxForDmesonGlobal8Dpt40 + fragment.hltTktkFilterForDmesonGlobal8Dp40 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton10_Eta1p5_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHISinglePhoton10Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton15_Eta1p5_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHISinglePhoton15Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton20_Eta1p5_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHISinglePhoton20Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton30_Eta1p5_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG7BptxAND + fragment.hltPreHISinglePhoton30Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta1p5_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHISinglePhoton40Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton50_Eta1p5_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHISinglePhoton50Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton50Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton60_Eta1p5_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG30BptxAND + fragment.hltPreHISinglePhoton60Eta1p5 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton60Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton10_Eta1p5_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext50100BptxAND + fragment.hltPreHISinglePhoton10Eta1p5Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton15_Eta1p5_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext50100BptxAND + fragment.hltPreHISinglePhoton15Eta1p5Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton20_Eta1p5_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext50100BptxAND + fragment.hltPreHISinglePhoton20Eta1p5Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton30_Eta1p5_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG7Centralityext50100BptxAND + fragment.hltPreHISinglePhoton30Eta1p5Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta1p5_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21Centralityext50100BptxAND + fragment.hltPreHISinglePhoton40Eta1p5Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton10_Eta1p5_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext30100BptxAND + fragment.hltPreHISinglePhoton10Eta1p5Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton15_Eta1p5_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext30100BptxAND + fragment.hltPreHISinglePhoton15Eta1p5Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton20_Eta1p5_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext30100BptxAND + fragment.hltPreHISinglePhoton20Eta1p5Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton30_Eta1p5_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG7Centralityext30100BptxAND + fragment.hltPreHISinglePhoton30Eta1p5Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta1p5_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21Centralityext30100BptxAND + fragment.hltPreHISinglePhoton40Eta1p5Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta2p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHISinglePhoton40Eta2p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton10_Eta3p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHISinglePhoton10Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton15_Eta3p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHISinglePhoton15Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton20_Eta3p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreHISinglePhoton20Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton30_Eta3p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG7BptxAND + fragment.hltPreHISinglePhoton30Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta3p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHISinglePhoton40Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton50_Eta3p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHISinglePhoton50Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton50Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton60_Eta3p1_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG30BptxAND + fragment.hltPreHISinglePhoton60Eta3p1 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton60Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton10_Eta3p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext50100BptxAND + fragment.hltPreHISinglePhoton10Eta3p1Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton15_Eta3p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext50100BptxAND + fragment.hltPreHISinglePhoton15Eta3p1Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton20_Eta3p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext50100BptxAND + fragment.hltPreHISinglePhoton20Eta3p1Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton30_Eta3p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG7Centralityext50100BptxAND + fragment.hltPreHISinglePhoton30Eta3p1Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta3p1_Cent50_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21Centralityext50100BptxAND + fragment.hltPreHISinglePhoton40Eta3p1Cent50100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton10_Eta3p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext30100BptxAND + fragment.hltPreHISinglePhoton10Eta3p1Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton15_Eta3p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext30100BptxAND + fragment.hltPreHISinglePhoton15Eta3p1Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton20_Eta3p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG3Centralityext30100BptxAND + fragment.hltPreHISinglePhoton20Eta3p1Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton30_Eta3p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG7Centralityext30100BptxAND + fragment.hltPreHISinglePhoton30Eta3p1Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HISinglePhoton40_Eta3p1_Cent30_100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21Centralityext30100BptxAND + fragment.hltPreHISinglePhoton40Eta3p1Cent30100 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta3p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHIDoublePhoton15Eta1p5Mass501000 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIDoublePhoton15Eta1p550nsMultiFit + fragment.hltHIDoublePhoton15Eta1p5GlobalMass501000Filter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHIDoublePhoton15Eta1p5Mass501000R9HECut + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIDoublePhoton15Eta1p550nsMultiFit + fragment.hltHIDoublePhoton15Eta1p5GlobalMass501000Filter + fragment.hltHIEgammaR9ID50nsMultiFit + fragment.hltHIEgammaR9IDDoublePhoton15Eta1p550nsMultiFit + fragment.hltHIEgammaHoverE50nsMultiFit + fragment.hltHIEgammaHOverEDoublePhoton15Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9Cut_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHIDoublePhoton15Eta2p1Mass501000R9Cut + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIDoublePhoton15Eta2p150nsMultiFit + fragment.hltHIDoublePhoton15Eta2p1GlobalMass501000Filter + fragment.hltHIEgammaR9ID50nsMultiFit + fragment.hltHIEgammaR9IDDoublePhoton15Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECut_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG21BptxAND + fragment.hltPreHIDoublePhoton15Eta2p5Mass501000R9SigmaHECut + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIDoublePhoton15Eta2p550nsMultiFit + fragment.hltHIDoublePhoton15Eta2p5GlobalMass501000Filter + fragment.hltHIEgammaR9ID50nsMultiFit + fragment.hltHIEgammaR9IDDoublePhoton15Eta2p550nsMultiFit + fragment.hltHIEgammaSigmaIEtaIEta50nsMultiFitProducer + fragment.hltHIEgammaSigmaIEtaIEtaDoublePhoton15Eta2p550nsMultiFit + fragment.hltHIEgammaHoverE50nsMultiFit + fragment.hltHIEgammaHOverEDoublePhoton15Eta2p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3MinimumBiasHF1AND + fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet40Eta2p1 + fragment.hltHIL1SingleMu3MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2Filtered + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet40Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet60Eta2p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3SingleCenJet28 + fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet60Eta2p1 + fragment.hltHIL1SingleMu3CenJet28Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2FilteredWithJet28 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet60Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet80Eta2p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3SingleCenJet40 + fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet80Eta2p1 + fragment.hltHIL1SingleMu3CenJet40Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2FilteredWithJet40 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet80Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3SingleCenJet40 + fragment.hltPreHIL2Mu3Eta2p5PuAK4CaloJet100Eta2p1 + fragment.hltHIL1SingleMu3CenJet40Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2FilteredWithJet40 + fragment.HLTPuAK4CaloJets50nsMultiFitSequence + fragment.hltSinglePuAK4CaloJet100Eta2p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3MinimumBiasHF1AND + fragment.hltPreHIL2Mu3Eta2p5HIPhoton10Eta1p5 + fragment.hltHIL1SingleMu3MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2Filtered + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton10Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3MinimumBiasHF1AND + fragment.hltPreHIL2Mu3Eta2p5HIPhoton15Eta1p5 + fragment.hltHIL1SingleMu3MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2Filtered + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton15Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3MinimumBiasHF1AND + fragment.hltPreHIL2Mu3Eta2p5HIPhoton20Eta1p5 + fragment.hltHIL1SingleMu3MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2Filtered + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton20Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3SingleEG12 + fragment.hltPreHIL2Mu3Eta2p5HIPhoton30Eta1p5 + fragment.hltHIL1SingleMu3EG12Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2FilteredWithEG12 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton30Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3SingleEG20 + fragment.hltPreHIL2Mu3Eta2p5HIPhoton40Eta1p5 + fragment.hltHIL1SingleMu3EG20Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQL2FilteredWithEG20 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.HLTDoHIEcalClusWithCleaning50nsMultiFitSequence + fragment.hltHIPhoton40Eta1p550nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUCC100_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIUCC100 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilter4470 + fragment.HLTDoHILocalPixelClustersSequence + fragment.hltPixelActivityFilter40000 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUCC020_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIUCC020 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilter4680 + fragment.HLTDoHILocalPixelClustersSequence + fragment.hltPixelActivityFilter60000 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIQ2Bottom005_Centrality1030_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIQ2Bottom005Centrality1030 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilterCentrality1030 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltEvtPlaneProducer + fragment.hltEvtPlaneFilterB005Cent1030 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIQ2Top005_Centrality1030_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIQ2Top005Centrality1030 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilterCentrality1030 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltEvtPlaneProducer + fragment.hltEvtPlaneFilterT005Cent1030 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIQ2Bottom005_Centrality3050_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIQ2Bottom005Centrality3050 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilterCentrality3050 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltEvtPlaneProducer + fragment.hltEvtPlaneFilterB005Cent3050 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIQ2Top005_Centrality3050_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIQ2Top005Centrality3050 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilterCentrality3050 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltEvtPlaneProducer + fragment.hltEvtPlaneFilterT005Cent3050 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIQ2Bottom005_Centrality5070_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIQ2Bottom005Centrality5070 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilterCentrality5070 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltEvtPlaneProducer + fragment.hltEvtPlaneFilterB005Cent5070 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIQ2Top005_Centrality5070_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIQ2Top005Centrality5070 + fragment.HLTRecoMETHfSequence + fragment.hltGlobalSumETHfFilterCentrality5070 + fragment.HLTDoCaloHcalMethod050nsMultiFitSequence + fragment.hltEvtPlaneProducer + fragment.hltEvtPlaneFilterT005Cent5070 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack12_L1MinimumBiasHF1_AND_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIFullTrack12L1MinimumBiasHF1AND + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter12 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack12_L1Centrality010_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIFullTrack12L1Centrality010 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter12 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack12_L1Centrality30100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack12Centralityext30100BptxAND + fragment.hltPreHIFullTrack12L1Centrality30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter12 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack18_L1MinimumBiasHF1_AND_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIFullTrack18L1MinimumBiasHF1AND + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter18 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack18_L1Centrality010_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext010MinimumumBiasHF1AND + fragment.hltPreHIFullTrack18L1Centrality010 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter18 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack18_L1Centrality30100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack12Centralityext30100BptxAND + fragment.hltPreHIFullTrack18L1Centrality30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter18 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack24_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack16BptxAND + fragment.hltPreHIFullTrack24 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter24 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack24_L1Centrality30100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack16Centralityext30100BptxAND + fragment.hltPreHIFullTrack24L1Centrality30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter24 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack34_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack24BptxAND + fragment.hltPreHIFullTrack34 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter34 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack34_L1Centrality30100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack24Centralityext30100BptxAND + fragment.hltPreHIFullTrack34L1Centrality30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter34 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack45_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack24BptxAND + fragment.hltPreHIFullTrack45 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter45 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIFullTrack45_L1Centrality30100_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleTrack24Centralityext30100BptxAND + fragment.hltPreHIFullTrack45L1Centrality30100 + fragment.HLTHIPixelClusterSplitting + fragment.HLTDoHITrackingLocalStripSequenceZeroSuppression + fragment.HLTHIIterativeTrackingForGlobalPt8 + fragment.hltHIFullTrackSelectedTracks + fragment.hltHIFullTrackCandsForHITrackTrigger + fragment.hltHIFullTrackFilter45 + fragment.HLTDoHIStripZeroSuppressionRepacker + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0BptxAND + fragment.hltPreHIL1DoubleMu0 + fragment.hltHIDoubleMu0L1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_2HF_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1AND + fragment.hltPreHIL1DoubleMu02HF + fragment.hltHIDoubleMu0MinBiasL1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_2HF0_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0HFplusANDminusTH0BptxAND + fragment.hltPreHIL1DoubleMu02HF0 + fragment.hltHIDoubleMu0HFTower0Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu10_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu10BptxAND + fragment.hltPreHIL1DoubleMu10 + fragment.hltHIDoubleMu10L1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_NHitQ_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0BptxAND + fragment.hltPreHIL2DoubleMu0NHitQ + fragment.hltHIDoubleMu0L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0NHitQFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_NHitQ_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1AND + fragment.hltPreHIL2DoubleMu0NHitQ2HF + fragment.hltHIDoubleMu0MinBiasL1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0NHitQ2HFFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_NHitQ_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0HFplusANDminusTH0BptxAND + fragment.hltPreHIL2DoubleMu0NHitQ2HF0 + fragment.hltHIDoubleMu0HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0NHitQ2HF0Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3_NHitQ10_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3MinimumBiasHF1AND + fragment.hltPreHIL2Mu3NHitQ102HF + fragment.hltHIL1SingleMu3MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQ2HFL2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu3_NHitQ10_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3HFplusANDminusTH0BptxAND + fragment.hltPreHIL2Mu3NHitQ102HF0 + fragment.hltHIL1SingleMu3HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQ2HF0L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu3_NHitQ15_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3MinimumBiasHF1AND + fragment.hltPreHIL3Mu3NHitQ152HF + fragment.hltHIL1SingleMu3MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQ2HFL2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu3NHit152HFL3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu3_NHitQ15_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu3HFplusANDminusTH0BptxAND + fragment.hltPreHIL3Mu3NHitQ152HF0 + fragment.hltHIL1SingleMu3HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu3N10HitQ2HF0L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu3NHit152HF0L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu5_NHitQ10_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu5MinimumBiasHF1AND + fragment.hltPreHIL2Mu5NHitQ102HF + fragment.hltHIL1SingleMu5MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu5N10HitQ2HFL2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu5_NHitQ10_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu5HFplusANDminusTH0BptxAND + fragment.hltPreHIL2Mu5NHitQ102HF0 + fragment.hltHIL1SingleMu5HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu5N10HitQ2HF0L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu5_NHitQ15_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu5MinimumBiasHF1AND + fragment.hltPreHIL3Mu5NHitQ152HF + fragment.hltHIL1SingleMu5MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu5N10HitQ2HFL2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu5NHit152HFL3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu5_NHitQ15_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu5HFplusANDminusTH0BptxAND + fragment.hltPreHIL3Mu5NHitQ152HF0 + fragment.hltHIL1SingleMu5HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu5N10HitQ2HF0L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu5NHit152HF0L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu7_NHitQ10_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu7MinimumBiasHF1AND + fragment.hltPreHIL2Mu7NHitQ102HF + fragment.hltHIL1SingleMu7MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu7N10HitQ2HFL2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu7_NHitQ10_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu7HFplusANDminusTH0BptxAND + fragment.hltPreHIL2Mu7NHitQ102HF0 + fragment.hltHIL1SingleMu7HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu7N10HitQ2HF0L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu7_NHitQ15_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu7MinimumBiasHF1AND + fragment.hltPreHIL3Mu7NHitQ152HF + fragment.hltHIL1SingleMu7MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu7N10HitQ2HFL2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu7NHit152HFL3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu7_NHitQ15_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu7HFplusANDminusTH0BptxAND + fragment.hltPreHIL3Mu7NHitQ152HF0 + fragment.hltHIL1SingleMu7HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu7N10HitQ2HF0L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu7NHit152HF0L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu15_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu12BptxAND + fragment.hltPreHIL2Mu15 + fragment.hltHIL1SingleMu12Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu15L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu15_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu12MinimumBiasHF1ANDBptxAND + fragment.hltPreHIL2Mu152HF + fragment.hltHIL1SingleMu12MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu152HFFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu15_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu12HFplusANDminusTH0BptxAND + fragment.hltPreHIL2Mu152HF0 + fragment.hltHIL1SingleMu12HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu15N10HitQ2HF0L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu15_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu12BptxAND + fragment.hltPreHIL3Mu15 + fragment.hltHIL1SingleMu12Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL3Mu15L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu15L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu15_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu12MinimumBiasHF1ANDBptxAND + fragment.hltPreHIL3Mu152HF + fragment.hltHIL1SingleMu12MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL3Mu152HFL2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu152HFL3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu15_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu12HFplusANDminusTH0BptxAND + fragment.hltPreHIL3Mu152HF0 + fragment.hltHIL1SingleMu12HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL3Mu152HF0L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu152HF0L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu20_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu16BptxAND + fragment.hltPreHIL2Mu20 + fragment.hltHIL1SingleMu16Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu20L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu20_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu16MinimumBiasHF1ANDBptxAND + fragment.hltPreHIL2Mu202HF + fragment.hltHIL1SingleMu16MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu202HFL2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2Mu20_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu16HFplusANDminusTH0BptxAND + fragment.hltPreHIL2Mu202HF0 + fragment.hltHIL1SingleMu16HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2Mu202HF0L2Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu20_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu16BptxAND + fragment.hltPreHIL3Mu20 + fragment.hltHIL1SingleMu16Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL3Mu20L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHIL3SingleMu20L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu20_2HF_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu16MinimumBiasHF1ANDBptxAND + fragment.hltPreHIL3Mu202HF + fragment.hltHIL1SingleMu16MinBiasFiltered + fragment.HLTL2muonrecoSequence + fragment.hltHIL3Mu202HFL2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu202HFL3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3Mu20_2HF0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMu16HFplusANDminusTH0BptxAND + fragment.hltPreHIL3Mu202HF0 + fragment.hltHIL1SingleMu16HFTower0Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL3Mu202HF0L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHISingleMu202HF0L3Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_2HF_Cent30100_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext30100BptxAND + fragment.hltPreHIL1DoubleMu02HFCent30100 + fragment.hltHIDoubleMu0MinBiasCent30to100L1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_2HF0_Cent30100_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0HFplusANDminusTH0Centrliatiyext30100BptxAND + fragment.hltPreHIL1DoubleMu02HF0Cent30100 + fragment.hltHIDoubleMu0HFTower0Cent30to100L1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_2HF_Cent30100_NHitQ_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext30100BptxAND + fragment.hltPreHIL2DoubleMu02HFCent30100NHitQ + fragment.hltHIDoubleMu0MinBiasCent30to100L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu02HFcent30100NHitQFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1DoubleMu0_Cent30_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND + fragment.hltPreHIL1DoubleMu0Cent30 + fragment.hltHIDoubleMu0MinBiasCent30L1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_2HF0_Cent30100_NHitQ_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0HFplusANDminusTH0Centrliatiyext30100BptxAND + fragment.hltPreHIL2DoubleMu02HF0Cent30100NHitQ + fragment.hltHIDoubleMu0HFTower0Cent30to100L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu02HF0cent30100NHitQFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND + fragment.hltPreHIL2DoubleMu0Cent30OSNHitQ + fragment.hltHIDoubleMu0MinBiasCent30L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0cent30OSNHitQFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL2DoubleMu0_Cent30_NHitQ_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND + fragment.hltPreHIL2DoubleMu0Cent30NHitQ + fragment.hltHIDoubleMu0MinBiasCent30L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIL2DoubleMu0cent30NHitQFiltered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3DoubleMu0_Cent30_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND + fragment.hltPreHIL3DoubleMu0Cent30 + fragment.hltHIDoubleMu0MinBiasCent30L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonOpenCentrality30L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonOpenCentrality30L3Filter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3DoubleMu0_Cent30_OS_m2p5to4p5_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND + fragment.hltPreHIL3DoubleMu0Cent30OSm2p5to4p5 + fragment.hltHIDoubleMu0MinBiasCent30L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonOpenCentrality30L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonOpenCentrality30OSm2p5to4p5L3Filter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3DoubleMu0_Cent30_OS_m7to14_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0MinimumBiasHF1ANDCentralityext030BptxAND + fragment.hltPreHIL3DoubleMu0Cent30OSm7to14 + fragment.hltHIDoubleMu0MinBiasCent30L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonOpenCentrality30L2Filtered + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonOpenCentrality30OSm7to14L3Filter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3DoubleMu0_OS_m2p5to4p5_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0BptxAND + fragment.hltPreHIL3DoubleMu0OSm2p5to4p5 + fragment.hltHIDoubleMu0L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonOpenL2FilteredNoMBHFgated + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonOpenOSm2p5to4p5L3Filter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL3DoubleMu0_OS_m7to14_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMu0BptxAND + fragment.hltPreHIL3DoubleMu0OSm7to14 + fragment.hltHIDoubleMu0L1Filtered + fragment.HLTL2muonrecoSequence + fragment.hltHIDimuonOpenL2FilteredNoMBHFgated + fragment.HLTHIL3muonrecoSequence + fragment.hltHIDimuonOpenOSm7to14L3Filter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1SingleMuOpenNotHF2_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMuOpenNotMinimumBiasHF2AND + fragment.hltPreHIUPCL1SingleMuOpenNotHF2 + fragment.hltL1MuOpenNotHF2L1Filtered0 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCSingleMuNotHF2Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMuOpenNotMinimumBiasHF2AND + fragment.hltPreHIUPCSingleMuNotHF2PixelSingleTrack + fragment.hltL1MuOpenNotHF2L1Filtered0 + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleMuOpenNotHF2_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotMinimumBiasHF2AND + fragment.hltPreHIUPCL1DoubleMuOpenNotHF2 + fragment.hltL1MuOpenNotHF2L1Filtered2 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCDoubleMuNotHF2Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotMinimumBiasHF2AND + fragment.hltPreHIUPCDoubleMuNotHF2PixelSingleTrack + fragment.hltL1MuOpenNotHF2L1Filtered2 + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1SingleEG2NotHF2_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sEG2NotMinimumBiasHF2AND + fragment.hltPreHIUPCL1SingleEG2NotHF2 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCSingleEG2NotHF2Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sEG2NotMinimumBiasHF2AND + fragment.hltPreHIUPCSingleEG2NotHF2PixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleEG2NotHF2_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleEG2NotMinimumBiasHF2AND + fragment.hltPreHIUPCL1DoubleEG2NotHF2 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCDoubleEG2NotHF2Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleEG2NotMinimumBiasHF2AND + fragment.hltPreHIUPCDoubleEG2NotHF2PixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1SingleEG5NotHF2_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sEG5NotMinimumBiasHF2AND + fragment.hltPreHIUPCL1SingleEG5NotHF2 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCSingleEG5NotHF2Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sEG5NotMinimumBiasHF2AND + fragment.hltPreHIUPCSingleEG5NotHF2PixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleMuOpenNotHF1_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotMinimumBiasHF1AND + fragment.hltPreHIUPCL1DoubleMuOpenNotHF1 + fragment.hltL1MuOpenL1Filtered2 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCDoubleMuNotHF1Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotMinimumBiasHF1AND + fragment.hltPreHIUPCDoubleMuNotHF1PixelSingleTrack + fragment.hltL1MuOpenL1Filtered2 + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleEG2NotZDCAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleEG2NotZdcANDBptxAND + fragment.hltPreHIUPCL1DoubleEG2NotZDCAND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleEG2NotZDCANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleEG2NotZdcANDBptxAND + fragment.hltPreHIUPCL1DoubleEG2NotZDCANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleMuOpenNotZDCAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotZdcANDBptxAND + fragment.hltPreHIUPCL1DoubleMuOpenNotZDCAND + fragment.hltL1MuOpenL1Filtered3 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleMuOpenNotZDCANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotZdcANDBptxAND + fragment.hltPreHIUPCL1DoubleMuOpenNotZDCANDPixelSingleTrack + fragment.hltL1MuOpenL1Filtered3 + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1EG2NotZDCAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG2NotZDCANDBptxAND + fragment.hltPreHIUPCL1EG2NotZDCAND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCEG2NotZDCANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleEG2NotZDCANDBptxAND + fragment.hltPreHIUPCEG2NotZDCANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1MuOpenNotZDCAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMuOpenNotZdcANDBptxAND + fragment.hltPreHIUPCL1MuOpenNotZDCAND + fragment.hltL1MuOpenL1Filtered4 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1MuOpenNotZDCANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMuOpenNotZdcANDBptxAND + fragment.hltPreHIUPCL1MuOpenNotZDCANDPixelSingleTrack + fragment.hltL1MuOpenL1Filtered4 + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotHFplusANDminusTH0BptxAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0NotHFplusANDminusTH0BptxAND + fragment.hltPreHIUPCL1NotHFplusANDminusTH0BptxAND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotHFplusANDminusTH0BptxANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0NotHFplusANDminusTH0BptxAND + fragment.hltPreHIUPCL1NotHFplusANDminusTH0BptxANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sNotHFplusANDminusTH0BptxAND + fragment.hltPreHIUPCL1NotHFMinimumbiasHFplusANDminustTH0 + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sNotHFplusANDminusTH0BptxAND + fragment.hltPreHIUPCL1NotHFMinimumbiasHFplusANDminustTH0PixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotHFplusANDminusTH0BptxAND + fragment.hltPreHIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0 + fragment.hltL1DoubleMuOpenTH0L1Filtered + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sDoubleMuOpenNotHFplusANDminusTH0BptxAND + fragment.hltPreHIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0PixelSingleTrack + fragment.hltL1DoubleMuOpenTH0L1Filtered + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1CastorMediumJet_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCastorMediumJetBptxAND + fragment.hltPreHIL1CastorMediumJet + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1CastorMediumJetAK4CaloJet20_v4 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCastorMediumJetBptxAND + fragment.hltPreHIL1CastorMediumJetAK4CaloJet20 + fragment.HLTPuAK4CaloJetsUPCSequence + fragment.hltSinglePuAK4CaloJet20Eta5p150nsMultiFit + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HICastorMediumJetPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCastorMediumJetBptxAND + fragment.hltPreHICastorMediumJetPixelSingleTrack + fragment.hltL1CastorMediumJetFiltered0UPC + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotMinimumBiasHF2_AND_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sNotMinimumBiasHF2AND + fragment.hltPreHIUPCL1NotMinimumBiasHF2AND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotMinimumBiasHF2_ANDPixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sNotMinimumBiasHF2AND + fragment.hltPreHIUPCL1NotMinimumBiasHF2ANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1ZdcOR_BptxAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZdcORBptxAND + fragment.hltPreHIUPCL1ZdcORBptxAND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1ZdcOR_BptxANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZdcORBptxAND + fragment.hltPreHIUPCL1ZdcORBptxANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1ZdcXOR_BptxAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZdcXORBptxAND + fragment.hltPreHIUPCL1ZdcXORBptxAND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1ZdcXOR_BptxANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZdcXORBptxAND + fragment.hltPreHIUPCL1ZdcXORBptxANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotZdcOR_BptxAND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sNotZdcORBptxAND + fragment.hltPreHIUPCL1NotZdcORBptxAND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIUPCL1NotZdcOR_BptxANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sNotZdcORBptxAND + fragment.hltPreHIUPCL1NotZdcORBptxANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIZeroBias_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreHIZeroBias + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HICentralityVeto_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHICentralityVeto + fragment.HLTDoHILocalPixelSequence + fragment.hltPixelActivityFilterCentralityVeto + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Tech5_BPTX_PlusOnly_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1Tech5 + fragment.hltPreHIL1Tech5BPTXPlusOnly + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Tech6_BPTX_MinusOnly_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1Tech6 + fragment.hltPreHIL1Tech6BPTXMinusOnly + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Tech7_NoBPTX_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1Tech7 + fragment.hltPreHIL1Tech7NoBPTX + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1MinimumBiasHF1OR_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1OR + fragment.hltPreHIL1MinimumBiasHF1OR + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1MinimumBiasHF2OR_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF2OR + fragment.hltPreHIL1MinimumBiasHF2OR + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1MinimumBiasHF1AND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIL1MinimumBiasHF1AND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1MinimumBiasHF2AND_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF2AND + fragment.hltPreHIL1MinimumBiasHF2AND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1MinimumBiasHF1ANDPixel_SingleTrack_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sMinimumBiasHF1AND + fragment.hltPreHIL1MinimumBiasHF1ANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTPixelTrackingForHITrackTrigger + fragment.hltHISinglePixelTrackFilter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIZeroBiasPixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreHIZeroBiasPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTPixelTrackingForHITrackTrigger + fragment.hltHISinglePixelTrackFilter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Centralityext70100MinimumumBiasHF1AND_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext70100MinimumumBiasHF1AND + fragment.hltPreHIL1Centralityext70100MinimumumBiasHF1AND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Centralityext70100MinimumumBiasHF1ANDPixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext70100MinimumumBiasHF1AND + fragment.hltPreHIL1Centralityext70100MinimumumBiasHF1ANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTPixelTrackingForHITrackTrigger + fragment.hltHISinglePixelTrackFilter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Centralityext50100MinimumumBiasHF1AND_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext50100MinimumumBiasHF1AND + fragment.hltPreHIL1Centralityext50100MinimumumBiasHF1AND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Centralityext50100MinimumumBiasHF1ANDPixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext50100MinimumumBiasHF1AND + fragment.hltPreHIL1Centralityext50100MinimumumBiasHF1ANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTPixelTrackingForHITrackTrigger + fragment.hltHISinglePixelTrackFilter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Centralityext30100MinimumumBiasHF1AND_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext30100MinimumumBiasHF1AND + fragment.hltPreHIL1Centralityext30100MinimumumBiasHF1AND + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIL1Centralityext30100MinimumumBiasHF1ANDPixel_SingleTrack_v3 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sCentralityext30100MinimumumBiasHF1AND + fragment.hltPreHIL1Centralityext30100MinimumumBiasHF1ANDPixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTPixelTrackingForHITrackTrigger + fragment.hltHISinglePixelTrackFilter + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIPhysics_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltPreHIPhysics + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_HIRandom_v2 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltPreHIRandom + fragment.HLTDoHIStripZeroSuppression + fragment.HLTEndSequence )
+fragment.HLT_EcalCalibration_v3 = cms.Path( fragment.HLTBeginSequenceCalibration + fragment.hltPreEcalCalibration + fragment.hltEcalCalibrationRaw + fragment.HLTEndSequence )
+fragment.HLT_HcalCalibration_v4 = cms.Path( fragment.HLTBeginSequenceCalibration + fragment.hltPreHcalCalibration + fragment.hltHcalCalibTypeFilter + fragment.hltHcalCalibrationRaw + fragment.HLTEndSequence )
+fragment.AlCa_EcalPhiSymForHI_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sV0MinimumBiasHF1AND + fragment.hltPreAlCaEcalPhiSymForHI + fragment.HLTDoFullUnpackingEgammaEcal50nsMultiFitSequence + fragment.hltEcal50nsMultifitPhiSymFilter + fragment.HLTEndSequence )
+fragment.AlCa_RPCMuonNoTriggersForHI_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMuOpenIorSingleMu12BptxAND + fragment.hltPreAlCaRPCMuonNoTriggersForHI + fragment.hltRPCMuonNoTriggersL1Filtered0ForHI + fragment.HLTMuonLocalRecoSequence + fragment.HLTEndSequence )
+fragment.AlCa_RPCMuonNoHitsForHI_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMuOpenIorSingleMu12BptxAND + fragment.hltPreAlCaRPCMuonNoHitsForHI + fragment.HLTMuonLocalRecoSequence + fragment.hltRPCPointProducer + fragment.hltRPCFilter + fragment.HLTEndSequence )
+fragment.AlCa_RPCMuonNormalisationForHI_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sSingleMuOpenIorSingleMu12BptxAND + fragment.hltPreAlCaRPCMuonNormalisationForHI + fragment.hltRPCMuonNormaL1Filtered0ForHI + fragment.HLTMuonLocalRecoSequence + fragment.HLTEndSequence )
+fragment.AlCa_LumiPixels_Random_v2 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltPreAlCaLumiPixelsRandom + fragment.hltFEDSelectorLumiPixels + fragment.HLTEndSequence )
+fragment.AlCa_LumiPixels_ZeroBias_v5 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreAlCaLumiPixelsZeroBias + fragment.hltFEDSelectorLumiPixels + fragment.HLTEndSequence )
+fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
+fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_CaloJet260_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+fragment.HLTSchedule = cms.Schedule( *(fragment.HLTriggerFirstPath, fragment.DST_Physics_v5, fragment.HLT_HIPuAK4CaloJet40_Eta5p1_v5, fragment.HLT_HIPuAK4CaloJet60_Eta5p1_v4, fragment.HLT_HIPuAK4CaloJet80_Eta5p1_v4, fragment.HLT_HIPuAK4CaloJet100_Eta5p1_v4, fragment.HLT_HIPuAK4CaloJet110_Eta5p1_v4, fragment.HLT_HIPuAK4CaloJet120_Eta5p1_v4, fragment.HLT_HIPuAK4CaloJet150_Eta5p1_v4, fragment.HLT_HIPuAK4CaloJet40_Eta5p1_Cent30_100_v4, fragment.HLT_HIPuAK4CaloJet60_Eta5p1_Cent30_100_v4, fragment.HLT_HIPuAK4CaloJet80_Eta5p1_Cent30_100_v4, fragment.HLT_HIPuAK4CaloJet100_Eta5p1_Cent30_100_v4, fragment.HLT_HIPuAK4CaloJet40_Eta5p1_Cent50_100_v4, fragment.HLT_HIPuAK4CaloJet60_Eta5p1_Cent50_100_v4, fragment.HLT_HIPuAK4CaloJet80_Eta5p1_Cent50_100_v4, fragment.HLT_HIPuAK4CaloJet100_Eta5p1_Cent50_100_v4, fragment.HLT_HIPuAK4CaloJet80_Jet35_Eta1p1_v4, fragment.HLT_HIPuAK4CaloJet80_Jet35_Eta0p7_v4, fragment.HLT_HIPuAK4CaloJet100_Jet35_Eta1p1_v4, fragment.HLT_HIPuAK4CaloJet100_Jet35_Eta0p7_v4, fragment.HLT_HIPuAK4CaloJet80_45_45_Eta2p1_v4, fragment.HLT_HIPuAK4CaloDJet60_Eta2p1_v4, fragment.HLT_HIPuAK4CaloDJet80_Eta2p1_v4, fragment.HLT_HIPuAK4CaloBJetCSV60_Eta2p1_v4, fragment.HLT_HIPuAK4CaloBJetCSV80_Eta2p1_v4, fragment.HLT_HIPuAK4CaloBJetSSV60_Eta2p1_v4, fragment.HLT_HIPuAK4CaloBJetSSV80_Eta2p1_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_v5, fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_Cent30_100_v5, fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_Cent50_100_v5, fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_Cent30_100_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_Cent50_100_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_Cent30_100_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_Cent50_100_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt50_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt60_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt70_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt60_Cent30_100_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt60_Cent50_100_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt20_Cent0_10_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt30_Cent0_10_v4, fragment.HLT_HIDmesonHITrackingGlobal_Dpt40_Cent0_10_v4, fragment.HLT_HISinglePhoton10_Eta1p5_v5, fragment.HLT_HISinglePhoton15_Eta1p5_v5, fragment.HLT_HISinglePhoton20_Eta1p5_v5, fragment.HLT_HISinglePhoton30_Eta1p5_v4, fragment.HLT_HISinglePhoton40_Eta1p5_v4, fragment.HLT_HISinglePhoton50_Eta1p5_v4, fragment.HLT_HISinglePhoton60_Eta1p5_v4, fragment.HLT_HISinglePhoton10_Eta1p5_Cent50_100_v4, fragment.HLT_HISinglePhoton15_Eta1p5_Cent50_100_v4, fragment.HLT_HISinglePhoton20_Eta1p5_Cent50_100_v4, fragment.HLT_HISinglePhoton30_Eta1p5_Cent50_100_v4, fragment.HLT_HISinglePhoton40_Eta1p5_Cent50_100_v4, fragment.HLT_HISinglePhoton10_Eta1p5_Cent30_100_v4, fragment.HLT_HISinglePhoton15_Eta1p5_Cent30_100_v4, fragment.HLT_HISinglePhoton20_Eta1p5_Cent30_100_v4, fragment.HLT_HISinglePhoton30_Eta1p5_Cent30_100_v4, fragment.HLT_HISinglePhoton40_Eta1p5_Cent30_100_v4, fragment.HLT_HISinglePhoton40_Eta2p1_v4, fragment.HLT_HISinglePhoton10_Eta3p1_v5, fragment.HLT_HISinglePhoton15_Eta3p1_v5, fragment.HLT_HISinglePhoton20_Eta3p1_v5, fragment.HLT_HISinglePhoton30_Eta3p1_v4, fragment.HLT_HISinglePhoton40_Eta3p1_v4, fragment.HLT_HISinglePhoton50_Eta3p1_v4, fragment.HLT_HISinglePhoton60_Eta3p1_v4, fragment.HLT_HISinglePhoton10_Eta3p1_Cent50_100_v4, fragment.HLT_HISinglePhoton15_Eta3p1_Cent50_100_v4, fragment.HLT_HISinglePhoton20_Eta3p1_Cent50_100_v4, fragment.HLT_HISinglePhoton30_Eta3p1_Cent50_100_v4, fragment.HLT_HISinglePhoton40_Eta3p1_Cent50_100_v4, fragment.HLT_HISinglePhoton10_Eta3p1_Cent30_100_v4, fragment.HLT_HISinglePhoton15_Eta3p1_Cent30_100_v4, fragment.HLT_HISinglePhoton20_Eta3p1_Cent30_100_v4, fragment.HLT_HISinglePhoton30_Eta3p1_Cent30_100_v4, fragment.HLT_HISinglePhoton40_Eta3p1_Cent30_100_v4, fragment.HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_v4, fragment.HLT_HIDoublePhoton15_Eta1p5_Mass50_1000_R9HECut_v4, fragment.HLT_HIDoublePhoton15_Eta2p1_Mass50_1000_R9Cut_v4, fragment.HLT_HIDoublePhoton15_Eta2p5_Mass50_1000_R9SigmaHECut_v4, fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet40Eta2p1_v6, fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet60Eta2p1_v5, fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet80Eta2p1_v5, fragment.HLT_HIL2Mu3Eta2p5_PuAK4CaloJet100Eta2p1_v5, fragment.HLT_HIL2Mu3Eta2p5_HIPhoton10Eta1p5_v6, fragment.HLT_HIL2Mu3Eta2p5_HIPhoton15Eta1p5_v6, fragment.HLT_HIL2Mu3Eta2p5_HIPhoton20Eta1p5_v6, fragment.HLT_HIL2Mu3Eta2p5_HIPhoton30Eta1p5_v5, fragment.HLT_HIL2Mu3Eta2p5_HIPhoton40Eta1p5_v5, fragment.HLT_HIUCC100_v5, fragment.HLT_HIUCC020_v5, fragment.HLT_HIQ2Bottom005_Centrality1030_v4, fragment.HLT_HIQ2Top005_Centrality1030_v4, fragment.HLT_HIQ2Bottom005_Centrality3050_v4, fragment.HLT_HIQ2Top005_Centrality3050_v4, fragment.HLT_HIQ2Bottom005_Centrality5070_v4, fragment.HLT_HIQ2Top005_Centrality5070_v4, fragment.HLT_HIFullTrack12_L1MinimumBiasHF1_AND_v4, fragment.HLT_HIFullTrack12_L1Centrality010_v5, fragment.HLT_HIFullTrack12_L1Centrality30100_v4, fragment.HLT_HIFullTrack18_L1MinimumBiasHF1_AND_v4, fragment.HLT_HIFullTrack18_L1Centrality010_v5, fragment.HLT_HIFullTrack18_L1Centrality30100_v4, fragment.HLT_HIFullTrack24_v4, fragment.HLT_HIFullTrack24_L1Centrality30100_v4, fragment.HLT_HIFullTrack34_v4, fragment.HLT_HIFullTrack34_L1Centrality30100_v4, fragment.HLT_HIFullTrack45_v4, fragment.HLT_HIFullTrack45_L1Centrality30100_v4, fragment.HLT_HIL1DoubleMu0_v2, fragment.HLT_HIL1DoubleMu0_2HF_v3, fragment.HLT_HIL1DoubleMu0_2HF0_v2, fragment.HLT_HIL1DoubleMu10_v2, fragment.HLT_HIL2DoubleMu0_NHitQ_v4, fragment.HLT_HIL2DoubleMu0_NHitQ_2HF_v4, fragment.HLT_HIL2DoubleMu0_NHitQ_2HF0_v3, fragment.HLT_HIL2Mu3_NHitQ10_2HF_v4, fragment.HLT_HIL2Mu3_NHitQ10_2HF0_v3, fragment.HLT_HIL3Mu3_NHitQ15_2HF_v4, fragment.HLT_HIL3Mu3_NHitQ15_2HF0_v3, fragment.HLT_HIL2Mu5_NHitQ10_2HF_v4, fragment.HLT_HIL2Mu5_NHitQ10_2HF0_v3, fragment.HLT_HIL3Mu5_NHitQ15_2HF_v4, fragment.HLT_HIL3Mu5_NHitQ15_2HF0_v3, fragment.HLT_HIL2Mu7_NHitQ10_2HF_v4, fragment.HLT_HIL2Mu7_NHitQ10_2HF0_v3, fragment.HLT_HIL3Mu7_NHitQ15_2HF_v4, fragment.HLT_HIL3Mu7_NHitQ15_2HF0_v3, fragment.HLT_HIL2Mu15_v4, fragment.HLT_HIL2Mu15_2HF_v4, fragment.HLT_HIL2Mu15_2HF0_v3, fragment.HLT_HIL3Mu15_v3, fragment.HLT_HIL3Mu15_2HF_v4, fragment.HLT_HIL3Mu15_2HF0_v3, fragment.HLT_HIL2Mu20_v3, fragment.HLT_HIL2Mu20_2HF_v4, fragment.HLT_HIL2Mu20_2HF0_v3, fragment.HLT_HIL3Mu20_v3, fragment.HLT_HIL3Mu20_2HF_v4, fragment.HLT_HIL3Mu20_2HF0_v3, fragment.HLT_HIL1DoubleMu0_2HF_Cent30100_v3, fragment.HLT_HIL1DoubleMu0_2HF0_Cent30100_v2, fragment.HLT_HIL2DoubleMu0_2HF_Cent30100_NHitQ_v4, fragment.HLT_HIL1DoubleMu0_Cent30_v3, fragment.HLT_HIL2DoubleMu0_2HF0_Cent30100_NHitQ_v3, fragment.HLT_HIL2DoubleMu0_Cent30_OS_NHitQ_v4, fragment.HLT_HIL2DoubleMu0_Cent30_NHitQ_v4, fragment.HLT_HIL3DoubleMu0_Cent30_v4, fragment.HLT_HIL3DoubleMu0_Cent30_OS_m2p5to4p5_v4, fragment.HLT_HIL3DoubleMu0_Cent30_OS_m7to14_v4, fragment.HLT_HIL3DoubleMu0_OS_m2p5to4p5_v3, fragment.HLT_HIL3DoubleMu0_OS_m7to14_v3, fragment.HLT_HIUPCL1SingleMuOpenNotHF2_v3, fragment.HLT_HIUPCSingleMuNotHF2Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1DoubleMuOpenNotHF2_v3, fragment.HLT_HIUPCDoubleMuNotHF2Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1SingleEG2NotHF2_v3, fragment.HLT_HIUPCSingleEG2NotHF2Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1DoubleEG2NotHF2_v3, fragment.HLT_HIUPCDoubleEG2NotHF2Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1SingleEG5NotHF2_v3, fragment.HLT_HIUPCSingleEG5NotHF2Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1DoubleMuOpenNotHF1_v3, fragment.HLT_HIUPCDoubleMuNotHF1Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1DoubleEG2NotZDCAND_v2, fragment.HLT_HIUPCL1DoubleEG2NotZDCANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1DoubleMuOpenNotZDCAND_v2, fragment.HLT_HIUPCL1DoubleMuOpenNotZDCANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1EG2NotZDCAND_v2, fragment.HLT_HIUPCEG2NotZDCANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1MuOpenNotZDCAND_v2, fragment.HLT_HIUPCL1MuOpenNotZDCANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1NotHFplusANDminusTH0BptxAND_v2, fragment.HLT_HIUPCL1NotHFplusANDminusTH0BptxANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0_v3, fragment.HLT_HIUPCL1NotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3, fragment.HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0_v3, fragment.HLT_HIUPCL1DoubleMuOpenNotHFMinimumbiasHFplusANDminustTH0Pixel_SingleTrack_v3, fragment.HLT_HIL1CastorMediumJet_v2, fragment.HLT_HIL1CastorMediumJetAK4CaloJet20_v4, fragment.HLT_HICastorMediumJetPixel_SingleTrack_v2, fragment.HLT_HIUPCL1NotMinimumBiasHF2_AND_v3, fragment.HLT_HIUPCL1NotMinimumBiasHF2_ANDPixel_SingleTrack_v3, fragment.HLT_HIUPCL1ZdcOR_BptxAND_v2, fragment.HLT_HIUPCL1ZdcOR_BptxANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1ZdcXOR_BptxAND_v2, fragment.HLT_HIUPCL1ZdcXOR_BptxANDPixel_SingleTrack_v2, fragment.HLT_HIUPCL1NotZdcOR_BptxAND_v2, fragment.HLT_HIUPCL1NotZdcOR_BptxANDPixel_SingleTrack_v2, fragment.HLT_HIZeroBias_v3, fragment.HLT_HICentralityVeto_v2, fragment.HLT_HIL1Tech5_BPTX_PlusOnly_v2, fragment.HLT_HIL1Tech6_BPTX_MinusOnly_v2, fragment.HLT_HIL1Tech7_NoBPTX_v3, fragment.HLT_HIL1MinimumBiasHF1OR_v2, fragment.HLT_HIL1MinimumBiasHF2OR_v2, fragment.HLT_HIL1MinimumBiasHF1AND_v2, fragment.HLT_HIL1MinimumBiasHF2AND_v2, fragment.HLT_HIL1MinimumBiasHF1ANDPixel_SingleTrack_v2, fragment.HLT_HIZeroBiasPixel_SingleTrack_v3, fragment.HLT_HIL1Centralityext70100MinimumumBiasHF1AND_v3, fragment.HLT_HIL1Centralityext70100MinimumumBiasHF1ANDPixel_SingleTrack_v3, fragment.HLT_HIL1Centralityext50100MinimumumBiasHF1AND_v3, fragment.HLT_HIL1Centralityext50100MinimumumBiasHF1ANDPixel_SingleTrack_v3, fragment.HLT_HIL1Centralityext30100MinimumumBiasHF1AND_v3, fragment.HLT_HIL1Centralityext30100MinimumumBiasHF1ANDPixel_SingleTrack_v3, fragment.HLT_HIPhysics_v2, fragment.HLT_HIRandom_v2, fragment.HLT_EcalCalibration_v3, fragment.HLT_HcalCalibration_v4, fragment.AlCa_EcalPhiSymForHI_v5, fragment.AlCa_RPCMuonNoTriggersForHI_v2, fragment.AlCa_RPCMuonNoHitsForHI_v2, fragment.AlCa_RPCMuonNormalisationForHI_v2, fragment.AlCa_LumiPixels_Random_v2, fragment.AlCa_LumiPixels_ZeroBias_v5, fragment.HLTriggerFinalPath, fragment.HLTAnalyzerEndpath ))
 
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in locals():
-    hltHfreco.setNoiseFlags = cms.bool( False )
 
-# CMSSW version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in fragment.__dict__ and 'HLTriggerFirstPath' in fragment.__dict__ :
+    fragment.hltDummyConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+    fragment.HLTriggerFirstPath.replace(fragment.hltGetConditions,fragment.hltDummyConditions)
 
-# customization for 6_2_X
+# add specific customizations
+from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
+fragment = customizeHLTforAll(fragment,"HIon")
 
-# none for now
+from HLTrigger.Configuration.customizeHLTforCMSSW import customizeHLTforCMSSW
+fragment = customizeHLTforCMSSW(fragment,"HIon")
 
+# Eras-based customisations
+from HLTrigger.Configuration.Eras import modifyHLTforEras
+modifyHLTforEras(fragment)
 

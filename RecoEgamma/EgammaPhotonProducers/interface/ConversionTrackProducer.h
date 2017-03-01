@@ -80,6 +80,6 @@ namespace reco {
     IdealHelixParameters ConvTrackPreSelector;
     //--------------------------------------------------
 
-    std::auto_ptr<reco::ConversionTrackCollection> outputTrks;
+    std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
   };
 #endif

@@ -7,7 +7,7 @@
 */  
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,7 +17,7 @@
 
 namespace reco
 {
-  class ParticleFlowForChargedMETProducer : public edm::EDProducer {
+  class ParticleFlowForChargedMETProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit ParticleFlowForChargedMETProducer(const edm::ParameterSet&);

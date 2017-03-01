@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -58,9 +58,10 @@
 #include "boost/multi_array.hpp"
 
 #include <iostream>
+#include <memory>
 using namespace std;
 
-class TrackClusterSplitter : public edm::EDProducer 
+class TrackClusterSplitter : public edm::stream::EDProducer<>
 {
 
 public:
@@ -150,7 +151,8 @@ private:
 
   // sim strip split
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
-  TrackerHitAssociator* hitAssociator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  std::unique_ptr<TrackerHitAssociator> hitAssociator;
   
   template<typename C> 
   static const C* getCluster(const TrackingRecHit* hit) ;
@@ -189,7 +191,7 @@ private:
 		    const TrajectoryStateOnSurface& tsos) const ;
   
   template<typename Cluster>
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+  std::unique_ptr<edmNew::DetSetVector<Cluster> > 
   splitClusters(const std::map<uint32_t, 
 		boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 		const reco::Vertex &vtx) const ;
@@ -232,7 +234,8 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 #define foreach BOOST_FOREACH
 
 TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
-  useTrajectories_(iConfig.getParameter<bool>("useTrajectories"))
+  useTrajectories_(iConfig.getParameter<bool>("useTrajectories")),
+  trackerHitAssociatorConfig_(consumesCollector())
 {
   if (useTrajectories_) {
     trajTrackAssociations_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssociations"));
@@ -349,7 +352,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(stripClusters_, inputStripClusters);
   
   if(simSplitStrip_)
-    hitAssociator = new TrackerHitAssociator(iEvent);
+    hitAssociator.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
@@ -431,7 +434,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                 }  
 
-	      const TrackingRecHit *hit = it_hit->get();
+	      const TrackingRecHit *hit = *it_hit;
 	      if ( hit == 0 || !hit->isValid() )
 		continue;
 	      
@@ -466,7 +469,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  trackingRecHit_iterator it_hit = track.recHitsBegin(), ed_hit = track.recHitsEnd();
 	  for (; it_hit != ed_hit; ++it_hit) 
 	    {
-	      const TrackingRecHit *hit = it_hit->get();
+	      const TrackingRecHit *hit = *it_hit;
 	      if ( hit == 0 || !hit->isValid() ) 
 		continue;
 	      
@@ -513,14 +516,11 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(stripdigisimlinkToken, stripdigisimlink);
 
   // gavril : to do: choose the best vertex here instead of just choosing the first one ? 
-  std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
-  std::auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
   
-  if ( simSplitStrip_ )
-    delete hitAssociator;
-
-  iEvent.put(newPixelClusters);
-  iEvent.put(newStripClusters);
+  iEvent.put(std::move(newPixelClusters));
+  iEvent.put(std::move(newStripClusters));
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
   allSiStripClusters.clear(); siStripDetsWithClusters.clear();
@@ -550,11 +550,11 @@ void TrackClusterSplitter::markClusters( std::map<uint32_t, boost::sub_range<std
 }
 
 template<typename Cluster>
-std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+std::unique_ptr<edmNew::DetSetVector<Cluster> > 
 TrackClusterSplitter::splitClusters(const std::map<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 				    const reco::Vertex &vtx) const 
 {
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > output(new edmNew::DetSetVector<Cluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<Cluster>>();
   typedef std::pair<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > pair;
   
   foreach(const pair &p, input) 
@@ -613,7 +613,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 
       size_t splittableClusterSize = 0;
       splittableClusterSize = associatedIdpr.size();
-      std::vector<uint8_t> amp = clust->amplitudes();
+      auto const & amp = clust->amplitudes();
       int clusiz = amp.size();
       associatedIdpr.clear();
 
@@ -677,7 +677,6 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			    }
 			  
 			  currentChannel = linkiter->channel();
-			  currentAmpl = rawAmpl;
 			}
 		      
 		      // Now deal with this new DigiSimLink

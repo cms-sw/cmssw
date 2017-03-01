@@ -5,5 +5,5 @@
  <lib name="Eve"/>
 </bin>
 <bin name="cmsShowSendReport" file="cmsShowSendReport.cc">
- <lib name="z"/>
+ <use name="zlib"/>
 </bin>

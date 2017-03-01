@@ -1,29 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
-# This is the generic cfi file for CSC unpacking
+# Import from the generic cfi file for CSC unpacking
+import EventFilter.CSCRawToDigi.muonCSCDCCUnpacker_cfi
 
-muonCSCDigis = cms.EDProducer("CSCDCCUnpacker",
-    # Define input to the unpacker
-    InputObjects = cms.InputTag("rawDataCollector"),
-    # Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes
-    UseExaminer = cms.bool(True),
-    # This mask is needed by the examiner 
-    ExaminerMask = cms.uint32(0x1FEBF3F6),
-    # Use Examiner to unpack good chambers and skip only bad ones
-    UseSelectiveUnpacking = cms.bool(True),
-    # This mask simply reduces error reporting
-    ErrorMask = cms.uint32(0x0),
-    # Unpack general status digis?
-    UnpackStatusDigis = cms.bool(False),
-    # Unpack FormatStatus digi?
-    UseFormatStatus = cms.bool(True),                        
-    # Turn on lots of output                            
-    Debug = cms.untracked.bool(False),
-    PrintEventNumber = cms.untracked.bool(False),
-    # Visualization of raw data in corrupted events
-    VisualFEDInspect = cms.untracked.bool(False),
-    VisualFEDShort = cms.untracked.bool(False),
-    FormatedEventDump = cms.untracked.bool(False)
-)
-
-
+muonCSCDigis = EventFilter.CSCRawToDigi.muonCSCDCCUnpacker_cfi.muonCSCDCCUnpacker.clone()
+# Define input to the unpacker
+muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
+# Use CSC examiner to check for corrupt or semi-corrupt data & avoid unpacker crashes
+muonCSCDigis.UseExaminer = cms.bool(True)
+# This mask is needed by the examiner 
+muonCSCDigis.ExaminerMask = cms.uint32(0x1FEBF3F6)
+# Use Examiner to unpack good chambers and skip only bad ones
+muonCSCDigis.UseSelectiveUnpacking = cms.bool(True)
+# This mask simply reduces error reporting
+muonCSCDigis.ErrorMask = cms.uint32(0x0)
+# Unpack general status digis?
+muonCSCDigis.UnpackStatusDigis = cms.bool(False)
+# Unpack FormatStatus digi?
+muonCSCDigis.UseFormatStatus = cms.bool(True)
+# Turn on lots of output
+muonCSCDigis.Debug = cms.untracked.bool(False)
+muonCSCDigis.PrintEventNumber = cms.untracked.bool(False)
+# Visualization of raw data in corrupted events
+muonCSCDigis.VisualFEDInspect = cms.untracked.bool(False)
+muonCSCDigis.VisualFEDShort = cms.untracked.bool(False)
+muonCSCDigis.FormatedEventDump = cms.untracked.bool(False)

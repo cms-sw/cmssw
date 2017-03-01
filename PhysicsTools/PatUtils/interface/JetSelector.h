@@ -57,8 +57,8 @@ namespace pat {
 
     JetSelection config_;
 
-    std::auto_ptr<CaloJetSelector> CaloJetSelector_;///Selects CaloJets
-    //std::auto_ptr<CaloJetSelector> PFSelector_;///Selects PFJets
+    std::unique_ptr<CaloJetSelector> CaloJetSelector_;///Selects CaloJets
+    //std::unique_ptr<CaloJetSelector> PFSelector_;///Selects PFJets
 
   }; // class
 

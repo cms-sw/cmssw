@@ -5,8 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 
-#include "boost/bind.hpp"
-
 #include <iomanip>
 #include <ostream>
 
@@ -53,11 +51,11 @@ namespace edm {
       else {
         allowedLabels = pset.getUntrackedParameter<std::vector<std::string> >(parameterHoldingLabels_.label());
       }
-      for_all(allowedLabels, boost::bind(&AllowedLabelsDescriptionBase::validateAllowedLabel_,
-                                         boost::cref(this),
-                                         _1,
-                                         boost::ref(pset),
-                                         boost::ref(validatedLabels)));
+      for_all(allowedLabels, std::bind(&AllowedLabelsDescriptionBase::validateAllowedLabel_,
+                                         this,
+                                         std::placeholders::_1,
+                                         std::ref(pset),
+                                         std::ref(validatedLabels)));
     }
   }
 
@@ -75,7 +73,7 @@ namespace edm {
   print_(std::ostream & os,
          bool optional,
 	 bool writeToCfi,
-         DocFormatHelper & dfh)
+         DocFormatHelper & dfh) const
   {
     if (dfh.pass() == 1) {
 
@@ -118,7 +116,7 @@ namespace edm {
 
   bool
   AllowedLabelsDescriptionBase::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     return true;
   }
 
@@ -127,7 +125,7 @@ namespace edm {
   AllowedLabelsDescriptionBase::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
     printNestedContentBase_(os, optional, dfh);
     if (!dfh.brief()) os << "\n";
   }
@@ -136,7 +134,7 @@ namespace edm {
   AllowedLabelsDescriptionBase::
   printNestedContentBase_(std::ostream & os,
                           bool optional,
-                          DocFormatHelper & dfh) {
+                          DocFormatHelper & dfh) const {
 
     int indentation = dfh.indentation();
     if (dfh.parent() != DocFormatHelper::TOP) {

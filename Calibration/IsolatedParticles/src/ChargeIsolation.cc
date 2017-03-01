@@ -1,3 +1,4 @@
+#include "Calibration/IsolatedParticles/interface/CaloConstants.h"
 #include "Calibration/IsolatedParticles/interface/ChargeIsolation.h"
 #include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
@@ -64,14 +65,16 @@ namespace spr{
 	const GlobalPoint point2(info.first.x(),info.first.y(),info.first.z());
 
 	if (info.second) {
-	  if (std::abs(point2.eta())<1.479) {
+	  if (std::abs(point2.eta())<spr::etaBEEcal) {
 	    const DetId anyCell = barrelGeom->getClosestCell(point2);
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
+	      if (debug) std::cout << "chargeIsolationEcal Cell " << (EBDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  } else {
 	    const DetId anyCell = endcapGeom->getClosestCell(point2);
 	    if (!spr::chargeIsolation(anyCell,vdets)) {
+	      if (debug) std::cout << "chargeIsolationEcal Cell " << (EEDetId)(anyCell) << " pt " << pTrack2->p() << std::endl;
 	      if (maxNearP<pTrack2->p()) maxNearP=pTrack2->p();
 	    }
 	  }
@@ -100,6 +103,7 @@ namespace spr{
 	  const DetId anyCell = vdetIds[indx].detIdHCAL;
 	  if (!spr::chargeIsolation(anyCell,vdets)) {
 	    const reco::Track* pTrack = &(*(vdetIds[indx].trkItr));
+	    if (debug) std::cout << "chargeIsolationHcal Cell " << (HcalDetId)(anyCell) << " pt " << pTrack->p() << std::endl;
 	    if (maxNearP < pTrack->p()) maxNearP = pTrack->p();
 	  }
 	}
@@ -234,6 +238,7 @@ namespace spr{
     double maxNearP = -1.0;
     nNearTRKs = 0;
     if (trkDirs[trkIndex].okHCAL) {
+      if (debug) std::cout << "chargeIsolationCone with " << trkDirs.size() << " tracks " << std::endl;
       for (unsigned int indx=0; indx<trkDirs.size(); ++indx) {
 	if (indx != trkIndex && trkDirs[indx].ok && trkDirs[indx].okHCAL) {
 	  int isConeChargedIso = spr::coneChargeIsolation(trkDirs[trkIndex].pointHCAL, trkDirs[indx].pointHCAL, trkDirs[trkIndex].directionHCAL, dR);
@@ -245,6 +250,7 @@ namespace spr{
 	}
       }
     }
+    if (debug) std::cout << "chargeIsolationCone Track " << trkDirs[trkIndex].okHCAL << " maxNearP " << maxNearP << std::endl;
     return maxNearP;
   }
 

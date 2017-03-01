@@ -1,10 +1,10 @@
 #include "EffSourceHandler.h"
-#include "CondFormats/Calibration/interface/EfficiencyPayloads.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //#include<iostream>
+#include<memory>
 #include<sstream>
 #include<vector>
 #include<string>
@@ -12,6 +12,19 @@
 #include <typeinfo>
 
 #include "CondCore/CondDB/interface/Serialization.h"
+
+namespace cond {
+  template <> std::shared_ptr<condex::Efficiency> deserialize<condex::Efficiency>( const std::string& payloadType,
+                                                                                     const Binary& payloadData,
+                                                                                     const Binary& streamerInfoData ){
+    // DESERIALIZE_BASE_CASE( condex::Efficiency );  abstract
+    DESERIALIZE_POLIMORPHIC_CASE( condex::Efficiency, condex::ParametricEfficiencyInPt );
+    DESERIALIZE_POLIMORPHIC_CASE( condex::Efficiency, condex::ParametricEfficiencyInEta );
+
+    // here we come if none of the deserializations above match the payload type:
+    throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"", "deserialize<>" );
+  }
+}
 
 popcon::ExEffSource::ExEffSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExEffSource")),
@@ -60,16 +73,16 @@ void popcon::ExEffSource::getNewObjects() {
     edm::LogInfo   ("ExEffsSource")<<" unable to build "<< m_type << std::endl; 
     return;
   }
+   
+  if( (unsigned long long)m_since > tagInfo().lastInterval.first ) {
+    m_to_transfer.push_back(std::make_pair(p0,(unsigned long long)m_since));
   
-  m_to_transfer.push_back(std::make_pair(p0,(unsigned long long)m_since));
+    std::ostringstream ss;
+    ss << "type=" << m_type 
+       << ",since=" << m_since; 
   
-  
-  std::ostringstream ss;
-  ss << "type=" << m_type 
-         << ",since=" << m_since; 
-  
-  m_userTextLog = ss.str()+ ";" ;
-  
+    m_userTextLog = ss.str()+ ";" ;
+  }
   
   
   edm::LogInfo   ("ExEffsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;

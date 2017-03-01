@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //DataFormats
 #include <DataFormats/TrackReco/interface/Track.h>
@@ -20,8 +21,7 @@ using namespace std;
 using namespace edm; 
 // constructor ----------------------------------------------------------------
 
-AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg) :
-  theMissingETSource("met")
+AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC)
 {
  LogDebug("Alignment")   << "> applying two body decay Trackfilter ...";
   theMassrangeSwitch = cfg.getParameter<bool>( "applyMassrangeFilter" );
@@ -53,7 +53,8 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   }
   theMissingETSwitch = cfg.getParameter<bool>( "applyMissingETFilter" );
   if(theMissingETSwitch){
-    theMissingETSource = cfg.getParameter<InputTag>( "missingETSource" );
+    edm::InputTag theMissingETSource = cfg.getParameter<InputTag>( "missingETSource" );
+    theMissingETToken = iC.consumes<reco::CaloMETCollection>(theMissingETSource);
     LogDebug("Alignment") << ">  missing Et Source: "<< theMissingETSource;
   }
   theAcoplanarityFilterSwitch = cfg.getParameter<bool>( "applyAcoplanarityFilter" );
@@ -198,7 +199,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   TLorentzVector mother;
 
   Handle<reco::CaloMETCollection> missingET;
-  iEvent.getByLabel(theMissingETSource ,missingET);
+  iEvent.getByToken(theMissingETToken ,missingET);
   if (!missingET.isValid()) {
     LogError("Alignment")<< "@SUB=AlignmentTwoBodyDecayTrackSelector::checkMETMass"
 			 << ">  could not optain missingET Collection!";

@@ -10,23 +10,18 @@
 #include <vector>
 
 
-
-
 class RPCOccupancyTest:public RPCClient {
 public:
 
   RPCOccupancyTest(const edm::ParameterSet& ps);
   virtual ~RPCOccupancyTest();
 
-  void beginJob(DQMStore *, std::string);
-  void endRun(const edm::Run& , const edm::EventSetup& ); 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
-  void endJob();
-  void clientOperation(edm::EventSetup const& c);
-  void getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId>& );
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker & );
+
+
  protected:
   // void OccupancyDist();
   void fillGlobalME(RPCDetId & , MonitorElement *);
@@ -34,28 +29,29 @@ public:
 private:
   
   std::string globalFolder_, prefixDir_;
-  bool testMode_;
+  bool useNormalization_;
   bool  useRollInfo_;
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
   int prescaleFactor_;
- 
-  DQMStore* dbe_;
+
+  float totalActive_, totalStrips_;
+   
   int numberOfDisks_, numberOfRings_;
  
   float rpcevents_;
 
+  MonitorElement * Active_Fraction; // Fraction of channels with data
+  MonitorElement * Active_Dead;
+
   MonitorElement * AsyMeWheel[5];      //Left Right Asymetry 
   MonitorElement * NormOccupWheel[5];
- 
-  MonitorElement * AsyMeDWheel[5];      //Left Right Asymetry 
   MonitorElement * NormOccupDWheel[5];
 
   MonitorElement * AsyMeDisk[10];      //Left Right Asymetry 
   MonitorElement * NormOccupDisk[10];
- 
-  MonitorElement * AsyMeDDisk[10];      //Left Right Asymetry 
   MonitorElement * NormOccupDDisk[10];
+  
   MonitorElement * Barrel_OccBySt;
   MonitorElement * EndCap_OccByRng;
   MonitorElement * EndCap_OccByDisk ;

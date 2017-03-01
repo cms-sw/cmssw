@@ -76,7 +76,7 @@ def loadTimeLog(log_filename, maxsize_rad = 0): #TODO: remove maxsize to read, u
 	record_number=0
 	last_record=0
 	last_event=0
-	for line in logfile.xreadlines():
+	for line in logfile:
 		if 'TimeModule>' in line.strip():
 			line = line.strip()
 			line_content_list = line.split(' ')[0:]

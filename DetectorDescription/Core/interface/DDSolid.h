@@ -1,22 +1,24 @@
 #ifndef DDSolid_h
 #define DDSolid_h
 
+#include <stddef.h>
 #include <iosfwd>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-
-namespace DDI { class Solid; }
-namespace DDI { class Reflection; }
-namespace DDI { class BooleanSolid; }
 
 class DDSolid;
-struct DDSolidFactory;
 class DDStreamer;
+namespace DDI {
+class BooleanSolid;
+class Reflection;
+class Solid;
+}  // namespace DDI
+struct DDSolidFactory;
 
 std::ostream & operator<<( std::ostream &, const DDSolid & );
 
@@ -263,6 +265,22 @@ private:
   DDTubs( void );
 };
 
+class DDCutTubs : public DDSolid
+{
+public:
+  DDCutTubs( const DDSolid & s );
+  double zhalf( void ) const;
+  double rIn( void ) const;
+  double rOut( void ) const;
+  double startPhi( void ) const;
+  double deltaPhi( void ) const;
+  std::array<double, 3> lowNorm( void ) const;
+  std::array<double, 3> highNorm( void ) const;
+
+private:
+  DDCutTubs( void );
+};
+
 class DDCons : public DDSolid
 {
 public:
@@ -490,6 +508,14 @@ struct DDSolidFactory
 		       double rIn, double rOut,	      	      
 		       double startPhi, 
 		       double deltaPhi );
+
+  static DDSolid cuttubs( const DDName & name,
+			  double zhalf,
+			  double rIn, double rOut,	      	      
+			  double startPhi, 
+			  double deltaPhi,
+			  double lx, double ly, double lz,
+			  double tx, double ty, double tz);
 
   static DDSolid cons( const DDName & name,
 		       double zhalf,

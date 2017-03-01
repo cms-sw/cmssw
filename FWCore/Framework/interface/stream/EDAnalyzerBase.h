@@ -52,7 +52,6 @@ namespace edm {
       ModuleDescription const& moduleDescription() const {
         return *moduleDescriptionPtr_;
       }
-    protected:
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
@@ -70,6 +69,10 @@ namespace edm {
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
+      
+      virtual void preForkReleaseResources() {}
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;

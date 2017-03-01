@@ -1,99 +1,76 @@
+// Class Based on EvtGenInterface(LHC).
+//
+// Created March 2014
+//
+// This class is a modification of the original EvtGenInterface which was developed for EvtGenLHC 9.1.
+// The modifications for EvtGen 1.3.0 are implemented by Ian M. Nugent
+// I would like to thank the EvtGen developers, in particular John Black, and Mikhail Kirsanov for their assistance.
+//
+
+
 #ifndef gen_EvtGenInterface_h
 #define gen_EvtGenInterface_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "EvtGenBase/EvtParticle.hh"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "EvtGen/EvtGen.hh"     
-#include "EvtGenBase/EvtId.hh"
-#include "EvtGenBase/EvtPDL.hh"
-#include "EvtGenBase/EvtDecayTable.hh"
-#include "EvtGenBase/EvtSpinType.hh"
-#include "EvtGenBase/EvtVector4R.hh"
-#include "EvtGenBase/EvtParticle.hh"
-#include "EvtGenBase/EvtScalarParticle.hh"
-#include "EvtGenBase/EvtStringParticle.hh"
-#include "EvtGenBase/EvtDiracParticle.hh"
-#include "EvtGenBase/EvtVectorParticle.hh"
-#include "EvtGenBase/EvtRaritaSchwingerParticle.hh"
-#include "EvtGenBase/EvtTensorParticle.hh"
-#include "EvtGenBase/EvtHighSpinParticle.hh"
-#include "EvtGenBase/EvtStdHep.hh"
-#include "EvtGenBase/EvtSecondary.hh"
-#include "EvtGenModels/EvtPythia.hh"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
 
 class myEvtRandomEngine;
 
-
 namespace HepMC {
   class GenParticle;
   class GenEvent;
-}
+}				
+
+class EvtId; 
+class EvtGen;
 
 namespace gen {
-   class Pythia6Service;
-
    class EvtGenInterface : public EvtGenInterfaceBase {
      public:
-     
-      // ctor & dtor
-      EvtGenInterface( const edm::ParameterSet& );
-      ~EvtGenInterface();
+    // ctor & dtor
+    EvtGenInterface( const edm::ParameterSet& );
+    ~EvtGenInterface();
+    
+    virtual void init();
+    virtual const std::vector<int>& operatesOnParticles() { return m_PDGs; }      
+    virtual HepMC::GenEvent* decay( HepMC::GenEvent* );
+    virtual void setRandomEngine(CLHEP::HepRandomEngine* v);
+    static double flat();
+    
+  private:
+    bool addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent, bool del_daug); 
+    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p);
+    void SetDefault_m_PDGs();
+    bool findLastinChain(HepMC::GenParticle* &p);    
+    bool hasnoDaughter(HepMC::GenParticle* p);
+    void go_through_daughters(EvtParticle* part);
 
-      void init();
-      const std::vector<int>& operatesOnParticles() { return m_PDGs; }      
-      HepMC::GenEvent* decay( HepMC::GenEvent* );
-      void addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC::GenEvent* theEvent, bool del_daug);
-      void go_through_daughters(EvtParticle* part);
-      void update_candlist( int theIndex, HepMC::GenParticle *thePart );
-      void setRandomEngine(CLHEP::HepRandomEngine* v);
-      static double flat();
+    EvtGen *m_EvtGen;                // EvtGen main  object
 
-      // from Pythia
-      // void call_pygive(const std::string& iParm );
+    std::vector<EvtId> forced_id;     // EvtGen Id's of particles  which are to be forced by EvtGen
+    std::vector<int> forced_pdgids;    // PDG Id's of particles which are to be forced by EvtGen
+    
+    std::vector<int> ignore_pdgids;  // HepId's of particles  which are to be ignroed by EvtGen
+    
+    // Adding parameters for polarization of spin-1/2 particles
+    std::vector<int> polarize_ids;
+    std::vector<double> polarize_pol;
+    std::map<int, float> polarizations;
+    int BmixingOption = 1;        
+    edm::ParameterSet* fPSet;
 
-      private:
-      
-      Pythia6Service* m_Py6Service;
-            
-      EvtGen *m_EvtGen;
-      std::vector<EvtId> forced_Evt;     // EvtId's of particles with forced decay
-      std::vector<int> forced_Hep;       // HepId's of particles with forced decay
-      int nforced;                       // number of particles with forced decay
-      int ntotal, npartial, nevent;      // generic counters
-      
-      int nPythia;
-      bool usePythia;
-      // std::vector<std::string> pythia_params;  // Pythia stuff
-
-      // Adding parameters for polarization of spin-1/2 particles
-      std::vector<int> polarize_ids;
-      std::vector<double> polarize_pol;
-      std::map<int, float> polarizations;
-      
-      int nlist; 
-      HepMC::GenParticle *listp[10]; 
-      int index[10];                     // list of candidates to be forced
-
-      myEvtRandomEngine* the_engine;
-
-      bool useDefault;
-      std::string decay_table_s;
-      std::string pdt_s;
-      std::string user_decay_s;
-      std::vector<std::string> forced_names;
-
-      static CLHEP::HepRandomEngine* fRandomEngine;
-   };
+    static CLHEP::HepRandomEngine* fRandomEngine;
+    myEvtRandomEngine* the_engine;
+  };
 }
 #endif

@@ -14,28 +14,27 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
-
-#include <TMath.h>
+#include "PhysicsTools/PatUtils/interface/PATJetCorrExtractor.h"
+#include "PhysicsTools/PatUtils/interface/RawJetExtractorT.h"
 
 #include <string>
 
 template <typename T, typename Textractor>
-class ShiftedJetProducerT : public edm::EDProducer
+  class ShiftedJetProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> JetCollection;
 
@@ -58,22 +57,22 @@ class ShiftedJetProducerT : public edm::EDProducer
 	jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
 	if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
 	  << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-	std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_
-		  << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;
 	jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
 	jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
       } else {
-	std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_
-		  << " from DB/SQLlite file." << std::endl;
 	jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
       }
     }
 
     addResidualJES_ = cfg.getParameter<bool>("addResidualJES");
-    jetCorrLabelUpToL3_ = ( cfg.exists("jetCorrLabelUpToL3") ) ?
-      cfg.getParameter<std::string>("jetCorrLabelUpToL3") : "";
-    jetCorrLabelUpToL3Res_ = ( cfg.exists("jetCorrLabelUpToL3Res") ) ?
-      cfg.getParameter<std::string>("jetCorrLabelUpToL3Res") : "";
+    if ( cfg.exists("jetCorrLabelUpToL3") ) {
+      jetCorrLabelUpToL3_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3");
+      jetCorrTokenUpToL3_ = mayConsume<reco::JetCorrector>(jetCorrLabelUpToL3_);
+  }
+    if ( cfg.exists("jetCorrLabelUpToL3Res") && addResidualJES_ ) {
+      jetCorrLabelUpToL3Res_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3Res");
+      jetCorrTokenUpToL3Res_ = mayConsume<reco::JetCorrector>(jetCorrLabelUpToL3Res_);
+    }
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
 
@@ -102,8 +101,13 @@ class ShiftedJetProducerT : public edm::EDProducer
 
     edm::Handle<JetCollection> originalJets;
     evt.getByToken(srcToken_, originalJets);
-
-    std::auto_ptr<JetCollection> shiftedJets(new JetCollection);
+    edm::Handle<reco::JetCorrector> jetCorrUpToL3;
+    evt.getByToken(jetCorrTokenUpToL3_, jetCorrUpToL3);
+    edm::Handle<reco::JetCorrector> jetCorrUpToL3Res;
+    if ( evt.isRealData() && addResidualJES_ ) {
+      evt.getByToken(jetCorrTokenUpToL3Res_, jetCorrUpToL3Res);
+    }
+    auto shiftedJets = std::make_unique<JetCollection>();
 
     if ( jetCorrPayloadName_ != "" ) {
       edm::ESHandle<JetCorrectorParametersCollection> jetCorrParameterSet;
@@ -133,17 +137,21 @@ class ShiftedJetProducerT : public edm::EDProducer
 	std::cout << "shift = " << shift << std::endl;
       }
 
-      if ( addResidualJES_ ) {
-	const static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+      if ( evt.isRealData() && addResidualJES_ ) {
+    const static pat::RawJetExtractorT<T> rawJetExtractor{};
 	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
 	if ( rawJetP4.E() > 1.e-1 ) {
 	  reco::Candidate::LorentzVector corrJetP4upToL3 =
-	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+	    std::is_base_of<class PATJetCorrExtractor, Textractor>::value ?
+	      jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3_.label(), jetCorrEtaMax_, &rawJetP4) :
+	      jetCorrExtractor_(*originalJet, jetCorrUpToL3.product(), jetCorrEtaMax_, &rawJetP4);
 	  reco::Candidate::LorentzVector corrJetP4upToL3Res =
-	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+	    std::is_base_of<class PATJetCorrExtractor, Textractor>::value ?
+	      jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_.label(), jetCorrEtaMax_, &rawJetP4) :
+	      jetCorrExtractor_(*originalJet, jetCorrUpToL3Res.product(), jetCorrEtaMax_, &rawJetP4);
 	  if ( corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1 ) {
 	    double residualJES = (corrJetP4upToL3Res.E()/corrJetP4upToL3.E()) - 1.;
-	    shift = TMath::Sqrt(shift*shift + residualJES*residualJES);
+	    shift = sqrt(shift*shift + residualJES*residualJES);
 	  }
 	}
       }
@@ -162,7 +170,7 @@ class ShiftedJetProducerT : public edm::EDProducer
       shiftedJets->push_back(shiftedJet);
     }
 
-    evt.put(shiftedJets);
+    evt.put(std::move(shiftedJets));
   }
 
   std::string moduleLabel_;
@@ -177,8 +185,10 @@ class ShiftedJetProducerT : public edm::EDProducer
   JetCorrectionUncertainty* jecUncertainty_;
 
   bool addResidualJES_;
-  std::string jetCorrLabelUpToL3_;    // L1+L2+L3 correction
-  std::string jetCorrLabelUpToL3Res_; // L1+L2+L3+Residual correction
+  edm::InputTag jetCorrLabelUpToL3_;    // L1+L2+L3 correction
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrTokenUpToL3_;    // L1+L2+L3 correction
+  edm::InputTag jetCorrLabelUpToL3Res_; // L1+L2+L3+Residual correction
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrTokenUpToL3Res_; // L1+L2+L3+Residual correction
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
                          // reported in

@@ -57,7 +57,8 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
 
         bool killDeadChannels_;
         bool laserCorrection_;
-        
+        bool skipTimeCalib_;
+
         EcalRecHitSimpleAlgo * rechitMaker_;
 
 };

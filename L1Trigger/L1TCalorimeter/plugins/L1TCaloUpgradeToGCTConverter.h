@@ -12,13 +12,13 @@
 
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,59 +36,36 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
 #include <vector>
 
-using namespace std;
-using namespace edm;
 
-namespace l1t {
 
 //
 // class declaration
 //
 
-  class L1TCaloUpgradeToGCTConverter : public EDProducer {
-  public:
-    explicit L1TCaloUpgradeToGCTConverter(const ParameterSet&);
-    ~L1TCaloUpgradeToGCTConverter();
+class L1TCaloUpgradeToGCTConverter : public edm::global::EDProducer<> {
+public:
+  explicit L1TCaloUpgradeToGCTConverter(const edm::ParameterSet&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+private:
+  virtual void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-  private:
-    virtual void produce(Event&, EventSetup const&) override;
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
+  const edm::EDGetToken EGammaToken_;
+  const edm::EDGetToken RlxTauToken_;
+  const edm::EDGetToken IsoTauToken_;
+  const edm::EDGetToken JetToken_;
+  const edm::EDGetToken EtSumToken_;
+  const edm::EDGetToken HfSumsToken_;
+  const edm::EDGetToken HfCountsToken_;
 
-    /*   L1GctEmCandCollection ConvertToIsoEmCand(L1TEGammaCollection::const_iterator); */
-
-
-    /* L1GctEmCandCollection ConvertToNonIsoEmCand(const L1TEGammaCollection&); */
-    /* L1GctJetCandCollection ConvertToCenJetCand(const L1TJetCollection&); */
-    /* L1GctJetCandCollection ConvertToForJetCand(const L1TJetCollection&); */
-    /* L1GctJetCandCollection ConvertToTauJetCand(const L1TTauCollection&); */
-
-    /* L1GctEtTotalCollection ConvertToEtTotal(const L1TEtSumCollection&); */
-    /* L1GctEtHadCollection ConvertToEtHad(const L1TEtSumCollection&); */
-    /* L1GctEtMissCollection ConvertToEtMiss(const L1TEtSumCollection&); */
-    /* L1GctHtMissCollection ConvertToHtMiss(const L1TEtSumCollection&); */
-    /* L1GctHFBitCountsCollection ConvertToHFBitCounts(const L1TEtSumCollection&); */
-    /* L1GctHFRingEtSumsCollection ConvertToHFRingEtSums(const L1TEtSumCollection&); */
-
-    /* L1GctInternJetDataCollection ConvertToIntJet(const L1TJetCollection&); */
-    /* L1GctInternEtSumCollection ConvertToIntEtSum(const L1TEtSumCollection&); */
-    /* L1GctInternHtMissCollection ConvertToIntHtMiss(const L1TEtSumCollection&); */
-
-    EDGetToken EGammaToken_;
-    EDGetToken TauToken_;
-    EDGetToken JetToken_;
-    EDGetToken EtSumToken_;
-
-
+  const int bxMin_;
+  const int bxMax_;
 };
-}
+
 #endif

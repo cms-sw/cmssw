@@ -34,12 +34,10 @@ class CaloTowersAnalyzer : public DQMEDAnalyzer {
    CaloTowersAnalyzer(edm::ParameterSet const& conf);
   ~CaloTowersAnalyzer();
   
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  virtual void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void beginJob() ;
   virtual void endJob() ;
-  virtual void beginRun() ;
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun() ;
 
  private:
   double dR(double eta1, double phi1, double eta2, double phi2);

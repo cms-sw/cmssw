@@ -2,9 +2,7 @@
 
 #include "CondTools/L1Trigger/interface/DataWriter.h"
 #include "CondTools/L1Trigger/interface/Exception.h"
-#include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Exception.h"
 
 #include "CondCore/CondDB/interface/Serialization.h"
 
@@ -41,6 +39,8 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   // transaction here will become read-only.
 //   cond::DbSession session = poolDb->session();
 //   cond::DbScopedTransaction tr(session);
+
+  cond::persistency::TransactionScope tr(poolDb->session().transaction());
 //   // if throw transaction will unroll
 //   tr.start(false);
 
@@ -51,6 +51,7 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
 
+  tr.close();
 //   tr.commit ();
 
   return payloadToken ;
@@ -70,15 +71,16 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 
   cond::persistency::Session session = poolDb->session();
   cond::persistency::TransactionScope tr(session.transaction());
-  tr.start( false );
+///  tr.start( false );
 
   // Write L1TriggerKeyList payload and save payload token before committing
-  boost::shared_ptr<L1TriggerKeyList> pointer(keyList);
+  std::shared_ptr<L1TriggerKeyList> pointer(keyList);
   std::string payloadToken = session.storePayload(*pointer );
 			
   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
   // confused.
-  tr.commit ();
+  //tr.commit ();
+  tr.close ();
   
   // Set L1TriggerKeyList IOV
   updateIOV( "L1TriggerKeyListRcd",

@@ -31,8 +31,6 @@ namespace reco {
     ~TransientTrack() noexcept {}
 
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-
     TransientTrack(TransientTrack const & rh) noexcept :
       Base(rh){}
     
@@ -50,19 +48,24 @@ namespace reco {
       return *this;
     }
 
-#endif
-  
     void swap(TransientTrack & rh) noexcept {
       Base::swap(rh);
     }
 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
-
+    TransientTrack( const CandidatePtr & ptr , const MagneticField* field);
     TransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-
+  
     TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    TransientTrack( const CandidatePtr & ptr , const MagneticField* field,  const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
+    TransientTrack( const Track & tk , const double time, const double dtime, const MagneticField* field); 
+    TransientTrack( const TrackRef & tk , const double time, const double dtime,  const MagneticField* field); 
+    TransientTrack( const CandidatePtr & ptr, const double time, const double dtime, const MagneticField* field);
+    TransientTrack( const TrackRef & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    TransientTrack( const Track & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    TransientTrack( const CandidatePtr & ptr, const double time, const double dtime, const MagneticField* field,  const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
 
     void setES(const edm::EventSetup& es) {sharedData().setES(es);}
@@ -111,6 +114,9 @@ namespace reco {
 
     const BasicTransientTrack* basicTransientTrack() const {return &(data());}
 
+    double timeExt() const { return data().timeExt(); }
+    double dtErrorExt() const { return data().dtErrorExt(); }
+
     const Track & track() const {return data().track();}
 
     TrackBaseRef trackBaseRef() const {return data().trackBaseRef();}
@@ -129,11 +135,11 @@ namespace reco {
     /// number of RecHits
     size_t recHitsSize() const { return track().recHitsSize(); }
     //  hit pattern
-    const HitPattern & hitPattern() const { return track().hitPattern(); }
+    const HitPattern &hitPattern() const { return track().hitPattern(); }
     /// number of hits found 
     unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(); }
     /// number of hits lost
-    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(); }
+    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(HitPattern::TRACK_HITS); }
     /// chi-squared of the fit
     double chi2() const { return track().chi2(); }
     /// number of degrees of freedom of the fit

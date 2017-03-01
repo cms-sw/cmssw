@@ -66,8 +66,15 @@ private:
   // ----------member data ---------------------------
 
   edm::InputTag TKtrackTags_; 
+  edm::EDGetTokenT<reco::TrackCollection> TKtrackTokens_;
   edm::InputTag MuonTags_; 
-  edm::InputTag TimeTags_; 
+  edm::EDGetTokenT<reco::MuonCollection> MuonTokens_;
+  edm::InputTag CombinedTimeTags_; 
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> CombinedTimeTokens_;
+  edm::InputTag DtTimeTags_; 
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> DtTimeTokens_;
+  edm::InputTag CscTimeTags_; 
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> CscTimeTokens_;
   edm::InputTag SIMtrackTags_; 
 
   std::string out, open;

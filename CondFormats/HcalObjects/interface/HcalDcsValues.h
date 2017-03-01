@@ -58,15 +58,15 @@ protected:
 
 private:
   DcsSet mHBValues;
-  mutable bool mHBsorted;
+  bool mHBsorted;
   DcsSet mHEValues;
-  mutable bool mHEsorted;
+  bool mHEsorted;
   DcsSet mHO0Values;
-  mutable bool mHO0sorted;
+  bool mHO0sorted;
   DcsSet mHO12Values;
-  mutable bool mHO12sorted;
+  bool mHO12sorted;
   DcsSet mHFValues;
-  mutable bool mHFsorted;
+  bool mHFsorted;
 
   COND_SERIALIZABLE;
 };

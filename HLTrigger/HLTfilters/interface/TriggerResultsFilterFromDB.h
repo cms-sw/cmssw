@@ -19,7 +19,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
@@ -35,7 +35,8 @@ namespace triggerExpression {
 // class declaration
 //
 
-class TriggerResultsFilterFromDB : public edm::EDFilter {
+class TriggerResultsFilterFromDB : public edm::stream::EDFilter<>
+{
 public:
   explicit TriggerResultsFilterFromDB(const edm::ParameterSet &);
   ~TriggerResultsFilterFromDB();

@@ -18,7 +18,7 @@ mix = cms.EDProducer("MixingModule",
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
 
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(71.3), # The Xsec is in mb
             Lumi = cms.double(0.034) # The LUmi is in E33 cm-2s-1

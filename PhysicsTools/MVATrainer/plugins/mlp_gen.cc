@@ -2917,10 +2917,10 @@ int MLP_PrCFun(char *filename)
 			{
 			fprintf(W,"      out%d[%d] = %e\n",il+1,in,
 					(double) NET.Weights[il][in][0]);
-			for(jn=1;jn<=NET.Nneur[il-1]; jn++)
+			for(jn=1;jn<=NET.Nneur[il-1]; jn++) 
 				fprintf(W,"      +(%e) * out%d[%d]\n",
 					(double) NET.Weights[il][in][jn],il,jn-1);
-				fprintf(W,"      ;\n");
+		   fprintf(W,"      ;\n"); 
 			}
 		fprintf(W,"\n");
 		for(in=0; in<NET.Nneur[il]; in++)

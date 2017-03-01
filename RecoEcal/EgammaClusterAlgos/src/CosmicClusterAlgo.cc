@@ -100,8 +100,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
       // looking for cluster seeds	  
 	  if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
 	  
-	  const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
-	  GlobalPoint position = thisCell->getPosition();
+	  const CaloCellGeometry & thisCell = *geometry_p->getGeometry(it->id());
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
@@ -109,7 +108,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	if (regional) {
 	  std::vector<EcalEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(position)) {
+	    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
 	      withinRegion =  true;
 	      break;
 	    }
@@ -117,8 +116,6 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	}
 
 	if (!regional || withinRegion) {
-	  //float ET = it->energy() * sin(position.theta()); JHaupt Out 4-27-08 Et not needed for Cosmic Events...
-	 // if (energy >= threshold) 
 	  seeds.push_back(*it); // JHaupt 4-27-2008 Et -> energy, most likely not needed as there is already a threshold requirement.
 	}
       }
@@ -230,7 +227,6 @@ void CosmicClusterAlgo::makeCluster(
    double energy = 0;
    double energySecond = 0.;//JHaupt 4-27-08 Added for the second crystal stream
    double energyMax = 0.;//JHaupt 4-27-08 Added for the max crystal stream
-   double chi2   = 0;
    DetId detFir;
    DetId detSec;
    //bool goodCluster = false; //JHaupt 4-27-08 Added so that some can be earased.. used another day Might not be needed as seeds are energy ordered... 
@@ -280,7 +276,6 @@ void CosmicClusterAlgo::makeCluster(
          // energy fraction = 1
          current_v25Sup.push_back( std::pair<DetId, float>( hit_p.id(), 1.) );
          energy += hit_p.energy(); //Keep the fully corrected energy 
-         chi2 += 0;
       }     
    }
    
@@ -290,7 +285,6 @@ void CosmicClusterAlgo::makeCluster(
    //don't write empty clusters
    if (energy == 0 && position == Point(0,0,0)) return;
 
-   chi2 /= energy;
    if (verbosity < pINFO)
    { 
       std::cout << "JH******** NEW CLUSTER ********" << std::endl;

@@ -25,7 +25,7 @@ tightMuonParams = cms.PSet(
         "abs(eta) < 2.4",
         "innerTrack.hitPattern.numberOfValidPixelHits > 0",
         "innerTrack.hitPattern.trackerLayersWithMeasurement > 5",
-        "(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.12", 
+        "(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.15", 
         "globalTrack.hitPattern.numberOfValidMuonHits > 0",
         "globalTrack.normalizedChi2 < 10",
         "numberOfMatches > 1"
@@ -40,7 +40,7 @@ looseMuonParams = cms.PSet(
     z0Cut = cms.untracked.double(100),
     recoCuts = cms.untracked.string(' && '.join([
         "isPFMuon && (isTrackerMuon || isGlobalMuon)",
-        "(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.20"
+        "(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.25"
         ])),
     hltCuts  = cms.untracked.string("abs(eta) < 2.4"),
 )
@@ -74,3 +74,9 @@ hltMuonOfflineAnalyzers = cms.Sequence(
     tightAnalyzer *
     looseAnalyzer
 )
+
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+for muAna in [globalAnalyzer.targetParams, trackerAnalyzer.targetParams, tightAnalyzer.targetParams, looseAnalyzer.targetParams]:
+    pA_2016.toModify(muAna, ptCut_Jpsi = cms.untracked.double( 5.0))
+for muAna in [globalAnalyzer.binParams, trackerAnalyzer.binParams, tightAnalyzer.binParams, looseAnalyzer.binParams]:
+    pA_2016.toModify(muAna, ptCoarse = cms.untracked.vdouble(0.,1.,2.,3.,4.,5.,7.,9.,12.,15.,20.,30.,40.))

@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
-from EventFilter.DTTFRawToDigi.dttfpacker_cfi import *
-from EventFilter.GctRawToDigi.gctDigiToRaw_cfi import *
-from EventFilter.L1GlobalTriggerRawToDigi.l1GtPack_cfi import *
-from EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmPack_cfi import *
+# This object is used to make changes for different running scenarios. In
+# this case for Run 2
+
 from EventFilter.SiPixelRawToDigi.SiPixelDigiToRaw_cfi import *
 from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
@@ -17,20 +15,30 @@ from EventFilter.DTRawToDigi.dtPacker_cfi import *
 from EventFilter.RPCRawToDigi.rpcPacker_cfi import *
 from EventFilter.CastorRawToDigi.CastorDigiToRaw_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
-#DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*l1GtEvmPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
-DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*l1GtEvmPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*castorRawData*rawDataCollector)
-csctfpacker.lctProducer = "simCscTriggerPrimitiveDigis:MPCSORTED"
-csctfpacker.trackProducer = 'simCsctfTrackDigis'
-dttfpacker.DTDigi_Source = 'simDtTriggerPrimitiveDigis'
-dttfpacker.DTTracks_Source = "simDttfDigis:DTTF"
-gctDigiToRaw.rctInputLabel = 'simRctDigis'
-gctDigiToRaw.gctInputLabel = 'simGctDigis'
-l1GtPack.DaqGtInputTag = 'simGtDigis'
-l1GtPack.MuGmtInputTag = 'simGmtDigis'
-l1GtEvmPack.EvmGtInputTag = 'simGtDigis'
+from L1Trigger.Configuration.L1TDigiToRaw_cff import *
+#DigiToRaw = cms.Sequence(L1TDigiToRaw*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
+DigiToRaw = cms.Sequence(L1TDigiToRaw*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*castorRawData*rawDataCollector)
 ecalPacker.Label = 'simEcalDigis'
 ecalPacker.InstanceEB = 'ebDigis'
 ecalPacker.InstanceEE = 'eeDigis'
 ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([castorRawData]))
+
+#until we have hcal raw data for phase 2....
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([hcalRawData]))
+
+# Remove siPixelRawData until we have phase1 pixel digis
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData])) # FIXME
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen() :
+    for _entry in [siPixelRawData,SiStripDigiToRaw,castorRawData]:
+        DigiToRaw.remove(_entry)

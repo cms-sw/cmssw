@@ -5,11 +5,11 @@ gemRecHits = cms.EDProducer("GEMRecHitProducer",
 
     ),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
-    gemDigiLabel = cms.InputTag("muonGEMDigis"),
-    maskSource = cms.string('File'),
-    maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
-    deadSource = cms.string('File'),
-    deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
+    gemDigiLabel = cms.InputTag("simMuonGEMDigis"),
+    #maskSource = cms.string('File'),
+    #maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
+    #deadSource = cms.string('File'),
+    #deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
 )
 
 

@@ -1,7 +1,12 @@
 #include "DetectorDescription/Core/src/Ellipsoid.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <iostream>
+
+#include <stdlib.h>
 #include <cmath>
+#include <iostream>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 void DDI::Ellipsoid::stream(std::ostream & os) const
 {

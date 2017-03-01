@@ -15,3 +15,4 @@
 <use   name="CondFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="Geometry/HcalTowerAlgo"/>

@@ -34,7 +34,8 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   theTopology(0)
   
 { 
-  tok_input_ = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+  tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
+  tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
 
   std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -67,7 +68,7 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
    myobject = new HcalLongRecoParams(*p.product());
 
    edm::ESHandle<HcalTopology> htopo;
-   es.get<IdealGeometryRecord>().get(htopo);
+   es.get<HcalRecNumberingRecord>().get(htopo);
    theTopology=new HcalTopology(*htopo);
    myobject->setTopo(theTopology);
 
@@ -84,8 +85,8 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   eventSetup.get<HcalDbRecord>().get(conditions);
   
   edm::ESHandle<HcalChannelQuality> p;
-  eventSetup.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality* myqual = new HcalChannelQuality(*p.product());
+  eventSetup.get<HcalChannelQualityRcd>().get("withTopo", p);
+  const HcalChannelQuality* myqual = p.product();
 
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
@@ -97,10 +98,16 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   
    if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
      edm::Handle<ZDCDigiCollection> digi;
-     e.getByToken(tok_input_,digi);
+     e.getByToken(tok_input_hcal,digi);
      
+     if(digi->size() == 0) {
+       e.getByToken(tok_input_castor,digi);
+       if(digi->size() == 0) 
+       	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
+     }
+        
      // create empty output
-     std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+     auto rec = std::make_unique<ZDCRecHitCollection>();
      rec->reserve(digi->size());
      // run the algorithm
      ZDCDigiCollection::const_iterator i;
@@ -143,8 +150,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	(rec->back()).setAux(auxflag);
      }
      // return result
-     e.put(rec);     
+     e.put(std::move(rec));     
    } // else if (det_==DetId::Calo...)
 
-   delete myqual;
 } // void HcalHitReconstructor::produce(...)

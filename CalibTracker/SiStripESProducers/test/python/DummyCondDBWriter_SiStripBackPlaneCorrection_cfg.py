@@ -45,8 +45,9 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.siStripBackPlaneCorrectionDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 
+from CalibTracker.SiStripESProducers.fake.SiStripBackPlaneCorrectionFakeESSource_cfi import siStripBackPlaneCorrectionFakeESSource
 #BackPlaneCorrection values for each module geometry: IB1, IB2, OB1, OB2, W1A, W1B, W2A, W2B, W3A, W3B, W4, W5, W6, W7
-#process.SiStripBackPlaneCorrectionGenerator.BackPlaneCorrection_PerModuleGeometry = cms.vdouble(0.034, 0.034, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-process.SiStripBackPlaneCorrectionGenerator.BackPlaneCorrection_PerModuleGeometry = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#siStripBackPlaneCorrectionFakeESSource.BackPlaneCorrection_PerModuleGeometry = cms.vdouble(0.034, 0.034, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+siStripBackPlaneCorrectionFakeESSource.BackPlaneCorrection_PerModuleGeometry = cms.vdouble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 process.p1 = cms.Path(process.siStripBackPlaneCorrectionDummyDBWriter)

@@ -14,8 +14,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
@@ -23,7 +21,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <cmath>
 
@@ -32,7 +30,7 @@ const int kFPIX = PixelSubdetector::PixelEndcap;
 
 // constructor ----------------------------------------------------------------
 
-AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
+AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC) :
   applyBasicCuts_( cfg.getParameter<bool>( "applyBasicCuts" ) ),
   applyNHighestPt_( cfg.getParameter<bool>( "applyNHighestPt" ) ),
   applyMultiplicityFilter_( cfg.getParameter<bool>( "applyMultiplicityFilter" ) ),
@@ -61,8 +59,6 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   theCharge_( cfg.getParameter<int>( "theCharge" ) ),
   minHitChargeStrip_( cfg.getParameter<double>( "minHitChargeStrip" ) ),
   minHitIsolation_( cfg.getParameter<double>( "minHitIsolation" ) ),
-  rphirecHitsTag_( cfg.getParameter<edm::InputTag>("rphirecHits") ),
-  matchedrecHitsTag_( cfg.getParameter<edm::InputTag>("matchedrecHits") ),
   countStereoHitAs2D_( cfg.getParameter<bool>( "countStereoHitAs2D" ) ),
   nHitMin2D_( cfg.getParameter<unsigned int>( "nHitMin2D" ) ),
   // Ugly to use the same getParameter n times, but this allows const cut variables...
@@ -92,6 +88,14 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
   applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
 {
+  if(applyIsolation_) {
+    rphirecHitsToken_ = iC.consumes<SiStripRecHit2DCollection>(cfg.getParameter<edm::InputTag>("rphirecHits"));
+    matchedrecHitsToken_ = iC.consumes<SiStripMatchedRecHit2DCollection>(cfg.getParameter<edm::InputTag>("matchedrecHits"));
+  }
+
+  if(applyPrescaledHitsFilter_) {
+    clusterValueMapToken_ = iC.consumes<AliClusterValueMap>(clusterValueMapTag_);
+  }
 
   //convert track quality from string to enum
   std::vector<std::string> trkQualityStrings(cfg.getParameter<std::vector<std::string> >("trackQualities"));
@@ -331,7 +335,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // checking hit requirements beyond simple number of valid hits
@@ -379,7 +383,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
-      const TrackingRecHit* therechit = (*iHit).get();
+      const TrackingRecHit* therechit = (*iHit);
       if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
       if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
@@ -585,7 +589,7 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D & siStripR
   double charge = 0.;
 
   SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D.cluster());
-  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
+  const auto &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
     charge += amplitudes[ia];
@@ -601,7 +605,7 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D & siStripR
   double charge = 0.;
 
   SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D.cluster());
-  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
+  const auto &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
     charge += amplitudes[ia];
@@ -621,8 +625,8 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
   // es.get<TrackerDigiGeometryRecord>().get(tracker);
-  evt.getByLabel( rphirecHitsTag_, rphirecHits );
-  evt.getByLabel( matchedrecHitsTag_, matchedrecHits ); 
+  evt.getByToken( rphirecHitsToken_, rphirecHits );
+  evt.getByToken( matchedrecHitsToken_, matchedrecHits );
 
   SiStripRecHit2DCollection::DataContainer::const_iterator istripSt; 
   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripStm; 
@@ -685,7 +689,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
 
   //take Cluster-Flag Assomap
   edm::Handle<AliClusterValueMap> fMap;
-  evt.getByLabel( clusterValueMapTag_, fMap);
+  evt.getByToken( clusterValueMapToken_, fMap);
   const AliClusterValueMap &flagMap=*fMap;
 
   //for each track loop on hits and count the number of taken hits
@@ -695,7 +699,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
     //    float pt=trackp->pt();
 
     for (trackingRecHit_iterator ith = trackp->recHitsBegin(), edh = trackp->recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit *hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+      const TrackingRecHit *hit = (*ith); // ith is an iterator on edm::Ref to rechit
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();

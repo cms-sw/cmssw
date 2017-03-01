@@ -4,7 +4,10 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 class ShallowSimTracksProducer : public edm::EDProducer {
 
@@ -16,10 +19,10 @@ class ShallowSimTracksProducer : public edm::EDProducer {
 
   const std::string Prefix;
   const std::string Suffix;
-  const edm::InputTag trackingParticles_tag;
-  const edm::ESInputTag associator_tag;
-  const edm::InputTag tracks_tag;
-  void produce( edm::Event &, const edm::EventSetup & );
+  const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_token_;
+  const edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associator_token_;
+	const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 
 };
 #endif

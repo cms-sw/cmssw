@@ -13,6 +13,7 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     PreCkfLabel = cms.string('SeedsForCkf'),
     NHitsInSeed = cms.int32(3),
     Fitter = cms.string('GsfTrajectoryFitter_forPreId'),
+    TTRHBuilder = cms.string('WithAngleAndTemplate'),
     PreGsfLabel = cms.string('SeedsForGsf'),
     MinEOverP = cms.double(0.3),
     Weights1 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat1.xml'),
@@ -48,4 +49,11 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     Min_dr = cms.double(0.2)
 )
 
+# Switch back to GenericCPE until bias in template CPE gets fixed
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify(trackerDrivenElectronSeeds, TTRHBuilder  = 'WithTrackAngle') # FIXME
 
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(trackerDrivenElectronSeeds, TTRHBuilder  = 'WithTrackAngle') # FIXME

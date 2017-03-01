@@ -1,6 +1,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 using namespace reco;
 
@@ -45,13 +47,13 @@ Muon * Muon::clone() const {
   return new Muon( * this );
 }
 
-int Muon::numberOfChambersNoRPC() const
+int Muon::numberOfChambersCSCorDT() const
 {
   int total = 0;
   int nAll = numberOfChambers();
   for (int iC = 0; iC < nAll; ++iC){
-    if (matches()[iC].detector() == MuonSubdetId::RPC) continue;
-    total++;
+    if (matches()[iC].detector() == MuonSubdetId::CSC || matches()[iC].detector() == MuonSubdetId::DT)
+      total++;
   }
 
   return total;
@@ -68,13 +70,23 @@ int Muon::numberOfMatches( ArbitrationType type ) const
          matches += chamberMatch->rpcMatches.size();
          continue;
       }
+      if(type == ME0SegmentAndTrackArbitration) {
+         if(chamberMatch->me0Matches.empty()) continue;
+	  matches += chamberMatch->me0Matches.size();
+	continue;
+      }
+      if(type == GEMSegmentAndTrackArbitration) {
+         if(chamberMatch->gemMatches.empty()) continue;
+	  matches += chamberMatch->gemMatches.size();
+	continue;
+      }
 
       if(chamberMatch->segmentMatches.empty()) continue;
       if(type == NoArbitration) {
          matches++;
          continue;
       }
-
+      
       for( std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
             segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
       {

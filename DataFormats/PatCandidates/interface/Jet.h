@@ -26,13 +26,17 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 
+#include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/JetReco/interface/JetID.h"
 
@@ -68,6 +72,7 @@ namespace pat {
   typedef std::vector<edm::FwdPtr<reco::BaseTagInfo> > TagInfoFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<reco::PFCandidate> > PFCandidateFwdPtrCollection;
   typedef std::vector<edm::FwdPtr<CaloTower> > CaloTowerFwdPtrCollection;
+  typedef std::vector<edm::Ptr<pat::Jet> > JetPtrCollection;
 
 
   class Jet : public PATObject<reco::Jet> {
@@ -76,6 +81,7 @@ namespace pat {
     /// function, which should be non accessible to any other user
     friend class PATJetProducer;
     friend class PATJetSlimmer;
+    friend class PATJetUpdater;
 
     public:
 
@@ -87,6 +93,10 @@ namespace pat {
       Jet(const edm::RefToBase<reco::Jet> & aJetRef);
       /// constructor from ref to reco::Jet
       Jet(const edm::Ptr<reco::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::RefToBase<pat::Jet> & aJetRef);
+      /// constructure from ref to pat::Jet
+      Jet(const edm::Ptr<pat::Jet> & aJetRef);
       /// destructor
       virtual ~Jet();
       /// required reimplementation of the Candidate's clone method
@@ -143,10 +153,10 @@ namespace pat {
       Jet correctedJet(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const;
       /// p4 of the jet corrected up to the given level for the set
       /// of jet energy correction factors, which is currently in use
-      const LorentzVector& correctedP4(const std::string& level, const std::string& flavor="none", const std::string& set="") const { return correctedJet(level, flavor, set).p4(); };
+      const LorentzVector correctedP4(const std::string& level, const std::string& flavor="none", const std::string& set="") const { return correctedJet(level, flavor, set).p4(); };
       /// p4 of the jet corrected up to the given level for the set
       /// of jet energy correction factors, which is currently in use
-      const LorentzVector& correctedP4(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const { return correctedJet(level, flavor, set).p4(); };
+      const LorentzVector correctedP4(const unsigned int& level, const JetCorrFactors::Flavor& flavor=JetCorrFactors::NONE, const unsigned int& set=0) const { return correctedJet(level, flavor, set).p4(); };
 
   private:
       /// index of the set of jec factors with given label; returns -1 if no set
@@ -170,6 +180,8 @@ namespace pat {
       float bDiscriminator(const std::string &theLabel) const;
       /// get vector of paire labelname-disciValue
       const std::vector<std::pair<std::string, float> > & getPairDiscri() const;
+      /// get list of tag info labels
+      std::vector<std::string> const & tagInfoLabels() const { return tagInfoLabels_; }
       /// check to see if the given tag info is nonzero
       bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
       /// get a tagInfo with the given name, or NULL if none is found.
@@ -178,15 +190,19 @@ namespace pat {
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
+      const reco::CandIPTagInfo          * tagInfoCandIP(const std::string &label="") const;
       const reco::TrackIPTagInfo         * tagInfoTrackIP(const std::string &label="") const;
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
+      const reco::CandSoftLeptonTagInfo  * tagInfoCandSoftLepton(const std::string &label="") const;
       const reco::SoftLeptonTagInfo      * tagInfoSoftLepton(const std::string &label="") const;
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
-      const reco::SecondaryVertexTagInfo * tagInfoSecondaryVertex(const std::string &label="") const;
+      const reco::CandSecondaryVertexTagInfo * tagInfoCandSecondaryVertex(const std::string &label="") const;
+      const reco::SecondaryVertexTagInfo     * tagInfoSecondaryVertex(const std::string &label="") const;
+      const reco::BoostedDoubleSVTagInfo     * tagInfoBoostedDoubleSV(const std::string &label="") const;
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(const std::pair<std::string, float> & thePair);
       /// sets a tagInfo with the given name from an edm::Ptr<T> to it.
@@ -401,7 +417,12 @@ namespace pat {
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
 
+      /// hoEnergy
+      float hoEnergy () const {return pfSpecific().mHOEnergy;}
+      /// hoEnergyFraction (relative to corrected jet energy)
+      float hoEnergyFraction () const {return hoEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// convert generic constituent to specific type
+
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
       /// get specific constituent of the CaloJet.
       /// if the caloTowers were embedded, this reference is transient only and must not be persisted
@@ -466,7 +487,30 @@ namespace pat {
       }
 
       /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
-      friend std::ostream& reco::operator<<(std::ostream& out, const Jet& obj);
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Jet& obj);
+
+
+
+      /// Access to subjet list
+      pat::JetPtrCollection const & subjets( unsigned int index = 0 ) const;
+
+
+      /// String access to subjet list
+      pat::JetPtrCollection const & subjets( std::string label ) const ;
+
+      /// Add new set of subjets
+      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
+
+      /// Check to see if the subjet collection exists
+      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      
+      /// Number of subjet collections
+      unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }
+      
+      /// Subjet collection names
+      std::vector<std::string> const & subjetCollectionNames() const { return subjetLabels_; }
+
+
 
     protected:
 
@@ -483,6 +527,10 @@ namespace pat {
       reco::PFCandidateCollection pfCandidates_; // Compatibility embedding
       reco::PFCandidateFwdPtrVector pfCandidatesFwdPtr_; // Refactorized content embedding
 
+
+      // ---- Jet Substructure ----
+      std::vector< pat::JetPtrCollection> subjetCollections_;
+      std::vector< std::string>          subjetLabels_; 
 
       // ---- MC info ----
 
@@ -534,7 +582,32 @@ namespace pat {
       // ---- helper functions ----
 
       void tryImportSpecific(const reco::Jet &source);
-      template<typename T> const T * tagInfoByType() const;
+
+      template<typename T> const T * tagInfoByType() const
+      {
+        // First check the factorized PAT version
+        for (size_t i = 0, n = tagInfosFwdPtr_.size(); i < n; ++i) {
+          TagInfoFwdPtrCollection::value_type const & val = tagInfosFwdPtr_[i];
+          reco::BaseTagInfo const * baseTagInfo = val.get();
+          if ( typeid(*baseTagInfo) == typeid(T) ) {
+            return static_cast<const T *>( baseTagInfo );
+          }
+        }
+        // Then check compatibility version
+        for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
+          edm::OwnVector<reco::BaseTagInfo>::value_type const & val = tagInfos_[i];
+          reco::BaseTagInfo const * baseTagInfo = &val;
+          if ( typeid(*baseTagInfo) == typeid(T) ) {
+            return static_cast<const T *>( baseTagInfo );
+          }
+        }
+        return 0;
+      }
+
+      template<typename T> const T * tagInfoByTypeOrLabel(const std::string &label="") const
+      {
+        return ( label.empty() ? tagInfoByType<T>() : dynamic_cast<const T *>(tagInfo(label)) );
+      }
 
       /// return the jet correction factors of a different set, for systematic studies
       const JetCorrFactors * corrFactors_(const std::string& set) const ;

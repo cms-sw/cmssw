@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 /**
    \class   TopDecaySubset TopDecaySubset.h "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 
@@ -31,7 +33,9 @@ class TopDecaySubset : public edm::EDProducer {
   /// of gen particles
   enum  FillMode {kStable, kME};
   /// classification of potential shower types
-  enum ShowerModel{kStart=-1, kNone, kPythia, kHerwig};
+  enum ShowerModel{kStart=-1, kNone, kPythia, kHerwig, kPythia8, kSherpa};
+  /// supported modes to run the code
+  enum RunMode {kRun1, kRun2};
 
   /// default constructor
   explicit TopDecaySubset(const edm::ParameterSet& cfg);
@@ -43,12 +47,34 @@ class TopDecaySubset : public edm::EDProducer {
  private:
   /// find top quarks in list of input particles
   std::vector<const reco::GenParticle*> findTops(const reco::GenParticleCollection& parts);
+  /// find primal top quarks (top quarks from the hard interaction)
+  /// for Pythia6 this is identical to findDecayingTops
+  std::vector<const reco::GenParticle*> findPrimalTops(const reco::GenParticleCollection& parts);
+  /// find decaying top quarks (quarks that decay to qW)
+  /// for Pythia6 this is identical to findPrimalTops
+  std::vector<const reco::GenParticle*> findDecayingTops(const reco::GenParticleCollection& parts);
+  /// find W bosons that come from top quark decays
+  /// for Pythia6 this is identical to findDecayingW
+  const reco::GenParticle* findPrimalW(const reco::GenParticle* top);
+  /// find W bosons that come from top quark decays and decay themselves (end of the MC chain)
+  /// for Pythia6 this is identical to findPrimalW
+//  const reco::GenParticle* findDecayingW(const reco::GenParticle* top);
+  /// find the last particle in a (potentially) long chain of state transitions
+  /// e.g. top[status==22]-> top[status==44 -> top[status==44] ->
+  /// top[status==44] -> top[status==62]
+  /// this function would pick the top with status 62
+  const reco::GenParticle* findLastParticleInChain(const reco::GenParticle* p);
   /// check the decay chain for the used shower model
   ShowerModel checkShowerModel(const std::vector<const reco::GenParticle*>& tops) const;
+  ShowerModel checkShowerModel(edm::Event& event);
   /// check whether W bosons are contained in the original gen particle listing
   void checkWBosons(std::vector<const reco::GenParticle*>& tops) const;
   /// fill output vector for full decay chain
   void fillListing(const std::vector<const reco::GenParticle*>& tops, reco::GenParticleCollection& target);
+  /// fill output vector for full decay chain
+  void fillListing(const std::vector<const reco::GenParticle*>& primalTops,
+				   const std::vector<const reco::GenParticle*>& decayingTops,
+				   reco::GenParticleCollection& target);
 
   /// clear references
   void clearReferences();
@@ -62,10 +88,13 @@ class TopDecaySubset : public edm::EDProducer {
   void addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
   /// fill vector including all radiations from quarks originating from W/top
   void addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
+  void addRadiation(int& idx, const reco::GenParticle* part, reco::GenParticleCollection& target);
 
  private:
   /// input tag for the genParticle source
   edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
+  /// input tag for the genEventInfo source
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfo_srcToken_;
   /// add radiation or not?
   bool addRadiation_;
   /// print the whole list of input particles or not?
@@ -73,6 +102,8 @@ class TopDecaySubset : public edm::EDProducer {
   FillMode fillMode_;
   /// parton shower mode (filled in checkShowerModel)
   ShowerModel showerModel_;
+  /// run mode (Run1 || Run2)
+  RunMode runMode_;
 
   /// index in new evt listing of parts with daughters;
   /// has to be set to -1 in produce to deliver consistent

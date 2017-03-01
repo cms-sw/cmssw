@@ -94,7 +94,7 @@ namespace reco {
       typedef typename MatchMap::ref_type ref_type;
       typedef typename ref_type::key_type key_ref_type;
       typedef typename ref_type::value_type value_ref_type;
-      auto_ptr<MatchMap> matchMap( new MatchMap( ref_type( key_ref_type( cands ),
+      unique_ptr<MatchMap> matchMap( new MatchMap( ref_type( key_ref_type( cands ),
 							   value_ref_type( matched ) ) ) );
       for( size_t c = 0; c != cands->size(); ++ c ) {
 	const T1 & cand = (*cands)[ c ];
@@ -113,7 +113,7 @@ namespace reco {
 	  matchMap->insert( edm::getRef( cands, c ), edm::getRef( matched, mMin ) );
 	}
       }
-      evt.put( matchMap );
+      evt.put(std::move(matchMap));
     }
 
   }

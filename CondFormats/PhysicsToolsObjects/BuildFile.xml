@@ -2,6 +2,9 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/External"/>
+<use   name="CondFormats/Serialization"/>
+<use   name="boost_serialization"/>
+<use   name="boost_iostreams"/>
 <use   name="boost"/>
 <use   name="sigcpp"/>
 <use   name="root"/>

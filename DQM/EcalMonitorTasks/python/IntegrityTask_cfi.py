@@ -18,6 +18,13 @@ ecalIntegrityTask = cms.untracked.PSet(
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('')
         ),
+        MapByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sIntegrityTask/%(prefix)sIT%(suffix)s integrity errors map by lumi'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('Integrity error occupancy map for this lumisection. Includes Gain, ChId, GainSwitch, TowerId, and BlockSize errors.')
+        ),
         ByLumi = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sIntegrityTask/%(prefix)sIT weighted integrity errors by lumi'),
             kind = cms.untracked.string('TH1F'),

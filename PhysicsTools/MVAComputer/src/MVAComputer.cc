@@ -143,17 +143,15 @@ MVAComputer::~MVAComputer()
 {
 }
 
-unsigned int MVAComputer::getVariableId(AtomicId name) const
+int MVAComputer::getVariableId(AtomicId name) const
 {
 
 	std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
 
 	if (pos == inputVariables.end() || pos->var.getName() != name)
-		throw cms::Exception("InvalidVariable")
-			<< "Input variable " << (const char*)name
-			<< " not found."  << std::endl;
-
-	return pos->index;
+		return -1;
+	else
+		return pos->index;
 }
 
 template<class T>
@@ -178,6 +176,7 @@ void MVAComputer::evalInternal(T &ctx) const
 		int *loopOutConf = outConf;
 		int *loopStart = 0;
 		double *loopOutput = output;
+                VarProcessor::LoopCtx loopCtx;
 
 		VarProcessor::LoopStatus status = VarProcessor::kNext;
 		unsigned int offset = 0;
@@ -194,6 +193,7 @@ void MVAComputer::evalInternal(T &ctx) const
 			if (status != VarProcessor::kSkip)
 				ctx.eval(&*iter->processor, outConf, output,
 				         loopStart ? loopStart : loopOutConf,
+                                         loopCtx,
 				         offset, iter->nOutput);
 
 #ifdef DEBUG_EVAL
@@ -212,7 +212,7 @@ void MVAComputer::evalInternal(T &ctx) const
 #endif
 
 			status = loop->processor->loop(output, outConf,
-			                               nextOutput, offset);
+			                               nextOutput, loopCtx, offset);
 
 			if (status == VarProcessor::kReset) {
 				outConf = loopOutConf;
@@ -311,10 +311,11 @@ void MVAComputer::writeCalibration(std::ostream &os,
 
 void MVAComputer::DerivContext::eval(
 		const VarProcessor *proc, int *outConf, double *output,
-		int *loop, unsigned int offset, unsigned int out) const
+		int *loop, VarProcessor::LoopCtx& ctx, 
+                unsigned int offset, unsigned int out) const
 {
 	proc->deriv(values(), conf(), output, outConf,
-	            loop, offset, n(), out, deriv_);
+	            loop, ctx, offset, n(), out, deriv_);
 }
 
 double MVAComputer::DerivContext::output(unsigned int output,

@@ -12,7 +12,7 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
                              mergedBremsstrahlung = cms.bool(True),
                              removeDeadModules = cms.bool(False),
 
-                             HepMCDataLabels = cms.vstring('VtxSmeared',
+                             HepMCDataLabels = cms.vstring('generatorSmeared',
                                                            'generator',
                                                            'PythiaSource',
                                                            'source'

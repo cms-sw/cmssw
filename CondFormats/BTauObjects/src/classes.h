@@ -23,5 +23,10 @@ namespace CondFormats_BTauObjects {
     CombinedSVCalibration::Entry cs3;
     std::vector<CombinedSVCalibration::Entry> cs4;
 
+    BTagEntry bte1;
+    BTagEntry::Parameters bte_p1;
+    std::vector<BTagEntry> v_bte1;
+    std::map<std::string, std::vector<BTagEntry> > mv_bte1;
+    BTagCalibration btc1;
   };
 }

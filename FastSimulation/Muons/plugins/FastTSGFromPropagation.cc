@@ -31,43 +31,32 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
+#include "FastSimulation/Tracking/interface/FastTrackingUtilities.h"
+
 using namespace std;
 
-
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig,edm::ConsumesCollector& iC) :theTkLayerMeasurements(), theTracker(0), theNavigation(0), theService(0), theEstimator(0),  theSigmaZ(0), theConfig (iConfig),
-  beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
-{
-  theCategory = "FastSimulation|Muons||FastTSGFromPropagation";
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC) : FastTSGFromPropagation(iConfig, nullptr, iC) {
 }
 
-FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service,edm::ConsumesCollector& iC) : theTkLayerMeasurements(), theTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theSigmaZ(0), theConfig (iConfig),
-  beamSpot_(iConfig.getParameter<edm::InputTag>("beamSpot"))
-{
-  theCategory = "FastSimulation|Muons|FastTSGFromPropagation";
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig, const MuonServiceProxy* service, edm::ConsumesCollector& iC) : 
+  theCategory("FastSimulation|Muons|FastTSGFromPropagation"),
+  theTkLayerMeasurements(), theTracker(), theNavigation(), theService(service), theUpdator(), theEstimator(), theSigmaZ(0.0), theConfig (iConfig),
+  theSimTrackCollectionToken_(iC.consumes<edm::SimTrackContainer>(theConfig.getParameter<edm::InputTag>("SimTrackCollectionLabel"))),
+  recHitCombinationsToken_(iC.consumes<FastTrackerRecHitCombinationCollection>(theConfig.getParameter<edm::InputTag>("HitProducer"))),
+  beamSpot_(iC.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+  theMeasurementTrackerEventToken_(iC.consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent"))) {
 }
 
-FastTSGFromPropagation::~FastTSGFromPropagation()
-{
-
+FastTSGFromPropagation::~FastTSGFromPropagation() {
   LogTrace(theCategory) << " FastTSGFromPropagation dtor called ";
-  if ( theNavigation ) delete theNavigation;
-  if ( theUpdator ) delete theUpdator;
-  if ( theEstimator ) delete theEstimator;
-  if ( theErrorMatrixAdjuster ) delete theErrorMatrixAdjuster;
-
 }
 
 void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, 
@@ -121,9 +110,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
        if ( alltm.size() > 5 ) alltm.erase(alltm.begin() + 5, alltm.end());
 
        const edm::SimTrackContainer* simTracks = &(*theSimTracks);
-       const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
-       TrackerRecHit theSeedHits;
-       std::vector<TrackerRecHit> outerHits;
+       TrajectorySeedHitCandidate theSeedHits;
+       std::vector<TrajectorySeedHitCandidate> outerHits;
 
        //std::vector<TrajectorySeed>  tmpTS;
        bool isMatch = false;
@@ -132,15 +120,14 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   double preY = seedState.globalPosition().y();
 
 	   // Check SimTrack
-	   TrackingRecHit* aTrackingRecHit;
 	   FreeTrajectoryState simtrack_trackerstate;
-	   for( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
-	       const SimTrack & simtrack = (*simTracks)[theSimTrackIds[tkId]];
-	       SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(theSimTrackIds[tkId]);
-	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-	       SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-
+	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
+	       const auto & recHitCombination = (*recHitCombinations)[icomb];
+	       if(recHitCombination.size() ==0)
+	         continue;
+	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
+	       const SimTrack & simtrack = (*simTracks)[simTrackId];
+	       
 	       GlobalPoint position(simtrack.trackerSurfacePosition().x(),
 	      		            simtrack.trackerSurfacePosition().y(),
 	      		            simtrack.trackerSurfacePosition().z());
@@ -152,8 +139,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	       simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
 
 	       unsigned int outerId = 0;
-	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+	       for( const auto & recHitRef : recHitCombination) {
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -162,19 +149,20 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		       if( id > outerId ) outerId = id;
 		   }
 	       }
-	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+	       for( const auto & recHitRef : recHitCombination ) {
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
-		       aTrackingRecHit = theSeedHits.hit()->clone();
-	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
+	               auto aTrackingRecHit = std::unique_ptr<TrackingRecHit>(theSeedHits.hit()->clone());
+	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit.get());
 	               if( !recHit ) continue;
 	               TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
+			   fastTrackingUtilities::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
-			   const BasicTrajectorySeed* aSeed = &ts;
+			   const TrajectorySeed* aSeed = &ts;
 			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
 			   
 			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
@@ -196,12 +184,13 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   // Check SimTrack
 	   TrackingRecHit* aTrackingRecHit;
 	   FreeTrajectoryState simtrack_trackerstate;
-	   for( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
-	       const SimTrack & simtrack = (*simTracks)[theSimTrackIds[tkId]];
-	       SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(theSimTrackIds[tkId]);
-	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-	       SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-	       SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+
+	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
+	       const auto & recHitCombination = (*recHitCombinations)[icomb];
+	       if(recHitCombination.size() ==0)
+	         continue;
+	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
+	       const SimTrack & simtrack = (*simTracks)[simTrackId];
 
 	       GlobalPoint position(simtrack.trackerSurfacePosition().x(),
 	      		            simtrack.trackerSurfacePosition().y(),
@@ -214,8 +203,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	       simtrack_trackerstate = FreeTrajectoryState(glb_parameters);
 
 	       unsigned int outerId = 0;
-	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+	       for( const auto & recHitRef : recHitCombination ) {
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -224,8 +213,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		       if( id > outerId ) outerId = id;
 		   }
 	       }
-	       for( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
-		 theSeedHits = TrackerRecHit(&(*iterRecHit), theGeometry, tTopo);
+	       for( const auto & recHitRef : recHitCombination ) {
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( outerId == theSeedHits.hit()->geographicalId().rawId() ) {
 		       aTrackingRecHit = theSeedHits.hit()->clone();
 	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
@@ -234,9 +223,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
+			   fastTrackingUtilities::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
-			   const BasicTrajectorySeed* aSeed = &ts;
+			   const TrajectorySeed* aSeed = &ts;
 			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
 			   
 			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
@@ -309,7 +299,7 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
     theResetMethod = "discrete"; 
   }
 
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2);
+  theEstimator.reset( new Chi2MeasurementEstimator(theMaxChi2));
 
   theCacheId_MT = 0;
 
@@ -325,24 +315,21 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
 
-  theSimTrackCollectionLabel = theConfig.getParameter<edm::InputTag>("SimTrackCollectionLabel");
-  theHitProducer = theConfig.getParameter<edm::InputTag>("HitProducer");
-
-  theUpdator = new KFUpdator();
+  theUpdator.reset(new KFUpdator());
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
-    theErrorMatrixAdjuster = new MuonErrorMatrix(errorMatrixPset);
+    theErrorMatrixAdjuster.reset(new MuonErrorMatrix(errorMatrixPset));
   } else {
     theAdjustAtIp =false;
-    theErrorMatrixAdjuster=0;
+    theErrorMatrixAdjuster.reset();
   }
 
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker); 
-  theNavigation = new DirectTrackerNavigation(theTracker);
+  theNavigation.reset(new DirectTrackerNavigation(theTracker));
 
   edm::ESHandle<TrackerGeometry>        geometry;
   theService->eventSetup().get<TrackerDigiGeometryRecord>().get(geometry);
@@ -354,12 +341,11 @@ void FastTSGFromPropagation::init(const MuonServiceProxy* service) {
 
 void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
-  iEvent.getByLabel(beamSpot_, theBeamSpot);
+  iEvent.getByToken(beamSpot_, theBeamSpot);
   
   // retrieve the MC truth (SimTracks)
-  iEvent.getByLabel(theSimTrackCollectionLabel, theSimTracks);
-  iEvent.getByLabel(theHitProducer, theGSRecHits);
-
+  iEvent.getByToken(theSimTrackCollectionToken_, theSimTracks);
+  iEvent.getByToken(recHitCombinationsToken_, recHitCombinations);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
@@ -370,7 +356,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if ( theUpdateStateFlag ) {
-     iEvent.getByLabel(theMeasurementTrackerEventTag, theMeasTrackerEvent);
+     iEvent.getByToken(theMeasurementTrackerEventToken_, theMeasTrackerEvent);
      theTkLayerMeasurements = LayerMeasurements(*theMeasTracker,*theMeasTrackerEvent);
   }
 
@@ -386,8 +372,7 @@ void FastTSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if ( trackerGeomChanged && (&*theTracker) ) {
-    if ( theNavigation ) delete theNavigation;
-    theNavigation = new DirectTrackerNavigation(theTracker);
+    theNavigation.reset(new DirectTrackerNavigation(theTracker));
   }
 }
 
@@ -577,7 +562,7 @@ void FastTSGFromPropagation::stateOnDet(const TrajectoryStateOnSurface& ts,
 	}
     }
     int surfaceSide = static_cast<int>(ts.surfaceSide());
-    pts = PTrajectoryStateOnDet( ts.localParameters(),
+    pts = PTrajectoryStateOnDet( ts.localParameters(),ts.globalMomentum().perp(),
     				localErrors, detid,
 				surfaceSide);
 }

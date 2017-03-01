@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
+SiStripCalib = cms.EDAnalyzer(
+    "SiStripGainFromCalibTree",
     OutputGains         = cms.string('Gains_ASCII.txt'),
+    AlgoMode            = cms.untracked.string('CalibTree'),
 
     minTrackMomentum    = cms.untracked.double(2),
     minNrEntries        = cms.untracked.double(25),
@@ -9,37 +11,38 @@ SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
     maxMPVError         = cms.untracked.double(25.0),
     maxNrStrips         = cms.untracked.uint32(8),
 
+    harvestingMode      = cms.untracked.bool(False),
+    calibrationMode     = cms.untracked.string('StdBunch'),
+    DQMdir              = cms.untracked.string('AlCaReco/SiStripGains'),
+
     Validation          = cms.untracked.bool(False),
     OldGainRemoving     = cms.untracked.bool(False),
     FirstSetOfConstants = cms.untracked.bool(True),
 
     CalibrationLevel    = cms.untracked.int32(0), # 0==APV, 1==Laser, 2==module
 
-    InputFiles          = cms.vstring(
-#	"rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_20_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_20_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_21_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_22_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_23_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_24_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_25_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_26_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_27_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_28_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_29_134721_1.root",
-    ),
+    InputFiles          = cms.untracked.vstring(),
 
     UseCalibration     = cms.untracked.bool(False),
     calibrationPath    = cms.untracked.string(""),
 
-    GoodFracForTagProd  = cms.untracked.double(0.95),
-    NClustersForTagProd = cms.untracked.double(2E8),
+    saveSummary         = cms.untracked.bool(False),
+
+    GoodFracForTagProd  = cms.untracked.double(0.98),
+    NClustersForTagProd = cms.untracked.double(1E8),
     
 
-    SinceAppendMode     = cms.bool(True),
-    IOVMode             = cms.string('Job'),
-    Record              = cms.string('SiStripApvGainRcd'),
-    doStoreOnDB         = cms.bool(True)
+    SinceAppendMode         = cms.bool(True),
+    TimeFromEndRun          = cms.untracked.bool(False),
+    TimeFromStartOfRunRange = cms.untracked.bool(True),
+    IOVMode                 = cms.string('AlgoDriven'),
+    Record                  = cms.string('SiStripApvGainRcd'),
+    doStoreOnDB             = cms.bool(True),
+
+    treePath            = cms.untracked.string('gainCalibrationTree/tree'),
+    gain                = cms.untracked.PSet(label = cms.untracked.string('shallowGainCalibration'), prefix = cms.untracked.string("GainCalibration"), suffix = cms.untracked.string('')),
+    evtinfo             = cms.untracked.PSet(label = cms.untracked.string('shallowEventRun'), prefix = cms.untracked.string(""), suffix = cms.untracked.string('')),
+    tracks              = cms.untracked.PSet(label = cms.untracked.string('shallowTracks'), prefix = cms.untracked.string("track"), suffix = cms.untracked.string('')),
 )
 
 SiStripCalibValidation = SiStripCalib.clone()

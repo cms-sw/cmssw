@@ -7346,7 +7346,7 @@ process.hltPFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter0" ),
+    AlgorithmName = cms.string( "initialStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltPFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
@@ -7530,7 +7530,7 @@ process.hltIter1PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter1" ),
+    AlgorithmName = cms.string( "lowPtTripletStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter1PFlowTrackSelectionHighPurityLoose = cms.EDProducer( "AnalyticalTrackSelector",
@@ -7772,7 +7772,7 @@ process.hltIter2PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter2" ),
+    AlgorithmName = cms.string( "pixelPairStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter2PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
@@ -7971,7 +7971,7 @@ process.hltIter3PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter3" ),
+    AlgorithmName = cms.string( "detachedTripletStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter3PFlowTrackSelectionHighPurityLoose = cms.EDProducer( "AnalyticalTrackSelector",
@@ -8213,7 +8213,7 @@ process.hltIter4PFJetCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter4" ),
+    AlgorithmName = cms.string( "mixedTripletStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter4PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
@@ -16882,7 +16882,7 @@ process.hltTau3MuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter0" ),
+    AlgorithmName = cms.string( "initialStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltTau3MuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
@@ -17008,7 +17008,7 @@ process.hltIter1Tau3MuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter1" ),
+    AlgorithmName = cms.string( "lowPtTripletStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter1Tau3MuTrackSelectionHighPurityLoose = cms.EDProducer( "AnalyticalTrackSelector",
@@ -17192,7 +17192,7 @@ process.hltIter2Tau3MuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter2" ),
+    AlgorithmName = cms.string( "pixelPairStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter2Tau3MuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
@@ -17333,7 +17333,7 @@ process.hltIter3Tau3MuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter3" ),
+    AlgorithmName = cms.string( "detachedTripletStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter3Tau3MuTrackSelectionHighPurityLoose = cms.EDProducer( "AnalyticalTrackSelector",
@@ -17517,7 +17517,7 @@ process.hltIter4Tau3MuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    AlgorithmName = cms.string( "iter4" ),
+    AlgorithmName = cms.string( "mixedTripletStep" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltIter4Tau3MuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector",
@@ -39270,10 +39270,9 @@ process.hltPreExpressOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    l1tIgnoreMask = cms.bool( False ),
-    l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     triggerConditions = cms.vstring( 'HLT_MET400_v5',
       'HLT_Mu17_Mu8_v17',
       'HLT_Photon75_CaloIdVL_IsoL_v17',
@@ -39281,18 +39280,16 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v17',
       'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7',
       'HLT_ZeroBias_v6' ),
-    throw = cms.bool( True ),
-    daqPartitions = cms.uint32( 1 )
+    throw = cms.bool( True )
 )
 process.hltPreHLTDQMOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
 process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    l1tIgnoreMask = cms.bool( False ),
-    l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     triggerConditions = cms.vstring( 'HLT_Jet20_NoL1FastJet_v2',
       'HLT_PFJet40_v5',
       'HLT_Jet50_NoL1FastJet_v2',
@@ -39338,31 +39335,27 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v10',
       'HLT_Ele80_CaloIdVT_GsfTrkIdT_v1',
       'HLT_Ele90_CaloIdVT_GsfTrkIdT_v1' ),
-    throw = cms.bool( True ),
-    daqPartitions = cms.uint32( 1 )
+    throw = cms.bool( True )
 )
 process.hltPreHLTDQMResultsOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
 process.hltPreHLTDQMResultsOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    l1tIgnoreMask = cms.bool( False ),
-    l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     triggerConditions = cms.vstring( 'HLT_* AND NOT HLT_*Calibration*' ),
-    throw = cms.bool( True ),
-    daqPartitions = cms.uint32( 1 )
+    throw = cms.bool( True )
 )
 process.hltPreHLTMONOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
 process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    l1tIgnoreMask = cms.bool( False ),
-    l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     triggerConditions = ( cms.vstring( 'HLT_Activity_Ecal_SC7_v12',
       'HLT_L1SingleJet16_v6',
       'HLT_L1SingleJet36_v6',
@@ -39788,24 +39781,21 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'AlCa_LumiPixels_v6 / 100',
       'AlCa_LumiPixels_ZeroBias_v3 / 100',
       'AlCa_LumiPixels_Random_v1 / 100') ),
-    throw = cms.bool( True ),
-    daqPartitions = cms.uint32( 1 )
+    throw = cms.bool( True )
 )
 process.hltPreNanoDSTOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
 process.hltPrePhysicsDSTOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    l1tIgnoreMask = cms.bool( False ),
-    l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
+    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     triggerConditions = cms.vstring( 'DST_HT250_v1',
       'DST_L1HTT_Or_L1MultiJet_v1 / 100',
       'DST_Mu5_HT250_v1',
       'DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v1' ),
-    throw = cms.bool( True ),
-    daqPartitions = cms.uint32( 1 )
+    throw = cms.bool( True )
 )
 process.hltPreRPCMONOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -41799,11 +41789,11 @@ process.options = cms.untracked.PSet(
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 #
-    from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-    process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:hltonline')
+    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:hltonline')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

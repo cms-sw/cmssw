@@ -28,7 +28,7 @@ Very early in main() of cmsRun, theMessageServicePresence is instantiated.
 The ctor of MessageServicePresence instantiates scribe, which is a 
 boost::thread, instructing it to execute runMessageLoggerScribe.
 
-Just after that, the jobReport is created on the heap and an auto_ptr to 
+Just after that, the jobReport is created on the heap and a unique_ptr to 
 JobReport is given to ServiceRegistry, retaining jobReportToken.
 
 Next, the services are pushed onto defaultServices, with MessageLogger first.
@@ -36,7 +36,7 @@ Then the forcedServises are created; JobReport is the first of those.
 
 Then black magic happens leading to the CFG command to the logger.  It
 happens in the statement 
-std::auto_ptr<edm::EventProcessor> 
+std::unique_ptr<edm::EventProcessor> 
          procP(new 
                edm::EventProcessor(processDesc, jobReportToken, 
                               edm::serviceregistry::kTokenOverrides));

@@ -212,9 +212,9 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    
   //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
+  std::unique_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
   //Create empty output collections
-  std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
+  std::unique_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
   
   
   ////all selected..
@@ -358,7 +358,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   // The set of used DetID's for a given event:
   m_used_strips.clear();
-  std::auto_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
+  std::unique_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
 
   Handle<EERecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(endcapHitsToken_,endcapRecHitsHandle);
@@ -472,12 +472,12 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   ////Now put into events selected rechits.
   if(doSelBarrel_){
-    iEvent.put( selEBRecHitCollection, BarrelHits_);
+    iEvent.put(std::move(selEBRecHitCollection), BarrelHits_);
   }  
   if(doSelEndcap_){
-    iEvent.put( selEERecHitCollection, EndcapHits_);
+    iEvent.put(std::move(selEERecHitCollection), EndcapHits_);
     if(storeRecHitES_){
-      iEvent.put( selESRecHitCollection, ESHits_);
+      iEvent.put(std::move(selESRecHitCollection), ESHits_);
     }
   }
   

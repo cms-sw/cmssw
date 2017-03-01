@@ -45,6 +45,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "TMath.h"
 
 
@@ -54,9 +55,8 @@ public:
 
   explicit METTester(const edm::ParameterSet&);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void FillMETRes();
 
 
  private:
@@ -66,43 +66,21 @@ public:
   // Inputs from Configuration File
 
   edm::InputTag mInputCollection_;
-  std::string mOutputFile;
-  std::string sample_;
   edm::InputTag inputMETLabel_;
   std::string METType_;
  
   edm::InputTag inputCaloMETLabel_;
-  edm::InputTag inputTrackLabel_;
-  edm::InputTag inputMuonLabel_;
-  edm::InputTag inputElectronLabel_;
-  edm::InputTag inputBeamSpotLabel_;
 
   //Tokens
   edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
   edm::EDGetTokenT<reco::CaloMETCollection> caloMETsToken_;
   edm::EDGetTokenT<reco::PFMETCollection> pfMETsToken_;
-  edm::EDGetTokenT<reco::METCollection> tcMETsToken_;
+  //edm::EDGetTokenT<reco::METCollection> tcMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsTrueToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsCaloToken_;
-  //for tcmet
-  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
-  edm::EDGetTokenT<edm::View<reco::GsfElectron > > electronToken_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Token_;
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > met_ValueMap_Token_;
+  edm::EDGetTokenT<pat::METCollection> patMETToken_;
 
-  bool isGoodTrack( const reco::TrackRef, float d0corr );
-
-  int minhits_;
-  double maxd0_;
-  double maxchi2_;
-  double maxeta_;
-  double maxpt_;
-  double maxPtErr_;
-  std::vector<int> trkQuality_;
-  std::vector<int> trkAlgos_;
 
  // Events variables
   MonitorElement* mNvertex;
@@ -120,6 +98,24 @@ public:
   MonitorElement* mMETDeltaPhi_GenMETTrue;
   MonitorElement* mMETDifference_GenMETCalo;
   MonitorElement* mMETDeltaPhi_GenMETCalo;
+  
+  // MET Uncertainity Variables
+  MonitorElement* mMETUnc_JetResUp;
+  MonitorElement* mMETUnc_JetResDown;
+  MonitorElement* mMETUnc_JetEnUp;
+  MonitorElement* mMETUnc_JetEnDown;
+  MonitorElement* mMETUnc_MuonEnUp;
+  MonitorElement* mMETUnc_MuonEnDown;
+  MonitorElement* mMETUnc_ElectronEnUp;
+  MonitorElement* mMETUnc_ElectronEnDown;
+  MonitorElement* mMETUnc_TauEnUp;
+  MonitorElement* mMETUnc_TauEnDown;
+  MonitorElement* mMETUnc_UnclusteredEnUp;
+  MonitorElement* mMETUnc_UnclusteredEnDown;
+  MonitorElement* mMETUnc_PhotonEnUp;
+  MonitorElement* mMETUnc_PhotonEnDown;
+  
+    
   //CaloMET variables
 
   MonitorElement* mCaloMaxEtInEmTowers;
@@ -174,48 +170,17 @@ public:
   MonitorElement* mMETDifference_GenMETTrue_MET200to300;
   MonitorElement* mMETDifference_GenMETTrue_MET300to400;
   MonitorElement* mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement* mMETDifference_GenMETTrue_METResolution;
-
+  MonitorElement* mMETDifference_GenMETTrue_MET500;
+  //moved into postprocessor
+  //MonitorElement* mMETDifference_GenMETTrue_METResolution;
   
-  //TCMET specific variables  
-  MonitorElement* mMExCorrection;
-  MonitorElement* mMEyCorrection;
-  MonitorElement* mMuonCorrectionFlag;
-  MonitorElement* mtrkPt;
-  MonitorElement* mtrkEta;
-  MonitorElement* mtrkNhits;
-  MonitorElement* mtrkChi2;
-  MonitorElement* mtrkD0;
-  MonitorElement* mtrkQuality;
-  MonitorElement* mtrkAlgo;
-  MonitorElement* mtrkPtErr;
-  MonitorElement* melePt;
-  MonitorElement* meleEta;
-  MonitorElement* meleHoE;
-
-  MonitorElement* mmuPt;
-  MonitorElement* mmuEta;
-  MonitorElement* mmuNhits;
-  MonitorElement* mmuChi2;
-  MonitorElement* mmuD0;
-  MonitorElement* mnMus;
-  MonitorElement* mnMusPis;
-  MonitorElement* mmuSAhits;
-  MonitorElement* mmuTesthits;
-  MonitorElement* mnEls;
-  MonitorElement* mfracTrks;
-  MonitorElement* mdMET;
-  MonitorElement* mdMETx;
-  MonitorElement* mdMETy;
-  MonitorElement* mdMEy;
-  MonitorElement* mdMUx;
-  MonitorElement* mdMUy;
 
   bool isCaloMET;
 //  bool isCorMET;
 //  bool isTcMET;
   bool isPFMET;
   bool isGenMET;
+  bool isMiniAODMET;
 
 };
 

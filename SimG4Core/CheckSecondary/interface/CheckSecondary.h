@@ -1,7 +1,6 @@
 #ifndef SimG4Core_CheckSecondary_CheckSecondary_H
 #define SimG4Core_CheckSecondary_CheckSecondary_H
 
-#include "SimG4Core/CheckSecondary/interface/TreatSecondary.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
@@ -20,6 +19,8 @@ class G4Step;
 class BeginOfEvent;
 class BeginOfTrack;
 class EndOfEvent;
+class TreatSecondary;
+class ProcessTypeEnumerator;
 
 class CheckSecondary : public SimWatcher,
 		       public Observer<const BeginOfEvent *>, 

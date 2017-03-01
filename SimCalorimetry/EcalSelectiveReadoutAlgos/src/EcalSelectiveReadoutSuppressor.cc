@@ -330,10 +330,10 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
   }
 
    if(ievt_ <= 10){
+     int neb = (selectedBarrelDigis?selectedBarrelDigis->size():0);
      if(selectedEndcapDigis) LogDebug("EcalSelectiveReadout")
 			       //       << __FILE__ << ":" << __LINE__ << ": "
-       << "Number of EB digis passing the SR: "
-       << selectedBarrelDigis->size()
+       << "Number of EB digis passing the SR: " << neb
        << " / " << barrelDigis.size() << "\n";
      if(selectedEndcapDigis) LogDebug("EcalSelectiveReadout")
 			       //       << __FILE__ << ":" << __LINE__ << ": "

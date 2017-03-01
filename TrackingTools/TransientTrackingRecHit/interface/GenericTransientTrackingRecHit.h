@@ -10,10 +10,10 @@ public:
 
   virtual ~GenericTransientTrackingRecHit() {delete trackingRecHit_;}
 
-  virtual AlgebraicVector parameters() const {return trackingRecHit_->parameters();}
-  virtual AlgebraicSymMatrix parametersError() const {return trackingRecHit_->parametersError();}
-  virtual AlgebraicMatrix projectionMatrix() const {return trackingRecHit_->projectionMatrix();}
-  virtual int dimension() const {return trackingRecHit_->dimension();}
+  virtual AlgebraicVector parameters() const override {return trackingRecHit_->parameters();}
+  virtual AlgebraicSymMatrix parametersError() const override {return trackingRecHit_->parametersError();}
+  virtual AlgebraicMatrix projectionMatrix() const override {return trackingRecHit_->projectionMatrix();}
+  virtual int dimension() const override {return trackingRecHit_->dimension();}
 
   // virtual void getKfComponents( KfComponentsHolder & holder ) const  override { trackingRecHit_->getKfComponents(holder); }
   // NO, because someone might specialize parametersError, projectionMatrix or parameters in the transient rechit
@@ -24,8 +24,8 @@ public:
 
   virtual bool canImproveWithTrack() const override {return false;}
 
-  virtual const TrackingRecHit * hit() const {return trackingRecHit_;}
-  TrackingRecHit * cloneHit() const { return hit()->clone();}
+  virtual const TrackingRecHit * hit() const override {return trackingRecHit_;}
+  TrackingRecHit * cloneHit() const override { return hit()->clone();}
 
   virtual std::vector<const TrackingRecHit*> recHits() const override {
     return ((const TrackingRecHit *)(trackingRecHit_))->recHits();

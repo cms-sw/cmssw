@@ -179,7 +179,7 @@ float ProxyStripTopology::localStripLength( const LocalPoint& lp, const Topology
 ////////////////////////////////////////////////////////////////////////////////
 void ProxyStripTopology::setSurfaceDeformation(const SurfaceDeformation * deformation)
 { 
-  theSurfaceDeformation = deformation;
+  theSurfaceDeformation.reset(deformation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

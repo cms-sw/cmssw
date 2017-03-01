@@ -30,7 +30,9 @@
  * The PixelDataFormatter interpret/format ONLY detector data words
  * (not FED headers or trailer, which are treated elsewhere).
  */
-
+//
+// Add the phase1 format
+//
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -66,7 +68,7 @@ public:
   typedef cms_uint32_t Word32;
   typedef cms_uint64_t Word64;
 
-  PixelDataFormatter(const SiPixelFedCabling* map);
+  PixelDataFormatter(const SiPixelFedCabling* map, bool phase1=false);
 
   void setErrorStatus(bool ErrorStatus);
   void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
@@ -84,7 +86,6 @@ private:
   mutable int theDigiCounter;
   mutable int theWordCounter;
 
-
   SiPixelFedCabling const * theCablingTree;
   const SiPixelFrameReverter* theFrameReverter;
   const SiPixelQuality* badPixelInfo;
@@ -97,9 +98,20 @@ private:
   int hasDetDigis;
   ErrorChecker errorcheck;
 
+  // For the 32bit data format (moved from *.cc namespace, keep uppercase for compatibility)
+  // Add special layer 1 roc for phase1
+  int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift, 
+    ROW_shift, COL_shift;
+  Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask,
+    ROW_mask, COL_mask;
+  int maxROCIndex;
+  bool phase1;
+
   int checkError(const Word32& data) const;
 
   int digi2word(  cms_uint32_t detId, const PixelDigi& digi,
+                  std::map<int, std::vector<Word32> > & words) const;
+  int digi2wordPhase1Layer1(  cms_uint32_t detId, const PixelDigi& digi,
                   std::map<int, std::vector<Word32> > & words) const;
 
   int word2digi(  const int fedId,

@@ -1,3 +1,4 @@
+
 #ifndef RecoParticleFlow_PFClusterProducer_PFRecHitCaloNavigatorWithTime_h
 #define RecoParticleFlow_PFClusterProducer_PFRecHitCaloNavigatorWithTime_h
 
@@ -20,29 +21,22 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/CaloRecHitResolutionProvider.h"
 
 template <typename D,typename T,bool ownsTopo=true>
 class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
  public:
   PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig) {
-    noiseLevel2_ = pow(iConfig.getParameter<double>("noiseLevel"), 2);
-    noiseTerm2_ = pow(iConfig.getParameter<double>("noiseTerm"), 2);
-    constantTerm2_ = pow(iConfig.getParameter<double>("constantTerm"), 2);
     sigmaCut2_ = pow(iConfig.getParameter<double>("sigmaCut"), 2);
-
-    _timeResolutionCalc.reset(NULL);
-    if( iConfig.exists("timeResolutionCalc") ) {
-      const edm::ParameterSet& timeResConf = 
-        iConfig.getParameterSet("timeResolutionCalc");
-        _timeResolutionCalc.reset(new ECALRecHitResolutionProvider(timeResConf));
-    }
+    const edm::ParameterSet& timeResConf = iConfig.getParameterSet("timeResolutionCalc");
+    _timeResolutionCalc.reset(new CaloRecHitResolutionProvider(timeResConf));
   }
+
 
  virtual ~PFRecHitCaloNavigatorWithTime() { if(!ownsTopo) { topology_.release(); } }
 
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
       CaloNavigator<D> navigator(detid, topology_.get());
@@ -117,42 +111,36 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
  protected:
 
+  double sigmaCut2_;
+  std::unique_ptr<const T> topology_;
+  std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalc;
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
+
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
     double sigma2=10000.0;
     
-    const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
+
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
-				      temp,
+				      id,
 				      [](const reco::PFRecHit& a, 
-					 const reco::PFRecHit& b){
-					return a.detId() < b.detId();
+					  DetId b){
+					if (DetId(a.detId()).det() == DetId::Hcal || b.det() == DetId::Hcal) return (HcalDetId)(a.detId()) < (HcalDetId)(b);
+
+					else return a.detId() < b.rawId();
 				      });
-    if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-      if (_timeResolutionCalc) {
-        sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
-      }
-      else {
-        const double hitEnergy = hit.energy();
-        const double hitEnergy2 = hitEnergy*hitEnergy;
-        const double fhEnergy = found_hit->energy();
-        const double fhEnergy2 = fhEnergy*fhEnergy;
-        sigma2 = noiseTerm2_*noiseLevel2_*(hitEnergy2+fhEnergy2)/(hitEnergy2*fhEnergy2) + 2*constantTerm2_;
-      }
+
+
+    if (found_hit != hits->end() && ((found_hit->detId() == id.rawId()) ||
+				     ((id.det()==DetId::Hcal) &&
+				      ((HcalDetId)(found_hit->detId()) == (HcalDetId)(id))))) {
+      sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
       const double deltaTime = hit.time()-found_hit->time();
-      if(deltaTime*deltaTime/sigma2<sigmaCut2_) {
-        hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+      if(deltaTime*deltaTime<sigmaCut2_*sigma2) {
+	hit.addNeighbour(eta,phi,0,found_hit-hits->begin());
       }
     }
+
   }
-
-  std::unique_ptr<const T> topology_;
-  double noiseLevel2_;
-  double noiseTerm2_;
-  double constantTerm2_;
-  double sigmaCut2_;
-
-  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalc;
 
 
 

@@ -18,7 +18,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,13 +46,15 @@
 // class decleration
 //
 
-class dumpEcalTrigTowerMapping : public edm::EDAnalyzer {
+class dumpEcalTrigTowerMapping : public edm::one::EDAnalyzer<> {
 public:
   explicit dumpEcalTrigTowerMapping( const edm::ParameterSet& );
   ~dumpEcalTrigTowerMapping();
-  
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+    
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
   // ----------member data ---------------------------
   void build(const CaloGeometry& cg, const EcalTrigTowerConstituentsMap& etmap, DetId::Detector det, int subdetn, const char* name);

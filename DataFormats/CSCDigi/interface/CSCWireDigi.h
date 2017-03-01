@@ -20,7 +20,7 @@ public:
   CSCWireDigi (int wire, unsigned int tbinb);  /// wiregroup#, tbin bit word
   CSCWireDigi ();                     /// default
 
-  /// return wiregroup number
+  /// return wiregroup number. counts from 1.
   int getWireGroup() const {return wire_;}
   /// return BX assigned for the wire group (16 upper bits from the wire group number)
   int getWireGroupBX() const {return wireBX_;}

@@ -1,4 +1,5 @@
 #include "RecoVertex/VertexTools/interface/DeterministicAnnealing.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -36,7 +37,7 @@ double DeterministicAnnealing::weight ( double chi2 ) const
   */
   // return mphi / ( mphi + phi ( theChi2cut ) );
   long double newtmp = mphi / ( mphi + phi ( theChi2cut ) );
-  if ( std::isinf(newtmp ) )
+  if ( edm::isNotFinite(newtmp ) )
   {
     if ( chi2 < theChi2cut ) newtmp=1.;
     else newtmp=0.;

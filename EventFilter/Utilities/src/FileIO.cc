@@ -43,6 +43,6 @@ bool FileIO::readStringFromFile(std::string const& filename, std::string& conten
 bool FileIO::fileExists(std::string const& path)
 {
   std::ifstream ifile(path.c_str());
-  return ifile;
+  return !ifile.fail();
 }
 

@@ -27,10 +27,8 @@ class SiStripMonitorFilter : public DQMEDAnalyzer {
       explicit SiStripMonitorFilter(const edm::ParameterSet&);
       ~SiStripMonitorFilter(){};
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
-       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
    private:
        edm::EDGetTokenT<int> filerDecisionToken_;       

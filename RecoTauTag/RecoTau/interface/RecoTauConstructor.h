@@ -30,6 +30,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 #include "boost/shared_ptr.hpp"
 #include <vector>
@@ -53,7 +54,10 @@ class RecoTauConstructor {
     /// Constructor with PFCandidate Handle
     RecoTauConstructor(const PFJetRef& jetRef,
         const edm::Handle<PFCandidateCollection>& pfCands,
-        bool copyGammasFromPiZeros=false);
+	bool copyGammasFromPiZeros = false,
+	const StringObjectFunction<reco::PFTau>* signalConeSize = 0,
+	double minAbsPhotonSumPt_insideSignalCone = 2.5, double minRelPhotonSumPt_insideSignalCone = 0.,
+	double minAbsPhotonSumPt_outsideSignalCone = 1.e+9, double minRelPhotonSumPt_outsideSignalCone = 1.e+9);
 
     /*
      * Code to set leading candidates.  These are just wrappers about
@@ -133,6 +137,13 @@ class RecoTauConstructor {
     typedef std::map<CollectionKey, SortedListPtr> SortedCollectionMap;
 
     bool copyGammas_;
+
+    const StringObjectFunction<reco::PFTau>* signalConeSize_;
+    double minAbsPhotonSumPt_insideSignalCone_;
+    double minRelPhotonSumPt_insideSignalCone_;
+    double minAbsPhotonSumPt_outsideSignalCone_; 
+    double minRelPhotonSumPt_outsideSignalCone_;
+
     // Retrieve collection associated to signal/iso and type
     std::vector<PFCandidatePtr>* getCollection(Region region, ParticleType type);
     SortedListPtr getSortedCollection(Region region, ParticleType type);

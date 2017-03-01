@@ -27,7 +27,7 @@
 
 HFPMTHitAnalyzer::HFPMTHitAnalyzer(const edm::ParameterSet& iConfig) {
 
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel","generator")));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("SourceLabel","VtxSmeared")));
   g4Label     = iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hcalHits    = iConfig.getUntrackedParameter<std::string>("HitCollection","HcalHits");
 

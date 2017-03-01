@@ -13,6 +13,16 @@ namespace cond {
       return existsTable( m_schema, tname );
     }
 
+    void GLOBAL_TAG::Table::create(){
+      if( exists() ){
+	throwException( "GLOBAL_TAG table already exists in this schema.",
+			"GLOBAL_TAG::Table::create");
+      }
+      TableDescription< NAME, VALIDITY, DESCRIPTION, RELEASE, SNAPSHOT_TIME, INSERTION_TIME > descr( tname );
+      descr.setPrimaryKey<NAME>();
+      createTable( m_schema, descr.get() );
+    }
+
     bool GLOBAL_TAG::Table::select( const std::string& name ){
       Query< NAME > q( m_schema );
       q.addCondition<NAME>( name );
@@ -24,14 +34,9 @@ namespace cond {
     bool GLOBAL_TAG::Table::select( const std::string& name, 
 				    cond::Time_t& validity, 
 				    boost::posix_time::ptime& snapshotTime ){
-      // FIXME: FronTier reads from Oracle with a Format not compatible with the parsing in Coral: required is 'YYYY-MM-DD HH24:MI:SSXFF6' 
-      // temporarely disabled to allow to work with FronTier
-      //Query< VALIDITY, SNAPSHOT_TIME > q( session.coralSchema() );
-      //q.addCondition<NAME>( name );
-      //for ( auto row : q ) std::tie( validity, snapshotTime ) = row;
-      Query< VALIDITY > q( m_schema );
+      Query< VALIDITY, SNAPSHOT_TIME > q( m_schema );
       q.addCondition<NAME>( name );
-      for ( auto row : q ) std::tie( validity ) = row;
+      for ( auto row : q ) std::tie( validity, snapshotTime ) = row;
       
       return q.retrievedRows();
     }
@@ -41,14 +46,10 @@ namespace cond {
 				    std::string& description, 
 				    std::string& release, 
 				    boost::posix_time::ptime& snapshotTime ){
-      // FIXME: Frontier reads from Oracle with a Format not compatible with the parsing in Coral: required is 'YYYY-MM-DD HH24:MI:SSXFF6' 
-      // temporarely disabled to allow to work with FronTier
-      //Query< VALIDITY, DESCRIPTION, RELEASE, SNAPSHOT_TIME > q( session.coralSchema() );
-      //q.addCondition<NAME>( name );
-      //for ( auto row : q ) std::tie( validity, description, release, snapshotTime ) = row;
-      Query< VALIDITY, DESCRIPTION, RELEASE > q( m_schema );
+      Query< VALIDITY, DESCRIPTION, RELEASE, SNAPSHOT_TIME > q( m_schema );
       q.addCondition<NAME>( name );
-      for ( auto row : q ) std::tie( validity, description, release ) = row;
+      for ( auto row : q ) std::tie( validity, description, release, snapshotTime ) = row;
+
       return q.retrievedRows();
     }
     
@@ -81,6 +82,16 @@ namespace cond {
 
     bool GLOBAL_TAG_MAP::Table::exists(){
       return existsTable( m_schema, tname );
+    }
+
+    void GLOBAL_TAG_MAP::Table::create(){
+      if( exists() ){
+	throwException( "GLOBAL_TAG_MAP table already exists in this schema.",
+			"GLOBAL_TAG_MAP::Table::create");
+      }
+      TableDescription< GLOBAL_TAG_NAME, RECORD, LABEL, TAG_NAME > descr( tname );
+      descr.setPrimaryKey< GLOBAL_TAG_NAME, RECORD, LABEL >();
+      createTable( m_schema, descr.get() );
     }
     
     bool GLOBAL_TAG_MAP::Table::select( const std::string& gtName, 
@@ -119,6 +130,11 @@ namespace cond {
       if( !m_gtTable.exists() ) return false;
       if( !m_gtMapTable.exists() ) return false;
       return true;
+    }
+
+    void GTSchema::create(){
+      m_gtTable.create();
+      m_gtMapTable.create();
     }
 
     GLOBAL_TAG::Table& GTSchema::gtTable(){

@@ -1,5 +1,6 @@
 #include "Adjuster.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 namespace edm {
 namespace detail {
@@ -43,5 +44,17 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsig
     item.setTime(item.time() + timeOffset);
   }
 }
+
+void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset) {
+
+  EncodedEventId id(bcr,evtNr);
+  for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
+      if(trackerHitRTTI::isFast(*it)){
+	  FastTrackerRecHit * rechit = static_cast<FastTrackerRecHit*>(&(*it));
+	  rechit->setEventId(id.rawId());
+      }
+  }
 }
-}
+
+} // end namespace detail
+} // end namespace edm                   

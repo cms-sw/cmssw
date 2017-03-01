@@ -108,8 +108,7 @@ void PFTauMVAInputDiscriminantTranslator::produce(edm::Event& evt,
 
   BOOST_FOREACH(const DiscriminantInfo& disc, discriminators_) {
     // output for this discriminator
-    std::auto_ptr<PFTauDiscriminator> output(
-        new PFTauDiscriminator(edm::RefProd<PFTauCollection>(pfTaus)));
+    auto output = std::make_unique<PFTauDiscriminator>(edm::RefProd<PFTauCollection>(pfTaus));
     // loop over taus
     for(size_t itau = 0; itau < pfTaus->size(); ++itau) {
       PFTauRef tauRef(pfTaus, itau);
@@ -122,7 +121,7 @@ void PFTauMVAInputDiscriminantTranslator::produce(edm::Event& evt,
       }
       output->setValue(itau, selected_result);
     }
-    evt.put(output, disc.collName);
+    evt.put(std::move(output), disc.collName);
   }
 }
 

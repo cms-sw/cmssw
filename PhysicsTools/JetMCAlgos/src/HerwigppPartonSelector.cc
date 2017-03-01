@@ -19,7 +19,7 @@ HerwigppPartonSelector::~HerwigppPartonSelector()
 
 void
 HerwigppPartonSelector::run(const edm::Handle<reco::GenParticleCollection> & particles,
-                          std::auto_ptr<reco::GenParticleRefVector> & partons)
+                          std::unique_ptr<reco::GenParticleRefVector> & partons)
 {
    // loop over particles and select partons
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)

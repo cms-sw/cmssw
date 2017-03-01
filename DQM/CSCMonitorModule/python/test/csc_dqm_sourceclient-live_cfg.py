@@ -57,7 +57,7 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 # GEOMETRY
 #-------------------------------------------------
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------------------
 # Global Tag

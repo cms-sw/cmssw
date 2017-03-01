@@ -5,16 +5,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-class  MeasurementTrackerESProducer: public edm::ESProducer{
+class  dso_hidden MeasurementTrackerESProducer: public edm::ESProducer{
  public:
   MeasurementTrackerESProducer(const edm::ParameterSet & p);
   virtual ~MeasurementTrackerESProducer(); 
-  boost::shared_ptr<MeasurementTracker> produce(const CkfComponentsRecord &);
+  std::shared_ptr<MeasurementTracker> produce(const CkfComponentsRecord &);
  private:
-  boost::shared_ptr<MeasurementTracker> _measurementTracker;
+  std::shared_ptr<MeasurementTracker> _measurementTracker;
   edm::ParameterSet pset_;
+  std::string pixelCPEName;
+  std::string stripCPEName;
+  std::string matcherName;
+  std::string phase2TrackerCPEName;
 };
 
 

@@ -18,12 +18,16 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 
 class DQMStore;
 class MonitorElement;
 
-class DQMSourceEleCalib : public edm::EDAnalyzer {
+class DQMSourceEleCalib : public DQMEDAnalyzer {
 
 public:
 
@@ -32,21 +36,16 @@ public:
 
 protected:
    
-  void beginJob();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
+                            const edm::EventSetup& context)  override;
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+                          const edm::EventSetup& c) override;
 
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void endJob();
 
 private:
   
@@ -59,7 +58,6 @@ private:
   void fillAroundBarrel (const EcalRecHitCollection *, int, int);
   void fillAroundEndcap (const EcalRecHitCollection *, int, int);
 
-  DQMStore*   dbe_;  
   int eventCounter_;      
                         
   //!Number of recHits per electron

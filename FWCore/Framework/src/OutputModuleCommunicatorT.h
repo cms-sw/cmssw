@@ -8,14 +8,19 @@
 
 namespace edm {
   class OutputModule;
-  
+  class ThinnedAssociationsHelper;
+
   namespace one {
+    class OutputModuleBase;
+  }
+  namespace global {
     class OutputModuleBase;
   }
   namespace impl {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase *);
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase *);
   }
   
   template <typename T>
@@ -47,7 +52,7 @@ namespace edm {
     
     virtual edm::SelectedProductsForBranchType const& keptProducts() const override;
     
-    virtual void selectProducts(edm::ProductRegistry const& preg) override;
+    virtual void selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const&) override;
     
     virtual void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                        bool anyProductProduced) override;
@@ -56,7 +61,6 @@ namespace edm {
 
     static std::unique_ptr<edm::OutputModuleCommunicator> createIfNeeded(T* iMod) {
       return std::move(impl::createCommunicatorIfNeeded(iMod));
-      return std::move(std::unique_ptr<edm::OutputModuleCommunicator>{});
     }
 
   private:

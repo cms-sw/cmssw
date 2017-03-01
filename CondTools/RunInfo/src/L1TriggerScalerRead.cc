@@ -15,7 +15,7 @@
 #include "CoralBase/AttributeSpecification.h"
 //#include "SealBase/TimeInfo.h"
 
-#include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/CondDB/interface/Time.h"
 
 #include "CoralBase/TimeStamp.h"
 

@@ -52,9 +52,10 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp) : 
-        m_sp(sp) {
-
+L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp, edm::ConsumesCollector && iC) : 
+        m_sp(sp),
+        m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag())),
+        m_CSCTrSToken(iC.mayConsume<CSCTriggerContainer<csctf::TrackStub> >(L1MuDTTFConfig::getCSCTrSInputTag())) {
 }
 
 
@@ -105,7 +106,7 @@ void L1MuDTSectorReceiver::reset() {
 void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   edm::Handle<L1MuDTChambPhContainer> dttrig;
-  e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
+  e.getByToken(m_DTDigiToken,dttrig);
 
   L1MuDTChambPhDigi const* ts=0;
 
@@ -225,7 +226,7 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
   if ( bx < -6 || bx > 6 ) return;
 
   edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;
-  e.getByLabel(L1MuDTTFConfig::getCSCTrSInputTag(),csctrig);
+  e.getByToken(m_CSCTrSToken,csctrig);
 
   const int bxCSC = 6;
   

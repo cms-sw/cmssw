@@ -1,9 +1,12 @@
 #ifndef DDI_EllipticalTube_h
 #define DDI_EllipticalTube_h
 
-#include <iosfwd>
-#include "Solid.h"
 #include <DataFormats/GeometryVector/interface/Pi.h>
+#include <iosfwd>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "Solid.h"
 
 namespace DDI {
 

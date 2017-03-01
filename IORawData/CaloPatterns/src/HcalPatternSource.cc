@@ -29,9 +29,9 @@ void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
   es.get<HcalElectronicsMapRcd>().get(item);
   const HcalElectronicsMap *elecmap=item.product();
 
-  std::auto_ptr<HBHEDigiCollection> hbhe(new HBHEDigiCollection());
-  std::auto_ptr<HFDigiCollection> hf(new HFDigiCollection());
-  std::auto_ptr<HODigiCollection> ho(new HODigiCollection());
+  auto hbhe = std::make_unique<HBHEDigiCollection>();
+  auto hf = std::make_unique<HFDigiCollection>();
+  auto ho = std::make_unique<HODigiCollection>();
 
   int bc=bunches_[e.id().event()-1];
   for (std::vector<HcalFiberPattern>::iterator i=patterns_.begin(); i!=patterns_.end(); i++) {
@@ -78,9 +78,9 @@ void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
   ho->sort();
   hf->sort();
   
-  e.put(hbhe);
-  e.put(ho);
-  e.put(hf);
+  e.put(std::move(hbhe));
+  e.put(std::move(ho));
+  e.put(std::move(hf));
 }
 
 void HcalPatternSource::loadPatterns(const std::string& patspec) {

@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("WatcherSource",
-                    inputDir      = cms.string('in'),
-                    filePatterns  = cms.vstring('.*\\.dat$'),
+                    inputDir      = cms.string('in/'),
+                    filePatterns  = cms.vstring('run[[:digit:]]+/run.*\\\\.dat$'),
+#                    filePatterns  = cms.vstring('run.*\\\\.dat$'),
                     inprocessDir  = cms.string('work'),
                     processedDir  = cms.string('done'),
                     corruptedDir  = cms.string('corrupted'),

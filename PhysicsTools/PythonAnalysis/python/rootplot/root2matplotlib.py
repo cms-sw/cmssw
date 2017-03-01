@@ -435,7 +435,7 @@ class RootFile(utilities.RootFile):
         try:
             return utilities.RootFile.get(self, object_name, path,
                                           Hist, Hist2D)
-        except ReferenceError, e:
+        except ReferenceError as e:
             raise ReferenceError(e)
 
 ################ Define additional helping functions

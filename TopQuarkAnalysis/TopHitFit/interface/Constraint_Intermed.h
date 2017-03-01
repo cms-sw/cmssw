@@ -151,7 +151,7 @@ public:
   /**
      Clone function to copy the instance.
    */
-  virtual std::auto_ptr<Constraint_Intermed> clone () const = 0;
+  virtual std::unique_ptr<Constraint_Intermed> clone () const = 0;
 };
 
 
@@ -231,7 +231,7 @@ public:
   /**
      Clone function to copy the instance.
    */
-  virtual std::auto_ptr<Constraint_Intermed> clone () const;
+  virtual std::unique_ptr<Constraint_Intermed> clone () const;
 
 private:
   // Store c^2 / 2.
@@ -315,7 +315,7 @@ public:
   /**
      Clone function to copy the instance.
    */
-  virtual std::auto_ptr<Constraint_Intermed> clone () const;
+  virtual std::unique_ptr<Constraint_Intermed> clone () const;
 
 private:
   // Test to see if LABEL is used by this constraint half.
@@ -378,7 +378,7 @@ std::ostream& operator<< (std::ostream& s, const Constraint_Intermed& ci);
    <b>NULL pointer</b> if the input string cannot be interpreted as
    a mass constraint.
  */
-std::auto_ptr<Constraint_Intermed> make_constraint_intermed (std::string s);
+std::unique_ptr<Constraint_Intermed> make_constraint_intermed (std::string s);
 
 
 } // namespace hitfit

@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -66,7 +66,7 @@ void AlignableComposite::move( const GlobalVector& displacement )
   
   // Move components
   Alignables comp = this->components();
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
     (**i).move( displacement);
 
   // Move surface
@@ -110,7 +110,7 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
   
   PositionType myPosition = this->globalPosition();
   
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
     {
       
       // It is much simpler to calculate the local position given in coordinates 
@@ -197,7 +197,7 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
   Alignables comp = this->components();
   PositionType myPosition=this->globalPosition();
 
-  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); ++i )
     {
 
       // It is just similar to to the "movement" that results to the components
@@ -280,7 +280,7 @@ void AlignableComposite::dump( void ) const
     << this->globalRotation();
 
   // Dump components
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
     (*i)->dump();
 
 }
@@ -297,7 +297,7 @@ Alignments* AlignableComposite::alignments( void ) const
   Alignments* m_alignments = new Alignments();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
     {
       Alignments* tmpAlignments = (*i)->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
@@ -312,21 +312,21 @@ Alignments* AlignableComposite::alignments( void ) const
 
 
 //__________________________________________________________________________________________________
-AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableComposite::alignmentErrors( void ) const
 {
 
   // Recursively call alignmentsErrors, until we get to an AlignableDetUnit
   Alignables comp = this->components();
 
-  AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
+  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
     {
-      AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
-      std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
+      AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+      std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
 		 std::back_inserter(m_alignmentErrors->m_alignError) );
-	  delete tmpAlignmentErrors;
+	  delete tmpAlignmentErrorsExtended;
     }
 
   

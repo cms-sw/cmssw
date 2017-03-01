@@ -77,7 +77,15 @@ public:
       bool testBit(UChar_t f) const  { return (m_flags & f) == f; }
       bool testBitAny(UChar_t f) const  { return (m_flags & f) != 0; }
 
-      void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
+     void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
+
+     void copyColorTransparency(const NodeInfo& x) {
+       m_color = x.m_color; m_transparency = x.m_transparency; 
+       if (m_node->GetVolume()) { 
+         m_node->GetVolume()->SetLineColor(x.m_color);
+         m_node->GetVolume()->SetTransparency(x.m_transparency);
+       }
+     }
    };
 
 
@@ -160,6 +168,8 @@ public:
 
    virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
    virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+
+   virtual void applyColorTranspToDaughters(int selectedIdx, bool recurse);
 
    bool isNodeRendered(int idx, int top_node_idx) const;
 

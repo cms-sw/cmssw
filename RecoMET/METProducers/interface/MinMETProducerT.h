@@ -14,7 +14,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,7 +25,7 @@
 #include <vector>
 
 template <typename T>
-class MinMETProducerT : public edm::EDProducer
+class MinMETProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> METCollection;
 
@@ -47,7 +47,7 @@ class MinMETProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
-    std::auto_ptr<METCollection> outputMETs(new METCollection());
+    auto outputMETs = std::make_unique<METCollection>();
 
     // check that all MET collections given as input have the same number of entries
     int numMEtObjects = -1;
@@ -80,7 +80,7 @@ class MinMETProducerT : public edm::EDProducer
       outputMETs->push_back(T(*minMET));
     }
 
-    evt.put(outputMETs);
+    evt.put(std::move(outputMETs));
   }
 
   std::string moduleLabel_;

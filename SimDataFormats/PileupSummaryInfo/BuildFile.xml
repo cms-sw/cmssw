@@ -1,6 +1,8 @@
+<use   name="DataFormats/Math"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Provenance"/>
-<use   name="rootrflx"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="hepmc"/>
 <export>
   <lib   name="1"/>
 </export>

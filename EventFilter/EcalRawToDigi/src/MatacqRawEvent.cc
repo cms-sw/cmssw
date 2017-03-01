@@ -80,17 +80,13 @@ const MatacqRawEvent::field32spec_t MatacqRawEvent::side32              = {13,0x
 
 void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   error = 0;
-  unsigned char* begin = (unsigned char*) pData;
-  int16le_t* begin16 = (int16le_t*) pData;
-  uint32le_t* begin32 = (uint32le_t*) pData;
-  int16le_t* pData16 = begin16;
-  const int daqHeaderLen = 16; //in bytes
+  const int16le_t *begin16 = (const int16le_t *) pData;
+  const uint32le_t *begin32 = (const uint32le_t *) pData;
   if(maxSize < 6*4){
     error = errorLength;
     return;
   }
-  pData16 += daqHeaderLen/sizeof(pData16[0]);
-  //  matacqHeader = (matacqHeader_t*) pData16;
+  
   daqHeader = begin32;
   matacqDataFormatVersion = read32(begin32, formatVersion32);
   freqGHz       	  = read32(begin32, freqGHz32);
@@ -137,7 +133,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   const int nCh = getChannelCount();
   channelData.resize(nCh);
 
-  pData16 = (int16le_t*) (begin+headerLen); 
+  const int16le_t *pData16 = (const int16le_t *) (pData+headerLen); 
 
   for(int iCh=0; iCh<nCh; ++iCh){
     if((size_t)(pData16-begin16)>maxSize){
@@ -200,7 +196,7 @@ void MatacqRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   }
 }
 
-int MatacqRawEvent::read32(uint32le_t* pData, field32spec_t spec32,
+int MatacqRawEvent::read32(const uint32le_t* pData, field32spec_t spec32,
 			   bool ovfTrans){
   uint32_t result =  pData[spec32.offset] & spec32.mask;
   uint32_t mask = spec32.mask;

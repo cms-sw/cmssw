@@ -43,28 +43,18 @@ public:
     else{
       m_searchOpt = false;
     }
-    m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
-    if (regionPSet.exists("measurementTrackerName")){
-      // FIXME: when next time altering the configuration of this
-      // class, please change the types of the following parameters:
-      // - howToUseMeasurementTracker to at least int32 or to a string
-      //   corresponding to the UseMeasurementTracker enumeration
-      // - measurementTrackerName to InputTag
-      if (regionPSet.exists("howToUseMeasurementTracker")){
-	m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regionPSet.getParameter<double>("howToUseMeasurementTracker"));
-      }
-      if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
-        theMeasurementTrackerToken = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
-      }
+    m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regionPSet.getParameter<std::string>("howToUseMeasurementTracker"));
+    if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+      theMeasurementTrackerToken = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
   }   
 
   virtual ~L3MumuTrackingRegion(){}
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, 
-      const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
+      const edm::EventSetup& es) const override {
 
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     const MeasurementTrackerEvent *measurementTracker = nullptr;
     if(!theMeasurementTrackerToken.isUninitialized()) {
@@ -94,7 +84,7 @@ public:
 	    reco::TrackRef iTrk =  (*trackIt).castTo<reco::TrackRef>() ;
             GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
             result.push_back(
-                             new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(ci->z())),
+                             std::make_unique<RectangularEtaPhiTrackingRegion>( dirVector, GlobalPoint(0,0,float(ci->z())),
                                                                   thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 								  m_howToUseMeasurementTracker,
 								  true,
@@ -110,7 +100,7 @@ public:
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
-	  new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(originz)), 
+         std::make_unique<RectangularEtaPhiTrackingRegion>( dirVector, GlobalPoint(0,0,float(originz)),
 					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 					       m_howToUseMeasurementTracker,
 					       true,
