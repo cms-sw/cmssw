@@ -1,4 +1,4 @@
-# /dev/CMSSW_9_0_0/GRun/V7 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/GRun/V8 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
@@ -6,7 +6,7 @@ from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 process = cms.Process( "HLTGRun", Run2_2017 )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V8')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -67130,6 +67130,7 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
       'keep *_hltSiPixelClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep *_hltVerticesL3_*_*',
+      'keep *_hltVerticesPFFilter_*_*',
       'keep *_hltVerticesPFSelector_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
