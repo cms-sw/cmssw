@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 pythia8CUEP8M3SettingsBlock = cms.PSet(
     pythia8CUEP8M3Settings = cms.vstring(
-        'Tune:pp 14',
+              'Tune:pp 14',
 	      'Tune:ee 7',
 	      'Diffraction:PomFlux=5',
 	      'Diffraction:MBRepsilon=0.0903',
-	      'Diffraction:MBRalpha=0.0633',
+	      'Diffraction:MBRalpha=0.1',
 	      'Diffraction:MBRdyminDD = 0.',
 	      'Diffraction:MBRdyminSigDD = 0.001',
 	      'Diffraction:MBRdyminDDflux = 1.35',
