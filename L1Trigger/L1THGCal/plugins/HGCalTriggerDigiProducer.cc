@@ -51,8 +51,6 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   codec_->unSetDataPayload();
   
   produces<l1t::HGCFETriggerDigiCollection>();
-  //setup BE processor
-  //backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
   // register backend processor products
   backEndProcessor_->setProduces(*this);
 
@@ -135,5 +133,4 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   backEndProcessor_->reset();
   backEndProcessor_->run(fe_digis_coll,es,e);
   backEndProcessor_->putInEvent(e);
-  //backEndProcessor_->reset();  
 }
