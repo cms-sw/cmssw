@@ -9,17 +9,25 @@ HGCalCluster::HGCalCluster( const LorentzVector p4,
                             int phi)
     : L1Candidate(p4, pt, eta, phi), 
       centre_(0, 0, 0),
-      hwPt_(0)
+      hwPt_(0),
+      mipPt_(0)
 {
 
 }
 
 
-HGCalCluster::HGCalCluster(  const l1t::HGCalTriggerCell &tcSeed )  
+HGCalCluster::HGCalCluster(  const l1t::HGCalTriggerCell &tcSeed,
+                             //edm::PtrVector<l1t::HGCalTriggerCell> tcCollection,
+                             const edm::EventSetup & es,
+                             const edm::Event & evt )  
     : seedDetId_( tcSeed.detId() ),
       centre_(0, 0, 0),
-      hwPt_(0)
+//      tcPtrs_( tcCollection ),
+      hwPt_(0),
+      mipPt_(0)
 {
+    recHitTools_.getEvent( evt );
+    recHitTools_.getEventSetup( es );
     addTCseed( tcSeed );
 }
 
@@ -37,16 +45,12 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
 
     HGCalDetId tcDetId( tc.detId() );
     HGCalDetId seedDetId( seedDetId_ );
-    if( tcDetId.layer() != seedDetId.layer() && 
-        tcDetId.subdetId() != seedDetId.subdetId() &&
+    if( tcDetId.layer() != seedDetId.layer() ||
+        tcDetId.subdetId() != seedDetId.subdetId() ||
         tcDetId.zside() != seedDetId.zside() )
         return false;
 
-    ROOT::Math::RhoEtaPhiVector tcPoint( 0, tc.eta(), tc.phi() );
-
-    double dist =  ( tcPoint - centre_ ).Mag2();
-
-    if ( dist < distEtaPhi )
+    if ( this->dist(tc) < distEtaPhi )
         return true;
 
     return false;
@@ -57,50 +61,57 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
 void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc) const
 {
 
-    ROOT::Math::RhoEtaPhiVector tcPoint( 0, tc.eta(), tc.phi() );
+    DetId id( tc.detId() );
+    ROOT::Math::RhoEtaPhiVector tcPoint( recHitTools_.getPosition( id ).z(), 
+                                         tc.eta(), 
+                                         tc.phi() );
 
-    centre_ = centre_*hwPt_ + tcPoint*tc.hwPt() ;
-    centre_ = centre_ / ( hwPt_ + tc.hwPt() );
+    ROOT::Math::XYZVector tcPointXYZ( tcPoint.X(), 
+                                      tcPoint.Y(), 
+                                      tcPoint.Z() );
 
-    hwPt_ = hwPt_ + tc.hwPt();
+    centre_ = centre_*mipPt_ + tcPointXYZ*tc.mipPt() ;
+    centre_ = centre_ / ( mipPt_ + tc.mipPt() );
 
+    mipPt_ = mipPt_ + tc.mipPt();
+    hwPt_  = hwPt_ + tc.hwPt();
+  
 }
 
 
 void HGCalCluster::addTCseed(const l1t::HGCalTriggerCell &tc) const
 {
-
-    ROOT::Math::RhoEtaPhiVector tcPoint( 0, tc.eta(), tc.phi() );
-
-    centre_ = tcPoint ;
-
-    hwPt_   = tc.hwPt();
-
-    seedDetId_ = tc.detId();
-
-}
-
-
-ROOT::Math::RhoEtaPhiVector HGCalCluster::centreNorm() const
-{
-
-    tmp::GeoTmp g;
-    double norm=0;
-    if( this->subdetId() == 3 )
-        norm = g.getZ_EE( this->layer() ); 
-    else if( this->subdetId() == 4 )
-        norm = g.getZ_FH( this->layer() ); 
-        
-    return (centre_/norm);
     
+    seedDetId_ = tc.detId();
+    DetId id( seedDetId_ );
+    ROOT::Math::RhoEtaPhiVector tcPoint( recHitTools_.getPosition( id ).z(), 
+                                         tc.eta(), 
+                                         tc.phi() );
+
+    centre_.SetXYZ( tcPoint.X(), 
+                    tcPoint.Y(), 
+                    tcPoint.Z() );
+
+    mipPt_ = tc.mipPt();
+    hwPt_ = tc.hwPt();
+
 }
 
 
 double HGCalCluster::dist(const l1t::HGCalTriggerCell &tc) const
 {
 
-    return reco::deltaR ( tc.p4().Eta(), tc.p4().Phi(), 
-                          this->p4().Eta(), this->p4().Phi() );
+    DetId id( tc.detId() );
+    ROOT::Math::RhoEtaPhiVector tcPoint( recHitTools_.getPosition( id ).z(), 
+                                         tc.eta(), 
+                                         tc.phi() );
+    
+    ROOT::Math::XYZVector tcPointXYZ( tcPoint.X(), 
+                                      tcPoint.Y(), 
+                                      tcPoint.Z() );
+
+    return ( tcPointXYZ - centre_ ).Mag2();
+    
 
 }
 
@@ -141,10 +152,10 @@ bool HGCalCluster::operator<(const HGCalCluster& cl) const
     bool res = false;
 
     /* Prioratize high pT */
-    if(hwPt()<cl.hwPt()) {
+    if( mipPt() < cl.mipPt()) {
         res = true;
     }
-    else if(hwPt()==cl.hwPt()) {
+    else if( mipPt() == cl.mipPt() ) {
         if( abs(hwEta()) > abs( cl.hwEta() ) ) /* Prioratize central clusters */
             res = true;
         else if( abs(hwEta())==abs( cl.hwEta() ) )

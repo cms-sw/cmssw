@@ -5,7 +5,7 @@
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& beCodecConfig ) 
 {
     
-    dr_ = beCodecConfig.getParameter<double>("dR_searchNeighbour");
+    dr_ = beCodecConfig.getParameter<double>("dR_multicluster");
 
 }
 
@@ -42,10 +42,8 @@ void HGCalMulticlusteringImpl::clusterise( const l1t::HGCalClusterBxCollection &
             multiclusters_.at(0, targetMulticlu).addClu( *clu );
         
         }
-            
         
 
     }
     
 }
- 

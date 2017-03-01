@@ -30,7 +30,12 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('/store/relval//CMSSW_9_0_0_pre4/RelValZEE_14/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v3_2023D4Timing-v1/10000/02605B3A-92EC-E611-A9A9-0025905B85B2.root') )
+    secondaryFileNames = cms.untracked.vstring(),
+    fileNames = cms.untracked.vstring(
+        'file:./testGenOnly.root'
+        )
+)
+
 
 # Additional output definition
 process.TFileService = cms.Service(
@@ -68,14 +73,14 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
                               C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
-                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
-                                        )
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives ) 
+process.digi2raw_step = cms.Path( process.DigiToRaw )
+#process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
+#                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
+#                                        )
 
-process.test_step = cms.Path(process.HGC_clustering)
+#process.test_step = cms.Path(process.HGC_clustering)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
@@ -87,7 +92,7 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 process.schedule = cms.Schedule( process.hgcl1tpg_step, 
                                  #process.digi2raw_step, 
                                  #process.test_step, 
-                                 process.ntuple_step,
+                                 process.ntuple_step, # create the persistent event 
                                  process.endjob_step
                                  )
 

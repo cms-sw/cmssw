@@ -43,16 +43,17 @@ namespace l1t
             HGCalDetId trgdetid(detid_);                
             return trgdetid.layer();               
         }
-        
-//        void setIsSeed() { isSeed_ = true; }
-//        bool getIsSeed() { return isSeed_; }
+
+        void   setMipPt( double value ) { mipPt_ = value; }
+        double mipPt() const            { return mipPt_;  }
         
     private:
        
-        //      bool isSeed_;
         uint32_t detid_;
         GlobalPoint position_;
         
+        double mipPt_;
+
     };
     
 }
