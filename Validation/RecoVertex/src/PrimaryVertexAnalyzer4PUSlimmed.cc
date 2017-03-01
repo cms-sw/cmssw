@@ -1387,6 +1387,26 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
 	continue;
     }
 
+    {
+      // check upfront that refs to track are (likely) to be valid
+      bool ok = true;
+      for(const auto& v: *recVtxs) {
+	if(v.tracksSize() > 0) {
+	  const auto& ref = v.trackRefAt(0);
+	  if(ref.isNull() || !ref.isAvailable()) {
+	    if(!errorPrintedForColl_[iToken]) {
+	      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+		<< "Skipping vertex collection: " << label << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	      errorPrintedForColl_[iToken] = true;
+	    }
+	    ok = false;
+	  }
+	}
+      }
+      if(!ok)
+	continue;
+    }
+
     reco::VertexRecoToSimCollection vertex_r2s = vertexAssociator.associateRecoToSim(recVtxs, TVCollectionH);
     reco::VertexSimToRecoCollection vertex_s2r = vertexAssociator.associateSimToReco(recVtxs, TVCollectionH);
 
