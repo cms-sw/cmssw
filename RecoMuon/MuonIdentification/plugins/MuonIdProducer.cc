@@ -46,6 +46,10 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 
@@ -59,6 +63,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    produces<reco::MuonTimeExtraMap>("combined");
    produces<reco::MuonTimeExtraMap>("dt");
    produces<reco::MuonTimeExtraMap>("csc");
+
+   if ( !iConfig.existsAs<double>("muonTrackDeltaEta") ) muonTrackDeltaEta_ = -999;
+   else muonTrackDeltaEta_ = iConfig.getParameter<double>("muonTrackDeltaEta");
 
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
@@ -153,6 +160,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
+   edm::ParameterSet trackAssocPSets = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   dtSegmentToken_ = consumes<DTRecSegment4DCollection>(trackAssocPSets.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel"));
+   cscSegmentToken_ = consumes<CSCSegmentCollection>(trackAssocPSets.getParameter<edm::InputTag>("CSCSegmentCollectionLabel"));
 
    edm::InputTag rpcHitTag("rpcRecHits");
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
@@ -281,6 +291,10 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes_[i];
    }
+
+   iEvent.getByToken(dtSegmentToken_, dtSegmentHandle_);
+   iEvent.getByToken(cscSegmentToken_, cscSegmentHandle_);
+   iEvent.getByToken(rpcHitToken_, rpcRecHitHandle_);
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -368,6 +382,52 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    return aMuon;
 }
 
+void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup)
+{
+   if ( muonTrackDeltaEta_ <= 0 ) return;
+   muonHitsEta_.clear();
+
+   // Collect eta values from DT, CSC, segments and RPC hits
+   if ( dtSegmentHandle_.isValid() )
+   {
+      edm::ESHandle<DTGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& dtSegment : *dtSegmentHandle_ )
+      {
+         const auto& detId = dtSegment.chamberId();
+         const auto& ch = geom->chamber(detId);
+         const double eta = ch->toGlobal(dtSegment.localPosition()).eta();
+         muonHitsEta_.push_back(eta);
+      }
+   }
+
+   if ( cscSegmentHandle_.isValid() )
+   {
+      edm::ESHandle<CSCGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& cscSegment : *cscSegmentHandle_ )
+      {
+         const CSCDetId& detId = cscSegment.cscDetId();
+         const auto& ch = geom->chamber(detId);
+         const double eta = ch->toGlobal(cscSegment.localPosition()).eta();
+         muonHitsEta_.push_back(eta);
+      }
+   }
+
+   if ( rpcRecHitHandle_.isValid() )
+   {
+      edm::ESHandle<RPCGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& rpcRecHit : *rpcRecHitHandle_ )
+      {
+         const RPCDetId& detId = rpcRecHit.rpcId();
+         const auto& ch = geom->roll(detId);
+         const double eta = ch->toGlobal(rpcRecHit.localPosition()).eta();
+         muonHitsEta_.push_back(eta);
+      }
+   }
+
+}
 
 bool MuonIdProducer::isGoodTrack( const reco::Track& track )
 {
@@ -379,10 +439,27 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    }
 
    // Eta requirement
-   if ( fabs(track.eta()) > maxAbsEta_ ){
+   const double trackEta = track.eta();
+   if ( std::abs(trackEta) > maxAbsEta_ ){
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
       return false;
    }
+
+   // Additional Eta requirements
+   if ( muonTrackDeltaEta_ > 0 )
+   {
+      bool isInRange = false;
+      for ( auto x : muonHitsEta_ )
+      {
+        if ( std::abs(x-trackEta) < muonTrackDeltaEta_ )
+        {
+          isInRange = true;
+          break;
+        }
+      }
+      if ( !isInRange ) return false;
+   }
+
    return true;
 }
 
@@ -570,6 +647,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // tracker and calo muons are next
    if ( innerTrackCollectionHandle_.isValid() ) {
       LogTrace("MuonIdentification") << "Creating tracker muons";
+
+      calculateMuonHitEtaRanges(iSetup);
+
       for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
 	{
 	   const reco::Track& track = innerTrackCollectionHandle_->at(i);
@@ -857,16 +937,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
-  edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByToken(rpcHitToken_, rpcRecHits);
-
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
 	chamber!=info.chambers.end(); chamber++ )
      {
-       if  (chamber->id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
+       if  (chamber->id.subdetId() == 3 && rpcRecHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 	reco::MuonChamberMatch matchedChamber;
 
 	LocalError localError = chamber->tState.localError().positionError();
@@ -933,7 +1010,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      }
 
   // Fill RPC info
-  if ( rpcRecHits.isValid() )
+  if ( rpcRecHitHandle_.isValid() )
   {
 
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
@@ -962,8 +1039,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       matchedChamber.id = chamber->id;
 
-      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHits->begin();
-            rpcRecHit != rpcRecHits->end(); ++rpcRecHit )
+      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHitHandle_->begin();
+            rpcRecHit != rpcRecHitHandle_->end(); ++rpcRecHit )
       {
         reco::MuonRPCHitMatch rpcHitMatch;
 

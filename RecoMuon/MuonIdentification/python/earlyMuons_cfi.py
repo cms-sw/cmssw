@@ -8,6 +8,7 @@ earlyMuons = muons1stStep.clone(
     minP         = 3.0, # was 2.5
     minPt        = 2.0, # was 0.5
     minPCaloMuon = 3.0, # was 1.0
+    muonTrackDeltaEta = cms.double(-999), # Negative value turns off dEta matching
     fillCaloCompatibility = False,
     fillEnergy = False,
     fillGlobalTrackQuality = False,
