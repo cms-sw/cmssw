@@ -123,15 +123,15 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
     const std::vector<std::pair<std::string, std::vector<int> > > masks = gtUtil_->masks();
 
     // Dump the results
-    cout << " " << "\n\n";
-    cout << " =================  L1 Trigger Report  =====================================================================" << endl;
-    cout << " " << endl;
-    cout << " L1T menu Name   : " << gtUtil_->gtTriggerMenuName() << endl;
-    cout << " L1T menu Version: " << gtUtil_->gtTriggerMenuVersion() << endl;
-    cout << " L1T menu Comment: " << gtUtil_->gtTriggerMenuComment() << endl;
-    cout << " " << endl;
-    cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Num Bx Masked" << endl;
-    cout << "============================================================================================================" << endl;
+    LogVerbatim("L1TGlobalSummary") << " " << "\n\n";
+    LogVerbatim("L1TGlobalSummary") << " =================  L1 Trigger Report  =====================================================================" << endl;
+    LogVerbatim("L1TGlobalSummary") << " " << endl;
+    LogVerbatim("L1TGlobalSummary") << " L1T menu Name   : " << gtUtil_->gtTriggerMenuName() << endl;
+    LogVerbatim("L1TGlobalSummary") << " L1T menu Version: " << gtUtil_->gtTriggerMenuVersion() << endl;
+    LogVerbatim("L1TGlobalSummary") << " L1T menu Comment: " << gtUtil_->gtTriggerMenuComment() << endl;
+    LogVerbatim("L1TGlobalSummary") << " " << endl;
+    LogVerbatim("L1TGlobalSummary") << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Num Bx Masked" << endl;
+    LogVerbatim("L1TGlobalSummary") << "============================================================================================================" << endl;
     for(unsigned int i=0; i<prescales.size(); i++) {
 
 
@@ -144,10 +144,10 @@ void L1TGlobalSummary::endRun(Run const&, EventSetup const&){
       int prescale = (prescales.at(i)).second;
       std::vector<int> mask    = (masks.at(i)).second;
 
-      if(name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask.size() << setw(9) << endl;
+      if(name != "NULL") LogVerbatim("L1TGlobalSummary") << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask.size() << setw(9) << endl;
     }
-    cout << "                                                      Final OR Count = " << finalOrCount <<endl;
-    cout << "===========================================================================================================" << endl;
+    LogVerbatim("L1TGlobalSummary") << "                                                      Final OR Count = " << finalOrCount <<endl;
+    LogVerbatim("L1TGlobalSummary") << "===========================================================================================================" << endl;
   }
 
 }
