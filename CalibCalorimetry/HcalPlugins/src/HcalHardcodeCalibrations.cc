@@ -144,6 +144,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.useHFUpgrade(iConfig.getParameter<bool>("useHFUpgrade"));
   dbHardcode.useHOUpgrade(iConfig.getParameter<bool>("useHOUpgrade"));
   dbHardcode.testHFQIE10(iConfig.getParameter<bool>("testHFQIE10"));
+  dbHardcode.testHEPlan1(iConfig.getParameter<bool>("testHEPlan1"));
   dbHardcode.setKillHE(iConfig.getParameter<bool>("killHE"));
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
@@ -857,6 +858,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("useHFUpgrade",false);
 	desc.add<bool>("useHOUpgrade",true);
 	desc.add<bool>("testHFQIE10",false);
+	desc.add<bool>("testHEPlan1",false);
 	desc.add<bool>("killHE",false);
 	desc.add<bool>("useLayer0Weight",false);
 	desc.addUntracked<std::vector<std::string> >("toGet",std::vector<std::string>());

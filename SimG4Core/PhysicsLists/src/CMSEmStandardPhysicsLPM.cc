@@ -15,7 +15,6 @@
 #include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
 #include "G4UrbanMscModel.hh"
-#include "G4EmParameters.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"

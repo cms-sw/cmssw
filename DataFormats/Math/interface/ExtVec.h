@@ -203,9 +203,9 @@ struct Rot3 {
   Vec  axis[3];
   
   constexpr Rot3() :
-    axis{ (Vec){T(1),0,0,0},
-      (Vec){0,T(1),0,0},
-	(Vec){0,0,T(1),0}
+    axis{{(Vec){T(1),0,0,0}},
+         {(Vec){0,T(1),0,0}},
+         {(Vec){0,0,T(1),0}}
   }{}
     
   constexpr Rot3( Vec4<T> ix,  Vec4<T> iy,  Vec4<T> iz) :
