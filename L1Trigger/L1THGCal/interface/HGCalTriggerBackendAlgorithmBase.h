@@ -29,13 +29,6 @@
 
 class HGCalTriggerBackendAlgorithmBase { 
  public:    
-  /*
-  HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf) : 
-    geometry_(nullptr),
-    name_(conf.getParameter<std::string>("AlgorithmName"))
-    {}
-   */
-
   // Allow HGCalTriggerBackend to be passed a consume collector
   HGCalTriggerBackendAlgorithmBase(const edm::ParameterSet& conf, edm::ConsumesCollector &cc) : 
     geometry_(nullptr),
@@ -73,12 +66,6 @@ namespace HGCalTriggerBackend {
   template<typename FECODEC>
   class Algorithm : public HGCalTriggerBackendAlgorithmBase { 
   public:
-    /*
-    Algorithm(const edm::ParameterSet& conf) :  
-    	HGCalTriggerBackendAlgorithmBase(conf),
-    	codec_(conf.getParameterSet("FECodec")){ }
-	*/
-
     Algorithm(const edm::ParameterSet& conf, edm::ConsumesCollector &cc ) :
     	HGCalTriggerBackendAlgorithmBase(conf, cc), 
     	codec_(conf.getParameterSet("FECodec")){ }
