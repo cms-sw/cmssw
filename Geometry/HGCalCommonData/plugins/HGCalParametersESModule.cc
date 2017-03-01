@@ -10,7 +10,7 @@
 
 #include <memory>
 
-//#define DeugLog
+//#define EDM_ML_DEBUG
 
 class  HGCalParametersESModule : public edm::ESProducer {
 public:
