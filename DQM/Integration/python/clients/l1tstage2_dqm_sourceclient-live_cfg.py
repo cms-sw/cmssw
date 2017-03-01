@@ -87,8 +87,8 @@ process.l1tStage2MonitorClientPath = cms.Path(process.l1tStage2MonitorClient)
 # Legacy DQM EndPath
 # TODO: Is lumi scalers still relevant?
 
-process.load("DQM.L1TMonitor.L1TMonitor_cff")
-process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
+#process.load("DQM.L1TMonitor.L1TMonitor_cff")
+#process.l1tMonitorEndPath = cms.EndPath(process.l1tMonitorEndPathSeq)
 
 #--------------------------------------------------
 # L1T Online DQM Schedule
@@ -97,7 +97,7 @@ process.schedule = cms.Schedule(
     process.rawToDigiPath,
     process.l1tMonitorPath,
     process.l1tStage2MonitorClientPath,
-    process.l1tMonitorEndPath,
+#    process.l1tMonitorEndPath,
     process.dqmEndPath
 )
 
