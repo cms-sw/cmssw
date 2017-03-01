@@ -839,7 +839,9 @@ for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
-        'keep *_TTStubsFromPhase2TrackerDigis_*_*'
+        'keep *_TTStubsFromPhase2TrackerDigis_*_*',
+        'keep *_TTClusterAssociatorFromPixelDigis_*_*',
+        'keep *_TTStubAssociatorFromPixelDigis_*_*'
     ])
 
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
