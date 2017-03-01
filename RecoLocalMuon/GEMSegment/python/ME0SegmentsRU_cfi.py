@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 RU_ME0 = cms.PSet(
+    allowWideSegments = cms.bool(True),
     doCollisions = cms.bool(True),
-    chi2Norm_2D_ = cms.double(100),
-    chi2_str = cms.double(100.0),
-    chi2Max = cms.double(100.0),
-    dPhiIntMax = cms.double(0.1),
-    dPhiMax = cms.double(0.1),
-    wideSeg = cms.double(3.0),
-    minLayersApart = cms.int32(1),
-    dRIntMax = cms.double(10.0),
-    dRMax = cms.double(10.0)
+    maxChi2Additional = cms.double(100.0),
+    maxChi2Prune = cms.double(50),
+    maxChi2GoodSeg = cms.double(50),
+    maxPhiSeeds = cms.double(0.000547), #Assuming 768 strips
+    maxPhiAdditional = cms.double(0.000547), #Assuming 768 strips
+    maxETASeeds = cms.double(0.08), #Assuming 8 eta partitions
+    maxTOFDiff = cms.double(25),
+    minNumberOfHits = cms.uint32(4),
 )
 
 ME0SegAlgoRU = cms.PSet(
