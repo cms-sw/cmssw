@@ -57,7 +57,8 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps):
 			_cTDCvsTS_EChannel[itr].initialize(_name, 
 				"TDCvsTS", hcaldqm::hashfunctions::fEChannel, 
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
-				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),0);
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64),
+                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true), 0);
 			_cTDCTime_EChannel[itr].initialize(_name,
 				"TDCTime", hcaldqm::hashfunctions::fEChannel,
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
