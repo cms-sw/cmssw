@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/GRun/V7 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/GRun/V8 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V8')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -67129,6 +67129,7 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
       'keep *_hltSiPixelClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep *_hltVerticesL3_*_*',
+      'keep *_hltVerticesPFFilter_*_*',
       'keep *_hltVerticesPFSelector_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',

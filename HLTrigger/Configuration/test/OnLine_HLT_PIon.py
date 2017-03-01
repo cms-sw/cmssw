@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/PIon/V7 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/PIon/V8 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/PIon/V7')
+  tableName = cms.string('/dev/CMSSW_9_0_0/PIon/V8')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -19183,6 +19183,7 @@ process.hltOutputHLTMonitorPA = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVerticesForHighMult_*_*',
       'keep *_hltPixelVertices_*_*',
+      'keep *_hltVerticesPFFilter_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep GlobalObjectMapRecord_hltGtStage2ObjectMap_*_*',
