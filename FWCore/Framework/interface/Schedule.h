@@ -147,6 +147,13 @@ namespace edm {
                           EventSetup const& eventSetup,
                           bool cleaningUpAfterException = false);
 
+    template <typename T>
+    void processOneStreamAsync(WaitingTaskHolder iTask,
+                               unsigned int iStreamID,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
+
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector & collector);
     
@@ -296,6 +303,17 @@ namespace edm {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneStream<T>(ep,es,cleaningUpAfterException);
   }
+  
+  template <typename T>
+  void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
+                                       unsigned int iStreamID,
+                                       typename T::MyPrincipal& ep,
+                                       EventSetup const& es,
+                                       bool cleaningUpAfterException) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder),ep,es,cleaningUpAfterException);
+  }
+
   template <typename T>
   void
   Schedule::processOneGlobal(typename T::MyPrincipal& ep,

@@ -1603,6 +1603,59 @@ namespace edm {
     stateMachineWasInErrorState_ = true;
   }
 
+  
+  namespace {
+    //This is code in common between beginStreamRun and beginStreamLuminosityBlock
+    void subProcessDoStreamBeginTransition(SubProcess& iSubProcess, unsigned int i, LuminosityBlockPrincipal& iPrincipal, IOVSyncValue const& iTS) {
+      iSubProcess.doStreamBeginLuminosityBlock(i,iPrincipal, iTS);
+    }
+    
+    void subProcessDoStreamBeginTransition(SubProcess& iSubProcess, unsigned int i, RunPrincipal& iPrincipal, IOVSyncValue const& iTS) {
+      iSubProcess.doStreamBeginRun(i,iPrincipal, iTS);
+    }
+    
+    template<typename Traits, typename P, typename SC >
+    void beginStreamTransitionAsync(WaitingTask* iWait,
+                                    Schedule& iSchedule,
+                                    unsigned int iNStreams,
+                                    P& iPrincipal,
+                                    IOVSyncValue const & iTS,
+                                    EventSetup const& iES,
+                                    SC& iSubProcesses)
+    {
+      for(unsigned int i=0; i<iNStreams;++i) {
+        
+        //must wait until this stream gets a chance to start
+        iWait->increment_ref_count();
+        auto streamLoopWaitTaskPtr = iWait;
+        
+        //When we are done processing the stream for this process,
+        // we need to run the stream for all SubProcesses
+        auto subs = make_waiting_task(tbb::task::allocate_root(), [&iSubProcesses, streamLoopWaitTaskPtr,i,&iPrincipal,iTS](std::exception_ptr const* iPtr) {
+          WaitingTaskHolder h(streamLoopWaitTaskPtr);
+          //now that holder will manage the reference count, we need
+          // to decrement to match the increment done in the loop
+          streamLoopWaitTaskPtr->decrement_ref_count();
+          if(iPtr) {
+            h.doneWaiting(*iPtr);
+            return;
+          }
+          try {
+            for_all(iSubProcesses, [i, &iPrincipal, iTS](auto& subProcess){ subProcessDoStreamBeginTransition(subProcess,i,iPrincipal, iTS); });
+          } catch(...) {
+            h.doneWaiting(std::current_exception());
+          }
+        });
+        
+        WaitingTaskHolder h(subs);
+        iSchedule.processOneStreamAsync<Traits>(std::move(h), i,iPrincipal, iES);
+        
+      }
+      
+    }
+  }
+
+  
   void EventProcessor::beginRun(statemachine::Run const& run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
     {
@@ -1639,10 +1692,23 @@ namespace edm {
       looper_->doBeginRun(runPrincipal, es, &processContext_);
     }
     {
+      //To wait, the ref count has to be 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
       typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Traits;
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        schedule_->processOneStream<Traits>(i,runPrincipal, es);
-        for_all(subProcesses_, [i, &runPrincipal, &ts](auto& subProcess){ subProcess.doStreamBeginRun(i, runPrincipal, ts); });
+      
+      beginStreamTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                         *schedule_,
+                                         preallocations_.numberOfStreams(),
+                                         runPrincipal,
+                                         ts,
+                                         es,
+                                         subProcesses_);
+
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
     FDEBUG(1) << "\tstreamBeginRun " << run.runNumber() << "\n";
@@ -1727,12 +1793,25 @@ namespace edm {
       looper_->doBeginLuminosityBlock(lumiPrincipal, es, &processContext_);
     }
     {
-      for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
-        typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
-        schedule_->processOneStream<Traits>(i,lumiPrincipal, es);
-        for_all(subProcesses_, [i, &lumiPrincipal, &ts](auto& subProcess){ subProcess.doStreamBeginLuminosityBlock(i,lumiPrincipal, ts); });
+      //To wait, the ref count has to b 1+#streams
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Traits;
+
+      beginStreamTransitionAsync<Traits>(streamLoopWaitTask.get(),
+                                         *schedule_,
+                                         preallocations_.numberOfStreams(),
+                                         lumiPrincipal,
+                                         ts,
+                                         es,
+                                         subProcesses_);
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
       }
     }
+    
     FDEBUG(1) << "\tstreamBeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
       //looper_->doStreamBeginLuminosityBlock(schedule_->streamID(),lumiPrincipal, es);
