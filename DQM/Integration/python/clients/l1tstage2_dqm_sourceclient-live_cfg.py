@@ -23,8 +23,8 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = "L1T2016"
-process.dqmSaver.tag = "L1T2016"
+process.dqmEnv.subSystemFolder = "L1T"
+process.dqmSaver.tag = "L1T"
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv * process.dqmSaver)
@@ -58,9 +58,9 @@ process.load("DQM.L1TMonitor.L1TStage2_cff")
 # zero suppression DQM module running before the fat event filter
 from DQM.L1TMonitor.L1TStage2uGMT_cfi import l1tStage2uGMTZeroSupp
 process.l1tStage2uGMTZeroSuppAllEvts = l1tStage2uGMTZeroSupp.clone()
-process.l1tStage2uGMTZeroSuppAllEvts.monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/zeroSuppression/AllEvts")
+process.l1tStage2uGMTZeroSuppAllEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts")
 # customise path for zero suppression module analysing only fat events
-process.l1tStage2uGMTZeroSupp.monitorDir = cms.untracked.string("L1T2016/L1TStage2uGMT/zeroSuppression/FatEvts")
+process.l1tStage2uGMTZeroSupp.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
 
 process.l1tMonitorPath = cms.Path(
     process.l1tStage2uGMTZeroSuppAllEvts +
