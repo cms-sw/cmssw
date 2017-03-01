@@ -2,6 +2,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //class constructor
 HGCalMulticlusteringImpl::HGCalMulticlusteringImpl(const edm::ParameterSet& conf){    
     dR_ = conf.getParameter<double>("dR_searchNeighbour");
@@ -41,6 +42,3 @@ void HGCalMulticlusteringImpl::clusterise( const l1t::HGCalClusterBxCollection &
         }            
     }    
 }
-    
-   
- 

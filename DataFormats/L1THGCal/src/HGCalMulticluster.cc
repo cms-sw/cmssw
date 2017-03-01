@@ -18,6 +18,7 @@ HGCalMulticluster::HGCalMulticluster( const l1t::HGCalCluster & clu )
 
     centre_ = clu.centreNorm();
     hwPt_ = clu.hwPt();
+    mipPt_ = clu.mipPt();
     zside_ = clu.zside();
 
 }
@@ -46,8 +47,9 @@ bool HGCalMulticluster::isPertinent( const l1t::HGCalCluster & clu, double dR ) 
 void HGCalMulticluster::addClu( const l1t::HGCalCluster & clu ) const
 {
 
-    centre_ = ( centre_*hwPt_ + clu.centreNorm()*clu.hwPt() ) / ( hwPt_+clu.hwPt() ) ;
+    centre_ = ( centre_*mipPt_ + clu.centreNorm()*clu.mipPt() ) / ( mipPt_+clu.mipPt() ) ;
     
+    mipPt_ = mipPt_ + clu.mipPt();
     hwPt_ = hwPt_ + clu.hwPt();
 
 }
@@ -55,16 +57,21 @@ void HGCalMulticluster::addClu( const l1t::HGCalCluster & clu ) const
 
 bool HGCalMulticluster::operator<(const HGCalMulticluster& cl) const
 {
+
   bool res = false;
   // Favour high pT
-  if(hwPt()<cl.hwPt()) res = true;
-  else if(hwPt()==cl.hwPt()) {
+  if( mipPt() < cl.mipPt() ) 
+      res = true;
+  else if( mipPt() == cl.mipPt() ) {
     // Favour central clusters
-    if( abs(hwEta())>abs(cl.hwEta()) ) res = true;
-    else if( abs(hwEta())==abs(cl.hwEta()) ){
+    if( abs(hwEta()) > abs(cl.hwEta()) ) 
+        res = true;
+    else if( abs(hwEta())==abs(cl.hwEta()) )
       // Favour small phi (arbitrary)
-      if(hwPhi()>cl.hwPhi()) res = true;
-    }
+      if(hwPhi()>cl.hwPhi()) 
+          res = true; 
   }
+
   return res;
+
 }

@@ -1,11 +1,9 @@
 #ifndef DataFormats_L1Trigger_HGCalMulticluster_h
 #define DataFormats_L1Trigger_HGCalMulticluster_h
 
-#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-#include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Common/interface/PtrVector.h"
 
 
 namespace l1t {
@@ -48,20 +46,16 @@ namespace l1t {
         /* helpers */
         bool isPertinent( const l1t::HGCalCluster & clu, double dR ) const;
         void addClu( const l1t::HGCalCluster & clu ) const;
-        //void addCluSeed( const l1t::HGCalCluster & clu ) const;
-        /* set info */
 
         /* get info */
         bool isValid()      const {return true;}
-        ROOT::Math::RhoEtaPhiVector centre() const { return centre_; }
-//uint32_t hwPtEm()   const {return hwPtEm_;}
-        //uint32_t hwPtHad()  const {return hwPtHad_;}
-//        uint32_t hwSeedPt() const {return hwSeedPt_;}
-        
-//        uint32_t subDet() const {return subDet_;}
-        uint32_t nTotLayer()  const {return nTotLayer_;}
-        
-        uint32_t hOverE() const { return hOverE_; }
+        ROOT::Math::XYZVector centre() const { return centre_; } /* in normalized plane (x/z, y/z, z/z)*/
+
+        uint32_t hwPt() const { return hwPt_; }
+        double mipPt() const { return mipPt_; }
+
+        uint32_t nTotLayer()  const { return nTotLayer_; } /* not working */
+        uint32_t hOverE() const { return hOverE_; } /* not working */
         
         bool operator<(const HGCalMulticluster& cl) const;
         bool operator>(const HGCalMulticluster& cl) const {return  cl<*this;};
@@ -78,9 +72,10 @@ namespace l1t {
 
         /* Energies */
         mutable uint32_t hwPt_;
+        mutable double mipPt_;
 
         /* centre in norm plane */
-        mutable ROOT::Math::RhoEtaPhiVector centre_;
+        mutable ROOT::Math::XYZVector centre_;
         // HGC specific information
         /* detId of the first cluster in the multicluster */
         uint32_t firstCluId_;
