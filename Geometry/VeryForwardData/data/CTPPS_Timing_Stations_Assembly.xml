@@ -1,0 +1,26 @@
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="CTPPS_Timing_Stations_Assembly.xml">
+    <!--positions of the stations from the IP5 to the first element of the station-->
+    <Constant name="CTPPS_Timing_Negative_Station_Position_z" value="-215.7*m"/>
+    <Constant name="CTPPS_Timing_Positive_Station_Position_z" value="215.7*m"/>
+    <!-- +-1500 mm for the two 220 m stations outside the IP-->
+  </ConstantsSection>
+
+  <PosPartSection label="CTPPS_Timing_Stations_Assembly.xml">
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="CTPPS_Timing_Positive_Station:CTPPS_Timing_Positive_Station"/>
+      <Translation x="0*mm" y="0*mm" z="[CTPPS_Timing_Positive_Station_Position_z]"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="CTPPS_Timing_Negative_Station:CTPPS_Timing_Negative_Station"/>
+      <Translation x="0*mm" y="0*mm" z="[CTPPS_Timing_Negative_Station_Position_z]"/>
+      <rRotation name="rotations:180R"/>
+    </PosPart>
+  </PosPartSection>
+
+</DDDefinition>
+

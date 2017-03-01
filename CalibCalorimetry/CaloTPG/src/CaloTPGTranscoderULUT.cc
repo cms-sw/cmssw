@@ -209,7 +209,7 @@ CaloTPGTranscoderULUT::getOutputLUTSize(const HcalTrigTowerDetId& id) const
          else
             return QIE10_OUTPUT_LUT_SIZE;
       case HcalTopologyMode::TriggerMode_2017plan1:
-         if (theTopology->dddConstants()->isPlan1(id))
+         if (plan1_towers_.find(id) != plan1_towers_.end())
             return QIE11_OUTPUT_LUT_SIZE;
          else if (id.ietaAbs() <= theTopology->lastHERing())
             return QIE8_OUTPUT_LUT_SIZE;
@@ -258,5 +258,16 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTo
     }
     else {
 	throw cms::Exception("Not Implemented") << "setup of CaloTPGTranscoderULUT from text files";
+   }
+
+   plan1_towers_.clear();
+   for (const auto& id: lutMetadata.getAllChannels()) {
+      if (not (id.det() == DetId::Hcal and theTopology->valid(id)))
+         continue;
+      HcalDetId cell(id);
+      if (not theTopology->dddConstants()->isPlan1(cell))
+         continue;
+      for (const auto& tower: theTrigTowerGeometry.towerIds(cell))
+         plan1_towers_.emplace(tower);
    }
 }
