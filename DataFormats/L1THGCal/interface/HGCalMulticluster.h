@@ -24,14 +24,14 @@ namespace l1t {
         ~HGCalMulticluster();
         
         void push_back(const edm::Ptr<l1t::HGCalCluster> &b) {
-            myclusters.push_back(b);
+            myclusters_.push_back(b);
         }
   
-        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return myclusters; }
+        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return myclusters_; }
         
-        unsigned int size() const { return myclusters.size(); }  
-        component_iterator begin() const { return myclusters.begin(); }
-        component_iterator end() const { return myclusters.end(); }
+        unsigned int size() const { return myclusters_.size(); }  
+        component_iterator begin() const { return myclusters_.begin(); }
+        component_iterator end() const { return myclusters_.end(); }
         
         void setHwPtEm  (uint32_t pt)    {hwPtEm_= pt;}
         void setHwPtHad (uint32_t pt)    {hwPtHad_ = pt;}
@@ -56,7 +56,7 @@ namespace l1t {
         bool operator>=(const HGCalMulticluster& cl) const {return !(cl<*this);};
         
     private:
-        edm::PtrVector<l1t::HGCalCluster>  myclusters;
+        edm::PtrVector<l1t::HGCalCluster>  myclusters_;
 
         // Energies
         uint32_t hwPtEm_;
