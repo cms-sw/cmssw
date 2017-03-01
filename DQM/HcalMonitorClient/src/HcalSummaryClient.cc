@@ -11,6 +11,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <iostream>
+#include <cmath>
 
 /*
  * \file HcalSummaryClient.cc
@@ -501,6 +502,20 @@ void HcalSummaryClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, in
       status_global_=1-status_global_/totalcells;
       status_global_=std::max(0.,status_global_); // convert to good fraction
     }
+
+	//
+	//	Updated by Viktor Khristenko
+	//	07/08/2015
+	//
+	triggered_Shift_Digi = false;
+	triggered_Shift_RecHit = false;
+	check_HBHETiming_Digi(ib, ig, LS);
+	check_HBHETiming_RecHit(ib, ig, LS);
+	if (triggered_Shift_Digi || triggered_Shift_RecHit)
+	{
+		status_HB_ = 0.1;
+		status_HE_ = 0.1;
+	}
  
 
   // Fill certification map here
@@ -746,7 +761,6 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(DQMStore::IBooker &ib, DQMStore:
 	    status_global=1-status_global/TotalEvents/totalcells;
 	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   STATUS= HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  GLOBAL STATUS = "<<status_global<<"  TOTAL EVENTS = "<<TotalEvents<<std::endl;
 	} // if (TotalEvents(>0)
-
 
   ig.setCurrentFolder(subdir_);
   if (reportMap_)
@@ -1019,3 +1033,97 @@ HcalSummaryClient::~HcalSummaryClient()
 {
   if ( SummaryMapByDepth ) delete SummaryMapByDepth;
 }
+
+//
+//	Validate the HBHE Timing Shift using RecHits
+//
+void HcalSummaryClient::check_HBHETiming_RecHit(DQMStore::IBooker &ib,
+	DQMStore::IGetter &ig, int ls)
+{
+	//	Do some defs
+	std::string dir_prefix = "Hcal/HcalRecHitTask/HBHE/";
+	std::string mename_pA = "HBHE_RecHitTime_iphi3to26";
+	std::string mename_pB = "HBHE_RecHitTime_iphi27to50";
+	std::string mename_pC = "HBHE_RecHitTime_iphi1to2_iphi51to72";
+	std::string mename_diff = "HBHE_TimingDiffs";
+
+	//	Get the MEs you need
+	MonitorElement *me_pA = ig.get(dir_prefix+mename_pA);
+	MonitorElement *me_pB = ig.get(dir_prefix+mename_pB);
+	MonitorElement *me_pC = ig.get(dir_prefix+mename_pC);
+	MonitorElement *me_diff = ig.get(dir_prefix+mename_diff);
+
+	//	Extract the Mean and Compare
+	double mean_pA = me_pA->getTH1F()->GetMean();
+	double mean_pB = me_pB->getTH1F()->GetMean();
+	double mean_pC = me_pC->getTH1F()->GetMean();
+
+	double diff_AB = mean_pA - mean_pB;
+	double diff_AC = mean_pA - mean_pC;
+	double diff_BC = mean_pB - mean_pC;
+	me_diff->Fill(diff_AB);
+	me_diff->Fill(diff_AC);
+	me_diff->Fill(diff_BC);
+
+	//	set the status
+	double diff_threshold = 1.5;
+	if (std::abs(diff_AB)>=diff_threshold ||
+		std::abs(diff_AC)>=diff_threshold ||
+		std::abs(diff_BC)>=diff_threshold)
+		triggered_Shift_RecHit = true;
+}
+
+//	
+//	Validate the HBHE Timing Shift using Digis
+//
+void HcalSummaryClient::check_HBHETiming_Digi(DQMStore::IBooker &ib,
+	DQMStore::IGetter &ig, int ls)
+{
+	//	Do some definitions
+	std::string dir_prefix = "Hcal/HcalTimingTask/HBHE/";
+	std::string mename_pA = "HBHE_TS5TS4_iphi3to26";
+	std::string mename_pB = "HBHE_TS5TS4_iphi27to50";
+	std::string mename_pC = "HBHE_TS5TS4_iphi1to2_iphi51to72";
+	std::string mename_diff = "HBHE_TimingDiffs";
+
+	//	Get the MEs you need first
+	MonitorElement *me_pA = ig.get(dir_prefix+mename_pA);
+	MonitorElement *me_pB = ig.get(dir_prefix+mename_pB);
+	MonitorElement *me_pC = ig.get(dir_prefix+mename_pC);
+	MonitorElement *me_diff = ig.get(dir_prefix+mename_diff);
+
+	//	Extract the Mean and Compare
+	double mean_pA = me_pA->getTH1F()->GetMean();
+	double mean_pB = me_pB->getTH1F()->GetMean();
+	double mean_pC = me_pC->getTH1F()->GetMean();
+
+	double diff_AB = std::abs(mean_pA-mean_pB)/std::max(mean_pA, mean_pB);
+	double diff_AC = std::abs(mean_pA-mean_pC)/std::max(mean_pA, mean_pC);
+	double diff_BC = std::abs(mean_pB-mean_pC)/std::max(mean_pB, mean_pC);
+	me_diff->Fill(diff_AB);
+	me_diff->Fill(diff_AC);
+	me_diff->Fill(diff_BC);
+
+	//	if partition's timing wrt one another is out of the range, set the 
+	//	status to 0.2 
+	//	0.2 is chosen randomly at this point to indicate that there is an issue
+	//	0.13 = 13%
+	double ratio_threshold = 0.13;
+	if (diff_AB>=ratio_threshold ||
+		diff_AC>=ratio_threshold || 
+		diff_BC>=ratio_threshold)
+		triggered_Shift_Digi = true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
