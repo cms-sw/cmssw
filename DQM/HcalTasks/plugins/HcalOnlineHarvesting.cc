@@ -39,8 +39,9 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 {
 	DQHarvester::beginRun(r,es);
 	for (std::vector<DQClient*>::const_iterator it=_vsumgen.begin();
-		it!=_vsumgen.end(); ++it)
+	     it!=_vsumgen.end(); ++it) {
 		(*it)->beginRun(r,es);
+	}
 }
 
 /* virtual */ void HcalOnlineHarvesting::_dqmEndLuminosityBlock(
