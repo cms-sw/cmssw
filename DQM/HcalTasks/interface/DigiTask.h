@@ -48,7 +48,7 @@ class DigiTask : public hcaldqm::DQTask
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
-		edm::EDGetTokenT<HFDigiCollection>	_tokHF;
+		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
 		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
