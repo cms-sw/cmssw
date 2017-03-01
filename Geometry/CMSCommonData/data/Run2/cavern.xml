@@ -10,11 +10,10 @@
 		<Constant name="sidewallwidth" value="0.5*(8.8*m+2.16*m)"/>
 	</ConstantsSection>
 	<SolidSection label="cavern.xml">
-		<Tubs name="OSWL" rMin="[SideWallRmin]" rMax="[cms:HallR]" dz="[cms:HallZ]" startPhi="0*deg" deltaPhi="180*deg"/>
-		<Tubs name="OZWL" rMin="0.0*fm" rMax="[SideWallRmin]" dz="[dzwall]" startPhi="0*deg" deltaPhi="180*deg"/> 
+		<Tubs name="CMSShaft" rMin="0*fm" rMax="[cavernData:ShaftR]" dz="[cavernData:ShaftDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="CMSShaftAir" rMin="0*fm" rMax="[cavernData:ShaftAirR]" dz="[cavernData:ShaftDZ]" startPhi="0*deg" deltaPhi="360*deg"/> 
 		<Box name="OSFL" dx="[cavernData:FloorDX]" dy="[cavernData:FloorDY]" dz="[cms:HallZ]"/>
 		<Box name="OSFLsub" dx="[cavernData:FloorDX]" dy="1000*cm" dz="[cms:HallZ]+0.1*mm"/>
-		<Box name="OSSL" dx="0.5*m" dy="[sidewallwidth]" dz="[cms:HallZ]"/>
 		<EllipticalTube name="CMSWall"  xSemiAxis="[cavernData:CMSWallEDX]" ySemiAxis="[cavernData:CMSWallEDY]" zHeight="[cms:HallZ]"/>
 		<EllipticalTube name="CMSWallAir"  xSemiAxis="[cavernData:CMSWallIDX]" ySemiAxis="[cavernData:CMSWallIDY]" zHeight="[cavernData:CMSWallIDZ]"/> 
 		<Box name="RackAV" dx="125*cm" dy="500*cm" dz="1080*cm"/>
@@ -24,8 +23,14 @@
 		<Trapezoid name="YBFeetAir3" dz="[cavernData:YBFeetDZ]+5*cm" alp1="0*deg" bl1="[cavernData:YBFeetAir3DX]+0.1*mm" tl1="0.1*mm" h1="[cavernData:YBFeetAir3DY]+0.1*mm" alp2="0*deg" bl2="[cavernData:YBFeetAir3DX]+0.1*mm" tl2="0.1*mm" h2="[cavernData:YBFeetAir3DY]+0.1*mm" phi="0*deg" theta="0*deg"/>
 		<Box name="YBFeetAir4" dx="[cavernData:YBFeetAir3DX]+0.1*mm" dy="[cavernData:YBFeetAir4DY]+0.1*mm" dz="[cavernData:YBFeetDZ]+5*cm"/>
 		<Box name="YBFeet" dx="[cavernData:YBFeetDX]" dy="[cavernData:YBFeetDY]" dz="[cavernData:YBFeetDZ]"/>
-		<SubtractionSolid name="Wallv1">
+		<UnionSolid name="CMSWallv0">
 		  <rSolid name="cavern:CMSWall"/>
+		  <rSolid name="cavern:CMSShaft"/>
+		  <rRotation name="cavernData:Shaft"/> 
+		  <Translation x="0.*fm" y="[cavernData:ShaftPosZ]" z="[cavernData:ShaftPosY]"/> 
+		</UnionSolid> 
+		<SubtractionSolid name="Wallv1">
+		  <rSolid name="cavern:CMSWallv0"/>
 		  <rSolid name="cms:CMSE"/>
 		  <Translation x="0.*fm" y="0*fm" z="0.*fm"/> 
 		</SubtractionSolid> 
@@ -34,8 +39,14 @@
 		  <rSolid name="cavern:OSFLsub"/>
 		  <Translation x="0.*fm" y="-880*cm-1000*cm" z="0.*fm"/> 
 		</SubtractionSolid> 
-		<SubtractionSolid name="WallAirv1">
+		<UnionSolid name="CMSWallAirv0">
 		  <rSolid name="cavern:CMSWallAir"/>
+		  <rSolid name="cavern:CMSShaftAir"/>
+		  <rRotation name="cavernData:Shaft"/> 
+		  <Translation x="0.*fm" y="[cavernData:ShaftPosZ]" z="[cavernData:ShaftPosY]"/> 
+		</UnionSolid> 
+		<SubtractionSolid name="WallAirv1">
+		  <rSolid name="cavern:CMSWallAirv0"/>
 		  <rSolid name="cms:CMSE"/>
 		  <Translation x="0.*fm" y="0*fm" z="0.*fm"/> 
 		</SubtractionSolid> 

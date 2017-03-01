@@ -14,6 +14,8 @@
 		<Constant name="CMSZ2" value="[cmsextent:CMSZ2]"/>
 		<Constant name="HFRiseZ1" value="[cavernData:HFRiseZ1]"/>
 		<Constant name="HFRiseZ2" value="[cavernData:HFRiseZ2]"/>
+		<Constant name="ShaftY" value="[cavernData:ShaftY]"/>
+		<Constant name="ShaftZ" value="[cavernData:ShaftZ]"/>
 		<Constant name="CMSZ2" value="[cmsextent:CMSZ2]"/>
 		<Constant name="TrackCalorR" value="1.233*m"/>
 		<Constant name="CalorMuonR"  value="2.950*m"/>
@@ -110,7 +112,9 @@
 		<Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="-[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
-			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
+			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[ShaftY]"/>
+			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[ShaftY]"/>
+			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
 			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
 			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
