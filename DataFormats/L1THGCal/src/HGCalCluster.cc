@@ -76,7 +76,7 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
 }
 
 
-void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc) const
+void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc)
 {
 
     DetId id( tc.detId() );
@@ -97,7 +97,7 @@ void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc) const
 }
 
 
-void HGCalCluster::addTCseed(const l1t::HGCalTriggerCell &tc) const
+void HGCalCluster::addTCseed(const l1t::HGCalTriggerCell &tc) 
 {
     
     seedDetId_ = tc.detId();
