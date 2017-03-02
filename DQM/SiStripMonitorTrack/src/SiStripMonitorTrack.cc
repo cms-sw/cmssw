@@ -278,20 +278,12 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker & ibooker , const uint32_
   std::map<std::string, ModMEs>::iterator iModME  = ModMEsMap.find(hid);
   if(iModME==ModMEsMap.end()){
     ModMEs theModMEs;
-    theModMEs.ClusterStoNCorr              = 0;
-    theModMEs.ClusterCharge                = 0;
-    theModMEs.ClusterChargeCorr            = 0;
-    theModMEs.ClusterWidth                 = 0;
-    theModMEs.ClusterPos                   = 0;
-    theModMEs.ClusterPGV                   = 0;
-    theModMEs.ClusterChargePerCMfromTrack  = 0;
-    theModMEs.ClusterChargePerCMfromOrigin = 0;
 
     // Cluster Width
     theModMEs.ClusterWidth=bookME1D(ibooker , "TH1ClusterWidth", hidmanager.createHistoId("ClusterWidth_OnTrack",name,id).c_str());
     ibooker.tag(theModMEs.ClusterWidth,id);
     // Cluster Gain
-    theModMEs.ClusterWidth=bookME1D(ibooker , "TH1ClusterGain", hidmanager.createHistoId("ClusterGain",name,id).c_str());
+    theModMEs.ClusterGain=bookME1D(ibooker , "TH1ClusterGain", hidmanager.createHistoId("ClusterGain",name,id).c_str());
     ibooker.tag(theModMEs.ClusterGain,id);
     // Cluster Charge
     theModMEs.ClusterCharge=bookME1D(ibooker , "TH1ClusterCharge", hidmanager.createHistoId("ClusterCharge_OnTrack",name,id).c_str());
@@ -352,20 +344,6 @@ void SiStripMonitorTrack::bookLayerMEs(DQMStore::IBooker & ibooker , const uint3
   SiStripHistoId hidmanager;
 
   LayerMEs theLayerMEs;
-  theLayerMEs.ClusterGain                          = 0;
-  theLayerMEs.ClusterStoNCorrOnTrack               = 0;
-  theLayerMEs.ClusterChargeCorrOnTrack             = 0;
-  theLayerMEs.ClusterChargeOnTrack                 = 0;
-  theLayerMEs.ClusterChargeOffTrack                = 0;
-  theLayerMEs.ClusterNoiseOnTrack                  = 0;
-  theLayerMEs.ClusterNoiseOffTrack                 = 0;
-  theLayerMEs.ClusterWidthOnTrack                  = 0;
-  theLayerMEs.ClusterWidthOffTrack                 = 0;
-  theLayerMEs.ClusterPosOnTrack                    = 0;
-  theLayerMEs.ClusterPosOffTrack                   = 0;
-  theLayerMEs.ClusterChargePerCMfromTrack          = 0;
-  theLayerMEs.ClusterChargePerCMfromOriginOnTrack  = 0;
-  theLayerMEs.ClusterChargePerCMfromOriginOffTrack = 0;
 
   // Signal/Noise (w/ cluster harge corrected)
   hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name,layer_id,"OnTrack");
@@ -458,20 +436,6 @@ void SiStripMonitorTrack::bookRingMEs(DQMStore::IBooker & ibooker , const uint32
   SiStripHistoId hidmanager;
 
   RingMEs theRingMEs;
-  theRingMEs.ClusterGain                          = 0;
-  theRingMEs.ClusterStoNCorrOnTrack               = 0;
-  theRingMEs.ClusterChargeCorrOnTrack             = 0;
-  theRingMEs.ClusterChargeOnTrack                 = 0;
-  theRingMEs.ClusterChargeOffTrack                = 0;
-  theRingMEs.ClusterNoiseOnTrack                  = 0;
-  theRingMEs.ClusterNoiseOffTrack                 = 0;
-  theRingMEs.ClusterWidthOnTrack                  = 0;
-  theRingMEs.ClusterWidthOffTrack                 = 0;
-  theRingMEs.ClusterPosOnTrack                    = 0;
-  theRingMEs.ClusterPosOffTrack                   = 0;
-  theRingMEs.ClusterChargePerCMfromTrack          = 0;
-  theRingMEs.ClusterChargePerCMfromOriginOnTrack  = 0;
-  theRingMEs.ClusterChargePerCMfromOriginOffTrack = 0;
 
   hname = hidmanager.createHistoLayer("Summary_ClusterStoNCorr",name,ring_id,"OnTrack");
   hpar  = "TH1ClusterStoNCorr";
@@ -564,25 +528,6 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker & ibooker , std::strin
   std::string axisName;
 
   SubDetMEs theSubDetMEs;
-  theSubDetMEs.totNClustersOnTrack                  = 0;
-  theSubDetMEs.totNClustersOffTrack                 = 0;
-  theSubDetMEs.nClustersOnTrack                     = 0;
-  theSubDetMEs.nClustersTrendOnTrack                = 0;
-  theSubDetMEs.nClustersOffTrack                    = 0;
-  theSubDetMEs.nClustersTrendOffTrack               = 0;
-  theSubDetMEs.ClusterGain                          = 0;
-  theSubDetMEs.ClusterStoNCorrOnTrack               = 0;
-  theSubDetMEs.ClusterStoNCorrThinOnTrack           = 0;
-  theSubDetMEs.ClusterStoNCorrThickOnTrack          = 0;
-  theSubDetMEs.ClusterChargeCorrOnTrack             = 0;
-  theSubDetMEs.ClusterChargeCorrThinOnTrack         = 0;
-  theSubDetMEs.ClusterChargeCorrThickOnTrack        = 0;
-  theSubDetMEs.ClusterChargeOnTrack                 = 0;
-  theSubDetMEs.ClusterChargeOffTrack                = 0;
-  theSubDetMEs.ClusterStoNOffTrack                  = 0;
-  theSubDetMEs.ClusterChargePerCMfromTrack          = 0;
-  theSubDetMEs.ClusterChargePerCMfromOriginOnTrack  = 0;
-  theSubDetMEs.ClusterChargePerCMfromOriginOffTrack = 0;
 
   // TotalNumber of Cluster OnTrack
   completeName = "Summary_TotalNumberOfClusters_OnTrack" + subdet_tag;
