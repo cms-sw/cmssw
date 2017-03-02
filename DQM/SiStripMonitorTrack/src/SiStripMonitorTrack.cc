@@ -282,6 +282,7 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker & ibooker , const uint32_
     theModMEs.ClusterCharge                = 0;
     theModMEs.ClusterChargeCorr            = 0;
     theModMEs.ClusterWidth                 = 0;
+    theModMEs.ClusterGain                  = 0;
     theModMEs.ClusterPos                   = 0;
     theModMEs.ClusterPGV                   = 0;
     theModMEs.ClusterChargePerCMfromTrack  = 0;
