@@ -258,7 +258,6 @@ void DDSpecificsFilter::setCriteria(const DDValue & nameVal, // name & value of 
 		   )
 {
   criteria_.push_back(SpecificCriterion(nameVal,op,asStrin,merged));
-  logOps_.push_back(l);
  }		   
 
 bool DDSpecificsFilter::accept(const DDExpandedView & node) const
@@ -269,14 +268,10 @@ bool DDSpecificsFilter::accept(const DDExpandedView & node) const
 bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
 {
   bool result = true;
-  auto logOpIt = logOps_.begin();
   const DDLogicalPart & logp = node.logicalPart();
   DDsvalues_type  sv;
   std::vector<const DDsvalues_type *> specs;
-  for( auto it = begin(criteria_); it != end(criteria_); ++it, ++logOpIt ) {
-    // avoid useless evaluations
-    if ( (   result &&(*logOpIt)==DDLogOp::OR ) ||
-	 ( (!result)&&(*logOpIt)==DDLogOp::AND) ) continue; 
+  for( auto it = begin(criteria_); it != end(criteria_); ++it) {
 
     bool locres=false;
     if (logp.hasDDValue(it->nameVal_)) { 
@@ -304,11 +299,10 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
 	}  
       }
     }
-    if (*logOpIt==DDLogOp::AND) {
-      result &= locres;
-    }
-    else {
-      result |= locres;
+    result &= locres;
+    // avoid useless evaluations
+    if(!result) {
+      break;
     }
   }
   return result;

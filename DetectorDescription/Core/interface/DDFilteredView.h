@@ -89,7 +89,6 @@ private:
 
   DDExpandedView epv_;
   std::vector<DDFilter const *> criteria_;
-  std::vector<DDLogOp> logOps_; // logical operation for merging the result of 2 filters
   std::vector<DDGeoHistory> parents_; // filtered-parents
 };
 

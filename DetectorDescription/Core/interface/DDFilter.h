@@ -13,7 +13,7 @@ class DDQuery;
 enum class DDCompOp { equals, matches, not_equals, not_matches, smaller, bigger, smaller_equals, bigger_equals };
   
 //! logical operations to obtain one result from two filter comparisons
-enum class DDLogOp { AND, OR };
+enum class DDLogOp { AND };
 
 //! A Filter accepts or rejects a DDExpandedNode based on a user-coded decision rule
 class DDFilter
@@ -70,7 +70,6 @@ protected:
   bool accept_impl(const DDExpandedView &) const;
 
   std::vector<SpecificCriterion> criteria_; 
-  std::vector<DDLogOp> logOps_;
 };
 
 std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
