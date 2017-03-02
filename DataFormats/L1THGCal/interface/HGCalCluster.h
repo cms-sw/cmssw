@@ -2,7 +2,7 @@
 #define DataFormats_L1Trigger_HGCalCluster_h
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-//#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
@@ -17,19 +17,38 @@ namespace l1t {
 
     class HGCalCluster : public L1Candidate {
     public:
+        
+        typedef edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc_iterator;
+        typedef edm::PtrVector<l1t::HGCalTriggerCell> tc_collection;
 
         /* constructors and destructor */
         HGCalCluster(){}
         HGCalCluster( const LorentzVector p4,
-                      int pt=0,
-                      int eta=0,
-                      int phi=0 );
+                      int pt,
+                      int eta,
+                      int phi,
+                      tc_collection &thecls
+        );
+       
+        HGCalCluster( const LorentzVector p4,
+                      int pt,
+                      int eta,
+                      int phi
+        );
+
+
         HGCalCluster( const l1t::HGCalTriggerCell &tc, 
                       //edm::PtrVector<l1t::HGCalTriggerCell> tcCollection,
                       const edm::EventSetup & es,
                       const edm::Event & evt );
         
         ~HGCalCluster();
+
+        /* trigger-cell collection pertinent to the cluster*/
+        const edm::PtrVector<l1t::HGCalTriggerCell> & tcs() const { return tcs_; }        
+        unsigned int size() const { return tcs_.size(); }  
+        tc_iterator begin() const { return tcs_.begin(); }
+        tc_iterator end() const { return tcs_.end(); }
 
         /* helpers */
         bool isPertinent( const l1t::HGCalTriggerCell &tc, double dR ) const;
@@ -65,6 +84,9 @@ namespace l1t {
 
 
     private:
+        
+        
+        edm::PtrVector<l1t::HGCalTriggerCell>  tcs_;
         
         /* tools for geometry */
         hgcal::RecHitTools recHitTools_;
