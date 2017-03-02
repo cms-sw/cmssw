@@ -12,9 +12,9 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedHLLHC14TeV_cfi')
+process.load('Configuration.StandardSequences.VtxSmearedNoSmear_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -25,7 +25,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(5)
     )
 
 # Input source
@@ -75,7 +75,7 @@ process.TFileService = cms.Service(
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
@@ -101,7 +101,6 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 # Remove best choice selection
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999)
@@ -113,25 +112,32 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
         2 ** process.hgcalTriggerPrimitiveDigiProducer.FECodec.triggerCellTruncationBits.value() 
 )
 
-cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
+
+trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                            
                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                               )
+cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
+                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),                           
+                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters,
+                              C2d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C2d_parameters,
+                              C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
+                              )
 
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
-
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-
-
 process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.TC_CalibWeight = cms.EDAnalyzer("testCalibration",
-                                        triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:SingleCellClusterAlgoBestChoice")
+process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
+                                        #Luca triggerCellInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:C2dClusterAlgoBestChoice")
+                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
                                         )
 
-process.test_step = cms.Path(process.TC_CalibWeight)
+process.test_step = cms.Path(process.HGC_clustering)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
@@ -143,7 +149,9 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 # Schedule definition
 process.schedule = cms.Schedule( process.generation_step, process.genfiltersummary_step, process.simulation_step, 
                                  process.digitisation_step, process.L1simulation_step, process.hgcl1tpg_step, 
-                                 process.digi2raw_step,  process.test_step, process.ntuple_step, process.endjob_step, 
+                                 process.digi2raw_step, #process.test_step,
+                                 process.ntuple_step,
+                                 process.endjob_step, 
                                  process.FEVTDEBUGoutput_step
                                  )
 
@@ -151,7 +159,10 @@ process.schedule = cms.Schedule( process.generation_step, process.genfiltersumma
 for path in process.paths:
         getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
-# Add early deletion of temporary data products to reduce peak memory need
-from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete
-process = customiseEarlyDelete(process)
-# End adding early deletion
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+#from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
+
+#call to customisation function cust_2023tilted imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+###process = cust_2023tilted(process)
+
+

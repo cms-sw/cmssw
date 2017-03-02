@@ -15,6 +15,7 @@
 #include <sstream>
 #include <memory>
 
+
 class HGCalTriggerDigiProducer : public edm::EDProducer {  
  public:    
   HGCalTriggerDigiProducer(const edm::ParameterSet&);
@@ -38,11 +39,10 @@ DEFINE_FWK_MODULE(HGCalTriggerDigiProducer);
 HGCalTriggerDigiProducer::
 HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
-  inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))) 
-  //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))) 
+  inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
+  //inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
+  backEndProcessor_(new HGCalTriggerBackendProcessor(conf.getParameterSet("BEConfiguration"),consumesCollector()) )
 {
-  
-  
   //setup FE codec
   const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
   const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
@@ -52,9 +52,10 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   
   produces<l1t::HGCFETriggerDigiCollection>();
   //setup BE processor
-  backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
+  //backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
   // register backend processor products
   backEndProcessor_->setProduces(*this);
+
 }
 
 void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/, 
@@ -66,6 +67,7 @@ void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/,
 }
 
 void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+
   std::unique_ptr<l1t::HGCFETriggerDigiCollection> 
     fe_output( new l1t::HGCFETriggerDigiCollection );
   
@@ -130,7 +132,8 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto fe_digis_coll = *fe_digis_handle;
   
   //now we run the emulation of the back-end processor
-  backEndProcessor_->run(fe_digis_coll, es);
+  backEndProcessor_->reset();
+  backEndProcessor_->run(fe_digis_coll,es,e);
   backEndProcessor_->putInEvent(e);
-  backEndProcessor_->reset();  
+  //backEndProcessor_->reset();  
 }
