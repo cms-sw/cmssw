@@ -18,7 +18,7 @@ CaloSimParameters::CaloSimParameters(double simHitToPhotoelectrons, double photo
 
 
 
-CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p)
+CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p, bool skipPe2Fc)
 : simHitToPhotoelectrons_( p.getParameter<double>("simHitToPhotoelectrons") ),
   photoelectronsToAnalog_( 0. ),
   timePhase_( p.getParameter<double>("timePhase") ),
@@ -33,9 +33,10 @@ CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p)
   } else if(p.existsAs<std::vector<double> >("photoelectronsToAnalog")) {
     // just take the first one
     photoelectronsToAnalog_ = p.getParameter<std::vector<double> >("photoelectronsToAnalog").at(0);
-  } else {
+  } else if(!skipPe2Fc) {
     throw cms::Exception("CaloSimParameters") << "Cannot find parameter photoelectronsToAnalog";
   }
+  // some subsystems may not want this at all
 }
 
 
