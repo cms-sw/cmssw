@@ -20,7 +20,7 @@ void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell,
     int subdet = trgdetid.subdetId();
 
     /* get the transverse momentum in mip units */
-    //int hwPt = trgCell.hwPt(); /* we will use this one */
+    //int hwPt = trgCell.hwPt(); /* we will use this one ?*/
     double mipPt = trgCell.mipPt();
 
     if( subdet == HGCHEF ){
@@ -66,7 +66,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
     // setting pT [mip]
-    //trgCell.setHwPt( trgCellMipPt ) ; /* we will use this variable*/
+    //trgCell.setHwPt( trgCellMipPt ) ; /* we will use this variable? */
     trgCell.setMipPt( trgCellMipPt ) ;
 
 } 

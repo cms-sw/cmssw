@@ -61,13 +61,13 @@ namespace l1t {
 
 
         edm::PtrVector<l1t::HGCalCluster>  clusters_;
+
         /* Energies */
         uint32_t hwPt_;
         double mipPt_;
 
         /* centre in norm plane */
         ROOT::Math::XYZVector centre_;
-
 
         // HGC specific information
         /* detId of the first cluster in the multicluster */

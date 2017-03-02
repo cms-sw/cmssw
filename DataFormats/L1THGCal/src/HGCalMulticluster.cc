@@ -54,6 +54,7 @@ void HGCalMulticluster::addClu( const l1t::HGCalCluster & clu )
     mipPt_ = mipPt_ + clu.mipPt();
     hwPt_ = hwPt_ + clu.hwPt();
 
+
 }
 
 
