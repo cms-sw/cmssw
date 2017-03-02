@@ -227,10 +227,9 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
 void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
   if(isHPD) {
-    // FIXME: noise_ pedSig_ should be the pedestalWidth from database for HPD as well
     timeSig_            = timeSigHPD_;
-    pedSig_             = pedSigHPD_;
-    noise_              = noiseHPD_;
+    pedSig_             = pedSigHPD_; // unused in Phase1, take the average pedestal width from the DB
+    noise_              = noiseHPD_; // unused in Phase1, take the pedestal width from the DB
   } else {
     timeSig_            = timeSigSiPM_;
     pedSig_             = pedSigSiPM_; // unused in Phase1, take the average pedestal width from the DB
@@ -549,12 +548,7 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     energyArr[ip] = energy; pedenArr[ip] = peden;
 
     // quantization noise from the ADC (QIE8 or QIE10/11)
-    // FIXME: in the future switch also the QIE8
-    if(channelData.hasTimeInfo()) {
-      noiseADCArr[ip] = (1./sqrt(12))*channelData.tsDFcPerADC(ip);
-    } else {
-      noiseADCArr[ip] = psfPtr_->sigmaHPDQIE8(chargeArr[ip]); // Add Greg's channel discretization
-    }
+    noiseADCArr[ip] = (1./sqrt(12))*channelData.tsDFcPerADC(ip);
 
     // dark current noise relevant for siPM
     noiseDCArr[ip] = 0;
@@ -567,20 +561,12 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
     // Note2. (from kPedro): the output number of photoelectrons after smearing is treated very differently for SiPMs: *each* pe is assigned a different time based on a random generation from the Y11 pulse plus the SimHit time. In HPDs, the overall pulse is shaped all at once using just the SimHit time.
 
     noisePHArr[ip] = 0;
-    if(channelData.hasTimeInfo() && (charge-ped)>channelData.tsPedestalWidth(ip)) {
-      noisePHArr[ip] = sqrt((charge-ped)*channelData.fcByPE());
-    }
-    if(!channelData.hasTimeInfo() && (charge-ped)>noise_) {
+    if((charge-ped)>channelData.tsPedestalWidth(ip)) {
       noisePHArr[ip] = sqrt((charge-ped)*channelData.fcByPE());
     }
 
     // sum all in quadrature
-    if(channelData.hasTimeInfo()) {
-      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip) +  noisePHArr[ip]*noisePHArr[ip];
-    } else {
-      // FIXME: in the future switch the HPDnoise from the DB
-      noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + noisePHArr[ip]*noisePHArr[ip] + noise_*noise_;
-    }
+    noiseArrSq[ip]= noiseADCArr[ip]*noiseADCArr[ip] + noiseDCArr[ip]*noiseDCArr[ip] + channelData.tsPedestalWidth(ip)*channelData.tsPedestalWidth(ip) +  noisePHArr[ip]*noisePHArr[ip];
 
     tsTOT += charge - ped;
     tsTOTen += energy - peden;
@@ -594,9 +580,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo& channe
 				 channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)*channelData.tsGain(2)*channelData.tsGain(2) +
 				 channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3)*channelData.tsGain(3)*channelData.tsGain(3));
 
-  // FIXME: in the future switch the HPDnoise from the DB
   // redefine the invertpedSig2
-  if(channelData.hasTimeInfo()) psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
+  psfPtr_->setinvertpedSig2(1./(averagePedSig2GeV));
 
   if(channelData.hasTimeInfo()) { 
     ts4Max_=vts4Max_[1]; ts4Chi2_=vts4Chi2_[1]; 
