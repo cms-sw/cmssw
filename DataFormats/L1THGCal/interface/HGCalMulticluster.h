@@ -10,15 +10,16 @@ namespace l1t {
   
   class HGCalMulticluster : public L1Candidate {
     public:
-        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
-        typedef edm::PtrVector<l1t::HGCalCluster> ClusterCollection;
+        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator clu_iterator;
+        typedef edm::PtrVector<l1t::HGCalCluster> clu_collection;
+        
         /* constructors and destructor */
         HGCalMulticluster() {}
         HGCalMulticluster( const LorentzVector p4,
                            int pt,
                            int eta,
                            int phi,
-                           ClusterCollection &thecls
+                           clu_collection &thecls
         );
         
         HGCalMulticluster( const l1t::HGCalCluster & clu );
@@ -26,14 +27,14 @@ namespace l1t {
         ~HGCalMulticluster();
 
         void push_back(const edm::Ptr<l1t::HGCalCluster> &b) {
-            myclusters_.push_back(b);
+            clusters_.push_back(b);
         }
-  
-        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return myclusters_; }
-        
-        unsigned int size() const { return myclusters_.size(); }  
-        component_iterator begin() const { return myclusters_.begin(); }
-        component_iterator end() const { return myclusters_.end(); }
+
+        /* cluster collection pertinent to the multicluster*/
+        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return clusters_; }        
+        unsigned int size() const { return clusters_.size(); }  
+        clu_iterator begin() const { return clusters_.begin(); }
+        clu_iterator end() const { return clusters_.end(); }
         
 
         /* helpers */
@@ -59,7 +60,7 @@ namespace l1t {
     private:
 
 
-        edm::PtrVector<l1t::HGCalCluster>  myclusters_;
+        edm::PtrVector<l1t::HGCalCluster>  clusters_;
         /* Energies */
         mutable uint32_t hwPt_;
         mutable double mipPt_;

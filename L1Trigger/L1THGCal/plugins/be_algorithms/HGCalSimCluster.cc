@@ -276,7 +276,7 @@ namespace HGCalTriggerBackend{
                             }
 
                             l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                            calibration_.calibrate(calibratedtriggercell, cellThickness); 
+                            calibration_.calibrateInGeV(calibratedtriggercell, cellThickness); 
                             //uint32_t digiEnergy = data.payload; 
                             //auto digiEnergy=triggercell.p4().E();  
                             // using calibrated energy instead

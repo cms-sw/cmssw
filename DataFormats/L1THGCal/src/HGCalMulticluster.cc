@@ -7,10 +7,10 @@ HGCalMulticluster::HGCalMulticluster( const LorentzVector p4,
                                       int pt,
                                       int eta,
                                       int phi,
-                                      ClusterCollection &basic_clusters
+                                      clu_collection &basic_clusters
     ) :
     L1Candidate(p4, pt, eta, phi),
-    myclusters_(basic_clusters)
+    clusters_(basic_clusters)
 {
 } 
 

@@ -6,14 +6,32 @@ using namespace l1t;
 HGCalCluster::HGCalCluster( const LorentzVector p4, 
                             int pt,
                             int eta,
-                            int phi)
-    : L1Candidate(p4, pt, eta, phi), 
-      centre_(0, 0, 0),
-      hwPt_(0),
-      mipPt_(0)
+                            int phi,
+                            tc_collection &basic_tc
+    ): 
+    L1Candidate(p4, pt, eta, phi),
+    tcs_(basic_tc),
+    centre_(0, 0, 0),
+    hwPt_(0),
+    mipPt_(0)
 {
 
 }
+
+HGCalCluster::HGCalCluster( const LorentzVector p4, 
+                            int pt,
+                            int eta,
+                            int phi
+    ): 
+    L1Candidate(p4, pt, eta, phi),
+    centre_(0, 0, 0),
+    hwPt_(0),
+    mipPt_(0)
+{
+
+}
+
+
 
 
 HGCalCluster::HGCalCluster(  const l1t::HGCalTriggerCell &tcSeed,
