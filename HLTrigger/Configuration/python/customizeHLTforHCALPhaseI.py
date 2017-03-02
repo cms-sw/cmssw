@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import itertools
-
 # customisation functions for the HLT configuration
 from HLTrigger.Configuration.common import *
 
@@ -9,12 +7,11 @@ from HLTrigger.Configuration.common import *
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 
-
 # modify the HLT configuration for the Phase I HE upgrade
 def customizeHLTforHEforPhaseI(process):
 
-    # reconstruct HBHE rechits with Method 3
-    hltHbhereco = cms.EDProducer( "HBHEPhase1Reconstructor",
+    # reconstruct HBHE rechits with Method 3, with depth segmentation for SiPM modules
+    hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
 
         # Label for the input HBHEDigiCollection, and flag indicating
         # whether we should process this collection
@@ -70,9 +67,9 @@ def customizeHLTforHEforPhaseI(process):
             applyTimeSlew       = cms.bool(True),               # units
             ts4Min              = cms.double(0.),               # fC
             ts4Max              = cms.vdouble(100., 45000.),     # fC # this is roughly 20 GeV
-            pulseJitter         = cms.double(1.),               # GeV/bin 
-            meanTime            = cms.double(0.),               # ns 
-            timeSigmaHPD        = cms.double(5.),               # ns 
+            pulseJitter         = cms.double(1.),               # GeV/bin
+            meanTime            = cms.double(0.),               # ns
+            timeSigmaHPD        = cms.double(5.),               # ns
             timeSigmaSiPM       = cms.double(2.5),              # ns
             meanPed             = cms.double(0.),               # GeV
             pedSigmaHPD         = cms.double(0.5),              # GeV
@@ -89,7 +86,7 @@ def customizeHLTforHEforPhaseI(process):
             applyTimeSlewM3     = cms.bool(True),
             pedestalUpperLimit  = cms.double(2.7),
             timeSlewParsType    = cms.int32(3),                 # 0: TestStand, 1:Data, 2:MC, 3:InputPars. Parametrization function is par0 + par1*log(fC+par2).
-            timeSlewPars        = cms.vdouble(12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0), 
+            timeSlewPars        = cms.vdouble(12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0),
                                                                 # HB par0, HB par1, HB par2, BE par0, BE par1, BE par2, HE par0, HE par1, HE par2
             respCorrM3          = cms.double(0.95)              # This factor is used to align the the Method3 with the Method2 response
         ),
@@ -158,23 +155,42 @@ def customizeHLTforHEforPhaseI(process):
     )
 
     # XXX these values were used at HLT in 2016, but we do not know why
-    #hltHbhereco.algorithm.samplesToAdd      = 4
-    #hltHbhereco.algorithm.correctionPhaseNS = 13.
-    #hltHbhereco.setNoiseFlagsQIE8           = False
-    #hltHbhereco.setPulseShapeFlagsQIE8      = False
-    #hltHbhereco.setLegacyFlagsQIE8          = False
-   
+    #hltHbhePhase1Reco.algorithm.samplesToAdd      = 4
+    #hltHbhePhase1Reco.algorithm.correctionPhaseNS = 13.
+    #hltHbhePhase1Reco.setNoiseFlagsQIE8           = False
+    #hltHbhePhase1Reco.setPulseShapeFlagsQIE8      = False
+    #hltHbhePhase1Reco.setLegacyFlagsQIE8          = False
+
+    # sum the different depths of the SiPM modules
+    hltHbhereco = cms.EDProducer("HBHEPlan1Combiner",
+      algorithm = cms.PSet(
+          Class = cms.string('SimplePlan1RechitCombiner')
+      ),
+      hbheInput = cms.InputTag("hltHbhePhase1Reco"),
+      ignorePlan1Topology = cms.bool(False),
+      usePlan1Mode = cms.bool(True)
+    )
+
     # reconstruct HBHE rechits with Method 3
+    # introduce a new name for the collection of rechits with QIE8/QIE11 and depth segmentation
+    # while keeping the original name for the collection of rechits summed over all depths
     if 'hltHbhereco' in process.__dict__:
         digiLabel = process.hltHbhereco.digiLabel.value()
+        process.hltHbhePhase1Reco = hltHbhePhase1Reco.clone()
+        process.hltHbhePhase1Reco.digiLabelQIE8  = digiLabel
+        process.hltHbhePhase1Reco.digiLabelQIE11 = digiLabel
+
         process.hltHbhereco = hltHbhereco.clone()
-        process.hltHbhereco.digiLabelQIE8  = digiLabel
-        process.hltHbhereco.digiLabelQIE11 = digiLabel
+        process.hltHbhereco.hbheInput = 'hltHbhePhase1Reco'
+
+        # add the hltHbhereco module before the hltHbhePhase1Reco in any Sequence, Paths or EndPath that contained it
+        insert_modules_before(process, process.hltHbhereco, process.hltHbhePhase1Reco)
+
 
     # reconstruct HBHE rechits with Method 2 around E/Gamma candidates (seeded by L1 objects)
     if 'hltHbherecoMethod2L1EGSeeded' in process.__dict__:
         digiLabel = process.hltHbherecoMethod2L1EGSeeded.digiLabel.value()
-        process.hltHbherecoMethod2L1EGSeeded = hltHbhereco.clone()
+        process.hltHbherecoMethod2L1EGSeeded = hltHbhePhase1Reco.clone()
         process.hltHbherecoMethod2L1EGSeeded.digiLabelQIE8   = digiLabel
         # set processQIE11 to False until HLTHcalDigisInRegionsProducer can produce QIE11
         process.hltHbherecoMethod2L1EGSeeded.processQIE11    = cms.bool(False)
@@ -185,7 +201,7 @@ def customizeHLTforHEforPhaseI(process):
     # reconstruct HBHE rechits with Method 2 around E/Gamma candidates (unseeded)
     if 'hltHbherecoMethod2L1EGUnseeded' in process.__dict__:
         digiLabel = process.hltHbherecoMethod2L1EGUnseeded.digiLabel.value()
-        process.hltHbherecoMethod2L1EGUnseeded = hltHbhereco.clone()
+        process.hltHbherecoMethod2L1EGUnseeded = hltHbhePhase1Reco.clone()
         process.hltHbherecoMethod2L1EGUnseeded.digiLabelQIE8   = digiLabel
         # set processQIE11 to False until HLTHcalDigisInRegionsProducer can produce QIE11
         process.hltHbherecoMethod2L1EGUnseeded.processQIE11    = cms.bool(False)
@@ -343,17 +359,7 @@ def customizeHLTforHFforPhaseI(process):
         )
 
         # add the hltHfprereco module before the hltHfreco in any Sequence, Paths or EndPath that contains the latter
-        for sequence in itertools.chain(
-            process._Process__sequences.itervalues(),
-            process._Process__paths.itervalues(),
-            process._Process__endpaths.itervalues()
-        ):
-            try:
-                position = sequence.index(process.hltHfreco)
-            except ValueError:
-                continue
-            else:
-                sequence.insert(position, process.hltHfprereco)
+        insert_modules_before(process, process.hltHfreco, process.hltHfprereco)
 
     return process
 
