@@ -172,8 +172,7 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
     if (et < 30) {
       continue;
     }
-    TVector2 jetVec(0., 0.);
-    jetVec.SetMagPhi(et, jet->phi());
+    TVector2 jetVec(et * cos(jet->phi()), et * sin(jet->phi()));
     recoHTT += et;
     mht -= jetVec;
   }
@@ -185,9 +184,9 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
   double resolutionMET = recoMET > 0 ? (l1MET - recoMET) / recoMET : outOfBounds;
-  double resolutionMETPhi = abs(recoMETPhi) > 0 ? (l1METPhi - recoMETPhi) / recoMETPhi : outOfBounds;
+  double resolutionMETPhi = std::abs(recoMETPhi) > 0 ? (l1METPhi - recoMETPhi) / recoMETPhi : outOfBounds;
   double resolutionMHT = recoMHT > 0 ? (l1MHT - recoMHT) / recoMHT : outOfBounds;
-  double resolutionMHTPhi = abs(recoMHTPhi) > 0 ? (l1MHTPhi - recoMHTPhi) / recoMHTPhi : outOfBounds;
+  double resolutionMHTPhi = std::abs(recoMHTPhi) > 0 ? (l1MHTPhi - recoMHTPhi) / recoMHTPhi : outOfBounds;
   double resolutionETT = recoETT > 0 ? (l1ETT - recoETT) / recoETT : outOfBounds;
   double resolutionHTT = recoHTT > 0 ? (l1HTT - recoHTT) / recoHTT : outOfBounds;
 
@@ -253,12 +252,12 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   }
 
   if (caloJets->size() == 0) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "no calo jets found" << std::endl;
+    LogDebug("L1TStage2CaloLayer2Offline") << "no calo jets found" << std::endl;
     return;
   }
 
   if (l1Jets->size() == 0) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "no L1 jets found" << std::endl;
+    LogDebug("L1TStage2CaloLayer2Offline") << "no L1 jets found" << std::endl;
     return;
   }
 
@@ -300,15 +299,15 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-  double resolutionEta = abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-  double resolutionPhi = abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
+  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
 
   using namespace dqmoffline::l1t;
   // eta
   fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionJetEta_, resolutionEta);
 
-  if (abs(recoEta) <= 1.479) { // barrel
+  if (std::abs(recoEta) <= 1.479) { // barrel
     // et
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_, recoEt, l1Et);
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_HE_, recoEt, l1Et);
@@ -333,7 +332,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
       }
     }
 
-  } else if (abs(recoEta) <= 3.0) { // end-cap
+  } else if (std::abs(recoEta) <= 3.0) { // end-cap
     // et
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HE_, recoEt, l1Et);
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_HE_, recoEt, l1Et);
@@ -565,31 +564,6 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
   }
 
   ibooker.cd();
-}
-
-//
-// -------------------------------------- functions --------------------------------------------
-//
-double L1TStage2CaloLayer2Offline::Distance(const reco::Candidate & c1, const reco::Candidate & c2)
-{
-  return deltaR(c1, c2);
-}
-
-double L1TStage2CaloLayer2Offline::DistancePhi(const reco::Candidate & c1, const reco::Candidate & c2)
-{
-  return deltaPhi(c1.p4().phi(), c2.p4().phi());
-}
-
-// This always returns only a positive deltaPhi
-double L1TStage2CaloLayer2Offline::calcDeltaPhi(double phi1, double phi2)
-{
-  double deltaPhi = phi1 - phi2;
-  if (deltaPhi < 0)
-    deltaPhi = -deltaPhi;
-  if (deltaPhi > 3.1415926) {
-    deltaPhi = 2 * 3.1415926 - deltaPhi;
-  }
-  return deltaPhi;
 }
 
 //define this as a plug-in

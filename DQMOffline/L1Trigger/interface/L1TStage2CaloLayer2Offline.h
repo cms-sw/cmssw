@@ -74,11 +74,6 @@ private:
   void bookEnergySumHistos(DQMStore::IBooker &);
   void bookJetHistos(DQMStore::IBooker &);
 
-  //other functions
-  double Distance(const reco::Candidate & c1, const reco::Candidate & c2);
-  double DistancePhi(const reco::Candidate & c1, const reco::Candidate & c2);
-  double calcDeltaPhi(double phi1, double phi2);
-
   void fillEnergySums(edm::Event const& e, const unsigned int nVertex);
   void fillJets(edm::Event const& e, const unsigned int nVertex);
 
