@@ -20,11 +20,20 @@ public:
 private:
   std::string m_attribute;
   std::string m_value;
+  bool m_shouldPrint;
+  DDCompOp m_comp;
 };
 
 DDFilteredViewAnalyzer::DDFilteredViewAnalyzer( const edm::ParameterSet& pset ) {
   m_attribute = pset.getParameter< std::string >( "attribute" );
   m_value = pset.getParameter< std::string >( "value" );
+  
+  m_shouldPrint = pset.getUntrackedParameter<bool>("shouldPrint",true);
+  if(pset.getUntrackedParameter<bool>("compareNotEquals",true) ) {
+    m_comp = DDCompOp::not_equals;
+  } else {
+    m_comp= DDCompOp::equals;
+  }
 }
 
 void
@@ -36,7 +45,7 @@ DDFilteredViewAnalyzer::analyze( const edm::Event& ,
   DDValue val( m_attribute, m_value, 0.0 );
   DDSpecificsFilter filter;
   filter.setCriteria( val,  // name & value of a variable 
-  		      DDCompOp::not_equals,
+  		      m_comp,
   		      DDLogOp::AND, 
   		      true, // compare strings otherwise doubles
   		      true  // use merged-specifics or simple-specifics
@@ -49,7 +58,9 @@ DDFilteredViewAnalyzer::analyze( const edm::Event& ,
     int i = 0;
     while( dodet ) {
       dodet = fv.next();
-      std::cout << i++ << ": " << fv.logicalPart().name() << std::endl;
+      if(m_shouldPrint) {
+        std::cout << i++ << ": " << fv.logicalPart().name() << std::endl;
+      }
     }
   }
   else
