@@ -46,7 +46,7 @@ bool HGCalMulticluster::isPertinent( const l1t::HGCalCluster & clu, double dR ) 
 }
 
 
-void HGCalMulticluster::addClu( const l1t::HGCalCluster & clu ) const
+void HGCalMulticluster::addClu( const l1t::HGCalCluster & clu )
 {
 
     centre_ = ( centre_*mipPt_ + clu.centreNorm()*clu.mipPt() ) / ( mipPt_+clu.mipPt() ) ;

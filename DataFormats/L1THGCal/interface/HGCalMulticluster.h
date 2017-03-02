@@ -39,7 +39,7 @@ namespace l1t {
 
         /* helpers */
         bool isPertinent( const l1t::HGCalCluster & clu, double dR ) const;
-        void addClu( const l1t::HGCalCluster & clu ) const;
+        void addClu( const l1t::HGCalCluster & clu );
 
         /* get info */
 
@@ -62,11 +62,11 @@ namespace l1t {
 
         edm::PtrVector<l1t::HGCalCluster>  clusters_;
         /* Energies */
-        mutable uint32_t hwPt_;
-        mutable double mipPt_;
+        uint32_t hwPt_;
+        double mipPt_;
 
         /* centre in norm plane */
-        mutable ROOT::Math::XYZVector centre_;
+        ROOT::Math::XYZVector centre_;
 
 
         // HGC specific information
