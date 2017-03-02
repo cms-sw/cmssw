@@ -97,8 +97,10 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 
   auto pxbarrel  = [] (InterestingQuantities const& iq) { return iq.sourceModule.subdetId() == PixelSubdetector::PixelBarrel ? 0 : UNDEFINED; };
   auto pxforward = [] (InterestingQuantities const& iq) { return iq.sourceModule.subdetId() == PixelSubdetector::PixelEndcap ? 0 : UNDEFINED; };
+  auto pxall     = [] (InterestingQuantities const& iq) { return 0 ; };
   addExtractor(intern("PXBarrel"),  pxbarrel,  0, 0);
   addExtractor(intern("PXForward"), pxforward, 0, 0);
+  addExtractor(intern("PXAll"),     pxall,     0, 0);
 
   // Redefine the disk numbering to use the sign
   auto pxendcap = extractors[intern("PXEndcap")];
@@ -165,12 +167,12 @@ void GeometryInterface::loadFromTopology(edm::EventSetup const& iSetup, const ed
 }
 
 void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig) {
-  // TODO: SiPixelCoordinates has a large overlap with theis GeometryInterface 
+  // TODO: SiPixelCoordinates has a large overlap with theis GeometryInterface
   // in general.
   // Rough convention is to use own code for things that are easy and fast to
   // determine, and use SiPixelCoordinates for complicated things.
   // SiPixelCoordinates uses lookup maps for everything, so it is faster than
-  // most other code, but still slow on DQM scales. 
+  // most other code, but still slow on DQM scales.
   int phase = iConfig.getParameter<int>("upgradePhase");
 
   // this shared pointer is kept alive by the references in the lambdas that follow.
@@ -180,13 +182,13 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
   // note that we should reeinit for each event. But this probably won't explode
   // thanks to the massive memoization in SiPixelCoordinates which is completely
   // initialized while booking.
-  coord->init(iSetup); 
+  coord->init(iSetup);
 
   // SiPixelCoordinates uses a different convention for UNDEFINED:
   auto from_coord = [](double in) { return (in == -9999.0) ? UNDEFINED : Value(in); };
 
-  // Rings are a concept that cannot be derived from bitmasks. 
-  addExtractor(intern("PXRing"), 
+  // Rings are a concept that cannot be derived from bitmasks.
+  addExtractor(intern("PXRing"),
     [coord, from_coord] (InterestingQuantities const& iq) {
       return from_coord(coord->ring(iq.sourceModule));
     }
@@ -238,7 +240,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
     }
   );
 
-  // Pixel Map axis. 
+  // Pixel Map axis.
   // TODO: automatic range and binning for phase0 are incorrect.
   // Should be set manually here.
   addExtractor(intern("SignedModuleCoord"), // BPIX x
@@ -276,7 +278,7 @@ void GeometryInterface::loadFromSiPixelCoordinates(edm::EventSetup const& iSetup
       } else {
         return UNDEFINED; // TODO: phase2
       }
-    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2 
+    }, UNDEFINED, UNDEFINED, phase == 1 ? 0.25 : 0.2
   );
   addExtractor(intern("SignedShiftedBladePanelCoord"), // FPIX-as-one y
     [coord, from_coord, phase] (InterestingQuantities const& iq) {
@@ -431,4 +433,3 @@ std::string GeometryInterface::formatValue(Column col, Value val) {
   if (val == UNDEFINED) value = "_UNDEFINED";
   return format_value[std::make_pair(col, val)] = name+value;
 }
-
