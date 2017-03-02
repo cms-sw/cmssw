@@ -328,7 +328,6 @@ void tutorial()
   cop["<="]  = DDCompOp::smaller_equals;
   std::map<std::string,DDLogOp> lop;
   lop["AND"] = DDLogOp::AND;
-  lop["OR"] = DDLogOp::OR;
   bool moreFilters = true;
   bool moreQueries = true;
   bool moreFilterCriteria = true;

@@ -23,10 +23,9 @@ const DDLogicalPart & DDFilteredView::logicalPart() const
   return epv_.logicalPart();
 }
 
-void DDFilteredView::addFilter(const DDFilter & f, DDLogOp op)
+void DDFilteredView::addFilter(const DDFilter & f, DDLogOp )
 {
   criteria_.push_back(&f); 
-  logOps_.push_back(op);
 }
  
 const DDTranslation & DDFilteredView::translation() const
@@ -227,21 +226,13 @@ void DDFilteredView::reset()
 bool DDFilteredView::filter()
 {
   bool result = true;
-  auto logOpIt = logOps_.begin();
   // loop over all user-supplied criteria (==filters)
-  for( auto it = begin(criteria_); it != end(criteria_); ++it, ++logOpIt) {
-    // avoid useless evaluations
-    if(( result && ( *logOpIt ) == DDLogOp::OR ) ||
-       (( !result ) && ( *logOpIt ) == DDLogOp::AND )) continue; 
-    
+  for( auto it = begin(criteria_); it != end(criteria_); ++it) {
     bool locres = (*it)->accept(epv_);
     
-    // now do the logical-operations on the results encountered so far:
-    if (*logOpIt == DDLogOp::AND) { // AND
-      result &= locres; 
-    }
-    else { // OR
-      result |= locres;  
+    result &= locres; 
+    if(!result) {
+      break;
     }
   } // <-- loop over filters     
   return result;
