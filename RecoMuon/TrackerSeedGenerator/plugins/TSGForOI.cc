@@ -245,6 +245,10 @@ int TSGForOI::makeSeedsFromHits(const GeometricSearchDet &layer,
 				const MeasurementTrackerEvent &measurementTracker,
 				const double errorSF) {
 
+  //		Error Rescaling:
+  TrajectoryStateOnSurface onLayer(tsosAtIP);
+  onLayer.rescaleError(errorSF);    
+
   std::vector< GeometricSearchDet::DetWithState > dets;
   layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimator_, dets);
   
@@ -258,9 +262,6 @@ int TSGForOI::makeSeedsFromHits(const GeometricSearchDet &layer,
     }
     if (!it->second.isValid()) continue;	//Skip if TSOS is not valid
 
-    //		Error Rescaling:
-    it->second.rescaleError(errorSF);
-    
     std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, tsosAtIP, propagatorAlong, *estimator_);	//Second TSOS is not used
     for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
       if (it2->recHit()->isValid()) meas.push_back(*it2);	//Only save those which are valid
