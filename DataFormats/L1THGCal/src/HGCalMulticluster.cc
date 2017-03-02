@@ -6,8 +6,8 @@ using namespace l1t;
 HGCalMulticluster::HGCalMulticluster( const LorentzVector p4, 
                                       int pt,
                                       int eta,
-                                      int phi//,
-                                      //   ClusterCollection &basic_clusters
+                                      int phi,
+                                      ClusterCollection &basic_clusters
     ) :
     L1Candidate(p4, pt, eta, phi),
     myclusters_(basic_clusters)

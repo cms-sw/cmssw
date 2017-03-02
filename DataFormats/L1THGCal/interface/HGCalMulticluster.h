@@ -4,19 +4,23 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-
+#include "DataFormats/Common/interface/PtrVector.h"
 
 namespace l1t {
   
   class HGCalMulticluster : public L1Candidate {
     public:
-
+        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
+        typedef edm::PtrVector<l1t::HGCalCluster> ClusterCollection;
         /* constructors and destructor */
         HGCalMulticluster() {}
         HGCalMulticluster( const LorentzVector p4,
                            int pt,
                            int eta,
-                           int phi );
+                           int phi,
+                           ClusterCollection &thecls
+        );
+        
         HGCalMulticluster( const l1t::HGCalCluster & clu );
 
         ~HGCalMulticluster();
