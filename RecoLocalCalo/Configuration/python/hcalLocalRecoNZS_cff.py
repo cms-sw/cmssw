@@ -40,6 +40,7 @@ _phase1_hfrecoMB = RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi.hfre
     ),
 )
 from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
+hbheplan1.hbheInput = cms.InputTag("hbheprerecoMB")
 
 _phase1_hcalLocalRecoSequenceNZS = hcalLocalRecoSequenceNZS.copy()
 _phase1_hcalLocalRecoSequenceNZS.insert(0,hfprerecoMB)
@@ -51,6 +52,8 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toReplaceWith( hbherecoMB, _phase1_hbherecoMB )
 
 _plan1_hcalLocalRecoSequenceNZS = _phase1_hcalLocalRecoSequenceNZS.copy()
-_plan1_hcalLocalRecoSequenceNZS += hbheplan1
+hbheprerecoMB = _phase1_hbherecoMB.clone()
+_plan1_hcalLocalRecoSequenceNZS.insert(0,hbheprerecoMB)
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toReplaceWith(hbherecoMB, hbheplan1)
 run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequenceNZS, _plan1_hcalLocalRecoSequenceNZS)
