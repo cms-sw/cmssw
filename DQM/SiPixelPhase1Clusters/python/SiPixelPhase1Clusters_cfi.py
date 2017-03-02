@@ -6,7 +6,7 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   title = "Cluster Charge",
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
-  
+
   specs = VPSet(
     #StandardSpecification2DProfile,
     StandardSpecificationPixelmapProfile,
@@ -219,11 +219,19 @@ SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersReadoutNClusters
 )
 
+## Uncomment to create trigger event flag settings
+# import DQM.SiPixelPhase1Common.TriggerEventFlag_cfi.py as triggerflag
+# SiPixelPhase1ClustersTriggers = cms.VPSet(
+#   triggerflag.genericTriggerEventFlag4HLTdb,
+#   triggerflag.genericTriggerEventFlag4L1bd,
+# )
 
 SiPixelPhase1ClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1Clusters",
         src = cms.InputTag("siPixelClusters"),
         histograms = SiPixelPhase1ClustersConf,
         geometry = SiPixelPhase1Geometry
+        ## Uncomment to expose trigger event flag to analyzer class
+        # , triggerflag = SiPixelPhase1ClustersTriggers,  
 )
 
 SiPixelPhase1ClustersHarvester = cms.EDAnalyzer("SiPixelPhase1Harvester",
