@@ -3,6 +3,9 @@
 ## $1 is the final iteration number
 ## $2 is output directory
 ## $3 is a list of data files
+## $4 is the IOV file
+## $5 is the common config. file name
+## $6 is the align config file name
 
 # setup environment: have call script from Package/Subpackage dir
 cd ../..
@@ -10,21 +13,21 @@ cd ../..
 eval `scramv1 runtime -csh`
 cd Alignment/HIPAlignmentAlgorithm
 
+mkdir -p $2
 set odir = `cd $2; pwd` # get full output path
+set errfile = "$odir/ERROR"
 
 # configure all of the scripts
-scripts/configure.pl $odir $3 $4 
-cp scripts/runControl.csh $odir/main/
+scripts/configureHippy.pl $odir $3 $4 $5 $6
 
-# run initial job
-#cmsRun $odir/main/initial_cfg.py >& $odir/main/initial.out
-#new
+if ( -f $errfile ) then
+   echo "$errfile exists! Please fix the errors and re-run."
+else
+  cp scripts/runControl.csh $odir/main/
 
+  # submit parallel jobs
+  scripts/submitJobs_py $1 $2 $4
 
-# submit parallel jobs
-scripts/submitJobs_py $1 $2 $4
-#scripts/submitJobs_py2bis $1 $2
-
-# create DB objects
-cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/
-#cmsRun $odir/upload_cfg.py >& $odir/upload.out
+  # create DB objects
+  cp $odir/main/IOAlignedPositions*.root $odir/main/IOIteration*.root $odir/
+endif
