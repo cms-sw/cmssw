@@ -83,6 +83,8 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
 
   /// Get primary vertex associated to this jet
   reco::VertexRef primaryVertex(const reco::PFJetRef& jet) const { return vertexAssociator_.associatedVertex(*jet); }
+  /// Get primary vertex associated to this tau
+  reco::VertexRef primaryVertex(const reco::PFTau& tau, bool useJet=false) const { return vertexAssociator_.associatedVertex(tau, useJet); }
 
   // Hook called by base class at the beginning of each event. Used to update
   // handle to PFCandidates
