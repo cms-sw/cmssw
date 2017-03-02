@@ -49,7 +49,7 @@ namespace l1t{
         { (*this) += ClusterShapes(e,eta,phi,r);}
         
 
-        // --- this is what I want out:
+        // --- 
         float SigmaEtaEta() const ;
         float SigmaPhiPhi() const ;
         float SigmaRR() const ;
@@ -75,11 +75,3 @@ namespace l1t{
 
 #endif
 
-// -----------------------------------
-// Local Variables:
-// mode:c++
-// indent-tabs-mode:nil
-// tab-width:4
-// c-basic-offset:4
-// End:
-// vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4

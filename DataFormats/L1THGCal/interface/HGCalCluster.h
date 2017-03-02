@@ -7,7 +7,6 @@
 
 namespace l1t {
 
-
   class HGCalCluster : public L1Candidate {
     public:
       HGCalCluster(){}
