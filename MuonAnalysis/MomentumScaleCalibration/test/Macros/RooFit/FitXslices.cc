@@ -40,7 +40,7 @@ public:
 
     // BW Fix the gamma for the Z
     fitter_.initGamma( 2.4952, 0., 10. );
-    fitter_.gamma()->setConstant(kTRUE);
+    fitter_.gamma()->setConstant(kTRUE); // This can be overriden as well.
 
     fitter_.initGaussFrac( 0.5,  0., 1. );
 
@@ -62,10 +62,7 @@ public:
     fitter_.useChi2_ = false;
   }
 
-  FitWithRooFit * fitter()
-  {
-    return( &fitter_ );
-  }
+  FitWithRooFit * fitter(){ return( &fitter_ ); }
 
   //  void fitSlices( std::map<unsigned int, TH1*> & slices, const double & xMin, const double & xMax, const TString & signalType, const TString & backgroundType, const bool twoD ){    }
 
@@ -178,8 +175,6 @@ public:
       RooRealVar* fsig = fitter_.fsig();
       signalFractionHisto->SetBinContent(it->first, fsig->getVal());
       signalFractionHisto->SetBinError(it->first, fsig->getError());
-
-      fitter_.reinitializeParameters();
     }
     // Go back to the main dir before saving the canvases
     gDirectory->GetMotherDir()->cd();
@@ -336,8 +331,6 @@ public:
       RooRealVar* fsig = fitter_.fsig();
       signalFractionHisto->SetBinContent(it->first%binsX, int(it->first/binsX), fsig->getVal());
       signalFractionHisto->SetBinError(it->first%binsX, int(it->first/binsX), fsig->getError());
-
-      fitter_.reinitializeParameters();
     }
     // Go back to the main dir before saving the canvases
     gDirectory->GetMotherDir()->cd();
