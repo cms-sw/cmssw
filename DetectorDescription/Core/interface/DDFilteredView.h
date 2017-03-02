@@ -24,7 +24,7 @@ public:
   
   ~DDFilteredView();
   
-  void addFilter(const DDFilter &, DDLogOp op = DDLogOp::AND);
+  void addFilter(const DDFilter &);
   
     //! The logical-part of the current node in the filtered-view
   const DDLogicalPart & logicalPart() const;

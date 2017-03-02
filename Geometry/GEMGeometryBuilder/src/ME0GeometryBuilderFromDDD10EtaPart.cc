@@ -38,10 +38,7 @@ ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::build(const DDCompactView* cvie
   // Asking only for the MuonME0's
   DDSpecificsFilter filter;
   filter.setCriteria(val, // name & value of a variable
-                     DDCompOp::matches,
-                     DDLogOp::AND,
-                     true, // compare strings otherwise doubles
-                     true // use merged-specifics or simple-specifics
+                     DDCompOp::equals
                      );
   DDFilteredView fview(*cview);
   fview.addFilter(filter);

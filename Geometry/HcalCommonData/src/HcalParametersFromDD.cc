@@ -48,9 +48,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   std::string value     = "any";
   DDValue val1(attribute, value, 0.0);
   DDSpecificsFilter filter1;
-  filter1.setCriteria(val1, DDCompOp::not_equals,
-		      DDLogOp::AND, true, // compare strings otherwise doubles
-		      true  // use merged-specifics or simple-specifics
+  filter1.setCriteria(val1, DDCompOp::not_equals
 		      );
   DDFilteredView fv1(*cpv);
   fv1.addFilter(filter1);
@@ -110,9 +108,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   DDValue val2( attribute, value, 0.0 );
   DDSpecificsFilter filter2;
   filter2.setCriteria(val2,
-		      DDCompOp::not_equals,
-		      DDLogOp::AND, true, // compare strings 
-		      true  // use merged-specifics or simple-specifics
+		      DDCompOp::not_equals
 		      );
   DDFilteredView fv2(*cpv);
   fv2.addFilter(filter2);

@@ -136,17 +136,11 @@ DDFilter* EcalTBHodoscopeGeometryLoaderFromDDD::getDDFilter()
    filter->setCriteria( DDValue( "SensitiveDetector",
 				 "EcalTBH4BeamDetector",
 				 0 ),
-			DDCompOp::equals,
-			DDLogOp::AND,
-			true,
-			true ) ;
+			DDCompOp::equals ) ;
 
    filter->setCriteria( DDValue( "ReadOutName",
 				 "EcalTBH4BeamHits",
 				 0 ),
-			DDCompOp::equals,
-			DDLogOp::AND,
-			true,
-			true ) ;
+			DDCompOp::equals ) ;
    return filter;
 }

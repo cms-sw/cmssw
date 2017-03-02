@@ -322,28 +322,21 @@ void tutorial()
   std::map<std::string,DDCompOp> cop;
   cop["=="] = DDCompOp::equals;
   cop["!="] = DDCompOp::not_equals;
-  cop["<"]  = DDCompOp::smaller;
-  cop[">"]  = DDCompOp::bigger;
-  cop[">="]  = DDCompOp::bigger_equals;
-  cop["<="]  = DDCompOp::smaller_equals;
-  std::map<std::string,DDLogOp> lop;
-  lop["AND"] = DDLogOp::AND;
   bool moreFilters = true;
   bool moreQueries = true;
   bool moreFilterCriteria = true;
   std::string flog, ls, p, cs, v, q;
   while(moreQueries) {
-    std::vector<std::pair<DDLogOp,DDSpecificsFilter*> > vecF;
+    std::vector< DDSpecificsFilter* > vecF;
     while(moreFilters) { 
       DDSpecificsFilter * f = new DDSpecificsFilter();
       std::string flog;
       std::string asString;
-      bool asStringBool = false;
       std::cout << "filter LogOp = ";
       std::cin >> flog;
       if(flog=="end") 
 	break;
-      vecF.push_back(std::make_pair(lop[flog],f));
+      vecF.push_back(f);
       while (moreFilterCriteria) {
 	std::cout << " logic   = ";
 	std::cin >> ls;
@@ -355,12 +348,7 @@ void tutorial()
 	std::cin >> cs;
 	std::cout << " par-val = ";
 	std::cin >> v;
-	std::cout << " as-std::string[y/n] = ";
-	std::cin >> asString;
       
-	if (asString=="y") 
-	  asStringBool = true;
-	
 	double dv = 0.;
 	try {
 	  dv = ExprEvalSingleton::instance().eval("",v);
@@ -369,18 +357,18 @@ void tutorial()
 	  dv = 0;
 	}
 	DDValue ddval(p,v,dv);
-	vecF.back().second->setCriteria(ddval,cop[cs],lop[ls],asStringBool);
+	vecF.back()->setCriteria(ddval,cop[cs]);
       
       }//<- moreFilterCriteria
     }//<- morFilters
    
     DDScope scope;
     DDQuery query(ccv);
-    std::vector<std::pair<DDLogOp,DDSpecificsFilter*> >::size_type loop=0;
+    std::vector<DDSpecificsFilter*>::size_type loop=0;
     for(; loop < vecF.size(); ++loop) {
-      DDFilter * filter = vecF[loop].second;  
+      DDFilter * filter = vecF[loop];  
       const DDFilter & fi = *filter;
-      query.addFilter( fi, vecF[loop].first );
+      query.addFilter( fi );
     }  
     std::cout << "The Scope is now: " << std::endl << scope << std::endl;
     std::string ans;
@@ -471,8 +459,8 @@ void tutorial()
     DDFilteredView fv(compactview);
 
     if (ans=="y") {
-      for (std::vector<std::pair<DDLogOp,DDSpecificsFilter*> >::size_type j=0; j<vecF.size(); ++j) {
-	fv.addFilter(*(vecF[j].second), DDLogOp::AND);
+      for (std::vector<DDSpecificsFilter* >::size_type j=0; j<vecF.size(); ++j) {
+	fv.addFilter(*(vecF[j]) );
       }
     
       //bool looop = true;
@@ -588,8 +576,8 @@ void tutorial()
    
     loop=0;
     for(; loop<vecF.size(); ++loop) {
-      delete vecF[loop].second; // delete the filters
-      vecF[loop].second=0;
+      delete vecF[loop]; // delete the filters
+      vecF[loop]=0;
     } 
   }
 
