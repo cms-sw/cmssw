@@ -10,31 +10,47 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     thickCorr_ = beCodecConfig.getParameter<std::vector<double>>("thickCorr");
 }
 
-void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int cellThickness){
-    HGCalDetId trgdetid(trgCell.detId());
+void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+{
+    
+    HGCalDetId trgdetid( trgCell.detId() );
     int trgCellLayer = trgdetid.layer();
     int subdet = trgdetid.subdetId();
 
     //get the hardware pT in fC:
     int hwPt = trgCell.hwPt();
+
     //set the lowest signal bit:
     double amplitude = hwPt * LSB_;  
     if( subdet == HGCEE ){ 
+
         //convert the charge amplitude in MIP:
         amplitude = amplitude / fCperMIP_ee_.at(cellThickness-1);
+
     }else if( subdet == HGCHEF ){
+
         //convert the charge amplitude in MIP:
         amplitude = amplitude / fCperMIP_fh_.at(cellThickness-1);
         trgCellLayer = trgCellLayer + 28;
+
     }else if( subdet == HGCHEB ){
+
         edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented !! ";
+
     }
         
     //weight the amplitude by the absorber coefficient in MeV + bring it in GeV and correct for the sensor thickness
-    double trgCell_E = amplitude * dEdX_weights_.at(trgCellLayer) * 0.001 *  thickCorr_.at(cellThickness-1);
+    double trgCellE = amplitude * dEdX_weights_.at(trgCellLayer) * 0.001 *  thickCorr_.at(cellThickness-1);
+    uint32_t trgCellHwPt = amplitude * thickCorr_.at( cellThickness-1 );
 
     //assign the new energy to the four-vector of the trigger cell
-    math::PtEtaPhiMLorentzVector calibP4(trgCell_E/cosh(trgCell.eta()), trgCell.eta(), trgCell.phi(), trgCell.p4().M() );
-    trgCell.setP4(calibP4);
-        
+    math::PtEtaPhiMLorentzVector calibP4(trgCellE/cosh(trgCell.eta()), 
+                                         trgCell.eta(), trgCell.phi(), trgCell.p4().M() );
+    
+    // overwrting the 4p with the calibrated 4p     
+    trgCell.setP4( calibP4 );
+
+    // setting HwPt
+    trgCell.setMipPt( trgCellHwPt/cosh( trgCell.eta() ) ) ;
+
 } 
