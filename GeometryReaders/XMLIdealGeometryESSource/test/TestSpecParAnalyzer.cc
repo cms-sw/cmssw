@@ -103,10 +103,7 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
      DDValue fval(specName_, specStrValue_, 0.0);
      DDSpecificsFilter filter;
      filter.setCriteria(fval, // name & value of a variable 
-			DDCompOp::equals,
-			DDLogOp::AND, 
-			true, // compare strings otherwise doubles
-			true // use merged-specifics or simple-specifics
+			DDCompOp::equals
 			);
      DDFilteredView fv(cpv);
      fv.addFilter(filter);

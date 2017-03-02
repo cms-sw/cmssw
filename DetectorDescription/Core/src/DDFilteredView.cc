@@ -23,7 +23,7 @@ const DDLogicalPart & DDFilteredView::logicalPart() const
   return epv_.logicalPart();
 }
 
-void DDFilteredView::addFilter(const DDFilter & f, DDLogOp )
+void DDFilteredView::addFilter(const DDFilter & f)
 {
   criteria_.push_back(&f); 
 }

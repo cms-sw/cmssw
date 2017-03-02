@@ -45,10 +45,7 @@ DDFilteredViewAnalyzer::analyze( const edm::Event& ,
   DDValue val( m_attribute, m_value, 0.0 );
   DDSpecificsFilter filter;
   filter.setCriteria( val,  // name & value of a variable 
-  		      m_comp,
-  		      DDLogOp::AND, 
-  		      true, // compare strings otherwise doubles
-  		      true  // use merged-specifics or simple-specifics
+  		      m_comp
   		     );
   DDFilteredView fv( *cpv );
   fv.addFilter( filter );

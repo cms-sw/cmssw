@@ -270,8 +270,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   value     = "any";
   DDSpecificsFilter filter2;
   DDValue           ddv2(attribute,value,0);
-  filter2.setCriteria(ddv2, DDCompOp::not_equals,
-                      DDLogOp::AND, true, true);
+  filter2.setCriteria(ddv2, DDCompOp::not_equals);
   DDFilteredView fv2(cpv);
   fv2.addFilter(filter2);
   bool dodet = fv2.firstChild();

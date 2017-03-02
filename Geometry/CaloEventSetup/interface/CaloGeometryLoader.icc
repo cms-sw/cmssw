@@ -42,18 +42,12 @@ CaloGeometryLoader<T>::CaloGeometryLoader()
    m_filter.setCriteria( DDValue( "SensitiveDetector",
 				  "EcalSensitiveDetector",
 				  0                        ),
-			 DDCompOp::equals,
-			 DDLogOp::AND,
-			 true,
-			 true                               ) ;
+			 DDCompOp::equals           ) ;
 
    m_filter.setCriteria( DDValue( "ReadOutName",
 				  T::hitString(),
 				  0                  ),
-			 DDCompOp::equals,
-			 DDLogOp::AND,
-			 true,
-			 true                       ) ;
+			 DDCompOp::equals           ) ;
 }
 
 template <class T>
