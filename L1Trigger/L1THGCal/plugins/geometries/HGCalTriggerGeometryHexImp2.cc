@@ -28,6 +28,8 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
         virtual geom_ordered_set getOrderedCellsFromModule( const unsigned ) const override final;
         virtual geom_ordered_set getOrderedTriggerCellsFromModule( const unsigned ) const override final;
 
+        virtual geom_set getNeighborsFromTriggerCell( const unsigned trigger_cell_det_id ) const override final;
+
         virtual GlobalPoint getTriggerCellPosition(const unsigned ) const override final;
         virtual GlobalPoint getModulePosition(const unsigned ) const override final;
 
@@ -37,17 +39,36 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
         es_info es_info_;
 
+        // module related maps
         std::unordered_map<short, short> wafer_to_module_ee_;
         std::unordered_map<short, short> wafer_to_module_fh_;
         std::unordered_multimap<short, short> module_to_wafers_ee_;
         std::unordered_multimap<short, short> module_to_wafers_fh_;
 
+        // trigger cell related maps
         std::map<std::pair<short,short>, short> cells_to_trigger_cells_; // FIXME: something else than map<pair,short>?
         std::multimap<std::pair<short,short>, short> trigger_cells_to_cells_;// FIXME: something else than map<pair,short>?
         std::unordered_map<short, short> number_trigger_cells_in_wafers_; // the map key is the wafer type
         std::unordered_map<short, short> number_cells_in_wafers_; // the map key is the wafer type
 
+        // neighbor related maps
+        // trigger cell neighbors:
+        // - The key includes the trigger cell id and the wafer configuration.
+        // The wafer configuration is a 7 bits word encoding the type 
+        // (small or large cells) of the wafer containing the trigger cell
+        // (central wafer) as well as the type of the 6 surrounding wafers
+        // - The value is a set of (wafer_idx, trigger_cell_id)
+        // wafer_idx is a number between 0 and 7. 0=central wafer, 1..7=surrounding
+        // wafers 
+        std::unordered_map<int, std::set<std::pair<short,short>>> trigger_cell_neighbors_;
+        // wafer neighbors:
+        // List of the 6 surrounding neighbors around each wafer
+        std::unordered_map<short, std::vector<short>> wafer_neighbors_ee_;
+        std::unordered_map<short, std::vector<short>> wafer_neighbors_fh_;
+
         void fillMaps(const es_info&);
+        void fillNeighborMaps(const es_info&);
+        unsigned packTriggerCell(unsigned, const std::vector<int>&) const;
 };
 
 
@@ -81,6 +102,7 @@ initialize(const es_info& esInfo)
                                             << "WARNING: There is no neighbor information.\n";
     es_info_ = esInfo;
     fillMaps(esInfo);
+    fillNeighborMaps(esInfo);
 
 }
 
@@ -237,7 +259,7 @@ getOrderedCellsFromModule( const unsigned module_id ) const
         case ForwardSubdetector::HGCHEF:
             wafer_itrs = module_to_wafers_fh_.equal_range(module);
             break;
-        default:
+       default:
             edm::LogError("HGCalTriggerGeometry") << "Unknown module->wafers mapping for subdet "<<subdet<<"\n";
             return geom_ordered_set();
     };
@@ -321,6 +343,77 @@ getOrderedTriggerCellsFromModule( const unsigned module_id ) const
         }
     }
     return trigger_cell_det_ids;
+}
+
+
+
+HGCalTriggerGeometryBase::geom_set
+HGCalTriggerGeometryHexImp2::
+getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
+{
+    HGCalDetId trigger_cell_det_id(trigger_cell_id);
+    unsigned wafer = trigger_cell_det_id.wafer();
+    int wafer_type = trigger_cell_det_id.waferType();
+    unsigned subdet = trigger_cell_det_id.subdetId();
+    unsigned trigger_cell = trigger_cell_det_id.cell();
+    // Retrieve surrounding wafers (around the wafer containing
+    // the trigger cell)
+    const std::vector<short>* surrounding_wafers = nullptr;
+    try
+    {
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                surrounding_wafers = &wafer_neighbors_ee_.at(wafer);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                surrounding_wafers = &wafer_neighbors_fh_.at(wafer);
+                break;
+            default:
+                edm::LogError("HGCalTriggerGeometry") << "Unknown wafer neighbours for subdet "<<subdet<<"\n";
+                return geom_set();
+        } 
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Neighbors are not defined for wafer " << wafer << " in subdetector " << subdet
+            << ". The wafer neighbor mapping should be modified. \n";
+    };
+    if(!surrounding_wafers)
+    {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Neighbors are not defined for wafer " << wafer << " in subdetector " << subdet
+            << ". The wafer neighbor mapping should be modified. \n";
+    }
+    // Find the types of the surrounding wafers
+    std::vector<int> types;
+    types.reserve(surrounding_wafers->size()+1); // includes the central wafer -> +1
+    types.emplace_back(wafer_type);
+    for(const auto w : *surrounding_wafers)
+    {
+        types.emplace_back(es_info_.topo_ee->dddConstants().waferTypeT(w));
+    }
+    // retrieve neighbors
+    unsigned trigger_cell_key = packTriggerCell(trigger_cell, types);
+    geom_set neighbor_detids;
+    try 
+    {
+        const auto& neighbors = trigger_cell_neighbors_.at(trigger_cell_key);
+        // create HGCalDetId of neighbors
+        neighbor_detids.reserve(neighbors.size());
+        for(const auto& wafer_tc : neighbors)
+        {
+            unsigned neighbor_wafer = surrounding_wafers->at(wafer_tc.first);
+            int type = types.at(wafer_tc.first);
+            neighbor_detids.emplace(HGCalDetId((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), type, neighbor_wafer, wafer_tc.second).rawId());
+        }
+    }
+    catch (const std::out_of_range& e) {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Neighbors are not defined for trigger cell " << trigger_cell << " with  wafer configuration "
+            << "0x" << std::hex << (trigger_cell_key >> 8) << ". The trigger cell neighbor mapping should be modified. \n";
+    }
+    return neighbor_detids;
 }
 
 
@@ -417,6 +510,25 @@ fillMaps(const es_info& esInfo)
     }
     if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping'"<<waferType<<" "<<cell<<" "<<triggerCell<<"' \n";
     l1tCellsMappingStream.close();
+}
+
+void 
+HGCalTriggerGeometryHexImp2::
+fillNeighborMaps(const es_info& esInfo)
+{
+}
+
+unsigned 
+HGCalTriggerGeometryHexImp2::
+packTriggerCell(unsigned trigger_cell, const std::vector<int>& wafer_types) const
+{
+    unsigned packed_value = trigger_cell;
+    for(unsigned i=0; i<wafer_types.size(); i++)
+    {
+        // trigger cell id on 8 bits
+        if(wafer_types.at(i)==1) packed_value += (0x1<<8);
+    }
+    return packed_value;
 }
 
 
