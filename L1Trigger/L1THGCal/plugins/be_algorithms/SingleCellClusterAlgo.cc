@@ -61,7 +61,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
                             edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
                         }
                         l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                        calibration_.calibrate(calibratedtriggercell, cellThickness);     
+                        calibration_.calibrateInGeV(calibratedtriggercell, cellThickness);     
                         cluster_product_->push_back(0,calibratedtriggercell);
                     }
                 }

@@ -10,9 +10,7 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf){
 
 
 void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & trgcells_, 
-                                      l1t::HGCalClusterBxCollection & clusters_,
-                                      const edm::EventSetup & es,
-                                      const edm::Event & evt
+                                      l1t::HGCalClusterBxCollection & clusters_
     ){
 
     edm::LogInfo("HGCclusterParameters") << "C2d seeding Thr: " << seedThr_ ; 
@@ -26,6 +24,8 @@ void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & 
         isSeed[itc] = ( tc->hwPt() > seedThr_) ? true : false;
 
     /* clustering the TCs */
+    std::vector<l1t::HGCalCluster> clustersTmp;
+
     itc=0;
     for( l1t::HGCalTriggerCellBxCollection::const_iterator tc = trgcells_.begin(); tc != trgcells_.end(); ++tc,++itc ){
 
@@ -35,13 +35,15 @@ void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & 
         /* searching for TC near the center of the cluster  */
         int iclu=0;
         vector<int> tcPertinentClusters; 
-        for( l1t::HGCalClusterBxCollection::const_iterator clu = clusters_.begin(); clu != clusters_.end(); ++clu,++iclu )
+        for( std::vector<l1t::HGCalCluster>::iterator clu = clustersTmp.begin(); clu != clustersTmp.end(); ++clu,++iclu )
             if( clu->isPertinent(*tc, dr_) )
                 tcPertinentClusters.push_back(iclu);
 
         if( tcPertinentClusters.size() == 0 && isSeed[itc] ){
-            l1t::HGCalCluster obj( *tc, es, evt );
-            clusters_.push_back( 0, obj );
+            //edm::PtrVector<l1t::HGCalTriggerCell> coll;
+            //clustersTCcollections_.push_back( coll );
+            l1t::HGCalCluster obj( *tc );
+            clustersTmp.push_back( obj );
         }
         else if ( tcPertinentClusters.size() > 0 ){
          
@@ -49,18 +51,22 @@ void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & 
             uint targetClu = 0;
                         
             for( std::vector<int>::const_iterator iclu = tcPertinentClusters.begin(); iclu != tcPertinentClusters.end(); ++iclu ){
-                double d = clusters_.at(0, *iclu).dist(*tc);
+                double d = clustersTmp.at( *iclu).dist(*tc);
                 if( d < minDist ){
                     minDist = d;
                     targetClu = *iclu;
                 }
             } 
 
-            clusters_.at(0, targetClu).addTC( *tc );
+            clustersTmp.at( targetClu).addTC( *tc );
             
         }
-        
+
     }
+
+    /* making the collection of clusters */
+    for( unsigned i(0); i<clustersTmp.size(); ++i )
+        clusters_.push_back( 0, clustersTmp.at(i) );
 
 }
 

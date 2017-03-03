@@ -43,6 +43,5 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_triggercells,
         ntuple_clusters,
         ntuple_multicluster
->>>>>>> 2D cluster algorithm implemented (simple 2D-dR(x,y) approach)
     )
 )

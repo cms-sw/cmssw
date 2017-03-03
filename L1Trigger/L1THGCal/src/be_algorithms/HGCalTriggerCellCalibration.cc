@@ -10,47 +10,66 @@ HGCalTriggerCellCalibration::HGCalTriggerCellCalibration(const edm::ParameterSet
     thickCorr_ = beCodecConfig.getParameter<std::vector<double>>("thickCorr");
 }
 
-void HGCalTriggerCellCalibration::calibrate(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+
+void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell, int cellThickness)
 {
     
+    HGCalDetId trgdetid( trgCell.detId() );
+    int subdet = trgdetid.subdetId();
+
+    /* get the hardware pT in ADC counts: */
+    int hwPt = trgCell.hwPt();
+
+    /* set the lowest signal bit and convert in charge amplitude: */
+    double amplitude = hwPt * LSB_;  
+
+    /* convert the charge amplitude in MIP: */
+    if( subdet == HGCEE ){ 
+        amplitude = amplitude / fCperMIP_ee_.at(cellThickness-1);
+    }else if( subdet == HGCHEF ){
+        amplitude = amplitude / fCperMIP_fh_.at(cellThickness-1);
+    }else if( subdet == HGCHEB ){
+        edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented !! ";
+    }
+    /* correct the charge amplitude for the sensor thickness */
+    double trgCellMipP = amplitude * thickCorr_.at( cellThickness-1 );
+    double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
+
+    // setting pT [mip]
+    //trgCell.setHwPt( trgCellMipPt ) ; /* we will use this variable? */
+    trgCell.setMipPt( trgCellMipPt ) ;
+} 
+
+
+void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+{
+    const double MevToGeV(0.001);
+    /* calibrate from ADC count to transverse mip*/
+    calibrateInMipT(trgCell, cellThickness);
+
     HGCalDetId trgdetid( trgCell.detId() );
     int trgCellLayer = trgdetid.layer();
     int subdet = trgdetid.subdetId();
 
-    //get the hardware pT in fC:
-    int hwPt = trgCell.hwPt();
+    /* get the transverse momentum in mip units */
+    //int hwPt = trgCell.hwPt(); /* we will use this one ?*/
+    double mipP = trgCell.mipPt() * cosh( trgCell.eta() );
 
-    //set the lowest signal bit:
-    double amplitude = hwPt * LSB_;  
-    if( subdet == HGCEE ){ 
-
-        //convert the charge amplitude in MIP:
-        amplitude = amplitude / fCperMIP_ee_.at(cellThickness-1);
-
-    }else if( subdet == HGCHEF ){
-
-        //convert the charge amplitude in MIP:
-        amplitude = amplitude / fCperMIP_fh_.at(cellThickness-1);
-        trgCellLayer = trgCellLayer + 28;
-
-    }else if( subdet == HGCHEB ){
-
-        edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented !! ";
-
+    if( subdet == HGCHEF ){
+            trgCellLayer = trgCellLayer + 28;
     }
-        
-    //weight the amplitude by the absorber coefficient in MeV + bring it in GeV and correct for the sensor thickness
-    double trgCellE = amplitude * dEdX_weights_.at(trgCellLayer) * 0.001 *  thickCorr_.at(cellThickness-1);
-    uint32_t trgCellHwPt = amplitude * thickCorr_.at( cellThickness-1 );
+   
+    //weight the amplitude by the absorber coefficient in MeV/mip + bring it in GeV
+    double trgCellE = mipP * dEdX_weights_.at(trgCellLayer) * MevToGeV;
 
     //assign the new energy to the four-vector of the trigger cell
-    math::PtEtaPhiMLorentzVector calibP4(trgCellE/cosh(trgCell.eta()), 
-                                         trgCell.eta(), trgCell.phi(), trgCell.p4().M() );
+    math::PtEtaPhiMLorentzVector calibP4(trgCellE/cosh( trgCell.eta() ), 
+                                         trgCell.eta(), 
+                                         trgCell.phi(), 
+                                         trgCell.p4().M() );
     
-    // overwrting the 4p with the calibrated 4p     
+    // overwriting the 4p with the calibrated 4p     
     trgCell.setP4( calibP4 );
 
-    // setting HwPt
-    trgCell.setMipPt( trgCellHwPt/cosh( trgCell.eta() ) ) ;
-
-} 
+}
+ 
