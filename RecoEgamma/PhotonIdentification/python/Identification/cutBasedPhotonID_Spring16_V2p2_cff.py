@@ -1,8 +1,13 @@
 
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
+import FWCore.ParameterSet.Config as cms
+
 # Common functions and classes for ID definition are imported here:
-from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools import *
+from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools \
+    import ( WorkingPoint_V2,
+             IsolationCutInputs,
+             configureVIDCutBasedPhoID_V5 )             
 
 #
 # This is the first version of Spring16 cuts for 80X samples
