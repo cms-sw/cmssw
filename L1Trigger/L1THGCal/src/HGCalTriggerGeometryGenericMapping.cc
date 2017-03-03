@@ -119,3 +119,8 @@ getModulePosition(const unsigned module_det_id) const {
 }
 
 
+bool 
+HGCalTriggerGeometryGenericMapping::
+validTriggerCell(const unsigned trigger_cell_det_id) const {
+  return (trigger_cells_.find(trigger_cell_det_id)!=trigger_cells_.end());
+}
