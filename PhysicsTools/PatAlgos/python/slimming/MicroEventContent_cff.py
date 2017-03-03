@@ -94,6 +94,8 @@ MicroEventContentGEN = cms.PSet(
         # RUN
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
+        'keep *_genParticles_xyz0_*',
+        'keep *_genParticles_t0_*',
     )
 )
 
