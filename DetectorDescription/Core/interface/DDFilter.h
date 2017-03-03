@@ -10,7 +10,7 @@ class DDExpandedView;
 class DDQuery;
 
 //! comparison operators to be used with this filter
-enum class DDCompOp { equals, matches, not_equals, not_matches};
+enum class DDCompOp { equals, not_equals};
   
 //! A Filter accepts or rejects a DDExpandedNode based on a user-coded decision rule
 class DDFilter

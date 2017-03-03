@@ -68,12 +68,12 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
           for(auto const& v: *(spec.second) ) {
             if(it->nameVal_.id() == v.first) {
               switch (it->comp_) {
-              case DDCompOp::equals: case DDCompOp::matches:
+              case DDCompOp::equals:
                 {
                   locres= (it->nameVal_.strings() == v.second.strings());
                   break;
                 }
-              case DDCompOp::not_equals: case DDCompOp::not_matches:
+              case DDCompOp::not_equals:
                 {
                   locres= ( it->nameVal_.strings() != v.second.strings() );
                   break;
