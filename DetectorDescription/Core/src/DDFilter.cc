@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "DetectorDescription/Core/interface/DDComparator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDFilter::DDFilter() 
@@ -29,25 +30,6 @@ DDFilter::~DDFilter()
  * identifies their variables to the DD.  I use edm::LogWarning to attempt to catch
  * one type of such problems.
  **/
-
-namespace {
-  
-// SpecificsFilterString-comparison (sfs)
-  inline bool sfs_compare(const DDSpecificsFilter::SpecificCriterion & crit,
-			  const DDsvalues_type & sv) {
-    DDsvalues_type::const_iterator it = find(sv,crit.nameVal_.id());
-    if (it == sv.end()) return false;
-    switch (crit.comp_) {
-    case DDCompOp::equals: case DDCompOp::matches:
-      return ( crit.nameVal_.strings() == it->second.strings() );
-    case DDCompOp::not_equals: case DDCompOp::not_matches:
-      return ( crit.nameVal_.strings() != it->second.strings() );
-    default:
-      return false;
-    }
-    return false;
-  }		   
-}
 
 // ================================================================================================
 DDSpecificsFilter::DDSpecificsFilter() 
@@ -72,17 +54,42 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
 {
   bool result = true;
   const DDLogicalPart & logp = node.logicalPart();
-  DDsvalues_type  sv;
-  std::vector<const DDsvalues_type *> specs;
-  for( auto it = begin(criteria_); it != end(criteria_); ++it) {
 
+  for( auto it = begin(criteria_); it != end(criteria_); ++it) {
     bool locres=false;
     if (logp.hasDDValue(it->nameVal_)) { 
       
-      if (sv.empty())  node.mergedSpecificsV(sv);
-      
-      locres = sfs_compare(*it,sv); 
+      const auto& specs = logp.attachedSpecifics();
 
+      const auto& hist = node.geoHistory();
+      bool decided = false;
+      for(auto const& spec: specs) {
+        if(DDCompareEqual(hist,*spec.first)()) {
+          for(auto const& v: *(spec.second) ) {
+            if(it->nameVal_.id() == v.first) {
+              switch (it->comp_) {
+              case DDCompOp::equals: case DDCompOp::matches:
+                {
+                  locres= (it->nameVal_.strings() == v.second.strings());
+                  break;
+                }
+              case DDCompOp::not_equals: case DDCompOp::not_matches:
+                {
+                  locres= ( it->nameVal_.strings() != v.second.strings() );
+                  break;
+                }
+              default:
+                return false;
+              }
+              decided = true;
+              break;
+            }
+          }
+          if(decided) {
+            break;
+          }
+        }
+      }
     }
     result &= locres;
     // avoid useless evaluations
