@@ -181,9 +181,11 @@ RecoTauBuilderCombinatoricPlugin::operator()(
   // Define output.  
   output_type output;
   
+  reco::VertexRef primaryVertexRef = primaryVertex(jet);
+  
   // Update the primary vertex used by the quality cuts.  The PV is supplied by
   // the base class.
-  qcuts_.setPV( primaryVertex(jet) );
+  qcuts_.setPV(primaryVertexRef);
   
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
   
@@ -485,8 +487,6 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
         std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
 	
-	// Set event vertex position for tau
-	reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
 	if ( primaryVertexRef.isNonnull() ) {
 	  tauPtr->setVertex(primaryVertexRef->position());
 	}
