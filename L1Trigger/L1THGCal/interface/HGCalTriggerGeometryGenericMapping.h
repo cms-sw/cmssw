@@ -163,6 +163,7 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
   virtual GlobalPoint getTriggerCellPosition(const unsigned trigger_cell_det_id) const override final;
   virtual GlobalPoint getModulePosition(const unsigned module_det_id) const override final;
 
+  virtual bool validTriggerCell( const unsigned trigger_cell_det_id ) const override final;
 
  protected:
   geom_map cells_to_trigger_cells_;
