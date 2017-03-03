@@ -50,6 +50,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         void checkConsistency(const HGCalTriggerGeometryBase::es_info& );
         void setTreeModuleSize(const size_t n);
         void setTreeTriggerCellSize(const size_t n);
+        void setTreeTriggerCellNeighborSize(const size_t n);
 
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
         edm::Service<TFileService> fs_;
@@ -85,6 +86,8 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         float triggerCellX_      ;
         float triggerCellY_      ;
         float triggerCellZ_      ;
+        int triggerCellNeighbor_N_;
+        std::shared_ptr<int>   triggerCellNeighbor_id_    ;
         int   triggerCellCell_N_ ;
         std::shared_ptr<int>   triggerCellCell_id_    ;
         std::shared_ptr<int>   triggerCellCell_zside_ ;
@@ -165,6 +168,9 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf):
     treeTriggerCells_->Branch("x"              , &triggerCellX_             , "x/F");
     treeTriggerCells_->Branch("y"              , &triggerCellY_             , "y/F");
     treeTriggerCells_->Branch("z"              , &triggerCellZ_             , "z/F");
+    treeTriggerCells_->Branch("neighbor_n"     , &triggerCellNeighbor_N_    , "neighbor_n/I");
+    triggerCellNeighbor_id_ .reset(new int[1],   array_deleter<int>());
+    treeTriggerCells_->Branch("neighbor_id", triggerCellNeighbor_id_.get(), "neighbor_id[neighbor_n]/I");
     treeTriggerCells_->Branch("c_n"            , &triggerCellCell_N_        , "c_n/I");
     triggerCellCell_id_    .reset(new int[1],   array_deleter<int>());
     triggerCellCell_zside_ .reset(new int[1],   array_deleter<int>());
@@ -371,6 +377,24 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
             }
         }
     }
+
+    std::cout<<"Checking trigger cell neighbor consistency\n";
+    // Loop over trigger cells
+    for( const auto& triggercell_cells : triggercells_to_cells )
+    {
+        unsigned triggercell_id(triggercell_cells.first);
+        const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(triggercell_id);
+        for(const auto neighbor : neighbors)
+        {
+           const auto neighbors_of_neighbor = triggerGeometry_->getNeighborsFromTriggerCell(neighbor);
+           // check if the original cell is included in the neigbors of neighbor
+           if(neighbors_of_neighbor.find(triggercell_id)==neighbors_of_neighbor.end())
+           {
+              std::cout<<"Error: \n Trigger cell "<< neighbor << " is a neighbor of " << triggercell_id << "\n";
+              std::cout<<" But " << triggercell_id << " is not a neighbor of " << neighbor << "\n";
+           }
+        }
+    }
 }
 
 
@@ -516,6 +540,16 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             triggerCellCell_z_     .get()[ic] = position.z();
             ic++;
         }
+        // Get neighbors
+        const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(id.rawId());
+        triggerCellNeighbor_N_ = neighbors.size();
+        setTreeTriggerCellNeighborSize(triggerCellNeighbor_N_);
+        size_t in = 0;
+        for(const auto neighbor : neighbors)
+        {
+           triggerCellNeighbor_id_.get()[in] = neighbor;
+           in++;
+        }
         //
         treeTriggerCells_->Fill();
         // fill modules
@@ -622,6 +656,13 @@ void HGCalTriggerGeomTester::setTreeTriggerCellSize(const size_t n)
     treeTriggerCells_->GetBranch("c_z")      ->SetAddress(triggerCellCell_z_     .get());
 }
 
+/*****************************************************************/
+void HGCalTriggerGeomTester::setTreeTriggerCellNeighborSize(const size_t n) 
+/*****************************************************************/
+{
+    triggerCellNeighbor_id_.reset(new int[n],array_deleter<int>());
+    treeTriggerCells_->GetBranch("neighbor_id")->SetAddress(triggerCellNeighbor_id_.get());
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCalTriggerGeomTester);
