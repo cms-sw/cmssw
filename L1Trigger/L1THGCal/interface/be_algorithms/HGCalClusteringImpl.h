@@ -13,11 +13,8 @@ public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
     void clusterise( const l1t::HGCalTriggerCellBxCollection & trgcells_, 
-                     l1t::HGCalClusterBxCollection & clusters_, 
-                     const edm::EventSetup & es,
-                     const edm::Event & evt
+                     l1t::HGCalClusterBxCollection & clusters_ 
         );
-
 
 private:
     

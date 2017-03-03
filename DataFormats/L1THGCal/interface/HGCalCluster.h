@@ -7,53 +7,35 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Math/Vector3D.h"
+#include "TMath.h"
 
 
 namespace l1t {
 
     class HGCalCluster : public L1Candidate {
     public:
-        
-        typedef edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc_iterator;
-        typedef edm::PtrVector<l1t::HGCalTriggerCell> tc_collection;
 
         /* constructors and destructor */
         HGCalCluster(){}
         HGCalCluster( const LorentzVector p4,
                       int pt,
                       int eta,
-                      int phi,
-                      tc_collection &thecls
-        );
-       
-        HGCalCluster( const LorentzVector p4,
-                      int pt,
-                      int eta,
                       int phi
         );
+       
+        HGCalCluster( const l1t::HGCalTriggerCell &tc ); 
 
-
-        HGCalCluster( const l1t::HGCalTriggerCell &tc, 
-                      //edm::PtrVector<l1t::HGCalTriggerCell> tcCollection,
-                      const edm::EventSetup & es,
-                      const edm::Event & evt );
-        
         ~HGCalCluster();
 
         /* trigger-cell collection pertinent to the cluster*/
-        const edm::PtrVector<l1t::HGCalTriggerCell> & tcs() const { return tcs_; }        
-        unsigned int size() const { return tcs_.size(); }  
-        tc_iterator begin() const { return tcs_.begin(); }
-        tc_iterator end() const { return tcs_.end(); }
+        BXVector<const l1t::HGCalTriggerCell*>  tcs() const { return tcs_; }        
 
         /* helpers */
         bool isPertinent( const l1t::HGCalTriggerCell &tc, double dR ) const;
         void addTC( const l1t::HGCalTriggerCell &tc );
-        void addTCseed( const l1t::HGCalTriggerCell &tc );
 
         /* set info */
         void setModule  (uint32_t value) { module_   = value; }
@@ -86,11 +68,8 @@ namespace l1t {
     private:
         
         
-        edm::PtrVector<l1t::HGCalTriggerCell>  tcs_;
-        
-        /* tools for geometry */
-        hgcal::RecHitTools recHitTools_;
-         
+        BXVector<const l1t::HGCalTriggerCell*> tcs_;
+          
         /* seed detId */
         uint32_t seedDetId_;
  
@@ -99,7 +78,7 @@ namespace l1t {
 
         /* Energies */
         uint32_t hwPt_;
-        double mipPt_;
+        double   mipPt_;
         uint32_t hwSeedPt_;
 
         /* HGC specific information */

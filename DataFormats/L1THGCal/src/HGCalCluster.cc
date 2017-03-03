@@ -3,20 +3,19 @@
 using namespace l1t;
 
 
-HGCalCluster::HGCalCluster( const LorentzVector p4, 
-                            int pt,
-                            int eta,
-                            int phi,
-                            tc_collection &basic_tc
-    ): 
-    L1Candidate(p4, pt, eta, phi),
-    tcs_(basic_tc),
-    centre_(0, 0, 0),
-    hwPt_(0),
-    mipPt_(0)
-{
-
-}
+//HGCalCluster::HGCalCluster( const LorentzVector p4, 
+//                            int pt,
+//                            int eta,
+//                            int phi,
+//                            tc_collection &basic_tc
+//    ): 
+//    L1Candidate(p4, pt, eta, phi),
+//    centre_(0, 0, 0),
+//    hwPt_(0),
+//    mipPt_(0)
+//{
+//
+//}
 
 HGCalCluster::HGCalCluster( const LorentzVector p4, 
                             int pt,
@@ -34,19 +33,13 @@ HGCalCluster::HGCalCluster( const LorentzVector p4,
 
 
 
-HGCalCluster::HGCalCluster(  const l1t::HGCalTriggerCell &tcSeed,
-                             //edm::PtrVector<l1t::HGCalTriggerCell> tcCollection,
-                             const edm::EventSetup & es,
-                             const edm::Event & evt )  
+HGCalCluster::HGCalCluster(  const l1t::HGCalTriggerCell &tcSeed )
     : seedDetId_( tcSeed.detId() ),
       centre_(0, 0, 0),
-//      tcPtrs_( tcCollection ),
       hwPt_(0),
       mipPt_(0)
 {
-    recHitTools_.getEvent( evt );
-    recHitTools_.getEventSetup( es );
-    addTCseed( tcSeed );
+    addTC( tcSeed );
 }
 
 
@@ -67,7 +60,7 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
         tcDetId.subdetId() != seedDetId.subdetId() ||
         tcDetId.zside() != seedDetId.zside() )
         return false;
-
+   
     if ( this->dist(tc) < distEtaPhi )
         return true;
 
@@ -79,39 +72,27 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
 void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc)
 {
 
-    DetId id( tc.detId() );
-    ROOT::Math::RhoEtaPhiVector tcPoint( recHitTools_.getPosition( id ).z(), 
-                                         tc.eta(), 
-                                         tc.phi() );
+    if( tcs_.size() == 0 ) 
+        seedDetId_ = tc.detId();
 
-    ROOT::Math::XYZVector tcPointXYZ( tcPoint.X(), 
-                                      tcPoint.Y(), 
-                                      tcPoint.Z() );
+    ROOT::Math::XYZVector tcPointXYZ( tc.position().x(), 
+                                      tc.position().y(), 
+                                      tc.position().z() );
 
+    /* update c2d positions */
     centre_ = centre_*mipPt_ + tcPointXYZ*tc.mipPt() ;
     centre_ = centre_ / ( mipPt_ + tc.mipPt() );
 
-    mipPt_ = mipPt_ + tc.mipPt();
-    hwPt_  = hwPt_ + tc.hwPt();
-  
-}
+    /* update c2d energies */
+    mipPt_ += tc.mipPt();
+    hwPt_  += tc.hwPt();
 
+    math::PtEtaPhiMLorentzVector p4( ( this->p4() )  );
+    p4 += tc.p4(); 
+    this->setP4( p4 );
 
-void HGCalCluster::addTCseed(const l1t::HGCalTriggerCell &tc) 
-{
-    
-    seedDetId_ = tc.detId();
-    DetId id( seedDetId_ );
-    ROOT::Math::RhoEtaPhiVector tcPoint( recHitTools_.getPosition( id ).z(), 
-                                         tc.eta(), 
-                                         tc.phi() );
+    tcs_.push_back(0, &tc );
 
-    centre_.SetXYZ( tcPoint.X(), 
-                    tcPoint.Y(), 
-                    tcPoint.Z() );
-
-    mipPt_ = tc.mipPt();
-    hwPt_ = tc.hwPt();
 
 }
 
@@ -119,18 +100,12 @@ void HGCalCluster::addTCseed(const l1t::HGCalTriggerCell &tc)
 double HGCalCluster::dist(const l1t::HGCalTriggerCell &tc) const
 {
 
-    DetId id( tc.detId() );
-    ROOT::Math::RhoEtaPhiVector tcPoint( recHitTools_.getPosition( id ).z(), 
-                                         tc.eta(), 
-                                         tc.phi() );
-    
-    ROOT::Math::XYZVector tcPointXYZ( tcPoint.X(), 
-                                      tcPoint.Y(), 
-                                      tcPoint.Z() );
+    ROOT::Math::XYZVector tcPointXYZ( tc.position().x(), 
+                                      tc.position().y(), 
+                                      tc.position().z() );
 
-    return ( tcPointXYZ - centre_ ).Mag2();
-    
-
+    return TMath::Sqrt( ( tcPointXYZ - centre_ ).Mag2() );
+   
 }
 
 
