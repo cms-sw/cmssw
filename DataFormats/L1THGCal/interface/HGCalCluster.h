@@ -2,15 +2,14 @@
 #define DataFormats_L1Trigger_HGCalCluster_h
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-//#include "DataFormats/Common/interface/PtrVector.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Math/Vector3D.h"
+#include "TMath.h"
 
 
 namespace l1t {
@@ -21,20 +20,21 @@ namespace l1t {
         /* constructors and destructor */
         HGCalCluster(){}
         HGCalCluster( const LorentzVector p4,
-                      int pt=0,
-                      int eta=0,
-                      int phi=0 );
-        HGCalCluster( const l1t::HGCalTriggerCell &tc, 
-                      //edm::PtrVector<l1t::HGCalTriggerCell> tcCollection,
-                      const edm::EventSetup & es,
-                      const edm::Event & evt );
-        
+                      int pt,
+                      int eta,
+                      int phi
+        );
+       
+        HGCalCluster( const l1t::HGCalTriggerCell &tc ); 
+
         ~HGCalCluster();
+
+        /* trigger-cell collection pertinent to the cluster*/
+        BXVector<const l1t::HGCalTriggerCell*>  tcs() const { return tcs_; }        
 
         /* helpers */
         bool isPertinent( const l1t::HGCalTriggerCell &tc, double dR ) const;
-        void addTC( const l1t::HGCalTriggerCell &tc ) const;
-        void addTCseed( const l1t::HGCalTriggerCell &tc ) const;
+        void addTC( const l1t::HGCalTriggerCell &tc );
 
         /* set info */
         void setModule  (uint32_t value) { module_   = value; }
@@ -66,26 +66,26 @@ namespace l1t {
 
     private:
         
-        /* tools for geometry */
-        hgcal::RecHitTools recHitTools_;
         
+        BXVector<const l1t::HGCalTriggerCell*> tcs_;
+          
         /* seed detId */
-        mutable uint32_t seedDetId_;
-
+        uint32_t seedDetId_;
+ 
         /* Centre weighted with energy */
-        mutable ROOT::Math::XYZVector centre_;
+        ROOT::Math::XYZVector centre_;
 
         /* Energies */
-        mutable uint32_t hwPt_;
-        mutable double mipPt_;
+        uint32_t hwPt_;
+        double   mipPt_;
         uint32_t hwSeedPt_;
 
         /* HGC specific information */
         uint32_t module_;
-
+         
         /* identification variables */
         uint32_t hOverE_; 
-
+         
     };
 
     typedef BXVector<HGCalCluster> HGCalClusterBxCollection;

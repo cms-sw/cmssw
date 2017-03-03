@@ -25,15 +25,16 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
     )
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(
-        'file:./testGenOnly.root'
-        )
+#    fileNames = cms.untracked.vstring(
+#        'file:./testGenOnly.root'
+#        )
+    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/user/lmastrol/UsrProd_Crab3/PhotonGunPt_15_150_900_pre4_Feb17_l1tpg/170222_134949/0000/l1tpg_gsdr_1.root')
 )
 
 # Additional output definition
