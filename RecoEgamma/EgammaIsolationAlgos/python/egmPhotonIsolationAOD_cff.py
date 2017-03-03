@@ -11,11 +11,11 @@ particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
 src = cms.InputTag('particleFlow')
 )
 
-egmPhotonIsolationAOD = cms.EDProducer( "CITKPFIsolationSumProducer",
-			  srcToIsolate = cms.InputTag("gedPhotons"),
-			  srcForIsolationCone = cms.InputTag('pfNoPileUpCandidates'),
-			  isolationConeDefinitions = IsoConeDefinitions
-  )	
+egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
+                                     srcToIsolate = cms.InputTag("gedPhotons"),
+                                     srcForIsolationCone = cms.InputTag('pfNoPileUpCandidates'),
+                                     isolationConeDefinitions = IsoConeDefinitions
+                                     )	
 
-egmPhotonIsolationAODSequence = cms.Sequence(particleFlowTmpPtrs + pfParticleSelectionSequence + pfNoPileUpCandidates + egmPhotonIsolationAOD)
+egmPhotonIsolationAODSequence = cms.Sequence(particleFlowTmpPtrs + pfParticleSelectionSequence + pfNoPileUpCandidates + egmPhotonIsolation)
 
