@@ -15,7 +15,7 @@
 
 #include <vector>
 #include <string>
-#include <TROOT.h>
+
 #include "TMVA/Factory.h"
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -69,8 +69,8 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
   
   virtual int getNCategories() const { return nCategories; }
   bool isEndcapCategory( int category ) const;
-  virtual const std::string& getName() const override final { return _name; }
-  virtual const std::string& getTag() const override final { return _tag; }
+  virtual const std::string& getName() const override final { return name_; }
+  virtual const std::string& getTag() const override final { return tag_; }
   
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
@@ -93,19 +93,19 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string _name = "PhotonMVAEstimatorRun2Spring16NonTrig";
+  const std::string name_ = "PhotonMVAEstimatorRun2Spring16NonTrig";
 
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different
   // weight files.
-  std::string _tag;
+  std::string tag_;
 
   // Data members
-  std::vector< std::unique_ptr<const GBRForest> > _gbrForests;
+  std::vector< std::unique_ptr<const GBRForest> > gbrForests_;
 
   // All variables needed by this MVA
-  const std::string _MethodName;
-  AllVariables _allMVAVars;
+  const std::string MethodName_;
+  AllVariables allMVAVars_;
   
   // This MVA implementation relies on several ValueMap objects
   // produced upstream. 
@@ -114,15 +114,15 @@ class PhotonMVAEstimatorRun2Spring16NonTrig : public AnyMVAEstimatorRun2Base{
   // Declare all tokens that will be needed to retrieve misc
   // data from the event content required by this MVA
   //
-  const edm::InputTag _phoChargedIsolationLabel; 
-  const edm::InputTag _phoPhotonIsolationLabel; 
-  const edm::InputTag _phoWorstChargedIsolationLabel; 
-  const edm::InputTag _rhoLabel;
+  const edm::InputTag phoChargedIsolationLabel_; 
+  const edm::InputTag phoPhotonIsolationLabel_; 
+  const edm::InputTag phoWorstChargedIsolationLabel_; 
+  const edm::InputTag rhoLabel_;
 
   // Other objects needed by the MVA
-  EffectiveAreas _effectiveAreas;
-  std::vector<double> _phoIsoPtScalingCoeff;
-  double          _phoIsoCutoff;
+  EffectiveAreas effectiveAreas_;
+  std::vector<double> phoIsoPtScalingCoeff_;
+  double          phoIsoCutoff_;
 };
 
 #endif

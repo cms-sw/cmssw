@@ -5,20 +5,20 @@
 
 PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
-  _MethodName("BDTG method"),
-  _phoChargedIsolationLabel(conf.getParameter<edm::InputTag>("phoChargedIsolation")), 
-  _phoPhotonIsolationLabel(conf.getParameter<edm::InputTag>("phoPhotonIsolation")), 
-  _phoWorstChargedIsolationLabel(conf.getParameter<edm::InputTag>("phoWorstChargedIsolation")), 
-  _rhoLabel(conf.getParameter<edm::InputTag>("rho")),
-  _effectiveAreas( (conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath()),
-  _phoIsoPtScalingCoeff(conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff")),
-  _phoIsoCutoff(conf.getParameter<double>("phoIsoCutoff"))
+  MethodName_("BDTG method"),
+  phoChargedIsolationLabel_(conf.getParameter<edm::InputTag>("phoChargedIsolation")), 
+  phoPhotonIsolationLabel_(conf.getParameter<edm::InputTag>("phoPhotonIsolation")), 
+  phoWorstChargedIsolationLabel_(conf.getParameter<edm::InputTag>("phoWorstChargedIsolation")), 
+  rhoLabel_(conf.getParameter<edm::InputTag>("rho")),
+  effectiveAreas_( (conf.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath()),
+  phoIsoPtScalingCoeff_(conf.getParameter<std::vector<double >>("phoIsoPtScalingCoeff")),
+  phoIsoCutoff_(conf.getParameter<double>("phoIsoCutoff"))
 {
 
   //
   // Construct the MVA estimators
   //
-  _tag = conf.getParameter<std::string>("mvaTag");
+  tag_ = conf.getParameter<std::string>("mvaTag");
 
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
@@ -27,7 +27,7 @@ PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(con
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
 
-  _gbrForests.clear();
+  gbrForests_.clear();
   // The method name is just a key to retrieve this method later, it is not
   // a control parameter for a reader (the full definition of the MVA type and
   // everything else comes from the xml weight files).
@@ -39,7 +39,7 @@ PhotonMVAEstimatorRun2Spring16NonTrig::PhotonMVAEstimatorRun2Spring16NonTrig(con
     // when the vector clear() is called in the destructor
 
     edm::FileInPath weightFile( weightFileNames[i] );
-    _gbrForests.push_back( createSingleReader(i, weightFile ) );
+    gbrForests_.push_back( createSingleReader(i, weightFile ) );
 
   }
 
@@ -55,7 +55,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) co
   const int iCategory = findCategory( particle );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
   
-  const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
+  const float result = gbrForests_.at(iCategory)->GetClassifier(vars.data());
 
   // DEBUG
   const bool debug = false;
@@ -142,40 +142,40 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   // must match what is found in the xml weights file!
   //
 
-  tmpTMVAReader.AddVariable("scPhi", &_allMVAVars.scPhi);
-  tmpTMVAReader.AddVariable("r9"        , &_allMVAVars.varR9);
-  tmpTMVAReader.AddVariable("sigmaIetaIeta", &_allMVAVars.varSieie);
-  tmpTMVAReader.AddVariable("covIEtaIPhi", &_allMVAVars.varSieip);
-  tmpTMVAReader.AddVariable("s4", &_allMVAVars.varE2x2overE5x5);
-  tmpTMVAReader.AddVariable("scEta" , &_allMVAVars.varSCEta);
-  tmpTMVAReader.AddVariable("SCRawE"      , &_allMVAVars.varRawE);
-  tmpTMVAReader.AddVariable("etaWidth", &_allMVAVars.varSCEtaWidth);
-  tmpTMVAReader.AddVariable("phiWidth", &_allMVAVars.varSCPhiWidth);
+  tmpTMVAReader.AddVariable("scPhi", &allMVAVars_.scPhi);
+  tmpTMVAReader.AddVariable("r9"        , &allMVAVars_.varR9);
+  tmpTMVAReader.AddVariable("sigmaIetaIeta", &allMVAVars_.varSieie);
+  tmpTMVAReader.AddVariable("covIEtaIPhi", &allMVAVars_.varSieip);
+  tmpTMVAReader.AddVariable("s4", &allMVAVars_.varE2x2overE5x5);
+  tmpTMVAReader.AddVariable("scEta" , &allMVAVars_.varSCEta);
+  tmpTMVAReader.AddVariable("SCRawE"      , &allMVAVars_.varRawE);
+  tmpTMVAReader.AddVariable("etaWidth", &allMVAVars_.varSCEtaWidth);
+  tmpTMVAReader.AddVariable("phiWidth", &allMVAVars_.varSCPhiWidth);
   //Pileup
-  tmpTMVAReader.AddVariable("rho"       , &_allMVAVars.varRho);
+  tmpTMVAReader.AddVariable("rho"       , &allMVAVars_.varRho);
   //EB only, because of loss of transparency in EE
   if(!isEndcapCategory(iCategory)){
-    tmpTMVAReader.AddVariable("CITK_isoPhotons" , &_allMVAVars.varPhoIsoRaw);
+    tmpTMVAReader.AddVariable("CITK_isoPhotons" , &allMVAVars_.varPhoIsoRaw);
   }
   else{
-    tmpTMVAReader.AddVariable("CITK_isoPhoCorrMax2p5", &_allMVAVars.varPhoIsoCorr);
+    tmpTMVAReader.AddVariable("CITK_isoPhoCorrMax2p5", &allMVAVars_.varPhoIsoCorr);
   }
   //isolations in both EB and EE
-  tmpTMVAReader.AddVariable("CITK_isoChargedHad"  , &_allMVAVars.varChIsoRaw);
-  tmpTMVAReader.AddVariable("chgIsoWrtWorstVtx", &_allMVAVars.varWorstChRaw);
+  tmpTMVAReader.AddVariable("CITK_isoChargedHad"  , &allMVAVars_.varChIsoRaw);
+  tmpTMVAReader.AddVariable("chgIsoWrtWorstVtx", &allMVAVars_.varWorstChRaw);
 
   // Endcap only variables
   if( isEndcapCategory(iCategory) ){
-    tmpTMVAReader.AddVariable("esEffSigmaRR"      , &_allMVAVars.varESEffSigmaRR);
-    tmpTMVAReader.AddVariable("esEnergy/SCRawE" , &_allMVAVars.varESEnOverRawE);
+    tmpTMVAReader.AddVariable("esEffSigmaRR"      , &allMVAVars_.varESEffSigmaRR);
+    tmpTMVAReader.AddVariable("esEnergy/SCRawE" , &allMVAVars_.varESEnOverRawE);
   }
 
   //
   // Book the method and set up the weights file
   //
-  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath() ) );
+  std::unique_ptr<TMVA::IMethod> temp( tmpTMVAReader.BookMVA(MethodName_ , weightFile.fullPath() ) );
 
-  return std::unique_ptr<const GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(_MethodName) ) ) );
+  return std::unique_ptr<const GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(MethodName_) ) ) );
 
 }
 
@@ -199,12 +199,12 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
   edm::Handle<double> rho;
 
   // Get the isolation maps
-  iEvent.getByLabel(_phoChargedIsolationLabel, phoChargedIsolationMap);
-  iEvent.getByLabel(_phoPhotonIsolationLabel, phoPhotonIsolationMap);
-  iEvent.getByLabel(_phoWorstChargedIsolationLabel, phoWorstChargedIsolationMap);
+  iEvent.getByLabel(phoChargedIsolationLabel_, phoChargedIsolationMap);
+  iEvent.getByLabel(phoPhotonIsolationLabel_, phoPhotonIsolationMap);
+  iEvent.getByLabel(phoWorstChargedIsolationLabel_, phoWorstChargedIsolationMap);
 
   // Get rho
-  iEvent.getByLabel(_rhoLabel,rho);
+  iEvent.getByLabel(rhoLabel_,rho);
 
   // Make sure everything is retrieved successfully
   if(! ( phoChargedIsolationMap.isValid()
@@ -263,15 +263,15 @@ std::vector<float> PhotonMVAEstimatorRun2Spring16NonTrig::fillMVAVariables(const
 
   //photon iso corrected:
 
-  double eA = _effectiveAreas.getEffectiveArea( abs(superCluster->eta()) );
+  double eA = effectiveAreas_.getEffectiveArea( abs(superCluster->eta()) );
   double phoIsoPtScalingCoeffVal = 0;
   if( !isEndcapCategory( findCategory ( particle ) ) ) 
-    phoIsoPtScalingCoeffVal = _phoIsoPtScalingCoeff.at(0); // barrel case
+    phoIsoPtScalingCoeffVal = phoIsoPtScalingCoeff_.at(0); // barrel case
   else
-    phoIsoPtScalingCoeffVal =  _phoIsoPtScalingCoeff.at(1); //endcap case
+    phoIsoPtScalingCoeffVal =  phoIsoPtScalingCoeff_.at(1); //endcap case
   double phoIsoCorr = (*phoPhotonIsolationMap)[phoRecoPtr] - eA*(*rho) - phoIsoPtScalingCoeffVal*phoRecoPtr->pt();
 
-  allMVAVars.varPhoIsoCorr = TMath::Max(phoIsoCorr, _phoIsoCutoff);
+  allMVAVars.varPhoIsoCorr = TMath::Max(phoIsoCorr, phoIsoCutoff_);
 
   constrainMVAVariables(allMVAVars);
   //
@@ -330,10 +330,10 @@ void PhotonMVAEstimatorRun2Spring16NonTrig::constrainMVAVariables(AllVariables&)
 }
 
 void PhotonMVAEstimatorRun2Spring16NonTrig::setConsumes(edm::ConsumesCollector&& cc) const {
-  cc.consumes<edm::ValueMap<float> >(_phoChargedIsolationLabel);
-  cc.consumes<edm::ValueMap<float> >(_phoPhotonIsolationLabel);
-  cc.consumes<edm::ValueMap<float> >( _phoWorstChargedIsolationLabel);
-  cc.consumes<double>(_rhoLabel);
+  cc.consumes<edm::ValueMap<float> >(phoChargedIsolationLabel_);
+  cc.consumes<edm::ValueMap<float> >(phoPhotonIsolationLabel_);
+  cc.consumes<edm::ValueMap<float> >( phoWorstChargedIsolationLabel_);
+  cc.consumes<double>(rhoLabel_);
 }
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,

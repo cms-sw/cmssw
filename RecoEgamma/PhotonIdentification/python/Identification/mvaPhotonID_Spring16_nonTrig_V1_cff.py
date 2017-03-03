@@ -34,7 +34,9 @@ mvaSpring16NonTrigWeightFiles_V1 = cms.vstring(
 effAreasPath_pho = "RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"
 
 # Load some common definitions for MVA machinery
-from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools \
+    import ( PhoMVA_2Categories_WP,
+             configureVIDMVAPhoID_V1 )
 
 # The locatoins of value maps with the actual MVA values and categories
 # for all particles.
