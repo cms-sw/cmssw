@@ -122,7 +122,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
                     edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
     
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
-                calibration_.calibrateInMipT( calibratedtriggercell, cellThickness );     
+                calibration_.calibrateInMipT( calibratedtriggercell, cellThickness ); 
+                calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
                 trgcell_product_->push_back( 0, calibratedtriggercell );
             }
         
@@ -131,7 +132,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
 
     /* call cluster2D */
-    clustering_.clusterise( *trgcell_product_,  *cluster_product_, es, evt );
+    clustering_.clusterise( *trgcell_product_,  *cluster_product_);
 
     /* cal multicluster */
     multiclustering_.clusterise( *cluster_product_, *multicluster_product_ );

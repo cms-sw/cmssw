@@ -26,6 +26,7 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
     std::vector<float> cl_energy_;
     std::vector<float> cl_eta_;
     std::vector<float> cl_phi_;
+    std::vector<int> cl_layer_;
 
 };
 
@@ -49,7 +50,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl_pt", &cl_pt_);
   tree.Branch("cl_energy", &cl_energy_);
   tree.Branch("cl_eta", &cl_eta_);
-  tree.Branch("cl_phi", &cl_phi_);
+  tree.Branch("cl_phi", &cl_phi_);  
+  tree.Branch("cl_layer", &cl_layer_);
 
 }
 
@@ -76,6 +78,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl_energy_.emplace_back(cl_itr->energy());
     cl_eta_.emplace_back(cl_itr->eta());
     cl_phi_.emplace_back(cl_itr->phi());
+    cl_layer_.emplace_back(cl_itr->layer());
   }
 }
 
@@ -89,6 +92,7 @@ clear()
   cl_energy_.clear();
   cl_eta_.clear();
   cl_phi_.clear();
+  cl_layer_.clear();
 }
 
 

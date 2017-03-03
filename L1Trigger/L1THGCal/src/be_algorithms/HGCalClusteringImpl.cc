@@ -11,9 +11,7 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & beCodecConfig
 
 
 void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & trgcells_, 
-                                      l1t::HGCalClusterBxCollection & clusters_,
-                                      const edm::EventSetup & es,
-                                      const edm::Event & evt
+                                      l1t::HGCalClusterBxCollection & clusters_
     ){
 
     edm::LogInfo("HGCclusterParameters") << "C2d seeding Thr: " << seedThr_ ; 
@@ -44,7 +42,7 @@ void HGCalClusteringImpl::clusterise( const l1t::HGCalTriggerCellBxCollection & 
         if( tcPertinentClusters.size() == 0 && isSeed[itc] ){
             //edm::PtrVector<l1t::HGCalTriggerCell> coll;
             //clustersTCcollections_.push_back( coll );
-            l1t::HGCalCluster obj( *tc, es, evt );
+            l1t::HGCalCluster obj( *tc );
             clustersTmp.push_back( obj );
         }
         else if ( tcPertinentClusters.size() > 0 ){

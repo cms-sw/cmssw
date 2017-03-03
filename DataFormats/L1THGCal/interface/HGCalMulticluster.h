@@ -10,32 +10,21 @@ namespace l1t {
   
   class HGCalMulticluster : public L1Candidate {
     public:
-        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator clu_iterator;
-        typedef edm::PtrVector<l1t::HGCalCluster> clu_collection;
-        
+     
         /* constructors and destructor */
         HGCalMulticluster() {}
         HGCalMulticluster( const LorentzVector p4,
                            int pt,
                            int eta,
-                           int phi,
-                           clu_collection &thecls
+                           int phi
         );
         
         HGCalMulticluster( const l1t::HGCalCluster & clu );
 
         ~HGCalMulticluster();
 
-        void push_back(const edm::Ptr<l1t::HGCalCluster> &b) {
-            clusters_.push_back(b);
-        }
-
         /* cluster collection pertinent to the multicluster*/
-        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return clusters_; }        
-        unsigned int size() const { return clusters_.size(); }  
-        clu_iterator begin() const { return clusters_.begin(); }
-        clu_iterator end() const { return clusters_.end(); }
-        
+        BXVector<const l1t::HGCalCluster*> clusters() const { return clusters_; }        
 
         /* helpers */
         bool isPertinent( const l1t::HGCalCluster & clu, double dR ) const;
@@ -44,7 +33,8 @@ namespace l1t {
         /* get info */
 
         bool isValid()      const {return true;}
-        ROOT::Math::XYZVector centre() const { return centre_; } /* in normalized plane (x/z, y/z, z/z)*/
+        ROOT::Math::XYZVector centre() const { return centre_; } /* in normal plane (x, y, z)*/
+        ROOT::Math::XYZVector centreNorm() const { return centreNorm_; } /* in normalized plane (x/z, y/z, z/z)*/
 
         uint32_t hwPt() const { return hwPt_; }
         double mipPt() const { return mipPt_; }
@@ -59,8 +49,7 @@ namespace l1t {
         
     private:
 
-
-        edm::PtrVector<l1t::HGCalCluster>  clusters_;
+        BXVector<const l1t::HGCalCluster*> clusters_;
 
         /* Energies */
         uint32_t hwPt_;
@@ -68,6 +57,9 @@ namespace l1t {
 
         /* centre in norm plane */
         ROOT::Math::XYZVector centre_;
+
+        /* barycentre */
+        ROOT::Math::XYZVector centreNorm_;
 
         // HGC specific information
         /* detId of the first cluster in the multicluster */

@@ -33,7 +33,7 @@ void HGCalMulticlusteringImpl::clusterise( const l1t::HGCalClusterBxCollection &
             uint minDist = 1;
             uint targetMulticlu = 0; 
             for( std::vector<int>::const_iterator imclu = tcPertinentMulticlusters.begin(); imclu != tcPertinentMulticlusters.end(); ++imclu ){
-                double d = ( multiclustersTmp.at(*imclu).centre() - clu->centreNorm() ).Mag2() ;
+                double d = ( multiclustersTmp.at(*imclu).centreNorm() - clu->centreNorm() ).Mag2() ;
                 if( d < minDist ){
                     minDist = d;
                     targetMulticlu = *imclu;
