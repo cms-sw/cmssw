@@ -167,7 +167,7 @@ HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay,
   int    zside= (keta > 0) ? 1 : -1;
   int    eta(ieta), phi(iphi), depth(idepth);
   if ((subdet == static_cast<int>(HcalOuter)) ||
-      ((subdet == static_cast<int>(HcalBarrel)) && (lay > 17))) {
+      ((subdet == static_cast<int>(HcalBarrel)) && (lay > maxLayerHB_+1))) {
     subdet= static_cast<int>(HcalOuter);
     depth = 4;
   } else if (subdet == static_cast<int>(HcalBarrel) || 
@@ -199,8 +199,9 @@ HcalDDDRecConstants::getHCID(int subdet, int keta, int iphi, int lay,
       int   kphi   = phi + int((hpar->phioff[3]+0.1)/phibin[eta-1]);
       kphi         = (kphi-1)%4 + 1;
       if (kphi == 2 || kphi == 3) depth = layerGroup(eta-1, lay-2);
-    } else if (eta == hpar->noff[1] && depth > 2) {
-       eta = hpar->noff[1]-1;
+    } else if (eta == hpar->noff[1] && 
+	       depth > hcons.getDepthEta29(phi,zside,0)) { 
+      eta -= hcons.getDepthEta29(phi,zside,1);
     }
   } 
 #ifdef EDM_ML_DEBUG
@@ -292,7 +293,7 @@ int HcalDDDRecConstants::getMaxDepth (const int itype, const int ieta,
   unsigned int type  = (itype == 0) ? 0 : 1;
   int lmax = hcons.getMaxDepth(type+1, ieta, iphi, zside, true);
   if (lmax < 0) {
-    unsigned int lymax = (type == 0) ? 17 : 19;
+    unsigned int lymax = (type == 0) ? maxLayerHB_+1 : maxLayer_+1;
     lmax = 0;
     if (layerGroupSize(ieta-1) > 0) {
       if (layerGroupSize(ieta-1) < lymax) lymax = layerGroupSize(ieta-1);
@@ -600,7 +601,7 @@ void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 				       std::map<int,int>& layers, bool planOne,
 				       std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const {
 
-  unsigned int lymax = (subdet == 1) ? 17 : 19;
+  unsigned int lymax = (subdet == static_cast<int>(HcalBarrel)) ? maxLayerHB_+1 : maxLayer_+1;
   double       dphi  = phibin[ieta-1];
   HcalDDDRecConstants::HcalEtaBin etabin = HcalDDDRecConstants::HcalEtaBin(ieta,zside,dphi,etaTable[ieta-1],etaTable[ieta]);
   etabin.phis.insert(etabin.phis.end(),phis.begin(),phis.end());
@@ -612,7 +613,7 @@ void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
   std::map<int,int>::iterator itr=layers.begin();
   if (layers.size() > 0) {
     int dep = itr->second;
-    if (subdet == 2 && ieta == iEtaMin[1]) 
+    if (subdet == static_cast<int>(HcalEndcap) && ieta == iEtaMin[1]) 
       dep = hcons.getDepthEta16(subdet,phis[0].first,zside);
     unsigned lymx0 = (layers.size() > lymax) ? lymax : layers.size();
 #ifdef EDM_ML_DEBUG
@@ -635,7 +636,8 @@ void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 	} else if (itr->second > dep) {
 	  if (dstart < 0) dstart = dep;
 	  int lmax0 = (lmax >= lmin) ? lmax : lmin;
-	  if (subdet == 2 && ieta+1 == hpar->noff[1] && 
+	  if (subdet == static_cast<int>(HcalEndcap) && 
+	      ieta+1 == hpar->noff[1] && 
 	      dep > hcons.getDepthEta29(phis[0].first,zside,0)) {
 	    etabin0.layer.push_back(std::pair<int,int>(lmin,lmax0));
 	  } else {
@@ -645,10 +647,11 @@ void HcalDDDRecConstants::getOneEtaBin(int subdet, int ieta, int zside,
 	  lmax = lmin-1;
 	  dep  = itr->second;
 	}
-	if (subdet == 1 && ieta == iEtaMax[subdet-1] 
+	if (subdet == static_cast<int>(HcalBarrel)
+	    && ieta == iEtaMax[subdet-1] 
 	    && dep > hcons.getDepthEta16M(1)) break;
-	if (subdet == 2 && ieta == hpar->noff[1] &&  
-	    dep > hcons.getDepthEta29M(0,planOne)) {
+	if (subdet == static_cast<int>(HcalEndcap) && ieta == hpar->noff[1]
+	    && dep > hcons.getDepthEta29M(0,planOne)) {
 	  lmax = lymx0;
 	  break;
 	}
@@ -861,7 +864,7 @@ void HcalDDDRecConstants::initialize(void) {
     int             phi    = (phis[0] > 0) ? phis[0] : -phis[0];
     int             zside  = (phis[0] > 0) ? 1 : -1;
     HcalSubdetector subdet = (subdet0 == static_cast<int>(HcalBarrel)) ? HcalBarrel : HcalEndcap;
-    int lymax = (subdet == HcalBarrel) ? 17 : 19;
+    int lymax = (subdet == HcalBarrel) ? maxLayerHB_+1 : maxLayer_+1;
     std::pair<int,int>etas = hcons.ldMap()->validEta();
     for (int eta=etas.first; eta<=etas.second; ++eta) {
       std::map<int,std::pair<int,int> > oldDep;
@@ -919,8 +922,9 @@ void HcalDDDRecConstants::initialize(void) {
 	  for (unsigned int k=0; k<phis.size(); ++k) {
 	    zside  = (phis[k] > 0) ? 1 : -1;
 	    phi    = (phis[k] > 0) ? phis[k] : -phis[k];
-	    if (subdet == 2 && eta == hpar->noff[1] &&  
-		ndepth > hcons.getDepthEta29M(0,true)) break;
+	    if (subdet == static_cast<int>(HcalEndcap)
+		&& eta == hpar->noff[1] 
+		&& ndepth > hcons.getDepthEta29M(0,true)) break;
 	    HcalDetId newId(subdet,zside*eta,phi,ndepth);
 	    HcalDetId oldId(subdet,zside*eta,phi,odepth);
 	    detIdSp_[newId] = oldId;
