@@ -41,9 +41,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   // Wire Chamber volume names
   attribute = "Volume";
   value     = "WireChamber";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDCompOp::equals);
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   wcNames = getNames(fv1);
@@ -56,9 +54,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
 
   //Material list for scintillator detector
   attribute = "ReadOutName";
-  DDSpecificsFilter filter2;
-  DDValue           ddv2(attribute,name,0);
-  filter2.setCriteria(ddv2,DDCompOp::equals);
+  DDSpecificsMatchesValueFilter filter2{DDValue(attribute,name,0)};
   DDFilteredView fv2(cpv);
   fv2.addFilter(filter2);
   bool dodet = fv2.firstChild();

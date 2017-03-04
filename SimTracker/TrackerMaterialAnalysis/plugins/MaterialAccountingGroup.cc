@@ -31,8 +31,7 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
 {
   // retrieve the elements from DDD
   DDFilteredView fv( geometry );
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", name), DDCompOp::equals);
+  DDSpecificsMatchesValueFilter filter{DDValue("TrackingMaterialGroup", name)};
   fv.addFilter(filter);
   LogTrace("MaterialAccountingGroup") << "Elements within: " << name << std::endl;
   while (fv.next()) {

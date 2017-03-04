@@ -452,8 +452,7 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
   setup.get<IdealGeometryRecord>().get( hDdd );
   DDFilteredView fv(*hDdd);
 
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDCompOp::not_equals);
+  DDSpecificsAnyValueFilter filter{"TrackingMaterialGroup"};
   fv.addFilter(filter);
 
   while (fv.next()) {

@@ -80,9 +80,7 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
     for (unsigned int i=0; i<names.size(); i++) {
       std::string attribute = "ReadOutName";
       std::string sd        = names[i];
-      DDSpecificsFilter filter;
-      DDValue           ddv(attribute,sd,0);
-      filter.setCriteria(ddv,DDCompOp::equals);
+      DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
       DDFilteredView fv(*pDD);
       std::cout << "PrintGeomInfoAction:: Get Filtered view for " 
 		<< attribute << " = " << sd << std::endl;
