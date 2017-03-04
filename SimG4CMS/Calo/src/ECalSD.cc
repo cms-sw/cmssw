@@ -76,9 +76,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 
   //Material list for HB/HE/HO sensitive detectors
   std::string attribute = "ReadOutName";
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,name,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   fv.firstChild();
@@ -325,9 +323,7 @@ void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
 void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,sd,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   fv.firstChild();

@@ -36,9 +36,7 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
   //Special Geometry parameters
   std::string attribute = "Volume";
   std::string value     = "HFPMT";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDCompOp::equals);
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   if (fv1.firstChild()) {
