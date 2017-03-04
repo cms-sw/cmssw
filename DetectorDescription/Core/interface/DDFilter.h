@@ -60,6 +60,54 @@ protected:
 };
 
 std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
+
+class DDSpecificsAnyValueFilter : public DDFilter {
+public:
+  explicit DDSpecificsAnyValueFilter(const std::string& iAttribute):
+    attribute_(iAttribute,"",0 )
+    {}
+
+  bool accept(const DDExpandedView &) const override final; 
+
+private:
+  DDValue attribute_;
+
+};
+
+class DDSpecificsMatchesValueFilter : public DDFilter {
+public:
+  explicit DDSpecificsMatchesValueFilter(const DDValue& iValue):
+    value_(iValue)
+    {}
+
+  bool accept(const DDExpandedView &) const override final; 
+
+private:
+  DDValue value_;
+
+};
+
+template<typename F1, typename F2>
+class DDAndFilter : public DDFilter {
+public:
+  DDAndFilter(F1 iF1, F2 iF2):
+    f1_(std::move(iF1)),
+    f2_(std::move(iF2)) {}
+
+  bool accept(const DDExpandedView & node) const override final {
+    return f1_.accept(node) && f2_.accept(node);
+  }
+private:
+  F1 f1_;
+  F2 f2_;
+};
+
+template<typename F1, typename F2>
+  DDAndFilter<F1,F2> make_and_ddfilter(F1 f1, F2 f2) 
+{
+  return DDAndFilter<F1,F2>(std::move(f1), std::move(f2));
+}
+
 #endif
 
 

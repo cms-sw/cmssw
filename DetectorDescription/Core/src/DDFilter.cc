@@ -99,3 +99,48 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
   }
   return result;
 }
+
+bool
+DDSpecificsAnyValueFilter::accept(const DDExpandedView& node) const {
+  const DDLogicalPart & logp = node.logicalPart();
+
+  if (logp.hasDDValue(attribute_)) { 
+      
+    const auto& specs = logp.attachedSpecifics();
+    
+    const auto& hist = node.geoHistory();
+    for(auto const& spec: specs) {
+      if(DDCompareEqual(hist,*spec.first)()) {
+        for(auto const& v: *(spec.second) ) {
+          if(attribute_.id() == v.first) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool
+DDSpecificsMatchesValueFilter::accept(const DDExpandedView& node) const {
+  const DDLogicalPart & logp = node.logicalPart();
+
+  if (logp.hasDDValue(value_)) { 
+    
+    const auto& specs = logp.attachedSpecifics();
+    
+    const auto& hist = node.geoHistory();
+    for(auto const& spec: specs) {
+      if(DDCompareEqual(hist,*spec.first)()) {
+        for(auto const& v: *(spec.second) ) {
+          if(value_.id() == v.first) {
+            return (value_.strings() == v.second.strings());
+          }
+        }
+      }
+    }
+  }
+  return false;
+
+}

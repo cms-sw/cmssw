@@ -123,9 +123,12 @@ void testDDFilter::checkFilters() {
         DDValue val{"Volume","EMinus",0};
         DDsvalues_type values;
         values.push_back(DDsvalues_Content_type(val,val));
-
+        {
+          DDValue val{"Side","-",0};
+          values.push_back(DDsvalues_Content_type(val,val));
+        }
         DDSpecifics ds{"EMinusVolume", {"//End[0]"}, values}; 
-        } 
+      } 
 
       const DDRotation kXFlip = DDrot("xflip", new DDRotationMatrix{ ROOT::Math::RotationX{ kPI} } ); 
       cv.position(endlp,root,1,DDTranslation{0.,0.,1.0+0.1},kXFlip);
@@ -133,9 +136,13 @@ void testDDFilter::checkFilters() {
         DDValue val{"Volume","EPlus",0};
         DDsvalues_type values;
         values.push_back(DDsvalues_Content_type(val,val));
+        {
+          DDValue val{"Side","+",0};
+          values.push_back(DDsvalues_Content_type(val,val));
+        }
 
         DDSpecifics ds{"EPlusVolume", {"//End[1]"}, values}; 
-        } 
+      } 
 
       {
         DDValue val{"Endcap","",0};
@@ -173,6 +180,17 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      DDSpecificsMatchesValueFilter f{DDValue("Volume","Outer",0)};
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"Outer"};
+      CPPUNIT_ASSERT( names == expectedNames );
+      
+    }
+
+    {
       DDValue tofind("Volume","Outer",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::not_equals);
@@ -188,6 +206,17 @@ void testDDFilter::checkFilters() {
       DDValue tofind("Volume","Middle",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::equals);
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"Middle"};
+      CPPUNIT_ASSERT( names == expectedNames );
+      
+    }
+
+    {
+      DDSpecificsMatchesValueFilter f(DDValue("Volume","Middle",0));
       DDFilteredView fv(cv);
       fv.addFilter(f);
 
@@ -222,6 +251,16 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      DDSpecificsMatchesValueFilter f(DDValue("Volume","EPlus",0));
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {
       DDValue tofind("Volume","EPlus",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::not_equals);
@@ -246,6 +285,62 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      DDSpecificsMatchesValueFilter f{DDValue("Volume","EMinus",0)};
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {
+      //Test one LogicalPart with different Specifics
+      // based on placement
+      {
+        DDValue tofind("Side","-",0);
+        DDSpecificsFilter f;
+        f.setCriteria(tofind, DDCompOp::equals);
+        DDFilteredView fv(cv);
+        fv.addFilter(f);
+        
+        auto const names = getNames(fv);
+        std::vector<std::string> const expectedNames = {"End"};
+        CPPUNIT_ASSERT( names == expectedNames );      
+      }
+      {
+        DDSpecificsMatchesValueFilter f{DDValue("Side","-",0)};
+        DDFilteredView fv(cv);
+        fv.addFilter(f);
+        
+        auto const names = getNames(fv);
+        std::vector<std::string> const expectedNames = {"End"};
+        CPPUNIT_ASSERT( names == expectedNames );      
+      }
+
+      {
+        DDValue tofind("Side","+",0);
+        DDSpecificsFilter f;
+        f.setCriteria(tofind, DDCompOp::equals);
+        DDFilteredView fv(cv);
+        fv.addFilter(f);
+        
+        auto const names = getNames(fv);
+        std::vector<std::string> const expectedNames = {"End"};
+        CPPUNIT_ASSERT( names == expectedNames );      
+      }
+      {
+        DDSpecificsMatchesValueFilter f{DDValue("Side","+",0)};
+        DDFilteredView fv(cv);
+        fv.addFilter(f);
+        
+        auto const names = getNames(fv);
+        std::vector<std::string> const expectedNames = {"End"};
+        CPPUNIT_ASSERT( names == expectedNames );      
+      }
+    }
+
+    {
       DDValue tofind("Volume","EMinus",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::not_equals);
@@ -270,6 +365,16 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      DDSpecificsMatchesValueFilter f{DDValue("Volume","DoesntExist",0)};
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {};
+      CPPUNIT_ASSERT( names == expectedNames );
+    }
+
+    {
       DDValue tofind("Volume","DoesntExist",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::not_equals);
@@ -282,9 +387,40 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      DDSpecificsAnyValueFilter f("Volume");
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"Outer","Middle","Inner","End","End"};
+      CPPUNIT_ASSERT( names == expectedNames );
+    }
+
+    {
+      DDSpecificsAnyValueFilter f("DoesntExist");
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {};
+      CPPUNIT_ASSERT( names == expectedNames );
+    }
+
+    {
       DDValue tofind("Endcap","",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::equals);
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End","End"};
+      CPPUNIT_ASSERT( names == expectedNames );
+    }
+
+    {
+      
+      DDSpecificsMatchesValueFilter f{DDValue("Endcap","",0)};
       DDFilteredView fv(cv);
       fv.addFilter(f);
 
@@ -309,11 +445,45 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      DDValue tofind("Endcap","DoesntExist",0);
+      DDSpecificsFilter f;
+      f.setCriteria(tofind, DDCompOp::not_equals);
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End","End"};
+      CPPUNIT_ASSERT( names == expectedNames );
+    }
+
+    {
+
+      DDSpecificsAnyValueFilter f("Endcap");
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End","End"};
+      CPPUNIT_ASSERT( names == expectedNames );
+    }
+
+    {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","",0);
       DDSpecificsFilter f;
       f.setCriteria(tofind, DDCompOp::equals);
       f.setCriteria(tofind2, DDCompOp::equals);
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {      
+      auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
+                               DDSpecificsMatchesValueFilter{DDValue("Endcap","",0)} );
       DDFilteredView fv(cv);
       fv.addFilter(f);
 
@@ -328,6 +498,17 @@ void testDDFilter::checkFilters() {
       DDSpecificsFilter f;
       f.setCriteria(tofind2, DDCompOp::equals);
       f.setCriteria(tofind, DDCompOp::equals);
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {
+      auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
+                               DDSpecificsMatchesValueFilter{DDValue("Endcap","",0)});
       DDFilteredView fv(cv);
       fv.addFilter(f);
 
@@ -351,6 +532,17 @@ void testDDFilter::checkFilters() {
     }
 
     {
+      auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
+                                 DDSpecificsAnyValueFilter{"Endcap"});
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {
       DDValue tofind("Volume","EMinus",0);
       DDValue tofind2("Endcap","any",0);
       DDSpecificsFilter f;
@@ -361,6 +553,31 @@ void testDDFilter::checkFilters() {
 
       auto const names = getNames(fv);
       std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {
+      auto f = make_and_ddfilter(DDSpecificsAnyValueFilter{"Endcap"},
+                                 DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)});
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {"End"};
+      CPPUNIT_ASSERT( names == expectedNames );      
+    }
+
+    {
+      DDValue tofind("Volume","EMinus",0);
+      DDValue tofind2("Endcap","",0);
+      DDSpecificsFilter f;
+      f.setCriteria(tofind, DDCompOp::equals);
+      f.setCriteria(tofind2, DDCompOp::not_equals);
+      DDFilteredView fv(cv);
+      fv.addFilter(f);
+
+      auto const names = getNames(fv);
+      std::vector<std::string> const expectedNames = {};
       CPPUNIT_ASSERT( names == expectedNames );      
     }
 
