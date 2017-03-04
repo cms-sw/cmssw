@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+from pdb import set_trace
 
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
@@ -127,6 +128,18 @@ def miniAOD_customizeCommon(process):
     process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
     del process.slimmedMETsNoHF.caloMET
     # ================== NoHF pfMET
+
+
+    # -- Add DeepCSV on miniAOD only --
+    process.load('RecoBTag.Combined.deepFlavour_cff')
+    process.patJets.discriminatorSources.extend([
+        cms.InputTag('pfDeepCSVJetTags:probudsg'), 
+        cms.InputTag('pfDeepCSVJetTags:probbb'), 
+        cms.InputTag('pfDeepCSVJetTags:probc'), 
+        cms.InputTag('pfDeepCSVJetTags:probb'),
+        cms.InputTag('pfDeepCSVJetTags:probcc')
+        ])
+
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
