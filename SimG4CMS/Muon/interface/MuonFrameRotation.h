@@ -18,7 +18,6 @@ class DDCompactView;
 
 class MuonFrameRotation {
  public:
-  MuonFrameRotation( const DDCompactView& cpv ) { };
   MuonFrameRotation( ) { };
   virtual ~MuonFrameRotation(){};
   virtual Local3DPoint transformPoint(const Local3DPoint &,const G4Step *) const = 0;
