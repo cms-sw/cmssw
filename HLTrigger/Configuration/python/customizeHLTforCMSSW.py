@@ -20,7 +20,7 @@ from HLTrigger.Configuration.common import *
 
 
 # Dynamic track algo priority order
-def customiseForXXXXX(process):
+def customiseFor17771(process):
     if not hasattr(process, "hltTrackAlgoPriorityOrder"):
         from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
         process.hltTrackAlgoPriorityOrder = trackAlgoPriorityOrder.clone(
@@ -37,6 +37,6 @@ def customiseForXXXXX(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseForXXXXX(process)
+    process = customiseFor17771(process)
 
     return process
