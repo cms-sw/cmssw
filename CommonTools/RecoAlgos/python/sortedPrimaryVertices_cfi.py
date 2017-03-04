@@ -18,6 +18,7 @@ sortedPrimaryVertices = cms.EDProducer("RecoChargedRefCandidatePrimaryVertexSort
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
     useTiming = cms.bool(False),
+    preferHighRanked = cms.bool(False),
     ),
   particles = cms.InputTag("trackRefsForJets"),
   trackTimeTag = cms.InputTag(""),

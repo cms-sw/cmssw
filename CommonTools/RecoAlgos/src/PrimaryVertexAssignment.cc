@@ -16,52 +16,75 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
                                    const edm::View<reco::Candidate>& jets,
                                    const TransientTrackBuilder& builder) const {
 
-  int iVertex = -1;
-  size_t index=0;
   typedef reco::VertexCollection::const_iterator IV;
   typedef reco::Vertex::trackRef_iterator IT;
+
+  int iVertex = -1;
+  size_t index=0;
   float bestweight=0;
   for( auto const & vtx : vertices) {
       float w = vtx.trackWeight(trackRef);
       if (w > bestweight){
-          bestweight=w;
-          iVertex=index;
-        }        
+        bestweight=w;
+        iVertex=index;
+      }        
       index++;
   }
   
-  if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::UsedInFit);
-
   bool useTime = useTiming_;
   if (edm::isNotFinite(time) || timeReso<1e-6) {
     useTime = false;
     time = 0.;
     timeReso = -1.;
   }
-    
-    double distmin = std::numeric_limits<double>::max();
-    double dzmin = std::numeric_limits<double>::max();
-    double dtmin = std::numeric_limits<double>::max();
-    int vtxIdMinDist = -1;
+  
+  if (preferHighRanked_) {
     for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv) {
-      double dz = std::abs(track->dz(iv->position()));
-      double dt = std::abs(time-iv->t());
-      
-      double dist = dz;
-      
-      if (useTime) {
-        double dzsig = dz/track->dzError();
-        double dtsig = dt/timeReso;
-                
-        dist = dzsig*dzsig + dtsig*dtsig;
-      }
-      if(dist<distmin) {
-        distmin = dist;
-        dzmin = dz;
-        dtmin = dt;
-        vtxIdMinDist = iv-vertices.begin();
-      }
-   }
+        int ivtx = iv - vertices.begin();
+        if (iVertex == ivtx) return std::pair<int,PrimaryVertexAssignment::Quality>(ivtx,PrimaryVertexAssignment::UsedInFit);
+        
+        double dz = std::abs(track->dz(iv->position()));
+        double dt = std::abs(time-iv->t());
+        
+        bool useTimeVtx = useTime && iv->tError()>0.;
+        
+        if ((dz < maxDzForPrimaryAssignment_ or dz/track->dzError() < maxDzSigForPrimaryAssignment_ ) and (!useTimeVtx or dt/timeReso < maxDtSigForPrimaryAssignment_)) {
+          return std::pair<int,PrimaryVertexAssignment::Quality>(ivtx,PrimaryVertexAssignment::PrimaryDz);
+        }               
+    }
+  }
+
+    
+  if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::UsedInFit);
+    
+  double distmin = std::numeric_limits<double>::max();
+  double dzmin = std::numeric_limits<double>::max();
+  double dtmin = std::numeric_limits<double>::max();
+  int vtxIdMinDist = -1;
+  for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv) {
+    double dz = std::abs(track->dz(iv->position()));
+    double dt = std::abs(time-iv->t());
+    
+    double dzsig = dz/track->dzError();
+    double dist = dzsig*dzsig;
+    
+    bool useTimeVtx = useTime && iv->tError()>0.;
+    if (useTime && !useTimeVtx) {
+      dt = timeReso;
+    }
+    
+    if (useTime) {
+      double dtsig = dt/timeReso;
+              
+      dist += dtsig*dtsig;
+    }
+    if(dist<distmin) {
+      distmin = dist;
+      dzmin = dz;
+      dtmin = dt;
+      vtxIdMinDist = iv-vertices.begin();
+    }
+  }
       
   // first use "closest in Z" with tight cuts (targetting primary particles)
     const float add_cov = vtxIdMinDist >= 0 ? vertices[vtxIdMinDist].covariance(2,2) : 0.f;
@@ -72,9 +95,11 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
     {
         iVertex=vtxIdMinDist;
     }
-    
+ 
   if(iVertex >= 0 ) return std::pair<int,PrimaryVertexAssignment::Quality>(iVertex,PrimaryVertexAssignment::PrimaryDz);
 
+  
+  
   // if track not assigned yet, it could be a b-decay secondary , use jet axis dist criterion
     // first find the closest jet within maxJetDeltaR_
     int jetIdx = -1;
