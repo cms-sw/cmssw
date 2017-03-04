@@ -27,8 +27,8 @@ class PFRecHitQTestThreshold : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
-      return pass(hit);
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
+      return fullReadOut || pass(hit);
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
       return pass(hit);
@@ -126,7 +126,7 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
       hcalSevLvlComputer_  =  hcalSevLvlComputerHndl.product();
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
@@ -212,7 +212,7 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
@@ -281,7 +281,7 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
@@ -346,7 +346,7 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
@@ -381,6 +381,83 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
 };
 
 //
+//  Quality test that checks threshold as a function of ECAL eta-ring
+//
+#include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+class PFRecHitQTestECALMultiThreshold : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestECALMultiThreshold() {
+
+  }
+  
+ PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig):
+  PFRecHitQTestBase(iConfig)
+  { 
+    thresholds_ = iConfig.getParameter<std::vector<double> >("thresholds");
+  }
+
+  void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);
+    CaloSubdetectorGeometry const* endcapGeometry = pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    endcapGeometrySet_=false;
+    if (endcapGeometry) {
+      EcalRingCalibrationTools::setCaloGeometry(&(*pG));
+      endcapGeometrySet_=true;
+    }
+  }
+
+  bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
+    return fullReadOut || pass(hit);
+  }
+  bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean){
+    return true;
+  }
+  bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean){
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean){
+    return true;
+  }
+
+  bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean){
+    return true;
+  }
+
+ protected:
+  std::vector<double> thresholds_;
+  bool endcapGeometrySet_;
+
+  bool pass(const reco::PFRecHit& hit){
+
+    // this is to skip endcap ZS for Phase2 until there is a defined geometry
+    // apply the loosest ZS threshold, for the first eta-ring in EE
+    if(!endcapGeometrySet_) {
+      // 0-169: EB eta-rings
+      // 170-208: EE- eta rings
+      // 209-247: EE+ eta rings
+      int firstEERing = 170;
+      return (hit.energy() > thresholds_[firstEERing]);
+    }
+    
+    DetId detId(hit.detId());
+    int iring = EcalRingCalibrationTools::getRingIndex(detId);
+    if (  hit.energy() > thresholds_[iring] ) return true;
+    
+    return false;
+  }
+};
+
+
+//
 //  Quality test that checks ecal quality cuts
 //
 class PFRecHitQTestECAL : public PFRecHitQTestBase {
@@ -402,7 +479,7 @@ class PFRecHitQTestECAL : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
       if (skipTTRecoveredHits_ && rh.checkFlag(EcalRecHit::kTowerRecovered))
 	{
 	  clean=true;
@@ -475,7 +552,7 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
   void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
   }
 
-  bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+  bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
 
     if ( rh.energy() < thresholdCleaning_ ) {
       clean=false;
@@ -546,7 +623,7 @@ class PFRecHitQTestHCALCalib29 : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean){
@@ -599,7 +676,7 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut) {
       throw cms::Exception("WrongDetector")
 	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
       return false;
@@ -671,7 +748,7 @@ class PFRecHitQTestThresholdInThicknessNormalizedMIPs : public PFRecHitQTestBase
       ddd_ = &(geoHandle->topology().dddConstants());
     }
 
-    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut) {
       throw cms::Exception("WrongDetector")
 	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
       return false;
