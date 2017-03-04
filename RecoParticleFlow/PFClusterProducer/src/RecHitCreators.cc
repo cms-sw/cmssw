@@ -1,8 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreator.h"
+//#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreatorMaxSample.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalBarrelRecHitCreator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalEndcapRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHcalRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitCreatorMaxSample.h"
