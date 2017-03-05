@@ -36,6 +36,7 @@ namespace hgcal {
 
     math::XYZPoint getMultiClusterPosition(const reco::HGCalMultiCluster&, double vz = 0.) const;
     
+    int getLayer(const DetId) const;
     
     double getMultiClusterEnergy(const reco::HGCalMultiCluster&) const;
 
