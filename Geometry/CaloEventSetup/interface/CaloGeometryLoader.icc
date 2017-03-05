@@ -37,17 +37,14 @@ const double
 CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 
 template <class T>
-CaloGeometryLoader<T>::CaloGeometryLoader() 
+CaloGeometryLoader<T>::CaloGeometryLoader() :
+m_filter(DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
+                                                "EcalSensitiveDetector",
+				                0                        )},
+         DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
+   				                T::hitString(),
+				                0              )})
 {
-   m_filter.setCriteria( DDValue( "SensitiveDetector",
-				  "EcalSensitiveDetector",
-				  0                        ),
-			 DDCompOp::equals           ) ;
-
-   m_filter.setCriteria( DDValue( "ReadOutName",
-				  T::hitString(),
-				  0                  ),
-			 DDCompOp::equals           ) ;
 }
 
 template <class T>
