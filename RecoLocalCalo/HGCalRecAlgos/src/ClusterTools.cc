@@ -179,6 +179,10 @@ math::XYZPoint ClusterTools::getMultiClusterPosition(const reco::HGCalMultiClust
   return math::XYZPoint(acc_x,acc_y,acc_z);
 }
 
+int ClusterTools::getLayer(const DetId detid) const {
+  return rhtools_.getLayerWithOffset(detid);
+}
+
 double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) const {
   double acc = 0.0;
   for(const auto& ptr : clu.clusters() ) {

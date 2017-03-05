@@ -39,7 +39,6 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(con
   std::vector<size_t> es = sorted_indices(thecls);
   std::vector<int> vused(es.size(),0);
   unsigned int used = 0;
-  const float radius2 = radius*radius;
 
   for(unsigned int i = 0; i < es.size(); ++i) {
     if(vused[i]==0) {
@@ -52,6 +51,13 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(con
           float distanceCheck = 9999.;
           if( realSpaceCone ) distanceCheck = distAxisCluster2(thecls[es[i]],thecls[es[j]]);
           else distanceCheck = dist2(thecls[es[i]],thecls[es[j]]);
+          DetId detid = thecls[es[j]]->hitsAndFractions()[0].first();
+          int layer = clusterTools->getLayer(detid);
+          float radius2 = 9999.;
+          if(layer <= 28) radius2 = radii[0]*radii[0];
+          else if(layer <= 40) radius2 = radii[1]*radii[1];
+          else if(layer <= 52) radius2 = radii[2]*radii[2];
+          else assert(radius2<100. && "nonsense layer value - cannot assign multicluster radius");
 	  if( distanceCheck<radius2 && int(thecls[es[j]]->z()*vused[i])>0 ) {
 	    temp.push_back(thecls[es[j]]);
 	    vused[j]=vused[i];

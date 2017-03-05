@@ -30,12 +30,12 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
- public:    
+ public:
   HGCalClusterTestProducer(const edm::ParameterSet&);
   ~HGCalClusterTestProducer() { }
-  
+
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  private:
 
   edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
@@ -64,7 +64,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   double ecut = ps.getParameter<double>("ecut");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
   double kappa = ps.getParameter<double>("kappa");
-  double multicluster_radius = ps.getParameter<double>("multiclusterRadius");
+  std::vector<double> multicluster_radii = ps.getParameter<std::vector<double> >("multiclusterRadii");
   double minClusters = ps.getParameter<unsigned>("minClusters");
   //  bool realSpaceCone = ps.getParameter<bool>("realSpaceCone");
   std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
@@ -74,8 +74,8 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   std::vector<double> nonAgedNoises = ps.getParameter<std::vector<double> >("nonAgedNoises");
   double noiseMip = ps.getParameter<double>("noiseMip");
   bool dependSensor = ps.getParameter<bool>("dependSensor");
-  
-  
+
+
   if(detector=="all") {
     hits_ee_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCEEInput"));
     hits_fh_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("HGCFHInput"));
@@ -112,22 +112,22 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
 
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
-  
+
   produces<std::vector<reco::HGCalMultiCluster> >();
   produces<std::vector<reco::HGCalMultiCluster> >("sharing");
 }
 
-void HGCalClusterTestProducer::produce(edm::Event& evt, 
+void HGCalClusterTestProducer::produce(edm::Event& evt,
 				       const edm::EventSetup& es) {
-  
+
   edm::Handle<HGCRecHitCollection> ee_hits;
   edm::Handle<HGCRecHitCollection> fh_hits;
   edm::Handle<HGCRecHitCollection> bh_hits;
 
 
-  std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ), 
+  std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ),
     clusters_sharing( new std::vector<reco::BasicCluster> );
-  
+
   algo->reset();
 
   algo->getEventSetup(es);
@@ -140,7 +140,7 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
     evt.getByToken(hits_ee_token,ee_hits);
     algo->populate(*ee_hits);
     break;
-  case  reco::CaloCluster::hgcal_had:    
+  case  reco::CaloCluster::hgcal_had:
     evt.getByToken(hits_fh_token,fh_hits);
     evt.getByToken(hits_bh_token,bh_hits);
     if( fh_hits.isValid() ) {
@@ -168,7 +168,7 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   //std::cout << "Density based cluster size: " << clusters->size() << std::endl;
   //if(doSharing)
   //std::cout << "Sharing clusters size     : " << clusters_sharing->size() << std::endl;
-  
+
   //  edm::Handle<std::vector<reco::PFCluster> > hydra[2];
   std::vector<std::string> names;
   names.push_back(std::string("gen"));
@@ -178,7 +178,7 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   //   std::cout << "hydra " << names[i] << " size : " << hydra[i]->size() << std::endl;
   // }
 
-  
+
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
@@ -196,8 +196,8 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
     }
   }
 
-  std::unique_ptr<std::vector<reco::HGCalMultiCluster> > 
-    multiclusters( new std::vector<reco::HGCalMultiCluster> ), 
+  std::unique_ptr<std::vector<reco::HGCalMultiCluster> >
+    multiclusters( new std::vector<reco::HGCalMultiCluster> ),
     multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
 
   struct timeval now;
