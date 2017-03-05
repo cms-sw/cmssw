@@ -110,10 +110,17 @@ DDSpecificsAnyValueFilter::accept(const DDExpandedView& node) const {
     
     const auto& hist = node.geoHistory();
     for(auto const& spec: specs) {
-      if(DDCompareEqual(hist,*spec.first)()) {
-        for(auto const& v: *(spec.second) ) {
-          if(attribute_.id() == v.first) {
+      for(auto const& v: *(spec.second) ) {
+        if(attribute_.id() == v.first) {
+          //DDCompareEqual is slow so only call
+          // when needed
+          if(DDCompareEqual(hist,*spec.first)()) {
             return true;
+          } else {
+            //since we know this isn't in the correct
+            // geometry path we do not have to check
+            // anymore attributes
+            break;
           }
         }
       }
@@ -132,10 +139,15 @@ DDSpecificsMatchesValueFilter::accept(const DDExpandedView& node) const {
     
     const auto& hist = node.geoHistory();
     for(auto const& spec: specs) {
-      if(DDCompareEqual(hist,*spec.first)()) {
-        for(auto const& v: *(spec.second) ) {
-          if(value_.id() == v.first) {
+      for(auto const& v: *(spec.second) ) {
+        if(value_.id() == v.first) {
+          if(DDCompareEqual(hist,*spec.first)()) {
             return (value_.strings() == v.second.strings());
+          } else {
+            //since we know this isn't in the correct
+            // geometry path we do not have to check
+            // anymore attributes
+            break;
           }
         }
       }
