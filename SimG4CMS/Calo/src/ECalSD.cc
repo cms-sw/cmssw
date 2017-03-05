@@ -77,8 +77,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   //Material list for HB/HE/HO sensitive detectors
   std::string attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
   // Use of Weight
@@ -324,8 +323,7 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
 
   std::vector<G4LogicalVolume*> lvused;

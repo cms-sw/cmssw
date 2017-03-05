@@ -44,6 +44,27 @@
 #include "Math/GenVector/DisplacementVector3D.h"
 #include "Math/GenVector/Rotation3D.h"
 
+namespace {
+  class GroupFilter : public DDFilter {
+  public:
+    GroupFilter(std::vector< DDSpecificsFilter* >& filters):
+      filters_(filters) {}
+
+    bool accept(const DDExpandedView &cv ) const override final {
+      bool returnValue = true;
+      for(auto f: filters_) {
+        returnValue = returnValue and f->accept(cv);
+        if(not returnValue) {
+          break;
+        }
+      }
+      return returnValue;
+    };
+  private:
+    std::vector< DDSpecificsFilter* > filters_;
+  };
+}
+
 DDTranslation calc(const DDGeoHistory & aHist)
 {
   const DDGeoHistory & h = aHist;
@@ -456,12 +477,10 @@ void tutorial()
     std::cout << "iterate the FilteredView (y/n)";
     std::cin >> ans;
     DDCompactView compactview;
-    DDFilteredView fv(compactview);
 
     if (ans=="y") {
-      for (std::vector<DDSpecificsFilter* >::size_type j=0; j<vecF.size(); ++j) {
-	fv.addFilter(*(vecF[j]) );
-      }
+      GroupFilter gf(vecF);
+      DDFilteredView fv(compactview,gf);
     
       //bool looop = true;
       int count =0;
@@ -561,7 +580,7 @@ void tutorial()
       moreQueries = false;
    
     int fv_count=0;
-    fv.reset();
+
     clock_t Start, End;
     Start = clock();
     //while (NEXT(fv,fv_count)) ;

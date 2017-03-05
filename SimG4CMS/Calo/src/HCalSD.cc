@@ -136,8 +136,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     attribute = "Volume";
     value     = "HF";
     DDSpecificsMatchesValueFilter filter0{DDValue(attribute,value,0)};
-    DDFilteredView fv0(cpv);
-    fv0.addFilter(filter0);
+    DDFilteredView fv0(cpv,filter0);
     hfNames = getNames(fv0);
     fv0.firstChild();
     DDsvalues_type sv0(fv0.mergedSpecifics());
@@ -164,8 +163,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     // HF Fibre volume names
     value     = "HFFibre";
     DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
-    DDFilteredView fv1(cpv);
-    fv1.addFilter(filter1);
+    DDFilteredView fv1(cpv,filter1);
     fibreNames = getNames(fv1);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
                             << " = " << value << ":";
@@ -186,8 +184,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     // HF PMT volume names
     value     = "HFPMT";
     DDSpecificsMatchesValueFilter filter3{DDValue(attribute,value,0)};
-    DDFilteredView fv3(cpv);
-    fv3.addFilter(filter3);
+    DDFilteredView fv3(cpv,filter3);
     std::vector<G4String> pmtNames = getNames(fv3);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute 
 			    << " = " << value << " have " << pmtNames.size() 
@@ -209,8 +206,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     // HF Fibre bundles
     value     = "HFFibreBundleStraight";
     DDSpecificsMatchesValueFilter filter4{DDValue(attribute,value,0)};
-    DDFilteredView fv4(cpv);
-    fv4.addFilter(filter4);
+    DDFilteredView fv4(cpv,filter4);
     std::vector<G4String> fibreNames = getNames(fv4);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute
                             << " = " << value << " have " << fibreNames.size()
@@ -231,8 +227,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     // Geometry parameters for HF
     value     = "HFFibreBundleConical";
     DDSpecificsMatchesValueFilter filter5{DDValue(attribute,value,0)};
-    DDFilteredView fv5(cpv);
-    fv5.addFilter(filter5);
+    DDFilteredView fv5(cpv,filter5);
     fibreNames = getNames(fv5);
     edm::LogInfo("HcalSim") << "HCalSD: Names to be tested for " << attribute
 			    << " = " << value << " have " << fibreNames.size() 
@@ -258,8 +253,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   std::vector<G4Material*>::const_iterator matite;
   attribute = "OnlyForHcalSimNumbering"; 
   DDSpecificsAnyValueFilter filter2{attribute};
-  DDFilteredView fv2(cpv);
-  fv2.addFilter(filter2);
+  DDFilteredView fv2(cpv,filter2);
   bool dodet = fv2.firstChild();
   DDsvalues_type sv(fv2.mergedSpecifics());
 

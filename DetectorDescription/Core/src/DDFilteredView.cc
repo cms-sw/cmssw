@@ -9,25 +9,17 @@
 class DDCompactView;
 class DDLogicalPart;
 
-DDFilteredView::DDFilteredView(const DDCompactView & cpv)
- : epv_(cpv)
+DDFilteredView::DDFilteredView(const DDCompactView & cpv, const DDFilter& fltr)
+: epv_(cpv), filter_(&fltr)
 {
    parents_.push_back(epv_.geoHistory());
 }
-
-DDFilteredView::~DDFilteredView()
-{ }
 
 const DDLogicalPart & DDFilteredView::logicalPart() const
 {
   return epv_.logicalPart();
 }
 
-void DDFilteredView::addFilter(const DDFilter & f)
-{
-  criteria_.push_back(&f); 
-}
- 
 const DDTranslation & DDFilteredView::translation() const
 {
    return epv_.translation();
@@ -225,17 +217,7 @@ void DDFilteredView::reset()
 
 bool DDFilteredView::filter()
 {
-  bool result = true;
-  // loop over all user-supplied criteria (==filters)
-  for( auto it = begin(criteria_); it != end(criteria_); ++it) {
-    bool locres = (*it)->accept(epv_);
-    
-    result &= locres; 
-    if(!result) {
-      break;
-    }
-  } // <-- loop over filters     
-  return result;
+  return filter_->accept(epv_) ;
 }
 
 DDFilteredView::nav_type DDFilteredView::navPos() const

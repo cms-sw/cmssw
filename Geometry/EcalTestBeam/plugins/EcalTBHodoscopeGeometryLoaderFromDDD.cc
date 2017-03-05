@@ -41,8 +41,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
   
    DDFilter* filter = getDDFilter();
 
-   DDFilteredView fv(*cpv);
-   fv.addFilter(*filter);
+   DDFilteredView fv(*cpv,*filter);
   
    bool doSubDets;
    for (doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling())

@@ -47,8 +47,7 @@ DDFilteredViewAnalyzer::analyze( const edm::Event& ,
   filter.setCriteria( val,  // name & value of a variable 
   		      m_comp
   		     );
-  DDFilteredView fv( *cpv );
-  fv.addFilter( filter );
+  DDFilteredView fv( *cpv,filter );
   if( fv.firstChild()) {
     std::cout << "Found attribute " << m_attribute.c_str() << " with value " << m_value.c_str() << std::endl;
     bool dodet = true;

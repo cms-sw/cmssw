@@ -17,8 +17,7 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   std::string attribute = "OnlyForMuonNumbering"; 
   
   DDSpecificsAnyValueFilter filter(attribute);
-  DDFilteredView fview(cpv);
-  fview.addFilter(filter);
+  DDFilteredView fview(cpv,filter);
   
   DDValue val2("level");
   const DDsvalues_type params(fview.mergedSpecifics());

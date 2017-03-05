@@ -73,8 +73,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
 				     const Alignments*     alignments ,
 				     const Alignments*     globals      )
 {
-   DDFilteredView fv0 ( *cpv ) ;
-   fv0.addFilter( m_filter ) ;
+   DDFilteredView fv0 ( *cpv, m_filter ) ;
 
    fillNamedParams( fv0, geom ) ;
 
@@ -82,8 +81,7 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView*  cpv        ,
    geom->allocatePar( T::k_NumberOfParametersPerShape*T::k_NumberOfShapes,
 		      T::k_NumberOfParametersPerShape ) ;
 
-   DDFilteredView fv( *cpv ) ;
-   fv.addFilter( m_filter ) ;
+   DDFilteredView fv( *cpv, m_filter ) ;
  
    unsigned int counter ( 0 ) ;
    for( bool doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling() )

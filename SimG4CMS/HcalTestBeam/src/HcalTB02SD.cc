@@ -121,8 +121,7 @@ void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
 
   bool dodet=true;

@@ -37,8 +37,7 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 		     DDCompOp::equals
 		     );
 
-  DDFilteredView fv( *cview );
-  fv.addFilter(filter);
+  DDFilteredView fv( *cview, filter );
 
   bool doSubDets = fv.firstChild();
 

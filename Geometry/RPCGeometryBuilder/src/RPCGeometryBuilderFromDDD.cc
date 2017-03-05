@@ -36,15 +36,10 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 {
   const std::string attribute = "ReadOutName"; // could come from .orcarc
   const std::string value     = "MuonRPCHits";    // could come from .orcarc
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the MuonRPC's
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, // name & value of a variable
-                     DDCompOp::equals
-                     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
 
   return this->buildGeometry(fview, muonConstants);
 }

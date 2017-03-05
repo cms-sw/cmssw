@@ -30,9 +30,8 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_file( 0 )
 {
   // retrieve the elements from DDD
-  DDFilteredView fv( geometry );
   DDSpecificsMatchesValueFilter filter{DDValue("TrackingMaterialGroup", name)};
-  fv.addFilter(filter);
+  DDFilteredView fv( geometry,filter );
   LogTrace("MaterialAccountingGroup") << "Elements within: " << name << std::endl;
   while (fv.next()) {
     // DD3Vector and DDTranslation are the same type as math::XYZVector

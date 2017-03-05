@@ -42,8 +42,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   attribute = "Volume";
   value     = "WireChamber";
   DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
-  DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
+  DDFilteredView fv1(cpv,filter1);
   wcNames = getNames(fv1);
   edm::LogInfo("HcalTB06BeamSD") 
     << "HcalTB06BeamSD:: Names to be tested for " 
@@ -55,8 +54,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   //Material list for scintillator detector
   attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter2{DDValue(attribute,name,0)};
-  DDFilteredView fv2(cpv);
-  fv2.addFilter(filter2);
+  DDFilteredView fv2(cpv,filter2);
   bool dodet = fv2.firstChild();
 
   std::vector<G4String> matNames;
