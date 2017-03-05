@@ -56,4 +56,12 @@
   <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper< edm::DetSetVector<CTPPSDiamondRecHit> >"/>
 
+<!-- common objects -->
+
+  <class name="CTPPSLocalTrackLite" ClassVersion="3">
+    <version ClassVersion="3" checksum="3838813906"/>
+  </class>
+  <class name="std::vector<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
 </lcgdict>
