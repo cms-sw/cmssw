@@ -28,14 +28,10 @@ bool CSCGeometryParsFromDD::build( const DDCompactView* cview
 				   ) {
   std::string attribute = "MuStructure";      // could come from outside
   std::string value     = "MuonEndcapCSC";    // could come from outside
-  DDValue muval(attribute, value, 0.0);
 
   // Asking for a specific section of the MuStructure
 
-  DDSpecificsFilter filter;
-  filter.setCriteria(muval, // name & value of a variable 
-		     DDCompOp::equals
-		     );
+  DDSpecificsMatchesValueFilter filter{ DDValue(attribute, value, 0.0) };
 
   DDFilteredView fv( *cview, filter );
 
