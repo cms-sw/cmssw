@@ -14,15 +14,10 @@ DTGeometryParserFromDDD::DTGeometryParserFromDDD(const DDCompactView* cview, con
   try {
     std::string attribute = "MuStructure"; 
     std::string value     = "MuonBarrelDT";
-    DDValue val(attribute, value, 0.0);
 
     // Asking only for the Muon DTs
-    DDSpecificsFilter filter;
-    filter.setCriteria(val,  // name & value of a variable 
-		       DDCompOp::equals
-		       );
-    DDFilteredView fview(*cview);
-    fview.addFilter(filter);
+    DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+    DDFilteredView fview(*cview,filter);
 
     parseGeometry(fview, muonConstants, theLayerIdWiresMap);
   }

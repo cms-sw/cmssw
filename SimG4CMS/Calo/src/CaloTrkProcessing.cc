@@ -44,8 +44,7 @@ CaloTrkProcessing::CaloTrkProcessing(G4String name,
   //Get the names 
   G4String attribute = "ReadOutName"; 
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
 

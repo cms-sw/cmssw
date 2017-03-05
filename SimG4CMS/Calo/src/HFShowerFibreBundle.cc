@@ -37,8 +37,7 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
   std::string attribute = "Volume";
   std::string value     = "HFPMT";
   DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
-  DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
+  DDFilteredView fv1(cpv,filter1);
   if (fv1.firstChild()) {
     DDsvalues_type sv1(fv1.mergedSpecifics());
     std::vector<double> neta;

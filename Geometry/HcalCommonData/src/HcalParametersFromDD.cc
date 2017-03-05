@@ -45,13 +45,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 
   //Special parameters at simulation level
   std::string attribute = "OnlyForHcalSimNumbering"; 
-  std::string value     = "any";
-  DDValue val1(attribute, value, 0.0);
-  DDSpecificsFilter filter1;
-  filter1.setCriteria(val1, DDCompOp::not_equals
-		      );
-  DDFilteredView fv1(*cpv);
-  fv1.addFilter(filter1);
+  DDSpecificsAnyValueFilter filter1{attribute};
+  DDFilteredView fv1(*cpv,filter1);
   bool ok = fv1.firstChild();
 
   const int nEtaMax=100;
@@ -105,13 +100,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering"; 
-  DDValue val2( attribute, value, 0.0 );
-  DDSpecificsFilter filter2;
-  filter2.setCriteria(val2,
-		      DDCompOp::not_equals
-		      );
-  DDFilteredView fv2(*cpv);
-  fv2.addFilter(filter2);
+  DDSpecificsAnyValueFilter filter2{attribute};
+  DDFilteredView fv2(*cpv,filter2);
   ok = fv2.firstChild();
   if (ok) {
     DDsvalues_type sv(fv2.mergedSpecifics());

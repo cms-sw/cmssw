@@ -80,8 +80,7 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
     
   std::string attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,name,0)};
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
   std::vector<int> temp = dbl_to_int(getDDDArray("Type",sv));

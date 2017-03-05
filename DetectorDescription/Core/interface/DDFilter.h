@@ -26,6 +26,15 @@ public:
   virtual bool accept(const DDExpandedView &) const = 0;  
 };
 
+//! A DDFilter that always returns true
+class DDPassAllFilter : public DDFilter
+{
+public:
+  bool accept(const DDExpandedView &) const override final {
+    return true;
+  }
+};
+
 //! The DDGenericFilter is a runtime-parametrized Filter looking on DDSpecifcs
 class DDSpecificsFilter : public DDFilter
 {

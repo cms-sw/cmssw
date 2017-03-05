@@ -32,7 +32,8 @@ DDDTotemRPContruction::DDDTotemRPContruction()
 const DetGeomDesc* DDDTotemRPContruction::construct(const DDCompactView* cpv)
 {
   // create DDFilteredView and apply the filter
-  DDFilteredView fv(*cpv);
+  DDPassAllFilter filter;
+  DDFilteredView fv(*cpv, filter);
 
   // conversion to DetGeomDesc structure
   // create the root node and recursively propagates through the tree

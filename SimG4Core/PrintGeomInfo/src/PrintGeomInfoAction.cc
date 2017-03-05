@@ -81,10 +81,9 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
       std::string attribute = "ReadOutName";
       std::string sd        = names[i];
       DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
-      DDFilteredView fv(*pDD);
+      DDFilteredView fv(*pDD,filter);
       std::cout << "PrintGeomInfoAction:: Get Filtered view for " 
 		<< attribute << " = " << sd << std::endl;
-      fv.addFilter(filter);
       bool dodet = fv.firstChild();
       
       std::string spaces = spacesFromLeafDepth(1);
