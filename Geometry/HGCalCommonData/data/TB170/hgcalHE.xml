@@ -11,7 +11,7 @@
 </ConstantsSection>
 
 <PosPartSection label="hgcalHE.xml">
-  <Algorithm name="hgcal:DDHGCalModule">
+  <Algorithm name="hgcal:DDHGCalModuleAlgo">
     <rParent name="hgcal:HGCalHE"/>
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
