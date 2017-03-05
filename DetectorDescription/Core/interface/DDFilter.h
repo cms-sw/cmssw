@@ -70,9 +70,9 @@ protected:
 
 std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
 
-class DDSpecificsAnyValueFilter : public DDFilter {
+class DDSpecificsHasNamedValueFilter : public DDFilter {
 public:
-  explicit DDSpecificsAnyValueFilter(const std::string& iAttribute):
+  explicit DDSpecificsHasNamedValueFilter(const std::string& iAttribute):
     attribute_(iAttribute,"",0 )
     {}
 

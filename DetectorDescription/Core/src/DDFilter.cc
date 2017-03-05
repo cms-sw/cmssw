@@ -101,7 +101,7 @@ bool DDSpecificsFilter::accept_impl(const DDExpandedView & node) const
 }
 
 bool
-DDSpecificsAnyValueFilter::accept(const DDExpandedView& node) const {
+DDSpecificsHasNamedValueFilter::accept(const DDExpandedView& node) const {
   const DDLogicalPart & logp = node.logicalPart();
 
   if (logp.hasDDValue(attribute_)) { 

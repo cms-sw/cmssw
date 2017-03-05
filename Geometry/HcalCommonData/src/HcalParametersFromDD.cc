@@ -45,7 +45,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 
   //Special parameters at simulation level
   std::string attribute = "OnlyForHcalSimNumbering"; 
-  DDSpecificsAnyValueFilter filter1{attribute};
+  DDSpecificsHasNamedValueFilter filter1{attribute};
   DDFilteredView fv1(*cpv,filter1);
   bool ok = fv1.firstChild();
 
@@ -100,7 +100,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering"; 
-  DDSpecificsAnyValueFilter filter2{attribute};
+  DDSpecificsHasNamedValueFilter filter2{attribute};
   DDFilteredView fv2(*cpv,filter2);
   ok = fv2.firstChild();
   if (ok) {

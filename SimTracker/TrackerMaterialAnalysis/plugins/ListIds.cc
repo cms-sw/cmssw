@@ -102,7 +102,7 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
 
   std::string attribute = "TkDDDStructure";
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
-  DDSpecificsAnyValueFilter filter{attribute};
+  DDSpecificsHasNamedValueFilter filter{attribute};
   DDFilteredView fv(*hDdd,filter);
   if (theCmsTrackerStringToEnum.type(dddGetString(attribute, fv)) != GeometricDet::Tracker) {
     fv.firstChild();
