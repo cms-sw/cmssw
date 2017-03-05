@@ -252,7 +252,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   const G4MaterialTable * matTab = G4Material::GetMaterialTable();
   std::vector<G4Material*>::const_iterator matite;
   attribute = "OnlyForHcalSimNumbering"; 
-  DDSpecificsAnyValueFilter filter2{attribute};
+  DDSpecificsHasNamedValueFilter filter2{attribute};
   DDFilteredView fv2(cpv,filter2);
   bool dodet = fv2.firstChild();
   DDsvalues_type sv(fv2.mergedSpecifics());

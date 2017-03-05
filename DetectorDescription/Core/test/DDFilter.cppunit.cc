@@ -367,7 +367,7 @@ void testDDFilter::checkFilters() {
     }
 
     {
-      DDSpecificsAnyValueFilter f("Volume");
+      DDSpecificsHasNamedValueFilter f("Volume");
       DDFilteredView fv(cv,f);
 
       auto const names = getNames(fv);
@@ -376,7 +376,7 @@ void testDDFilter::checkFilters() {
     }
 
     {
-      DDSpecificsAnyValueFilter f("DoesntExist");
+      DDSpecificsHasNamedValueFilter f("DoesntExist");
       DDFilteredView fv(cv,f);
 
       auto const names = getNames(fv);
@@ -432,7 +432,7 @@ void testDDFilter::checkFilters() {
 
     {
 
-      DDSpecificsAnyValueFilter f("Endcap");
+      DDSpecificsHasNamedValueFilter f("Endcap");
       DDFilteredView fv(cv,f);
 
       auto const names = getNames(fv);
@@ -501,7 +501,7 @@ void testDDFilter::checkFilters() {
 
     {
       auto f = make_and_ddfilter(DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)},
-                                 DDSpecificsAnyValueFilter{"Endcap"});
+                                 DDSpecificsHasNamedValueFilter{"Endcap"});
       DDFilteredView fv(cv,f);
 
       auto const names = getNames(fv);
@@ -523,7 +523,7 @@ void testDDFilter::checkFilters() {
     }
 
     {
-      auto f = make_and_ddfilter(DDSpecificsAnyValueFilter{"Endcap"},
+      auto f = make_and_ddfilter(DDSpecificsHasNamedValueFilter{"Endcap"},
                                  DDSpecificsMatchesValueFilter{DDValue("Volume","EMinus",0)});
       DDFilteredView fv(cv,f);
 

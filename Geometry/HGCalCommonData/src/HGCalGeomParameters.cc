@@ -847,7 +847,7 @@ void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv,
 
   //Special parameters for cell parameters
   std::string attribute = "OnlyForHGCalNumbering"; 
-  DDSpecificsAnyValueFilter filter1{attribute};
+  DDSpecificsHasNamedValueFilter filter1{attribute};
   DDFilteredView fv1(*cpv,filter1);
   bool ok = fv1.firstChild();
 

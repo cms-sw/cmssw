@@ -451,7 +451,7 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
   edm::ESTransientHandle<DDCompactView> hDdd;
   setup.get<IdealGeometryRecord>().get( hDdd );
 
-  DDSpecificsAnyValueFilter filter{"TrackingMaterialGroup"};
+  DDSpecificsHasNamedValueFilter filter{"TrackingMaterialGroup"};
   DDFilteredView fv(*hDdd,filter);
 
   while (fv.next()) {

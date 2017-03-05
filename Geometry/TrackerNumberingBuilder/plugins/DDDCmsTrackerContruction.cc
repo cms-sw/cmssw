@@ -15,7 +15,7 @@ const GeometricDet*
 DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> detidShifts)
 {
   attribute = "TkDDDStructure"; // could come from .orcarc
-  DDSpecificsAnyValueFilter filter{ attribute };
+  DDSpecificsHasNamedValueFilter filter{ attribute };
   
   DDFilteredView fv( *cpv, filter ); 
   if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
