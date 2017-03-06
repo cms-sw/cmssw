@@ -25,8 +25,10 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-template <typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
+class PFEcalBarrelRecHitCreator :  public  PFRecHitCreatorBase {
+
+  const int maxNrTowers_=2448;
+  const int maxTowerEtaIndex_=17;
 
  public:  
   PFEcalBarrelRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
@@ -36,10 +38,10 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
       SREtaSize_ = iConfig.getUntrackedParameter<int> ("SREtaSize",1);
       SRPhiSize_ = iConfig.getUntrackedParameter<int> ("SRPhiSize",1);
-      crystalsinTT_.resize(2448);
-      TTHighInterest_.resize(2448,0);
-      theTTDetIds_.resize(2448);
-      neighboringTTs_.resize(2448);
+      crystalsinTT_.resize(maxNrTowers_);
+      TTHighInterest_.resize(maxNrTowers_,0);
+      theTTDetIds_.resize(maxNrTowers_);
+      neighboringTTs_.resize(maxNrTowers_);
     }
     
     void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -55,9 +57,9 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
       // get the ecal geometry
       const CaloSubdetectorGeometry *gTmp = 
-	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
+	geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const EcalBarrelGeometry *ecalGeo =dynamic_cast< const EcalBarrelGeometry* > (gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
@@ -70,13 +72,12 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
   
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFEcalBarrelRecHitCreator")
-	    <<"warning detid "<<detid.rawId()
-	    <<" not found in geometry"<<std::endl;
+          throw cms::Exception("ECALCellNotInGeometry")
+	    << "Detid: "<< detid.rawId()<<" not found in geometry";
 	  continue;
 	}
 
-	out->emplace_back(thisCell, detid.rawId(),Layer,
+	out->emplace_back(thisCell, detid.rawId(),PFLayer::ECAL_BARREL,
 			   energy); 
 
         auto & rh = out->back();
@@ -108,22 +109,17 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       edm::ESHandle<CaloGeometry> pG;
       es.get<CaloGeometryRecord>().get(pG);   
 
-      //  edm::ESHandle<CaloTopology> theCaloTopology;
-      //  es.get<CaloTopologyRecord>().get(theCaloTopology);     
-
       edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
       es.get<IdealGeometryRecord>().get(hetm);
       eTTmap_ = &(*hetm);
   
       const EcalBarrelGeometry * myEcalBarrelGeometry = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
-      // std::cout << "Got the geometry " << myEcalBarrelGeometry << std::endl;
       const std::vector<DetId>& vec(myEcalBarrelGeometry->getValidDetIds(DetId::Ecal,EcalBarrel));
       unsigned size=vec.size();    
       for(unsigned ic=0; ic<size; ++ic) 
         {
           EBDetId myDetId(vec[ic]);
           int crystalHashedIndex=myDetId.hashedIndex();
-          /// barrelRawId_[crystalHashedIndex]=vec[ic].rawId();
           // save the Trigger tower DetIds
           EcalTrigTowerDetId towid= eTTmap_->towerOf(EBDetId(vec[ic]));
           int TThashedindex=towid.hashedIndex();      
@@ -132,18 +128,6 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
         }
       unsigned nTTs=theTTDetIds_.size();
 
-      //  EBDetId myDetId(-58,203);
-      ////  std::cout << " CellID " << myDetId << std::endl;
-      //  EcalTrigTowerDetId towid= eTTmap_->towerOf(myDetId);
-      ////  std::cout << " EcalTrigTowerDetId ieta, iphi" << towid.ieta() << " , " << towid.iphi() << std::endl;
-      ////  std::cout << " Constituents of this tower " <<towid.hashedIndex() << std::endl;
-      //  const std::vector<int> & xtals(crystalsinTT_[towid.hashedIndex()]);
-      //  unsigned Size=xtals.size();
-      //  for(unsigned i=0;i<Size;++i)
-      //    {
-      //      std::cout << EBDetId(barrelRawId_[xtals[i]]) << std::endl;
-      //    }
-
       // now loop on each TT and save its neighbors. 
 
       for(unsigned iTT=0;iTT<nTTs;++iTT)
@@ -151,10 +135,9 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
           int ietaPivot=theTTDetIds_[iTT].ieta();
           int iphiPivot=theTTDetIds_[iTT].iphi();
           int TThashedIndex=theTTDetIds_[iTT].hashedIndex();
-          //      std::cout << " TT Pivot " << TThashedIndex << " " << ietaPivot << " " << iphiPivot << " iz " << theTTDetIds_[iTT].zside() << std::endl;
-          int ietamin=std::max(ietaPivot-SREtaSize_,-17);
+          int ietamin=std::max(ietaPivot-SREtaSize_,-maxTowerEtaIndex_);
           if(ietamin==0) ietamin=-1;
-          int ietamax=std::min(ietaPivot+SREtaSize_,17);
+          int ietamax=std::min(ietaPivot+SREtaSize_,maxTowerEtaIndex_);
           if(ietamax==0) ietamax=1;
           int iphimin=iphiPivot-SRPhiSize_;
           int iphimax=iphiPivot+SRPhiSize_;
@@ -167,7 +150,6 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
                   if(riphi<1) riphi+=72;
                   else if(riphi>72) riphi-=72;
                   EcalTrigTowerDetId neighborTTDetId(iz,EcalBarrel,abs(ieta),riphi);
-                  //      std::cout << " Voisin " << ieta << " " << riphi << " " <<neighborTTDetId.hashedIndex()<< " " << neighborTTDetId.ieta() << " " << neighborTTDetId.iphi() << std::endl;
                   if(ieta!=ietaPivot||riphi!=iphiPivot)
                     {
                       neighboringTTs_[TThashedIndex].push_back(neighborTTDetId.hashedIndex());
@@ -179,8 +161,6 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
               if(ieta==0) ieta=1;
             }
         }
-
-      // std::cout << "EB Made the array " << std::endl;
 
     }
       
@@ -247,8 +227,5 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
     int SRPhiSize_;
 
 };
-
-
-typedef PFEcalBarrelRecHitCreator<EcalBarrelGeometry,PFLayer::ECAL_BARREL,EcalBarrel> PFEBRecHitCreator;
 
 #endif
