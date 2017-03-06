@@ -14,6 +14,8 @@ public:
     void clusterize( const l1t::HGCalClusterBxCollection & clusters, 
                      l1t::HGCalMulticlusterBxCollection & multiclusters);
  
+    bool isPertinent( const l1t::HGCalCluster & clu, const l1t::HGCalMulticluster & mclu, double dR ) const;
+
 private:
     
     double dr_;

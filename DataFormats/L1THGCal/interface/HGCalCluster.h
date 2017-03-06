@@ -26,11 +26,10 @@ namespace l1t {
 
         ~HGCalCluster();
 
-        /* trigger-cell collection pertinent to the cluster*/
+        /* trigger-cell collection pertinent to the cluster */
         BXVector<const l1t::HGCalTriggerCell*>  tcs() const { return tcs_; }        
 
         /* helpers */
-        bool isPertinent( const l1t::HGCalTriggerCell &tc, double dR ) const;
         void addTriggerCell( const l1t::HGCalTriggerCell &tc );
 
         /* set info */
@@ -44,8 +43,6 @@ namespace l1t {
 
         double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
         
-//        ROOT::Math::XYZVector centre() const { return centre_; }
-//        ROOT::Math::XYZVector centreNorm() const { return centre_/centre_.z(); }
         GlobalVector centre() const { return centre_; }
         GlobalVector centreNorm() const { return centre_/centre_.z(); }
 
@@ -56,13 +53,11 @@ namespace l1t {
 
         ClusterShapes shapes;
 
+        /* operations */
         bool operator<(const HGCalCluster& cl) const;
         bool operator>(const HGCalCluster& cl) const  { return  cl<*this;   }
         bool operator<=(const HGCalCluster& cl) const { return !(cl>*this); }
         bool operator>=(const HGCalCluster& cl) const { return !(cl<*this); }
-        //bool operator+(const HGCalCluster& cl) const; /* to be implemented */
-        //bool operator-(const HGCalCluster& cl) const; /* to be implemented */
-
 
     private:
         
@@ -73,7 +68,6 @@ namespace l1t {
         uint32_t seedDetId_;
  
         /* Centre weighted with energy */
-        //ROOT::Math::XYZVector centre_;
         GlobalVector centre_;
 
         /* Energies */

@@ -6,7 +6,24 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
     triggerCellThreshold_(conf.getParameter<double>("clustering_threshold")),
     dr_(conf.getParameter<double>("dR_cluster"))
 {    
-    
+ 
+}
+
+bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell &tc, l1t::HGCalCluster &clu, double distXY ) const 
+{
+
+    HGCalDetId tcDetId( tc.detId() );
+    HGCalDetId cluDetId( clu.seedDetId() );
+    if( tcDetId.layer() != cluDetId.layer() ||
+        tcDetId.subdetId() != cluDetId.subdetId() ||
+        tcDetId.zside() != cluDetId.zside() )
+        return false;
+   
+    if ( clu.distance(tc) < distXY )
+        return true;
+
+    return false;
+
 }
 
 
@@ -38,7 +55,7 @@ void HGCalClusteringImpl::clusterize( const l1t::HGCalTriggerCellBxCollection & 
         int iclu=0;
         vector<int> tcPertinentClusters; 
         for( std::vector<l1t::HGCalCluster>::iterator clu = clustersTmp.begin(); clu != clustersTmp.end(); ++clu,++iclu ){
-            if( clu->isPertinent(*tc, dr_) ){
+            if( this->isPertinent(*tc, *clu, dr_) ){
                 tcPertinentClusters.push_back(iclu);
             }
         }

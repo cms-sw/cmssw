@@ -9,6 +9,24 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& con
 }
 
 
+bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu, 
+                                            const l1t::HGCalMulticluster & mclu, 
+                                            double dR ) const
+{
+    HGCalDetId cluDetId( clu.seedDetId() );
+    HGCalDetId firstClusterDetId( mclu.firstClusterDetId() );
+    
+    if( cluDetId.zside() != firstClusterDetId.zside() ){
+        return false;
+    }
+    if( ( mclu.centreNorm() - clu.centreNorm() ).mag() < dR ){
+        return true;
+    }
+    return false;
+
+}
+
+
 void HGCalMulticlusteringImpl::clusterize( const l1t::HGCalClusterBxCollection & clusters, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
@@ -21,7 +39,7 @@ void HGCalMulticlusteringImpl::clusterize( const l1t::HGCalClusterBxCollection &
         int imclu=0;
         vector<int> tcPertinentMulticlusters;
         for(l1t::HGCalMulticlusterBxCollection::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu){
-            if( mclu->isPertinent(*clu, dr_) ){
+            if( this->isPertinent(*clu, *mclu, dr_) ){
                 tcPertinentMulticlusters.push_back(imclu);
             }
         }
