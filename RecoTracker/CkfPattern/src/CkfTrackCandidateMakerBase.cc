@@ -67,7 +67,7 @@ namespace cms{
     doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
     reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
-    produceSeedStopReasons_(conf.getParameter<bool>("produceSeedStopReasons")),
+    produceSeedStopReasons_(false),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
     theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")),
