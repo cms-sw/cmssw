@@ -710,7 +710,7 @@ class StripHits(_Collection):
         super(StripHits, self).__init__(ntuple, "str_isBarrel", StripHit)
 
 ##########
-class GluedHit(_Object, _LayerStrAdaptor):
+class GluedHit(_Object, _DetIdAdaptor, _LayerStrAdaptor):
     """Class representing a matched strip hit."""
     def __init__(self, ntuple, index):
         """Constructor.
