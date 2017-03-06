@@ -11,13 +11,12 @@ class HGCalMulticlusteringImpl{
 public:
 
     HGCalMulticlusteringImpl( const edm::ParameterSet &conf);    
-    void clusterise( const l1t::HGCalClusterBxCollection & clusters_, 
-                     l1t::HGCalMulticlusterBxCollection & multiclusters_);
+    void clusterize( const l1t::HGCalClusterBxCollection & clusters, 
+                     l1t::HGCalMulticlusterBxCollection & multiclusters);
  
 private:
     
     double dr_;
-    BXVector<edm::PtrVector<l1t::HGCalTriggerCell>> clustersTCcollections_; 
 
 };
 

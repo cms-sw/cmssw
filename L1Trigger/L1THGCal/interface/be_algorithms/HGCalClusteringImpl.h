@@ -13,14 +13,14 @@ class HGCalClusteringImpl{
 public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
-    void clusterise( const l1t::HGCalTriggerCellBxCollection & trgcells_, 
-                     l1t::HGCalClusterBxCollection & clusters_ 
+    void clusterize( const l1t::HGCalTriggerCellBxCollection & trgcells, 
+                     l1t::HGCalClusterBxCollection & clusters 
         );
 
 private:
     
-    double seedThr_;
-    double tcThr_;
+    double seedThreshold_;
+    double triggerCellThreshold_;
     double dr_;
 
 };

@@ -1,7 +1,10 @@
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellThresholdCodec.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"
@@ -11,15 +14,15 @@ using namespace HGCalTriggerBackend;
 template<typename FECODEC, typename DATA>
 class HGCClusterAlgo : public Algorithm<FECODEC> 
 {
-public:
-    using Algorithm<FECODEC>::name;
+    public:
+        using Algorithm<FECODEC>::name;
     
-protected:
-    using Algorithm<FECODEC>::codec_;
+    protected:
+        using Algorithm<FECODEC>::codec_;
     
-public:
+    public:
 
-    typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
+        typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 
 
     HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector &cc) :
@@ -38,7 +41,7 @@ public:
     
     virtual void setProduces(edm::EDProducer& prod) const override final 
         {
-            prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibTC" );
+            prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCells" );
             prod.produces<l1t::HGCalClusterBxCollection>( "cluster2D" );
             prod.produces<l1t::HGCalMulticlusterBxCollection>( "cluster3D" );   
         }
@@ -49,7 +52,7 @@ public:
 
     virtual void putInEvent(edm::Event& evt) override final 
         {
-            evt.put( std::move( trgcell_product_ ),      "calibTC"   );
+            evt.put( std::move( trgcell_product_ ),      "calibratedTriggerCells"   );
             evt.put( std::move( cluster_product_ ),      "cluster2D" );
             evt.put( std::move( multicluster_product_ ), "cluster3D" );
         }
@@ -62,25 +65,25 @@ public:
             multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );
         }
     
-private:
+    private:
     
-    /* pointers to collections of tc, clu2d and clu3d */
-    std::unique_ptr<l1t::HGCalTriggerCellBxCollection> trgcell_product_;
-    std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
-    std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
+        /* pointers to collections of tc, clu2d and clu3d */
+        std::unique_ptr<l1t::HGCalTriggerCellBxCollection> trgcell_product_;
+        std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
+        std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
     
-    /* lables of sensitive detector (geometry record) */
-    std::string HGCalEESensitive_;
-    std::string HGCalHESiliconSensitive_;
+        /* lables of sensitive detector (geometry record) */
+        std::string HGCalEESensitive_;
+        std::string HGCalHESiliconSensitive_;
     
-    /* handle the collection define form the lables (previous section) */
-    edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
-    edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
-
-    /* algorithms instances */
-    HGCalTriggerCellCalibration calibration_;
-    HGCalClusteringImpl clustering_;
-    HGCalMulticlusteringImpl multiclustering_;
+        /* handles to the detector topologies */
+        edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
+        edm::ESHandle<HGCalTopology> hgchefTopoHandle_;
+        
+        /* algorithms instances */
+        HGCalTriggerCellCalibration calibration_;
+        HGCalClusteringImpl clustering_;
+        HGCalMulticlusteringImpl multiclustering_;
 
 };
 
@@ -94,9 +97,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     
     es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
     es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
-    
-    std::cout << "Coll size " << coll.size() << std::endl;
-    
+        
     for( const auto& digi : coll ){
         
         HGCalDetId module_id( digi.id() );
@@ -105,23 +106,27 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
         data.reset();
         digi.decode(codec_, data);
         
-        for(const auto& triggercell : data.payload){
+        for(const auto& triggercell : data.payload)
+        {
             
-            if( triggercell.hwPt() > 0 ){
+            if( triggercell.hwPt() > 0 )
+            {
                 
                 HGCalDetId detid(triggercell.detId());
                 int subdet = detid.subdetId();
                 int cellThickness = 0;
                 
-                if( subdet == HGCEE ) 
+                if( subdet == HGCEE ){ 
                     cellThickness = hgceeTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
-                else if( subdet == HGCHEF )
+                }
+                else if( subdet == HGCHEF ){
                     cellThickness = hgchefTopoHandle_->dddConstants().waferTypeL( (unsigned int)detid.wafer() );
-                else if( subdet == HGCHEB )
-                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
-    
+                }
+                else if( subdet == HGCHEB ){
+                    edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgigger cells are not yet implemented";
+                }
+
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
-                calibration_.calibrateInMipT( calibratedtriggercell, cellThickness ); 
                 calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
 
                 trgcell_product_->push_back( 0, calibratedtriggercell );
@@ -132,10 +137,10 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     }
 
     /* call cluster2D */
-    clustering_.clusterise( *trgcell_product_,  *cluster_product_);
+    clustering_.clusterize( *trgcell_product_,  *cluster_product_);
 
     /* cal multicluster */
-    multiclustering_.clusterise( *cluster_product_, *multicluster_product_ );
+    multiclustering_.clusterize( *cluster_product_, *multicluster_product_ );
 
 }
 
