@@ -228,7 +228,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	    if (debug_) std::cout << " format_out " << tcpformat_out_[iSample] <<  " etInADC " << etInADC << std::endl;
 
 	    bool isASpike=0; // no spikes for now 
-            int timing=31;   // dummy value for now
+            int timing=0;   //  set to 0  value for now
 	    tp.setSample(nSam,  EcalEBTriggerPrimitiveSample(etInADC,isASpike,timing)  );
 
 	    nSam++;
