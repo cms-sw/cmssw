@@ -261,7 +261,8 @@ def addL3ToHLT(process):
 	        numberMeasurementsForFit = cms.int32(4)
 	    ),
 	    MeasurementTrackerEvent = cms.InputTag("hltSiStripClusters"),
-	    reverseTrajectories = cms.bool( True )
+	    reverseTrajectories = cms.bool( True ),
+	    produceSeedStopReasons = cms.bool(False)
 	)
 	
 	###-------------  Fitter-Smoother -------------------
@@ -545,7 +546,8 @@ def addL3ToHLT(process):
 	    maxNSeeds = cms.uint32( 100000 ),
 	    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTIter0HighPtTkMuPSetTrajectoryBuilderIT" ) ),
 	    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-	    TrajectoryBuilder = cms.string( "" )
+	    TrajectoryBuilder = cms.string( "" ),
+	    produceSeedStopReasons = cms.bool(False)
 	)
 	process.hltIterL3Iter0HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 	    src = cms.InputTag( "hltIterL3Iter0HighPtTkMuCkfTrackCandidates" ),
@@ -709,7 +711,8 @@ def addL3ToHLT(process):
 	    maxNSeeds = cms.uint32( 100000 ),
 	    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTIter2HighPtTkMuPSetTrajectoryBuilderIT" ) ),
 	    NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-	    TrajectoryBuilder = cms.string( "" )
+	    TrajectoryBuilder = cms.string( "" ),
+	    produceSeedStopReasons = cms.bool(False)
 	)
 	process.hltIterL3Iter2HighPtTkMuCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
 	    src = cms.InputTag( "hltIterL3Iter2HighPtTkMuCkfTrackCandidates" ),
