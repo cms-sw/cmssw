@@ -24,8 +24,13 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-template <typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
+
+class PFEcalEndcapRecHitCreator :  public  PFRecHitCreatorBase {
+
+  const int maxNrTowersEE_=1440;
+  const int maxNrTowersEB_=2448;
+  const int maxNrSCs_=633;
+  const int maxIndexSC_=158;
 
  public:  
   PFEcalEndcapRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
@@ -35,11 +40,11 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       srFlagToken_ = iC.consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("srFlags"));
 
       towerOf_.resize(EEDetId::kSizeForDenseIndexing);
-      theTTDetIds_.resize(1440);
-      SCofTT_.resize(1440);
-      SCHighInterest_.resize(633,0);
-      TTofSC_.resize(633);
-      CrystalsinSC_.resize(633);
+      theTTDetIds_.resize(maxNrTowersEE_);
+      SCofTT_.resize(maxNrTowersEE_);
+      SCHighInterest_.resize(maxNrSCs_,0);
+      TTofSC_.resize(maxNrSCs_);
+      CrystalsinSC_.resize(maxNrSCs_);
     }
 
     void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -55,9 +60,9 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
       // get the ecal geometry
       const CaloSubdetectorGeometry *gTmp = 
-	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
+	geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const EcalEndcapGeometry *ecalGeo =dynamic_cast< const EcalEndcapGeometry* > (gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
@@ -70,13 +75,12 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
   
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFEcalEndcapRecHitCreator")
-	    <<"warning detid "<<detid.rawId()
-	    <<" not found in geometry"<<std::endl;
+          throw cms::Exception("ECALCellNotInGeometry")
+	    << "Detid: "<< detid.rawId()<<" not found in geometry";
 	  continue;
 	}
 
-	out->emplace_back(thisCell, detid.rawId(),Layer,
+	out->emplace_back(thisCell, detid.rawId(),PFLayer::ECAL_ENDCAP,
 			   energy); 
 
         auto & rh = out->back();
@@ -108,22 +112,17 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       edm::ESHandle<CaloGeometry> pG;
       es.get<CaloGeometryRecord>().get(pG);   
 
-      //  edm::ESHandle<CaloTopology> theCaloTopology;
-      //  es.get<CaloTopologyRecord>().get(theCaloTopology);     
-
       edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
       es.get<IdealGeometryRecord>().get(hetm);
       eTTmap_ = &(*hetm);
   
       const EcalEndcapGeometry * myEcalEndcapGeometry = dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-      // std::cout << " Got the geometry " << myEcalEndcapGeometry << std::endl;
       const std::vector<DetId>& vec(myEcalEndcapGeometry->getValidDetIds(DetId::Ecal,EcalEndcap));
-      unsigned size=vec.size();    
+      unsigned size=vec.size();
       for(unsigned ic=0; ic<size; ++ic) 
         {
           EEDetId myDetId(vec[ic]);
           int cellhashedindex=myDetId.hashedIndex();
-          /// endcapRawId_[crystalHashedIndex]=vec[ic].rawId();
           // a bit of trigger tower and SuperCrystals algebra
           // first get the trigger tower 
           EcalTrigTowerDetId towid1= eTTmap_->towerOf(vec[ic]);
@@ -132,12 +131,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
           // get the SC of the cell
           int schi=SChashedIndex(EEDetId(vec[ic]));
-          if(schi<0) 
-            {
-              //  std::cout << " OOps " << schi << std::endl;
-              EEDetId myID(vec[ic]);
-              //  std::cout << " DetId " << myID << " " << myID.isc() << " " <<  myID.zside() <<  " " << myID.isc()+(myID.zside()+1)*158 << std::endl;
-            }
+          if(schi<0) EEDetId myID(vec[ic]);
       
           theTTDetIds_[tthashedindex]=towid1;
 
@@ -154,13 +148,10 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
             CrystalsinSC_[schi].push_back(cellhashedindex);
 
           // check if the TT is already in the list of sc
-          //      std::cout << " SCHI " << schi << " " << TTofSC_.size() << std::endl;
-          //      std::cout << TTofSC_[schi].size() << std::endl;
           itcheck=find(TTofSC_[schi].begin(),TTofSC_[schi].end(),tthashedindex);
           if(itcheck==TTofSC_[schi].end())
             TTofSC_[schi].push_back(tthashedindex);
         }
-      // std::cout << " Made the array " << std::endl;
 
     }
 
@@ -170,12 +161,10 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
     bool isHighInterest(const EEDetId& detid) {
 
       int schi=SChashedIndex(detid);
-      //  std::cout <<  detid << "  " << schi << " ";
       // check if it has already been treated or not
       // 0 <=> not treated
       // 1 <=> high interest
       // -1 <=> low interest
-      //  std::cout << SCHighInterest_[schi] << std::endl;
       if(SCHighInterest_[schi]!=0) return (SCHighInterest_[schi]>0);
 
       // now look if a TT contributing is of high interest
@@ -226,19 +215,15 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
  private:
     // there are 2448 TT in the barrel. 
-    inline int TThashedIndexforEE(int originalhi) const {return originalhi-2448;}
-    inline int TThashedIndexforEE(const EcalTrigTowerDetId &detid) const {return detid.hashedIndex()-2448;}
+    inline int TThashedIndexforEE(int originalhi) const {return originalhi-maxNrTowersEB_;}
+    inline int TThashedIndexforEE(const EcalTrigTowerDetId &detid) const {return detid.hashedIndex()-maxNrTowersEB_;}
     // the number of the SuperCrystals goes from 1 to 316 (with some holes) in each EE
     // z should -1 or 1 
-    inline int SChashedIndex(int SC,int z) const {return SC+(z+1)*158;}
+    inline int SChashedIndex(int SC,int z) const {return SC+(z+1)*maxIndexSC_;}
     inline int SChashedIndex(const EEDetId& detid) const {
-      //    std::cout << "In SC hashedIndex " <<  detid.isc() << " " << detid.zside() << " " << detid.isc()+(detid.zside()+1)*158 << std::endl;
-      return detid.isc()+(detid.zside()+1)*158;
+      return detid.isc()+(detid.zside()+1)*maxIndexSC_;
     }
 
 };
-
-
-typedef PFEcalEndcapRecHitCreator<EcalEndcapGeometry,PFLayer::ECAL_ENDCAP,EcalEndcap> PFEERecHitCreator;
 
 #endif
