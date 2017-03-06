@@ -1623,6 +1623,8 @@ namespace edm {
                                     EventSetup const& iES,
                                     SC& iSubProcesses)
     {
+      ServiceToken token = ServiceRegistry::instance().presentToken();
+
       for(unsigned int i=0; i<iNStreams;++i) {
         
         //must wait until this stream gets a chance to start
@@ -1631,7 +1633,7 @@ namespace edm {
         
         //When we are done processing the stream for this process,
         // we need to run the stream for all SubProcesses
-        auto subs = make_waiting_task(tbb::task::allocate_root(), [&iSubProcesses, streamLoopWaitTaskPtr,i,&iPrincipal,iTS](std::exception_ptr const* iPtr) {
+        auto subs = make_waiting_task(tbb::task::allocate_root(), [&iSubProcesses, streamLoopWaitTaskPtr,i,&iPrincipal,iTS,token](std::exception_ptr const* iPtr) {
           WaitingTaskHolder h(streamLoopWaitTaskPtr);
           //now that holder will manage the reference count, we need
           // to decrement to match the increment done in the loop
@@ -1640,6 +1642,7 @@ namespace edm {
             h.doneWaiting(*iPtr);
             return;
           }
+          ServiceRegistry::Operate op(token);
           try {
             for_all(iSubProcesses, [i, &iPrincipal, iTS](auto& subProcess){ subProcessDoStreamBeginTransition(subProcess,i,iPrincipal, iTS); });
           } catch(...) {
