@@ -1,0 +1,53 @@
+#ifndef DataFormats_RPCDigi_RPCAMCLinkCounters_icc
+#define DataFormats_RPCDigi_RPCAMCLinkCounters_icc
+
+#include "DataFormats/RPCDigi/interface/RPCAMCLinkCounters.h"
+
+inline void RPCAMCLinkCounters::add(unsigned int _type, RPCAMCLink const & _link, unsigned int _count)
+{
+    type_link_count_[std::pair<unsigned int, ::uint32_t>(_type, _link.getId())] += _count;
+}
+
+inline void RPCAMCLinkCounters::reset()
+{
+    type_link_count_.clear();
+}
+
+inline void RPCAMCLinkCounters::reset(unsigned int _type)
+{
+    iterator _first(type_link_count_.lower_bound(std::pair<unsigned int, ::uint32_t>(_type, 0)));
+    if (_first != type_link_count_.end()) {
+        iterator _last(type_link_count_.upper_bound(std::pair<unsigned int, ::uint32_t>(_type, 0xFFFFFFFF)));
+        type_link_count_.erase(_first, _last);
+    }
+}
+
+inline void RPCAMCLinkCounters::reset(unsigned int _type, RPCAMCLink const & _link)
+{
+    iterator _pos(type_link_count_.find(std::pair<unsigned int, ::uint32_t>(_type, _link.getId())));
+    if (_pos != type_link_count_.end()) {
+        type_link_count_.erase(_pos);
+    }
+}
+
+inline std::pair<RPCAMCLinkCounters::const_iterator, RPCAMCLinkCounters::const_iterator>
+RPCAMCLinkCounters::getCounters() const
+{
+    return std::pair<const_iterator, const_iterator>(type_link_count_.begin(), type_link_count_.end());
+}
+
+inline std::pair<RPCAMCLinkCounters::const_iterator, RPCAMCLinkCounters::const_iterator>
+RPCAMCLinkCounters::getCounters(unsigned int _type) const
+{
+    return std::pair<const_iterator, const_iterator>(type_link_count_.lower_bound(std::pair<unsigned int, ::uint32_t>(_type, 0))
+                                                     , type_link_count_.upper_bound(std::pair<unsigned int, ::uint32_t>(_type, 0xFFFFFFFF)));
+}
+
+inline std::pair<RPCAMCLinkCounters::const_iterator, RPCAMCLinkCounters::const_iterator>
+RPCAMCLinkCounters::getCounters(unsigned int _lower_type, unsigned int _upper_type) const
+{
+    return std::pair<const_iterator, const_iterator>(type_link_count_.lower_bound(std::pair<unsigned int, ::uint32_t>(_lower_type, 0))
+                                                     , type_link_count_.upper_bound(std::pair<unsigned int, ::uint32_t>(_upper_type, 0xFFFFFFFF)));
+}
+
+#endif // DataFormats_RPCDigi_RPCAMCLinkCounters_icc
