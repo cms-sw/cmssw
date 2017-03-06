@@ -17,6 +17,8 @@ public:
                      l1t::HGCalClusterBxCollection & clusters 
         );
 
+    bool isPertinent( const l1t::HGCalTriggerCell &tc, l1t::HGCalCluster &clu, double distXY) const;
+
 private:
     
     double seedThreshold_;
