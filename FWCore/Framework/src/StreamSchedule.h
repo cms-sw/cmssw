@@ -426,7 +426,10 @@ namespace edm {
                                              typename T::MyPrincipal& ep,
                                              EventSetup const& es,
                                              bool cleaningUpAfterException) {
-    auto task = make_functor_task(tbb::task::allocate_root(), [this,iHolder,&ep,&es,cleaningUpAfterException] () mutable {
+    ServiceToken token = ServiceRegistry::instance().presentToken();
+    
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,iHolder,&ep,&es,cleaningUpAfterException,token] () mutable {
+      ServiceRegistry::Operate op(token);
       try {
         this->processOneStream<T>(ep,es,cleaningUpAfterException);
       } catch(...) {
