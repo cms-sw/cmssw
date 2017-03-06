@@ -769,6 +769,9 @@ class _TrackingParticleMatchPrinter(object):
         self._trackingParticlePrinter = trackingParticlePrinter
         self._bestMatchingTrackingParticle = bestMatchingTrackingParticle
 
+    def bestMatchingTrackingParticle(self):
+        return self._bestMatchingTrackingParticle
+
     def _printTrackingParticles(self, prefix, tps, header):
         lst = []
         if self._trackingParticlePrinter is None:
@@ -808,8 +811,9 @@ class _TrackingParticleMatchPrinter(object):
         return lst
 
 class SeedPrinter(_RecHitPrinter):
-    def __init__(self, indent=0, trackingParticles=False, trackingParticlePrinter=None, bestMatchingTrackingParticle=True):
+    def __init__(self, indent=0, hits=True, trackingParticles=False, trackingParticlePrinter=None, bestMatchingTrackingParticle=True):
         super(SeedPrinter, self).__init__(indent)
+        self._hits = hits
         self._trackingParticleMatchPrinter = _TrackingParticleMatchPrinter(trackingParticles, trackingParticlePrinter, bestMatchingTrackingParticle)
 
     def printHeader(self, seed):
@@ -828,10 +832,11 @@ class SeedPrinter(_RecHitPrinter):
 
     def printHits(self, seed):
         lst = []
-        lst.append(self._prefix+" hits"+_hitPatternSummary(seed.hits()))
-        self.indent(2)
-        lst.extend(self._printHits(seed.hits()))
-        self.restoreIndent()
+        if self._hits:
+            lst.append(self._prefix+" hits"+_hitPatternSummary(seed.hits()))
+            self.indent(2)
+            lst.extend(self._printHits(seed.hits()))
+            self.restoreIndent()
         return lst
 
     def printMatchedTrackingParticles(self, seed):
@@ -905,9 +910,10 @@ class TrackPrinter(_RecHitPrinter):
         lst.append(self._prefix+" pixel hits %d strip hits %d chi2/ndof %f" % (track.nPixel(), track.nStrip(), track.nChi2()))
         lst.append(self._prefix+" is %s algo %s originalAlgo %s%s stopReason %s" % (hp, Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), algoMaskStr, StopReason.toString(track.stopReason())))
         lst.append(self._prefix+" px %f py %f pz %f p %f" % (track.px(), track.py(), track.pz(), math.sqrt(track.px()**2+track.py()**2+track.pz()**2)))
-        ptPull = track.ptPull()
-        if ptPull is not None:
-            lst.append(self._prefix+" pulls pt %f dxy %f dz %f" % (ptPull, track.dxyPull(), track.dzPull()))
+        if self._trackingParticleMatchPrinter.bestMatchingTrackingParticle():
+            ptPull = track.ptPull()
+            if ptPull is not None:
+                lst.append(self._prefix+" pulls pt %f dxy %f dz %f" % (ptPull, track.dxyPull(), track.dzPull()))
         return lst
 
     def printHits(self, track):

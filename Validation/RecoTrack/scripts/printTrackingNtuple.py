@@ -30,9 +30,29 @@ def main(opts):
         event = findEvent(ntpl, opts.event)
         print "Entry %d" % event.entry()
 
-    printSeed = ntuple.SeedPrinter(trackingParticles=True, trackingParticlePrinter=ntuple.TrackingParticlePrinter())
-    printTrack = ntuple.TrackPrinter(trackingParticlePrinter=ntuple.TrackingParticlePrinter())
-    printTrackingParticle = ntuple.TrackingParticlePrinter(trackPrinter=ntuple.TrackPrinter())
+    hasHits = ntpl.hasHits()
+    hasSeeds = ntpl.hasSeeds()
+
+    if not hasSeeds and opts.seed is not None:
+        print "Ntuple %s does not have seeds saved!" % opts.file
+        return
+    if not hasHits and (opts.pixelHit is not None or opts.stripHit is not None):
+        print "Ntuple %s does not have hits saved!" % opts.file
+        return
+
+    seedArgs = dict(hits=hasHits, bestMatchingTrackingParticle=hasHits)
+    trackArgs = dict(hits=hasHits, bestMatchingTrackingParticle=hasHits)
+    tpArgs = dict(hits=hasHits, bestMatchingTrack=hasHits)
+    if not hasSeeds:
+        trackArgs["seedPrinter"] = None
+        tpArgs["seedPrinter"] = None
+    elif not hasHits:
+        trackArgs["seedPrinter"] = ntuple.SeedPrinter(**seedArgs)
+        tpArgs["seedPrinter"] = ntuple.SeedPrinter(**seedArgs)
+
+    printSeed = ntuple.SeedPrinter(trackingParticles=True, trackingParticlePrinter=ntuple.TrackingParticlePrinter(**tpArgs), **seedArgs)
+    printTrack = ntuple.TrackPrinter(trackingParticlePrinter=ntuple.TrackingParticlePrinter(**tpArgs), **trackArgs)
+    printTrackingParticle = ntuple.TrackingParticlePrinter(trackPrinter=ntuple.TrackPrinter(**trackArgs), **tpArgs)
 
     if opts.track is not None:
         trk = event.tracks()[opts.track]
@@ -55,18 +75,20 @@ def main(opts):
         print "Pixel hit %d tracks" % opts.pixelHit
         for t in hit.tracks():
             printTrack(t)
-        print "Pixel hit %d seeds" % opts.pixelHit
-        for t in hit.seeds():
-            printSeed(s)
+        if hasSeeds:
+            print "Pixel hit %d seeds" % opts.pixelHit
+            for t in hit.seeds():
+                printSeed(s)
 
     if opts.stripHit is not None:
         hit = event.stripHits()[opts.stripHit]
         print "Strip hit %d tracks" % opts.stripHit
         for t in hit.tracks():
             printTrack(t)
-        print "Strip hit %d seeds" % opts.stripHit
-        for t in hit.seeds():
-            printSeed(s)
+        if hasSeeds:
+            print "Strip hit %d seeds" % opts.stripHit
+            for t in hit.seeds():
+                printSeed(s)
 
 
 if __name__ == "__main__":
