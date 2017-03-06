@@ -35,11 +35,11 @@ namespace l1t
         uint32_t detId() const {return detid_;}
         const GlobalPoint& position() const { return position_; }
         
-        int zside() {                
+        int zside() const {                
             HGCalDetId trgdetid(detid_);                
             return trgdetid.zside();               
         }
-        int layer() {                
+        int layer() const {                
             HGCalDetId trgdetid(detid_);                
             return trgdetid.layer();               
         }

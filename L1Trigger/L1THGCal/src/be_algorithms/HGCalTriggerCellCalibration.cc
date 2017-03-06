@@ -29,30 +29,27 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
     }else if( subdet == HGCHEF ){
         amplitude = amplitude / fCperMIP_fh_.at(cellThickness-1);
     }else if( subdet == HGCHEB ){
-        edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented !! ";
+        edm::LogWarning("DataNotFound") << "WARNING: the BH trgCells are not yet implemented";
     }
+
     /* correct the charge amplitude for the sensor thickness */
     double trgCellMipP = amplitude * thickCorr_.at( cellThickness-1 );
     double trgCellMipPt = trgCellMipP/cosh( trgCell.eta() ); 
 
-    // setting pT [mip]
-    //trgCell.setHwPt( trgCellMipPt ) ; /* we will use this variable? */
+    /* setting pT [mip] */
     trgCell.setMipPt( trgCellMipPt ) ;
 } 
 
 
-void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness)
 {
     const double MevToGeV(0.001);
-    /* calibrate from ADC count to transverse mip*/
-    calibrateInMipT(trgCell, cellThickness);
 
     HGCalDetId trgdetid( trgCell.detId() );
     int trgCellLayer = trgdetid.layer();
     int subdet = trgdetid.subdetId();
 
     /* get the transverse momentum in mip units */
-    //int hwPt = trgCell.hwPt(); /* we will use this one ?*/
     double mipP = trgCell.mipPt() * cosh( trgCell.eta() );
 
     if( subdet == HGCHEF ){
@@ -70,6 +67,17 @@ void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell,
     
     // overwriting the 4p with the calibrated 4p     
     trgCell.setP4( calibP4 );
+
+}
+
+void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+{
+
+    /* calibrate from ADC count to transverse mip */
+    calibrateInMipT(trgCell, cellThickness);
+
+    /* calibrate from mip count to GeV */
+    calibrateMipTinGeV(trgCell, cellThickness);
 
 }
  

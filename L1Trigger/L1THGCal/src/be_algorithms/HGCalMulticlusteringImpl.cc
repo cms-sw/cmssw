@@ -2,50 +2,52 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 
-HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& config ) 
+HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& conf ) :
+    dr_(conf.getParameter<double>("dR_multicluster"))
 {    
-    dr_ = config.getParameter<double>("dR_multicluster");
+
 }
 
 
-void HGCalMulticlusteringImpl::clusterise( const l1t::HGCalClusterBxCollection & clusters_, 
-                                           l1t::HGCalMulticlusterBxCollection & multiclusters_)
+void HGCalMulticlusteringImpl::clusterize( const l1t::HGCalClusterBxCollection & clusters, 
+                                           l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
    
     edm::LogInfo("HGCclusterParameters") << "Multicluster dR for Near Neighbour search: " << dr_;  
         
     std::vector<l1t::HGCalMulticluster> multiclustersTmp;
-    for(l1t::HGCalClusterBxCollection::const_iterator clu = clusters_.begin(); clu != clusters_.end(); ++clu){
+    for(l1t::HGCalClusterBxCollection::const_iterator clu = clusters.begin(); clu != clusters.end(); ++clu){
         
         int imclu=0;
         vector<int> tcPertinentMulticlusters;
-        for(l1t::HGCalMulticlusterBxCollection::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu)
-            if( mclu->isPertinent(*clu, dr_) )
+        for(l1t::HGCalMulticlusterBxCollection::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu){
+            if( mclu->isPertinent(*clu, dr_) ){
                 tcPertinentMulticlusters.push_back(imclu);
-
+            }
+        }
         if( tcPertinentMulticlusters.size() == 0 ){
             l1t::HGCalMulticluster obj( *clu );
-            multiclustersTmp.push_back( obj );
+            multiclustersTmp.emplace_back( obj );
         }
         else{
-            uint minDist = 1;
-            uint targetMulticlu = 0; 
+            unsigned minDist = 1;
+            unsigned targetMulticlu = 0; 
             for( std::vector<int>::const_iterator imclu = tcPertinentMulticlusters.begin(); imclu != tcPertinentMulticlusters.end(); ++imclu ){
-                double d = ( multiclustersTmp.at(*imclu).centreNorm() - clu->centreNorm() ).Mag2() ;
+                double d = ( multiclustersTmp.at(*imclu).centreNorm() - clu->centreNorm() ).mag() ;
                 if( d < minDist ){
                     minDist = d;
                     targetMulticlu = *imclu;
                 }
             } 
 
-            multiclustersTmp.at(targetMulticlu).addClu( *clu );
+            multiclustersTmp.at(targetMulticlu).addCluster( *clu );
         
         }
         
    }
 
     /* making the collection of multiclusters */
-    for( unsigned i(0); i<multiclustersTmp.size(); ++i )
-        multiclusters_.push_back( 0, multiclustersTmp.at(i) );
-
+    for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
+        multiclusters.push_back( 0, multiclustersTmp.at(i) );
+    }
 }

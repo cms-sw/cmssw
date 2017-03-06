@@ -2,14 +2,11 @@
 #define DataFormats_L1Trigger_HGCalCluster_h
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
-
 #include "Math/Vector3D.h"
-#include "TMath.h"
 
 
 namespace l1t {
@@ -23,7 +20,7 @@ namespace l1t {
                       int pt,
                       int eta,
                       int phi
-        );
+            );
        
         HGCalCluster( const l1t::HGCalTriggerCell &tc ); 
 
@@ -34,27 +31,30 @@ namespace l1t {
 
         /* helpers */
         bool isPertinent( const l1t::HGCalTriggerCell &tc, double dR ) const;
-        void addTC( const l1t::HGCalTriggerCell &tc );
+        void addTriggerCell( const l1t::HGCalTriggerCell &tc );
 
         /* set info */
         void setModule  (uint32_t value) { module_   = value; }
 
         /* get info */
         bool isValid()      const { return true;  }
-        uint32_t hwPt()     const { return hwPt_; }
         double mipPt()      const { return mipPt_; }
-        //uint32_t hwSeedPt() const { return hwSeedPt_; }
-        double dist( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
+        double seedMipPt() const { return seedMipPt_; }
+        uint32_t seedDetId() const { return seedDetId_; }
+
+        double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
         
-        ROOT::Math::XYZVector centre() const { return centre_; }
-        ROOT::Math::XYZVector centreNorm() const { return centre_/centre_.z(); }
+//        ROOT::Math::XYZVector centre() const { return centre_; }
+//        ROOT::Math::XYZVector centreNorm() const { return centre_/centre_.z(); }
+        GlobalVector centre() const { return centre_; }
+        GlobalVector centreNorm() const { return centre_/centre_.z(); }
 
         uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
         uint32_t layer()     const;
         int32_t zside()     const;
         uint32_t module()    const { return module_; }
 
-        ClusterShapes shapes; /* ??? */
+        ClusterShapes shapes;
 
         bool operator<(const HGCalCluster& cl) const;
         bool operator>(const HGCalCluster& cl) const  { return  cl<*this;   }
@@ -73,12 +73,12 @@ namespace l1t {
         uint32_t seedDetId_;
  
         /* Centre weighted with energy */
-        ROOT::Math::XYZVector centre_;
+        //ROOT::Math::XYZVector centre_;
+        GlobalVector centre_;
 
         /* Energies */
-        uint32_t hwPt_;
-        double   mipPt_;
-        uint32_t hwSeedPt_;
+        double mipPt_;
+        double seedMipPt_;
 
         /* HGC specific information */
         uint32_t module_;

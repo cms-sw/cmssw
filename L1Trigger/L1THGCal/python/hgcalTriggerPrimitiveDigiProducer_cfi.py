@@ -27,7 +27,7 @@ calib_parValues = cms.PSet( cellLSB =  cms.double( fe_codec.linLSB.value() * (2 
                              )
 C2d_parValues = cms.PSet( seeding_threshold = cms.double(4), # MipT
                           clustering_threshold = cms.double(2), # MipT
-                          dR_cluster = cms.double(5.) # in cm
+                          dR_cluster = cms.double(3.) # in cm
                          )
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01) )

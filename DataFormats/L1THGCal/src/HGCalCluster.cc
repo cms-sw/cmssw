@@ -1,4 +1,5 @@
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 using namespace l1t;
 
@@ -9,8 +10,8 @@ HGCalCluster::HGCalCluster( const LorentzVector p4,
     ): 
     L1Candidate(p4, pt, eta, phi),
     centre_(0, 0, 0),
-    hwPt_(0),
-    mipPt_(0)
+    mipPt_(0),
+    seedMipPt_(0)
 {
 
 }
@@ -21,10 +22,10 @@ HGCalCluster::HGCalCluster( const LorentzVector p4,
 HGCalCluster::HGCalCluster(  const l1t::HGCalTriggerCell &tcSeed )
     : seedDetId_( tcSeed.detId() ),
       centre_(0, 0, 0),
-      hwPt_(0),
-      mipPt_(0)
+      mipPt_(0),
+      seedMipPt_(0)
 {
-    addTC( tcSeed );
+    addTriggerCell( tcSeed );
 }
 
 
@@ -46,7 +47,7 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
         tcDetId.zside() != seedDetId.zside() )
         return false;
    
-    if ( this->dist(tc) < distEtaPhi )
+    if ( this->distance(tc) < distEtaPhi )
         return true;
 
     return false;
@@ -54,23 +55,27 @@ bool HGCalCluster::isPertinent( const l1t::HGCalTriggerCell &tc, double distEtaP
 }
 
 
-void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc)
+void HGCalCluster::addTriggerCell(const l1t::HGCalTriggerCell &tc)
 {
 
-    if( tcs_.size() == 0 ) 
+    if( tcs_.size() == 0 ){ 
         seedDetId_ = tc.detId();
+        seedMipPt_ = tc.mipPt();
+    }
 
-    ROOT::Math::XYZVector tcPointXYZ( tc.position().x(), 
-                                      tc.position().y(), 
-                                      tc.position().z() );
-
+    GlobalVector tcXYZ( tc.position().x(),
+                             tc.position().y(),
+                             tc.position().z() );
     /* update c2d positions */
-    centre_ = centre_*mipPt_ + tcPointXYZ*tc.mipPt() ;
+    centre_ = centre_*mipPt_ + tcXYZ*tc.mipPt() ;
     centre_ = centre_ / ( mipPt_ + tc.mipPt() );
 
     /* update c2d energies */
     mipPt_ += tc.mipPt();
-    hwPt_  += tc.hwPt();
+
+    int hwPt = 0;
+    hwPt  += tc.hwPt();
+    this->setHwPt(hwPt);
 
     math::PtEtaPhiMLorentzVector p4( ( this->p4() )  );
     p4 += tc.p4(); 
@@ -82,14 +87,14 @@ void HGCalCluster::addTC(const l1t::HGCalTriggerCell &tc)
 }
 
 
-double HGCalCluster::dist(const l1t::HGCalTriggerCell &tc) const
+double HGCalCluster::distance(const l1t::HGCalTriggerCell &tc) const
 {
 
-    ROOT::Math::XYZVector tcPointXYZ( tc.position().x(), 
-                                      tc.position().y(), 
-                                      tc.position().z() );
-
-    return TMath::Sqrt( ( tcPointXYZ - centre_ ).Mag2() );
+    GlobalVector tcPointXYZ( tc.position().x(), 
+                             tc.position().y(), 
+                             tc.position().z() );
+    
+    return ( tcPointXYZ - centre_ ).mag();
    
 }
 
@@ -113,6 +118,7 @@ uint32_t HGCalCluster::layer() const
 
 }
 
+
 int32_t HGCalCluster::zside() const
 {
     
@@ -132,13 +138,13 @@ bool HGCalCluster::operator<(const HGCalCluster& cl) const
     if( mipPt() < cl.mipPt()) {
         res = true;
     }
-    else if( mipPt() == cl.mipPt() ) {
-        if( abs(hwEta()) > abs( cl.hwEta() ) ) /* Prioratize central clusters */
-            res = true;
-        else if( abs(hwEta())==abs( cl.hwEta() ) )
-            if( hwPhi() > cl.hwPhi())         /* Prioratize small phi (arbitrary) */
-                res = true;
-    }
+    //else if( mipPt() == cl.mipPt() ) {
+    //    if( abs(hwEta()) > abs( cl.hwEta() ) ) /* Prioratize central clusters */
+    //        res = true;
+    //    else if( abs(hwEta())==abs( cl.hwEta() ) )
+    //        if( hwPhi() > cl.hwPhi())         /* Prioratize small phi (arbitrary) */
+    //            res = true;
+    //}
 
     return res;
 
