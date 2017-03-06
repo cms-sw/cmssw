@@ -96,7 +96,7 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun HIon PIon PRef Fake Fake1 )
+  foreach table ( GRun HIon PIon PRef Fake Fake1 Fake2 )
 
     set name = ${table}_${gtag}  
 
@@ -136,6 +136,18 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun25ns
       set Custom = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == Fake2 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:Fake2
+      set GTAG = ${BASE2}_Fake2
+      set RTAG = ${BASE2RD}_Fake2
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun2
+      set Era  = $EraRun25ns
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
