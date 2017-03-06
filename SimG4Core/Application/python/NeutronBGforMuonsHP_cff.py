@@ -6,7 +6,7 @@ def customise(process):
 
   if hasattr(process,'g4SimHits'):
     # time window 100 millisecond
-    process.common_maximum_time.MaxTrackTime = cms.double(100000000.0)
+    process.common_maximum_time.MaxTrackTime = cms.double(10000000000.0)
     process.common_maximum_time.DeadRegions = cms.vstring()
     # Physics List HP
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/FTFP_BERT_HP_EML')
