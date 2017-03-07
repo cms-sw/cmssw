@@ -33,7 +33,7 @@
 #include "FastSimulation/Particle/interface/ParticleTable.h"  // TODO: get rid of this
 #include "FastSimulation/InteractionModel/interface/InteractionModel.h"
 #include "FastSimulation/InteractionModel/interface/InteractionModelFactory.h"
-#include "FastSimulation/FastSimProducer/interface/ParticleLooper.h"
+#include "FastSimulation/FastSimProducer/interface/ParticleManager.h"
 
 // other
 
@@ -128,7 +128,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<edm::HepMCProduct> genParticles;
     iEvent.getByToken(genParticlesToken_,genParticles);
 
-    fastsim::ParticleLooper particleLooper(
+    fastsim::ParticleManager particleManager(
 	*genParticles->GetEvent()
 	,*pdt
 	,beamPipeRadius_
@@ -140,7 +140,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     LogDebug(MESSAGECATEGORY) << "################################"
 			      << "\n###############################";    
 
-    for(std::unique_ptr<fastsim::Particle> particle = particleLooper.nextParticle(*_randomEngine); particle != 0;particle=particleLooper.nextParticle(*_randomEngine)) 
+    for(std::unique_ptr<fastsim::Particle> particle = particleManager.nextParticle(*_randomEngine); particle != 0;particle=particleManager.nextParticle(*_randomEngine)) 
     {
     	LogDebug(MESSAGECATEGORY) << "\n   moving NEXT particle: " << *particle;
 
@@ -159,7 +159,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				LogDebug(MESSAGECATEGORY) << "   interact with " << *interactionModel;
 				std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
 				interactionModel->interact(*particle,*layer,secondaries,*_randomEngine);
-				particleLooper.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
+				particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
 		    }
 
 		    // do decays
@@ -169,7 +169,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
 			    decayer_.decay(*particle,secondaries,_randomEngine->theEngine());
 			    LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
-			    particleLooper.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
+			    particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
 			    continue;
 			}
 
@@ -190,8 +190,8 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     // store simHits and simTracks
-    iEvent.put(particleLooper.harvestSimTracks());
-    iEvent.put(particleLooper.harvestSimVertices());
+    iEvent.put(particleManager.harvestSimTracks());
+    iEvent.put(particleManager.harvestSimVertices());
     // store products of interaction models, i.e. simHits
     for(auto & interactionModel : interactionModels_)
     {

@@ -1,5 +1,5 @@
-#ifndef FASTSIM_PARTICLELOOPER_H
-#define FASTSIM_PARTICLELOOPER_H
+#ifndef FASTSIM_PARTICLEMANAGER_H
+#define FASTSIM_PARTICLEMANAGER_H
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HepMC/GenEvent.h"
@@ -22,12 +22,12 @@ class RandomEngineAndDistribution;
 namespace fastsim {
     class Particle;
     class ParticleFilter;
-    class ParticleLooper
+    class ParticleManager
     {
 
     public:
 
-	ParticleLooper(
+	ParticleManager(
 	    const HepMC::GenEvent & genEvent,
 	    const HepPDT::ParticleDataTable & particleDataTable,
 	    double beamPipeRadius,
@@ -35,7 +35,7 @@ namespace fastsim {
 	    std::unique_ptr<std::vector<SimTrack> > & simTracks,
 	    std::unique_ptr<std::vector<SimVertex> > & simVertices);
 	
-	~ParticleLooper();
+	~ParticleManager();
 
 	std::unique_ptr<Particle> nextParticle(const RandomEngineAndDistribution & random);
 	
