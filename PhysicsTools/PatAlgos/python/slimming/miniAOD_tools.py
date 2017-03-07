@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
-from pdb import set_trace
 
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
@@ -147,6 +146,8 @@ def miniAOD_customizeCommon(process):
         process.load('RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi')
     if not hasattr( process, 'pfSecondaryVertexTagInfos' ):
         process.load('RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi')
+    if not hasattr( process, 'pfInclusiveSecondaryVertexFinderTagInfos' ):
+        process.load('RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi')
     process.patJets.userData.userFunctions = cms.vstring(
     '?(tagInfoCandSecondaryVertex("pfSecondaryVertex").nVertices()>0)?(tagInfoCandSecondaryVertex("pfSecondaryVertex").secondaryVertex(0).p4.M):(0)',
     '?(tagInfoCandSecondaryVertex("pfSecondaryVertex").nVertices()>0)?(tagInfoCandSecondaryVertex("pfSecondaryVertex").secondaryVertex(0).numberOfSourceCandidatePtrs):(0)',
