@@ -25,5 +25,5 @@
 6. Produce a calibration file:
 
     ```shell
-    $CMSSW_BASE/test/$SCRAM_ARCH/clusterShapeAnalyzer clusterShape.root pixelShape.par
+    clusterShapeAnalyzer clusterShape.root pixelShape.par
     ```
