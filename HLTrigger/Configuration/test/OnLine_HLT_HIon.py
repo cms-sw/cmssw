@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/HIon/V8 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/HIon/V9 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_9_0_0/HIon/V9')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -12623,7 +12623,7 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     serviceBy = cms.untracked.string( "never" ),
     resetBy = cms.untracked.string( "never" ),
     reportBy = cms.untracked.string( "job" ),
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLTFULL' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 process.hltPreHIPhysicsMuonsOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
