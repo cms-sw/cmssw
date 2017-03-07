@@ -73,6 +73,7 @@
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
+#include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
@@ -393,6 +394,7 @@ private:
 
   void fillTrackingParticles(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                              const edm::RefToBaseVector<reco::Track>& tracks,
+                             const reco::BeamSpot& bs,
                              const TrackingParticleRefVector& tpCollection,
                              const TrackingVertexRefKeyToIndex& tvKeyToIndex,
                              const reco::TrackToTrackingParticleAssociator& associatorByHits,
@@ -1478,7 +1480,7 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //tracking particles
   //sort association maps with simHits
   std::sort( tpHitList.begin(), tpHitList.end(), tpHitIndexListLessSort );
-  fillTrackingParticles(iEvent, iSetup, trackRefs, tpCollection, tvKeyToIndex, associatorByHits, tpHitList);
+  fillTrackingParticles(iEvent, iSetup, trackRefs, bs, tpCollection, tvKeyToIndex, associatorByHits, tpHitList);
 
   // vertices
   edm::Handle<reco::VertexCollection> vertices;
@@ -2405,6 +2407,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
 
 void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                                            const edm::RefToBaseVector<reco::Track>& tracks,
+                                           const reco::BeamSpot& bs,
                                            const TrackingParticleRefVector& tpCollection,
                                            const TrackingVertexRefKeyToIndex& tvKeyToIndex,
                                            const reco::TrackToTrackingParticleAssociator& associatorByHits,
@@ -2462,9 +2465,8 @@ void TrackingNtuple::fillTrackingParticles(const edm::Event& iEvent, const edm::
     //Calcualte the impact parameters w.r.t. PCA
     TrackingParticle::Vector momentum = parametersDefiner->momentum(iEvent,iSetup,tp);
     TrackingParticle::Point vertex = parametersDefiner->vertex(iEvent,iSetup,tp);
-    float dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
-    float dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
-      * momentum.z()/sqrt(momentum.perp2());
+    auto dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
+    auto dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
     const double lambdaSim = M_PI/2 - momentum.theta();
     sim_pca_pt       .push_back(std::sqrt(momentum.perp2()));
     sim_pca_eta      .push_back(momentum.Eta());
