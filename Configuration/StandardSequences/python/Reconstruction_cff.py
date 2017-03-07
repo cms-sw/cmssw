@@ -52,12 +52,11 @@ localreco_HcalNZS = cms.Sequence(bunchSpacingProducer+trackerlocalreco+muonlocal
 
 _ctpps_2016_localreco = localreco.copy()
 _ctpps_2016_localreco += recoCTPPS
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
+eras.ctpps_2016.toReplaceWith(localreco, _ctpps_2016_localreco)
 
 _ctpps_2016_localreco_HcalNZS = localreco_HcalNZS.copy()
 _ctpps_2016_localreco_HcalNZS += recoCTPPS
-ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
+eras.ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
