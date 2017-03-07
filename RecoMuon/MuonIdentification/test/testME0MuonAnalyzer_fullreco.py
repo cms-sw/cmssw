@@ -93,7 +93,6 @@ process.Test = cms.EDAnalyzer("ME0MuonAnalyzer",
                               chargedOnlyGP = cms.bool(True),
                               statusGP = cms.int32(1),
                               pdgIdGP = cms.vint32(13, -13),
-                              #parametersDefiner = cms.string('LhcParametersDefinerForTP')
                               
 )
 
