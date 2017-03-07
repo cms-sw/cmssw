@@ -352,12 +352,14 @@ namespace edm {
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     BranchListIndexes bli(principal.branchListIndexes());
     branchIDListHelper_->fixBranchListIndexes(bli);
+    bool deepCopyRetriever = false;
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry,
                           std::move(esids),
                           std::move(bli),
                           *(principal.productProvenanceRetrieverPtr()),//NOTE: this transfers the per product provenance
-                          principal.reader());
+                          principal.reader(),
+                          deepCopyRetriever);
     ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     

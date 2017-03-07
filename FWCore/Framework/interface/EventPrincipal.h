@@ -75,7 +75,8 @@ namespace edm {
                             EventSelectionIDVector&& eventSelectionIDs,
                             BranchListIndexes&& branchListIndexes,
                             ProductProvenanceRetriever const& provRetriever,
-                            DelayedReader* reader = nullptr);
+                            DelayedReader* reader = nullptr,
+                            bool deepCopyRetriever = true);
 
     
     void clearEventPrincipal();
