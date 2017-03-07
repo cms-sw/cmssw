@@ -393,8 +393,14 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId did = it->id();
 		uint32_t rawid = _ehashmap.lookup(did);
+        /*
+         * Needs to be removed as DetIds that belong to the HEP17 after combination
+         * are not present in the emap
+         * Removed until further notice!
+         *
 		if (rawid==0)
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+        */
 		HcalElectronicsId const& eid(rawid);
 		rawidValid = did.rawId();
 		if (did.subdet()==HcalBarrel)
