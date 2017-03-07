@@ -55,7 +55,7 @@ class  TotemRPGeometryESModule : public edm::ESProducer
     TotemRPGeometryESModule(const edm::ParameterSet &p);
     virtual ~TotemRPGeometryESModule(); 
 
-    std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
+    std::auto_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 
     std::auto_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord &);
     std::auto_ptr<TotemRPGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
@@ -156,7 +156,7 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const IdealGeometryRecord &iRecord)
+std::auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const IdealGeometryRecord &iRecord)
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
@@ -195,7 +195,7 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRe
 
   DetGeomDesc* newGD = NULL;
   ApplyAlignments(idealGD, alignments, newGD);
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return std::auto_ptr<DetGeomDesc>(newGD);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -226,12 +226,12 @@ auto_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryFor
 
   DetGeomDesc* newGD = NULL;
   ApplyAlignments(idealGD, alignments, newGD);
-  return std::unique_ptr<DetGeomDesc>(newGD);
+  return std::auto_ptr<DetGeomDesc>(newGD);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
+std::auto_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
