@@ -86,6 +86,7 @@ private:
     MonitorElement* DcsFractionME;
     int TotalDetectors;
     std::vector<uint32_t> FaultyDetectors;
+    std::map<uint32_t,uint32_t> NLumiDetectorIsFaulty;
   };
 
   std::map <std::string, SubDetMEs> SubDetMEsMap;
@@ -96,7 +97,9 @@ private:
   edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
   int  nFEDConnected_;
 
-  int nLumiAnalysed_;
+  int nGoodDcsLumi_;
+  float MinAcceptableDcsDetFrac_ = 0.90;
+  float MaxAcceptableBadDcsLumiFrac_ = 0.10;
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
 };
