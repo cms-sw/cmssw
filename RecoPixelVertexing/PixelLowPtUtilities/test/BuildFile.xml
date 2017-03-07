@@ -10,9 +10,6 @@
 	<use name="SimTracker/TrackerHitAssociation"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<bin file="ClusterShapeAnalyzer.cc" name="clusterShapeAnalyzer">
-	<use name="root"/>
-</bin>
 <bin file="LowPtGlobalDir_t.cpp">
 	<use name="RecoPixelVertexing/PixelLowPtUtilities"/>
 </bin>

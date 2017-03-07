@@ -1,0 +1,3 @@
+<bin file="ClusterShapeAnalyzer.cc" name="clusterShapeAnalyzer">
+	<use name="root"/>
+</bin>
