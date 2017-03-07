@@ -47,6 +47,14 @@ namespace cond {
 	if( !m_session->runInfoSchema().exists() ) m_session->runInfoSchema().create();
       }
     }
+
+    cond::Time_t RunInfoEditor::getLastInserted(){
+      if( m_data.get() ){
+	checkTransaction( "RunInfoEditor::getLastInserted" );
+	return m_session->runInfoSchema().runInfoTable().getLastInserted();
+      }
+      return cond::time::MIN_VAL;
+    }
     
     void RunInfoEditor::insert( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end ){
       if( m_data.get() ) m_data->runBuffer.push_back( std::tie( runNumber, start, end ) );

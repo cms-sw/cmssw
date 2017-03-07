@@ -16,6 +16,15 @@ namespace cond {
       conddb_column( START_TIME, boost::posix_time::ptime );
       conddb_column( END_TIME, boost::posix_time::ptime );
 
+      struct MAX_RUN_NUMBER {					 
+	typedef cond::Time_t type;				   
+	static constexpr size_t size = 0;
+	static std::string tableName(){ return RUN_NUMBER::tableName(); }	
+	static std::string fullyQualifiedName(){ 
+	  return "MAX("+RUN_NUMBER::fullyQualifiedName()+")";	  
+	} 
+      };
+
       struct MIN_RUN_NUMBER {					 
 	typedef cond::Time_t type;				   
 	static constexpr size_t size = 0;
@@ -40,6 +49,7 @@ namespace cond {
 	virtual ~Table(){}
 	bool exists();
 	void create();
+        cond::Time_t getLastInserted();
 	bool getInclusiveRunRange( cond::Time_t lower, cond::Time_t upper,
 				   std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData );
 	bool getInclusiveTimeRange( const boost::posix_time::ptime& lower ,const boost::posix_time::ptime& upper, 

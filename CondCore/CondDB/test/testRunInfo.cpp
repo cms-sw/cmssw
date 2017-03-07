@@ -36,7 +36,12 @@ int run( const std::string& connectionString ){
     runInfoWriter.insert( 1030, 
 			  boost::posix_time::time_from_string("2017-01-01 03:00:10.000"), 
 			  boost::posix_time::time_from_string("2017-01-01 04:00:00.000") );
-     
+    runInfoWriter.flush();
+    session.transaction().commit();
+    session.transaction().start(false); 
+    std::cout <<"Last inserted: "<<runInfoWriter.getLastInserted()<<std::endl;
+    session.transaction().commit();
+    session.transaction().start(false); 
     runInfoWriter.insertNew( 1040, 
 			     boost::posix_time::time_from_string("2017-01-01 04:00:10.000") );
     runInfoWriter.flush();
@@ -75,6 +80,9 @@ int run( const std::string& connectionString ){
     } catch (  const std::exception& e ){
       std::cout <<"Expected error:"<<e.what()<<std::endl;
     }
+    session.transaction().commit();
+    session.transaction().start(); 
+    std::cout <<"Last inserted: "<<runInfoWriter.getLastInserted()<<std::endl;
     session.transaction().commit();
   } catch (const std::exception& e){
     std::cout << "ERROR: " << e.what() << std::endl;

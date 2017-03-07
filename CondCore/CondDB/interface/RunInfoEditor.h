@@ -40,6 +40,9 @@ namespace cond {
 
       //
       void init();
+
+      //
+      cond::Time_t getLastInserted();
       
       // register an insertion.
       void insert( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end );

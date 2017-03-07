@@ -25,6 +25,15 @@ namespace cond {
       createTable( m_schema, descr.get() );
     }
 
+    cond::Time_t RUN_INFO::Table::getLastInserted(){
+      cond::Time_t run = cond::time::MIN_VAL;
+      Query< MAX_RUN_NUMBER > q0(m_schema);
+      for( auto r: q0 ) {
+	run = std::get<0>(r);
+      }
+      return run;
+    }
+
     bool RUN_INFO::Table::getInclusiveRunRange( cond::Time_t lower, cond::Time_t upper,
 						std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData ){
       // first find the lowest existing run >= upper
