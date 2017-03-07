@@ -19,7 +19,6 @@ class PreexistingValidation(GenericValidation):
         self.general = config.getGeneral()
         self.name = self.general["name"] = valName
         self.config = config
-        self.filesToCompare = {}
 
         theUpdate = config.getResultingSection("preexisting"+valType+":"+self.name)
         self.general.update(theUpdate)
@@ -29,9 +28,6 @@ class PreexistingValidation(GenericValidation):
             msg = "The characters '|', '\"', and ',' cannot be used in the alignment title!"
             raise AllInOneError(msg)
 
-        self.filesToCompare[self.defaultReferenceName] = \
-            self.general["file"]
-
         knownOpts = self.defaults.keys()+self.mandatories
         ignoreOpts = []
         config.checkInput("preexisting"+valType+":"+self.name,
@@ -39,9 +35,13 @@ class PreexistingValidation(GenericValidation):
                           ignoreOptions = ignoreOpts)
         self.jobmode = None
 
+    @property
+    def filesToCompare(self):
+        return {self.defaultReferenceName: self.general["file"]}
+
     def getRepMap(self):
         #do not call super
-        result = self.general
+        result = self.general.copy()
         result.update({
                        "color": str(parsecolor(result["color"])),
                        "style": str(parsestyle(result["style"])),

@@ -21,14 +21,9 @@ class MonteCarloValidation(GenericValidationData):
             raise AllInOneError("Parallel jobs not implemented for the MC validation!\n"
                                 "Please set parallelJobs = 1.")
 
-    def createConfiguration(self, path ):
-        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
-                                     self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        cfgs = {cfgName: configTemplates.mcValidateTemplate}
-        self.filesToCompare[self.defaultReferenceName] = \
-            repMap["finalResultFile"]
-        super(MonteCarloValidation, self).createConfiguration(cfgs, path, repMap = repMap)
+    @property
+    def cfgTemplate(self):
+        return configTemplates.mcValidateTemplate
 
     def createScript(self, path):
         return super(MonteCarloValidation, self).createScript(path)

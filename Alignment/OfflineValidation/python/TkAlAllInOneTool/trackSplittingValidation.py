@@ -16,14 +16,9 @@ class TrackSplittingValidation(GenericValidationData):
         super(TrackSplittingValidation, self).__init__(valName, alignment, config,
                                                        "split")
 
-    def createConfiguration(self, path ):
-        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
-                                     self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        cfgs = {cfgName: configTemplates.TrackSplittingTemplate}
-        self.filesToCompare[self.defaultReferenceName] = \
-            repMap["finalResultFile"]
-        super(TrackSplittingValidation, self).createConfiguration(cfgs, path, repMap = repMap)
+    @property
+    def cfgTemplate(self):
+        return configTemplates.TrackSplittingTemplate
 
     def createScript(self, path):
         return super(TrackSplittingValidation, self).createScript(path)

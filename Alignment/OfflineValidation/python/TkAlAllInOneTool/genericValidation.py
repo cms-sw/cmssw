@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod, abstractproperty
 import os
 import re
 import json
@@ -7,7 +8,7 @@ from dataset import Dataset
 from helperFunctions import replaceByMap, addIndex, getCommandOutput2
 from TkAlExceptions import AllInOneError
 
-class ValidationMetaClass(type):
+class ValidationMetaClass(ABCMeta):
     sets = ["mandatories", "optionals", "needpackages"]
     dicts = ["defaults"]
     def __new__(cls, clsname, bases, dct):
@@ -46,7 +47,6 @@ class GenericValidation(object):
         self.general = config.getGeneral()
         self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
         self.configFiles = []
-        self.filesToCompare = {}
         self.config = config
         self.jobid = ""
 
@@ -128,7 +128,7 @@ class GenericValidation(object):
         except KeyError:
             result = {}
         result.update(alignment.getRepMap())
-        result.update( self.general )
+        result.update(self.general)
         result.update({
                 "workdir": os.path.join(self.general["workdir"],
                                         self.randomWorkdirPart),
@@ -146,6 +146,10 @@ class GenericValidation(object):
                 })
         result.update(self.packages)
         return result
+
+    @abstractproperty
+    def filesToCompare(self):
+        pass
 
     def getCompareStrings( self, requestId = None, plain = False ):
         result = {}
@@ -383,6 +387,24 @@ class GenericValidationData(GenericValidation):
                 "finalOutputFile": outputfile
                 })
         return result
+
+    @property
+    def cfgName(self):
+        return "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
+                                   self.alignmentToValidate.name )
+
+    @abstractproperty
+    def cfgTemplate(self):
+        pass
+
+    @property
+    def filesToCompare(self):
+        return {self.defaultReferenceName: self.getRepMap()["finalResultFile"]}
+
+    def createConfiguration(self, path ):
+        repMap = self.getRepMap()
+        cfgs = {self.cfgName: self.cfgTemplate}
+        super(GenericValidationData, self).createConfiguration(cfgs, path, repMap=repMap)
 
     def createScript(self, path, template = configTemplates.scriptTemplate, downloadFiles=[], repMap = None, repMaps = None):
         scriptName = "%s.%s.%s.sh"%(self.scriptBaseName, self.name,
