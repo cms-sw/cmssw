@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/Fake2/V3 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/Fake2/V9 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/Fake2/V3')
+  tableName = cms.string('/dev/CMSSW_9_0_0/Fake2/V9')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -16,6 +16,11 @@ fragment.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_Physics_v1',
 fragment.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "L1TGlobalParametersRcd" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.StableParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalStableParametersRcd" ),
     firstValid = cms.vuint32( 1 )
 )
 
@@ -102,31 +107,23 @@ fragment.hltBoolEnd = cms.EDFilter( "HLTBool",
 fragment.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 3 )
 )
-fragment.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
-    DaqGtFedId = cms.untracked.int32( 813 ),
-    Verbosity = cms.untracked.int32( 0 ),
-    UnpackBxInEvent = cms.int32( 5 ),
-    ActiveBoardsMask = cms.uint32( 0xffff ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
-)
 fragment.hltPreRandom = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltL1sL1ZeroBias = cms.EDFilter( "HLTLevel1GTSeed",
+fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 fragment.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
 fragment.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
@@ -167,11 +164,12 @@ fragment.HLTL1UnpackerSequence = cms.Sequence( fragment.hltGtStage2Digis + fragm
 fragment.HLTBeamSpot = cms.Sequence( fragment.hltScalersRawToDigi + fragment.hltOnlineBeamSpot )
 fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )
+fragment.HLTBeginSequenceRandom = cms.Sequence( fragment.hltRandomEventsFilter + fragment.hltGtStage2Digis )
 
 fragment.HLTriggerFirstPath = cms.Path( fragment.hltGetConditions + fragment.hltGetRaw + fragment.hltBoolFalse )
 fragment.HLT_Physics_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltPrePhysics + fragment.HLTEndSequence )
-fragment.HLT_Random_v1 = cms.Path( fragment.hltRandomEventsFilter + fragment.hltGtDigis + fragment.hltPreRandom + fragment.HLTEndSequence )
-fragment.HLT_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1ZeroBias + fragment.hltPreZeroBias + fragment.HLTEndSequence )
+fragment.HLT_Random_v1 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltPreRandom + fragment.HLTEndSequence )
+fragment.HLT_ZeroBias_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreZeroBias + fragment.HLTEndSequence )
 fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 

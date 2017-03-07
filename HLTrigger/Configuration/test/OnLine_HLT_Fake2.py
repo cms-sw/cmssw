@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_0/Fake2/V3 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/Fake2/V9 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/Fake2/V3')
+  tableName = cms.string('/dev/CMSSW_9_0_0/Fake2/V9')
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -40,6 +40,11 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     ReconnectEachRun = cms.untracked.bool( False ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     DumpStat = cms.untracked.bool( False )
+)
+process.StableParametersRcdSource = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "L1TGlobalStableParametersRcd" ),
+    firstValid = cms.vuint32( 1 )
 )
 
 process.CastorDbProducer = cms.ESProducer( "CastorDbProducer",
@@ -266,31 +271,23 @@ process.hltBoolEnd = cms.EDFilter( "HLTBool",
 process.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 3 )
 )
-process.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
-    DaqGtFedId = cms.untracked.int32( 813 ),
-    Verbosity = cms.untracked.int32( 0 ),
-    UnpackBxInEvent = cms.int32( 5 ),
-    ActiveBoardsMask = cms.uint32( 0xffff ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
-)
 process.hltPreRandom = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
-process.hltL1sL1ZeroBias = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
+    L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
+    L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
+    L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
+    L1EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
+    L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
+    L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
+    L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
 process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
@@ -353,11 +350,12 @@ process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process
 process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineBeamSpot )
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
+process.HLTBeginSequenceRandom = cms.Sequence( process.hltRandomEventsFilter + process.hltGtStage2Digis )
 
 process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltBoolFalse )
 process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
-process.HLT_Random_v1 = cms.Path( process.hltRandomEventsFilter + process.hltGtDigis + process.hltPreRandom + process.HLTEndSequence )
-process.HLT_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
+process.HLT_Random_v1 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
+process.HLT_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
