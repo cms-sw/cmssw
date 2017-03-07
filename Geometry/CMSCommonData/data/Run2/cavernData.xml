@@ -65,7 +65,8 @@
 		<Constant name="FloAirC2DX" value="([cavernData:FloAirC1DX]-[cavernData:FloAirCDX])*0.5"/>
 		<Constant name="FloAirC3DX" value="60*cm"/>
 		<Constant name="FloAirC4DX" value="[cavernData:FloAirC3DX]"/>
-		<Constant name="FloAirC4DY" value="50*cm"/>
-		<Constant name="FloAirC4trapDZ" value="(1350*cm-1270*cm)*0.5"/>
+		<Constant name="FloAirC4DZ" value="40*cm"/>
+		<Constant name="FloAirC4DY1" value="1270*cm"/>
+		<Constant name="FloAirC4DY2" value="1350*cm"/>
 	</ConstantsSection>
 </DDDefinition>
