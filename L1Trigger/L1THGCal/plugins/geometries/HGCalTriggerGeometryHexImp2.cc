@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <regex>
 
 
 class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
@@ -37,6 +38,8 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
     private:
         edm::FileInPath l1tCellsMapping_;
+        edm::FileInPath l1tCellNeighborMapping_;
+        edm::FileInPath l1tWaferNeighborMapping_;
         edm::FileInPath l1tModulesMapping_;
 
         es_info es_info_;
@@ -78,6 +81,8 @@ HGCalTriggerGeometryHexImp2::
 HGCalTriggerGeometryHexImp2(const edm::ParameterSet& conf):
     HGCalTriggerGeometryBase(conf),
     l1tCellsMapping_(conf.getParameter<edm::FileInPath>("L1TCellsMapping")),
+    l1tCellNeighborMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborMapping")),
+    l1tWaferNeighborMapping_(conf.getParameter<edm::FileInPath>("L1TWaferNeighborMapping")),
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping"))
 {
 }
@@ -522,6 +527,129 @@ void
 HGCalTriggerGeometryHexImp2::
 fillNeighborMaps(const es_info& esInfo)
 {
+    // Fill trigger neighbor map
+    std::ifstream l1tCellNeighborMappingStream(l1tCellNeighborMapping_.fullPath());
+    if(!l1tCellNeighborMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TCellNeighborMapping file\n";
+    for(std::array<char,512> buffer; l1tCellNeighborMappingStream.getline(&buffer[0], 512); )
+    {
+        std::string line(&buffer[0]);
+        // Extract keys consisting of the wafer configuration
+        // and of the trigger cell id
+        // Match patterns (X,Y) 
+        // where X is a set of 7 bits
+        // and Y is a number with less than 4 digits
+        std::regex key_regex("\\(\\s*[01]{7}\\s*,\\s*\\d{1,3}\\s*\\)");
+        std::vector<std::string> key_tokens {
+            std::sregex_token_iterator(line.begin(), line.end(), key_regex), {}
+        };
+        if(key_tokens.size()!=1)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Syntax error in the L1TCellNeighborMapping:\n"
+                << "  Cannot find the trigger cell key in line:\n"
+                << "  '"<<&buffer[0]<<"'\n";
+        }
+        std::regex digits_regex("([01]{7})|(\\d{1,3})");
+        std::vector<std::string>  pair {
+            std::sregex_token_iterator(key_tokens[0].begin(), key_tokens[0].end(), digits_regex), {}
+        };
+        // get cell id and wafer configuration
+        int trigger_cell = std::stoi(pair[1]);
+        std::vector<int> wafer_types;
+        wafer_types.reserve(pair[0].size());
+        for(const auto c : pair[0]) wafer_types.emplace_back(std::stoi(std::string(&c)));
+        unsigned map_key = packTriggerCell(trigger_cell, wafer_types);
+        // Extract neighbors
+        // Match patterns (X,Y) 
+        // where X is a number with less than 4 digits
+        // and Y is one single digit (the neighbor wafer, between 0 and 6)
+        std::regex neighbors_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d\\s*\\)");
+        std::vector<std::string> neighbors_tokens {
+            std::sregex_token_iterator(line.begin(), line.end(), neighbors_regex), {}
+        };
+        if(neighbors_tokens.size()==0)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Syntax error in the L1TCellNeighborMapping:\n"
+                << "  Cannot find any neighbor in line:\n"
+                << "  '"<<&buffer[0]<<"'\n";
+        }
+        auto itr_insert = trigger_cell_neighbors_.emplace(map_key, std::set<std::pair<short,short>>());
+        for(const auto& neighbor : neighbors_tokens)
+        {
+            std::vector<std::string>  pair_neighbor {
+                std::sregex_token_iterator(neighbor.begin(), neighbor.end(), digits_regex), {}
+            };
+            short neighbor_wafer(std::stoi(pair_neighbor[1]));
+            short neighbor_cell(std::stoi(pair_neighbor[0]));
+            itr_insert.first->second.emplace(neighbor_wafer, neighbor_cell);
+        }
+    }
+    if(!l1tCellNeighborMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellNeighborMapping'\n";
+    l1tCellNeighborMappingStream.close();
+
+    // Fill wafer neighbor map
+    std::ifstream l1tWaferNeighborMappingStream(l1tWaferNeighborMapping_.fullPath());
+    if(!l1tWaferNeighborMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TWaferNeighborMapping file\n";
+    for(std::array<char,512> buffer; l1tWaferNeighborMappingStream.getline(&buffer[0], 512); )
+    {
+        std::string line(&buffer[0]);
+        // split line using spaces as delimiter
+        std::regex delimiter("\\s+");
+        std::vector<std::string>  tokens {
+            std::sregex_token_iterator(line.begin(), line.end(), delimiter, -1), {}
+        };
+        if(tokens.size()!=8)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Syntax error in the L1TWaferNeighborMapping in line:\n"
+                << "  '"<<&buffer[0]<<"'\n"
+                << "  A line should be composed of 8 integers separated by spaces:\n"
+                << "  subdet waferid neighbor1 neighbor2 neighbor3 neighbor4 neighbor5 neighbor6\n";
+        }
+        short subdet(std::stoi(tokens[0]));
+        short wafer(std::stoi(tokens[1]));
+
+        std::unordered_map<short, std::vector<short>>* wafer_neighbors;
+        switch(subdet)
+        {
+            case ForwardSubdetector::HGCEE:
+                wafer_neighbors = &wafer_neighbors_ee_;
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wafer_neighbors = &wafer_neighbors_fh_;
+                break;
+            default:
+                throw cms::Exception("BadGeometry")
+                    << "Unknown subdet " << subdet << " in L1TWaferNeighborMapping:\n"
+                    << "  '"<<&buffer[0]<<"'\n";
+        };
+        auto wafer_itr = wafer_neighbors->emplace(wafer, std::vector<short>());
+        for(auto neighbor_itr=tokens.cbegin()+2; neighbor_itr!=tokens.cend(); ++neighbor_itr)
+        {
+            wafer_itr.first->second.emplace_back(std::stoi(*neighbor_itr));
+        }
+    }
+    std::cout<<"EE\n";
+    for(const auto& wafer_neighbors : wafer_neighbors_ee_)
+    {
+        std::cout<<wafer_neighbors.first<<"\n";
+        for(const auto& neighbor : wafer_neighbors.second)
+        {
+            std::cout<<neighbor<<" ";
+        }
+        std::cout<<"\n";
+    }
+    std::cout<<"FH\n";
+    for(const auto& wafer_neighbors : wafer_neighbors_fh_)
+    {
+        std::cout<<wafer_neighbors.first<<"\n";
+        for(const auto& neighbor : wafer_neighbors.second)
+        {
+            std::cout<<neighbor<<" ";
+        }
+        std::cout<<"\n";
+    }
 }
 
 unsigned 
@@ -532,7 +660,7 @@ packTriggerCell(unsigned trigger_cell, const std::vector<int>& wafer_types) cons
     for(unsigned i=0; i<wafer_types.size(); i++)
     {
         // trigger cell id on 8 bits
-        if(wafer_types.at(i)==1) packed_value += (0x1<<8);
+        if(wafer_types.at(i)==1) packed_value += (0x1<<(8+i));
     }
     return packed_value;
 }
