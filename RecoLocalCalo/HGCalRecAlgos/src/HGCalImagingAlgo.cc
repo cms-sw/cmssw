@@ -90,6 +90,8 @@ void HGCalImagingAlgo::makeClusters()
 
     hit_kdtree[i].build(points[i],bounds);
 
+    int actualLayer = int(abs(i-(maxlayer+1))); //maps back from index used for KD trees to actual layer
+
     double maxdensity = calculateLocalDensity(points[i],hit_kdtree[i], actualLayer);
     // std::cout << "layer " << i << " max density " << maxdensity
     // 	      << " total hits " << points[i].size() << std::endl;
