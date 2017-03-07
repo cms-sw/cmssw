@@ -97,6 +97,8 @@ private:
   edm::ESHandle<SiStripDetVOff> siStripDetVOff_;
   int  nFEDConnected_;
 
+  int nLumiAnalysed_;
+
   int nGoodDcsLumi_;
   float MinAcceptableDcsDetFrac_ = 0.90;
   float MaxAcceptableBadDcsLumiFrac_ = 0.10;
