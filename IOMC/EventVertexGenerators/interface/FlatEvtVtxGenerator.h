@@ -23,7 +23,7 @@ public:
   //virtual CLHEP::Hep3Vector* newVertex();
   virtual HepMC::FourVector newVertex(CLHEP::HepRandomEngine*) const override ;
 
-  virtual const TMatrixD* GetInvLorentzBoost() const {
+  virtual const TMatrixD* GetInvLorentzBoost() const override {
 	  return 0;
   }
 
