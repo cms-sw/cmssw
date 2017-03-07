@@ -51,6 +51,7 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
 
   std::string TopFolderName_;
   std::string AlignmentLabel_;
+  int ndof_;
 
   // the histos
   MonitorElement *nbvtx, *nbgvtx, *nbtksinvtx[2], *trksWeight[2], *score[2];
