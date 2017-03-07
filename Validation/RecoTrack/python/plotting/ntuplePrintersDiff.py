@@ -752,11 +752,21 @@ class _RecHitPrinter(_IndentPrinter):
             if hit.isValidHit():
                 if hasattr(hit, "matchedSimHitInfos"):
                     matched = "from %s " % HitSimType.toString(hit.simType())
-                    matches = ["%d:%d(%.1f)"%(shInfo.simHit().trackingParticle().index(), shInfo.simHit().index(), shInfo.chargeFraction()*100) for shInfo in hit.matchedSimHitInfos()]
+                    matches = []
+                    hasChargeFraction = False
+                    for shInfo in hit.matchedSimHitInfos():
+                        m = "%d:%d" % (shInfo.simHit().trackingParticle().index(), shInfo.simHit().index())
+                        if hasattr(shInfo, "chargeFraction"):
+                            m += "(%.1f)"%(shInfo.chargeFraction()*100)
+                            hasChargeFraction = True
+                        matches.append(m)
                     if len(matches) == 0:
                         matched += "not matched to any TP/SimHit"
                     else:
-                        matched += "matched to TP:SimHit(%) "+",".join(matches)
+                        matched += "matched to TP:SimHit"
+                        if hasChargeFraction:
+                            matched += "(%)"
+                        matched += " "+",".join(matches)
 
                 coord = "x,y,z %f,%f,%f" % (hit.x(), hit.y(), hit.z())
             detId = parseDetId(hit.detId())
