@@ -5,7 +5,7 @@ from genericValidation import GenericValidationData
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
-class PrimaryVertexValidation(GenericValidationData):
+class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
     configBaseName  = "TkAlPrimaryVertexValidation"
     scriptBaseName  = "TkAlPrimaryVertexValidation"
     crabCfgBaseName = "TkAlPrimaryVertexValidation"
@@ -54,7 +54,7 @@ class PrimaryVertexValidation(GenericValidationData):
 
         return repMap
 
-    def appendToMerge( self, validationsSoFar = "" ):
+    def appendToMerge(self):
         """
         if no argument or "" is passed a string with an instantiation is returned,
         else the validation is appended to the list
@@ -64,29 +64,9 @@ class PrimaryVertexValidation(GenericValidationData):
         parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
 
         mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
-        validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
-        return validationsSoFar
+        return "hadd -f %s %s\n" % (mergedoutputfile, parameters)
 
-    def appendToExtendedValidation( self, validationsSoFar = "" ):
-        """
-        if no argument or "" is passed a string with an instantiation is
-        returned, else the validation is appended to the list
-        """
+    def appendToPlots(self):
         repMap = self.getRepMap()
-
-        if validationsSoFar == "":
-            validationsSoFar = (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
-                                '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
-        else:
-            validationsSoFar += ('  loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
-                                 '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
-
-        return validationsSoFar
-
-
-        # if validationsSoFar  != "":
-        #     validationsSoFar += ','
-        #     validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
-        # else:
-        #     validationsSoFar += "root://eoscms//eos/cms%(finalResultFile)s=%(title)s"%repMap
-        # return validationsSoFar
+        return (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
+                '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap

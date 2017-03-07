@@ -6,7 +6,7 @@ from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
 
-class ZMuMuValidation(GenericValidationData):
+class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
     configBaseName = "TkAlZMuMuValidation"
     scriptBaseName = "TkAlZMuMuValidation"
     crabCfgBaseName = "TkAlZMuMuValidation"
@@ -68,13 +68,11 @@ class ZMuMuValidation(GenericValidationData):
                 })
         return repMap
 
-    def appendToExtendedValidation( self, validationsSoFar = "" ):
+    def appendToPlots(self):
         """
         if no argument or "" is passed a string with an instantiation is
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
-        if validationsSoFar != "":
-            validationsSoFar += '    '
-        validationsSoFar += replaceByMap('filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
+        replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
         return validationsSoFar

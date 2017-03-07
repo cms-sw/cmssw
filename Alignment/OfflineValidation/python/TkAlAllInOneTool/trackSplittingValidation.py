@@ -5,7 +5,7 @@ from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
 
-class TrackSplittingValidation(GenericValidationData):
+class TrackSplittingValidation(GenericValidationData, ParallelValidation):
     configBaseName = "TkAlTrackSplitting"
     scriptBaseName = "TkAlTrackSplitting"
     crabCfgBaseName = "TkAlTrackSplitting"
@@ -42,28 +42,19 @@ class TrackSplittingValidation(GenericValidationData):
         #     repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
         return repMap
 
-
-    def appendToExtendedValidation( self, validationsSoFar = "" ):
+    def appendToPlots(self):
         """
         if no argument or "" is passed a string with an instantiation is
         returned, else the validation is appended to the list
         """
         repMap = self.getRepMap()
         comparestring = self.getCompareStrings("TrackSplittingValidation")
-        if validationsSoFar != "":
-            validationsSoFar += ',"\n              "'
-        validationsSoFar += comparestring
-        return validationsSoFar
+        return '              "{},"'.format(comparestring)
 
-    def appendToMerge( self, validationsSoFar = "" ):
-        """
-        if no argument or "" is passed a string with an instantiation is returned,
-        else the validation is appended to the list
-        """
+    def appendToMerge(self):
         repMap = self.getRepMap()
 
         parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
 
         mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
-        validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
-        return validationsSoFar
+        return "hadd -f %s %s\n" % (mergedoutputfile, parameters)

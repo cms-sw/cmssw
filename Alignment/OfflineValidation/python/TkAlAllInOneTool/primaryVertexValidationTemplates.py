@@ -361,9 +361,6 @@ PrimaryVertexPlotTemplate="""
 /****************************************
 This can be run directly in root, or you
  can run ./TkAlMerge.sh in this directory
-It can be run as is, or adjusted to fit
- for misalignments or to only make
- certain plots
 ****************************************/
 
 #include "Alignment/OfflineValidation/macros/FitPVResiduals.C"

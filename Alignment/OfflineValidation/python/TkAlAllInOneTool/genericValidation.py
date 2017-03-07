@@ -64,6 +64,9 @@ class GenericValidation(object):
             msg = ("Maximum allowed number of parallel jobs "
                    +str(maximumNumberJobs)+" exceeded!!!")
             raise AllInOneError(msg)
+        if self.NJobs > 1 and not isinstance(self, ParallelValidation):
+            raise AllInOneError("Parallel jobs not implemented for {}!\n"
+                                "Please set parallelJobs = 1.".format(type(self).__name__))
 
         self.jobid = self.general["jobid"]
         if self.jobid:
@@ -451,3 +454,19 @@ class GenericValidationData(GenericValidation):
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return super(GenericValidationData, self).createCrabCfg( crabCfg, path )
+
+class ParallelValidation(GenericValidation):
+    @classmethod
+    def initMerge(cls, folder):
+        pass
+    @abstractmethod
+    def appendToMerge(self):
+        pass
+
+class ValidationWithPlots(GenericValidation):
+    @classmethod
+    def initPlots(cls, folder):
+        pass
+    @abstractmethod
+    def appendToPlots(self):
+        pass

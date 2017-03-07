@@ -79,7 +79,7 @@ TkOfflineVariables::TkOfflineVariables(std::string fileName, std::string baseDir
 class PlotAlignmentValidation {
 public:
   //PlotAlignmentValidation(TString *tmp);
-  PlotAlignmentValidation() {}
+  PlotAlignmentValidation(bool bigtext=false);
   PlotAlignmentValidation(const char *inputFile,std::string fileName="", int lineColor=1, int lineStyle=1, bool bigtext=false);
   ~PlotAlignmentValidation();
   void loadFileList(const char *inputFile, std::string fileName="", int lineColor=2, int lineStyle=1);
