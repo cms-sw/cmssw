@@ -35,7 +35,8 @@ SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet) :
     m_cacheIDCabling_(0),
     m_cacheIDDcs_(0),
     bookedStatus_(false),
-    nGoodDcsLumi_(0)
+    nGoodDcsLumi_(0),
+    nLumiAnalysed_(0)
 { 
   // Create MessageSender
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
@@ -144,6 +145,7 @@ void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
+  nLumiAnalysed_++;   
 }
 
 //
