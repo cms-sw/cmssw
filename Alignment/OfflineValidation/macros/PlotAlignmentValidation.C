@@ -39,13 +39,12 @@
 #include "Alignment/OfflineValidation/plugins/TkAlStyle.cc"
 
 //------------------------------------------------------------------------------
-PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle, bool bigtext) : bigtext_(bigtext)
+PlotAlignmentValidation::PlotAlignmentValidation(bool bigtext) : bigtext_(bigtext)
 {
   setOutputDir(".");
   setTreeBaseDir();
   sourcelist = NULL;
   
-  loadFileList( inputFile, legendName, lineColor, lineStyle);
   moreThanOneSource=false;
   useFit_ = false;
 
@@ -60,6 +59,12 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
 
   //show all information in the legend by default
   legendOptions(TkAlStyle::legendoptions);
+}
+
+//------------------------------------------------------------------------------
+PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::string legendName, int lineColor, int lineStyle, bool bigtext) : PlotAlignmentValidation(bigtext)
+{
+  loadFileList(inputFile, legendName, lineColor, lineStyle);
 }
 
 //------------------------------------------------------------------------------

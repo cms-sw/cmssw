@@ -6,7 +6,7 @@ from helperFunctions import replaceByMap, addIndex
 from TkAlExceptions import AllInOneError
 
 
-class OfflineValidation(GenericValidationData):
+class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithPlots):
     configBaseName = "TkAlOfflineValidation"
     scriptBaseName = "TkAlOfflineValidation"
     crabCfgBaseName = "TkAlOfflineValidation"
@@ -88,35 +88,26 @@ class OfflineValidation(GenericValidationData):
 
         return repMap
 
-    def appendToExtendedValidation( self, validationsSoFar = "" ):
-        """
-        if no argument or "" is passed a string with an instantiation is
-        returned, else the validation is appended to the list
-        """
-        repMap = self.getRepMap()
-        if validationsSoFar == "":
-            validationsSoFar = replaceByMap('PlotAlignmentValidation p(".oO[filetoplot]Oo.",'
-                                            '".oO[title]Oo.", .oO[color]Oo., .oO[style]Oo., bigtext);\n',
-                                            repMap)
-        else:
-            validationsSoFar += replaceByMap('  p.loadFileList(".oO[filetoplot]Oo.", ".oO[title]Oo.",'
-                                             '.oO[color]Oo., .oO[style]Oo.);\n', repMap)
-        return validationsSoFar
+    def appendToPlots(self):
+        return replaceByMap('  p.loadFileList(".oO[filetoplot]Oo.", ".oO[title]Oo.",'
+                                              '.oO[color]Oo., .oO[style]Oo.);\n', repMap)
 
-    def appendToMerge( self, validationsSoFar = "" ):
-        """
-        if no argument or "" is passed a string with an instantiation is returned,
-        else the validation is appended to the list
-        """
+    @classmethod
+    def initMerge(cls, folder):
+        outFilePath = os.path.join(folder, "TkAlOfflineJobsMerge.C")
+        with open(outFilePath, "w") as theFile:
+            theFile.write(replaceByMap(configTemplates.mergeOfflineParJobsTemplate, {}))
+        super(OfflineValidation, cls).initMerge(folder)
+
+    def appendToMerge(self):
         repMap = self.getRepMap()
 
         parameters = "root://eoscms//eos/cms" + ",root://eoscms//eos/cms".join(repMap["resultFiles"])
 
         mergedoutputfile = "root://eoscms//eos/cms%(finalResultFile)s"%repMap
-        validationsSoFar += ('root -x -b -q -l "TkAlOfflineJobsMerge.C(\\\"'
-                             +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"'
-                             +"\n")
-        return validationsSoFar
+        return ('root -x -b -q -l "TkAlOfflineJobsMerge.C(\\\"'
+                +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"'
+                +"\n")
 
 class OfflineValidationDQM(OfflineValidation):
     configBaseName = "TkAlOfflineValidationDQM"

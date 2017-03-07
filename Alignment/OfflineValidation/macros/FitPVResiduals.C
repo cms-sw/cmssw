@@ -373,6 +373,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
 
   if(!fromLoader){
 
+    namesandlabels.Remove(TString::kTrailing, ',');
     TObjArray *nameandlabelpairs = namesandlabels.Tokenize(",");
     for (Int_t i = 0; i < nameandlabelpairs->GetEntries(); ++i) {
       TObjArray *aFileLegPair = TString(nameandlabelpairs->At(i)->GetName()).Tokenize("=");

@@ -243,7 +243,8 @@ void TkAlTrackSplitPlot()
     //fillmatrix();                                                         //(C)
     subdetector = ".oO[subdetector]Oo.";
     makePlots(
-              ".oO[trackSplitPlotInstantiation]Oo.",
+.oO[trackSplitPlotInstantiation]Oo.
+              ,
               //misalignment,values,phases,                                 //(A)
               ".oO[datadir]Oo./TrackSplittingPlots"
               //,"xvar","yvar"                                              //(B)

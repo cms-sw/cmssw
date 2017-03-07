@@ -311,7 +311,8 @@ void TkAlExtendedOfflineValidation()
   gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();
 
-  .oO[extendedInstantiation]Oo.
+  PlotAlignmentValidation p(bigtext);
+.oO[extendedInstantiation]Oo.
   p.setOutputDir(".oO[datadir]Oo./ExtendedOfflineValidation_Images");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");

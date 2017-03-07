@@ -1541,6 +1541,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString directory, Boo
 void makePlots(TString file,TString misalignment,Double_t *values,Double_t *phases,TString directory,Bool_t matrix[xsize][ysize])
 {
     setupcolors();
+    file.Remove(TString::kTrailing, ',');
     int n = file.CountChar(',') + 1;
     TString *files = new TString[n];
     TString *names = new TString[n];
