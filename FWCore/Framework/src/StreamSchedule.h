@@ -76,6 +76,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -176,6 +178,12 @@ namespace edm {
     void processOneStream(typename T::MyPrincipal& principal,
                           EventSetup const& eventSetup,
                           bool cleaningUpAfterException = false);
+
+    template <typename T>
+    void processOneStreamAsync(WaitingTaskHolder iTask,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
 
     void beginStream();
     void endStream();
@@ -413,6 +421,26 @@ namespace edm {
     sentry.allowThrow();
   }
 
+  template <typename T>
+  void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
+                                             typename T::MyPrincipal& ep,
+                                             EventSetup const& es,
+                                             bool cleaningUpAfterException) {
+    ServiceToken token = ServiceRegistry::instance().presentToken();
+    
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,iHolder,&ep,&es,cleaningUpAfterException,token] () mutable {
+      ServiceRegistry::Operate op(token);
+      try {
+        this->processOneStream<T>(ep,es,cleaningUpAfterException);
+      } catch(...) {
+        iHolder.doneWaiting(std::current_exception());
+      }
+    });
+    
+    tbb::task::enqueue( *task);
+  }
+  
+  
   template <typename T>
   bool
   StreamSchedule::runTriggerPaths(typename T::MyPrincipal const& ep, EventSetup const& es, typename T::Context const* context) {
