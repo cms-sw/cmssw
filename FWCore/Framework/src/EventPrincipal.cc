@@ -63,9 +63,14 @@ namespace edm {
         EventSelectionIDVector&& eventSelectionIDs,
         BranchListIndexes&& branchListIndexes,
         ProductProvenanceRetriever const& provRetriever,
-        DelayedReader* reader) {
+        DelayedReader* reader,
+        bool deepCopyRetriever) {
     eventSelectionIDs_ = eventSelectionIDs;
-    provRetrieverPtr_->deepCopy(provRetriever);
+    if (deepCopyRetriever) {
+      provRetrieverPtr_->deepCopy(provRetriever);
+    } else {
+      provRetrieverPtr_->mergeParentProcessRetriever(provRetriever);
+    }
     branchListIndexes_ = branchListIndexes;
     if(branchIDListHelper_->hasProducedProducts()) {
       // Add index into BranchIDListRegistry for products produced this process
