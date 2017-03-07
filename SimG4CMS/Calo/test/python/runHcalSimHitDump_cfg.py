@@ -12,7 +12,8 @@ process.GlobalTag.globaltag = autoCond['phase1_2017_design']
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        'file:/afs/cern.ch/user/a/amkalsi/public/ForSunandaDa/024A536E-48EE-E611-843A-001E67E71C95.root'
+        'root://xrootd.unl.edu//store/mc/Phys14DR/DYToMuMu_M-50_Tune4C_13TeV-pythia8/GEN-SIM-RECO/PU20bx25_tsg_castor_PHYS14_25_V1-v1/10000/184C1AC9-A775-E411-9196-002590200824.root'
+#        'file:/afs/cern.ch/user/a/amkalsi/public/ForSunandaDa/024A536E-48EE-E611-843A-001E67E71C95.root'
         )
 )
 
