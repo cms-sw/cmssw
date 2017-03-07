@@ -313,31 +313,37 @@ def _getGlobalTag(sample, release):
     scenario = ""
     if sample.hasScenario():
         scenario = sample.scenario()
-    sim = ""
+    sims = []
     if sample.fullsim():
         if sample.pileupEnabled():
             sim = "fullsim_"+sample.pileupType()
+            sims.extend([
+                sim+"_PU%d"%sample.pileupNumber(),
+                sim
+            ])
     elif sample.fastsim():
         sim = "fastsim"
         if sample.pileupEnabled():
             sim += "_"+sample.pileupType()
+            sims.append(sim+"_PU%d"%sample.pileupNumber())
+        sims.append(sim)
 
     selectedGT = None
     # First try with scenario+simulation
     if scenario != "":
-        key = scenario
-        if sim != "":
-            key += "_"+sim
+        for sim in sims:
+            selectedGT = gtmap.get(scenario+"_"+sim, None)
+            if selectedGT is not None:
+                break
         # Then with scenario (but only if sample specifies a scenario)
-        selectedGT = gtmap.get(key, None)
         if selectedGT is None:
             selectedGT = gtmap.get(scenario, None)
     # Then with simulation
     if selectedGT is None:
-        key = sim
-        if key == "":
-            key = "default"
-        selectedGT = gtmap.get(key, None)
+        for sim in sims:
+            selectedGT = gtmap.get(sim, None)
+            if selectedGT is not None:
+                break
     # Finally default
     if selectedGT is None:
         selectedGT = gtmap["default"]
