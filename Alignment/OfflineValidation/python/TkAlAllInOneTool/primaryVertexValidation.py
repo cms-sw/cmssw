@@ -28,14 +28,9 @@ class PrimaryVertexValidation(GenericValidationData):
             raise AllInOneError("Parallel jobs not implemented for the PrimaryVertex validation!\n"
                                 "Please set parallelJobs = 1.")
 
-    def createConfiguration(self, path):
-        cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
-                                      self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        cfgs = {cfgName: configTemplates.PrimaryVertexValidationTemplate}
-        self.filesToCompare[self.defaultReferenceName] = \
-            repMap["finalResultFile"]
-        super(PrimaryVertexValidation, self).createConfiguration(cfgs, path, repMap = repMap)
+    @property
+    def cfgTemplate(self):
+        return configTemplates.PrimaryVertexValidationTemplate
 
     def createScript(self, path):
         return super(PrimaryVertexValidation, self).createScript(path, template = configTemplates.PVValidationScriptTemplate)

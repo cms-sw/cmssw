@@ -61,6 +61,7 @@ class GeometryComparison(GenericValidation):
 
         allCompares = config.getCompares()
         self.__compares = {}
+        self.__filesToCompare = {}
         if valName in allCompares:
             self.__compares[valName] = allCompares[valName]
         else:
@@ -98,6 +99,10 @@ class GeometryComparison(GenericValidation):
                                            "ROOTGeometry.root")
         repMap["name"] += "_vs_.oO[reference]Oo."
         return repMap
+
+    @property
+    def filesToCompare(self):
+        return self.filesToCompare
 
     def createConfiguration(self, path ):
         # self.__compares
@@ -251,7 +256,7 @@ class GeometryComparison(GenericValidation):
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
                 resultingFile = "root://eoscms//eos/cms" + resultingFile   #needs to be AFTER abspath so that it doesn't eat the //
-                self.filesToCompare[ name ] = resultingFile
+                self.__filesToCompare[ name ] = resultingFile
 
             else:
                 raise AllInOneError("Need to have DetUnit in levels!")

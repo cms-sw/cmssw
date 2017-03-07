@@ -35,16 +35,14 @@ class OfflineValidation(GenericValidationData):
             if self.general[option]:
                 raise AllInOneError("The '%s' option has been moved to the [plots:offline] section.  Please specify it there."%option)
             del self.general[option]
-    
-    def createConfiguration(self, path):
-        cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
-                                      self.alignmentToValidate.name )
-        repMap = self.getRepMap()
+
         if self.NJobs > 1 and self.general["offlineModuleLevelHistsTransient"] == "True":
             msg = ("To be able to merge results when running parallel jobs,"
                    " set offlineModuleLevelHistsTransient to false.")
             raise AllInOneError(msg)
 
+    @property
+    def cfgTemplate(self):
         templateToUse = configTemplates.offlineTemplate
         if self.AutoAlternates:
             if "Cosmics" in self.general["trackcollection"]:
@@ -66,16 +64,12 @@ class OfflineValidation(GenericValidationData):
                     except TypeError:
                         msg = "B field for %s = %sT.  This is not that close to 0T or 3.8T." % (self.dataset.name(), Bfield)
                     raise AllInOneError(msg + "\n"
-                                        "To use this data, turn off the automatic alternates using AutoAlternates = false\n"
+                                        "To use this dataset, turn off the automatic alternates using AutoAlternates = false\n"
                                         "in the [alternateTemplates] section, and choose the alternate template yourself.")
-
-        cfgs = {cfgName: templateToUse}
-        self.filesToCompare[self.defaultReferenceName ] = repMap["finalResultFile"]
-        return super(OfflineValidation, self).createConfiguration(cfgs, path, repMap = repMap)
+        return templateToUse
 
     def createScript(self, path):
         return super(OfflineValidation, self).createScript(path)
-
 
     def createCrabCfg(self, path):
         return super(OfflineValidation, self).createCrabCfg(path, self.crabCfgBaseName)

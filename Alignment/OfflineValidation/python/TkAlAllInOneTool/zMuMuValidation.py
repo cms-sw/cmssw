@@ -39,14 +39,13 @@ class ZMuMuValidation(GenericValidationData):
                 raise AllInOneError("The '%s' option has been moved to the [plots:zmumu] section.  Please specify it there."%option)
             del self.general[option]
 
-    def createConfiguration(self, path):
-        cfgName = "%s.%s.%s_cfg.py"%( self.configBaseName, self.name,
-                                      self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        self.filesToCompare[self.defaultReferenceName] = \
-            replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", repMap)
-        cfgs = {cfgName: configTemplates.ZMuMuValidationTemplate}
-        super(ZMuMuValidation, self).createConfiguration(cfgs, path, repMap = repMap)
+    @property
+    def filesToCompare(self):
+        return {self.defaultReferenceName: replaceByMap(".oO[eosdir]Oo./0_zmumuHisto.root", self.getRepMap())}
+
+    @property
+    def cfgTemplate(self):
+        return configTemplates.ZMuMuValidationTemplate
 
     def createScript(self, path):
         return super(ZMuMuValidation, self).createScript(path, template = configTemplates.zMuMuScriptTemplate)
