@@ -704,7 +704,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
 		 << " now " << sr->automaticMasks_ << std::endl;
 	}
 
-	if(sref->automaticSrpSelect_ != sref->automaticSrpSelect_) {
+	if(sref->automaticSrpSelect_ != sr->automaticSrpSelect_) {
 	  nochange = false;
 	  if(m_debug)
 	    fout << " automaticSrpSelect ref " << sref->automaticSrpSelect_ 
