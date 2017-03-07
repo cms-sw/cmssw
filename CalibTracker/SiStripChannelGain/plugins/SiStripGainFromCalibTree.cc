@@ -88,32 +88,32 @@ using __gnu_cxx::hash_map;
 using __gnu_cxx::hash;
 
 struct stAPVGain{
-	unsigned int Index; 
-	int          Bin;
-	unsigned int DetId;
-	unsigned int APVId;
-	unsigned int SubDet;
-	float        x;
-	float        y;
-	float        z;
-	float 	Eta;
-	float 	R;
-	float 	Phi;
-	float  	Thickness;
-	double 	FitMPV;
-	double 	FitMPVErr;
-	double 	FitWidth;
-	double 	FitWidthErr;
-	double 	FitChi2;
-	double 	FitNorm;
-	double 	Gain;
-	double       CalibGain;
-	double 	PreviousGain;
-	double 	PreviousGainTick;
-	double 	NEntries;
-	TH1F*	HCharge;
-	TH1F*        HChargeN;
-	bool         isMasked;
+  unsigned int Index; 
+  int          Bin;
+  unsigned int DetId;
+  unsigned int APVId;
+  unsigned int SubDet;
+  float        x;
+  float        y;
+  float        z;
+  float        Eta;
+  float        R;
+  float        Phi;
+  float        Thickness;
+  double       FitMPV;
+  double       FitMPVErr;
+  double       FitWidth;
+  double       FitWidthErr;
+  double       FitChi2;
+  double       FitNorm;
+  double       Gain;
+  double       CalibGain;
+  double       PreviousGain;
+  double       PreviousGainTick;
+  double       NEntries;
+  TH1F*        HCharge;
+  TH1F*        HChargeN;
+  bool         isMasked;
 };
 
 class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
@@ -552,6 +552,7 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 					APV->FitChi2       = -1;
 					APV->Gain          = -1;
 					APV->PreviousGain  = 1;
+					APV->PreviousGainTick = 1;
 					APV->x             = DetUnit->position().basicVector().x();
 					APV->y             = DetUnit->position().basicVector().y();
 					APV->z             = DetUnit->position().basicVector().z();
@@ -623,25 +624,31 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 	iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
 
 	for(unsigned int a=0;a<APVsCollOrdered.size();a++){
-		stAPVGain* APV = APVsCollOrdered[a];
 
-		APV->isMasked      = SiStripQuality_->IsApvBad(APV->DetId,APV->APVId);
-//      if(!FirstSetOfConstants){
-		if(gainHandle->getNumberOfTags()!=2){edm::LogError("SiStripGainFromCalibTree")<< "NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n";fflush(stdout);exit(0);};		   
-		float newPreviousGain = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 1),1);
-		if(APV->PreviousGain!=1 and newPreviousGain!=APV->PreviousGain)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: ParticleGain in the global tag changed\n";
-		APV->PreviousGain = newPreviousGain;
+	  stAPVGain* APV = APVsCollOrdered[a];
 
-		float newPreviousGainTick = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),1);
-		if(APV->PreviousGainTick!=1 and newPreviousGainTick!=APV->PreviousGainTick)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: TickMarkGain in the global tag changed\n";
-		APV->PreviousGainTick = newPreviousGainTick;
+	  // MM. 03/03/2017 all of this makes sense only for SiStrip (i.e. get me out of here if I am on a pixel ROC)
+	  if(APV->SubDet==PixelSubdetector::PixelBarrel || APV->SubDet==PixelSubdetector::PixelEndcap) continue;
 
-
-		//printf("DETID = %7i APVID=%1i Previous Gain=%8.4f (G1) x %8.4f (G2)\n",APV->DetId,APV->APVId,APV->PreviousGainTick, APV->PreviousGain);
-         
-         
-
-//      }
+	  APV->isMasked      = SiStripQuality_->IsApvBad(APV->DetId,APV->APVId);
+	  //      if(!FirstSetOfConstants){
+	  
+	  if(gainHandle->getNumberOfTags()!=2){edm::LogError("SiStripGainFromCalibTree")<< "NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n";fflush(stdout);exit(0);};		   
+	  float newPreviousGain = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 1),1);
+	  if(APV->PreviousGain!=1 and newPreviousGain!=APV->PreviousGain)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: ParticleGain in the global tag changed\n";
+	  APV->PreviousGain = newPreviousGain;
+	  
+	  float newPreviousGainTick = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),0);
+	  if(APV->PreviousGainTick!=1 and newPreviousGainTick!=APV->PreviousGainTick){
+	    edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: TickMarkGain in the global tag changed\n"<< std::endl
+						       <<" APV->SubDet: "<< APV->SubDet << " APV->APVId:" << APV->APVId << std::endl
+						       <<" APV->PreviousGainTick: "<<APV->PreviousGainTick<<" newPreviousGainTick: "<<newPreviousGainTick<<std::endl;
+	  }
+	  APV->PreviousGainTick = newPreviousGainTick;
+	  
+	  //printf("DETID = %7i APVID=%1i Previous Gain=%8.4f (G1) x %8.4f (G2)\n",APV->DetId,APV->APVId,APV->PreviousGainTick, APV->PreviousGain); 
+	  //      }
+	  
 	}
 }
 
