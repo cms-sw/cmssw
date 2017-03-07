@@ -7,6 +7,8 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "SimTracker/TrackAssociation/interface/TrackingParticleIP.h"
+
 
 #include "TMath.h"
 #include <TF1.h>
@@ -1176,9 +1178,8 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double qoverpSim = chargeTP/sqrt(momentumTP.x()*momentumTP.x()+momentumTP.y()*momentumTP.y()+momentumTP.z()*momentumTP.z());
   double lambdaSim = M_PI/2-momentumTP.theta();
   double phiSim    = momentumTP.phi();
-  double dxySim    = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
-  double dzSim     = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2())
-    * momentumTP.z()/sqrt(momentumTP.perp2());
+  double dxySim    = TrackingParticleIP::dxy(vertexTP, momentumTP, bsPosition);
+  double dzSim     = TrackingParticleIP::dz(vertexTP, momentumTP, bsPosition);
 
 
   //  reco::Track::ParameterVector rParameters = track.parameters(); // UNUSED
