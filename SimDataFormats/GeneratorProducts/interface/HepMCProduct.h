@@ -26,9 +26,12 @@ namespace edm {
 
 		void addHepMCData(HepMC::GenEvent *evt);
 
-		void applyVtxGen(HepMC::FourVector *vtxShift);
+		void applyVtxGen(HepMC::FourVector const* vtxShift) {
+                  applyVtxGen(*vtxShift);
+                }
+		void applyVtxGen(HepMC::FourVector const& vtxShift);
 
-		void boostToLab(TMatrixD *lorentz, std::string type);
+		void boostToLab(TMatrixD const* lorentz, std::string const& type);
 
 		const HepMC::GenEvent &getHepMCData() const;
 
