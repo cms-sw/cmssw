@@ -1,4 +1,4 @@
-#include "FastSimulation/FastSimProducer/interface/ParticleLooper.h"
+#include "FastSimulation/FastSimProducer/interface/ParticleManager.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/Units.h"
@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
-fastsim::ParticleLooper::ParticleLooper(
+fastsim::ParticleManager::ParticleManager(
     const HepMC::GenEvent & genEvent,
     const HepPDT::ParticleDataTable & particleDataTable,
     double beamPipeRadius,
@@ -54,9 +54,9 @@ fastsim::ParticleLooper::ParticleLooper(
     }
 }
 
-fastsim::ParticleLooper::~ParticleLooper(){}
+fastsim::ParticleManager::~ParticleManager(){}
 
-std::unique_ptr<fastsim::Particle> fastsim::ParticleLooper::nextParticle(const RandomEngineAndDistribution & random)
+std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextParticle(const RandomEngineAndDistribution & random)
 {
     std::unique_ptr<fastsim::Particle> particle;
 
@@ -84,7 +84,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleLooper::nextParticle(const R
     	const HepPDT::ParticleData * particleData = particleDataTable_->particle(HepPDT::ParticleID(particle->pdgId()));
     	if(!particleData)
     	{
-    	    throw cms::Exception("fastsim::ParticleLooper") << "unknown pdg id" << std::endl;
+    	    throw cms::Exception("fastsim::ParticleManager") << "unknown pdg id" << std::endl;
     	}
 
     	// set lifetime
@@ -118,7 +118,7 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleLooper::nextParticle(const R
 
 // TODO: closest charged daughter...
 // NOTE:  decayer and interactions must provide particles with right units
-void fastsim::ParticleLooper::addSecondaries(
+void fastsim::ParticleManager::addSecondaries(
     const math::XYZTLorentzVector & vertexPosition,
     int parentSimTrackIndex,
     std::vector<std::unique_ptr<Particle> > & secondaries)
@@ -147,7 +147,7 @@ void fastsim::ParticleLooper::addSecondaries(
 
 }
 
-unsigned fastsim::ParticleLooper::addSimVertex(
+unsigned fastsim::ParticleManager::addSimVertex(
     const math::XYZTLorentzVector & position,
     int parentSimTrackIndex)
 {
@@ -159,7 +159,7 @@ unsigned fastsim::ParticleLooper::addSimVertex(
     return simVertexIndex;
 }
 
-unsigned fastsim::ParticleLooper::addSimTrack(const fastsim::Particle * particle)
+unsigned fastsim::ParticleManager::addSimTrack(const fastsim::Particle * particle)
 {
     int simTrackIndex = simTracks_->size();
     simTracks_->emplace_back(particle->pdgId(),
@@ -170,7 +170,7 @@ unsigned fastsim::ParticleLooper::addSimTrack(const fastsim::Particle * particle
     return simTrackIndex;
 }
 
-std::unique_ptr<fastsim::Particle> fastsim::ParticleLooper::nextGenParticle()
+std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
 {
     // only consider particles that start in the beam pipe and end outside the beam pipe
     // try to get the decay time from pythia

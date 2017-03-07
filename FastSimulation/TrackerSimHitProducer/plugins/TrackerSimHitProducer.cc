@@ -19,6 +19,7 @@
 #include "FastSimulation/SimplifiedGeometrySurface/interface/SimplifiedGeometry.h"
 #include "FastSimulation/InteractionModel/interface/InteractionModel.h"
 #include "FastSimulation/InteractionModel/interface/InteractionModelFactory.h"
+#include "FastSimulation/Constants/interface/Constants.h"
 
 // data formats
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -202,7 +203,7 @@ std::pair<double, PSimHit*> fastsim::TrackerSimHitProducer::createHitOnDetector(
     float pZ = localMomentum.z();
     LocalPoint entry = localPosition + (-halfThick/pZ) * localMomentum;
     LocalPoint exit = localPosition + halfThick/pZ * localMomentum;
-    float tof = particle.globalPosition().mag() / 29.9792458 ; // in nanoseconds
+    float tof = particle.globalPosition().mag() / fastsim::Constants::speedOfLight ; // in nanoseconds
     
     //
     // make sure the simhit is physically on the module
