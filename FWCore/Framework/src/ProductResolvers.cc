@@ -12,6 +12,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
 
@@ -168,25 +169,6 @@ namespace edm {
   }
 
   
-  template<typename F>
-  class FunctorTask : public tbb::task {
-  public:
-    explicit FunctorTask( F f): func_(f) {}
-    
-    task* execute() override {
-      func_();
-      return nullptr;
-    };
-    
-  private:
-    F func_;
-  };
-  
-  template< typename ALLOC, typename F>
-  FunctorTask<F>* make_functor_task( ALLOC&& iAlloc, F f) {
-    return new (iAlloc) FunctorTask<F>(f);
-  }
-
   void InputProductResolver::prefetchAsync_(WaitingTask* waitTask,
                                             Principal const& principal,
                                             bool skipCurrentProcess,
