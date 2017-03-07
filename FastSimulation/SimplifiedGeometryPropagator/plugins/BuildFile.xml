@@ -1,0 +1,23 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+
+<use name="SimGeneral/HepPDTRecord"/>
+
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/GeomPropagators"/>
+
+<use name="SimDataFormats/EncodedEventId"/>
+
+<use name="MagneticField/UniformEngine"/>
+
+<use name="FastSimulation/TrajectoryManager"/>
+<use name="FastSimulation/SimplifiedGeometryPropagator"/>
+
+<use name="DataFormats/Math"/>
+
+<use name="hepmc"/>
+<use name="clhep"/>
+
+<flags EDM_PLUGIN="1"/>
