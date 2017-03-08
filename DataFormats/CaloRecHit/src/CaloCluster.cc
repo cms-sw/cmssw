@@ -27,7 +27,7 @@ string CaloCluster::printHitAndFraction(unsigned i) const {
 }
 
 
-std::ostream& operator<<(std::ostream& out, 
+std::ostream& reco::operator<<(std::ostream& out, 
 			 const CaloCluster& cluster) {
   
   if(!out) return out;
