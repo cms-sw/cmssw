@@ -12,12 +12,12 @@ dtTriggerEfficiencyMonitor = cms.EDAnalyzer("DTTriggerEfficiencyTask",
     inputTagDDU = cms.untracked.InputTag('muonDTDigis'),
     inputTagSEG = cms.untracked.InputTag('dt4DSegments'),
     inputTagGMT = cms.untracked.InputTag('gtDigis'),
-    processDDU = cms.untracked.bool(True),  # if true enables DDU data analysis
+    processDDU = cms.untracked.bool(False),  # Not needed any longer. Switches below for Eras do not work... 
     processTM = cms.untracked.bool(True), # if true enables TM data analysis
     minBXDDU = cms.untracked.int32(7),  # min BX for DDU eff computation
     maxBXDDU = cms.untracked.int32(15), # max BX for DDU eff computation
 
-    checkRPCtriggers = cms.untracked.bool(True),
+    checkRPCtriggers = cms.untracked.bool(False), #  Not needed any longer. Switches below for Eras do not work...
     nMinHitsPhi = cms.untracked.int32(5),
     phiAccRange = cms.untracked.double(30.),
 
