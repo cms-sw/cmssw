@@ -1,0 +1,17 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+
+< use name="Geometry/Records"/> 
+< use name="Geometry/TrackerGeometryBuilder"/>
+< use name="Geometry/CommonTopologies"/>
+
+< use name="CommonTools/UtilAlgos"/>
+< use name="DataFormats/GeometrySurface"/>
+< use name="RecoTracker/TkDetLayers"/>
+
+< use name="DataFormats/TrackerCommon"/>
+< use name="DataFormats/TrackerRecHit2D"/>
+< use name="DataFormats/TrackReco"/>
+
+<flags EDM_PLUGIN="1"/>
