@@ -1,7 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 def _label(tag):
-    t = cms.InputTag(tag)
+    if hasattr(tag, "getModuleLabel"):
+        t = tag
+    else:
+        t = cms.InputTag(tag)
     return t.getModuleLabel()+t.getProductInstanceLabel()
 
 def customiseTrackingNtuple(process):
