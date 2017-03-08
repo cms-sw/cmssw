@@ -93,17 +93,12 @@ float ClusterShapes::SigmaPhiPhi()const {
 
     if  (spp_0 < spp_1 )
     {
-	// return phi in a well defined set of coordinates
         isPhi0_=true;
-        while (phi_0 < - M_PI) phi_0 += 2*M_PI;
-        while (phi_0 >   M_PI) phi_0 -= 2*M_PI;
         return spp_0;
     }
     else 
     {
         isPhi0_=false;
-        while (phi_1 < - M_PI) phi_1 += 2*M_PI;
-        while (phi_1 >   M_PI) phi_1 -= 2*M_PI;
         return spp_1;
     }
 }
