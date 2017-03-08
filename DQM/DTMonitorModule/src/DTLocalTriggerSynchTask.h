@@ -64,13 +64,13 @@ class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  ///Beginrun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Book the histograms
   void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh );
 
   /// Analyze
-  void analyze(const edm::Event& event, const edm::EventSetup& context);
+  void analyze(const edm::Event& event, const edm::EventSetup& context) override;
 
   std::string & baseDir() { return baseDirectory; }
 

@@ -65,7 +65,7 @@ protected:
   std::string getMEName(std::string histoTag, const DTChamberId & chID);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 
 

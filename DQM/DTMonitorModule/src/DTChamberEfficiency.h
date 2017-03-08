@@ -68,8 +68,8 @@ class DTChamberEfficiency : public DQMEDAnalyzer
   ~DTChamberEfficiency() ;
 
   //Operations
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
  protected:
 // Book the histograms

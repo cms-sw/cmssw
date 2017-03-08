@@ -56,16 +56,17 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
  protected:
 
   ///BeginRun
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Find best (highest qual) TM trigger segments
-  void searchDccBest(std::vector<L1MuDTChambPhDigi> const* trigs);
+  void searchTMBestIn(std::vector<L1MuDTChambPhDigi> const* trigs);
+  void searchTMBestOut(std::vector<L1MuDTChambPhDigi> const* trigs);
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override ;
 
  private:
 
@@ -86,11 +87,14 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   bool detailedAnalysis;
   bool overUnderIn;
 
-  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_Token_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_TokenIn_;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> tm_TokenOut_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
 
-  int trigQualBest[6][5][13];
-  const L1MuDTChambPhDigi* trigBest[6][5][13];
+  int trigQualBestIn[6][5][13];
+  int trigQualBestOut[6][5][13];
+  const L1MuDTChambPhDigi* trigBestIn[6][5][13];
+  const L1MuDTChambPhDigi* trigBestOut[6][5][13];
   bool track_ok[6][5][15]; // CB controlla se serve
 
   edm::ParameterSet parameters;
