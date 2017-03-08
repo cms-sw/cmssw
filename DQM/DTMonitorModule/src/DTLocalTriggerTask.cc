@@ -120,7 +120,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","TM_QualvsPhirad"+(*trigSrcIt));
 	    }
 
-	    if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
+	    if (parameters.getUntrackedParameter<bool>("process_ddu", true)){ // DDU data
 	      bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BXvsQual"+(*trigSrcIt));
 	    }
 
@@ -132,7 +132,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
       for (;trigSrcIt!=trigSrcEnd;++trigSrcIt){
 	for (int wh=-2;wh<3;++wh){
 	  if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
-	      parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
+	      parameters.getUntrackedParameter<bool>("process_ddu", true)){ // TM+DDU data
 	    bookWheelHistos(ibooker, wh,"COM_BXDiff"+(*trigSrcIt));
 	  }
 	  for (int sect=1;sect<13;++sect){
@@ -176,7 +176,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 
 	      }
 
-	      if (parameters.getUntrackedParameter<bool>("process_ros", true)){ // DDU data
+	      if (parameters.getUntrackedParameter<bool>("process_ddu", true)){ // DDU data
 
 		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_BXvsQual"+(*trigSrcIt));
 		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","DDU_Flag1stvsQual"+(*trigSrcIt));
@@ -201,7 +201,7 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run co
 	      }
 
 	      if (parameters.getUntrackedParameter<bool>("process_tm", true) &&
-		  parameters.getUntrackedParameter<bool>("process_ros", true)){ // TM+DDU data
+		  parameters.getUntrackedParameter<bool>("process_ddu", true)){ // TM+DDU data
 		bookHistos(ibooker, dtChId,"LocalTriggerPhiIn","COM_QualDDUvsQualTM"+(*trigSrcIt));
 	      }
 
@@ -258,7 +258,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     Handle<DTLocalTriggerCollection> l1DDUTrigs;
     e.getByToken(ros_Token_,l1DDUTrigs);
-    useDDU = l1DDUTrigs.isValid() && parameters.getUntrackedParameter<bool>("process_ros", true) ;
+    useDDU = l1DDUTrigs.isValid() && parameters.getUntrackedParameter<bool>("process_ddu", true) ;
 
     Handle<DTRecSegment4DCollection> all4DSegments;
     e.getByToken(seg_Token_, all4DSegments);
@@ -614,7 +614,7 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
 	    uint32_t indexCh = id.rawId();
 	    map<string, MonitorElement*> &innerME = digiHistos[indexCh];
 
-	    innerME.find("TM_BestQual"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // Best Qual Trigger Phi view
+	    innerME.find("TM_BestQual_In"+trigsrc)->second->Fill(phcode_best[wh+3][st][sc]);  // Best Qual Trigger Phi view
 	  }
           if (thcode_best[wh+3][st][sc]>0 && thcode_best[wh+3][st][sc]<3){
             DTChamberId id(wh,st,sc);
