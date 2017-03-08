@@ -233,9 +233,22 @@ class JetCorrectorParametersCollection {
   collection_type                        correctionsL5_;
   collection_type                        correctionsL7_;
 
+  collection_type&                       getCorrections()   {return corrections_;}
+  collection_type&                       getCorrectionsL5() {return correctionsL5_;}
+  collection_type&                       getCorrectionsL7() {return correctionsL7_;}
+
+  friend struct                          JetCorrectorParametersInitializeTransients;
+
  COND_SERIALIZABLE;
 
 };
 
+struct JetCorrectorParametersInitializeTransients {
+  void operator()(JetCorrectorParametersCollection& jcpc) {
+    for (auto & ptype : jcpc.getCorrections())   {ptype.second.init();}
+    for (auto & ptype : jcpc.getCorrectionsL5()) {ptype.second.init();}
+    for (auto & ptype : jcpc.getCorrectionsL7()) {ptype.second.init();}
+  }
+};
 
 #endif
