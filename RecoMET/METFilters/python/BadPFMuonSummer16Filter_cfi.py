@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 BadPFMuonSummer16Filter = cms.EDFilter(
-    "BadPFMuonSummer16Filter",
+    "BadParticleFilter",
     PFCandidates  = cms.InputTag("particleFlow"),   # Collection to test
     muons  = cms.InputTag("muons"),   # Collection to test 
     taggingMode   = cms.bool(False),
