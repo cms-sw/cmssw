@@ -35,8 +35,8 @@ SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet) :
     m_cacheIDCabling_(0),
     m_cacheIDDcs_(0),
     bookedStatus_(false),
-    nGoodDcsLumi_(0),
-    nLumiAnalysed_(0)
+    nLumiAnalysed_(0),
+    nGoodDcsLumi_(0)
 { 
   // Create MessageSender
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
@@ -341,7 +341,6 @@ void SiStripDcsInfo::addBadModules() {
       uint32_t nBadLumi = (*ilumibad).second;
       float nBadDcsLumiFrac = 1.;
       if(nGoodDcsLumi_ > 0) { nBadDcsLumiFrac = nBadLumi/(float)nGoodDcsLumi_; }
-      std::cout << "%%%%%%%%%% detector is faulty, fraction: " << ibad << " " << nBadLumi << " out of " << nGoodDcsLumi_ << std::endl;
       if(nBadDcsLumiFrac < MaxAcceptableBadDcsLumiFrac_) continue;
       std::string bad_module_folder = mechanical_dir + "/" +
                                       it->second.folder_name + "/"     
