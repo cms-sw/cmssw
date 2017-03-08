@@ -6,13 +6,12 @@
 ##  Then calls mps_setup.pl for all datasets.
 ##
 ##  Usage:
-##     mps_alisetup.py [-h] [-v] myconfig.ini
+##     mps_alisetup.py [-h] [-v] [-w] myconfig.ini
 ##
 
 import argparse
 import os
 import re
-import importlib
 import subprocess
 import ConfigParser
 import sys
@@ -76,35 +75,26 @@ def get_weight_configs(config):
     return configs
 
 
-def create_input_db(cfg, run_number):
+def create_input_db(cms_process, run_number):
     """
     Create sqlite file with single-IOV tags and use it to override the GT. If
     the GT is already customized by the user, the customization has higher
     priority. Returns a snippet to be appended to the configuration file
 
     Arguments:
-    - `cfg`: path to python configuration
+    - `cms_process`: cms.Process object
     - `run_number`: run from which to extract the alignment payloads
     """
-
-    sys.path.append(os.path.dirname(cfg))
-    cache_stdout = sys.stdout
-    sys.stdout = open(os.devnull, "w") # suppress unwanted output
-    __configuration = \
-        importlib.import_module(os.path.splitext(os.path.basename(cfg))[0])
-    sys.stdout = cache_stdout
 
     run_number = int(run_number)
     if not run_number > 0:
         print "'FirstRunForStartGeometry' must be positive, but is", run_number
         sys.exit(1)
 
-    global_tag = __configuration.process.GlobalTag.globaltag.value()
     input_db_name = os.path.abspath("alignment_input.db")
-    tags = mps_tools.create_single_iov_db(global_tag, run_number, input_db_name)
-
-    for condition in __configuration.process.GlobalTag.toGet.value():
-        if condition.record.value() in tags: del tags[condition.record.value()]
+    tags = mps_tools.create_single_iov_db(
+        check_iov_definition(cms_process, run_number),
+        run_number, input_db_name)
 
     result = ""
     for record,tag in tags.iteritems():
@@ -117,8 +107,114 @@ def create_input_db(cfg, run_number):
                    "       record = \""+record+"\",\n"
                    "       tag = \""+tag["tag"]+"\")\n")
 
-    os.remove(cfg+"c")
     return result
+
+
+def check_iov_definition(cms_process, first_run):
+    """
+    Check consistency of input alignment payloads and IOV definition.
+    Returns a dictionary with the information needed to override possibly
+    problematic input taken from the global tag.
+
+    Arguments:
+    - `cms_process`: cms.Process object containing the CMSSW configuration
+    - `first_run`: first run for start geometry
+    """
+
+    print "Checking consistency of IOV definition..."
+    iovs = mps_tools.make_unique_runranges(cms_process.AlignmentProducer)
+
+    if first_run != iovs[0]:     # simple consistency check
+        print "Value of 'FirstRunForStartGeometry' has to match first defined",
+        print "output IOV:",
+        print first_run, "!=", iovs[0]
+        sys.exit(1)
+
+
+    inputs = {
+        "TrackerAlignmentRcd": None,
+        "TrackerSurfaceDeformationRcd": None,
+        "TrackerAlignmentErrorExtendedRcd": None,
+    }
+
+    for condition in cms_process.GlobalTag.toGet.value():
+        if condition.record.value() in inputs:
+            inputs[condition.record.value()] = {
+                "tag": condition.tag.value(),
+                "connect": ("pro"
+                            if not condition.hasParameter("connect")
+                            else condition.connect.value())
+            }
+
+    inputs_from_gt = [record for record in inputs if inputs[record] is None]
+    inputs.update(mps_tools.get_tags(cms_process.GlobalTag.globaltag.value(),
+                                     inputs_from_gt))
+
+    for inp in inputs.itervalues():
+        inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
+
+    # check consistency of input with output
+    problematic_gt_inputs = {}
+    input_indices = {key: len(value["iovs"]) -1
+                     for key,value in inputs.iteritems()}
+    for iov in reversed(iovs):
+        for inp in inputs:
+            if inp in problematic_gt_inputs: continue
+            if input_indices[inp] < 0:
+                print "First output IOV boundary at run", iov,
+                print "is before the first input IOV boundary at",
+                print inputs[inp]["iovs"][0], "for '"+inp+"'."
+                print "Please check your run range selection."
+                sys.exit(1)
+            input_iov = inputs[inp]["iovs"][input_indices[inp]]
+            if iov < input_iov:
+                if inp in inputs_from_gt:
+                    problematic_gt_inputs[inp] = inputs[inp]
+                    print "Found problematic input taken from global tag."
+                    print "Input IOV boundary at run",input_iov,
+                    print "for '"+inp+"' is within output IOV starting with",
+                    print "run", str(iov)+"."
+                    print "Deriving an alignment with coarse IOV granularity",
+                    print "starting from finer granularity leads to wrong",
+                    print "results."
+                    print "A single IOV input using the IOV of",
+                    print "'FirstRunForStartGeometry' ("+str(first_run)+") is",
+                    print "automatically created and used."
+                    continue
+                print "Found input IOV boundary at run",input_iov,
+                print "for '"+inp+"' which is within output IOV starting with",
+                print "run", str(iov)+"."
+                print "Deriving an alignment with coarse IOV granularity",
+                print "starting from finer granularity leads to wrong results."
+                print "Please check your run range selection."
+                sys.exit(1)
+            elif iov == input_iov:
+                input_indices[inp] -= 1
+
+    # check consistency of 'TrackerAlignmentRcd' with other inputs
+    input_indices = {key: len(value["iovs"]) -1
+                     for key,value in inputs.iteritems()
+                     if (key != "TrackerAlignmentRcd")
+                     and (inp not in problematic_gt_inputs)}
+    for iov in reversed(inputs["TrackerAlignmentRcd"]["iovs"]):
+        for inp in input_indices:
+            input_iov = inputs[inp]["iovs"][input_indices[inp]]
+            if iov < input_iov:
+                print "Found input IOV boundary at run",input_iov,
+                print "for '"+inp+"' which is within 'TrackerAlignmentRcd'",
+                print "IOV starting with run", str(iov)+"."
+                print "Deriving an alignment with inconsistent IOV boundaries",
+                print "leads to wrong results."
+                print "Please check your input IOVs."
+                sys.exit(1)
+            elif iov == input_iov:
+                input_indices[inp] -= 1
+
+    print "IOV consistency check successful."
+    print "-"*60
+
+    return problematic_gt_inputs
+
 
 # ------------------------------------------------------------------------------
 # set up argument parser and config parser
@@ -274,10 +370,16 @@ if args.weight:
     tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                      'setupCollection = \"'+collection+'\"',
                      tmpFile)
+    tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                     "setupRunStartGeometry = "+first_run,
+                     tmpFile)
 
     thisCfgTemplate = "tmp.py"
     with open(thisCfgTemplate, "w") as f: f.write(tmpFile)
-    overrideGT = create_input_db(thisCfgTemplate, first_run)
+
+    cms_process = mps_tools.get_process_object(thisCfgTemplate)
+
+    overrideGT = create_input_db(cms_process, first_run)
     with open(thisCfgTemplate, "a") as f: f.write(overrideGT)
 
     for setting in pedesettings:
@@ -322,6 +424,7 @@ if args.weight:
 
     # remove temporary file
     os.system("rm "+thisCfgTemplate)
+
     if overrideGT.strip() != "":
         print "="*60
         msg = ("Overriding global tag with single-IOV tags extracted from '{}' "
@@ -438,6 +541,9 @@ for section in config.sections():
         tmpFile = re.sub('setupGlobaltag\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupGlobaltag = \"'+datasetOptions['globaltag']+'\"',
                          tmpFile)
+        tmpFile = re.sub(re.compile("setupRunStartGeometry\s*\=\s*.*$", re.M),
+                         "setupRunStartGeometry = "+
+                         generalOptions["FirstRunForStartGeometry"], tmpFile)
         tmpFile = re.sub('setupCollection\s*\=\s*[\"\'](.*?)[\"\']',
                          'setupCollection = \"'+datasetOptions['collection']+'\"',
                          tmpFile)
@@ -469,7 +575,8 @@ for section in config.sections():
             append = ''
             firstDataset = False
             configTemplate = tmpFile
-            overrideGT = create_input_db(thisCfgTemplate,
+            cms_process = mps_tools.get_process_object(thisCfgTemplate)
+            overrideGT = create_input_db(cms_process,
                                          generalOptions["FirstRunForStartGeometry"])
 
         with open(thisCfgTemplate, "a") as f: f.write(overrideGT)

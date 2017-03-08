@@ -44,6 +44,7 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
@@ -190,9 +191,6 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /// Writes Alignments (i.e. Records) to database-file
     void storeAlignmentsToDB();
 
-    /// Makes unique RunRanges (specified in config-file)
-    RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet&);
-
     /// Writes Alignments and AlignmentErrors for all sub detectors and the
     /// given run number
     void writeForRunRange(cond::Time_t);
@@ -247,6 +245,7 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     const bool   saveToDB_, saveApeToDB_, saveDeformationsToDB_;
     const bool   doTracker_, doMuon_, useExtras_;
     const bool   useSurvey_;
+    const bool   enableAlignableUpdates_;
 
     /// Map with tracks/trajectories
     const edm::InputTag tjTkAssociationMapTag_;
