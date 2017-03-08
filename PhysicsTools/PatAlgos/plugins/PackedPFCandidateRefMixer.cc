@@ -24,7 +24,7 @@ namespace pat {
       explicit PackedPFCandidateRefMixer(const edm::ParameterSet & iConfig);
       virtual ~PackedPFCandidateRefMixer() { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       edm::EDGetTokenT<std::vector<reco::PFCandidate>> pf_;
@@ -39,7 +39,7 @@ pat::PackedPFCandidateRefMixer::PackedPFCandidateRefMixer(const edm::ParameterSe
     pf_(consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pf"))),
     pf2pf_(consumes<edm::ValueMap<reco::PFCandidateRef>>(iConfig.getParameter<edm::InputTag>("pf2pf")))
 {
-    for (edm::InputTag tag : iConfig.getParameter<std::vector<edm::InputTag>>("pf2packed")) {
+    for (edm::InputTag const& tag : iConfig.getParameter<std::vector<edm::InputTag>>("pf2packed")) {
         pf2pcs_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));
     }
     produces<edm::ValueMap<reco::CandidatePtr>>();
