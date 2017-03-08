@@ -362,11 +362,11 @@ muonDict = {
     "default" : 1,
     "M1" : {
         1 : [
-            'Geometry/MuonCommonData/data/v1/mbCommon.xml',
-            'Geometry/MuonCommonData/data/v1/mb1.xml',
-            'Geometry/MuonCommonData/data/v1/mb2.xml',
-            'Geometry/MuonCommonData/data/v1/mb3.xml',
-            'Geometry/MuonCommonData/data/v1/mb4.xml',
+            'Geometry/MuonCommonData/data/mbCommon/2015/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
             'Geometry/MuonCommonData/data/design/muonYoke.xml',
             'Geometry/MuonCommonData/data/PhaseII/mf.xml',
             'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',
@@ -404,11 +404,11 @@ muonDict = {
     },
     "M2" : {
         1 : [
-            'Geometry/MuonCommonData/data/v1/mbCommon.xml',
-            'Geometry/MuonCommonData/data/v1/mb1.xml',
-            'Geometry/MuonCommonData/data/v1/mb2.xml',
-            'Geometry/MuonCommonData/data/v1/mb3.xml',
-            'Geometry/MuonCommonData/data/v1/mb4.xml',
+            'Geometry/MuonCommonData/data/mbCommon/2015/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
             'Geometry/MuonCommonData/data/design/muonYoke.xml',
             'Geometry/MuonCommonData/data/PhaseII/mf.xml',
             'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',
