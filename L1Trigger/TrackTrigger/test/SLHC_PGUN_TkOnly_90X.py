@@ -1,15 +1,21 @@
 #########################
 #
 # Configuration file for simple PGUN events
-# production in Tracker-Only geometry (TILTED) 
-#
+# production in Tracker-Only geometry
 #
 # Author: S.Viret (viret@in2p3.fr)
-# Date        : 29/06/2016
+# Date        : 16/02/2017
 #
-# Script tested with release CMSSW_8_1_0_pre7
+# Script tested with release CMSSW_9_0_0_pre4
 #
 #########################
+#
+# Here you choose if you want flat (True) or tilted (False) geometry
+#
+
+flat=False
+
+###################
 
 import FWCore.ParameterSet.Config as cms
 
@@ -28,13 +34,18 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
-process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
+process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+if flat:
+	print 'You choose the flat geometry'
+	process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
+else:
+	print 'You choose the tilted geometry'
+	process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 
-from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
@@ -50,7 +61,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('PGun_example_TkOnly_TILTED.root'),
+    fileName = cms.untracked.string('PGun_example_TkOnly.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-FEVT')
@@ -64,7 +75,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 
 # Random seeds
@@ -72,8 +83,6 @@ process.RandomNumberGeneratorService.generator.initialSeed      = 1
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed     = 2
 process.RandomNumberGeneratorService.g4SimHits.initialSeed      = 3
 process.RandomNumberGeneratorService.mix.initialSeed            = 4
-
-process.TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(True)
 
 # Generate particle gun events
 process.generator = cms.EDFilter("Pythia8PtGun",
@@ -119,18 +128,15 @@ process.RAWSIMoutput_step       = cms.EndPath(process.RAWSIMoutput)
 
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.digitisationTkOnly_step,process.L1TrackTrigger_step,process.L1TTAssociator_step,process.endjob_step,process.RAWSIMoutput_step)
 
-#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.endjob_step,process.RAWSIMoutput_step)
-
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 	
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
+# Automatic addition of the customisation function 
 
 from L1Trigger.TrackTrigger.TkOnlyDigi_cff import TkOnlyDigi
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023tilted
 
-process = cust_2023tilted(process)
-process = TkOnlyDigi(process)
+process = TkOnlyDigi(process) # TkOnly digitization
+
 # End of customisation functions	
 
