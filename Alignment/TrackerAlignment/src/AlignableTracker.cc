@@ -30,6 +30,14 @@ AlignableTracker
 }
 
 //_____________________________________________________________________________
+void AlignableTracker::update(const TrackerGeometry* trackerGeometry,
+                              const TrackerTopology* trackerTopology)
+{
+  AlignableTrackerBuilder builder(trackerGeometry, trackerTopology);
+  builder.buildAlignables(this, /* update = */ true);
+}
+
+//_____________________________________________________________________________
 align::Alignables AlignableTracker::merge( const Alignables& list1,
                                            const Alignables& list2 ) const
 {
