@@ -62,7 +62,7 @@ class MonitorTrackResidualsBase : public DQMEDAnalyzer {
 
   HistoSet m_SubdetLayerResiduals;
   HistoSet m_ModuleResiduals;
-  TkHistoMap *tkhisto_ResidualsMean;
+  std::unique_ptr<TkHistoMap> tkhisto_ResidualsMean;
   
   edm::ParameterSet conf_;
   edm::ParameterSet Parameters;
