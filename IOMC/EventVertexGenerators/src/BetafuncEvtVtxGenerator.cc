@@ -38,7 +38,8 @@ ________________________________________________________________________
 
 
 BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
-: BaseEvtVtxGenerator(p)
+: BaseEvtVtxGenerator(p),
+  boost_(4,4)
 { 
   readDB_=p.getParameter<bool>("readDB");
   if (!readDB_){
