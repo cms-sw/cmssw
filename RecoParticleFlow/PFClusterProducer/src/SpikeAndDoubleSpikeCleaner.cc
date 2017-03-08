@@ -117,10 +117,55 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
     }    
     const spike_cleaning& clean = _thresholds.find(hitlayer)->second;    
     if( rechit.energy() < clean._singleSpikeThresh ) continue;
+
+
+
+    //Fix needed for HF
+    float compsumE = 0.0;
+    if ((hitlayer==12 or hitlayer==11))
+	{
+	int predphi =2;
+
+	int comp = std::abs(hitlayer-13);
+	const HcalDetId& detid = (HcalDetId)rechit.detId();
+	std::vector<uint32_t> RawDetIds;
+	int heta = detid.ieta();
+	int hphi = detid.iphi();
+	
+	if (std::abs(heta)>39) predphi=4;
+
+ 	int curphiL = hphi-predphi;
+	int curphiH = hphi+predphi;
+
+	if (predphi>abs(hphi) or predphi>abs(72-hphi))
+		{
+		while (curphiL-predphi<0) curphiL+=72;
+		while (curphiH+predphi>72) curphiH-=72;
+		}
+
+	std::pair<std::vector<int>, std::vector<int>>  phietas({heta,heta+1,heta-1,heta,heta},{hphi,hphi,hphi,curphiL,curphiH});
+	for(int in=0;in<5;in++)	
+		{
+        	HcalDetId TempID (HcalForward, phietas.first[in], phietas.second[in], comp);
+		RawDetIds.push_back(TempID.rawId());
+		}
+
+	for( const auto& jdx : ordered_hits ) 
+		{
+			const unsigned j = jdx;
+			const reco::PFRecHit& matchrechit = hits[j];
+  			for( const auto& iID : RawDetIds ) if (iID==matchrechit.detId())compsumE+=matchrechit.energy();  
+
+		}
+
+	}
+
+
+
     const double rhenergy = rechit.energy();
     // single spike cleaning
     auto const & neighbours4 = rechit.neighbours4();
-    double surroundingEnergy = rechit.energy();
+    double surroundingEnergy = compsumE;//rechit.energy();
     double neighbourEnergy = 0.0;
     double layerEnergy = 0.0;
     for( auto k : neighbours4 ) {

@@ -2,6 +2,7 @@
 #define __SpikeAndDoubleSpikeCleaner_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 
 #include <unordered_map>
 
