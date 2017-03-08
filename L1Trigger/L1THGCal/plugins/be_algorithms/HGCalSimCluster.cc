@@ -45,9 +45,6 @@
  * as well as performing benchmarks on cluster shapes
  */
 
-#define HGCAL_DEBUG
-
-
 
 namespace HGCalTriggerBackend{
 
