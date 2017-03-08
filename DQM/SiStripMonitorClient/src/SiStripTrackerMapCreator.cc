@@ -196,11 +196,27 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   
   if(tkmapPset.exists("mapMax")) tkMapMax_ = tkmapPset.getUntrackedParameter<double>("mapMax");
   if(tkmapPset.exists("mapMin")) tkMapMin_ = tkmapPset.getUntrackedParameter<double>("mapMin");
-  
-  edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
-  
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+
+  if (map_type == "ResidualsMean"){
+    ResidualsRMS = false;
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+    ResidualsRMS = true;
+    map_type = "ResidualsRMS";
+    if      (runNumber_>0)  { tmap_title = " Run: " + sRunNumber + ", Tracker Map from " + map_type; } //LG
+    else                    { tmap_title = " Tracker Map from " + map_type; } //LG
+    trackerMap_->setTitle(tmap_title);
+    setTkMapFromHistogram(dqm_store, map_type, eSetup);
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to 0.0 - 1.0";
+    trackerMap_->save(true, 0.0, 1.0, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, 0.0, 1.0, map_type+namesuffix+".png",4500,2400);
+  } else {
+    edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
+    trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
+  }
 
   if(tkMapPSU) {
 
@@ -495,15 +511,17 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
 	TProfile2D* tp = me->getTProfile2D() ;
 	fval =  tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)) * tp->GetBinContent(xyval.ix, xyval.iy);
       }
-    } else if(name.find("ResidualsRMS") != std::string::npos){
-      if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {  
-	TProfile2D* tp = me->getTProfile2D() ;
-	float fval_prov = tp->GetBinError(xyval.ix, xyval.iy) * sqrt(tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)));
+    } else if(name.find("Residuals") != std::string::npos){
+      if(ResidualsRMS==true){
+	if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {  
+	  TProfile2D* tp = me->getTProfile2D() ;
+	  float fval_prov = tp->GetBinError(xyval.ix, xyval.iy) * sqrt(tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)));
+	  fval =  fval_prov;
+	}
+      } else {
+	float fval_prov = me->getBinContent(xyval.ix, xyval.iy);
 	fval =  fval_prov;
       }
-    } else if(name.find("ResidualsMean") != std::string::npos){
-      float fval_prov = me->getBinContent(xyval.ix, xyval.iy);
-      fval =  fval_prov;
     } else fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
       edm::LogError("ItShouldNotBeHere") << "QTestAlarm map: you should not be here!";
