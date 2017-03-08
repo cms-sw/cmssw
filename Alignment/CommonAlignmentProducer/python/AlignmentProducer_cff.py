@@ -70,7 +70,10 @@ looper = cms.Looper("AlignmentProducer",
 
 
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
-                    saveToDB = cms.bool(False),            # save alignment?
-                    saveApeToDB = cms.bool(False),         # save APE?
-                    saveDeformationsToDB = cms.bool(False) # save surface deformations (bows, etc.)?
+                    saveToDB = cms.bool(False),             # save alignment?
+                    saveApeToDB = cms.bool(False),          # save APE?
+                    saveDeformationsToDB = cms.bool(False), # save surface deformations (bows, etc.)?
+
+                    # update alignables if triggered by corresponding input IOV boundary
+                    enableAlignableUpdates = cms.bool(False),
                     )
