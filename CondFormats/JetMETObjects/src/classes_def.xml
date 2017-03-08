@@ -6,7 +6,7 @@
     <field name="helper"                  transient="true"/>
     <field name="MAX_SIZE_DIMENSIONALITY" transient="true"/>
   </class>
-  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="JetCorrectorParameters::Definitions mDefinitions; std::vector<JetCorrectorParameters::Record> mRecords;" target="">
+  <ioread sourceClass="JetCorrectorParameters" targetClass="JetCorrectorParameters" version="[0-]" source="JetCorrectorParameters::Definitions mDefinitions; std::vector<JetCorrectorParameters::Record> mRecords;" target="helper">
     <![CDATA[
          newObj->init(); 
     ]]>
