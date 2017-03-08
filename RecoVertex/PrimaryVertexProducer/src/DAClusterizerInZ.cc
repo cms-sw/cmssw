@@ -64,9 +64,7 @@ double DAClusterizerInZ::update(
   //update weights and vertex positions
   // mass constrained annealing without noise
   // returns the squared sum of changes of vertex positions
-
-  unsigned int nt=tks.size();
-
+  
   //initialize sums
   double sumpi=0;
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
@@ -76,29 +74,29 @@ double DAClusterizerInZ::update(
 
 
   // loop over tracks
-  for(unsigned int i=0; i<nt; i++){
-
+  for(auto && tk : tks ){
+  
     // update pik and Zi
     double Zi=0.;
     for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-      k->ei=exp(-beta*Eik(tks[i],*k));// cache exponential for one track at a time
+      k->ei=exp(-beta*Eik(tk,*k));// cache exponential for one track at a time
       Zi += k->pk * k->ei;
     }
-    tks[i].Z=Zi;
+    tk.Z=Zi;
 
     // normalization for pk
-    if (tks[i].Z>0){
-      sumpi += tks[i].pi;
+    if (tk.Z>0){
+      sumpi += tk.pi;
       // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-	k->se += tks[i].pi* k->ei / Zi;
-	double w = k->pk * tks[i].pi* k->ei / Zi / tks[i].dz2;
+	k->se += tk.pi* k->ei / Zi;
+	double w = k->pk * tk.pi* k->ei / Zi / tk.dz2;
 	k->sw  += w;
-	k->swz += w * tks[i].z;
-	k->swE+= w*Eik(tks[i],*k);
+	k->swz += w * tk.z;
+	k->swE+= w*Eik(tk,*k);
       }
     }else{
-      sumpi += tks[i].pi;
+      sumpi += tk.pi;
     }
     
 
@@ -138,9 +136,7 @@ double DAClusterizerInZ::update(
 				)const{
   // MVF style, no more vertex weights, update tracks weights and vertex positions, with noise 
   // returns the squared sum of changes of vertex positions
-
-  unsigned int nt=tks.size();
-
+  
   //initialize sums
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
     k->se=0;    k->sw=0;   k->swz=0;
@@ -148,26 +144,28 @@ double DAClusterizerInZ::update(
   }
 
 
+  const double startZi = rho0*exp(-beta*dzCutOff_*dzCutOff_);
+
   // loop over tracks
-  for(unsigned int i=0; i<nt; i++){
+  for(auto&& tk : tks){
 
     // update pik and Zi
-    double Zi=rho0*exp(-beta*dzCutOff_*dzCutOff_);// cut-off
+    double Zi=startZi;// cut-off
     for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-      k->ei=exp(-beta*Eik(tks[i],*k));// cache exponential for one track at a time
+      k->ei=exp(-beta*Eik(tk,*k));// cache exponential for one track at a time
       Zi += k->pk * k->ei;
     }
-    tks[i].Z=Zi;
+    tk.Z=Zi;
 
     // normalization
-    if (tks[i].Z>0){
+    if (tk.Z>0){
        // accumulate weighted z and weights for vertex update
       for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
-	k->se += tks[i].pi* k->ei / Zi;
-	double w = k->pk * tks[i].pi* k->ei / Zi / tks[i].dz2;
+	k->se += tk.pi* k->ei / Zi;
+	double w = k->pk * tk.pi* k->ei / Zi / tk.dz2;
 	k->sw  += w;
-	k->swz += w * tks[i].z;
-	k->swE+= w*Eik(tks[i],*k);
+	k->swz += w * tk.z;
+	k->swE+= w*Eik(tk,*k);
       }
     }
 
@@ -260,26 +258,29 @@ bool DAClusterizerInZ::merge(vector<vertex_t> & y, double & beta)const{
 
 
 
-bool DAClusterizerInZ::purge(vector<vertex_t> & y, vector<track_t> & tks, double & rho0, const double beta)const{
+bool DAClusterizerInZ::purge(vector<vertex_t> & y, vector<track_t> & tks, double & rho0, const double beta) const {
+  constexpr int maxUnique = 2;
   // eliminate clusters with only one significant/unique track
   if(y.size()<2)  return false;
   
   unsigned int nt=tks.size();
   double sumpmin=nt;
   vector<vertex_t>::iterator k0=y.end();
-  for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){ 
+  const double rho0exp = rho0*std::exp(-beta*dzCutOff_*dzCutOff_);
+  for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); ++k){ 
     int nUnique=0;
     double sump=0;
-    double pmax=k->pk/(k->pk+rho0*exp(-beta*dzCutOff_*dzCutOff_));
-    for(unsigned int i=0; i<nt; i++){
-      if(tks[i].Z>0){
-	double p=k->pk * exp(-beta*Eik(tks[i],*k)) / tks[i].Z;
+    double pmax=k->pk/(k->pk+rho0exp);
+    for(auto&& tk : tks ) {    
+      if(tk.Z>0){
+	double p=k->pk * exp(-beta*Eik(tk,*k)) / tk.Z;
 	sump+=p;
-	if( (p > 0.9*pmax) && (tks[i].pi>0) ){ nUnique++; }
+	if( (p > 0.9*pmax) && (tk.pi>0) ) { ++nUnique; }
+	if( nUnique >= maxUnique ) { break; }
       }
     }
 
-    if((nUnique<2)&&(sump<sumpmin)){
+    if( ( nUnique < maxUnique ) && ( sump<sumpmin ) ){
       sumpmin=sump;
       k0=k;
     }
@@ -306,26 +307,25 @@ double DAClusterizerInZ::beta0(
   
   double T0=0;  // max Tc for beta=0
   // estimate critical temperature from beta=0 (T=inf)
-  unsigned int nt=tks.size();
-
+  
   for(vector<vertex_t>::iterator k=y.begin(); k!=y.end(); k++){
 
     // vertex fit at T=inf 
     double sumwz=0;
     double sumw=0;
-    for(unsigned int i=0; i<nt; i++){
-      double w=tks[i].pi/tks[i].dz2;
-      sumwz+=w*tks[i].z;
+    for(auto&& tk : tks){
+      double w=tk.pi/tk.dz2;
+      sumwz+=w*tk.z;
       sumw +=w;
     }
     k->z=sumwz/sumw;
 
     // estimate Tcrit, eventually do this in the same loop
     double a=0, b=0;
-    for(unsigned int i=0; i<nt; i++){
-      double dx=tks[i].z-(k->z);
-      double w=tks[i].pi/tks[i].dz2;
-      a+=w*pow(dx,2)/tks[i].dz2;
+    for(auto&& tk : tks){
+      double dx=tk.z-(k->z);
+      double w=tk.pi/tk.dz2;
+      a+=w*pow(dx,2)/tk.dz2;
       b+=w;
     }
     double Tc= 2.*a/b;  // the critical temperature of this vertex
