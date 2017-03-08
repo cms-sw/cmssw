@@ -278,15 +278,15 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
 }
 
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool isHPD) {
-  // initialize for every hit now to avoid incorrect settings for different channel types (HPD vs SiPM)
-  // FIXME: keep this as a reminder to improve and reduce CPU use
-  //  if( cntsetPulseShape ) return;
+  // initialize for every different channel types (HPD vs SiPM)
 
-   // set the M2 parameters before defining the shape
-   setChi2Term(isHPD);
-
-   resetPulseShapeTemplate(ps);
-
+  if (!(&ps == currentPulseShape_ && isHPD == isCurrentChannelHPD_))
+    {
+      setChi2Term(isHPD);
+      resetPulseShapeTemplate(ps);
+      currentPulseShape_ = &ps;
+      isCurrentChannelHPD_ = isHPD;
+    }
 }
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
