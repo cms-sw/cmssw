@@ -81,22 +81,25 @@ def backupJetsSecondStep(process, sequences, badMuons, verbose=False):
     #
     # now deal with daughter links
     # for these we can keep the daughters
-    process.slimmedJetsBackup.mixedDaughters = True
-    process.slimmedJetsBackup.packedPFCandidates = cms.InputTag("oldPFCandToPackedOrDiscarded")
-    process.slimmedJetsAK8PFCHSSoftDropSubjetsBackup.mixedDaughters = True
-    process.slimmedJetsAK8PFCHSSoftDropSubjetsBackup.packedPFCandidates = cms.InputTag("oldPFCandToPackedOrDiscarded")
+    if hasattr(process,"slimmedJetsBackup"):
+        process.slimmedJetsBackup.mixedDaughters = True
+        process.slimmedJetsBackup.packedPFCandidates = cms.InputTag("oldPFCandToPackedOrDiscarded")
+        process.packedPatJetsAK8Backup.fixDaughters = False
+        process.slimmedJetsAK8Backup.rekeyDaughters = '1'
+        process.slimmedJetsAK8Backup.mixedDaughters = True
+        process.slimmedJetsAK8Backup.packedPFCandidates = cms.InputTag("oldPFCandToPackedOrDiscarded")
+        reduceFinalJetCollection(process, process.slimmedJetsBackup, badMuons)
+
+    if hasattr(process,"slimmedJetsAK8PFCHSSoftDropSubjetsBackup"):
+        process.slimmedJetsAK8PFCHSSoftDropSubjetsBackup.mixedDaughters = True
+        process.slimmedJetsAK8PFCHSSoftDropSubjetsBackup.packedPFCandidates = cms.InputTag("oldPFCandToPackedOrDiscarded")
+        reduceFinalJetCollection(process, process.slimmedJetsPuppiBackup, badMuons)
     # for these we can't
-    process.slimmedJetsPuppiBackup.dropDaughters = '1'
-    process.slimmedJetsAK8PFPuppiSoftDropSubjetsBackup.dropDaughters = '1'
-    # for these we do even if we wouldn't have done in the standard case, since we couldn't for the subjets
-    process.packedPatJetsAK8Backup.fixDaughters = False
-    process.slimmedJetsAK8Backup.rekeyDaughters = '1'
-    process.slimmedJetsAK8Backup.mixedDaughters = True
-    process.slimmedJetsAK8Backup.packedPFCandidates = cms.InputTag("oldPFCandToPackedOrDiscarded")
-    #
-    reduceFinalJetCollection(process, process.slimmedJetsBackup, badMuons)
-    reduceFinalJetCollection(process, process.slimmedJetsPuppiBackup, badMuons)
-    reduceFinalJetCollection(process, process.slimmedJetsAK8Backup, badMuons)
+    if hasattr(process,"slimmedJetsPuppiBackup"):
+        process.slimmedJetsPuppiBackup.dropDaughters = '1'
+        process.slimmedJetsAK8PFPuppiSoftDropSubjetsBackup.dropDaughters = '1'
+        reduceFinalJetCollection(process, process.slimmedJetsAK8Backup, badMuons)
+  
     #
     addKeepStatement(process,
                      "keep *_slimmedJets_*_*",

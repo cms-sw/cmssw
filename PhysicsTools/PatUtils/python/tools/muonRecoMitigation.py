@@ -68,22 +68,6 @@ def muonRecoMitigation(process,
                                                src = cms.InputTag(pfCandCollection),
                                                veto = cms.InputTag(badMuonCollection)
                                          )
-        #pfCandTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
-        #                                      src = cms.InputTag(pfCandCollection)
-        #                                      )
-        #muonTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
-        #                                      src = cms.InputTag(badMuonCollection)
-        #                                      )
-        #setattr(process,"candPtrTmp"+postfix,pfCandTmpPtrs) 
-        #setattr(process,"muonPtrTmp"+postfix,muonTmpPtrs) 
-        #cleanedPFCandProducer = cms.EDProducer(
-        #    "TPPFCandidatesOnPFCandidates",
-        #    enable =  cms.bool( True ),
-        #    verbose = cms.untracked.bool( False ),
-        #    name = cms.untracked.string(""),
-        #    topCollection = cms.InputTag(pfCandCollection),
-        #    bottomCollection = cms.InputTag(badMuonCollection),
-        #    )
 
     setattr(process,cleanedPFCandCollection,cleanedPFCandProducer) 
     sequence +=getattr(process, cleanedPFCandCollection )

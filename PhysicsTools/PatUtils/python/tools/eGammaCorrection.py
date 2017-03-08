@@ -34,10 +34,6 @@ def eGammaCorrection(process,
                     )
     cleanCorPhotonProducer.checkOverlaps.electrons.src = corElectronCollection
     cleanCorPhotonProducer.checkOverlaps.electrons.requireNoOverlaps=cms.bool(True)
-    #cleanCorPhotonProducer = cms.EDProducer("CandPtrProjector", 
-    #src = cms.InputTag(corPhotonCollection),
-    #veto = cms.InputTag(corElectronCollection)
-    #)
 
 
     #matching between objects

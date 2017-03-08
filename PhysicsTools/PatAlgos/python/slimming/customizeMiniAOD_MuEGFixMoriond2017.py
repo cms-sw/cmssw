@@ -32,18 +32,19 @@ def cleanPFCandidates(process, badMuons, verbose=False):
     process.pfEGammaToCandidateRemapper.pf2pf = cms.InputTag("pfCandidatesBadMuonsCleaned")
     process.reducedEgamma.gsfElectronsPFValMap = cms.InputTag("pfEGammaToCandidateRemapper","electrons")
     process.reducedEgamma.photonsPFValMap      = cms.InputTag("pfEGammaToCandidateRemapper","photons")
-    if hasattr(process,"gedGsfElectronsGSFixed"):
+    if hasattr(process,"gedGsfElectronsFixed"):
         # also reconfigure pfEGammaToCandidateRemapper because of GS Fix
         # first the old one
         process.pfEGammaToCandidateRemapperBeforeGSFix = process.pfEGammaToCandidateRemapper.clone()
         process.reducedEgammaBeforeGSFix.gsfElectronsPFValMap = cms.InputTag("pfEGammaToCandidateRemapperBeforeGSFix","electrons")
         process.reducedEgammaBeforeGSFix.photonsPFValMap      = cms.InputTag("pfEGammaToCandidateRemapperBeforeGSFix","photons")
         # then the new one
-        process.pfEGammaToCandidateRemapper.electrons = cms.InputTag("gedGsfElectronsGSFixed")
-        process.pfEGammaToCandidateRemapper.photons   = cms.InputTag("gedPhotonsGSFixed")
+        process.pfEGammaToCandidateRemapper.electrons = cms.InputTag("gedGsfElectronsFixed")
+        process.pfEGammaToCandidateRemapper.photons   = cms.InputTag("gedPhotonsFixed")
         process.pfEGammaToCandidateRemapper.electron2pf = cms.InputTag("particleBasedIsolationGSFixed","gedGsfElectrons")
         process.pfEGammaToCandidateRemapper.photon2pf   = cms.InputTag("particleBasedIsolationGSFixed","gedPhotons")
-
+    else:
+        print "WARNING : attempt to use gain switch corrected electron/photon collection gedGsfElectronsFixed, but the current process does not contain such collection"
 
 def addDiscardedPFCandidates(process, inputCollection, verbose=False):
     process.primaryVertexAssociationDiscardedCandidates = process.primaryVertexAssociation.clone(
@@ -103,19 +104,21 @@ def customizeAll(process, verbose=False):
     ##extra METs and MET corrections ===============================================================
     from PhysicsTools.PatAlgos.slimming.extraSlimmedMETs_MuEGFixMoriond2017 import addExtraMETCollections,addExtraPuppiMETCorrections
     
+    ### Gain switch collections not existing in 90X+ 
+    ### -> corrections are set up to give no change on the MET computation
     addExtraMETCollections(process,
                            unCleanPFCandidateCollection="particleFlow",
                            cleanElectronCollection="slimmedElectrons",
                            cleanPhotonCollection="slimmedPhotons",
-                           unCleanElectronCollection="slimmedElectronsBeforeGSFix",
-                           unCleanPhotonCollection="slimmedPhotonsBeforeGSFix")
+                           unCleanElectronCollection="slimmedElectrons",
+                           unCleanPhotonCollection="slimmedPhotons")
     addExtraPuppiMETCorrections(process,
                                 cleanPFCandidateCollection="particleFlow",
                                 unCleanPFCandidateCollection="pfCandidatesBadMuonsCleaned",
                                 cleanElectronCollection="slimmedElectrons",
                                 cleanPhotonCollection="slimmedPhotons",
-                                unCleanElectronCollection="slimmedElectronsBeforeGSFix",
-                                unCleanPhotonCollection="slimmedPhotonsBeforeGSFix")
+                                unCleanElectronCollection="slimmedElectrons",
+                                unCleanPhotonCollection="slimmedPhotons")
 
     addKeepStatement(process,
                      "keep *_slimmedMETs_*_*",

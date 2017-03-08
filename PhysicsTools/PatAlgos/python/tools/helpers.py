@@ -327,6 +327,18 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClone
        result = visitor.clonedSequence()
    return result
 
+
+def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
+    """Add new keep statements to any PoolOutputModule of the process that has the old keep statements"""
+    for name,out in process.outputModules.iteritems():
+        if out.type_() == 'PoolOutputModule' and hasattr(out, "outputCommands"):
+            if oldKeep in out.outputCommands:
+                out.outputCommands += newKeeps
+            if verbose:
+                print "Adding the following keep statements to output module %s: " % name
+                for k in newKeeps: print "\t'%s'," % k
+
+
 if __name__=="__main__":
    import unittest
    class TestModuleCommand(unittest.TestCase):
