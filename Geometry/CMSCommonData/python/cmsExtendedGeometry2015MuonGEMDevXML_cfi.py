@@ -209,7 +209,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/MuonCommonData/data/v1/mb3.xml',
         'Geometry/MuonCommonData/data/v1/mb4.xml',
         'Geometry/MuonCommonData/data/design/muonYoke.xml',
-        # 'Geometry/MuonCommonData/data/v2/mf.xml',           # Phase-1 Muon
+        # 'Geometry/MuonCommonData/data/mf/2015/v1/mf.xml',           # Phase-1 Muon
         # 'Geometry/MuonCommonData/data/v2/rpcf.xml',         # Phase-1 Muon
         'Geometry/MuonCommonData/data/PhaseII/mf.xml',        # Phase-2 Muon
         'Geometry/MuonCommonData/data/PhaseII/rpcf.xml',      # Phase-2 Muon
@@ -223,7 +223,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         # --- Muon ------------------------------------------------------------
 
         'Geometry/ForwardCommonData/data/forward.xml',
-        'Geometry/ForwardCommonData/data/v2/forwardshield.xml',
+        'Geometry/ForwardCommonData/data/forwardshield/2015/v1/forwardshield.xml',
         'Geometry/ForwardCommonData/data/brmrotations.xml',
         'Geometry/ForwardCommonData/data/brm.xml',
         'Geometry/ForwardCommonData/data/totemMaterials.xml',

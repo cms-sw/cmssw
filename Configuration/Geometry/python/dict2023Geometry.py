@@ -453,7 +453,7 @@ forwardDict = {
     "default" : 1,
     "F1" : {
         1 : [
-            'Geometry/ForwardCommonData/data/v2/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2015/v1/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
             'Geometry/ForwardCommonData/data/zdcmaterials.xml',
