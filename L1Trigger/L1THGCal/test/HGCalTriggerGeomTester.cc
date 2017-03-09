@@ -390,8 +390,8 @@ void HGCalTriggerGeomTester::checkConsistency(const HGCalTriggerGeometryBase::es
            // check if the original cell is included in the neigbors of neighbor
            if(neighbors_of_neighbor.find(triggercell_id)==neighbors_of_neighbor.end())
            {
-              std::cout<<"Error: \n Trigger cell "<< neighbor << " is a neighbor of " << triggercell_id << "\n";
-              std::cout<<" But " << triggercell_id << " is not a neighbor of " << neighbor << "\n";
+              std::cout<<"Error: \n Trigger cell "<< HGCalDetId(neighbor) << "\n is a neighbor of \n" << HGCalDetId(triggercell_id) << "\n";
+              std::cout<<" But the opposite is not true\n";
            }
         }
     }
