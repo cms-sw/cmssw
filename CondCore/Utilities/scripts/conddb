@@ -267,7 +267,7 @@ def _connect(db, init, read_only, args):
     connTo = '%s [%s]' %(db,pretty_url)
     logging.info('Connecting to %s', connTo)
     logging.debug('DB url: %s',url)
-    connection = conddb.connect(url, init=init, authPath=args.authPath, verbose=0 if args.verbose is None else args.verbose - 1)
+    connection = conddb.connect(url, authPath=args.authPath, verbose=0 if args.verbose is None else args.verbose - 1)
 
 
     if not read_only:
