@@ -233,8 +233,11 @@ private:
   edm::ParameterSet Parameters;
   edm::InputTag Cluster_src_;
 
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
+  edm::Handle<edm::DetSetVector<SiStripDigi>> digiHandle_;
 
   bool Mod_On_;
   bool Trend_On_;
