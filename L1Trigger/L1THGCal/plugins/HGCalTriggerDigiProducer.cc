@@ -23,7 +23,7 @@ class HGCalTriggerDigiProducer : public edm::EDProducer {
   
   virtual void beginRun(const edm::Run&, 
                         const edm::EventSetup&);
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&);
   
  private:
   // inputs

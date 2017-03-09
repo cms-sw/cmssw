@@ -26,7 +26,7 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_energy_;
     std::vector<float> cl3d_eta_;
     std::vector<float> cl3d_phi_;
-
+    std::vector<int> cl3d_nclu_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -50,6 +50,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_energy", &cl3d_energy_);
   tree.Branch("cl3d_eta", &cl3d_eta_);
   tree.Branch("cl3d_phi", &cl3d_phi_);
+  tree.Branch("cl3d_nclu", &cl3d_nclu_);
 
 }
 
@@ -76,6 +77,14 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_energy_.emplace_back(cl3d_itr->energy());
     cl3d_eta_.emplace_back(cl3d_itr->eta());
     cl3d_phi_.emplace_back(cl3d_itr->phi());
+
+    /* loop over the trigger cells pertinent to a cluster */    
+    const edm::PtrVector<l1t::HGCalCluster> pertinentClu = cl3d_itr->clusters();
+    int nC2d=0;
+    for(unsigned iclu(0); iclu<pertinentClu.size(); ++iclu){
+        nC2d++;
+    }
+    cl3d_nclu_.emplace_back(nC2d);
   }
 }
 
@@ -89,6 +98,8 @@ clear()
   cl3d_energy_.clear();
   cl3d_eta_.clear();
   cl3d_phi_.clear();
+  cl3d_nclu_.clear();
+  
 }
 
 

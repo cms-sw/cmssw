@@ -32,7 +32,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         }
     
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
-		         const edm::Event&evt
+		         edm::Event&evt
 			) override final
         {
             es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);

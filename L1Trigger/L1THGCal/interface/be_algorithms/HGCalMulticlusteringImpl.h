@@ -11,7 +11,8 @@ class HGCalMulticlusteringImpl{
 public:
 
     HGCalMulticlusteringImpl( const edm::ParameterSet &conf);    
-    void clusterize( const l1t::HGCalClusterBxCollection & clusters, 
+
+    void clusterize( const edm::OrphanHandle<l1t::HGCalClusterBxCollection> clustersHandle, 
                      l1t::HGCalMulticlusterBxCollection & multiclusters);
  
     bool isPertinent( const l1t::HGCalCluster & clu, const l1t::HGCalMulticluster & mclu, double dR ) const;

@@ -35,19 +35,35 @@ HGCalCluster::~HGCalCluster()
 void HGCalCluster::addTriggerCell(const l1t::HGCalTriggerCell &tc)
 {
 
-    if( tcs_.size() == 0 ){ 
+    if( triggercells_.size() == 0 ){ 
         seedDetId_ = tc.detId();
         seedMipPt_ = tc.mipPt();
     }
 
-    GlobalVector tcXYZ( tc.position().x(),
-                             tc.position().y(),
-                             tc.position().z() );
-    /* update c2d positions */
-    centre_ = centre_*mipPt_ + tcXYZ*tc.mipPt() ;
-    centre_ = centre_ / ( mipPt_ + tc.mipPt() );
+    /* update cluster positions */
+    Basic3DVector<float> tcVector( tc.position().x(),
+                                   tc.position().y(),
+                                   tc.position().z() );
 
-    /* update c2d energies */
+    Basic3DVector<float> centreVector( tc.position().x(), 
+                                       tc.position().y(), 
+                                       tc.position().z() );
+
+    centreVector = centreVector*mipPt_ + tcVector*tc.mipPt();
+    centreVector = centreVector / ( mipPt_ + tc.mipPt() ) ;
+
+    GlobalPoint centreTmp((float)centreVector.x(), 
+                          (float)centreVector.y(), 
+                          (float)centreVector.z() );
+
+    GlobalPoint centreProjTmp((float)centreVector.x() / centreVector.z(),  
+                              (float)centreVector.y() / centreVector.z(), 
+                              (float)centreVector.z() / centreVector.z() );
+
+    centre_ = centreTmp;
+    centreProj_ = centreProjTmp;
+
+    /* update cluster energies */
     mipPt_ += tc.mipPt();
 
     int hwPt = 0;
@@ -58,7 +74,11 @@ void HGCalCluster::addTriggerCell(const l1t::HGCalTriggerCell &tc)
     p4 += tc.p4(); 
     this->setP4( p4 );
 
-    tcs_.push_back(0, &tc );
+}
+void HGCalCluster::addTriggerCellList( edm::Ptr<l1t::HGCalTriggerCell> &p)
+{
+
+    triggercells_.push_back( p );
 
 }
 
@@ -66,7 +86,7 @@ void HGCalCluster::addTriggerCell(const l1t::HGCalTriggerCell &tc)
 double HGCalCluster::distance(const l1t::HGCalTriggerCell &tc) const
 {
 
-    GlobalVector tcPointXYZ( tc.position().x(), 
+    GlobalPoint tcPointXYZ( tc.position().x(), 
                              tc.position().y(), 
                              tc.position().z() );
     
@@ -89,9 +109,14 @@ uint32_t HGCalCluster::layer() const
 {
     
     HGCalDetId seedDetId( seedDetId_ );    
-    
-    return seedDetId.layer();
-
+    int layer = 52;
+    if( seedDetId.subdetId()==3 ){
+        layer =  seedDetId.layer();
+    }
+    else if( seedDetId.subdetId()==4 ){
+        layer = seedDetId.layer() + 28;
+    }
+    return layer;
 }
 
 
