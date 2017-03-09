@@ -186,10 +186,6 @@ namespace cond {
       PAYLOAD::Table m_payloadTable;
     };
 
-    namespace runinfo {
-      static constexpr const char* const RUNINFO_SCHEMA = "CMS_RUNINFO";
-      bool getRunStartTime( coral::ISchema& schema, cond::Time_t start, cond::Time_t end, std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime> >& runData );
-    }
   }
 }
 #endif
