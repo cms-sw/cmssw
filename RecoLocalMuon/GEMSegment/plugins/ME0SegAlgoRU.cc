@@ -323,7 +323,6 @@ bool ME0SegAlgoRU::areHitsCloseInGlobalPhi(const float maxPHI, const unsigned in
 }
 
 bool ME0SegAlgoRU::isHitNearSegment(const float maxETA, const float maxPHI,  const std::unique_ptr<MuonSegFit>& fit, const HitAndPositionPtrContainer& proto_segment, const HitAndPosition& h) const {
-
 	//Get average eta, based on the two seeds...asssumes that we have not started pruning yet!
 	const float avgETA = (proto_segment[1]->gp.eta() + proto_segment[0]->gp.eta())/2.;
 	//	edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::isHitNearSegment] average eta = "<<avgETA<<" additionalHit eta = "<<h.gp.eta() <<" ==> dEta = "<<std::fabs(h.gp.eta() - avgETA) <<" ==> return "<<(std::fabs(h.gp.eta() - avgETA) < std::max(maxETA,float(0.01) ))<<std::endl;
@@ -423,6 +422,7 @@ void ME0SegAlgoRU::compareProtoSegment(std::unique_ptr<MuonSegFit>& current_fit,
 			++it;
 		}
 	}
+	if(old_hit == 0) return;
 	auto new_fit = addHit(new_proto_segment,new_hit);
 
 	//If on the same strip but different BX choose the closest
