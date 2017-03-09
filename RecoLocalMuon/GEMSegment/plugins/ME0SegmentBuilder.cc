@@ -64,7 +64,7 @@ void ME0SegmentBuilder::build(const ME0RecHitCollection* recHits, ME0SegmentColl
         if(z1 < z6)
         	std::sort(hitAndPositions.begin(), hitAndPositions.end(), [](const ME0SegmentAlgorithmBase::HitAndPosition& h1,const ME0SegmentAlgorithmBase::HitAndPosition& h2 ) {return h1.layer < h2.layer;});
         else
-        	std::sort(hitAndPositions.begin(), hitAndPositions.end(), [](const ME0SegmentAlgorithmBase::HitAndPosition& h1,const ME0SegmentAlgorithmBase::HitAndPosition& h2 ) {return h1.layer < h2.layer;} );
+        	std::sort(hitAndPositions.begin(), hitAndPositions.end(), [](const ME0SegmentAlgorithmBase::HitAndPosition& h1,const ME0SegmentAlgorithmBase::HitAndPosition& h2 ) {return h1.layer > h2.layer;} );
 
       // given the chamber select the appropriate algo... and run it
       std::vector<ME0Segment> segv = algo->run(chamber, hitAndPositions);
