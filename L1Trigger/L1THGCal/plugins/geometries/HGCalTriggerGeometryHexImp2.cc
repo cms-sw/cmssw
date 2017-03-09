@@ -396,10 +396,30 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
     std::vector<int> types;
     types.reserve(surrounding_wafers->size()+1); // includes the central wafer -> +1
     types.emplace_back(wafer_type);
+    std::cout<<"Wafer configuration = ";
     for(const auto w : *surrounding_wafers)
     {
-        types.emplace_back(es_info_.topo_ee->dddConstants().waferTypeT(w));
+        int wt = 0;
+        switch(subdet)
+        {
+            // HGCalDDDConstants::waferTypeT() returns 2=coarse, 1=fine
+            // HGCalDetId::waferType() returns -1=coarse, 1=fine
+            // Convert to HGCalDetId waferType
+            case ForwardSubdetector::HGCEE:
+                wt = (es_info_.topo_ee->dddConstants().waferTypeT(w)==2?-1:1);
+                break;
+            case ForwardSubdetector::HGCHEF:
+                wt = (es_info_.topo_fh->dddConstants().waferTypeT(w)==2?-1:1);
+                break;
+            default:
+                // Should not arrive there. Subdet has been checked before
+                return geom_set();
+        } 
+        types.emplace_back(wt);
+        std::cout<<wt<<" ";
     }
+    std::cout<<"\n";
+    std::cout<<"Trigger cell = "<<trigger_cell<<"\n";
     // retrieve neighbors
     unsigned trigger_cell_key = packTriggerCell(trigger_cell, types);
     geom_set neighbor_detids;
@@ -408,9 +428,11 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
         const auto& neighbors = trigger_cell_neighbors_.at(trigger_cell_key);
         // create HGCalDetId of neighbors and check their validity
         neighbor_detids.reserve(neighbors.size());
+        std::cout<<"Neighbors = ";
         for(const auto& wafer_tc : neighbors)
         {
-            unsigned neighbor_wafer = surrounding_wafers->at(wafer_tc.first);
+            std::cout<<"("<<wafer_tc.first<<","<<wafer_tc.second<<") ";
+            unsigned neighbor_wafer = (wafer_tc.first==0 ? wafer : surrounding_wafers->at(wafer_tc.first-1));
             int type = types.at(wafer_tc.first);
             HGCalDetId neighbor_det_id((ForwardSubdetector)trigger_cell_det_id.subdetId(), trigger_cell_det_id.zside(), trigger_cell_det_id.layer(), type, neighbor_wafer, wafer_tc.second);
             if(validTriggerCell(neighbor_det_id.rawId()))
@@ -418,11 +440,12 @@ getNeighborsFromTriggerCell( const unsigned trigger_cell_id ) const
                 neighbor_detids.emplace(neighbor_det_id.rawId());
             }
         }
+        std::cout<<"\n";
     }
     catch (const std::out_of_range& e) {
         throw cms::Exception("BadGeometry")
             << "HGCalTriggerGeometry: Neighbors are not defined for trigger cell " << trigger_cell << " with  wafer configuration "
-            << "0x" << std::hex << (trigger_cell_key >> 8) << ". The trigger cell neighbor mapping should be modified. \n";
+            << std::bitset<7>(trigger_cell_key >> 8) << ". The trigger cell neighbor mapping should be modified. \n";
     }
     return neighbor_detids;
 }
@@ -557,7 +580,8 @@ fillNeighborMaps(const es_info& esInfo)
         int trigger_cell = std::stoi(pair[1]);
         std::vector<int> wafer_types;
         wafer_types.reserve(pair[0].size());
-        for(const auto c : pair[0]) wafer_types.emplace_back(std::stoi(std::string(&c)));
+        // Convert waferType coarse=0, fine=1 to coarse=-1, fine=1
+        for(const auto c : pair[0]) wafer_types.emplace_back( (std::stoi(std::string(&c))?1:-1) );
         unsigned map_key = packTriggerCell(trigger_cell, wafer_types);
         // Extract neighbors
         // Match patterns (X,Y) 
@@ -660,6 +684,7 @@ packTriggerCell(unsigned trigger_cell, const std::vector<int>& wafer_types) cons
     for(unsigned i=0; i<wafer_types.size(); i++)
     {
         // trigger cell id on 8 bits
+        // wafer configuration bits: 0=coarse, 1=fine
         if(wafer_types.at(i)==1) packed_value += (0x1<<(8+i));
     }
     return packed_value;
