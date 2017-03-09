@@ -4,6 +4,7 @@
 autoHLT = {
   'fake'       : 'Fake',
   'fake1'      : 'Fake1',
+  'fake2'      : 'Fake2',
   'relval50ns' : 'Fake',
   'relval25ns' : 'Fake1',
   'frozen2016' : 'GRun',
