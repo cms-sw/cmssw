@@ -10,6 +10,7 @@ import os, sys, socket, string
 #-------------------------------------
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
+from Configuration.StandardSequences.Eras import eras
 import FWCore.ParameterSet.Config as cms
 process			= cms.Process('HCALDQM')
 subsystem		= 'HcalCalib'
@@ -52,7 +53,8 @@ process.source.minEventsPerLumi=100
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
-process.load('Configuration.Geometry.GeometryIdeal_cff')
+#process.load('Configuration.Geometry.GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
