@@ -212,6 +212,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
+	_cLETDCvsADC.initialize(_name, "LETDCvsADC",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10TDC_64),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cLETDCvsTS.initialize(_name, "LETDCvsTS", 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE11TDC_64));
+	_cLETDCTime.initialize(_name, "LETDCTime",
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+
+
 	//	INITIALIZE HISTOGRAMS that are only for Online
 	if (_ptype==fOnline)
 	{
@@ -329,6 +341,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
 	_cDigiSize_FED.book(ib, _emap, _subsystem);
+
+	_cLETDCvsADC.book(ib, _subsystem);
+	_cLETDCvsTS.book(ib, _subsystem);
+	_cLETDCTime.book(ib, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -856,6 +872,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		{
 			_cADC_SubdetPM.fill(did, digi[i].adc());
 			_cfC_SubdetPM.fill(did, constants::adc2fC[digi[i].adc()] - 2.5);
+			_cLETDCvsADC.fill(digi[i].adc(), digi[i].le_tdc());
+			_cLETDCvsTS.fill((int)i, digi[i].le_tdc());
+			if (digi[i].le_tdc() <50) {
+				_cLETDCTime.fill(i*25. + (digi[i].le_tdc() / 2.));
+			}
+
 			if (sumQ>_cutSumQ_HF)
 				_cShapeCut_FED.fill(eid, (int)i, constants::adc2fC[digi[i].adc()] - 2.5);
 		}
