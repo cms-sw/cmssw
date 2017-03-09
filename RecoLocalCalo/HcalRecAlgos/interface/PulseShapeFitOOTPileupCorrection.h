@@ -136,9 +136,9 @@ private:
     int fitTimes_;
 
     std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
-    ROOT::Math::Functor *spfunctor_;
-    ROOT::Math::Functor *dpfunctor_;
-    ROOT::Math::Functor *tpfunctor_;
+    std::unique_ptr<ROOT::Math::Functor> spfunctor_;
+    std::unique_ptr<ROOT::Math::Functor> dpfunctor_;
+    std::unique_ptr<ROOT::Math::Functor> tpfunctor_;
     int TSMin_;
     int TSMax_;
     mutable double ts4Chi2_;
