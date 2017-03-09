@@ -1,12 +1,11 @@
-# /dev/CMSSW_9_0_0/GRun/V8 (CMSSW_9_0_0_pre5)
+# /dev/CMSSW_9_0_0/GRun/V9 (CMSSW_9_0_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 
-process = cms.Process( "HLTGRun", Run2_2017 )
+process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_9_0_0/GRun/V9')
 )
 
 process.HLTPSetJetCoreStepTrajectoryFilter = cms.PSet( 
@@ -65015,7 +65014,7 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     serviceBy = cms.untracked.string( "never" ),
     resetBy = cms.untracked.string( "never" ),
     reportBy = cms.untracked.string( "job" ),
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLTFULL' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 process.hltPreParkingHLTPhysicsOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -68440,7 +68439,7 @@ process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_AK
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_GRun_DATA.root',
+        'file:RelVal_Raw_GRun2016_DATA.root',
     ),
     inputCommands = cms.untracked.vstring(
         'keep *'
@@ -68495,7 +68494,7 @@ process.options = cms.untracked.PSet(
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_GRun')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_GRun2016')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 
 if 'MessageLogger' in process.__dict__:
@@ -68509,14 +68508,14 @@ if 'MessageLogger' in process.__dict__:
 _customInfo = {}
 _customInfo['menuType'  ]= "GRun"
 _customInfo['globalTags']= {}
-_customInfo['globalTags'][True ] = "auto:run2_hlt_GRun"
-_customInfo['globalTags'][False] = "auto:run2_mc_GRun"
+_customInfo['globalTags'][True ] = "auto:run2_hlt_GRun2016"
+_customInfo['globalTags'][False] = "auto:run2_mc_GRun2016"
 _customInfo['inputFiles']={}
-_customInfo['inputFiles'][True]  = "file:RelVal_Raw_GRun_DATA.root"
-_customInfo['inputFiles'][False] = "file:RelVal_Raw_GRun_MC.root"
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_GRun2016_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_GRun2016_MC.root"
 _customInfo['maxEvents' ]=  100
-_customInfo['globalTag' ]= "auto:run2_hlt_GRun"
-_customInfo['inputFile' ]=  ['file:RelVal_Raw_GRun_DATA.root']
+_customInfo['globalTag' ]= "auto:run2_hlt_GRun2016"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_GRun2016_DATA.root']
 _customInfo['realData'  ]=  True
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,"GRun",_customInfo)

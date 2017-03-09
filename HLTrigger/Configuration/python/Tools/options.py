@@ -9,6 +9,7 @@ globalTag = {
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',
   'data' : 'auto:run2_hlt_relval',
+  'GRun2016' : 'auto:run2_mc_GRun2016',
 }
 
 
