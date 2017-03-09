@@ -171,6 +171,7 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
 //------------------------------------------------------------------------
 void JetCorrectorParameters::init()
 {
+  std::sort(mRecords.begin(), mRecords.end());
   helper = std::make_shared<JetCorrectorParametersHelper>();
   helper->init(mDefinitions,mRecords);
 } 
