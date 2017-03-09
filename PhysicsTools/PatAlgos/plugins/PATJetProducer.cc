@@ -53,8 +53,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   getJetMCFlavour_ = iConfig.getParameter<bool>( "getJetMCFlavour" );
   useLegacyJetMCFlavour_ = iConfig.getParameter<bool>( "useLegacyJetMCFlavour" );
   addJetFlavourInfo_ = ( useLegacyJetMCFlavour_ ? false : iConfig.getParameter<bool>( "addJetFlavourInfo" ) );
-  jetPartonMapToken_ = mayConsume<reco::JetFlavourMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetPartonMapSource" ));
-  jetFlavourInfoToken_ = mayConsume<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetFlavourInfoSource" ));
+  if (getJetMCFlavour_ && useLegacyJetMCFlavour_)
+    jetPartonMapToken_ = consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetPartonMapSource" ));
+  else if (getJetMCFlavour_ && !useLegacyJetMCFlavour_)
+    jetFlavourInfoToken_ = consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetFlavourInfoSource" ));
   addGenPartonMatch_ = iConfig.getParameter<bool>( "addGenPartonMatch" );
   embedGenPartonMatch_ = iConfig.getParameter<bool>( "embedGenPartonMatch" );
   genPartonToken_ = mayConsume<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genPartonMatch" ));
