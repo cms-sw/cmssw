@@ -25,7 +25,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
         typedef std::unique_ptr<HGCalTriggerGeometryBase> ReturnType;
 
 
-    HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector &cc) :
+    HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
         Algorithm<FECODEC>(conf, cc),
         trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
         cluster_product_( new l1t::HGCalClusterBxCollection ),
@@ -41,36 +41,39 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
     
     virtual void setProduces(edm::EDProducer& prod) const override final 
         {
-            prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCells" );
+            prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCells" );            
             prod.produces<l1t::HGCalClusterBxCollection>( "cluster2D" );
             prod.produces<l1t::HGCalMulticlusterBxCollection>( "cluster3D" );   
         }
     
     
-    virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, const edm::Event&evt ) override final;
+    virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) override final;
 
 
     virtual void putInEvent(edm::Event& evt) override final 
         {
-            evt.put( std::move( trgcell_product_ ),      "calibratedTriggerCells"   );
-            evt.put( std::move( cluster_product_ ),      "cluster2D" );
-            evt.put( std::move( multicluster_product_ ), "cluster3D" );
+
         }
     
 
     virtual void reset() override final 
         {
             trgcell_product_.reset( new l1t::HGCalTriggerCellBxCollection );            
-            cluster_product_.reset( new l1t::HGCalClusterBxCollection );            
+            cluster_product_.reset( new l1t::HGCalClusterBxCollection );
             multicluster_product_.reset( new l1t::HGCalMulticlusterBxCollection );
         }
     
     private:
     
-        /* pointers to collections of tc, clu2d and clu3d */
+        /* pointers to collections of trigger-cells, clusters and multiclusters */
         std::unique_ptr<l1t::HGCalTriggerCellBxCollection> trgcell_product_;
         std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
         std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
+
+        /* orphan handles to the collections of trigger-cells, clusters and multiclusters */
+        edm::OrphanHandle<l1t::HGCalTriggerCellBxCollection> triggerCellsHandle_;
+        edm::OrphanHandle<l1t::HGCalClusterBxCollection> clustersHandle_;
+        edm::OrphanHandle<l1t::HGCalMulticlusterBxCollection> multiclustersHandle_;
     
         /* lables of sensitive detector (geometry record) */
         std::string HGCalEESensitive_;
@@ -88,16 +91,15 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 };
 
 
-
 template<typename FECODEC, typename DATA>
 void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & coll, 
                                        const edm::EventSetup & es,
-                                       const edm::Event & evt ) 
+                                       edm::Event & evt ) 
 {
-    
+ 
     es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
     es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
-        
+
     for( const auto& digi : coll ){
         
         HGCalDetId module_id( digi.id() );
@@ -128,7 +130,6 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
 
                 l1t::HGCalTriggerCell calibratedtriggercell( triggercell );
                 calibration_.calibrateInGeV( calibratedtriggercell, cellThickness ); 
-
                 trgcell_product_->push_back( 0, calibratedtriggercell );
             }
         
@@ -136,11 +137,20 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     
     }
 
-    /* call cluster2D */
-    clustering_.clusterize( *trgcell_product_,  *cluster_product_);
+    /* retrieve the orphan handle to the trigger-cells collection and put the collection in the event */
+    triggerCellsHandle_ = evt.put( std::move( trgcell_product_ ), "calibratedTriggerCells");
 
-    /* cal multicluster */
-    multiclustering_.clusterize( *cluster_product_, *multicluster_product_ );
+    /* call to clustering */
+    clustering_.clusterize( triggerCellsHandle_, *cluster_product_);
+
+    /* retrieve the orphan handle to the clusters collection and put the collection in the event */
+    clustersHandle_ = evt.put( std::move( cluster_product_ ), "cluster2D");
+    
+    /* call to multiclustering */
+    multiclustering_.clusterize( clustersHandle_, *multicluster_product_ );
+
+    /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
+    multiclustersHandle_ = evt.put( std::move( multicluster_product_ ), "cluster3D");
 
 }
 

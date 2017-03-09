@@ -3,7 +3,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
-
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 
 class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase

@@ -151,7 +151,7 @@ namespace HGCalTriggerBackend{
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
 		            const edm::EventSetup& es,
-		            const edm::Event&evt
+                    edm::Event&evt
                     )
             {
                 //0.5. Get Digis, construct a map, detid -> energy

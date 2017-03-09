@@ -29,7 +29,7 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
             prod.produces<l1t::HGCalClusterBxCollection>(name());
         }
 
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, const edm::Event&evt ) override final;
+        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) override final;
         virtual void putInEvent(edm::Event& evt) override final 
         {
             evt.put(std::move(cluster_product_),name());
@@ -49,7 +49,7 @@ class FullModuleSumAlgo : public Algorithm<FECODEC>
 template<typename FECODEC, typename DATA>
 void FullModuleSumAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection& coll, 
 			const edm::EventSetup& es,
-			const edm::Event&evt
+			edm::Event&evt
 			) 
 /*****************************************************************/
 {

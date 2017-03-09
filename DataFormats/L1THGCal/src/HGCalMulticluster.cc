@@ -7,7 +7,7 @@ HGCalMulticluster::HGCalMulticluster( const l1t::HGCalCluster & clu )
     : firstClusterDetId_( clu.seedDetId() )
 {
 
-    centreNorm_ = clu.centreNorm();
+    centreProj_ = clu.centreProj();
     centre_ = clu.centre();
     mipPt_ = clu.mipPt();
 }
@@ -35,16 +35,42 @@ void HGCalMulticluster::addCluster( const l1t::HGCalCluster & clu )
     if( clusters_.size() == 0 ){ 
         firstClusterDetId_ = clu.seedDetId();
     }
+    
+    /* update multicluster positions */
+    Basic3DVector<float> centreVector( centre_.x(),
+                                       centre_.y(), 
+                                       centre_.z() );
 
+    Basic3DVector<float> cluCentreVector( clu.centre().x(), 
+                                          clu.centre().y(), 
+                                          clu.centre().z() );
 
-    /* update c3d position */
-    centre_ =  centre_*mipPt_ + clu.centre()*clu.mipPt();
-    centre_ = centre_ / ( mipPt_+clu.mipPt() ) ;
- 
-    centreNorm_ =  centreNorm_*mipPt_ + clu.centreNorm()*clu.mipPt();
-    centreNorm_ = centreNorm_ / ( mipPt_+clu.mipPt() ) ;
+    centreVector = centreVector*mipPt_ + cluCentreVector*clu.mipPt();
+    centreVector = centreVector / ( mipPt_+clu.mipPt() ) ;
+
+    GlobalPoint centreAux((float)centreVector.x(), 
+                          (float)centreVector.y(), 
+                          (float)centreVector.z() );
+    centre_ = centreAux;
+
+    Basic3DVector<float> centreProjVector( centreProj_.x(), 
+                                           centreProj_.y(),
+                                           centreProj_.z() );
+
+    Basic3DVector<float> cluCentreProjVector( clu.centreProj().x(), 
+                                              clu.centreProj().y(), 
+                                              clu.centreProj().z() );
+
+    centreProjVector = centreProjVector*mipPt_ + cluCentreProjVector*clu.mipPt();
+    centreProjVector = centreProjVector / ( mipPt_+clu.mipPt() ) ;
+
+    GlobalPoint centreProjAux( (float)centreProjVector.x(), 
+                               (float)centreProjVector.y(), 
+                               (float)centreProjVector.z() );
+
+    centreProj_ = centreProjAux;
         
-    /* update c3d energies */
+    /* update multicluster energies */
     mipPt_ += clu.mipPt();
   
     int hwPt = 0;
@@ -54,7 +80,13 @@ void HGCalMulticluster::addCluster( const l1t::HGCalCluster & clu )
     math::PtEtaPhiMLorentzVector p4( this->p4() );
     p4 += clu.p4();
     this->setP4( p4 );
-    clusters_.push_back(0, &clu );
+
+}
+
+void HGCalMulticluster::addClusterList( edm::Ptr<l1t::HGCalCluster> &clu)
+{
+
+    clusters_.push_back( clu );
 
 }
 
