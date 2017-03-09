@@ -49,11 +49,13 @@ namespace cond {
 	virtual ~Table(){}
 	bool exists();
 	void create();
+	bool select( cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end );
         cond::Time_t getLastInserted();
 	bool getInclusiveRunRange( cond::Time_t lower, cond::Time_t upper,
 				   std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData );
 	bool getInclusiveTimeRange( const boost::posix_time::ptime& lower ,const boost::posix_time::ptime& upper, 
 				    std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData );
+	void insertOne( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end);
 	void insert( const std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runs );
 	void updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end );
 
