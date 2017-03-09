@@ -143,6 +143,12 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
 
+		// QIE10 TDC histograms
+		hcaldqm::ContainerSingle2D _cLETDCvsADC;
+		hcaldqm::ContainerSingle2D _cLETDCvsTS;
+		hcaldqm::ContainerSingle1D _cLETDCTime;
+
+
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
