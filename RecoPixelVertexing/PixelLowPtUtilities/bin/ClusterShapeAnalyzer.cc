@@ -6,16 +6,11 @@
 #include <fstream>
 #include <iostream>
 
-using namespace std;
-
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH2F.h"
 #include "TH1F.h"
 #include "TNtuple.h"
-
-//#include "gnuplot_i.hpp"
-//Gnuplot * g;
 
 // Total loss, loss in one direction is Loss/2 
 #define Loss 0.005
@@ -23,12 +18,10 @@ using namespace std;
 // FIXME
 #define MinEntries 100
 
-TH1D * line;
-
 #define exMax 10
 #define eyMax 15
 
-const char *subName[2] = {"barrel","endcap"};
+using namespace std;
 
 /****************************************************************************/
 void printToFile(TH2F *h2, const char* fileName)
@@ -95,7 +88,11 @@ class ClusterAnalyzer
     void findLimits(vector<Point>& points, vector<Center>& c);
     void printOut  (TH2F * histo, vector<Point>& points, vector<Center>& c, char* flag);
     void process   (TH2F * histo,          vector<Center>& c, char* flag);
+    
+    static TH1D * line;
 };
+
+TH1D* ClusterAnalyzer::line = nullptr;
 
 /****************************************************************************/
 float ClusterAnalyzer::distance(Center& c, Point& p)
@@ -297,6 +294,8 @@ void ClusterAnalyzer::process(TH2F * histo, vector<Center>& c,
 /****************************************************************************/
 void ClusterAnalyzer::analyze(const std::string& inputFileName, const std::string& outputFileName)
 {
+    static const char *subName[2] = {"barrel","endcap"};
+  
   // Open file
   //TFile resFile("../data/clusterShape.root","read");
   TFile resFile(inputFileName.c_str(), "READ");
@@ -387,7 +386,6 @@ void ClusterAnalyzer::analyze(const std::string& inputFileName, const std::strin
 /****************************************************************************/
 int main(int argc, char* argv[])
 {
-//  g = new Gnuplot();
   if(argc != 3) {
 	std::cout << "Usage: pixelAnalyzer <input_file> <output_file>\nExample: pixelAnalyzer clusterShape.root pixelShape.par\n";
 	return 1;
