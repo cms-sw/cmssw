@@ -449,7 +449,8 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(
     new QIE11DigiCollection(
       theHBHEQIE11DetIds.size()>0 ? 
-      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
+      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :
+//      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
       QIE11DigiCollection::MAXSAMPLES
     )
   );

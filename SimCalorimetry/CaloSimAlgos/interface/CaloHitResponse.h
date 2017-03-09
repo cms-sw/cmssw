@@ -64,7 +64,7 @@ public:
   virtual void add(const PCaloHit & hit, CLHEP::HepRandomEngine*);
 
   /// add a signal, in units of pe
-  void add(const CaloSamples & signal);
+  virtual void add(const CaloSamples & signal);
 
   /// if you want to reject hits, for example, from a certain subdetector, set this
   void setHitFilter(const CaloVHitFilter * filter) {
