@@ -46,6 +46,8 @@ public:
 
   virtual void setDetIds(const std::vector<DetId> & detIds);
 
+  virtual int getReadoutFrameSize(const DetId& id) const;
+
 protected:
   virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*);
 
