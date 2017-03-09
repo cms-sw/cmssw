@@ -591,7 +591,7 @@ namespace cond {
     }
 
     void flush(){
-      m_coralInserter->flush();
+      if( m_coralInserter.get() ) m_coralInserter->flush();
     }
   private:
     // fixme
