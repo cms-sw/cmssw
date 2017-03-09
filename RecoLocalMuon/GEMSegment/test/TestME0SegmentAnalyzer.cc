@@ -67,7 +67,6 @@ class TestME0SegmentAnalyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<ME0SegmentCollection> ME0Segment_Token;
   edm::EDGetTokenT<ME0RecHitCollection> ME0RecHit_Token;
   edm::EDGetTokenT<ME0DigiPreRecoCollection> ME0Digi_Token;
-  //  edm::EDGetTokenT<ME0DigiPreRecoCollection> ME0Digi_Token;
 
   std::string rootFileName;
 

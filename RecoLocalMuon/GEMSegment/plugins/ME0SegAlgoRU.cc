@@ -130,11 +130,11 @@ std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Chamber * chamber, const HitA
   };
   auto printSegments = [&] {
 #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-std::vector<ME0Segment>::iterator it =segments.begin();
-for(std::vector<ME0Segment>::iterator it =segments.begin(); it != segments.end(); ++it) {
-  ME0DetId chId(it->me0DetId());
-  auto rechits = it->specificRecHits();
-  edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU] segment in chamber " << chId << " which contains "<<rechits.size()<<" rechits and with specs: \n"<<*it;
+for(unsigned int iS = 0; iS < segments.size(); ++iS) {
+  const auto& seg = segments[iS];
+  ME0DetId chId(seg.me0DetId());
+  const auto& rechits = seg.specificRecHits();
+  edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU] segment in chamber " << chId << " which contains "<<rechits.size()<<" rechits and with specs: \n"<<seg;
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
       auto me0id = rh->me0Id();
       edm::LogVerbatim("ME0SegAlgoRU") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rh->localPosition().x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rh->localPosition().y()<<" Time = "<<std::showpos<<rh->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
@@ -310,15 +310,7 @@ void ME0SegAlgoRU::tryAddingHitsToSegment(const float maxTOF,  const float maxET
 }
 
 bool ME0SegAlgoRU::areHitsCloseInEta(const float maxETA, const bool beamConst, const GlobalPoint& h1, const GlobalPoint& h2) const {
-  // check that hits from different layer gets eta partition number +1 max..
   float diff = 0;
-//  //actually no difference in our case...may want to consider something later
-//  if(beamConst){
-//	  if(std::fabs(h1.z()) > std::fabs(h2.z())) diff =h1.eta() - h2.eta();
-//	  else diff = h2.eta() - h1.eta();
-//  } else {
-//	  diff = std::fabs(h2.eta() - h1.eta());
-//  }
   diff = std::fabs(h1.eta() - h1.eta());
   edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInEta] gp1 = "<<h1<<" in eta part = "<<h1.eta() <<" and gp2 = "<<h2<<" in eta part = "<<h2.eta() <<" ==> dEta = "<<diff<<" ==> return "<<(diff < 0.1)<<std::endl;
   return (diff < std::max(maxETA,float(0.01)) ); //temp for floating point comparision...maxEta is the difference between partitions, so x1.5 to take into account non-circle geom.
