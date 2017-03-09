@@ -40,6 +40,7 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 
   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
+  digiToken_       = consumes<edm::DetSetVector<SiStripDigi>> (  conf.getParameter<edm::InputTag>("ADCDigi_src") );
   clusterToken_    = consumes<edmNew::DetSetVector<SiStripCluster> >(Cluster_src_);
   trackToken_      = consumes<reco::TrackCollection>(edm::InputTag(TrackProducer_,TrackLabel_) );
 
@@ -102,6 +103,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   vPSiStripCluster.clear();
 
   iLumisection = e.orbitNumber()/262144.0;
+
+  // Getting digis collection
+  e.getByToken( digiToken_, digiHandle_ );
 
   // initialise # of clusters
   for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
@@ -1137,15 +1141,23 @@ bool SiStripMonitorTrack::clusterInfos(
   float    position = cluster->baryStrip();
 
   // Getting raw charge with strip gain.
-  double chargeraw = 0;
+  double chargeraw   = 0;
   double clustergain = 0 ;
+  auto   digi_it     = digiHandle_->find(detid);
   // SiStripClusterInfo.stripCharges() <==> SiStripCluster.amplitudes()
   for( size_t chidx = 0 ; chidx < cluster->stripCharges().size() ; ++chidx ){
     if( cluster->stripCharges().at(chidx) <= 0 ){ continue ; } // nonzero amplitude
     if( stripQuality->IsStripBad(stripQuality->getRange(detid), cluster->firstStrip()+chidx)) { continue ; }
-    clustergain = stripGain->getStripGain(cluster->firstStrip()+chidx, stripGain->getRange(detid));
-    chargeraw += cluster->stripCharges().at(chidx) * clustergain;
+    clustergain += stripGain->getStripGain(cluster->firstStrip()+chidx, stripGain->getRange(detid));
+    // Getting raw adc charge from digi collections
+    if( digi_it == digiHandle_->end() ){ continue; } // skipping if not found
+    for( const auto& digiobj : *digi_it ){
+      if( digiobj.strip() == cluster->firstStrip() + chidx  ){
+        chargeraw += digiobj.adc();
+      }
+    }
   }
+  clustergain /= double(cluster->stripCharges().size()) ;  // calculating average gain inside cluster
 
 
   // new dE/dx (chargePerCM)
