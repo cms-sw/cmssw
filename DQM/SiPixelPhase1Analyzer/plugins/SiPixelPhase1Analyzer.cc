@@ -190,7 +190,7 @@ void SiPixelPhase1Analyzer::BookBarrelHistograms(TDirectory* currentDir, const s
 	th2p->SetFloat();
 	
 	th2p->GetXaxis()->SetTitle("");
-	th2p->GetYaxis()->SetTitle("z [cm]");
+	th2p->GetYaxis()->SetTitle("~ladder");
 	
 	th2p->SetOption("COLZ L"); 
 	
