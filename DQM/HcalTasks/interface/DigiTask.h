@@ -44,13 +44,15 @@ class DigiTask : public hcaldqm::DQTask
 		virtual void _resetMonitors(hcaldqm::UpdateFreq);
 
 		edm::InputTag		_tagHBHE;
+		edm::InputTag		_tagHEP17;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
 		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
-		double _cutSumQ_HBHE, _cutSumQ_HO, _cutSumQ_HF;
+		double _cutSumQ_HBHE, _cutSumQ_HEP17, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
 		//	flag vector
