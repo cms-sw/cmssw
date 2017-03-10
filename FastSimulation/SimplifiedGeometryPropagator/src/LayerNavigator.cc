@@ -245,6 +245,8 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     {
 		deltaTime = particle.remainingProperLifeTime() * particle.gamma();
 		particle.setRemainingProperLifeTime(0.);
+		layer = 0;
+		LogDebug(MESSAGECATEGORY) << "    particle about to decay. Will not be moved.";
     }
 
     // temporary, to get rid of additional hits since there is no ecal and stuff yet

@@ -149,8 +149,19 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		const fastsim::SimplifiedGeometry * layer = 0;
 		while(layerNavigator.moveParticleToNextLayer(*particle,layer))
 		{
-		    LogDebug(MESSAGECATEGORY) << "   moved to next layer: " << *layer
-					      << "\n   new state: " << *particle;
+		    if(layer) LogDebug(MESSAGECATEGORY) << "   moved to next layer: " << *layer;
+			LogDebug(MESSAGECATEGORY) <<  "   new state: " << *particle;
+
+			// do decays
+			if(!particle->isStable() && particle->remainingProperLifeTime() < 1E-20)
+			{
+			    LogDebug(MESSAGECATEGORY) << "Decaying particle...";
+			    std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
+			    decayer_.decay(*particle,secondaries,_randomEngine->theEngine());
+			    LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
+			    particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
+			    break;
+			}
 
 		    
 		    // perform interaction between layer and particle
@@ -161,17 +172,6 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 				interactionModel->interact(*particle,*layer,secondaries,*_randomEngine);
 				particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
 		    }
-
-		    // do decays
-			if(!particle->isStable() && particle->remainingProperLifeTime() < 1E-20)
-			{
-			    LogDebug(MESSAGECATEGORY) << "Decaying particle...";
-			    std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-			    decayer_.decay(*particle,secondaries,_randomEngine->theEngine());
-			    LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
-			    particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
-			    break;
-			}
 
 		    // kinematic cuts
 		    // temporary: break after 100 ns
