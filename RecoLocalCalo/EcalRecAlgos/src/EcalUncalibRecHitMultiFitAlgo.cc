@@ -34,6 +34,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   
   double maxamplitude = -std::numeric_limits<double>::max();
   const unsigned int iSampleMax = 5;
+  const unsigned int iFullPulseMax = 9;
   
   double pedval = 0.;
     
@@ -110,7 +111,8 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   //optionally apply a stricter criteria, assuming slew rate limit is only reached in case where maximum sample has gain switched but previous sample has not
   //option 1: use simple max-sample algorithm
   if (hasGainSwitch && _gainSwitchUseMaxSample) {
-    EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
+    double maxpulseamplitude = maxamplitude / fullpulse[iFullPulseMax];
+    EcalUncalibratedRecHit rh( dataFrame.id(), maxpulseamplitude, pedval, 0., 0., flags );
     rh.setAmplitudeError(0.);
     for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
       int bx = _pulsefunc.BXs().coeff(ipulse);
