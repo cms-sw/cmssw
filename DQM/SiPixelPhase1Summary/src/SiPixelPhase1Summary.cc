@@ -57,7 +57,7 @@ SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) :
 
    //   summaryMapNames_ = {"Summary","Digi","ADC","NClustsTotal","NClustsOnTrk","ClustWidthOnTrk","ClustWidthOffTrk","NHits","Effic","ResidualMean","ResidualRMS"}; 
    summaryMapNames_ = {"Summary","ADC","Digi","NClustsTotal","ClustWidthOnTrk","Charge"};
-   xAxisLabels_ = {"HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2","BMO","BMI","BPO ","BPI"};
+   xAxisLabels_ = {"BMO","BMI","BPO ","BPI","HCMO_1","HCMO_2","HCMI_1","HCMI_2","HCPO_1","HCPO_2","HCPI_1","HCPI_2"};
    yAxisLabels_ = {"1","2","3","4"};
    
    //Initialise the names of the plots we will be using for the summary diagrams
@@ -139,14 +139,15 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
 
     for (int i = 0; i < 12; i++){
       for (int j = 0; j < 4; j++){
-	if (i < 8 && j == 3) continue;
-	bool minus = i < 4  || i == 8 || i == 9;
+	if (i > 3 && j == 3) continue;
+	bool minus = i < 2  || (i > 3 && i < 8);
 	int iOver2 = floor(i/2.);
-	bool outer = (i < 8)?iOver2%2==0:i%2==0;
+	bool outer = (i > 3)?iOver2%2==0:i%2==0;
 	//Complicated expression that creates the name of the histogram we are interested in.
-	sprintf(histName, "%sPX%s/%s_%s%s/%s%s_PX%s_%s%i",topFolderName_.c_str(),(i < 8)?"Forward":"Barrel",(i < 8)?"HalfCylinder":"Shell",minus?"m":"p",(outer)?"O":"I",(i < 8)?((i%2 == 0)?"PXRing_1/":"PXRing_2/"):"",summaryPlotName_[name].c_str(),(i < 8)?"Disk":"Layer",(i<8)?((minus)?"-":"+"):"",j+1);
- 	MonitorElement * me = iGetter.get(histName);
-	//	std::cout << histName << std::endl;
+	sprintf(histName, "%sPX%s/%s_%s%s/%s%s_PX%s_%s%i",topFolderName_.c_str(),(i > 3)?"Forward":"Barrel",(i > 3)?"HalfCylinder":"Shell",minus?"m":"p",(outer)?"O":"I",(i > 3)?((i%2 == 0)?"PXRing_1/":"PXRing_2/"):"",summaryPlotName_[name].c_str(),(i > 3)?"Disk":"Layer",(i>3)?((minus)?"-":"+"):"",j+1);
+	//std::cout << histName << std::endl;
+	MonitorElement * me = iGetter.get(histName);
+	
 	if (me->hasError()) {
 	  //If there is an error, fill with 0
 	  summaryMap_[name]->setBinContent(i+1,j+1,0);
