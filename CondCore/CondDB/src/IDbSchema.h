@@ -45,21 +45,15 @@ namespace cond {
       virtual ~IIOVTable(){}
       virtual bool exists() = 0;
       virtual void create() = 0;
-      virtual size_t selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups ) = 0;
-      virtual size_t selectSnapshotGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
-					   std::vector<cond::Time_t>& groups ) = 0;
-      virtual size_t selectLatestByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup , 
-					  std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) = 0;
-      virtual size_t selectSnapshotByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
-					    const boost::posix_time::ptime& snapshotTime, 
-					    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) = 0;
-      virtual size_t selectLatest( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) = 0;
-      virtual size_t selectSnapshot( const std::string& tag, const boost::posix_time::ptime& snapshotTime,
-                                     std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) = 0;
-      virtual bool getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ) = 0;
-      virtual bool getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ) = 0;
-      virtual bool getSize( const std::string& tag, size_t& size ) = 0;
-      virtual bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ) = 0;
+      virtual size_t getGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
+				std::vector<cond::Time_t>& groups ) = 0;
+      virtual size_t select( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
+			     const boost::posix_time::ptime& snapshotTime, 
+			     std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs) = 0;
+      virtual bool getLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ) = 0;
+      virtual bool getSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ) = 0;
+      virtual bool getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, 
+			     const boost::posix_time::ptime& snapshotTime, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) = 0;
       virtual void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, 
 			      const boost::posix_time::ptime& insertTime ) = 0;
       virtual void insertMany( const std::string& tag, 
@@ -144,7 +138,7 @@ namespace cond {
       virtual IGTTable& gtTable() = 0;
       virtual IGTMapTable& gtMapTable() = 0;
     };
-    
+
   }
 }
 #endif

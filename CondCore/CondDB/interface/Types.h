@@ -47,6 +47,7 @@ namespace cond {
 
   // Basic element of the IOV sequence.
   struct Iov_t {
+    Iov_t(): since(time::MAX_VAL),till(time::MIN_VAL),payloadId(""){}
     virtual ~Iov_t(){}
     virtual void clear();
     bool isValid() const;
@@ -151,7 +152,6 @@ namespace cond {
   private:
     std::tuple<std::string,std::string,std::string> m_data; 
   };
-
 
 }
 
