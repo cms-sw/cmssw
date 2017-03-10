@@ -12,6 +12,8 @@ ALCARECOMuAlOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
 # "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO","RPC"
 # "DT0","DTp","DTm","CSCp","CSCm","CASTOR","TIBTID","TOB","TECp","TECm"
 # "BPIX","FPIX","ESp","ESm"
+
+
 import DPGAnalysis.Skims.skim_detstatus_cfi
 ALCARECOMuAlOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.clone(
     DetectorType = cms.vstring('CSCp','CSCm'),
@@ -23,13 +25,15 @@ ALCARECOMuAlOverlapsDCSFilter = DPGAnalysis.Skims.skim_detstatus_cfi.dcsstatus.c
 ALCARECOMuAlOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     filter = cms.bool(True),
     src = cms.InputTag("ALCARECOMuAlOverlapsMuonSelector","StandAlone"),
-    minHitsPerChamber = cms.uint32(4),
+    minHitsPerChamber = cms.uint32(1),
     station = cms.int32(0) ## all stations: the algorithm can handle multiple stations now
 )
 
 import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
 ALCARECOMuAlOverlapsMuonSelector = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone(
-    ptMin = 3.
+    ptMin = 3.,
+    etaMin = -2.6,
+    etaMax = 2.6,
     )
 
 seqALCARECOMuAlOverlaps = cms.Sequence(ALCARECOMuAlOverlapsHLT+ALCARECOMuAlOverlapsDCSFilter+ALCARECOMuAlOverlapsMuonSelector*ALCARECOMuAlOverlaps)

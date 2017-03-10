@@ -9,6 +9,9 @@ OutALCARECOMuAlGlobalCosmics_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
 	'keep *_ALCARECOMuAlGlobalCosmics_*_*',
+        'keep *_ALCARECOMuAlCosmicsCTF_*_*',
+        'keep *_ALCARECOMuAlCosmicsCosmicTF_*_*',
+        'keep *_ALCARECOMuAlCosmicsRegional_*_*',
         'keep *_muonCSCDigis_*_*',
 	'keep *_muonDTDigis_*_*',
 	'keep *_muonRPCDigis_*_*',
