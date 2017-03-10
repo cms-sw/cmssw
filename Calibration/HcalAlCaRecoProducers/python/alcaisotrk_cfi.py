@@ -38,6 +38,6 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
 # Prescale events only containing isolated tracks in the range
                          MomentumRangeLow  = cms.double(20.0),
                          MomentumRangeHigh = cms.double(40.0),
-                         PreScale          = cms.int32(1)
+                         PreScaleFactor    = cms.int32(1)
 )
 
