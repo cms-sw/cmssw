@@ -25,11 +25,28 @@ namespace cond {
       createTable( m_schema, descr.get() );
     }
 
+    bool RUN_INFO::Table::select( cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end ){
+      Query< START_TIME, END_TIME > q(m_schema);
+      q.addCondition< RUN_NUMBER >( runNumber );
+      bool ret = false;
+      for( auto r: q){
+	ret = true;
+        std::tie( start, end ) = r;
+      }
+      return ret;
+    }
+
     cond::Time_t RUN_INFO::Table::getLastInserted(){
       cond::Time_t run = cond::time::MIN_VAL;
       Query< MAX_RUN_NUMBER > q0(m_schema);
-      for( auto r: q0 ) {
-	run = std::get<0>(r);
+      try{
+	for( auto r: q0 ) {
+	  run = std::get<0>(r);
+	}
+	// cope with mis-beahviour in the sqlite plugin: no result for MAX() returns NULL
+      } catch ( const coral::AttributeException& e ){
+	std::string message(e.what());
+        if(  message.find( "Attempt to access data of NULL attribute" ) != 0 ) throw;
       }
       return run;
     }
@@ -65,34 +82,24 @@ namespace cond {
 	runData.push_back( r );
       }
       return runData.size()>prevSize;    
+    }
 
+    void RUN_INFO::Table::insertOne( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end){
+      RowBuffer< RUN_NUMBER, START_TIME, END_TIME > dataToInsert( std::tie(runNumber, start, end ) );
+      insertInTable( m_schema, tname, dataToInsert.get() );
     }
     
     void RUN_INFO::Table::insert( const std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runs ){
-      if( runs.size()>1 ){
-        BulkInserter< RUN_NUMBER, START_TIME, END_TIME > inserter( m_schema, tname );
-        for( auto run : runs ) inserter.insert( run );
-        inserter.flush();
-      } else {
-        if(runs.size()){
-          const auto& inputData = runs.front(); 
-          RowBuffer< RUN_NUMBER, START_TIME, END_TIME > dataToInsert( inputData );
-          insertInTable( m_schema, tname, dataToInsert.get() );
-        }
-      } 
+      BulkInserter< RUN_NUMBER, START_TIME, END_TIME > inserter( m_schema, tname );
+      for( auto run : runs ) inserter.insert( run );
+      inserter.flush();
     }
-    
-    //void RUN_INFO::Table::insertNew( cond::Time_t runNumber, const boost::posix_time::ptime& start ){
-    //  RowBuffer< RUN_NUMBER, START_TIME, END_TIME > dataToInsert( std::tie(runNumber, start, start ) );
-    //  insertInTable( m_schema, tname, dataToInsert.get() );
-    //}
 
     void RUN_INFO::Table::updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end ){
       UpdateBuffer buffer;
       buffer.setColumnData< END_TIME >( std::tie( end ) );
       buffer.addWhereCondition<RUN_NUMBER>( runNumber );
       updateTable( m_schema, tname, buffer );
- 
     }
 
     RunInfoSchema::RunInfoSchema( coral::ISchema& schema ):

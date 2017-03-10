@@ -144,11 +144,13 @@ namespace cond {
       virtual ~IRunInfoTable(){}
       virtual bool exists() = 0;
       virtual void create() = 0;
+      virtual bool select( cond::Time_t runNumber, boost::posix_time::ptime& start, boost::posix_time::ptime& end ) = 0;
       virtual cond::Time_t getLastInserted() = 0;
       virtual bool getInclusiveRunRange( cond::Time_t lower, cond::Time_t upper,
 					 std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData ) = 0;
       virtual bool getInclusiveTimeRange( const boost::posix_time::ptime& lower ,const boost::posix_time::ptime& upper, 
 					  std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runData ) = 0;
+      virtual void insertOne( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end) = 0;
       virtual void insert( const std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> >& runs ) = 0;
       virtual void updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end ) = 0;
     };
