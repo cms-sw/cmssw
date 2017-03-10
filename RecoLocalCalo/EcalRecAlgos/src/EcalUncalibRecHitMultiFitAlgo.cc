@@ -28,7 +28,9 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
   
   double maxamplitude = -std::numeric_limits<double>::max();
-  
+  const unsigned int iSampleMax = 5;  
+  const unsigned int iFullPulseMax = 9;
+
   double pedval = 0.;
   double pedrms = 0.;
   int iGainSwitch = 0;
@@ -71,8 +73,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
         
     amplitudes[iSample] = amplitude;
     
-    if (amplitude>maxamplitude) {
-    //if (iSample==5) {
+    if (iSample==iSampleMax) {
       maxamplitude = amplitude;
       pedval = pedestal;
       pedrms = pederr*gainratio;
@@ -86,7 +87,8 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   // for legacy re-reco of 2016 data, max-sample can be used for EB w/o impact on data/MC consistency
   // in case of gain switch, just use max-sample
   if(iGainSwitch && _gainSwitchUseMaxSample) {
-    EcalUncalibratedRecHit rh( dataFrame.id(), maxamplitude, pedval, 0., 0., flags );
+    double maxpulseamplitude = maxamplitude / fullpulse[iFullPulseMax];
+    EcalUncalibratedRecHit rh( dataFrame.id(), maxpulseamplitude, pedval, 0., 0., flags );
     rh.setAmplitudeError(0.);
     for (unsigned int ipulse=0; ipulse<_pulsefunc.BXs().rows(); ++ipulse) {
       int bx = _pulsefunc.BXs().coeff(ipulse);
