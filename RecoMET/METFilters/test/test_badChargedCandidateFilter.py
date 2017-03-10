@@ -23,13 +23,9 @@ process.load('RecoMET.METFilters.BadChargedCandidateSummer16Filter_cfi')
 process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
 process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 
-process.BadChargedCandidateFilter.debug = cms.bool(True)
-
 ## for miniAOD running (ICHEP)
 process.BadChargedCandidateSummer16Filter.muons = cms.InputTag("slimmedMuons")
 process.BadChargedCandidateSummer16Filter.PFCandidates = cms.InputTag("packedPFCandidates")
-
-process.BadChargedCandidateSummer16Filter.debug = cms.bool(True)
 
 process.out = cms.OutputModule("PoolOutputModule",
      fileName = cms.untracked.string('histo.root'),
