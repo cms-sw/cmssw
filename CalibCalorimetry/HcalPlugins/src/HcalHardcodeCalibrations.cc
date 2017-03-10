@@ -646,11 +646,11 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
        if (cell.isHcalTrigTowerDetId()) {
 	  rcalib = 0.;
 	  HcalTrigTowerDetId id(cell);
-	  if(id.ietaAbs() <= 18) {
+	  if(id.ietaAbs() <= 17) {
 	    granularity = 1;
 	    threshold = 4;
 	  }
-	  else if(id.ietaAbs() >= 19 && id.ietaAbs() <= 26) {
+	  else if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) {
 	    granularity = 2;
 	    threshold = 2;
 	  }
