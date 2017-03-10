@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/HLT/V11 (CMSSW_9_0_0_pre6)
+# /dev/CMSSW_9_0_1/HLT/V12 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/HLT/V11')
+  tableName = cms.string('/dev/CMSSW_9_0_1/HLT/V12')
 )
 
 process.transferSystem = cms.PSet( 
@@ -72407,7 +72407,7 @@ process.EcalCalibrationOutput = cms.EndPath( process.hltGtStage2Digis + process.
 process.ALCAPHISYMOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
 process.ALCAP0Output = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAP0Output + process.hltOutputALCAP0 )
-process.ALCAELECTRONOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAELECTRONOutput + process.hltPreALCAELECTRONOutputSmart + process.hltBoolFalse + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputALCAELECTRON )
+process.ALCAELECTRONOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAELECTRONOutput + process.hltPreALCAELECTRONOutputSmart + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputALCAELECTRON )
 process.ExpressOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
 process.NanoDSTOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreNanoDSTOutput + process.hltOutputNanoDST )
 process.PhysicsParkingScoutingMonitorOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsParkingScoutingMonitorOutput + process.hltPrePhysicsParkingScoutingMonitorOutputSmart + process.hltScoutingCaloPacker + process.HLTPFScoutingPackingSequence + process.hltOutputPhysicsParkingScoutingMonitor )
