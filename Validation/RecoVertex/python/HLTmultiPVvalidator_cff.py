@@ -42,7 +42,7 @@ hltPVanalysis.vertexRecoCollections   = cms.VInputTag(
 #    "hltFastPVPixelVertices"
 )
 
-associations = cms.Sequence(
+hltMultiPVAssociations = cms.Sequence(
     hltTrackAssociatorByHits +
     tpToHLTpixelTrackAssociation +
     vertexAssociatorByPositionAndTracks4pixelTracks +
@@ -51,7 +51,7 @@ associations = cms.Sequence(
 )
 
 hltMultiPVValidation = cms.Sequence( 
-    associations +
+    hltMultiPVAssociations +
     hltPixelPVanalysis
     + hltPVanalysis
 )
