@@ -43,6 +43,7 @@ int run( const std::string& connectionString ){
     session.transaction().commit();
     session.transaction().start(false); 
     runInfoWriter.insertNew( 1040, 
+			     boost::posix_time::time_from_string("2017-01-01 04:00:10.000"),
 			     boost::posix_time::time_from_string("2017-01-01 04:00:10.000") );
     runInfoWriter.flush();
     session.transaction().commit();
@@ -65,7 +66,9 @@ int run( const std::string& connectionString ){
     } else std::cout <<" Can't find run 1035 in the selected range"<<std::endl;
     session.transaction().commit();
     session.transaction().start( false );
-    runInfoWriter.updateEnd( 1040, boost::posix_time::time_from_string("2017-01-01 05:00:00.000") );
+    runInfoWriter.insertNew( 1040, 
+			     boost::posix_time::time_from_string("2017-01-01 04:00:10.000"),
+			     boost::posix_time::time_from_string("2017-01-01 05:00:00.000") );
     runInfoWriter.flush();
     session.transaction().commit();
     session.transaction().start(); 
