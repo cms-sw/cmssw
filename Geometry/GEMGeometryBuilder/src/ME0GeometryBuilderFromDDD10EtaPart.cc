@@ -33,18 +33,9 @@ ME0Geometry* ME0GeometryBuilderFromDDD10EtaPart::build(const DDCompactView* cvie
   std::string attribute = "MuStructure";
   std::string value     = "MuonEndCapME0";
 
-  DDValue val(attribute, value, 0.0);
-
   // Asking only for the MuonME0's
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, // name & value of a variable
-                     DDCompOp::matches,
-                     DDLogOp::AND,
-                     true, // compare strings otherwise doubles
-                     true // use merged-specifics or simple-specifics
-                     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
 
   return this->buildGeometry(fview, muonConstants);
 }

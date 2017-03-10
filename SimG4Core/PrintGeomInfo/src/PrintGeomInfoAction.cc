@@ -80,13 +80,10 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
     for (unsigned int i=0; i<names.size(); i++) {
       std::string attribute = "ReadOutName";
       std::string sd        = names[i];
-      DDSpecificsFilter filter;
-      DDValue           ddv(attribute,sd,0);
-      filter.setCriteria(ddv,DDCompOp::equals);
-      DDFilteredView fv(*pDD);
+      DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
+      DDFilteredView fv(*pDD,filter);
       std::cout << "PrintGeomInfoAction:: Get Filtered view for " 
 		<< attribute << " = " << sd << std::endl;
-      fv.addFilter(filter);
       bool dodet = fv.firstChild();
       
       std::string spaces = spacesFromLeafDepth(1);
