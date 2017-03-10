@@ -3,3 +3,6 @@
 <use   name="root"/>
 <bin   name="JetResolution_t" file="JetResolution_t.cc">
 </bin>
+<bin   name="test_jet_resolution" file="test_jet_resolution.cc"/>
+<bin   name="test_jet_resolution_sf" file="test_jet_resolution_sf.cc"/>
+<bin   name="draw_jec_jer_factors" file="draw_factors.cc"/>

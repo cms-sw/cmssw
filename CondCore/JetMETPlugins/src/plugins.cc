@@ -7,10 +7,17 @@
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
 #include "CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcdTypes.h"
 
+#include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
+#include "CondFormats/DataRecord/interface/JetResolutionRcd.h"
+#include "CondFormats/DataRecord/interface/JetResolutionScaleFactorRcd.h"
+
 
 
 REGISTER_PLUGIN(QGLikelihoodRcd, QGLikelihoodObject);
 REGISTER_PLUGIN(QGLikelihoodSystematicsRcd, QGLikelihoodSystematicsObject);
+
+REGISTER_PLUGIN(JetResolutionRcd, JME::JetResolutionObject);
+REGISTER_PLUGIN(JetResolutionScaleFactorRcd, JME::JetResolutionObject);
 
 REGISTER_PLUGIN(FFTBasicJetCorrectorParametersRcd, FFTJetCorrectorParameters);
 REGISTER_PLUGIN(FFTGenJetCorrectorParametersRcd, FFTJetCorrectorParameters);

@@ -11,6 +11,7 @@
 #include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
 #include "JetMETCorrections/Modules/interface/QGLikelihoodESProducer.h"
 #include "JetMETCorrections/Modules/interface/QGLikelihoodSystematicsESProducer.h"
+#include "JetMETCorrections/Modules/interface/JetResolutionESProducer.h"
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1OffsetCorrector.h"
 #include "JetMETCorrections/Algorithms/interface/L1JPTOffsetCorrector.h"
@@ -57,6 +58,9 @@ DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
 
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodESProducer);
 DEFINE_FWK_EVENTSETUP_MODULE(QGLikelihoodSystematicsESProducer);
+
+DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(JetResolutionScaleFactorESProducer);
 
 
 //--------------- Generic LX corrections --------------------
