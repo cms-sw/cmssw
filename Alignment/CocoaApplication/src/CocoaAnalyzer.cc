@@ -132,18 +132,10 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
   //  It stores these objects in a private data member, opt
   std::string attribute = "COCOA"; 
   std::string value     = "COCOA";
-  DDValue val(attribute, value, 0.0);
   
 	  // get all parts labelled with COCOA using a SpecPar
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,  // name & value of a variable 
-		     DDCompOp::matches,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fv(*cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fv(*cpv, filter);
   bool doCOCOA = fv.firstChild();
   
   // Loop on parts
