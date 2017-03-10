@@ -1,0 +1,67 @@
+process.AlignmentProducer.ParameterBuilder.parameterTypes = [
+  'SelectorRigid,RigidBody',
+  'SelectorBowed,BowedSurface',
+  'SelectorTwoBowed,TwoBowedSurfaces']
+
+process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
+    alignParams = cms.vstring(  # higher level structures
+    'TrackerTPBHalfBarrel,111111',
+    'TrackerTPEHalfDisk,111111',
+    'TrackerTIBHalfBarrel,111111',
+    'TrackerTOBHalfBarrel,rrrrrr',
+    'TrackerTIDEndcap,111111',
+    'TrackerTECEndcap,111111'
+    )
+    )
+
+process.AlignmentProducer.ParameterBuilder.SelectorBowed = cms.PSet(
+  alignParams = cms.vstring(
+    'TrackerTPBModule,111111 111',
+    #'TrackerTPEModule,111001 000',
+    'TrackerTPEModule,111001 000,rrestricted',
+    'TrackerTPEModule,111111 111,rfullDisk1',
+    'TrackerTPEModule,111111 111,rfullDisk2',
+    'TrackerTIBModuleUnit,101111 111',
+    'TrackerTIDModuleUnit,111111 111',
+    'TrackerTECModuleUnit,111111 111,tecSingleSens'
+    ),
+    tecSingleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(1,4))),
+
+    rrestricted = cms.PSet( # outer disks, inner radii
+       zRanges = cms.vdouble(-999.0, -42., 42., 999.0),
+       rRanges = cms.vdouble(0.0, 6.9),
+     ),
+     rfullDisk1 = cms.PSet( # inner disks
+       zRanges = cms.vdouble(-42., 42.),
+     ),
+     rfullDisk2 = cms.PSet( # outer disks, outer radii
+       zRanges = cms.vdouble(-999.0, -42., 42., 999.0),
+       rRanges = cms.vdouble(6.9, 999.0),
+     ),
+  )
+
+process.AlignmentProducer.ParameterBuilder.SelectorTwoBowed = cms.PSet(
+  alignParams = cms.vstring(
+  'TrackerTOBModuleUnit,101111 111 101111 111',
+  'TrackerTECModuleUnit,111111 111 111111 111,tecDoubleSens'
+    ),
+   tecDoubleSens = cms.PSet(tecDetId = cms.PSet(ringRanges = cms.vint32(5,7)))
+  )
+
+process.AlignmentProducer.saveDeformationsToDB = True
+
+process.AlignmentProducer.RunRangeSelection = [
+    cms.PSet(RunRanges = cms.vstring(
+        '-1',
+        '232881', # CRUZET starts
+        '238076', # CRAFT starts, variable magnetic field
+        '238443'  # CRAFT, fixed magn field B=3.8T
+        ),
+    selector = cms.vstring( 'TrackerTPBHalfBarrel,111111',
+                            'TrackerTPEHalfDisk,111111',
+                            'TrackerTIBHalfBarrel,111111',
+                            'TrackerTIDEndcap,111111',
+                            'TrackerTECEndcap,111111')
+    )
+] # end of process.AlignmentProducer.RunRangeSelection
+
