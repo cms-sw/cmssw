@@ -54,22 +54,6 @@ dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 from DQM.L1TMonitor.L1TMonitor_cff import *
 
 # DQM Offline Step 2 cfi/cff imports
-from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
-
-
-# Stage1 customization
-#l1TdeRCT.rctSourceData = 'gctDigis'
-#l1TdeRCTfromRCT.rctSourceData = 'gctDigis'
-#l1tRct.rctSource = 'gctDigis'
-#l1tRctfromRCT.rctSource = 'gctDigis'
-#l1tPUM.regionSource = cms.InputTag("gctDigis")
-
-
-#l1compareforstage1.GCTsourceData = cms.InputTag("gctDigis")
-#l1compareforstage1.GCTsourceEmul = cms.InputTag("valGctDigis")
-#l1compareforstage1.stage1_layer2_ = cms.bool(False)
-
-#valStage1GtDigis.GctInputTag = 'gctDigis'
 
 from Configuration.StandardSequences.Eras import eras
 
@@ -116,7 +100,7 @@ from DQM.L1TMonitor.L1TStage2Emulator_cff import *
 #    l1tStage2EmulatorOnlineDQM
 #)
 
-
+from DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff import *
 
 #
 # define sequences 
@@ -187,68 +171,5 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 
 
 
-
-#l1TriggerOffline.remove(l1TriggerOnline)
-
-
-# l1tMonitorOnline sequence, defined in DQM/L1TMonitor/python/L1TMonitor_cff.py
-#
-#l1TriggerOnline.remove(l1tMonitorOnline)
-#
-#l1tMonitorStage1Online.remove(bxTiming)
-#l1tMonitorOnline.remove(l1tDttf)
-#l1tMonitorOnline.remove(l1tCsctf) 
-#l1tMonitorOnline.remove(l1tRpctf)
-#l1tMonitorOnline.remove(l1tGmt)
-#l1tMonitorOnline.remove(l1tGt) 
-#
-#l1ExtraDqmSeq.remove(dqmGctDigis)
-#l1ExtraDqmSeq.remove(dqmGtDigis)
-#l1ExtraDqmSeq.remove(dqmL1ExtraParticles)
-#l1ExtraDqmSeq.remove(l1ExtraDQM)
-#l1tMonitorOnline.remove(l1ExtraDqmSeq)
-#
-#l1tMonitorOnline.remove(l1tRate)
-#l1tMonitorOnline.remove(l1tBPTX)
-#l1tMonitorOnline.remove(l1tRctSeq)
-#l1tMonitorOnline.remove(l1tGctSeq)
-
-#
-
-#l1TriggerEmulatorOffline.remove(l1TriggerEmulatorOnline)
-
-# l1HwValEmulatorMonitor sequence, defined in DQM/L1TMonitor/python/L1TEmulatorMonitor_cff.py 
-#
-#l1TriggerEmulatorOnline.remove(l1HwValEmulatorMonitor) 
-
-# L1HardwareValidation producers
-#l1HwValEmulatorMonitor.remove(L1HardwareValidation)
-#
-#l1HwValEmulatorMonitor.remove(l1EmulatorMonitor)
-
-#l1TriggerDqmOfflineClient.remove(l1tMonitorClient)
-#l1TriggerDqmOfflineClient.remove(l1EmulatorMonitorClient)
-
-# l1tMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1TMonitorClient_cff.py
-#
-#l1tMonitorClient.remove(l1TriggerQualityTests)
-#l1tMonitorClient.remove(l1TriggerClients)
-
-# l1TriggerClients sequence, part of l1tMonitorClient sequence
-
-#l1TriggerClients.remove(l1tGctClient)
-#l1TriggerClients.remove(l1tDttfClient)
-#l1TriggerClients.remove(l1tCsctfClient) 
-#l1TriggerClients.remove(l1tRpctfClient)
-#l1TriggerClients.remove(l1tGmtClient)
-#l1TriggerClients.remove(l1tOccupancyClient)
-#l1TriggerStage1Clients.remove(l1tTestsSummary)
-#l1TriggerClients.remove(l1tEventInfoClient)
-                              
-# l1EmulatorMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1TEMUMonitorClient_cff.py
-#
-#l1EmulatorMonitorClient.remove(l1EmulatorQualityTests)
-#l1EmulatorMonitorClient.remove(l1EmulatorErrorFlagClient)
-#l1EmulatorMonitorClient.remove(l1EmulatorEventInfoClient)
 
 

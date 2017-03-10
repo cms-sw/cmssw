@@ -1,7 +1,7 @@
-from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-
-if not stage1L1Trigger.isChosen() and not stage2L1Trigger.isChosen():
-    from DQMOffline.L1Trigger.LegacyL1TriggerDqmOffline_cff import * #LEGACY
-else:
-    from DQMOffline.L1Trigger.Stage2L1TriggerDqmOffline_cff import * #UPGRADE
+from DQMOffline.L1Trigger.LegacyL1TriggerDqmOffline_cff import *
+#replacements for stage2
+import DQMOffline.L1Trigger.Stage2L1TriggerDqmOffline_cff as stage2_cffs_
+stage2L1Trigger.toReplaceWith(l1TriggerOnline, stage2_cffs_.l1TriggerOnline)
+stage2L1Trigger.toReplaceWith(l1TriggerEmulatorOnline, stage2_cffs_.l1TriggerEmulatorOnline)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOffline, stage2_cffs_.l1TriggerDqmOffline)
+stage2L1Trigger.toReplaceWith(l1TriggerDqmOfflineClient, stage2_cffs_.l1TriggerDqmOfflineClient)
