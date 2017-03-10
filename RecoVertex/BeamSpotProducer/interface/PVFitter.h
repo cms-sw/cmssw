@@ -139,6 +139,7 @@ class PVFitter {
   reco::BeamSpot fbeamspot;
   std::map<int,reco::BeamSpot> fbspotMap;
   bool fFitPerBunchCrossing;
+  bool useOnlyFirstPV_;
 
   std::ofstream fasciiFile;
 
@@ -158,6 +159,7 @@ class PVFitter {
   double maxVtxZ_;
   double errorScale_;
   double sigmaCut_;         
+  double minSumPt_;         
   
   //  int frun;
   //  int flumi;
