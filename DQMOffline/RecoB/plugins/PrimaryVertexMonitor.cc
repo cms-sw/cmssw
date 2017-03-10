@@ -18,6 +18,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName")  )
   , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel") )
   , ndof_          ( pSet.getParameter<int>        ("ndof")           )
+  , errorPrinted_  ( false )
   , nbvtx(NULL)
   , bsX(NULL)
   , bsY(NULL)
@@ -53,7 +54,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   vertexInputTag_   = pSet.getParameter<InputTag>("vertexLabel");
   beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
   vertexToken_   = consumes<reco::VertexCollection>(vertexInputTag_);
-  scoreToken_    = consumes<VertexScore>(vertexInputTag_);
+  scoreToken_    = consumes<VertexScore>           (vertexInputTag_);
   beamspotToken_ = consumes<reco::BeamSpot>        (beamSpotInputTag_);
 
 }
@@ -254,8 +255,11 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
       if(v.tracksSize() > 0) {
 	const auto& ref = v.trackRefAt(0);
 	if(ref.isNull() || !ref.isAvailable()) {
-	  edm::LogInfo("PrimaryVertexMonitor")
-	    << "Skipping vertex collection: " << vertexInputTag_ << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	  if (!errorPrinted_)
+	    edm::LogWarning("PrimaryVertexMonitor")
+	      << "Skipping vertex collection: " << vertexInputTag_ << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	  else 
+	    errorPrinted_ = true;
 	  ok = false;
 	}
       }
