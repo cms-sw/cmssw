@@ -74,7 +74,7 @@ BadParticleFilter::BadParticleFilter(const edm::ParameterSet& iConfig)
   else if(filterName=="BadChargedCandidate") filterType_=kBadChargedCandidate;
   else if(filterName=="BadChargedCandidateSummer16") filterType_=kBadChargedCandidateSummer16;
   else {
-    edm::LogError("BadParticleFilter")<<" Filter "<<filterName<<" is not available, please check name";
+    throw cms::Exception("BadParticleFilter")<<" Filter "<<filterName<<" is not available, please check name \n"; 
   }
 
   algo_=0;

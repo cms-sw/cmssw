@@ -27,9 +27,6 @@ process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 process.BadPFMuonSummer16Filter.muons = cms.InputTag("slimmedMuons")
 process.BadPFMuonSummer16Filter.PFCandidates = cms.InputTag("packedPFCandidates")
 
-process.BadPFMuonFilter.debug = cms.bool(True)
-process.BadPFMuonSummer16Filter.debug = cms.bool(True)
-
 process.out = cms.OutputModule("PoolOutputModule",
      fileName = cms.untracked.string('histo.root'),
      outputCommands = cms.untracked.vstring('keep *') 
