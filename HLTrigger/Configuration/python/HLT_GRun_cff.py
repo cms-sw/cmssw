@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/GRun/V4 (CMSSW_9_0_0_pre6)
+# /dev/CMSSW_9_0_1/GRun/V5 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V5')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4516,7 +4516,7 @@ fragment.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
       timeSigmaHPD = cms.double( 5.0 ),
       correctForPhaseContainment = cms.bool( True ),
       pedestalUpperLimit = cms.double( 2.7 ),
-      respCorrM3 = cms.double( 0.95 ),
+      respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
       applyPedConstraint = cms.bool( True ),
       fitTimes = cms.int32( 1 ),
@@ -4607,7 +4607,7 @@ fragment.hltHfreco = cms.EDProducer( "HFPhase1Reconstructor",
 fragment.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     pedestalUpperLimit = cms.double( 2.7 ),
     timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
-    respCorrM3 = cms.double( 0.95 ),
+    respCorrM3 = cms.double( 1.0 ),
     timeSlewParsType = cms.int32( 3 ),
     applyTimeSlewM3 = cms.bool( True ),
     digiTimeFromDB = cms.bool( True ),
@@ -10938,7 +10938,7 @@ fragment.hltHbherecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconstructor
       timeSigmaHPD = cms.double( 5.0 ),
       correctForPhaseContainment = cms.bool( True ),
       pedestalUpperLimit = cms.double( 2.7 ),
-      respCorrM3 = cms.double( 0.95 ),
+      respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
       applyPedConstraint = cms.bool( True ),
       fitTimes = cms.int32( 1 ),
@@ -12612,7 +12612,7 @@ fragment.hltHbherecoMethod2L1EGUnseeded = cms.EDProducer( "HBHEPhase1Reconstruct
       timeSigmaHPD = cms.double( 5.0 ),
       correctForPhaseContainment = cms.bool( True ),
       pedestalUpperLimit = cms.double( 2.7 ),
-      respCorrM3 = cms.double( 0.95 ),
+      respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
       applyPedConstraint = cms.bool( True ),
       fitTimes = cms.int32( 1 ),
