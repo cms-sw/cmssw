@@ -30,7 +30,7 @@ fastsim::HelixTrajectory::HelixTrajectory(const fastsim::Particle & particle,dou
     //, centerX_(position_.X() - radius_*std::cos(phi_))
     //, centerY_(position_.Y() - radius_*std::sin(phi_))
     , centerR_(std::sqrt(centerX_*centerX_ + centerY_*centerY_))
-    , minR_(centerR_ - radius_)
+    , minR_(std::abs(centerR_ - radius_))
     , maxR_(centerR_ + radius_)
     // omega = q * e * B / (gamma * m) = q * e *B / (E / c^2) = q * e * B * c^2 / E
     // omega: negative for negative q -> seems to be what we want.
@@ -104,7 +104,6 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometr
         {   
         	// Should not be reached: Full Propagation does always have a solution if(crosses(layer))
             // Even if particle is outside all layers -> can turn around in magnetic field
-        	throw cms::Exception("fastsim::HelixTrajectory::nextCrossingTimeC") << "should not be reached";
             return -1.;
         }
 

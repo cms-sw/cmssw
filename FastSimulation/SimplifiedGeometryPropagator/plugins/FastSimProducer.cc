@@ -170,7 +170,7 @@ FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			    decayer_.decay(*particle,secondaries,_randomEngine->theEngine());
 			    LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
 			    particleManager.addSecondaries(particle->position(),particle->simTrackIndex(),secondaries);
-			    continue;
+			    break;
 			}
 
 		    // kinematic cuts

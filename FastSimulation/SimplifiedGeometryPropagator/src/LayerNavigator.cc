@@ -231,7 +231,7 @@ bool fastsim::LayerNavigator::moveParticleToNextLayer(fastsim::Particle & partic
     for(auto _layer : layers)
     {
 		double tempDeltaTime = trajectory->nextCrossingTimeC(*_layer);
-		LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " at time " << tempDeltaTime;
+		LogDebug(MESSAGECATEGORY) << "   particle crosses layer " << *_layer << " in time " << tempDeltaTime;
 		if(tempDeltaTime > 0 && (layer == 0 || tempDeltaTime<deltaTime || deltaTime < 0))
 		{
 		    layer = _layer;
