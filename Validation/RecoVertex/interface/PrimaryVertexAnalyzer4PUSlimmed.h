@@ -193,6 +193,8 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
+
+  std::vector<bool> errorPrintedForColl_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_
