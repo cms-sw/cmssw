@@ -16,7 +16,7 @@ namespace cond {
       }
       // update buffers
       std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> > runBuffer;
-      std::vector<std::pair<cond::Time_t,boost::posix_time::ptime> > updateBuffer;
+      std::vector<std::tuple<cond::Time_t,boost::posix_time::ptime,boost::posix_time::ptime> > updateBuffer;
     };
 
     RunInfoEditor::RunInfoEditor():
@@ -60,23 +60,46 @@ namespace cond {
       if( m_data.get() ) m_data->runBuffer.push_back( std::tie( runNumber, start, end ) );
     }
     
-    void RunInfoEditor::insertNew( cond::Time_t runNumber, const boost::posix_time::ptime& start){
-      if( m_data.get() ) m_data->runBuffer.push_back( std::tie( runNumber, start, start ) );
+    void RunInfoEditor::insertNew( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end){
+      if( m_data.get() ) m_data->updateBuffer.push_back( std::tie( runNumber, start, end ) );
     }
 
-    void RunInfoEditor::updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end ){
-      if( m_data.get() ) m_data->updateBuffer.push_back( std::make_pair( runNumber, end ) );
-    }
-
-    bool RunInfoEditor::flush(){
-      bool ret = false;
+    size_t RunInfoEditor::flush(){
+      size_t ret = 0;
       if( m_data.get() ){
 	checkTransaction( "RunInfoEditor::flush" );
 	m_session->runInfoSchema().runInfoTable().insert( m_data->runBuffer );
-        for( auto update: m_data->updateBuffer ) m_session->runInfoSchema().runInfoTable().updateEnd( update.first, update.second );
+        ret += m_data->runBuffer.size();
+        for( auto update: m_data->updateBuffer ) {
+	  cond::Time_t newRun = std::get<0>(update);
+	  boost::posix_time::ptime& newRunStart = std::get<1>(update);
+	  boost::posix_time::ptime& newRunEnd = std::get<2>(update);
+          boost::posix_time::ptime existingRunStart;
+          boost::posix_time::ptime existingRunEnd;
+          if( m_session->runInfoSchema().runInfoTable().select( newRun, existingRunStart, existingRunEnd ) ){
+	    if( newRunStart!=existingRunStart ) {
+	      std::stringstream msg;
+              msg<< "Attempt to update start time of existing run "<< newRun;
+	      throwException(msg.str(),"RunInfoEditor::flush");
+	    }
+            if( existingRunEnd == newRunEnd ){
+	      // nothing to do
+	      continue;
+	    } else {
+	      if( existingRunEnd!=existingRunStart ){
+		std::stringstream msg;
+		msg<< "Attempt to update end time of existing run "<< newRun;
+		throwException(msg.str(),"RunInfoEditor::flush");
+	      }
+	    }
+            m_session->runInfoSchema().runInfoTable().updateEnd( newRun, newRunEnd );
+	  } else {
+            m_session->runInfoSchema().runInfoTable().insertOne( newRun, newRunStart, newRunEnd );
+	  }
+          ret++;
+	}
         m_data->runBuffer.clear();
         m_data->updateBuffer.clear();
-        ret = true;
       }
       return ret;
     }

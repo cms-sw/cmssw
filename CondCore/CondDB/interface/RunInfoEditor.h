@@ -48,13 +48,10 @@ namespace cond {
       void insert( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end );
 
       // register a new insertion.
-      void insertNew( cond::Time_t runNumber, const boost::posix_time::ptime& start );
-
-      // set the end of a new started run
-      void updateEnd( cond::Time_t runNumber, const boost::posix_time::ptime& end );
+      void insertNew( cond::Time_t runNumber, const boost::posix_time::ptime& start, const boost::posix_time::ptime& end );
 
       // execute the update/intert queries and reset the buffer
-      bool flush();
+      size_t flush();
 
     private:
       void checkTransaction( const std::string& ctx );
