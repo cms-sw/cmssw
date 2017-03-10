@@ -33,8 +33,7 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
   const unsigned int nsample = EcalDataFrame::MAXSAMPLES;
   
   double maxamplitude = -std::numeric_limits<double>::max();
-  double maxgainratio = -std::numeric_limits<double>::max();
-  unsigned int iSampleMax = 0;
+  const unsigned int iSampleMax = 5;
   
   double pedval = 0.;
     
@@ -97,11 +96,8 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
         
     amplitudes[iSample] = amplitude;
     
-    if (gainratio > maxgainratio || gainId==0 || amplitude>maxamplitude) {
-    //if (iSample==5) {
+    if (iSample==iSampleMax) {
       maxamplitude = amplitude;
-      maxgainratio = gainratio;
-      iSampleMax = iSample;
       pedval = pedestal;
     }
         
