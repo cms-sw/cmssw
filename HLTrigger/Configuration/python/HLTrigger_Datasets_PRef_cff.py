@@ -127,7 +127,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.l1tResults = cms.InputTag('')
 streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.throw      = cms.bool(False)
-streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet60_Eta5p1ForPPRef_v3', 
+streamPhysicsHadronsTaus_datasetHighPtLowerJets_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet40_Eta5p1ForPPRef_v3', 
+    'HLT_AK4CaloJet60_Eta5p1ForPPRef_v3', 
     'HLT_AK4PFJet40_Eta5p1ForPPRef_v5', 
     'HLT_AK4PFJet60_Eta5p1ForPPRef_v5')
 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_0_1/GRun/V4 (CMSSW_9_0_0_pre6)
+# /dev/CMSSW_9_0_1/GRun/V5 (CMSSW_9_0_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_9_0_1/GRun/V5')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4819,7 +4819,7 @@ process.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
       timeSigmaHPD = cms.double( 5.0 ),
       correctForPhaseContainment = cms.bool( True ),
       pedestalUpperLimit = cms.double( 2.7 ),
-      respCorrM3 = cms.double( 0.95 ),
+      respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
       applyPedConstraint = cms.bool( True ),
       fitTimes = cms.int32( 1 ),
@@ -4910,7 +4910,7 @@ process.hltHfreco = cms.EDProducer( "HFPhase1Reconstructor",
 process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     pedestalUpperLimit = cms.double( 2.7 ),
     timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
-    respCorrM3 = cms.double( 0.95 ),
+    respCorrM3 = cms.double( 1.0 ),
     timeSlewParsType = cms.int32( 3 ),
     applyTimeSlewM3 = cms.bool( True ),
     digiTimeFromDB = cms.bool( True ),
@@ -11241,7 +11241,7 @@ process.hltHbherecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconstructor"
       timeSigmaHPD = cms.double( 5.0 ),
       correctForPhaseContainment = cms.bool( True ),
       pedestalUpperLimit = cms.double( 2.7 ),
-      respCorrM3 = cms.double( 0.95 ),
+      respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
       applyPedConstraint = cms.bool( True ),
       fitTimes = cms.int32( 1 ),
@@ -12915,7 +12915,7 @@ process.hltHbherecoMethod2L1EGUnseeded = cms.EDProducer( "HBHEPhase1Reconstructo
       timeSigmaHPD = cms.double( 5.0 ),
       correctForPhaseContainment = cms.bool( True ),
       pedestalUpperLimit = cms.double( 2.7 ),
-      respCorrM3 = cms.double( 0.95 ),
+      respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
       applyPedConstraint = cms.bool( True ),
       fitTimes = cms.int32( 1 ),
@@ -67080,6 +67080,7 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
       'keep *_hltIter2Merged_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPFJetForBtag_*_*',
+      'keep *_hltPFMuonMerging_*_*',
       'keep *_hltPixelTracksElectrons_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices_*_*',
@@ -68385,7 +68386,7 @@ process.EcalCalibrationOutput = cms.EndPath( process.hltGtStage2Digis + process.
 process.ALCAPHISYMOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
 process.ALCAP0Output = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAP0Output + process.hltOutputALCAP0 )
-process.ALCAELECTRONOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAELECTRONOutput + process.hltPreALCAELECTRONOutputSmart + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputALCAELECTRON )
+process.ALCAELECTRONOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreALCAELECTRONOutput + process.hltPreALCAELECTRONOutputSmart + process.hltBoolFalse + process.hltSelectedElectronFEDListProducerGsf + process.hltOutputALCAELECTRON )
 process.ExpressOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
 process.NanoDSTOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPreNanoDSTOutput + process.hltOutputNanoDST )
 process.PhysicsParkingScoutingMonitorOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsParkingScoutingMonitorOutput + process.hltPrePhysicsParkingScoutingMonitorOutputSmart + process.hltScoutingCaloPacker + process.HLTPFScoutingPackingSequence + process.hltOutputPhysicsParkingScoutingMonitor )

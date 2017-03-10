@@ -154,7 +154,7 @@ foreach gtag ( MC DATA )
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
-      set Era  = $EraRun2pp
+      set Era  = $EraRun2pp2016
       set Custom = " "
       set L1REPACK = L1REPACK:Full
     else if ( $table == GRun2016 ) then
