@@ -10,11 +10,8 @@ class DDExpandedView;
 class DDQuery;
 
 //! comparison operators to be used with this filter
-enum class DDCompOp { equals, matches, not_equals, not_matches, smaller, bigger, smaller_equals, bigger_equals };
+enum class DDCompOp { equals, not_equals};
   
-//! logical operations to obtain one result from two filter comparisons
-enum class DDLogOp { AND, OR };
-
 //! A Filter accepts or rejects a DDExpandedNode based on a user-coded decision rule
 class DDFilter
 {
@@ -29,6 +26,15 @@ public:
   virtual bool accept(const DDExpandedView &) const = 0;  
 };
 
+//! A DDFilter that always returns true
+class DDPassAllFilter : public DDFilter
+{
+public:
+  bool accept(const DDExpandedView &) const override final {
+    return true;
+  }
+};
+
 //! The DDGenericFilter is a runtime-parametrized Filter looking on DDSpecifcs
 class DDSpecificsFilter : public DDFilter
 {
@@ -39,30 +45,20 @@ public:
   
   ~DDSpecificsFilter();
   
-  bool accept(const DDExpandedView &) const; 
+  bool accept(const DDExpandedView &) const override final; 
 	      
   void setCriteria(const DDValue & nameVal, // name & value of a variable 
-                   DDCompOp, 
-		   DDLogOp l = DDLogOp::AND, 
-		   bool asString = true, // compare strings otherwise doubles
-		   bool merged = true // use merged-specifics or simple-specifics
-		   );
+                   DDCompOp );
 		      
   struct SpecificCriterion {
     SpecificCriterion(const DDValue & nameVal, 
-		      DDCompOp op,
-		      bool asString,
-		      bool merged)
+		      DDCompOp op)
      : nameVal_(nameVal), 
-       comp_(op), 
-       asString_(asString),
-       merged_(merged)
+       comp_(op) 
      { }
      
      DDValue nameVal_;
      DDCompOp comp_;
-     bool asString_;
-     bool merged_;
   };
   
 protected:  
@@ -70,10 +66,57 @@ protected:
   bool accept_impl(const DDExpandedView &) const;
 
   std::vector<SpecificCriterion> criteria_; 
-  std::vector<DDLogOp> logOps_;
 };
 
 std::ostream & operator<<(std::ostream & os, const DDSpecificsFilter & f);
+
+class DDSpecificsHasNamedValueFilter : public DDFilter {
+public:
+  explicit DDSpecificsHasNamedValueFilter(const std::string& iAttribute):
+    attribute_(iAttribute,"",0 )
+    {}
+
+  bool accept(const DDExpandedView &) const override final; 
+
+private:
+  DDValue attribute_;
+
+};
+
+class DDSpecificsMatchesValueFilter : public DDFilter {
+public:
+  explicit DDSpecificsMatchesValueFilter(const DDValue& iValue):
+    value_(iValue)
+    {}
+
+  bool accept(const DDExpandedView &) const override final; 
+
+private:
+  DDValue value_;
+
+};
+
+template<typename F1, typename F2>
+class DDAndFilter : public DDFilter {
+public:
+  DDAndFilter(F1 iF1, F2 iF2):
+    f1_(std::move(iF1)),
+    f2_(std::move(iF2)) {}
+
+  bool accept(const DDExpandedView & node) const override final {
+    return f1_.accept(node) && f2_.accept(node);
+  }
+private:
+  F1 f1_;
+  F2 f2_;
+};
+
+template<typename F1, typename F2>
+  DDAndFilter<F1,F2> make_and_ddfilter(F1 f1, F2 f2) 
+{
+  return DDAndFilter<F1,F2>(std::move(f1), std::move(f2));
+}
+
 #endif
 
 
