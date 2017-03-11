@@ -112,8 +112,8 @@
 		<Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="-[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
-			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[ShaftY]"/>
-			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[ShaftY]"/>
+			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[ShaftY]+1*m"/>
+			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[ShaftY]+1*m"/>
 			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[HallRMax]+360*cm"/>
 			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[HallRMax]+360*cm"/>
 			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
