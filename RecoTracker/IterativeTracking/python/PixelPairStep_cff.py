@@ -37,16 +37,12 @@ trackingPhase1PU70.toModify(pixelPairStepSeedLayers,
     ]
 )
 
-_layerListForPhase2 = ['BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
-#                       'BPix2+BPix4', 'BPix3+BPix4',
-                       'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
-                       'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
-#                       'BPix1+FPix2_pos', 'BPix1+FPix2_neg',
-#                       'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
-#                       'FPix2_pos+FPix3_pos', 'FPix2_neg+FPix3_neg',
-#                       'FPix3_pos+FPix4_pos', 'FPix3_neg+FPix4_neg',
-#                       'FPix4_pos+FPix5_pos', 'FPix4_neg+FPix5_neg',
-#                       'FPix5_pos+FPix6_pos', 'FPix5_neg+FPix6_neg'
+# only layers covering the region not covered by quadruplets
+# (so it is just acting as backup of triplets)
+_layerListForPhase2 = [
+        'BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
+        'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
+        'BPix2+FPix1_pos', 'BPix2+FPix1_neg'
 ]
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase2PU140.toModify(pixelPairStepSeedLayers, 
@@ -135,7 +131,7 @@ pixelPairStepTrajectoryFilter = cms.PSet(
 pixelPairStepTrajectoryFilterInOut = pixelPairStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,
     seedExtension = 1,
-    strictSeedExtension = False, # don't allow inactive
+    strictSeedExtension = False, # allow inactive
     pixelSeedExtension = False,
 )
 

@@ -122,7 +122,7 @@ highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFil
 highPtTripletStepTrajectoryFilterInOut = highPtTripletStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,
     seedExtension = 1,
-    strictSeedExtension = False, # don't allow inactive
+    strictSeedExtension = False, # allow inactive
     pixelSeedExtension = False,
 )
 
