@@ -93,14 +93,14 @@ upgradeProperties[2017] = {
     '2017' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_realistic',
-        'HLTmenu': '@relval2016',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2017_design',
-        'HLTmenu': '@relval2016',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -108,14 +108,14 @@ upgradeProperties[2017] = {
     '2018' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_realistic',
-        'HLTmenu': '@relval2016',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run2_2018',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2018_design',
-        'HLTmenu': '@relval2016',
+        'HLTmenu': '@relval2017',
         'Era' : 'Run2_2018',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
