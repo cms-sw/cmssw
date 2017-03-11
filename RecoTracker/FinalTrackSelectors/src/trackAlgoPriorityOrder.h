@@ -1,11 +1,15 @@
-#ifndef DataFormats_TrackReco_trackAlgoPriorityOrder_h
-#define DataFormats_TrackReco_trackAlgoPriorityOrder_h
+#ifndef RecoTracker_FinalTrackSelectors_trackAlgoPriorityOrder_h
+#define RecoTracker_FinalTrackSelectors_trackAlgoPriorityOrder_h
 
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
 #include <array>
 
 /**
+ * To obtain the priority order, please use the TrackAlgoPriorityOrder
+ * class instead. This header is internal to it, and exists in a
+ * separate file only to allow a unit test to be run.
+ *
  * The trackAlgoPriorityOrder maps an reco::TrackBase::TrackAlgorithm
  * enumerator to its priority in track list merging. The mapping is
  * needed because the order of the enumerators themselves does not, in
