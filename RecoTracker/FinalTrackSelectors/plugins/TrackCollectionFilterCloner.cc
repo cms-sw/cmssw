@@ -19,8 +19,6 @@
 #include <iostream>
 #include <memory>
 
-#include "trackAlgoPriorityOrder.h"
-
 using namespace reco;
 
 namespace {
