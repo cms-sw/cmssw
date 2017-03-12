@@ -51,6 +51,7 @@ RPCSimAsymmetricCls::RPCSimAsymmetricCls(const edm::ParameterSet& config) :
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
+  eledig = config.getParameter<bool>("digitizeElectrons");
 
   rate=config.getParameter<double>("Rate");
   nbxing=config.getParameter<int>("Nbxing");
@@ -161,7 +162,7 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
   const Topology& topology=roll->specs()->topology();
   for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin();
        _hit != rpcHits.end(); ++_hit){
-    if(_hit-> particleType() == 11) continue;
+    if(!eledig && _hit-> particleType() == 11) continue;
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
     
