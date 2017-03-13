@@ -180,8 +180,8 @@ find . -name "*.stdout" -exec gzip -f {} \;
 ######################################################################
 mergeParallelResults="""
 
-.oO[copyMergeScripts]Oo.
-.oO[haddLoop]Oo.
+.oO[beforeMerge]Oo.
+.oO[doMerge]Oo.
 
 # create log file
 ls -al .oO[mergeParallelFilePrefixes]Oo. > .oO[datadir]Oo./log_rootfilelist.txt

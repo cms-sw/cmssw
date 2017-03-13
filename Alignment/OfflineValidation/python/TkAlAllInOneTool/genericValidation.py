@@ -457,16 +457,60 @@ class GenericValidationData(GenericValidation):
 
 class ParallelValidation(GenericValidation):
     @classmethod
-    def initMerge(cls, folder):
-        pass
+    def initMerge(cls):
+        return ""
     @abstractmethod
     def appendToMerge(self):
         pass
 
+    @classmethod
+    def doInitMerge(cls):
+        result = self.initmerge()
+        result = replaceByMap(result, PlottingOptions(None, cls))
+        if result and result[-1] != "\n": result += "\n"
+        return result
+    def doMerge(self):
+        result = self.appendToMerge()
+        result += ("if [[ tmpMergeRetCode -eq 0 ]]; then\n"
+                   "  xrdcp -f .oO[finalOutputFile]Oo. root://eoscms//eos/cms.oO[finalResultFile]Oo.\n"
+                   "fi\n"
+                   "if [[ ${tmpMergeRetCode} -gt ${mergeRetCode} ]]; then\n"
+                   "  mergeRetCode=${tmpMergeRetCode}\n"
+                   "fi\n")
+        result = replaceByMap(result, self.getRepMap())
+        if result[-1] != "\n": result += "\n"
+        return result
+
 class ValidationWithPlots(GenericValidation):
     @classmethod
-    def initPlots(cls, folder):
-        pass
+    def runPlots(cls, validations):
+        return ("rfcp .oO[plottingscriptpath]Oo. ."
+                "root -x -b -q .oO[plottingscriptpath]Oo.")
     @abstractmethod
     def appendToPlots(self):
         pass
+    @abstractmethod
+    def plottingscriptname(cls):
+        """override with a classmethod"""
+    @abstractmethod
+    def plottingscripttemplate(cls):
+        """override with a classmethod"""
+
+    @classmethod
+    def doRunPlots(cls, validations):
+        cls.createPlottingScript(validations)
+        result = cls.runPlots(validations)
+        result = replaceByMap(result, PlottingOptions(None, cls))
+        if result and result[-1] != "\n": result += "\n"
+        return result
+    @classmethod
+    def createPlottingScript(cls, validations):
+        repmap = PlottingOptions(None, cls).validation.copy()
+        filename = replaceByMap(".oO[plottingscriptpath]Oo.", repmap)
+        repmap["PlottingInstantiation"] = "".join(
+                                                  replaceByMap(v.appendToPlots(), v.getRepMap())
+                                                       for v in validations
+                                                 )
+        plottingscript = replaceByMap(cls.plottingscripttemplate(), repmap)
+        with open(filename) as f:
+            f.write(plottingscript)

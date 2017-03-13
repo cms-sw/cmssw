@@ -103,6 +103,9 @@ class BasePlottingOptions(object):
                 "SCRAM_ARCH": self.scramarch,
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
                 })
+        if issubclass(self.validationclass, ValidationWithPlots)
+            result["plottingscriptname"] = self.validationclass.plottingscriptname()
+            result["plottingscriptpath"] = ".oO[scriptsdir]Oo./.oO[plottingscriptname]Oo."
         return result
 
 class PlottingOptionsTrackSplitting(BasePlottingOptions):
@@ -111,6 +114,7 @@ class PlottingOptionsTrackSplitting(BasePlottingOptions):
                 "subdetector": "none",
                }
     needpackages = {"Alignment/CommonAlignmentProducer"}
+    validationclass = TrackSplittingValidation
     def __init__(self, config):
         super(PlottingOptionsTrackSplitting, self).__init__(config, "split")
         validsubdets = self.validsubdets()
@@ -155,6 +159,7 @@ class PlottingOptionsZMuMu(BasePlottingOptions):
                 "rebinpt": "8",
                }
     needpackages = {"MuonAnalysis/MomentumScaleCalibration"}
+    validationclass = ZMuMuValidation
     def __init__(self, config):
         super(PlottingOptionsZMuMu, self).__init__(config, "zmumu")
 
@@ -166,7 +171,9 @@ class PlottingOptionsOffline(BasePlottingOptions):
                 "OfflineTreeBaseDir":"TrackHitFilter",
                 "SurfaceShapes":"coarse",
                 "bigtext":"false",
+                "mergeOfflineParJobsScriptPath": ".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C",
                }
+    validationclass = OfflineValidation
     def __init__(self, config):
         super(PlottingOptionsOffline, self).__init__(config, "offline")
 
@@ -175,23 +182,24 @@ class PlottingOptionsPrimaryVertex(BasePlottingOptions):
                 "autoLimits":"false",
                 "doMaps":"false",
                 "stdResiduals":"true",
-                "m_dxyPhiMax":"40",    
-                "m_dzPhiMax":"40",    
-                "m_dxyEtaMax":"40",    
-                "m_dzEtaMax":"40",                            
-                "m_dxyPhiNormMax":"0.5",   
-                "m_dzPhiNormMax":"0.5",   
-                "m_dxyEtaNormMax":"0.5",   
-                "m_dzEtaNormMax":"0.5",                           
-                "w_dxyPhiMax":"150",   
-                "w_dzPhiMax":"150",   
-                "w_dxyEtaMax":"150",   
-                "w_dzEtaMax":"1000",                          
-                "w_dxyPhiNormMax":"1.8",   
-                "w_dzPhiNormMax":"1.8",   
-                "w_dxyEtaNormMax":"1.8",   
-                "w_dzEtaNormMax":"1.8",    
+                "m_dxyPhiMax":"40",
+                "m_dzPhiMax":"40",
+                "m_dxyEtaMax":"40",
+                "m_dzEtaMax":"40",
+                "m_dxyPhiNormMax":"0.5",
+                "m_dzPhiNormMax":"0.5",
+                "m_dxyEtaNormMax":"0.5",
+                "m_dzEtaNormMax":"0.5",
+                "w_dxyPhiMax":"150",
+                "w_dzPhiMax":"150",
+                "w_dxyEtaMax":"150",
+                "w_dzEtaMax":"1000",
+                "w_dxyPhiNormMax":"1.8",
+                "w_dzPhiNormMax":"1.8",
+                "w_dxyEtaNormMax":"1.8",
+                "w_dzEtaNormMax":"1.8",
                 }
+    validationclass = PrimaryVertex
     def __init__(self, config):
         super(PlottingOptionsPrimaryVertex, self).__init__(config, "primaryvertex")
 
@@ -200,9 +208,13 @@ def PlottingOptions(config, valType):
                               "offline": PlottingOptionsOffline,
                               "split": PlottingOptionsTrackSplitting,
                               "zmumu": PlottingOptionsZMuMu,
-                              "primaryvertex": PlottingOptionsPrimaryVertex
+                              "primaryvertex": PlottingOptionsPrimaryVertex,
                              }
+    if isinstance(valType, type):
+        valType = valType.valType
 
     if valType not in globalDictionaries.plottingOptions:
+        if config is None:
+            raise ValueError("Have to provide a config the first time you call PlottingOptions for {}".format(valType))
         globalDictionaries.plottingOptions[valType] = plottingOptionsClasses[valType](config)
     return globalDictionaries.plottingOptions[valType].getRepMap()

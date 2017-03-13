@@ -70,3 +70,11 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
         repMap = self.getRepMap()
         return (' loadFileList("root://eoscms//eos/cms%(finalResultFile)s",'
                 '"PVValidation","%(title)s", %(color)s, %(style)s);\n')%repMap
+
+    @classmethod
+    def plottingscriptname(cls):
+        return "TkAlPrimaryVertexValidationPlot.C"
+
+    @classmethod
+    def plottingscripttemplate(cls):
+        return configTemplates.PrimaryVertexPlotTemplate

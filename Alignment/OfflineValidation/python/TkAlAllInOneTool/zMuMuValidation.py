@@ -76,3 +76,11 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
         repMap = self.getRepMap()
         replaceByMap('    filenames.push_back("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./BiasCheck.root");  titles.push_back(".oO[title]Oo.");  colors.push_back(.oO[color]Oo.);  linestyles.push_back(.oO[style]Oo.);\n', repMap)
         return validationsSoFar
+
+    @classmethod
+    def plottingscriptname(cls):
+        return "TkAlMergeZmumuPlots.C"
+
+    @classmethod
+    def plottingscripttemplate(cls):
+        return configTemplates.mergeZmumuPlotsTemplate
