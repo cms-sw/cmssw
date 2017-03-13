@@ -214,7 +214,10 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           //   vtx = tsos.globalPosition();
           //          phiAtVtx = tsos.globalDirection().phi();
           vtx = ctrack->referencePoint();
+	  float ptTrk = ctrack->pt();
+	  float etaAtVtx = ctrack->eta();
           float phiAtVtx = ctrack->phi();
+
           int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
           if (nlost == 0) { 
             if (ctrack->hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)) {
@@ -225,14 +228,16 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           }
 
 
-          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, ptTrk, etaAtVtx, phiAtVtx, cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(qualityMap[quality]));
           if(cand.trackRef().isNonnull() && PVOrig->trackWeight(cand.trackRef()) > 0.5 && quality == 7) {
                   outPtrP->back().setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
           }
           // properties of the best track 
           outPtrP->back().setLostInnerHits( lostHits );
-          if(outPtrP->back().pt() > minPtForTrackProperties_ || whiteList.find(ic)!=whiteList.end()) {
+          if(outPtrP->back().pt() > minPtForTrackProperties_ || 
+	     outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
+	     whiteList.find(ic)!=whiteList.end()) {
             outPtrP->back().setTrackProperties(*ctrack);
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
           }
@@ -249,7 +254,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
             PVpos = PV->position();
           }
 
-          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
+          outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.pt(), cand.eta(), cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
 
