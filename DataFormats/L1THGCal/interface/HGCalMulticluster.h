@@ -10,38 +10,53 @@
 
 namespace l1t {
   
-  class HGCalMulticluster : public L1Candidate {
+    class HGCalMulticluster : public L1Candidate {
 
-  public:
+    public:
 
         /* constructors and destructor */
         HGCalMulticluster() {}
 
         HGCalMulticluster( const LorentzVector p4,
-                           int pt,
-                           int eta,
-                           int phi
-        );
+                           int pt=0,
+                           int eta=0,
+                           int phi=0
+            );
 
-        HGCalMulticluster( const l1t::HGCalCluster & clu );
-
+        HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &clu );
+ 
         ~HGCalMulticluster();
 
         /* cluster collection pertinent to the multicluster */
-        const edm::PtrVector<l1t::HGCalCluster>  clusters() const { return clusters_; }        
-
+        const edm::PtrVector<l1t::HGCalCluster>&  clusters() const {
+            return (edm::PtrVector<l1t::HGCalCluster>&) clusters_; 
+        }        
+        edm::PtrVector<l1t::HGCalCluster>::const_iterator clusters_begin() const { 
+            return clusters_.begin(); 
+        }
+        edm::PtrVector<l1t::HGCalCluster>::const_iterator clusters_end() const { 
+            return clusters_.end(); 
+        }
+        const edm::Ptr<l1t::HGCalCluster> firstCluster() const {
+            return *clusters_begin(); 
+        }        
+        unsigned clustersSize() const { return clusters_.size(); }
+        
         /* helpers */
-        void addCluster( const l1t::HGCalCluster & clu );
-        void addClusterList( edm::Ptr<l1t::HGCalCluster> &clu );
+        void addCluster( const edm::Ptr<l1t::HGCalCluster> &clu);
 
         /* get info */
-        bool isValid()      const {return true;}
-        GlobalPoint centre() const { return centre_; } /* in normal plane (x, y, z) */
-        GlobalPoint centreProj() const { return centreProj_; } /* in normalized plane (x/z, y/z, z/z) */
+        bool isValid() const {
+            if(clusters_.size() > 0 ) return true;
+            return false;
+        }
+
+        GlobalPoint& centre() const { return (GlobalPoint&) centre_; }         /* in (x, y, z) */
+        GlobalPoint& centreProj() const { return (GlobalPoint&) centreProj_; } /* in (x/z, y/z, z/z) */
 
         uint32_t firstClusterDetId() const { return firstClusterDetId_; }
         double mipPt() const { return mipPt_; }
-        uint32_t hOverE() const { return hOverE_; }
+        double hOverE() const;
         int32_t zside() const;
 
         /* operators */
@@ -66,13 +81,10 @@ namespace l1t {
 
         /* Energies */
         double mipPt_;
-      
-        /* identification variables */
-        uint32_t hOverE_;
-      
+            
     };
     
-  typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;  
+    typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;  
   
 }
 

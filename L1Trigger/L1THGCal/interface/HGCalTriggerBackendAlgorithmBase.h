@@ -51,10 +51,6 @@ class HGCalTriggerBackendAlgorithmBase {
   //runs the trigger algorithm, storing internally the results
   virtual void setProduces(edm::EDProducer& prod) const = 0;
 
-//  virtual void run(const l1t::HGCFETriggerDigiCollection& coll, 
-//		   const edm::EventSetup& es,
-//		   const edm::Event &e
-//		   ) = 0;
   virtual void run(const l1t::HGCFETriggerDigiCollection& coll, 
 		   const edm::EventSetup& es,
 		   edm::Event &e

@@ -2,7 +2,6 @@
 
 using namespace l1t;
 
-
 HGCalTriggerCell::
 HGCalTriggerCell( const LorentzVector& p4,
         int pt,

@@ -41,7 +41,7 @@ void HGCalTriggerCellCalibration::calibrateInMipT(l1t::HGCalTriggerCell& trgCell
 } 
 
 
-void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell, int cellThickness)
+void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgCell )
 {
     const double MevToGeV(0.001);
 
@@ -77,7 +77,7 @@ void HGCalTriggerCellCalibration::calibrateInGeV(l1t::HGCalTriggerCell& trgCell,
     calibrateInMipT(trgCell, cellThickness);
 
     /* calibrate from mip count to GeV */
-    calibrateMipTinGeV(trgCell, cellThickness);
+    calibrateMipTinGeV(trgCell);
 
 }
  

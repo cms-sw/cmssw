@@ -83,11 +83,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
 
     /* loop over the trigger cells pertinent to a cluster */
     const edm::PtrVector<l1t::HGCalTriggerCell> pertinentTC = cl_itr->triggercells();
-    int nTC = 0;
-    for(unsigned itc(0); itc<pertinentTC.size(); ++itc){
-        nTC++;
-    }
-    cl_ncells_.emplace_back(nTC);
+    cl_ncells_.emplace_back(cl_itr->triggercells().size());
   }
 }
 
