@@ -89,15 +89,16 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
         return repMap
 
     def appendToPlots(self):
-        return replaceByMap('  p.loadFileList(".oO[filetoplot]Oo.", ".oO[title]Oo.",'
-                                              '.oO[color]Oo., .oO[style]Oo.);\n', repMap)
+        return '  p.loadFileList(".oO[filetoplot]Oo.", ".oO[title]Oo.", .oO[color]Oo., .oO[style]Oo.);\n'
 
     @classmethod
-    def initMerge(cls, folder):
-        outFilePath = os.path.join(folder, "TkAlOfflineJobsMerge.C")
+    def initMerge(cls):
+        outFilePath = replaceByMap(".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C", self.getRepMap())
         with open(outFilePath, "w") as theFile:
             theFile.write(replaceByMap(configTemplates.mergeOfflineParJobsTemplate, {}))
-        super(OfflineValidation, cls).initMerge(folder)
+        result = super(OfflineValidation, cls).initMerge(folder)
+        result += ("cp .oO[Alignment/OfflineValidation]Oo./scripts/merge_TrackerOfflineValidation.C .\n"
+                   "rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .\n")
 
     def appendToMerge(self):
         repMap = self.getRepMap()
@@ -106,8 +107,15 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
 
         mergedoutputfile = "root://eoscms//eos/cms%(finalResultFile)s"%repMap
         return ('root -x -b -q -l "TkAlOfflineJobsMerge.C(\\\"'
-                +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"'
-                +"\n")
+                +parameters+'\\\",\\\"'+mergedoutputfile+'\\\")"')
+
+    @classmethod
+    def plottingscriptname(cls):
+        return "TkAlExtendedOfflineValidation.C"
+
+    @classmethod
+    def plottingscripttemplate(cls):
+        return configTemplates.extendedValidationTemplate
 
 class OfflineValidationDQM(OfflineValidation):
     configBaseName = "TkAlOfflineValidationDQM"

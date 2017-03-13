@@ -57,4 +57,12 @@ class TrackSplittingValidation(GenericValidationData, ParallelValidation, Valida
         parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
 
         mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
-        return "hadd -f %s %s\n" % (mergedoutputfile, parameters)
+        return "hadd -f %s %s" % (mergedoutputfile, parameters)
+
+    @classmethod
+    def plottingscriptname(cls):
+        return "TkAlTrackSplitPlot.C"
+
+    @classmethod
+    def plottingscripttemplate(cls):
+        return configTemplates.trackSplitPlotTemplate
