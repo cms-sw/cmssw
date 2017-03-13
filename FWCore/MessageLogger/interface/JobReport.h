@@ -106,7 +106,7 @@ namespace edm {
 
       struct RunReport {
         RunNumber runNumber;
-        std::set<unsigned int> lumiSections;
+        std::map<unsigned int,unsigned long> lumiSectionsToNEvents;
       };
 
       /**\struct InputFile
@@ -195,7 +195,7 @@ namespace edm {
          * Associate a Lumi Section to all open output files
          *
          */
-        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection);
+        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection, unsigned long nEvents);
 
         /*
          * Associate a Lumi Section to all open input files
@@ -336,7 +336,7 @@ namespace edm {
       /// for output files, call only if lumi section is written to
       /// the output file
       ///
-      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId);
+      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId, unsigned long nEvents=0);
 
       ///
       /// API for reporting a Lumi Section to the job report.
