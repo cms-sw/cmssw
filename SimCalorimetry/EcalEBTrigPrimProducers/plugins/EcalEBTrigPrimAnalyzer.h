@@ -41,8 +41,11 @@ class EcalEBTrigPrimAnalyzer : public edm::one::EDAnalyzer<> {
   TH1I * ecal_fgvb_[2];
   TH1I *histEndc,*histBar;
   TFile *histfile_;
+  TH1F *hAllTPperEvt_;
+  TH1F *hTPperEvt_;
   TH2F *hTPvsRechit_;
   TH1F *hTPoverRechit_;
+  TH1F *hDeltaEt_;
   TH1F *hAllRechitEt_;
   TH1F *hRechitEt_;
   TH1F *hTPEt_;
