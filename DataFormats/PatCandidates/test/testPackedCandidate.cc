@@ -48,7 +48,7 @@ void testPackedCandidate::testCopyConstructor() {
   pat::PackedCandidate::Point v(0.01,0.02,0.);
 
   //invalid Refs use a special key
-  pat::PackedCandidate pc(lv, v, 1., 11, reco::VertexRefProd(), reco::VertexRef().key());
+  pat::PackedCandidate pc(lv, v, 1., 1., 1., 11, reco::VertexRefProd(), reco::VertexRef().key());
 
   //these by design do not work
   //  CPPUNIT_ASSERT(pc.polarP4() == plv);
@@ -80,7 +80,7 @@ testPackedCandidate::testPackUnpack() {
   pat::PackedCandidate::Point v(-0.005,0.005,0.1);
 
   //invalid Refs use a special key
-  pat::PackedCandidate pc(lv, v, -3./4.*3.1416, 11, reco::VertexRefProd(), reco::VertexRef().key());
+  pat::PackedCandidate pc(lv, v, 1., -3./4.*3.1416, 1., 11, reco::VertexRefProd(), reco::VertexRef().key());
 
   pc.pack(true);
   pc.packVtx(true);
@@ -106,7 +106,7 @@ void testPackedCandidate::testSimulateReadFromRoot() {
   pat::PackedCandidate::Point v(-0.005,0.005,0.1);
 
   //invalid Refs use a special key
-  pat::PackedCandidate pc(lv, v, -3./4.*3.1416, 11, reco::VertexRefProd(), reco::VertexRef().key());
+  pat::PackedCandidate pc(lv, v, 1., -3./4.*3.1416, 1., 11, reco::VertexRefProd(), reco::VertexRef().key());
 
   //  CPPUNIT_ASSERT(pc.polarP4() == plv);
   //  CPPUNIT_ASSERT(pc.p4() == lv);
