@@ -1,7 +1,7 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData
+from genericValidation import GenericValidationData, ValidationWithPlots
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
@@ -17,7 +17,7 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
                 "doBPix":"True",
                 "doFPix":"True"
                }
-    mandatories = ["isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"]
+    mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
     def __init__(self, valName, alignment, config):
         super(PrimaryVertexValidation, self).__init__(valName, alignment, config,
                                                       "primaryvertex")

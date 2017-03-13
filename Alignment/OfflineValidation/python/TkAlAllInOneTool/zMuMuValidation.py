@@ -1,7 +1,7 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData
+from genericValidation import GenericValidationData, ValidationWithPlots
 from helperFunctions import replaceByMap
 from TkAlExceptions import AllInOneError
 
