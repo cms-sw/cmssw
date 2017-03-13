@@ -88,6 +88,13 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   std::vector<std::string> trkQuals(iConfig.getParameter<std::vector<std::string> >("qualsToAutoAccept"));
   std::transform(trkQuals.begin(),trkQuals.end(),std::back_inserter(qualsToAutoAccept_),reco::TrackBase::qualityByName);
   
+  if(std::find(qualsToAutoAccept_.begin(),qualsToAutoAccept_.end(),reco::TrackBase::undefQuality)!=qualsToAutoAccept_.end()){
+    std::ostringstream msg;
+    msg<<" PATLostTracks has a quality requirement which resolves to undefQuality. This usually means a typo and is therefore treated a config error\nquality requirements:\n   ";
+    for(const auto& trkQual : trkQuals) msg <<trkQual<<" ";
+    throw cms::Exception("Configuration") << msg.str();
+  } 
+    
   produces< std::vector<reco::Track> > ();
   produces< std::vector<pat::PackedCandidate> > (); produces< std::vector<pat::PackedCandidate> > ("eleTracks");
   produces< edm::Association<pat::PackedCandidateCollection> > ();
