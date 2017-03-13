@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import MassSearchReplaceAnyInputTagVisitor, cloneProcessingSnippet, addKeepStatement
 from PhysicsTools.PatAlgos.slimming.extraJets_MuEGFixMoriond2017 import backupJetsFirstStep, backupJetsSecondStep
-from RecoEgamma.EgammaTools.egammaGainSwitchFixToolsForPAT_cff import customizeGSFixForPAT
+#from RecoEgamma.EgammaTools.egammaGainSwitchFixToolsForPAT_cff import customizeGSFixForPAT
 
 def addBadMuonFilters(process):
     process.load("RecoMET.METFilters.badGlobalMuonTaggersAOD_cff")
@@ -84,7 +84,8 @@ def loadJetMETBTag(process):
 
 def customizeAll(process, verbose=False):
     
-    process = customizeGSFixForPAT(process)
+    #disabled for now, backup in case 90X needs similar fix
+    #process = customizeGSFixForPAT(process)
 
     loadJetMETBTag(process)
     backupJetSequences = backupJetsFirstStep(process)

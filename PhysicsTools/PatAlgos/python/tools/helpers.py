@@ -327,6 +327,74 @@ def cloneProcessingSnippet(process, sequence, postfix, removePostfix="", noClone
        result = visitor.clonedSequence()
    return result
 
+def listDependencyChain(process, module, sources, verbose=False):
+    """
+    Walk up the dependencies of a module to find any that depend on any of the listed sources
+    """
+    def allDirectInputModules(moduleOrPSet,moduleName,attrName):
+        ret = set()
+        for name,value in moduleOrPSet.parameters_().iteritems():
+            type = value.pythonTypeName()
+            if type == 'cms.PSet':
+                ret.update(allDirectInputModules(value,moduleName,moduleName+"."+name))
+            elif type == 'cms.VPSet':
+                for (i,ps) in enumerate(value):
+                    ret.update(allDirectInputModules(ps,moduleName,"%s.%s[%d]"%(moduleName,name,i)))
+            elif type == 'cms.VInputTag':
+                inputs = [ MassSearchReplaceAnyInputTagVisitor.standardizeInputTagFmt(it) for it in value ]
+                inputLabels = [ tag.moduleLabel for tag in inputs if tag.processName == '' or tag.processName == process.name_() ]
+                ret.update(inputLabels)
+                if verbose and inputLabels: print "%s depends on %s via %s" % (moduleName, inputLabels, attrName+"."+name)
+            elif type.endswith('.InputTag'):
+                if value.processName == '' or value.processName == process.name_():
+                    ret.add(value.moduleLabel)
+                    if verbose: print "%s depends on %s via %s" % (moduleName, value.moduleLabel, attrName+"."+name)
+        ret.discard("")
+        return ret
+    def fillDirectDepGraphs(root,fwdepgraph,revdepgraph):
+        if root.label_() in fwdepgraph: return
+        deps = allDirectInputModules(root,root.label_(),root.label_())
+        fwdepgraph[root.label_()] = []
+        for d in deps:        
+            fwdepgraph[root.label_()].append(d)
+            if d not in revdepgraph: revdepgraph[d] = []
+            revdepgraph[d].append(root.label_())
+            depmodule = getattr(process,d,None)
+            if depmodule:
+                fillDirectDepGraphs(depmodule,fwdepgraph,revdepgraph)
+        return (fwdepgraph,revdepgraph)
+    fwdepgraph, revdepgraph = fillDirectDepGraphs(module, {}, {})
+    def flattenRevDeps(flatgraph, revdepgraph, tip):
+        """Make a graph that for each module lists all the ones that depend on it, directly or indirectly"""
+        # don't do it multiple times for the same module
+        if tip in flatgraph: return 
+        # if nobody depends on this module, there's nothing to do
+        if tip not in revdepgraph: return
+        # assemble my dependencies, in a depth-first approach
+        mydeps = set()
+        # start taking the direct dependencies of this module
+        for d in revdepgraph[tip]:
+            # process them
+            flattenRevDeps(flatgraph, revdepgraph, d)
+            # then add them and their processed dependencies to our deps
+            mydeps.add(d)
+            if d in flatgraph: 
+                 mydeps.update(flatgraph[d])
+        flatgraph[tip] = mydeps
+    flatdeps = {}
+    allmodules = set()
+    for s in sources: 
+        flattenRevDeps(flatdeps, revdepgraph, s)
+        if s in flatdeps: allmodules.update(f for f in flatdeps[s])
+    livemodules = [ a for a in allmodules if hasattr(process,a) ]
+    if not livemodules: return None
+    modulelist = [livemodules.pop()]
+    for module in livemodules:
+        for i,m in enumerate(modulelist):
+            if module in flatdeps and m in flatdeps[module]:
+                modulelist.insert(i, module)
+                break
+      
 
 def addKeepStatement(process, oldKeep, newKeeps, verbose=False):
     """Add new keep statements to any PoolOutputModule of the process that has the old keep statements"""
