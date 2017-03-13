@@ -9,17 +9,17 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& con
 }
 
 
-bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu, 
+bool HGCalMulticlusteringImpl::isPertinent( const edm::Ptr<l1t::HGCalCluster> clu, 
                                             const l1t::HGCalMulticluster & mclu, 
                                             double dR ) const
 {
-    HGCalDetId cluDetId( clu.seedDetId() );
+    HGCalDetId cluDetId( clu->seedDetId() );
     HGCalDetId firstClusterDetId( mclu.firstClusterDetId() );
     
     if( cluDetId.zside() != firstClusterDetId.zside() ){
         return false;
     }
-    if( ( mclu.centreProj() - clu.centreProj() ).mag() < dR ){
+    if( ( mclu.centreProj() - clu->centreProj() ).mag() < dR ){
         return true;
     }
     return false;
@@ -27,50 +27,44 @@ bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu,
 }
 
 
-void HGCalMulticlusteringImpl::clusterize( const edm::OrphanHandle<l1t::HGCalClusterBxCollection> clustersHandle, 
+void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluster> clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
+           
+    std::vector<l1t::HGCalMulticluster> multiclustersTmp;
+
+    int iclu = 0;
+    for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
         
-    if( clustersHandle.isValid() ){
-        std::vector<l1t::HGCalMulticluster> multiclustersTmp;
-        int iclu = 0;
-        for(l1t::HGCalClusterBxCollection::const_iterator clu = clustersHandle->begin(); clu != clustersHandle->end(); ++clu, ++iclu){
-        
-            int imclu=0;
-            vector<int> tcPertinentMulticlusters;
-            for(l1t::HGCalMulticlusterBxCollection::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu){
-                if( this->isPertinent(*clu, *mclu, dr_) ){
-                    tcPertinentMulticlusters.push_back(imclu);
+        int imclu=0;
+        vector<int> tcPertinentMulticlusters;
+        for(std::vector<l1t::HGCalMulticluster>::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu){
+            if( this->isPertinent(*clu, *mclu, dr_) ){
+                tcPertinentMulticlusters.push_back(imclu);
+            }
+        }
+        if( tcPertinentMulticlusters.size() == 0 ){
+            multiclustersTmp.emplace_back( *clu );
+        }
+        else{
+            unsigned minDist = 1;
+            unsigned targetMulticlu = 0; 
+            for( std::vector<int>::const_iterator imclu = tcPertinentMulticlusters.begin(); imclu != tcPertinentMulticlusters.end(); ++imclu ){
+                double d = ( multiclustersTmp.at(*imclu).centreProj() - (*clu)->centreProj() ).mag() ;
+                if( d < minDist ){
+                    minDist = d;
+                    targetMulticlu = *imclu;
                 }
-            }
-            if( tcPertinentMulticlusters.size() == 0 ){
-                l1t::HGCalMulticluster obj( *clu );
-                multiclustersTmp.emplace_back( obj );
-            }
-            else{
-                unsigned minDist = 1;
-                unsigned targetMulticlu = 0; 
-                for( std::vector<int>::const_iterator imclu = tcPertinentMulticlusters.begin(); imclu != tcPertinentMulticlusters.end(); ++imclu ){
-                    double d = ( multiclustersTmp.at(*imclu).centreProj() - clu->centreProj() ).mag() ;
-                    if( d < minDist ){
-                        minDist = d;
-                        targetMulticlu = *imclu;
-                    }
-                } 
+            } 
 
-                multiclustersTmp.at( targetMulticlu ).addCluster( *clu );
-                edm::Ptr<l1t::HGCalCluster> p( clustersHandle, iclu, true );
-                multiclustersTmp.at( targetMulticlu ).addClusterList( p );       
+            multiclustersTmp.at( targetMulticlu ).addCluster( *clu );
             
-            }
-        
-        }
-
-        /* making the collection of multiclusters */
-        for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-            if( multiclustersTmp.size()>0 ){
-                multiclusters.push_back( 0, multiclustersTmp.at(i) );
-            }
-        }
+        }        
     }
+
+    /* making the collection of multiclusters */
+    for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
+        multiclusters.push_back( 0, multiclustersTmp.at(i) );
+    }
+    
 }

@@ -31,12 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(
-#        'file:./testGenOnly.root'
-        'file:./test.root'
-        )
-#     fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall16DR82/MinBias_200PU_TuneCUETP8M1_14TeV-pythia8/GEN-SIM-RECO/PU200_90X_upgrade2023_realistic_v1-v1/60000/0047077C-B4ED-E611-8B36-FA163E78D122.root')
-#    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/user/lmastrol/UsrProd_Crab3/PhotonGunPt_15_150_900_pre4_Feb17_l1tpg/170222_134949/0000/l1tpg_gsdr_1.root')
+    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall16DR82/MinBias_200PU_TuneCUETP8M1_14TeV-pythia8/GEN-SIM-RECO/PU200_90X_upgrade2023_realistic_v1-v1/60000/0047077C-B4ED-E611-8B36-FA163E78D122.root')
 )
 
 # Additional output definition
