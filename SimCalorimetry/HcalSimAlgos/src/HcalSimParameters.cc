@@ -10,20 +10,18 @@
 using namespace std;
 
 HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
-				     const std::vector<double> & photoelectronsToAnalog,
 				     double samplingFactor, double timePhase,
 				     int readoutFrameSize, int binOfMaximum,
 				     bool doPhotostatistics, bool syncPhase,
 				     int firstRing, const std::vector<double> & samplingFactors,
                      double sipmTau
 				     )
-: CaloSimParameters(simHitToPhotoelectrons,  photoelectronsToAnalog[0], samplingFactor, timePhase,
+: CaloSimParameters(simHitToPhotoelectrons,  0.0, samplingFactor, timePhase,
                     readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
   theDbService(0),
   theSiPMcharacteristics(0),
   theFirstRing(firstRing),
   theSamplingFactors(samplingFactors),
-  thePE2fCByRing(photoelectronsToAnalog),
   theSiPMSmearing(false),
   doTimeSmear_(true),
   theSiPMTau(sipmTau)
@@ -34,11 +32,10 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
 }
 
 HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
-:  CaloSimParameters(p),
+:  CaloSimParameters(p,true),
    theDbService(0),
    theFirstRing( p.getParameter<int>("firstRing") ),
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
-   thePE2fCByRing( p.getParameter<std::vector<double> >("photoelectronsToAnalog") ),
    theSiPMSmearing( p.getParameter<bool>("doSiPMSmearing") ),
    doTimeSmear_( p.getParameter<bool>("timeSmearing") ),
    theSiPMTau( p.getParameter<double>("sipmTau") )
@@ -102,12 +99,8 @@ double HcalSimParameters::samplingFactor(const DetId & detId) const
 
 double HcalSimParameters::photoelectronsToAnalog(const DetId & detId) const
 {
+  //now always taken from database for HPDs or SiPMs (HB, HE, HO)
   assert(theDbService);
-  int type = theDbService->getHcalSiPMParameter(detId)->getType();
-  if (type == HcalNoSiPM) {
-    HcalDetId hcalDetId(detId);
-    return thePE2fCByRing.at(hcalDetId.ietaAbs()-theFirstRing);
-  }
   return theDbService->getHcalSiPMParameter(detId)->getFCByPE();
 }
 
