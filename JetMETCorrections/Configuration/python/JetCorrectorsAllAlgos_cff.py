@@ -473,10 +473,10 @@ ic5PFL1L2L3CorrectorChain = cms.Sequence(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak7JPTL1L2L3Corrector = cms.EDProducer(
     'ChainedJetCorrectorProducer',
-    correctors = cms.VInputTag('ak7JPTL1OffsetCorrector','ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
+    correctors = cms.VInputTag('ak7L1JPTOffsetCorrector','ak7JPTL2RelativeCorrector','ak7JPTL3AbsoluteCorrector')
     )
 ak7JPTL1L2L3CorrectorChain = cms.Sequence(
-    ak7JPTL1OffsetCorrector * ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTL1L2L3Corrector
+    ak7L1JPTOffsetCorrectorChain * ak7JPTL2RelativeCorrector * ak7JPTL3AbsoluteCorrector * ak7JPTL1L2L3Corrector
 )
 
 # L2L3Residual CORRECTORS
