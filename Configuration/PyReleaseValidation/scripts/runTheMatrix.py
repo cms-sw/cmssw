@@ -76,6 +76,12 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage)
 
+    parser.add_option('-b','--batchName',
+                      help='relval batch: suffix to be appended to Campaign name',
+                      dest='batchName',
+                      default=''
+                     )
+
     parser.add_option('-m','--memoryOffset',
                       help='memory of the wf for single core',
                       dest='memoryOffset',
