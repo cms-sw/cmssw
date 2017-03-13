@@ -253,21 +253,21 @@ void CaloTPGTranscoderULUT::setup(HcalLutMetadata const& lutMetadata, HcalTrigTo
     outputLUT_.resize(theTopology->getHTSize());
     hcaluncomp_.resize(theTopology->getHTSize());
 
+    plan1_towers_.clear();
+    for (const auto& id: lutMetadata.getAllChannels()) {
+       if (not (id.det() == DetId::Hcal and theTopology->valid(id)))
+          continue;
+       HcalDetId cell(id);
+       if (not theTopology->dddConstants()->isPlan1(cell))
+          continue;
+       for (const auto& tower: theTrigTowerGeometry.towerIds(cell))
+          plan1_towers_.emplace(tower);
+    }
+
     if (compressionFile_.empty() && decompressionFile_.empty()) {
 	loadHCALCompress(lutMetadata,theTrigTowerGeometry);
     }
     else {
 	throw cms::Exception("Not Implemented") << "setup of CaloTPGTranscoderULUT from text files";
-   }
-
-   plan1_towers_.clear();
-   for (const auto& id: lutMetadata.getAllChannels()) {
-      if (not (id.det() == DetId::Hcal and theTopology->valid(id)))
-         continue;
-      HcalDetId cell(id);
-      if (not theTopology->dddConstants()->isPlan1(cell))
-         continue;
-      for (const auto& tower: theTrigTowerGeometry.towerIds(cell))
-         plan1_towers_.emplace(tower);
    }
 }
