@@ -277,7 +277,7 @@ bool ME0SegmentAlgorithm::isGoodToMerge(const ME0Chamber * chamber, const HitAnd
       if (std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) >= dPhiChainBoxMax) continue;
       if (std::abs(pos_new.eta()-pos_old.eta()) >= dEtaChainBoxMax) continue;
       // and the difference in layer index should be < (nlayers-1)
-      if (std::abs(newChain[iRH_new]->layer - oldChain[iRH_old]->layer) >= (chamber->id().nlayers()-1)) continue;
+      if (std::abs(int(newChain[iRH_new]->layer) - int(oldChain[iRH_old]->layer)) >= (chamber->id().nlayers()-1)) continue;
       // and they should have a time difference compatible with the hypothesis
       // that the rechits originate from the same particle, but were detected in different layers
       if (std::abs(newChain[iRH_new]->rh->tof() - oldChain[iRH_old]->rh->tof()) >= dTimeChainBoxMax) continue;
