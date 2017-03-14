@@ -1022,7 +1022,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
     const SiStripQuality* stripQuality = qualityHandle.product();
 
     edm::Handle<edm::DetSetVector<SiStripDigi>> digihandle;
-
+    ev.getByToken( digiToken_, digihandle );
 
     //Get SiStripCluster from SiStripRecHit
     if ( tkrecHit != NULL ){
