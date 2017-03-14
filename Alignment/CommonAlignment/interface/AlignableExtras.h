@@ -47,6 +47,9 @@ class AlignableExtras
   void initializeBeamSpot(double x, double y, double z,
 			  double dxdz, double dydz);
 
+  /// Initialize the alignable beam spot with the given parameters
+  void resetBeamSpot();
+
  private:
   
   AlignableMap alignableLists_; //< kind of map of lists of alignables
