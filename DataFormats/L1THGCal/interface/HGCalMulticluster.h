@@ -1,78 +1,90 @@
 #ifndef DataFormats_L1Trigger_HGCalMulticluster_h
 #define DataFormats_L1Trigger_HGCalMulticluster_h
 
-#include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
 namespace l1t {
   
   class HGCalMulticluster : public L1Candidate {
-    public:
-        
-        typedef edm::PtrVector<l1t::HGCalCluster>::const_iterator component_iterator;
-        typedef edm::PtrVector<l1t::HGCalCluster>  ClusterCollection;
 
-        HGCalMulticluster(){}
+    public:
+
+        /* constructors and destructor */
+        HGCalMulticluster() {}
+
         HGCalMulticluster( const LorentzVector p4,
-                           int pt,
-                           int eta,
-                           int phi,
-                           ClusterCollection &thecls
+                           int pt=0,
+                           int eta=0,
+                           int phi=0
             );
 
+        HGCalMulticluster( const edm::Ptr<l1t::HGCalCluster> &clu );
+ 
         ~HGCalMulticluster();
-        
-        void push_back(const edm::Ptr<l1t::HGCalCluster> &b) {
-            myclusters_.push_back(b);
+
+        /* cluster collection pertinent to the multicluster */
+        const edm::PtrVector<l1t::HGCalCluster>&  clusters() const {
+            return clusters_; 
+        }        
+        edm::PtrVector<l1t::HGCalCluster>::const_iterator clusters_begin() const { 
+            return clusters_.begin(); 
         }
-  
-        const edm::PtrVector<l1t::HGCalCluster> & clusters() const { return myclusters_; }
+        edm::PtrVector<l1t::HGCalCluster>::const_iterator clusters_end() const { 
+            return clusters_.end(); 
+        }
+        const edm::Ptr<l1t::HGCalCluster> firstCluster() const {
+            return *clusters_begin(); 
+        }        
+        unsigned clustersSize() const { return clusters_.size(); }
         
-        unsigned int size() const { return myclusters_.size(); }  
-        component_iterator begin() const { return myclusters_.begin(); }
-        component_iterator end() const { return myclusters_.end(); }
-        
-        void setHwPtEm  (uint32_t pt)    {hwPtEm_= pt;}
-        void setHwPtHad (uint32_t pt)    {hwPtHad_ = pt;}
-        void setHwSeedPt(uint32_t pt)    {hwSeedPt_ = pt;}
-        void setSubDet  (uint32_t subdet){subDet_ = subdet;}
-        void setNtotLayer   (uint32_t nTotLayer) {nTotLayer_ = nTotLayer;}
-        void setHOverE  (uint32_t hOverE){hOverE_ = hOverE;}
-        
-        bool isValid()      const {return true;}
-        uint32_t hwPtEm()   const {return hwPtEm_;}
-        uint32_t hwPtHad()  const {return hwPtHad_;}
-        uint32_t hwSeedPt() const {return hwSeedPt_;}
-        
-        uint32_t subDet() const {return subDet_;}
-        uint32_t nTotLayer()  const {return nTotLayer_;}
-        
-        uint32_t hOverE() const {return hOverE_;}
-        
+        /* helpers */
+        void addCluster( const edm::Ptr<l1t::HGCalCluster> &clu);
+
+        /* get info */
+        bool isValid() const {
+            if(clusters_.size() > 0 ) return true;
+            return false;
+        }
+
+        const GlobalPoint& centre() const { return centre_; }         /* in (x, y, z) */
+        const GlobalPoint& centreProj() const { return centreProj_; } /* in (x/z, y/z, z/z) */
+
+        uint32_t firstClusterDetId() const { return firstClusterDetId_; }
+        double mipPt() const { return mipPt_; }
+        double hOverE() const;
+        int32_t zside() const;
+
+        /* operators */
         bool operator<(const HGCalMulticluster& cl) const;
         bool operator>(const HGCalMulticluster& cl) const {return  cl<*this;};
         bool operator<=(const HGCalMulticluster& cl) const {return !(cl>*this);};
         bool operator>=(const HGCalMulticluster& cl) const {return !(cl<*this);};
         
     private:
-        edm::PtrVector<l1t::HGCalCluster>  myclusters_;
 
-        // Energies
-        uint32_t hwPtEm_;
-        uint32_t hwPtHad_;
-        uint32_t hwSeedPt_;
-        
-        // HGC specific information
-        uint32_t subDet_;
-        uint32_t nTotLayer_;
-        
-        // identification variables
-        uint32_t hOverE_; 
+        /* persistent vector of edm::Ptr to clusters that build up the multicluster */
+        edm::PtrVector<l1t::HGCalCluster> clusters_;
+
+        /* detId of the first cluster in the multicluster */
+        uint32_t firstClusterDetId_;
+
+        /* centre in norm plane */
+        GlobalPoint centre_;
+
+        /* barycentre */
+        GlobalPoint centreProj_;
+
+        /* Energies */
+        double mipPt_;
+            
     };
     
-  typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;
-  
+  typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;  
   
 }
 
