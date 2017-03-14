@@ -38,8 +38,12 @@ std::string RPCAMCLink::getName() const
     std::ostringstream _oss;
     _oss << "RPCAMCLink_";
     bf_stream(_oss, min_fed_, mask_fed_, pos_fed_);
-    bf_stream(_oss << '_', min_amcnumber_, mask_amcnumber_, pos_amcnumber_);
-    bf_stream(_oss << '_', min_amcinput_, mask_amcinput_, pos_amcinput_);
+    if (id_ & (mask_amcnumber_ | mask_amcinput_)) {
+        bf_stream(_oss << '_', min_amcnumber_, mask_amcnumber_, pos_amcnumber_);
+        if (id_ & mask_amcinput_) {
+            bf_stream(_oss << '_', min_amcinput_, mask_amcinput_, pos_amcinput_);
+        }
+    }
     return _oss.str();
 }
 
