@@ -29,7 +29,7 @@ namespace l1t {
 
             virtual ~GTCollections();
             
-	    inline MuonBxCollection* getMuons() override { return muons_.get(); };
+	    inline MuonBxCollection* getMuons(const unsigned int set) override { return muons_.get(); };
 	    inline EGammaBxCollection* getEGammas() override { return egammas_.get(); };
             inline EtSumBxCollection* getEtSums() override { return etsums_.get(); };
             inline JetBxCollection* getJets() override { return jets_.get(); };

@@ -14,12 +14,15 @@ namespace l1t {
 
             unsigned int getAlgoVersion();
             int getFedNumber();
+            unsigned int getMuonSet();
 
-            void setAlgoVersion(unsigned int version);
-            void setFedNumber(int fed);
+            void setAlgoVersion(const unsigned int version);
+            void setFedNumber(const int fed);
+            void setMuonSet(const unsigned int set);
          private:
             unsigned int algoVersion_;
             int fed_;
+            unsigned int muonSet_;
 
       };
    }
