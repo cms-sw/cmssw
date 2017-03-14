@@ -1,12 +1,12 @@
 import os
 import configTemplates
 import globalDictionaries
-from genericValidation import GenericValidationData, ParallelValidation, ValidationWithPlots
+from genericValidation import GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlots
 from helperFunctions import replaceByMap, addIndex
 from TkAlExceptions import AllInOneError
 
 
-class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithPlots):
+class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWithComparison, ValidationWithPlots):
     configBaseName = "TkAlOfflineValidation"
     scriptBaseName = "TkAlOfflineValidation"
     crabCfgBaseName = "TkAlOfflineValidation"
@@ -116,6 +116,10 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
     @classmethod
     def plottingscripttemplate(cls):
         return configTemplates.extendedValidationTemplate
+
+    @classmethod
+    def comparealignmentsname(cls):
+        return "compareAlignments.cc"
 
 class OfflineValidationDQM(OfflineValidation):
     configBaseName = "TkAlOfflineValidationDQM"

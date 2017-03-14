@@ -200,8 +200,8 @@ comparisonNeeded=${?}
 
 if [[ ${comparisonNeeded} -eq 1 ]]
 then
-    cp .oO[Alignment/OfflineValidation]Oo./scripts/compareAlignments.cc .
-    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\", ".oO[legendheader]Oo.", ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.", .oO[bigtext]Oo.)'
+    cp .oO[compareAlignmentsPath]Oo. .
+    root -x -q -b -l '.oO[compareAlignmentsName]Oo.++(\".oO[compareStrings]Oo.\", ".oO[legendheader]Oo.", ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.", .oO[bigtext]Oo.)'
     mv result.root .oO[validationId]Oo._result.root
     xrdcp -f .oO[validationId]Oo._result.root root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.
 else

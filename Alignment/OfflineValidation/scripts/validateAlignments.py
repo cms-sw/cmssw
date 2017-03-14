@@ -19,7 +19,7 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser \
 from Alignment.OfflineValidation.TkAlAllInOneTool.alignment import Alignment
 
 from Alignment.OfflineValidation.TkAlAllInOneTool.genericValidation \
-    import GenericValidation, ParallelValidation, ValidationWithPlots
+    import GenericValidation, ParallelValidation, ValidationWithComparison, ValidationWithPlots
 from Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison \
     import GeometryComparison
 from Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation \
@@ -317,18 +317,9 @@ def createMergeScript( path, validations ):
             repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
-    if "OfflineValidation" in comparisonLists:
-        compareStrings = [ val.getCompareStrings("OfflineValidation") for val in comparisonLists["OfflineValidation"] ]
-        compareStringsPlain = [ val.getCompareStrings("OfflineValidation", plain=True) for val in comparisonLists["OfflineValidation"] ]
-            
-        repMap_offline = repMap.copy()
-        repMap_offline.update(PlottingOptions(config, "offline"))
-        repMap_offline.update({"validationId": "OfflineValidation",
-                               "compareStrings": " , ".join(compareStrings),
-                               "compareStringsPlain": " ".join(compareStringsPlain) })
-                               
-        repMap["CompareAlignments"] += \
-            replaceByMap(configTemplates.compareAlignmentsExecution, repMap_offline)
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        if issubclass(validationType, ValidationWithComparison):
+            repMap["CompareAlignments"] += validationType.doComparison(validations)
                 
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )

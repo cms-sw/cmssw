@@ -4,7 +4,7 @@ import random
 import globalDictionaries
 import configTemplates
 
-from genericValidation import ValidationMetaClass, ValidationWithPlots
+from genericValidation import ValidationMetaClass, ValidationWithComparison, ValidationWithPlots
 from helperFunctions import getCommandOutput2, replaceByMap
 from offlineValidation import OfflineValidation
 from primaryVertexValidation import PrimaryVertexValidation
@@ -108,10 +108,14 @@ class BasePlottingOptions(object):
                 "CMSSW_BASE": self.cmssw,
                 "SCRAM_ARCH": self.scramarch,
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
+                "validationId": self.validationclass.__name__,
                 })
         if issubclass(self.validationclass, ValidationWithPlots):
             result["plottingscriptname"] = self.validationclass.plottingscriptname()
             result["plottingscriptpath"] = ".oO[scriptsdir]Oo./.oO[plottingscriptname]Oo."
+        if issubclass(self.validationclass, ValidationWithComparison):
+            result["compareAlignmentsPath"] = self.validationclass.comparealignmentspath()
+            result["compareAlignmentsName"] = self.validationclass.comparealignmentsname()
         return result
 
 class PlottingOptionsTrackSplitting(BasePlottingOptions):
@@ -178,7 +182,6 @@ class PlottingOptionsOffline(BasePlottingOptions):
                 "SurfaceShapes":"coarse",
                 "bigtext":"false",
                 "mergeOfflineParJobsScriptPath": ".oO[scriptsdir]Oo./TkAlOfflineJobsMerge.C",
-                "resultPlotFile": "OfflineValidation",
                }
     validationclass = OfflineValidation
     def __init__(self, config):
