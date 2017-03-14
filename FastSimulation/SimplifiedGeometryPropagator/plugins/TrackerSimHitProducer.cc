@@ -63,7 +63,7 @@ namespace fastsim
 
 fastsim::TrackerSimHitProducer::TrackerSimHitProducer(const std::string & name,const edm::ParameterSet & cfg)
     : fastsim::InteractionModel(name)
-    , onSurfaceTolerance_(0.01) // 10 microns // hm, sure this is not 100 microns?
+    , onSurfaceTolerance_(0.01)
     , simHitContainer_(new edm::PSimHitContainer)
 {}
 
@@ -90,6 +90,14 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
     if(!layer.getDetLayer())
     {
 	return;
+    }
+
+    //
+    // no material
+    //
+    if(layer.getThickness(particle.position(), particle.momentum()) < 1E-10)
+    {
+    return;
     }
 
     //
@@ -120,9 +128,9 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
     // Propagate particle backwards a bit to make sure it's outside any components (straight line should work well enough) 
     std::map<double, PSimHit*> distAndHits;
     // Position relative to which the hits should be sorted
-    GlobalPoint positionOutside(particle.position().x()-particle.momentum().x()/particle.momentum().mag()*10.,
-                                particle.position().y()-particle.momentum().y()/particle.momentum().mag()*10.,
-                                particle.position().z()-particle.momentum().z()/particle.momentum().mag()*10.);
+    GlobalPoint positionOutside(particle.position().x()-particle.momentum().x()/particle.momentum().Rho()*10.,
+                                particle.position().y()-particle.momentum().y()/particle.momentum().Rho()*10.,
+                                particle.position().z()-particle.momentum().z()/particle.momentum().Rho()*10.);
     //
     // loop over the compatible detectors
     //
