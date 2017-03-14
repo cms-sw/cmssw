@@ -44,19 +44,14 @@ FlatEvtVtxGenerator::~FlatEvtVtxGenerator()
 }
 
 //Hep3Vector * FlatEvtVtxGenerator::newVertex() {
-HepMC::FourVector* FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+HepMC::FourVector FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) const {
   double aX,aY,aZ,aT;
   aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
   aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
   aT = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
 
-  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  //fVertex->set(aX,aY,aZ);
-  if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(aX,aY,aZ,aT+fTimeOffset);
-
-  return fVertex;
+  return HepMC::FourVector(aX,aY,aZ,aT+fTimeOffset);
 }
 
 void FlatEvtVtxGenerator::minX(double min) 
