@@ -28,8 +28,8 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "CommonTools/Utils/interface/associationMapFilterValues.h"
+#include "FWCore/Utilities/interface/IndexSet.h"
 #include<type_traits>
-#include <unordered_set>
 
 
 #include "TMath.h"
@@ -279,13 +279,14 @@ namespace {
     }
 
     // Same technique as in associationMapFilterValues
-    std::unordered_set<reco::RecoToSimCollection::index_type> fakeKeys;
+    edm::IndexSet fakeKeys;
+    fakeKeys.reserve(fake.size());
     for(const auto& ref: fake) {
       fakeKeys.insert(ref.key());
     }
 
     for(const auto& ref: eff) {
-      if(fakeKeys.find(ref.key()) == fakeKeys.end()) {
+      if(!fakeKeys.has(ref.key())) {
         throw cms::Exception("Configuration") << "Efficiency TrackingParticle " << ref.key() << " is not found from the set of fake TPs. This is not supported. The efficiency TP set must be the same or a subset of the fake TP set.";
       }
     }
