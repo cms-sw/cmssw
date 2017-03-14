@@ -31,7 +31,7 @@ void CMSThermalNeutrons::ConstructProcess() {
   }
 
   G4int ni = (hpel->GetHadronicInteractionList()).size();
-  if(ni < 2) {
+  if(ni < 1) {
     G4cout << "### " << GetPhysicsName() 
 	   << " WARNING: Fail to add thermal neutron scattering - Nint= " 
 	   << ni << G4endl;
