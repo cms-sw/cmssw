@@ -44,7 +44,6 @@
 		<Constant name="YBFeetAir3DY" value="(788*cm-710*cm)*0.5"/>
 		<Constant name="YBFeetAir3DX" value="(270*cm-230*cm)"/>
 		<Constant name="YBFeetAir4DY" value="[cavernData:YBFeetDY]-[cavernData:YBFeetAir1DY]-[cavernData:YBFeetAir3DY]"/>
-		<Constant name="YBFeetBasePosX" value="270*cm+[cavernData:YBFeetBaseDX]"/>
 		<Constant name="FloorDX" value="1250*cm"/>
 		<Constant name="FloorDY" value="360*cm"/>
 		<Constant name="FloorAirZDX" value="115*cm"/>
