@@ -61,8 +61,8 @@ namespace l1t {
 
       double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
       
-      GlobalPoint centre() const { return (const GlobalPoint&) centre_; }
-      GlobalPoint centreProj() const { return (const GlobalPoint&) centreProj_; }
+      const GlobalPoint& centre() const { return centre_; }
+      const GlobalPoint& centreProj() const { return centreProj_; }
 
       uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
       uint32_t layer()     const;
