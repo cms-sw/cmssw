@@ -71,7 +71,10 @@ ak7L1JPTOffsetCorrector = ak4L1JPTOffsetCorrector.clone( offsetService = 'ak7Cal
 ak7L1JPTOffsetCorrectorChain = cms.Sequence(
     ak7CaloL1OffsetCorrector * ak7L1JPTOffsetCorrector
 )
-
+ak7L1JPTFastjetCorrector = ak4L1JPTFastjetCorrector.clone( offsetService = 'ak7CaloL1FastjetCorrector' )
+ak7L1JPTFastjetCorrectorChain = cms.Sequence(
+    ak7CaloL1FastjetCorrector * ak7L1JPTOffsetCorrector
+)
 # L2 (relative eta-conformity) Correctors
 ak7CaloL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK7Calo' )
 ak7JPTL2RelativeCorrector = ak4CaloL2RelativeCorrector.clone( algorithm = 'AK7JPT' )
