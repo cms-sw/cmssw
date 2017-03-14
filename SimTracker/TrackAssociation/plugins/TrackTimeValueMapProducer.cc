@@ -55,7 +55,7 @@ private:
   // tracking particle associators by order of preference
   const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;  
   // eta bounds
-  const float etaMin_, etaMax_;
+  const float etaMin_, etaMax_, ptMin_, pMin_, etaMaxForPtThreshold_;
   // options
   std::vector<std::unique_ptr<const ResolutionModel> > resolutions_;
   // functions
@@ -91,7 +91,10 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
   trackingVertices_(consumes<TrackingVertexCollection>( conf.getParameter<edm::InputTag>("trackingVertexSrc") ) ),
   associators_( edm::vector_transform( conf.getParameter<std::vector<edm::InputTag> >("associators"), [this](const edm::InputTag& tag){ return this->consumes<reco::TrackToTrackingParticleAssociator>(tag); } ) ),
   etaMin_( conf.getParameter<double>("etaMin") ),
-  etaMax_( conf.getParameter<double>("etaMax") )  
+  etaMax_( conf.getParameter<double>("etaMax") ),
+  ptMin_( conf.getParameter<double>("ptMin") ),
+  pMin_( conf.getParameter<double>("pMin") ),
+  etaMaxForPtThreshold_( conf.getParameter<double>("etaMaxForPtThreshold") )
 {
   // setup resolution models
   const std::vector<edm::ParameterSet>& resos = conf.getParameterSetVector("resolutionModels");
@@ -181,7 +184,7 @@ void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track
     const auto tkref = tkcoll.refAt(itk);
     reco::RecoToSimCollection::const_iterator track_tps = assocs.back().end();
     const float absEta = std::abs(tkref->eta());
-    if( absEta < etaMax_ && absEta >= etaMin_ ) {
+    if( absEta < etaMax_ && absEta >= etaMin_ && tkref->p()>pMin_ && (absEta>etaMaxForPtThreshold_ || tkref->pt()>ptMin_) ) {
       for( const auto& association : assocs ) {
 	track_tps = association.find(tkref);
 	if( track_tps != association.end() ) break;
