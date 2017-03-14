@@ -19,7 +19,7 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser \
 from Alignment.OfflineValidation.TkAlAllInOneTool.alignment import Alignment
 
 from Alignment.OfflineValidation.TkAlAllInOneTool.genericValidation \
-    import GenericValidation
+    import GenericValidation, ParallelValidation, ValidationWithPlots
 from Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison \
     import GeometryComparison
 from Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation \
@@ -253,10 +253,7 @@ def createMergeScript( path, validations ):
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
-            "RunExtendedOfflineValidation":"",
-            "RunTrackSplitPlot":"",
-            "MergeZmumuPlots":"",
-            "RunPrimaryVertexPlot":"",
+            "RunValidationPlots":"",
             "CMSSW_BASE": os.environ["CMSSW_BASE"],
             "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
             "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
@@ -292,17 +289,17 @@ def createMergeScript( path, validations ):
         for validation in validations:
             if (isinstance(validation, PreexistingValidation)
               or validation.NJobs == 1
-              or not isinstance(validation, ParallelValidation):
+              or not isinstance(validation, ParallelValidation)):
                 continue
             if validationType not in anythingToMerge:
                 anythingToMerge += [validationType]
                 repMap["doMerge"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType
                 repMap["beforeMerge"] += validationType.doInitMerge()
-           repMap["doMerge"] += validation.doMerge()
-           for f in validation.getRepMap()["outputFiles"]:
-               longName = os.path.join("/store/caf/user/$USER/",
-                                        validation.getRepMap()["eosdir"], f)
-               repMap["rmUnmerged"] += "    $eos rm "+longName+"\n"
+            repMap["doMerge"] += validation.doMerge()
+            for f in validation.getRepMap()["outputFiles"]:
+                longName = os.path.join("/store/caf/user/$USER/",
+                                         validation.getRepMap()["eosdir"], f)
+                repMap["rmUnmerged"] += "    $eos rm "+longName+"\n"
     repMap["rmUnmerged"] += ("else\n"
                              "    echo -e \\n\"WARNING: Merging failed, unmerged"
                              " files won't be deleted.\\n"
@@ -317,7 +314,7 @@ def createMergeScript( path, validations ):
     repMap["RunValidationPlots"] = ""
     for (validationType, referencename), validations in comparisonLists.iteritems():
         if issubclass(validationType, ValidationWithPlots):
-            repMap["RunValidationPlots"] += validationType.createPlottingScript(validations)
+            repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
     if "OfflineValidation" in comparisonLists:

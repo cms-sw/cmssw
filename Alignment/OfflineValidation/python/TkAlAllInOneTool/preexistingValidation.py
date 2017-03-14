@@ -15,12 +15,12 @@ class PreexistingValidation(GenericValidation):
     """
     defaults = {"title": ".oO[name]Oo."}
     mandatories = {"file", "color", "style"}
-    def __init__(self, valName, config, valType):
+    def __init__(self, valName, config):
         self.general = config.getGeneral()
         self.name = self.general["name"] = valName
         self.config = config
 
-        theUpdate = config.getResultingSection("preexisting"+valType+":"+self.name)
+        theUpdate = config.getResultingSection("preexisting"+self.valType+":"+self.name)
         self.general.update(theUpdate)
 
         self.title = self.general["title"]
@@ -30,7 +30,7 @@ class PreexistingValidation(GenericValidation):
 
         knownOpts = self.defaults.keys()+self.mandatories
         ignoreOpts = []
-        config.checkInput("preexisting"+valType+":"+self.name,
+        config.checkInput("preexisting"+self.valType+":"+self.name,
                           knownSimpleOptions = knownOpts,
                           ignoreOptions = ignoreOpts)
         self.jobmode = None
@@ -67,7 +67,7 @@ class PreexistingOfflineValidation(PreexistingValidation, OfflineValidation):
             }
     defaults = deprecateddefaults
     def __init__(self, valName, config):
-        super(PreexistingOfflineValidation, self).__init__(valName, config, "offline")
+        super(PreexistingOfflineValidation, self).__init__(valName, config)
         for option in self.deprecateddefaults:
             if self.general[option]:
                 raise AllInOneError("The '%s' option has been moved to the [plots:offline] section.  Please specify it there."%option)
@@ -82,15 +82,11 @@ class PreexistingOfflineValidation(PreexistingValidation, OfflineValidation):
         raise AllInOneError("Shouldn't be here...")
 
 class PreexistingTrackSplittingValidation(PreexistingValidation, TrackSplittingValidation):
-    def __init__(self, valName, config):
-        super(PreexistingTrackSplittingValidation, self).__init__(valName, config, "split")
-
     def appendToMerge(self, *args, **kwargs):
         raise AllInOneError("Shouldn't be here...")
 
 class PreexistingMonteCarloValidation(PreexistingValidation):
-    def __init__(self, valName, config):
-        super(PreexistingMonteCarloValidation, self).__init__(valName, config, "mcValidate")
+    pass
 
 class PreexistingZMuMuValidation(PreexistingValidation):
     def __init__(self, *args, **kwargs):

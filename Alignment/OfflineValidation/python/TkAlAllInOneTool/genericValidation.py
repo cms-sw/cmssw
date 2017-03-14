@@ -39,10 +39,9 @@ class GenericValidation(object):
     needpackages = {"Alignment/OfflineValidation"}
     optionals = {"jobmode"}
 
-    def __init__(self, valName, alignment, config, valType):
+    def __init__(self, valName, alignment, config):
         import random
         self.name = valName
-        self.valType = valType
         self.alignmentToValidate = alignment
         self.general = config.getGeneral()
         self.randomWorkdirPart = "%0i"%random.randint(1,10e9)
@@ -50,7 +49,7 @@ class GenericValidation(object):
         self.config = config
         self.jobid = ""
 
-        theUpdate = config.getResultingSection(valType+":"+self.name,
+        theUpdate = config.getResultingSection(self.valType+":"+self.name,
                                                defaultDict = self.defaults,
                                                demandPars = self.mandatories)
         self.general.update(theUpdate)
@@ -118,7 +117,7 @@ class GenericValidation(object):
 
         knownOpts = set(self.defaults.keys())|self.mandatories|self.optionals
         ignoreOpts = []
-        config.checkInput(valType+":"+self.name,
+        config.checkInput(self.valType+":"+self.name,
                           knownSimpleOptions = knownOpts,
                           ignoreOptions = ignoreOpts)
 
@@ -252,7 +251,7 @@ class GenericValidationData(GenericValidation):
                 "JSON": ""
                }
     
-    def __init__(self, valName, alignment, config, valType):
+    def __init__(self, valName, alignment, config):
         """
         This method adds additional items to the `self.general` dictionary
         which are only needed for validations using datasets.
@@ -262,10 +261,9 @@ class GenericValidationData(GenericValidation):
         - `alignment`: `Alignment` instance to validate
         - `config`: `BetterConfigParser` instance which includes the
                     configuration of the validations
-        - `valType`: String which specifies the type of validation
         """
 
-        super(GenericValidationData, self).__init__(valName, alignment, config, valType)
+        super(GenericValidationData, self).__init__(valName, alignment, config)
 
         # if maxevents is not specified, cannot calculate number of events for
         # each parallel job, and therefore running only a single job
@@ -313,7 +311,7 @@ class GenericValidationData(GenericValidation):
                     end = self.general["end"],
                     parent = self.needParentFiles )
             except AllInOneError as e:
-                msg = "In section [%s:%s]: "%(valType, self.name)
+                msg = "In section [%s:%s]: "%(self.valType, self.name)
                 msg += str(e)
                 raise AllInOneError(msg)
         else:
@@ -322,7 +320,7 @@ class GenericValidationData(GenericValidation):
                        "(in your case: '%s')."%( self.dataset.name() ))
                 raise AllInOneError( msg )
             try:
-                theUpdate = config.getResultingSection(valType+":"+self.name,
+                theUpdate = config.getResultingSection(self.valType+":"+self.name,
                                                        demandPars = ["parallelJobs"])
             except AllInOneError as e:
                 msg = str(e)[:-1]+" when using 'jobmode: crab'."
@@ -369,7 +367,7 @@ class GenericValidationData(GenericValidation):
                     end = self.general["end"],
                     crab = True )
             except AllInOneError as e:
-                msg = "In section [%s:%s]: "%(valType, self.name)
+                msg = "In section [%s:%s]: "%(self.valType, self.name)
                 msg += str( e )
                 raise AllInOneError( msg )
 
@@ -465,6 +463,7 @@ class ParallelValidation(GenericValidation):
 
     @classmethod
     def doInitMerge(cls):
+        from plottingOptions import PlottingOptions
         result = self.initmerge()
         result = replaceByMap(result, PlottingOptions(None, cls))
         if result and result[-1] != "\n": result += "\n"
@@ -498,6 +497,7 @@ class ValidationWithPlots(GenericValidation):
 
     @classmethod
     def doRunPlots(cls, validations):
+        from plottingOptions import PlottingOptions
         cls.createPlottingScript(validations)
         result = cls.runPlots(validations)
         result = replaceByMap(result, PlottingOptions(None, cls))
@@ -505,12 +505,13 @@ class ValidationWithPlots(GenericValidation):
         return result
     @classmethod
     def createPlottingScript(cls, validations):
-        repmap = PlottingOptions(None, cls).validation.copy()
+        from plottingOptions import PlottingOptions
+        repmap = PlottingOptions(None, cls).copy()
         filename = replaceByMap(".oO[plottingscriptpath]Oo.", repmap)
         repmap["PlottingInstantiation"] = "".join(
                                                   replaceByMap(v.appendToPlots(), v.getRepMap())
                                                        for v in validations
                                                  )
         plottingscript = replaceByMap(cls.plottingscripttemplate(), repmap)
-        with open(filename) as f:
+        with open(filename, 'w') as f:
             f.write(plottingscript)

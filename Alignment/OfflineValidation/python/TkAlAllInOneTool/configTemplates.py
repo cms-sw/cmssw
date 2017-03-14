@@ -160,10 +160,7 @@ root_files=$($eos ls /store/caf/user/$USER/.oO[eosdir]Oo. \
 .oO[DownloadData]Oo.
 .oO[CompareAlignments]Oo.
 
-.oO[RunExtendedOfflineValidation]Oo.
-.oO[RunTrackSplitPlot]Oo.
-.oO[MergeZmumuPlots]Oo.
-.oO[RunPrimaryVertexPlot]Oo.
+.oO[RunValidationPlots]Oo.
 
 # clean-up
 # ls -l *.root

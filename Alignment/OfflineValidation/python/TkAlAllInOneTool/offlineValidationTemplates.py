@@ -312,7 +312,7 @@ void TkAlExtendedOfflineValidation()
   FWLiteEnabler::enable();
 
   PlotAlignmentValidation p(bigtext);
-.oO[extendedInstantiation]Oo.
+.oO[PlottingInstantiation]Oo.
   p.setOutputDir(".oO[datadir]Oo./ExtendedOfflineValidation_Images");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
