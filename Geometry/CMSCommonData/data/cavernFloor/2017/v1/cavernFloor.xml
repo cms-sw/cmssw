@@ -20,7 +20,6 @@
 		<Constant name="FloAirC3DZ"  value="[cavernFloor:FloAirC1PosZ]-[cavernData:FloAirC1DZ]"/>
 		<Constant name="FloAirC4DZ"  value="(1350*cm-[cavernFloor:FloAirC1PosZ]-[cavernData:FloAirC1DZ])*0.5"/>
 		<Constant name="FloAirC4PosZ"  value="[cavernFloor:FloAirC1PosZ]+[cavernData:FloAirC1DZ]+[cavernFloor:FloAirC4DZ]"/>
-		<Constant name="FloAirC4PosY"  value="[cavernFloor:FloAirCPosY]+[cavernData:FloAirCDY]-[cavernData:FloAirC4DY]"/>
 	</ConstantsSection> 
 	<SolidSection label="cavernFloor.xml">
 		<Box name="FloorAirZ" dx="[cavernData:FloorAirZDX]" dy="[cavernData:FloorAirZDY]" dz="([cms:HallZ]-100*cm)"/>
