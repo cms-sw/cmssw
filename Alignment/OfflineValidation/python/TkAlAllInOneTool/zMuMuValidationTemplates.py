@@ -320,7 +320,7 @@ void TkAlMergeZmumuPlots()
 {
     vector<string> filenames; vector<string> titles; vector<int> colors; vector<int> linestyles;
 
-    .oO[PlottingInstantiation]Oo.
+.oO[PlottingInstantiation]Oo.
 
     TkAlStyle::legendheader = ".oO[legendheader]Oo.";
     TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
