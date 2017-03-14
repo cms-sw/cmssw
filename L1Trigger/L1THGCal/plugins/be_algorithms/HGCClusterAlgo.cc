@@ -22,7 +22,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
     
     public:
 
-    HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
+        HGCClusterAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
         Algorithm<FECODEC>(conf, cc),
         trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
         cluster_product_( new l1t::HGCalClusterBxCollection ),
@@ -36,7 +36,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
 
         }
     
-    virtual void setProduces(edm::EDProducer& prod) const override final 
+    virtual void setProduces(edm::EDProducer& prod) const override final
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCells" );            
             prod.produces<l1t::HGCalClusterBxCollection>( "cluster2D" );
@@ -170,9 +170,9 @@ typedef HGCClusterAlgo<HGCalTriggerCellThresholdCodec, HGCalTriggerCellThreshold
 
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-                  HGCClusterAlgoBestChoice,
-                  "HGCClusterAlgoBestChoice");
+        HGCClusterAlgoBestChoice,
+        "HGCClusterAlgoBestChoice");
 
 DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
-                  HGCClusterAlgoThreshold,
-                  "HGCClusterAlgoThreshold");
+        HGCClusterAlgoThreshold,
+        "HGCClusterAlgoThreshold");

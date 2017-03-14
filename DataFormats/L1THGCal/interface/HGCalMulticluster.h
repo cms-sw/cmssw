@@ -10,7 +10,7 @@
 
 namespace l1t {
   
-    class HGCalMulticluster : public L1Candidate {
+  class HGCalMulticluster : public L1Candidate {
 
     public:
 
@@ -84,7 +84,7 @@ namespace l1t {
             
     };
     
-    typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;  
+  typedef BXVector<HGCalMulticluster> HGCalMulticlusterBxCollection;  
   
 }
 
