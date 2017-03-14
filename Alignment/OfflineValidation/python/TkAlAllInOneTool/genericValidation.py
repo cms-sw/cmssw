@@ -509,9 +509,29 @@ class ValidationWithPlots(GenericValidation):
         repmap = PlottingOptions(None, cls).copy()
         filename = replaceByMap(".oO[plottingscriptpath]Oo.", repmap)
         repmap["PlottingInstantiation"] = "\n".join(
-                                                  replaceByMap(v.appendToPlots(), v.getRepMap()).rstrip("\n")
-                                                       for v in validations
-                                                 )
+                                                    replaceByMap(v.appendToPlots(), v.getRepMap()).rstrip("\n")
+                                                         for v in validations
+                                                   )
         plottingscript = replaceByMap(cls.plottingscripttemplate(), repmap)
         with open(filename, 'w') as f:
             f.write(plottingscript)
+
+class ValidationWithComparison(GenericValidation):
+    @classmethod
+    def doComparison(cls, validations):
+        from plottingOptions import PlottingOptions
+        repmap = PlottingOptions(None, cls).copy()
+        repmap["compareStrings"] = " , ".join(v.getCompareStrings("OfflineValidation") for v in validations)
+        repmap["compareStringsPlain"] = " , ".join(v.getCompareStrings("OfflineValidation", True) for v in validations)
+        comparison = replaceByMap(cls.comparisontemplate(), repmap)
+        return comparison
+
+    @classmethod
+    def comparisontemplate(cls):
+        return configTemplates.compareAlignmentsExecution
+    @classmethod
+    def comparealignmentspath(cls):
+        return ".oO[Alignment/OfflineValidation]Oo./scripts/.oO[compareAlignmentsName]Oo."
+    @abstractmethod
+    def comparealignmentsname(cls):
+        """classmethod"""
