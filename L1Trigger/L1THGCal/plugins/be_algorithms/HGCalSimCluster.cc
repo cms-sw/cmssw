@@ -150,8 +150,8 @@ namespace HGCalTriggerBackend{
 
             // run, actual algorithm
             virtual void run( const l1t::HGCFETriggerDigiCollection & coll,
-		            const edm::EventSetup& es,
-		            const edm::Event&evt
+                           const edm::EventSetup& es,
+                           edm::Event&evt
                     )
             {
                 //0.5. Get Digis, construct a map, detid -> energy
@@ -276,7 +276,7 @@ namespace HGCalTriggerBackend{
                             }
 
                             l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                            calibration_.calibrate(calibratedtriggercell, cellThickness); 
+                            calibration_.calibrateInGeV(calibratedtriggercell, cellThickness); 
                             //uint32_t digiEnergy = data.payload; 
                             //auto digiEnergy=triggercell.p4().E();  
                             // using calibrated energy instead

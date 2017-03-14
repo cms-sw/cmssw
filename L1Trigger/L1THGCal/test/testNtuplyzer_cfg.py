@@ -25,12 +25,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(-1)
     )
 
 # Input source
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('/store/relval//CMSSW_9_0_0_pre4/RelValZEE_14/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v3_2023D4Timing-v1/10000/02605B3A-92EC-E611-A9A9-0025905B85B2.root') )
+    secondaryFileNames = cms.untracked.vstring(),
+    fileNames = cms.untracked.vstring('root://cms-xrd-global.cern.ch//store/mc/PhaseIIFall16DR82/MinBias_200PU_TuneCUETP8M1_14TeV-pythia8/GEN-SIM-RECO/PU200_90X_upgrade2023_realistic_v1-v1/60000/0047077C-B4ED-E611-8B36-FA163E78D122.root')
+)
 
 # Additional output definition
 process.TFileService = cms.Service(
@@ -54,11 +56,10 @@ process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_pa
 
 
 trgCells_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoBestChoice'),
-                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
-                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-                           
-                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                               )
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoice'),
                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
@@ -69,14 +70,14 @@ cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoBestChoi
                               C3d_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
                               )
 
-process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( trgCells_algo_all,cluster_algo_all )
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-process.digi2raw_step = cms.Path(process.DigiToRaw)
-process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
-                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
-                                        )
+process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
+process.hgcl1tpg_step = cms.Path( process.hgcalTriggerPrimitives ) 
+process.digi2raw_step = cms.Path( process.DigiToRaw )
+#process.HGC_clustering = cms.EDAnalyzer("testHGCClustering",
+#                                        clusterInputTag=cms.InputTag("hgcalTriggerPrimitiveDigiProducer:HGCClusterAlgoBestChoice")
+#                                        )
 
-process.test_step = cms.Path(process.HGC_clustering)
+#process.test_step = cms.Path(process.HGC_clustering)
 
 process.endjob_step = cms.EndPath(process.endOfProcess)
 
@@ -88,7 +89,7 @@ process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 process.schedule = cms.Schedule( process.hgcl1tpg_step, 
                                  #process.digi2raw_step, 
                                  #process.test_step, 
-                                 process.ntuple_step,
+                                 process.ntuple_step, # create the persistent event 
                                  process.endjob_step
                                  )
 

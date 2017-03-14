@@ -32,7 +32,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
         }
     
         virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es,
-		         const edm::Event&evt
+		         edm::Event&evt
 			) override final
         {
             es.get<IdealGeometryRecord>().get(HGCalEESensitive_, hgceeTopoHandle_);
@@ -61,7 +61,7 @@ class SingleCellClusterAlgo : public Algorithm<FECODEC>
                             edm::LogWarning("DataNotFound") << "ATTENTION: the BH trgCells are not yet implemented !! ";
                         }
                         l1t::HGCalTriggerCell calibratedtriggercell(triggercell);
-                        calibration_.calibrate(calibratedtriggercell, cellThickness);     
+                        calibration_.calibrateInGeV(calibratedtriggercell, cellThickness);     
                         cluster_product_->push_back(0,calibratedtriggercell);
                     }
                 }

@@ -1,52 +1,95 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
-
+#include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 //class constructor
-HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet& conf){    
-    seed_CUT_ = conf.getParameter<double>("seeding_threshold");
-    tc_CUT_ = conf.getParameter<double>("clustering_threshold");
-}
-       
+HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
+    seedThreshold_(conf.getParameter<double>("seeding_threshold")),
+    triggerCellThreshold_(conf.getParameter<double>("clustering_threshold")),
+    dr_(conf.getParameter<double>("dR_cluster"))
+{    
 
-void  HGCalClusteringImpl::clusterizeBase(const l1t::HGCalTriggerCellBxCollection& trgcell_product_, l1t::HGCalClusterBxCollection& cluster_product_){
+    edm::LogInfo("HGCalClusterParameters") << "C2d seeding Thr: " << seedThreshold_ ; 
+    edm::LogInfo("HGCalClusterParameters") << "C2d clustering Thr: " << triggerCellThreshold_ ; 
+ 
+}
+
+
+bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc, 
+                                       const l1t::HGCalCluster & clu, 
+                                       double distXY ) const 
+{
+
+    HGCalDetId tcDetId( tc.detId() );
+    HGCalDetId cluDetId( clu.seedDetId() );
+    if( (tcDetId.layer() != cluDetId.layer()) ||
+        (tcDetId.subdetId() != cluDetId.subdetId()) ||
+        (tcDetId.zside() != cluDetId.zside()) ){
+        return false;
+    }   
+    if ( clu.distance((tc)) < distXY ){
+        return true;
+    }
+    return false;
+
+}
+
+
+void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+                                      l1t::HGCalClusterBxCollection & clusters
+    ){
     
-        double_t protoClEta = 0.;
-        double_t protoClPhi = 0.;           
-        double_t C2d_pt  = 0.;
-        double_t C2d_eta = 0.;
-        double_t C2d_phi = 0.;
-        uint32_t C2d_hwPtEm = 0;
-        uint32_t C2d_hwPtHad = 0;
-                
-        for(l1t::HGCalTriggerCellBxCollection::const_iterator tc = trgcell_product_.begin(); tc != trgcell_product_.end(); ++tc)
-        {
-            if(tc->hwPt()>0)
-            {
-                        
-                HGCalDetId trgdetid(tc->detId());                
-                int trgCellLayer = trgdetid.layer();               
-                        
-                if(trgCellLayer<28){
-                    C2d_hwPtEm+=tc->hwPt();
-                }else if(trgCellLayer>=28){
-                    C2d_hwPtHad+=tc->hwPt();
-                }
-                               
-                C2d_pt += tc->pt();                        
-                protoClEta += tc->pt()*tc->eta();
-                protoClPhi += tc->pt()*tc->phi();
+    bool isSeed[triggerCellsPtrs.size()];
+    
+    /* search for cluster seeds */
+    int itc=0;
+    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+        isSeed[itc] = ( (*tc)->hwPt() > seedThreshold_) ? true : false;
+    }
+    
+    /* clustering the TCs */
+    std::vector<l1t::HGCalCluster> clustersTmp;
+
+    itc=0;
+    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc,++itc ){
+            
+        if( (*tc)->hwPt() < triggerCellThreshold_ ){
+            continue;
+        }
+        
+        /* searching for TC near the center of the cluster  */
+        int iclu=0;
+        vector<int> tcPertinentClusters; 
+        for( std::vector<l1t::HGCalCluster>::iterator clu = clustersTmp.begin(); clu != clustersTmp.end(); ++clu,++iclu ){
+            if( this->isPertinent(**tc, *clu, dr_) ){
+                tcPertinentClusters.push_back(iclu);
             }
         }
-        l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), C2d_hwPtEm + C2d_hwPtHad, 0, 0);
-        cluster.setHwPtEm(C2d_hwPtEm);
-        cluster.setHwPtHad(C2d_hwPtHad);
-
-        if((cluster.hwPtEm()+cluster.hwPtHad())>tc_CUT_){
-            C2d_eta = protoClEta/C2d_pt;
-            C2d_phi = protoClPhi/C2d_pt;                
-            math::PtEtaPhiMLorentzVector calibP4(C2d_pt, C2d_eta, C2d_phi, 0 );
-            cluster.setP4(calibP4);
-            cluster_product_.push_back(0,cluster);
+        if( tcPertinentClusters.size() == 0 && isSeed[itc] ){
+            clustersTmp.emplace_back( *tc );
         }
+        else if ( tcPertinentClusters.size() > 0 ){
+         
+            unsigned minDist = 300;
+            unsigned targetClu = 0;
+                        
+            for( std::vector<int>::const_iterator iclu = tcPertinentClusters.begin(); iclu != tcPertinentClusters.end(); ++iclu ){
+                double d = clustersTmp.at(*iclu).distance(**tc);
+                if( d < minDist ){
+                    minDist = d;
+                    targetClu = *iclu;
+                }
+            } 
+
+            clustersTmp.at(targetClu).addTriggerCell( *tc );                    
+
+        }
+    }
+
+    /* making the collection of clusters */
+    for( unsigned i(0); i<clustersTmp.size(); ++i ){
+        clusters.push_back( 0, clustersTmp.at(i) );
+    }
     
-} 
+}
+
