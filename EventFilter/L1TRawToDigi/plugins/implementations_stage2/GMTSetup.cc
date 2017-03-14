@@ -52,6 +52,11 @@ namespace l1t {
          prod.produces<RegionalMuonCandBxCollection>("OMTF");
          prod.produces<RegionalMuonCandBxCollection>("EMTF");
          prod.produces<MuonBxCollection>("Muon");
+         prod.produces<MuonBxCollection>("MuonSet2");
+         prod.produces<MuonBxCollection>("MuonSet3");
+         prod.produces<MuonBxCollection>("MuonSet4");
+         prod.produces<MuonBxCollection>("MuonSet5");
+         prod.produces<MuonBxCollection>("MuonSet6");
          prod.produces<MuonBxCollection>("imdMuonsBMTF");
          prod.produces<MuonBxCollection>("imdMuonsEMTFNeg");
          prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
@@ -71,18 +76,56 @@ namespace l1t {
          UnpackerMap res;
 
          auto gmt_in_unp = UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker");
-         auto gmt_out_unp  = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto gmt_out_unp1 = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto gmt_out_unp2 = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto gmt_out_unp3 = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto gmt_out_unp4 = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto gmt_out_unp5 = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
+         auto gmt_out_unp6 = static_pointer_cast<l1t::stage2::MuonUnpacker>(UnpackerFactory::get()->make("stage2::MuonUnpacker"));
          auto gmt_imd_unp = UnpackerFactory::get()->make("stage2::IntermediateMuonUnpacker");
 
-         gmt_out_unp->setAlgoVersion(fw);
-         gmt_out_unp->setFedNumber(fed);
+         gmt_out_unp1->setAlgoVersion(fw);
+         gmt_out_unp1->setFedNumber(fed);
+         gmt_out_unp2->setAlgoVersion(fw);
+         gmt_out_unp2->setFedNumber(fed);
+         gmt_out_unp2->setMuonSet(2);
+         gmt_out_unp3->setAlgoVersion(fw);
+         gmt_out_unp3->setFedNumber(fed);
+         gmt_out_unp3->setMuonSet(3);
+         gmt_out_unp4->setAlgoVersion(fw);
+         gmt_out_unp4->setFedNumber(fed);
+         gmt_out_unp4->setMuonSet(4);
+         gmt_out_unp5->setAlgoVersion(fw);
+         gmt_out_unp5->setFedNumber(fed);
+         gmt_out_unp5->setMuonSet(5);
+         gmt_out_unp6->setAlgoVersion(fw);
+         gmt_out_unp6->setFedNumber(fed);
+         gmt_out_unp6->setMuonSet(6);
 
          // input muons
          for (int iLink = 72; iLink < 144; iLink += 2)
             res[iLink] = gmt_in_unp;
+
          // output muons
+         // 1st set
          for (int oLink = 1; oLink < 9; oLink += 2)
-            res[oLink] = gmt_out_unp;
+            res[oLink] = gmt_out_unp1;
+         // 2nd set
+         for (int oLink = 9; oLink < 17; oLink += 2)
+            res[oLink] = gmt_out_unp2;
+         // 3rd set
+         for (int oLink = 17; oLink < 25; oLink += 2)
+            res[oLink] = gmt_out_unp3;
+         // 4th set
+         for (int oLink = 25; oLink < 33; oLink += 2)
+            res[oLink] = gmt_out_unp4;
+         // 5th set
+         for (int oLink = 33; oLink < 41; oLink += 2)
+            res[oLink] = gmt_out_unp5;
+         // 6th set
+         for (int oLink = 41; oLink < 49; oLink += 2)
+            res[oLink] = gmt_out_unp6;
+
          // internal muons
          for (int oLink = 49; oLink < 63; oLink += 2)
             res[oLink] = gmt_imd_unp;
