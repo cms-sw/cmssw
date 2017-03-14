@@ -15,21 +15,52 @@ AlignableComposite::AlignableComposite( const GeomDet* geomDet ) :
   Alignable( geomDet->geographicalId().rawId(), geomDet->surface() ),
   theStructureType(align::AlignableDet)
 {
+  compConstraintType_ = Alignable::CompConstraintType::POSITION;
 }
 
+//__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite(align::ID id,
 				       StructureType type,
 				       const RotationType& rot):
   Alignable(id, rot),
   theStructureType(type)
 {
+  compConstraintType_ = Alignable::CompConstraintType::POSITION;
 }
 
+//__________________________________________________________________________________________________
 AlignableComposite::~AlignableComposite()
 {
   for (unsigned int i = 0; i < theComponents.size(); ++i) delete theComponents[i];
 }
 
+//__________________________________________________________________________________________________
+void AlignableComposite::update(const GeomDet* geomDet)
+{
+  if (!geomDet) {
+    throw cms::Exception("Alignment")
+      << "@SUB=AlignableComposite::update\n"
+      << "Trying to update with GeomDet* pointing to 'nullptr'.";
+  }
+
+  Alignable::update(geomDet->geographicalId().rawId(), geomDet->surface());
+}
+
+//__________________________________________________________________________________________________
+void AlignableComposite::update(align::ID id,
+                                StructureType type,
+                                const RotationType& rot)
+{
+  if (theStructureType != type) {
+    throw cms::Exception("Alignment")
+      << "@SUB=AlignableComposite::update\n"
+      << "Current alignable type does not match type of the update.";
+  }
+  // composite's position is already updated by components, i.e. it needs to be kept
+  Alignable::update(id, AlignableSurface{this->globalPosition(), rot});
+}
+
+//__________________________________________________________________________________________________
 void AlignableComposite::addComponent(Alignable* ali)
 {
   const Alignables& newComps = ali->deepComponents();
