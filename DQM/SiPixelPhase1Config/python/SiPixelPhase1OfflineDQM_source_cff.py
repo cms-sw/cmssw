@@ -27,7 +27,6 @@ siPixelPhase1OfflineDQM_source = cms.Sequence(SiPixelPhase1RawDataAnalyzer
                                             + SiPixelPhase1TrackResidualsAnalyzer
                                             + SiPixelPhase1TrackClustersAnalyzer
                                             + SiPixelPhase1TrackEfficiencyAnalyzer
-                                            + SiPixelPhase1RawDataAnalyzer
                                             )
 
 siPixelPhase1OfflineDQM_source_cosmics = siPixelPhase1OfflineDQM_source.copyAndExclude([
