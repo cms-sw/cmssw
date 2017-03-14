@@ -15,18 +15,19 @@ HGCalClusteringImpl::HGCalClusteringImpl(const edm::ParameterSet & conf):
 }
 
 
-bool HGCalClusteringImpl::isPertinent( const edm::Ptr<l1t::HGCalTriggerCell> tc, 
-                                       const l1t::HGCalCluster &clu, double distXY ) const 
+bool HGCalClusteringImpl::isPertinent( const l1t::HGCalTriggerCell & tc, 
+                                       const l1t::HGCalCluster & clu, 
+                                       double distXY ) const 
 {
 
-    HGCalDetId tcDetId( tc->detId() );
+    HGCalDetId tcDetId( tc.detId() );
     HGCalDetId cluDetId( clu.seedDetId() );
     if( (tcDetId.layer() != cluDetId.layer()) ||
         (tcDetId.subdetId() != cluDetId.subdetId()) ||
         (tcDetId.zside() != cluDetId.zside()) ){
         return false;
     }   
-    if ( clu.distance(tc) < distXY ){
+    if ( clu.distance((tc)) < distXY ){
         return true;
     }
     return false;
@@ -34,7 +35,7 @@ bool HGCalClusteringImpl::isPertinent( const edm::Ptr<l1t::HGCalTriggerCell> tc,
 }
 
 
-void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> triggerCellsPtrs, 
+void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
                                       l1t::HGCalClusterBxCollection & clusters
     ){
     
@@ -60,7 +61,7 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
         int iclu=0;
         vector<int> tcPertinentClusters; 
         for( std::vector<l1t::HGCalCluster>::iterator clu = clustersTmp.begin(); clu != clustersTmp.end(); ++clu,++iclu ){
-            if( this->isPertinent(*tc, *clu, dr_) ){
+            if( this->isPertinent(**tc, *clu, dr_) ){
                 tcPertinentClusters.push_back(iclu);
             }
         }
@@ -73,7 +74,7 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
             unsigned targetClu = 0;
                         
             for( std::vector<int>::const_iterator iclu = tcPertinentClusters.begin(); iclu != tcPertinentClusters.end(); ++iclu ){
-                double d = clustersTmp.at(*iclu).distance(*tc);
+                double d = clustersTmp.at(*iclu).distance(**tc);
                 if( d < minDist ){
                     minDist = d;
                     targetClu = *iclu;

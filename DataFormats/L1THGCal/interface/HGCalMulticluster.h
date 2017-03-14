@@ -29,7 +29,7 @@ namespace l1t {
 
         /* cluster collection pertinent to the multicluster */
         const edm::PtrVector<l1t::HGCalCluster>&  clusters() const {
-            return (edm::PtrVector<l1t::HGCalCluster>&) clusters_; 
+            return clusters_; 
         }        
         edm::PtrVector<l1t::HGCalCluster>::const_iterator clusters_begin() const { 
             return clusters_.begin(); 
@@ -51,8 +51,8 @@ namespace l1t {
             return false;
         }
 
-        GlobalPoint& centre() const { return (GlobalPoint&) centre_; }         /* in (x, y, z) */
-        GlobalPoint& centreProj() const { return (GlobalPoint&) centreProj_; } /* in (x/z, y/z, z/z) */
+        GlobalPoint centre() const { return (const GlobalPoint&) centre_; }         /* in (x, y, z) */
+        GlobalPoint centreProj() const { return (const GlobalPoint&) centreProj_; } /* in (x/z, y/z, z/z) */
 
         uint32_t firstClusterDetId() const { return firstClusterDetId_; }
         double mipPt() const { return mipPt_; }

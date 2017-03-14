@@ -67,10 +67,10 @@ void HGCalCluster::addTriggerCell( const edm::Ptr<l1t::HGCalTriggerCell > &tc )
 }
 
 
-double HGCalCluster::distance(const edm::Ptr<l1t::HGCalTriggerCell> tc) const
+double HGCalCluster::distance(const l1t::HGCalTriggerCell &tc) const
 {
 
-    return ( tc->position() - centre_ ).mag();
+    return ( tc.position() - centre_ ).mag();
    
 }
 

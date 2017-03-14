@@ -9,17 +9,17 @@ HGCalMulticlusteringImpl::HGCalMulticlusteringImpl( const edm::ParameterSet& con
 }
 
 
-bool HGCalMulticlusteringImpl::isPertinent( const edm::Ptr<l1t::HGCalCluster> clu, 
+bool HGCalMulticlusteringImpl::isPertinent( const l1t::HGCalCluster & clu, 
                                             const l1t::HGCalMulticluster & mclu, 
                                             double dR ) const
 {
-    HGCalDetId cluDetId( clu->seedDetId() );
+    HGCalDetId cluDetId( clu.seedDetId() );
     HGCalDetId firstClusterDetId( mclu.firstClusterDetId() );
     
     if( cluDetId.zside() != firstClusterDetId.zside() ){
         return false;
     }
-    if( ( mclu.centreProj() - clu->centreProj() ).mag() < dR ){
+    if( ( mclu.centreProj() - clu.centreProj() ).mag() < dR ){
         return true;
     }
     return false;
@@ -27,7 +27,7 @@ bool HGCalMulticlusteringImpl::isPertinent( const edm::Ptr<l1t::HGCalCluster> cl
 }
 
 
-void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluster> clustersPtrs, 
+void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs, 
                                            l1t::HGCalMulticlusterBxCollection & multiclusters)
 {
            
@@ -39,7 +39,7 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
         int imclu=0;
         vector<int> tcPertinentMulticlusters;
         for(std::vector<l1t::HGCalMulticluster>::const_iterator mclu = multiclustersTmp.begin(); mclu != multiclustersTmp.end(); ++mclu,++imclu){
-            if( this->isPertinent(*clu, *mclu, dr_) ){
+            if( this->isPertinent(**clu, *mclu, dr_) ){
                 tcPertinentMulticlusters.push_back(imclu);
             }
         }

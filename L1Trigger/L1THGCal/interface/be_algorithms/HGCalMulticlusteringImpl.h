@@ -12,10 +12,12 @@ public:
 
     HGCalMulticlusteringImpl( const edm::ParameterSet &conf);    
 
-    void clusterize( const edm::PtrVector<l1t::HGCalCluster> clustersPtr, 
+    bool isPertinent( const l1t::HGCalCluster & clu, 
+                      const l1t::HGCalMulticluster & mclu, 
+                      double dR ) const;
+
+    void clusterize( const edm::PtrVector<l1t::HGCalCluster> & clustersPtr, 
                      l1t::HGCalMulticlusterBxCollection & multiclusters);
- 
-    bool isPertinent( const edm::Ptr<l1t::HGCalCluster> clu, const l1t::HGCalMulticluster & mclu, double dR ) const;
 
 private:
     
