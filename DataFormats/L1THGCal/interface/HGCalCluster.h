@@ -31,7 +31,7 @@ namespace l1t {
       
       /* trigger-cells collection pertinent to the cluster */
       const edm::PtrVector<l1t::HGCalTriggerCell>& triggercells() const {
-          return (edm::PtrVector<l1t::HGCalTriggerCell>&) triggercells_; 
+          return triggercells_; 
       }        
       edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator triggercells_begin() const { 
           return triggercells_.begin(); 
@@ -59,10 +59,10 @@ namespace l1t {
       double seedMipPt()   const { return seedMipPt_; }
       uint32_t seedDetId() const { return seedDetId_; }
 
-      double distance( const edm::Ptr<l1t::HGCalTriggerCell> tc ) const; /* return distance in 'cm' */
+      double distance( const l1t::HGCalTriggerCell &tc ) const; /* return distance in 'cm' */
       
-      GlobalPoint& centre() const { return (GlobalPoint&) centre_; }
-      GlobalPoint& centreProj() const { return (GlobalPoint&) centreProj_; }
+      GlobalPoint centre() const { return (const GlobalPoint&) centre_; }
+      GlobalPoint centreProj() const { return (const GlobalPoint&) centreProj_; }
 
       uint32_t subdetId()  const; /* EE (3), FH (4) or BH (5) */
       uint32_t layer()     const;

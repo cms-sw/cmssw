@@ -14,11 +14,13 @@ public:
   
     HGCalClusteringImpl( const edm::ParameterSet & conf);    
 
-    void clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> triggerCellsPtrs,
+    bool isPertinent( const l1t::HGCalTriggerCell & tc, 
+                      const l1t::HGCalCluster & clu, 
+                      double distXY) const;
+
+    void clusterize( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
                      l1t::HGCalClusterBxCollection & clusters 
         );
-
-    bool isPertinent( const edm::Ptr<l1t::HGCalTriggerCell> tc, const l1t::HGCalCluster &clu, double distXY) const;
 
 private:
     
