@@ -113,12 +113,11 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.CodecName = cms.string('HGCalTriggerCellThresholdCodec')
 process.hgcalTriggerPrimitiveDigiProducer.FECodec.NData = cms.uint32(999) # put number larger than max number of trigger cells in module
 cluster_algo_all =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAlgoThreshold'),
-                              FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
-                              HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-                              HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-                              calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
-                              )
-
+                               FECodec = process.hgcalTriggerPrimitiveDigiProducer.FECodec,
+                               HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                               HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                               calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
+                               )
 
 process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_all )
 process.hgcl1tpg_step1 = cms.Path(process.hgcalTriggerPrimitives)
@@ -132,8 +131,6 @@ cluster_algo_select =  cms.PSet( AlgorithmName = cms.string('SingleCellClusterAl
                                  HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
                                  calib_parameters = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].calib_parameters
                                  )
-
-
 process.hgcalTriggerPrimitiveDigiFEReproducer.BEConfiguration.algorithms = cms.VPSet( cluster_algo_select )
 process.hgcl1tpg_step2 = cms.Path(process.hgcalTriggerPrimitives_reproduce)
 

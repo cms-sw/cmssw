@@ -51,8 +51,8 @@ namespace l1t {
             return false;
         }
 
-        GlobalPoint centre() const { return (const GlobalPoint&) centre_; }         /* in (x, y, z) */
-        GlobalPoint centreProj() const { return (const GlobalPoint&) centreProj_; } /* in (x/z, y/z, z/z) */
+        const GlobalPoint& centre() const { return centre_; }         /* in (x, y, z) */
+        const GlobalPoint& centreProj() const { return centreProj_; } /* in (x/z, y/z, z/z) */
 
         uint32_t firstClusterDetId() const { return firstClusterDetId_; }
         double mipPt() const { return mipPt_; }
