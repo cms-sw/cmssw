@@ -508,8 +508,8 @@ class ValidationWithPlots(GenericValidation):
         from plottingOptions import PlottingOptions
         repmap = PlottingOptions(None, cls).copy()
         filename = replaceByMap(".oO[plottingscriptpath]Oo.", repmap)
-        repmap["PlottingInstantiation"] = "".join(
-                                                  replaceByMap(v.appendToPlots(), v.getRepMap())
+        repmap["PlottingInstantiation"] = "\n".join(
+                                                  replaceByMap(v.appendToPlots(), v.getRepMap()).rstrip("\n")
                                                        for v in validations
                                                  )
         plottingscript = replaceByMap(cls.plottingscripttemplate(), repmap)

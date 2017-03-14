@@ -37,6 +37,7 @@ class GeometryComparison(GenericValidation):
         "dgamma_max":"-99999",
         }
     mandatories = {"levels", "dbOutput"}
+    valType = "compare"
     def __init__( self, valName, alignment, referenceAlignment,
                   config, copyImages = True):
         """
@@ -52,8 +53,7 @@ class GeometryComparison(GenericValidation):
         - `copyImages`: Boolean which indicates whether png- and pdf-files
                         should be copied back from the batch farm
         """
-        super(GeometryComparison, self).__init__(valName, alignment, config,
-                                                 "compare")
+        super(GeometryComparison, self).__init__(valName, alignment, config)
         self.referenceAlignment = referenceAlignment
         referenceName = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
@@ -102,7 +102,7 @@ class GeometryComparison(GenericValidation):
 
     @property
     def filesToCompare(self):
-        return self.filesToCompare
+        return self.__filesToCompare
 
     def createConfiguration(self, path ):
         # self.__compares
