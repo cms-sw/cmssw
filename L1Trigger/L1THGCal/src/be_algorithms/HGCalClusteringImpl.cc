@@ -79,7 +79,9 @@ void HGCalClusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalTriggerCell
                     targetClu = *iclu;
                 }
             } 
-            clustersTmp.at(targetClu).addTriggerCell( *tc );            
+
+            clustersTmp.at(targetClu).addTriggerCell( *tc );                    
+
         }
     }
 
