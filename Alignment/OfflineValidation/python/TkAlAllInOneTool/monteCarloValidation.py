@@ -14,9 +14,9 @@ class MonteCarloValidation(GenericValidationData):
     resultBaseName = "McValidation"
     outputBaseName = "McValidation"
     needParentFiles = True
+    valType = "mcValidate"
     def __init__(self, valName, alignment, config):
-        super(MonteCarloValidation, self).__init__(valName, alignment, config,
-                                                   "mcValidate")
+        super(MonteCarloValidation, self).__init__(valName, alignment, config)
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the MC validation!\n"
                                 "Please set parallelJobs = 1.")

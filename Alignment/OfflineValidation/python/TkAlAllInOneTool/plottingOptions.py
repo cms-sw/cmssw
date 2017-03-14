@@ -1,10 +1,16 @@
 import os
 import random
+
 import globalDictionaries
 import configTemplates
-from genericValidation import ValidationMetaClass
+
+from genericValidation import ValidationMetaClass, ValidationWithPlots
 from helperFunctions import getCommandOutput2, replaceByMap
+from offlineValidation import OfflineValidation
+from primaryVertexValidation import PrimaryVertexValidation
 from TkAlExceptions import AllInOneError
+from trackSplittingValidation import TrackSplittingValidation
+from zMuMuValidation import ZMuMuValidation
 
 class BasePlottingOptions(object):
     __metaclass__ = ValidationMetaClass
@@ -103,7 +109,7 @@ class BasePlottingOptions(object):
                 "SCRAM_ARCH": self.scramarch,
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
                 })
-        if issubclass(self.validationclass, ValidationWithPlots)
+        if issubclass(self.validationclass, ValidationWithPlots):
             result["plottingscriptname"] = self.validationclass.plottingscriptname()
             result["plottingscriptpath"] = ".oO[scriptsdir]Oo./.oO[plottingscriptname]Oo."
         return result
@@ -199,7 +205,7 @@ class PlottingOptionsPrimaryVertex(BasePlottingOptions):
                 "w_dxyEtaNormMax":"1.8",
                 "w_dzEtaNormMax":"1.8",
                 }
-    validationclass = PrimaryVertex
+    validationclass = PrimaryVertexValidation
     def __init__(self, config):
         super(PlottingOptionsPrimaryVertex, self).__init__(config, "primaryvertex")
 

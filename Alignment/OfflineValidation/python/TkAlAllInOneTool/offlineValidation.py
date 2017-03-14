@@ -26,10 +26,10 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
         }
     defaults.update(deprecateddefaults)
     mandatories = {"trackcollection"}
+    valType = "offline"
 
     def __init__(self, valName, alignment, config):
-        super(OfflineValidation, self).__init__(valName, alignment, config,
-                                                "offline")
+        super(OfflineValidation, self).__init__(valName, alignment, config)
 
         for option in self.deprecateddefaults:
             if self.general[option]:

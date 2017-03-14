@@ -12,9 +12,7 @@ class TrackSplittingValidation(GenericValidationData, ParallelValidation, Valida
     resultBaseName = "TrackSplitting"
     outputBaseName = "TrackSplitting"
     mandatories = {"trackcollection"}
-    def __init__(self, valName, alignment, config):
-        super(TrackSplittingValidation, self).__init__(valName, alignment, config,
-                                                       "split")
+    valType = "split"
 
     @property
     def cfgTemplate(self):

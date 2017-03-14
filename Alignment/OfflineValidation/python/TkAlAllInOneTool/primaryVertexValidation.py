@@ -18,9 +18,9 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
                 "doFPix":"True"
                }
     mandatories = {"isda","ismc","runboundary","trackcollection","vertexcollection","lumilist","ptCut","etaCut","runControl","numberOfBins"}
+    valType = "primaryvertex"
     def __init__(self, valName, alignment, config):
-        super(PrimaryVertexValidation, self).__init__(valName, alignment, config,
-                                                      "primaryvertex")
+        super(PrimaryVertexValidation, self).__init__(valName, alignment, config)
 
         if self.general["pvvalidationreference"].startswith("/store"):
             self.general["pvvalidationreference"] = "root://eoscms//eos/cms" + self.general["pvvalidationreference"]

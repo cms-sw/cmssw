@@ -26,9 +26,9 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
     defaults.update(deprecateddefaults)
     needpackages = {'MuonAnalysis/MomentumScaleCalibration'}
     mandatories = {"etamaxneg", "etaminneg", "etamaxpos", "etaminpos"}
+    valType = "zmumu"
     def __init__(self, valName, alignment, config):
-        super(ZMuMuValidation, self).__init__(valName, alignment, config,
-                                              "zmumu")
+        super(ZMuMuValidation, self).__init__(valName, alignment, config)
         if self.general["zmumureference"].startswith("/store"):
             self.general["zmumureference"] = "root://eoscms//eos/cms" + self.general["zmumureference"]
         if self.NJobs > 1:

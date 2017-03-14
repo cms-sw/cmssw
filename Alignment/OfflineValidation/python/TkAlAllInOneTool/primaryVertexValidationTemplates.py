@@ -387,7 +387,7 @@ void TkAlPrimaryVertexValidationPlot()
                       .oO[w_dzEtaNormMax]Oo.       // width of dz  vs Eta (norm)
 		      );
 
- .oO[PrimaryVertexPlotInstantiation]Oo.
+ .oO[PlottingInstantiation]Oo.
   FitPVResiduals("",.oO[stdResiduals]Oo.,.oO[doMaps]Oo.,"",.oO[autoLimits]Oo.);
 }
 """
