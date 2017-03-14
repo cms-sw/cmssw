@@ -15,18 +15,9 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   std::cout << "MuonDDDConstants;:MuonDDDConstants ( const DDCompactView& cpv ) constructor " << std::endl;
 #endif
   std::string attribute = "OnlyForMuonNumbering"; 
-  std::string value     = "any";
-  DDValue val(attribute, value, 0.0);
   
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,
-		     DDCompOp::not_equals,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fview(cpv);
-  fview.addFilter(filter);
+  DDSpecificsHasNamedValueFilter filter(attribute);
+  DDFilteredView fview(cpv,filter);
   
   DDValue val2("level");
   const DDsvalues_type params(fview.mergedSpecifics());

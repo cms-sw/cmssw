@@ -58,7 +58,7 @@ if __name__ == '__main__':
                      140.53, #2011 HI data
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
-                     10021.0, #2017 tenmu
+                     10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
                      10824.0, #2018 ttbar
                      20034.0, #2023D7 ttbar (Run2 calo)
@@ -75,6 +75,12 @@ if __name__ == '__main__':
     usage = 'usage: runTheMatrix.py --show -s '
 
     parser = optparse.OptionParser(usage)
+
+    parser.add_option('-b','--batchName',
+                      help='relval batch: suffix to be appended to Campaign name',
+                      dest='batchName',
+                      default=''
+                     )
 
     parser.add_option('-m','--memoryOffset',
                       help='memory of the wf for single core',

@@ -1,0 +1,1 @@
+<test name="testPrepareInputDb" command="mps_prepare_input_db.py -g 90X_dataRun2_Queue -r 1 -o /tmp/test_input.db"/>
