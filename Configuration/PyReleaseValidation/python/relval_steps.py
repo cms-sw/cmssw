@@ -1172,13 +1172,13 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_
 
 # step3 
 step3Defaults = {
-                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION:@standardValidationNoHLT,DQM',
+                  '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT',
                   '--conditions'  : 'auto:run1_mc',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM',
                   }
-step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM'}, step3Defaults])
+step3DefaultsAlCaCalo=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION:@standardValidationNoHLT,DQM:@standardDQMFakeHLT'}, step3Defaults])
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
