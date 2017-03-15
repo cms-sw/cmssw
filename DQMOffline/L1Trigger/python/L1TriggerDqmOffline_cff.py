@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 # L1 Trigger DQM sequence for offline DQM
 #
-# used by DQM GUI: DQM/Configuration 
+# used by DQM GUI: DQM/Configuration
 #
 #
 #
-# standard RawToDigi sequence and RECO sequence must be run before the L1 Trigger modules, 
+# standard RawToDigi sequence and RECO sequence must be run before the L1 Trigger modules,
 # labels from the standard sequence are used as default for the L1 Trigger DQM modules
 #
-# V.M. Ghete - HEPHY Vienna - 2011-01-02 
-#                       
-                      
+# V.M. Ghete - HEPHY Vienna - 2011-01-02
+#
+
 
 #
 # DQM L1 Trigger in offline environment
@@ -21,7 +21,7 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvL1T.subSystemFolder = 'L1T'
 
-# DQM online L1 Trigger modules, with offline configuration 
+# DQM online L1 Trigger modules, with offline configuration
 from DQMOffline.L1Trigger.L1TMonitorOffline_cff import *
 from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
 
@@ -44,7 +44,8 @@ dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 # DQM Offline Step 1 cfi/cff imports
 from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
-from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *  
+from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *
+from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
 l1TdeRCT.rctSourceData = 'gctDigis'
 
 # DQM Offline Step 2 cfi/cff imports
@@ -62,7 +63,7 @@ l1tPUM.regionSource = cms.InputTag("gctDigis")
 l1tStage1Layer2.gctCentralJetsSource = cms.InputTag("gctDigis","cenJets")
 l1tStage1Layer2.gctForwardJetsSource = cms.InputTag("gctDigis","forJets")
 l1tStage1Layer2.gctTauJetsSource = cms.InputTag("gctDigis","tauJets")
-l1tStage1Layer2.gctIsoTauJetsSource = cms.InputTag("","")       
+l1tStage1Layer2.gctIsoTauJetsSource = cms.InputTag("","")
 l1tStage1Layer2.gctEnergySumsSource = cms.InputTag("gctDigis")
 l1tStage1Layer2.gctIsoEmSource = cms.InputTag("gctDigis","isoEm")
 l1tStage1Layer2.gctNonIsoEmSource = cms.InputTag("gctDigis","nonIsoEm")
@@ -127,29 +128,31 @@ stage1L1Trigger.toModify(l1compareforstage1, stage1_layer2_ = cms.bool(True))
 stage1L1Trigger.toModify(valStage1GtDigis, GctInputTag = 'caloStage1LegacyFormatDigis')
 
 #
-# define sequences 
+# define sequences
 #
 
 l1TriggerOnline = cms.Sequence(
                                l1tMonitorStage1Online
                                 * dqmEnvL1T
                                )
-                                    
+
 l1TriggerOffline = cms.Sequence(
-                                l1TriggerOnline
-                                 * dqmEnvL1TriggerReco
-                                )
- 
+    l1TriggerOnline *
+    dqmEnvL1TriggerReco *
+    l1tStage2CaloLayer2OfflineDQM
+)
+
 #
- 
+
 l1TriggerEmulatorOnline = cms.Sequence(
                                 l1Stage1HwValEmulatorMonitor
                                 * dqmEnvL1TEMU
                                 )
 
 l1TriggerEmulatorOffline = cms.Sequence(
-                                l1TriggerEmulatorOnline                                
-                                )
+    l1TriggerEmulatorOnline *
+    l1tStage2CaloLayer2OfflineDQMEmu
+)
 #
 
 # DQM Offline Step 1 sequence
@@ -158,9 +161,9 @@ l1TriggerDqmOffline = cms.Sequence(
                                 * l1tRate_Offline
                                 * l1tSync_Offline
                                 * l1TriggerEmulatorOffline
-                                )                                  
+                                )
 
-# DQM Offline Step 2 sequence                                 
+# DQM Offline Step 2 sequence
 l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tMonitorStage1Client
                                 * l1EmulatorMonitorClient
@@ -168,24 +171,24 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 
 
 #
-#   EMERGENCY   removal of modules or full sequences 
+#   EMERGENCY   removal of modules or full sequences
 # =============
 #
 # un-comment the module line below to remove the module or the sequence
 
 #
-# NOTE: for offline, remove the L1TRate which is reading from cms_orcoff_prod, but also requires 
+# NOTE: for offline, remove the L1TRate which is reading from cms_orcoff_prod, but also requires
 # a hard-coded lxplus path - FIXME check if one can get rid of hard-coded path
 # remove also the corresponding client
 #
 # L1TSync - FIXME - same problems as L1TRate
 
 
-# DQM first step 
+# DQM first step
 #
 
-#l1TriggerDqmOffline.remove(l1TriggerOffline) 
-#l1TriggerDqmOffline.remove(l1TriggerEmulatorOffline) 
+#l1TriggerDqmOffline.remove(l1TriggerOffline)
+#l1TriggerDqmOffline.remove(l1TriggerEmulatorOffline)
 
 #
 
@@ -198,10 +201,10 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 #
 l1tMonitorStage1Online.remove(bxTiming)
 #l1tMonitorOnline.remove(l1tDttf)
-#l1tMonitorOnline.remove(l1tCsctf) 
+#l1tMonitorOnline.remove(l1tCsctf)
 #l1tMonitorOnline.remove(l1tRpctf)
 #l1tMonitorOnline.remove(l1tGmt)
-#l1tMonitorOnline.remove(l1tGt) 
+#l1tMonitorOnline.remove(l1tGt)
 #
 #l1ExtraDqmSeq.remove(dqmGctDigis)
 #l1ExtraDqmSeq.remove(dqmGtDigis)
@@ -218,9 +221,9 @@ l1tMonitorStage1Online.remove(bxTiming)
 
 #l1TriggerEmulatorOffline.remove(l1TriggerEmulatorOnline)
 
-# l1HwValEmulatorMonitor sequence, defined in DQM/L1TMonitor/python/L1TEmulatorMonitor_cff.py 
+# l1HwValEmulatorMonitor sequence, defined in DQM/L1TMonitor/python/L1TEmulatorMonitor_cff.py
 #
-#l1TriggerEmulatorOnline.remove(l1HwValEmulatorMonitor) 
+#l1TriggerEmulatorOnline.remove(l1HwValEmulatorMonitor)
 
 # L1HardwareValidation producers
 #l1HwValEmulatorMonitor.remove(L1HardwareValidation)
@@ -239,13 +242,13 @@ l1tMonitorStage1Online.remove(bxTiming)
 
 #l1TriggerClients.remove(l1tGctClient)
 #l1TriggerClients.remove(l1tDttfClient)
-#l1TriggerClients.remove(l1tCsctfClient) 
+#l1TriggerClients.remove(l1tCsctfClient)
 #l1TriggerClients.remove(l1tRpctfClient)
 #l1TriggerClients.remove(l1tGmtClient)
 #l1TriggerClients.remove(l1tOccupancyClient)
 l1TriggerStage1Clients.remove(l1tTestsSummary)
 #l1TriggerClients.remove(l1tEventInfoClient)
-                              
+
 # l1EmulatorMonitorClient sequence, defined in DQM/L1TMonitorClient/python/L1TEMUMonitorClient_cff.py
 #
 #l1EmulatorMonitorClient.remove(l1EmulatorQualityTests)
