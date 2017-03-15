@@ -16,15 +16,18 @@ public:
     using CAntuplet = std::vector<CACell*>;
 
     CACell(const HitDoublets* doublets, int doubletId, const unsigned int cellId, const int innerHitId, const int outerHitId) :
-    theCAState(0), theInnerHitId(innerHitId), theOuterHitId(outerHitId), theCellId(cellId), hasSameStateNeighbors(0), theDoublets(doublets), theDoubletId(doubletId),
-    theInnerR(doublets->r(doubletId, HitDoublets::inner)), theOuterR(doublets->r(doubletId, HitDoublets::outer)),
-    theInnerZ(doublets->z(doubletId, HitDoublets::inner)), theOuterZ(doublets->z(doubletId, HitDoublets::outer)) {
-    }
+    theCAState(0),hasSameStateNeighbors(0),
+    theDoublets(doublets), theDoubletId(doubletId),
+    theCellId(cellId)
+    ,theInnerR(doublets->r(doubletId, HitDoublets::inner)), theOuterR(doublets->r(doubletId, HitDoublets::outer))
+    ,theInnerZ(doublets->z(doubletId, HitDoublets::inner)), theOuterZ(doublets->z(doubletId, HitDoublets::outer)) 
+    {}
 
     unsigned int getCellId() const {
         return theCellId;
     }
 
+    
     Hit const & getInnerHit() const {
         return theDoublets->hit(theDoubletId, HitDoublets::inner);
     }
@@ -32,6 +35,7 @@ public:
     Hit const & getOuterHit() const {
         return theDoublets->hit(theDoubletId, HitDoublets::outer);
     }
+    
 
     float getInnerX() const {
         return theDoublets->x(theDoubletId, HitDoublets::inner);
@@ -50,19 +54,23 @@ public:
     }
 
     float getInnerZ() const {
+  //    return theDoublets->z(theDoubletId, HitDoublets::inner);
         return theInnerZ;
     }
 
     float getOuterZ() const {
+//      return theDoublets->z(theDoubletId, HitDoublets::outer);
         return theOuterZ;
     }
 
     float getInnerR() const {
-        return theInnerR;
+//      return theDoublets->r(theDoubletId, HitDoublets::inner);
+      return theInnerR;
     }
 
     float getOuterR() const {
-        return theOuterR;
+//      return theDoublets->r(theDoubletId, HitDoublets::outer);
+      return theOuterR;
     }
 
     float getInnerPhi() const {
@@ -71,14 +79,6 @@ public:
 
     float getOuterPhi() const {
         return theDoublets->phi(theDoubletId, HitDoublets::outer);
-    }
-
-    unsigned int getInnerHitId() const {
-        return theInnerHitId;
-    }
-
-    unsigned int getOuterHitId() const {
-        return theOuterHitId;
     }
 
     void evolve() {
@@ -99,6 +99,35 @@ public:
     }
 
 
+    void checkAlignmentAndTag(CAntuplet & innerCells, const float ptmin, const float region_origin_x,
+                const float region_origin_y, const float region_origin_radius, const float thetaCut,
+                        const float phiCut, const float hardPtCut) {
+         int ncells = innerCells.size();
+         int constexpr VSIZE = 16;
+         int ok[VSIZE];
+         float r1[VSIZE];
+         float z1[VSIZE];
+          
+         auto loop = [&](int i, int vs) {
+            for (int j=0;j<vs; ++j) {
+                auto oc = innerCells[i+j];
+                r1[j] = oc->getInnerR();
+                z1[j] = oc->getInnerZ();
+            }
+            for	(int j=0;j<vs; ++j) ok[j] = areAlignedRZ(r1[j], z1[j], ptmin, thetaCut);
+            for (int j=0;j<vs; ++j) {
+             auto oc	= innerCells[i+j]; 
+               if (ok[j]&&haveSimilarCurvature(oc,ptmin, region_origin_x, region_origin_y,
+                                        region_origin_radius, phiCut, hardPtCut)) {
+                  tagAsInnerNeighbor(oc);
+                  oc->tagAsOuterNeighbor(this);
+               } }
+        };
+        auto lim = VSIZE*(ncells/VSIZE);
+        for (int i=0; i<lim; i+=VSIZE) loop(i, VSIZE); 
+        loop(lim, ncells-lim);
+
+    }
     void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x,
     		const float region_origin_y, const float region_origin_radius, const float thetaCut,
 			const float phiCut, const float hardPtCut) {
@@ -131,14 +160,26 @@ public:
 
         float r1 = otherCell->getInnerR();
         float z1 = otherCell->getInnerZ();
-        float radius_diff = std::abs(r1 - theOuterR);
-        float distance_13_squared = radius_diff*radius_diff + (z1 - theOuterZ)*(z1 - theOuterZ);
+        float radius_diff = std::abs(r1 - getOuterR());
+        float distance_13_squared = radius_diff*radius_diff + (z1 - getOuterZ())*(z1 - getOuterZ());
 
         float pMin = ptmin*std::sqrt(distance_13_squared); //this needs to be divided by radius_diff later
 
-        float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (theInnerR - theOuterR) + theInnerZ * (theOuterR - r1) + theOuterZ * (r1 - theInnerR)) ;
+        float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (getInnerR() - getOuterR()) + getInnerZ() * (getOuterR() - r1) + getOuterZ() * (r1 - getInnerR())) ;
         return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
     }
+
+    int areAlignedRZ(float r1, float z1, const float ptmin, const float thetaCut) const
+    {
+        float radius_diff = std::abs(r1 - getOuterR());
+        float distance_13_squared = radius_diff*radius_diff + (z1 - getOuterZ())*(z1 - getOuterZ());
+
+        float pMin = ptmin*std::sqrt(distance_13_squared); //this needs to be divided by radius_diff later
+
+        float tan_12_13_half_mul_distance_13_squared = fabs(z1 * (getInnerR() - getOuterR()) + getInnerZ() * (getOuterR() - r1) + getOuterZ() * (r1 - getInnerR())) ;
+        return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
+    }
+
 
     void tagAsOuterNeighbor(CACell* otherCell)
     {
@@ -272,24 +313,23 @@ public:
     
     
 private:
+    unsigned int theCAState;
+    unsigned int hasSameStateNeighbors;
+
     std::vector<CACell*> theInnerNeighbors;
     std::vector<CACell*> theOuterNeighbors;
 
-    unsigned int theCAState;
-
-    const unsigned int theInnerHitId;
-    const unsigned int theOuterHitId;
-    const unsigned int theCellId;
-    unsigned int hasSameStateNeighbors;
-
-    const HitDoublets* theDoublets;
+    const HitDoublets* theDoublets;  
     const int theDoubletId;
 
+    const unsigned int theCellId;
+
+    
     const float theInnerR;
     const float theOuterR;
     const float theInnerZ;
     const float theOuterZ;
-
+    
 };
 
 
