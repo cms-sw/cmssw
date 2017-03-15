@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SolidSection label="muonBase.xml">
-  <Tubs name="MUON1" rMin="[cms:CalorMuonR]" rMax="[cms:CMSR1]" dz="[cms:MuonBeamZ2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="MUON1" rMin="[cms:CalorMuonR]" rMax="[cms:CMSR4]" dz="[cms:MuonBeamZ2]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Polycone name="MUON2" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="-[cms:MuonBeamZ2]"  rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
     <ZSection z="-[cms:TotemMuonZ2]" rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
@@ -41,7 +41,7 @@
     <rSolid name="MUON3"/>
     <Translation x="0.0*fm" y="0.0*fm" z="0.0*fm"/>
   </UnionSolid>
-  <Tubs name="MB" rMin="[cms:MBarRmin]" rMax="[cms:CMSR1]" dz="[cms:MBarZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="MB" rMin="[cms:MBarRmin]" rMax="[cms:CMSR4]" dz="[cms:MBarZ]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="MBWheel" rMin="[cms:MBarRmin]" rMax="[cms:MBarRmax]" dz="[cms:MBRingZ]" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
