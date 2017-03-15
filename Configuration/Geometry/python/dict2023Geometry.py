@@ -9,13 +9,13 @@ commonDict = {
             'Geometry/CMSCommonData/data/materials.xml',
             'Geometry/CMSCommonData/data/rotations.xml',
             'Geometry/CMSCommonData/data/extend/cmsextent.xml',
-            'Geometry/CMSCommonData/data/PostLS2/cms.xml',
+            'Geometry/CMSCommonData/data/cms/2019/v1/cms.xml',
             'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
             'Geometry/CMSCommonData/data/cmsMother.xml',
             'Geometry/CMSCommonData/data/cmsTracker.xml',
             'Geometry/CMSCommonData/data/PhaseII/caloBase.xml',
             'Geometry/CMSCommonData/data/cmsCalo.xml',
-            'Geometry/CMSCommonData/data/PhaseII/muonBase.xml',
+            'Geometry/CMSCommonData/data/muonBase/2023/v1/muonBase.xml',
             'Geometry/CMSCommonData/data/cmsMuon.xml',
             'Geometry/CMSCommonData/data/mgnt.xml',
             'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
@@ -28,7 +28,34 @@ commonDict = {
             'Geometry/CMSCommonData/data/FieldParameters.xml',
         ],
         "era" : "run2_common, phase2_common",
-    }
+    },
+    "O2" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data//extend/v2/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cms/2023/v1/cms.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',        
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/PhaseII/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2023/v1/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
+            'Geometry/CMSCommonData/data/PostLS2/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2017/v2/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "run2_common, phase2_common",
+    }    
 }
 
 trackerDict = {
@@ -475,7 +502,24 @@ forwardDict = {
         "reco" :[
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
         ]
-    }
+    },
+    "F2" : {
+        1 : [
+            'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/brmrotations.xml',
+            'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardCommonData/data/brmsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
+        ]
+    }    
 }
 
 timingDict = {
@@ -515,7 +559,8 @@ detectorVersionDict = {
     ("O1","T3","C2","M1","F1","I1") : "D4",
     ("O1","T3","C2","M1","F1","I2") : "D8",
     ("O1","T3","C1","M2","F1","I1") : "D9",
-    ("O1","T5","C2","M1","F1","I1") : "D11",    
+    ("O1","T5","C2","M1","F1","I1") : "D11",
+    ("O2","T5","C2","M1","F2","I1") : "D12"
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]
