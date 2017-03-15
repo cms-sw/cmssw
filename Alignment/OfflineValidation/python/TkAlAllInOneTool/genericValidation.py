@@ -494,6 +494,9 @@ class ValidationWithPlots(GenericValidation):
     @abstractmethod
     def plottingscripttemplate(cls):
         """override with a classmethod"""
+    @abstractmethod
+    def plotsdirname(cls):
+        """override with a classmethod"""
 
     @classmethod
     def doRunPlots(cls, validations):

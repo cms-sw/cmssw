@@ -118,6 +118,10 @@ class OfflineValidation(GenericValidationData, ParallelValidation, ValidationWit
         return configTemplates.extendedValidationTemplate
 
     @classmethod
+    def plotsdirname(cls):
+        return "ExtendedOfflineValidation_Images"
+
+    @classmethod
     def comparealignmentsname(cls):
         return "compareAlignments.cc"
 

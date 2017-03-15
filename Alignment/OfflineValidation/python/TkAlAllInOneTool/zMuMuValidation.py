@@ -83,3 +83,7 @@ class ZMuMuValidation(GenericValidationData, ValidationWithPlots):
     @classmethod
     def plottingscripttemplate(cls):
         return configTemplates.mergeZmumuPlotsTemplate
+
+    @classmethod
+    def plotsdirname(cls):
+        return "ZMuMuPlots"

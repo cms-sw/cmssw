@@ -78,3 +78,7 @@ class PrimaryVertexValidation(GenericValidationData, ValidationWithPlots):
     @classmethod
     def plottingscripttemplate(cls):
         return configTemplates.PrimaryVertexPlotTemplate
+
+    @classmethod
+    def plotsdirname(cls):
+        return "PVPlots"

@@ -64,3 +64,7 @@ class TrackSplittingValidation(GenericValidationData, ParallelValidation, Valida
     @classmethod
     def plottingscripttemplate(cls):
         return configTemplates.trackSplitPlotTemplate
+
+    @classmethod
+    def plotsdirname(cls):
+        return "TrackSplittingPlots"
