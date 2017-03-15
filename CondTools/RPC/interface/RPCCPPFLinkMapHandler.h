@@ -30,7 +30,8 @@ protected:
     cond::Time_t since_run_;
 
     std::string input_file_;
-    int fed_;
+    std::vector<int> side_fed_;
+    unsigned int n_sectors_;
     std::vector<std::vector<int> > side_sector_amc_;
 
     std::string txt_file_;
