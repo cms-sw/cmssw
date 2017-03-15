@@ -36,7 +36,7 @@ Several detector combinations have been generated with O1+F1:
 * D9 = T3+C1+M2+I1
 * D10 = T4+C1+M1+I1
 * D11 = T5+C2+M1+I1
-* D12 = subdetectors as in D11 but O2+F2 
+* D12 = T3+C2+M2+I1+O2+F2 
 
 Currently, D4 is considered to be the baseline for the Phase 2 Tracker TDR.
 
