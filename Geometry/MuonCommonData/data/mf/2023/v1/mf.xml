@@ -18,13 +18,13 @@
    <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MERmin0]" rMax="[cms:MBarRmin]"/>
    <ZSection z="[cms:MEndcapZ0]" rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>
    <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>
-   <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:CMSR1]"/>
-   <ZSection z="[cms:MEndcapZ1]" rMin="[cms:MERmin2]" rMax="[cms:CMSR1]"/>
-   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR1]"/>
-   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
-   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
-   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
-   <ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:CMSR4]"/>
+   <ZSection z="[cms:MEndcapZ1]" rMin="[cms:MERmin2]" rMax="[cms:CMSR4]"/>
+   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR4]"/>
+   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR4]"/>
+   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR4]"/>
+   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR4]"/>
+   <ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR4]"/>
   </Polycone>
   <Polycone name="ME0Ring" startPhi="0*deg" deltaPhi="360*deg">
    <ZSection z="[z1ME0]" rMin="[rMinME0]" rMax="[rMaxME0]"/>
