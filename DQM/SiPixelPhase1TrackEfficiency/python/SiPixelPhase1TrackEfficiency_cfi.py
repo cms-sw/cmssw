@@ -29,8 +29,8 @@ SiPixelPhase1TrackEfficiencyEfficiency = SiPixelPhase1TrackEfficiencyValid.clone
   xlabel = "#valid/(#valid+#missing)",
   dimensions = 1,
   specs = VPSet(
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile    
+    StandardSpecification2DProfile
+    #StandardSpecificationPixelmapProfile    
   )
 )
 
