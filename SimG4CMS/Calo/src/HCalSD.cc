@@ -1161,6 +1161,7 @@ void HCalSD::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
       }
     }
   } else if ((id.subdet == 1 || id.subdet ==2) && testNumber) {
-    id.depth = depth_;
+    if (depth_ == 0) id.depth = 1;
+    else             id.depth = 2;
   }
 }
