@@ -218,6 +218,13 @@ def miniAOD_customizeCommon(process):
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) 
+    process.egmPhotonIsolation.srcToIsolate = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.egmPhotonIsolation.srcForIsolationCone = \
+        cms.InputTag("pfNoPileUpCandidates")    
+    for iPSet in process.egmPhotonIsolation.isolationConeDefinitions:
+        iPSet.particleBasedIsolation = cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")    
+
     process.egmPhotonIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.src = \
