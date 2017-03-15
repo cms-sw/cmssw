@@ -43,11 +43,6 @@ namespace edm {
       return childLookup_;
     }
 
-    map_t&
-    childLookup() {
-      return childLookup_;
-    }
-
   private:
     map_t childLookup_;
 
