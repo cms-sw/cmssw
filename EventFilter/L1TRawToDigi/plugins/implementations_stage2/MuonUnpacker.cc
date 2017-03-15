@@ -9,6 +9,10 @@
 
 namespace l1t {
    namespace stage2 {
+      MuonUnpacker::MuonUnpacker() : algoVersion_(0)
+      {
+      }
+
       bool
       MuonUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
@@ -47,7 +51,7 @@ namespace l1t {
 
                Muon mu;
                    
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63);
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, algoVersion_);
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
@@ -55,6 +59,30 @@ namespace l1t {
             }
          }
          return true;
+      }
+
+      unsigned int
+      MuonUnpacker::getAlgoVersion()
+      {
+        return algoVersion_;
+      }
+
+      int
+      MuonUnpacker::getFedNumber()
+      {
+        return fed_;
+      }
+
+      void
+      MuonUnpacker::setAlgoVersion(unsigned int version)
+      {
+        algoVersion_ = version;
+      }
+
+      void
+      MuonUnpacker::setFedNumber(int fed)
+      {
+        fed_ = fed;
       }
    }
 }
