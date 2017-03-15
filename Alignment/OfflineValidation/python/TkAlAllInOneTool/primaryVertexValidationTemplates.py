@@ -344,12 +344,12 @@ root -x -b -q TkAlPrimaryVertexValidationPlot.C++
 
 for PdfOutputFile in $(ls *pdf ); do                                                                                                                                  
     xrdcp -f ${PdfOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/                                                                         
-    rfcp ${PdfOutputFile}  .oO[datadir]Oo.                                                                                                                               
+    rfcp ${PdfOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done 
 
 for PngOutputFile in $(ls *png ); do
     xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
-    rfcp ${PngOutputFile}  .oO[datadir]Oo.
+    rfcp ${PngOutputFile}  .oO[datadir]Oo./.oO[PlotsDirName]Oo.
 done
 
 """

@@ -246,7 +246,7 @@ void TkAlTrackSplitPlot()
 .oO[PlottingInstantiation]Oo.
               ,
               //misalignment,values,phases,                                 //(A)
-              ".oO[datadir]Oo./TrackSplittingPlots"
+              ".oO[datadir]Oo./.oO[PlotsDirName]Oo."
               //,"xvar","yvar"                                              //(B)
               //,plotmatrix                                                 //(C)
              );

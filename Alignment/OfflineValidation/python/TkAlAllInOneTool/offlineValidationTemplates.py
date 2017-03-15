@@ -313,7 +313,7 @@ void TkAlExtendedOfflineValidation()
 
   PlotAlignmentValidation p(bigtext);
 .oO[PlottingInstantiation]Oo.
-  p.setOutputDir(".oO[datadir]Oo./ExtendedOfflineValidation_Images");
+  p.setOutputDir(".oO[datadir]Oo./.oO[PlotsDirName]Oo.");
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
   p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");

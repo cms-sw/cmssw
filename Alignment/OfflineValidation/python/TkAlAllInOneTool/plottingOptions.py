@@ -113,6 +113,7 @@ class BasePlottingOptions(object):
         if issubclass(self.validationclass, ValidationWithPlots):
             result["plottingscriptname"] = self.validationclass.plottingscriptname()
             result["plottingscriptpath"] = ".oO[scriptsdir]Oo./.oO[plottingscriptname]Oo."
+            result["plotsdirname"] = self.validationclass.plotsdirname()
         if issubclass(self.validationclass, ValidationWithComparison):
             result["compareAlignmentsPath"] = self.validationclass.comparealignmentspath()
             result["compareAlignmentsName"] = self.validationclass.comparealignmentsname()
