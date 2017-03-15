@@ -13,6 +13,7 @@ from DQM.HLTEvF.HLTObjectMonitor_cfi import *
 # DQM.HLTEvF.HLTSiStripMonitoring_cff has to be updated as soon as the 25ns menu will be in production
 from DQM.HLTEvF.HLTSiStripMonitoring_cff import *
 from DQM.HLTEvF.HLTTrackingMonitoring_cff import *
+from DQM.HLTEvF.HLTPrimaryVertexMonitoring_cff import *
 
 
 hlt4vector = cms.Path(
@@ -20,6 +21,7 @@ hlt4vector = cms.Path(
 #    * sistripOnlineMonitorHLTsequence # strip cluster monitoring
     * trackingMonitoringHLTsequence # tracking monitoring
     * egmTrackingMonitorHLTsequence # EGM tracking monitoring
+    * vertexingMonitorHLTsequence # vertexing
 )
 
 
