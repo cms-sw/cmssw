@@ -1,4 +1,4 @@
 import FWCore.ParameterSet.Config as cms
 
-susyMonitorHLT = cms.Sequence(
+b2gMonitorHLT = cms.Sequence(
 )
