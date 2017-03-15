@@ -112,14 +112,14 @@
 		<Polycone name="OCMS" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="-[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
-			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[ShaftY]"/>
-			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[ShaftY]"/>
-			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
-			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[HallRMax]"/>
+			<ZSection z="-[HallZ]" rMin="[Rmin]" rMax="[ShaftY]+1*m"/>
+			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[ShaftY]+1*m"/>
+			<ZSection z="-[ShaftZ]" rMin="[Rmin]" rMax="[HallRMax]+360*cm"/>
+			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[HallRMax]+360*cm"/>
 			<ZSection z="[HallZ]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 		</Polycone>
-		<Polycone name="CMSE" startPhi="0*deg" deltaPhi="360*deg">
+		<Polycone name="CMSEp" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="-[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="-[CMSZ2]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="-[CMSZ2]" rMin="[Rmin]" rMax="[CMSR4]"/>
@@ -135,6 +135,12 @@
 			<ZSection z="[CMSZ2]" rMin="[Rmin]" rMax="[CMSR2]"/>
 			<ZSection z="[CMSZ1]" rMin="[Rmin]" rMax="[CMSR2]"/>
 		</Polycone>
+		<Box name="YBFeetBox" dx="505*cm" dy="280*cm" dz="670*cm"/>
+		<UnionSolid name="CMSE">
+		  <rSolid name="CMSEp"/>
+		  <rSolid name="YBFeetBox"/>
+		  <Translation x="0*fm" y="-880*cm+280*cm" z="0*fm"/>
+		</UnionSolid>
 	</SolidSection>
 	<LogicalPartSection label="cms.xml">
 		<LogicalPart name="World" category="unspecified">

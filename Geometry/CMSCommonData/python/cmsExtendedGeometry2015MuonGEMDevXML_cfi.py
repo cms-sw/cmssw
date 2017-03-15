@@ -12,7 +12,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',      # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/cmsTracker.xml',
-        'Geometry/CMSCommonData/data/PhaseII/muonBase.xml', # Phase-2 Muon
+        'Geometry/CMSCommonData/data/muonBase/2023/v1/muonBase.xml', # Phase-2 Muon
         'Geometry/CMSCommonData/data/cmsMuon.xml',
         'Geometry/CMSCommonData/data/mgnt.xml',
         'Geometry/CMSCommonData/data/beampipe/2015/v1/beampipe.xml',
