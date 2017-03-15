@@ -1,6 +1,7 @@
 #ifndef FWCore_Utilities_OffsetToBase_h
 #define FWCore_Utilities_OffsetToBase_h
 #include <typeinfo>
+#include <cstddef>
 
 /*
  * For any class used in Views, RefToBase, or Ptr,

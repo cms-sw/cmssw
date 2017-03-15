@@ -23,6 +23,7 @@
 // user include files
 #include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 namespace edm {
   class EventSetup;

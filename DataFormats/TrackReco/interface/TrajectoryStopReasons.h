@@ -1,6 +1,8 @@
 #ifndef TRAJECTORYSTOPREASONS_H
 #define TRAJECTORYSTOPREASONS_H
 
+#include <string>
+
 enum class StopReason {
   UNINITIALIZED = 0,
   MAX_HITS = 1,

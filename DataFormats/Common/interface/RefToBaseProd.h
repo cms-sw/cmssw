@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"

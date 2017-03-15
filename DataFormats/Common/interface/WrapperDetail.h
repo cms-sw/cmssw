@@ -6,7 +6,7 @@
 WrapperDetail: Metafunction support for compile-time selection of code.
 
 ----------------------------------------------------------------------*/
-
+#include <vector>
 #include <typeinfo>
 namespace edm {
 
