@@ -295,7 +295,7 @@ void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("pedestalUpperLimit", 2.7); 
   desc.add<int>("timeSlewParsType",3);
   desc.add<std::vector<double>>("timeSlewPars", { 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 });
-  desc.add<double>("respCorrM3", 0.95);
+  desc.add<double>("respCorrM3", 1.0);
   descriptions.add("hltHbhereco",desc);
 }
 
