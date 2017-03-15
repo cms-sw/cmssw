@@ -19,14 +19,13 @@ DDQuery::~DDQuery()
 /** the standard DDQuery only support one single filter. 
  Memory management of DDFilter* is NOT delegated to DDQuery 
 */
-void DDQuery::addFilter(const DDFilter & f, DDLogOp op)
+void DDQuery::addFilter(const DDFilter & f)
 {
   // cheating a bit with const ....
   // Filters have a non-const ::accept(..) member function to allow
   // a possible internal state change in a particular filter implementation ...
   DDFilter * nonConstFilter = const_cast<DDFilter *>(&f);
   criteria_.push_back(std::make_pair(false,nonConstFilter)); 
-  logOps_.push_back(op);
 }
 
 
@@ -63,10 +62,9 @@ const std::vector<DDExpandedNode> & DDQuery::exec()
         bool run = true;
 	while(run) {
 	  std::vector<const DDsvalues_type *> specs = epv_.specifics();
-	    auto logOpIt = logOps_.begin();
             // loop over all user-supplied criteria (==filters)
             bool result=true;
-            for( auto it = begin(criteria_); it != end(criteria_); ++it, ++logOpIt) {
+            for( auto it = begin(criteria_); it != end(criteria_); ++it) {
               DDFilter * filter = it->second;
  	      if (filter->accept(epv_)) {
 	        it->first=true;
@@ -75,12 +73,9 @@ const std::vector<DDExpandedNode> & DDQuery::exec()
 	        it->first=false;
 	      }
 	      	
-	      // now do the logical-operations on the results encountered so far:
-              if (*logOpIt == DDLogOp::AND) { // AND
-                result &= it->first; 
-              }
-              else { // OR
-                result |= it->first;  
+              result &= it->first; 
+              if(! result) {
+                break;
               }
 	    } // <-- loop over filters 
 	  if (result) {

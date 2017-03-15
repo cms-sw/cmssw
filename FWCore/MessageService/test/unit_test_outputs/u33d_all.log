@@ -135,7 +135,7 @@ MessageLogger Summary
     2 cat_BJ               pre-events                        
     3 cat_BJ               Run: 1                            
     4 cat_BL               Run: 1 Lumi: 1                    
-    5 FwkReport            PostBeginLumi    PostProcessEvent 
+    5 FwkReport            AfterSource      AfterSource      
     6 cat_A                1/1              1/2              
     7 cat_A                1/1              1/2              
     8 cat_A                1/1              1/2              

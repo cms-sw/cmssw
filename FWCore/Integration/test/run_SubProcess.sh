@@ -37,6 +37,9 @@ pushd ${LOCAL_TMP_DIR}
   echo cmsRun testSubProcessUnscheduled_cfg.py
   cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduled_cfg.py || die "cmsRun testSubProcessUnscheduled_cfg.py" $?
 
+  echo cmsRun testSubProcessUnscheduledRead_cfg.py
+  cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduledRead_cfg.py || die "cmsRun testSubProcessUnscheduledRead_cfg.py" $?
+
 popd
 
 exit 0

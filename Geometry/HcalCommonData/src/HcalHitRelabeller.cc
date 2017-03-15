@@ -16,7 +16,8 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
     for (unsigned int ii=0; ii<hcalHits.size(); ++ii) {
 
 #ifdef EDM_ML_DEBUG
-      std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() << std::dec << '\n';
+      std::cout << "Hit[" << ii << "] " << std::hex 
+		<< (hcalHits[ii].id()) << std::dec << '\n';
 #endif
       double energy = (hcalHits[ii].energy());
       if (neutralDensity_) {
@@ -31,7 +32,7 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 #endif
       hcalHits[ii].setID(newid.rawId());
 #ifdef EDM_ML_DEBUG
-      std::cout << "Modified Hit " << hcalHits[ii] << std::endl;
+      std::cout << "Modified Hit " << hcalHits[ii].id() << std::endl;
 #endif
     }
   } else {

@@ -18,18 +18,25 @@ set InputGenSimGRun0 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/co
 set InputGenSimGRun1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 #   InputGenSimGRun2 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 set InputGenSimGRun2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
+#   InputGenSimGRun3 = /store/relval/CMSSW_9_0_0_pre5/RelValTTbar_13/GEN-SIM/90X_upgrade2017_realistic_v15-v1/00000/14F749AC-8AFE-E611-9821-0CC47A78A4A0.root
+set InputGenSimGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_9_phase1/14F749AC-8AFE-E611-9821-0CC47A78A4A0.root
 #   InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
+set InputGenSimPIon3 = $InputGenSimGRun3
+set InputGenSimPRef3 = $InputGenSimGRun3
 #
 # lhc raw input files for Real-Data tests
-set InputLHCRawGRun0 = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
-set InputLHCRawGRun1 = /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
-set InputLHCRawGRun2 = /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawHIon1 = /store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
+set InputLHCRawGRun0 = root://eoscms.cern.ch//eos/cms/store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
+set InputLHCRawGRun1 = root://eoscms.cern.ch//eos/cms/store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
+set InputLHCRawGRun2 = root://eoscms.cern.ch//eos/cms/store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
+set InputLHCRawGRun3 = $InputLHCRawGRun2 # no phase-1 data yet, try with 2016 data...
+set InputLHCRawHIon1 = root://eoscms.cern.ch//eos/cms/store/hidata/HIRun2015/HIHardProbes/RAW-RECO/HighPtJet-PromptReco-v1/000/263/689/00000/1802CD9A-DDB8-E511-9CF9-02163E0138CA.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
+set InputLHCRawPIon3 = $InputLHCRawGRun3
+set InputLHCRawPRef3 = $InputLHCRawGRun3
 
 #
 # global tags to be used
@@ -47,7 +54,8 @@ set NNHIRD = 25
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
-set EraRun2pp      = " --era=Run2_2016 "
+set EraRun2pp2016  = " --era=Run2_2016 "
+set EraRun2pp      = " --era=Run2_2017 "
 set EraRun2HI      = " --era=Run2_2016,Run2_HI "
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
@@ -96,7 +104,8 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun HIon PIon PRef Fake Fake1 )
+  foreach table ( GRun HIon PIon PRef Fake Fake1 Fake2 GRun2016 )
+#  foreach table ( GRun2016 )
 
     set name = ${table}_${gtag}  
 
@@ -107,7 +116,7 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE2RD}_FULL
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
+      set InputGenSim = $InputGenSimGRun3
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
       set Custom = " "
@@ -136,6 +145,30 @@ foreach gtag ( MC DATA )
       set Era  = $EraRun25ns
       set Custom = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == Fake2 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:Fake2
+      set GTAG = ${BASE2}_Fake2
+      set RTAG = ${BASE2RD}_Fake2
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun2
+      set Era  = $EraRun2pp2016
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
+    else if ( $table == GRun2016 ) then
+      set XL1T = $XL1TPP3
+      set XHLT = HLT:GRun2016
+      set GTAG = ${BASE2}_GRun2016
+      set RTAG = ${BASE2RD}_GRun2016
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun2
+      set Era  = $EraRun2pp2016
+      set Custom = " "
+      set L1REPACK = L1REPACK:Full
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
@@ -143,8 +176,8 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE2RD}_GRun
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun2
-      set InputLHCRaw = $InputLHCRawGRun2
+      set InputGenSim = $InputGenSimGRun3
+      set InputLHCRaw = $InputLHCRawGRun3
       set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
@@ -167,8 +200,8 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE2RD}_PIon
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimPIon2
-      set InputLHCRaw = $InputLHCRawPIon2
+      set InputGenSim = $InputGenSimPIon3
+      set InputLHCRaw = $InputLHCRawPIon3
       set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
@@ -179,8 +212,8 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE2RD}_PRef
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimPRef2
-      set InputLHCRaw = $InputLHCRawPRef2
+      set InputGenSim = $InputGenSimPRef3
+      set InputLHCRaw = $InputLHCRawPRef3
       set Era  = $EraRun2pp
       set Custom = " "
       set L1REPACK = L1REPACK:Full
