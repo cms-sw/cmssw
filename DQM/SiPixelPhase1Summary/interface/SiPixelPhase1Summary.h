@@ -67,9 +67,6 @@
 
        std::map<std::string,MonitorElement*> summaryMap_;
 
-       std::vector<std::string> summaryMapNames_;
-       std::vector<std::string> xAxisLabels_;
-       std::vector<std::string> yAxisLabels_;
        std::map<std::string,std::string> summaryPlotName_;
 
        void bookSummaries(DQMStore::IBooker & iBooker);
