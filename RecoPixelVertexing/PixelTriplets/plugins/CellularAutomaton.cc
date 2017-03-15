@@ -61,10 +61,10 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
 							&(currentLayerPairRef.theFoundCells[i]));
 					cellId++;
 
-					for (auto neigCell : currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)])
+					auto & neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
 					{
 						currentLayerPairRef.theFoundCells[i].checkAlignmentAndTag(
-								neigCell, ptmin, region_origin_x,
+								neigCells, ptmin, region_origin_x,
 								region_origin_y, region_origin_radius, thetaCut,
 								phiCut, hardPtCut);
 					}
