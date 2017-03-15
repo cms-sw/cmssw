@@ -7,11 +7,22 @@
  
 #include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
 
-AlignableCSCChamber::AlignableCSCChamber(const GeomDet *geomDet): AlignableDet(geomDet)
+AlignableCSCChamber::AlignableCSCChamber(const GeomDet* geomDet) :
+  AlignableDet(geomDet)
 {
-   theStructureType = align::AlignableCSCChamber;
-   // DO NOT let the chamber position become an average of the layers
-   this->theSurface = geomDet->surface();
+  theStructureType = align::AlignableCSCChamber;
+  // DO NOT let the chamber position become an average of the layers
+  // FIXME: is this redundant?
+  theSurface = geomDet->surface();
+  compConstraintType_ = Alignable::CompConstraintType::NONE;
+}
+
+void AlignableCSCChamber::update(const GeomDet* geomDet)
+{
+  AlignableDet::update(geomDet);
+  // DO NOT let the chamber position become an average of the layers
+  // FIXME: is this redundant?
+  theSurface = geomDet->surface();
 }
 
 /// Printout the DetUnits in the CSC chamber

@@ -1006,7 +1006,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi    PostProcessEvent PostProcessEvent
+    1 FwkReport            AfterSource      AfterSource      AfterSource
     2 summary              1/10             1/10             1/16
     3 summary              1/10             1/10             1/16
     4 summary              1/10             1/10             1/16

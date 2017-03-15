@@ -13,7 +13,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi                     
+    1 FwkReport            AfterSource                       
     2 cat_A                1/1                               
     3 cat_B                1/1                               
 
@@ -36,7 +36,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi    PostProcessEvent 
+    1 FwkReport            AfterSource      AfterSource      
     2 cat_A                1/1              1/2              1/2
     3 cat_B                1/1              1/2              
 
@@ -59,7 +59,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi    PostProcessEvent PostProcessEvent
+    1 FwkReport            AfterSource      AfterSource      AfterSource
     2 cat_A                1/1              1/2              1/3
     3 cat_B                1/1              1/2              1/3
 
@@ -82,7 +82,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostBeginLumi    PostProcessEvent PostProcessEvent
+    1 FwkReport            AfterSource      AfterSource      AfterSource
     2 cat_A                1/1              1/2              1/3
     3 cat_B                1/1              1/2              1/3
 

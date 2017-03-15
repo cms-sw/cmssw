@@ -15,6 +15,7 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
 #include <iostream>
 #include <vector>
+#include <memory>
 
 std::auto_ptr<CaloSubdetectorGeometry> 
 EcalTBHodoscopeGeometryLoaderFromDDD::load( const DDCompactView* cpv ) 
@@ -39,10 +40,9 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
    if( ebg->cornersMgr() == 0 ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
    if( ebg->parMgr()     == 0 ) ebg->allocatePar( 10, 3 ) ;
   
-   DDFilter* filter = getDDFilter();
+   std::unique_ptr<DDFilter> filter{getDDFilter()};
 
-   DDFilteredView fv(*cpv);
-   fv.addFilter(*filter);
+   DDFilteredView fv(*cpv,*filter);
   
    bool doSubDets;
    for (doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling())
@@ -131,22 +131,12 @@ EcalTBHodoscopeGeometryLoaderFromDDD::getDetIdForDDDNode(
 
 DDFilter* EcalTBHodoscopeGeometryLoaderFromDDD::getDDFilter()
 {
-   DDSpecificsFilter *filter = new DDSpecificsFilter();
-
-   filter->setCriteria( DDValue( "SensitiveDetector",
-				 "EcalTBH4BeamDetector",
-				 0 ),
-			DDCompOp::equals,
-			DDLogOp::AND,
-			true,
-			true ) ;
-
-   filter->setCriteria( DDValue( "ReadOutName",
-				 "EcalTBH4BeamHits",
-				 0 ),
-			DDCompOp::equals,
-			DDLogOp::AND,
-			true,
-			true ) ;
-   return filter;
+   return new DDAndFilter<DDSpecificsMatchesValueFilter,
+                          DDSpecificsMatchesValueFilter>(
+                             DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
+                                                                    "EcalTBH4BeamDetector",
+                                                                    0 )},
+                             DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
+                                                                    "EcalTBH4BeamHits",
+                                                                    0 )});
 }

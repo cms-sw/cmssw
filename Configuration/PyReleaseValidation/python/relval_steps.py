@@ -581,11 +581,11 @@ steps['ZpEE_2250_8TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_2250_8TeV_T
 steps['ZpTT_1500_8TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 
-steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
-steps['CosmicsSPLoose']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,100000),step1Defaults])
-steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics'},Kby(5000,500000),step1Up2015Defaults])
-steps['Cosmics_UP17']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(666,100000),step1Defaults])
-steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
+steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
+steps['CosmicsSPLoose']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--scenario':'cosmics'},Kby(5000,100000),step1Defaults])
+steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics'},Kby(5000,500000),step1Up2015Defaults])
+steps['Cosmics_UP17']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','-n':'500','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(666,100000),step1Defaults])
+steps['CosmicsSPLoose_UP17']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','-n':'2000','--conditions':'auto:phase1_2017_cosmics','--scenario':'cosmics','--era':'Run2_2017'},Kby(5000,500000),step1Up2015Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
 
@@ -1960,6 +1960,6 @@ for step in upgradeSteps:
 # 2017 tracking specific eras
 steps['RecoFull_trackingRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_2017']])
 steps['RecoFull_trackingOnlyRun2_2017'] = merge([{'--era': 'Run2_2017_trackingRun2'}, steps['RecoFull_trackingOnly_2017']])
-steps['RecoFull_trackingPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_2017']])
-steps['RecoFull_trackingOnlyPhase1CA_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1CA'}, steps['RecoFull_trackingOnly_2017']])
+steps['RecoFull_trackingPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_2017']])
+steps['RecoFull_trackingOnlyPhase1QuadProp_2017'] = merge([{'--era': 'Run2_2017_trackingPhase1QuadProp'}, steps['RecoFull_trackingOnly_2017']])
 steps['RecoFull_trackingLowPU_2017'] = merge([{'--era': 'Run2_2017_trackingLowPU'}, steps['RecoFull_2017']])

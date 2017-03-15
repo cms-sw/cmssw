@@ -28,6 +28,10 @@ MillePedeAlignmentAlgorithm = cms.PSet(
                                                           #   hit are set to '0', the hit is ignored
                                                           # - has only an effect with non-GBL
                                                           #   material-effects description
+    skipGlobalPositionRcdCheck = cms.bool(False), # since the change of the GlobalPositionRcd is
+                                                  # mostly driven by changes of the muon system
+                                                  # it is often safe to ignore this change for
+                                                  # tracker alignment
 
     # PSet that allows to configure the pede labeler, i.e. select the actual
     # labeler plugin to use and parameters for the selected plugin

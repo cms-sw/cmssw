@@ -470,6 +470,7 @@ trackingPhase1PU70.toModify(mixedTripletStepSelector,
 ) #end of clone
 
 
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 _trackListMergerBase = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = ['mixedTripletStepTracks',
