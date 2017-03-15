@@ -13,7 +13,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFEcalBarrelRecHitCreator"),
+             name = cms.string("PFEBRecHitCreator"),
              src  = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
              srFlags = cms.InputTag("ecalDigis"),
              qualityTests = cms.VPSet(
@@ -31,7 +31,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
              )
            ),
           cms.PSet(
-            name = cms.string("PFEcalEndcapRecHitCreator"),
+            name = cms.string("PFEERecHitCreator"),
             src  = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
             srFlags = cms.InputTag("ecalDigis"),
             qualityTests = cms.VPSet(
