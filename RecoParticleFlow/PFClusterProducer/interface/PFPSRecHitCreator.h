@@ -84,10 +84,11 @@ class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
 	
 	bool rcleaned = false;
 	bool keep=true;
+        bool hi = true; // all ES rhs are produced, independently on the ECAL SRP decision
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}
