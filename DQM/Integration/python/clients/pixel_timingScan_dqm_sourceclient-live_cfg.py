@@ -23,7 +23,7 @@ process.load("DQM.Integration.config.inputsource_cfi")
 # for testing in lxplus
 #process.load("DQM.Integration.config.fileinputsource_cfi")
 
-TAG ="PixelPhase1" 
+TAG ="PixelPhase1Timing" 
 
 ##
 #----------------------------
@@ -116,12 +116,26 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #process.SiPixelDigiSource.layOn = True
 #process.SiPixelDigiSource.diskOn = True
 
-# Phase1
+from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
+DefaultHisto.enabled = True
+DefaultHisto.topFolderName = TAG 
+DefaultHistoDigiCluster.topFolderName=cms.string(TAG + "/Phase1_MechanicalView")
+DefaultHistoReadout.topFolderName=cms.string(TAG + "/FED/Readout")
+#Phase 1
+
+# maximum Lumisection number for trends. This is a hard limit, higher ends up in overflow.
+SiPixelPhase1Geometry.max_lumisection = 1000 
+# #LS per line in the "overlaid curves"
+SiPixelPhase1Geometry.onlineblock = 10 
+# number of lines
+SiPixelPhase1Geometry.n_onlineblocks = SiPixelPhase1Geometry.max_lumisection.value()/SiPixelPhase1Geometry.onlineblock.value()
+
+
 process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 
-process.PerModule.enabled=True
-process.PerReadout.enabled=False
-process.OverlayCurvesForTiming.enabled=False
+process.PerModule.enabled=False
+process.PerReadout.enabled=True
+process.OverlayCurvesForTiming.enabled=True
 
 process.qTester = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath(QTestfile),
@@ -178,3 +192,4 @@ process = customise(process)
 #--------------------------------------------------
 
 print "Running with run type = ", process.runType.getRunType()
+
