@@ -81,7 +81,7 @@
  <Constant name="ForwdDetsZ2"  value="16.0065*m-1.6165*m"/>
  <Constant name="ForwdDetsR1"  value="33.00*cm"/>
  <Constant name="MBarRmin"     value="3.80*m"/>
- <Constant name="MBarRmax"     value="8.05*m"/>
+ <Constant name="MBarRmax"     value="[cms:CMSR4]"/>
  <Constant name="MBarZ"        value="6.61*m"/>
  <Constant name="MBRingZ"      value="1.268*m"/>
  <Constant name="MBRing1Zpos"  value="2.686*m"/>
