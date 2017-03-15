@@ -248,27 +248,6 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(vertexToken_, recVtxs);
 
-  // check upfront that refs to track are (likely) to be valid
-  {
-    bool ok = true;
-    for(const auto& v: *recVtxs) {
-      if(v.tracksSize() > 0) {
-	const auto& ref = v.trackRefAt(0);
-	if(ref.isNull() || !ref.isAvailable()) {
-	  if (!errorPrinted_)
-	    edm::LogWarning("PrimaryVertexMonitor")
-	      << "Skipping vertex collection: " << vertexInputTag_ << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
-	  else 
-	    errorPrinted_ = true;
-	  ok = false;
-	}
-      }
-    }
-    if(!ok)
-      return;
-  }
-
-
   Handle<VertexScore> scores;
   iEvent.getByToken(scoreToken_, scores);
 
@@ -287,6 +266,26 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
       <<beamSpotInputTag_<<" "
       <<beamSpotHandle.isValid()<<". Skipping plots for this event";
     return;
+  }
+
+  // check upfront that refs to track are (likely) to be valid
+  {
+    bool ok = true;
+    for(const auto& v: *recVtxs) {
+      if(v.tracksSize() > 0) {
+	const auto& ref = v.trackRefAt(0);
+	if(ref.isNull() || !ref.isAvailable()) {
+	  if (!errorPrinted_)
+	    edm::LogWarning("PrimaryVertexMonitor")
+	      << "Skipping vertex collection: " << vertexInputTag_ << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	  else 
+	    errorPrinted_ = true;
+	  ok = false;
+	}
+      }
+    }
+    if(!ok)
+      return;
   }
 
   BeamSpot beamSpot = *beamSpotHandle;
