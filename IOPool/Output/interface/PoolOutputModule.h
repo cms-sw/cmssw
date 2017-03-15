@@ -138,11 +138,6 @@ namespace edm {
     void updateBranchParents(EventForOutput const& e);
     void fillDependencyGraph();
 
-    bool findKeptDescendent(BranchID const& parent,
-                            std::set<BranchID>& examinedBranches,
-                            std::set<BranchID>& saveInBranchChildren,
-                            std::set<BranchID> const& keptProductSet);
-
     void startEndFile();
     void writeFileFormatVersion();
     void writeFileIdentifier();

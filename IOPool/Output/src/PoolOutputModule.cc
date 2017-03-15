@@ -405,66 +405,6 @@ namespace edm {
         }
       }
     }
-
-    // Prune unnecessary entries from branchChildren_
-    std::set<BranchID> keptProductSet;
-    SelectedProducts const& products = keptProducts()[InEvent];
-    for (auto const& product : products) {
-      BranchDescription const& bd = *product.first;
-      BranchID const& bid = bd.branchID();
-      keptProductSet.insert(bid);
-    }
-
-    std::set<BranchID> examinedBranches;
-    std::set<BranchID> saveInBranchChildren; 
-    for (BranchID const& keptBranchID : keptProductSet) {
-      // Look for kept descendants of kept products
-      if (findKeptDescendent(keptBranchID,
-                             examinedBranches,
-                             saveInBranchChildren,
-                             keptProductSet)) {
-        saveInBranchChildren.insert(keptBranchID);
-      }
-    }
-    auto & branchChildrenMap = branchChildren_.childLookup();
-    auto itr = branchChildrenMap.begin();
-    while (itr != branchChildrenMap.end()) {
-      if (saveInBranchChildren.find(itr->first) == saveInBranchChildren.end()) {
-        itr = branchChildrenMap.erase(itr);
-      } else {
-        ++itr;
-      }
-    }
-  }
-
-  bool
-  PoolOutputModule::findKeptDescendent(BranchID const& parent,
-                                       std::set<BranchID>& examinedBranches,
-                                       std::set<BranchID>& saveInBranchChildren,
-                                       std::set<BranchID> const& keptProductSet) {
-    auto const& branchChildrenMap = branchChildren_.childLookup();
-    auto it = branchChildrenMap.find(parent);
-    if (it == branchChildrenMap.end()) {
-      return false;
-    }
-    bool returnValue = false;
-    for (BranchID const& child : it->second){
-      if (keptProductSet.find(child) != keptProductSet.end() ||
-          saveInBranchChildren.find(child) != saveInBranchChildren.end()) {
-        returnValue = true;
-        continue;
-      }
-      if (examinedBranches.insert(child).second) {
-        if (findKeptDescendent(child,
-                               examinedBranches,
-                               saveInBranchChildren,
-                               keptProductSet)) {
-          saveInBranchChildren.insert(child);
-          returnValue = true;
-        }
-      }
-    }
-    return returnValue;
   }
 
   void
