@@ -16,7 +16,8 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
     for (unsigned int ii=0; ii<hcalHits.size(); ++ii) {
 
 #ifdef EDM_ML_DEBUG
-      std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() << std::dec << '\n';
+      std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() 
+		<< std::dec << " Neutral density " << neutralDensity_ << "\n";
 #endif
       double energy = (hcalHits[ii].energy());
       if (neutralDensity_) {
@@ -31,7 +32,7 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 #endif
       hcalHits[ii].setID(newid.rawId());
 #ifdef EDM_ML_DEBUG
-      std::cout << "Modified Hit " << hcalHits[ii] << std::endl;
+      std::cout << "Modified Hit " << HcalDetId(hcalHits[ii].id()) <<std::endl;
 #endif
     }
   } else {
@@ -93,7 +94,7 @@ double HcalHitRelabeller::energyWt(const uint32_t testId) const {
   int       det, z, depth, eta, phi, layer;
   HcalTestNumbering::unpackHcalIndex(testId,det,z,depth,eta,phi,layer);
   int       zside = (z==0) ? (-1) : (1);
-  double    wt    = (((det==1) || (det==2)) && (depth == 0)) ? 
+  double    wt    = (((det==1) || (det==2)) && (depth == 1)) ? 
     theRecNumber->getLayer0Wt(det,phi,zside) : 1.0;
 #ifdef EDM_ML_DEBUG
   std::cout << "EnergyWT::det: " << det << " z: " << z  << ":" << zside
