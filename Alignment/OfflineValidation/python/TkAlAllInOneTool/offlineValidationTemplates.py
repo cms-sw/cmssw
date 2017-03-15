@@ -303,7 +303,7 @@ void TkAlExtendedOfflineValidation()
   TkAlStyle::legendheader = ".oO[legendheader]Oo.";
   TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
   TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.");
-  bool bigtext = .oO[bigtext]Oo.
+  bool bigtext = .oO[bigtext]Oo.;
   gStyle->SetTitleH        ( 0.07 );
   gStyle->SetTitleW        ( 1.00 );
   gStyle->SetTitleFont     (  132 );
