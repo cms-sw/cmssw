@@ -40,7 +40,7 @@ commonDict = {
             'Geometry/CMSCommonData/data/cmsTracker.xml',
             'Geometry/CMSCommonData/data/PhaseII/caloBase.xml',
             'Geometry/CMSCommonData/data/cmsCalo.xml',
-            'Geometry/CMSCommonData/data/muonBase/2023/v1/muonBase.xml',
+            'Geometry/CMSCommonData/data/muonBase/2023/v2/muonBase.xml',
             'Geometry/CMSCommonData/data/cmsMuon.xml',
             'Geometry/CMSCommonData/data/mgnt.xml',
             'Geometry/CMSCommonData/data/PostLS2/beampipe.xml',
@@ -389,7 +389,7 @@ muonDict = {
     "default" : 1,
     "M1" : {
         1 : [
-            'Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mbCommon/2015/v1/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml',
             'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
             'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
@@ -431,13 +431,13 @@ muonDict = {
     },
     "M2" : {
         1 : [
-            'Geometry/MuonCommonData/data/mbCommon/2015/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml',
             'Geometry/MuonCommonData/data/mb1/2015/v1/mb1.xml',
             'Geometry/MuonCommonData/data/mb2/2015/v1/mb2.xml',
             'Geometry/MuonCommonData/data/mb3/2015/v1/mb3.xml',
             'Geometry/MuonCommonData/data/mb4/2015/v1/mb4.xml',
             'Geometry/MuonCommonData/data/design/muonYoke.xml',
-            'Geometry/MuonCommonData/data/mf/2023/v1/mf.xml',
+            'Geometry/MuonCommonData/data/mf/2023/v2/mf.xml',
             'Geometry/MuonCommonData/data/rpcf/2023/v1/rpcf.xml',
             'Geometry/MuonCommonData/data/PhaseII/gemf.xml',
             'Geometry/MuonCommonData/data/PhaseII/TDR_BaseLine/gem11.xml',
@@ -508,11 +508,20 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
             'Geometry/ForwardCommonData/data/brmsens.xml',
+            'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
+            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
@@ -559,7 +568,7 @@ detectorVersionDict = {
     ("O1","T3","C2","M1","F1","I2") : "D8",
     ("O1","T3","C1","M2","F1","I1") : "D9",
     ("O1","T5","C2","M1","F1","I1") : "D11",
-    ("O2","T5","C2","M1","F2","I1") : "D12"
+    ("O2","T3","C2","M2","F2","I1") : "D12"
 }
 
 deprecatedDets = [ "D1", "D2", "D3", "D5", "D6" ]
