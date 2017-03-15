@@ -29,30 +29,27 @@
 		<Box name="HAir" dx="[cavernData:H3DX]" dy="[cavernData:HAirDY]" dz="([cms:HallZ]-100*cm)"/>
 		<Box name="FloorTo" dx="[cavernData:FloorToDX]" dy="[cavernData:FloorToDY]" dz="([cms:HallZ]-100*cm)"/>
 		<Box name="FloAirC" dx="[cavernData:FloAirCDX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirCDZ]"/>
-		<Box name="FloAirC11" dx="[cavernData:FloAirC1DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
-		<Box name="FloAirC12" dx="[cavernData:FloAirC1DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
-		<Box name="FloAirC13" dx="[cavernData:FloAirC1DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
-		<Box name="FloAirC14" dx="[cavernData:FloAirC1DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
+		<Box name="FloAirC1" dx="[cavernData:FloAirC1DX]" dy="[cavernData:FloAirCDY]" dz="[cavernData:FloAirC1DZ]"/>
 		<Box name="FloAirC3" dx="[cavernData:FloAirC3DX]" dy="[cavernData:FloAirCDY]" dz="[cavernFloor:FloAirC3DZ]"/>
 		<Trapezoid name="FloAirC4" dz="[cavernData:FloAirC4DZ]" alp1="0*deg" bl1="[cavernData:FloAirC3DX]" tl1="[cavernData:FloAirC3DX]" h1="[cavernData:FloAirC4DY1]" alp2="0*deg" bl2="[cavernData:FloAirC3DX]" tl2="[cavernData:FloAirC3DX]" h2="[cavernData:FloAirC4DY2]" phi="0*deg" theta="0*deg"/>
 		<UnionSolid name="Flo_v1">
 		  <rSolid name="FloAirC"/>
-		  <rSolid name="FloAirC11"/>
+		  <rSolid name="FloAirC1"/>
 		  <Translation x="0*fm" y="0*fm" z="[cavernFloor:FloAirC1PosZ]"/>
 		</UnionSolid>  
 		<UnionSolid name="Flo_v2">
 		  <rSolid name="Flo_v1"/>
-		  <rSolid name="FloAirC11"/>
+		  <rSolid name="FloAirC1"/>
 		  <Translation x="0*fm" y="0*fm" z="-[cavernFloor:FloAirC1PosZ]"/>
 		</UnionSolid>  
 		<UnionSolid name="Flo_v3">
 		  <rSolid name="Flo_v2"/>
-		  <rSolid name="FloAirC11"/>
+		  <rSolid name="FloAirC1"/>
 		  <Translation x="0*fm" y="0*fm" z="[cavernFloor:FloAirC2PosZ]"/>
 		</UnionSolid>  
 		<UnionSolid name="Flo_v4">
 		  <rSolid name="Flo_v3"/>
-		  <rSolid name="FloAirC11"/>
+		  <rSolid name="FloAirC1"/>
 		  <Translation x="0*fm" y="0*fm" z="-[cavernFloor:FloAirC2PosZ]"/>
 		</UnionSolid>  
 		<UnionSolid name="Flo_v5">
