@@ -909,7 +909,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hbUpgrade.add<int>("mcShape",203);
 	desc_hbUpgrade.add<int>("recoShape",203);
 	desc_hbUpgrade.add<double>("photoelectronsToAnalog",57.5);
-	desc_hbUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>(0.055));
+	desc_hbUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
 	desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
 	edm::ParameterSetDescription desc_he;
@@ -937,7 +937,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_heUpgrade.add<int>("mcShape",203);
 	desc_heUpgrade.add<int>("recoShape",203);
 	desc_heUpgrade.add<double>("photoelectronsToAnalog",57.5);
-	desc_heUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>(0.055));
+	desc_heUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.055}));
 	desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
 	edm::ParameterSetDescription desc_hf;
