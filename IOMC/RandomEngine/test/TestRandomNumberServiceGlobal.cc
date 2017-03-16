@@ -188,8 +188,7 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
 
   // Add some sleep to encourage all the streams to get events to process.
   if(nStreams_ > 1) {
-    const double t{0.025};
-    sleep(t);
+    usleep(25000);
   }
 
   if(dump_) {
