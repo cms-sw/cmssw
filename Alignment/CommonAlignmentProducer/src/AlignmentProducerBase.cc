@@ -89,8 +89,6 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config) :
 //------------------------------------------------------------------------------
 AlignmentProducerBase::~AlignmentProducerBase() noexcept(false)
 {
-  delete alignmentAlgo_;
-
   // Delete monitors as well??
 
   for (auto& iCal: calibrations_) delete iCal;
@@ -324,8 +322,8 @@ AlignmentProducerBase::createAlignmentAlgorithm()
                                    enableAlignableUpdates_);
 
   const auto& algoName = algoConfig.getParameter<std::string>("algoName");
-  alignmentAlgo_ =
-    AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
+  alignmentAlgo_ = std::unique_ptr<AlignmentAlgorithmBase>
+    {AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig)};
 
   if (!alignmentAlgo_) {
     throw cms::Exception("BadConfig")
