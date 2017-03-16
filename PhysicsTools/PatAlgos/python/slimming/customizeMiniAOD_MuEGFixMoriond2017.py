@@ -113,6 +113,7 @@ def customizeAll(process, verbose=False):
                            cleanPhotonCollection="slimmedPhotons",
                            unCleanElectronCollection="slimmedElectrons",
                            unCleanPhotonCollection="slimmedPhotons")
+    
     addExtraPuppiMETCorrections(process,
                                 cleanPFCandidateCollection="particleFlow",
                                 unCleanPFCandidateCollection="pfCandidatesBadMuonsCleaned",

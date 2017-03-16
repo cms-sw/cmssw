@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def applySubstructure( process ) :
+def applySubstructure( process, postfix="" ) :
 
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
@@ -8,8 +8,8 @@ def applySubstructure( process ) :
     from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import _patJets as patJetsDefault
 
     #add AK8
-    addJetCollection(process, labelName = 'AK8',
-                     jetSource = cms.InputTag('ak8PFJetsCHS'),
+    addJetCollection(process, postfix=postfix, labelName = 'AK8',
+                     jetSource = cms.InputTag('ak8PFJetsCHS'+postfix),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
                      genJetCollection = cms.InputTag('slimmedGenJetsAK8')
@@ -175,6 +175,7 @@ def applySubstructure( process ) :
         dropSpecific = cms.string("1"),
         dropTagInfos = cms.string("1"),
         modifyJets = cms.bool(True),
+        mixedDaughters = cms.bool(False),
         modifierConfig = cms.PSet( modifications = cms.VPSet() )
     )
 
