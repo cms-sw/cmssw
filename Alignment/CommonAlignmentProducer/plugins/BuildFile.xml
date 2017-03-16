@@ -9,7 +9,7 @@
   <use   name="Geometry/Records"/>
   <use   name="Alignment/CommonAlignmentProducer"/>
 </library>
-<library   name="AlignmentPCLTrackerAlignmentProducerPlugin" file="PCLTrackerAlProducer.cc">
+<library   name="AlignmentCommonAlignmentProducerAsAnalyzerPlugin" file="AlignmentProducerAsAnalyzer.cc">
   <use   name="Alignment/CommonAlignmentProducer"/>
 </library>
 <library   name="CommonAlignmentProducerSelectors" file="Alignment*SelectorModule.cc,AlignmentMuonHIPTrajectorySelector.cc">
