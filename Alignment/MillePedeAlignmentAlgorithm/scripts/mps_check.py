@@ -179,7 +179,7 @@ for i in xrange(len(lib.JOBID)):
                     if re.search(re.compile('Exception caught in cmsRun',re.M), line):
                         exceptionCaught = 1
                     # AP 07.09.2009 - Check that the job got to a normal end
-                    if re.search(re.compile('AlignmentProducer::endOfJob\(\)',re.M), line):
+                    if re.search(re.compile('AlignmentProducerAsAnalyzer::endJob\(\)',re.M), line):
                         endofjob = 1
                     if re.search(re.compile('FwkReport            -i main_input:sourc',re.M), line):
                         array = line.split()

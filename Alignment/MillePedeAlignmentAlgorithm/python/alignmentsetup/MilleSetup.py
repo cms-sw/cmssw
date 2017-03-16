@@ -31,13 +31,6 @@ def setup(process, input_files, collection,
         cosmicsDecoMode = cosmics_deco_mode,
         cosmicsZeroTesla = cosmics_zero_tesla)
 
-    # Overwrite Track-Selector filter options from unified sequence to 'False'
-    process.AlignmentTrackSelector.filter = False
-    if collection not in ("ALCARECOTkAlCosmicsCTF0T",
-                          "ALCARECOTkAlCosmicsInCollisions"):
-        # there is no HighPurity selector for cosmics
-        process.HighPurityTrackSelector.filter = False
-
 
     # Configure the input data
     # --------------------------------------------------------------------------
@@ -52,4 +45,6 @@ def setup(process, input_files, collection,
 
     # The executed path
     # --------------------------------------------------------------------------
-    process.p = cms.Path(process.offlineBeamSpot*process.TrackRefittingSequence)
+    process.p = cms.Path(process.offlineBeamSpot*
+                         process.TrackRefittingSequence*
+                         process.AlignmentProducer)
