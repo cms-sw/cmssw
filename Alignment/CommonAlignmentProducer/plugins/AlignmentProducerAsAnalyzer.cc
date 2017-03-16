@@ -1,6 +1,6 @@
 /**
  * @package   Alignment/CommonAlignmentProducer
- * @file      PCLTrackerAlProducer.cc
+ * @file      AlignmentProducerAsAnalyzer.cc
  *
  * @author    Max Stark (max.stark@cern.ch)
  * @date      2015/07/16
@@ -9,14 +9,14 @@
 
 
 /*** Header file ***/
-#include "PCLTrackerAlProducer.h"
+#include "AlignmentProducerAsAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
 
 //------------------------------------------------------------------------------
-PCLTrackerAlProducer::PCLTrackerAlProducer(const edm::ParameterSet& config) :
+AlignmentProducerAsAnalyzer::AlignmentProducerAsAnalyzer(const edm::ParameterSet& config) :
   AlignmentProducerBase{config}
 {
   tjTkAssociationMapToken_ = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);
@@ -29,32 +29,32 @@ PCLTrackerAlProducer::PCLTrackerAlProducer(const edm::ParameterSet& config) :
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::beginJob()
+AlignmentProducerAsAnalyzer::beginJob()
 {
 }
 
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::endJob()
+AlignmentProducerAsAnalyzer::endJob()
 {
   terminateProcessing();
   if (!finish()) {
     edm::LogError("Alignment")
-      << "@SUB=PCLTrackerAlProducer::endJob"
+      << "@SUB=AlignmentProducerAsAnalyzer::endJob"
       << "Did not process any events, do not dare to store to DB.";
   }
 
   // message is used by the MillePede log parser to check the end of the job
   edm::LogInfo("Alignment")
-    << "@SUB=PCLTrackerAlProducer::endJob"
+    << "@SUB=AlignmentProducerAsAnalyzer::endJob"
     << "Finished alignment producer job.";
 }
 
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::beginRun(const edm::Run& run, const edm::EventSetup& setup)
+AlignmentProducerAsAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
   beginRunImpl(run, setup);
 }
@@ -62,7 +62,7 @@ PCLTrackerAlProducer::beginRun(const edm::Run& run, const edm::EventSetup& setup
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::endRun(const edm::Run& run, const edm::EventSetup& setup)
+AlignmentProducerAsAnalyzer::endRun(const edm::Run& run, const edm::EventSetup& setup)
 {
   endRunImpl(run, setup);
 }
@@ -70,7 +70,7 @@ PCLTrackerAlProducer::endRun(const edm::Run& run, const edm::EventSetup& setup)
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
+AlignmentProducerAsAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                                            const edm::EventSetup& setup)
 {
   beginLuminosityBlockImpl(lumiBlock, setup);
@@ -79,7 +79,7 @@ PCLTrackerAlProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
+AlignmentProducerAsAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                                          const edm::EventSetup& setup)
 {
   endLuminosityBlockImpl(lumiBlock, setup);
@@ -88,10 +88,10 @@ PCLTrackerAlProducer::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 
 //------------------------------------------------------------------------------
 void
-PCLTrackerAlProducer::analyze(const edm::Event& event, const edm::EventSetup& setup)
+AlignmentProducerAsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   processEvent(event, setup);
 }
 
 
-DEFINE_FWK_MODULE(PCLTrackerAlProducer);
+DEFINE_FWK_MODULE(AlignmentProducerAsAnalyzer);
