@@ -219,7 +219,7 @@ private:
 
   /*** Alignment data ***/
 
-  AlignmentAlgorithmBase* alignmentAlgo_{nullptr};
+  std::unique_ptr<AlignmentAlgorithmBase> alignmentAlgo_;
   Calibrations calibrations_;
   AlignmentMonitors monitors_;
 
