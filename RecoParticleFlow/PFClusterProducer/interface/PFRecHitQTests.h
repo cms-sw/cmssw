@@ -385,6 +385,8 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
 //
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 class PFRecHitQTestECALThreshold : public PFRecHitQTestBase {
  public:
   PFRecHitQTestECALThreshold() {
@@ -398,6 +400,9 @@ class PFRecHitQTestECALThreshold : public PFRecHitQTestBase {
     }
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+      edm::ESHandle<CaloGeometry> pG;
+      iSetup.get<CaloGeometryRecord>().get(pG);
+      EcalRingCalibrationTools::setCaloGeometry(&(*pG));
     }
 
     bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean,bool fullReadOut){
