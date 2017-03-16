@@ -25,7 +25,7 @@ class HcalSiPMHitResponse : public CaloHitResponse {
 
 public:
   HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap, 
-		      const CaloShapes * shapes, bool PreMix1 = false);
+		      const CaloShapes * shapes, bool PreMix1 = false, bool HighFidelity = true);
 
   virtual ~HcalSiPMHitResponse();
 
@@ -54,6 +54,7 @@ protected:
 private:
   HcalSiPM theSiPM;
   bool PreMixDigis;
+  bool HighFidelityPreMix;
   int nbins;
   double dt, invdt;
 

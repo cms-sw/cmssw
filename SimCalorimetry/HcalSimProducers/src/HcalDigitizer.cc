@@ -41,9 +41,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theParameterMap(new HcalSimParameterMap(ps)),
   theShapes(new HcalShapes()),
   theHBHEResponse(new CaloHitResponse(theParameterMap, theShapes)),
-  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"))),
+  theHBHESiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"), true)),
   theHOResponse(new CaloHitResponse(theParameterMap, theShapes)),   
-  theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes)),
+  theHOSiPMResponse(new HcalSiPMHitResponse(theParameterMap, theShapes, ps.getParameter<bool>("HcalPreMixStage1"), false)),
   theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
   theHFQIE10Response(new CaloHitResponse(theParameterMap, theShapes)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theShapes)),
@@ -141,7 +141,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
   }
   if(doHOSiPM) {
-    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
     theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
