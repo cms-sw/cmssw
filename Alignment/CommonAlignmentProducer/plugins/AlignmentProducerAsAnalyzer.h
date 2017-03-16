@@ -1,18 +1,19 @@
-#ifndef Alignment_CommonAlignmentProducer_PCLTrackerAlProducer_h
-#define Alignment_CommonAlignmentProducer_PCLTrackerAlProducer_h
+#ifndef Alignment_CommonAlignmentProducer_AlignmentProducerAsAnalyzer_h
+#define Alignment_CommonAlignmentProducer_AlignmentProducerAsAnalyzer_h
 
 /**
  * @package   Alignment/CommonAlignmentProducer
- * @file      PCLTrackerAlProducer.h
+ * @file      AlignmentProducerAsAnalyzer.h
  *
  * @author    Max Stark (max.stark@cern.ch)
  * @date      2015/07/16
  *
- * @brief     Tracker-AlignmentProducer for Prompt Calibration Loop (PCL)
+ * @brief     AlignmentProducer useable for Prompt Calibration Loop (PCL)
  *
- * Code is based on standard offline AlignmentProducer (see AlignmentProducer.h)
- * Main difference is the base-class exchange from an ESProducerLooper to an
- * EDAnalyzer. For further information regarding aligment workflow on PCL see:
+ * Code has similar functionality as the standard offline AlignmentProducer (see
+ * AlignmentProducer.h) Main difference is the base-class exchange from an
+ * ESProducerLooper to an EDAnalyzer. For further information regarding aligment
+ * workflow on PCL see:
  *
  * https://indico.cern.ch/event/394130/session/0/contribution/8/attachments/1127471/1610233/2015-07-16_PixelPCL_Ali.pdf
  *
@@ -24,16 +25,16 @@
 #include "FWCore/Framework/interface/Run.h"
 
 
-class PCLTrackerAlProducer : public AlignmentProducerBase, public edm::EDAnalyzer
+class AlignmentProducerAsAnalyzer : public AlignmentProducerBase, public edm::EDAnalyzer
 {
   //========================== PUBLIC METHODS ==================================
 public: //====================================================================
 
   /// Constructor
-  PCLTrackerAlProducer(const edm::ParameterSet&);
+  AlignmentProducerAsAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~PCLTrackerAlProducer() = default;
+  virtual ~AlignmentProducerAsAnalyzer() = default;
 
   /*** Code which implements the interface
        Called from outside ***/
@@ -74,8 +75,8 @@ private:
 //------------------------------------------------------------------------------
 inline
 bool
-PCLTrackerAlProducer::getTrajTrackAssociationCollection(const edm::Event& event,
-                                                        edm::Handle<TrajTrackAssociationCollection>& result) {
+AlignmentProducerAsAnalyzer::getTrajTrackAssociationCollection(const edm::Event& event,
+                                                               edm::Handle<TrajTrackAssociationCollection>& result) {
   return event.getByToken(tjTkAssociationMapToken_, result);
 }
 
@@ -83,8 +84,8 @@ PCLTrackerAlProducer::getTrajTrackAssociationCollection(const edm::Event& event,
 //------------------------------------------------------------------------------
 inline
 bool
-PCLTrackerAlProducer::getBeamSpot(const edm::Event& event,
-                                  edm::Handle<reco::BeamSpot>& result) {
+AlignmentProducerAsAnalyzer::getBeamSpot(const edm::Event& event,
+                                         edm::Handle<reco::BeamSpot>& result) {
   return event.getByToken(beamSpotToken_, result);
 }
 
@@ -92,8 +93,8 @@ PCLTrackerAlProducer::getBeamSpot(const edm::Event& event,
 //------------------------------------------------------------------------------
 inline
 bool
-PCLTrackerAlProducer::getTkFittedLasBeamCollection(const edm::Run& run,
-                                                   edm::Handle<TkFittedLasBeamCollection>& result) {
+AlignmentProducerAsAnalyzer::getTkFittedLasBeamCollection(const edm::Run& run,
+                                                          edm::Handle<TkFittedLasBeamCollection>& result) {
   return run.getByToken(tkLasBeamToken_, result);
 }
 
@@ -101,8 +102,8 @@ PCLTrackerAlProducer::getTkFittedLasBeamCollection(const edm::Run& run,
 //------------------------------------------------------------------------------
 inline
 bool
-PCLTrackerAlProducer::getTsosVectorCollection(const edm::Run& run,
-                                              edm::Handle<TsosVectorCollection>& result) {
+AlignmentProducerAsAnalyzer::getTsosVectorCollection(const edm::Run& run,
+                                                     edm::Handle<TsosVectorCollection>& result) {
   return run.getByToken(tsosVectorToken_, result);
 }
 
@@ -110,8 +111,8 @@ PCLTrackerAlProducer::getTsosVectorCollection(const edm::Run& run,
 //------------------------------------------------------------------------------
 inline
 bool
-PCLTrackerAlProducer::getAliClusterValueMap(const edm::Event& event,
-                                            edm::Handle<AliClusterValueMap>& result) {
+AlignmentProducerAsAnalyzer::getAliClusterValueMap(const edm::Event& event,
+                                                   edm::Handle<AliClusterValueMap>& result) {
   return event.getByToken(clusterValueMapToken_, result);
 }
 

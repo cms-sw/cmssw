@@ -11,8 +11,7 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 
-#looper = cms.Looper("AlignmentProducer",
-AlignmentProducer = cms.EDAnalyzer("PCLTrackerAlProducer",
+AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
                     AlignmentParameterStore, # configuration of AlignmentParameterStore
                     doTracker = cms.untracked.bool(True),
                     doMuon = cms.untracked.bool(False),
