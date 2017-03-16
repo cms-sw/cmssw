@@ -123,7 +123,6 @@ def addExtraPuppiMETCorrections(process,
                                 ):
 
     from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
-
     #EG correction for puppi, muon correction done right above
     corMETFromMuonAndEG(process,
                         pfCandCollection="puppiForMET",

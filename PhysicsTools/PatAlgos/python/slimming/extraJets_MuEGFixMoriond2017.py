@@ -55,12 +55,12 @@ def reduceFinalJetCollection(process, jetCollection, badMuons):
 
 def backupJetsFirstStep(process):
     """Take snapshots of the sequences before we change the PFCandidates"""
-    process.originalAK4JetSequence = listDependencyChain(process, process.slimmedJets, ('particleFlow', 'muons'))
-    backupAK4JetSequence = cloneProcessingSnippet(process, process.originalAK4JetSequence, "Backup")
-    process.originalAK4PuppiJetSequence = listDependencyChain(process, process.slimmedJetsPuppi, ('particleFlow', 'muons'))
-    backupAK4PuppiJetSequence = cloneProcessingSnippet(process, process.originalAK4PuppiJetSequence, "Backup")
-    process.originalAK8JetSequence = listDependencyChain(process, process.slimmedJetsAK8, ('particleFlow', 'muons'))
-    backupAK8JetSequence = cloneProcessingSnippet(process, process.originalAK8JetSequence, "Backup")
+    process.originalAK4JetSequence = listDependencyChain(process, getattr(process,"slimmedJets"), ('particleFlow', 'muons'))
+    backupAK4JetSequence = cloneProcessingSnippet(process, getattr(process,"originalAK4JetSequence"), "Backup")
+    process.originalAK4PuppiJetSequence = listDependencyChain(process,getattr(process,"slimmedJetsPuppi"), ('particleFlow', 'muons'))
+    backupAK4PuppiJetSequence = cloneProcessingSnippet(process, getattr(process,"originalAK4PuppiJetSequence"), "Backup")
+    process.originalAK8JetSequence = listDependencyChain(process, getattr(process,"slimmedJetsAK8"), ('particleFlow', 'muons'))
+    backupAK8JetSequence = cloneProcessingSnippet(process, getattr(process,"originalAK8JetSequence"), "Backup")
     return { 'AK4':backupAK4JetSequence, 'AK4Puppi':backupAK4PuppiJetSequence, 'AK8':backupAK8JetSequence }
 
     
