@@ -89,8 +89,6 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config) :
 //------------------------------------------------------------------------------
 AlignmentProducerBase::~AlignmentProducerBase() noexcept(false)
 {
-  // Delete monitors as well??
-
   for (auto& iCal: calibrations_) delete iCal;
 
   delete alignmentParameterStore_;
@@ -339,14 +337,14 @@ AlignmentProducerBase::createMonitors()
   const auto& monitorConfig = config_.getParameter<edm::ParameterSet>("monitorConfig");
   auto monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
   for (const auto& miter: monitors) {
-    auto newMonitor =
-      AlignmentMonitorPluginFactory::get()
-      ->create(miter, monitorConfig.getUntrackedParameter<edm::ParameterSet>(miter));
+    std::unique_ptr<AlignmentMonitorBase> newMonitor
+      {AlignmentMonitorPluginFactory::get()
+       ->create(miter, monitorConfig.getUntrackedParameterSet(miter))};
 
     if (!newMonitor) {
       throw cms::Exception("BadConfig") << "Couldn't find monitor named " << miter;
     }
-    monitors_.push_back(newMonitor);
+    monitors_.emplace_back(std::move(newMonitor));
   }
 }
 
