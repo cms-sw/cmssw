@@ -28,6 +28,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
+#include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
@@ -229,8 +230,8 @@ private:
   AlignableExtras* alignableExtras_{nullptr};
 
   edm::Handle<reco::BeamSpot> beamSpot_;
-  /// GlobalPositions that might be read from DB, NULL otherwise
-  const Alignments* globalPositions_{nullptr};
+  /// GlobalPositions that might be read from DB, nullptr otherwise
+  std::unique_ptr<const Alignments> globalPositions_;
 
   const align::RunRanges uniqueRunRanges_;
   int nevent_{0};
