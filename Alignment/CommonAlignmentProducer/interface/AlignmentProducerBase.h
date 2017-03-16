@@ -1,6 +1,27 @@
 #ifndef Alignment_CommonAlignmentProducer_AlignmentProducerBase_h
 #define Alignment_CommonAlignmentProducer_AlignmentProducerBase_h
 
+/**
+ * @package   Alignment/CommonAlignmentProducer
+ * @file      AlignmentProducerBase.h
+ *
+ * @author    Gregor Mittag
+ * @date      2017/03/16
+ *
+ * @brief     Alignment producer base class
+ *
+ * Abstract base class providing the functionality to produce alignments.
+ * Derived classes can use its methods to implement the methods of the
+ * respective Framework module.
+ *
+ * At the time of writing, this class can only be used within edm::one or legacy
+ * modules because it uses the TFileService within the alignment monitors,
+ * i.e. edm::one modules need to declare this resource in the constructor:
+ *
+ * 'usesResource(TFileService::kSharedResource);'.
+ *
+ */
+
 #include <memory>
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -22,7 +43,6 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/Common/interface/Time.h"
-
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
