@@ -105,7 +105,11 @@ namespace edm {
       virtual void willBeUsingThreads() override;
       virtual void initializeThisThreadForUse() override;
 
-      void cachePidInfoHandler(unsigned int, unsigned int) {cachePidInfo();}
+      void cachePidInfoHandler(unsigned int, unsigned int) {
+        //this is called only on a fork, so the thread doesn't
+        // actually exist anymore
+        helperThread_.reset();
+        cachePidInfo();}
       void cachePidInfo();
       static void stacktraceHelperThread();
 
@@ -940,6 +944,12 @@ namespace edm {
     void
     InitRootHandlers::cachePidInfo()
     {
+      if(helperThread_) {
+        //Another InitRootHandlers was initialized in this job, possibly
+        // because multiple EventProcessors are being used.
+        //In that case, we are already all setup
+        return;
+      }
       if (snprintf(pidString_, pidStringLength_-1, "gdb -quiet -p %d 2>&1 <<EOF |\n"
         "set width 0\n"
         "set height 0\n"
