@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-#import Geometry.TrackerGeometryBuilder.trackerGeometryConstants_cfi as trackerGeometryConstants_cfi
 
 # misalignment scenarios
 from Alignment.TrackerAlignment.Scenarios_cff import *
@@ -7,7 +6,7 @@ from Alignment.TrackerAlignment.Scenarios_cff import *
 # algorithms
 from Alignment.HIPAlignmentAlgorithm.HIPAlignmentAlgorithm_cfi import *
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
-#from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
+
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 
@@ -19,11 +18,11 @@ AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
                     # Read survey info from DB: true requires configuration of PoolDBESSource
                     # See Alignment/SurveyAnalysis/test/readDB.cfg for an example
                     useSurvey = cms.bool(False),
-                    
+
                     # (Mis-)alignment including surface deformations from database
                     # true requires configuration of PoolDBESSource
                     applyDbAlignment = cms.untracked.bool(False),
-                                        
+
                     # Checks the IOV of the alignment to be applied. Only has an effect
                     # if applyDbAlignment is True as well. If set to True, the alignment
                     # record to be applied is expected to have a validity from 1 to INF
@@ -36,7 +35,7 @@ AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
                     randomShift = cms.double(0.0),
                     randomRotation = cms.double(0.0),
                     parameterSelectorSimple = cms.string('-1'),
-                    
+
                     # selection of alignables and their parameters
                     # see twiki: SWGuideAlignmentAlgorithms
                     ParameterBuilder = cms.PSet(parameterTypes = cms.vstring('Selector,RigidBody'),
@@ -51,7 +50,7 @@ AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
                     hitPrescaleMapTag     = cms.InputTag(""), # not used if empty
                     # run input
                     tkLasBeamTag          = cms.InputTag(""), # not used if empty
-                    
+
                     # Choose one algorithm with configuration, HIP is default
                     algoConfig = cms.PSet(MillePedeAlignmentAlgorithm), # why not by reference?
                     # Some algorithms support integrated calibrations, which to use is defined
@@ -68,9 +67,6 @@ AlignmentProducer = cms.EDAnalyzer("AlignmentProducerAsAnalyzer",
                       #                                'TrackerTPEHalfDisk,111000')
                       #)
                     ),
-
-                    # Tracker constants: different for SLHC pixel topology
-                    #trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants),
 
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
                     saveToDB = cms.bool(False),             # save alignment?
