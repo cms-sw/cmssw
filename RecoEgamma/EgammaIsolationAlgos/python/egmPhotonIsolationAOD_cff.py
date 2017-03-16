@@ -8,15 +8,11 @@ from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import pfNoPile
 from CommonTools.ParticleFlow.pfNoPileUpIso_cff import pfPileUpIso, pfNoPileUpIso, pfNoPileUpIsoSequence
 
 
-particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
-src = cms.InputTag('particleFlow')
-)
-
 egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
                                      srcToIsolate = cms.InputTag("gedPhotons"),
                                      srcForIsolationCone = cms.InputTag('pfNoPileUpCandidates'),
                                      isolationConeDefinitions = IsoConeDefinitions
                                      )	
 
-egmPhotonIsolationAODSequence = cms.Sequence(particleFlowTmpPtrs + pfNoPileUpIsoSequence + pfNoPileUpCandidates + egmPhotonIsolation)
+egmPhotonIsolationAODSequence = cms.Sequence(pfNoPileUpIsoSequence + pfNoPileUpCandidates + egmPhotonIsolation)
 
