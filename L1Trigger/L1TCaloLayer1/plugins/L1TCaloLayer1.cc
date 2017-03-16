@@ -199,6 +199,8 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     expectedTotalET += et;
   }
 
+
+ if(hcalTPs.isValid()){
   for ( const auto& hcalTp : *hcalTPs ) {
     if ( unpackHcalMask && ((hcalTp.sample(0).raw()>>13) & 0x1) ) continue;
     int caloEta = hcalTp.id().ieta();
@@ -237,6 +239,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << std::endl;
     }
   }
+ }
   
    //Process
   if(!layer1->process()) {
