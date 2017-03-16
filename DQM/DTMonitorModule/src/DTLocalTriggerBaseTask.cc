@@ -86,9 +86,8 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
       ps.getUntrackedParameter<InputTag>("inputTagDDU"));
 
   if (processTM) theTypes.push_back("TM");
-  if (processDDU) {
-	std::cout<<"DDU!!!"<<std::endl; theTypes.push_back("DDU");
-	}
+  if (processDDU) theTypes.push_back("DDU");
+	
 
   if (tpMode) {
     topFolder("TM") = "DT/11-LocalTriggerTP-TM/";
