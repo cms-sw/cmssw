@@ -18,9 +18,9 @@
 #include <list>
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
-					 const CaloShapes * shapes, bool PreMix1) :
-  CaloHitResponse(parameterMap, shapes), theSiPM(), PreMixDigis(PreMix1),
-  nbins(PreMixDigis ? 1 : BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_), 
+					 const CaloShapes * shapes, bool PreMix1, bool HighFidelity) :
+  CaloHitResponse(parameterMap, shapes), theSiPM(), PreMixDigis(PreMix1), HighFidelityPreMix(HighFidelity),
+  nbins((PreMixDigis and HighFidelityPreMix) ? 1 : BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_), 
   dt(HcalPulseShapes::deltaTSiPM_), invdt(HcalPulseShapes::invDeltaTSiPM_) {}
 
 HcalSiPMHitResponse::~HcalSiPMHitResponse() {}
@@ -32,7 +32,7 @@ void HcalSiPMHitResponse::initializeHits() {
 int HcalSiPMHitResponse::getReadoutFrameSize(const DetId& id) const {
   const CaloSimParameters & parameters = theParameterMap->simParameters(id);
   int readoutFrameSize = parameters.readoutFrameSize();
-  if(PreMixDigis){
+  if(PreMixDigis and HighFidelityPreMix){
     //preserve fidelity of time info
     readoutFrameSize *= BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_;
   }
@@ -68,6 +68,10 @@ void HcalSiPMHitResponse::finalizeHits(CLHEP::HepRandomEngine* engine) {
 
 //used for premixing - premixed CaloSamples have fine time binning
 void HcalSiPMHitResponse::add(const CaloSamples& signal) {
+  if(!HighFidelityPreMix){
+    CaloHitResponse::add(signal);
+    return;
+  }
   DetId id(signal.id());
   int photonTimeHistSize = nbins * getReadoutFrameSize(id);
   assert(photonTimeHistSize == signal.size());
@@ -223,7 +227,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
     sampleBin = preciseBin/nbins;
     if (pe > 0) {
       //skip saturation/recovery and pulse smearing for premix stage 1
-      if(PreMixDigis){
+      if(PreMixDigis and HighFidelityPreMix){
         signal[sampleBin] += pe;
         signal.preciseAtMod(preciseBin) += pe;
         elapsedTime += dt;
