@@ -1,0 +1,16 @@
+<flags   GENREFLEX_ARGS="--"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="boost"/>
+<use   name="rootrflx"/>
+<use   name="hepmc"/>
+<use   name="clhep"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<export>
+  <lib   name="1"/>
+</export>
+

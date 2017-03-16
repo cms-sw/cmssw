@@ -1,0 +1,13 @@
+<!-- *********************************** -->
+<!--Stacked Tracker Simulations          -->
+<!-- *********************************** -->
+
+<lcgdict>
+
+  <class name="l1slhc::L1EGCrystalCluster" />
+  <class name="std::vector<l1slhc::L1EGCrystalCluster>" />
+  <class name="l1slhc::L1EGCrystalClusterCollection" />
+  <class name="edm::Wrapper<l1slhc::L1EGCrystalClusterCollection>" />
+
+</lcgdict>
+
