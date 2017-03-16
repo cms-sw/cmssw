@@ -252,7 +252,7 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::regi
 
 }
 
-void MuonTrackingRegionBuilder::fillDescriptions(edm::ParameterSetDescription& descriptions) {
+void MuonTrackingRegionBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   {
     edm::ParameterSetDescription desc;
     fillDescriptionsOffline(desc);
@@ -260,35 +260,38 @@ void MuonTrackingRegionBuilder::fillDescriptions(edm::ParameterSetDescription& d
   }
   {
     edm::ParameterSetDescription desc;
-    desc.add<double>("EtaR_UpperLimit_Par1",0.25);
-    desc.add<double>("DeltaR",0.2);
-    desc.add<edm::InputTag>("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
-    desc.add<int>("OnDemand",-1);
-    desc.add<edm::InputTag>("vertexCollection",edm::InputTag("pixelVertices"));
-    desc.add<double>("Rescale_phi",3.0);
-    desc.add<bool>("Eta_fixed",false);
-    desc.add<double>("Rescale_eta",3.0);
-    desc.add<double>("PhiR_UpperLimit_Par2",0.2);
-    desc.add<double>("Eta_min",0.05);
-    desc.add<bool>("Phi_fixed",false);
-    desc.add<double>("Phi_min",0.05);
-    desc.add<double>("PhiR_UpperLimit_Par1",0.6);
-    desc.add<double>("EtaR_UpperLimit_Par2",0.15);
-    desc.add<edm::InputTag>("MeasurementTrackerName",edm::InputTag("hltESPMeasurementTracker"));
-    desc.add<bool>("UseVertex",false);
-    desc.add<double>("Rescale_Dz",3.0);
-    desc.add<bool>("Pt_fixed",false);
-    desc.add<bool>("Z_fixed",true);
-    desc.add<double>("Pt_min",1.5);
-    desc.add<double>("DeltaZ",15.9);
-    desc.add<double>("DeltaEta",0.2);
-    desc.add<double>("DeltaPhi",0.2);
-    desc.add<int>("maxRegions",1);
-    desc.add<bool>("precise",true);
-    desc.add<edm::InputTag>("input",edm::InputTag("hltL2Muons","UpdatedAtVtx"));
-    descriptions.add("hltMuonTrackingRegionBuilder",desc);
+    fillDescriptionsHLT(desc);
+    descriptions.add("MuonTrackingRegionBuilderHLT",desc);
   }
   descriptions.setComment("Build a TrackingRegion around a standalone muon. Options to define region around beamspot or primary vertex and dynamic regions are included.");
+}
+void MuonTrackingRegionBuilder::fillDescriptionsHLT(edm::ParameterSetDescription& desc) {
+  desc.add<double>("EtaR_UpperLimit_Par1",0.25);
+  desc.add<double>("DeltaR",0.2);
+  desc.add<edm::InputTag>("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<int>("OnDemand",-1);
+  desc.add<edm::InputTag>("vertexCollection",edm::InputTag("pixelVertices"));
+  desc.add<double>("Rescale_phi",3.0);
+  desc.add<bool>("Eta_fixed",false);
+  desc.add<double>("Rescale_eta",3.0);
+  desc.add<double>("PhiR_UpperLimit_Par2",0.2);
+  desc.add<double>("Eta_min",0.05);
+  desc.add<bool>("Phi_fixed",false);
+  desc.add<double>("Phi_min",0.05);
+  desc.add<double>("PhiR_UpperLimit_Par1",0.6);
+  desc.add<double>("EtaR_UpperLimit_Par2",0.15);
+  desc.add<edm::InputTag>("MeasurementTrackerName",edm::InputTag("hltESPMeasurementTracker"));
+  desc.add<bool>("UseVertex",false);
+  desc.add<double>("Rescale_Dz",3.0);
+  desc.add<bool>("Pt_fixed",false);
+  desc.add<bool>("Z_fixed",true);
+  desc.add<double>("Pt_min",1.5);
+  desc.add<double>("DeltaZ",15.9);
+  desc.add<double>("DeltaEta",0.2);
+  desc.add<double>("DeltaPhi",0.2);
+  desc.add<int>("maxRegions",1);
+  desc.add<bool>("precise",true);
+  desc.add<edm::InputTag>("input",edm::InputTag("hltL2Muons","UpdatedAtVtx"));
 }
 
 void MuonTrackingRegionBuilder::fillDescriptionsOffline(edm::ParameterSetDescription& desc) {
@@ -318,4 +321,5 @@ void MuonTrackingRegionBuilder::fillDescriptionsOffline(edm::ParameterSetDescrip
   desc.add<int>("maxRegions",1);
   desc.add<bool>("precise",true);
   desc.add<edm::InputTag>("input",edm::InputTag(""));
+
 }
