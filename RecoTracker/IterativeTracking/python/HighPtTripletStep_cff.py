@@ -119,6 +119,14 @@ highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFil
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
 )
 
+highPtTripletStepTrajectoryFilterInOut = highPtTripletStepTrajectoryFilterBase.clone(
+    minimumNumberOfHits = 4,
+    seedExtension = 1,
+    strictSeedExtension = False, # allow inactive
+    pixelSeedExtension = False,
+)
+
+
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = 'highPtTripletStepChi2Est',
@@ -150,10 +158,12 @@ highPtTripletStepTrajectoryBuilder = _GroupedCkfTrajectoryBuilder_cfi.GroupedCkf
 )
 trackingPhase1PU70.toModify(highPtTripletStepTrajectoryBuilder,
     MeasurementTrackerName = '',
-    maxCand = 4,
+    maxCand = 3,
 )
 trackingPhase2PU140.toModify(highPtTripletStepTrajectoryBuilder,
-    maxCand = 5,
+    inOutTrajectoryFilter = dict(refToPSet_ = "highPtTripletStepTrajectoryFilterInOut"),
+    useSameTrajFilter = False,
+    maxCand = 3,
 )
 
 # MAKING OF TRACK CANDIDATES
