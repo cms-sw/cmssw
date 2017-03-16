@@ -293,6 +293,160 @@ namespace {
   }
 }
 
+const TrackingVertex::LorentzVector *MultiTrackValidator::getSimPVPosition(const edm::Handle<TrackingVertexCollection>& htv) const {
+  for(const auto& simV: *htv) {
+    if(simV.eventId().bunchCrossing() != 0) continue; // remove OOTPU
+    if(simV.eventId().event() != 0) continue; // pick the PV of hard scatter
+    return &(simV.position());
+  }
+  return nullptr;
+}
+
+const reco::Vertex::Point *MultiTrackValidator::getRecoPVPosition(const edm::Event& event, const edm::Handle<TrackingVertexCollection>& htv) const {
+  edm::Handle<edm::View<reco::Vertex> > hvertex;
+  event.getByToken(recoVertexToken_, hvertex);
+
+  edm::Handle<reco::VertexToTrackingVertexAssociator> hvassociator;
+  event.getByToken(vertexAssociatorToken_, hvassociator);
+
+  auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);
+  auto pvPtr = hvertex->refAt(0);
+  if(pvPtr->isFake() || pvPtr->ndof() < 0) // skip junk vertices
+    return nullptr;
+
+  auto pvFound = v_r2s.find(pvPtr);
+  if(pvFound == v_r2s.end())
+    return nullptr;
+
+  for(const auto& vertexRefQuality: pvFound->val) {
+    const TrackingVertex& tv = *(vertexRefQuality.first);
+    if(tv.eventId().event() == 0 && tv.eventId().bunchCrossing() == 0) {
+      return &(pvPtr->position());
+    }
+  }
+
+  return nullptr;
+}
+
+void MultiTrackValidator::tpParametersAndSelection(const TrackingParticleRefVector& tPCeff,
+                                                   const ParametersDefinerForTP& parametersDefinerTP,
+                                                   const edm::Event& event, const edm::EventSetup& setup,
+                                                   const reco::BeamSpot& bs,
+                                                   std::vector<std::tuple<TrackingParticle::Vector, TrackingParticle::Point> >& momVert_tPCeff,
+                                                   std::vector<size_t>& selected_tPCeff) const {
+  selected_tPCeff.reserve(tPCeff.size());
+  momVert_tPCeff.reserve(tPCeff.size());
+  int nIntimeTPs = 0;
+  if(parametersDefinerIsCosmic_) {
+    for(size_t j=0; j<tPCeff.size(); ++j) {
+      const TrackingParticleRef& tpr = tPCeff[j];
+
+      TrackingParticle::Vector momentum = parametersDefinerTP.momentum(event,setup,tpr);
+      TrackingParticle::Point vertex = parametersDefinerTP.vertex(event,setup,tpr);
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_generic_simTrack_histos(momentum, vertex, tpr->eventId().bunchCrossing());
+      }
+      if(tpr->eventId().bunchCrossing() == 0)
+        ++nIntimeTPs;
+
+      if(cosmictpSelector(tpr,&bs,event,setup)) {
+        selected_tPCeff.push_back(j);
+        momVert_tPCeff.emplace_back(momentum, vertex);
+      }
+    }
+  }
+  else {
+    size_t j=0;
+    for(auto const& tpr: tPCeff) {
+      const TrackingParticle& tp = *tpr;
+
+      // TODO: do we want to fill these from all TPs that include IT
+      // and OOT (as below), or limit to IT+OOT TPs passing tpSelector
+      // (as it was before)? The latter would require another instance
+      // of tpSelector with intimeOnly=False.
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_generic_simTrack_histos(tp.momentum(), tp.vertex(), tp.eventId().bunchCrossing());
+      }
+      if(tp.eventId().bunchCrossing() == 0)
+        ++nIntimeTPs;
+
+      if(tpSelector(tp)) {
+        selected_tPCeff.push_back(j);
+        TrackingParticle::Vector momentum = parametersDefinerTP.momentum(event,setup,tpr);
+        TrackingParticle::Point vertex = parametersDefinerTP.vertex(event,setup,tpr);
+        momVert_tPCeff.emplace_back(momentum, vertex);
+      }
+      ++j;
+    }
+  }
+  if(doSimPlots_) {
+    histoProducerAlgo_->fill_simTrackBased_histos(nIntimeTPs);
+  }
+}
+
+
+size_t MultiTrackValidator::tpDR(const TrackingParticleRefVector& tPCeff,
+                                 const std::vector<size_t>& selected_tPCeff,
+                                 DynArray<float>& dR_tPCeff) const {
+  float etaL[tPCeff.size()], phiL[tPCeff.size()];
+  size_t n_selTP_dr = 0;
+  for(size_t iTP: selected_tPCeff) {
+    //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+    auto const& tp2 = *(tPCeff[iTP]);
+    auto  && p = tp2.momentum();
+    etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
+    phiL[iTP] = atan2f(p.y(),p.x());
+  }
+  for(size_t iTP1: selected_tPCeff) {
+    auto const& tp = *(tPCeff[iTP1]);
+    double dR = std::numeric_limits<double>::max();
+    if(dRtpSelector(tp)) {//only for those needed for efficiency!
+      ++n_selTP_dr;
+      auto  && p = tp.momentum();
+      float eta = etaFromXYZ(p.x(),p.y(),p.z());
+      float phi = atan2f(p.y(),p.x());
+      for(size_t iTP2: selected_tPCeff) {
+        //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
+        if (iTP1==iTP2) {continue;}
+        auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP2], phiL[iTP2]);
+        if (dR_tmp<dR) dR=dR_tmp;
+      }  // ttp2 (iTP)
+    }
+    dR_tPCeff[iTP1] = std::sqrt(dR);
+  }  // tp
+  return n_selTP_dr;
+}
+
+void MultiTrackValidator::trackDR(const edm::View<reco::Track>& trackCollection, const edm::View<reco::Track>& trackCollectionDr, DynArray<float>& dR_trk) const {
+  int i=0;
+  float etaL[trackCollectionDr.size()];
+  float phiL[trackCollectionDr.size()];
+  bool validL[trackCollectionDr.size()];
+  for (auto const & track2 : trackCollectionDr) {
+    auto  && p = track2.momentum();
+    etaL[i] = etaFromXYZ(p.x(),p.y(),p.z());
+    phiL[i] = atan2f(p.y(),p.x());
+    validL[i] = !trackFromSeedFitFailed(track2);
+    ++i;
+  }
+  for(View<reco::Track>::size_type i=0; i<trackCollection.size(); ++i){
+    auto const &  track = trackCollection[i];
+    auto dR = std::numeric_limits<float>::max();
+    if(!trackFromSeedFitFailed(track)) {
+      auto  && p = track.momentum();
+      float eta = etaFromXYZ(p.x(),p.y(),p.z());
+      float phi = atan2f(p.y(),p.x());
+      for(View<reco::Track>::size_type j=0; j<trackCollectionDr.size(); ++j){
+        if(!validL[j]) continue;
+        auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
+        if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<float>::min())) dR=dR_tmp;
+      }
+    }
+    dR_trk[i] = std::sqrt(dR);
+  }
+}
+
+
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
   using namespace reco;
 
@@ -362,60 +516,28 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   dRTrackSelector->init(event, setup);
   histoProducerAlgo_->init(event, setup);
 
-  const reco::Vertex::Point *thePVposition = nullptr;
-  const TrackingVertex::LorentzVector *theSimPVPosition = nullptr;
   // Find the sim PV and tak its position
   edm::Handle<TrackingVertexCollection> htv;
   event.getByToken(label_tv, htv);
-  {
-    const TrackingVertexCollection& tv = *htv;
-    for(size_t i=0; i<tv.size(); ++i) {
-      const TrackingVertex& simV = tv[i];
-      if(simV.eventId().bunchCrossing() != 0) continue; // remove OOTPU
-      if(simV.eventId().event() != 0) continue; // pick the PV of hard scatter
-      theSimPVPosition = &(simV.position());
-      break;
-    }
-  }
+  const TrackingVertex::LorentzVector *theSimPVPosition = getSimPVPosition(htv);
   if(simPVMaxZ_ >= 0) {
     if(!theSimPVPosition) return;
     if(std::abs(theSimPVPosition->z()) > simPVMaxZ_) return;
   }
 
   // Check, when necessary, if reco PV matches to sim PV
+  const reco::Vertex::Point *thePVposition = nullptr;
   if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
-    edm::Handle<edm::View<reco::Vertex> > hvertex;
-    event.getByToken(recoVertexToken_, hvertex);
-
-    edm::Handle<reco::VertexToTrackingVertexAssociator> hvassociator;
-    event.getByToken(vertexAssociatorToken_, hvassociator);
-
-    auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);
-    auto pvPtr = hvertex->refAt(0);
-    if(!(pvPtr->isFake() || pvPtr->ndof() < 0)) { // skip junk vertices
-      auto pvFound = v_r2s.find(pvPtr);
-      if(pvFound != v_r2s.end()) {
-        bool matchedToSimPV = false;
-        for(const auto& vertexRefQuality: pvFound->val) {
-          const TrackingVertex& tv = *(vertexRefQuality.first);
-          if(tv.eventId().event() == 0 && tv.eventId().bunchCrossing() == 0) {
-            matchedToSimPV = true;
-            break;
-          }
-        }
-        if(matchedToSimPV) {
-          if(doPVAssociationPlots_) {
-            thePVposition = &(pvPtr->position());
-          }
-        }
-        else if(doPlotsOnlyForTruePV_)
-          return;
-      }
-      else if(doPlotsOnlyForTruePV_)
-        return;
-    }
-    else if(doPlotsOnlyForTruePV_)
+    thePVposition = getRecoPVPosition(event, htv);
+    if(doPlotsOnlyForTruePV_ && !thePVposition)
       return;
+
+    // Rest of the code assumes that if thePVposition is non-null, the
+    // PV-association histograms get filled. In above, the "nullness"
+    // is used to deliver the information if the reco PV is matched to
+    // the sim PV.
+    if(!doPVAssociationPlots_)
+      thePVposition = nullptr;
   }
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -432,12 +554,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       break;
     }
   }
-
-  /*
-  edm::Handle<TrackingVertexCollection> tvH;
-  event.getByToken(label_tv,tvH);
-  TrackingVertexCollection const & tv = *tvH;
-  */
 
   // Number of 3D layers for TPs
   edm::Handle<edm::ValueMap<unsigned int>> tpNLayersH;
@@ -470,85 +586,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   // for "efficiency" TPs.
   std::vector<size_t> selected_tPCeff;
   std::vector<std::tuple<TrackingParticle::Vector, TrackingParticle::Point>> momVert_tPCeff;
-  selected_tPCeff.reserve(tPCeff.size());
-  momVert_tPCeff.reserve(tPCeff.size());
-  int nIntimeTPs = 0;
-  if(parametersDefinerIsCosmic_) {
-    for(size_t j=0; j<tPCeff.size(); ++j) {
-      const TrackingParticleRef& tpr = tPCeff[j];
-
-      TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
-      TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
-      if(doSimPlots_) {
-        histoProducerAlgo_->fill_generic_simTrack_histos(momentum, vertex, tpr->eventId().bunchCrossing());
-      }
-      if(tpr->eventId().bunchCrossing() == 0)
-        ++nIntimeTPs;
-
-      if(cosmictpSelector(tpr,&bs,event,setup)) {
-        selected_tPCeff.push_back(j);
-        momVert_tPCeff.emplace_back(momentum, vertex);
-      }
-    }
-  }
-  else {
-    size_t j=0;
-    for(auto const& tpr: tPCeff) {
-      const TrackingParticle& tp = *tpr;
-
-      // TODO: do we want to fill these from all TPs that include IT
-      // and OOT (as below), or limit to IT+OOT TPs passing tpSelector
-      // (as it was before)? The latter would require another instance
-      // of tpSelector with intimeOnly=False.
-      if(doSimPlots_) {
-        histoProducerAlgo_->fill_generic_simTrack_histos(tp.momentum(), tp.vertex(), tp.eventId().bunchCrossing());
-      }
-      if(tp.eventId().bunchCrossing() == 0)
-        ++nIntimeTPs;
-
-      if(tpSelector(tp)) {
-        selected_tPCeff.push_back(j);
-        TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
-        TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
-        momVert_tPCeff.emplace_back(momentum, vertex);
-      }
-      ++j;
-    }
-  }
-  if(doSimPlots_) {
-    histoProducerAlgo_->fill_simTrackBased_histos(nIntimeTPs);
-  }
+  tpParametersAndSelection(tPCeff, *parametersDefinerTP, event, setup, bs, momVert_tPCeff, selected_tPCeff);
 
   //calculate dR for TPs
-  float dR_tPCeff[tPCeff.size()];
-  size_t n_selTP_dr = 0;
-  {
-    float etaL[tPCeff.size()], phiL[tPCeff.size()];
-    for(size_t iTP: selected_tPCeff) {
-      //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-      auto const& tp2 = *(tPCeff[iTP]);
-      auto  && p = tp2.momentum();
-      etaL[iTP] = etaFromXYZ(p.x(),p.y(),p.z());
-      phiL[iTP] = atan2f(p.y(),p.x());
-    }
-    for(size_t iTP1: selected_tPCeff) {
-      auto const& tp = *(tPCeff[iTP1]);
-      double dR = std::numeric_limits<double>::max();
-      if(dRtpSelector(tp)) {//only for those needed for efficiency!
-        ++n_selTP_dr;
-        auto  && p = tp.momentum();
-        float eta = etaFromXYZ(p.x(),p.y(),p.z());
-        float phi = atan2f(p.y(),p.x());
-        for(size_t iTP2: selected_tPCeff) {
-          //calculare dR wrt inclusive collection (also with PU, low pT, displaced)
-	  if (iTP1==iTP2) {continue;}
-          auto dR_tmp = reco::deltaR2(eta, phi, etaL[iTP2], phiL[iTP2]);
-          if (dR_tmp<dR) dR=dR_tmp;
-        }  // ttp2 (iTP)
-      }
-      dR_tPCeff[iTP1] = std::sqrt(dR);
-    }  // tp
-  }
+  declareDynArray(float, tPCeff.size(), dR_tPCeff);
+  size_t n_selTP_dr = tpDR(tPCeff, selected_tPCeff, dR_tPCeff);
 
   edm::Handle<View<Track> >  trackCollectionForDrCalculation;
   if(calculateDrSingleCollection_) {
@@ -826,33 +868,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       if(calculateDrSingleCollection_) {
         trackCollectionDr = trackCollectionForDrCalculation.product();
       }
-      float dR_trk[trackCollection.size()];
-      int i=0;
-      float etaL[trackCollectionDr->size()];
-      float phiL[trackCollectionDr->size()];
-      bool validL[trackCollectionDr->size()];
-      for (auto const & track2 : *trackCollectionDr) {
-         auto  && p = track2.momentum();
-         etaL[i] = etaFromXYZ(p.x(),p.y(),p.z());
-         phiL[i] = atan2f(p.y(),p.x());
-         validL[i] = !trackFromSeedFitFailed(track2);
-         ++i;
-      }
-      for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
-	auto const &  track = trackCollection[i];
-	auto dR = std::numeric_limits<float>::max();
-        if(!trackFromSeedFitFailed(track)) {
-          auto  && p = track.momentum();
-          float eta = etaFromXYZ(p.x(),p.y(),p.z());
-          float phi = atan2f(p.y(),p.x());
-          for(View<Track>::size_type j=0; j<trackCollectionDr->size(); ++j){
-            if(!validL[j]) continue;
-            auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
-            if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<float>::min())) dR=dR_tmp;
-          }
-        }
-	dR_trk[i] = std::sqrt(dR);
-      }
+      declareDynArray(float, trackCollection.size(), dR_trk);
+      trackDR(trackCollection, *trackCollectionDr, dR_trk);
 
       for(View<Track>::size_type i=0; i<trackCollection.size(); ++i){
         auto track = trackCollection.refAt(i);
