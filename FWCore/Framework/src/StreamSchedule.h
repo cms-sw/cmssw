@@ -437,7 +437,14 @@ namespace edm {
       }
     });
     
-    tbb::task::enqueue( *task);
+    if(streamID_.value() == 0) {
+      //Enqueueing will start another thread if there is only
+      // one thread in the job. Having stream == 0 use spawn
+      // avoids starting up another thread when there is only one stream.
+      tbb::task::spawn( *task);
+    } else {
+      tbb::task::enqueue( *task);
+    }
   }
   
   
