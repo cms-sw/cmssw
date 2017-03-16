@@ -138,13 +138,8 @@ process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cf
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff")
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerTPBHalfBarrel,111111',
-        'TrackerTPEHalfCylinder,111111',
-
-        'TrackerTIBHalfBarrel,ffffff',
-        'TrackerTOBHalfBarrel,ffffff',
-        'TrackerTIDEndcap,ffffff',
-        'TrackerTECEndcap,ffffff'
+        "PixelHalfBarrels,111111",
+        "PXECHalfCylinders,111111",
         )
     )
 
