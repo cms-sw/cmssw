@@ -17,11 +17,24 @@ def LoadEgmIdSequence(process, dataFormat):
     # Load sequences for isolations computed with CITK for both AOD and miniAOD cases
     if dataFormat== DataFormat.AOD:
         process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationAOD_cff")
-        process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationAODSequence 
+        #if particleFlowTmpPtrs was not create we should create it
+        if not hasattr(process, "particleFlowTmpPtrs"):
+          process.particleFlowTmpPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
+          src = cms.InputTag('particleFlow')
+          )
+          process.egmPhotonIDSequence = cms.Sequence(process.particleFlowTmpPtrs
+                                                   * process.egmPhotonIsolationAODSequence 
                                                    * process.photonIDValueMapProducer 
                                                    * process.photonMVAValueMapProducer 
                                                    * process.egmPhotonIDs 
                                                    * process.photonRegressionValueMapProducer )
+        else :
+          process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationAODSequence 
+                                                   * process.photonIDValueMapProducer 
+                                                   * process.photonMVAValueMapProducer 
+                                                   * process.egmPhotonIDs 
+                                                   * process.photonRegressionValueMapProducer )
+
     elif dataFormat== DataFormat.MiniAOD:
         process.load("RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff")
         process.egmPhotonIDSequence = cms.Sequence(process.egmPhotonIsolationMiniAODSequence 
