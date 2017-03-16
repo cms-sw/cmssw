@@ -13,19 +13,14 @@ import FWCore.ParameterSet.Config as cms
 #    process subsystem histograms in endRun only
 #
 
-
 # DQM online L1 Trigger emulator client modules 
-from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-if stage2L1Trigger.isChosen():
-    from DQM.L1TMonitorClient.L1TStage2EmulatorMonitorClient_cff import *
-else:
-    from DQM.L1TMonitorClient.L1TEMUMonitorClient_cff import *
-    # switches for l1EmulatorErrorFlagClient and l1EmulatorEventInfoClient to do and retrieve QTs
+from DQM.L1TMonitorClient.L1TEMUMonitorClient_cff import *
+#switches for l1EmulatorErrorFlagClient and l1EmulatorEventInfoClient to do and retrieve QTs
     
-    #l1temuEventInfoClient.runInEventLoop = False
-    #l1temuEventInfoClient.runInEndLumi = False
-    #l1temuEventInfoClient.runInEndRun = True
-    #l1temuEventInfoClient.runInEndJob = False
+l1temuEventInfoClient.runInEventLoop = False
+l1temuEventInfoClient.runInEndLumi = False
+l1temuEventInfoClient.runInEndRun = True
+l1temuEventInfoClient.runInEndJob = False
     
 
 
