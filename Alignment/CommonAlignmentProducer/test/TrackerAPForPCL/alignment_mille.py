@@ -135,7 +135,7 @@ process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cf
 )
     
 #-- Alignment producer
-process.load("Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff")
+process.load("Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff")
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
         'TrackerTPBHalfBarrel,111111',
