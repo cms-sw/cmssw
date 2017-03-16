@@ -1,8 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
-// Includes
-////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -15,88 +13,66 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <memory>
+#include <numeric>
 #include <vector>
-#include <sstream>
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-class MuonFromPVSelector : public edm::EDProducer
-{
+class MuonFromPVSelector : public edm::global::EDProducer<> {
 public:
-  // construction/destruction
-  MuonFromPVSelector(const edm::ParameterSet& iConfig);
-  virtual ~MuonFromPVSelector();
-  
-  // member functions
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
 
-private:  
-  // member data
-  double                                          max_dxy_           ;
-  double                                          max_dz_            ;
-  edm::EDGetTokenT< std::vector<reco::Vertex> >   v_recoVertexToken_ ;
-  edm::EDGetTokenT< std::vector<reco::Muon> >     v_recoMuonToken_   ;
+  explicit MuonFromPVSelector(edm::ParameterSet const&);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+
+  double max_dxy_;
+  double max_dz_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> v_recoVertexToken_;
+  edm::EDGetTokenT<std::vector<reco::Muon>> v_recoMuonToken_;
 };
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
-// construction/destruction
+// construction
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-MuonFromPVSelector::MuonFromPVSelector(const edm::ParameterSet& iConfig)
-  : max_dxy_          ( iConfig.getParameter<double>( "max_dxy" ) )
-  , max_dz_           ( iConfig.getParameter<double>( "max_dz" ) )
-  , v_recoVertexToken_( consumes< std::vector<reco::Vertex> >( iConfig.getParameter<edm::InputTag>( "srcVertex" ) ) )
-  , v_recoMuonToken_  ( consumes< std::vector<reco::Muon> >( iConfig.getParameter<edm::InputTag>( "srcMuon" ) ) )
+MuonFromPVSelector::MuonFromPVSelector(edm::ParameterSet const& iConfig)
+  : max_dxy_{iConfig.getParameter<double>("max_dxy")}
+  , max_dz_{iConfig.getParameter<double>("max_dz")}
+  , v_recoVertexToken_{consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("srcVertex"))}
+  , v_recoMuonToken_{consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("srcMuon"))}
 {
-  produces<std::vector<reco::Muon> >();
+  produces<std::vector<reco::Muon>>();
 }
-
-
-//______________________________________________________________________________
-MuonFromPVSelector::~MuonFromPVSelector(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
-{  
-  std::unique_ptr<std::vector<reco::Muon> > goodMuons(new std::vector<reco::Muon >);
-  
-  edm::Handle< std::vector<reco::Vertex> > VertexHandle;
-  iEvent.getByToken( v_recoVertexToken_, VertexHandle );
+void MuonFromPVSelector::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
+{
+  auto goodMuons = std::make_unique<std::vector<reco::Muon>>();
 
-  edm::Handle< std::vector<reco::Muon> > MuonHandle;
-  iEvent.getByToken( v_recoMuonToken_, MuonHandle );
-  
-  if( (VertexHandle->size() == 0) || (MuonHandle->size() == 0) ) 
-  {
-    iEvent.put(std::move(goodMuons));
-    return ;
+  edm::Handle<std::vector<reco::Vertex>> vertices;
+  iEvent.getByToken(v_recoVertexToken_, vertices);
+
+  edm::Handle<std::vector<reco::Muon>> muons;
+  iEvent.getByToken(v_recoMuonToken_, muons);
+
+  if (!vertices->empty()) {
+    auto const& pv = vertices->front();
+    std::copy_if(std::cbegin(*muons), std::cend(*muons), std::back_inserter(*goodMuons),
+                 [&pv, this](auto const& muon){
+                   return muon.innerTrack().isNonnull() &&
+                     std::abs(muon.innerTrack()->dxy(pv.position())) < max_dxy_ &&
+                     std::abs(muon.innerTrack()->dz(pv.position()))  < max_dz_;
+                 });
   }
-  
-  
-  reco::Vertex PV = VertexHandle->front();   
-  //typename std::vector<reco::Muon>::const_iterator MuonIt ;
-  std::vector<reco::Muon>::const_iterator MuonIt ;
 
-  for (MuonIt = MuonHandle->begin(); MuonIt != MuonHandle->end(); ++MuonIt) {
-    if ( MuonIt->innerTrack().isNonnull()                          &&
-         fabs(MuonIt->innerTrack()->dxy(PV.position())) < max_dxy_ &&
-         fabs(MuonIt->innerTrack()->dz(PV.position()))  < max_dz_  ){
-      goodMuons -> push_back(*MuonIt) ;
-    }
-  }  
-  
   iEvent.put(std::move(goodMuons));
-  
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(MuonFromPVSelector);

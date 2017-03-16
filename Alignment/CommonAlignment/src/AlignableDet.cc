@@ -17,6 +17,10 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
   AlignableComposite( geomDet ), 
   theAlignmentPositionError(0)
 {
+  // ensure that the surface is not constrained to the average position of the
+  // components:
+  compConstraintType_ = Alignable::CompConstraintType::NONE;
+
   if (geomDet->alignmentPositionError()) {
     // false: do not propagate APE to (anyway not yet existing) daughters
     this->setAlignmentPositionError(*(geomDet->alignmentPositionError()), false); 
@@ -52,6 +56,62 @@ AlignableDet::~AlignableDet()
 
   delete theAlignmentPositionError;
 
+}
+
+
+//______________________________________________________________________________
+void AlignableDet::update(const GeomDet* geomDet, bool updateComponents)
+{
+  AlignableComposite::update(geomDet);
+
+  if (geomDet->alignmentPositionError()) {
+    // false: do not propagate APE to daughters (done by their update functions)
+    this->setAlignmentPositionError(*(geomDet->alignmentPositionError()), false);
+  }
+
+  if (updateComponents) {
+    if (geomDet->components().size() == 0 ) { // Is a DetUnit
+      throw cms::Exception("BadHierarchy")
+	<< "[AlignableDet] GeomDet with DetId "
+	<< geomDet->geographicalId().rawId()
+	<< " has no components, use AlignableDetUnit.\n";
+    } else { // Push back all components
+      const auto& geomDets = geomDet->components();
+      for (const auto& idet: geomDets) {
+        auto unit = dynamic_cast<const GeomDetUnit*>(idet);
+        if (!unit) {
+          throw cms::Exception("BadHierarchy")
+            << "[AlignableDet] component not GeomDetUnit, call with "
+	    << "updateComponents==false and build hierarchy yourself.\n";
+	  // -> e.g. AlignableDTChamber
+        }
+
+	const auto components = this->components();
+	auto comp =
+	  std::find_if(components.begin(), components.end(),
+		       [&unit](const auto& c) {
+			 return c->id() == unit->geographicalId().rawId(); });
+
+	if (comp != components.end()) {
+	  auto aliDetUnit = dynamic_cast<AlignableDetUnit*>(*comp);
+	  if (aliDetUnit) {
+	    aliDetUnit->update(unit);
+	  } else {
+	    throw cms::Exception("LogicError")
+	      << "[AlignableDet::update] cast to 'AlignableDetUnit*' failed "
+	      << "while it should not\n";
+	  }
+	} else {
+          throw cms::Exception("GeometryMismatch")
+	    << "[AlignableDet::update] GeomDet with DetId "
+	    << unit->geographicalId().rawId()
+            << " not found in current geometry.\n";
+	}
+      }
+    }
+    // Ensure that the surface is not screwed up by update of components, it must stay the GeomDet's one:
+    theSurface = AlignableSurface(geomDet->surface());
+  } // end updateComponents
 }
 
 

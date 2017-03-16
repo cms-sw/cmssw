@@ -43,18 +43,10 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
 
   std::string attribute = "MuStructure"; 
   std::string value     = "MuonBarrelDT";
-  DDValue val(attribute, value, 0.0);
 
   // Asking only for the Muon DTs
-  DDSpecificsFilter filter;
-  filter.setCriteria(val,  // name & value of a variable 
-		     DDCompOp::matches,
-		     DDLogOp::AND, 
-		     true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fview(*cview);
-  fview.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
+  DDFilteredView fview(*cview,filter);
   buildGeometry(fview, muonConstants, rig);
   //cout << "RecoIdealGeometry " << rig.size() << endl;
 }
