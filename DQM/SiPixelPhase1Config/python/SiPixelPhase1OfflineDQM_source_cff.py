@@ -16,6 +16,8 @@ from DQM.SiPixelPhase1TrackClusters.SiPixelPhase1TrackClusters_cfi import *
 from DQM.SiPixelPhase1TrackEfficiency.SiPixelPhase1TrackEfficiency_cfi import *
 # FED/RAW Data
 from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
+#Summary maps
+from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 
 PerModule.enabled = False
