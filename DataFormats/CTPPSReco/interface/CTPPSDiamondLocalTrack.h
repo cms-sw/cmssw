@@ -19,7 +19,11 @@ class CTPPSDiamondLocalTrack
 {
   public:
     CTPPSDiamondLocalTrack() :
-      chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ), mh_( 0 ) {}
+      chi_squared_( 0. ), valid_( true ), t_( 0. ), t_sigma_( 0. ), ts_index_( 0 ), mh_( 0 ) {}
+    CTPPSDiamondLocalTrack( const math::XYZPoint pos0, const math::XYZPoint pos0_sigma, float chisq, float t, float t_sigma, int oot_idx, int mult_hits ) :
+      pos0_( pos0 ), pos0_sigma_( pos0_sigma ),
+      chi_squared_( chisq ), valid_( true ),
+      t_( t ), t_sigma_( t_sigma ), ts_index_( oot_idx ), mh_( mult_hits ) {}
     virtual ~CTPPSDiamondLocalTrack() {}
 
     //--- spatial get'ters
@@ -36,15 +40,10 @@ class CTPPSDiamondLocalTrack
     
     //--- spatial set'ters
 
-    inline void setX0( const float& x0 ) { pos0_.SetX( x0 ); }
-    inline void setX0Sigma( const float& x0_sigma ) { pos0_sigma_.SetX( x0_sigma ); }
+    inline void setPosition( const math::XYZPoint pos0 ) { pos0_ = pos0; }
+    inline void setPositionSigma( const math::XYZPoint pos0_sigma ) { pos0_sigma_ = pos0_sigma; }
 
-    inline void setY0( const float& y0 ) { pos0_.SetY( y0 ); }
-    inline void setY0Sigma( const float& y0_sigma ) { pos0_sigma_.SetY( y0_sigma ); }
-
-    inline void setZ0( const float& z ) { pos0_.SetZ(z); }
-
-    inline void setChiSquared( const float& chisq ) { chi_squared_ = chisq; }
+    inline void setChiSquared( const float chisq ) { chi_squared_ = chisq; }
 
     inline bool isValid() const { return valid_; }
     inline void setValid( bool valid ) { valid_ = valid; }
@@ -56,16 +55,14 @@ class CTPPSDiamondLocalTrack
     
     //--- temporal set'ters
 
-    inline void setT( const float& t) { t_ = t; }
-    inline void setTSigma( const float& t_sigma ) { t_sigma_ = t_sigma; }
+    inline void setT( const float t) { t_ = t; }
+    inline void setTSigma( const float t_sigma ) { t_sigma_ = t_sigma; }
     
-    inline void setOOTIndex( const int& i ) { ts_index_ = i; }
+    inline void setOOTIndex( const int i ) { ts_index_ = i; }
     inline int getOOTIndex() const { return ts_index_; }
     
-    inline void setMultipleHits( const int& i ) { mh_ = i; }
+    inline void setMultipleHits( const int i ) { mh_ = i; }
     inline int getMultipleHits() const { return mh_; }
-
-    friend bool operator<( const CTPPSDiamondLocalTrack&, const CTPPSDiamondLocalTrack& );
 
   private:
     //--- spatial information
@@ -87,8 +84,15 @@ class CTPPSDiamondLocalTrack
     float t_sigma_;
     /// Time slice index
     int ts_index_;
+    /// Multiple hits counter
     int mh_;
 
 };
+
+inline bool operator<( const CTPPSDiamondLocalTrack& lhs, const CTPPSDiamondLocalTrack& rhs )
+{
+  // as for now, only sort by temporal coordinate
+  return ( lhs.getT() < rhs.getT() );
+}
 
 #endif

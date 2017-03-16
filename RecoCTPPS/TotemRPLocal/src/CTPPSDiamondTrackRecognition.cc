@@ -13,17 +13,9 @@
 #include <cstdio>
 #include <algorithm>
 
-#define PAD_DEFAULT_FUNCTION "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])"
-
 //----------------------------------------------------------------------------------------------------
 
-CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition() :
-  threshold_( 1.5 ), thresholdFromMaximum_( 0.5 ),
-  resolution_( 0.025 ), sigma_( 0.0 ),
-  startFromX_( -2 ), stopAtX_( 38 ),
-  pixelEfficiencyFunction_( PAD_DEFAULT_FUNCTION ),
-  yPosition(0.0), yWidth(0.0), nameCounter(0)
-{}
+const std::string CTPPSDiamondTrackRecognition::pixelEfficiencyDefaultFunction_ = "(x>[0]-0.5*[1])*(x<[0]+0.5*[1])";
 
 CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::ParameterSet& iConfig ) :
   threshold_( iConfig.getParameter<double>( "threshold" ) ),
@@ -36,7 +28,7 @@ CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::Parameter
   yPosition(0.0), yWidth(0.0), nameCounter(0)
 {
   if (sigma_==.0) {
-    pixelEfficiencyFunction_ = PAD_DEFAULT_FUNCTION; // simple step function
+    pixelEfficiencyFunction_ = pixelEfficiencyDefaultFunction_; // simple step function
   }
 }
 
@@ -52,6 +44,7 @@ CTPPSDiamondTrackRecognition::clear()
 {
   hitFunctionVectorMap_.clear();
   mhMap_.clear();
+  nameCounter = 0;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -88,10 +81,10 @@ int
 CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack> &tracks )
 {
   int number_of_tracks = 0;
-  for ( hitFunctionVectorMap_t::const_iterator ootIt=hitFunctionVectorMap_.begin(); ootIt!=hitFunctionVectorMap_.end(); ++ootIt ) {
+  for ( HitFunctionVectorMap::const_iterator ootIt=hitFunctionVectorMap_.begin(); ootIt!=hitFunctionVectorMap_.end(); ++ootIt ) {
     std::vector<float> hit_profile( ( stopAtX_-startFromX_ )/resolution_, 0. );
     for ( unsigned int i=0; i<hit_profile.size(); ++i ) {
-      for ( hitFunctionVector_t::const_iterator fun_it=ootIt->second.begin(); fun_it!=ootIt->second.end(); ++fun_it ) { 
+      for ( HitFunctionVector::const_iterator fun_it=ootIt->second.begin(); fun_it!=ootIt->second.end(); ++fun_it ) { 
 	hit_profile[i] += fun_it->Eval( startFromX_ + i*resolution_ );
       }
     }
@@ -124,15 +117,12 @@ CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack>
 	      below = true;
 
 	      //store track
-	      CTPPSDiamondLocalTrack track;
-	      track.setX0Sigma( ( j-track_start_n )*resolution_*0.5 );
-	      track.setX0( startFromX_ + track_start_n*resolution_ + track.getX0Sigma() );
-	      track.setY0( yPosition );
-	      track.setY0Sigma( yWidth * 0.5 );
-	      track.setOOTIndex( ootIt->first );
-	      if ( mhMap_.find( ootIt->first ) != mhMap_.end() ) track.setMultipleHits( mhMap_[ootIt->first] );
-	      else track.setMultipleHits( 0 );
-	      tracks.push_back( track );
+              math::XYZPoint pos0_sigma( ( j-track_start_n )*resolution_*0.5, yWidth * 0.5, 0. );
+	      math::XYZPoint pos0( startFromX_ + track_start_n*resolution_ + pos0_sigma.X(), yPosition, 0. );
+              int mult_hits = 0;
+	      if ( mhMap_.find( ootIt->first ) != mhMap_.end() ) mult_hits = mhMap_[ootIt->first];
+
+              tracks.push_back( CTPPSDiamondLocalTrack( pos0, pos0_sigma, 0., 0., 0., ootIt->first, mult_hits ) );
 	      ++number_of_tracks;
 	    }
 	  }

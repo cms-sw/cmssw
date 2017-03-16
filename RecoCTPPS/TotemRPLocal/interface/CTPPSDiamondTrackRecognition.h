@@ -29,21 +29,21 @@
 class CTPPSDiamondTrackRecognition
 {
   public:
-    CTPPSDiamondTrackRecognition();
     CTPPSDiamondTrackRecognition( const edm::ParameterSet& );
 
     ~CTPPSDiamondTrackRecognition();
 
     void clear();
 
-    void addHit(const CTPPSDiamondRecHit recHit);
-    
-    int produceTracks(edm::DetSet<CTPPSDiamondLocalTrack> &tracks);
-    
-  protected:
-    typedef std::vector<TF1> hitFunctionVector_t;
-    typedef std::map<int,hitFunctionVector_t> hitFunctionVectorMap_t;
-    
+    void addHit( const CTPPSDiamondRecHit recHit );
+
+    int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack> &tracks );
+
+  private:
+    typedef std::vector<TF1> HitFunctionVector;
+    typedef std::map<int,HitFunctionVector> HitFunctionVectorMap;
+
+    static const std::string pixelEfficiencyDefaultFunction_;
     const float threshold_;
     const float thresholdFromMaximum_;
     const float resolution_;
@@ -51,15 +51,14 @@ class CTPPSDiamondTrackRecognition
     const float startFromX_;
     const float stopAtX_;
     std::string pixelEfficiencyFunction_;
-    
+
     float yPosition;
     float yWidth;
     int nameCounter;
 
     /// Function for pad efficiency
-    hitFunctionVectorMap_t hitFunctionVectorMap_;
+    HitFunctionVectorMap hitFunctionVectorMap_;
     std::map<int,int> mhMap_;
-
 };
 
 #endif
