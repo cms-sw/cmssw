@@ -95,8 +95,6 @@ AlignmentProducerBase::~AlignmentProducerBase() noexcept(false)
   delete alignableExtras_;
   delete alignableTracker_;
   delete alignableMuon_;
-
-  delete globalPositions_;
 }
 
 
@@ -542,7 +540,7 @@ AlignmentProducerBase::applyAlignmentsToDB(const edm::EventSetup& setup)
 
     edm::ESHandle<Alignments> globalAlignments;
     setup.get<GlobalPositionRcd>().get(globalAlignments);
-    globalPositions_ = new Alignments(*globalAlignments);
+    globalPositions_ = std::make_unique<Alignments>(*globalAlignments);
 
     if (doTracker_) {
       applyDB<TrackerGeometry,
