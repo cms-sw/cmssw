@@ -9,5 +9,7 @@ lostTracks = cms.EDProducer("PATLostTracks",
     originalVertices = cms.InputTag("offlinePrimaryVertices"),
     minPt = cms.double(0.95),	
     minHits = cms.uint32(8),	
-    minPixelHits = cms.uint32(1),	
+    minPixelHits = cms.uint32(1),  
+    qualsToAutoAccept = cms.vstring("highPurity"),
+    minPtToStoreProps = cms.double(0.95)	
 )
