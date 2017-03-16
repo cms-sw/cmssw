@@ -616,6 +616,26 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int ww=0;ww<associators.size();ww++){
+    // run value filtering of recoToSim map already here as it depends only on the association, not track collection
+    reco::SimToRecoCollection const * simRecCollPFull=nullptr;
+    reco::RecoToSimCollection const * recSimCollP=nullptr;
+    reco::RecoToSimCollection recSimCollL;
+    if(!UseAssociators) {
+      Handle<reco::SimToRecoCollection > simtorecoCollectionH;
+      event.getByToken(associatormapStRs[ww], simtorecoCollectionH);
+      simRecCollPFull = simtorecoCollectionH.product();
+
+      Handle<reco::RecoToSimCollection > recotosimCollectionH;
+      event.getByToken(associatormapRtSs[ww],recotosimCollectionH);
+      recSimCollP = recotosimCollectionH.product();
+
+      // We need to filter the associations of the fake-TrackingParticle
+      // collection only from RecoToSim collection, otherwise the
+      // RecoToSim histograms get false entries
+      recSimCollL = associationMapFilterValues(*recSimCollP, tPCfake);
+      recSimCollP = &recSimCollL;
+    }
+
     for (unsigned int www=0;www<label.size();www++, w++){ // need to increment w here, since there are many continues in the loop body
       //
       //get collections from the event
@@ -624,9 +644,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       if(!event.getByToken(labelToken[www], trackCollectionHandle)&&ignoremissingtkcollection_)continue;
       const edm::View<Track>& trackCollection = *trackCollectionHandle;
 
-      reco::RecoToSimCollection const * recSimCollP=nullptr;
       reco::SimToRecoCollection const * simRecCollP=nullptr;
-      reco::RecoToSimCollection recSimCollL;
       reco::SimToRecoCollection simRecCollL;
 
       //associate tracks
@@ -658,25 +676,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         simRecCollP = &simRecCollL;
       }
       else{
-	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	event.getByToken(associatormapStRs[ww], simtorecoCollectionH);
-	simRecCollP = simtorecoCollectionH.product();
-
         // We need to filter the associations of the current track
         // collection only from SimToReco collection, otherwise the
-        // SimToReco histograms get false entries
-        simRecCollL = associationMapFilterValues(*simRecCollP, trackCollection);
+        // SimToReco histograms get false entries. The filtering must
+        // be done separately for each track collection.
+        simRecCollL = associationMapFilterValues(*simRecCollPFull, trackCollection);
         simRecCollP = &simRecCollL;
-
-	Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	event.getByToken(associatormapRtSs[ww],recotosimCollectionH);
-	recSimCollP = recotosimCollectionH.product();
-
-        // We need to filter the associations of the fake-TrackingParticle
-        // collection only from RecoToSim collection, otherwise the
-        // RecoToSim histograms get false entries
-        recSimCollL = associationMapFilterValues(*recSimCollP, tPCfake);
-        recSimCollP = &recSimCollL;
       }
 
       reco::RecoToSimCollection const & recSimColl = *recSimCollP;
