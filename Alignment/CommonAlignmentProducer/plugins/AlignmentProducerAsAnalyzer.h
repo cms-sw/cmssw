@@ -21,11 +21,15 @@
 
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducerBase.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
 
 
-class AlignmentProducerAsAnalyzer : public AlignmentProducerBase, public edm::EDAnalyzer
+class AlignmentProducerAsAnalyzer :
+  public AlignmentProducerBase,
+  public edm::one::EDAnalyzer<edm::one::WatchRuns,
+                              edm::one::WatchLuminosityBlocks,
+                              edm::one::SharedResources>
 {
   //========================== PUBLIC METHODS ==================================
 public: //====================================================================

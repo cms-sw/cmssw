@@ -11,6 +11,7 @@
 /*** Header file ***/
 #include "AlignmentProducerAsAnalyzer.h"
 
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
@@ -19,6 +20,8 @@
 AlignmentProducerAsAnalyzer::AlignmentProducerAsAnalyzer(const edm::ParameterSet& config) :
   AlignmentProducerBase{config}
 {
+  usesResource(TFileService::kSharedResource);
+
   tjTkAssociationMapToken_ = consumes<TrajTrackAssociationCollection>(tjTkAssociationMapTag_);
   beamSpotToken_ = consumes<reco::BeamSpot>(beamSpotTag_);
   tkLasBeamToken_ = consumes<TkFittedLasBeamCollection>(tkLasBeamTag_);
