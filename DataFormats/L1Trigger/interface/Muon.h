@@ -32,7 +32,11 @@ namespace l1t {
       int isoSum = 0,
       int dPhi = 0,
       int dEta = 0,
-      int rank = 0);
+      int rank = 0,
+      int hwEtaAtVtx = 0,
+      int hwPhiAtVtx = 0,
+      double etaAtVtx = 0.,
+      double phiAtVtx = 0.);
     
     Muon( const PolarLorentzVector& p4,
       int pt=0,
@@ -48,16 +52,25 @@ namespace l1t {
       int isoSum = 0,
       int dPhi = 0,
       int dEta = 0,
-      int rank = 0);
+      int rank = 0,
+      int hwEtaAtVtx = 0,
+      int hwPhiAtVtx = 0,
+      double etaAtVtx = 0.,
+      double phiAtVtx = 0.);
 
     ~Muon();    
 
-    // set integer values
+    // set values
     void setHwCharge(int charge);
     void setHwChargeValid(int valid);
     void setTfMuonIndex(int index);
     void setHwTag(int tag);
     
+    void setHwEtaAtVtx(int hwEtaAtVtx);
+    void setHwPhiAtVtx(int hwPhiAtVtx);
+    void setEtaAtVtx(double etaAtVtx);
+    void setPhiAtVtx(double phiAtVtx);
+
     void setHwIsoSum(int isoSum);
     void setHwDPhiExtra(int dPhi);
     void setHwDEtaExtra(int dEta);
@@ -65,11 +78,16 @@ namespace l1t {
 
     void setDebug(bool debug);
 
-    // methods to retrieve integer values
+    // methods to retrieve values
     int hwCharge() const;
     int hwChargeValid() const;
     int tfMuonIndex() const;
     int hwTag() const;
+
+    int hwEtaAtVtx() const;
+    int hwPhiAtVtx() const;
+    double etaAtVtx() const;
+    double phiAtVtx() const;
 
     int hwIsoSum() const;
     int hwDPhiExtra() const;
@@ -93,6 +111,11 @@ namespace l1t {
     int hwDEtaExtra_;
     int hwRank_;
     
+    // muon coordinates at the vertex
+    int hwEtaAtVtx_;
+    int hwPhiAtVtx_;
+    double etaAtVtx_;
+    double phiAtVtx_;
   };
   
 }
