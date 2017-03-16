@@ -5,7 +5,6 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi import p
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadronsAndPhotons_cfi import pfAllNeutralHadronsAndPhotons
 from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import IsoConeDefinitions
 from RecoEgamma.EgammaIsolationAlgos.egmIsolationDefinitions_cff import pfNoPileUpCandidates
-from CommonTools.ParticleFlow.pfNoPileUpIso_cff import pfPileUpIso, pfNoPileUpIso, pfNoPileUpIsoSequence
 
 
 egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
