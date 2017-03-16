@@ -49,7 +49,6 @@ l1TdeRCT.rctSourceData = 'gctDigis'
 
 # DQM Offline Step 2 cfi/cff imports
 from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
-from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
 
 
 # Stage1 customization
