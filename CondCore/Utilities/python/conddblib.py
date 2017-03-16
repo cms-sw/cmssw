@@ -300,16 +300,12 @@ class TagLog:
 # CondDB object
 class Connection(object):
 
-    def __init__(self, url, init=False):
+    def __init__(self, url):
         # Workaround to avoid creating files if not present.
         # Python's sqlite3 module does not use sqlite3_open_v2(),
         # and therefore we cannot disable SQLITE_OPEN_CREATE.
         # Only in the case of creating a new database we skip the check.
         if url.drivername == 'sqlite':
-
-            #if not init and url.database is not None and not os.path.isfile(url.database):
-            #    # url.database is None if opening a in-memory DB, e.g. 'sqlite://'
-            #    raise Exception('SQLite database %s not found.' % url.database)
 
             self.engine = sqlalchemy.create_engine(url)
 
@@ -411,18 +407,17 @@ class Connection(object):
         if drop:
             logging.debug('Dropping tables...')
             self.metadata.drop_all(self.engine)
+            self._is_valid = False
         else:
-            if self._is_valid:
-                raise Exception('Looks like the database is already a valid CMS Conditions one.')
-
-        logging.debug('Creating tables...')
-        self.get_dbtype(Tag).__table__.create(bind = self.engine)
-        self.get_dbtype(Payload).__table__.create(bind = self.engine)
-        self.get_dbtype(IOV).__table__.create(bind = self.engine)
-        self.get_dbtype(TagLog).__table__.create(bind = self.engine)
-        self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
-        self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
-        self._is_valid = self.is_valid()
+            if not self._is_valid:
+                logging.debug('Creating tables...')
+                self.get_dbtype(Tag).__table__.create(bind = self.engine)
+                self.get_dbtype(Payload).__table__.create(bind = self.engine)
+                self.get_dbtype(IOV).__table__.create(bind = self.engine)
+                self.get_dbtype(TagLog).__table__.create(bind = self.engine)
+                self.get_dbtype(GlobalTag).__table__.create(bind = self.engine)
+                self.get_dbtype(GlobalTagMap).__table__.create(bind = self.engine)
+                self._is_valid = True
 
 # Connection helpers
 def _getCMSFrontierConnectionString(database):
@@ -438,6 +433,8 @@ def _getCMSSQLAlchemyConnectionString(technology,service,schema_name):
 
 # Entry point
 def make_url(database='pro',read_only = True):
+    if database.startswith('sqlite:') or database.startswith('sqlite_file:'):
+        ignore, database = database.split(':',1)
 
     if ':' in database and '://' not in database: # check if we really got a shortcut like "pro:<schema>" (and not a url like proto://...), if so, disentangle
         database, schema = database.split(':')
@@ -481,7 +478,7 @@ def make_url(database='pro',read_only = True):
         url = sqlalchemy.engine.url.make_url('sqlite:///%s' % database)
     return url
 
-def connect(url, init=False, authPath=None, verbose=0):
+def connect(url, authPath=None, verbose=0):
     '''Returns a Connection instance to the CMS Condition DB.
 
     See database_help for the description of the database parameter.
@@ -505,7 +502,6 @@ def connect(url, init=False, authPath=None, verbose=0):
             if authPath is not None:
                 authFile = os.path.join(authPath,'.netrc')
             if authFile is not None:
-                print 'url=%s host=%s username=%s' %(url,url.host,url.username)
                 entryKey = url.host.lower()+"/"+url.username.lower()
                 logging.debug('Looking up credentials for %s in file %s ' %(entryKey,authFile) )
                 import netrc
@@ -531,7 +527,7 @@ def connect(url, init=False, authPath=None, verbose=0):
     if verbose >= 2:
         logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
-    return Connection(url, init=init)
+    return Connection(url)
 
 
 def _exists(session, primary_key, value):
