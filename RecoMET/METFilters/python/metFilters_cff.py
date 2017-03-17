@@ -73,6 +73,19 @@ from RecoMET.METFilters.chargedHadronTrackResolutionFilter_cfi import *
 ## The muon bad track filter ________________________________________________||
 from RecoMET.METFilters.muonBadTrackFilter_cfi import *
 
+## The charged hadron track track filter (2016) ____________________________________||
+from RecoMET.METFilters.BadChargedCandidateSummer16Filter_cfi import *
+
+## The muon bad track filter (2016) ________________________________________________||
+from RecoMET.METFilters.BadPFMuonSummer16Filter_cfi import *
+
+## The charged hadron track track filter (2016) ____________________________________||
+from RecoMET.METFilters.BadChargedCandidateFilter_cfi import *
+
+## The muon bad track filter (2016) ________________________________________________||
+from RecoMET.METFilters.BadPFMuonFilter_cfi import *
+
+
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
