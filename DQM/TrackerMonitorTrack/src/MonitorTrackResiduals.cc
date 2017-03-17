@@ -38,6 +38,10 @@ void MonitorTrackResidualsBase<pixel_or_strip>::bookHistograms(DQMStore::IBooker
     m_cacheID_ = cacheID;
     this->createMEs( ibooker , iSetup);
   }
+  std::string topFolderName_ = "SiStrip";
+  SiStripFolderOrganizer folder_organizer;
+  folder_organizer.setSiStripFolderName(topFolderName_);
+  tkhisto_ResidualsMean = std::unique_ptr<TkHistoMap>(new TkHistoMap(ibooker , topFolderName_ ,"TkHMap_ResidualsMean", 0.0,true)); 
 }
 
 template<TrackerType pixel_or_strip>
@@ -259,6 +263,7 @@ void MonitorTrackResidualsBase<pixel_or_strip>::analyze(const edm::Event& iEvent
       if(it.resXprimeErr != 0 && histos.x.base) {
 	histos.x.base->Fill(it.resXprime);
 	histos.x.normed->Fill(it.resXprime/it.resXprimeErr);
+	if(!isPixel) tkhisto_ResidualsMean->fill(RawId,it.resXprime);
       }
       if(it.resYprimeErr != 0 && histos.y.base) {
 	histos.y.base->Fill(it.resYprime);
