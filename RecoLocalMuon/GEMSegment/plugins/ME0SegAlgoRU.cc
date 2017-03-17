@@ -195,7 +195,7 @@ void ME0SegAlgoRU::lookForSegments( const SegmentParameters& params, const unsig
 			if(recHits_per_layer[h2.layer-1]>100) continue;
 
 			//Stop if the distance between layers is not large enough
-			if((abs(int(h2.layer) - int(h1.layer)) + 1) < int(n_seg_min)) break;
+			if((std::abs(int(h2.layer) - int(h1.layer)) + 1) < int(n_seg_min)) break;
 
 			if(std::fabs(h1.rh->tof()-h2.rh->tof()) > params.maxTOFDiff + 1.0 )continue;
 			if(!areHitsCloseInEta(params.maxETASeeds, params.requireBeamConstr, h1.gp, h2.gp)) continue;
@@ -264,7 +264,7 @@ void ME0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments, s
 		averageTime /= float(currentProtoSegment.size());
 		float timeUncrt=0.;
 		for(const auto* h : currentProtoSegment){
-			timeUncrt += pow( h->rh->tof()-averageTime,2);
+			timeUncrt += (h->rh->tof()-averageTime)*(h->rh->tof()-averageTime);
 		}
 		timeUncrt = std::sqrt(timeUncrt/float(currentProtoSegment.size()-1));
 
