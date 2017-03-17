@@ -563,7 +563,7 @@ class ValidationWithPlotsSummary(ValidationWithPlots):
     __lastfolder = None
 
     @classmethod
-    def summaryitemsstring(cls, folder=None, latex=False):
+    def summaryitemsstring(cls, folder=None, latex=False, transpose=True):
         if folder is None: folder = cls.plotsdirname
         if folder.startswith( "/castor/" ):
             folder = "rfio:%(file)s"%repMap
@@ -583,15 +583,21 @@ class ValidationWithPlotsSummary(ValidationWithPlots):
             raise AllInOneError("Some summary items have different numbers of values\n{}".format(size)
         size = size.pop()
 
-        columnwidths = ([max(len(_.name(latex)) for _ in summaryitems)]
-                      + [max(len(_.value(i, latex)) for _ in summaryitems) for i in range(size)])
+        if transpose:
+            columnwidths = max(len(entry) for entry in [_name(latex)] + _.values(latex))
+        else:
+            columnwidths = ([max(len(_.name(latex)) for _ in summaryitems)]
+                          + [max(len(_.value(i, latex)) for _ in summaryitems) for i in range(size)])
 
         row = " ".join("{{:{}}}".format(width) for width in columnwidths)
 
-        rows = []
-        rows.append(row.format(*(_.name for _ in summaryitems)))
-        for i in range(size):
-            rows.append(row.format(*(_.value(i, latex) for _ in summaryitems)))
+        if transpose:
+            rows = [row.format(*[_.name]+_.values) for _ in summaryitems]
+        else:
+            rows = []
+            rows.append(row.format(*(_.name for _ in summaryitems)))
+            for i in range(size):
+                rows.append(row.format(*(_.value(i, latex) for _ in summaryitems)))
 
         return "\n".join(rows)
 
