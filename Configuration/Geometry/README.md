@@ -22,15 +22,21 @@ Fast Timing system:
 * I1: No Fast Timing detector
 * I2: Fast Timing detector (LYSO barrel, silicon endcap)
 
-The script also handles the common and forward elements of the geometry, which are not expected to change.
+The script also handles the common and forward elements of the geometry:
+* O1: which is not expected to change
+* O2: detailed cavern description
 
-Several detector combinations have been generated:
+* F1: which is not expected to change
+* F2: modifications needed to accomodate detailed cavern, ZDC description is removed.
+
+Several detector combinations have been generated with O1+F1:
 * D7 = T3+C1+M1+I1
 * D4 = T3+C2+M1+I1
 * D8 = T3+C2+M1+I2
 * D9 = T3+C1+M2+I1
 * D10 = T4+C1+M1+I1
 * D11 = T5+C2+M1+I1
+* D12 = T3+C2+M2+I1+O2+F2 
 
 Currently, D4 is considered to be the baseline for the Phase 2 Tracker TDR.
 
