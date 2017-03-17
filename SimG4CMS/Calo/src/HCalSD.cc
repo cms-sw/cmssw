@@ -47,7 +47,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
          (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
   hcalConstants(0), numberingFromDDD(0), numberingScheme(0), showerLibrary(0), 
-  hfshower(0), showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
+  hfshower(0), showerParam(0), showerPMT(0), showerBundle(0), m_HBDarkening(0), m_HEDarkening(0),
   m_HFDarkening(0), hcalTestNS_(0), depth_(1) {
 
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -72,8 +72,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   eminHitHF        = m_HC.getParameter<double>("EminHitHF")*MeV;
   useFibreBundle   = m_HC.getParameter<bool>("UseFibreBundleHits");
   deliveredLumi    = m_HC.getParameter<double>("DelivLuminosity");
-  bool ageingFlagHE= m_HC.getParameter<bool>("HEDarkening");
-  bool ageingFlagHF= m_HC.getParameter<bool>("HFDarkening");
+  bool agingFlagHB = m_HC.getParameter<bool>("HBDarkening");
+  bool agingFlagHE = m_HC.getParameter<bool>("HEDarkening");
+  bool agingFlagHF = m_HC.getParameter<bool>("HFDarkening");
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
@@ -109,8 +110,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                           << eminHitHB << " HE: " << eminHitHE << " HO: "
                           << eminHitHO << " HF: " << eminHitHF << "\n"
 			  << "Delivered luminosity for Darkening " 
-			  << deliveredLumi << " Flag (HE) " << ageingFlagHE
-			  << " Flag (HF) " << ageingFlagHF << "\n"
+			  << deliveredLumi << " Flag (HE) " << agingFlagHE
+              << " Flag (HB) " << agingFlagHB
+			  << " Flag (HF) " << agingFlagHF << "\n"
 			  << "Application of Fiducial Cut " << applyFidCut
 			  << "Flag for test number|neutral density filter "
 			  << testNumber << " " << neutralDensity;
@@ -299,8 +301,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
   hzvem = hzvhad = 0;
 
-  if (ageingFlagHE) m_HEDarkening = new HEDarkening();
-    if (ageingFlagHF) m_HFDarkening = new HFDarkening(m_HC.getParameter<edm::ParameterSet>("HFDarkeningParameterBlock"));
+  if (agingFlagHB) m_HBDarkening = new HBHEDarkening(m_HC.getParameter<edm::ParameterSet>("HBDarkeningParameters"));
+  if (agingFlagHE) m_HEDarkening = new HBHEDarkening(m_HC.getParameter<edm::ParameterSet>("HEDarkeningParameters"));
+  if (agingFlagHF) m_HFDarkening = new HFDarkening(m_HC.getParameter<edm::ParameterSet>("HFDarkeningParameterBlock"));
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
 
@@ -349,6 +352,7 @@ HCalSD::~HCalSD() {
   if (showerParam)      delete showerParam;
   if (showerPMT)        delete showerPMT;
   if (showerBundle)     delete showerBundle;
+  if (m_HBDarkening)    delete m_HBDarkening;
   if (m_HEDarkening)    delete m_HEDarkening;
   if (m_HFDarkening)    delete m_HFDarkening;
   if (hcalTestNS_)      delete hcalTestNS_;
@@ -490,11 +494,20 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
     weight = layerWeight(det+2, hitPoint, depth_, lay);
   }
 
-  if (m_HEDarkening !=0 && det == 2) {
-    float dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+  if (m_HBDarkening !=0 && det == 1) {
+    float dweight = m_HBDarkening->degradation(deliveredLumi,ieta,lay);
     weight *= dweight;
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HcalSim") << "HCalSD:         >>> Lumi: " << deliveredLumi
+    edm::LogInfo("HcalSim") << "HCalSD:         >>> HB Lumi: " << deliveredLumi
+			    << "    coefficient = " << dweight;
+#endif  
+  }
+
+  if (m_HEDarkening !=0 && det == 2) {
+    float dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay);
+    weight *= dweight;
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("HcalSim") << "HCalSD:         >>> HE Lumi: " << deliveredLumi
 			    << "    coefficient = " << dweight;
 #endif  
   }

@@ -14,7 +14,7 @@
 #include "SimG4CMS/Calo/interface/HFShowerPMT.h"
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
-#include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
+#include "DataFormats/HcalCalibObjects/interface/HBHEDarkening.h"
 #include "SimG4CMS/Calo/interface/HFDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -88,7 +88,8 @@ private:
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
   HFShowerFibreBundle *         showerBundle;
-  HEDarkening *                 m_HEDarkening;
+  HBHEDarkening *               m_HBDarkening;
+  HBHEDarkening *               m_HEDarkening;
   HFDarkening *                 m_HFDarkening;
   HcalTestNS *                  hcalTestNS_;
   bool                          useBirk, useLayerWt, useFibreBundle, usePMTHit;
