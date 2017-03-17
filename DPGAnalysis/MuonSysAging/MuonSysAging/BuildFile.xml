@@ -1,0 +1,27 @@
+<export>
+  <lib name="1"/>
+</export>
+
+<use name="DataFormats/CSCDigi"/>
+<use name="DataFormats/L1DTTrackFinder"/>
+<use name="DataFormats/RPCDigi"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/L1CSCTrackFinder"/>
+<use name="DataFormats/Common"/>
+
+<use name="Geometry/Records"/>
+
+<use name="L1Trigger/DTTrackFinder"/>
+<use name="Geometry/DTGeometry"/>
+<use name="L1Trigger/DTUtilities"/>
+
+<use name="Geometry/CSCGeometry"/>
+<use name="L1Trigger/CSCCommonTrigger"/>
+
+<use name="Geometry/RPCGeometry"/>
+
+<use name="FWCore/PluginManager"/>
+<use name="rootrflx"/>
+
+<use name="boost_program_options"/>
+<use name="boost"/>

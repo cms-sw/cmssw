@@ -1,0 +1,6 @@
+<library file="*.cc" name="DPGAnalysisMuonSysAgingTest">
+   <use name="CondFormats/MuonSystemAging"/>
+   <use name="CondCore/DBOutputService"/>
+   <flags EDM_PLUGIN="1"/>
+
+</library>
