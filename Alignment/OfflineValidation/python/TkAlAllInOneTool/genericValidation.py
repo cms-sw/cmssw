@@ -519,6 +519,116 @@ class ValidationWithPlots(GenericValidation):
         with open(filename, 'w') as f:
             f.write(plottingscript)
 
+class ValidationWithPlotsSummary(ValidationWithPlots):
+    class SummaryItem(object):
+        def __init__(self, name, values, format=None, latexname=None, convertvaluetolatex=None):
+            """
+            name:                name of the summary item, goes on top of the column
+            values:              value for each alignment (in order of rows)
+            format:              python format string (default: {:.3g}, meaning up to 3 significant digits
+            latexname:           name in latex form, e.g. if name=sigma you might want latexname=\sigma
+            convertvaluetolatex: function to convert value (after format) to latex, e.g. lambda x: "$"+x.replace("%", r"\%")+"$"
+            """
+            if format is None: format = "{:.3g}"
+            if latexname is None: latexname = name
+            if convertvaluetolatex is None: convertvaluetolatex = lambda x: x
+
+            self.__name = name
+            self.__values = values
+            self.__format = format
+            self.__latexname = latexname
+            self.__convertvaluetolatex = convertvaluetolatex
+
+        def name(self, latex=False):
+            if latex:
+                return self.__latexname
+            else:
+                return self.__name
+
+        def values(self, latex=False):
+            result = [self.__format.format(v) for v in self.__values]
+            if latex:
+                result = [self.__convertvaluetolatex(v) for v in result]
+            return result
+
+        def value(self, i, latex):
+            return self.values(latex)[i]
+
+    @abstractmethod
+    def getsummaryitems(cls, folder):
+        """override with a classmethod that returns a list of SummaryItems
+           based on the plots saved in folder"""
+
+    __summaryitems = None
+    __lastfolder = None
+
+    @classmethod
+    def summaryitemsstring(cls, folder=None, latex=False):
+        if folder is None: folder = cls.plotsdirname
+        if folder.startswith( "/castor/" ):
+            folder = "rfio:%(file)s"%repMap
+        elif folder.startswith( "/store/" ):
+            folder = "root://eoscms.cern.ch//eos/cms%(file)s"%repMap
+
+        if cls.__summaryitems is None or cls.__lastfolder != folder:
+            cls.__lastfolder = folder
+            cls.__summaryitems = cls.getsummaryitems(folder)
+
+        summaryitems = cls.__summaryitems
+
+        if not summaryitems:
+            raise AllInOneError("No summary items!")
+        size = len({_.values for _ in summaryitems})
+        if size != 1:
+            raise AllInOneError("Some summary items have different numbers of values\n{}".format(size)
+        size = size.pop()
+
+        columnwidths = ([max(len(_.name(latex)) for _ in summaryitems)]
+                      + [max(len(_.value(i, latex)) for _ in summaryitems) for i in range(size)])
+
+        row = " ".join("{{:{}}}".format(width) for width in columnwidths)
+
+        rows = []
+        rows.append(row.format(*(_.name for _ in summaryitems)))
+        for i in range(size):
+            rows.append(row.format(*(_.value(i, latex) for _ in summaryitems)))
+
+        return "\n".join(rows)
+
+    @classmethod
+    def printsummaryitems(cls, *args, **kwargs):
+        print cls.summaryitemsstring(*args, **kwargs)
+    @classmethod
+    def writesummaryitems(cls, filename, *args, **kwargs)
+        with open(filename, "w") as f:
+            f.write(cls.summaryitemsstring(*args, **kwargs)+"\n")
+
+class ValidationWithPlotsSummary_SimpleTxtFile(ValidationWithPlotsSummary):
+    @classmethod
+    def getsummaryitems(cls, folder):
+        result = []
+        with open(os.path.join(folder, "{}Summary.txt".format(cls.__name__))) as f:
+            for line in f:
+                split = line.split("\t")
+                kwargs = {}
+                for thing in split:
+                    if thing.startswith("format="):
+                        kwargs["format"] = thing.replace("format=", "", 1)
+                        split.remove(thing)
+                    if thing.startswith("latexname="):
+                        kwargs["latexname"] = thing.replace("latexname=", "", 1)
+                        split.remove(thing)
+                    if thing.startswith("convertvaluetolatex="):
+                        #this is a function, so can't get it directly from txt.
+                        #instead, put it in this class if it's generally useful or in the subclass otherwise,
+                        # and then write the name in the txt file.
+                        kwargs["convertvaluetolatex"] = getattr(cls, thing.replace("convertvaluetolatex=", "", 1))
+                        split.remove(thing)
+
+                name = split[0]
+                values = split[1:]
+                result.append(self.SummaryItem(name, values, **kwargs))
+
 class ValidationWithComparison(GenericValidation):
     @classmethod
     def doComparison(cls, validations):
