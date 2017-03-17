@@ -46,7 +46,7 @@ namespace pat {
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
       vertex_(new Point(0,0,0)), dphi_(0), deta_(0), dtrkpt_(0),track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
-      m_(), packedHits_(0), packedLayers_(0), normalizedChi2_(0),covarianceVersion_(0) { }
+      m_(), packedHits_(0), packedLayers_(0), normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0) { }
 
     explicit PackedCandidate( const reco::Candidate & c,
                               const reco::VertexRefProd &pvRefProd,
@@ -57,7 +57,7 @@ namespace pat {
       dphi_(0), deta_(0), dtrkpt_(0),
       track_(nullptr), pdgId_(c.pdgId()), qualityFlags_(0), pvRefProd_(pvRefProd),
       pvRefKey_(pvRefKey),m_(), packedHits_(0), packedLayers_(0),
-      normalizedChi2_(0),covarianceVersion_(0) {
+      normalizedChi2_(0),covarianceVersion_(0), covarianceSchema_(0) {
       packBoth();
     }
 
@@ -73,7 +73,7 @@ namespace pat {
       dtrkpt_(std::abs(trkPt-p4_.load()->pt())>=kMinDTrkPtToStore_ ? trkPt-p4_.load()->pt() : 0.),
       track_(nullptr), pdgId_(pdgId),
       qualityFlags_(0), pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
-      m_(),packedHits_(0), packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0) {
+      m_(),packedHits_(0), packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0) {
       packBoth();
     }
 
@@ -89,7 +89,7 @@ namespace pat {
       dtrkpt_(std::abs(trkPt-p4_.load()->pt())>=kMinDTrkPtToStore_ ? trkPt-p4_.load()->pt() : 0.),
       track_(nullptr), pdgId_(pdgId), qualityFlags_(0),
       pvRefProd_(pvRefProd), pvRefKey_(pvRefKey),
-      m_(),packedHits_(0),packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0)  {
+      m_(),packedHits_(0),packedLayers_(0),normalizedChi2_(0),covarianceVersion_(0),covarianceSchema_(0)  {
       packBoth();
     }
 
@@ -111,7 +111,8 @@ namespace pat {
       pdgId_(iOther.pdgId_), qualityFlags_(iOther.qualityFlags_), 
       pvRefProd_(iOther.pvRefProd_),pvRefKey_(iOther.pvRefKey_),
       m_(iOther.m_),
-      packedHits_(iOther.packedHits_),packedLayers_(iOther.packedLayers_),  normalizedChi2_(iOther.normalizedChi2_),covarianceVersion_(iOther.covarianceVersion_)  {
+      packedHits_(iOther.packedHits_),packedLayers_(iOther.packedLayers_),  normalizedChi2_(iOther.normalizedChi2_),
+      covarianceVersion_(iOther.covarianceVersion_), covarianceSchema_(iOther.covarianceSchema_)  {
       }
 
     PackedCandidate( PackedCandidate&& iOther) :
@@ -131,7 +132,8 @@ namespace pat {
       pdgId_(iOther.pdgId_), qualityFlags_(iOther.qualityFlags_), 
       pvRefProd_(std::move(iOther.pvRefProd_)),pvRefKey_(iOther.pvRefKey_),
       m_(iOther.m_),
-      packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_),normalizedChi2_(iOther.normalizedChi2_),covarianceVersion_(iOther.covarianceVersion_) {
+      packedHits_(iOther.packedHits_), packedLayers_(iOther.packedLayers_),normalizedChi2_(iOther.normalizedChi2_),
+      covarianceVersion_(iOther.covarianceVersion_), covarianceSchema_(iOther.covarianceSchema_) {
       }
 
 
@@ -193,6 +195,7 @@ namespace pat {
       packedLayers_=iOther.packedLayers_; 
       normalizedChi2_=iOther.normalizedChi2_;
       covarianceVersion_=iOther.covarianceVersion_;
+      covarianceSchema_=iOther.covarianceSchema_;
       return *this;
     }
 
@@ -231,6 +234,7 @@ namespace pat {
       packedLayers_=iOther.packedLayers_; 
       normalizedChi2_=iOther.normalizedChi2_;
       covarianceVersion_=iOther.covarianceVersion_;
+      covarianceSchema_=iOther.covarianceSchema_;
       return *this;
     }
 
@@ -387,10 +391,10 @@ namespace pat {
       packedHits_ = (numberOfPixelHits_&trackPixelHitsMask) | (numberOfStripHits_ << trackStripHitsShift);
     }
   
-    virtual void setTrackProperties( const reco::Track & tk, const reco::Track::CovarianceMatrix & covariance,int quality,int covarianceVersion = 0) {
+    virtual void setTrackProperties( const reco::Track & tk, const reco::Track::CovarianceMatrix & covariance,int quality,int covarianceVersion) {
 //      std::cout << "track pt " << tk.pt() << std::endl;
-      covarianceVersion_ = covarianceVersion & 0xFF;
-      covarianceVersion_ = quality << 16;
+      covarianceVersion_ = covarianceVersion ;
+      covarianceSchema_ = quality ;
       m_ = covariance;
       normalizedChi2_ = tk.normalizedChi2();
       //
@@ -616,10 +620,10 @@ namespace pat {
     void packVtx(bool unpackAfterwards=true) ;
     void unpackVtx() const ;
     void unpackCovarianceElement(uint16_t packed, int i,int j) const {
-      m_(i,j)= covarianceParameterization().unpack(packed,covarianceVersion_>>16,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
+      m_(i,j)= covarianceParameterization().unpack(packed,covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
     }
     uint16_t packCovarianceElement(int i,int j) const {
-      return covarianceParameterization().pack(m_(i,j),covarianceVersion_>>16,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
+      return covarianceParameterization().pack(m_(i,j),covarianceSchema_,i,j,pt(),eta(),numberOfHits(), numberOfPixelHits());
     }
     void packCovariance(bool unpackAfterwards=true) ;
     void unpackCovariance() const;
@@ -653,13 +657,14 @@ namespace pat {
     
     /// track quality information
     uint8_t normalizedChi2_; 
-    int covarianceVersion_;
+    uint16_t covarianceVersion_;
+    uint16_t covarianceSchema_;
     CMS_THREAD_SAFE static CovarianceParameterization covarianceParameterization_;
     //static std::atomic<CovarianceParameterization*> covarianceParameterization_;
     static std::once_flag covariance_load_flag;
     const CovarianceParameterization & covarianceParameterization() const {
-	std::call_once(covariance_load_flag,[](int v) { covarianceParameterization_.load(v); } ,(covarianceVersion_ &0xFF));
-        if(covarianceParameterization_.loadedVersion() != (covarianceVersion_ & 0xFF))
+	std::call_once(covariance_load_flag,[](int v) { covarianceParameterization_.load(v); } ,covarianceVersion_ );
+        if(covarianceParameterization_.loadedVersion() != covarianceVersion_ ))
         {
           std::cout << "Attempting to load multiple covariance version in same process. This is not supported." << std::endl;
 	  abort();
