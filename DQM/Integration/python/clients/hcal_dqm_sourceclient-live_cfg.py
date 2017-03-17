@@ -98,8 +98,7 @@ process.load("DQM.HcalTasks.DigiTask")
 process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
-process.load('DQM.HcalTasks.QIE10Task')
-process.load('DQM.HcalTasks.ZDCTask')
+#process.load('DQM.HcalTasks.ZDCTask')
 process.load('DQM.HcalTasks.QIE11Task')
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
@@ -133,12 +132,9 @@ process.rawTask.runkeyVal = runType
 process.rawTask.runkeyName = runTypeName
 process.tpTask.runkeyVal = runType
 process.tpTask.runkeyName = runTypeName
-process.qie10Task.runkeyVal = runType
-process.qie10Task.runkeyName = runTypeName
-process.qie10Task.tagQIE10 = cms.untracked.InputTag("hcalDigis")
-process.zdcTask.runkeyVal = runType
-process.zdcTask.runkeyName = runTypeName
-process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
+#process.zdcTask.runkeyVal = runType
+#process.zdcTask.runkeyName = runTypeName
+#process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
 process.qie11Task.runkeyVal = runType
 process.qie11Task.runkeyName = runTypeName
 process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
@@ -151,10 +147,9 @@ process.tasksPath = cms.Path(
 		+process.digiTask
 		+process.tpTask
 		+process.nocqTask
-		+process.qie10Task
 		+process.qie11Task
 		#ZDC to be removed for 2017 pp running
-		+process.zdcTask
+		#+process.zdcTask
 )
 
 process.harvestingPath = cms.Path(
