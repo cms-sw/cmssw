@@ -88,6 +88,7 @@ namespace pat {
             std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
 
             const double minPtForTrackProperties_;
+            const int covarianceVersion_;
             const std::vector<int> covariancePackingSchemas_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
@@ -114,6 +115,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCands_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >() ),
   PuppiCandsNoLep_(usePuppi_ ? consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc")) : edm::EDGetTokenT<std::vector< reco::PFCandidate > >()),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
+  covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
   covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas"))
 
 {
@@ -250,15 +252,15 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	     whiteList.find(ic)!=whiteList.end()) {
             if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4]);}
             else { 
-                if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0]);} //high quality 
-                  else {  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1]);} 
+                if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_);} //high quality 
+                  else {  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1],covarianceVersion_);} 
              }
             
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
           } else {
             if(outPtrP->back().pt() > 0.5 ){ 
-                if(ctrack->hitPattern().numberOfValidPixelHits() >0)  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[2]); //low quality, with pixels
-                  else       outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[3]); //low quality, without pixels
+                if(ctrack->hitPattern().numberOfValidPixelHits() >0)  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[2],covarianceVersion_); //low quality, with pixels
+                  else       outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[3],covarianceVersion_); //low quality, without pixels
             }
           }
 
