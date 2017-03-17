@@ -895,7 +895,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hb.add<int>("mcShape",125);
 	desc_hb.add<int>("recoShape",105);
 	desc_hb.add<double>("photoelectronsToAnalog",0.0);
-	desc_hb.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
+	desc_hb.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
 	desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
 	edm::ParameterSetDescription desc_hbUpgrade;
@@ -923,7 +923,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_he.add<int>("mcShape",125);
 	desc_he.add<int>("recoShape",105);
 	desc_he.add<double>("photoelectronsToAnalog",0.0);
-	desc_he.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
+	desc_he.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
 	desc.add<edm::ParameterSetDescription>("he", desc_he);
 
 	edm::ParameterSetDescription desc_heUpgrade;
@@ -951,7 +951,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hf.add<int>("mcShape",301);
 	desc_hf.add<int>("recoShape",301);
 	desc_hf.add<double>("photoelectronsToAnalog",0.0);
-	desc_hf.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
+	desc_hf.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
 	desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
 	edm::ParameterSetDescription desc_hfUpgrade;
@@ -965,7 +965,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfUpgrade.add<int>("mcShape",301);
 	desc_hfUpgrade.add<int>("recoShape",301);
 	desc_hfUpgrade.add<double>("photoelectronsToAnalog",0.0);
-	desc_hfUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
+	desc_hfUpgrade.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
 	desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
   
 	edm::ParameterSetDescription desc_hfrecal;
@@ -986,7 +986,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_ho.add<int>("mcShape",201);
 	desc_ho.add<int>("recoShape",201);
 	desc_ho.add<double>("photoelectronsToAnalog",4.0);
-	desc_ho.add<std::vector<double>>("darkCurrent",std::vector<double>(0.0));
+	desc_ho.add<std::vector<double>>("darkCurrent",std::vector<double>({0.0}));
 	desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
 	edm::ParameterSetDescription validator_sipm;
