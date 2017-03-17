@@ -27,7 +27,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              cscOfflineCollisionsClients *
                                              es_dqm_client_offline *
                                              hcalOfflineHarvesting *
-                                             HcalDQMOfflinePostProcessor * 
+                                             HcalDQMOfflinePostProcessor *
                                              dqmFEDIntegrityClient )
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
@@ -78,6 +78,7 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
                                            DQMMessageLoggerClientSeq )
 
+from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 
 DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  DQMMessageLoggerClientSeq *
@@ -90,7 +91,8 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
                                  runTauEff *
-                                 dqmFastTimerServiceClient
+                                 dqmFastTimerServiceClient *
+                                 DQMHarvestL1Trigger
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
                                                DQMMessageLoggerClientSeq *
@@ -131,8 +133,8 @@ DQMHarvestHcal = cms.Sequence(hcalOfflineHarvesting)
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
 
-DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                     
+DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 
-DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA ) 
+DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
