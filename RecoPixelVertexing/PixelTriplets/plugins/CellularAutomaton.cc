@@ -215,13 +215,11 @@ void CellularAutomaton::findTriplets(const std::vector<const HitDoublets*>& hitD
 							&(currentLayerPairRef.theFoundCells[i]));
 					cellId++;
 
-					for (auto neigCell : currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)])
-					{
-						currentLayerPairRef.theFoundCells[i].checkAlignmentAndPushTriplet(
-								neigCell, foundTriplets, ptmin, region_origin_x,
+                                        auto & neigCells = currentInnerLayerRef.isOuterHitOfCell[doubletLayerPairId->innerHitId(i)];
+					currentLayerPairRef.theFoundCells[i].checkAlignmentAndPushTriplet(
+								neigCells, foundTriplets, ptmin, region_origin_x,
 								region_origin_y, region_origin_radius, thetaCut,
 								phiCut, hardPtCut);
-					}
 
 				}
 
