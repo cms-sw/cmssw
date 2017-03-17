@@ -101,7 +101,7 @@ private:
 
   int nGoodDcsLumi_;
   float MinAcceptableDcsDetFrac_ = 0.90;
-  float MaxAcceptableBadDcsLumiFrac_ = 0.10;
+  float MaxAcceptableBadDcsLumi_ = 2;
 
   edm::ESHandle< SiStripDetCabling > detCabling_;
 };
