@@ -32,11 +32,9 @@
 		<Constant name="HFRiseZ2" value="1099*cm"/>
 		<Constant name="YBFeetDX" value="(504*cm-230*cm)*0.5"/>
 		<Constant name="YBFeetDY" value="(880*cm-604*cm)*0.5"/>
-		<Constant name="YBFeetDZ" value="127*cm"/>
+		<Constant name="YBFeetDZ" value="[cms:MBRingZ]"/>
 		<Constant name="YBFeetPosX" value="504*cm-[cavernData:YBFeetDX]"/>
 		<Constant name="YBFeetPosY" value="-880*cm+[cavernData:YBFeetDY]"/>
-		<Constant name="YBFeetPosZ" value="0*fm"/>
-		<Constant name="YBFeetShiftZ" value="2*[cavernData:YBFeetDZ]+13*cm"/>
 		<Constant name="YBFeetAir1DY" value="(710*cm-604*cm)*0.5"/>
 		<Constant name="YBFeetAir1DX" value="(443*cm-230*cm)"/>
 		<Constant name="YBFeetAir2DY" value="(723*cm-604*cm)*0.5"/>
@@ -44,7 +42,6 @@
 		<Constant name="YBFeetAir3DY" value="(788*cm-710*cm)*0.5"/>
 		<Constant name="YBFeetAir3DX" value="(270*cm-230*cm)"/>
 		<Constant name="YBFeetAir4DY" value="[cavernData:YBFeetDY]-[cavernData:YBFeetAir1DY]-[cavernData:YBFeetAir3DY]"/>
-		<Constant name="YBFeetBasePosX" value="270*cm+[cavernData:YBFeetBaseDX]"/>
 		<Constant name="FloorDX" value="1250*cm"/>
 		<Constant name="FloorDY" value="360*cm"/>
 		<Constant name="FloorAirZDX" value="115*cm"/>
