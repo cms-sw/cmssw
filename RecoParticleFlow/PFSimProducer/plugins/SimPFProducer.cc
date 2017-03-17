@@ -63,9 +63,7 @@ public:
   
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
-private:
-  int muAssocToTrack( const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh) const;
-  
+private:  
   // parameters
   const double superClusterThreshold_, neutralEMThreshold_, neutralHADThreshold_;
   const bool useTiming_;
@@ -151,6 +149,12 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 
   edm::Handle<reco::MuonCollection> muons;
   evt.getByToken(muons_,muons);
+  std::unordered_set<unsigned> MuonTrackToGeneralTrack;
+  for (auto mu : *muons.product()){
+    reco::TrackRef muTrkRef = mu.track();
+    if (muTrkRef.isNonnull())
+      MuonTrackToGeneralTrack.insert(muTrkRef.key());
+  }
 
   // get timing, if enabled
   edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, gsfTrackTimeH, gsfTrackTimeErrH;
@@ -269,6 +273,11 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     const auto& matches = assoc_tps->val;
     
     const auto absPdgId = std::abs(matches[0].first->pdgId());
+
+    // remove tracks already used by muons
+    std::cout <<"simpfproducer trackUsed "<< MuonTrackToGeneralTrack.count(itk) << std::endl;	     
+    if( MuonTrackToGeneralTrack.count(itk) || absPdgId == 13) continue;   
+    
     const auto charge = tkRef->charge();
     const auto three_mom = tkRef->momentum();
     constexpr double mpion2 = 0.13957*0.13957;
@@ -287,41 +296,11 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     default:
       part_type = reco::PFCandidate::h;
     }
-
-    bool trackUsed = false;
-    for (auto mu : *muons.product()){
-      reco::TrackRef mutrk = mu.track();
-      if (mutrk.isNonnull()){
-	if (tkRef.castTo<reco::TrackRef>() == mutrk){
-	  trackUsed = true;
-	}
-      }
-    }
-    //std::cout <<"simpfproducer trackUsed "<< trackUsed << std::endl;	     
-    if (trackUsed or part_type == reco::PFCandidate::mu) continue;
     
     candidates->emplace_back(charge, trk_p4, part_type);
     auto& candidate = candidates->back();
 
     candidate.setTrackRef(tkRef.castTo<reco::TrackRef>());
-    // // trying to make "pf" muons
-    // if (absPdgId == 13){
-    //   std::cout <<"simpfproducer PF pt: " << candidate.pt() <<  " eta: " << candidate.eta()  << std::endl;
-      
-    //   const int muId = muAssocToTrack( candidate.trackRef(), muons );
-    //   reco::MuonRef muonref;
-    //   if ( muId != -1 ) {
-    // 	muonref = reco::MuonRef( muons, muId );
-    // 	if ( muonref.isNonnull()){
-    // 	  bool thisIsAPotentialMuon = ( (pfmu_->hasValidTrack(muonref,true)&&PFMuonAlgo::isLooseMuon(muonref)) || 
-    // 					(pfmu_->hasValidTrack(muonref,false)&&PFMuonAlgo::isMuon(muonref)));
-    // 	  if (thisIsAPotentialMuon){
-    // 	    std::cout <<"making pfmuon in simpfproducer muonref "<< muonref.id() <<" muId "<< muId << std::endl;	 
-    // 	    pfmu_->reconstructMuon(candidate,muonref);
-    // 	  }
-    // 	}
-    //   }
-    // }
     
     if (useTiming_) candidate.setTime( (*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef] );
     
@@ -394,15 +373,4 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   }
   
   evt.put(std::move(candidates));
-}
-
-int SimPFProducer::muAssocToTrack( const reco::TrackRef& trackref,
-				   const edm::Handle<reco::MuonCollection>& muonh) const
-{
-  auto muon = std::find_if(muonh->cbegin(),muonh->cend(),
-			   [&](const reco::Muon& m) {
-			     return ( m.track().isNonnull() && 
-				      m.track() == trackref    );
-			   });  
-  return ( muon != muonh->cend() ? std::distance(muonh->cbegin(),muon) : -1 );
 }
