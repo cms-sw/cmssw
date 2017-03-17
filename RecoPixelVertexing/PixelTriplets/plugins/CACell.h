@@ -99,9 +99,9 @@ public:
     }
 
 
-    void checkAlignmentAndTag(CAntuplet & innerCells, const float ptmin, const float region_origin_x,
+    void checkAlignmentAndAct(CAntuplet & innerCells, const float ptmin, const float region_origin_x,
                 const float region_origin_y, const float region_origin_radius, const float thetaCut,
-                        const float phiCut, const float hardPtCut) {
+                        const float phiCut, const float hardPtCut, std::vector<CACell::CAntuplet> * foundTriplets) {
          int ncells = innerCells.size();
          int constexpr VSIZE = 16;
          int ok[VSIZE];
@@ -119,8 +119,11 @@ public:
              auto oc	= innerCells[i+j]; 
                if (ok[j]&&haveSimilarCurvature(oc,ptmin, region_origin_x, region_origin_y,
                                         region_origin_radius, phiCut, hardPtCut)) {
-                  tagAsInnerNeighbor(oc);
-                  oc->tagAsOuterNeighbor(this);
+                  if (foundTriplets) foundTriplets->emplace_back(CACell::CAntuplet{oc,this});
+                  else {
+                    tagAsInnerNeighbor(oc);
+                    oc->tagAsOuterNeighbor(this);
+                  }
                } }
         };
         auto lim = VSIZE*(ncells/VSIZE);
@@ -128,6 +131,23 @@ public:
         loop(lim, ncells-lim);
 
     }
+
+    void checkAlignmentAndTag(CAntuplet & innerCells, const float ptmin, const float region_origin_x,
+                const float region_origin_y, const float region_origin_radius, const float thetaCut,
+                        const float phiCut, const float hardPtCut) {
+         checkAlignmentAndAct(innerCells, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut,                                                    
+                              phiCut, hardPtCut, nullptr);
+
+    }
+    void checkAlignmentAndPushTriplet(CAntuplet & innerCells, std::vector<CACell::CAntuplet>& foundTriplets,
+                const float ptmin, const float region_origin_x, const float region_origin_y,
+                        const float region_origin_radius, const float thetaCut, const float phiCut,
+                        const float hardPtCut) {
+         checkAlignmentAndAct(innerCells, ptmin, region_origin_x, region_origin_y, region_origin_radius, thetaCut,
+	        	      phiCut, hardPtCut, &foundTriplets);
+    }
+
+
     void checkAlignmentAndTag(CACell* innerCell, const float ptmin, const float region_origin_x,
     		const float region_origin_y, const float region_origin_radius, const float thetaCut,
 			const float phiCut, const float hardPtCut) {
