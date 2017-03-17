@@ -1485,7 +1485,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
             addMETCollection(process,
                              labelName = "patCaloMet",
-                             metSource = "metrawCalo" #+postfix if not self._parameters["Puppi"].value else "metrawCalo" 
+                             metSource = "metrawCalo"
                              )
             getattr(process,"patCaloMet").addGenMET = False
 
