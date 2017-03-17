@@ -9,7 +9,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -21,7 +20,13 @@ HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterM
 					 const CaloShapes * shapes, bool PreMix1, bool HighFidelity) :
   CaloHitResponse(parameterMap, shapes), theSiPM(), PreMixDigis(PreMix1), HighFidelityPreMix(HighFidelity),
   nbins((PreMixDigis and HighFidelityPreMix) ? 1 : BUNCHSPACE*HcalPulseShapes::invDeltaTSiPM_), 
-  dt(HcalPulseShapes::deltaTSiPM_), invdt(HcalPulseShapes::invDeltaTSiPM_) {}
+  dt(HcalPulseShapes::deltaTSiPM_), invdt(HcalPulseShapes::invDeltaTSiPM_)
+{
+  //fill shape map
+  shapeMap.emplace(HcalShapes::ZECOTEK,HcalShapes::ZECOTEK);
+  shapeMap.emplace(HcalShapes::HAMAMATSU,HcalShapes::HAMAMATSU);
+  shapeMap.emplace(HcalShapes::HE2017,HcalShapes::HE2017);
+}
 
 HcalSiPMHitResponse::~HcalSiPMHitResponse() {}
 
@@ -213,7 +218,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   unsigned int sumPE(0);
   double sumHits(0.);
 
-  HcalSiPMShape sipmPulseShape(pars.signalShape(id));
+  auto& sipmPulseShape(shapeMap[pars.signalShape(id)]);
 
   std::list< std::pair<double, double> > pulses;
   std::list< std::pair<double, double> >::iterator pulse;

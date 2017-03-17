@@ -4,6 +4,7 @@
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 
 #include <map>
 #include <set>
@@ -61,6 +62,8 @@ private:
   photonTimeMap precisionTimedPhotons;
 
   const std::vector<DetId>* theDetIds;
+
+  std::map<int,HcalSiPMShape> shapeMap;
 };
 
 #endif //HcalSimAlgos_HcalSiPMHitResponse_h
