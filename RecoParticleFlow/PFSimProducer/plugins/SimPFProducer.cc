@@ -28,6 +28,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
+
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
@@ -60,6 +64,8 @@ public:
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
 private:
+  int muAssocToTrack( const reco::TrackRef& trackref, const edm::Handle<reco::MuonCollection>& muonh) const;
+  
   // parameters
   const double superClusterThreshold_, neutralEMThreshold_, neutralHADThreshold_;
   const bool useTiming_;
@@ -68,6 +74,7 @@ private:
   const edm::EDGetTokenT<edm::View<reco::PFRecTrack> > pfRecTracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > tracks_;
   const edm::EDGetTokenT<edm::View<reco::Track> > gsfTracks_;
+  const edm::EDGetTokenT<reco::MuonCollection> muons_;  
   const edm::EDGetTokenT<edm::ValueMap<float>> srcTrackTime_, srcTrackTimeError_;
   const edm::EDGetTokenT<edm::ValueMap<float>> srcGsfTrackTime_, srcGsfTrackTimeError_;
   const edm::EDGetTokenT<TrackingParticleCollection> trackingParticles_;
@@ -75,7 +82,9 @@ private:
   const edm::EDGetTokenT<CaloParticleCollection> caloParticles_;
   const edm::EDGetTokenT<std::vector<reco::PFCluster> > simClusters_;
   // tracking particle associators by order of preference
-  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;     
+  const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;
+
+  std::unique_ptr<PFMuonAlgo> pfmu_;
 };
 
 DEFINE_FWK_MODULE(SimPFProducer);
@@ -98,6 +107,7 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   pfRecTracks_(consumes<edm::View<reco::PFRecTrack> >(conf.getParameter<edm::InputTag> ("pfRecTrackSrc"))),
   tracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
   gsfTracks_(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
+  muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
   srcTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
   srcTrackTimeError_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
   srcGsfTrackTime_(useTiming_ ? consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("gsfTrackTimeValueMap")) : edm::EDGetTokenT<edm::ValueMap<float>>()),
@@ -111,6 +121,8 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   produces<reco::PFBlockCollection>();
   produces<reco::SuperClusterCollection>("perfect");
   produces<reco::PFCandidateCollection>();
+  pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo());
+  pfmu_->setParameters(conf);
 }
 
 void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {  
@@ -136,7 +148,10 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   edm::Handle<edm::View<reco::Track> > TrackCollectionH;
   evt.getByToken(tracks_, TrackCollectionH);
   const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
- 
+
+  edm::Handle<reco::MuonCollection> muons;
+  evt.getByToken(muons_,muons);
+
   // get timing, if enabled
   edm::Handle<edm::ValueMap<float>> trackTimeH, trackTimeErrH, gsfTrackTimeH, gsfTrackTimeErrH;
   if (useTiming_) {
@@ -272,11 +287,42 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     default:
       part_type = reco::PFCandidate::h;
     }
+
+    bool trackUsed = false;
+    for (auto mu : *muons.product()){
+      reco::TrackRef mutrk = mu.track();
+      if (mutrk.isNonnull()){
+	if (tkRef.castTo<reco::TrackRef>() == mutrk){
+	  trackUsed = true;
+	}
+      }
+    }
+    //std::cout <<"simpfproducer trackUsed "<< trackUsed << std::endl;	     
+    if (trackUsed or part_type == reco::PFCandidate::mu) continue;
     
     candidates->emplace_back(charge, trk_p4, part_type);
     auto& candidate = candidates->back();
 
     candidate.setTrackRef(tkRef.castTo<reco::TrackRef>());
+    // // trying to make "pf" muons
+    // if (absPdgId == 13){
+    //   std::cout <<"simpfproducer PF pt: " << candidate.pt() <<  " eta: " << candidate.eta()  << std::endl;
+      
+    //   const int muId = muAssocToTrack( candidate.trackRef(), muons );
+    //   reco::MuonRef muonref;
+    //   if ( muId != -1 ) {
+    // 	muonref = reco::MuonRef( muons, muId );
+    // 	if ( muonref.isNonnull()){
+    // 	  bool thisIsAPotentialMuon = ( (pfmu_->hasValidTrack(muonref,true)&&PFMuonAlgo::isLooseMuon(muonref)) || 
+    // 					(pfmu_->hasValidTrack(muonref,false)&&PFMuonAlgo::isMuon(muonref)));
+    // 	  if (thisIsAPotentialMuon){
+    // 	    std::cout <<"making pfmuon in simpfproducer muonref "<< muonref.id() <<" muId "<< muId << std::endl;	 
+    // 	    pfmu_->reconstructMuon(candidate,muonref);
+    // 	  }
+    // 	}
+    //   }
+    // }
+    
     if (useTiming_) candidate.setTime( (*trackTimeH)[tkRef], (*trackTimeErrH)[tkRef] );
     
     // bind to cluster if there is one and try to gather conversions, etc
@@ -348,4 +394,15 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   }
   
   evt.put(std::move(candidates));
+}
+
+int SimPFProducer::muAssocToTrack( const reco::TrackRef& trackref,
+				   const edm::Handle<reco::MuonCollection>& muonh) const
+{
+  auto muon = std::find_if(muonh->cbegin(),muonh->cend(),
+			   [&](const reco::Muon& m) {
+			     return ( m.track().isNonnull() && 
+				      m.track() == trackref    );
+			   });  
+  return ( muon != muonh->cend() ? std::distance(muonh->cbegin(),muon) : -1 );
 }
