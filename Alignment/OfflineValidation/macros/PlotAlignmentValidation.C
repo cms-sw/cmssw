@@ -77,14 +77,32 @@ PlotAlignmentValidation::~PlotAlignmentValidation()
   }
 
   delete sourcelist;
+
+}
+
+//------------------------------------------------------------------------------
+void PlotAlignmentValidation::openSummaryFile()
+{
+  if (!openedsummaryfile) {
+    openedsummaryfile = true;
+    summaryfile.open(outputDir+"/"+summaryfilename);
+    for (auto vars : sourceList) {
+      summaryfile << "\t" << vars->getName();
+    }
+    summaryfile << "\n";
+  }
 }
 
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::loadFileList(const char *inputFile, std::string legendName, int lineColor, int lineStyle)
 {
 
+  if (openedsummaryfile) {
+    std::cout << "Can't load a root file after opening the summary file!" << std::endl;
+    assert(0);
+  }
   sourceList.push_back( new TkOfflineVariables( inputFile, treeBaseDir, legendName, lineColor, lineStyle ) );
-  
+
 }
 
 //------------------------------------------------------------------------------
@@ -162,6 +180,10 @@ void PlotAlignmentValidation::legendOptions(TString options)
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::setOutputDir( std::string dir )
 {
+  if (openedsummaryfile) {
+    std::cout << "Can't set the output dir after opening the summary file!" << std::endl;
+    assert(0);
+  }
   outputDir = dir;
   gSystem->mkdir(outputDir.data(), true);
 }
@@ -766,7 +788,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
-    
+
+    openSummaryFile();
+    vmean.clear(); vrms.clear(); vdeltamean.clear();
+
     for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
 	it != sourceList.end(); ++it) {
 
@@ -818,6 +843,10 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 	    legend.str("");
 	    legend << "#Delta#mu = " << deltamu << unit;
 	    plotinfo.legend->AddEntry(static_cast<TObject*>(0), legend.str().c_str(), "");
+
+            if (!plotLayers && layer==0 && direction==0) {
+              vdeltamean.push_back(deltamu);
+            }
 	  }
 	  if (plotinfo.h1) { setDMRHistStyleAndLegend(plotinfo.h1, plotinfo, -1, layer); }
 	  if (plotinfo.h2) { setDMRHistStyleAndLegend(plotinfo.h2, plotinfo, 1, layer); }
@@ -869,6 +898,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       case 6: plotName << "TEC"; break;
     }
 
+    TString summaryrowname = plotName.str();
+
     if (plotPlain && !plotSplits) { plotName << "_plain"; }
     else if (!plotPlain && plotSplits) { plotName << "_split"; }
     if (plotLayers) {
@@ -903,6 +934,30 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     delete plotinfo.h1;
     delete plotinfo.h2;
 
+    if (vmean.size()) {
+      summaryfile << "#mu_{" << summaryrowname << "}\t"
+                  << "latexname=$\\mu_\\text{" << summaryrowname << "}$\t"
+                  << "format={} um\t"
+                  << "latexformat=${} \mu m$";
+      for (auto mu : vmean) summaryfile << "\t" << mu;
+      summaryfile << "\n";
+    }
+    if (vrms.size()) {
+      summaryfile << "#sigma_{" << summaryrowname << "}\t"
+                  << "latexname=$\\sigma_\\text{" << summaryrowname << "}$\t"
+                  << "format={} um\t"
+                  << "latexformat=${} \mu m$";
+      for (auto sigma : vrms) summaryfile << "\t" << sigma;
+      summaryfile << "\n";
+    }
+    if (vdeltamean.size()) {
+      summaryfile << "#Delta#mu_{" << summaryrowname << "}\t"
+                  << "latexname=$\\Delta\\mu_\\text{" << summaryrowname << "}$\t"
+                  << "format={} um\t"
+                  << "latexformat=${} \mu m$";
+      for (auto dmu : vdeltamean) summaryfile << "\t" << dmu;
+      summaryfile << "\n";
+    }
   }
 
 }
@@ -1507,6 +1562,11 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
       legend << ", ";
   }
 
+  if (!plotLayers && layer==0 && direction==0) {
+    vmean.push_back(mean);
+    vrms.push_back(rms);
+  }
+
   // Legend: Delta mu for split plots
   if (showdeltamu) {
     float factor = 10000.0f;
@@ -1518,6 +1578,10 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
     legend << "#Delta#mu = " << deltamu << units;
     if ((showModules_ || showUnderOverFlow_) && !twolines_)
       legend << ", ";
+
+    if (!plotLayers && plotLayerN==0 && direction==0) {
+      vdeltamean.push_back(deltamu);
+    }
   }
 
   if (twolines_) {
