@@ -407,8 +407,8 @@ namespace pat {
     virtual void setTrackHits( const reco::Track & tk ) {
 	setHits(tk);
     }	
-    virtual void setTrackProperties( const reco::Track & tk,int quality ) {
-	setTrackProperties(tk,tk.covariance(), quality);
+    virtual void setTrackProperties( const reco::Track & tk,int quality,int covarianceVersion ) {
+	setTrackProperties(tk,tk.covariance(), quality,covarianceVersion );
     }	
  
     int numberOfPixelHits() const { return (packedHits_ & trackPixelHitsMask) + pixelLayersWithMeasurement(); }
@@ -612,7 +612,6 @@ namespace pat {
 
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
     uint16_t packedDxy_, packedDz_, packedDPhi_, packedDEta_, packedDTrkPt_;
-    uint16_t packedDxy_, packedDz_, packedDPhi_;
     PackedCovariance packedCovariance_;
 
     void pack(bool unpackAfterwards=true) ;
@@ -664,7 +663,7 @@ namespace pat {
     static std::once_flag covariance_load_flag;
     const CovarianceParameterization & covarianceParameterization() const {
 	std::call_once(covariance_load_flag,[](int v) { covarianceParameterization_.load(v); } ,covarianceVersion_ );
-        if(covarianceParameterization_.loadedVersion() != covarianceVersion_ ))
+        if(covarianceParameterization_.loadedVersion() != covarianceVersion_ )
         {
           std::cout << "Attempting to load multiple covariance version in same process. This is not supported." << std::endl;
 	  abort();

@@ -250,7 +250,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           if(outPtrP->back().pt() > minPtForTrackProperties_ || 
 	     outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
 	     whiteList.find(ic)!=whiteList.end()) {
-            if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4]);}
+            if(abs(outPtrP->back().pdgId())==22) {outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[4],covarianceVersion_);}
             else { 
                 if( ctrack->hitPattern().numberOfValidPixelHits() >0) { outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[0],covarianceVersion_);} //high quality 
                   else {  outPtrP->back().setTrackProperties(*ctrack,covariancePackingSchemas_[1],covarianceVersion_);} 
