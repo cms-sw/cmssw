@@ -19,7 +19,7 @@ public:
     theCAState(0),hasSameStateNeighbors(0),
     theDoublets(doublets), theDoubletId(doubletId),
     theCellId(cellId)
-    ,theInnerR(doublets->r(doubletId, HitDoublets::inner)), theOuterR(doublets->r(doubletId, HitDoublets::outer))
+    ,theInnerR(doublets->rv(doubletId, HitDoublets::inner)), theOuterR(doublets->rv(doubletId, HitDoublets::outer))
     ,theInnerZ(doublets->z(doubletId, HitDoublets::inner)), theOuterZ(doublets->z(doubletId, HitDoublets::outer)) 
     {}
 
