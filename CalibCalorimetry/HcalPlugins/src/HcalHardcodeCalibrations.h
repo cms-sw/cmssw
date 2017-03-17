@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
-#include "HERecalibration.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HBHERecalibration.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
@@ -102,7 +102,8 @@ protected:
 private:
   HcalDbHardcode dbHardcode;
   double iLumi;
-  HERecalibration* he_recalibration;  
+  HBHERecalibration* hb_recalibration;
+  HBHERecalibration* he_recalibration;
   HFRecalibration* hf_recalibration;  
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;

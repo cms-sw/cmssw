@@ -90,6 +90,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
+  m_HBDarkening(0),
   m_HEDarkening(0),
   m_HFRecalibration(0),
   injectedHitsEnergy_(ps.getParameter<std::vector<double>>("injectTestHitsEnergy")),
@@ -105,6 +106,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool doEmpty = ps.getParameter<bool>("doEmpty");
   deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
+  bool agingFlagHB = ps.getParameter<bool>("HBDarkening");
   bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
   double minFCToDelay= ps.getParameter<double>("minFCToDelay");
@@ -208,7 +210,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCResponse->setIgnoreGeantTime(ignoreTime_);
   }
 
-  if(agingFlagHE) m_HEDarkening = new HEDarkening();
+  if(agingFlagHB) m_HBDarkening = new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HBDarkeningParameters"));
+  if(agingFlagHE) m_HEDarkening = new HBHEDarkening(ps.getParameter<edm::ParameterSet>("HEDarkeningParameters"));
   if(agingFlagHF) m_HFRecalibration = new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 }
 
@@ -245,6 +248,9 @@ HcalDigitizer::~HcalDigitizer() {
   if (theRelabeller)           delete theRelabeller;
   if(theTimeSlewSim) delete theTimeSlewSim;
   if(theIonFeedback) delete theIonFeedback;
+  if(m_HBDarkening) delete m_HBDarkening;
+  if(m_HEDarkening) delete m_HEDarkening;
+  if(m_HFRecalibration) delete m_HFRecalibration;
 }
 
 
@@ -331,7 +337,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
 
     //evaluate darkening before relabeling
     if (testNumbering_) {
-      if(m_HEDarkening || m_HFRecalibration){
+      if(m_HBDarkening || m_HEDarkening || m_HFRecalibration){
         darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
@@ -779,18 +785,21 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits) {
     bool darkened = false;
     float dweight = 1.;
 	
-    if(det==int(HcalEndcap) && m_HEDarkening){
-      //HE darkening
-      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+    if(det==int(HcalBarrel) && m_HBDarkening){
+      //HB darkening
+      dweight = m_HBDarkening->degradation(deliveredLumi,ieta,lay);
       darkened = true;
-    } else if(det==int(HcalForward) && m_HFRecalibration){
+    }
+    else if(det==int(HcalEndcap) && m_HEDarkening){
+      //HE darkening
+      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay);
+      darkened = true;
+    }
+    else if(det==int(HcalForward) && m_HFRecalibration){
       //HF darkening - approximate: invert recalibration factor
       dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
       darkened = true;
     }
-	
-    //create new hit with darkened energy
-    //if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
 	
     //reset hit energy
     if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	

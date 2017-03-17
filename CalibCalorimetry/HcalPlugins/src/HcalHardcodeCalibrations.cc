@@ -13,6 +13,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -123,7 +124,7 @@ namespace {
 }
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
-	he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
+	hb_recalibration(0), he_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -149,15 +150,18 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
-  // HE and HF recalibration preparation
+  // HB, HE, HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
   if( iLumi > 0.0 ) {
+    bool hb_recalib = iConfig.getParameter<bool>("HBRecalibration");
     bool he_recalib = iConfig.getParameter<bool>("HERecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
+    if(hb_recalib) {
+      hb_recalibration = new HBHERecalibration(iLumi,iConfig.getParameter<double>("HBreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HBDarkeningParameters"));
+    }
     if(he_recalib) {
-      double cutoff = iConfig.getParameter<double>("HEreCalibCutoff"); 
-      he_recalibration = new HERecalibration(iLumi,cutoff);
+      he_recalibration = new HBHERecalibration(iLumi,iConfig.getParameter<double>("HEreCalibCutoff"),iConfig.getParameter<edm::ParameterSet>("HEDarkeningParameters"));
     }
     if(hf_recalib && !iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock").empty())  hf_recalibration = new HFRecalibration(iConfig.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
     
@@ -290,8 +294,9 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 
 HcalHardcodeCalibrations::~HcalHardcodeCalibrations()
 {
-  if (he_recalibration != 0 ) delete he_recalibration;
-  if (hf_recalibration != 0 ) delete hf_recalibration;
+  if (hb_recalibration) delete hb_recalibration;
+  if (he_recalibration) delete he_recalibration;
+  if (hf_recalibration) delete hf_recalibration;
 }
 
 //
@@ -430,8 +435,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
   const HcalTopology* topo=&(*htopo);
  
   //set depth segmentation for HB/HE recalib - only happens once
-//  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
-  if((he_recalibration && !setHEdsegm)) {
+  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
     std::vector<std::vector<int>> m_segmentation;
     int maxEta = topo->lastHERing();
     m_segmentation.resize(maxEta);
@@ -442,12 +446,10 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       he_recalibration->setDsegm(m_segmentation);
       setHEdsegm = true;
     }
-    /*
     if(hb_recalibration && !setHBdsegm){
       hb_recalibration->setDsegm(m_segmentation);
       setHBdsegm = true;
     }
-    */
   }
  
   auto result = std::make_unique<HcalRespCorrs>(topo);
@@ -469,7 +471,15 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const
       corr = 0.5/1.2;
     }
 
-    if ((he_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
+    if ((hb_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenBarrel)) {
+      int depth_ = HcalDetId(cell).depth();
+      int ieta_  = HcalDetId(cell).ieta();
+      corr *= hb_recalibration->getCorr(ieta_, depth_); 
+#ifdef DebugLog      
+      std::cout << "HB ieta, depth = " << ieta_  << ",  " << depth_ << "   corr = "  << corr << std::endl;
+#endif
+    }
+    else if ((he_recalibration != 0 ) && (cell.genericSubdet() == HcalGenericDetId::HcalGenEndcap)) {
       int depth_ = HcalDetId(cell).depth();
       int ieta_  = HcalDetId(cell).ieta();
       corr *= he_recalibration->getCorr(ieta_, depth_); 
@@ -869,6 +879,8 @@ std::unique_ptr<HcalTPParameters> HcalHardcodeCalibrations::produceTPParameters 
 void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions & descriptions){
 	edm::ParameterSetDescription desc;
 	desc.add<double>("iLumi",-1.);
+	desc.add<bool>("HBRecalibration",false);
+	desc.add<double>("HBreCalibCutoff",20.);
 	desc.add<bool>("HERecalibration",false);
 	desc.add<double>("HEreCalibCutoff",20.);
 	desc.add<bool>("HFRecalibration",false);
@@ -974,6 +986,26 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterA", std::vector<double>());
 	desc_hfrecal.add<std::vector<double>>("HFdepthTwoParameterB", std::vector<double>());
 	desc.add<edm::ParameterSetDescription>("HFRecalParameterBlock", desc_hfrecal);
+
+	edm::ParameterSetDescription desc_hbherecal;
+	desc_hbherecal.add<int>("ieta_shift",16);
+	desc_hbherecal.add<double>("drdA",4.0);
+	desc_hbherecal.add<double>("drdB",0.575);
+	edm::ParameterSetDescription desc_dosemaps;
+	desc_dosemaps.add<int>("energy",14);
+	desc_dosemaps.add<edm::FileInPath>("file",edm::FileInPath("DataFormats/HcalCalibObjects/data/dosemapHE_7TeV.txt"));
+	std::vector<edm::ParameterSet> default_dosemap(1);
+	desc_hbherecal.addVPSet("dosemaps",desc_dosemaps,default_dosemap);
+	edm::ParameterSetDescription desc_years;
+	desc_years.add<std::string>("year","2016");
+	desc_years.add<double>("intlumi",41.0);
+	desc_years.add<double>("lumirate",0.026);
+	desc_years.add<int>("energy",14);
+	std::vector<edm::ParameterSet> default_year(1);
+	desc_hbherecal.addVPSet("years",desc_years,default_year);
+	desc_hbherecal.add<edm::FileInPath>("meanenergies",edm::FileInPath("DataFormats/HcalCalibObjects/data/meanenergiesHE.txt"));
+	desc.add<edm::ParameterSetDescription>("HEDarkeningParameters",desc_hbherecal);
+	desc.add<edm::ParameterSetDescription>("HBDarkeningParameters",desc_hbherecal);
 
 	edm::ParameterSetDescription desc_ho;
 	desc_ho.add<std::vector<double>>("gain", std::vector<double>({0.006, 0.0087}));
