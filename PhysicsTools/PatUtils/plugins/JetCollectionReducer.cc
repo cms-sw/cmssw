@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -11,13 +11,13 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 template<typename T>
-class JetCollectionReducerT : public edm::stream::EDProducer<> {
+class JetCollectionReducerT : public edm::global::EDProducer<> {
 
 public:
   explicit JetCollectionReducerT(const edm::ParameterSet & iConfig);
   virtual ~JetCollectionReducerT() {}
 
-  virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  virtual void produce(edm::StreamID id, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
 private:
 
@@ -47,7 +47,7 @@ JetCollectionReducerT<T>::JetCollectionReducerT(const edm::ParameterSet& iConfig
 // ------------ method called to produce the data  ------------
 template<typename T>
 void
-JetCollectionReducerT<T>::produce(edm::Event& iEvent, const edm::EventSetup&)
+JetCollectionReducerT<T>::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup&) const
 {  
 
   std::unique_ptr<std::vector<T> > outJets(new std::vector<T>());

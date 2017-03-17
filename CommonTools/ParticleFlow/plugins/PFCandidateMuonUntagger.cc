@@ -8,7 +8,7 @@
 //    - a ValueMap<reco::PFCandidateRef> that maps the old to the new, and vice-versa
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -21,12 +21,12 @@
 #include "DataFormats/Common/interface/Association.h"
 #include <iostream>
 
-class PFCandidateMuonUntagger : public edm::stream::EDProducer<> {
+class PFCandidateMuonUntagger : public edm::global::EDProducer<> {
     public:
         PFCandidateMuonUntagger(const edm::ParameterSet&);
         ~PFCandidateMuonUntagger() {};
 
-        void produce(edm::Event&, const edm::EventSetup&);
+        void produce(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
 
     private:
         edm::EDGetTokenT<std::vector<reco::PFCandidate> > pfcandidates_;
@@ -53,7 +53,7 @@ PFCandidateMuonUntagger::PFCandidateMuonUntagger(const edm::ParameterSet &iConfi
     produces<edm::ValueMap<reco::PFCandidateRef>>();
 }
 
-void PFCandidateMuonUntagger::produce(edm::Event &iEvent, const edm::EventSetup&)
+void PFCandidateMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, const edm::EventSetup&) const
 {
     edm::Handle<edm::Association<std::vector<reco::Muon>>> oldToNewMuons;
     iEvent.getByToken(oldToNewMuons_, oldToNewMuons);

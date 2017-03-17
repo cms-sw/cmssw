@@ -49,12 +49,8 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     modifyMuon_(iConfig.getParameter<bool>("modifyMuons"))
 {
     if (linkToPackedPF_) {
-        const std::vector<edm::InputTag> & pf = (iConfig.existsAs<std::vector<edm::InputTag>>("pfCandidates") ?
-                    iConfig.getParameter<std::vector<edm::InputTag>>("pfCandidates") :
-                    std::vector<edm::InputTag>(1,iConfig.getParameter<edm::InputTag>("pfCandidates")));
-        const std::vector<edm::InputTag> & pf2pc = (iConfig.existsAs<std::vector<edm::InputTag>>("packedPFCandidates") ?
-                    iConfig.getParameter<std::vector<edm::InputTag>>("packedPFCandidates") :
-                    std::vector<edm::InputTag>(1,iConfig.getParameter<edm::InputTag>("packedPFCandidates")));
+      const std::vector<edm::InputTag> & pf = iConfig.getParameter<std::vector<edm::InputTag>>("pfCandidates");
+      const std::vector<edm::InputTag> & pf2pc = iConfig.getParameter<std::vector<edm::InputTag>>("packedPFCandidates");
         if (pf.size() != pf2pc.size()) throw cms::Exception("Configuration") << "Mismatching pfCandidates and packedPFCandidates\n";
         for (const edm::InputTag &tag : pf) pf_.push_back(consumes<reco::PFCandidateCollection>(tag));
         for (const edm::InputTag &tag : pf2pc) pf2pc_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));

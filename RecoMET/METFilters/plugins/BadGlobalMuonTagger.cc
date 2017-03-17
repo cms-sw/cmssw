@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -10,14 +10,13 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class BadGlobalMuonTagger : public edm::stream::EDFilter<> {
+class BadGlobalMuonTagger : public edm::global::EDFilter<> {
     public:
         explicit BadGlobalMuonTagger(const edm::ParameterSet & iConfig);
         virtual ~BadGlobalMuonTagger() {}
 
-        virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+        virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Muon>> muons_;            
@@ -60,7 +59,7 @@ BadGlobalMuonTagger::BadGlobalMuonTagger(const edm::ParameterSet & iConfig) :
 
 
 bool 
-BadGlobalMuonTagger::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+BadGlobalMuonTagger::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
     using namespace edm;
 
     // read input
