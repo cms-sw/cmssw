@@ -13,8 +13,8 @@
 
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitFactory, "PFRecHitFactory");
-DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEcalEndcapRecHitCreator, "PFEcalEndcapRecHitCreator");
-DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEcalBarrelRecHitCreator, "PFEcalBarrelRecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEcalEndcapRecHitCreator, "PFEERecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEcalBarrelRecHitCreator, "PFEBRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEERecHitCreatorMaxSample, "PFEERecHitCreatorMaxSample");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEBRecHitCreatorMaxSample, "PFEBRecHitCreatorMaxSample");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHERecHitCreator, "PFHERecHitCreator");
