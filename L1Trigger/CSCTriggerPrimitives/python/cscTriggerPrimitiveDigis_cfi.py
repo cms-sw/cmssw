@@ -342,6 +342,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 # Upgrade era customizations involving GEMs and RPCs
 # ==================================================
 copadParam = cms.PSet(
+     verbosity = cms.uint32(0),
      maxDeltaRoll = cms.uint32(0),
      maxDeltaPadGE11 = cms.uint32(5),
      maxDeltaPadGE21 = cms.uint32(5),
