@@ -8,6 +8,7 @@
  <Constant name="HallR"        value="[cmsextent:HallR]"/>
  <Constant name="CMSR1"        value="[cmsextent:CMSR1]"/>
  <Constant name="CMSR2"        value="[cmsextent:CMSR2]"/>
+ <Constant name="CMSR4"        value="7.99*m"/>
  <Constant name="CMSZ1"        value="[cmsextent:CMSZ1]"/>
  <Constant name="CMSZ2"        value="[cmsextent:CMSZ2]"/>
  <Constant name="TrackCalorR"  value="1.233*m"/>

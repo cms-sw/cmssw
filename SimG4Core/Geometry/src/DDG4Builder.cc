@@ -133,7 +133,8 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
 	if ( !ddcurLP.isDefined().second ) {
 	  std::string err = " DDG4Builder::BuildGeometry() in processing \"children\" has ";
-	  err += "encountered an undefined DDLogicalPart named " + ddLP.toString();
+	  err += "encountered an undefined DDLogicalPart named " + ddcurLP.toString()
+	    + " is a child of " + ddLP.toString();
 	  edm::LogError("SimG4CoreGeometry") << err;
 	  throw cms::Exception("SimG4CoreGeometry", err) ;
 	}
