@@ -23,7 +23,7 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   estimatorName_(iConfig.getParameter<std::string>("estimator")),
   minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
   maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
-  useHitSeeds_(iConfig.getParameter<bool>("UseHitSeeds")),
+  useHitLessSeeds_(iConfig.getParameter<bool>("UseHitLessSeeds")),
   useStereoLayersInTEC_(iConfig.getParameter<bool>("UseStereoLayersInTEC")),
   dummyPlane_(Plane::build(Plane::PositionType(), Plane::RotationType())),
   updator_(new KFUpdator()),
@@ -94,7 +94,7 @@ void TSGForOI::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     TrajectoryStateOnSurface tsosAtMuonSystem = trajectoryStateTransform::innerStateOnSurface(*l2, *geometry_, magfield_.product());
     LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<endl;
     
-    if (useHitSeeds_){  // 
+    if (useHitLessSeeds_){  // 
       LogTrace("TSGForOI") << "TSGForOI::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
       StateOnTrackerBound fromInside(propagatorAlong.get());
       TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
@@ -176,7 +176,7 @@ void TSGForOI::findSeedsOnLayer(const GeometricSearchDet &layer,
   if (!adjustErrorsDynamicallyForHitless_) errorSFHitless_ = fixedErrorRescalingForHitless_;
 
   // Hitless:
-  if (useHitSeeds_ && !foundHitlessSeed_) {
+  if (useHitLessSeeds_ && !foundHitlessSeed_) {
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
     std::vector< GeometricSearchDet::DetWithState > dets;
     layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimator_, dets);
@@ -245,8 +245,12 @@ int TSGForOI::makeSeedsFromHits(const GeometricSearchDet &layer,
 				const MeasurementTrackerEvent &measurementTracker,
 				const double errorSF) {
 
+  //		Error Rescaling:
+  TrajectoryStateOnSurface onLayer(tsosAtIP);
+  onLayer.rescaleError(errorSF);    
+
   std::vector< GeometricSearchDet::DetWithState > dets;
-  layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimator_, dets);
+  layer.compatibleDetsV(onLayer, propagatorAlong, *estimator_, dets);
   
   //	Find Measurements on each DetWithState:
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: find measurements on each detWithState  " << dets.size() << endl;
@@ -258,10 +262,7 @@ int TSGForOI::makeSeedsFromHits(const GeometricSearchDet &layer,
     }
     if (!it->second.isValid()) continue;	//Skip if TSOS is not valid
 
-    //		Error Rescaling:
-    it->second.rescaleError(errorSF);
-    
-    std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, tsosAtIP, propagatorAlong, *estimator_);	//Second TSOS is not used
+    std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, onLayer, propagatorAlong, *estimator_);	//Second TSOS is not used
     for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
       if (it2->recHit()->isValid()) meas.push_back(*it2);	//Only save those which are valid
     }
@@ -308,7 +309,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<bool>("adjustErrorsDynamicallyForHits",false);
   desc.add<bool>("adjustErrorsDynamicallyForHitless",false);
   desc.add<edm::InputTag>("MeasurementTrackerEvent",edm::InputTag("hltSiStripClusters"));
-  desc.add<bool>("UseHitSeeds",true);
+  desc.add<bool>("UseHitLessSeeds",true);
   desc.add<bool>("UseStereoLayersInTEC",false);
   desc.add<std::string>("estimator","hltESPChi2MeasurementEstimator100");
   desc.add<double>("maxEtaForTOB",1.2);
