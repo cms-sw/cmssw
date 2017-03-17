@@ -32,10 +32,10 @@
 
 namespace dqmservices {
 
-class DQMStreamerOutputRepacker : public edm::StreamerOutputModuleBase {
+class DQMStreamerOutputRepackerTest : public edm::StreamerOutputModuleBase {
  public:
-  explicit DQMStreamerOutputRepacker(edm::ParameterSet const& ps);
-  virtual ~DQMStreamerOutputRepacker();
+  explicit DQMStreamerOutputRepackerTest(edm::ParameterSet const& ps);
+  virtual ~DQMStreamerOutputRepackerTest();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
@@ -73,7 +73,7 @@ class DQMStreamerOutputRepacker : public edm::StreamerOutputModuleBase {
   std::string currentJsonPath_;
 };  // end-of-class-def
 
-DQMStreamerOutputRepacker::DQMStreamerOutputRepacker(
+DQMStreamerOutputRepackerTest::DQMStreamerOutputRepackerTest(
     edm::ParameterSet const& ps)
     : edm::one::OutputModuleBase::OutputModuleBase(ps),
       edm::StreamerOutputModuleBase(ps) {
@@ -87,9 +87,9 @@ DQMStreamerOutputRepacker::DQMStreamerOutputRepacker(
   currentFileIndex_ = 0;
 }
 
-DQMStreamerOutputRepacker::~DQMStreamerOutputRepacker() {}
+DQMStreamerOutputRepackerTest::~DQMStreamerOutputRepackerTest() {}
 
-void DQMStreamerOutputRepacker::openFile() {
+void DQMStreamerOutputRepackerTest::openFile() {
   if (stream_writer_events_) {
     closeFile();
   }
@@ -108,7 +108,7 @@ void DQMStreamerOutputRepacker::openFile() {
   currentFilePath_ = (p / currentFileBase_).string() + ".dat";
   currentJsonPath_ = (p / currentFileBase_).string() + ".jsn";
 
-  edm::LogAbsolute("DQMStreamerOutputRepacker") << "Writing file: "
+  edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing file: "
                                                 << currentFilePath_;
 
   stream_writer_events_.reset(new StreamerOutputFile(currentFilePath_));
@@ -117,13 +117,13 @@ void DQMStreamerOutputRepacker::openFile() {
     InitMsgView iview(init_message_cache_.get());
     stream_writer_events_->write(iview);
   } else {
-    edm::LogWarning("DQMStreamerOutputRepacker")
+    edm::LogWarning("DQMStreamerOutputRepackerTest")
         << "Open file called before init message.";
   }
 }
 
-void DQMStreamerOutputRepacker::closeFile() {
-  edm::LogAbsolute("DQMStreamerOutputRepacker") << "Writing json: "
+void DQMStreamerOutputRepackerTest::closeFile() {
+  edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing json: "
                                                 << currentJsonPath_;
   size_t fsize = boost::filesystem::file_size(currentFilePath_);
 
@@ -155,13 +155,13 @@ void DQMStreamerOutputRepacker::closeFile() {
   stream_writer_events_.reset();
 }
 
-void DQMStreamerOutputRepacker::start() {}
+void DQMStreamerOutputRepackerTest::start() {}
 
-void DQMStreamerOutputRepacker::stop() { closeFile(); }
+void DQMStreamerOutputRepackerTest::stop() { closeFile(); }
 
-void DQMStreamerOutputRepacker::doOutputHeader(
+void DQMStreamerOutputRepackerTest::doOutputHeader(
     InitMsgBuilder const& init_message_bldr) {
-  edm::LogWarning("DQMStreamerOutputRepacker")
+  edm::LogWarning("DQMStreamerOutputRepackerTest")
       << "doOutputHeader() method, initializing streams.";
 
   uint8_t* x = new uint8_t[init_message_bldr.size()];
@@ -170,7 +170,7 @@ void DQMStreamerOutputRepacker::doOutputHeader(
   openFile();
 }
 
-void DQMStreamerOutputRepacker::doOutputEvent(EventMsgBuilder const& msg_bldr) {
+void DQMStreamerOutputRepackerTest::doOutputEvent(EventMsgBuilder const& msg_bldr) {
   if (eventsProcessedFile_ >= eventsPerFile_) {
     openFile();
   }
@@ -178,14 +178,14 @@ void DQMStreamerOutputRepacker::doOutputEvent(EventMsgBuilder const& msg_bldr) {
   eventsProcessedTotal_ += 1;
   eventsProcessedFile_ += 1;
 
-  edm::LogAbsolute("DQMStreamerOutputRepacker") << "Writing event: "
+  edm::LogAbsolute("DQMStreamerOutputRepackerTest") << "Writing event: "
                                                 << eventsProcessedTotal_;
 
   EventMsgView view(msg_bldr.startAddress());
   stream_writer_events_->write(view);
 }
 
-void DQMStreamerOutputRepacker::fillDescriptions(
+void DQMStreamerOutputRepackerTest::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   edm::StreamerOutputModuleBase::fillDescription(desc);
@@ -201,7 +201,7 @@ void DQMStreamerOutputRepacker::fillDescriptions(
   desc.addUntracked<unsigned int>("eventsPerFile")
       ->setComment("Number of events per file.");
 
-  descriptions.add("DQMStreamerOutputRepacker", desc);
+  descriptions.add("DQMStreamerOutputRepackerTest", desc);
 }
 
 }  // end of namespace
@@ -209,5 +209,5 @@ void DQMStreamerOutputRepacker::fillDescriptions(
 #include "EventFilter/Utilities/plugins/RecoEventWriterForFU.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-typedef dqmservices::DQMStreamerOutputRepacker DQMStreamerOutputRepacker;
-DEFINE_FWK_MODULE(DQMStreamerOutputRepacker);
+typedef dqmservices::DQMStreamerOutputRepackerTest DQMStreamerOutputRepackerTest;
+DEFINE_FWK_MODULE(DQMStreamerOutputRepackerTest);

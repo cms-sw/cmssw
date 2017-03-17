@@ -30,7 +30,7 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = secFiles,
 )
 
-process.poolOutput = cms.OutputModule('DQMStreamerOutputRepacker',
+process.poolOutput = cms.OutputModule('DQMStreamerOutputRepackerTest',
     outputPath = cms.untracked.string("./output/"),
     streamLabel = cms.untracked.string("DQM"),
     runNumber = cms.untracked.uint32(15),
