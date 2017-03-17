@@ -8,7 +8,7 @@
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -16,12 +16,12 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-class PFEGammaToCandidateRemapper : public edm::stream::EDProducer<> {
+class PFEGammaToCandidateRemapper : public edm::global::EDProducer<> {
     public:
         explicit PFEGammaToCandidateRemapper(const edm::ParameterSet & iConfig);
         virtual ~PFEGammaToCandidateRemapper() { }
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+        virtual void produce(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     private:
         edm::EDGetTokenT<std::vector<reco::Photon>> photons_;
@@ -34,7 +34,7 @@ class PFEGammaToCandidateRemapper : public edm::stream::EDProducer<> {
                 const edm::EDGetTokenT<std::vector<T>> &colltoken, 
                 const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> &oldmaptoken, 
                 const edm::ValueMap<reco::PFCandidateRef> & pf2pf, 
-                const std::string &name) {
+                const std::string &name) const {
             edm::Handle<std::vector<T>> handle;
             iEvent.getByToken(colltoken, handle);
 
@@ -58,7 +58,7 @@ class PFEGammaToCandidateRemapper : public edm::stream::EDProducer<> {
 };
 
 
-PFEGammaToCandidateRemapper::PFEGammaToCandidateRemapper(const edm::ParameterSet & iConfig) :
+PFEGammaToCandidateRemapper::PFEGammaToCandidateRemapper(const edm::ParameterSet & iConfig):
     photons_(consumes<std::vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("photons"))),
     electrons_(consumes<std::vector<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electrons"))),
     photon2pf_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("photon2pf"))),
@@ -71,7 +71,7 @@ PFEGammaToCandidateRemapper::PFEGammaToCandidateRemapper(const edm::ParameterSet
 
 
 void 
-PFEGammaToCandidateRemapper::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+PFEGammaToCandidateRemapper::produce(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
     edm::Handle<edm::ValueMap<reco::PFCandidateRef>> pf2pf;
     iEvent.getByToken(pf2pf_, pf2pf);
     run<reco::Photon>(iEvent, photons_, photon2pf_, *pf2pf, "photons");
