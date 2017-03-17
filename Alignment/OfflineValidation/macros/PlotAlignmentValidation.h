@@ -131,6 +131,11 @@ private :
   bool showUnderOverFlow_;
   bool twolines_;
   bool bigtext_;
+  const static TString summaryfilename = "OfflineValidationSummary.txt";
+  ofstream summaryfile;
+  bool openedsummaryfile = false;
+
+  std::vector<double> vmean, vdeltamean, vrms;
 
   TF1 *fitGauss(TH1 *hist,int color);
   //void plotBoxOverview(TCanvas &c1, TList &treeList,std::string plot_Var1a,std::string plot_Var1b, std::string plot_Var2, Int_t filenumber,Int_t minHits);
@@ -160,6 +165,7 @@ private :
   void setDMRHistStyleAndLegend(TH1F* h, DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
   void plotDMRHistogram(DMRPlotInfo& plotinfo, int direction = 0, int layer = 0);
   void modifySSHistAndLegend(THStack* hs, TLegend* legend);
+  void openSummaryFile();
 };
 
 #endif // PLOTALIGNNMENTVALIDATION_H_

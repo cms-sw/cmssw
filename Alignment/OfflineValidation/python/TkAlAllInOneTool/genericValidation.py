@@ -521,23 +521,23 @@ class ValidationWithPlots(GenericValidation):
 
 class ValidationWithPlotsSummary(ValidationWithPlots):
     class SummaryItem(object):
-        def __init__(self, name, values, format=None, latexname=None, convertvaluetolatex=None):
+        def __init__(self, name, values, format=None, latexname=None, latexformat=None):
             """
-            name:                name of the summary item, goes on top of the column
-            values:              value for each alignment (in order of rows)
-            format:              python format string (default: {:.3g}, meaning up to 3 significant digits
-            latexname:           name in latex form, e.g. if name=sigma you might want latexname=\sigma
-            convertvaluetolatex: function to convert value (after format) to latex, e.g. lambda x: "$"+x.replace("%", r"\%")+"$"
+            name:        name of the summary item, goes on top of the column
+            values:      value for each alignment (in order of rows)
+            format:      python format string (default: {:.3g}, meaning up to 3 significant digits)
+            latexname:   name in latex form, e.g. if name=sigma you might want latexname=\sigma (default: name)
+            latexformat: format for latex (default: format)
             """
             if format is None: format = "{:.3g}"
             if latexname is None: latexname = name
-            if convertvaluetolatex is None: convertvaluetolatex = lambda x: x
+            if latexformat is None: latexformat = format
 
             self.__name = name
             self.__values = values
             self.__format = format
             self.__latexname = latexname
-            self.__convertvaluetolatex = convertvaluetolatex
+            self.__latexformat = latexformat
 
         def name(self, latex=False):
             if latex:
@@ -545,10 +545,14 @@ class ValidationWithPlotsSummary(ValidationWithPlots):
             else:
                 return self.__name
 
-        def values(self, latex=False):
-            result = [self.__format.format(v) for v in self.__values]
+        def format(self, latex=False):
             if latex:
-                result = [self.__convertvaluetolatex(v) for v in result]
+                return self.__latexformat
+            else:
+                return self.__format
+
+        def values(self, latex=False):
+            result = [self.format(latex).format(v) for v in self.__values]
             return result
 
         def value(self, i, latex):
@@ -624,11 +628,8 @@ class ValidationWithPlotsSummary_SimpleTxtFile(ValidationWithPlotsSummary):
                     if thing.startswith("latexname="):
                         kwargs["latexname"] = thing.replace("latexname=", "", 1)
                         split.remove(thing)
-                    if thing.startswith("convertvaluetolatex="):
-                        #this is a function, so can't get it directly from txt.
-                        #instead, put it in this class if it's generally useful or in the subclass otherwise,
-                        # and then write the name in the txt file.
-                        kwargs["convertvaluetolatex"] = getattr(cls, thing.replace("convertvaluetolatex=", "", 1))
+                    if thing.startswith("latexformat="):
+                        kwargs["latexformat"] = getattr(cls, thing.replace("latexformat=", "", 1))
                         split.remove(thing)
 
                 name = split[0]
