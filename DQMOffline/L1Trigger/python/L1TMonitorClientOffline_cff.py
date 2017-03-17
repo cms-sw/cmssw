@@ -14,22 +14,22 @@ import FWCore.ParameterSet.Config as cms
 #
 
 
-# DQM online L1 Trigger client modules 
-from DQM.L1TMonitorClient.L1TMonitorClient_cff import * 
-
+# DQM online L1 Trigger client modules
+from DQM.L1TMonitorClient.L1TMonitorClient_cff import *
 # changes for offline environment
-
+    
 # DTTF to offline configuration
 l1tDttfClient.online = False
-
+    
 # CSCTF client
 l1tCsctfClient.runInEndLumi = False
-
+    
 # RPC client
 l1tRpctfClient.runInEndLumi = False
-
+    
 # GMT client
 l1tGmtClient.runInEndLumi = False
-
+    
 # GCT client
 l1tGctClient.runInEndLumi = False
+
