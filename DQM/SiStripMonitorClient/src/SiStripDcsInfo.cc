@@ -339,9 +339,7 @@ void SiStripDcsInfo::addBadModules() {
         ilumibad != lumiCountBadModules.end(); ilumibad++) {
       uint32_t ibad = (*ilumibad).first;
       uint32_t nBadLumi = (*ilumibad).second;
-      float nBadDcsLumiFrac = 1.;
-      if(nGoodDcsLumi_ > 0) { nBadDcsLumiFrac = nBadLumi/(float)nGoodDcsLumi_; }
-      if(nBadDcsLumiFrac < MaxAcceptableBadDcsLumiFrac_) continue;
+      if(nBadLumi < MaxAcceptableBadDcsLumi_) continue;
       std::string bad_module_folder = mechanical_dir + "/" +
                                       it->second.folder_name + "/"     
                                       "BadModuleList";      
