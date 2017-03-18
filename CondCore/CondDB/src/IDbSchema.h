@@ -60,6 +60,7 @@ namespace cond {
       virtual bool getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash ) = 0;
       virtual bool getSize( const std::string& tag, size_t& size ) = 0;
       virtual bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ) = 0;
+      virtual bool getRange( const std::string& tag, cond::Time_t begin, cond::Time_t end, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) = 0;
       virtual void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, 
 			      const boost::posix_time::ptime& insertTime ) = 0;
       virtual void insertMany( const std::string& tag, 

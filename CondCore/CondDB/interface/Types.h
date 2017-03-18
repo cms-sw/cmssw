@@ -152,6 +152,15 @@ namespace cond {
     std::tuple<std::string,std::string,std::string> m_data; 
   };
 
+  struct RunInfo_t {
+    RunInfo_t( const std::tuple<long long unsigned int, boost::posix_time::ptime>& data ):
+      run( std::get<0>(data) ),
+      start( std::get<1>(data) ){
+    }
+    Time_t run;
+    boost::posix_time::ptime start;
+    boost::posix_time::ptime stop;
+  };
 
 }
 
