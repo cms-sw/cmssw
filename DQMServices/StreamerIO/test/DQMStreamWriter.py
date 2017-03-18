@@ -42,7 +42,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # define the PoolOutputModule
-process.poolOutput = cms.OutputModule('DQMStreamerOutputModule',
+process.poolOutput = cms.OutputModule('DQMStreamerOutputModuleTest',
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string("_streamA"),
 )
