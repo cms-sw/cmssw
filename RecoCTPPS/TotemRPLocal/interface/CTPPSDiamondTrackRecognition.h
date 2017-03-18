@@ -18,9 +18,9 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 
-#include "TF1.h"
 #include <vector>
 #include <map>
+#include "TF1.h"
 
 /**
  * \brief Class performing smart reconstruction for CTPPS Diamond Detectors.
@@ -40,8 +40,13 @@ class CTPPSDiamondTrackRecognition
     int produceTracks( edm::DetSet<CTPPSDiamondLocalTrack> &tracks );
 
   private:
-    typedef std::vector<TF1> HitFunctionVector;
-    typedef std::map<int,HitFunctionVector> HitFunctionVectorMap;
+    struct HitParameters {
+      float center;
+      float width;
+      HitParameters( const float center, const float width) : center(center), width(width) {};
+    };
+    typedef std::vector<HitParameters> HitParametersVector;
+    typedef std::map<int,HitParametersVector> HitParametersVectorMap;
 
     static const std::string pixelEfficiencyDefaultFunction_;
     const float threshold_;
@@ -56,8 +61,9 @@ class CTPPSDiamondTrackRecognition
     float yWidth;
     int nameCounter;
 
-    /// Function for pad efficiency
-    HitFunctionVectorMap hitFunctionVectorMap_;
+    /// Functions for pad efficiency
+    TF1 hit_f_;
+    HitParametersVectorMap hitParametersVectorMap_;
     std::map<int,int> mhMap_;
 };
 
