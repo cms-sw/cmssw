@@ -243,6 +243,8 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHBHEQIE11Amplifier;
   delete theCoderFactory;
   if (theRelabeller)           delete theRelabeller;
+  if(theTimeSlewSim) delete theTimeSlewSim;
+  if(theIonFeedback) delete theIonFeedback;
 }
 
 
