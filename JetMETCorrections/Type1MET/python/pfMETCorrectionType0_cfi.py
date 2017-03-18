@@ -22,8 +22,8 @@ selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0 = cms.EDFilter("PATSingl
 from RecoParticleFlow.PFTracking.particleFlowDisplacedVertex_cfi import particleFlowDisplacedVertex
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 
-from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
-pfCandidateToVertexAssociation = PFCandAssoMap.clone(
+from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap as _PFCandAssoMap
+pfCandidateToVertexAssociation = _PFCandAssoMap.clone(
     PFCandidateCollection = cms.InputTag('particleFlow'),
     UseBeamSpotCompatibility = cms.untracked.bool(True),
     ignoreMissingCollection = cms.bool(True)
@@ -53,29 +53,30 @@ pfMETcorrType0 = cms.EDProducer("Type0PFMETcorrInputProducer",
 )   
 #--------------------------------------------------------------------------------
 
+type0PFMEtCorrectionPFCandToVertexAssociationTask = cms.Task(
+    selectedVerticesForPFMEtCorrType0,
+    selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0,
+    particleFlowDisplacedVertex,
+    pfCandidateToVertexAssociation
+)
+
 type0PFMEtCorrectionPFCandToVertexAssociation = cms.Sequence(
-    selectedVerticesForPFMEtCorrType0
-   * selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0
-   * particleFlowDisplacedVertex
-   * pfCandidateToVertexAssociation
+    type0PFMEtCorrectionPFCandToVertexAssociationTask
 )
 
 type0PFMEtCorrectionPFCandToVertexAssociationForValidation = cms.Sequence(
-    cms.ignore(selectedVerticesForPFMEtCorrType0)
-   * cms.ignore(selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0)
-   * particleFlowDisplacedVertex
-   * pfCandidateToVertexAssociation
+    type0PFMEtCorrectionPFCandToVertexAssociationTask
 )
 
-
 type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD = cms.Sequence(
-    cms.ignore(selectedVerticesForPFMEtCorrType0)
-   * cms.ignore(selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0)
-   * particleFlowDisplacedVertex
-   * pfCandidateToVertexAssociation
+    type0PFMEtCorrectionPFCandToVertexAssociationTask
+)
+
+type0PFMEtCorrectionTask = cms.Task(
+    type0PFMEtCorrectionPFCandToVertexAssociationTask,
+    pfMETcorrType0
 )
 
 type0PFMEtCorrection = cms.Sequence(
-    type0PFMEtCorrectionPFCandToVertexAssociation
-   * pfMETcorrType0
+    type0PFMEtCorrectionTask
 )

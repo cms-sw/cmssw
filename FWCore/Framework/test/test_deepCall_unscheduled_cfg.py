@@ -4,7 +4,6 @@ process = cms.Process("TEST")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow,
     numberOfStreams = cms.untracked.uint32(1),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
@@ -63,4 +62,6 @@ process.get = cms.EDAnalyzer("IntTestAnalyzer",
     moduleLabel = cms.untracked.string('result4')
 )
 
-process.p = cms.Path(process.get)
+process.t = cms.Task(process.one, process.result1, process.result2, process.result4)
+
+process.p = cms.Path(process.get, process.t)

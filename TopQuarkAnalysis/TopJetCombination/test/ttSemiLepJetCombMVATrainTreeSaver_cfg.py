@@ -23,7 +23,6 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -34,21 +33,28 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 
 ## configure ttGenEventFilters
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
+process.task.add(process.ttDecayChannelFiltersTask)
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.electron = False
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.muon     = True
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.tau      = False
 
 ## configure jet-parton matching
 process.load("TopQuarkAnalysis.TopTools.TtSemiLepJetPartonMatch_cfi")
+process.task.add(process.ttSemiLepJetPartonMatch)
 #process.ttSemiLepJetPartonMatch.partonsToIgnore = ["LepB"]
 
 ## configure mva trainer
@@ -61,4 +67,4 @@ process.load("TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSav
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSaver_cff import looper
 process.looper = looper
 
-process.p = cms.Path(process.trainTtSemiLepJetCombMVA)
+process.p = cms.Path(process.trainTtSemiLepJetCombMVA, process.task)

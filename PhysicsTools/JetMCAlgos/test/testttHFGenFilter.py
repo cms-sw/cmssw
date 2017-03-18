@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 import sys
 import os
 
 
 ## Define the process
 process = cms.Process("Filter")
+patAlgosToolsTask = getPatAlgosToolsTask(process)
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
-    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(True)
 )
 ## Set up command line options
 options = VarParsing ('analysis')
@@ -59,6 +60,7 @@ from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
 process.genParticlesForJetsNoNu = genParticlesForJetsNoNu.clone(
 	src = genJetInputParticleCollection
 )
+patAlgosToolsTask.add(process.genParticlesForJetsNoNu)
 
 ## Produce own jets (re-clustering in miniAOD needed at present to avoid crash)
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
@@ -67,6 +69,7 @@ process.ak4GenJetsCustom = ak4GenJets.clone(
     rParam = cms.double(0.4),
     jetAlgorithm = cms.string("AntiKt")
 )
+patAlgosToolsTask.add(process.ak4GenJetsCustom)
 
 ## Ghost particle collection used for Hadron-Jet association
 # MUST use proper input particle collection
@@ -74,6 +77,7 @@ from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsA
 process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(
     particles = genParticleCollection,
 )
+patAlgosToolsTask.add(process.selectedHadronsAndPartons)
 #Input particle collection for matching to gen jets (partons + leptons)
 # MUST use use proper input jet collection: the jets to which hadrons should be associated
 # rParam and jetAlgorithm MUST match those used for jets to be associated with hadrons
@@ -82,6 +86,7 @@ from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInf
 process.genJetFlavourInfos = ak4JetFlavourInfos.clone(
     jets = genJetCollection,
 )
+patAlgosToolsTask.add(process.genJetFlavourInfos)
 
 # Plugin for analysing B hadrons
 # MUST use the same particle collection as in selectedHadronsAndPartons
@@ -159,4 +164,4 @@ process.p1 = cms.Path(
     process.ttHFGenFilter
 )
 
-process.endpath = cms.EndPath(process.USER)
+process.endpath = cms.EndPath(process.USER, patAlgosToolsTask)

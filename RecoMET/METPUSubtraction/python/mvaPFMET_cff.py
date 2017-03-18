@@ -14,9 +14,9 @@ calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('CorrectedPFJetProducer',
     correctors = cms.VInputTag("ak4PFL1FastL2L3Corrector") # NOTE: use "ak4PFL1FastL2L3Corrector" for MC / "ak4PFL1FastL2L3ResidualCorrector" for Data
 )
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1Fastjet
-from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdEvaluator
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdEvaluator as _pileupJetIdEvaluator
 from RecoJets.JetProducers.PileupJetIDParams_cfi import JetIdParams
-puJetIdForPFMVAMEt = pileupJetIdEvaluator.clone(
+puJetIdForPFMVAMEt = _pileupJetIdEvaluator.clone(
     algos = cms.VPSet(
         cms.PSet(
         tmvaVariables = cms.vstring(
@@ -90,11 +90,11 @@ pfMVAMEt = cms.EDProducer("PFMETProducerMVA",
     verbosity = cms.int32(0)
 )
 
-
-
-pfMVAMEtSequence  = cms.Sequence(
+pfMVAMEtTask  = cms.Task(
     #(isomuonseq+isotauseq+isoelectronseq)*
-    calibratedAK4PFJetsForPFMVAMEt*
-    puJetIdForPFMVAMEt*
+    jetCorrectorsTask,
+    calibratedAK4PFJetsForPFMVAMEt,
+    puJetIdForPFMVAMEt,
     pfMVAMEt
 )
+pfMVAMEtSequence  = cms.Sequence(pfMVAMEtTask)

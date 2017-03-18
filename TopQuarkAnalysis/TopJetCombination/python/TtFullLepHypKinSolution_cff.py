@@ -14,7 +14,8 @@ kinSolutionTtFullLepEventHypothesis.mumuChannel=True
 from TopQuarkAnalysis.TopJetCombination.TtFullLepHypKinSolution_cfi import *
 
 ## make hypothesis
-makeHypothesis_kinSolution = cms.Sequence(kinSolutionTtFullLepEventHypothesis *
-                                          ttFullLepHypKinSolution
-					 )
-
+makeHypothesis_kinSolutionTask = cms.Task(
+    kinSolutionTtFullLepEventHypothesis,
+    ttFullLepHypKinSolution
+)
+makeHypothesis_kinSolution = cms.Sequence(makeHypothesis_kinSolutionTask)
