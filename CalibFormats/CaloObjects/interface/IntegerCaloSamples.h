@@ -2,7 +2,6 @@
 #define INTEGERCALOSAMPLES_H 1
 
 #include <ostream>
-#include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
 
 /** \class IntegerCaloSamples
@@ -37,8 +36,8 @@ public:
   static const int MAXSAMPLES=10;
 private:
   DetId id_;
+  uint32_t data_[MAXSAMPLES]; // 
   int size_, presamples_;
-  std::vector<uint32_t> data_; // 
 };
 
 std::ostream& operator<<(std::ostream& s, const IntegerCaloSamples& samps);
