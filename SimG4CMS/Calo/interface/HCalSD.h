@@ -53,6 +53,7 @@ protected:
 private:    
 
   uint32_t                      setDetUnitId(int, const G4ThreeVector&, int, int);
+  uint32_t                      setDetUnitId(HcalNumberingFromDDD::HcalID& tmp);
   std::vector<double>           getDDDArray(const std::string&, 
                                             const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
