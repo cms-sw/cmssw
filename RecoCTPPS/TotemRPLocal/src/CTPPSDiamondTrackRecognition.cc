@@ -30,6 +30,7 @@ CTPPSDiamondTrackRecognition::CTPPSDiamondTrackRecognition( const edm::Parameter
   if (sigma_==.0) {
     pixelEfficiencyFunction_ = pixelEfficiencyDefaultFunction_; // simple step function
   }
+  hit_f_ = TF1( "hit_TF1_CTPPS", pixelEfficiencyFunction_.c_str(), startFromX_, stopAtX_ );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ CTPPSDiamondTrackRecognition::~CTPPSDiamondTrackRecognition()
 void
 CTPPSDiamondTrackRecognition::clear()
 {
-  hitFunctionVectorMap_.clear();
+  hitParametersVectorMap_.clear();
   mhMap_.clear();
   nameCounter = 0;
 }
@@ -52,13 +53,8 @@ CTPPSDiamondTrackRecognition::clear()
 void
 CTPPSDiamondTrackRecognition::addHit( const CTPPSDiamondRecHit recHit )
 {
-  std::string f_name( "hit_f_" );
-  f_name.append( std::to_string( ++nameCounter ) );
-
-  // define the hit function
-  TF1 hit_f( f_name.c_str(), pixelEfficiencyFunction_.c_str(), startFromX_, stopAtX_ );
-  hit_f.SetParameters( recHit.getX(), recHit.getXWidth(), sigma_ );
-  hitFunctionVectorMap_[recHit.getOOTIndex()].push_back( hit_f );
+  // store hit parameters
+  hitParametersVectorMap_[recHit.getOOTIndex()].emplace_back( recHit.getX(), recHit.getXWidth() );
   
   // Check vertical coordinates
   if (yPosition == .0 and yWidth == .0) {
@@ -81,14 +77,15 @@ int
 CTPPSDiamondTrackRecognition::produceTracks( edm::DetSet<CTPPSDiamondLocalTrack> &tracks )
 {
   int number_of_tracks = 0;
-  for ( HitFunctionVectorMap::const_iterator ootIt=hitFunctionVectorMap_.begin(); ootIt!=hitFunctionVectorMap_.end(); ++ootIt ) {
+  for ( HitParametersVectorMap::const_iterator ootIt=hitParametersVectorMap_.begin(); ootIt!=hitParametersVectorMap_.end(); ++ootIt ) {
     std::vector<float> hit_profile( ( stopAtX_-startFromX_ )/resolution_, 0. );
-    for ( unsigned int i=0; i<hit_profile.size(); ++i ) {
-      for ( HitFunctionVector::const_iterator fun_it=ootIt->second.begin(); fun_it!=ootIt->second.end(); ++fun_it ) { 
-	hit_profile[i] += fun_it->Eval( startFromX_ + i*resolution_ );
+    for ( HitParametersVector::const_iterator param_it=ootIt->second.begin(); param_it!=ootIt->second.end(); ++param_it ) {
+      hit_f_.SetParameters( param_it->center, param_it->width, sigma_ );
+      for ( unsigned int i=0; i<hit_profile.size(); ++i ) {
+	hit_profile[i] += hit_f_.Eval( startFromX_ + i*resolution_ );
       }
     }
-
+   
     float maximum = 0.;
     bool below = true; // start below the threshold
     int track_start_n = 0;
