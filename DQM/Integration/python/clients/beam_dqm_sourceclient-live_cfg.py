@@ -224,7 +224,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
           for key in old.parameterNames_():
             if key not in skipSet:
               setattr(new, key, getattr(old, key))
-        _copy(process.pixelTracksTrackingRegions, new, skip=["nSigmaZ", "beamSpot"])
+        _copy(process.pixelTracksTrackingRegions.RegionPSet, new.RegionPSet, skip=["nSigmaZ", "beamSpot"])
         new.RegionPSet.originRadius = 0.4
         # Bit of a hack to replace a module with another, but works
         #
