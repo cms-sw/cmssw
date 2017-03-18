@@ -273,11 +273,6 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     const auto& matches = assoc_tps->val;
     
     const auto absPdgId = std::abs(matches[0].first->pdgId());
-
-    // remove tracks already used by muons
-    std::cout <<"simpfproducer trackUsed "<< MuonTrackToGeneralTrack.count(itk) << std::endl;	     
-    if( MuonTrackToGeneralTrack.count(itk) || absPdgId == 13) continue;   
-    
     const auto charge = tkRef->charge();
     const auto three_mom = tkRef->momentum();
     constexpr double mpion2 = 0.13957*0.13957;
@@ -339,7 +334,9 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
       }
     }
     usedTrack[tkRef.key()] = true;    
-
+    // remove tracks already used by muons
+    if( MuonTrackToGeneralTrack.count(itk) || absPdgId == 13)
+      candidates->pop_back();
   }
 
   // now loop over the non-collected clusters in blocks 
