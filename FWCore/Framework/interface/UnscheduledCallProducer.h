@@ -99,6 +99,20 @@ namespace edm {
       }
     }
 
+    template <typename T, typename U>
+    void runNowAsync(WaitingTask* task,
+                     typename T::MyPrincipal& p, EventSetup const& es, StreamID streamID,
+                     typename T::Context const* topContext, U const* context) const {
+      //do nothing for event since we will run when requested
+      if(!T::isEvent_) {
+        for(auto worker: unscheduledWorkers_) {
+          ParentContext parentContext(context);
+          worker->doWorkNoPrefetchingAsync<T>(task, p, es, streamID, parentContext, topContext);
+        }
+      }
+    }
+
+    
   private:
     worker_container unscheduledWorkers_;
     UnscheduledAuxiliary aux_;
