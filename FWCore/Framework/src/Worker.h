@@ -826,6 +826,12 @@ namespace edm {
       TransitionIDValue<typename T::MyPrincipal> idValue(ep);
       if(shouldRethrowException(ex, parentContext, T::isEvent_, idValue)) {
         assert(not cached_exception_);
+        std::ostringstream iost;
+        iost<<"Calling method for module ";
+        iost<<description().moduleName() << "/'"
+        << description().moduleLabel() << "'";
+        ex.addContext(iost.str());
+
         setException<T::isEvent_>(std::current_exception());
         waitingTasks_.doneWaiting(cached_exception_);
         std::rethrow_exception(cached_exception_);

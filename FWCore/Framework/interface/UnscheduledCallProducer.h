@@ -67,32 +67,7 @@ namespace edm {
             worker->doWork<T>(p, es, streamID, parentContext, topContext);
           }
           catch (cms::Exception & ex) {
-            std::ostringstream ost;
-            if (T::isEvent_) {
-              ost << "Calling event method";
-            }
-            else if (T::begin_ && T::branchType_ == InRun) {
-              ost << "Calling beginRun";
-            }
-            else if (T::begin_ && T::branchType_ == InLumi) {
-              ost << "Calling beginLuminosityBlock";
-            }
-            else if (!T::begin_ && T::branchType_ == InLumi) {
-              ost << "Calling endLuminosityBlock";
-            }
-            else if (!T::begin_ && T::branchType_ == InRun) {
-              ost << "Calling endRun";
-            }
-            else {
-              // It should be impossible to get here ...
-              ost << "Calling unknown function";
-            }
-            ost << " for unscheduled module " << worker->description().moduleName()
-                << "/'" << worker->description().moduleLabel() << "'";
-            ex.addContext(ost.str());
-            ost.str("");
-            ost << "Processing " << p.id();
-            ex.addContext(ost.str());
+            addContextToException<T>(ex,worker,p.id());
             throw;
           }
         }
@@ -114,6 +89,12 @@ namespace edm {
 
     
   private:
+    template <typename T, typename ID>
+    void addContextToException(cms::Exception& ex, Worker const* worker, ID const& id) const {
+      std::ostringstream ost;
+      ost << "Processing " << T::transitionName()<<" "<< id;
+      ex.addContext(ost.str());
+    }
     worker_container unscheduledWorkers_;
     UnscheduledAuxiliary aux_;
   };
