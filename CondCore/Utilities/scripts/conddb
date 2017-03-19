@@ -632,10 +632,12 @@ def _low(n):
 
 
 def _convertTimeType(since):
-    try:
-        return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)))
-    except ValueError:
-        return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
+    #try:
+    #    return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)))
+    #except ValueError:
+    #    return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = _low(since)/1000))
+    # looks like the format of the lower part of the encoding is broken. Better ignore it...
+    return str(datetime.datetime.utcfromtimestamp(_high(since)).replace(microsecond = 0))
 
 
 def _since_filter(time_type):
@@ -1368,7 +1370,7 @@ def edit(args):
 ''' % name)
                 _run_editor(editor, tempfd)
                 new_table = []
-                editRe = re.compile(r'^(.*)\s+([a-z]+)\s+(\d+)\s*$')
+                editRe = re.compile(r'^(.*)\s+([a-z]+)\s+([-]?\d+)\s*$')
                 for index, line in enumerate(tempfd.readlines()):
                     if index in {0, 1}:
                         continue
