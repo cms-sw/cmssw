@@ -1,0 +1,6 @@
+<use   name="CondCore/PluginSystem"/>
+<use   name="CondCore/ESSources"/>
+<use   name="CondFormats/MuonSystemAging"/>
+<use   name="CondFormats/DataRecord"/>
+
+<flags   EDM_PLUGIN="1"/>
