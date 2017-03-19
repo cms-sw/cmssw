@@ -76,7 +76,10 @@ namespace citk {
         puppiValueMapToken_ = mayConsume<edm::ValueMap<float>>(c.getParameter<edm::InputTag>("puppiValueMap")); //getting token for puppiValueMap
         useValueMapForPUPPI = true;
       }
-      else useValueMapForPUPPI = false;
+      else {
+	useValueMapForPUPPI = false;
+	usePUPPINoLepton = c.getParameter<bool>("usePUPPINoLepton");
+      }
     const std::vector<edm::ParameterSet>& isoDefs = 
       c.getParameterSetVector("isolationConeDefinitions");
     for( const auto& isodef : isoDefs ) {
