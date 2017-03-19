@@ -24,3 +24,8 @@ DPGAnalysis/MuonSysAging/test/ChamberMasker.cc  : Read list of chambers to maske
 DPGAnalysis/MuonSysAging/plugins/DTChamberMasker.cc: Produce digi collection after masking listed DT chambers
 DPGAnalysis/MuonSysAging/plugins/RPCChamberMasker.cc: Produce digi collection after masking listed RPC chambers
 DPGAnalysis/MuonSysAging/plugins/CFEBBufferOverloadProducer.cc: Randomly remove CSC hits
+
+
+## FOR CSC:
+After generating the .db as above (`cmsRun test-maker_cfg.py`), run the psets in mask_workflow/ sequentially. At the end of step3, the CSC digi masking has been injected.
+Relevant code is in DPGAnalysis/MuonSysAging/plugins/CSCChamberMasker.cc

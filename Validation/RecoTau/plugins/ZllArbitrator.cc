@@ -1,115 +1,75 @@
-////////////////////////////////////////////////////////////////////////////////
-// Includes
-////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include <algorithm>
 #include <memory>
 #include <vector>
-#include <sstream>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-template<typename T1>
-class ZllArbitrator : public edm::EDProducer
-{
+class ZllArbitrator : public edm::global::EDProducer<> {
 public:
-  // construction/destruction
-  ZllArbitrator(const edm::ParameterSet& iConfig);
-  virtual ~ZllArbitrator();
-  
-  // member functions
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
-private:  
-  // member data
-  edm::EDGetTokenT<std::vector<T1> >   srcZCand_;  
+  explicit ZllArbitrator(edm::ParameterSet const&);
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
+private:
+  edm::EDGetTokenT<std::vector<reco::CompositeCandidate>> srcZCand_;
 };
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-template<typename T1>
-ZllArbitrator<T1>::ZllArbitrator(const edm::ParameterSet& iConfig)
-  : srcZCand_(consumes<std::vector<T1> >(iConfig.getParameter<edm::InputTag>("ZCandidateCollection")))
+ZllArbitrator::ZllArbitrator(edm::ParameterSet const& iConfig)
+  : srcZCand_{consumes<std::vector<reco::CompositeCandidate>>(iConfig.getParameter<edm::InputTag>("ZCandidateCollection"))}
 {
-  produces<std::vector<T1> >();
+  produces<std::vector<reco::CompositeCandidate>>();
 }
 
-
-//______________________________________________________________________________
-template<typename T1>
-ZllArbitrator<T1>::~ZllArbitrator(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-template<typename T1>
-void ZllArbitrator<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
+void ZllArbitrator::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
 {
-  std::stringstream ss ;
-  
-  std::unique_ptr<std::vector<T1> > TheBestZ(new std::vector<T1 >);
-  
-  edm::Handle< std::vector<T1> > ZCandidatesHandle;
-  iEvent.getByToken(srcZCand_,ZCandidatesHandle);
-  
-  if( ZCandidatesHandle->size() == 0 ) 
-  {
-    iEvent.put(std::move(TheBestZ));
-    return ;
-  }
-  
-  double ZmassPDG  = 91.18;
-  double DeltaMass = 10000;
-  
-  typename std::vector<T1>::const_iterator ZCandIt   ;
-  typename std::vector<T1>::const_iterator bestZCand ;
+  edm::Handle<std::vector<reco::CompositeCandidate>> zCandidates;
+  iEvent.getByToken(srcZCand_,zCandidates);
 
-  for (ZCandIt = ZCandidatesHandle->begin(); ZCandIt != ZCandidatesHandle->end(); ++ZCandIt) {
+  auto bestZ = std::make_unique<std::vector<reco::CompositeCandidate>>();
+  if (!zCandidates->empty()) {
+    // If you're going to hard-code numbers, at least make them constexpr.
+    double constexpr ZmassPDG  {91.18}; // GeV
 
-	if( fabs(ZCandIt->mass()-ZmassPDG) < DeltaMass ){
-	  DeltaMass = fabs(ZCandIt->mass()-ZmassPDG) ;
-	  bestZCand = ZCandIt; 
-	}
+    auto bestZCand = std::min_element(std::cbegin(*zCandidates), std::cend(*zCandidates),
+                                      [ZmassPDG](auto const& firstCand, auto const& secondCand) {
+                                        return std::abs(firstCand.mass()-ZmassPDG) < std::abs(secondCand.mass()-ZmassPDG);
+                                      });
+    bestZ->push_back(*bestZCand);
   }
 
-  TheBestZ->push_back( *bestZCand );  
-  iEvent.put(std::move(TheBestZ));
-  
+  iEvent.put(std::move(bestZ));
 }
 
-template<typename T1>
-void ZllArbitrator<T1>::endJob()
-{
-}
+using BestMassZArbitrationProducer = ZllArbitrator;
 
-typedef ZllArbitrator<reco::CompositeCandidate>      BestMassZArbitrationProducer;
-
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BestMassZArbitrationProducer);
