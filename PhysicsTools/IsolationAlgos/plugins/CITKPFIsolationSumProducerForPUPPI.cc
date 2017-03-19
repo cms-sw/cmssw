@@ -202,6 +202,8 @@ void PFIsolationSumProducerForPUPPI::fillDescriptions(edm::ConfigurationDescript
     descIsoConeDefinitions.add<std::vector<unsigned>>("miniAODVertexCodes", {2,3});
     descIsoConeDefinitions.addOptional<double>("VetoConeSizeBarrel", 0.0);
     descIsoConeDefinitions.addOptional<double>("VetoConeSizeEndcaps", 0.0);
+    descIsoConeDefinitions.addOptional<double>("VetoThreshold", 0.0);
+    descIsoConeDefinitions.addOptional<double>("VetoConeSize", 0.0);
     descIsoConeDefinitions.addOptional<int>("vertexIndex",0);
     descIsoConeDefinitions.addOptional<edm::InputTag>("particleBasedIsolation",edm::InputTag("no default"))->setComment("map for footprint removal that is used for photons");
 
