@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-TTTrackAssociatorFromPixelDigis = cms.EDProducer("TTTrackAssociator_PixelDigi_",
-    TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
+TTTrackAssociatorFromPixelDigis = cms.EDProducer("TTTrackAssociator_Phase2TrackerDigi_",
+    TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPhase2TrackerDigis", "Level1TTTracks"),
                               #cms.InputTag("TTTracksFromPixelDigisAM", "AML1Tracks"),
     ),
     TTClusterTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),

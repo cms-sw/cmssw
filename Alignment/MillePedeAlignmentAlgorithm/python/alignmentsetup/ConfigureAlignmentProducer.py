@@ -15,11 +15,15 @@ def setConfiguration(process, collection, mode, monitorFile, binaryFile,
     # What tracks are used to construct the reference trajectories?
     process.AlignmentProducer.tjTkAssociationMapTag = "FinalTrackRefitter"
 
+    # enable proper handling of multi-IOV input
+    process.AlignmentProducer.enableAlignableUpdates = True
+
     # Configure the algorithm
     process.AlignmentProducer.algoConfig = cms.PSet(
         process.MillePedeAlignmentAlgorithm)
     process.AlignmentProducer.algoConfig.mode              = mode
     process.AlignmentProducer.algoConfig.mergeBinaryFiles  = cms.vstring()
+    process.AlignmentProducer.algoConfig.skipGlobalPositionRcdCheck = True
 
     # default pede options:
     process.AlignmentProducer.algoConfig.pedeSteerer.method = "sparseMINRES-QLP 3  0.8"

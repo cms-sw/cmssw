@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
 from RecoHI.HiTracking.hiMultiTrackSelector_cfi import *
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import *
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 
 # Selector for quality pixel tracks with tapering high-pT cut
 

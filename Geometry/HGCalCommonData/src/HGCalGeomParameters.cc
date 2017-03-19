@@ -281,10 +281,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   std::vector<HGCalGeomParameters::cellParameters> wafers;  
   std::string attribute = "Volume";
   DDValue val1(attribute, sdTag2, 0.0);
-  DDSpecificsFilter filter1;
-  filter1.setCriteria(val1, DDCompOp::equals);
-  DDFilteredView fv1(*cpv);
-  fv1.addFilter(filter1);
+  DDSpecificsMatchesValueFilter filter1{val1};
+  DDFilteredView fv1(*cpv,filter1);
   bool ok = fv1.firstChild();
   if (!ok) {
     edm::LogError("HGCalGeom") << " Attribute " << val1
@@ -347,10 +345,8 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   std::map<int,int>         wafertype;
   std::map<int,HGCalGeomParameters::cellParameters> cellsf, cellsc;
   DDValue val2(attribute, sdTag3, 0.0);
-  DDSpecificsFilter filter2;
-  filter2.setCriteria(val2, DDCompOp::equals);
-  DDFilteredView fv2(*cpv);
-  fv2.addFilter(filter2);
+  DDSpecificsMatchesValueFilter filter2{val2};
+  DDFilteredView fv2(*cpv,filter2);
   ok = fv2.firstChild();
   if (!ok) {
     edm::LogError("HGCalGeom") << " Attribute " << val2
@@ -701,11 +697,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 
   //Wafer size
   std::string attribute = "Volume";
-  DDValue val1(attribute, sdTag1, 0.0);
-  DDSpecificsFilter filter1;
-  filter1.setCriteria(val1, DDCompOp::equals);
-  DDFilteredView fv1(*cpv);
-  fv1.addFilter(filter1);
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute, sdTag1, 0.0)};
+  DDFilteredView fv1(*cpv,filter1);
   if (fv1.firstChild()) {
     DDsvalues_type sv(fv1.mergedSpecifics());
     int nmin(0);
@@ -717,11 +710,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 #endif
 
   //Cell size
-  DDValue val2(attribute, sdTag2, 0.0);
-  DDSpecificsFilter filter2;
-  filter2.setCriteria(val2, DDCompOp::equals);
-  DDFilteredView fv2(*cpv);
-  fv2.addFilter(filter2);
+  DDSpecificsMatchesValueFilter filter2{DDValue(attribute, sdTag2, 0.0)};
+  DDFilteredView fv2(*cpv,filter2);
   if (fv2.firstChild()) {
     DDsvalues_type sv(fv2.mergedSpecifics());
     int nmin(0);
@@ -857,15 +847,8 @@ void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv,
 
   //Special parameters for cell parameters
   std::string attribute = "OnlyForHGCalNumbering"; 
-  std::string value     = "any";
-  DDValue val1(attribute, value, 0.0);
-  DDSpecificsFilter filter1;
-  filter1.setCriteria(val1, DDCompOp::not_equals,
-                      DDLogOp::AND, true, // compare strings otherwise doubles
-                      true  // use merged-specifics or simple-specifics
-                      );
-  DDFilteredView fv1(*cpv);
-  fv1.addFilter(filter1);
+  DDSpecificsHasNamedValueFilter filter1{attribute};
+  DDFilteredView fv1(*cpv,filter1);
   bool ok = fv1.firstChild();
 
   if (ok) {

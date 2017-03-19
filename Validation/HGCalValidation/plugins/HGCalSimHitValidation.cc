@@ -276,12 +276,9 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
     const DDCompactView & cview = *ddViewH;
     std::string attribute = "Volume"; 
     std::string value     = nameDetector_;
-    DDValue val(attribute, value, 0);
   
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, DDCompOp::equals);
-    DDFilteredView fv(cview);
-    fv.addFilter(filter);
+    DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0)};
+    DDFilteredView fv(cview,filter);
     bool dodet = fv.firstChild();
   
     while (dodet) {
