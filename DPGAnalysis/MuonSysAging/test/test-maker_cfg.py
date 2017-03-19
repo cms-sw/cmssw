@@ -1,8 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:MuonSystemAging.db'
+process.load("CondCore.CondDB.CondDB_cfi")
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
+
+process.CondDB.connect = 'sqlite_file:MuonSystemAging.db'
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(1),
@@ -12,7 +17,7 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
+    process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('MuonSystemAgingRcd'),
@@ -51,6 +56,21 @@ maskedGE11MinusIDs = cms.vint32([671105280,671121664,671105792,671122176,6711063
     # more sparse failures
     "WH-2_ST2_SEC8","WH-1_ST1_SEC1","WH-1_ST2_SEC1","WH-1_ST1_SEC4","WH-1_ST3_SEC7",
     "WH0_ST2_SEC2","WH0_ST3_SEC5","WH0_ST4_SEC12","WH1_ST1_SEC6","WH1_ST1_SEC10","WH1_ST3_SEC3"
+
+    # # Set 70% type-2 efficiency on ME-1
+    # "(ME[-]1/\\\d/\\\\d+):2,0.7",
+
+    # # Set 30% type-1 efficiency on ME- endcap
+    # "(ME-\\\d/\\\d/\\\\d+):1,0.3",
+
+    # type-xy efficiency: x is layer (0 for chamber), y = 0,1,2 for all digis, strip digis, wire digis
+    # "ME\\\+1/4/10:1,0.0", # Set 0% type-1 efficiency on ME+1/1/10A --> No strip digis
+    "ME\\\+1/1/10:1,0.0", # Set 0% type-1 efficiency on ME+1/1/10B --> No strip digis
+    "ME\\\+1/2/4:0,0.0", # Set 0% type-0 efficiency on ME+1/2/4 --> No digis
+    "ME\\\+1/2/15:2,0.0", # Set 0% type-2 efficiency on ME+1/2/15 --> No wire digis
+    "ME\\\+1/2/26:30,0.0", # Set 0% type-31 efficiency on ME+1/2/26 --> No digis on layer 3
+    "ME\\\-1/2/7:31,0.0", # Set 0% type-31 efficiency on ME-1/2/7 --> No strip digis on layer 3
+    "ME\\\-1/2/18:32,0.5", # Set 50% type-32 efficiency on ME-1/2/18 --> 50% wire digis on layer 3
     ])
 
 )

@@ -1,6 +1,10 @@
 <library file="*.cc" name="DPGAnalysisMuonSysAgingTest">
    <use name="CondFormats/MuonSystemAging"/>
    <use name="CondCore/DBOutputService"/>
+   <use name="FWCore/MessageLogger"/>
+   <use name="Geometry/DTGeometry"/>
+   <use name="Geometry/CSCGeometry"/>
+   <use name="Geometry/Records"/>
    <flags EDM_PLUGIN="1"/>
 
 </library>
