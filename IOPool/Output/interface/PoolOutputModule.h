@@ -11,14 +11,18 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <array>
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
+#include <vector>
 
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 
 class TTree;
@@ -29,6 +33,7 @@ namespace edm {
   class ParameterSet;
   class RootOutputFile;
   class ConfigurationDescriptions;
+  class ProductProvenanceRetriever;
 
   class PoolOutputModule : public one::OutputModule<WatchInputFiles> {
   public:
@@ -128,6 +133,8 @@ namespace edm {
     virtual void beginJob() override;
 
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
+    void updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever,
+                                         BranchID const& branchID);
     void updateBranchParents(EventForOutput const& e);
     void fillDependencyGraph();
 
@@ -171,7 +178,7 @@ namespace edm {
     unsigned int numberOfDigitsInIndex_;
     BranchParents branchParents_;
     BranchChildren branchChildren_;
-    std::vector<BranchID> branchChildrenReadFromInput_;
+    std::vector<BranchID> producedBranches_;
     bool overrideInputFileSplitLevels_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
