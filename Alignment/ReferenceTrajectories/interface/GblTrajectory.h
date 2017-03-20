@@ -105,7 +105,7 @@ namespace gbl {
     unsigned int getLabels(std::vector<unsigned int> &aLabelList);
     unsigned int getLabels(std::vector<std::vector<unsigned int> > &aLabelList);
     unsigned int fit(double &Chi2, int &Ndf, double &lostWeight,
-                     std::string optionList = "", unsigned int aLabel = 0);
+                     const std::string& optionList = "", unsigned int aLabel = 0);
     void milleOut(MilleBinary &aMille);
     void printTrajectory(unsigned int level = 0);
     void printPoints(unsigned int level = 0);

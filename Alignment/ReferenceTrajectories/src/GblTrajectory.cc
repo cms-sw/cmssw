@@ -1274,7 +1274,7 @@ namespace gbl {
    * \return Error code (non zero value indicates failure of fit)
    */
   unsigned int GblTrajectory::fit(double &Chi2, int &Ndf, double &lostWeight,
-                                  std::string optionList, unsigned int aLabel) {
+                                  const std::string& optionList, unsigned int aLabel) {
     const double normChi2[4] = { 1.0, 0.8737, 0.9326, 0.8228 };
     const std::string methodList = "TtHhCc";
 

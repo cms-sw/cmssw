@@ -67,7 +67,7 @@ namespace gbl {
    */
   class MilleBinary {
   public:
-    MilleBinary(const std::string fileName = "milleBinaryISN.dat",
+    MilleBinary(const std::string& fileName = "milleBinaryISN.dat",
                 bool doublePrec = false, unsigned int aSize = 2000);
     virtual ~MilleBinary();
     void addData(double aMeas, double aErr, unsigned int numLocal,
