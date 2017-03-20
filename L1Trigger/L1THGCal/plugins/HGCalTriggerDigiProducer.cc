@@ -15,7 +15,6 @@
 #include <sstream>
 #include <memory>
 
-
 class HGCalTriggerDigiProducer : public edm::EDProducer {  
  public:    
   HGCalTriggerDigiProducer(const edm::ParameterSet&);
@@ -51,11 +50,8 @@ HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
   codec_->unSetDataPayload();
   
   produces<l1t::HGCFETriggerDigiCollection>();
-  //setup BE processor
-  //backEndProcessor_ = std::make_unique<HGCalTriggerBackendProcessor>(conf.getParameterSet("BEConfiguration"));
   // register backend processor products
   backEndProcessor_->setProduces(*this);
-
 }
 
 void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/, 
@@ -67,7 +63,6 @@ void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/,
 }
 
 void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-
   std::unique_ptr<l1t::HGCFETriggerDigiCollection> 
     fe_output( new l1t::HGCFETriggerDigiCollection );
   
@@ -135,5 +130,4 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   backEndProcessor_->reset();
   backEndProcessor_->run(fe_digis_coll,es,e);
   backEndProcessor_->putInEvent(e);
-  //backEndProcessor_->reset();  
 }
