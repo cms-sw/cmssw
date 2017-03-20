@@ -42,6 +42,10 @@ struct SummationStep {
   enum Stage {NO_STAGE, FIRST, STAGE1, STAGE2};
   Stage stage = NO_STAGE;
 
+  int nbins{-1};
+  int xmin{0};
+  int xmax{0};
+  
   std::vector<GeometryInterface::Column> columns;
   
   // more parameters. Not very elegant but good enough for step2.

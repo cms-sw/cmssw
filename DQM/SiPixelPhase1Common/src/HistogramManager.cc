@@ -345,15 +345,18 @@ void HistogramManager::book(DQMStore::IBooker& iBooker,
         // refer to fillInternal() for the actual execution
         // compute labels, title, type, user-set ranges here
         int tot_parameters = n_parameters;
+								
 #define SET_AXIS(to, from) \
-                mei.to##label = from##label; \
-                mei.range_##to##_min = this->range_##from##_min; \
-                mei.range_##to##_max = this->range_##from##_max; \
-                mei.range_##to##_nbins = this->range_##from##_nbins 
+        mei.to##label = from##label; \
+				mei.range_##to##_min = ((it->nbins == -1) ? this->range_##from##_min : it->xmin); \
+        mei.range_##to##_max = ((it->nbins == -1) ? this->range_##from##_max : it->xmax); \
+        mei.range_##to##_nbins = ((it->nbins == -1) ? this->range_##from##_nbins : it->nbins)
+				
+				
         for (auto it = firststep+1; it != laststep; ++it) {
           switch (it->type) {
             case SummationStep::USE_X:
-              if (it->arg[0] == '1' && n_parameters >= 1) { SET_AXIS(x, x); }
+              if (it->arg[0] == '1' && n_parameters >= 1) { SET_AXIS(x, x); }  // TODO: make use of current nbins, xmin, xmax if set
               if (it->arg[0] == '2' && n_parameters >= 2) { SET_AXIS(x, y); }
               break;
             case SummationStep::USE_Y:

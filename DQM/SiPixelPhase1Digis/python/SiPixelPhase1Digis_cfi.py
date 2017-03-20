@@ -27,10 +27,20 @@ SiPixelPhase1DigisNdigis = DefaultHistoDigiCluster.clone(
   range_max = 30,
   range_nbins = 30,
   dimensions = 0, # this is a count
+
   specs = VPSet(
     StandardSpecificationTrend_Num,
     StandardSpecification2DProfile_Num,
-    StandardSpecifications1D_Num
+    StandardSpecifications1D_Num,
+	
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=100, xmin=0, xmax=10000),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=200, xmin=0, xmax=30000),
   )
 )
 
