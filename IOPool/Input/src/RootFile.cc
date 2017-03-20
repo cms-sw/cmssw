@@ -1659,11 +1659,12 @@ namespace edm {
   }
 
   void
-  RootFile::markBranchToBeDropped(bool dropDescendants, BranchID const& branchID, std::set<BranchID>& branchesToDrop) const {
-   if(dropDescendants) {
-     branchChildren_->appendToDescendants(branchID, branchesToDrop);
+  RootFile::markBranchToBeDropped(bool dropDescendants, BranchDescription const& branch, std::set<BranchID>& branchesToDrop,
+                                  std::map<BranchID, BranchID> const& droppedToKeptAlias) const {
+    if(dropDescendants) {
+      branchChildren_->appendToDescendants(branch, branchesToDrop, droppedToKeptAlias);
     } else {
-      branchesToDrop.insert(branchID);
+      branchesToDrop.insert(branch.branchID());
     }
   }
 
@@ -1679,6 +1680,13 @@ namespace edm {
     ProductRegistry::ProductList& prodList = reg.productListUpdator();
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
     std::set<BranchID> branchesToDrop;
+    std::map<BranchID, BranchID> droppedToKeptAlias;
+    for(auto const& product : prodList) {
+      BranchDescription const& prod = product.second;
+      if (prod.branchID() != prod.originalBranchID() && prod.present()) {
+        droppedToKeptAlias[prod.originalBranchID()] = prod.branchID();
+      }
+    }
     for(auto const& product : prodList) {
       BranchDescription const& prod = product.second;
       // Special handling for ThinnedAssociations
@@ -1686,10 +1694,10 @@ namespace edm {
         if(inputType != InputType::SecondarySource) {
           associationDescriptions.push_back(&prod);
         } else {
-          markBranchToBeDropped(dropDescendants, prod.branchID(), branchesToDrop);
+          markBranchToBeDropped(dropDescendants, prod, branchesToDrop, droppedToKeptAlias);
         }
       } else if(!productSelector.selected(prod)) {
-        markBranchToBeDropped(dropDescendants, prod.branchID(), branchesToDrop);
+        markBranchToBeDropped(dropDescendants, prod, branchesToDrop, droppedToKeptAlias);
       }
     }
 
@@ -1720,7 +1728,7 @@ namespace edm {
 
       for(auto association : associationDescriptions) {
         if(!keepAssociation[association->branchID()]) {
-          markBranchToBeDropped(dropDescendants, association->branchID(), branchesToDrop);
+          markBranchToBeDropped(dropDescendants, *association, branchesToDrop, droppedToKeptAlias);
         }
       }
 
@@ -1741,7 +1749,7 @@ namespace edm {
     for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
-      if(drop) {
+      if(drop && !prod.dropped()) {
         if(productSelector.selected(prod) && prod.unwrappedType() != typeid(ThinnedAssociation)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"

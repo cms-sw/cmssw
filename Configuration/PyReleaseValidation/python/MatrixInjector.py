@@ -101,7 +101,6 @@ class MatrixInjector(object):
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
-            "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
             "DbsUrl": self.DbsUrl,
             #- Will contain all configs for all Tasks
@@ -502,14 +501,14 @@ class MatrixInjector(object):
                     #upload
                     couchID=self.uploadConf(d[it]['ConfigCacheID'],
                                             str(n)+d[it]['TaskName'],
-                                            d['CouchURL']
+                                            d['ConfigCacheURL']
                                             )
                     print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
                 if it =='DQMConfigCacheID':
                     couchID=self.uploadConf(d['DQMConfigCacheID'],
                                             str(n)+'harvesting',
-                                            d['CouchURL']
+                                            d['ConfigCacheURL']
                                             )
                     print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
                     d['DQMConfigCacheID']=couchID
