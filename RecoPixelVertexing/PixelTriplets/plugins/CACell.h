@@ -42,10 +42,10 @@ public:
   using CAStatusColl = std::vector<CACellStatus>;
   
   
-  CACell(const HitDoublets* doublets, int doubletId, const unsigned int cellId, const int innerHitId, const int outerHitId) :
+  CACell(const HitDoublets* doublets, int doubletId, const int innerHitId, const int outerHitId) :
     theDoublets(doublets), theDoubletId(doubletId)
-    ,theInnerR(doublets->rv(doubletId, HitDoublets::inner)) //, theOuterR(doublets->rv(doubletId, HitDoublets::outer))
-    ,theInnerZ(doublets->z(doubletId, HitDoublets::inner)) // , theOuterZ(doublets->z(doubletId, HitDoublets::outer)) 
+    ,theInnerR(doublets->rv(doubletId, HitDoublets::inner)) 
+    ,theInnerZ(doublets->z(doubletId, HitDoublets::inner))
   {}
 
    
@@ -76,23 +76,19 @@ public:
   }
   
   float getInnerZ() const {
-    //    return theDoublets->z(theDoubletId, HitDoublets::inner);
     return theInnerZ;
   }
   
   float getOuterZ() const {
     return theDoublets->z(theDoubletId, HitDoublets::outer);
-    // return theOuterZ;
   }
   
   float getInnerR() const {
-    //      return theDoublets->rv(theDoubletId, HitDoublets::inner);
     return theInnerR;
   }
   
   float getOuterR() const {
     return theDoublets->rv(theDoubletId, HitDoublets::outer);
-    // return theOuterR;
   }
   
   float getInnerPhi() const {
@@ -139,7 +135,8 @@ public:
 	r1[j] = oc.getInnerR();
 	z1[j] = oc.getInnerZ();
       }
-      for	(int j=0;j<vs; ++j) ok[j] = areAlignedRZ(r1[j], z1[j], ro, zo, ptmin, thetaCut);
+      // this vectorize!
+      for (int j=0;j<vs; ++j) ok[j] = areAlignedRZ(r1[j], z1[j], ro, zo, ptmin, thetaCut);
       for (int j=0;j<vs; ++j) {
 	auto koc = innerCells[i+j];
 	auto & oc =  allCells[koc]; 
@@ -149,7 +146,8 @@ public:
 	  else {
 	    oc.tagAsOuterNeighbor(cellId);
 	  }
-	} }
+	}
+      }
     };
     auto lim = VSIZE*(ncells/VSIZE);
     for (int i=0; i<lim; i+=VSIZE) loop(i, VSIZE); 
@@ -190,10 +188,6 @@ public:
     theOuterNeighbors.push_back(otherCell);
   }
   
-  void tagAsInnerNeighbor(unsigned int otherCell)
-  {
-    //  theInnerNeighbors.push_back(otherCell);
-  }
   
   bool haveSimilarCurvature(const CACell & otherCell, const float ptmin,
 			    const float region_origin_x, const float region_origin_y, const float region_origin_radius, const float phiCut, const float hardPtCut) const
@@ -211,6 +205,7 @@ public:
     
     float distance_13_squared = (x1 - x3)*(x1 - x3) + (y1 - y3)*(y1 - y3);
     float tan_12_13_half_mul_distance_13_squared = std::abs(y1 * (x2 - x3) + y2 * (x3 - x1) + y3 * (x1 - x2)) ;
+    // high pt : just straight
     if(tan_12_13_half_mul_distance_13_squared * ptmin <= 1.0e-4f*distance_13_squared)
       {
 	
@@ -221,17 +216,13 @@ public:
 	
 	float distance_13_beamspot_squared  = distance_3_beamspot_squared -  proj_bs3_on_13_squared;
 	
-	if(distance_13_beamspot_squared > (region_origin_radius+phiCut)*(region_origin_radius+phiCut) )
-	  { 
-	    return false;
-	  }
-	return true;
+	return distance_13_beamspot_squared < (region_origin_radius+phiCut)*(region_origin_radius+phiCut);
       }
     
     //87 cm/GeV = 1/(3.8T * 0.3)
     
     //take less than radius given by the hardPtCut and reject everything below
-    float minRadius = hardPtCut*87.f;
+    float minRadius = hardPtCut*87.f;  // FIXME move out and use real MagField
     
     auto det = (x1 - x2) * (y2 - y3) - (x2 - x3) * (y1 - y2);
     
@@ -251,8 +242,8 @@ public:
     
     auto radius = std::sqrt((x2 - x_center)*(x2 - x_center) + (y2 - y_center)*(y2 - y_center));
     
-    if(radius < minRadius)
-      return false;
+    if(radius < minRadius)  return false;  // hard cut on pt
+    
     auto centers_distance_squared = (x_center - region_origin_x)*(x_center - region_origin_x) + (y_center - region_origin_y)*(y_center - region_origin_y);
     auto region_origin_radius_plus_tolerance = region_origin_radius + phiCut;
     auto minimumOfIntersectionRange = (radius - region_origin_radius_plus_tolerance)*(radius - region_origin_radius_plus_tolerance);
@@ -283,20 +274,12 @@ public:
       }
     else
       {
-	if(theOuterNeighbors.size() == 0)
-	  {
-	    return;
-	  }
-	else
-	  {
-	    unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
-	    for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
-	      tmpNtuplet.push_back((theOuterNeighbors[i]));
-	      allCells[theOuterNeighbors[i]].findNtuplets(allCells,foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
-	      tmpNtuplet.pop_back();
-	    }
-	  }
-	
+	unsigned int numberOfOuterNeighbors = theOuterNeighbors.size();
+	for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
+	  tmpNtuplet.push_back((theOuterNeighbors[i]));
+	  allCells[theOuterNeighbors[i]].findNtuplets(allCells,foundNtuplets, tmpNtuplet, minHitsPerNtuplet);
+	  tmpNtuplet.pop_back();
+	}
       }
     
   }
@@ -310,9 +293,7 @@ private:
   const int theDoubletId;
   
   const float theInnerR;
-  // const float theOuterR;
   const float theInnerZ;
-  // const float theOuterZ;
   
 };
 
