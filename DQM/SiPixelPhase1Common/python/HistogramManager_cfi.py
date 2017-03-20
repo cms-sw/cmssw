@@ -269,14 +269,6 @@ StandardSpecifications1D_Num = [
                              .reduce("MEAN")
                              .groupBy("PXBarrel/Shell/PXLayer/SignedLadder", "EXTEND_X")
                              .save(),
-    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
-                             .reduce("COUNT")
-                             .groupBy("PXBarrel/PXLayer")
-                             .save(),
-    Specification().groupBy("PXForward/PXDisk/Event")
-                             .reduce("COUNT")
-                             .groupBy("PXForward/PXDisk/")
-                             .save()
 ]
 
 
