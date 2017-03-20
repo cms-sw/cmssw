@@ -936,7 +936,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     delete plotinfo.h2;
 
     if (vmean.size()) {
-      summaryfile << "#mu_{" << subdet << "}\t"
+      summaryfile << "   mu_" << subdet << "\t"
                   << "latexname=$\\mu_\\text{" << subdet << "}$\t"
                   << "format={:.3g} um\t"
                   << "latexformat=${:.3g} \\mu m$";
@@ -944,7 +944,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       summaryfile << "\n";
     }
     if (vrms.size()) {
-      summaryfile << "#sigma_{" << subdet << "}\t"
+      summaryfile << "sigma_" << subdet << "\t"
                   << "latexname=$\\sigma_\\text{" << subdet << "}$\t"
                   << "format={:.3g} um\t"
                   << "latexformat=${:.3g} \\mu m$";
@@ -952,7 +952,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       summaryfile << "\n";
     }
     if (vdeltamean.size()) {
-      summaryfile << "#Delta#mu_{" << subdet << "}\t"
+      summaryfile << "  dmu_" << subdet << "\t"
                   << "latexname=$\\Delta\\mu_\\text{" << subdet << "}$\t"
                   << "format={:.3g} um\t"
                   << "latexformat=${:.3g} \\mu m$";

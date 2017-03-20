@@ -586,20 +586,20 @@ class ValidationWithPlotsSummaryBase(ValidationWithPlots):
         if not summaryitems:
             raise AllInOneError("No summary items!")
         size = {len(_.values(latex)) for _ in summaryitems}
-        if size != 1:
+        if len(size) != 1:
             raise AllInOneError("Some summary items have different numbers of values\n{}".format(size))
         size = size.pop()
 
         if transpose:
-            columnwidths = max(len(entry) for entry in [_name(latex)] + _.values(latex))
-        else:
             columnwidths = ([max(len(_.name(latex)) for _ in summaryitems)]
                           + [max(len(_.value(i, latex)) for _ in summaryitems) for i in range(size)])
+        else:
+            columnwidths = [max(len(entry) for entry in [_.name(latex)] + _.values(latex)) for _ in summaryitems]
 
         row = " ".join("{{:{}}}".format(width) for width in columnwidths)
 
         if transpose:
-            rows = [row.format(*[_.name]+_.values) for _ in summaryitems]
+            rows = [row.format(*[_.name(latex)]+_.values(latex)) for _ in summaryitems]
         else:
             rows = []
             rows.append(row.format(*(_.name for _ in summaryitems)))
@@ -622,7 +622,7 @@ class ValidationWithPlotsSummary(ValidationWithPlotsSummaryBase):
         result = []
         with open(os.path.join(folder, "{}Summary.txt".format(cls.__name__))) as f:
             for line in f:
-                split = line.split("\t")
+                split = line.rstrip("\n").split("\t")
                 kwargs = {}
                 for thing in split[:]:
                     if thing.startswith("format="):
