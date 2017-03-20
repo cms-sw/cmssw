@@ -269,7 +269,11 @@ namespace edm {
                                  ModuleCallingContext const* mcc) const override {
       realProduct_->prefetchAsync( waitTask, *parentPrincipal_, skipCurrentProcess, sra, mcc);
     }
-    virtual bool unscheduledWasNotRun_() const override {return realProduct_->unscheduledWasNotRun();}
+    virtual bool unscheduledWasNotRun_() const override {
+      if (realProduct_) return realProduct_->unscheduledWasNotRun();
+      throwNullRealProduct();
+      return false;
+    }
     virtual bool productUnavailable_() const override {return realProduct_->productUnavailable();}
     virtual bool productResolved_() const override final { return realProduct_->productResolved(); }
     virtual bool productWasDeleted_() const override {return realProduct_->productWasDeleted();}
@@ -288,6 +292,7 @@ namespace edm {
     virtual ProductProvenance const* productProvenancePtr_() const override;
     virtual void resetProductData_(bool deleteEarly) override;
     virtual bool singleProduct_() const override;
+    void throwNullRealProduct() const;
 
     ProductResolverBase const* realProduct_;
     std::shared_ptr<BranchDescription const> bd_;

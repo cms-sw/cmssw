@@ -26,7 +26,8 @@ RECO, it needs both RECO and DIGI files as an input.
 For the ntuple content, take a look on the
 [TrackingNtuple](plugins/TrackingNtuple.cc) code itself, and an
 example PyROOT script for analysis,
-[`trackingNtupleExample.py`](test/trackingNtupleExample.py). The
+[`trackingNtupleExample.py`](test/trackingNtupleExample.py) (see also
+further below for more applications and example scripts). The
 script uses a simple support library
 [`ntuple.py`](python/plotting/ntuple.py), but its use is not
 mandatory, i.e. you can use the ntuple also "directly". The main
@@ -36,6 +37,7 @@ links between the objects:
 * track <-> seed
 * track <-> hit
 * seed <-> hit
+* seed <-> TrackingParticle
 * glued strip hits -> mono and stereo strip hits
 * vertex <-> track
 * hit <-> SimHit
@@ -62,6 +64,18 @@ more information see
 If the "playback mode" is not enabled, an exception will be thrown in
 the C++ code for a missing SimHit.
 
+### Applications
+
+Use `--help` to check out the parameters.
+
+* [`diffTrackingNtuple.py`](scripts/diffTrackingNtuple.py) Prints unified-style diff of tracks (all or individual) in all or individual events of two files. The files must have the same TrackingParticles and hits, tracks and track-TP matching can be different. The tracks between the files are primarily associated via the matched TrackingParticles, and secondarily via hits the track share. The final list of tracks is sorted in eta in ascending order.
+* [`printTrackingNtuple.py`](scripts/printTrackingNtuple.py) Prints information on individual tracks/seeds/hits/TrackingParticles in individual events
+
+### Example scripts
+
+* [`trackingNtupleExample.py`](test/trackingNtupleExample.py) examples of various links
+* [`analyseDuplicateFake.py`](test/analyseDuplicateFake.py) examples of printouts
+* [`fakeAnalysis/main.py`](test/fakeAnalysis/main.py) complete analysis code for fake tracks
 
 ### Caveats
 
