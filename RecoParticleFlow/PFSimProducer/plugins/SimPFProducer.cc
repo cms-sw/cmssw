@@ -30,7 +30,6 @@
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
 
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
@@ -82,7 +81,6 @@ private:
   // tracking particle associators by order of preference
   const std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> > associators_;
 
-  std::unique_ptr<PFMuonAlgo> pfmu_;
 };
 
 DEFINE_FWK_MODULE(SimPFProducer);
@@ -119,8 +117,6 @@ SimPFProducer::SimPFProducer(const edm::ParameterSet& conf) :
   produces<reco::PFBlockCollection>();
   produces<reco::SuperClusterCollection>("perfect");
   produces<reco::PFCandidateCollection>();
-  pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo());
-  pfmu_->setParameters(conf);
 }
 
 void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {  
@@ -150,7 +146,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
   edm::Handle<reco::MuonCollection> muons;
   evt.getByToken(muons_,muons);
   std::unordered_set<unsigned> MuonTrackToGeneralTrack;
-  for (auto mu : *muons.product()){
+  for (auto const& mu : *muons.product()){
     reco::TrackRef muTrkRef = mu.track();
     if (muTrkRef.isNonnull())
       MuonTrackToGeneralTrack.insert(muTrkRef.key());
