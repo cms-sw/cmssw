@@ -996,6 +996,7 @@ steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 steps['DIGICOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 steps['DIGICOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
+steps['DIGICOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2016','--customise_commands': '"process.mix.digitizers.strip.APVpeakmode=cms.bool(True)"','--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW', '--era' : 'Run2_2017'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['DIGIPU2']=merge([PU2,step2Defaults])
@@ -1294,6 +1295,7 @@ steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM',
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
+steps['RECOCOSPEAK_UP17']=merge([{'--conditions':'auto:phase1_2017_cosmics_peak','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics','--era':'Run2_2017'},step3Up2015Hal])
 
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},stCond,step3Defaults])
 steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},step3Up2015Defaults])
