@@ -66,6 +66,10 @@ namespace gbl {
 class GblPoint {
 public:
 	GblPoint(const Matrix5d &aJacobian);
+	GblPoint(const GblPoint&) = default;
+	GblPoint& operator=(const GblPoint&) = default;
+	GblPoint(GblPoint&&) = default;
+	GblPoint& operator=(GblPoint&&) = default;
 	virtual ~GblPoint();
 #ifdef GBL_EIGEN_SUPPORT_ROOT
 	// input via ROOT
